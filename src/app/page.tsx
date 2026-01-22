@@ -72,8 +72,41 @@ export default async function AdminDashboard() {
   // Residents waiting for placement
   const unplacedResidents = residents.filter(r => r.status === 'ACTIVE')
 
+  // Determine urgent actions
+  const criticalIncidents = incidents.filter(i => i.severity === 'CRITICAL' && !i.resolvedAt)
+  const hasUrgentActions = unplacedResidents.length > 0 || criticalIncidents.length > 0
+
   return (
     <div>
+      {/* Urgent Actions Banner */}
+      {hasUrgentActions && (
+        <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <h2 className="font-semibold text-orange-800 mb-2">Handlungsbedarf</h2>
+          <div className="flex flex-wrap gap-4">
+            {unplacedResidents.length > 0 && (
+              <Link
+                href="/matching"
+                className="flex items-center gap-2 text-sm text-orange-700 hover:text-orange-900"
+              >
+                <span className="w-2 h-2 bg-orange-500 rounded-full" />
+                {unplacedResidents.length} Bewohner warten auf Platzierung
+                <span className="text-orange-400">→</span>
+              </Link>
+            )}
+            {criticalIncidents.length > 0 && (
+              <Link
+                href="/incidents"
+                className="flex items-center gap-2 text-sm text-red-700 hover:text-red-900"
+              >
+                <span className="w-2 h-2 bg-red-500 rounded-full" />
+                {criticalIncidents.length} kritische Vorfälle offen
+                <span className="text-red-400">→</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>

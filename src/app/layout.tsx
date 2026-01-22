@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({
               <NavLink href="/housing" icon="building">Unterkünfte</NavLink>
               <NavLink href="/placements" icon="puzzle">Platzierungen</NavLink>
               <NavLink href="/matching" icon="heart">Matching</NavLink>
+              <NavLink href="/incidents" icon="alert">Vorfälle</NavLink>
               <NavLink href="/analytics" icon="chart">Auswertung</NavLink>
             </nav>
           </aside>
@@ -39,9 +41,9 @@ export default function RootLayout({
                   {/* Breadcrumb placeholder */}
                 </div>
                 <div className="flex items-center gap-4">
-                  <button className="btn-outline text-sm">
+                  <Link href="/portal/help" className="btn-outline text-sm">
                     Hilfe
-                  </button>
+                  </Link>
                 </div>
               </div>
             </header>
@@ -55,23 +57,23 @@ export default function RootLayout({
   )
 }
 
-function NavLink({ 
-  href, 
-  icon, 
-  children 
-}: { 
+function NavLink({
+  href,
+  icon,
+  children
+}: {
   href: string
   icon: string
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   return (
-    <a
+    <Link
       href={href}
       className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
     >
       <NavIcon name={icon} />
       <span>{children}</span>
-    </a>
+    </Link>
   )
 }
 
@@ -83,6 +85,7 @@ function NavIcon({ name }: { name: string }) {
     puzzle: 'M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z',
     heart: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
     chart: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+    alert: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
   }
   
   return (

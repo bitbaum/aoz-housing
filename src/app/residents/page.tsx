@@ -48,6 +48,23 @@ export default async function ResidentsListPage() {
         </Link>
       </div>
 
+      {/* Contextual Action Banner */}
+      {stats.unplaced > 0 && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+          <div>
+            <p className="font-medium text-blue-800">
+              {stats.unplaced} Bewohner warten auf Platzierung
+            </p>
+            <p className="text-sm text-blue-600">
+              Starten Sie den Matching-Prozess um passende Unterkünfte zu finden
+            </p>
+          </div>
+          <Link href="/matching" className="btn-primary">
+            Matching starten
+          </Link>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Gesamt" value={stats.total} />

@@ -52,6 +52,23 @@ export default async function IncidentsListPage() {
         </Link>
       </div>
 
+      {/* Critical Incidents Alert */}
+      {stats.critical > 0 && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🚨</span>
+            <div>
+              <p className="font-semibold text-red-800">
+                {stats.critical} kritische Vorfälle erfordern sofortige Aufmerksamkeit
+              </p>
+              <p className="text-sm text-red-600">
+                Diese Vorfälle haben höchste Priorität und sollten umgehend bearbeitet werden
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <StatCard label="Offen" value={stats.open} highlight={stats.open > 0} />
