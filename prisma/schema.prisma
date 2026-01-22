@@ -1,0 +1,376 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// RESIDENTS
+// =============================================================================
+
+model Resident {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Basic info (non-identifying)
+  code          String  @unique // Internal reference code, not name
+  ageRange      AgeRange
+  gender        Gender
+  familyStatus  FamilyStatus
+
+  // Lifestyle preferences
+  sleepSchedule     SleepSchedule
+  noiseTolerance    Int // 1-5 scale
+  cleanlinessLevel  Int // 1-5 scale
+  
+  // Social factors
+  socialStyle       SocialStyle
+  languages         String[] // ISO language codes
+  culturalRegion    String? // Broad region, not country
+  
+  // Practical needs
+  smokingStatus     SmokingStatus
+  dietaryNeeds      String[] // e.g., ["halal", "vegetarian"]
+  mobilityNeeds     MobilityNeed
+  medicalEquipment  Boolean @default(false) // Needs space for equipment
+  
+  // Preferences
+  petTolerance      Boolean @default(true)
+  sharedBathroom    Boolean @default(true)
+  sharedKitchen     Boolean @default(true)
+  privacyNeed       Int // 1-5 scale
+
+  // Status
+  status            ResidentStatus @default(ACTIVE)
+  notes             String? // Caseworker notes
+
+  // Relations
+  placements        Placement[]
+  assessments       CompatibilityAssessment[] @relation("ResidentAssessments")
+  comparedWith      CompatibilityAssessment[] @relation("ComparedResidentAssessments")
+  incidents         Incident[]
+
+  @@index([status])
+  @@index([ageRange, gender])
+}
+
+enum AgeRange {
+  YOUNG_ADULT    // 18-25
+  ADULT          // 26-40
+  MIDDLE_AGED    // 41-55
+  SENIOR         // 56+
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_SAY
+}
+
+enum FamilyStatus {
+  SINGLE
+  COUPLE
+  FAMILY_WITH_CHILDREN
+  SINGLE_PARENT
+}
+
+enum SleepSchedule {
+  EARLY_BIRD     // Sleep before 22:00, wake before 06:00
+  STANDARD       // Sleep 22:00-24:00, wake 06:00-08:00
+  NIGHT_OWL      // Sleep after 24:00, wake after 08:00
+  IRREGULAR      // Shift work or variable
+}
+
+enum SocialStyle {
+  INTROVERTED    // Prefers solitude, minimal interaction
+  MODERATE       // Balanced social needs
+  EXTROVERTED    // Enjoys frequent interaction
+}
+
+enum SmokingStatus {
+  NON_SMOKER
+  OUTDOOR_SMOKER // Smokes but only outside
+  INDOOR_SMOKER  // Needs to smoke indoors
+}
+
+enum MobilityNeed {
+  NONE
+  GROUND_FLOOR   // Cannot use stairs
+  WHEELCHAIR     // Full accessibility required
+}
+
+enum ResidentStatus {
+  ACTIVE         // Currently in system
+  PLACED         // Has housing assignment
+  TRANSFERRED    // Moved to different housing
+  EXITED         // Left the system
+}
+
+// =============================================================================
+// HOUSING
+// =============================================================================
+
+model HousingUnit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Identification
+  code          String @unique // Internal reference
+  address       String
+  
+  // Capacity
+  totalBeds     Int
+  totalRooms    Int
+  sharedRooms   Int // Rooms with multiple beds
+  privateRooms  Int // Single-occupancy rooms
+
+  // Facilities
+  sharedBathrooms   Int
+  privateBathrooms  Int
+  sharedKitchen     Boolean @default(true)
+  privateKitchen    Boolean @default(false)
+  
+  // Accessibility
+  groundFloor       Boolean @default(false)
+  wheelchairAccess  Boolean @default(false)
+  elevator          Boolean @default(false)
+
+  // Rules
+  smokingAllowed    Boolean @default(false)
+  petsAllowed       Boolean @default(false)
+  quietHours        String? // e.g., "22:00-07:00"
+
+  // Location factors
+  nearPublicTransport Boolean @default(true)
+  nearHealthServices  Boolean @default(false)
+  nearSchools         Boolean @default(false)
+
+  // Status
+  status            HousingStatus @default(AVAILABLE)
+  notes             String?
+
+  // Relations
+  placements        Placement[]
+  incidents         Incident[]
+
+  @@index([status])
+  @@index([totalBeds])
+}
+
+enum HousingStatus {
+  AVAILABLE      // Open for placements
+  FULL           // At capacity
+  MAINTENANCE    // Temporarily unavailable
+  CLOSED         // Permanently closed
+}
+
+// =============================================================================
+// PLACEMENTS
+// =============================================================================
+
+model Placement {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Assignment
+  resident      Resident     @relation(fields: [residentId], references: [id])
+  residentId    String
+  housingUnit   HousingUnit  @relation(fields: [housingUnitId], references: [id])
+  housingUnitId String
+
+  // Dates
+  startDate     DateTime
+  endDate       DateTime?
+
+  // Compatibility at placement time
+  compatibilityScore  Float? // 0-100 overall score
+  lifestyleScore      Float? // Dimension scores
+  socialScore         Float?
+  practicalScore      Float?
+  riskScore           Float?
+
+  // Outcome tracking
+  status              PlacementStatus @default(ACTIVE)
+  endReason           EndReason?
+  satisfactionRating  Int? // 1-5, self-reported
+
+  // Notes
+  placementNotes      String? // Why this placement was chosen
+  outcomeNotes        String? // How it went
+
+  // Relations
+  incidents           Incident[]
+
+  @@unique([residentId, housingUnitId, startDate])
+  @@index([status])
+  @@index([startDate, endDate])
+}
+
+enum PlacementStatus {
+  ACTIVE
+  ENDED
+  TRANSFERRED
+}
+
+enum EndReason {
+  NATURAL          // Normal exit from system
+  CONFLICT         // Due to roommate issues
+  REQUEST          // Resident requested move
+  CAPACITY         // Housing capacity change
+  UPGRADE          // Moved to better situation
+  OTHER
+}
+
+// =============================================================================
+// COMPATIBILITY
+// =============================================================================
+
+model CompatibilityAssessment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Compared residents
+  resident        Resident @relation("ResidentAssessments", fields: [residentId], references: [id])
+  residentId      String
+  comparedWith    Resident @relation("ComparedResidentAssessments", fields: [comparedWithId], references: [id])
+  comparedWithId  String
+
+  // Scores (0-100)
+  overallScore    Float
+  lifestyleScore  Float
+  socialScore     Float
+  practicalScore  Float
+  riskScore       Float // Lower is better (inverse of compatibility)
+
+  // Details
+  strengths       String[] // What makes them compatible
+  concerns        String[] // Potential issues
+  recommendations String[] // Mitigations if placed together
+
+  @@unique([residentId, comparedWithId])
+  @@index([overallScore])
+}
+
+// =============================================================================
+// INCIDENTS
+// =============================================================================
+
+model Incident {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Location
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnitId String
+  placement     Placement?  @relation(fields: [placementId], references: [id])
+  placementId   String?
+
+  // Involved
+  resident      Resident?   @relation(fields: [residentId], references: [id])
+  residentId    String?
+
+  // Details
+  date          DateTime
+  category      IncidentCategory @default(INTERPERSONAL)
+  type          IncidentType
+  severity      IncidentSeverity
+  description   String
+  resolution    String?
+  resolvedAt    DateTime?
+  
+  // For algorithm improvement
+  predictable       Boolean? // Could this have been predicted?
+  compatibilityGap  String? // Which compatibility dimension failed?
+
+  @@index([type, severity])
+  @@index([date])
+}
+
+enum IncidentType {
+  // Interpersonal
+  NOISE_COMPLAINT
+  CLEANLINESS_DISPUTE
+  PERSONAL_CONFLICT
+  CULTURAL_FRICTION
+  SPACE_DISPUTE
+  SCHEDULE_CONFLICT
+  SAFETY_CONCERN
+
+  // Maintenance/Facility
+  PLUMBING
+  ELECTRICAL
+  HEATING_COOLING
+  APPLIANCE
+  STRUCTURAL
+  PEST_CONTROL
+  SECURITY_SYSTEM
+  GENERAL_MAINTENANCE
+
+  OTHER
+}
+
+enum IncidentCategory {
+  INTERPERSONAL  // Conflicts between residents
+  MAINTENANCE    // Facility/equipment issues
+  SAFETY         // Safety-related (could be either)
+}
+
+enum IncidentSeverity {
+  LOW        // Minor, resolved quickly
+  MEDIUM     // Required intervention
+  HIGH       // Serious, may require transfer
+  CRITICAL   // Immediate action needed
+}
+
+// =============================================================================
+// SYSTEM
+// =============================================================================
+
+model AlgorithmWeight {
+  id        String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+
+  // Dimension weights (should sum to 100)
+  lifestyleWeight  Float @default(30)
+  socialWeight     Float @default(25)
+  practicalWeight  Float @default(25)
+  riskWeight       Float @default(20)
+
+  // Individual factor weights within dimensions
+  factorWeights    Json // Detailed weights per factor
+
+  // Versioning
+  version          Int @default(1)
+  active           Boolean @default(true)
+  notes            String?
+
+  @@index([active])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // What happened
+  action    String
+  entity    String
+  entityId  String
+  
+  // Who did it
+  userId    String?
+  
+  // Details
+  changes   Json?
+  reason    String?
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
