@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
@@ -13,6 +14,22 @@ import {
 } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
+
+async function resolveIncident(formData: FormData) {
+  'use server'
+
+  const incidentId = formData.get('incidentId') as string
+
+  await prisma.incident.update({
+    where: { id: incidentId },
+    data: {
+      resolvedAt: new Date(),
+      resolution: 'Gelöst durch Administrator',
+    },
+  })
+
+  revalidatePath('/incidents')
+}
 
 export default async function IncidentsListPage() {
   const incidents = await prisma.incident.findMany({
@@ -246,7 +263,8 @@ function ResolveButton({ incident }: { incident: any }) {
   if (incident.resolvedAt) return null
 
   return (
-    <form action={`/api/incidents/${incident.id}/resolve`} method="POST">
+    <form action={resolveIncident}>
+      <input type="hidden" name="incidentId" value={incident.id} />
       <button type="submit" className="btn-outline text-sm">
         Lösen
       </button>
