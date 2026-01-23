@@ -5,6 +5,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import { calculateScore } from './scoring-helper'
 
 const prisma = new PrismaClient()
 
@@ -516,6 +517,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 3,
+        choresContribution: 4,
+        recyclingKnowledge: 'BASIC',
+        roomSharingStatus: 'CAN_SHARE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'PLACED',
         notes: 'Studiert Informatik an der ETH',
       },
@@ -540,6 +548,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 2,
+        choresContribution: 3,
+        recyclingKnowledge: 'BASIC',
+        roomSharingStatus: 'CAN_SHARE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'PLACED',
         notes: 'Arbeitet als Koch, Spätschicht',
       },
@@ -564,6 +579,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 5,
+        choresContribution: 5,
+        recyclingKnowledge: 'GOOD',
+        roomSharingStatus: 'NEEDS_PRIVATE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: true,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'PLACED',
         notes: 'Ärztin, wartet auf Anerkennung',
         // Medical docs for private room eligibility
@@ -593,6 +615,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 3,
+        choresContribution: 4,
+        recyclingKnowledge: 'BASIC',
+        roomSharingStatus: 'CAN_SHARE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'PLACED',
         notes: 'Gelernter Elektriker',
       },
@@ -617,6 +646,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 2,
+        choresContribution: 3,
+        recyclingKnowledge: 'NONE',
+        roomSharingStatus: 'PREFERS_PRIVATE',
+        hasNightDisturbances: true,
+        needsQuietEnvironment: true,
+        hasSleepEquipment: false,
+        supportLevel: 'ELEVATED',
         status: 'PLACED',
         notes: 'Macht Deutschkurs B1',
         // Medical docs for private room eligibility (in ZH-003)
@@ -646,6 +682,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 5,
+        choresContribution: 2,
+        recyclingKnowledge: 'GOOD',
+        roomSharingStatus: 'PREFERS_PRIVATE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: true,
+        hasSleepEquipment: true,
+        supportLevel: 'ELEVATED',
         status: 'PLACED',
         notes: 'Pensioniert, braucht CPAP-Gerät nachts',
       },
@@ -670,6 +713,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 4,
+        choresContribution: 5,
+        recyclingKnowledge: 'GOOD',
+        roomSharingStatus: 'NEEDS_PRIVATE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'PLACED',
         notes: 'Arbeitet Teilzeit im Reinigungsbereich',
         // Medical docs for private room eligibility (in ZH-003)
@@ -700,6 +750,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 1,
+        choresContribution: 2,
+        recyclingKnowledge: 'NONE',
+        roomSharingStatus: 'CAN_SHARE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'ACTIVE',
         notes: 'Neu angekommen, braucht Raucherunterkunft',
       },
@@ -724,6 +781,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 5,
+        choresContribution: 5,
+        recyclingKnowledge: 'GOOD',
+        roomSharingStatus: 'PREFERS_PRIVATE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: true,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'ACTIVE',
         notes: 'IT-Fachfrau, sucht ruhige Unterkunft',
       },
@@ -748,6 +812,13 @@ async function main() {
         sharedBathroom: true,
         sharedKitchen: true,
         privacyNeed: 3,
+        choresContribution: 3,
+        recyclingKnowledge: 'BASIC',
+        roomSharingStatus: 'CAN_SHARE',
+        hasNightDisturbances: false,
+        needsQuietEnvironment: false,
+        hasSleepEquipment: false,
+        supportLevel: 'STANDARD',
         status: 'ACTIVE',
         notes: 'Taxifahrer, unregelmässige Arbeitszeiten',
       },
@@ -756,8 +827,26 @@ async function main() {
 
   console.log(`✅ Created ${residents.length} residents`)
 
-  // Create placements with spot references
+  // Create placements with CALCULATED compatibility scores
   const now = new Date()
+
+  // Calculate real compatibility scores between roommates
+  // ZH-001: RES-001 (index 0) and RES-002 (index 1)
+  const score_0_1 = calculateScore(residents[0], residents[1])
+  console.log(`  📊 RES-001 + RES-002 compatibility: ${score_0_1.compatibilityScore}%`)
+
+  // ZH-002: RES-003 (index 2) with RES-004 (index 3) and RES-006 (index 5)
+  const score_2_3 = calculateScore(residents[2], residents[3])
+  const score_2_5 = calculateScore(residents[2], residents[5])
+  const score_3_5 = calculateScore(residents[3], residents[5])
+  console.log(`  📊 RES-003 + RES-004 compatibility: ${score_2_3.compatibilityScore}%`)
+  console.log(`  📊 RES-003 + RES-006 compatibility: ${score_2_5.compatibilityScore}%`)
+  console.log(`  📊 RES-004 + RES-006 compatibility: ${score_3_5.compatibilityScore}%`)
+
+  // ZH-003: RES-005 (index 4) and RES-007 (index 6)
+  const score_4_6 = calculateScore(residents[4], residents[6])
+  console.log(`  📊 RES-005 + RES-007 compatibility: ${score_4_6.compatibilityScore}%`)
+
   const placements = await Promise.all([
     // ZH-001: RES-001 and RES-002 (some tension - different schedules)
     // Placed in same room (R1) - beds B1 and B2
@@ -767,13 +856,15 @@ async function main() {
         housingUnitId: units[0].id,
         spotId: allSpots.zh001.beds[0].id, // R1-B1
         startDate: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000), // 60 days ago
-        compatibilityScore: 72,
-        lifestyleScore: 65,
-        socialScore: 78,
-        practicalScore: 82,
-        riskScore: 25,
+        compatibilityScore: score_0_1.compatibilityScore,
+        lifestyleScore: score_0_1.lifestyleScore,
+        socialScore: score_0_1.socialScore,
+        practicalScore: score_0_1.practicalScore,
+        riskScore: score_0_1.riskScore,
         status: 'ACTIVE',
-        placementNotes: 'Beide arabischsprachig, unterschiedliche Schlafzeiten',
+        placementNotes: score_0_1.concerns.length > 0
+          ? score_0_1.concerns.join('. ')
+          : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -782,13 +873,15 @@ async function main() {
         housingUnitId: units[0].id,
         spotId: allSpots.zh001.beds[1].id, // R1-B2
         startDate: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000), // 45 days ago
-        compatibilityScore: 72,
-        lifestyleScore: 65,
-        socialScore: 78,
-        practicalScore: 82,
-        riskScore: 25,
+        compatibilityScore: score_0_1.compatibilityScore,
+        lifestyleScore: score_0_1.lifestyleScore,
+        socialScore: score_0_1.socialScore,
+        practicalScore: score_0_1.practicalScore,
+        riskScore: score_0_1.riskScore,
         status: 'ACTIVE',
-        placementNotes: 'Beide arabischsprachig, unterschiedliche Schlafzeiten',
+        placementNotes: score_0_1.concerns.length > 0
+          ? score_0_1.concerns.join('. ')
+          : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     // ZH-002: RES-003 in private room (has medical docs), RES-004, RES-006 in shared rooms
@@ -798,11 +891,12 @@ async function main() {
         housingUnitId: units[1].id,
         spotId: allSpots.zh002.privateRoom.id, // Private room (medical)
         startDate: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000),
-        compatibilityScore: 68,
-        lifestyleScore: 72,
-        socialScore: 60,
-        practicalScore: 75,
-        riskScore: 30,
+        // For private room, average score with other unit residents
+        compatibilityScore: Math.round((score_2_3.compatibilityScore + score_2_5.compatibilityScore) / 2),
+        lifestyleScore: Math.round((score_2_3.lifestyleScore + score_2_5.lifestyleScore) / 2),
+        socialScore: Math.round((score_2_3.socialScore + score_2_5.socialScore) / 2),
+        practicalScore: Math.round((score_2_3.practicalScore + score_2_5.practicalScore) / 2),
+        riskScore: Math.round((score_2_3.riskScore + score_2_5.riskScore) / 2),
         status: 'ACTIVE',
         placementNotes: 'Einzelzimmer wegen hohem Privatsphärebedürfnis (med. Dok.)',
       },
@@ -813,13 +907,15 @@ async function main() {
         housingUnitId: units[1].id,
         spotId: allSpots.zh002.beds[0].id, // R1-B1
         startDate: new Date(now.getTime() - 75 * 24 * 60 * 60 * 1000),
-        compatibilityScore: 75,
-        lifestyleScore: 78,
-        socialScore: 72,
-        practicalScore: 80,
-        riskScore: 20,
+        compatibilityScore: score_3_5.compatibilityScore,
+        lifestyleScore: score_3_5.lifestyleScore,
+        socialScore: score_3_5.socialScore,
+        practicalScore: score_3_5.practicalScore,
+        riskScore: score_3_5.riskScore,
         status: 'ACTIVE',
-        placementNotes: 'Gute Passung mit anderen Bewohnern',
+        placementNotes: score_3_5.strengths.length > 0
+          ? score_3_5.strengths.join('. ')
+          : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -828,29 +924,31 @@ async function main() {
         housingUnitId: units[1].id,
         spotId: allSpots.zh002.beds[1].id, // R1-B2 (same room as RES-004)
         startDate: new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000),
-        compatibilityScore: 62,
-        lifestyleScore: 55,
-        socialScore: 65,
-        practicalScore: 70,
-        riskScore: 35,
+        compatibilityScore: score_3_5.compatibilityScore,
+        lifestyleScore: score_3_5.lifestyleScore,
+        socialScore: score_3_5.socialScore,
+        practicalScore: score_3_5.practicalScore,
+        riskScore: score_3_5.riskScore,
         status: 'ACTIVE',
         placementNotes: 'Erdgeschoss wegen Mobilität, CPAP-Gerät',
       },
     }),
-    // ZH-003: RES-005, RES-007 (good compatibility) - private rooms
+    // ZH-003: RES-005, RES-007 (private rooms in same unit)
     prisma.placement.create({
       data: {
         residentId: residents[4].id,
         housingUnitId: units[2].id,
         spotId: allSpots.zh003.rooms[0].id, // Private room 1
         startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
-        compatibilityScore: 85,
-        lifestyleScore: 88,
-        socialScore: 80,
-        practicalScore: 90,
-        riskScore: 10,
+        compatibilityScore: score_4_6.compatibilityScore,
+        lifestyleScore: score_4_6.lifestyleScore,
+        socialScore: score_4_6.socialScore,
+        practicalScore: score_4_6.practicalScore,
+        riskScore: score_4_6.riskScore,
         status: 'ACTIVE',
-        placementNotes: 'Sehr gute Passung',
+        placementNotes: score_4_6.strengths.length > 0
+          ? score_4_6.strengths.join('. ')
+          : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -859,13 +957,15 @@ async function main() {
         housingUnitId: units[2].id,
         spotId: allSpots.zh003.rooms[1].id, // Private room 2
         startDate: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000),
-        compatibilityScore: 85,
-        lifestyleScore: 88,
-        socialScore: 80,
-        practicalScore: 90,
-        riskScore: 10,
+        compatibilityScore: score_4_6.compatibilityScore,
+        lifestyleScore: score_4_6.lifestyleScore,
+        socialScore: score_4_6.socialScore,
+        practicalScore: score_4_6.practicalScore,
+        riskScore: score_4_6.riskScore,
         status: 'ACTIVE',
-        placementNotes: 'Sehr gute Passung',
+        placementNotes: score_4_6.strengths.length > 0
+          ? score_4_6.strengths.join('. ')
+          : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
   ])
@@ -883,21 +983,21 @@ async function main() {
 
   console.log(`✅ Created ${placements.length} placements`)
 
-  // Create compatibility assessments between roommates
+  // Create compatibility assessments between roommates (using calculated scores)
   const assessments = await Promise.all([
     // ZH-001 roommates
     prisma.compatibilityAssessment.create({
       data: {
         residentId: residents[0].id,
         comparedWithId: residents[1].id,
-        overallScore: 72,
-        lifestyleScore: 65,
-        socialScore: 78,
-        practicalScore: 82,
-        riskScore: 25,
-        strengths: ['Gemeinsame Sprache (Arabisch)', 'Ähnliche Ernährung (Halal)'],
-        concerns: ['Unterschiedliche Schlafzeiten', 'Einer raucht (draussen)'],
-        recommendations: ['Klare Absprachen zu Ruhezeiten', 'Getrennte Zimmer wenn möglich'],
+        overallScore: score_0_1.compatibilityScore,
+        lifestyleScore: score_0_1.lifestyleScore,
+        socialScore: score_0_1.socialScore,
+        practicalScore: score_0_1.practicalScore,
+        riskScore: score_0_1.riskScore,
+        strengths: score_0_1.strengths,
+        concerns: score_0_1.concerns,
+        recommendations: score_0_1.recommendations,
       },
     }),
     // ZH-002 roommates
@@ -905,42 +1005,42 @@ async function main() {
       data: {
         residentId: residents[2].id,
         comparedWithId: residents[3].id,
-        overallScore: 68,
-        lifestyleScore: 72,
-        socialScore: 55,
-        practicalScore: 75,
-        riskScore: 30,
-        strengths: ['Beide nichtraucher', 'Ähnliche Sauberkeitsstandards'],
-        concerns: ['Keine gemeinsame Sprache', 'Unterschiedliche Sozialbedürfnisse'],
-        recommendations: ['Bildmaterial für Hausregeln', 'Respekt für Privatsphäre'],
+        overallScore: score_2_3.compatibilityScore,
+        lifestyleScore: score_2_3.lifestyleScore,
+        socialScore: score_2_3.socialScore,
+        practicalScore: score_2_3.practicalScore,
+        riskScore: score_2_3.riskScore,
+        strengths: score_2_3.strengths,
+        concerns: score_2_3.concerns,
+        recommendations: score_2_3.recommendations,
       },
     }),
     prisma.compatibilityAssessment.create({
       data: {
         residentId: residents[2].id,
         comparedWithId: residents[5].id,
-        overallScore: 70,
-        lifestyleScore: 65,
-        socialScore: 75,
-        practicalScore: 72,
-        riskScore: 28,
-        strengths: ['Beide frühaufsteher', 'Hohe Sauberkeitsstandards'],
-        concerns: ['Grosse Altersdifferenz', 'Medizinische Geräte'],
-        recommendations: ['Rücksicht auf CPAP-Gerät', 'Klare Badezimmerzeiten'],
+        overallScore: score_2_5.compatibilityScore,
+        lifestyleScore: score_2_5.lifestyleScore,
+        socialScore: score_2_5.socialScore,
+        practicalScore: score_2_5.practicalScore,
+        riskScore: score_2_5.riskScore,
+        strengths: score_2_5.strengths,
+        concerns: score_2_5.concerns,
+        recommendations: score_2_5.recommendations,
       },
     }),
     prisma.compatibilityAssessment.create({
       data: {
         residentId: residents[3].id,
         comparedWithId: residents[5].id,
-        overallScore: 65,
-        lifestyleScore: 60,
-        socialScore: 68,
-        practicalScore: 70,
-        riskScore: 32,
-        strengths: ['Beide ruhig', 'Respektvoller Umgang'],
-        concerns: ['Altersdifferenz', 'Unterschiedliche Tagesrhythmen'],
-        recommendations: ['Regelmässige Check-ins'],
+        overallScore: score_3_5.compatibilityScore,
+        lifestyleScore: score_3_5.lifestyleScore,
+        socialScore: score_3_5.socialScore,
+        practicalScore: score_3_5.practicalScore,
+        riskScore: score_3_5.riskScore,
+        strengths: score_3_5.strengths,
+        concerns: score_3_5.concerns,
+        recommendations: score_3_5.recommendations,
       },
     }),
     // ZH-003 roommates
@@ -948,14 +1048,14 @@ async function main() {
       data: {
         residentId: residents[4].id,
         comparedWithId: residents[6].id,
-        overallScore: 85,
-        lifestyleScore: 88,
-        socialScore: 80,
-        practicalScore: 90,
-        riskScore: 10,
-        strengths: ['Ähnliche Tagesrhythmen', 'Beide moderat sozial', 'Gemeinsame Sprache (Englisch)'],
-        concerns: [],
-        recommendations: ['Regelmässiger Austausch fördern'],
+        overallScore: score_4_6.compatibilityScore,
+        lifestyleScore: score_4_6.lifestyleScore,
+        socialScore: score_4_6.socialScore,
+        practicalScore: score_4_6.practicalScore,
+        riskScore: score_4_6.riskScore,
+        strengths: score_4_6.strengths,
+        concerns: score_4_6.concerns,
+        recommendations: score_4_6.recommendations,
       },
     }),
   ])

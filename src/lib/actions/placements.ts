@@ -9,6 +9,8 @@ import {
   TransferPlacementSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { calculateCompatibility } from '@/lib/compatibility'
+import { toResidentProfile } from '@/lib/compatibility/convert'
 
 export async function endPlacement(formData: FormData): Promise<void> {
   const { placementId, residentId, endReason, notes } = validateFormData(EndPlacementSchema, formData)
@@ -111,7 +113,36 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     })
   }
 
-  // 4. Create new placement at target
+  // 4. Calculate compatibility scores with existing residents at target
+  const resident = await prisma.resident.findUnique({ where: { id: residentId } })
+  if (!resident) throw new Error('Resident not found')
+
+  const targetResidents = await prisma.placement.findMany({
+    where: { housingUnitId: targetHousingUnitId, status: 'ACTIVE' },
+    include: { resident: true },
+  })
+
+  let compatibilityScore = 100
+  let lifestyleScore = 100
+  let socialScore = 100
+  let practicalScore = 100
+  let riskScore = 0
+
+  if (targetResidents.length > 0) {
+    const residentProfile = toResidentProfile(resident)
+    const scores = targetResidents.map((p) => {
+      const otherProfile = toResidentProfile(p.resident)
+      return calculateCompatibility(residentProfile, otherProfile)
+    })
+
+    compatibilityScore = Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length)
+    lifestyleScore = Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length)
+    socialScore = Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length)
+    practicalScore = Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length)
+    riskScore = Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length)
+  }
+
+  // 5. Create new placement at target with calculated scores
   await prisma.placement.create({
     data: {
       residentId,
@@ -119,23 +150,28 @@ export async function transferPlacement(formData: FormData): Promise<void> {
       spotId: targetSpotId,
       startDate: new Date(),
       status: 'ACTIVE',
+      compatibilityScore,
+      lifestyleScore,
+      socialScore,
+      practicalScore,
+      riskScore,
       placementNotes: `Verlegt von ${currentPlacement.housingUnitId}. ${notes || ''}`.trim(),
     },
   })
 
-  // 5. Mark new spot as occupied
+  // 6. Mark new spot as occupied
   await prisma.placementSpot.update({
     where: { id: targetSpotId },
     data: { status: 'OCCUPIED' },
   })
 
-  // 6. Update resident status
+  // 7. Update resident status
   await prisma.resident.update({
     where: { id: residentId },
     data: { status: 'PLACED' },
   })
 
-  // 7. Update housing unit statuses
+  // 8. Update housing unit statuses
   // Old unit: check if it was FULL and now has space
   const oldUnit = await prisma.housingUnit.findUnique({
     where: { id: currentPlacement.housingUnitId },
