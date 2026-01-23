@@ -16,8 +16,20 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-export default async function PlacementsListPage() {
+interface Props {
+  searchParams: Promise<{ status?: string }>
+}
+
+export default async function PlacementsListPage({ searchParams }: Props) {
+  const params = await searchParams
+  const statusFilter = params.status || 'active'
+
   const placements = await prisma.placement.findMany({
+    where: statusFilter === 'active'
+      ? { status: 'ACTIVE' }
+      : statusFilter === 'ended'
+      ? { status: { not: 'ACTIVE' } }
+      : undefined,
     include: {
       resident: true,
       housingUnit: true,
@@ -26,20 +38,25 @@ export default async function PlacementsListPage() {
     take: 200,
   })
 
-  const activePlacements = placements.filter((p) => p.status === 'ACTIVE')
-  const endedPlacements = placements.filter((p) => p.status !== 'ACTIVE')
+  // Get counts for all statuses (unfiltered)
+  const allPlacements = await prisma.placement.findMany({
+    select: { status: true, satisfactionRating: true, endReason: true },
+  })
+
+  const activePlacements = allPlacements.filter((p) => p.status === 'ACTIVE')
+  const endedPlacements = allPlacements.filter((p) => p.status !== 'ACTIVE')
 
   const stats = {
-    total: placements.length,
+    total: allPlacements.length,
     active: activePlacements.length,
     ended: endedPlacements.length,
     avgSatisfaction:
-      placements.filter((p) => p.satisfactionRating).length > 0
+      allPlacements.filter((p) => p.satisfactionRating).length > 0
         ? Math.round(
-            placements
+            allPlacements
               .filter((p) => p.satisfactionRating)
               .reduce((sum, p) => sum + (p.satisfactionRating || 0), 0) /
-              placements.filter((p) => p.satisfactionRating).length
+              allPlacements.filter((p) => p.satisfactionRating).length
           )
         : null,
     conflictEnds: endedPlacements.filter((p) => p.endReason === 'CONFLICT')
@@ -77,32 +94,44 @@ export default async function PlacementsListPage() {
       {/* Tabs */}
       <div className="mb-6">
         <div className="flex gap-2 border-b border-gray-200">
-          <TabButton label="Aktiv" count={activePlacements.length} active />
-          <TabButton label="Beendet" count={endedPlacements.length} />
+          <TabLink
+            href="/placements?status=active"
+            label="Aktiv"
+            count={stats.active}
+            active={statusFilter === 'active'}
+          />
+          <TabLink
+            href="/placements?status=ended"
+            label="Beendet"
+            count={stats.ended}
+            active={statusFilter === 'ended'}
+          />
+          <TabLink
+            href="/placements?status=all"
+            label="Alle"
+            count={stats.total}
+            active={statusFilter === 'all'}
+          />
         </div>
       </div>
 
       {/* Placements List */}
       {placements.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">Keine Platzierungen vorhanden</p>
+          <p className="text-gray-500 mb-4">
+            {statusFilter === 'active'
+              ? 'Keine aktiven Platzierungen'
+              : statusFilter === 'ended'
+              ? 'Keine beendeten Platzierungen'
+              : 'Keine Platzierungen vorhanden'}
+          </p>
           <Link href="/matching" className="btn-primary">
-            Erste Platzierung erstellen
+            Neue Platzierung erstellen
           </Link>
         </div>
       ) : (
         <div className="space-y-3">
-          {activePlacements.map((placement) => (
-            <PlacementRow key={placement.id} placement={placement} />
-          ))}
-          {endedPlacements.length > 0 && activePlacements.length > 0 && (
-            <div className="border-t border-gray-200 pt-4 mt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-3">
-                Beendete Platzierungen
-              </h3>
-            </div>
-          )}
-          {endedPlacements.map((placement) => (
+          {placements.map((placement) => (
             <PlacementRow key={placement.id} placement={placement} />
           ))}
         </div>
@@ -134,17 +163,20 @@ function StatCard({
   )
 }
 
-function TabButton({
+function TabLink({
+  href,
   label,
   count,
   active = false,
 }: {
+  href: string
   label: string
   count: number
   active?: boolean
 }) {
   return (
-    <button
+    <Link
+      href={href}
       className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
         active
           ? 'border-aoz-primary text-aoz-primary'
@@ -155,7 +187,7 @@ function TabButton({
       <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
         {count}
       </span>
-    </button>
+    </Link>
   )
 }
 

@@ -12,8 +12,13 @@ import {
   getSeverityDotClass,
   formatRelativeDate,
 } from '@/lib/utils'
+import type { IncidentCategory } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
+
+interface Props {
+  searchParams: Promise<{ category?: string }>
+}
 
 async function resolveIncident(formData: FormData) {
   'use server'
@@ -31,8 +36,12 @@ async function resolveIncident(formData: FormData) {
   revalidatePath('/incidents')
 }
 
-export default async function IncidentsListPage() {
+export default async function IncidentsListPage({ searchParams }: Props) {
+  const params = await searchParams
+  const categoryFilter = params.category || 'all'
+
   const incidents = await prisma.incident.findMany({
+    where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
     include: {
       housingUnit: true,
       resident: true,
@@ -41,24 +50,21 @@ export default async function IncidentsListPage() {
     take: 100,
   })
 
+  // Get counts for all categories (unfiltered)
+  const allIncidents = await prisma.incident.findMany({
+    select: { category: true, severity: true, resolvedAt: true },
+  })
+
   const stats = {
-    total: incidents.length,
-    open: incidents.filter((i) => !i.resolvedAt).length,
-    interpersonal: incidents.filter((i) => i.category === 'INTERPERSONAL').length,
-    maintenance: incidents.filter((i) => i.category === 'MAINTENANCE').length,
-    safety: incidents.filter((i) => i.category === 'SAFETY').length,
-    critical: incidents.filter(
+    total: allIncidents.length,
+    open: allIncidents.filter((i) => !i.resolvedAt).length,
+    interpersonal: allIncidents.filter((i) => i.category === 'INTERPERSONAL').length,
+    maintenance: allIncidents.filter((i) => i.category === 'MAINTENANCE').length,
+    safety: allIncidents.filter((i) => i.category === 'SAFETY').length,
+    critical: allIncidents.filter(
       (i) => i.severity === 'CRITICAL' && !i.resolvedAt
     ).length,
   }
-
-  const interpersonalIncidents = incidents.filter(
-    (i) => i.category === 'INTERPERSONAL'
-  )
-  const maintenanceIncidents = incidents.filter(
-    (i) => i.category === 'MAINTENANCE'
-  )
-  const safetyIncidents = incidents.filter((i) => i.category === 'SAFETY')
 
   return (
     <div>
@@ -101,22 +107,29 @@ export default async function IncidentsListPage() {
       {/* Category Tabs */}
       <div className="mb-6">
         <div className="flex gap-2 border-b border-gray-200">
-          <TabSection
+          <TabLink
+            href="/incidents"
             label="Alle"
-            count={incidents.length}
-            active
+            count={stats.total}
+            active={categoryFilter === 'all'}
           />
-          <TabSection
+          <TabLink
+            href="/incidents?category=INTERPERSONAL"
             label="Konflikte"
-            count={interpersonalIncidents.length}
+            count={stats.interpersonal}
+            active={categoryFilter === 'INTERPERSONAL'}
           />
-          <TabSection
+          <TabLink
+            href="/incidents?category=MAINTENANCE"
             label="Wartung"
-            count={maintenanceIncidents.length}
+            count={stats.maintenance}
+            active={categoryFilter === 'MAINTENANCE'}
           />
-          <TabSection
+          <TabLink
+            href="/incidents?category=SAFETY"
             label="Sicherheit"
-            count={safetyIncidents.length}
+            count={stats.safety}
+            active={categoryFilter === 'SAFETY'}
           />
         </div>
       </div>
@@ -124,9 +137,13 @@ export default async function IncidentsListPage() {
       {/* Incidents List */}
       {incidents.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">Keine Vorfälle dokumentiert</p>
+          <p className="text-gray-500 mb-4">
+            {categoryFilter === 'all'
+              ? 'Keine Vorfälle dokumentiert'
+              : `Keine ${getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter)} Vorfälle`}
+          </p>
           <Link href="/incidents/new" className="btn-primary">
-            Ersten Vorfall erfassen
+            Vorfall erfassen
           </Link>
         </div>
       ) : (
@@ -163,17 +180,20 @@ function StatCard({
   )
 }
 
-function TabSection({
+function TabLink({
+  href,
   label,
   count,
   active = false,
 }: {
+  href: string
   label: string
   count: number
   active?: boolean
 }) {
   return (
-    <button
+    <Link
+      href={href}
       className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
         active
           ? 'border-aoz-primary text-aoz-primary'
@@ -184,7 +204,7 @@ function TabSection({
       <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
         {count}
       </span>
-    </button>
+    </Link>
   )
 }
 
