@@ -121,25 +121,46 @@ export function getHarmonyColorClass(status: HarmonyStatus): string {
 }
 
 // =============================================================================
-// SEVERITY COLORS
+// SEVERITY COLORS (using Tailwind severity-* classes from config)
 // =============================================================================
 
 export function getSeverityBorderClass(severity: string): string {
   const classes: Record<string, string> = {
-    LOW: 'border-l-gray-300',
-    MEDIUM: 'border-l-yellow-400',
-    HIGH: 'border-l-orange-500',
-    CRITICAL: 'border-l-red-500',
+    LOW: 'border-l-severity-low',
+    MEDIUM: 'border-l-severity-medium',
+    HIGH: 'border-l-severity-high',
+    CRITICAL: 'border-l-severity-critical',
   }
   return classes[severity] || classes.LOW
 }
 
 export function getSeverityDotClass(severity: string): string {
   const classes: Record<string, string> = {
-    LOW: 'bg-gray-400',
-    MEDIUM: 'bg-yellow-500',
-    HIGH: 'bg-orange-500',
-    CRITICAL: 'bg-red-500',
+    LOW: 'bg-severity-low',
+    MEDIUM: 'bg-severity-medium',
+    HIGH: 'bg-severity-high',
+    CRITICAL: 'bg-severity-critical',
+  }
+  return classes[severity] || classes.LOW
+}
+
+export function getSeverityBgClass(severity: string): string {
+  const classes: Record<string, string> = {
+    LOW: 'bg-gray-100 text-gray-800',
+    MEDIUM: 'bg-amber-100 text-amber-800',
+    HIGH: 'bg-orange-100 text-orange-800',
+    CRITICAL: 'bg-red-100 text-red-800',
+  }
+  return classes[severity] || classes.LOW
+}
+
+// Severity radio button styles (for forms)
+export function getSeverityRadioClass(severity: string): string {
+  const classes: Record<string, string> = {
+    LOW: 'peer-checked:border-gray-500 peer-checked:bg-gray-50',
+    MEDIUM: 'peer-checked:border-yellow-500 peer-checked:bg-yellow-50',
+    HIGH: 'peer-checked:border-orange-500 peer-checked:bg-orange-50',
+    CRITICAL: 'peer-checked:border-red-500 peer-checked:bg-red-50',
   }
   return classes[severity] || classes.LOW
 }
@@ -172,4 +193,53 @@ export function getStatusBadgeClass(status: string): string {
     ALERT: 'badge-alert',
   }
   return classes[status] || 'badge-ended'
+}
+
+// =============================================================================
+// HEALTH INDICATOR (System Health Dashboard)
+// =============================================================================
+
+export type HealthLevel = 'excellent' | 'good' | 'moderate' | 'critical'
+
+export function getHealthLevel(score: number): HealthLevel {
+  if (score >= 80) return 'excellent'
+  if (score >= 60) return 'good'
+  if (score >= 40) return 'moderate'
+  return 'critical'
+}
+
+export function getHealthColorClass(score: number): string {
+  const classes: Record<HealthLevel, string> = {
+    excellent: 'text-green-600 bg-green-100',
+    good: 'text-yellow-600 bg-yellow-100',
+    moderate: 'text-orange-600 bg-orange-100',
+    critical: 'text-red-600 bg-red-100',
+  }
+  return classes[getHealthLevel(score)]
+}
+
+// =============================================================================
+// TREND COLORS (Metric Cards)
+// =============================================================================
+
+export type TrendType = 'good' | 'warning' | 'neutral'
+
+export function getTrendColorClass(trend: TrendType): string {
+  const classes: Record<TrendType, string> = {
+    good: 'text-green-600',
+    warning: 'text-orange-600',
+    neutral: 'text-gray-500',
+  }
+  return classes[trend]
+}
+
+// =============================================================================
+// CONFLICT INDICATOR COLORS
+// =============================================================================
+
+export function getConflictIndicatorClass(conflictCount: number): string {
+  if (conflictCount >= 3) return 'bg-red-500'
+  if (conflictCount >= 2) return 'bg-orange-500'
+  if (conflictCount >= 1) return 'bg-yellow-500'
+  return 'bg-green-500'
 }

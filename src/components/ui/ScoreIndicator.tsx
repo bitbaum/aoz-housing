@@ -7,9 +7,11 @@ import {
   getScoreColorClass,
   getScoreBgClass,
   getHarmonyColorClass,
+  getHealthColorClass,
+  getHealthLevel,
   type HarmonyStatus,
 } from '@/lib/utils/formatting'
-import { HARMONY_STATUS_LABELS } from '@/lib/constants/labels'
+import { HARMONY_STATUS_LABELS, HEALTH_STATUS_LABELS } from '@/lib/constants/labels'
 
 interface ScoreDisplayProps {
   score: number
@@ -60,25 +62,28 @@ interface HealthIndicatorProps {
   label: string
   score: number
   description?: string
+  tooltip?: string
 }
 
-export function HealthIndicator({ label, score, description }: HealthIndicatorProps) {
-  const getColor = (s: number) => {
-    if (s >= 80) return 'text-green-600 bg-green-100'
-    if (s >= 60) return 'text-yellow-600 bg-yellow-100'
-    if (s >= 40) return 'text-orange-600 bg-orange-100'
-    return 'text-red-600 bg-red-100'
-  }
+export function HealthIndicator({ label, score, description, tooltip }: HealthIndicatorProps) {
+  const colorClass = getHealthColorClass(score)
+  const statusLabel = HEALTH_STATUS_LABELS[getHealthLevel(score)]
 
   return (
-    <div className="text-center">
-      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${getColor(score)} mb-2`}>
+    <div className="text-center group relative">
+      <div
+        className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${colorClass} mb-2 cursor-help`}
+        title={tooltip}
+      >
         <span className="text-xl font-bold">{score}</span>
       </div>
       <p className="font-medium text-gray-900">{label}</p>
       {description && (
         <p className="text-xs text-gray-500">{description}</p>
       )}
+      <p className={`text-xs mt-1 ${colorClass.split(' ')[0]}`}>
+        {statusLabel}
+      </p>
     </div>
   )
 }

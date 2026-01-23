@@ -6,6 +6,19 @@
  */
 
 // =============================================================================
+// APP LABELS (Branding & Metadata)
+// =============================================================================
+
+export const APP_LABELS = {
+  name: 'AOZ Wohnen',
+  tagline: 'Platzierungssystem',
+  fullTitle: 'AOZ Wohnen - Platzierungssystem',
+  metaTitle: 'AOZ Wohnen - Intelligentes Platzierungssystem',
+  metaDescription:
+    'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+} as const
+
+// =============================================================================
 // INCIDENT LABELS
 // =============================================================================
 
@@ -36,11 +49,60 @@ export const INCIDENT_CATEGORY_LABELS: Record<string, string> = {
   SAFETY: 'Sicherheit',
 }
 
+export const INCIDENT_CATEGORY_ICONS: Record<string, string> = {
+  INTERPERSONAL: '💬',
+  MAINTENANCE: '🔧',
+  SAFETY: '⚠️',
+}
+
+// Incident types by category (for form grouping)
+export const INCIDENT_TYPES_BY_CATEGORY: Record<string, string[]> = {
+  INTERPERSONAL: [
+    'NOISE_COMPLAINT',
+    'CLEANLINESS_DISPUTE',
+    'PERSONAL_CONFLICT',
+    'CULTURAL_FRICTION',
+    'SPACE_DISPUTE',
+    'SCHEDULE_CONFLICT',
+    'SAFETY_CONCERN',
+  ],
+  MAINTENANCE: [
+    'PLUMBING',
+    'ELECTRICAL',
+    'HEATING_COOLING',
+    'APPLIANCE',
+    'STRUCTURAL',
+    'PEST_CONTROL',
+    'SECURITY_SYSTEM',
+    'GENERAL_MAINTENANCE',
+  ],
+}
+
 export const INCIDENT_SEVERITY_LABELS: Record<string, string> = {
   LOW: 'Niedrig',
   MEDIUM: 'Mittel',
   HIGH: 'Hoch',
   CRITICAL: 'Kritisch',
+}
+
+export const INVOLVEMENT_ROLE_LABELS: Record<string, string> = {
+  INVOLVED: 'Beteiligt',
+  WITNESS: 'Zeuge',
+  MEDIATOR: 'Vermittler',
+}
+
+export const FOLLOW_UP_PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Niedrig (innerhalb einer Woche)',
+  NORMAL: 'Normal (2-3 Tage)',
+  HIGH: 'Hoch (innerhalb 24 Std)',
+  URGENT: 'Dringend (heute)',
+}
+
+export const FOLLOW_UP_PRIORITY_COLORS: Record<string, string> = {
+  LOW: 'bg-gray-100 text-gray-700',
+  NORMAL: 'bg-blue-100 text-blue-700',
+  HIGH: 'bg-orange-100 text-orange-700',
+  URGENT: 'bg-red-100 text-red-700',
 }
 
 // =============================================================================
@@ -130,6 +192,12 @@ export const SUPPORT_LEVEL_LABELS: Record<string, string> = {
   INTENSIVE: 'Intensiv',
 }
 
+export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> = {
+  NONE: 'Keine Kenntnisse',
+  BASIC: 'Grundkenntnisse',
+  GOOD: 'Gute Kenntnisse',
+}
+
 export const CHECK_IN_TYPE_LABELS: Record<string, string> = {
   INITIAL: 'Erstgespräch',
   REGULAR: 'Regelmässig',
@@ -148,6 +216,15 @@ export const HOUSING_STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Geschlossen',
 }
 
+// Re-export spot labels from config (SSOT)
+export {
+  SPOT_TYPE_LABELS,
+  SPOT_TYPE_LABELS_SHORT,
+  SPOT_TYPE_ICONS,
+  SPOT_STATUS_LABELS,
+  MEDICAL_DOC_TYPE_LABELS,
+} from '@/lib/config/placement-spots'
+
 export const PLACEMENT_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Aktiv',
   ENDED: 'Beendet',
@@ -161,6 +238,68 @@ export const END_REASON_LABELS: Record<string, string> = {
   CAPACITY: 'Kapazität',
   UPGRADE: 'Verbesserung',
   OTHER: 'Sonstiges',
+}
+
+// =============================================================================
+// MAINTENANCE REQUEST LABELS
+// =============================================================================
+
+export const MAINTENANCE_CATEGORY_LABELS: Record<string, string> = {
+  PLUMBING: 'Sanitär',
+  ELECTRICAL: 'Elektrik',
+  HEATING_COOLING: 'Heizung/Klima',
+  APPLIANCE: 'Geräte',
+  STRUCTURAL: 'Baulich',
+  PEST_CONTROL: 'Schädlinge',
+  SECURITY: 'Sicherheit',
+  CLEANING: 'Reinigung',
+  EXTERIOR: 'Aussenbereich',
+  OTHER: 'Sonstiges',
+}
+
+export const MAINTENANCE_CATEGORY_ICONS: Record<string, string> = {
+  PLUMBING: '🚰',
+  ELECTRICAL: '⚡',
+  HEATING_COOLING: '🌡️',
+  APPLIANCE: '🔌',
+  STRUCTURAL: '🏗️',
+  PEST_CONTROL: '🐛',
+  SECURITY: '🔐',
+  CLEANING: '🧹',
+  EXTERIOR: '🌳',
+  OTHER: '🔧',
+}
+
+export const MAINTENANCE_PRIORITY_LABELS: Record<string, string> = {
+  LOW: 'Niedrig',
+  NORMAL: 'Normal',
+  HIGH: 'Hoch',
+  URGENT: 'Dringend',
+}
+
+export const MAINTENANCE_PRIORITY_COLORS: Record<string, string> = {
+  LOW: 'bg-gray-100 text-gray-700',
+  NORMAL: 'bg-blue-100 text-blue-700',
+  HIGH: 'bg-orange-100 text-orange-700',
+  URGENT: 'bg-red-100 text-red-700',
+}
+
+export const MAINTENANCE_STATUS_LABELS: Record<string, string> = {
+  OPEN: 'Offen',
+  ASSIGNED: 'Zugewiesen',
+  IN_PROGRESS: 'In Bearbeitung',
+  ON_HOLD: 'Wartend',
+  COMPLETED: 'Abgeschlossen',
+  CANCELLED: 'Abgebrochen',
+}
+
+export const MAINTENANCE_STATUS_COLORS: Record<string, string> = {
+  OPEN: 'badge-pending',
+  ASSIGNED: 'bg-blue-100 text-blue-700',
+  IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
+  ON_HOLD: 'bg-gray-100 text-gray-700',
+  COMPLETED: 'badge-active',
+  CANCELLED: 'bg-gray-200 text-gray-500',
 }
 
 // =============================================================================
@@ -181,6 +320,21 @@ export const COMPATIBILITY_SCORE_LABELS: Record<string, string> = {
   moderate: 'Mittel',
   low: 'Niedrig',
   critical: 'Kritisch',
+}
+
+// Health indicator labels (for system health dashboard)
+export const HEALTH_STATUS_LABELS: Record<string, string> = {
+  excellent: 'Gut',
+  good: 'OK',
+  moderate: 'Aufmerksamkeit',
+  critical: 'Kritisch',
+}
+
+// Trend indicator labels (for metric cards)
+export const TREND_LABELS: Record<string, string> = {
+  good: 'Positiv',
+  warning: 'Warnung',
+  neutral: 'Neutral',
 }
 
 // =============================================================================
@@ -243,6 +397,22 @@ export const PAGE_TITLES: Record<string, string> = {
   analytics: 'Auswertung',
   settings: 'Einstellungen',
 }
+
+// =============================================================================
+// PORTAL LABELS (Resident-facing)
+// =============================================================================
+
+export const PORTAL_LABELS = {
+  title: 'Mein Zuhause',
+  nav: {
+    overview: 'Übersicht',
+    roommates: 'Mitbewohner',
+    report: 'Melden',
+    preferences: 'Einstellungen',
+    help: 'Hilfe',
+  },
+  emergency: 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
+} as const
 
 // =============================================================================
 // FORM LABELS

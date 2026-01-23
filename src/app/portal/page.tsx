@@ -2,6 +2,14 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import {
+  SOCIAL_STYLE_LABELS,
+  INCIDENT_TYPE_LABELS,
+  SATISFACTION_EMOJIS,
+  SATISFACTION_LABELS,
+  getLabel,
+} from '@/lib/constants'
+import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +47,11 @@ export default async function ResidentPortal() {
           },
         },
       },
-      incidents: {
+      incidentsReported: {
+        orderBy: { date: 'desc' },
+        take: 5,
+      },
+      incidentsAsSubject: {
         orderBy: { date: 'desc' },
         take: 5,
       },
@@ -198,7 +210,7 @@ export default async function ResidentPortal() {
                       <div>
                         <p className="font-medium text-gray-900">{roommate.code}</p>
                         <p className="text-sm text-gray-500">
-                          {getSocialStyleLabel(roommate.socialStyle)}
+                          {getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle)}
                         </p>
                       </div>
                     </div>
@@ -221,13 +233,13 @@ export default async function ResidentPortal() {
             </Link>
           </div>
 
-          {resident.incidents.length === 0 ? (
+          {resident.incidentsReported.length === 0 ? (
             <p className="text-gray-500 text-center py-6">
               Keine Meldungen
             </p>
           ) : (
             <div className="space-y-3">
-              {resident.incidents.map((incident) => (
+              {resident.incidentsReported.map((incident) => (
                 <div
                   key={incident.id}
                   className="p-3 bg-gray-50 rounded-lg"
@@ -235,7 +247,7 @@ export default async function ResidentPortal() {
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="font-medium text-gray-900 text-sm">
-                        {getIncidentTypeLabel(incident.type)}
+                        {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                       </p>
                       <p className="text-sm text-gray-500 mt-1">
                         {incident.description.slice(0, 50)}
@@ -267,7 +279,7 @@ export default async function ResidentPortal() {
                   <span className="text-xl">🔧</span>
                   <div>
                     <p className="font-medium text-gray-900 text-sm">
-                      {getIncidentTypeLabel(incident.type)}
+                      {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                     </p>
                     <p className="text-xs text-gray-500">
                       Gemeldet: {new Date(incident.date).toLocaleDateString('de-CH')}
@@ -292,9 +304,9 @@ export default async function ResidentPortal() {
               <button
                 key={rating}
                 className="flex-1 py-4 rounded-lg bg-gray-50 hover:bg-aoz-primary hover:text-white transition-colors text-2xl"
-                title={getSatisfactionLabel(rating)}
+                title={SATISFACTION_LABELS[rating - 1]}
               >
-                {getSatisfactionEmoji(rating)}
+                {SATISFACTION_EMOJIS[rating - 1]}
               </button>
             ))}
           </div>
@@ -379,52 +391,10 @@ function QuickActionCard({
 }
 
 function CompatibilityBadge({ score }: { score: number }) {
-  const config = score >= 70
-    ? { label: 'Gut', class: 'bg-green-100 text-green-800' }
-    : score >= 50
-    ? { label: 'OK', class: 'bg-yellow-100 text-yellow-800' }
-    : { label: 'Herausfordernd', class: 'bg-orange-100 text-orange-800' }
-
   return (
-    <span className={`badge ${config.class}`}>
-      {config.label}
+    <span className={`badge ${getScoreBgClass(score)}`}>
+      {getScoreLabel(score)}
     </span>
   )
 }
 
-// Utility functions
-
-function getSocialStyleLabel(style: string): string {
-  const labels: Record<string, string> = {
-    INTROVERTED: 'Ruhig',
-    MODERATE: 'Ausgeglichen',
-    EXTROVERTED: 'Gesellig',
-  }
-  return labels[style] || style
-}
-
-function getIncidentTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    NOISE_COMPLAINT: 'Lärmbeschwerde',
-    CLEANLINESS_DISPUTE: 'Sauberkeit',
-    PERSONAL_CONFLICT: 'Persönlich',
-    PLUMBING: 'Sanitär',
-    ELECTRICAL: 'Elektrik',
-    HEATING_COOLING: 'Heizung/Klima',
-    APPLIANCE: 'Gerät',
-    STRUCTURAL: 'Bauschaden',
-    GENERAL_MAINTENANCE: 'Wartung',
-    OTHER: 'Sonstiges',
-  }
-  return labels[type] || type
-}
-
-function getSatisfactionEmoji(rating: number): string {
-  const emojis = ['😞', '😕', '😐', '🙂', '😊']
-  return emojis[rating - 1] || '😐'
-}
-
-function getSatisfactionLabel(rating: number): string {
-  const labels = ['Sehr unzufrieden', 'Unzufrieden', 'Neutral', 'Zufrieden', 'Sehr zufrieden']
-  return labels[rating - 1] || 'Neutral'
-}

@@ -59,11 +59,20 @@ model Resident {
   status            ResidentStatus @default(ACTIVE)
   notes             String? // Caseworker notes
 
+  // Medical documentation for private placement eligibility
+  hasMedicalDocumentation Boolean @default(false)
+  medicalDocType          MedicalDocType?
+  medicalDocDate          DateTime?
+  medicalDocNotes         String?
+
   // Relations
-  placements        Placement[]
-  assessments       CompatibilityAssessment[] @relation("ResidentAssessments")
-  comparedWith      CompatibilityAssessment[] @relation("ComparedResidentAssessments")
-  incidents         Incident[]
+  placements            Placement[]
+  assessments           CompatibilityAssessment[] @relation("ResidentAssessments")
+  comparedWith          CompatibilityAssessment[] @relation("ComparedResidentAssessments")
+  incidentsReported     Incident[] @relation("IncidentReporter")
+  incidentsAsSubject    Incident[] @relation("IncidentSubject")
+  incidentInvolvements  IncidentInvolvement[]
+  maintenanceRequests   MaintenanceRequest[]
 
   @@index([status])
   @@index([ageRange, gender])
@@ -120,6 +129,12 @@ enum ResidentStatus {
   PLACED         // Has housing assignment
   TRANSFERRED    // Moved to different housing
   EXITED         // Left the system
+}
+
+enum MedicalDocType {
+  PRIVATE_ROOM    // Qualifies for single room
+  STUDIO          // Qualifies for studio/apartment
+  BOTH            // Qualifies for either
 }
 
 enum RoomSharingStatus {
@@ -185,8 +200,10 @@ model HousingUnit {
   notes             String?
 
   // Relations
-  placements        Placement[]
-  incidents         Incident[]
+  spots                PlacementSpot[]
+  placements           Placement[]
+  incidents            Incident[]
+  maintenanceRequests  MaintenanceRequest[]
 
   @@index([status])
   @@index([totalBeds])
@@ -197,6 +214,73 @@ enum HousingStatus {
   FULL           // At capacity
   MAINTENANCE    // Temporarily unavailable
   CLOSED         // Permanently closed
+}
+
+// =============================================================================
+// PLACEMENT SPOTS (Beds, Rooms, Studios)
+// =============================================================================
+
+model PlacementSpot {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Location
+  housingUnitId String
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+
+  // Identification
+  code          String   // "R1-B1", "R2", "STUDIO-A"
+  label         String?  // Human-friendly name
+
+  // Type determines what this spot is
+  type          SpotType
+
+  // Hierarchy (for beds within rooms)
+  parentSpotId  String?
+  parentSpot    PlacementSpot?  @relation("SpotHierarchy", fields: [parentSpotId], references: [id])
+  childSpots    PlacementSpot[] @relation("SpotHierarchy")
+
+  // Physical attributes
+  squareMeters  Float?
+  floor         Int?
+
+  // Facilities (mainly for PRIVATE_ROOM and STUDIO)
+  hasPrivateBathroom Boolean @default(false)
+  hasPrivateKitchen  Boolean @default(false)
+  hasPrivateToilet   Boolean @default(false)
+
+  // Capacity (beds per room, or 1 for single spots)
+  capacity      Int @default(1)
+
+  // Eligibility
+  requiresMedicalDocs Boolean @default(false)
+
+  // Status
+  status        SpotStatus @default(AVAILABLE)
+  notes         String?
+
+  // Relations
+  placements           Placement[]
+  maintenanceRequests  MaintenanceRequest[]
+
+  @@unique([housingUnitId, code])
+  @@index([type, status])
+  @@index([requiresMedicalDocs])
+}
+
+enum SpotType {
+  BED           // Individual bed in shared room
+  PRIVATE_ROOM  // Single-occupancy room (medical)
+  STUDIO        // Self-contained unit (medical)
+  ROOM          // Container for beds (not directly assignable)
+}
+
+enum SpotStatus {
+  AVAILABLE     // Can be assigned
+  OCCUPIED      // Currently has placement
+  MAINTENANCE   // Temporarily unavailable
+  CLOSED        // Permanently unavailable
 }
 
 // =============================================================================
@@ -213,6 +297,10 @@ model Placement {
   residentId    String
   housingUnit   HousingUnit  @relation(fields: [housingUnitId], references: [id])
   housingUnitId String
+
+  // Specific spot within the unit (bed, room, or studio)
+  spot          PlacementSpot? @relation(fields: [spotId], references: [id])
+  spotId        String?
 
   // Dates
   startDate     DateTime
@@ -303,9 +391,16 @@ model Incident {
   placement     Placement?  @relation(fields: [placementId], references: [id])
   placementId   String?
 
-  // Involved
-  resident      Resident?   @relation(fields: [residentId], references: [id])
-  residentId    String?
+  // Attribution - WHO reported this incident
+  reportedBy    Resident? @relation("IncidentReporter", fields: [reportedById], references: [id])
+  reportedById  String?
+
+  // Attribution - WHO the incident is about (the troublemaker/affected party)
+  subject       Resident? @relation("IncidentSubject", fields: [subjectId], references: [id])
+  subjectId     String?
+
+  // For multi-party conflicts
+  involvedResidents IncidentInvolvement[]
 
   // Details
   date          DateTime
@@ -315,13 +410,68 @@ model Incident {
   description   String
   resolution    String?
   resolvedAt    DateTime?
-  
+
   // For algorithm improvement
   predictable       Boolean? // Could this have been predicted?
   compatibilityGap  String? // Which compatibility dimension failed?
 
+  // Follow-up tracking
+  followUps         IncidentFollowUp[]
+  nextFollowUpDate  DateTime? // Scheduled next follow-up
+  followUpPriority  FollowUpPriority? // How urgent is follow-up
+
   @@index([type, severity])
   @@index([date])
+  @@index([reportedById])
+  @@index([subjectId])
+  @@index([nextFollowUpDate])
+}
+
+model IncidentFollowUp {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId String
+
+  // Content
+  action      String    // What action was taken
+  notes       String?   // Additional notes
+  outcome     String?   // Result of the follow-up
+
+  // Who did the follow-up
+  staffName   String?   // Caseworker name
+
+  // Scheduling
+  scheduledNextDate DateTime? // If another follow-up is needed
+
+  @@index([incidentId])
+  @@index([createdAt])
+}
+
+enum FollowUpPriority {
+  LOW         // Check within a week
+  NORMAL      // Check within 2-3 days
+  HIGH        // Check within 24 hours
+  URGENT      // Check today
+}
+
+model IncidentInvolvement {
+  id         String          @id @default(cuid())
+  incident   Incident        @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId String
+  resident   Resident        @relation(fields: [residentId], references: [id])
+  residentId String
+  role       InvolvementRole @default(INVOLVED)
+
+  @@unique([incidentId, residentId])
+  @@index([residentId])
+}
+
+enum InvolvementRole {
+  INVOLVED   // Party in the conflict
+  WITNESS    // Witnessed the incident
+  MEDIATOR   // Helped resolve
 }
 
 enum IncidentType {
@@ -435,14 +585,90 @@ model AuditLog {
   action    String
   entity    String
   entityId  String
-  
+
   // Who did it
   userId    String?
-  
+
   // Details
   changes   Json?
   reason    String?
 
   @@index([entity, entityId])
   @@index([createdAt])
+}
+
+// =============================================================================
+// MAINTENANCE REQUESTS
+// =============================================================================
+
+model MaintenanceRequest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Location
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnitId String
+  spot          PlacementSpot? @relation(fields: [spotId], references: [id])
+  spotId        String?
+
+  // Request details
+  category      MaintenanceCategory
+  priority      MaintenancePriority @default(NORMAL)
+  title         String
+  description   String
+  location      String?   // Specific location within unit (e.g., "Bathroom", "Kitchen")
+
+  // Who reported it
+  reportedBy    Resident? @relation(fields: [reportedById], references: [id])
+  reportedById  String?
+  reporterName  String?   // For non-resident reporters
+
+  // Assignment
+  assignedTo    String?   // Staff member name
+  assignedAt    DateTime?
+
+  // Status tracking
+  status        MaintenanceStatus @default(OPEN)
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  // Resolution
+  resolution    String?
+  cost          Float?
+  notes         String?
+
+  @@index([housingUnitId])
+  @@index([status])
+  @@index([priority, status])
+  @@index([createdAt])
+}
+
+enum MaintenanceCategory {
+  PLUMBING        // Water, drains, toilets
+  ELECTRICAL      // Power, lights, outlets
+  HEATING_COOLING // Heating, AC, ventilation
+  APPLIANCE       // Refrigerator, stove, washer
+  STRUCTURAL      // Walls, floors, ceilings, doors
+  PEST_CONTROL    // Insects, rodents
+  SECURITY        // Locks, alarms, cameras
+  CLEANING        // Deep cleaning, sanitation
+  EXTERIOR        // Garden, parking, common areas
+  OTHER           // Miscellaneous
+}
+
+enum MaintenancePriority {
+  LOW       // Can wait a week
+  NORMAL    // Should be done within a few days
+  HIGH      // Should be done within 24 hours
+  URGENT    // Same-day emergency
+}
+
+enum MaintenanceStatus {
+  OPEN          // New request
+  ASSIGNED      // Assigned to maintenance staff
+  IN_PROGRESS   // Work has started
+  ON_HOLD       // Waiting for parts/access
+  COMPLETED     // Work finished
+  CANCELLED     // Request cancelled
 }

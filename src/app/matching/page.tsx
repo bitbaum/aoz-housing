@@ -5,6 +5,7 @@ import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
   HOUSING_STATUS_LABELS,
+  MEDICAL_DOC_TYPE_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
@@ -14,6 +15,11 @@ import {
   getOccupancyColorClass,
 } from '@/lib/utils'
 import { calculateCompatibility } from '@/lib/compatibility'
+import {
+  SPOT_TYPE_LABELS,
+  SPOT_TYPE_ICONS,
+  getEligibleSpotTypes,
+} from '@/lib/config/placement-spots'
 import type { Resident } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -27,6 +33,7 @@ async function placeResident(formData: FormData) {
 
   const residentId = formData.get('residentId') as string
   const housingUnitId = formData.get('housingUnitId') as string
+  const spotId = (formData.get('spotId') as string) || null
   const compatibilityScore = parseFloat(
     formData.get('compatibilityScore') as string
   )
@@ -36,11 +43,12 @@ async function placeResident(formData: FormData) {
   const riskScore = parseFloat(formData.get('riskScore') as string)
   const notes = formData.get('notes') as string
 
-  // Create placement
+  // Create placement with optional spot
   await prisma.placement.create({
     data: {
       residentId,
       housingUnitId,
+      spotId,
       startDate: new Date(),
       status: 'ACTIVE',
       compatibilityScore,
@@ -51,6 +59,14 @@ async function placeResident(formData: FormData) {
       placementNotes: notes || null,
     },
   })
+
+  // Update spot status if assigned
+  if (spotId) {
+    await prisma.placementSpot.update({
+      where: { id: spotId },
+      data: { status: 'OCCUPIED' },
+    })
+  }
 
   // Update resident status
   await prisma.resident.update({
@@ -86,7 +102,7 @@ export default async function MatchingPage({ searchParams }: Props) {
     orderBy: { createdAt: 'desc' },
   })
 
-  // Get available units with current residents
+  // Get available units with current residents and spots
   const availableUnits = await prisma.housingUnit.findMany({
     where: {
       status: { in: ['AVAILABLE', 'FULL'] },
@@ -95,6 +111,17 @@ export default async function MatchingPage({ searchParams }: Props) {
       placements: {
         where: { status: 'ACTIVE' },
         include: { resident: true },
+      },
+      spots: {
+        where: {
+          status: 'AVAILABLE',
+          type: { not: 'ROOM' }, // Only assignable spots
+        },
+        include: {
+          placements: {
+            where: { status: 'ACTIVE' },
+          },
+        },
       },
     },
     orderBy: { code: 'asc' },
@@ -382,45 +409,180 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
         </div>
       )}
 
-      {/* Place button */}
-      <form action={placeResident}>
-        <input type="hidden" name="residentId" value={resident.id} />
-        <input type="hidden" name="housingUnitId" value={match.unit.id} />
-        <input
-          type="hidden"
-          name="compatibilityScore"
-          value={match.avgCompatibility}
+      {/* Available Spots */}
+      {match.unit.spots && match.unit.spots.length > 0 && (
+        <SpotSelection
+          spots={match.unit.spots}
+          resident={resident}
+          match={match}
         />
-        <input
-          type="hidden"
-          name="lifestyleScore"
-          value={
-            match.compatibilityDetails[0]?.score.lifestyle || match.avgCompatibility
-          }
-        />
-        <input
-          type="hidden"
-          name="socialScore"
-          value={
-            match.compatibilityDetails[0]?.score.social || match.avgCompatibility
-          }
-        />
-        <input
-          type="hidden"
-          name="practicalScore"
-          value={
-            match.compatibilityDetails[0]?.score.practical || match.avgCompatibility
-          }
-        />
-        <input
-          type="hidden"
-          name="riskScore"
-          value={match.compatibilityDetails[0]?.score.risk || 0}
-        />
-        <button type="submit" className="btn-primary w-full">
-          Platzieren
-        </button>
-      </form>
+      )}
+
+      {/* Fallback: Place without spot (legacy) */}
+      {(!match.unit.spots || match.unit.spots.length === 0) && (
+        <form action={placeResident}>
+          <input type="hidden" name="residentId" value={resident.id} />
+          <input type="hidden" name="housingUnitId" value={match.unit.id} />
+          <input
+            type="hidden"
+            name="compatibilityScore"
+            value={match.avgCompatibility}
+          />
+          <input
+            type="hidden"
+            name="lifestyleScore"
+            value={
+              match.compatibilityDetails[0]?.score.lifestyle || match.avgCompatibility
+            }
+          />
+          <input
+            type="hidden"
+            name="socialScore"
+            value={
+              match.compatibilityDetails[0]?.score.social || match.avgCompatibility
+            }
+          />
+          <input
+            type="hidden"
+            name="practicalScore"
+            value={
+              match.compatibilityDetails[0]?.score.practical || match.avgCompatibility
+            }
+          />
+          <input
+            type="hidden"
+            name="riskScore"
+            value={match.compatibilityDetails[0]?.score.risk || 0}
+          />
+          <button type="submit" className="btn-primary w-full">
+            Platzieren
+          </button>
+        </form>
+      )}
+    </div>
+  )
+}
+
+function SpotSelection({
+  spots,
+  resident,
+  match,
+}: {
+  spots: any[]
+  resident: any
+  match: any
+}) {
+  // Get eligible spot types for this resident
+  const eligibleTypes = getEligibleSpotTypes(
+    resident.hasMedicalDocumentation,
+    resident.medicalDocType
+  )
+
+  // Filter to available spots (not occupied)
+  const availableSpots = spots.filter(
+    (spot) => spot.placements.length === 0 && spot.status === 'AVAILABLE'
+  )
+
+  // Separate eligible and ineligible spots
+  const eligibleSpots = availableSpots.filter((spot) =>
+    eligibleTypes.includes(spot.type) &&
+    (!spot.requiresMedicalDocs || resident.hasMedicalDocumentation)
+  )
+  const ineligibleSpots = availableSpots.filter(
+    (spot) =>
+      !eligibleTypes.includes(spot.type) ||
+      (spot.requiresMedicalDocs && !resident.hasMedicalDocumentation)
+  )
+
+  if (availableSpots.length === 0) {
+    return (
+      <p className="text-sm text-gray-500 text-center py-2">
+        Keine freien Plätze verfügbar
+      </p>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+        Platz auswählen
+      </p>
+
+      {eligibleSpots.length === 0 && (
+        <p className="text-xs text-orange-600 mb-2">
+          ⚠️ Keine Plätze für diesen Bewohner geeignet
+          {!resident.hasMedicalDocumentation && ' (med. Dokumente fehlen)'}
+        </p>
+      )}
+
+      {eligibleSpots.map((spot) => (
+        <form key={spot.id} action={placeResident} className="flex gap-2">
+          <input type="hidden" name="residentId" value={resident.id} />
+          <input type="hidden" name="housingUnitId" value={match.unit.id} />
+          <input type="hidden" name="spotId" value={spot.id} />
+          <input
+            type="hidden"
+            name="compatibilityScore"
+            value={match.avgCompatibility}
+          />
+          <input
+            type="hidden"
+            name="lifestyleScore"
+            value={match.compatibilityDetails[0]?.score.lifestyle || match.avgCompatibility}
+          />
+          <input
+            type="hidden"
+            name="socialScore"
+            value={match.compatibilityDetails[0]?.score.social || match.avgCompatibility}
+          />
+          <input
+            type="hidden"
+            name="practicalScore"
+            value={match.compatibilityDetails[0]?.score.practical || match.avgCompatibility}
+          />
+          <input
+            type="hidden"
+            name="riskScore"
+            value={match.compatibilityDetails[0]?.score.risk || 0}
+          />
+          <div className="flex-1 flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-green-50">
+            <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">
+                {spot.label || spot.code}
+              </p>
+              <p className="text-xs text-gray-500">
+                {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
+              </p>
+            </div>
+          </div>
+          <button type="submit" className="btn-primary text-sm px-3">
+            Platzieren
+          </button>
+        </form>
+      ))}
+
+      {/* Show ineligible spots with reason */}
+      {ineligibleSpots.length > 0 && (
+        <details className="text-xs text-gray-400">
+          <summary className="cursor-pointer hover:text-gray-600">
+            {ineligibleSpots.length} weitere Plätze (nicht geeignet)
+          </summary>
+          <div className="mt-2 space-y-1 pl-2">
+            {ineligibleSpots.map((spot) => (
+              <div key={spot.id} className="flex items-center gap-2 opacity-50">
+                <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+                <span>{spot.label || spot.code}</span>
+                <span className="text-orange-500">
+                  {spot.requiresMedicalDocs && !resident.hasMedicalDocumentation
+                    ? '(med. Dok. erforderlich)'
+                    : '(nicht berechtigt)'}
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
     </div>
   )
 }

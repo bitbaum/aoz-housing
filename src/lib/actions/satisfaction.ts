@@ -2,29 +2,23 @@
 
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import type { CheckInType } from '@prisma/client'
+import { redirect } from 'next/navigation'
+import {
+  validateFormData,
+  SatisfactionCheckInInputSchema,
+} from '@/lib/validation'
+import { logAudit } from '@/lib/audit'
 
-interface CreateCheckInData {
-  placementId: string
-  checkInType: CheckInType
-  overallSatisfaction: number
-  roommateRelations?: number
-  facilitySatisfaction?: number
-  safetyFeeling?: number
-  concerns?: string
-  improvements?: string
-  positives?: string
-  collectedBy?: string
-  isAnonymous?: boolean
-}
+export async function createCheckInFromForm(formData: FormData): Promise<void> {
+  const data = validateFormData(SatisfactionCheckInInputSchema, formData)
 
-export async function createSatisfactionCheckIn(data: CreateCheckInData) {
   const placement = await prisma.placement.findUnique({
     where: { id: data.placementId },
+    select: { residentId: true, startDate: true },
   })
 
   if (!placement) {
-    throw new Error('Placement not found')
+    throw new Error('Platzierung nicht gefunden')
   }
 
   // Calculate week number since placement start
@@ -36,7 +30,7 @@ export async function createSatisfactionCheckIn(data: CreateCheckInData) {
     data: {
       placementId: data.placementId,
       checkInType: data.checkInType,
-      weekNumber: weeksSinceStart,
+      weekNumber: data.weekNumber ?? weeksSinceStart,
       overallSatisfaction: data.overallSatisfaction,
       roommateRelations: data.roommateRelations,
       facilitySatisfaction: data.facilitySatisfaction,
@@ -57,44 +51,21 @@ export async function createSatisfactionCheckIn(data: CreateCheckInData) {
     },
   })
 
-  revalidatePath('/placements')
-  revalidatePath(`/residents`)
-
-  return checkIn
-}
-
-export async function createCheckInFromForm(formData: FormData) {
-  const placementId = formData.get('placementId') as string
-  const checkInType = formData.get('checkInType') as CheckInType
-  const overallSatisfaction = parseInt(formData.get('overallSatisfaction') as string)
-  const roommateRelations = formData.get('roommateRelations')
-    ? parseInt(formData.get('roommateRelations') as string)
-    : undefined
-  const facilitySatisfaction = formData.get('facilitySatisfaction')
-    ? parseInt(formData.get('facilitySatisfaction') as string)
-    : undefined
-  const safetyFeeling = formData.get('safetyFeeling')
-    ? parseInt(formData.get('safetyFeeling') as string)
-    : undefined
-  const concerns = formData.get('concerns') as string
-  const improvements = formData.get('improvements') as string
-  const positives = formData.get('positives') as string
-  const collectedBy = formData.get('collectedBy') as string
-  const isAnonymous = formData.get('isAnonymous') === 'true'
-
-  return createSatisfactionCheckIn({
-    placementId,
-    checkInType,
-    overallSatisfaction,
-    roommateRelations,
-    facilitySatisfaction,
-    safetyFeeling,
-    concerns,
-    improvements,
-    positives,
-    collectedBy,
-    isAnonymous,
+  await logAudit({
+    action: 'CREATE',
+    entity: 'CHECK_IN',
+    entityId: checkIn.id,
+    changes: {
+      placementId: data.placementId,
+      checkInType: data.checkInType,
+      overallSatisfaction: data.overallSatisfaction,
+      hasConcerns: !!data.concerns,
+    },
   })
+
+  revalidatePath('/placements')
+  revalidatePath('/residents')
+  redirect(`/residents/${placement.residentId}`)
 }
 
 export async function getPlacementCheckIns(placementId: string) {

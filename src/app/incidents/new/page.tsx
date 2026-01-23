@@ -1,42 +1,19 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { createIncident } from '@/lib/actions'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
+  INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
+  INCIDENT_TYPES_BY_CATEGORY,
 } from '@/lib/constants'
+import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ unit?: string; resident?: string }>
-}
-
-async function createIncident(formData: FormData) {
-  'use server'
-
-  const housingUnitId = formData.get('housingUnitId') as string
-  const residentId = (formData.get('residentId') as string) || null
-  const category = formData.get('category') as string
-  const type = formData.get('type') as string
-  const severity = formData.get('severity') as string
-  const description = formData.get('description') as string
-  const date = formData.get('date') as string
-
-  await prisma.incident.create({
-    data: {
-      housingUnitId,
-      residentId,
-      category: category as any,
-      type: type as any,
-      severity: severity as any,
-      description,
-      date: new Date(date),
-    },
-  })
-
-  redirect('/incidents')
+  searchParams: Promise<{ unit?: string; reporter?: string; subject?: string }>
 }
 
 export default async function NewIncidentPage({ searchParams }: Props) {
@@ -53,26 +30,8 @@ export default async function NewIncidentPage({ searchParams }: Props) {
     }),
   ])
 
-  const interpersonalTypes = [
-    'NOISE_COMPLAINT',
-    'CLEANLINESS_DISPUTE',
-    'PERSONAL_CONFLICT',
-    'CULTURAL_FRICTION',
-    'SPACE_DISPUTE',
-    'SCHEDULE_CONFLICT',
-    'SAFETY_CONCERN',
-  ]
-
-  const maintenanceTypes = [
-    'PLUMBING',
-    'ELECTRICAL',
-    'HEATING_COOLING',
-    'APPLIANCE',
-    'STRUCTURAL',
-    'PEST_CONTROL',
-    'SECURITY_SYSTEM',
-    'GENERAL_MAINTENANCE',
-  ]
+  const interpersonalTypes = INCIDENT_TYPES_BY_CATEGORY.INTERPERSONAL
+  const maintenanceTypes = INCIDENT_TYPES_BY_CATEGORY.MAINTENANCE
 
   return (
     <div>
@@ -88,10 +47,10 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       </div>
 
       <form action={createIncident} className="space-y-6">
-        {/* Location */}
+        {/* Location & Attribution */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ort</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ort & Beteiligte</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="label">Unterkunft *</label>
               <select
@@ -109,10 +68,26 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </select>
             </div>
             <div>
-              <label className="label">Betroffener Bewohner</label>
+              <label className="label">Gemeldet von</label>
               <select
-                name="residentId"
-                defaultValue={params.resident || ''}
+                name="reportedById"
+                defaultValue={params.reporter || ''}
+                className="input"
+              >
+                <option value="">Unbekannt / Extern</option>
+                {residents.map((resident) => (
+                  <option key={resident.id} value={resident.id}>
+                    {resident.code}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Wer hat den Vorfall gemeldet?</p>
+            </div>
+            <div>
+              <label className="label">Betrifft</label>
+              <select
+                name="subjectId"
+                defaultValue={params.subject || ''}
                 className="input"
               >
                 <option value="">Keiner / Unbekannt</option>
@@ -122,6 +97,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                   </option>
                 ))}
               </select>
+              <p className="text-xs text-gray-500 mt-1">Wen betrifft der Vorfall?</p>
             </div>
           </div>
         </div>
@@ -148,11 +124,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                       />
                       <div className="p-4 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
                         <span className="text-2xl">
-                          {key === 'MAINTENANCE'
-                            ? '🔧'
-                            : key === 'SAFETY'
-                            ? '⚠️'
-                            : '💬'}
+                          {INCIDENT_CATEGORY_ICONS[key] || '💬'}
                         </span>
                         <p className="font-medium text-gray-900 mt-2">
                           {label}
@@ -194,42 +166,26 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             Schweregrad
           </h2>
           <div className="flex gap-3">
-            {Object.entries(INCIDENT_SEVERITY_LABELS).map(([key, label]) => {
-              const colors: Record<string, string> = {
-                LOW: 'peer-checked:border-gray-500 peer-checked:bg-gray-50',
-                MEDIUM:
-                  'peer-checked:border-yellow-500 peer-checked:bg-yellow-50',
-                HIGH: 'peer-checked:border-orange-500 peer-checked:bg-orange-50',
-                CRITICAL: 'peer-checked:border-red-500 peer-checked:bg-red-50',
-              }
-              const dotColors: Record<string, string> = {
-                LOW: 'bg-gray-400',
-                MEDIUM: 'bg-yellow-500',
-                HIGH: 'bg-orange-500',
-                CRITICAL: 'bg-red-500',
-              }
-
-              return (
-                <label key={key} className="flex-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="severity"
-                    value={key}
-                    required
-                    defaultChecked={key === 'MEDIUM'}
-                    className="sr-only peer"
-                  />
+            {Object.entries(INCIDENT_SEVERITY_LABELS).map(([key, label]) => (
+              <label key={key} className="flex-1 cursor-pointer">
+                <input
+                  type="radio"
+                  name="severity"
+                  value={key}
+                  required
+                  defaultChecked={key === 'MEDIUM'}
+                  className="sr-only peer"
+                />
+                <div
+                  className={`p-4 text-center rounded-lg border-2 border-gray-200 transition-colors ${getSeverityRadioClass(key)}`}
+                >
                   <div
-                    className={`p-4 text-center rounded-lg border-2 border-gray-200 transition-colors ${colors[key]}`}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded-full mx-auto ${dotColors[key]}`}
-                    />
-                    <p className="font-medium text-gray-900 mt-2">{label}</p>
-                  </div>
-                </label>
-              )
-            })}
+                    className={`w-4 h-4 rounded-full mx-auto ${getSeverityDotClass(key)}`}
+                  />
+                  <p className="font-medium text-gray-900 mt-2">{label}</p>
+                </div>
+              </label>
+            ))}
           </div>
         </div>
 

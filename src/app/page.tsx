@@ -1,7 +1,20 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { INCIDENT_TYPE_LABELS, AGE_RANGE_LABELS, GENDER_LABELS_SHORT } from '@/lib/constants'
-import { formatRelativeDate } from '@/lib/utils'
+import {
+  INCIDENT_TYPE_LABELS,
+  AGE_RANGE_LABELS,
+  GENDER_LABELS_SHORT,
+  PAGE_TITLES,
+  ACTION_LABELS,
+  getLabel,
+} from '@/lib/constants'
+import {
+  formatRelativeDate,
+  getTrendColorClass,
+  getConflictIndicatorClass,
+  getSeverityBorderClass,
+  type TrendType,
+} from '@/lib/utils'
 import { StatCard, CardLink } from '@/components/ui/Card'
 import { HealthIndicator } from '@/components/ui/ScoreIndicator'
 
@@ -39,7 +52,8 @@ export default async function AdminDashboard() {
       },
       include: {
         housingUnit: true,
-        resident: true,
+        reportedBy: true,
+        subject: true,
       },
       orderBy: { date: 'desc' },
       take: 10,
@@ -109,17 +123,17 @@ export default async function AdminDashboard() {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{PAGE_TITLES.dashboard}</h1>
           <p className="text-gray-500 text-sm mt-1">
             Übersicht vom {new Date().toLocaleDateString('de-CH')}
           </p>
         </div>
         <div className="flex gap-3">
           <Link href="/residents/new" className="btn-primary">
-            Neuer Bewohner
+            {ACTION_LABELS.newResident}
           </Link>
           <Link href="/incidents/new" className="btn-outline">
-            Vorfall melden
+            {ACTION_LABELS.newIncident}
           </Link>
         </div>
       </div>
@@ -132,6 +146,7 @@ export default async function AdminDashboard() {
           subtitle={`${unplacedResidents.length} warten auf Platzierung`}
           trend={unplacedResidents.length > 5 ? 'warning' : 'neutral'}
           href="/residents"
+          tooltip="Aktive Bewohner im System (Status ACTIVE oder PLACED). Klicken für Details."
         />
         <MetricCard
           title="Belegung"
@@ -139,6 +154,7 @@ export default async function AdminDashboard() {
           subtitle={`${occupiedBeds} / ${totalBeds} Plätze`}
           trend={occupancyRate > 90 ? 'warning' : occupancyRate > 70 ? 'neutral' : 'good'}
           href="/housing"
+          tooltip="Prozent der belegten Plätze. Über 90% = Warnung (wenig Flexibilität). Berechnet aus aktiven Platzierungen / Gesamtbetten."
         />
         <MetricCard
           title="Ø Kompatibilität"
@@ -146,6 +162,7 @@ export default async function AdminDashboard() {
           subtitle="Aktive Platzierungen"
           trend={avgCompatibility >= 70 ? 'good' : avgCompatibility >= 50 ? 'neutral' : 'warning'}
           href="/analytics"
+          tooltip="Durchschnittliche Kompatibilitätsbewertung aller aktiven Platzierungen. Über 70% = gut, unter 50% = Handlungsbedarf."
         />
         <MetricCard
           title="Offene Vorfälle"
@@ -153,29 +170,53 @@ export default async function AdminDashboard() {
           subtitle={`${interpersonalIncidents.length} Konflikte, ${maintenanceIncidents.length} Wartung`}
           trend={openIncidents.length > 10 ? 'warning' : 'neutral'}
           href="/incidents"
+          tooltip="Ungelöste Vorfälle der letzten 30 Tage. Über 10 = Warnung. Konflikte = zwischenmenschlich, Wartung = technisch."
         />
       </div>
 
       {/* System Health */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2 card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Systemgesundheit</h2>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Systemgesundheit</h2>
+            <span className="text-xs text-gray-400" title="Werte von 0-100. Höher = besser. Berechnet aus echten Daten der letzten 30 Tage.">
+              ⓘ
+            </span>
+          </div>
           <div className="grid grid-cols-3 gap-4">
             <HealthIndicator
               label="Harmonie"
               score={calculateSystemHarmony(units)}
-              description="Basierend auf Konflikten pro Einheit"
+              description={`${units.reduce((sum, u) => sum + u.incidents.length, 0)} Konflikte in ${units.length} Einheiten`}
+              tooltip="100 = keine Konflikte. -25 Punkte pro durchschnittlichem Konflikt pro Einheit (letzte 30 Tage). Unter 60: Vermittlung prüfen."
             />
             <HealthIndicator
               label="Kapazität"
               score={100 - occupancyRate}
-              description="Verfügbare Plätze"
+              description={`${totalBeds - occupiedBeds} von ${totalBeds} Plätzen frei`}
+              tooltip="100 = alle Plätze frei, 0 = voll belegt. Unter 20: Neue Unterkünfte suchen."
             />
             <HealthIndicator
               label="Wartung"
               score={calculateMaintenanceHealth(maintenanceIncidents)}
-              description="Offene Wartungsaufgaben"
+              description={`${maintenanceIncidents.filter(i => !i.resolvedAt).length} offene Meldungen`}
+              tooltip="100 = keine offenen Wartungsmeldungen. -10 Punkte pro offener Meldung. Unter 60: Priorität auf Reparaturen."
             />
+          </div>
+          {/* Color legend */}
+          <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-green-500" /> 80-100
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-yellow-500" /> 60-79
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-orange-500" /> 40-59
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-red-500" /> 0-39
+            </span>
           </div>
         </div>
 
@@ -230,10 +271,7 @@ export default async function AdminDashboard() {
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      unit.incidents.length >= 3 ? 'bg-red-500' :
-                      unit.incidents.length >= 2 ? 'bg-orange-500' : 'bg-yellow-500'
-                    }`} />
+                    <div className={`w-3 h-3 rounded-full ${getConflictIndicatorClass(unit.incidents.length)}`} />
                     <div>
                       <p className="font-medium text-gray-900">{unit.code}</p>
                       <p className="text-sm text-gray-500">{unit.address}</p>
@@ -271,20 +309,16 @@ export default async function AdminDashboard() {
               {recentIncidents.map((incident) => (
                 <div
                   key={incident.id}
-                  className={`p-3 bg-gray-50 rounded-lg border-l-4 ${
-                    incident.severity === 'CRITICAL' ? 'border-l-red-500' :
-                    incident.severity === 'HIGH' ? 'border-l-orange-500' :
-                    incident.severity === 'MEDIUM' ? 'border-l-yellow-400' : 'border-l-gray-300'
-                  }`}
+                  className={`p-3 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="font-medium text-gray-900 text-sm">
-                        {getIncidentTypeLabel(incident.type)}
+                        {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                       </p>
                       <p className="text-sm text-gray-500">
                         {incident.housingUnit.code}
-                        {incident.resident && ` • ${incident.resident.code}`}
+                        {incident.subject && ` • ${incident.subject.code}`}
                       </p>
                     </div>
                     <div className="text-right">
@@ -332,7 +366,7 @@ export default async function AdminDashboard() {
                     <div>
                       <p className="font-medium text-gray-900">{resident.code}</p>
                       <p className="text-sm text-gray-500">
-                        {getAgeRangeLabel(resident.ageRange)} • {getGenderLabel(resident.gender)}
+                        {getLabel(AGE_RANGE_LABELS, resident.ageRange)} • {getLabel(GENDER_LABELS_SHORT, resident.gender)}
                       </p>
                     </div>
                   </div>
@@ -385,24 +419,20 @@ function MetricCard({
   subtitle,
   trend,
   href,
+  tooltip,
 }: {
   title: string
   value: string | number
   subtitle: string
-  trend: 'good' | 'warning' | 'neutral'
+  trend: TrendType
   href: string
+  tooltip?: string
 }) {
-  const trendColors = {
-    good: 'text-green-600',
-    warning: 'text-orange-600',
-    neutral: 'text-gray-500',
-  }
-
   return (
-    <Link href={href} className="card-hover">
+    <Link href={href} className="card-hover" title={tooltip}>
       <p className="text-sm text-gray-500">{title}</p>
       <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-      <p className={`text-sm mt-2 ${trendColors[trend]}`}>{subtitle}</p>
+      <p className={`text-sm mt-2 ${getTrendColorClass(trend)}`}>{subtitle}</p>
     </Link>
   )
 }
@@ -446,7 +476,3 @@ function calculateMaintenanceHealth(incidents: any[]): number {
   return Math.max(0, 100 - openCount * 10)
 }
 
-// Use imported constants
-const getIncidentTypeLabel = (type: string) => INCIDENT_TYPE_LABELS[type] || type
-const getAgeRangeLabel = (range: string) => AGE_RANGE_LABELS[range] || range
-const getGenderLabel = (gender: string) => GENDER_LABELS_SHORT[gender] || gender

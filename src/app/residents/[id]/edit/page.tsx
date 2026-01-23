@@ -61,6 +61,20 @@ export default async function EditResidentPage({ params }: Props) {
             sharedBathroom: resident.sharedBathroom,
             sharedKitchen: resident.sharedKitchen,
             privacyNeed: resident.privacyNeed,
+            // Household fields
+            choresContribution: resident.choresContribution,
+            recyclingKnowledge: resident.recyclingKnowledge,
+            // Health/Support fields
+            roomSharingStatus: resident.roomSharingStatus,
+            hasNightDisturbances: resident.hasNightDisturbances,
+            needsQuietEnvironment: resident.needsQuietEnvironment,
+            hasSleepEquipment: resident.hasSleepEquipment,
+            supportLevel: resident.supportLevel,
+            // Medical documentation
+            hasMedicalDocumentation: resident.hasMedicalDocumentation,
+            medicalDocType: resident.medicalDocType,
+            medicalDocDate: resident.medicalDocDate,
+            medicalDocNotes: resident.medicalDocNotes,
             notes: resident.notes,
           }}
           isEdit

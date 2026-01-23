@@ -1,9 +1,9 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { revalidatePath } from 'next/cache'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
+  INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -20,22 +20,6 @@ interface Props {
   searchParams: Promise<{ category?: string }>
 }
 
-async function resolveIncident(formData: FormData) {
-  'use server'
-
-  const incidentId = formData.get('incidentId') as string
-
-  await prisma.incident.update({
-    where: { id: incidentId },
-    data: {
-      resolvedAt: new Date(),
-      resolution: 'Gelöst durch Administrator',
-    },
-  })
-
-  revalidatePath('/incidents')
-}
-
 export default async function IncidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const categoryFilter = params.category || 'all'
@@ -44,7 +28,11 @@ export default async function IncidentsListPage({ searchParams }: Props) {
     where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
     include: {
       housingUnit: true,
-      resident: true,
+      reportedBy: true,
+      subject: true,
+      _count: {
+        select: { followUps: true },
+      },
     },
     orderBy: { date: 'desc' },
     take: 100,
@@ -209,18 +197,15 @@ function TabLink({
 }
 
 function IncidentRow({ incident }: { incident: any }) {
-  const categoryIcon =
-    incident.category === 'MAINTENANCE'
-      ? '🔧'
-      : incident.category === 'SAFETY'
-      ? '⚠️'
-      : '💬'
+  const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
+  const isOverdue = incident.nextFollowUpDate && new Date(incident.nextFollowUpDate) < new Date() && !incident.resolvedAt
 
   return (
-    <div
+    <Link
+      href={`/incidents/${incident.id}`}
       className={`card p-4 border-l-4 ${getSeverityBorderClass(
         incident.severity
-      )}`}
+      )} block hover:shadow-md transition-shadow`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
@@ -236,24 +221,39 @@ function IncidentRow({ incident }: { incident: any }) {
                 )}`}
                 title={getLabel(INCIDENT_SEVERITY_LABELS, incident.severity)}
               />
+              {isOverdue && (
+                <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded">
+                  ⏰ Überfällig
+                </span>
+              )}
+              {incident._count?.followUps > 0 && (
+                <span className="text-xs text-gray-500">
+                  {incident._count.followUps} Follow-ups
+                </span>
+              )}
             </div>
             <p className="text-sm text-gray-600 mt-1 line-clamp-2">
               {incident.description}
             </p>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-              <Link
-                href={`/housing/${incident.housingUnitId}`}
-                className="hover:text-aoz-primary"
-              >
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+              <span className="hover:text-aoz-primary">
                 🏠 {incident.housingUnit.code}
-              </Link>
-              {incident.resident && (
-                <Link
-                  href={`/residents/${incident.residentId}`}
+              </span>
+              {incident.reportedBy && (
+                <span
                   className="hover:text-aoz-primary"
+                  title="Gemeldet von"
                 >
-                  👤 {incident.resident.code}
-                </Link>
+                  📢 {incident.reportedBy.code}
+                </span>
+              )}
+              {incident.subject && (
+                <span
+                  className="hover:text-aoz-primary font-medium"
+                  title="Betrifft"
+                >
+                  👤 {incident.subject.code}
+                </span>
               )}
               <span>{formatRelativeDate(incident.date)}</span>
             </div>
@@ -265,7 +265,6 @@ function IncidentRow({ incident }: { incident: any }) {
           ) : (
             <span className="badge badge-pending">Offen</span>
           )}
-          <ResolveButton incident={incident} />
         </div>
       </div>
       {incident.resolution && (
@@ -275,19 +274,7 @@ function IncidentRow({ incident }: { incident: any }) {
           </p>
         </div>
       )}
-    </div>
+    </Link>
   )
 }
 
-function ResolveButton({ incident }: { incident: any }) {
-  if (incident.resolvedAt) return null
-
-  return (
-    <form action={resolveIncident}>
-      <input type="hidden" name="incidentId" value={incident.id} />
-      <button type="submit" className="btn-outline text-sm">
-        Lösen
-      </button>
-    </form>
-  )
-}

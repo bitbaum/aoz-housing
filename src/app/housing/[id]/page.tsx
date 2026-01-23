@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   INCIDENT_TYPE_LABELS,
+  INCIDENT_CATEGORY_ICONS,
   HOUSING_STATUS_LABELS,
   HARMONY_STATUS_LABELS,
 } from '@/lib/constants'
@@ -15,6 +16,7 @@ import {
   formatRelativeDate,
   type HarmonyStatus,
 } from '@/lib/utils'
+import { RoomVisualization } from '@/components/housing/RoomVisualization'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +30,23 @@ export default async function HousingDetailPage({ params }: Props) {
   const unit = await prisma.housingUnit.findUnique({
     where: { id },
     include: {
+      spots: {
+        include: {
+          placements: {
+            where: { status: 'ACTIVE' },
+            include: { resident: true },
+          },
+          childSpots: {
+            include: {
+              placements: {
+                where: { status: 'ACTIVE' },
+                include: { resident: true },
+              },
+            },
+          },
+        },
+        orderBy: { code: 'asc' },
+      },
       placements: {
         where: { status: 'ACTIVE' },
         include: {
@@ -39,7 +58,8 @@ export default async function HousingDetailPage({ params }: Props) {
         orderBy: { date: 'desc' },
         take: 20,
         include: {
-          resident: true,
+          reportedBy: true,
+          subject: true,
         },
       },
     },
@@ -70,6 +90,22 @@ export default async function HousingDetailPage({ params }: Props) {
   const maintenanceIncidents = unit.incidents.filter(
     i => i.category === 'MAINTENANCE'
   )
+
+  // Analyze frequent subjects (troublemaker detection)
+  const subjectCounts: Record<string, { code: string; count: number }> = {}
+  for (const incident of unit.incidents) {
+    if (incident.subject) {
+      const id = incident.subjectId!
+      if (!subjectCounts[id]) {
+        subjectCounts[id] = { code: incident.subject.code, count: 0 }
+      }
+      subjectCounts[id].count++
+    }
+  }
+  const frequentSubjects = Object.entries(subjectCounts)
+    .map(([id, data]) => ({ id, ...data }))
+    .filter(s => s.count >= 2)
+    .sort((a, b) => b.count - a.count)
 
   const occupancy = unit.placements.length
   const occupancyPercent = Math.round((occupancy / unit.totalBeds) * 100)
@@ -144,34 +180,59 @@ export default async function HousingDetailPage({ params }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column: Residents */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Current Residents */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Aktuelle Bewohner
-              </h2>
-              <Link href={`/matching?unit=${unit.id}`} className="btn-outline text-sm">
-                Neuen Bewohner platzieren
-              </Link>
-            </div>
-
-            {unit.placements.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                Keine aktiven Bewohner
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {unit.placements.map((placement) => (
-                  <ResidentCard
-                    key={placement.id}
-                    placement={placement}
-                    compatibilityScores={compatibilityScores}
-                    otherResidentIds={residentIds.filter(id => id !== placement.residentId)}
-                  />
-                ))}
+          {/* Room/Bed Visualization */}
+          {unit.spots && unit.spots.length > 0 && (
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Zimmer & Plätze
+                </h2>
+                <Link href={`/housing/${unit.id}/spots`} className="btn-outline text-sm">
+                  Plätze verwalten
+                </Link>
               </div>
-            )}
-          </div>
+              <RoomVisualization
+                spots={unit.spots as any}
+                housingUnitId={unit.id}
+              />
+            </div>
+          )}
+
+          {/* Current Residents (legacy view for units without spots) */}
+          {(!unit.spots || unit.spots.length === 0) && (
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Aktuelle Bewohner
+                </h2>
+                <div className="flex gap-2">
+                  <Link href={`/housing/${unit.id}/spots`} className="btn-primary text-sm">
+                    Plätze definieren
+                  </Link>
+                  <Link href={`/matching?unit=${unit.id}`} className="btn-outline text-sm">
+                    Bewohner platzieren
+                  </Link>
+                </div>
+              </div>
+
+              {unit.placements.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  Keine aktiven Bewohner
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {unit.placements.map((placement) => (
+                    <ResidentCard
+                      key={placement.id}
+                      placement={placement}
+                      compatibilityScores={compatibilityScores}
+                      otherResidentIds={residentIds.filter(id => id !== placement.residentId)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Compatibility Matrix */}
           {unit.placements.length > 1 && (
@@ -196,6 +257,32 @@ export default async function HousingDetailPage({ params }: Props) {
                 Neuer Vorfall
               </Link>
             </div>
+
+            {/* Frequent Subjects Warning */}
+            {frequentSubjects.length > 0 && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <span className="text-amber-600 text-lg">!</span>
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">
+                      Häufig betroffene Bewohner
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {frequentSubjects.map((s) => (
+                        <Link
+                          key={s.id}
+                          href={`/residents/${s.id}`}
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-800 rounded text-sm hover:bg-amber-200 transition-colors"
+                        >
+                          <span className="font-medium">{s.code}</span>
+                          <span className="text-amber-600">({s.count}x)</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mb-4">
               <div className="flex gap-2 border-b border-gray-200">
@@ -443,8 +530,7 @@ function CompatibilityMatrix({ residents, scores }: { residents: any[]; scores: 
 }
 
 function IncidentCard({ incident }: { incident: any }) {
-  const categoryIcon = incident.category === 'MAINTENANCE' ? '🔧' :
-                       incident.category === 'SAFETY' ? '⚠️' : '💬'
+  const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
 
   return (
     <div className={`p-4 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>

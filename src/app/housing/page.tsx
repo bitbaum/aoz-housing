@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
+import { StatCard } from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,24 +64,6 @@ export default async function HousingListPage() {
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  subtitle,
-}: {
-  label: string
-  value: number | string
-  subtitle?: string
-}) {
-  return (
-    <div className="card">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
     </div>
   )
 }

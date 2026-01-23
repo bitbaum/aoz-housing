@@ -12,37 +12,57 @@ body {
   background: var(--background);
 }
 
-/* Score indicator styles */
+/* Score indicator styles (5-tier: 80+, 60+, 40+, 20+, 0+) */
 .score-excellent { @apply bg-score-excellent text-white; }
 .score-good { @apply bg-score-good text-white; }
-.score-moderate { @apply bg-score-moderate text-gray-900; }
+.score-medium { @apply bg-score-medium text-gray-900; }
 .score-low { @apply bg-score-low text-white; }
-.score-poor { @apply bg-score-poor text-white; }
+.score-critical { @apply bg-score-critical text-white; }
+/* Legacy aliases */
+.score-moderate { @apply bg-score-medium text-gray-900; }
+.score-poor { @apply bg-score-critical text-white; }
 
-/* Card styles */
+/* Card styles - AOZ Design System */
 .card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
+  @apply bg-white rounded-lg shadow-card border border-gray-200 p-6;
 }
 
 .card-hover {
-  @apply card hover:shadow-md transition-shadow cursor-pointer;
+  @apply card hover:shadow-md hover:border-gray-300 transition-all cursor-pointer;
 }
 
-/* Button styles */
+/* Icon container - AOZ style (circular with mint background) */
+.icon-container {
+  @apply w-10 h-10 rounded-full bg-aoz-accent flex items-center justify-center;
+}
+
+.icon-container-sm {
+  @apply w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center;
+}
+
+.icon-container-lg {
+  @apply w-12 h-12 rounded-full bg-aoz-accent flex items-center justify-center;
+}
+
+/* Button styles - AOZ Design System */
 .btn {
   @apply px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
 }
 
 .btn-primary {
-  @apply btn bg-aoz-primary text-white hover:bg-blue-800 focus:ring-aoz-primary;
+  @apply btn bg-aoz-primary text-white hover:bg-aoz-primary-dark focus:ring-aoz-primary;
 }
 
 .btn-secondary {
-  @apply btn bg-aoz-secondary text-white hover:bg-emerald-700 focus:ring-aoz-secondary;
+  @apply btn bg-aoz-secondary text-white hover:bg-aoz-secondary-dark focus:ring-aoz-secondary;
 }
 
 .btn-outline {
-  @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500;
+  @apply btn border border-aoz-primary text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary;
+}
+
+.btn-ghost {
+  @apply btn text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary;
 }
 
 /* Form styles */

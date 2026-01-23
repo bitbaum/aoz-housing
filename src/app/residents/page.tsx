@@ -8,6 +8,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getStatusBadgeClass } from '@/lib/utils'
+import { StatCard } from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ export default async function ResidentsListPage() {
           housingUnit: true,
         },
       },
-      incidents: {
+      incidentsAsSubject: {
         where: {
           date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
           category: 'INTERPERSONAL',
@@ -73,7 +74,7 @@ export default async function ResidentsListPage() {
         <StatCard
           label="Unplatziert"
           value={stats.unplaced}
-          highlight={stats.unplaced > 0}
+          trend={stats.unplaced > 0 ? 'warning' : 'neutral'}
         />
       </div>
 
@@ -96,32 +97,9 @@ export default async function ResidentsListPage() {
   )
 }
 
-function StatCard({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string
-  value: number | string
-  highlight?: boolean
-}) {
-  return (
-    <div className="card">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p
-        className={`text-2xl font-bold ${
-          highlight ? 'text-orange-600' : 'text-gray-900'
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  )
-}
-
 function ResidentCard({ resident }: { resident: any }) {
   const currentPlacement = resident.placements[0]
-  const recentIncidents = resident.incidents.length
+  const recentIncidents = resident.incidentsAsSubject?.length || 0
 
   const languages = resident.languages
     .slice(0, 3)

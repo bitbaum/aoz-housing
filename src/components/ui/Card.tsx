@@ -3,6 +3,7 @@
  */
 
 import Link from 'next/link'
+import { getTrendColorClass, type TrendType } from '@/lib/utils'
 
 interface CardProps {
   children: React.ReactNode
@@ -30,28 +31,23 @@ export function CardLink({ children, href, className = '' }: CardLinkProps) {
 }
 
 interface StatCardProps {
-  title: string
+  label: string
   value: string | number
   subtitle?: string
-  trend?: 'up' | 'down' | 'neutral' | 'good' | 'warning'
+  trend?: TrendType
   href?: string
 }
 
-export function StatCard({ title, value, subtitle, trend = 'neutral', href }: StatCardProps) {
-  const trendColors: Record<string, string> = {
-    up: 'text-green-600',
-    down: 'text-red-600',
-    neutral: 'text-gray-500',
-    good: 'text-green-600',
-    warning: 'text-orange-600',
-  }
+export function StatCard({ label, value, subtitle, trend = 'neutral', href }: StatCardProps) {
+  // Apply trend color to value if no subtitle, otherwise to subtitle
+  const valueColor = !subtitle && trend !== 'neutral' ? getTrendColorClass(trend) : 'text-gray-900'
 
   const content = (
     <>
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className={`text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
       {subtitle && (
-        <p className={`text-sm mt-2 ${trendColors[trend]}`}>{subtitle}</p>
+        <p className={`text-sm mt-2 ${getTrendColorClass(trend)}`}>{subtitle}</p>
       )}
     </>
   )

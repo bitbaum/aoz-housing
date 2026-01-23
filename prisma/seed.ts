@@ -12,9 +12,11 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Clean existing data
+  await prisma.incidentInvolvement.deleteMany()
   await prisma.incident.deleteMany()
   await prisma.compatibilityAssessment.deleteMany()
   await prisma.placement.deleteMany()
+  await prisma.placementSpot.deleteMany()
   await prisma.resident.deleteMany()
   await prisma.housingUnit.deleteMany()
   await prisma.algorithmWeight.deleteMany()
@@ -174,6 +176,323 @@ async function main() {
 
   console.log(`✅ Created ${units.length} housing units`)
 
+  // Create placement spots for each unit
+  // ZH-001: 2 rooms, 4 beds total (2 beds per room)
+  const zh001Room1 = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[0].id,
+      code: 'R1',
+      label: 'Zimmer 1',
+      type: 'ROOM',
+      squareMeters: 12,
+      floor: 2,
+      capacity: 2,
+      status: 'AVAILABLE',
+    },
+  })
+  const zh001Room2 = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[0].id,
+      code: 'R2',
+      label: 'Zimmer 2',
+      type: 'ROOM',
+      squareMeters: 10,
+      floor: 2,
+      capacity: 2,
+      status: 'AVAILABLE',
+    },
+  })
+  const zh001Beds = await Promise.all([
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[0].id,
+        code: 'R1-B1',
+        label: 'Bett A',
+        type: 'BED',
+        parentSpotId: zh001Room1.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[0].id,
+        code: 'R1-B2',
+        label: 'Bett B',
+        type: 'BED',
+        parentSpotId: zh001Room1.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[0].id,
+        code: 'R2-B1',
+        label: 'Bett A',
+        type: 'BED',
+        parentSpotId: zh001Room2.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[0].id,
+        code: 'R2-B2',
+        label: 'Bett B',
+        type: 'BED',
+        parentSpotId: zh001Room2.id,
+        status: 'AVAILABLE',
+      },
+    }),
+  ])
+
+  // ZH-002: 3 rooms - 2 shared (2 beds each) + 1 private room (medical)
+  const zh002Room1 = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[1].id,
+      code: 'R1',
+      label: 'Zimmer 1',
+      type: 'ROOM',
+      squareMeters: 14,
+      floor: 0,
+      capacity: 2,
+      status: 'AVAILABLE',
+    },
+  })
+  const zh002Room2 = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[1].id,
+      code: 'R2',
+      label: 'Zimmer 2',
+      type: 'ROOM',
+      squareMeters: 12,
+      floor: 0,
+      capacity: 2,
+      status: 'AVAILABLE',
+    },
+  })
+  const zh002PrivateRoom = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[1].id,
+      code: 'R3',
+      label: 'Einzelzimmer',
+      type: 'PRIVATE_ROOM',
+      squareMeters: 10,
+      floor: 0,
+      capacity: 1,
+      requiresMedicalDocs: true,
+      status: 'AVAILABLE',
+    },
+  })
+  const zh002Beds = await Promise.all([
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[1].id,
+        code: 'R1-B1',
+        label: 'Bett A',
+        type: 'BED',
+        parentSpotId: zh002Room1.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[1].id,
+        code: 'R1-B2',
+        label: 'Bett B',
+        type: 'BED',
+        parentSpotId: zh002Room1.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[1].id,
+        code: 'R2-B1',
+        label: 'Bett A',
+        type: 'BED',
+        parentSpotId: zh002Room2.id,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[1].id,
+        code: 'R2-B2',
+        label: 'Bett B',
+        type: 'BED',
+        parentSpotId: zh002Room2.id,
+        status: 'AVAILABLE',
+      },
+    }),
+  ])
+
+  // ZH-003: 3 private rooms (all medical)
+  const zh003Rooms = await Promise.all([
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[2].id,
+        code: 'R1',
+        label: 'Einzelzimmer 1',
+        type: 'PRIVATE_ROOM',
+        squareMeters: 12,
+        floor: 3,
+        capacity: 1,
+        requiresMedicalDocs: true,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[2].id,
+        code: 'R2',
+        label: 'Einzelzimmer 2',
+        type: 'PRIVATE_ROOM',
+        squareMeters: 10,
+        floor: 3,
+        capacity: 1,
+        requiresMedicalDocs: true,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[2].id,
+        code: 'R3',
+        label: 'Einzelzimmer 3',
+        type: 'PRIVATE_ROOM',
+        squareMeters: 11,
+        floor: 3,
+        capacity: 1,
+        requiresMedicalDocs: true,
+        status: 'AVAILABLE',
+      },
+    }),
+  ])
+
+  // ZH-004: 4 rooms, 8 beds total (2 beds per room)
+  const zh004Rooms = await Promise.all([
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[3].id,
+        code: 'R1',
+        label: 'Zimmer 1',
+        type: 'ROOM',
+        squareMeters: 10,
+        floor: 1,
+        capacity: 2,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[3].id,
+        code: 'R2',
+        label: 'Zimmer 2',
+        type: 'ROOM',
+        squareMeters: 10,
+        floor: 1,
+        capacity: 2,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[3].id,
+        code: 'R3',
+        label: 'Zimmer 3',
+        type: 'ROOM',
+        squareMeters: 12,
+        floor: 2,
+        capacity: 2,
+        status: 'AVAILABLE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[3].id,
+        code: 'R4',
+        label: 'Zimmer 4',
+        type: 'ROOM',
+        squareMeters: 12,
+        floor: 2,
+        capacity: 2,
+        status: 'AVAILABLE',
+      },
+    }),
+  ])
+  const zh004Beds = await Promise.all(
+    zh004Rooms.flatMap((room, idx) => [
+      prisma.placementSpot.create({
+        data: {
+          housingUnitId: units[3].id,
+          code: `R${idx + 1}-B1`,
+          label: 'Bett A',
+          type: 'BED',
+          parentSpotId: room.id,
+          status: 'AVAILABLE',
+        },
+      }),
+      prisma.placementSpot.create({
+        data: {
+          housingUnitId: units[3].id,
+          code: `R${idx + 1}-B2`,
+          label: 'Bett B',
+          type: 'BED',
+          parentSpotId: room.id,
+          status: 'AVAILABLE',
+        },
+      }),
+    ])
+  )
+
+  // ZH-005: 1 room, 2 beds (in maintenance)
+  const zh005Room = await prisma.placementSpot.create({
+    data: {
+      housingUnitId: units[4].id,
+      code: 'R1',
+      label: 'Zimmer 1',
+      type: 'ROOM',
+      squareMeters: 10,
+      floor: 0,
+      capacity: 2,
+      status: 'MAINTENANCE',
+    },
+  })
+  const zh005Beds = await Promise.all([
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[4].id,
+        code: 'R1-B1',
+        label: 'Bett A',
+        type: 'BED',
+        parentSpotId: zh005Room.id,
+        status: 'MAINTENANCE',
+      },
+    }),
+    prisma.placementSpot.create({
+      data: {
+        housingUnitId: units[4].id,
+        code: 'R1-B2',
+        label: 'Bett B',
+        type: 'BED',
+        parentSpotId: zh005Room.id,
+        status: 'MAINTENANCE',
+      },
+    }),
+  ])
+
+  // Collect all spots for later use
+  const allSpots = {
+    zh001: { rooms: [zh001Room1, zh001Room2], beds: zh001Beds },
+    zh002: { rooms: [zh002Room1, zh002Room2], privateRoom: zh002PrivateRoom, beds: zh002Beds },
+    zh003: { rooms: zh003Rooms },
+    zh004: { rooms: zh004Rooms, beds: zh004Beds },
+    zh005: { room: zh005Room, beds: zh005Beds },
+  }
+
+  const spotCount = 2 + 4 + 3 + 4 + 1 + 4 + 8 + 1 + 2 + 3 // rooms + beds for each unit
+  console.log(`✅ Created ${spotCount} placement spots`)
+
   // Create residents
   const residents = await Promise.all([
     // Placed residents
@@ -247,6 +566,11 @@ async function main() {
         privacyNeed: 5,
         status: 'PLACED',
         notes: 'Ärztin, wartet auf Anerkennung',
+        // Medical docs for private room eligibility
+        hasMedicalDocumentation: true,
+        medicalDocType: 'PRIVATE_ROOM',
+        medicalDocDate: new Date(Date.now() - 100 * 24 * 60 * 60 * 1000),
+        medicalDocNotes: 'Benötigt Einzelzimmer aufgrund erhöhtem Privatsphärebedürfnis',
       },
     }),
     prisma.resident.create({
@@ -295,6 +619,11 @@ async function main() {
         privacyNeed: 2,
         status: 'PLACED',
         notes: 'Macht Deutschkurs B1',
+        // Medical docs for private room eligibility (in ZH-003)
+        hasMedicalDocumentation: true,
+        medicalDocType: 'BOTH',
+        medicalDocDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000),
+        medicalDocNotes: 'Psychologische Empfehlung für ruhige Umgebung',
       },
     }),
     prisma.resident.create({
@@ -343,6 +672,11 @@ async function main() {
         privacyNeed: 4,
         status: 'PLACED',
         notes: 'Arbeitet Teilzeit im Reinigungsbereich',
+        // Medical docs for private room eligibility (in ZH-003)
+        hasMedicalDocumentation: true,
+        medicalDocType: 'PRIVATE_ROOM',
+        medicalDocDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+        medicalDocNotes: 'Ärztliches Attest für Einzelzimmer',
       },
     }),
     // Unplaced residents (waiting for placement)
@@ -422,14 +756,16 @@ async function main() {
 
   console.log(`✅ Created ${residents.length} residents`)
 
-  // Create placements
+  // Create placements with spot references
   const now = new Date()
   const placements = await Promise.all([
     // ZH-001: RES-001 and RES-002 (some tension - different schedules)
+    // Placed in same room (R1) - beds B1 and B2
     prisma.placement.create({
       data: {
         residentId: residents[0].id,
         housingUnitId: units[0].id,
+        spotId: allSpots.zh001.beds[0].id, // R1-B1
         startDate: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000), // 60 days ago
         compatibilityScore: 72,
         lifestyleScore: 65,
@@ -444,6 +780,7 @@ async function main() {
       data: {
         residentId: residents[1].id,
         housingUnitId: units[0].id,
+        spotId: allSpots.zh001.beds[1].id, // R1-B2
         startDate: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000), // 45 days ago
         compatibilityScore: 72,
         lifestyleScore: 65,
@@ -454,11 +791,12 @@ async function main() {
         placementNotes: 'Beide arabischsprachig, unterschiedliche Schlafzeiten',
       },
     }),
-    // ZH-002: RES-003, RES-004, RES-006 (good mix, senior on ground floor)
+    // ZH-002: RES-003 in private room (has medical docs), RES-004, RES-006 in shared rooms
     prisma.placement.create({
       data: {
         residentId: residents[2].id,
         housingUnitId: units[1].id,
+        spotId: allSpots.zh002.privateRoom.id, // Private room (medical)
         startDate: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000),
         compatibilityScore: 68,
         lifestyleScore: 72,
@@ -466,13 +804,14 @@ async function main() {
         practicalScore: 75,
         riskScore: 30,
         status: 'ACTIVE',
-        placementNotes: 'Einzelzimmer wegen hohem Privatsphärebedürfnis',
+        placementNotes: 'Einzelzimmer wegen hohem Privatsphärebedürfnis (med. Dok.)',
       },
     }),
     prisma.placement.create({
       data: {
         residentId: residents[3].id,
         housingUnitId: units[1].id,
+        spotId: allSpots.zh002.beds[0].id, // R1-B1
         startDate: new Date(now.getTime() - 75 * 24 * 60 * 60 * 1000),
         compatibilityScore: 75,
         lifestyleScore: 78,
@@ -487,6 +826,7 @@ async function main() {
       data: {
         residentId: residents[5].id,
         housingUnitId: units[1].id,
+        spotId: allSpots.zh002.beds[1].id, // R1-B2 (same room as RES-004)
         startDate: new Date(now.getTime() - 120 * 24 * 60 * 60 * 1000),
         compatibilityScore: 62,
         lifestyleScore: 55,
@@ -497,11 +837,12 @@ async function main() {
         placementNotes: 'Erdgeschoss wegen Mobilität, CPAP-Gerät',
       },
     }),
-    // ZH-003: RES-005, RES-007 (good compatibility)
+    // ZH-003: RES-005, RES-007 (good compatibility) - private rooms
     prisma.placement.create({
       data: {
         residentId: residents[4].id,
         housingUnitId: units[2].id,
+        spotId: allSpots.zh003.rooms[0].id, // Private room 1
         startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
         compatibilityScore: 85,
         lifestyleScore: 88,
@@ -516,6 +857,7 @@ async function main() {
       data: {
         residentId: residents[6].id,
         housingUnitId: units[2].id,
+        spotId: allSpots.zh003.rooms[1].id, // Private room 2
         startDate: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000),
         compatibilityScore: 85,
         lifestyleScore: 88,
@@ -526,6 +868,17 @@ async function main() {
         placementNotes: 'Sehr gute Passung',
       },
     }),
+  ])
+
+  // Update spot statuses to OCCUPIED for spots with active placements
+  await Promise.all([
+    prisma.placementSpot.update({ where: { id: allSpots.zh001.beds[0].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh001.beds[1].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh002.privateRoom.id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh002.beds[0].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh002.beds[1].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh003.rooms[0].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({ where: { id: allSpots.zh003.rooms[1].id }, data: { status: 'OCCUPIED' } }),
   ])
 
   console.log(`✅ Created ${placements.length} placements`)
@@ -611,12 +964,13 @@ async function main() {
 
   // Create incidents
   const incidents = await Promise.all([
-    // ZH-001: Noise complaint (interpersonal)
+    // ZH-001: Noise complaint (interpersonal) - RES-001 reports, RES-002 is subject
     prisma.incident.create({
       data: {
         housingUnitId: units[0].id,
         placementId: placements[0].id,
-        residentId: residents[0].id,
+        reportedById: residents[0].id,
+        subjectId: residents[1].id,
         date: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
         category: 'INTERPERSONAL',
         type: 'NOISE_COMPLAINT',
@@ -628,12 +982,12 @@ async function main() {
         compatibilityGap: 'lifestyle',
       },
     }),
-    // ZH-001: Another tension
+    // ZH-001: Another tension - RES-002 is subject
     prisma.incident.create({
       data: {
         housingUnitId: units[0].id,
         placementId: placements[1].id,
-        residentId: residents[1].id,
+        subjectId: residents[1].id,
         date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
         category: 'INTERPERSONAL',
         type: 'SCHEDULE_CONFLICT',
