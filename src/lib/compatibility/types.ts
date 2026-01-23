@@ -5,33 +5,44 @@
 export interface ResidentProfile {
   id: string
   code: string
-  
+
   // Demographics
   ageRange: AgeRange
   gender: Gender
   familyStatus: FamilyStatus
-  
+
   // Lifestyle
   sleepSchedule: SleepSchedule
   noiseTolerance: number // 1-5
   cleanlinessLevel: number // 1-5
-  
+
   // Social
   socialStyle: SocialStyle
   languages: string[]
   culturalRegion?: string
-  
+
   // Practical
   smokingStatus: SmokingStatus
   dietaryNeeds: string[]
   mobilityNeeds: MobilityNeed
   medicalEquipment: boolean
-  
+
   // Preferences
   petTolerance: boolean
   sharedBathroom: boolean
   sharedKitchen: boolean
   privacyNeed: number // 1-5
+
+  // Household
+  choresContribution: number // 1-5
+  recyclingKnowledge: RecyclingKnowledge
+
+  // Health/Support needs (functional, not diagnostic)
+  roomSharingStatus: RoomSharingStatus
+  hasNightDisturbances: boolean
+  needsQuietEnvironment: boolean
+  hasSleepEquipment: boolean
+  supportLevel: SupportLevel
 }
 
 export type AgeRange = 'YOUNG_ADULT' | 'ADULT' | 'MIDDLE_AGED' | 'SENIOR'
@@ -41,6 +52,9 @@ export type SleepSchedule = 'EARLY_BIRD' | 'STANDARD' | 'NIGHT_OWL' | 'IRREGULAR
 export type SocialStyle = 'INTROVERTED' | 'MODERATE' | 'EXTROVERTED'
 export type SmokingStatus = 'NON_SMOKER' | 'OUTDOOR_SMOKER' | 'INDOOR_SMOKER'
 export type MobilityNeed = 'NONE' | 'GROUND_FLOOR' | 'WHEELCHAIR'
+export type RoomSharingStatus = 'CAN_SHARE' | 'PREFERS_PRIVATE' | 'NEEDS_PRIVATE'
+export type SupportLevel = 'STANDARD' | 'ELEVATED' | 'INTENSIVE'
+export type RecyclingKnowledge = 'NONE' | 'BASIC' | 'GOOD'
 
 export interface CompatibilityScore {
   overall: number // 0-100

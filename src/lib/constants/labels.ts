@@ -115,6 +115,29 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
 }
 
 // =============================================================================
+// HEALTH / SUPPORT LABELS
+// =============================================================================
+
+export const ROOM_SHARING_STATUS_LABELS: Record<string, string> = {
+  CAN_SHARE: 'Kann Zimmer teilen',
+  PREFERS_PRIVATE: 'Bevorzugt Einzelzimmer',
+  NEEDS_PRIVATE: 'Benötigt Einzelzimmer',
+}
+
+export const SUPPORT_LEVEL_LABELS: Record<string, string> = {
+  STANDARD: 'Standard',
+  ELEVATED: 'Erhöht',
+  INTENSIVE: 'Intensiv',
+}
+
+export const CHECK_IN_TYPE_LABELS: Record<string, string> = {
+  INITIAL: 'Erstgespräch',
+  REGULAR: 'Regelmässig',
+  AD_HOC: 'Zwischendurch',
+  EXIT: 'Abschluss',
+}
+
+// =============================================================================
 // HOUSING LABELS
 // =============================================================================
 

@@ -37,12 +37,23 @@ model Resident {
   dietaryNeeds      String[] // e.g., ["halal", "vegetarian"]
   mobilityNeeds     MobilityNeed
   medicalEquipment  Boolean @default(false) // Needs space for equipment
-  
+
   // Preferences
   petTolerance      Boolean @default(true)
   sharedBathroom    Boolean @default(true)
   sharedKitchen     Boolean @default(true)
   privacyNeed       Int // 1-5 scale
+
+  // Household (chores, recycling)
+  choresContribution   Int @default(3) // 1-5 scale: contribution to shared tasks
+  recyclingKnowledge   RecyclingKnowledge @default(NONE)
+
+  // Health/Support needs (functional, not diagnostic)
+  roomSharingStatus    RoomSharingStatus @default(CAN_SHARE)
+  hasNightDisturbances Boolean @default(false) // Nightmares, sleep talking
+  needsQuietEnvironment Boolean @default(false) // Anxiety, sensory needs
+  hasSleepEquipment    Boolean @default(false) // CPAP, etc.
+  supportLevel         SupportLevel @default(STANDARD)
 
   // Status
   status            ResidentStatus @default(ACTIVE)
@@ -109,6 +120,24 @@ enum ResidentStatus {
   PLACED         // Has housing assignment
   TRANSFERRED    // Moved to different housing
   EXITED         // Left the system
+}
+
+enum RoomSharingStatus {
+  CAN_SHARE           // Default - can share room
+  PREFERS_PRIVATE     // Would prefer single but can manage
+  NEEDS_PRIVATE       // Cannot share (medical/psychological reason)
+}
+
+enum SupportLevel {
+  STANDARD            // Normal check-ins
+  ELEVATED            // More frequent monitoring
+  INTENSIVE           // Close support needed
+}
+
+enum RecyclingKnowledge {
+  NONE                // No experience with Swiss recycling
+  BASIC               // Knows basics (paper, glass, PET)
+  GOOD                // Understands full system (compost, textiles, etc.)
 }
 
 // =============================================================================
@@ -207,6 +236,7 @@ model Placement {
 
   // Relations
   incidents           Incident[]
+  checkIns            SatisfactionCheckIn[]
 
   @@unique([residentId, housingUnitId, startDate])
   @@index([status])
@@ -328,6 +358,48 @@ enum IncidentSeverity {
   MEDIUM     // Required intervention
   HIGH       // Serious, may require transfer
   CRITICAL   // Immediate action needed
+}
+
+// =============================================================================
+// SATISFACTION TRACKING
+// =============================================================================
+
+model SatisfactionCheckIn {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Who and where
+  placement     Placement @relation(fields: [placementId], references: [id])
+  placementId   String
+
+  // Timing
+  checkInType   CheckInType
+  weekNumber    Int? // Week number since placement start
+
+  // Ratings (all 1-5)
+  overallSatisfaction Int // How happy overall?
+  roommateRelations   Int? // How are relations with roommates?
+  facilitySatisfaction Int? // How satisfied with the unit itself?
+  safetyFeeling       Int? // How safe do they feel?
+
+  // Qualitative
+  concerns     String? // Any specific concerns?
+  improvements String? // What could be better?
+  positives    String? // What's working well?
+
+  // Meta
+  collectedBy  String? // Caseworker or self-reported
+  isAnonymous  Boolean @default(false)
+
+  @@index([placementId])
+  @@index([checkInType])
+}
+
+enum CheckInType {
+  INITIAL        // First week check-in
+  REGULAR        // Scheduled periodic check-in
+  AD_HOC         // Unscheduled check-in
+  EXIT           // When placement ends
 }
 
 // =============================================================================

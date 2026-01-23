@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { endPlacement } from '@/lib/actions'
 import {
   AGE_RANGE_LABELS,
   GENDER_LABELS,
@@ -103,9 +104,14 @@ export default async function ResidentDetailPage({ params }: Props) {
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
             {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
-          <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
-            Platzieren
+          <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
+            Bearbeiten
           </Link>
+          {!currentPlacement && (
+            <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
+              Platzieren
+            </Link>
+          )}
         </div>
       </div>
 
@@ -118,39 +124,79 @@ export default async function ResidentDetailPage({ params }: Props) {
               Aktuelle Platzierung
             </h2>
             {currentPlacement ? (
-              <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-600 text-white rounded-lg flex items-center justify-center">
-                    🏠
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-green-600 text-white rounded-lg flex items-center justify-center">
+                      🏠
+                    </div>
+                    <div>
+                      <Link
+                        href={`/housing/${currentPlacement.housingUnitId}`}
+                        className="font-medium text-gray-900 hover:text-aoz-primary"
+                      >
+                        {currentPlacement.housingUnit.code}
+                      </Link>
+                      <p className="text-sm text-gray-500">
+                        {currentPlacement.housingUnit.address}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Seit {formatDate(currentPlacement.startDate)}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <Link
-                      href={`/housing/${currentPlacement.housingUnitId}`}
-                      className="font-medium text-gray-900 hover:text-aoz-primary"
-                    >
-                      {currentPlacement.housingUnit.code}
-                    </Link>
-                    <p className="text-sm text-gray-500">
-                      {currentPlacement.housingUnit.address}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Seit {formatDate(currentPlacement.startDate)}
-                    </p>
-                  </div>
+                  {currentPlacement.compatibilityScore && (
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Kompatibilität</p>
+                      <p
+                        className={`text-lg font-semibold ${getScoreColorClass(
+                          currentPlacement.compatibilityScore
+                        )}`}
+                      >
+                        {Math.round(currentPlacement.compatibilityScore)}% -{' '}
+                        {getScoreLabel(currentPlacement.compatibilityScore)}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                {currentPlacement.compatibilityScore && (
-                  <div className="text-right">
-                    <p className="text-sm text-gray-500">Kompatibilität</p>
-                    <p
-                      className={`text-lg font-semibold ${getScoreColorClass(
-                        currentPlacement.compatibilityScore
-                      )}`}
-                    >
-                      {Math.round(currentPlacement.compatibilityScore)}% -{' '}
-                      {getScoreLabel(currentPlacement.compatibilityScore)}
-                    </p>
-                  </div>
-                )}
+
+                {/* End Placement Form */}
+                <details className="group">
+                  <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2">
+                    <span className="group-open:rotate-90 transition-transform">▶</span>
+                    Platzierung beenden
+                  </summary>
+                  <form action={endPlacement} className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+                    <input type="hidden" name="placementId" value={currentPlacement.id} />
+                    <input type="hidden" name="residentId" value={resident.id} />
+
+                    <div>
+                      <label className="label">Grund *</label>
+                      <select name="endReason" required className="input">
+                        <option value="">Bitte wählen</option>
+                        {Object.entries(END_REASON_LABELS).map(([key, label]) => (
+                          <option key={key} value={key}>
+                            {label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">Notizen</label>
+                      <textarea
+                        name="notes"
+                        rows={2}
+                        placeholder="Optionale Anmerkungen..."
+                        className="input"
+                      />
+                    </div>
+
+                    <button type="submit" className="btn-outline text-sm">
+                      Platzierung beenden
+                    </button>
+                  </form>
+                </details>
               </div>
             ) : (
               <div className="text-center py-8">

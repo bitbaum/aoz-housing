@@ -94,6 +94,9 @@ export default async function HousingDetailPage({ params }: Props) {
         <div className="flex items-center gap-3">
           <HarmonyBadge status={harmonyStatus} />
           <StatusBadge status={unit.status} />
+          <Link href={`/housing/${unit.id}/edit`} className="btn-outline">
+            Bearbeiten
+          </Link>
         </div>
       </div>
 

@@ -188,6 +188,16 @@ function calculatePracticalCompatibility(
     weight: 15,
   })
 
+  // Chores contribution compatibility (similar levels = less conflict)
+  const choresDiff = Math.abs(r1.choresContribution - r2.choresContribution)
+  const choresScore = 100 - choresDiff * 20 // Each level difference reduces by 20
+  factors.push({
+    name: 'chores',
+    score: choresScore,
+    weight: 20,
+    note: choresDiff >= 2 ? 'Unterschiedliche Beiträge zu Haushaltsaufgaben' : undefined,
+  })
+
   return {
     score: weightedAverage(factors),
     factors,
@@ -240,6 +250,55 @@ function calculateRiskFactors(
   if (Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel) >= 3) {
     factors.push({ name: 'cleanliness_conflict', score: 30, weight: 1 })
     totalRisk += 30 * 0.2
+  }
+
+  // Room sharing incompatibility (hard requirement)
+  if (r1.roomSharingStatus === 'NEEDS_PRIVATE' || r2.roomSharingStatus === 'NEEDS_PRIVATE') {
+    factors.push({ name: 'room_sharing_required', score: 80, weight: 1 })
+    totalRisk += 80 * 0.3 // High weight - this is a hard requirement
+  }
+
+  // Night disturbances risk (affects roommates)
+  if (r1.hasNightDisturbances || r2.hasNightDisturbances) {
+    // Risk is higher if one has disturbances and other needs quiet
+    const disturbanceRisk =
+      (r1.hasNightDisturbances && r2.needsQuietEnvironment) ||
+      (r2.hasNightDisturbances && r1.needsQuietEnvironment)
+        ? 60
+        : 25
+    factors.push({ name: 'night_disturbance', score: disturbanceRisk, weight: 1 })
+    totalRisk += disturbanceRisk * 0.15
+  }
+
+  // Sleep equipment noise risk
+  if ((r1.hasSleepEquipment || r2.hasSleepEquipment) &&
+      (r1.noiseTolerance <= 2 || r2.noiseTolerance <= 2)) {
+    factors.push({ name: 'equipment_noise', score: 30, weight: 1 })
+    totalRisk += 30 * 0.1
+  }
+
+  // Quiet environment needs conflict with noisy roommate
+  if ((r1.needsQuietEnvironment && r2.noiseTolerance >= 4) ||
+      (r2.needsQuietEnvironment && r1.noiseTolerance >= 4)) {
+    factors.push({ name: 'quiet_vs_noisy', score: 40, weight: 1 })
+    totalRisk += 40 * 0.15
+  }
+
+  // Chores contribution gap risk (potential for resentment)
+  const choresDiff = Math.abs(r1.choresContribution - r2.choresContribution)
+  if (choresDiff >= 3) {
+    factors.push({ name: 'chores_imbalance', score: 35, weight: 1 })
+    totalRisk += 35 * 0.15
+  }
+
+  // Recycling knowledge gap (can cause friction)
+  const recyclingOrder = ['NONE', 'BASIC', 'GOOD']
+  const recyclingGap = Math.abs(
+    recyclingOrder.indexOf(r1.recyclingKnowledge) - recyclingOrder.indexOf(r2.recyclingKnowledge)
+  )
+  if (recyclingGap >= 2) {
+    factors.push({ name: 'recycling_gap', score: 25, weight: 1 })
+    totalRisk += 25 * 0.1
   }
 
   return {
@@ -392,6 +451,44 @@ function generateInsights(
   // Positive factors
   if (r1.socialStyle === r2.socialStyle) {
     strengths.push('Ähnliche soziale Bedürfnisse')
+  }
+
+  // Health/Support factors
+  if (r1.roomSharingStatus === 'NEEDS_PRIVATE' || r2.roomSharingStatus === 'NEEDS_PRIVATE') {
+    concerns.push('Einer/beide benötigen Einzelzimmer')
+    recommendations.push('Nur in Einheit mit verfügbarem Einzelzimmer platzieren')
+  }
+
+  if (r1.hasNightDisturbances && r2.needsQuietEnvironment ||
+      r2.hasNightDisturbances && r1.needsQuietEnvironment) {
+    concerns.push('Nächtliche Unruhe trifft auf Ruhebedürfnis')
+    recommendations.push('Nicht im selben Zimmer platzieren')
+  }
+
+  if (r1.needsQuietEnvironment && r2.needsQuietEnvironment) {
+    strengths.push('Beide bevorzugen ruhige Umgebung')
+  }
+
+  if (r1.supportLevel === 'INTENSIVE' || r2.supportLevel === 'INTENSIVE') {
+    recommendations.push('Intensive Betreuung einplanen')
+  }
+
+  // Chores insights
+  const choresDiff = Math.abs(r1.choresContribution - r2.choresContribution)
+  if (choresDiff >= 3) {
+    concerns.push('Grosse Unterschiede bei Haushaltsaufgaben')
+    recommendations.push('Klare Aufgabenverteilung schriftlich festhalten')
+  } else if (r1.choresContribution >= 4 && r2.choresContribution >= 4) {
+    strengths.push('Beide engagiert bei Haushaltsaufgaben')
+  }
+
+  // Recycling insights
+  if (r1.recyclingKnowledge === 'NONE' || r2.recyclingKnowledge === 'NONE') {
+    recommendations.push('Recycling-Schulung für Bewohner ohne Erfahrung einplanen')
+  }
+  if ((r1.recyclingKnowledge === 'GOOD' && r2.recyclingKnowledge === 'NONE') ||
+      (r2.recyclingKnowledge === 'GOOD' && r1.recyclingKnowledge === 'NONE')) {
+    concerns.push('Recycling-Kenntnisse sehr unterschiedlich')
   }
 
   return { strengths, concerns, recommendations }
