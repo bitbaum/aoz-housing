@@ -2,7 +2,6 @@
 
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import {
   validateFormData,
@@ -37,7 +36,6 @@ export async function createSpot(formData: FormData): Promise<void> {
 
   revalidatePath(`/housing/${data.housingUnitId}`)
   revalidatePath(`/housing/${data.housingUnitId}/spots`)
-  redirect(`/housing/${data.housingUnitId}/spots`)
 }
 
 export async function updateSpot(formData: FormData): Promise<void> {
@@ -54,7 +52,6 @@ export async function updateSpot(formData: FormData): Promise<void> {
 
   revalidatePath(`/housing/${housingUnitId}`)
   revalidatePath(`/housing/${housingUnitId}/spots`)
-  redirect(`/housing/${housingUnitId}/spots`)
 }
 
 export async function deleteSpot(formData: FormData): Promise<void> {
@@ -80,7 +77,6 @@ export async function deleteSpot(formData: FormData): Promise<void> {
 
   revalidatePath(`/housing/${housingUnitId}`)
   revalidatePath(`/housing/${housingUnitId}/spots`)
-  redirect(`/housing/${housingUnitId}/spots`)
 }
 
 export async function createMultipleSpots(formData: FormData): Promise<void> {
@@ -115,5 +111,4 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
 
   revalidatePath(`/housing/${data.housingUnitId}`)
   revalidatePath(`/housing/${data.housingUnitId}/spots`)
-  redirect(`/housing/${data.housingUnitId}/spots`)
 }
