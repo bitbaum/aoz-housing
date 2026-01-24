@@ -240,6 +240,15 @@ export const END_REASON_LABELS: Record<string, string> = {
   OTHER: 'Sonstiges',
 }
 
+export const END_REASON_DESCRIPTIONS: Record<string, string> = {
+  NATURAL: 'Planmässiges Ende der Unterbringung (z.B. Auszug, eigene Wohnung)',
+  CONFLICT: 'Beendigung aufgrund von Konflikten mit Mitbewohnern oder Regelverstössen',
+  REQUEST: 'Bewohner hat selbst um Verlegung/Beendigung gebeten',
+  CAPACITY: 'Platz wird für andere Bewohner benötigt (Umstrukturierung)',
+  UPGRADE: 'Wechsel zu einer besseren Unterkunft (z.B. grösseres Zimmer, Privatzimmer)',
+  OTHER: 'Sonstige Gründe (bitte in Notizen erläutern)',
+}
+
 // =============================================================================
 // MAINTENANCE REQUEST LABELS
 // =============================================================================

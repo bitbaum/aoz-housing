@@ -8,12 +8,7 @@ import {
   MEDICAL_DOC_TYPE_LABELS,
   getLabel,
 } from '@/lib/constants'
-import {
-  getScoreLabel,
-  getScoreColorClass,
-  getScoreBgClass,
-  getOccupancyColorClass,
-} from '@/lib/utils'
+// Removed unused score utilities - we show actual factors now
 import { calculateCompatibility } from '@/lib/compatibility'
 import {
   SPOT_TYPE_LABELS,
@@ -25,7 +20,7 @@ import type { Resident } from '@prisma/client'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ resident?: string; unit?: string }>
+  searchParams: Promise<{ resident?: string; unit?: string; new?: string }>
 }
 
 async function placeResident(formData: FormData) {
@@ -143,12 +138,11 @@ export default async function MatchingPage({ searchParams }: Props) {
         .map((unit) => {
           const currentResidents = unit.placements.map((p) => p.resident)
 
-          // Calculate average compatibility with current residents
-          let avgCompatibility = 100
+          // Calculate compatibility details with current residents
           const compatibilityDetails: any[] = []
 
           if (currentResidents.length > 0) {
-            const scores = currentResidents.map((resident) => {
+            currentResidents.forEach((resident) => {
               const score = calculateCompatibility(
                 foundResident as any,
                 resident as any
@@ -157,69 +151,123 @@ export default async function MatchingPage({ searchParams }: Props) {
                 resident,
                 score,
               })
-              return score.overall
             })
-            avgCompatibility = scores.reduce((a, b) => a + b, 0) / scores.length
           }
 
-          // Calculate unit fit (mobility, smoking, etc.)
-          let unitFit = 100
+          // Check unit fit - collect real concerns
           const unitConcerns: string[] = []
+          let hasBlockingIssue = false
 
           if (
             foundResident.mobilityNeeds === 'WHEELCHAIR' &&
             !unit.wheelchairAccess
           ) {
-            unitFit -= 50
             unitConcerns.push('Keine Rollstuhlzugänglichkeit')
+            hasBlockingIssue = true
           }
           if (
             foundResident.mobilityNeeds === 'GROUND_FLOOR' &&
             !unit.groundFloor &&
             !unit.elevator
           ) {
-            unitFit -= 30
             unitConcerns.push('Nicht im Erdgeschoss')
+            hasBlockingIssue = true
           }
           if (
             foundResident.smokingStatus !== 'NON_SMOKER' &&
             !unit.smokingAllowed
           ) {
-            unitFit -= 20
             unitConcerns.push('Rauchen nicht erlaubt')
           }
           if (!foundResident.sharedKitchen && unit.sharedKitchen) {
-            unitFit -= 15
             unitConcerns.push('Nur geteilte Küche')
           }
           if (!foundResident.sharedBathroom && unit.sharedBathrooms > 0) {
-            unitFit -= 15
             unitConcerns.push('Geteiltes Badezimmer')
           }
 
-          const overallScore = Math.round(avgCompatibility * 0.7 + unitFit * 0.3)
+          // Count shared languages with current residents
+          const roommateLanguages = currentResidents.flatMap((r: any) => r.languages || [])
+          const sharedLanguageCount = (foundResident.languages || []).filter(
+            (l: string) => roommateLanguages.includes(l)
+          ).length
+
+          // Count total concerns from roommate compatibility
+          const totalRoommateConcerns = compatibilityDetails.reduce(
+            (sum, d) => sum + (d.score.concerns?.length || 0), 0
+          )
 
           return {
             unit,
-            avgCompatibility: Math.round(avgCompatibility),
-            unitFit: Math.round(unitFit),
-            overallScore,
             compatibilityDetails,
             unitConcerns,
+            hasBlockingIssue,
+            sharedLanguageCount,
+            totalRoommateConcerns,
+            // For sorting: fewer issues = better
+            sortScore: (hasBlockingIssue ? 1000 : 0) +
+              unitConcerns.length * 10 +
+              totalRoommateConcerns -
+              sharedLanguageCount * 5 -
+              (currentResidents.length === 0 ? 20 : 0) // Prefer empty units
           }
         })
-        .sort((a, b) => b.overallScore - a.overallScore)
+        .sort((a, b) => a.sortScore - b.sortScore) // Lower score = better
     }
   }
+
+  const isNewResident = params.new === '1' && selectedResident
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Matching</h1>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {isNewResident ? 'Unterkunft finden' : 'Matching'}
+        </h1>
         <p className="text-gray-500">
-          Finden Sie die optimale Platzierung für Bewohner
+          {isNewResident
+            ? `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${selectedResident?.code}`
+            : 'Finden Sie die optimale Platzierung für Bewohner'
+          }
         </p>
       </div>
+
+      {/* Step indicator for new residents */}
+      {isNewResident && (
+        <div className="mb-6 flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-medium">
+              ✓
+            </div>
+            <span className="text-sm text-gray-500">Profil erfasst</span>
+          </div>
+          <div className="flex-1 h-0.5 bg-green-500" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-aoz-primary text-white flex items-center justify-center text-sm font-medium">
+              2
+            </div>
+            <span className="text-sm font-medium text-gray-900">Unterkunft finden</span>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome banner for new residents */}
+      {isNewResident && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">👤</span>
+            <div>
+              <h2 className="font-semibold text-green-800">
+                Bewohner {selectedResident?.code} erfolgreich erstellt
+              </h2>
+              <p className="text-sm text-green-700 mt-1">
+                Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach
+                Kompatibilität sortiert - oben die besten Matches.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left panel: Unplaced residents */}
@@ -318,10 +366,31 @@ export default async function MatchingPage({ searchParams }: Props) {
 
 function MatchCard({ match, resident }: { match: any; resident: any }) {
   const occupancy = match.unit.placements.length
-  const occupancyPercent = Math.round((occupancy / match.unit.totalBeds) * 100)
+
+  // Collect all strengths and concerns from roommate compatibility
+  const allStrengths: string[] = []
+  const allConcerns: string[] = []
+
+  match.compatibilityDetails.forEach((detail: any) => {
+    detail.score.strengths?.forEach((s: string) => {
+      if (!allStrengths.includes(s)) allStrengths.push(s)
+    })
+    detail.score.concerns?.forEach((c: string) => {
+      if (!allConcerns.includes(c)) allConcerns.push(c)
+    })
+  })
+
+  // Count shared languages with roommates
+  const roommateLanguages = match.unit.placements.flatMap((p: any) => p.resident.languages || [])
+  const sharedLanguages = (resident.languages || []).filter((l: string) => roommateLanguages.includes(l))
+
+  const totalIssues = match.unitConcerns.length + allConcerns.length
+  const hasBlockingIssues = match.unitConcerns.some((c: string) =>
+    c.includes('Rollstuhl') || c.includes('Erdgeschoss')
+  )
 
   return (
-    <div className="p-4 border border-gray-200 rounded-lg">
+    <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-red-200 bg-red-50' : 'border-gray-200'}`}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="flex items-center gap-2">
@@ -331,81 +400,89 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
             >
               {match.unit.code}
             </Link>
-            <span
-              className={`px-2 py-0.5 rounded-full text-xs font-medium ${getScoreBgClass(
-                match.overallScore
-              )}`}
-            >
-              {match.overallScore}%
-            </span>
           </div>
           <p className="text-sm text-gray-500">{match.unit.address}</p>
         </div>
-      </div>
-
-      {/* Occupancy */}
-      <div className="mb-3">
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-500">Belegung</span>
-          <span className="font-medium">
-            {occupancy}/{match.unit.totalBeds}
-          </span>
-        </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
-            style={{ width: `${occupancyPercent}%` }}
-          />
+        <div className="text-right">
+          <p className="text-sm font-medium">
+            {occupancy}/{match.unit.totalBeds} belegt
+          </p>
+          {occupancy === 0 && (
+            <p className="text-xs text-green-600">Leer</p>
+          )}
         </div>
       </div>
 
-      {/* Score breakdown */}
-      <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-500">Mitbewohner</span>
-          <span className={getScoreColorClass(match.avgCompatibility)}>
-            {match.avgCompatibility}%
-          </span>
+      {/* Positive factors */}
+      {(allStrengths.length > 0 || sharedLanguages.length > 0 || occupancy === 0) && (
+        <div className="mb-3 space-y-1">
+          {occupancy === 0 && (
+            <p className="text-xs text-green-600">✓ Keine Mitbewohner - keine Konflikte</p>
+          )}
+          {sharedLanguages.length > 0 && (
+            <p className="text-xs text-green-600">
+              ✓ Gemeinsame Sprache mit {match.unit.placements.filter((p: any) =>
+                (resident.languages || []).some((l: string) => (p.resident.languages || []).includes(l))
+              ).length} Bewohner(n)
+            </p>
+          )}
+          {allStrengths.slice(0, 2).map((strength, i) => (
+            <p key={i} className="text-xs text-green-600">✓ {strength}</p>
+          ))}
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-500">Unterkunft</span>
-          <span className={getScoreColorClass(match.unitFit)}>
-            {match.unitFit}%
-          </span>
-        </div>
-      </div>
+      )}
 
-      {/* Current residents */}
+      {/* Current residents with actual compatibility info */}
       {match.unit.placements.length > 0 && (
         <div className="mb-3">
           <p className="text-xs text-gray-500 mb-1">Aktuelle Bewohner:</p>
-          <div className="flex flex-wrap gap-1">
+          <div className="space-y-1">
             {match.unit.placements.map((p: any) => {
               const detail = match.compatibilityDetails.find(
                 (d: any) => d.resident.id === p.resident.id
               )
+              const hasSharedLang = (resident.languages || []).some(
+                (l: string) => (p.resident.languages || []).includes(l)
+              )
+              const concernCount = detail?.score.concerns?.length || 0
               return (
-                <span
-                  key={p.id}
-                  className={`px-2 py-0.5 rounded text-xs ${getScoreBgClass(
-                    detail?.score.overall || 50
-                  )}`}
-                  title={`${detail?.score.overall || 0}% Kompatibilität`}
-                >
-                  {p.resident.code}
-                </span>
+                <div key={p.id} className="flex items-center justify-between text-xs">
+                  <span className="font-medium">{p.resident.code}</span>
+                  <span className={concernCount > 0 ? 'text-orange-600' : 'text-green-600'}>
+                    {hasSharedLang ? '✓ Sprache' : '✗ Sprache'}
+                    {concernCount > 0 && ` · ${concernCount} Bedenken`}
+                  </span>
+                </div>
               )
             })}
           </div>
         </div>
       )}
 
-      {/* Concerns */}
+      {/* Unit concerns (real issues) */}
       {match.unitConcerns.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs text-orange-600">
-            ⚠️ {match.unitConcerns.join(' · ')}
-          </p>
+          {match.unitConcerns.map((concern: string, i: number) => (
+            <p key={i} className={`text-xs ${
+              concern.includes('Rollstuhl') || concern.includes('Erdgeschoss')
+                ? 'text-red-600 font-medium'
+                : 'text-orange-600'
+            }`}>
+              ⚠️ {concern}
+            </p>
+          ))}
+        </div>
+      )}
+
+      {/* Roommate concerns */}
+      {allConcerns.length > 0 && (
+        <div className="mb-3">
+          {allConcerns.slice(0, 3).map((concern, i) => (
+            <p key={i} className="text-xs text-orange-600">⚠️ {concern}</p>
+          ))}
+          {allConcerns.length > 3 && (
+            <p className="text-xs text-gray-400">+{allConcerns.length - 3} weitere Bedenken</p>
+          )}
         </div>
       )}
 
@@ -423,31 +500,26 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
         <form action={placeResident}>
           <input type="hidden" name="residentId" value={resident.id} />
           <input type="hidden" name="housingUnitId" value={match.unit.id} />
+          {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
           <input
             type="hidden"
             name="compatibilityScore"
-            value={match.avgCompatibility}
+            value={match.compatibilityDetails[0]?.score.overall || 0}
           />
           <input
             type="hidden"
             name="lifestyleScore"
-            value={
-              match.compatibilityDetails[0]?.score.lifestyle || match.avgCompatibility
-            }
+            value={match.compatibilityDetails[0]?.score.lifestyle || 0}
           />
           <input
             type="hidden"
             name="socialScore"
-            value={
-              match.compatibilityDetails[0]?.score.social || match.avgCompatibility
-            }
+            value={match.compatibilityDetails[0]?.score.social || 0}
           />
           <input
             type="hidden"
             name="practicalScore"
-            value={
-              match.compatibilityDetails[0]?.score.practical || match.avgCompatibility
-            }
+            value={match.compatibilityDetails[0]?.score.practical || 0}
           />
           <input
             type="hidden"
@@ -520,25 +592,26 @@ function SpotSelection({
           <input type="hidden" name="residentId" value={resident.id} />
           <input type="hidden" name="housingUnitId" value={match.unit.id} />
           <input type="hidden" name="spotId" value={spot.id} />
+          {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
           <input
             type="hidden"
             name="compatibilityScore"
-            value={match.avgCompatibility}
+            value={match.compatibilityDetails[0]?.score.overall || 0}
           />
           <input
             type="hidden"
             name="lifestyleScore"
-            value={match.compatibilityDetails[0]?.score.lifestyle || match.avgCompatibility}
+            value={match.compatibilityDetails[0]?.score.lifestyle || 0}
           />
           <input
             type="hidden"
             name="socialScore"
-            value={match.compatibilityDetails[0]?.score.social || match.avgCompatibility}
+            value={match.compatibilityDetails[0]?.score.social || 0}
           />
           <input
             type="hidden"
             name="practicalScore"
-            value={match.compatibilityDetails[0]?.score.practical || match.avgCompatibility}
+            value={match.compatibilityDetails[0]?.score.practical || 0}
           />
           <input
             type="hidden"

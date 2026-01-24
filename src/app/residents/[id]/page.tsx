@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { endPlacement, transferPlacement } from '@/lib/actions'
 import {
-  SPOT_TYPE_LABELS,
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
+import { PlacementActions } from '@/components/residents/PlacementActions'
 import {
   AGE_RANGE_LABELS,
   GENDER_LABELS,
@@ -201,151 +200,28 @@ export default async function ResidentDetailPage({ params }: Props) {
                   )}
                 </div>
 
-                {/* Transfer Placement Form */}
-                <details className="group">
-                  <summary className="cursor-pointer text-sm text-aoz-primary hover:text-aoz-primary/80 flex items-center gap-2 font-medium">
-                    <span className="group-open:rotate-90 transition-transform">▶</span>
-                    🔄 Verlegen
-                  </summary>
-                  <form action={transferPlacement} className="mt-4 p-4 bg-blue-50 rounded-lg space-y-4">
-                    <input type="hidden" name="currentPlacementId" value={currentPlacement.id} />
-                    <input type="hidden" name="residentId" value={resident.id} />
-
-                    <div>
-                      <label className="label">Ziel-Unterkunft *</label>
-                      <select
-                        name="targetHousingUnitId"
-                        required
-                        className="input"
-                        id={`transfer-unit-${resident.id}`}
-                      >
-                        <option value="">Bitte wählen</option>
-                        {availableUnits
-                          .filter((u) => u.id !== currentPlacement.housingUnitId && u.spots.length > 0)
-                          .map((unit) => {
-                            const eligibleSpots = unit.spots.filter((spot) => {
-                              const eligibleTypes = getEligibleSpotTypes(
-                                resident.hasMedicalDocumentation,
-                                resident.medicalDocType
-                              )
-                              return eligibleTypes.includes(spot.type)
-                            })
-                            if (eligibleSpots.length === 0) return null
-                            return (
-                              <option key={unit.id} value={unit.id}>
-                                {unit.code} - {unit.address} ({eligibleSpots.length} Plätze frei)
-                              </option>
-                            )
-                          })}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="label">Ziel-Platz *</label>
-                      <select name="targetSpotId" required className="input">
-                        <option value="">Bitte wählen</option>
-                        {availableUnits
-                          .filter((u) => u.id !== currentPlacement.housingUnitId)
-                          .flatMap((unit) =>
-                            unit.spots
-                              .filter((spot) => {
-                                const eligibleTypes = getEligibleSpotTypes(
-                                  resident.hasMedicalDocumentation,
-                                  resident.medicalDocType
-                                )
-                                return eligibleTypes.includes(spot.type)
-                              })
-                              .map((spot) => (
-                                <option key={spot.id} value={spot.id}>
-                                  {unit.code} → {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
-                                  {spot.label || spot.code} ({SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]})
-                                </option>
-                              ))
-                          )}
-                      </select>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {resident.hasMedicalDocumentation
-                          ? 'Zeigt Plätze passend zur med. Dokumentation'
-                          : 'Zeigt nur Betten (keine med. Dokumentation)'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="label">Grund für Verlegung *</label>
-                      <select name="transferReason" required className="input">
-                        <option value="">Bitte wählen</option>
-                        {Object.entries(END_REASON_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="label">Notizen</label>
-                      <textarea
-                        name="notes"
-                        rows={2}
-                        placeholder="Optionale Anmerkungen zur Verlegung..."
-                        className="input"
-                      />
-                    </div>
-
-                    <button type="submit" className="btn-primary text-sm">
-                      Verlegen
-                    </button>
-                  </form>
-                </details>
-
-                {/* End Placement Form */}
-                <details className="group">
-                  <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2">
-                    <span className="group-open:rotate-90 transition-transform">▶</span>
-                    Platzierung beenden
-                  </summary>
-                  <form action={endPlacement} className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
-                    <input type="hidden" name="placementId" value={currentPlacement.id} />
-                    <input type="hidden" name="residentId" value={resident.id} />
-
-                    <div>
-                      <label className="label">Grund *</label>
-                      <select name="endReason" required className="input">
-                        <option value="">Bitte wählen</option>
-                        {Object.entries(END_REASON_LABELS).map(([key, label]) => (
-                          <option key={key} value={key}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="label">Notizen</label>
-                      <textarea
-                        name="notes"
-                        rows={2}
-                        placeholder="Optionale Anmerkungen..."
-                        className="input"
-                      />
-                    </div>
-
-                    <button type="submit" className="btn-outline text-sm">
-                      Platzierung beenden
-                    </button>
-                  </form>
-                </details>
-
-                {/* Satisfaction Check-in Link */}
-                <div className="mt-4 pt-4 border-t">
-                  <Link
-                    href={`/placements/${currentPlacement.id}/checkin`}
-                    className="btn-primary inline-flex items-center gap-2"
-                  >
-                    <span>📋</span>
-                    Zufriedenheits-Check-in
-                  </Link>
-                </div>
+                {/* Actions Section - Client Component */}
+                <PlacementActions
+                  placementId={currentPlacement.id}
+                  residentId={resident.id}
+                  currentUnitId={currentPlacement.housingUnitId}
+                  hasMedicalDocumentation={resident.hasMedicalDocumentation}
+                  availableUnits={availableUnits.map((u) => ({
+                    id: u.id,
+                    code: u.code,
+                    address: u.address,
+                    spots: u.spots.map((s) => ({
+                      id: s.id,
+                      code: s.code,
+                      type: s.type,
+                      label: s.label,
+                    })),
+                  }))}
+                  eligibleSpotTypes={getEligibleSpotTypes(
+                    resident.hasMedicalDocumentation,
+                    resident.medicalDocType
+                  )}
+                />
               </div>
             ) : (
               <div className="text-center py-8">

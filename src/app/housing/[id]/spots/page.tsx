@@ -17,10 +17,12 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ new?: string }>
 }
 
-export default async function SpotManagementPage({ params }: Props) {
+export default async function SpotManagementPage({ params, searchParams }: Props) {
   const { id } = await params
+  const { new: isNewUnit } = await searchParams
 
   const unit = await prisma.housingUnit.findUnique({
     where: { id },
@@ -58,22 +60,60 @@ export default async function SpotManagementPage({ params }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <Link
-          href={`/housing/${id}`}
-          className="text-aoz-primary hover:underline text-sm"
-        >
-          &larr; Zurück zur Unterkunft
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">
-          Plätze verwalten: {unit.code}
-        </h1>
-        <p className="text-gray-500">{unit.address}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <Link
+              href={`/housing/${id}`}
+              className="text-aoz-primary hover:underline text-sm"
+            >
+              &larr; Zurück zur Unterkunft
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900 mt-2">
+              {isNewUnit ? 'Zimmer & Betten einrichten' : 'Plätze verwalten'}: {unit.code}
+            </h1>
+            <p className="text-gray-500">{unit.address}</p>
+          </div>
+          {isNewUnit && unit.spots.length > 0 && (
+            <Link href={`/housing/${id}`} className="btn-primary">
+              Fertig &rarr;
+            </Link>
+          )}
+        </div>
       </div>
+
+      {/* Welcome Banner for new units */}
+      {isNewUnit && unit.spots.length === 0 && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🏠</span>
+            <div>
+              <h2 className="font-semibold text-green-800">
+                Unterkunft erstellt - jetzt Zimmer & Betten hinzufügen
+              </h2>
+              <p className="text-sm text-green-700 mt-1">
+                Fügen Sie Zimmer mit Betten hinzu, um Bewohner platzieren zu können.
+                Ein Zimmer kann mehrere Betten enthalten.
+              </p>
+              <div className="mt-3 flex items-center gap-4 text-sm text-green-800">
+                <span className="flex items-center gap-1">
+                  <span>1.</span> Zimmer-Code eingeben (z.B. Z1, Z2)
+                </span>
+                <span className="flex items-center gap-1">
+                  <span>2.</span> Anzahl Betten wählen
+                </span>
+                <span className="flex items-center gap-1">
+                  <span>3.</span> &quot;Zimmer erstellen&quot; klicken
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Add Section */}
       <div className="card mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Schnell hinzufügen
+          {isNewUnit && unit.spots.length === 0 ? 'Zimmer & Betten erstellen' : 'Schnell hinzufügen'}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Add Room with Beds */}

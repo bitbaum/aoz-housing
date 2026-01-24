@@ -28,7 +28,9 @@ export async function createResident(formData: FormData): Promise<void> {
   })
 
   revalidatePath('/residents')
-  redirect(`/residents/${resident.id}`)
+  revalidatePath('/matching')
+  // Redirect to matching page for immediate placement
+  redirect(`/matching?resident=${resident.id}&new=1`)
 }
 
 export async function updateResident(formData: FormData): Promise<void> {

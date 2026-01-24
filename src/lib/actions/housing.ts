@@ -28,7 +28,8 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
   })
 
   revalidatePath('/housing')
-  redirect(`/housing/${unit.id}`)
+  // Redirect to spots page for immediate room/bed setup
+  redirect(`/housing/${unit.id}/spots?new=1`)
 }
 
 export async function updateHousingUnit(formData: FormData): Promise<void> {
