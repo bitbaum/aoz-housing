@@ -166,7 +166,8 @@ model HousingUnit {
 
   // Identification
   code          String @unique // Internal reference
-  address       String
+  buildingName  String?        // Building this apartment belongs to (e.g., "Witikon")
+  address       String         // Full address of this unit
   
   // Capacity
   totalBeds     Int
