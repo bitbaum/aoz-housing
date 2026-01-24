@@ -111,7 +111,6 @@ export const ResidentUpdateSchema = ResidentInputSchema.extend({
 
 export const HousingUnitInputSchema = z.object({
   code: z.string().min(1, 'Code ist erforderlich').max(50),
-  buildingName: z.string().optional().nullable(),
   address: z.string().min(1, 'Adresse ist erforderlich'),
   totalBeds: z.coerce.number().int().min(1),
   totalRooms: z.coerce.number().int().min(1),

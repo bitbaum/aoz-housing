@@ -1,7 +1,6 @@
 interface HousingFormFieldsProps {
   defaultValues?: {
     code?: string
-    buildingName?: string | null
     address?: string
     totalBeds?: number
     totalRooms?: number
@@ -46,17 +45,6 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
             {isEdit && (
               <p className="text-xs text-gray-400 mt-1">Code kann nicht geändert werden</p>
             )}
-          </div>
-          <div>
-            <label className="label">Gebäude / Building</label>
-            <input
-              type="text"
-              name="buildingName"
-              defaultValue={defaultValues.buildingName || ''}
-              placeholder="z.B. Witikon, Zentrum"
-              className="input"
-            />
-            <p className="text-xs text-gray-500 mt-1">Optional: Name des Gebäudes oder Standorts</p>
           </div>
           <div className="md:col-span-2">
             <label className="label">Adresse *</label>
