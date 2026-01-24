@@ -83,27 +83,47 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
       {/* Welcome Banner for new units */}
       {isNewUnit && unit.spots.length === 0 && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">🏠</span>
-            <div>
-              <h2 className="font-semibold text-green-800">
-                Unterkunft erstellt - jetzt Zimmer & Betten hinzufügen
+        <div className="mb-6 p-5 bg-blue-50 border-2 border-blue-300 rounded-lg">
+          <div className="flex items-start gap-4">
+            <span className="text-3xl">🏢</span>
+            <div className="flex-1">
+              <h2 className="font-bold text-blue-900 text-lg mb-2">
+                Schritt 2 von 2: Zimmer und Betten einrichten
               </h2>
-              <p className="text-sm text-green-700 mt-1">
-                Fügen Sie Zimmer mit Betten hinzu, um Bewohner platzieren zu können.
-                Ein Zimmer kann mehrere Betten enthalten.
+              <p className="text-sm text-blue-800 mb-4">
+                Sie haben das Gebäude <strong>{unit.code}</strong> erstellt. Jetzt fügen Sie die Zimmer und Betten hinzu.
               </p>
-              <div className="mt-3 flex items-center gap-4 text-sm text-green-800">
-                <span className="flex items-center gap-1">
-                  <span>1.</span> Zimmer-Code eingeben (z.B. Z1, Z2)
-                </span>
-                <span className="flex items-center gap-1">
-                  <span>2.</span> Anzahl Betten wählen
-                </span>
-                <span className="flex items-center gap-1">
-                  <span>3.</span> &quot;Zimmer erstellen&quot; klicken
-                </span>
+
+              {/* Hierarchy Explanation */}
+              <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">So funktioniert die Hierarchie:</p>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium">🏢 Gebäude</span>
+                  <span>→</span>
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-medium">🚪 Zimmer</span>
+                  <span>→</span>
+                  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-medium">🛏️ Betten</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  • <strong>Zimmer</strong> = gemeinsam genutzter Raum (z.B. Schlafzimmer mit 2-4 Betten)<br/>
+                  • <strong>Betten</strong> = einzelne Schlafplätze in einem Zimmer
+                </p>
+              </div>
+
+              {/* Quick Start Steps */}
+              <div className="flex flex-wrap gap-3 text-sm">
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
+                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="text-blue-900">Code eingeben (z.B. <code className="bg-white px-1 rounded">Z1</code>)</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
+                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="text-blue-900">Anzahl Betten wählen</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
+                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span className="text-blue-900">&quot;Zimmer erstellen&quot; klicken</span>
+                </div>
               </div>
             </div>
           </div>
@@ -112,15 +132,24 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
       {/* Quick Add Section */}
       <div className="card mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {isNewUnit && unit.spots.length === 0 ? 'Zimmer & Betten erstellen' : 'Schnell hinzufügen'}
-        </h2>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-xl">➕</span>
+          <h2 className="text-lg font-semibold text-gray-900">
+            {isNewUnit && unit.spots.length === 0 ? 'Zimmer & Betten erstellen' : 'Plätze hinzufügen'}
+          </h2>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Add Room with Beds */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-3">
-              Zimmer mit Betten
-            </h3>
+          <div className="border-2 border-green-300 bg-green-50 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">🚪</span>
+              <h3 className="font-semibold text-green-900">
+                Gemeinsames Zimmer (mit mehreren Betten)
+              </h3>
+            </div>
+            <p className="text-xs text-green-700 mb-4">
+              Erstellt 1 Zimmer + die angegebene Anzahl Betten darin
+            </p>
             <form action={createMultipleSpots} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-2 gap-3">
@@ -186,8 +215,16 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           </div>
 
           {/* Add Single Spot */}
-          <div className="border border-gray-200 rounded-lg p-4">
-            <h3 className="font-medium text-gray-900 mb-3">Einzelner Platz</h3>
+          <div className="border-2 border-purple-300 bg-purple-50 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">🏠</span>
+              <h3 className="font-semibold text-purple-900">
+                Privatzimmer oder Studio
+              </h3>
+            </div>
+            <p className="text-xs text-purple-700 mb-4">
+              Einzelplatz ohne gemeinsam genutztes Schlafzimmer
+            </p>
             <form action={createSpot} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-2 gap-3">
