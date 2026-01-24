@@ -31,7 +31,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
   ])
 
   const interpersonalTypes = INCIDENT_TYPES_BY_CATEGORY.INTERPERSONAL
-  const maintenanceTypes = INCIDENT_TYPES_BY_CATEGORY.MAINTENANCE
+  // Note: Maintenance requests go to /maintenance, not incidents
 
   return (
     <div>
@@ -111,29 +111,31 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             <div>
               <label className="label">Kategorie *</label>
               <div className="flex gap-3">
-                {Object.entries(INCIDENT_CATEGORY_LABELS).map(
-                  ([key, label]) => (
-                    <label key={key} className="flex-1 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="category"
-                        value={key}
-                        required
-                        defaultChecked={key === 'INTERPERSONAL'}
-                        className="sr-only peer"
-                      />
-                      <div className="p-4 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
-                        <span className="text-2xl">
-                          {INCIDENT_CATEGORY_ICONS[key] || '💬'}
-                        </span>
-                        <p className="font-medium text-gray-900 mt-2">
-                          {label}
-                        </p>
-                      </div>
-                    </label>
-                  )
-                )}
+                {/* Only INTERPERSONAL and SAFETY - Maintenance goes to /maintenance */}
+                {(['INTERPERSONAL', 'SAFETY'] as const).map((key) => (
+                  <label key={key} className="flex-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="category"
+                      value={key}
+                      required
+                      defaultChecked={key === 'INTERPERSONAL'}
+                      className="sr-only peer"
+                    />
+                    <div className="p-4 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
+                      <span className="text-2xl">
+                        {INCIDENT_CATEGORY_ICONS[key] || '💬'}
+                      </span>
+                      <p className="font-medium text-gray-900 mt-2">
+                        {INCIDENT_CATEGORY_LABELS[key]}
+                      </p>
+                    </div>
+                  </label>
+                ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                Für Wartungsanfragen nutzen Sie bitte <a href="/maintenance/new" className="text-aoz-primary hover:underline">Neue Wartungsanfrage</a>
+              </p>
             </div>
 
             <div>
@@ -147,12 +149,8 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Wartung">
-                  {maintenanceTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {INCIDENT_TYPE_LABELS[type]}
-                    </option>
-                  ))}
+                <optgroup label="Sicherheit">
+                  <option value="SAFETY_CONCERN">Sicherheitsbedenken</option>
                 </optgroup>
                 <option value="OTHER">Sonstiges</option>
               </select>

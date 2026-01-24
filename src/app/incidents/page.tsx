@@ -89,10 +89,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           highlight={stats.critical > 0}
         />
         <StatCard label="Konflikte" value={stats.interpersonal} />
-        <StatCard label="Wartung" value={stats.maintenance} />
+        <StatCard label="Sicherheit" value={stats.safety} />
       </div>
 
-      {/* Category Tabs */}
+      {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
         <div className="flex gap-2 border-b border-gray-200">
           <TabLink
@@ -106,12 +106,6 @@ export default async function IncidentsListPage({ searchParams }: Props) {
             label="Konflikte"
             count={stats.interpersonal}
             active={categoryFilter === 'INTERPERSONAL'}
-          />
-          <TabLink
-            href="/incidents?category=MAINTENANCE"
-            label="Wartung"
-            count={stats.maintenance}
-            active={categoryFilter === 'MAINTENANCE'}
           />
           <TabLink
             href="/incidents?category=SAFETY"

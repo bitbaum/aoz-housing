@@ -10,13 +10,10 @@ import {
 } from '@/lib/constants'
 import {
   formatRelativeDate,
-  getTrendColorClass,
   getConflictIndicatorClass,
   getSeverityBorderClass,
-  type TrendType,
 } from '@/lib/utils'
-import { StatCard, CardLink } from '@/components/ui/Card'
-import { HealthIndicator } from '@/components/ui/ScoreIndicator'
+import { DashboardMetrics, SystemHealth } from '@/components/dashboard'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +36,14 @@ export default async function AdminDashboard() {
     }),
     prisma.placement.findMany({
       where: { status: 'ACTIVE' },
-      include: { resident: true, housingUnit: true },
+      include: {
+        resident: true,
+        housingUnit: true,
+        checkIns: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
     }),
     prisma.incident.findMany({
       where: {
@@ -63,25 +67,40 @@ export default async function AdminDashboard() {
   // Calculate stats
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
   const occupiedBeds = placements.length
-  const occupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0
 
   const interpersonalIncidents = incidents.filter(i => i.category === 'INTERPERSONAL')
   const maintenanceIncidents = incidents.filter(i => i.category === 'MAINTENANCE')
   const openIncidents = incidents.filter(i => !i.resolvedAt)
 
-  // Calculate average compatibility
-  const avgCompatibility = placements.length > 0
-    ? Math.round(
-        placements.reduce((sum, p) => sum + (p.compatibilityScore || 0), 0) /
-        placements.filter(p => p.compatibilityScore).length || 0
-      )
-    : 0
+  // Calculate overdue check-ins (based on support level)
+  const now = new Date()
+  const overdueCheckIns = placements.filter((p) => {
+    const supportLevel = p.resident.supportLevel || 'STANDARD'
+    const intervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+    const lastCheckIn = p.checkIns?.[0]
+    const daysSinceCheckIn = lastCheckIn
+      ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+      : Math.ceil((now.getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24))
+    return daysSinceCheckIn > intervalDays
+  })
 
-  // Find units needing attention (low harmony or many conflicts)
-  const unitsNeedingAttention = units
+  // Find units needing attention (most conflicts first)
+  const unitsSortedByConflicts = [...units].sort((a, b) => b.incidents.length - a.incidents.length)
+  const worstUnit = unitsSortedByConflicts[0]?.incidents.length > 0
+    ? { code: unitsSortedByConflicts[0].code, id: unitsSortedByConflicts[0].id, conflicts: unitsSortedByConflicts[0].incidents.length }
+    : undefined
+
+  const unitsNeedingAttention = unitsSortedByConflicts
     .filter(u => u.incidents.length >= 2 || u.placements.length >= u.totalBeds)
-    .sort((a, b) => b.incidents.length - a.incidents.length)
     .slice(0, 5)
+
+  // Oldest open maintenance ticket
+  const openMaintenanceTickets = maintenanceIncidents.filter(i => !i.resolvedAt)
+  const oldestTicketDays = openMaintenanceTickets.length > 0
+    ? Math.floor((Date.now() - new Date(openMaintenanceTickets.sort((a, b) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime()
+      )[0].date).getTime()) / (1000 * 60 * 60 * 24))
+    : undefined
 
   // Residents waiting for placement
   const unplacedResidents = residents.filter(r => r.status === 'ACTIVE')
@@ -139,86 +158,29 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <MetricCard
-          title="Bewohner"
-          value={residents.length}
-          subtitle={`${unplacedResidents.length} warten auf Platzierung`}
-          trend={unplacedResidents.length > 5 ? 'warning' : 'neutral'}
-          href="/residents"
-          tooltip="Aktive Bewohner im System (Status ACTIVE oder PLACED). Klicken für Details."
-        />
-        <MetricCard
-          title="Belegung"
-          value={`${occupancyRate}%`}
-          subtitle={`${occupiedBeds} / ${totalBeds} Plätze`}
-          trend={occupancyRate > 90 ? 'warning' : occupancyRate > 70 ? 'neutral' : 'good'}
-          href="/housing"
-          tooltip="Prozent der belegten Plätze. Über 90% = Warnung (wenig Flexibilität). Berechnet aus aktiven Platzierungen / Gesamtbetten."
-        />
-        <MetricCard
-          title="Ø Kompatibilität"
-          value={avgCompatibility > 0 ? `${avgCompatibility}%` : '--'}
-          subtitle="Aktive Platzierungen"
-          trend={avgCompatibility >= 70 ? 'good' : avgCompatibility >= 50 ? 'neutral' : 'warning'}
-          href="/analytics"
-          tooltip="Durchschnittliche Kompatibilitätsbewertung aller aktiven Platzierungen. Über 70% = gut, unter 50% = Handlungsbedarf."
-        />
-        <MetricCard
-          title="Offene Vorfälle"
-          value={openIncidents.length}
-          subtitle={`${interpersonalIncidents.length} Konflikte, ${maintenanceIncidents.length} Wartung`}
-          trend={openIncidents.length > 10 ? 'warning' : 'neutral'}
-          href="/incidents"
-          tooltip="Ungelöste Vorfälle der letzten 30 Tage. Über 10 = Warnung. Konflikte = zwischenmenschlich, Wartung = technisch."
-        />
-      </div>
+      <DashboardMetrics
+        totalResidents={residents.length}
+        unplacedCount={unplacedResidents.length}
+        freeBeds={totalBeds - occupiedBeds}
+        totalBeds={totalBeds}
+        overdueCheckIns={overdueCheckIns.length}
+        activePlacements={placements.length}
+        openIncidents={openIncidents.length}
+        interpersonalCount={interpersonalIncidents.length}
+        maintenanceCount={openMaintenanceTickets.length}
+      />
 
-      {/* System Health */}
+      {/* System Status - Real numbers, not scores */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 card">
-          <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Systemgesundheit</h2>
-            <span className="text-xs text-gray-400" title="Werte von 0-100. Höher = besser. Berechnet aus echten Daten der letzten 30 Tage.">
-              ⓘ
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <HealthIndicator
-              label="Harmonie"
-              score={calculateSystemHarmony(units)}
-              description={`${units.reduce((sum, u) => sum + u.incidents.length, 0)} Konflikte in ${units.length} Einheiten`}
-              tooltip="100 = keine Konflikte. -25 Punkte pro durchschnittlichem Konflikt pro Einheit (letzte 30 Tage). Unter 60: Vermittlung prüfen."
-            />
-            <HealthIndicator
-              label="Kapazität"
-              score={100 - occupancyRate}
-              description={`${totalBeds - occupiedBeds} von ${totalBeds} Plätzen frei`}
-              tooltip="100 = alle Plätze frei, 0 = voll belegt. Unter 20: Neue Unterkünfte suchen."
-            />
-            <HealthIndicator
-              label="Wartung"
-              score={calculateMaintenanceHealth(maintenanceIncidents)}
-              description={`${maintenanceIncidents.filter(i => !i.resolvedAt).length} offene Meldungen`}
-              tooltip="100 = keine offenen Wartungsmeldungen. -10 Punkte pro offener Meldung. Unter 60: Priorität auf Reparaturen."
-            />
-          </div>
-          {/* Color legend */}
-          <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500" /> 80-100
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-yellow-500" /> 60-79
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-orange-500" /> 40-59
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-red-500" /> 0-39
-            </span>
-          </div>
-        </div>
+        <SystemHealth
+          totalConflicts={interpersonalIncidents.length}
+          unitCount={units.length}
+          worstUnit={worstUnit}
+          freeBeds={totalBeds - occupiedBeds}
+          totalBeds={totalBeds}
+          openMaintenanceCount={openMaintenanceTickets.length}
+          oldestTicketDays={oldestTicketDays}
+        />
 
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Schnellaktionen</h2>
@@ -413,30 +375,6 @@ export default async function AdminDashboard() {
 
 // Components
 
-function MetricCard({
-  title,
-  value,
-  subtitle,
-  trend,
-  href,
-  tooltip,
-}: {
-  title: string
-  value: string | number
-  subtitle: string
-  trend: TrendType
-  href: string
-  tooltip?: string
-}) {
-  return (
-    <Link href={href} className="card-hover" title={tooltip}>
-      <p className="text-sm text-gray-500">{title}</p>
-      <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-      <p className={`text-sm mt-2 ${getTrendColorClass(trend)}`}>{subtitle}</p>
-    </Link>
-  )
-}
-
 function QuickAction({
   href,
   icon,
@@ -462,17 +400,4 @@ function QuickAction({
   )
 }
 
-// Utility functions
-
-function calculateSystemHarmony(units: any[]): number {
-  if (units.length === 0) return 100
-  const totalConflicts = units.reduce((sum, u) => sum + u.incidents.length, 0)
-  const avgConflicts = totalConflicts / units.length
-  return Math.max(0, Math.round(100 - avgConflicts * 25))
-}
-
-function calculateMaintenanceHealth(incidents: any[]): number {
-  const openCount = incidents.filter(i => !i.resolvedAt).length
-  return Math.max(0, 100 - openCount * 10)
-}
 

@@ -96,3 +96,23 @@ body {
 .badge-pending { @apply bg-yellow-100 text-yellow-800; }
 .badge-ended { @apply bg-gray-100 text-gray-800; }
 .badge-alert { @apply bg-red-100 text-red-800; }
+
+/* Popover animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-from-top {
+  from { transform: translateX(-50%) translateY(-4px); }
+  to { transform: translateX(-50%) translateY(0); }
+}
+
+.animate-in {
+  animation: fade-in 0.15s ease-out, slide-in-from-top 0.15s ease-out;
+}
+
+/* Explainable number styles */
+.explainable-number {
+  @apply cursor-pointer underline decoration-dotted underline-offset-4 decoration-gray-400 hover:decoration-aoz-primary;
+}

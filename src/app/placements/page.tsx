@@ -4,13 +4,11 @@ import {
   PLACEMENT_STATUS_LABELS,
   END_REASON_LABELS,
   SATISFACTION_EMOJIS,
+  SUPPORT_LEVEL_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
   getStatusBadgeClass,
-  getScoreLabel,
-  getScoreColorClass,
-  getScoreBgClass,
   formatDate,
 } from '@/lib/utils'
 
@@ -33,6 +31,15 @@ export default async function PlacementsListPage({ searchParams }: Props) {
     include: {
       resident: true,
       housingUnit: true,
+      checkIns: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: {
+          createdAt: true,
+          overallSatisfaction: true,
+          concerns: true,
+        },
+      },
     },
     orderBy: { startDate: 'desc' },
     take: 200,
@@ -192,21 +199,33 @@ function TabLink({
 }
 
 function PlacementRow({ placement }: { placement: any }) {
-  const duration = placement.endDate
+  const daysSinceStart = Math.ceil(
+    (Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)
+  )
+  const totalDuration = placement.endDate
     ? Math.ceil(
         (new Date(placement.endDate).getTime() -
           new Date(placement.startDate).getTime()) /
           (1000 * 60 * 60 * 24)
       )
-    : Math.ceil(
-        (Date.now() - new Date(placement.startDate).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
+    : daysSinceStart
+
+  // Check-in status for active placements
+  const lastCheckIn = placement.checkIns?.[0]
+  const daysSinceCheckIn = lastCheckIn
+    ? Math.ceil((Date.now() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    : null
+
+  // Check-in frequency based on support level (from resident)
+  const supportLevel = placement.resident.supportLevel || 'STANDARD'
+  const checkInIntervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+  const isCheckInOverdue = placement.status === 'ACTIVE' &&
+    (daysSinceCheckIn === null ? daysSinceStart > checkInIntervalDays : daysSinceCheckIn > checkInIntervalDays)
 
   return (
     <div
-      className={`card p-4 ${
-        placement.status !== 'ACTIVE' ? 'opacity-75' : ''
+      className={`card p-4 ${placement.status !== 'ACTIVE' ? 'opacity-75' : ''} ${
+        isCheckInOverdue ? 'border-l-4 border-l-orange-400' : ''
       }`}
     >
       <div className="flex items-center justify-between">
@@ -223,6 +242,11 @@ function PlacementRow({ placement }: { placement: any }) {
               >
                 {placement.resident.code}
               </Link>
+              {supportLevel !== 'STANDARD' && (
+                <p className="text-xs text-orange-600">
+                  {getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -243,33 +267,47 @@ function PlacementRow({ placement }: { placement: any }) {
         </div>
 
         <div className="flex items-center gap-6">
-          {/* Compatibility Score */}
-          {placement.compatibilityScore && (
-            <div className="text-right">
-              <p className="text-xs text-gray-500">Kompatibilität</p>
-              <p
-                className={`font-medium ${getScoreColorClass(
-                  placement.compatibilityScore
-                )}`}
-              >
-                {Math.round(placement.compatibilityScore)}%
-              </p>
-            </div>
-          )}
-
           {/* Duration */}
           <div className="text-right">
-            <p className="text-xs text-gray-500">Dauer</p>
-            <p className="font-medium text-gray-900">{duration} Tage</p>
+            <p className="text-xs text-gray-500">
+              {placement.status === 'ACTIVE' ? 'Seit' : 'Aufenthalt'}
+            </p>
+            <p className="font-medium text-gray-900">
+              {totalDuration} {totalDuration === 1 ? 'Tag' : 'Tage'}
+            </p>
           </div>
 
-          {/* Satisfaction */}
-          {placement.satisfactionRating && (
+          {/* Check-in Status for Active Placements */}
+          {placement.status === 'ACTIVE' && (
+            <Link
+              href={`/placements/${placement.id}/checkin`}
+              className={`text-right px-3 py-2 rounded-lg transition-colors ${
+                isCheckInOverdue
+                  ? 'bg-orange-100 hover:bg-orange-200'
+                  : 'hover:bg-gray-50'
+              }`}
+            >
+              <p className="text-xs text-gray-500">Check-in</p>
+              {lastCheckIn ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
+                  <span className={`text-xs ${isCheckInOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}`}>
+                    vor {daysSinceCheckIn}d
+                  </span>
+                </div>
+              ) : (
+                <p className={`text-sm font-medium ${isCheckInOverdue ? 'text-orange-600' : 'text-aoz-primary'}`}>
+                  {isCheckInOverdue ? 'Überfällig!' : 'Erfassen →'}
+                </p>
+              )}
+            </Link>
+          )}
+
+          {/* Last satisfaction for ended placements */}
+          {placement.status !== 'ACTIVE' && placement.satisfactionRating && (
             <div className="text-right">
               <p className="text-xs text-gray-500">Zufriedenheit</p>
-              <p className="text-lg">
-                {SATISFACTION_EMOJIS[placement.satisfactionRating - 1]}
-              </p>
+              <p className="text-lg">{SATISFACTION_EMOJIS[placement.satisfactionRating - 1]}</p>
             </div>
           )}
 
@@ -295,13 +333,17 @@ function PlacementRow({ placement }: { placement: any }) {
         </div>
       </div>
 
+      {/* Concerns Alert */}
+      {lastCheckIn?.concerns && (
+        <div className="mt-3 p-2 bg-orange-50 rounded text-sm text-orange-700 border-t border-orange-100">
+          ⚠️ Anliegen: {lastCheckIn.concerns.slice(0, 100)}{lastCheckIn.concerns.length > 100 ? '...' : ''}
+        </div>
+      )}
+
       {/* Dates */}
       <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 border-t border-gray-100 pt-3">
         <span>Start: {formatDate(placement.startDate)}</span>
         {placement.endDate && <span>Ende: {formatDate(placement.endDate)}</span>}
-        {placement.placementNotes && (
-          <span className="text-gray-400">· {placement.placementNotes}</span>
-        )}
       </div>
     </div>
   )
