@@ -44,7 +44,6 @@ export default async function EditHousingPage({ params }: Props) {
         <HousingFormFields
           defaultValues={{
             code: unit.code,
-            buildingName: unit.buildingName,
             address: unit.address,
             totalBeds: unit.totalBeds,
             totalRooms: unit.totalRooms,
