@@ -42,7 +42,7 @@ export function calculateCompatibility(
       (weights.lifestyle + weights.social + weights.practical + weights.risk)
   )
 
-  const { strengths, concerns, recommendations } = generateInsights(
+  const { strengths, concerns, recommendations, predictions } = generateInsights(
     resident1,
     resident2,
     { lifestyle, social, practical, risk }
@@ -57,6 +57,7 @@ export function calculateCompatibility(
     strengths,
     concerns,
     recommendations,
+    predictions,
   }
 }
 
@@ -121,14 +122,15 @@ function calculateSocialCompatibility(
     weight: 35,
   })
 
-  // Language overlap
+  // Language overlap (enhanced with lingua franca support)
   const sharedLanguages = r1.languages.filter((l) => r2.languages.includes(l))
-  const languageScore = sharedLanguages.length > 0 ? 100 : 30
+  const languageScore = calculateLanguageScore(r1.languages, r2.languages, sharedLanguages)
   factors.push({
     name: 'language',
     score: languageScore,
     weight: 40,
-    note: sharedLanguages.length === 0 ? 'Keine gemeinsame Sprache' : undefined,
+    note: languageScore < 50 ? 'Kommunikation könnte schwierig sein' :
+          languageScore === 100 ? `Gemeinsame Sprache: ${sharedLanguages.join(', ')}` : undefined,
   })
 
   // Privacy needs compatibility
@@ -383,11 +385,49 @@ function calculateAgeGapRisk(a1: string, a2: string): number {
   const idx1 = ageOrder.indexOf(a1)
   const idx2 = ageOrder.indexOf(a2)
   const gap = Math.abs(idx1 - idx2)
-  
+
   if (gap === 0) return 0
   if (gap === 1) return 10
   if (gap === 2) return 25
   return 40 // Maximum gap (young adult + senior)
+}
+
+/**
+ * Enhanced language compatibility scoring
+ * Considers: native language match, lingua franca (German/English), multiple shared languages
+ */
+function calculateLanguageScore(
+  langs1: string[],
+  langs2: string[],
+  sharedLanguages: string[]
+): number {
+  // Perfect match - share native or multiple languages
+  if (sharedLanguages.length >= 2) return 100
+  if (sharedLanguages.length === 1) {
+    const shared = sharedLanguages[0].toLowerCase()
+    // Native language match or strong lingua franca
+    if (shared === 'german' || shared === 'deutsch') return 100
+    if (shared === 'english') return 95
+    if (shared === 'french' || shared === 'italian') return 90
+    return 100 // Any shared native language
+  }
+
+  // No direct overlap - check for potential communication
+  const hasGermanOrEnglish1 = langs1.some(l =>
+    ['german', 'deutsch', 'english'].includes(l.toLowerCase())
+  )
+  const hasGermanOrEnglish2 = langs2.some(l =>
+    ['german', 'deutsch', 'english'].includes(l.toLowerCase())
+  )
+
+  // Both speak German or English (even if different levels)
+  if (hasGermanOrEnglish1 && hasGermanOrEnglish2) return 75
+
+  // One speaks German/English, other doesn't
+  if (hasGermanOrEnglish1 || hasGermanOrEnglish2) return 50
+
+  // No common language and no lingua franca - very difficult
+  return 25
 }
 
 function weightedAverage(factors: FactorResult[]): number {
@@ -408,7 +448,7 @@ function generateInsights(
     practical: DimensionResult
     risk: DimensionResult
   }
-): { strengths: string[]; concerns: string[]; recommendations: string[] } {
+): { strengths: string[]; concerns: string[]; recommendations: string[]; predictions: string[] } {
   const strengths: string[] = []
   const concerns: string[] = []
   const recommendations: string[] = []
@@ -491,7 +531,44 @@ function generateInsights(
     concerns.push('Recycling-Kenntnisse sehr unterschiedlich')
   }
 
-  return { strengths, concerns, recommendations }
+  // Add conflict predictions based on detected issues
+  const predictions: string[] = []
+
+  // Cleanliness conflict prediction
+  const cleanDiff = Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel)
+  if (cleanDiff >= 3) {
+    predictions.push('Hohe Wahrscheinlichkeit Sauberkeitskonflikt in Wochen 2-4')
+  } else if (cleanDiff >= 2) {
+    predictions.push('Mittlere Wahrscheinlichkeit Sauberkeitskonflikt in Wochen 3-6')
+  }
+
+  // Noise conflict prediction
+  const noiseDiff = Math.abs(r1.noiseTolerance - r2.noiseTolerance)
+  if (noiseDiff >= 3) {
+    predictions.push('Hohe Wahrscheinlichkeit Lärmkonflikt in Wochen 1-3')
+  }
+
+  // Sleep schedule conflict prediction
+  if ((r1.sleepSchedule === 'EARLY_BIRD' && r2.sleepSchedule === 'NIGHT_OWL') ||
+      (r1.sleepSchedule === 'NIGHT_OWL' && r2.sleepSchedule === 'EARLY_BIRD')) {
+    predictions.push('Hohe Wahrscheinlichkeit Schlafstörungs-Beschwerden in Wochen 2-4')
+  }
+
+  // Chores conflict prediction
+  if (choresDiff >= 3) {
+    predictions.push('Mittlere Wahrscheinlichkeit Hausarbeitskonflikt in Wochen 4-8')
+  }
+
+  // Add temporal recommendations
+  if (predictions.length > 0) {
+    recommendations.push('⏰ Check-in in Woche 3 empfohlen (kritische Phase)')
+  }
+
+  if (dimensions.risk.score > 60) {
+    recommendations.push('⏰ Wöchentliche Check-ins für ersten Monat')
+  }
+
+  return { strengths, concerns, recommendations, predictions }
 }
 
 // Re-export from shared utils for backwards compatibility

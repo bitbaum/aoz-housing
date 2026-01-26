@@ -62,10 +62,11 @@ export interface CompatibilityScore {
   social: number
   practical: number
   risk: number // Lower is better
-  
+
   strengths: string[]
   concerns: string[]
   recommendations: string[]
+  predictions?: string[] // NEW: Predicted conflict types and timeframes
 }
 
 export interface CompatibilityWeights {
@@ -85,4 +86,51 @@ export interface FactorResult {
   score: number
   weight: number
   note?: string
+}
+
+/**
+ * Aggregate profile of an apartment based on current residents
+ */
+export interface ApartmentProfile {
+  unitId: string
+  currentResidentCount: number
+  isEmpty: boolean
+
+  // Numeric attributes (averages)
+  avgNoiseTolerance: number | null
+  avgCleanlinessLevel: number | null
+  avgPrivacyNeed: number | null
+  avgChoresContribution: number | null
+
+  // Enum attributes (dominant/distribution)
+  dominantSleepSchedule: SleepSchedule | null
+  sleepScheduleDistribution: Record<SleepSchedule, number>
+  dominantSocialStyle: SocialStyle | null
+  dominantSmokingStatus: SmokingStatus | null
+
+  // Multi-value attributes
+  commonLanguages: string[]
+
+  // Boolean attributes (percentages)
+  percentNeedsQuiet: number
+  percentHasNightDisturbances: number
+}
+
+/**
+ * Compatibility of new resident with apartment aggregate profile
+ */
+export interface ApartmentCompatibility {
+  apartmentProfile: ApartmentProfile
+  fitScore: number // 0-100
+  conflicts: ApartmentConflict[]
+  strengths: string[]
+  warnings: string[]
+}
+
+export interface ApartmentConflict {
+  attribute: string
+  severity: 'BLOCKING' | 'HIGH' | 'MEDIUM' | 'LOW'
+  message: string
+  residentValue: number | string
+  apartmentAverage: number | string
 }

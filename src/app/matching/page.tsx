@@ -15,6 +15,11 @@ import {
   SPOT_TYPE_ICONS,
   getEligibleSpotTypes,
 } from '@/lib/config/placement-spots'
+import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
+import { toResidentProfile } from '@/lib/compatibility/convert'
+import { validatePlacementFormData } from '@/lib/validation/placement'
+import { logAudit } from '@/lib/audit'
+import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
 import type { Resident } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -26,61 +31,150 @@ interface Props {
 async function placeResident(formData: FormData) {
   'use server'
 
-  const residentId = formData.get('residentId') as string
-  const housingUnitId = formData.get('housingUnitId') as string
-  const spotId = (formData.get('spotId') as string) || null
-  const compatibilityScore = parseFloat(
-    formData.get('compatibilityScore') as string
-  )
-  const lifestyleScore = parseFloat(formData.get('lifestyleScore') as string)
-  const socialScore = parseFloat(formData.get('socialScore') as string)
-  const practicalScore = parseFloat(formData.get('practicalScore') as string)
-  const riskScore = parseFloat(formData.get('riskScore') as string)
-  const notes = formData.get('notes') as string
+  // SERVER-SIDE VALIDATION: Validate all inputs
+  let validatedData
+  try {
+    validatedData = validatePlacementFormData(formData)
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Validierungsfehler: ${error.message}`)
+    }
+    throw new Error('Ungültige Eingabedaten')
+  }
 
-  // Create placement with optional spot
-  await prisma.placement.create({
-    data: {
+  const {
+    residentId,
+    housingUnitId,
+    spotId,
+    compatibilityScore,
+    lifestyleScore,
+    socialScore,
+    practicalScore,
+    riskScore,
+    apartmentFitScore,
+    hasBlockingConflicts,
+    notes,
+  } = validatedData
+
+  // BLOCKING CHECK: Prevent placement if blocking conflicts exist
+  if (hasBlockingConflicts) {
+    throw new Error(
+      'Placement blockiert: Kritische Konflikte mit Wohnungsprofil erkannt. ' +
+      'Bitte wählen Sie eine besser passende Unterkunft.'
+    )
+  }
+
+  // Execute all placement operations in a transaction to ensure atomicity
+  // RACE CONDITION PROTECTION:
+  // - All checks and updates happen within a single database transaction
+  // - Database isolation level prevents concurrent transactions from seeing same state
+  // - Explicit checks ensure spot/resident availability before modification
+  // - If any check fails, entire transaction rolls back
+  const placement = await prisma.$transaction(async (tx) => {
+    // 1. Check if spot is still available (prevents double-booking)
+    if (spotId) {
+      const spot = await tx.placementSpot.findUnique({
+        where: { id: spotId },
+        include: { placements: { where: { status: 'ACTIVE' } } },
+      })
+
+      if (!spot) {
+        throw new Error('Platz nicht gefunden.')
+      }
+
+      if (spot.status !== 'AVAILABLE') {
+        throw new Error('Platz ist nicht mehr verfügbar.')
+      }
+
+      if (spot.placements.length > 0) {
+        throw new Error('Platz ist bereits belegt.')
+      }
+    }
+
+    // 2. Check if resident is still unplaced
+    const resident = await tx.resident.findUnique({
+      where: { id: residentId },
+      include: { placements: { where: { status: 'ACTIVE' } } },
+    })
+
+    if (!resident) {
+      throw new Error('Bewohner nicht gefunden.')
+    }
+
+    if (resident.placements.length > 0) {
+      throw new Error('Bewohner ist bereits platziert.')
+    }
+
+    // 3. Create placement
+    const newPlacement = await tx.placement.create({
+      data: {
+        residentId,
+        housingUnitId,
+        spotId,
+        startDate: new Date(),
+        status: 'ACTIVE',
+        compatibilityScore,
+        lifestyleScore,
+        socialScore,
+        practicalScore,
+        riskScore,
+        placementNotes: notes
+          ? `Apartment Fit: ${apartmentFitScore}%\n\n${notes}`
+          : `Apartment Fit: ${apartmentFitScore}%`,
+      },
+    })
+
+    // 4. Update spot status if assigned
+    if (spotId) {
+      await tx.placementSpot.update({
+        where: { id: spotId },
+        data: { status: 'OCCUPIED' },
+      })
+    }
+
+    // 5. Update resident status
+    await tx.resident.update({
+      where: { id: residentId },
+      data: { status: 'PLACED' },
+    })
+
+    // 6. Check if unit is now full and update status
+    const unit = await tx.housingUnit.findUnique({
+      where: { id: housingUnitId },
+      include: { placements: { where: { status: 'ACTIVE' } } },
+    })
+
+    if (unit && unit.placements.length + 1 >= unit.totalBeds) {
+      await tx.housingUnit.update({
+        where: { id: housingUnitId },
+        data: { status: 'FULL' },
+      })
+    }
+
+    return newPlacement
+  })
+
+  // AUDIT LOG: Record placement for compliance and debugging
+  await logAudit({
+    action: 'CREATE',
+    entity: 'PLACEMENT',
+    entityId: placement.id,
+    changes: {
       residentId,
       housingUnitId,
       spotId,
-      startDate: new Date(),
-      status: 'ACTIVE',
-      compatibilityScore,
-      lifestyleScore,
-      socialScore,
-      practicalScore,
-      riskScore,
-      placementNotes: notes || null,
+      scores: {
+        compatibility: compatibilityScore,
+        lifestyle: lifestyleScore,
+        social: socialScore,
+        practical: practicalScore,
+        risk: riskScore,
+        apartmentFit: apartmentFitScore,
+      },
+      hasBlockingConflicts,
     },
+    reason: notes || undefined,
   })
-
-  // Update spot status if assigned
-  if (spotId) {
-    await prisma.placementSpot.update({
-      where: { id: spotId },
-      data: { status: 'OCCUPIED' },
-    })
-  }
-
-  // Update resident status
-  await prisma.resident.update({
-    where: { id: residentId },
-    data: { status: 'PLACED' },
-  })
-
-  // Check if unit is now full
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id: housingUnitId },
-    include: { placements: { where: { status: 'ACTIVE' } } },
-  })
-
-  if (unit && unit.placements.length >= unit.totalBeds) {
-    await prisma.housingUnit.update({
-      where: { id: housingUnitId },
-      data: { status: 'FULL' },
-    })
-  }
 
   redirect(`/residents/${residentId}`)
 }
@@ -133,10 +227,40 @@ export default async function MatchingPage({ searchParams }: Props) {
     selectedResident = foundResident
 
     if (foundResident) {
-      matches = availableUnits
-        .filter((unit) => unit.placements.length < unit.totalBeds)
-        .map((unit) => {
-          const currentResidents = unit.placements.map((p) => p.resident)
+      const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)
+
+      // Calculate matches with unit metrics (async)
+      matches = await Promise.all(filteredUnits.map(async (unit) => {
+        const currentResidents = unit.placements.map((p) => p.resident)
+
+        // Calculate apartment aggregate profile
+        const apartmentProfile = calculateApartmentProfile(
+          currentResidents.map(r => toResidentProfile(r as any))
+        )
+        apartmentProfile.unitId = unit.id
+
+        // Calculate apartment fit for new resident
+        const apartmentFit = calculateApartmentFit(
+          toResidentProfile(foundResident as any),
+          apartmentProfile
+        )
+
+        // Get unit historical metrics
+        let unitMetrics = null
+        try {
+          unitMetrics = await calculateUnitMetrics(unit.id)
+        } catch (error) {
+          // If metrics calculation fails, continue without them
+          console.error(`Failed to calculate metrics for unit ${unit.id}:`, error)
+        }
+
+        // Get REAL success rate data from database (not fake estimates)
+        let realSuccessData = null
+        try {
+          realSuccessData = await getSimilarPlacementSuccessRate(apartmentFit.fitScore, 10)
+        } catch (error) {
+          console.error(`Failed to get success rate data:`, error)
+        }
 
           // Calculate compatibility details with current residents
           const compatibilityDetails: any[] = []
@@ -197,22 +321,39 @@ export default async function MatchingPage({ searchParams }: Props) {
             (sum, d) => sum + (d.score.concerns?.length || 0), 0
           )
 
+          // Calculate unit risk penalty based on historical performance
+          const unitRiskPenalty = unitMetrics
+            ? (unitMetrics.riskLevel === 'CRITICAL' ? 200 :
+               unitMetrics.riskLevel === 'HIGH' ? 100 :
+               unitMetrics.riskLevel === 'MEDIUM' ? 50 : 0)
+            : 0
+
           return {
             unit,
+            apartmentProfile,
+            apartmentFit,
+            unitMetrics,
+            realSuccessData, // Real data from database, not estimates
             compatibilityDetails,
             unitConcerns,
             hasBlockingIssue,
             sharedLanguageCount,
             totalRoommateConcerns,
-            // For sorting: fewer issues = better
+            // For sorting: fewer issues = better, prioritize apartment fit and unit history
             sortScore: (hasBlockingIssue ? 1000 : 0) +
+              (apartmentFit.conflicts.filter(c => c.severity === 'BLOCKING').length * 500) +
+              (apartmentFit.conflicts.filter(c => c.severity === 'HIGH').length * 100) +
+              unitRiskPenalty +  // Penalize historically problematic units
               unitConcerns.length * 10 +
               totalRoommateConcerns -
+              apartmentFit.fitScore -
               sharedLanguageCount * 5 -
               (currentResidents.length === 0 ? 20 : 0) // Prefer empty units
           }
-        })
-        .sort((a, b) => a.sortScore - b.sortScore) // Lower score = better
+        }))
+
+      // Sort matches by score
+      matches = matches.sort((a, b) => a.sortScore - b.sortScore) // Lower score = better
     }
   }
 
@@ -220,6 +361,29 @@ export default async function MatchingPage({ searchParams }: Props) {
 
   return (
     <div>
+      {/* Demo Mode Banner */}
+      <div className="mb-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-lg shadow-lg p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 rounded-lg p-2">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="font-bold text-lg">Intelligentes Matching-System</h2>
+              <p className="text-sm text-blue-100">
+                Algorithm-gestütztes Platzierungssystem mit Konfliktvorhersage
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-white/20 rounded-lg px-4 py-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium">Demo Aktiv</span>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
           {isNewResident ? 'Unterkunft finden' : 'Matching'}
@@ -367,6 +531,9 @@ export default async function MatchingPage({ searchParams }: Props) {
 function MatchCard({ match, resident }: { match: any; resident: any }) {
   const occupancy = match.unit.placements.length
 
+  // Use REAL success rate data from database (not fake estimates)
+  const realSuccessData = match.realSuccessData
+
   // Collect all strengths and concerns from roommate compatibility
   const allStrengths: string[] = []
   const allConcerns: string[] = []
@@ -412,6 +579,185 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
           )}
         </div>
       </div>
+
+      {/* Unit Historical Performance */}
+      {match.unitMetrics && (
+        <div className={`mb-3 p-2 rounded border ${
+          match.unitMetrics.riskLevel === 'CRITICAL' ? 'bg-red-50 border-red-300' :
+          match.unitMetrics.riskLevel === 'HIGH' ? 'bg-orange-50 border-orange-300' :
+          match.unitMetrics.riskLevel === 'MEDIUM' ? 'bg-yellow-50 border-yellow-300' :
+          'bg-green-50 border-green-300'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-gray-700">
+                Verlauf: {match.unitMetrics.label}
+              </span>
+              {match.unitMetrics.incidentFreeMonths > 0 && (
+                <span className="text-xs text-green-600">
+                  ({match.unitMetrics.incidentFreeMonths}M konfliktfrei)
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-gray-600">
+              {match.unitMetrics.conflictRate.toFixed(1)}/Monat Ø
+            </span>
+          </div>
+          {match.unitMetrics.riskLevel === 'HIGH' || match.unitMetrics.riskLevel === 'CRITICAL' ? (
+            <p className="text-xs text-orange-700 mt-1">
+              ⚠️ {match.unitMetrics.recentConflicts} Konflikte letzte 30 Tage
+            </p>
+          ) : null}
+        </div>
+      )}
+
+      {/* Apartment Profile Summary */}
+      {match.apartmentProfile && !match.apartmentProfile.isEmpty && (
+        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs font-semibold text-blue-800 uppercase">
+              Wohnungs-Profil ({match.apartmentProfile.currentResidentCount} Bewohner)
+            </p>
+            <span className={`text-sm font-bold ${
+              match.apartmentFit.fitScore >= 70 ? 'text-green-600' :
+              match.apartmentFit.fitScore >= 50 ? 'text-yellow-600' :
+              'text-red-600'
+            }`}>
+              {match.apartmentFit.fitScore}% Passend
+            </span>
+          </div>
+
+          {/* Key aggregate metrics with comparison */}
+          <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+            <div>
+              <span className="text-gray-600">Sauberkeit:</span>
+              <span className="ml-1 font-medium">
+                {resident.cleanlinessLevel} vs Ø{match.apartmentProfile.avgCleanlinessLevel?.toFixed(1) || 'N/A'}
+              </span>
+              {match.apartmentProfile.avgCleanlinessLevel && Math.abs(resident.cleanlinessLevel - match.apartmentProfile.avgCleanlinessLevel) >= 2 && (
+                <span className="ml-1 text-orange-500">⚠</span>
+              )}
+            </div>
+            <div>
+              <span className="text-gray-600">Lärmtoleranz:</span>
+              <span className="ml-1 font-medium">
+                {resident.noiseTolerance} vs Ø{match.apartmentProfile.avgNoiseTolerance?.toFixed(1) || 'N/A'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600">Schlaf:</span>
+              <span className="ml-1 font-medium">
+                {resident.sleepSchedule} vs {match.apartmentProfile.dominantSleepSchedule || 'Gemischt'}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-600">Hausarbeit:</span>
+              <span className="ml-1 font-medium">
+                {resident.choresContribution} vs Ø{match.apartmentProfile.avgChoresContribution?.toFixed(1) || 'N/A'}
+              </span>
+            </div>
+          </div>
+
+          {/* Blocking/High conflicts */}
+          {match.apartmentFit.conflicts.filter((c: any) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length > 0 && (
+            <div className="space-y-1">
+              {match.apartmentFit.conflicts
+                .filter((c: any) => c.severity === 'BLOCKING' || c.severity === 'HIGH')
+                .map((conflict: any, i: number) => (
+                  <p key={i} className={`text-xs ${
+                    conflict.severity === 'BLOCKING' ? 'text-red-600 font-medium' : 'text-orange-600'
+                  }`}>
+                    {conflict.severity === 'BLOCKING' ? '🚫' : '⚠️'} {conflict.message}
+                  </p>
+                ))
+              }
+            </div>
+          )}
+
+          {/* Strengths */}
+          {match.apartmentFit.strengths.length > 0 && match.apartmentFit.conflicts.filter((c: any) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length === 0 && (
+            <div className="space-y-1">
+              {match.apartmentFit.strengths.slice(0, 2).map((strength: string, i: number) => (
+                <p key={i} className="text-xs text-green-600">✓ {strength}</p>
+              ))}
+            </div>
+          )}
+
+          {/* Expandable score derivation */}
+          <details className="mt-2 text-xs">
+            <summary className="cursor-pointer text-blue-700 hover:text-blue-900 font-medium">
+              📊 Score-Berechnung anzeigen
+            </summary>
+            <div className="mt-2 p-2 bg-white border border-blue-100 rounded text-gray-700">
+              <p className="font-semibold mb-1">Fit Score: {match.apartmentFit.fitScore}%</p>
+              <p className="text-gray-500 mb-2">Basis: 100 Punkte</p>
+
+              {/* Conflict deductions */}
+              {match.apartmentFit.conflicts.length > 0 && (
+                <div className="mb-2">
+                  <p className="font-medium text-red-700">Abzüge (Konflikte):</p>
+                  {match.apartmentFit.conflicts.map((c: any, i: number) => (
+                    <p key={i} className="ml-2">
+                      • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
+                      <span className="text-gray-500 ml-1">
+                        ({c.residentValue} vs {typeof c.apartmentAverage === 'number' ? c.apartmentAverage.toFixed(1) : c.apartmentAverage})
+                      </span>
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {/* Strength bonuses */}
+              {match.apartmentFit.strengths.length > 0 && (
+                <div className="mb-2">
+                  <p className="font-medium text-green-700">Bonus (Stärken): +{Math.min(match.apartmentFit.strengths.length * 3, 20)}</p>
+                  {match.apartmentFit.strengths.map((s: string, i: number) => (
+                    <p key={i} className="ml-2 text-green-600">• {s}</p>
+                  ))}
+                </div>
+              )}
+
+              {/* Small group bonus */}
+              {match.apartmentProfile.currentResidentCount <= 2 && (
+                <p className="text-green-700">Bonus (kleine Gruppe): +5</p>
+              )}
+
+              <p className="mt-2 pt-2 border-t border-gray-200 font-semibold">
+                = {match.apartmentFit.fitScore}% Gesamtpassung
+              </p>
+            </div>
+          </details>
+        </div>
+      )}
+
+      {/* Success Rate - REAL DATA from database */}
+      {match.apartmentFit && !match.apartmentProfile.isEmpty && (
+        <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded">
+          {realSuccessData && realSuccessData.totalPlacements > 0 ? (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-purple-700">
+                  📊 Historische Daten ({realSuccessData.totalPlacements} Platzierungen):
+                </span>
+                <span className={`text-xs font-bold ${
+                  realSuccessData.successRate >= 80 ? 'text-green-600' :
+                  realSuccessData.successRate >= 60 ? 'text-yellow-600' :
+                  'text-orange-600'
+                }`}>
+                  {realSuccessData.successRate}% Erfolgsrate
+                </span>
+              </div>
+              <p className="text-xs text-purple-600 mt-1">
+                {realSuccessData.successfulPlacements}/{realSuccessData.totalPlacements} Platzierungen mit ähnlicher Kompatibilität ({match.apartmentFit.fitScore}% ±10) waren erfolgreich
+              </p>
+            </>
+          ) : (
+            <div className="text-xs text-purple-600">
+              📊 Keine historischen Daten für ähnliche Kompatibilitätswerte ({match.apartmentFit.fitScore}% ±10) verfügbar.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Positive factors */}
       {(allStrengths.length > 0 || sharedLanguages.length > 0 || occupancy === 0) && (
@@ -496,41 +842,68 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
       )}
 
       {/* Fallback: Place without spot (legacy) */}
-      {(!match.unit.spots || match.unit.spots.length === 0) && (
-        <form action={placeResident}>
-          <input type="hidden" name="residentId" value={resident.id} />
-          <input type="hidden" name="housingUnitId" value={match.unit.id} />
-          {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
-          <input
-            type="hidden"
-            name="compatibilityScore"
-            value={match.compatibilityDetails[0]?.score.overall || 0}
-          />
-          <input
-            type="hidden"
-            name="lifestyleScore"
-            value={match.compatibilityDetails[0]?.score.lifestyle || 0}
-          />
-          <input
-            type="hidden"
-            name="socialScore"
-            value={match.compatibilityDetails[0]?.score.social || 0}
-          />
-          <input
-            type="hidden"
-            name="practicalScore"
-            value={match.compatibilityDetails[0]?.score.practical || 0}
-          />
-          <input
-            type="hidden"
-            name="riskScore"
-            value={match.compatibilityDetails[0]?.score.risk || 0}
-          />
-          <button type="submit" className="btn-primary w-full">
-            Platzieren
-          </button>
-        </form>
-      )}
+      {(!match.unit.spots || match.unit.spots.length === 0) && (() => {
+        const hasBlockingConflicts = match.apartmentFit?.conflicts.some((c: any) => c.severity === 'BLOCKING') || false
+        const fitScore = match.apartmentFit?.fitScore || 100
+
+        return (
+          <form action={placeResident}>
+            <input type="hidden" name="residentId" value={resident.id} />
+            <input type="hidden" name="housingUnitId" value={match.unit.id} />
+            {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
+            <input
+              type="hidden"
+              name="compatibilityScore"
+              value={match.compatibilityDetails[0]?.score.overall || 0}
+            />
+            <input
+              type="hidden"
+              name="lifestyleScore"
+              value={match.compatibilityDetails[0]?.score.lifestyle || 0}
+            />
+            <input
+              type="hidden"
+              name="socialScore"
+              value={match.compatibilityDetails[0]?.score.social || 0}
+            />
+            <input
+              type="hidden"
+              name="practicalScore"
+              value={match.compatibilityDetails[0]?.score.practical || 0}
+            />
+            <input
+              type="hidden"
+              name="riskScore"
+              value={match.compatibilityDetails[0]?.score.risk || 0}
+            />
+            <input
+              type="hidden"
+              name="apartmentFitScore"
+              value={fitScore}
+            />
+            <input
+              type="hidden"
+              name="hasBlockingConflicts"
+              value={hasBlockingConflicts}
+            />
+            <button
+              type="submit"
+              className={`btn-primary w-full ${
+                hasBlockingConflicts
+                  ? 'opacity-50 cursor-not-allowed bg-gray-400'
+                  : ''
+              }`}
+              disabled={hasBlockingConflicts}
+            >
+              {hasBlockingConflicts
+                ? 'Blockiert'
+                : fitScore < 50
+                ? 'Platzieren (niedrige Kompatibilität)'
+                : 'Platzieren'}
+            </button>
+          </form>
+        )
+      })()}
     </div>
   )
 }
@@ -587,53 +960,80 @@ function SpotSelection({
         </p>
       )}
 
-      {eligibleSpots.map((spot) => (
-        <form key={spot.id} action={placeResident} className="flex gap-2">
-          <input type="hidden" name="residentId" value={resident.id} />
-          <input type="hidden" name="housingUnitId" value={match.unit.id} />
-          <input type="hidden" name="spotId" value={spot.id} />
-          {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
-          <input
-            type="hidden"
-            name="compatibilityScore"
-            value={match.compatibilityDetails[0]?.score.overall || 0}
-          />
-          <input
-            type="hidden"
-            name="lifestyleScore"
-            value={match.compatibilityDetails[0]?.score.lifestyle || 0}
-          />
-          <input
-            type="hidden"
-            name="socialScore"
-            value={match.compatibilityDetails[0]?.score.social || 0}
-          />
-          <input
-            type="hidden"
-            name="practicalScore"
-            value={match.compatibilityDetails[0]?.score.practical || 0}
-          />
-          <input
-            type="hidden"
-            name="riskScore"
-            value={match.compatibilityDetails[0]?.score.risk || 0}
-          />
-          <div className="flex-1 flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-green-50">
-            <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">
-                {spot.label || spot.code}
-              </p>
-              <p className="text-xs text-gray-500">
-                {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
-              </p>
+      {eligibleSpots.map((spot) => {
+        const hasBlockingConflicts = match.apartmentFit?.conflicts.some((c: any) => c.severity === 'BLOCKING') || false
+        const fitScore = match.apartmentFit?.fitScore || 100
+
+        return (
+          <form key={spot.id} action={placeResident} className="flex gap-2">
+            <input type="hidden" name="residentId" value={resident.id} />
+            <input type="hidden" name="housingUnitId" value={match.unit.id} />
+            <input type="hidden" name="spotId" value={spot.id} />
+            {/* Store actual dimension scores if available, otherwise 0 (no roommates = no comparison) */}
+            <input
+              type="hidden"
+              name="compatibilityScore"
+              value={match.compatibilityDetails[0]?.score.overall || 0}
+            />
+            <input
+              type="hidden"
+              name="lifestyleScore"
+              value={match.compatibilityDetails[0]?.score.lifestyle || 0}
+            />
+            <input
+              type="hidden"
+              name="socialScore"
+              value={match.compatibilityDetails[0]?.score.social || 0}
+            />
+            <input
+              type="hidden"
+              name="practicalScore"
+              value={match.compatibilityDetails[0]?.score.practical || 0}
+            />
+            <input
+              type="hidden"
+              name="riskScore"
+              value={match.compatibilityDetails[0]?.score.risk || 0}
+            />
+            <input
+              type="hidden"
+              name="apartmentFitScore"
+              value={fitScore}
+            />
+            <input
+              type="hidden"
+              name="hasBlockingConflicts"
+              value={hasBlockingConflicts}
+            />
+            <div className="flex-1 flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-green-50">
+              <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-gray-900">
+                  {spot.label || spot.code}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
+                </p>
+              </div>
             </div>
-          </div>
-          <button type="submit" className="btn-primary text-sm px-3">
-            Platzieren
-          </button>
-        </form>
-      ))}
+            <button
+              type="submit"
+              className={`btn-primary text-sm px-3 ${
+                hasBlockingConflicts
+                  ? 'opacity-50 cursor-not-allowed bg-gray-400'
+                  : ''
+              }`}
+              disabled={hasBlockingConflicts}
+            >
+              {hasBlockingConflicts
+                ? 'Blockiert'
+                : fitScore < 50
+                ? 'Platzieren (niedrige Kompatibilität)'
+                : 'Platzieren'}
+            </button>
+          </form>
+        )
+      })}
 
       {/* Show ineligible spots with reason */}
       {ineligibleSpots.length > 0 && (

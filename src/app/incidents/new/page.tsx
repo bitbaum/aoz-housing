@@ -142,15 +142,15 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               <label className="label">Art des Vorfalls *</label>
               <select name="type" required className="input">
                 <option value="">Bitte wählen</option>
-                <optgroup label="Zwischenmenschlich">
+                <optgroup label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}>
                   {interpersonalTypes.map((type) => (
                     <option key={type} value={type}>
                       {INCIDENT_TYPE_LABELS[type]}
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Sicherheit">
-                  <option value="SAFETY_CONCERN">Sicherheitsbedenken</option>
+                <optgroup label={INCIDENT_CATEGORY_LABELS.SAFETY}>
+                  <option value="SAFETY_CONCERN">{INCIDENT_TYPE_LABELS.SAFETY_CONCERN}</option>
                 </optgroup>
                 <option value="OTHER">Sonstiges</option>
               </select>
