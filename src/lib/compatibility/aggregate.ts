@@ -15,6 +15,12 @@ import type {
   SmokingStatus,
 } from './types'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
+import {
+  SLEEP_SCHEDULE_LABELS,
+  SMOKING_STATUS_LABELS,
+  SOCIAL_STYLE_LABELS,
+  getLabel,
+} from '@/lib/constants/labels'
 
 /**
  * Calculate apartment aggregate profile from current residents
@@ -205,11 +211,13 @@ export function calculateApartmentFit(
 
     if (isConflicting) {
       const dominantPercent = apartmentProfile.sleepScheduleDistribution[apartmentProfile.dominantSleepSchedule]
+      const residentSleepLabel = getLabel(SLEEP_SCHEDULE_LABELS, newResident.sleepSchedule)
+      const apartmentSleepLabel = getLabel(SLEEP_SCHEDULE_LABELS, apartmentProfile.dominantSleepSchedule)
       if (dominantPercent >= 70) {
         conflicts.push({
           attribute: 'sleepSchedule',
           severity: 'HIGH',
-          message: `Schlafrhythmus-Konflikt: ${newResident.sleepSchedule} vs. ${dominantPercent.toFixed(0)}% ${apartmentProfile.dominantSleepSchedule}`,
+          message: `Schlafrhythmus-Konflikt: ${residentSleepLabel} vs. ${dominantPercent.toFixed(0)}% ${apartmentSleepLabel}`,
           residentValue: newResident.sleepSchedule,
           apartmentAverage: apartmentProfile.dominantSleepSchedule,
         })
@@ -217,13 +225,13 @@ export function calculateApartmentFit(
         conflicts.push({
           attribute: 'sleepSchedule',
           severity: 'MEDIUM',
-          message: `Schlafrhythmus-Unterschied: ${newResident.sleepSchedule} vs. ${apartmentProfile.dominantSleepSchedule}`,
+          message: `Schlafrhythmus-Unterschied: ${residentSleepLabel} vs. ${apartmentSleepLabel}`,
           residentValue: newResident.sleepSchedule,
           apartmentAverage: apartmentProfile.dominantSleepSchedule,
         })
       }
     } else if (newResident.sleepSchedule === apartmentProfile.dominantSleepSchedule) {
-      strengths.push(`Passender Schlafrhythmus (${newResident.sleepSchedule})`)
+      strengths.push(`Passender Schlafrhythmus (${getLabel(SLEEP_SCHEDULE_LABELS, newResident.sleepSchedule)})`)
     }
   }
 
@@ -256,19 +264,19 @@ export function calculateApartmentFit(
       conflicts.push({
         attribute: 'smokingStatus',
         severity: 'MEDIUM',
-        message: `Nichtraucher in Wohnung mit ${apartmentProfile.dominantSmokingStatus}`,
+        message: `Nichtraucher in Wohnung mit ${getLabel(SMOKING_STATUS_LABELS, apartmentProfile.dominantSmokingStatus)}`,
         residentValue: newResident.smokingStatus,
         apartmentAverage: apartmentProfile.dominantSmokingStatus,
       })
     } else if (newResident.smokingStatus === apartmentProfile.dominantSmokingStatus) {
-      strengths.push(`Übereinstimmender Rauchstatus (${newResident.smokingStatus})`)
+      strengths.push(`Übereinstimmender Rauchstatus (${getLabel(SMOKING_STATUS_LABELS, newResident.smokingStatus)})`)
     }
   }
 
   // Check social style compatibility
   if (apartmentProfile.dominantSocialStyle) {
     if (newResident.socialStyle === apartmentProfile.dominantSocialStyle) {
-      strengths.push(`Ähnlicher Sozialstil (${newResident.socialStyle})`)
+      strengths.push(`Ähnlicher Sozialstil (${getLabel(SOCIAL_STYLE_LABELS, newResident.socialStyle)})`)
     } else if (
       (newResident.socialStyle === 'INTROVERTED' && apartmentProfile.dominantSocialStyle === 'EXTROVERTED') ||
       (newResident.socialStyle === 'EXTROVERTED' && apartmentProfile.dominantSocialStyle === 'INTROVERTED')
@@ -276,7 +284,7 @@ export function calculateApartmentFit(
       conflicts.push({
         attribute: 'socialStyle',
         severity: 'LOW',
-        message: `Unterschiedlicher Sozialstil: ${newResident.socialStyle} vs. ${apartmentProfile.dominantSocialStyle}`,
+        message: `Unterschiedlicher Sozialstil: ${getLabel(SOCIAL_STYLE_LABELS, newResident.socialStyle)} vs. ${getLabel(SOCIAL_STYLE_LABELS, apartmentProfile.dominantSocialStyle)}`,
         residentValue: newResident.socialStyle,
         apartmentAverage: apartmentProfile.dominantSocialStyle,
       })

@@ -6,6 +6,9 @@ import {
   LANGUAGE_LABELS,
   HOUSING_STATUS_LABELS,
   MEDICAL_DOC_TYPE_LABELS,
+  SLEEP_SCHEDULE_LABELS,
+  SMOKING_STATUS_LABELS,
+  SOCIAL_STYLE_LABELS,
   getLabel,
 } from '@/lib/constants'
 // Removed unused score utilities - we show actual factors now
@@ -23,6 +26,24 @@ import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/anal
 import type { Resident } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
+
+// Helper to format conflict values with proper labels
+function formatConflictValue(attribute: string, value: string | number): string {
+  if (typeof value === 'number') {
+    return value.toFixed(1)
+  }
+  // Use SSOT labels for enum values
+  switch (attribute) {
+    case 'sleepSchedule':
+      return getLabel(SLEEP_SCHEDULE_LABELS, value)
+    case 'smokingStatus':
+      return getLabel(SMOKING_STATUS_LABELS, value)
+    case 'socialStyle':
+      return getLabel(SOCIAL_STYLE_LABELS, value)
+    default:
+      return value
+  }
+}
 
 interface Props {
   searchParams: Promise<{ resident?: string; unit?: string; new?: string }>
@@ -798,7 +819,7 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
             <div>
               <span className="text-gray-600">Schlaf:</span>
               <span className="ml-1 font-medium">
-                {resident.sleepSchedule} vs {match.apartmentProfile.dominantSleepSchedule || 'Gemischt'}
+                {getLabel(SLEEP_SCHEDULE_LABELS, resident.sleepSchedule)} vs {match.apartmentProfile.dominantSleepSchedule ? getLabel(SLEEP_SCHEDULE_LABELS, match.apartmentProfile.dominantSleepSchedule) : 'Gemischt'}
               </span>
             </div>
             <div>
@@ -851,7 +872,7 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
                     <p key={i} className="ml-2">
                       • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
                       <span className="text-gray-500 ml-1">
-                        ({c.residentValue} vs {typeof c.apartmentAverage === 'number' ? c.apartmentAverage.toFixed(1) : c.apartmentAverage})
+                        ({formatConflictValue(c.attribute, c.residentValue)} vs {formatConflictValue(c.attribute, c.apartmentAverage)})
                       </span>
                     </p>
                   ))}
