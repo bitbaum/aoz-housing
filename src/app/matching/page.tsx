@@ -447,21 +447,23 @@ export default async function MatchingPage({ searchParams }: Props) {
           ) : (
             <div className="space-y-2">
               {unplacedResidents.map((resident) => (
-                <Link
+                <div
                   key={resident.id}
-                  href={`/matching?resident=${resident.id}`}
                   className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                     params.resident === resident.id
                       ? 'border-aoz-primary bg-aoz-primary/5'
-                      : 'border-gray-200 hover:border-gray-300'
+                      : 'border-gray-200'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <Link
+                    href={`/residents/${resident.id}`}
+                    className="flex items-center gap-3 flex-1 hover:opacity-80"
+                  >
                     <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
                       {resident.code.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 hover:text-aoz-primary">
                         {resident.code}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -472,9 +474,18 @@ export default async function MatchingPage({ searchParams }: Props) {
                           .join(', ')}
                       </p>
                     </div>
-                  </div>
-                  <span className="text-aoz-primary">→</span>
-                </Link>
+                  </Link>
+                  <Link
+                    href={`/matching?resident=${resident.id}`}
+                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                      params.resident === resident.id
+                        ? 'bg-aoz-primary text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-aoz-primary hover:text-white'
+                    }`}
+                  >
+                    {params.resident === resident.id ? 'Ausgewählt' : 'Matching'}
+                  </Link>
+                </div>
               ))}
             </div>
           )}
