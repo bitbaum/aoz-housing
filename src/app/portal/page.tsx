@@ -14,8 +14,7 @@ import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
 export default async function ResidentPortal() {
-  // In production, get resident from session/auth
-  // For demo, we'll use a cookie or show login
+  // Get resident from session/auth (cookie-based for now)
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 

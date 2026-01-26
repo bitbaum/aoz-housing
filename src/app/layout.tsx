@@ -18,72 +18,116 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className="min-h-screen bg-aoz-background">
-        <div className="flex min-h-screen">
+        {/* Top Header Bar - AOZ Branding */}
+        <header className="hidden md:block bg-aoz-secondary text-white">
+          <div className="max-w-screen-2xl mx-auto px-6 py-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link href="/" className="flex items-center gap-3 hover:opacity-90">
+                  <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                    <span className="text-aoz-secondary font-bold text-sm">AOZ</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold">{APP_LABELS.name}</span>
+                    <span className="hidden lg:inline text-white/70 ml-2 text-sm">
+                      {APP_LABELS.tagline}
+                    </span>
+                  </div>
+                </Link>
+              </div>
+              <nav className="flex items-center gap-1">
+                <HeaderLink href="/algorithm">Algorithmus</HeaderLink>
+                <HeaderLink href="/analytics">Statistiken</HeaderLink>
+                <HeaderLink href="/portal/help">Hilfe</HeaderLink>
+              </nav>
+            </div>
+          </div>
+        </header>
+
+        {/* Megamenu Navigation */}
+        <nav className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-screen-2xl mx-auto px-6">
+            <div className="flex items-center gap-1">
+              <MegaMenuItem href="/" icon="home" label="Dashboard" />
+              <MegaMenuDropdown
+                label="Personen"
+                items={[
+                  { href: '/residents', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
+                  { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
+                  { href: '/matching', label: 'Matching', desc: 'Platzierung finden' },
+                ]}
+              />
+              <MegaMenuDropdown
+                label="Unterkünfte"
+                items={[
+                  { href: '/housing', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
+                  { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
+                  { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
+                ]}
+              />
+              <MegaMenuDropdown
+                label="Monitoring"
+                items={[
+                  { href: '/incidents', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
+                  { href: '/analytics', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
+                  { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
+                ]}
+              />
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex min-h-[calc(100vh-100px)]">
           {/* Mobile Navigation */}
           <MobileNav />
 
           {/* Desktop Sidebar - hidden on mobile */}
-          <aside className="hidden md:block w-64 bg-white border-r border-gray-200 fixed h-full">
-            <div className="p-6">
-              <h1 className="text-xl font-bold text-aoz-secondary">{APP_LABELS.name}</h1>
-              <p className="text-sm text-gray-500 mt-1">{APP_LABELS.tagline}</p>
-            </div>
-            <nav className="px-4">
+          <aside className="hidden md:block w-56 bg-white border-r border-gray-200 fixed top-[100px] h-[calc(100vh-100px)] overflow-y-auto">
+            <nav className="p-3">
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">
+                Navigation
+              </div>
               {NAV_ITEMS.map((item) => (
-                <NavLink key={item.href} href={item.href} icon={item.icon}>
+                <SidebarLink key={item.href} href={item.href} icon={item.icon}>
                   {item.label}
-                </NavLink>
+                </SidebarLink>
               ))}
+              <div className="border-t border-gray-200 mt-4 pt-4">
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">
+                  System
+                </div>
+                <SidebarLink href="/algorithm" icon="brain">
+                  Algorithmus
+                </SidebarLink>
+              </div>
             </nav>
           </aside>
 
           {/* Main content */}
-          <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
-            {/* Desktop header */}
-            <header className="hidden md:block bg-white border-b border-gray-200 px-8 py-3">
-              <div className="flex items-center justify-between">
-                <nav className="flex items-center gap-6">
-                  <Link
-                    href="/algorithm"
-                    className="text-sm text-gray-600 hover:text-aoz-primary transition-colors"
-                  >
-                    Algorithmus
-                  </Link>
-                  <Link
-                    href="/analytics"
-                    className="text-sm text-gray-600 hover:text-aoz-primary transition-colors"
-                  >
-                    Auswertung
-                  </Link>
-                </nav>
-                <div className="flex items-center gap-4">
-                  <Link href="/portal/help" className="btn-outline text-sm">
-                    Hilfe
-                  </Link>
-                </div>
-              </div>
-            </header>
-            {/* Content area - add top padding for mobile header */}
-            <div className="flex-1 p-4 pt-16 md:p-8 md:pt-8">
+          <main className="flex-1 md:ml-56 flex flex-col">
+            {/* Content area */}
+            <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
               {children}
             </div>
+
             {/* Footer */}
-            <footer className="bg-white border-t border-gray-200 px-8 py-6 mt-auto">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-                <div className="flex items-center gap-6">
-                  <span>AOZ Wohnen</span>
-                  <Link href="/algorithm" className="hover:text-aoz-primary">
+            <footer className="bg-white border-t border-gray-200 px-6 py-4 mt-auto">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
+                <div className="flex items-center gap-2 text-gray-500">
+                  <div className="w-6 h-6 bg-aoz-secondary rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">AOZ</span>
+                  </div>
+                  <span className="font-medium text-gray-700">{APP_LABELS.name}</span>
+                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-500">{APP_LABELS.metaDescription}</span>
+                </div>
+                <div className="flex items-center gap-4 text-gray-400">
+                  <Link href="/algorithm" className="hover:text-aoz-primary transition-colors">
                     Algorithmus
                   </Link>
-                  <Link href="/analytics" className="hover:text-aoz-primary">
-                    Statistiken
-                  </Link>
-                  <Link href="/portal/help" className="hover:text-aoz-primary">
+                  <Link href="/portal/help" className="hover:text-aoz-primary transition-colors">
                     Hilfe
                   </Link>
-                </div>
-                <div className="text-gray-400">
-                  Kompatibilitätsbasiertes Platzierungssystem
                 </div>
               </div>
             </footer>
@@ -94,10 +138,73 @@ export default function RootLayout({
   )
 }
 
-function NavLink({
+function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
+    >
+      {children}
+    </Link>
+  )
+}
+
+function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors"
+    >
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d={NAV_ICONS[icon] || NAV_ICONS.home}
+        />
+      </svg>
+      {label}
+    </Link>
+  )
+}
+
+function MegaMenuDropdown({
+  label,
+  items,
+}: {
+  label: string
+  items: { href: string; label: string; desc: string }[]
+}) {
+  return (
+    <div className="relative group">
+      <button className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors">
+        {label}
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[220px]">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block px-4 py-2 hover:bg-gray-50 transition-colors"
+            >
+              <div className="font-medium text-gray-900 text-sm">{item.label}</div>
+              <div className="text-xs text-gray-500">{item.desc}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SidebarLink({
   href,
   icon,
-  children
+  children,
 }: {
   href: string
   icon: string
@@ -106,18 +213,16 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-aoz-primary hover:bg-aoz-accent rounded-lg transition-colors"
+      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-aoz-primary hover:bg-aoz-accent rounded-md transition-colors"
     >
-      <span className="w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center text-aoz-primary">
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d={NAV_ICONS[icon] || NAV_ICONS.home}
-          />
-        </svg>
-      </span>
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d={NAV_ICONS[icon] || NAV_ICONS.home}
+        />
+      </svg>
       <span>{children}</span>
     </Link>
   )
