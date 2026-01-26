@@ -76,7 +76,7 @@ export default function RootLayout({
                     Algorithmus
                   </Link>
                   <Link href="/analytics" className="hover:text-aoz-primary">
-                    System-Metriken
+                    Statistiken
                   </Link>
                   <Link href="/portal/help" className="hover:text-aoz-primary">
                     Hilfe
