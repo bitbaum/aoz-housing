@@ -6,7 +6,7 @@
  * - SOC: Data creation separated from business logic
  */
 
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, AgeRange, Gender, FamilyStatus, SleepSchedule, SocialStyle, SmokingStatus, MobilityNeed, RecyclingKnowledge, RoomSharingStatus, SupportLevel, ResidentStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -16,122 +16,122 @@ async function main() {
   const residents = [
     {
       code: 'WIT-001',
-      ageRange: 'YOUNG_ADULT',
-      gender: 'MALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'EARLY_BIRD',
+      ageRange: 'YOUNG_ADULT' as AgeRange,
+      gender: 'MALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low tolerance
       cleanlinessLevel: 5, // Very clean
-      socialStyle: 'INTROVERTED',
+      socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High need
       languages: ['AR', 'EN'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: ['HALAL'],
       name: 'Ahmed Hassan - quiet early bird, very clean',
     },
     {
       code: 'WIT-002',
-      ageRange: 'ADULT',
-      gender: 'FEMALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'NIGHT_OWL',
+      ageRange: 'ADULT' as AgeRange,
+      gender: 'FEMALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'NIGHT_OWL' as SleepSchedule,
       noiseTolerance: 5, // High tolerance
       cleanlinessLevel: 3, // Average
-      socialStyle: 'EXTROVERTED',
+      socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low need
       languages: ['ES', 'EN'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: ['VEGETARIAN'],
       name: 'Maria Rodriguez - social night owl, musician',
     },
     {
       code: 'WIT-003',
-      ageRange: 'ADULT',
-      gender: 'MALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'IRREGULAR',
+      ageRange: 'ADULT' as AgeRange,
+      gender: 'MALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'IRREGULAR' as SleepSchedule,
       noiseTolerance: 3, // Medium
       cleanlinessLevel: 4, // Clean
-      socialStyle: 'MODERATE',
+      socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['RU'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: [],
       name: 'Dmitri Volkov - flexible shift worker',
     },
     {
       code: 'WIT-004',
-      ageRange: 'YOUNG_ADULT',
-      gender: 'FEMALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'EARLY_BIRD',
+      ageRange: 'YOUNG_ADULT' as AgeRange,
+      gender: 'FEMALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low
       cleanlinessLevel: 5, // Very clean
-      socialStyle: 'INTROVERTED',
+      socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['SO'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: ['HALAL'],
       hasMedicalDocumentation: true,
       name: 'Amina Osman - quiet, religious, needs privacy',
     },
     {
       code: 'WIT-005',
-      ageRange: 'ADULT',
-      gender: 'MALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'NIGHT_OWL',
+      ageRange: 'ADULT' as AgeRange,
+      gender: 'MALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'NIGHT_OWL' as SleepSchedule,
       noiseTolerance: 5, // High
       cleanlinessLevel: 2, // Messy
-      socialStyle: 'EXTROVERTED',
+      socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low
       languages: ['PT'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: [],
       name: 'Carlos Silva - party person, messy',
     },
     {
       code: 'WIT-006',
-      ageRange: 'YOUNG_ADULT',
-      gender: 'FEMALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'IRREGULAR',
+      ageRange: 'YOUNG_ADULT' as AgeRange,
+      gender: 'FEMALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'IRREGULAR' as SleepSchedule,
       noiseTolerance: 3, // Medium
       cleanlinessLevel: 4, // Clean
-      socialStyle: 'MODERATE',
+      socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['AR'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: ['HALAL'],
       name: 'Fatima Al-Rashid - nurse, shift work',
     },
     {
       code: 'WIT-007',
-      ageRange: 'ADULT',
-      gender: 'MALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'EARLY_BIRD',
+      ageRange: 'ADULT' as AgeRange,
+      gender: 'MALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 2, // Low
       cleanlinessLevel: 4, // Clean
-      socialStyle: 'MODERATE',
+      socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['EN'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: [],
       name: 'John O\'Brien - teacher, structured',
     },
     {
       code: 'WIT-008',
-      ageRange: 'YOUNG_ADULT',
-      gender: 'FEMALE',
-      familyStatus: 'SINGLE',
-      sleepSchedule: 'EARLY_BIRD',
+      ageRange: 'YOUNG_ADULT' as AgeRange,
+      gender: 'FEMALE' as Gender,
+      familyStatus: 'SINGLE' as FamilyStatus,
+      sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low
       cleanlinessLevel: 5, // Very clean
-      socialStyle: 'INTROVERTED',
+      socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['JA'],
-      smokingStatus: 'NON_SMOKER',
+      smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: [],
       name: 'Yuki Tanaka - PhD student, needs quiet',
     },
@@ -153,15 +153,15 @@ async function main() {
     const resident = await prisma.resident.create({
       data: {
         ...residentData,
-        status: 'ACTIVE',
+        status: 'ACTIVE' as ResidentStatus,
         // Default values for required fields
         choresContribution: 3,
-        recyclingKnowledge: 'BASIC',
-        roomSharingStatus: 'CAN_SHARE',
-        supportLevel: 'STANDARD',
+        recyclingKnowledge: 'BASIC' as RecyclingKnowledge,
+        roomSharingStatus: 'CAN_SHARE' as RoomSharingStatus,
+        supportLevel: 'STANDARD' as SupportLevel,
         sharedBathroom: true,
         sharedKitchen: true,
-        mobilityNeeds: 'NONE',
+        mobilityNeeds: 'NONE' as MobilityNeed,
         medicalEquipment: false,
         petTolerance: true,
         hasNightDisturbances: false,

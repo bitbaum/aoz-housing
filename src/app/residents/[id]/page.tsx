@@ -6,6 +6,9 @@ import {
 } from '@/lib/config/placement-spots'
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
 import { PlacementActions } from '@/components/residents/PlacementActions'
+import { calculateCompatibility } from '@/lib/compatibility/scoring'
+import { toResidentProfile } from '@/lib/compatibility/convert'
+import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import {
   AGE_RANGE_LABELS,
   GENDER_LABELS,
@@ -102,6 +105,57 @@ export default async function ResidentDetailPage({ params }: Props) {
 
   const currentPlacement = resident.placements.find((p) => p.status === 'ACTIVE')
   const pastPlacements = resident.placements.filter((p) => p.status !== 'ACTIVE')
+
+  // For unplaced residents: calculate compatible matches
+  let compatibleUnits: { unit: any; fitScore: number; residents: number }[] = []
+  let compatibleResidents: { resident: any; score: number }[] = []
+
+  if (!currentPlacement) {
+    const residentProfile = toResidentProfile(resident)
+
+    // Get units with current residents for apartment-level matching
+    const unitsWithResidents = await prisma.housingUnit.findMany({
+      where: { status: { in: ['AVAILABLE', 'FULL'] } },
+      include: {
+        placements: {
+          where: { status: 'ACTIVE' },
+          include: { resident: true },
+        },
+        spots: { where: { status: 'AVAILABLE' } },
+      },
+    })
+
+    // Calculate fit for each unit
+    compatibleUnits = unitsWithResidents
+      .filter(u => u.spots.length > 0) // Has available spots
+      .map(unit => {
+        const currentResidents = unit.placements.map(p => toResidentProfile(p.resident))
+        const apartmentProfile = calculateApartmentProfile(currentResidents)
+        const fit = calculateApartmentFit(residentProfile, apartmentProfile)
+        return { unit, fitScore: fit.fitScore, residents: currentResidents.length }
+      })
+      .sort((a, b) => b.fitScore - a.fitScore)
+      .slice(0, 3)
+
+    // Get other unplaced residents for pairing
+    const otherUnplaced = await prisma.resident.findMany({
+      where: {
+        id: { not: resident.id },
+        status: 'ACTIVE',
+        placements: { none: { status: 'ACTIVE' } },
+      },
+    })
+
+    // Calculate pairwise compatibility
+    compatibleResidents = otherUnplaced
+      .map(other => {
+        const otherProfile = toResidentProfile(other)
+        const compat = calculateCompatibility(residentProfile, otherProfile)
+        return { resident: other, score: compat.overall }
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+  }
 
   return (
     <div>
@@ -235,6 +289,81 @@ export default async function ResidentDetailPage({ params }: Props) {
               </div>
             )}
           </div>
+
+          {/* Compatible Matches for Unplaced Residents */}
+          {!currentPlacement && (compatibleUnits.length > 0 || compatibleResidents.length > 0) && (
+            <div className="card">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Passende Optionen
+              </h2>
+
+              {/* Compatible Units */}
+              {compatibleUnits.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Beste Unterkünfte</h3>
+                  <div className="space-y-2">
+                    {compatibleUnits.map(({ unit, fitScore, residents }) => (
+                      <Link
+                        key={unit.id}
+                        href={`/matching?resident=${resident.id}`}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900">{unit.code}</p>
+                          <p className="text-xs text-gray-500">
+                            {residents === 0 ? 'Leer' : `${residents} Bewohner`}
+                          </p>
+                        </div>
+                        <span className={`text-sm font-bold ${
+                          fitScore >= 80 ? 'text-green-600' :
+                          fitScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {fitScore}%
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Compatible Unplaced Residents */}
+              {compatibleResidents.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Passende Mitbewohner (unplatziert)</h3>
+                  <div className="space-y-2">
+                    {compatibleResidents.map(({ resident: other, score }) => (
+                      <Link
+                        key={other.id}
+                        href={`/residents/${other.id}`}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm">
+                            {other.code.slice(0, 2)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">{other.code}</p>
+                            <p className="text-xs text-gray-500">
+                              {other.languages?.slice(0, 2).join(', ')}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`text-sm font-bold ${
+                          score >= 80 ? 'text-green-600' :
+                          score >= 60 ? 'text-yellow-600' : 'text-red-600'
+                        }`}>
+                          {Math.round(score)}%
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Diese Bewohner könnten zusammen platziert werden.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Satisfaction Check-ins History */}
           {currentPlacement && (
