@@ -38,13 +38,24 @@ export default function RootLayout({
           </aside>
 
           {/* Main content */}
-          <main className="flex-1 md:ml-64">
+          <main className="flex-1 md:ml-64 flex flex-col min-h-screen">
             {/* Desktop header */}
-            <header className="hidden md:block bg-white border-b border-gray-200 px-8 py-4">
+            <header className="hidden md:block bg-white border-b border-gray-200 px-8 py-3">
               <div className="flex items-center justify-between">
-                <div>
-                  {/* Breadcrumb placeholder */}
-                </div>
+                <nav className="flex items-center gap-6">
+                  <Link
+                    href="/algorithm"
+                    className="text-sm text-gray-600 hover:text-aoz-primary transition-colors"
+                  >
+                    Algorithmus
+                  </Link>
+                  <Link
+                    href="/analytics"
+                    className="text-sm text-gray-600 hover:text-aoz-primary transition-colors"
+                  >
+                    Auswertung
+                  </Link>
+                </nav>
                 <div className="flex items-center gap-4">
                   <Link href="/portal/help" className="btn-outline text-sm">
                     Hilfe
@@ -53,9 +64,29 @@ export default function RootLayout({
               </div>
             </header>
             {/* Content area - add top padding for mobile header */}
-            <div className="p-4 pt-16 md:p-8 md:pt-8">
+            <div className="flex-1 p-4 pt-16 md:p-8 md:pt-8">
               {children}
             </div>
+            {/* Footer */}
+            <footer className="bg-white border-t border-gray-200 px-8 py-6 mt-auto">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-6">
+                  <span>AOZ Wohnen</span>
+                  <Link href="/algorithm" className="hover:text-aoz-primary">
+                    Algorithmus
+                  </Link>
+                  <Link href="/analytics" className="hover:text-aoz-primary">
+                    System-Metriken
+                  </Link>
+                  <Link href="/portal/help" className="hover:text-aoz-primary">
+                    Hilfe
+                  </Link>
+                </div>
+                <div className="text-gray-400">
+                  Kompatibilitätsbasiertes Platzierungssystem
+                </div>
+              </div>
+            </footer>
           </main>
         </div>
       </body>
