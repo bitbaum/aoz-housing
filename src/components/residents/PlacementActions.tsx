@@ -42,6 +42,22 @@ export function PlacementActions({
 }: PlacementActionsProps) {
   const [showTransfer, setShowTransfer] = useState(false)
   const [showEnd, setShowEnd] = useState(false)
+  const [selectedUnitId, setSelectedUnitId] = useState<string>('')
+
+  // Get eligible units (different from current, has eligible spots)
+  const eligibleUnits = availableUnits.filter((u) => {
+    if (u.id === currentUnitId) return false
+    const eligibleSpots = u.spots.filter((spot) =>
+      eligibleSpotTypes.includes(spot.type)
+    )
+    return eligibleSpots.length > 0
+  })
+
+  // Get spots for currently selected unit only
+  const selectedUnit = eligibleUnits.find((u) => u.id === selectedUnitId)
+  const spotsForSelectedUnit = selectedUnit
+    ? selectedUnit.spots.filter((spot) => eligibleSpotTypes.includes(spot.type))
+    : []
 
   return (
     <div className="mt-4 pt-4 border-t">
@@ -105,52 +121,50 @@ export function PlacementActions({
 
           <div>
             <label className="label">Ziel-Unterkunft *</label>
-            <select name="targetHousingUnitId" required className="input">
+            <select
+              name="targetHousingUnitId"
+              required
+              className="input"
+              value={selectedUnitId}
+              onChange={(e) => setSelectedUnitId(e.target.value)}
+            >
               <option value="">Bitte wählen</option>
-              {availableUnits
-                .filter((u) => u.id !== currentUnitId && u.spots.length > 0)
-                .map((unit) => {
-                  const eligibleSpots = unit.spots.filter((spot) =>
-                    eligibleSpotTypes.includes(spot.type)
-                  )
-                  if (eligibleSpots.length === 0) return null
-                  return (
-                    <option key={unit.id} value={unit.id}>
-                      {unit.code} - {unit.address} ({eligibleSpots.length} Plätze
-                      frei)
-                    </option>
-                  )
-                })}
+              {eligibleUnits.map((unit) => {
+                const eligibleSpots = unit.spots.filter((spot) =>
+                  eligibleSpotTypes.includes(spot.type)
+                )
+                return (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.code} - {unit.address} ({eligibleSpots.length} Plätze frei)
+                  </option>
+                )
+              })}
             </select>
+            {eligibleUnits.length === 0 && (
+              <p className="text-xs text-orange-600 mt-1">
+                Keine Unterkünfte mit geeigneten Plätzen verfügbar
+              </p>
+            )}
           </div>
 
           <div>
             <label className="label">Ziel-Platz *</label>
-            <select name="targetSpotId" required className="input">
-              <option value="">Bitte wählen</option>
-              {availableUnits
-                .filter((u) => u.id !== currentUnitId)
-                .flatMap((unit) =>
-                  unit.spots
-                    .filter((spot) => eligibleSpotTypes.includes(spot.type))
-                    .map((spot) => (
-                      <option key={spot.id} value={spot.id}>
-                        {unit.code} →{' '}
-                        {
-                          SPOT_TYPE_ICONS[
-                            spot.type as keyof typeof SPOT_TYPE_ICONS
-                          ]
-                        }{' '}
-                        {spot.label || spot.code} (
-                        {
-                          SPOT_TYPE_LABELS[
-                            spot.type as keyof typeof SPOT_TYPE_LABELS
-                          ]
-                        }
-                        )
-                      </option>
-                    ))
-                )}
+            <select
+              name="targetSpotId"
+              required
+              className="input"
+              disabled={!selectedUnitId}
+            >
+              <option value="">
+                {selectedUnitId ? 'Platz auswählen' : 'Zuerst Unterkunft wählen'}
+              </option>
+              {spotsForSelectedUnit.map((spot) => (
+                <option key={spot.id} value={spot.id}>
+                  {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
+                  {spot.label || spot.code} (
+                  {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]})
+                </option>
+              ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">
               {hasMedicalDocumentation

@@ -6,6 +6,9 @@ import {
   INCIDENT_CATEGORY_ICONS,
   HOUSING_STATUS_LABELS,
   HARMONY_STATUS_LABELS,
+  AGE_RANGE_LABELS,
+  LANGUAGE_LABELS,
+  getLabel,
 } from '@/lib/constants'
 import {
   getScoreLabel,
@@ -17,6 +20,8 @@ import {
   type HarmonyStatus,
 } from '@/lib/utils'
 import { RoomVisualization } from '@/components/housing/RoomVisualization'
+import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
+import { toResidentProfile } from '@/lib/compatibility/convert'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,6 +114,63 @@ export default async function HousingDetailPage({ params }: Props) {
 
   const occupancy = unit.placements.length
   const occupancyPercent = Math.round((occupancy / unit.totalBeds) * 100)
+
+  // Calculate who fits in this unit (only if there's space)
+  let compatibleResidents: { resident: any; fitScore: number; strengths: string[]; concerns: string[] }[] = []
+  const hasAvailableSpace = unit.placements.length < unit.totalBeds
+
+  if (hasAvailableSpace) {
+    // Get unplaced residents
+    const unplacedResidents = await prisma.resident.findMany({
+      where: {
+        status: 'ACTIVE',
+        placements: { none: { status: 'ACTIVE' } },
+      },
+    })
+
+    if (unplacedResidents.length > 0) {
+      // Calculate apartment profile from current residents
+      const currentResidents = unit.placements.map(p => p.resident)
+      const apartmentProfile = calculateApartmentProfile(
+        currentResidents.map(r => toResidentProfile(r as any))
+      )
+      apartmentProfile.unitId = unit.id
+
+      // Calculate fit for each unplaced resident
+      compatibleResidents = unplacedResidents
+        .map(resident => {
+          const residentProfile = toResidentProfile(resident as any)
+          const fit = calculateApartmentFit(residentProfile, apartmentProfile)
+
+          // Check for blocking concerns based on unit requirements
+          const concerns: string[] = []
+          if (resident.mobilityNeeds === 'WHEELCHAIR' && !unit.wheelchairAccess) {
+            concerns.push('Benötigt Rollstuhlzugang')
+          }
+          if (resident.mobilityNeeds === 'GROUND_FLOOR' && !unit.groundFloor && !unit.elevator) {
+            concerns.push('Benötigt Erdgeschoss')
+          }
+          if (resident.smokingStatus !== 'NON_SMOKER' && !unit.smokingAllowed) {
+            concerns.push('Raucher, aber Nichtraucher-Unterkunft')
+          }
+
+          // Add apartment-level blocking conflicts to concerns
+          fit.conflicts
+            .filter((c: any) => c.severity === 'BLOCKING')
+            .forEach((c: any) => concerns.push(c.message))
+
+          return {
+            resident,
+            fitScore: fit.fitScore,
+            strengths: fit.strengths.slice(0, 2),
+            concerns,
+          }
+        })
+        .filter(m => !m.concerns.some(c => c.includes('Rollstuhl') || c.includes('Erdgeschoss')))
+        .sort((a, b) => b.fitScore - a.fitScore)
+        .slice(0, 5)
+    }
+  }
 
   return (
     <div>
@@ -228,6 +290,100 @@ export default async function HousingDetailPage({ params }: Props) {
                       compatibilityScores={compatibilityScores}
                       otherResidentIds={residentIds.filter(id => id !== placement.residentId)}
                     />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Who Fits Here - Only show if there's available space */}
+          {hasAvailableSpace && (
+            <div className="card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Wer passt hierher?
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {unit.totalBeds - unit.placements.length} freie{' '}
+                    {unit.totalBeds - unit.placements.length === 1 ? 'Platz' : 'Plätze'}
+                  </p>
+                </div>
+                <Link
+                  href={`/matching?unit=${unit.id}`}
+                  className="btn-outline text-sm"
+                >
+                  Alle anzeigen
+                </Link>
+              </div>
+
+              {compatibleResidents.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-gray-500 mb-3">Keine passenden unplatzierten Bewohner</p>
+                  <Link href="/residents/new" className="btn-primary text-sm">
+                    Neuen Bewohner erfassen
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {compatibleResidents.map((match) => (
+                    <div
+                      key={match.resident.id}
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        match.concerns.length > 0
+                          ? 'border-orange-200 bg-orange-50'
+                          : match.fitScore >= 70
+                          ? 'border-green-200 bg-green-50'
+                          : 'border-gray-200 bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+                          {match.resident.code.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <Link
+                            href={`/residents/${match.resident.id}`}
+                            className="font-medium text-gray-900 hover:text-aoz-primary"
+                          >
+                            {match.resident.code}
+                          </Link>
+                          <p className="text-sm text-gray-500">
+                            {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
+                            {match.resident.languages?.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                          </p>
+                          {match.strengths.length > 0 && match.concerns.length === 0 && (
+                            <p className="text-xs text-green-600 mt-0.5">
+                              ✓ {match.strengths[0]}
+                            </p>
+                          )}
+                          {match.concerns.length > 0 && (
+                            <p className="text-xs text-orange-600 mt-0.5">
+                              ⚠️ {match.concerns[0]}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`text-lg font-bold ${
+                            match.fitScore >= 70
+                              ? 'text-green-600'
+                              : match.fitScore >= 50
+                              ? 'text-yellow-600'
+                              : 'text-red-600'
+                          }`}
+                        >
+                          {match.fitScore}%
+                        </span>
+                        <Link
+                          href={`/matching?resident=${match.resident.id}`}
+                          className="btn-primary text-sm px-3 py-1"
+                        >
+                          Platzieren
+                        </Link>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

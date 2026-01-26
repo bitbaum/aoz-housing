@@ -220,6 +220,50 @@ export default async function MatchingPage({ searchParams }: Props) {
   let selectedResident: Resident | null = null
   let matches: any[] = []
 
+  // UNIT-SPECIFIC MODE: When unit is selected, show "who fits here"
+  let selectedUnit: typeof availableUnits[0] | null = null
+  let unitMatches: { resident: Resident; fitScore: number; apartmentFit: any; concerns: string[] }[] = []
+
+  if (params.unit && !params.resident) {
+    selectedUnit = availableUnits.find(u => u.id === params.unit) || null
+
+    if (selectedUnit) {
+      const currentResidents = selectedUnit.placements.map(p => p.resident)
+      const apartmentProfile = calculateApartmentProfile(
+        currentResidents.map(r => toResidentProfile(r as any))
+      )
+      apartmentProfile.unitId = selectedUnit.id
+
+      // Calculate fit for each unplaced resident
+      unitMatches = unplacedResidents
+        .map(resident => {
+          const residentProfile = toResidentProfile(resident as any)
+          const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
+
+          // Check for blocking concerns
+          const concerns: string[] = []
+          if (resident.mobilityNeeds === 'WHEELCHAIR' && !selectedUnit!.wheelchairAccess) {
+            concerns.push('Benötigt Rollstuhlzugang')
+          }
+          if (resident.mobilityNeeds === 'GROUND_FLOOR' && !selectedUnit!.groundFloor && !selectedUnit!.elevator) {
+            concerns.push('Benötigt Erdgeschoss')
+          }
+          if (resident.smokingStatus !== 'NON_SMOKER' && !selectedUnit!.smokingAllowed) {
+            concerns.push('Raucher, aber Nichtraucher-Unterkunft')
+          }
+
+          return {
+            resident,
+            fitScore: apartmentFit.fitScore,
+            apartmentFit,
+            concerns,
+          }
+        })
+        .filter(m => !m.apartmentFit.conflicts.some((c: any) => c.severity === 'BLOCKING'))
+        .sort((a, b) => b.fitScore - a.fitScore)
+    }
+  }
+
   if (params.resident) {
     const foundResident = await prisma.resident.findUnique({
       where: { id: params.resident },
@@ -358,15 +402,22 @@ export default async function MatchingPage({ searchParams }: Props) {
   }
 
   const isNewResident = params.new === '1' && selectedResident
+  const isUnitMode = !!selectedUnit && !selectedResident
 
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
-          {isNewResident ? 'Unterkunft finden' : 'Matching'}
+          {isUnitMode
+            ? `Wer passt in ${selectedUnit?.code}?`
+            : isNewResident
+            ? 'Unterkunft finden'
+            : 'Matching'}
         </h1>
         <p className="text-gray-500">
-          {isNewResident
+          {isUnitMode
+            ? `Finden Sie passende Bewohner für ${selectedUnit?.address}`
+            : isNewResident
             ? `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${selectedResident?.code}`
             : 'Finden Sie die optimale Platzierung für Bewohner'
           }
@@ -468,9 +519,121 @@ export default async function MatchingPage({ searchParams }: Props) {
           )}
         </div>
 
-        {/* Right panel: Matches or available units */}
+        {/* Right panel: Matches, Unit mode, or available units */}
         <div className="card">
-          {selectedResident ? (
+          {isUnitMode && selectedUnit ? (
+            <>
+              {/* UNIT MODE: Show who fits in this unit */}
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Passende Bewohner
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {selectedUnit.placements.length}/{selectedUnit.totalBeds} belegt ·{' '}
+                    {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} freie Plätze
+                  </p>
+                </div>
+                <Link
+                  href="/matching"
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Zurück
+                </Link>
+              </div>
+
+              {/* Current residents in unit */}
+              {selectedUnit.placements.length > 0 && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                    Aktuelle Bewohner
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedUnit.placements.map((p: any) => (
+                      <Link
+                        key={p.id}
+                        href={`/residents/${p.residentId}`}
+                        className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-sm hover:border-aoz-primary"
+                      >
+                        <span className="w-5 h-5 bg-aoz-primary text-white rounded-full flex items-center justify-center text-xs">
+                          {p.resident.code.slice(0, 1)}
+                        </span>
+                        {p.resident.code}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {unitMatches.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Keine passenden unplatzierten Bewohner</p>
+                  <Link href="/residents/new" className="btn-outline mt-4 inline-block">
+                    Neuen Bewohner erfassen
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {unitMatches.slice(0, 10).map((match) => (
+                    <div
+                      key={match.resident.id}
+                      className={`p-3 border rounded-lg ${
+                        match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+                            {match.resident.code.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <Link
+                              href={`/residents/${match.resident.id}`}
+                              className="font-medium text-gray-900 hover:text-aoz-primary"
+                            >
+                              {match.resident.code}
+                            </Link>
+                            <p className="text-sm text-gray-500">
+                              {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
+                              {match.resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-lg font-bold ${
+                            match.fitScore >= 70 ? 'text-green-600' :
+                            match.fitScore >= 50 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {match.fitScore}%
+                          </span>
+                          <Link
+                            href={`/matching?resident=${match.resident.id}`}
+                            className="btn-primary text-sm px-3 py-1"
+                          >
+                            Platzieren
+                          </Link>
+                        </div>
+                      </div>
+                      {match.concerns.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-orange-200">
+                          {match.concerns.map((c: string, i: number) => (
+                            <p key={i} className="text-xs text-orange-600">⚠️ {c}</p>
+                          ))}
+                        </div>
+                      )}
+                      {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          {match.apartmentFit.strengths.slice(0, 2).map((s: string, i: number) => (
+                            <p key={i} className="text-xs text-green-600">✓ {s}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : selectedResident ? (
             <>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
