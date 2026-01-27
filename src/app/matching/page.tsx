@@ -23,6 +23,7 @@ import { toResidentProfile } from '@/lib/compatibility/convert'
 import { validatePlacementFormData } from '@/lib/validation/placement'
 import { logAudit } from '@/lib/audit'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
+import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
 import type { Resident } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -212,6 +213,22 @@ export default async function MatchingPage({ searchParams }: Props) {
     orderBy: { createdAt: 'desc' },
   })
 
+  // Get placed residents for "what-if" analysis
+  const placedResidents = await prisma.resident.findMany({
+    where: {
+      status: 'PLACED',
+      placements: { some: { status: 'ACTIVE' } },
+    },
+    include: {
+      placements: {
+        where: { status: 'ACTIVE' },
+        include: { housingUnit: { select: { id: true, code: true } } },
+        take: 1,
+      },
+    },
+    orderBy: { code: 'asc' },
+  })
+
   // Get available units with current residents and spots
   const availableUnits = await prisma.housingUnit.findMany({
     where: {
@@ -288,8 +305,15 @@ export default async function MatchingPage({ searchParams }: Props) {
   if (params.resident) {
     const foundResident = await prisma.resident.findUnique({
       where: { id: params.resident },
+      include: {
+        placements: {
+          where: { status: 'ACTIVE' },
+          include: { housingUnit: { select: { id: true, code: true } } },
+          take: 1,
+        },
+      },
     })
-    selectedResident = foundResident
+    selectedResident = foundResident as any
 
     if (foundResident) {
       const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)
@@ -482,6 +506,24 @@ export default async function MatchingPage({ searchParams }: Props) {
         </div>
       )}
 
+      {/* Info banner for already-placed residents */}
+      {selectedResident && (selectedResident as any).placements?.length > 0 && !isNewResident && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">ℹ️</span>
+            <div>
+              <h2 className="font-semibold text-blue-800">
+                Was-wäre-wenn-Analyse für {selectedResident.code}
+              </h2>
+              <p className="text-sm text-blue-700 mt-1">
+                Aktuell platziert in {(selectedResident as any).placements[0]?.housingUnit?.code}.
+                Diese Ansicht zeigt Kompatibilität mit anderen Unterkünften.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left panel: Unplaced residents */}
         <div className="card">
@@ -536,6 +578,57 @@ export default async function MatchingPage({ searchParams }: Props) {
                   </Link>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Placed residents section */}
+          {placedResidents.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-md font-semibold text-gray-700 mb-3">
+                Platzierte Bewohner ({placedResidents.length})
+              </h3>
+              <p className="text-xs text-gray-500 mb-3">
+                Wählen Sie einen Bewohner für &quot;Was-wäre-wenn&quot;-Analyse
+              </p>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {placedResidents.map((resident) => (
+                  <div
+                    key={resident.id}
+                    className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
+                      params.resident === resident.id
+                        ? 'border-aoz-primary bg-aoz-primary/5'
+                        : 'border-gray-200 bg-gray-50'
+                    }`}
+                  >
+                    <Link
+                      href={`/residents/${resident.id}`}
+                      className="flex items-center gap-2 flex-1 hover:opacity-80"
+                    >
+                      <div className="w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                        {resident.code.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          {resident.code}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {resident.placements[0]?.housingUnit?.code || 'Platziert'}
+                        </p>
+                      </div>
+                    </Link>
+                    <Link
+                      href={`/matching?resident=${resident.id}`}
+                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                        params.resident === resident.id
+                          ? 'bg-aoz-primary text-white'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      }`}
+                    >
+                      Vergleichen
+                    </Link>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -700,6 +793,110 @@ export default async function MatchingPage({ searchParams }: Props) {
   )
 }
 
+/**
+ * Config-driven comparison attributes (SSOT)
+ */
+const COMPARISON_ATTRIBUTES = [
+  { key: 'cleanlinessLevel', label: 'Sauberkeit', type: 'numeric', avgKey: 'avgCleanlinessLevel', threshold: 'cleanliness' },
+  { key: 'noiseTolerance', label: 'Lärmtoleranz', type: 'numeric', avgKey: 'avgNoiseTolerance', threshold: 'noiseTolerance' },
+  { key: 'choresContribution', label: 'Hausarbeit', type: 'numeric', avgKey: 'avgChoresContribution', threshold: 'choresContribution' },
+  { key: 'privacyNeed', label: 'Privatsphäre', type: 'numeric', avgKey: 'avgPrivacyNeed' },
+  { key: 'sleepSchedule', label: 'Schlaf', type: 'enum', dominantKey: 'dominantSleepSchedule', labels: SLEEP_SCHEDULE_LABELS },
+  { key: 'socialStyle', label: 'Sozialstil', type: 'enum', dominantKey: 'dominantSocialStyle', labels: SOCIAL_STYLE_LABELS },
+  { key: 'smokingStatus', label: 'Rauchen', type: 'enum', dominantKey: 'dominantSmokingStatus', labels: SMOKING_STATUS_LABELS },
+] as const
+
+function HeadToHeadComparison({
+  currentResidents,
+  newResident,
+  apartmentProfile,
+}: {
+  currentResidents: any[]
+  newResident: any
+  apartmentProfile: any
+}) {
+  if (currentResidents.length === 0) return null
+
+  // Get diff indicator for numeric comparisons
+  const getDiffIndicator = (newVal: number, avgVal: number | null, thresholdKey?: string) => {
+    if (avgVal === null) return null
+    const diff = Math.abs(newVal - avgVal)
+    if (!thresholdKey) {
+      return diff <= 0.5 ? <span className="text-green-500">✓</span> : null
+    }
+    const thresholds = APARTMENT_THRESHOLDS[thresholdKey as keyof typeof APARTMENT_THRESHOLDS]
+    if (!thresholds || typeof thresholds !== 'object') return null
+    if ('BLOCKING' in thresholds && diff >= (thresholds as any).BLOCKING) {
+      return <span className="text-red-500 font-bold">🚫</span>
+    }
+    if ('HIGH' in thresholds && diff >= (thresholds as any).HIGH) {
+      return <span className="text-orange-500">⚠</span>
+    }
+    if (diff <= 0.5) {
+      return <span className="text-green-500">✓</span>
+    }
+    return null
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs border-collapse">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
+            {currentResidents.slice(0, 4).map((r: any) => (
+              <th key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
+                {r.code.slice(-3)}
+              </th>
+            ))}
+            {currentResidents.length > 4 && (
+              <th className="p-1.5 text-center text-gray-400 border-b">+{currentResidents.length - 4}</th>
+            )}
+            <th className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
+            <th className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
+          </tr>
+        </thead>
+        <tbody>
+          {COMPARISON_ATTRIBUTES.map((attr) => {
+            const avgValue = attr.type === 'numeric'
+              ? apartmentProfile[attr.avgKey as string]
+              : apartmentProfile[attr.dominantKey as string]
+
+            return (
+              <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
+                <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
+                {currentResidents.slice(0, 4).map((r: any) => (
+                  <td key={r.id} className="p-1.5 text-center text-gray-500">
+                    {attr.type === 'numeric'
+                      ? r[attr.key]
+                      : getLabel(attr.labels as Record<string, string>, r[attr.key]).slice(0, 6)}
+                  </td>
+                ))}
+                {currentResidents.length > 4 && <td className="p-1.5 text-center text-gray-300">…</td>}
+                <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
+                  {attr.type === 'numeric'
+                    ? avgValue?.toFixed(1) || '–'
+                    : avgValue ? getLabel(attr.labels as Record<string, string>, avgValue).slice(0, 6) : '–'}
+                </td>
+                <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
+                  {attr.type === 'numeric' ? (
+                    <span className="inline-flex items-center gap-0.5">
+                      {newResident[attr.key]}
+                      {getDiffIndicator(newResident[attr.key], avgValue, 'threshold' in attr ? attr.threshold : undefined)}
+                    </span>
+                  ) : (
+                    getLabel(attr.labels as Record<string, string>, newResident[attr.key]).slice(0, 6)
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function MatchCard({ match, resident }: { match: any; resident: any }) {
   const occupancy = match.unit.placements.length
 
@@ -799,36 +996,12 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
             </span>
           </div>
 
-          {/* Key aggregate metrics with comparison */}
-          <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-            <div>
-              <span className="text-gray-600">Sauberkeit:</span>
-              <span className="ml-1 font-medium">
-                {resident.cleanlinessLevel} vs Ø{match.apartmentProfile.avgCleanlinessLevel?.toFixed(1) || 'N/A'}
-              </span>
-              {match.apartmentProfile.avgCleanlinessLevel && Math.abs(resident.cleanlinessLevel - match.apartmentProfile.avgCleanlinessLevel) >= 2 && (
-                <span className="ml-1 text-orange-500">⚠</span>
-              )}
-            </div>
-            <div>
-              <span className="text-gray-600">Lärmtoleranz:</span>
-              <span className="ml-1 font-medium">
-                {resident.noiseTolerance} vs Ø{match.apartmentProfile.avgNoiseTolerance?.toFixed(1) || 'N/A'}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600">Schlaf:</span>
-              <span className="ml-1 font-medium">
-                {getLabel(SLEEP_SCHEDULE_LABELS, resident.sleepSchedule)} vs {match.apartmentProfile.dominantSleepSchedule ? getLabel(SLEEP_SCHEDULE_LABELS, match.apartmentProfile.dominantSleepSchedule) : 'Gemischt'}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-600">Hausarbeit:</span>
-              <span className="ml-1 font-medium">
-                {resident.choresContribution} vs Ø{match.apartmentProfile.avgChoresContribution?.toFixed(1) || 'N/A'}
-              </span>
-            </div>
-          </div>
+          {/* Head-to-head comparison table */}
+          <HeadToHeadComparison
+            currentResidents={match.unit.placements.map((p: any) => p.resident)}
+            newResident={resident}
+            apartmentProfile={match.apartmentProfile}
+          />
 
           {/* Blocking/High conflicts */}
           {match.apartmentFit.conflicts.filter((c: any) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length > 0 && (
