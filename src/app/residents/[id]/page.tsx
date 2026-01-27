@@ -26,6 +26,7 @@ import {
   ROOM_SHARING_STATUS_LABELS,
   SUPPORT_LEVEL_LABELS,
   CHECK_IN_TYPE_LABELS,
+  MEDICAL_DOC_TYPE_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getPlacementCheckIns } from '@/lib/actions'
@@ -569,14 +570,58 @@ export default async function ResidentDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* Right column: Profile attributes */}
+        {/* Right column: Profile attributes - Reorganized for clarity */}
         <div className="space-y-6">
-          {/* Lifestyle */}
+          {/* CRITICAL: Housing Authorization - Most important info at top */}
+          <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              🏠 Unterkunftsberechtigung
+            </h2>
+            <dl className="space-y-3 text-sm">
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Ärztliche Dokumentation</dt>
+                <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-blue-700' : 'text-gray-500'}`}>
+                  {resident.hasMedicalDocumentation ? '✓ Vorhanden' : '✗ Keine'}
+                </dd>
+              </div>
+              {resident.hasMedicalDocumentation && resident.medicalDocType && (
+                <div className="flex justify-between items-center">
+                  <dt className="text-gray-600">Berechtigung für</dt>
+                  <dd className="font-semibold text-blue-700">
+                    {getLabel(MEDICAL_DOC_TYPE_LABELS, resident.medicalDocType)}
+                  </dd>
+                </div>
+              )}
+              <div className="flex justify-between items-center">
+                <dt className="text-gray-600">Zimmerteilung</dt>
+                <dd className="font-medium text-gray-900">
+                  {getLabel(ROOM_SHARING_STATUS_LABELS, resident.roomSharingStatus)}
+                </dd>
+              </div>
+              <div className="pt-2 border-t border-gray-200">
+                <dt className="text-gray-500 text-xs mb-1">Erlaubte Platztypen</dt>
+                <dd className="flex flex-wrap gap-1">
+                  {getEligibleSpotTypes(resident.hasMedicalDocumentation, resident.medicalDocType).map((type) => (
+                    <span
+                      key={type}
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-800'
+                      }`}
+                    >
+                      {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]} {type === 'BED' ? 'Bett' : type === 'PRIVATE_ROOM' ? 'Einzelzimmer' : 'Studio'}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Lifestyle & Daily Habits - Combined */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Lebensstil
             </h2>
-            <dl className="space-y-3 text-sm">
+            <dl className="space-y-2 text-sm">
               <DetailRow
                 label="Schlafrhythmus"
                 value={getLabel(SLEEP_SCHEDULE_LABELS, resident.sleepSchedule)}
@@ -589,30 +634,34 @@ export default async function ResidentDetailPage({ params }: Props) {
                 label="Sauberkeit"
                 value={`${resident.cleanlinessLevel}/5`}
               />
-            </dl>
-          </div>
-
-          {/* Social */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Soziales
-            </h2>
-            <dl className="space-y-3 text-sm">
               <DetailRow
-                label="Sozial"
+                label="Sozialstil"
                 value={getLabel(SOCIAL_STYLE_LABELS, resident.socialStyle)}
               />
               <DetailRow
                 label="Privatsphäre"
                 value={`${resident.privacyNeed}/5`}
               />
+              <DetailRow
+                label="Rauchen"
+                value={getLabel(SMOKING_STATUS_LABELS, resident.smokingStatus)}
+              />
+            </dl>
+          </div>
+
+          {/* Languages & Background */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Sprachen & Herkunft
+            </h2>
+            <dl className="space-y-3 text-sm">
               <div>
-                <dt className="text-gray-500 mb-1">Sprachen</dt>
+                <dt className="text-gray-500 mb-2">Sprachen</dt>
                 <dd className="flex flex-wrap gap-1">
                   {resident.languages.map((lang) => (
                     <span
                       key={lang}
-                      className="px-2 py-0.5 bg-gray-100 rounded text-xs"
+                      className="px-2 py-1 bg-aoz-accent text-aoz-secondary rounded text-xs font-medium"
                     >
                       {getLabel(LANGUAGE_LABELS, lang)}
                     </span>
@@ -625,22 +674,55 @@ export default async function ResidentDetailPage({ params }: Props) {
             </dl>
           </div>
 
-          {/* Practical */}
+          {/* Household & Independence */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Praktisches
+              Haushalt & Selbständigkeit
             </h2>
-            <dl className="space-y-3 text-sm">
+            <dl className="space-y-2 text-sm">
               <DetailRow
-                label="Rauchen"
-                value={getLabel(SMOKING_STATUS_LABELS, resident.smokingStatus)}
+                label="Haushaltsbereitschaft"
+                value={`${resident.choresContribution}/5`}
+              />
+              <DetailRow
+                label="Recycling"
+                value={getLabel(RECYCLING_KNOWLEDGE_LABELS, resident.recyclingKnowledge)}
               />
               <DetailRow
                 label="Mobilität"
                 value={getLabel(MOBILITY_NEED_LABELS, resident.mobilityNeeds)}
               />
+              <DetailRow
+                label="Betreuungsstufe"
+                value={getLabel(SUPPORT_LEVEL_LABELS, resident.supportLevel)}
+              />
+            </dl>
+          </div>
+
+          {/* Special Needs - Combined */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Besondere Bedürfnisse
+            </h2>
+            <div className="space-y-2 text-sm">
+              <PreferenceItem
+                label="Nächtliche Unruhe"
+                value={resident.hasNightDisturbances}
+              />
+              <PreferenceItem
+                label="Ruhige Umgebung nötig"
+                value={resident.needsQuietEnvironment}
+              />
+              <PreferenceItem
+                label="Schlafgeräte"
+                value={resident.hasSleepEquipment}
+              />
+              <PreferenceItem
+                label="Med. Geräte"
+                value={resident.medicalEquipment}
+              />
               {resident.dietaryNeeds.length > 0 && (
-                <div>
+                <div className="pt-2">
                   <dt className="text-gray-500 mb-1">Ernährung</dt>
                   <dd className="flex flex-wrap gap-1">
                     {resident.dietaryNeeds.map((diet) => (
@@ -654,65 +736,15 @@ export default async function ResidentDetailPage({ params }: Props) {
                   </dd>
                 </div>
               )}
-            </dl>
+            </div>
           </div>
 
-          {/* Household */}
+          {/* Sharing Preferences */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Haushalt
-            </h2>
-            <dl className="space-y-3 text-sm">
-              <DetailRow
-                label="Haushaltsbereitschaft"
-                value={`${resident.choresContribution}/5`}
-              />
-              <DetailRow
-                label="Recycling-Kenntnisse"
-                value={getLabel(RECYCLING_KNOWLEDGE_LABELS, resident.recyclingKnowledge)}
-              />
-            </dl>
-          </div>
-
-          {/* Support Needs */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Unterstützung
-            </h2>
-            <dl className="space-y-3 text-sm">
-              <DetailRow
-                label="Zimmerteilung"
-                value={getLabel(ROOM_SHARING_STATUS_LABELS, resident.roomSharingStatus)}
-              />
-              <DetailRow
-                label="Betreuungsstufe"
-                value={getLabel(SUPPORT_LEVEL_LABELS, resident.supportLevel)}
-              />
-              <PreferenceItem
-                label="Nächtliche Unruhe"
-                value={resident.hasNightDisturbances}
-              />
-              <PreferenceItem
-                label="Ruhige Umgebung nötig"
-                value={resident.needsQuietEnvironment}
-              />
-              <PreferenceItem
-                label="Schlafgeräte"
-                value={resident.hasSleepEquipment}
-              />
-            </dl>
-          </div>
-
-          {/* Preferences */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Präferenzen
+              Teilen & Präferenzen
             </h2>
             <div className="space-y-2 text-sm">
-              <PreferenceItem
-                label="Haustiere"
-                value={resident.petTolerance}
-              />
               <PreferenceItem
                 label="Geteiltes Bad"
                 value={resident.sharedBathroom}
@@ -722,8 +754,8 @@ export default async function ResidentDetailPage({ params }: Props) {
                 value={resident.sharedKitchen}
               />
               <PreferenceItem
-                label="Med. Geräte"
-                value={resident.medicalEquipment}
+                label="Haustiere"
+                value={resident.petTolerance}
               />
             </div>
           </div>
