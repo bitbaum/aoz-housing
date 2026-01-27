@@ -38,7 +38,7 @@ export function validatePlacementFormData(formData: FormData) {
     riskScore: parseFloat(formData.get('riskScore') as string),
     apartmentFitScore: parseFloat(formData.get('apartmentFitScore') as string) || 100,
     hasBlockingConflicts: formData.get('hasBlockingConflicts') === 'true',
-    notes: formData.get('notes') as string,
+    notes: (formData.get('notes') as string) || undefined,
   }
 
   return placementSchema.parse(data)
