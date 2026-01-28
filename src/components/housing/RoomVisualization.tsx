@@ -2,41 +2,18 @@
 
 import Link from 'next/link'
 import {
-  SPOT_TYPE_CONFIG,
   SPOT_TYPE_ICONS,
   SPOT_STATUS_LABELS,
-  type SpotTypeKey,
-  type SpotStatusKey,
 } from '@/lib/config/placement-spots'
-
-interface Resident {
-  id: string
-  code: string
-}
-
-interface Placement {
-  id: string
-  resident: Resident
-  status: string
-}
-
-interface Spot {
-  id: string
-  code: string
-  label: string | null
-  type: SpotTypeKey
-  status: SpotStatusKey
-  squareMeters: number | null
-  requiresMedicalDocs: boolean
-  parentSpotId: string | null
-  childSpots?: Spot[]
-  placements: Placement[]
-}
+import { BedGrid, BedGridSummary } from './BedGrid'
+import type { HousingSpot } from './types'
 
 interface RoomVisualizationProps {
-  spots: Spot[]
+  spots: HousingSpot[]
   housingUnitId: string
   onPlaceResident?: (spotId: string) => void
+  onAvailableBedClick?: (spot: HousingSpot) => void
+  useBedGrid?: boolean
 }
 
 /**
@@ -51,6 +28,8 @@ export function RoomVisualization({
   spots,
   housingUnitId,
   onPlaceResident,
+  onAvailableBedClick,
+  useBedGrid = true,
 }: RoomVisualizationProps) {
   // Separate containers (ROOMs) from assignable spots
   const containers = spots.filter((s) => s.type === 'ROOM')
@@ -88,6 +67,8 @@ export function RoomVisualization({
           key={container.id}
           room={container}
           onPlaceResident={onPlaceResident}
+          onAvailableBedClick={onAvailableBedClick}
+          useBedGrid={useBedGrid}
         />
       ))}
 
@@ -110,15 +91,30 @@ export function RoomVisualization({
 function RoomContainer({
   room,
   onPlaceResident,
+  onAvailableBedClick,
+  useBedGrid = true,
 }: {
-  room: Spot & { childSpots?: Spot[] }
+  room: HousingSpot & { childSpots?: HousingSpot[] }
   onPlaceResident?: (spotId: string) => void
+  onAvailableBedClick?: (spot: HousingSpot) => void
+  useBedGrid?: boolean
 }) {
   const childSpots = room.childSpots || []
   const occupiedCount = childSpots.filter(
     (s) => s.placements.some((p) => p.status === 'ACTIVE')
   ).length
-  const totalCount = childSpots.length
+  const availableCount = childSpots.filter(
+    (s) => s.status === 'AVAILABLE' && !s.placements.some((p) => p.status === 'ACTIVE')
+  ).length
+  const unavailableCount = childSpots.length - occupiedCount - availableCount
+
+  const handleBedClick = (spot: HousingSpot) => {
+    if (onAvailableBedClick) {
+      onAvailableBedClick(spot)
+    } else if (onPlaceResident) {
+      onPlaceResident(spot.id)
+    }
+  }
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -132,28 +128,43 @@ function RoomContainer({
             </h4>
             <p className="text-sm text-gray-500">
               {room.squareMeters && `${room.squareMeters}m² · `}
-              {occupiedCount}/{totalCount} belegt
+              {occupiedCount}/{childSpots.length} belegt
             </p>
           </div>
         </div>
-        <OccupancyIndicator occupied={occupiedCount} total={totalCount} />
+        {useBedGrid ? (
+          <BedGridSummary
+            occupied={occupiedCount}
+            available={availableCount}
+            unavailable={unavailableCount}
+          />
+        ) : (
+          <OccupancyIndicator occupied={occupiedCount} total={childSpots.length} />
+        )}
       </div>
 
       {/* Beds in this room */}
-      <div className="p-4 space-y-2">
+      <div className="p-4">
         {childSpots.length === 0 ? (
           <p className="text-sm text-gray-500 text-center py-2">
             Keine Betten definiert
           </p>
+        ) : useBedGrid ? (
+          <BedGrid
+            spots={childSpots}
+            onBedClick={handleBedClick}
+          />
         ) : (
-          childSpots.map((bed) => (
-            <SpotCard
-              key={bed.id}
-              spot={bed}
-              compact
-              onPlaceResident={onPlaceResident}
-            />
-          ))
+          <div className="space-y-2">
+            {childSpots.map((bed) => (
+              <SpotCard
+                key={bed.id}
+                spot={bed}
+                compact
+                onPlaceResident={onPlaceResident}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>
@@ -165,7 +176,7 @@ function SpotCard({
   compact = false,
   onPlaceResident,
 }: {
-  spot: Spot
+  spot: HousingSpot
   compact?: boolean
   onPlaceResident?: (spotId: string) => void
 }) {

@@ -22,7 +22,7 @@ import {
   type HarmonyStatus,
 } from '@/lib/utils'
 import { DetailRow } from '@/components/ui/Card'
-import { RoomVisualization } from '@/components/housing/RoomVisualization'
+import { RoomVisualizationWithPlacement } from '@/components/housing/RoomVisualizationWithPlacement'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 
@@ -256,9 +256,10 @@ export default async function HousingDetailPage({ params }: Props) {
                   Plätze verwalten
                 </Link>
               </div>
-              <RoomVisualization
+              <RoomVisualizationWithPlacement
                 spots={unit.spots as any}
                 housingUnitId={unit.id}
+                compatibleResidents={compatibleResidents}
               />
             </div>
           )}

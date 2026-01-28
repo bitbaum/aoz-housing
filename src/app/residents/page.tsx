@@ -44,8 +44,8 @@ export default async function ResidentsListPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Bewohner</h1>
-        <Link href="/residents/new" className="btn-primary">
-          Neuer Bewohner
+        <Link href="/residents/new" className="btn-ghost">
+          <span className="mr-1">+</span> Bewohner
         </Link>
       </div>
 

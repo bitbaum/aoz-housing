@@ -12,6 +12,111 @@ import { logAudit } from '@/lib/audit'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 
+interface CreatePlacementInput {
+  residentId: string
+  housingUnitId: string
+  spotId: string
+  startDate: Date
+  notes?: string
+}
+
+export async function createPlacement(input: CreatePlacementInput): Promise<{ success: boolean; placementId?: string; error?: string }> {
+  const { residentId, housingUnitId, spotId, startDate, notes } = input
+
+  try {
+    // 1. Calculate compatibility scores with existing residents
+    const resident = await prisma.resident.findUnique({ where: { id: residentId } })
+    if (!resident) {
+      return { success: false, error: 'Resident not found' }
+    }
+
+    const existingPlacements = await prisma.placement.findMany({
+      where: { housingUnitId, status: 'ACTIVE' },
+      include: { resident: true },
+    })
+
+    let compatibilityScore = 100
+    let lifestyleScore = 100
+    let socialScore = 100
+    let practicalScore = 100
+    let riskScore = 0
+
+    if (existingPlacements.length > 0) {
+      const residentProfile = toResidentProfile(resident)
+      const scores = existingPlacements.map((p) => {
+        const otherProfile = toResidentProfile(p.resident)
+        return calculateCompatibility(residentProfile, otherProfile)
+      })
+
+      compatibilityScore = Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length)
+      lifestyleScore = Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length)
+      socialScore = Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length)
+      practicalScore = Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length)
+      riskScore = Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length)
+    }
+
+    // 2. Create the placement
+    const placement = await prisma.placement.create({
+      data: {
+        residentId,
+        housingUnitId,
+        spotId,
+        startDate,
+        status: 'ACTIVE',
+        compatibilityScore,
+        lifestyleScore,
+        socialScore,
+        practicalScore,
+        riskScore,
+        placementNotes: notes,
+      },
+    })
+
+    // 3. Mark spot as occupied
+    await prisma.placementSpot.update({
+      where: { id: spotId },
+      data: { status: 'OCCUPIED' },
+    })
+
+    // 4. Update resident status
+    await prisma.resident.update({
+      where: { id: residentId },
+      data: { status: 'PLACED' },
+    })
+
+    // 5. Check if housing unit is now full
+    const unit = await prisma.housingUnit.findUnique({
+      where: { id: housingUnitId },
+      include: {
+        spots: { where: { status: 'AVAILABLE', type: { not: 'ROOM' } } },
+      },
+    })
+    if (unit && unit.spots.length === 0) {
+      await prisma.housingUnit.update({
+        where: { id: housingUnitId },
+        data: { status: 'FULL' },
+      })
+    }
+
+    await logAudit({
+      action: 'CREATE',
+      entity: 'PLACEMENT',
+      entityId: placement.id,
+      changes: { residentId, housingUnitId, spotId },
+      reason: notes,
+    })
+
+    revalidatePath(`/residents/${residentId}`)
+    revalidatePath(`/housing/${housingUnitId}`)
+    revalidatePath('/placements')
+
+    return { success: true, placementId: placement.id }
+  } catch (error) {
+    console.error('Failed to create placement:', error)
+    return { success: false, error: 'Failed to create placement' }
+  }
+}
+
 export async function endPlacement(formData: FormData): Promise<void> {
   const { placementId, residentId, endReason, notes } = validateFormData(EndPlacementSchema, formData)
 
