@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { HousingCardActions } from '@/components/housing/HousingCardActions'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,44 +89,49 @@ function UnitCard({ unit }: { unit: any }) {
                        recentConflicts <= 2 ? 'bg-yellow-500' : 'bg-red-500'
 
   return (
-    <Link href={`/housing/${unit.id}`} className="card-hover">
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="font-semibold text-gray-900">{unit.code}</h3>
-          <p className="text-sm text-gray-500">{unit.address}</p>
-        </div>
-        <span className={`badge ${statusInfo.class}`}>{statusInfo.label}</span>
+    <div className="card-hover relative">
+      <div className="absolute top-3 right-3 z-10">
+        <HousingCardActions housingId={unit.id} />
       </div>
-
-      <div className="flex items-center gap-4 mb-3">
-        <div className="flex-1">
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-500">Belegung</span>
-            <span className="font-medium">{occupancy}/{unit.totalBeds}</span>
+      <Link href={`/housing/${unit.id}`} className="block">
+        <div className="flex items-start justify-between mb-3 pr-8">
+          <div>
+            <h3 className="font-semibold text-gray-900">{unit.code}</h3>
+            <p className="text-sm text-gray-500">{unit.address}</p>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full ${occupancyPercent >= 90 ? 'bg-red-500' : occupancyPercent >= 70 ? 'bg-yellow-500' : 'bg-green-500'}`}
-              style={{ width: `${occupancyPercent}%` }}
-            />
+          <span className={`badge ${statusInfo.class}`}>{statusInfo.label}</span>
+        </div>
+
+        <div className="flex items-center gap-4 mb-3">
+          <div className="flex-1">
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-500">Belegung</span>
+              <span className="font-medium">{occupancy}/{unit.totalBeds}</span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full ${occupancyPercent >= 90 ? 'bg-red-500' : occupancyPercent >= 70 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                style={{ width: `${occupancyPercent}%` }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{unit.totalRooms} Zimmer</span>
-          {unit.wheelchairAccess && <span title="Rollstuhlgerecht">♿</span>}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>{unit.totalRooms} Zimmer</span>
+            {unit.wheelchairAccess && <span title="Rollstuhlgerecht">♿</span>}
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${harmonyColor}`} title="Harmoniestatus" />
+            {recentConflicts > 0 && (
+              <span className="text-sm text-gray-500">
+                {recentConflicts} Konflikte
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${harmonyColor}`} title="Harmoniestatus" />
-          {recentConflicts > 0 && (
-            <span className="text-sm text-gray-500">
-              {recentConflicts} Konflikte
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   )
 }

@@ -1,6 +1,9 @@
 'use client'
 
+import { useRef } from 'react'
 import { updateSpot, deleteSpot } from '@/lib/actions'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { DELETE_CONFIRM_CONFIG } from '@/lib/config/crud-actions'
 
 interface SpotActionsProps {
   spot: any
@@ -8,9 +11,14 @@ interface SpotActionsProps {
 }
 
 export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
+  const deleteFormRef = useRef<HTMLFormElement>(null)
   const hasActivePlacement = spot.placements?.some(
     (p: any) => p.status === 'ACTIVE'
   )
+
+  const handleDelete = async () => {
+    deleteFormRef.current?.requestSubmit()
+  }
 
   return (
     <div className="flex items-center gap-1">
@@ -46,24 +54,30 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
         </form>
       )}
 
-      {/* Delete */}
+      {/* Delete with ConfirmDialog */}
       {!hasActivePlacement && (
-        <form action={deleteSpot}>
-          <input type="hidden" name="id" value={spot.id} />
-          <input type="hidden" name="housingUnitId" value={housingUnitId} />
-          <button
-            type="submit"
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-            title="Löschen"
-            onClick={(e) => {
-              if (!confirm('Diesen Platz wirklich löschen?')) {
-                e.preventDefault()
-              }
-            }}
+        <>
+          <form ref={deleteFormRef} action={deleteSpot} className="hidden">
+            <input type="hidden" name="id" value={spot.id} />
+            <input type="hidden" name="housingUnitId" value={housingUnitId} />
+          </form>
+          <ConfirmDialog
+            title={DELETE_CONFIRM_CONFIG.title}
+            message="Dieser Platz wird unwiderruflich gelöscht."
+            confirmLabel={DELETE_CONFIRM_CONFIG.confirmLabel}
+            cancelLabel={DELETE_CONFIRM_CONFIG.cancelLabel}
+            onConfirm={handleDelete}
+            variant="danger"
           >
-            🗑️
-          </button>
-        </form>
+            <button
+              type="button"
+              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+              title="Löschen"
+            >
+              🗑️
+            </button>
+          </ConfirmDialog>
+        </>
       )}
     </div>
   )
