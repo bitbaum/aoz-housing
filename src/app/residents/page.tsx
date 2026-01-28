@@ -5,6 +5,7 @@ import {
   GENDER_LABELS_SHORT,
   RESIDENT_STATUS_LABELS,
   LANGUAGE_LABELS,
+  EMPTY_STATE_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getStatusBadgeClass, getDateDaysAgo, formatDate } from '@/lib/utils'
@@ -81,7 +82,7 @@ export default async function ResidentsListPage() {
       {/* Resident List */}
       {residents.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">Keine Bewohner erfasst</p>
+          <p className="text-gray-500 mb-4">{EMPTY_STATE_LABELS.noResidents}</p>
           <Link href="/residents/new" className="btn-primary">
             Ersten Bewohner erfassen
           </Link>

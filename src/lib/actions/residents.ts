@@ -9,6 +9,7 @@ import {
   ResidentUpdateSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 export async function createResident(formData: FormData): Promise<void> {
   const data = validateFormData(ResidentInputSchema, formData)
@@ -16,7 +17,7 @@ export async function createResident(formData: FormData): Promise<void> {
   const resident = await prisma.resident.create({
     data: {
       ...data,
-      status: 'ACTIVE',
+      status: DEFAULT_STATUSES.resident,
     },
   })
 

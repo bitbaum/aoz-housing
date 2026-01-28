@@ -9,6 +9,7 @@ import {
   HousingUnitUpdateSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 export async function createHousingUnit(formData: FormData): Promise<void> {
   const data = validateFormData(HousingUnitInputSchema, formData)
@@ -16,7 +17,7 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
   const unit = await prisma.housingUnit.create({
     data: {
       ...data,
-      status: 'AVAILABLE',
+      status: DEFAULT_STATUSES.housing,
     },
   })
 

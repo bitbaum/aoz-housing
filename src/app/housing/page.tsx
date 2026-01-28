@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
+import { EMPTY_STATE_LABELS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,7 +54,7 @@ export default async function HousingListPage() {
       {/* Unit List */}
       {units.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">Keine Unterkünfte erfasst</p>
+          <p className="text-gray-500 mb-4">{EMPTY_STATE_LABELS.noHousing}</p>
           <Link href="/housing/new" className="btn-primary">
             Erste Unterkunft erstellen
           </Link>

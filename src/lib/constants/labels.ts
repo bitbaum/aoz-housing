@@ -421,6 +421,21 @@ export const PAGE_TITLES: Record<string, string> = {
 }
 
 // =============================================================================
+// EMPTY STATE LABELS
+// =============================================================================
+
+export const EMPTY_STATE_LABELS = {
+  noResidents: 'Keine Bewohner erfasst',
+  noHousing: 'Keine Unterkünfte erfasst',
+  noPlacements: 'Keine Platzierungen vorhanden',
+  noIncidents: 'Keine Vorfälle dokumentiert',
+  noMaintenance: 'Keine Wartungsanfragen',
+  noCheckIns: 'Noch keine Check-ins erfasst',
+  noMatches: 'Keine passenden Ergebnisse',
+  noData: 'Keine Daten verfügbar',
+}
+
+// =============================================================================
 // PORTAL LABELS (Resident-facing)
 // =============================================================================
 
@@ -482,15 +497,6 @@ export const ACTION_LABELS: Record<string, string> = {
 // =============================================================================
 // EMPTY STATE LABELS
 // =============================================================================
-
-export const EMPTY_STATE_LABELS: Record<string, string> = {
-  noResidents: 'Keine Bewohner erfasst',
-  noHousing: 'Keine Unterkünfte erfasst',
-  noIncidents: 'Keine Vorfälle dokumentiert',
-  noPlacements: 'Keine Platzierungen vorhanden',
-  noMatches: 'Keine passenden Ergebnisse',
-  noData: 'Keine Daten verfügbar',
-}
 
 // =============================================================================
 // HELPER FUNCTIONS

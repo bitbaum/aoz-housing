@@ -9,6 +9,7 @@ import {
   SpotUpdateSchema,
   MultipleSpotInputSchema,
 } from '@/lib/validation'
+import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 // Simple schema for delete operation
 const DeleteSpotSchema = z.object({
@@ -91,7 +92,7 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
       type: 'ROOM',
       squareMeters: data.squareMeters,
       floor: data.floor,
-      status: 'AVAILABLE',
+      status: DEFAULT_STATUSES.spot,
     },
   })
 
@@ -104,7 +105,7 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
         label: `Bett ${i}`,
         type: 'BED',
         parentSpotId: room.id,
-        status: 'AVAILABLE',
+        status: DEFAULT_STATUSES.spot,
       },
     })
   }

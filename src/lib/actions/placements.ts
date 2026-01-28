@@ -11,6 +11,7 @@ import {
 import { logAudit } from '@/lib/audit'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 interface CreatePlacementInput {
   residentId: string
@@ -62,7 +63,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
         housingUnitId,
         spotId,
         startDate,
-        status: 'ACTIVE',
+        status: DEFAULT_STATUSES.placement,
         compatibilityScore,
         lifestyleScore,
         socialScore,

@@ -39,6 +39,7 @@ import {
   formatRelativeDate,
   formatDate,
 } from '@/lib/utils'
+import { INCIDENT_THRESHOLDS, getIncidentLevel, INCIDENT_BG_COLORS } from '@/lib/config/thresholds'
 import { DetailRow } from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
@@ -414,7 +415,7 @@ export default async function ResidentDetailPage({ params }: Props) {
               Vorfallstatistik
             </h2>
             {/* Warning banner for frequent subjects */}
-            {resident.incidentsAsSubject.length >= 3 && (
+            {resident.incidentsAsSubject.length >= INCIDENT_THRESHOLDS.severe && (
               <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-amber-600 text-lg">!</span>
@@ -435,18 +436,12 @@ export default async function ResidentDetailPage({ params }: Props) {
                   Vorfälle von dieser Person gemeldet
                 </p>
               </div>
-              <div className={`p-4 rounded-lg ${
-                resident.incidentsAsSubject.length >= 3
-                  ? 'bg-red-50'
-                  : resident.incidentsAsSubject.length >= 1
-                    ? 'bg-amber-50'
-                    : 'bg-gray-50'
-              }`}>
+              <div className={`p-4 rounded-lg ${INCIDENT_BG_COLORS[getIncidentLevel(resident.incidentsAsSubject.length)]}`}>
                 <p className="text-sm text-gray-500">Betroffen</p>
                 <p className={`text-2xl font-bold ${
-                  resident.incidentsAsSubject.length >= 3
+                  getIncidentLevel(resident.incidentsAsSubject.length) === 'severe'
                     ? 'text-red-600'
-                    : resident.incidentsAsSubject.length >= 1
+                    : getIncidentLevel(resident.incidentsAsSubject.length) !== 'none'
                       ? 'text-amber-600'
                       : 'text-gray-900'
                 }`}>

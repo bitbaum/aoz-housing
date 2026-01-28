@@ -111,6 +111,7 @@ export const DEFAULT_STATUSES = {
   resident: 'ACTIVE' as const,
   housing: 'AVAILABLE' as const,
   placement: 'ACTIVE' as const,
+  spot: 'AVAILABLE' as const,
   incident: 'OPEN' as const,
   maintenance: 'OPEN' as const,
 } as const

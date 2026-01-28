@@ -10,6 +10,7 @@ import {
   AssignMaintenanceSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 export async function createMaintenanceRequest(formData: FormData): Promise<void> {
   const data = validateFormData(MaintenanceRequestInputSchema, formData)
@@ -25,7 +26,7 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
       location: data.location,
       reportedById: data.reportedById || undefined,
       reporterName: data.reporterName,
-      status: 'OPEN',
+      status: DEFAULT_STATUSES.maintenance,
     },
   })
 
