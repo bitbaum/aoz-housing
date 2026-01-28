@@ -1,55 +1,129 @@
 /**
  * Zod validation schemas for all server action inputs
- * SSOT for input validation - derived from Prisma schema enums
+ *
+ * SSOT COMPLIANCE: Enum values are DERIVED from config/labels to ensure
+ * validation stays in sync with the rest of the application.
+ *
+ * Type assertions are used to maintain Prisma type compatibility while
+ * deriving values from config.
  */
 
 import { z } from 'zod'
+import type {
+  AgeRange,
+  Gender,
+  FamilyStatus,
+  SleepSchedule,
+  SocialStyle,
+  SmokingStatus,
+  MobilityNeed,
+  RoomSharingStatus,
+  SupportLevel,
+  RecyclingKnowledge,
+  MedicalDocType,
+  ResidentStatus,
+  HousingStatus,
+  SpotType,
+  SpotStatus,
+  PlacementStatus,
+  EndReason,
+  IncidentCategory,
+  IncidentType,
+  IncidentSeverity,
+  FollowUpPriority,
+  InvolvementRole,
+  MaintenanceCategory,
+  MaintenancePriority,
+  MaintenanceStatus,
+  CheckInType,
+} from '@prisma/client'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+import {
+  INCIDENT_CATEGORY_LABELS,
+  INCIDENT_TYPE_LABELS,
+  INCIDENT_SEVERITY_LABELS,
+  FOLLOW_UP_PRIORITY_LABELS,
+  INVOLVEMENT_ROLE_LABELS,
+  HOUSING_STATUS_LABELS,
+  PLACEMENT_STATUS_LABELS,
+  END_REASON_LABELS,
+  RESIDENT_STATUS_LABELS,
+  MAINTENANCE_CATEGORY_LABELS,
+  MAINTENANCE_PRIORITY_LABELS,
+  MAINTENANCE_STATUS_LABELS,
+  CHECK_IN_TYPE_LABELS,
+} from '@/lib/constants/labels'
+import {
+  SPOT_TYPE_LABELS,
+  SPOT_STATUS_LABELS,
+  MEDICAL_DOC_TYPE_LABELS,
+} from '@/lib/config/placement-spots'
 
 // =============================================================================
-// ENUM SCHEMAS (derived from Prisma schema)
+// HELPER: Derive Zod enum from config/labels with proper typing
 // =============================================================================
 
-export const AgeRangeSchema = z.enum(['YOUNG_ADULT', 'ADULT', 'MIDDLE_AGED', 'SENIOR'])
-export const GenderSchema = z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_SAY'])
-export const FamilyStatusSchema = z.enum(['SINGLE', 'COUPLE', 'FAMILY_WITH_CHILDREN', 'SINGLE_PARENT'])
-export const SleepScheduleSchema = z.enum(['EARLY_BIRD', 'STANDARD', 'NIGHT_OWL', 'IRREGULAR'])
-export const SocialStyleSchema = z.enum(['INTROVERTED', 'MODERATE', 'EXTROVERTED'])
-export const SmokingStatusSchema = z.enum(['NON_SMOKER', 'OUTDOOR_SMOKER', 'INDOOR_SMOKER'])
-export const MobilityNeedSchema = z.enum(['NONE', 'GROUND_FLOOR', 'WHEELCHAIR'])
-export const ResidentStatusSchema = z.enum(['ACTIVE', 'PLACED', 'TRANSFERRED', 'EXITED'])
-export const RoomSharingStatusSchema = z.enum(['CAN_SHARE', 'PREFERS_PRIVATE', 'NEEDS_PRIVATE'])
-export const SupportLevelSchema = z.enum(['STANDARD', 'ELEVATED', 'INTENSIVE'])
-export const RecyclingKnowledgeSchema = z.enum(['NONE', 'BASIC', 'GOOD'])
-export const MedicalDocTypeSchema = z.enum(['PRIVATE_ROOM', 'STUDIO', 'BOTH'])
+/**
+ * Creates a Zod enum schema from an object's keys, typed as the Prisma enum
+ */
+function enumFromKeys<T>(obj: Record<string, unknown>): z.ZodType<T> {
+  const keys = Object.keys(obj) as [string, ...string[]]
+  return z.enum(keys) as unknown as z.ZodType<T>
+}
 
-export const HousingStatusSchema = z.enum(['AVAILABLE', 'FULL', 'MAINTENANCE', 'CLOSED'])
-export const SpotTypeSchema = z.enum(['BED', 'PRIVATE_ROOM', 'STUDIO', 'ROOM'])
-export const SpotStatusSchema = z.enum(['AVAILABLE', 'OCCUPIED', 'MAINTENANCE', 'CLOSED'])
+/**
+ * Creates a Zod enum schema from a factor's options array, typed as the Prisma enum
+ */
+function enumFromFactor<T>(factorId: keyof typeof RESIDENT_FACTORS): z.ZodType<T> {
+  const factor = RESIDENT_FACTORS[factorId]
+  if (!factor || !('options' in factor)) {
+    throw new Error(`Factor ${factorId} not found or has no options`)
+  }
+  const options = factor.options as readonly string[]
+  return z.enum(options as [string, ...string[]]) as unknown as z.ZodType<T>
+}
 
-export const PlacementStatusSchema = z.enum(['ACTIVE', 'ENDED', 'TRANSFERRED'])
-export const EndReasonSchema = z.enum(['NATURAL', 'CONFLICT', 'REQUEST', 'CAPACITY', 'UPGRADE', 'OTHER'])
+// =============================================================================
+// ENUM SCHEMAS (derived from config/labels - SSOT, typed as Prisma enums)
+// =============================================================================
 
-export const IncidentCategorySchema = z.enum(['INTERPERSONAL', 'MAINTENANCE', 'SAFETY'])
-export const IncidentTypeSchema = z.enum([
-  'NOISE_COMPLAINT', 'CLEANLINESS_DISPUTE', 'PERSONAL_CONFLICT', 'CULTURAL_FRICTION',
-  'SPACE_DISPUTE', 'SCHEDULE_CONFLICT', 'SAFETY_CONCERN',
-  'PLUMBING', 'ELECTRICAL', 'HEATING_COOLING', 'APPLIANCE', 'STRUCTURAL',
-  'PEST_CONTROL', 'SECURITY_SYSTEM', 'GENERAL_MAINTENANCE', 'OTHER'
-])
-export const IncidentSeveritySchema = z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
-export const FollowUpPrioritySchema = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT'])
-export const InvolvementRoleSchema = z.enum(['INVOLVED', 'WITNESS', 'MEDIATOR'])
+// Resident factors - derived from RESIDENT_FACTORS config
+export const AgeRangeSchema = enumFromFactor<AgeRange>('ageRange')
+export const GenderSchema = enumFromFactor<Gender>('gender')
+export const FamilyStatusSchema = enumFromFactor<FamilyStatus>('familyStatus')
+export const SleepScheduleSchema = enumFromFactor<SleepSchedule>('sleepSchedule')
+export const SocialStyleSchema = enumFromFactor<SocialStyle>('socialStyle')
+export const SmokingStatusSchema = enumFromFactor<SmokingStatus>('smokingStatus')
+export const MobilityNeedSchema = enumFromFactor<MobilityNeed>('mobilityNeeds')
+export const RoomSharingStatusSchema = enumFromFactor<RoomSharingStatus>('roomSharingStatus')
+export const SupportLevelSchema = enumFromFactor<SupportLevel>('supportLevel')
+export const RecyclingKnowledgeSchema = enumFromFactor<RecyclingKnowledge>('recyclingKnowledge')
 
-export const MaintenanceCategorySchema = z.enum([
-  'PLUMBING', 'ELECTRICAL', 'HEATING_COOLING', 'APPLIANCE', 'STRUCTURAL',
-  'PEST_CONTROL', 'SECURITY', 'CLEANING', 'EXTERIOR', 'OTHER'
-])
-export const MaintenancePrioritySchema = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT'])
-export const MaintenanceStatusSchema = z.enum([
-  'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'
-])
+// Spot/placement - derived from placement-spots config
+export const SpotTypeSchema = enumFromKeys<SpotType>(SPOT_TYPE_LABELS)
+export const SpotStatusSchema = enumFromKeys<SpotStatus>(SPOT_STATUS_LABELS)
+export const MedicalDocTypeSchema = enumFromKeys<MedicalDocType>(MEDICAL_DOC_TYPE_LABELS)
 
-export const CheckInTypeSchema = z.enum(['INITIAL', 'REGULAR', 'AD_HOC', 'EXIT'])
+// Status enums - derived from labels
+export const HousingStatusSchema = enumFromKeys<HousingStatus>(HOUSING_STATUS_LABELS)
+export const ResidentStatusSchema = enumFromKeys<ResidentStatus>(RESIDENT_STATUS_LABELS)
+export const PlacementStatusSchema = enumFromKeys<PlacementStatus>(PLACEMENT_STATUS_LABELS)
+export const EndReasonSchema = enumFromKeys<EndReason>(END_REASON_LABELS)
+
+// Incident - derived from labels
+export const IncidentCategorySchema = enumFromKeys<IncidentCategory>(INCIDENT_CATEGORY_LABELS)
+export const IncidentTypeSchema = enumFromKeys<IncidentType>(INCIDENT_TYPE_LABELS)
+export const IncidentSeveritySchema = enumFromKeys<IncidentSeverity>(INCIDENT_SEVERITY_LABELS)
+export const FollowUpPrioritySchema = enumFromKeys<FollowUpPriority>(FOLLOW_UP_PRIORITY_LABELS)
+export const InvolvementRoleSchema = enumFromKeys<InvolvementRole>(INVOLVEMENT_ROLE_LABELS)
+
+// Maintenance - derived from labels
+export const MaintenanceCategorySchema = enumFromKeys<MaintenanceCategory>(MAINTENANCE_CATEGORY_LABELS)
+export const MaintenancePrioritySchema = enumFromKeys<MaintenancePriority>(MAINTENANCE_PRIORITY_LABELS)
+export const MaintenanceStatusSchema = enumFromKeys<MaintenanceStatus>(MAINTENANCE_STATUS_LABELS)
+
+// Check-in - derived from labels
+export const CheckInTypeSchema = enumFromKeys<CheckInType>(CHECK_IN_TYPE_LABELS)
 
 // =============================================================================
 // COMMON HELPERS
@@ -57,12 +131,6 @@ export const CheckInTypeSchema = z.enum(['INITIAL', 'REGULAR', 'AD_HOC', 'EXIT']
 
 // Scale validation (1-5)
 const scaleSchema = z.coerce.number().int().min(1).max(5)
-
-// Optional CUID
-const optionalCuid = z.string().cuid().optional().or(z.literal(''))
-
-// Date string to Date
-const dateString = z.string().transform((val) => val ? new Date(val) : undefined)
 
 // =============================================================================
 // RESIDENT SCHEMAS
@@ -88,12 +156,12 @@ export const ResidentInputSchema = z.object({
   sharedKitchen: z.coerce.boolean().default(true),
   privacyNeed: scaleSchema.default(3),
   choresContribution: scaleSchema.default(3),
-  recyclingKnowledge: RecyclingKnowledgeSchema.default('NONE'),
-  roomSharingStatus: RoomSharingStatusSchema.default('CAN_SHARE'),
+  recyclingKnowledge: RecyclingKnowledgeSchema.default('NONE' as RecyclingKnowledge),
+  roomSharingStatus: RoomSharingStatusSchema.default('CAN_SHARE' as RoomSharingStatus),
   hasNightDisturbances: z.coerce.boolean().default(false),
   needsQuietEnvironment: z.coerce.boolean().default(false),
   hasSleepEquipment: z.coerce.boolean().default(false),
-  supportLevel: SupportLevelSchema.default('STANDARD'),
+  supportLevel: SupportLevelSchema.default('STANDARD' as SupportLevel),
   hasMedicalDocumentation: z.coerce.boolean().default(false),
   medicalDocType: MedicalDocTypeSchema.optional().nullable(),
   medicalDocDate: z.string().optional().nullable().transform((val) => val ? new Date(val) : null),
@@ -149,7 +217,7 @@ export const SpotInputSchema = z.object({
   squareMeters: z.coerce.number().positive().optional().nullable(),
   floor: z.coerce.number().int().optional().nullable(),
   requiresMedicalDocs: z.coerce.boolean().default(false),
-  status: SpotStatusSchema.default('AVAILABLE'),
+  status: SpotStatusSchema.default('AVAILABLE' as SpotStatus),
   notes: z.string().optional().nullable(),
 })
 
@@ -237,7 +305,7 @@ export const MaintenanceRequestInputSchema = z.object({
   housingUnitId: z.string().cuid(),
   spotId: z.string().cuid().optional().nullable(),
   category: MaintenanceCategorySchema,
-  priority: MaintenancePrioritySchema.default('NORMAL'),
+  priority: MaintenancePrioritySchema.default('NORMAL' as MaintenancePriority),
   title: z.string().min(1, 'Titel ist erforderlich'),
   description: z.string().min(1, 'Beschreibung ist erforderlich'),
   location: z.string().optional().nullable(),
@@ -295,7 +363,7 @@ export function validateFormData<T extends z.ZodTypeAny>(
   formData: FormData
 ): z.output<T> {
   // Convert FormData to object
-  const rawData: Record<string, any> = {}
+  const rawData: Record<string, unknown> = {}
 
   formData.forEach((value, key) => {
     // Handle arrays (multiple values with same key)
@@ -304,7 +372,7 @@ export function validateFormData<T extends z.ZodTypeAny>(
       if (!Array.isArray(rawData[cleanKey])) {
         rawData[cleanKey] = rawData[cleanKey] ? [rawData[cleanKey]] : []
       }
-      rawData[cleanKey].push(value)
+      ;(rawData[cleanKey] as unknown[]).push(value)
     } else {
       rawData[key] = value === '' ? undefined : value
     }

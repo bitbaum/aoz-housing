@@ -1,8 +1,15 @@
 /**
  * Server-side validation schemas for incident operations
+ *
+ * SSOT COMPLIANCE: Uses schemas derived from labels/config.
+ * @see ./schemas.ts for enum definitions
  */
 
 import { z } from 'zod'
+import {
+  IncidentCategorySchema,
+  IncidentSeveritySchema,
+} from './schemas'
 
 /**
  * Schema for incident creation
@@ -10,9 +17,9 @@ import { z } from 'zod'
 export const incidentSchema = z.object({
   housingUnitId: z.string().min(1, 'Unterkunfts-ID ist erforderlich'),
   date: z.date().max(new Date(), 'Datum kann nicht in der Zukunft liegen'),
-  category: z.enum(['INTERPERSONAL', 'MAINTENANCE', 'SAFETY', 'POLICY_VIOLATION', 'OTHER']),
+  category: IncidentCategorySchema,
   type: z.string().min(1, 'Typ ist erforderlich'),
-  severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+  severity: IncidentSeveritySchema,
 
   reportedById: z.string().optional(),
   subjectId: z.string().optional(),
