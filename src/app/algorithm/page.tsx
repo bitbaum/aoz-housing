@@ -1,335 +1,665 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import {
   Brain,
+  Shield,
   Users,
   Home,
-  Scale,
+  ChevronDown,
+  ChevronUp,
   AlertTriangle,
-  CheckCircle2,
   XCircle,
-  Info,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  Target,
+  Scale,
+  BookOpen,
+  Layers,
+  Activity,
+  ExternalLink,
+  FileText,
+  Database,
+  MapPin,
 } from 'lucide-react'
+import { Tabs } from '@/components/ui'
 
-export const metadata = {
-  title: 'Algorithmus - AOZ Wohnen',
-  description: 'Wie das Kompatibilitäts-Matching funktioniert',
+// Import configs - these are the SSOT
+import {
+  RESIDENT_DIMENSIONS,
+  RESIDENT_FACTORS,
+  RESIDENT_FORM_SECTIONS,
+} from '@/lib/config/resident-factors'
+import {
+  RESEARCH_SOURCES,
+  FACTOR_SCIENCE,
+  RULE_DOCUMENTATION,
+  getSourcesByRegion,
+  getSourceById,
+  type ResearchSource,
+} from '@/lib/config/algorithm-docs'
+
+// =============================================================================
+// Derived Data from Config (SSOT)
+// =============================================================================
+
+// Count factors with compatibility impact (weight > 0)
+const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter(f => f.weight > 0).length
+const DIMENSION_COUNT = RESIDENT_DIMENSIONS.length
+
+// Get factors by dimension
+function getFactorsByDimension(dimensionId: string) {
+  return Object.values(RESIDENT_FACTORS)
+    .filter(f => f.dimension === dimensionId && f.weight > 0)
+    .sort((a, b) => b.weight - a.weight)
 }
 
+// =============================================================================
+// Page Component
+// =============================================================================
+
 export default function AlgorithmPage() {
+  const [activeTab, setActiveTab] = useState('overview')
+  const [expandedDimension, setExpandedDimension] = useState<string | null>(null)
+
+  const tabs = [
+    { id: 'overview', label: 'Übersicht' },
+    { id: 'science', label: 'Forschung' },
+    { id: 'dimensions', label: 'Faktoren' },
+    { id: 'collection', label: 'Datenerfassung' },
+    { id: 'technical', label: 'Technik' },
+  ]
+
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <Link
-          href="/"
-          className="text-sm text-gray-500 hover:text-aoz-primary mb-2 inline-block"
-        >
-          ← Zurück zum Dashboard
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <Brain className="w-8 h-8 text-aoz-primary" />
-          Kompatibilitäts-Algorithmus
-        </h1>
-        <p className="text-gray-600 mt-2">
-          Wie das System passende Platzierungen findet
-        </p>
+    <div className="max-w-5xl mx-auto">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-aoz-primary via-aoz-primary to-emerald-600 text-white p-8 md:p-12 mb-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <Brain className="w-8 h-8" />
+            </div>
+            <span className="text-white/80 text-sm font-medium">Evidenzbasiertes Matching</span>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            Kompatibilitäts-Algorithmus
+          </h1>
+
+          <p className="text-lg text-white/90 mb-8 max-w-2xl">
+            Basierend auf wissenschaftlicher Forschung zu Wohnkonflikten analysiert unser
+            System {FACTOR_COUNT} Faktoren in {DIMENSION_COUNT} Dimensionen für harmonisches Zusammenleben.
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <FactStat
+              icon={<Layers className="w-5 h-5" />}
+              value={String(DIMENSION_COUNT)}
+              label="Dimensionen"
+            />
+            <FactStat
+              icon={<Activity className="w-5 h-5" />}
+              value={String(FACTOR_COUNT)}
+              label="Faktoren"
+            />
+            <FactStat
+              icon={<MapPin className="w-5 h-5" />}
+              value="CH/DE"
+              label="Forschung"
+            />
+            <FactStat
+              icon={<Shield className="w-5 h-5" />}
+              value="Ethisch"
+              label="gestaltet"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Navigation Tabs */}
+      <div className="mb-6">
+        <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      {/* Overview */}
-      <section className="card mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Info className="w-5 h-5 text-blue-500" />
-          Übersicht
+      {/* Tab Content */}
+      {activeTab === 'overview' && <OverviewTab />}
+      {activeTab === 'science' && <ScienceTab />}
+      {activeTab === 'dimensions' && (
+        <DimensionsTab
+          expandedDimension={expandedDimension}
+          setExpandedDimension={setExpandedDimension}
+        />
+      )}
+      {activeTab === 'collection' && <DataCollectionTab />}
+      {activeTab === 'technical' && <TechnicalTab />}
+
+      {/* CTA Section */}
+      <section className="mt-12 text-center py-12 px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
+        <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+          Bereit für bessere Platzierungen?
         </h2>
-        <p className="text-gray-700 mb-4">
-          Der Algorithmus bewertet die Kompatibilität zwischen Bewohnern anhand von vier Dimensionen.
-          Jede Dimension hat ein Gewicht, das ihre Wichtigkeit für ein harmonisches Zusammenleben widerspiegelt.
+        <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+          Starten Sie das Matching und finden Sie die optimale Wohnkonstellation.
         </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <DimensionCard
-            name="Lebensstil"
-            weight={30}
-            color="bg-purple-100 text-purple-700"
-            factors={['Schlafrhythmus', 'Lärmtoleranz', 'Sauberkeit']}
+        <Link
+          href="/matching"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-aoz-primary text-white rounded-lg font-medium hover:bg-aoz-primary/90 transition-colors"
+        >
+          Matching starten
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </section>
+    </div>
+  )
+}
+
+// =============================================================================
+// Fact Stat Component
+// =============================================================================
+
+function FactStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+  return (
+    <div className="bg-white/10 backdrop-blur rounded-lg p-4">
+      <div className="flex items-center gap-2 text-white/70 mb-1">{icon}</div>
+      <div className="text-2xl md:text-3xl font-bold">{value}</div>
+      <div className="text-sm text-white/80">{label}</div>
+    </div>
+  )
+}
+
+// =============================================================================
+// Overview Tab
+// =============================================================================
+
+function OverviewTab() {
+  return (
+    <div className="space-y-8">
+      {/* How it Works */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <Target className="w-5 h-5 text-aoz-primary" />
+          So funktioniert das Matching
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          <ProcessStep
+            number={1}
+            title="Profil erfassen"
+            description="Bei der Aufnahme werden Präferenzen und Bedürfnisse systematisch erfasst."
+            icon={<Users className="w-6 h-6" />}
           />
-          <DimensionCard
-            name="Soziales"
-            weight={25}
-            color="bg-blue-100 text-blue-700"
-            factors={['Sprachen', 'Sozialstil', 'Privatsphäre']}
+          <ProcessStep
+            number={2}
+            title="Kompatibilität berechnen"
+            description={`${FACTOR_COUNT} Faktoren werden gewichtet verglichen.`}
+            icon={<Brain className="w-6 h-6" />}
           />
-          <DimensionCard
-            name="Praktisches"
-            weight={25}
-            color="bg-green-100 text-green-700"
-            factors={['Rauchen', 'Hausarbeit', 'Ernährung']}
-          />
-          <DimensionCard
-            name="Risiko"
-            weight={20}
-            color="bg-orange-100 text-orange-700"
-            factors={['Konfliktindikatoren', 'Nachtruhe', 'Raumteilung']}
+          <ProcessStep
+            number={3}
+            title="Empfehlung erhalten"
+            description="Ein Score zeigt die Eignung, Warnungen weisen auf Risiken hin."
+            icon={<Scale className="w-6 h-6" />}
           />
         </div>
       </section>
 
-      {/* Score Interpretation */}
-      <section className="card mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Scale className="w-5 h-5 text-green-500" />
+      {/* Dimensions from Config */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-aoz-primary" />
+          Die {DIMENSION_COUNT} Dimensionen
+        </h2>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {RESIDENT_DIMENSIONS.map((dim, i) => {
+            const colors = ['purple', 'blue', 'green', 'orange'] as const
+            const factors = getFactorsByDimension(dim.id)
+            return (
+              <DimensionCard
+                key={dim.id}
+                name={dim.label}
+                weight={Math.round(dim.weight * 100)}
+                color={colors[i % colors.length]}
+                description={dim.description}
+                factorCount={factors.length}
+              />
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Score Scale */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+          <Scale className="w-5 h-5 text-aoz-primary" />
           Score-Interpretation
         </h2>
-        <p className="text-gray-700 mb-4">
-          Der Gesamtscore (0-100) zeigt, wie gut zwei Bewohner zusammenpassen:
+
+        <p className="text-gray-600 mb-6">
+          Der Kompatibilitäts-Score (0-100) zeigt, wie gut Bewohner zusammenpassen.
         </p>
-        <div className="space-y-3">
-          <ScoreBar score="80-100" label="Sehr gut" color="bg-green-500" desc="Empfohlene Platzierung" />
-          <ScoreBar score="60-79" label="Gut" color="bg-emerald-500" desc="Gute Option" />
-          <ScoreBar score="40-59" label="Mittel" color="bg-yellow-500" desc="Mit Unterstützung möglich" />
-          <ScoreBar score="20-39" label="Niedrig" color="bg-orange-500" desc="Vermeiden wenn möglich" />
-          <ScoreBar score="0-19" label="Kritisch" color="bg-red-500" desc="Nicht zusammen platzieren" />
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <ScoreLevel score="80-100" label="Sehr gut" color="green" action="Empfohlen" />
+          <ScoreLevel score="60-79" label="Gut" color="emerald" action="Gute Option" />
+          <ScoreLevel score="40-59" label="Mittel" color="yellow" action="Mit Begleitung" />
+          <ScoreLevel score="20-39" label="Niedrig" color="orange" action="Vermeiden" />
+          <ScoreLevel score="0-19" label="Kritisch" color="red" action="Blockiert" />
         </div>
       </section>
+    </div>
+  )
+}
 
-      {/* Lifestyle Dimension */}
-      <section className="card mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-sm font-bold">30%</span>
-          Lebensstil-Dimension
-        </h2>
-        <div className="space-y-4">
-          <FactorExplainer
-            name="Schlafrhythmus"
-            weight="40%"
-            description="Frühaufsteher, Normal, oder Nachtmensch"
-            rules={[
-              { condition: 'Gleicher Rhythmus', result: '100 Punkte' },
-              { condition: 'Einer ist flexibel (Normal)', result: '70 Punkte' },
-              { condition: 'Frühaufsteher + Nachtmensch', result: '30 Punkte', warning: true },
-            ]}
-          />
-          <FactorExplainer
-            name="Lärmtoleranz"
-            weight="30%"
-            description="Skala 1-5 (1=sehr empfindlich, 5=sehr tolerant)"
-            rules={[
-              { condition: 'Gleiche Toleranz', result: '100 Punkte' },
-              { condition: 'Pro Stufe Unterschied', result: '-20 Punkte' },
-              { condition: '3+ Stufen Unterschied', result: 'Konflikt-Warnung', warning: true },
-            ]}
-          />
-          <FactorExplainer
-            name="Sauberkeit"
-            weight="30%"
-            description="Skala 1-5 (1=wenig wichtig, 5=sehr wichtig)"
-            rules={[
-              { condition: 'Gleiche Stufe', result: '100 Punkte' },
-              { condition: 'Pro Stufe Unterschied', result: '-20 Punkte' },
-              { condition: '3+ Stufen Unterschied', result: 'BLOCKIERT', warning: true },
-            ]}
-          />
-        </div>
-      </section>
+// =============================================================================
+// Science Tab - Research Basis
+// =============================================================================
 
-      {/* Social Dimension */}
-      <section className="card mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-sm font-bold">25%</span>
-          Soziale Dimension
-        </h2>
-        <div className="space-y-4">
-          <FactorExplainer
-            name="Sprachen"
-            weight="40%"
-            description="Gemeinsame Kommunikation"
-            rules={[
-              { condition: '2+ gemeinsame Sprachen', result: '100 Punkte' },
-              { condition: 'Deutsch oder Englisch gemeinsam', result: '100 Punkte' },
-              { condition: 'Einer spricht Lingua Franca', result: '50-75 Punkte' },
-              { condition: 'Keine gemeinsame Sprache', result: '25 Punkte', warning: true },
-            ]}
-          />
-          <FactorExplainer
-            name="Sozialstil"
-            weight="35%"
-            description="Introvertiert, Ausgeglichen, oder Extrovertiert"
-            rules={[
-              { condition: 'Gleicher Stil', result: '100 Punkte' },
-              { condition: 'Einer ist Ausgeglichen', result: '80 Punkte' },
-              { condition: 'Introvertiert + Extrovertiert', result: '60 Punkte' },
-            ]}
-          />
-          <FactorExplainer
-            name="Privatsphäre"
-            weight="25%"
-            description="Skala 1-5 (1=wenig, 5=viel Bedarf)"
-            rules={[
-              { condition: 'Gleicher Bedarf', result: '100 Punkte' },
-              { condition: 'Pro Stufe Unterschied', result: '-15 Punkte' },
-            ]}
-          />
-        </div>
-      </section>
+function ScienceTab() {
+  const swissSources = getSourcesByRegion('CH')
+  const germanSources = getSourcesByRegion('DE')
+  const intlSources = getSourcesByRegion('INT')
 
-      {/* Practical Dimension */}
-      <section className="card mb-6">
+  return (
+    <div className="space-y-6">
+      <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-sm font-bold">25%</span>
-          Praktische Dimension
+          <BookOpen className="w-5 h-5 text-aoz-primary" />
+          Wissenschaftliche Grundlage
         </h2>
-        <div className="space-y-4">
-          <FactorExplainer
-            name="Rauchen"
-            weight="40%"
-            description="Nichtraucher, Draussen-Raucher, oder Innen-Raucher"
-            rules={[
-              { condition: 'Gleicher Status', result: '100 Punkte' },
-              { condition: 'Nichtraucher + Draussen-Raucher', result: '80 Punkte' },
-              { condition: 'Nichtraucher + Innen-Raucher', result: '20 Punkte', warning: true },
-            ]}
-          />
-          <FactorExplainer
-            name="Hausarbeit"
-            weight="20%"
-            description="Bereitschaft zur Mitarbeit (Skala 1-5)"
-            rules={[
-              { condition: 'Gleiche Bereitschaft', result: '100 Punkte' },
-              { condition: 'Pro Stufe Unterschied', result: '-20 Punkte' },
-              { condition: '3+ Stufen Unterschied', result: 'Konflikt-Warnung', warning: true },
-            ]}
-          />
-          <FactorExplainer
-            name="Ernährung"
-            weight="15%"
-            description="Besondere Bedürfnisse (Halal, Vegetarisch, etc.)"
-            rules={[
-              { condition: 'Gleiche Bedürfnisse', result: '100 Punkte' },
-              { condition: 'Unterschiedliche Bedürfnisse', result: '75 Punkte' },
-            ]}
-          />
-        </div>
-      </section>
-
-      {/* Risk Dimension */}
-      <section className="card mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-orange-700 text-sm font-bold">20%</span>
-          Risiko-Dimension
-        </h2>
-        <p className="text-gray-700 mb-4">
-          Die Risiko-Dimension identifiziert potenzielle Konfliktquellen.
-          Ein <strong>niedriger</strong> Risikowert bedeutet <strong>höhere</strong> Kompatibilität.
+        <p className="text-gray-600">
+          Die Faktorenauswahl basiert auf Forschung zu Wohnkonflikten aus der Schweiz, Deutschland
+          und internationalen Studien. Die Gewichtungen spiegeln die empirisch belegte Bedeutung wider.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <RiskFactor factor="Grosser Altersunterschied" risk="Mittel" />
-          <RiskFactor factor="Keine gemeinsame Sprache" risk="Hoch" />
-          <RiskFactor factor="Raucher-Konflikt" risk="Hoch" />
-          <RiskFactor factor="Schlafrhythmus-Konflikt" risk="Mittel" />
-          <RiskFactor factor="Extreme Sauberkeits-Differenz" risk="Hoch" />
-          <RiskFactor factor="Nachtruhe-Bedarf + Nachtstörungen" risk="Hoch" />
-          <RiskFactor factor="Privatzimmer-Bedarf nicht erfüllt" risk="Kritisch" />
-          <RiskFactor factor="Grosser Hausarbeits-Unterschied" risk="Mittel" />
-        </div>
       </section>
 
-      {/* Apartment Aggregate */}
-      <section className="card mb-6">
+      {/* Swiss Research */}
+      {swissSources.length > 0 && (
+        <section className="card">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-lg">🇨🇭</span> Schweizer Forschung
+          </h3>
+          <div className="space-y-4">
+            {swissSources.map(source => (
+              <SourceCard key={source.id} source={source} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* German Research */}
+      {germanSources.length > 0 && (
+        <section className="card">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-lg">🇩🇪</span> Deutsche Forschung
+          </h3>
+          <div className="space-y-4">
+            {germanSources.map(source => (
+              <SourceCard key={source.id} source={source} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* International Research */}
+      {intlSources.length > 0 && (
+        <section className="card">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-lg">🌍</span> Internationale Studien
+          </h3>
+          <div className="space-y-4">
+            {intlSources.map(source => (
+              <SourceCard key={source.id} source={source} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function SourceCard({ source }: { source: ResearchSource }) {
+  return (
+    <div className="border border-gray-200 rounded-lg p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h4 className="font-medium text-gray-900">{source.title}</h4>
+          <p className="text-sm text-gray-500">
+            {source.publication}
+            {source.year && ` (${source.year})`}
+          </p>
+        </div>
+        {source.url && (
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-aoz-primary hover:underline text-sm flex items-center gap-1 flex-shrink-0"
+          >
+            Quelle <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+      {source.keyFindings.length > 0 && (
+        <ul className="mt-3 space-y-1">
+          {source.keyFindings.map((finding, i) => (
+            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+              <span className="text-aoz-primary mt-0.5">•</span>
+              {finding}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
+// =============================================================================
+// Dimensions Tab - Factor Details from Config
+// =============================================================================
+
+function DimensionsTab({
+  expandedDimension,
+  setExpandedDimension,
+}: {
+  expandedDimension: string | null
+  setExpandedDimension: (id: string | null) => void
+}) {
+  const colors = {
+    lifestyle: 'purple',
+    social: 'blue',
+    practical: 'green',
+    requirements: 'orange',
+  } as const
+
+  return (
+    <div className="space-y-4">
+      <p className="text-gray-600 mb-4">
+        Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert.
+        Klicken Sie auf eine Dimension für Details.
+      </p>
+
+      {RESIDENT_DIMENSIONS.map(dim => {
+        const factors = getFactorsByDimension(dim.id)
+        const isExpanded = expandedDimension === dim.id
+
+        return (
+          <div key={dim.id} className="border border-gray-200 rounded-xl overflow-hidden">
+            <button
+              onClick={() => setExpandedDimension(isExpanded ? null : dim.id)}
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500`} />
+                <div>
+                  <h3 className="font-semibold text-gray-900">{dim.label}</h3>
+                  <p className="text-sm text-gray-500">{dim.description}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-500">{factors.length} Faktoren</span>
+                <span className="px-3 py-1 rounded-full text-sm font-bold bg-gray-100 text-gray-700">
+                  {Math.round(dim.weight * 100)}%
+                </span>
+                {isExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-gray-400" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-400" />
+                )}
+              </div>
+            </button>
+
+            {isExpanded && (
+              <div className="p-4 pt-0 border-t border-gray-100">
+                <div className="space-y-3 mt-4">
+                  {factors.map(factor => {
+                    const science = FACTOR_SCIENCE[factor.id]
+                    return (
+                      <div key={factor.id} className="bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-medium text-gray-900">{factor.label}</h4>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs bg-white border border-gray-200 px-2 py-1 rounded">
+                              {Math.round(factor.weight * 100)}%
+                            </span>
+                            <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                              {factor.rule.replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                        </div>
+                        {factor.description && (
+                          <p className="text-sm text-gray-600 mb-2">{factor.description}</p>
+                        )}
+                        {science && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <p className="text-sm text-gray-700">{science.whyItMatters}</p>
+                            {science.swissContext && (
+                              <p className="text-xs text-aoz-primary mt-2 flex items-start gap-1">
+                                <span>🇨🇭</span> {science.swissContext}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// =============================================================================
+// Data Collection Tab
+// =============================================================================
+
+function DataCollectionTab() {
+  // Get factors that have science documentation
+  const documentedFactors = Object.values(RESIDENT_FACTORS).filter(
+    f => FACTOR_SCIENCE[f.id]?.dataCollectionMethod
+  )
+
+  return (
+    <div className="space-y-6">
+      <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Home className="w-5 h-5 text-indigo-500" />
-          Wohnungs-Profil
+          <Database className="w-5 h-5 text-aoz-primary" />
+          Wie werden die Daten erfasst?
         </h2>
-        <p className="text-gray-700 mb-4">
-          Bei besetzten Wohnungen berechnet das System ein Durchschnittsprofil aller aktuellen Bewohner:
+        <p className="text-gray-600 mb-4">
+          Alle Daten werden bei der Aufnahme durch das Bewohner-Formular erfasst.
+          Die Fragen sind so gestaltet, dass sie ohne Sprachbarrieren verständlich sind
+          (Skalen, Bildauswahl wo möglich).
         </p>
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
-          <h3 className="font-medium text-indigo-900 mb-2">Aggregierte Metriken</h3>
-          <ul className="text-sm text-indigo-800 space-y-1">
-            <li>• Durchschnittliche Sauberkeit, Lärmtoleranz, Privatsphäre</li>
-            <li>• Dominanter Schlafrhythmus (Mehrheit)</li>
-            <li>• Gemeinsame Sprachen (von 2+ Bewohnern gesprochen)</li>
-            <li>• Prozentsatz mit Nachtruhe-Bedarf</li>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="font-medium text-blue-900 mb-2">Datenschutz-Grundsätze</h3>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Nur funktionale Daten, keine medizinischen Diagnosen</li>
+            <li>• Selbstauskunft der Bewohner</li>
+            <li>• Anonymisierte Verarbeitung</li>
+            <li>• Keine politischen/religiösen Daten</li>
           </ul>
         </div>
-        <h3 className="font-medium text-gray-900 mb-2">Konflikt-Schwellenwerte</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 pr-4">Attribut</th>
-                <th className="text-center py-2 px-2">BLOCKIERT</th>
-                <th className="text-center py-2 px-2">Hoch</th>
-                <th className="text-center py-2 px-2">Mittel</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-700">
-              <tr className="border-b">
-                <td className="py-2 pr-4">Sauberkeits-Differenz</td>
-                <td className="text-center py-2 px-2 text-red-600 font-medium">≥3 Stufen</td>
-                <td className="text-center py-2 px-2 text-orange-600">≥2 Stufen</td>
-                <td className="text-center py-2 px-2 text-yellow-600">≥1.5 Stufen</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2 pr-4">Lärmtoleranz-Differenz</td>
-                <td className="text-center py-2 px-2">—</td>
-                <td className="text-center py-2 px-2 text-orange-600">≥3 Stufen</td>
-                <td className="text-center py-2 px-2 text-yellow-600">≥2 Stufen</td>
-              </tr>
-              <tr className="border-b">
-                <td className="py-2 pr-4">Hausarbeits-Differenz</td>
-                <td className="text-center py-2 px-2">—</td>
-                <td className="text-center py-2 px-2">—</td>
-                <td className="text-center py-2 px-2 text-yellow-600">≥3 Stufen</td>
-              </tr>
-              <tr>
-                <td className="py-2 pr-4">Nachtstörungen %</td>
-                <td className="text-center py-2 px-2">—</td>
-                <td className="text-center py-2 px-2 text-orange-600">≥30%</td>
-                <td className="text-center py-2 px-2">—</td>
-              </tr>
-            </tbody>
-          </table>
+      </section>
+
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-gray-500" />
+          Erfassungsmethoden pro Faktor
+        </h3>
+
+        <div className="space-y-4">
+          {documentedFactors.map(factor => {
+            const science = FACTOR_SCIENCE[factor.id]
+            if (!science) return null
+
+            return (
+              <div key={factor.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">{factor.label}</h4>
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded capitalize">
+                    {factor.type === 'scale' ? 'Skala 1-5' : factor.type}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">{science.dataCollectionMethod}</p>
+              </div>
+            )
+          })}
         </div>
       </section>
 
-      {/* Blocking Mechanism */}
-      <section className="card mb-6">
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4">Formular-Sektionen</h3>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {RESIDENT_FORM_SECTIONS.filter(s => s.id !== 'notes').map(section => {
+            const factorCount = Object.values(RESIDENT_FACTORS).filter(
+              f => f.formSection === section.id
+            ).length
+            return (
+              <div key={section.id} className="bg-gray-50 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-gray-900">{section.label}</span>
+                  <span className="text-xs text-gray-500">{factorCount} Felder</span>
+                </div>
+                {section.description && (
+                  <p className="text-xs text-gray-500 mt-1">{section.description}</p>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+// =============================================================================
+// Technical Tab
+// =============================================================================
+
+function TechnicalTab() {
+  return (
+    <div className="space-y-6">
+      {/* Scoring Rules */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Scale className="w-5 h-5 text-aoz-primary" />
+          Bewertungsregeln
+        </h2>
+
+        <div className="space-y-4">
+          {RULE_DOCUMENTATION.map(rule => (
+            <div key={rule.rule} className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-gray-900">{rule.name}</h4>
+                <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">{rule.rule}</code>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">{rule.description}</p>
+              <p className="text-sm text-gray-500 italic">Beispiel: {rule.example}</p>
+              <p className="text-xs text-gray-400 mt-2">Logik: {rule.scoringLogic}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Blocking */}
+      <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-red-500" />
           Blockierung
         </h2>
-        <p className="text-gray-700 mb-4">
+
+        <p className="text-gray-600 mb-4">
           Bei kritischen Inkompatibilitäten wird die Platzierung <strong>blockiert</strong>:
         </p>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <ul className="space-y-2">
-            <li className="flex items-start gap-2">
-              <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <span><strong>Sauberkeit:</strong> 3+ Stufen Unterschied zum Wohnungs-Durchschnitt</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <span><strong>Privatzimmer:</strong> Bedarf kann nicht erfüllt werden</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <span><strong>Kritische Konflikte:</strong> Mehrere schwerwiegende Inkompatibilitäten</span>
-            </li>
-          </ul>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Harte Anforderungen:</span>{' '}
+              <span className="text-red-800">
+                Rollstuhlzugang, Einzelzimmer-Bedarf, etc. müssen erfüllt sein
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Extreme Differenzen:</span>{' '}
+              <span className="text-red-800">
+                3+ Stufen Unterschied bei Sauberkeit oder Lärmtoleranz
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Inkompatibles Verhalten:</span>{' '}
+              <span className="text-red-800">
+                Innen-Raucher + Nichtraucher in gleicher Einheit
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <section className="text-center text-gray-500 text-sm py-8">
-        <p>
-          Dieser Algorithmus wurde entwickelt, um Konflikte zu reduzieren und das Wohlbefinden zu fördern.
+      {/* Config Location */}
+      <section className="card bg-gray-50">
+        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Database className="w-5 h-5 text-gray-500" />
+          Konfiguration (SSOT)
+        </h3>
+        <p className="text-sm text-gray-600 mb-3">
+          Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert.
+          Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.
         </p>
-        <p className="mt-2">
-          <Link href="/matching" className="text-aoz-primary hover:underline">
-            Matching starten →
-          </Link>
-        </p>
+        <div className="font-mono text-xs text-gray-500 space-y-1">
+          <p>src/lib/config/resident-factors.ts → Faktoren & Dimensionen</p>
+          <p>src/lib/config/algorithm-docs.ts → Wissenschaftliche Basis</p>
+          <p>src/lib/config/types.ts → Typdefinitionen</p>
+        </div>
       </section>
+    </div>
+  )
+}
+
+// =============================================================================
+// Helper Components
+// =============================================================================
+
+function ProcessStep({
+  number,
+  title,
+  description,
+  icon,
+}: {
+  number: number
+  title: string
+  description: string
+  icon: React.ReactNode
+}) {
+  return (
+    <div className="text-center">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-aoz-primary/10 text-aoz-primary mb-4">
+        {icon}
+      </div>
+      <div className="flex items-center justify-center gap-2 mb-2">
+        <span className="w-6 h-6 rounded-full bg-aoz-primary text-white text-sm flex items-center justify-center font-medium">
+          {number}
+        </span>
+        <h3 className="font-semibold text-gray-900">{title}</h3>
+      </div>
+      <p className="text-sm text-gray-600">{description}</p>
     </div>
   )
 }
@@ -338,95 +668,67 @@ function DimensionCard({
   name,
   weight,
   color,
-  factors
+  description,
+  factorCount,
 }: {
   name: string
   weight: number
-  color: string
-  factors: string[]
+  color: 'purple' | 'blue' | 'green' | 'orange'
+  description: string
+  factorCount: number
 }) {
+  const colorClasses = {
+    purple: 'bg-purple-50 border-purple-200 text-purple-700',
+    blue: 'bg-blue-50 border-blue-200 text-blue-700',
+    green: 'bg-green-50 border-green-200 text-green-700',
+    orange: 'bg-orange-50 border-orange-200 text-orange-700',
+  }
+
   return (
-    <div className={`rounded-lg p-4 ${color}`}>
-      <div className="text-2xl font-bold">{weight}%</div>
-      <div className="font-medium">{name}</div>
-      <ul className="text-xs mt-2 space-y-0.5 opacity-80">
-        {factors.map(f => <li key={f}>• {f}</li>)}
-      </ul>
+    <div className={`rounded-xl border p-4 ${colorClasses[color]}`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-2xl font-bold">{weight}%</span>
+        <span className="text-xs opacity-70">{factorCount} Faktoren</span>
+      </div>
+      <h3 className="font-semibold mb-1">{name}</h3>
+      <p className="text-sm opacity-80">{description}</p>
     </div>
   )
 }
 
-function ScoreBar({
+function ScoreLevel({
   score,
   label,
   color,
-  desc
+  action,
 }: {
   score: string
   label: string
-  color: string
-  desc: string
+  color: 'green' | 'emerald' | 'yellow' | 'orange' | 'red'
+  action: string
 }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className={`w-20 h-2 rounded-full ${color}`} />
-      <span className="font-medium w-16">{score}</span>
-      <span className="font-medium w-20">{label}</span>
-      <span className="text-gray-500 text-sm">{desc}</span>
-    </div>
-  )
-}
-
-function FactorExplainer({
-  name,
-  weight,
-  description,
-  rules
-}: {
-  name: string
-  weight: string
-  description: string
-  rules: { condition: string; result: string; warning?: boolean }[]
-}) {
-  return (
-    <div className="border border-gray-200 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-medium text-gray-900">{name}</h3>
-        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{weight}</span>
-      </div>
-      <p className="text-sm text-gray-600 mb-3">{description}</p>
-      <div className="space-y-1">
-        {rules.map((rule, i) => (
-          <div key={i} className="flex items-center gap-2 text-sm">
-            {rule.warning ? (
-              <AlertTriangle className="w-4 h-4 text-orange-500 flex-shrink-0" />
-            ) : (
-              <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            )}
-            <span className="text-gray-700">{rule.condition}</span>
-            <span className="text-gray-400">→</span>
-            <span className={rule.warning ? 'text-orange-600 font-medium' : 'text-gray-900'}>
-              {rule.result}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function RiskFactor({ factor, risk }: { factor: string; risk: string }) {
-  const colors = {
-    'Mittel': 'bg-yellow-100 text-yellow-700',
-    'Hoch': 'bg-orange-100 text-orange-700',
-    'Kritisch': 'bg-red-100 text-red-700',
+  const colorClasses = {
+    green: 'bg-green-500',
+    emerald: 'bg-emerald-500',
+    yellow: 'bg-yellow-500',
+    orange: 'bg-orange-500',
+    red: 'bg-red-500',
   }
+
+  const bgClasses = {
+    green: 'bg-green-50 border-green-200',
+    emerald: 'bg-emerald-50 border-emerald-200',
+    yellow: 'bg-yellow-50 border-yellow-200',
+    orange: 'bg-orange-50 border-orange-200',
+    red: 'bg-red-50 border-red-200',
+  }
+
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-      <span className="text-sm text-gray-700">{factor}</span>
-      <span className={`text-xs px-2 py-1 rounded font-medium ${colors[risk as keyof typeof colors]}`}>
-        {risk}
-      </span>
+    <div className={`rounded-lg border p-3 text-center ${bgClasses[color]}`}>
+      <div className={`w-full h-2 rounded-full ${colorClasses[color]} mb-2`} />
+      <div className="font-bold text-gray-900">{score}</div>
+      <div className="text-sm font-medium text-gray-700">{label}</div>
+      <div className="text-xs text-gray-500 mt-1">{action}</div>
     </div>
   )
 }
