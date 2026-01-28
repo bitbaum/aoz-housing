@@ -7,7 +7,7 @@ import {
   LANGUAGE_LABELS,
   getLabel,
 } from '@/lib/constants'
-import { getStatusBadgeClass } from '@/lib/utils'
+import { getStatusBadgeClass, getDateDaysAgo, formatDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +23,7 @@ export default async function ResidentsListPage() {
       },
       incidentsAsSubject: {
         where: {
-          date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+          date: { gte: getDateDaysAgo(30) },
           category: 'INTERPERSONAL',
         },
       },
@@ -150,7 +150,7 @@ function ResidentCard({ resident }: { resident: any }) {
       <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
         <span className="text-xs text-gray-400">
           Erfasst:{' '}
-          {new Date(resident.createdAt).toLocaleDateString('de-CH')}
+          {formatDate(resident.createdAt)}
         </span>
         {recentIncidents > 0 && (
           <span className="text-xs text-orange-600">

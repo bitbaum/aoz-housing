@@ -62,3 +62,21 @@ export function StatCard({ label, value, subtitle, trend = 'neutral', href }: St
 
   return <div className="card">{content}</div>
 }
+
+// =============================================================================
+// DetailRow - For key-value display in detail pages
+// =============================================================================
+
+interface DetailRowProps {
+  label: string
+  value: string | React.ReactNode
+}
+
+export function DetailRow({ label, value }: DetailRowProps) {
+  return (
+    <div className="flex justify-between">
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-gray-900 font-medium">{value}</dd>
+    </div>
+  )
+}

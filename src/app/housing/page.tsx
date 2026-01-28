@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
+import { getDateDaysAgo } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,7 @@ export default async function HousingListPage() {
       },
       incidents: {
         where: {
-          date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+          date: { gte: getDateDaysAgo(30) },
           category: 'INTERPERSONAL',
         },
       },

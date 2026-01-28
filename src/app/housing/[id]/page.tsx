@@ -17,8 +17,11 @@ import {
   getSeverityBorderClass,
   getOccupancyColorClass,
   formatRelativeDate,
+  formatDate,
+  getDateDaysAgo,
   type HarmonyStatus,
 } from '@/lib/utils'
+import { DetailRow } from '@/components/ui/Card'
 import { RoomVisualization } from '@/components/housing/RoomVisualization'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
@@ -223,7 +226,7 @@ export default async function HousingDetailPage({ params }: Props) {
           <p className="text-sm text-gray-500">Konflikte (30 Tage)</p>
           <p className="text-2xl font-bold text-gray-900">
             {interpersonalIncidents.filter(i =>
-              new Date(i.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+              new Date(i.date) > getDateDaysAgo(30)
             ).length}
           </p>
           <p className="text-sm text-gray-500 mt-1">
@@ -612,7 +615,7 @@ function ResidentCard({
         <div>
           <p className="font-medium text-gray-900">{placement.resident.code}</p>
           <p className="text-sm text-gray-500">
-            Seit {new Date(placement.startDate).toLocaleDateString('de-CH')}
+            Seit {formatDate(placement.startDate)}
           </p>
         </div>
       </div>
@@ -741,15 +744,6 @@ function TabButton({ children, active = false }: { children: React.ReactNode; ac
   )
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between">
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="text-gray-900 font-medium">{value}</dd>
-    </div>
-  )
-}
-
 function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
@@ -784,7 +778,7 @@ function calculateHarmonyStatus(unit: any, scores: any[]): HarmonyStatus {
 
   const recentIncidents = unit.incidents.filter((i: any) =>
     i.category === 'INTERPERSONAL' &&
-    new Date(i.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    new Date(i.date) > getDateDaysAgo(30)
   ).length
 
   let harmonyScore = avgCompatibility - recentIncidents * 10

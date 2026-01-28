@@ -1,9 +1,29 @@
 /**
  * Single Source of Truth for all UI labels (German)
  *
- * IMPORTANT: All user-facing text should be defined here.
- * This enables future i18n and ensures consistency.
+ * IMPORTANT: Enum labels for resident/housing factors are DERIVED from config.
+ * @see src/lib/config/resident-factors.ts (SSOT for factor definitions)
+ *
+ * This file provides:
+ * - Derived labels from config (full versions)
+ * - Short display variants (e.g., AGE_RANGE_LABELS for compact UI)
+ * - Non-factor labels (incidents, maintenance, UI chrome)
  */
+
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+
+// =============================================================================
+// HELPER: Extract optionLabels from config factors
+// =============================================================================
+
+type FactorWithOptions = {
+  optionLabels: Record<string, string>
+}
+
+function getLabelsFromFactor(factorId: keyof typeof RESIDENT_FACTORS): Record<string, string> {
+  const factor = RESIDENT_FACTORS[factorId] as FactorWithOptions
+  return factor?.optionLabels ?? {}
+}
 
 // =============================================================================
 // APP LABELS (Branding & Metadata)
@@ -106,9 +126,19 @@ export const FOLLOW_UP_PRIORITY_COLORS: Record<string, string> = {
 }
 
 // =============================================================================
-// RESIDENT LABELS
+// RESIDENT LABELS (derived from config SSOT)
 // =============================================================================
 
+// Full labels derived from config
+export const AGE_RANGE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('ageRange')
+export const GENDER_LABELS: Record<string, string> = getLabelsFromFactor('gender')
+export const FAMILY_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('familyStatus')
+export const SLEEP_SCHEDULE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('sleepSchedule')
+export const SOCIAL_STYLE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('socialStyle')
+export const SMOKING_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('smokingStatus')
+export const MOBILITY_NEED_LABELS_LONG: Record<string, string> = getLabelsFromFactor('mobilityNeeds')
+
+// Short display variants (for compact UI like tables, badges)
 export const AGE_RANGE_LABELS: Record<string, string> = {
   YOUNG_ADULT: '18-25',
   ADULT: '26-40',
@@ -116,32 +146,11 @@ export const AGE_RANGE_LABELS: Record<string, string> = {
   SENIOR: '56+',
 }
 
-export const AGE_RANGE_LABELS_LONG: Record<string, string> = {
-  YOUNG_ADULT: '18-25 Jahre',
-  ADULT: '26-40 Jahre',
-  MIDDLE_AGED: '41-55 Jahre',
-  SENIOR: '56+ Jahre',
-}
-
-export const GENDER_LABELS: Record<string, string> = {
-  MALE: 'Männlich',
-  FEMALE: 'Weiblich',
-  OTHER: 'Andere',
-  PREFER_NOT_SAY: 'Keine Angabe',
-}
-
 export const GENDER_LABELS_SHORT: Record<string, string> = {
   MALE: 'M',
   FEMALE: 'W',
   OTHER: 'A',
   PREFER_NOT_SAY: '-',
-}
-
-export const FAMILY_STATUS_LABELS: Record<string, string> = {
-  SINGLE: 'Alleinstehend',
-  COUPLE: 'Paar',
-  FAMILY_WITH_CHILDREN: 'Familie mit Kindern',
-  SINGLE_PARENT: 'Alleinerziehend',
 }
 
 export const SLEEP_SCHEDULE_LABELS: Record<string, string> = {
@@ -157,18 +166,13 @@ export const SOCIAL_STYLE_LABELS: Record<string, string> = {
   EXTROVERTED: 'Gesellig',
 }
 
-export const SMOKING_STATUS_LABELS: Record<string, string> = {
-  NON_SMOKER: 'Nichtraucher',
-  OUTDOOR_SMOKER: 'Raucher (draussen)',
-  INDOOR_SMOKER: 'Raucher',
-}
-
 export const MOBILITY_NEED_LABELS: Record<string, string> = {
   NONE: 'Keine',
   GROUND_FLOOR: 'Erdgeschoss',
   WHEELCHAIR: 'Rollstuhlgerecht',
 }
 
+// Non-factor resident labels
 export const RESIDENT_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Aktiv',
   PLACED: 'Platziert',
@@ -177,25 +181,18 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
 }
 
 // =============================================================================
-// HEALTH / SUPPORT LABELS
+// HEALTH / SUPPORT LABELS (derived from config SSOT)
 // =============================================================================
 
-export const ROOM_SHARING_STATUS_LABELS: Record<string, string> = {
-  CAN_SHARE: 'Kann Zimmer teilen',
-  PREFERS_PRIVATE: 'Bevorzugt Einzelzimmer',
-  NEEDS_PRIVATE: 'Benötigt Einzelzimmer',
-}
+export const ROOM_SHARING_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('roomSharingStatus')
+export const SUPPORT_LEVEL_LABELS_LONG: Record<string, string> = getLabelsFromFactor('supportLevel')
+export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> = getLabelsFromFactor('recyclingKnowledge')
 
+// Short display variants
 export const SUPPORT_LEVEL_LABELS: Record<string, string> = {
   STANDARD: 'Standard',
   ELEVATED: 'Erhöht',
   INTENSIVE: 'Intensiv',
-}
-
-export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> = {
-  NONE: 'Keine Kenntnisse',
-  BASIC: 'Grundkenntnisse',
-  GOOD: 'Gute Kenntnisse',
 }
 
 export const CHECK_IN_TYPE_LABELS: Record<string, string> = {
@@ -347,8 +344,12 @@ export const TREND_LABELS: Record<string, string> = {
 }
 
 // =============================================================================
-// LANGUAGE LABELS
+// LANGUAGE & DIET LABELS
 // =============================================================================
+
+// Config SSOT uses uppercase keys (DE, EN, etc.)
+// Form/DB historically uses lowercase - keeping for backward compatibility
+// TODO: Standardize to uppercase (config) in future migration
 
 export const LANGUAGE_LABELS: Record<string, string> = {
   de: 'Deutsch',

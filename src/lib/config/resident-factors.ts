@@ -561,21 +561,6 @@ export function getFactorsBySection(sectionId: string): CompatibilityFactorDef[]
     .sort((a, b) => a.formOrder - b.formOrder)
 }
 
-/** Get factors for a specific dimension */
-export function getFactorsByDimension(dimensionId: string): CompatibilityFactorDef[] {
-  return Object.values(RESIDENT_FACTORS)
-    .filter(f => f.dimension === dimensionId)
-}
-
-/** Get all enum options as labels (for constants.ts compatibility) */
-export function getEnumLabels(factorId: string): Record<string, string> {
-  const factor = RESIDENT_FACTORS[factorId]
-  if (factor?.type === 'enum' || factor?.type === 'multi') {
-    return factor.optionLabels
-  }
-  return {}
-}
-
 /** Get label for a specific value */
 export function getFactorValueLabel(factorId: string, value: string | string[]): string {
   const factor = RESIDENT_FACTORS[factorId]

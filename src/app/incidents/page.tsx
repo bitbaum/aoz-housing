@@ -12,6 +12,8 @@ import {
   getSeverityDotClass,
   formatRelativeDate,
 } from '@/lib/utils'
+import { StatCard } from '@/components/ui/Card'
+import { TabLink } from '@/components/ui/Tabs'
 import type { IncidentCategory } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -82,12 +84,8 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Offen" value={stats.open} highlight={stats.open > 0} />
-        <StatCard
-          label="Kritisch"
-          value={stats.critical}
-          highlight={stats.critical > 0}
-        />
+        <StatCard label="Offen" value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
+        <StatCard label="Kritisch" value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
         <StatCard label="Konflikte" value={stats.interpersonal} />
         <StatCard label="Sicherheit" value={stats.safety} />
       </div>
@@ -136,57 +134,6 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         </div>
       )}
     </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string
-  value: number
-  highlight?: boolean
-}) {
-  return (
-    <div className="card">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p
-        className={`text-2xl font-bold ${
-          highlight ? 'text-red-600' : 'text-gray-900'
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function TabLink({
-  href,
-  label,
-  count,
-  active = false,
-}: {
-  href: string
-  label: string
-  count: number
-  active?: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active
-          ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      {label}
-      <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-        {count}
-      </span>
-    </Link>
   )
 }
 

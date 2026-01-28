@@ -10,8 +10,10 @@ import {
 } from '@/lib/constants'
 import {
   formatRelativeDate,
+  formatDate,
   getConflictIndicatorClass,
   getSeverityBorderClass,
+  getDateDaysAgo,
 } from '@/lib/utils'
 import { DashboardMetrics, SystemHealth } from '@/components/dashboard'
 
@@ -28,7 +30,7 @@ export default async function AdminDashboard() {
         placements: { where: { status: 'ACTIVE' } },
         incidents: {
           where: {
-            date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+            date: { gte: getDateDaysAgo(30) },
             category: 'INTERPERSONAL',
           },
         },
@@ -47,12 +49,12 @@ export default async function AdminDashboard() {
     }),
     prisma.incident.findMany({
       where: {
-        date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+        date: { gte: getDateDaysAgo(30) },
       },
     }),
     prisma.incident.findMany({
       where: {
-        date: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        date: { gte: getDateDaysAgo(7) },
       },
       include: {
         housingUnit: true,
@@ -144,7 +146,7 @@ export default async function AdminDashboard() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{PAGE_TITLES.dashboard}</h1>
           <p className="text-gray-500 text-sm mt-1">
-            Übersicht vom {new Date().toLocaleDateString('de-CH')}
+            Übersicht vom {formatDate(new Date())}
           </p>
         </div>
         <div className="flex gap-3">
@@ -333,7 +335,7 @@ export default async function AdminDashboard() {
                     </div>
                   </div>
                   <span className="text-sm text-gray-500">
-                    Seit {new Date(resident.createdAt).toLocaleDateString('de-CH')}
+                    Seit {formatDate(resident.createdAt)}
                   </span>
                 </Link>
               ))}

@@ -7,12 +7,13 @@ import {
   SUPPORT_LEVEL_LABELS,
   getLabel,
 } from '@/lib/constants'
+import { getDateDaysAgo, formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AnalyticsPage() {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+  const thirtyDaysAgo = getDateDaysAgo(30)
+  const ninetyDaysAgo = getDateDaysAgo(90)
 
   const [
     residents,
@@ -398,7 +399,7 @@ export default async function AnalyticsPage() {
                       className="border-b border-gray-100 hover:bg-gray-50"
                     >
                       <td className="py-3 px-2 text-gray-500">
-                        {new Date(placement.startDate).toLocaleDateString('de-CH')}
+                        {formatDate(placement.startDate)}
                       </td>
                       <td className="py-3 px-2">
                         <Link

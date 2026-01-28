@@ -11,6 +11,8 @@ import {
   getStatusBadgeClass,
   formatDate,
 } from '@/lib/utils'
+import { StatCard } from '@/components/ui/Card'
+import { TabLink } from '@/components/ui/Tabs'
 
 export const dynamic = 'force-dynamic'
 
@@ -94,7 +96,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         <StatCard
           label="Konfliktbedingt beendet"
           value={stats.conflictEnds}
-          highlight={stats.conflictEnds > 0}
+          trend={stats.conflictEnds > 0 ? 'warning' : 'neutral'}
         />
       </div>
 
@@ -144,57 +146,6 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         </div>
       )}
     </div>
-  )
-}
-
-function StatCard({
-  label,
-  value,
-  highlight = false,
-}: {
-  label: string
-  value: number | string
-  highlight?: boolean
-}) {
-  return (
-    <div className="card">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p
-        className={`text-2xl font-bold ${
-          highlight ? 'text-orange-600' : 'text-gray-900'
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function TabLink({
-  href,
-  label,
-  count,
-  active = false,
-}: {
-  href: string
-  label: string
-  count: number
-  active?: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active
-          ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      {label}
-      <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-        {count}
-      </span>
-    </Link>
   )
 }
 

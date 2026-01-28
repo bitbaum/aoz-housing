@@ -9,7 +9,7 @@ import {
   SATISFACTION_LABELS,
   getLabel,
 } from '@/lib/constants'
-import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
+import { getScoreBgClass, getScoreLabel, formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -105,7 +105,7 @@ export default async function ResidentPortal() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <InfoBox
               label="Einzug"
-              value={new Date(currentPlacement.startDate).toLocaleDateString('de-CH')}
+              value={formatDate(currentPlacement.startDate)}
             />
             <InfoBox
               label="Zimmer"
@@ -281,7 +281,7 @@ export default async function ResidentPortal() {
                       {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Gemeldet: {new Date(incident.date).toLocaleDateString('de-CH')}
+                      Gemeldet: {formatDate(incident.date)}
                     </p>
                   </div>
                 </div>

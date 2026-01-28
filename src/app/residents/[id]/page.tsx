@@ -39,6 +39,7 @@ import {
   formatRelativeDate,
   formatDate,
 } from '@/lib/utils'
+import { DetailRow } from '@/components/ui/Card'
 
 export const dynamic = 'force-dynamic'
 
@@ -773,15 +774,6 @@ export default async function ResidentDetailPage({ params }: Props) {
           )}
         </div>
       </div>
-    </div>
-  )
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between">
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="text-gray-900 font-medium">{value}</dd>
     </div>
   )
 }

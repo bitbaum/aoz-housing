@@ -5,6 +5,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface Tab {
   id: string
@@ -73,5 +74,36 @@ export function StaticTabs({ children }: StaticTabsProps) {
     <div className="flex gap-1 border-b border-gray-200">
       {children}
     </div>
+  )
+}
+
+// =============================================================================
+// TabLink - For URL-based tab navigation (server components)
+// =============================================================================
+
+interface TabLinkProps {
+  href: string
+  label: string
+  count?: number
+  active?: boolean
+}
+
+export function TabLink({ href, label, count, active = false }: TabLinkProps) {
+  return (
+    <Link
+      href={href}
+      className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+        active
+          ? 'border-aoz-primary text-aoz-primary'
+          : 'border-transparent text-gray-500 hover:text-gray-700'
+      }`}
+    >
+      {label}
+      {count !== undefined && (
+        <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
+          {count}
+        </span>
+      )}
+    </Link>
   )
 }

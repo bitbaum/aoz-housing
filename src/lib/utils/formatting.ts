@@ -4,6 +4,8 @@
  * Single source of truth for date formatting, score colors, etc.
  */
 
+import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels'
+
 // =============================================================================
 // DATE FORMATTING
 // =============================================================================
@@ -31,6 +33,23 @@ export function formatRelativeDate(date: Date | string): string {
   return formatDate(date)
 }
 
+/**
+ * Get a date N days ago from now
+ * @example getDateDaysAgo(30) // Date 30 days ago
+ */
+export function getDateDaysAgo(days: number): Date {
+  return new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+}
+
+/**
+ * Common date ranges used throughout the app
+ */
+export const DATE_RANGES = {
+  LAST_7_DAYS: () => getDateDaysAgo(7),
+  LAST_30_DAYS: () => getDateDaysAgo(30),
+  LAST_90_DAYS: () => getDateDaysAgo(90),
+} as const
+
 // =============================================================================
 // SCORE FORMATTING
 // =============================================================================
@@ -46,14 +65,8 @@ export function getScoreLevel(score: number): ScoreLevel {
 }
 
 export function getScoreLabel(score: number): string {
-  const labels: Record<ScoreLevel, string> = {
-    excellent: 'Sehr gut',
-    good: 'Gut',
-    moderate: 'Mittel',
-    low: 'Niedrig',
-    critical: 'Kritisch',
-  }
-  return labels[getScoreLevel(score)]
+  // Use SSOT from constants/labels.ts
+  return COMPATIBILITY_SCORE_LABELS[getScoreLevel(score)]
 }
 
 export function getScoreColorClass(score: number): string {
