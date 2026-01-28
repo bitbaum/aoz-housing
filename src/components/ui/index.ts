@@ -4,6 +4,7 @@
 
 export * from './Badge'
 export * from './Card'
+export * from './ExplainableNumber'
 export * from './FilterBar'
 export * from './IncidentCard'
 export * from './ProgressBar'
