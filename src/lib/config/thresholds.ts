@@ -1,0 +1,164 @@
+/**
+ * Threshold Configuration - Single Source of Truth
+ *
+ * All numeric thresholds used for scoring, coloring, and status determination.
+ * Non-engineers can adjust these values without touching component code.
+ *
+ * @see CLAUDE.md - Config over code principle
+ */
+
+// =============================================================================
+// COMPATIBILITY SCORE THRESHOLDS
+// =============================================================================
+
+export const SCORE_THRESHOLDS = {
+  /** Score at or above this is "excellent" (green) */
+  excellent: 80,
+  /** Score at or above this is "good" (yellow/amber) */
+  good: 60,
+  /** Score at or above this is "moderate" (orange) */
+  moderate: 40,
+  /** Score at or above this is "low" (red) */
+  low: 20,
+  /** Below low threshold is "critical" */
+} as const
+
+export type ScoreLevel = 'excellent' | 'good' | 'moderate' | 'low' | 'critical'
+
+export function getScoreLevel(score: number): ScoreLevel {
+  if (score >= SCORE_THRESHOLDS.excellent) return 'excellent'
+  if (score >= SCORE_THRESHOLDS.good) return 'good'
+  if (score >= SCORE_THRESHOLDS.moderate) return 'moderate'
+  if (score >= SCORE_THRESHOLDS.low) return 'low'
+  return 'critical'
+}
+
+// =============================================================================
+// OCCUPANCY THRESHOLDS
+// =============================================================================
+
+export const OCCUPANCY_THRESHOLDS = {
+  /** Occupancy at or above this shows red (full/overcrowded) */
+  critical: 90,
+  /** Occupancy at or above this shows yellow (filling up) */
+  warning: 70,
+  /** Below warning shows green (healthy capacity) */
+} as const
+
+export type OccupancyLevel = 'critical' | 'warning' | 'healthy'
+
+export function getOccupancyLevel(percent: number): OccupancyLevel {
+  if (percent >= OCCUPANCY_THRESHOLDS.critical) return 'critical'
+  if (percent >= OCCUPANCY_THRESHOLDS.warning) return 'warning'
+  return 'healthy'
+}
+
+// =============================================================================
+// INCIDENT/CONFLICT THRESHOLDS
+// =============================================================================
+
+export const INCIDENT_THRESHOLDS = {
+  /** Number of incidents to show severe warning */
+  severe: 3,
+  /** Number of incidents to show moderate warning */
+  moderate: 2,
+  /** Number of incidents to show mild warning */
+  mild: 1,
+} as const
+
+export type IncidentLevel = 'severe' | 'moderate' | 'mild' | 'none'
+
+export function getIncidentLevel(count: number): IncidentLevel {
+  if (count >= INCIDENT_THRESHOLDS.severe) return 'severe'
+  if (count >= INCIDENT_THRESHOLDS.moderate) return 'moderate'
+  if (count >= INCIDENT_THRESHOLDS.mild) return 'mild'
+  return 'none'
+}
+
+// =============================================================================
+// HARMONY STATUS THRESHOLDS
+// =============================================================================
+
+export const HARMONY_THRESHOLDS = {
+  /** Score above this is "excellent" harmony */
+  excellent: 80,
+  /** Score above this is "good" harmony */
+  good: 60,
+  /** Score above this is "moderate" harmony */
+  moderate: 40,
+  /** Score above this is "concerning" harmony */
+  concerning: 20,
+  /** Conflict penalty multiplier */
+  conflictPenalty: 10,
+} as const
+
+export type HarmonyLevel = 'excellent' | 'good' | 'moderate' | 'concerning' | 'critical'
+
+export function getHarmonyLevel(avgCompatibility: number, recentConflicts: number): HarmonyLevel {
+  const harmonyScore = avgCompatibility - (recentConflicts * HARMONY_THRESHOLDS.conflictPenalty)
+  if (harmonyScore >= HARMONY_THRESHOLDS.excellent) return 'excellent'
+  if (harmonyScore >= HARMONY_THRESHOLDS.good) return 'good'
+  if (harmonyScore >= HARMONY_THRESHOLDS.moderate) return 'moderate'
+  if (harmonyScore >= HARMONY_THRESHOLDS.concerning) return 'concerning'
+  return 'critical'
+}
+
+// =============================================================================
+// DEFAULT ENTITY STATUSES
+// =============================================================================
+
+export const DEFAULT_STATUSES = {
+  resident: 'ACTIVE' as const,
+  housing: 'AVAILABLE' as const,
+  placement: 'ACTIVE' as const,
+  incident: 'OPEN' as const,
+  maintenance: 'OPEN' as const,
+} as const
+
+// =============================================================================
+// COLOR MAPPINGS
+// =============================================================================
+
+export const SCORE_COLORS = {
+  excellent: 'text-green-600',
+  good: 'text-yellow-600',
+  moderate: 'text-orange-600',
+  low: 'text-red-600',
+  critical: 'text-red-700',
+} as const
+
+export const SCORE_BG_COLORS = {
+  excellent: 'bg-green-500',
+  good: 'bg-yellow-500',
+  moderate: 'bg-orange-500',
+  low: 'bg-red-500',
+  critical: 'bg-red-700',
+} as const
+
+export const OCCUPANCY_COLORS = {
+  critical: 'bg-red-500',
+  warning: 'bg-yellow-500',
+  healthy: 'bg-green-500',
+} as const
+
+export const INCIDENT_COLORS = {
+  severe: 'bg-red-500',
+  moderate: 'bg-orange-500',
+  mild: 'bg-yellow-500',
+  none: 'bg-green-500',
+} as const
+
+export const INCIDENT_BG_COLORS = {
+  severe: 'bg-red-50',
+  moderate: 'bg-amber-50',
+  mild: 'bg-yellow-50',
+  none: 'bg-gray-50',
+} as const
+
+export const HARMONY_LABELS: Record<HarmonyLevel, string> = {
+  excellent: 'Sehr harmonisch',
+  good: 'Harmonisch',
+  moderate: 'Stabil',
+  concerning: 'Spannungen',
+  critical: 'Kritisch',
+}

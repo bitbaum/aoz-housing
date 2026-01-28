@@ -2,9 +2,22 @@
  * Formatting utilities
  *
  * Single source of truth for date formatting, score colors, etc.
+ * Thresholds are defined in lib/config/thresholds.ts (SSOT)
  */
 
 import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels'
+import {
+  SCORE_THRESHOLDS,
+  OCCUPANCY_THRESHOLDS,
+  HARMONY_THRESHOLDS,
+  getScoreLevel as getScoreLevelFromConfig,
+  getOccupancyLevel,
+  getHarmonyLevel,
+  type ScoreLevel,
+  type OccupancyLevel,
+  type HarmonyLevel,
+  OCCUPANCY_COLORS,
+} from '@/lib/config/thresholds'
 
 // =============================================================================
 // DATE FORMATTING
@@ -51,18 +64,13 @@ export const DATE_RANGES = {
 } as const
 
 // =============================================================================
-// SCORE FORMATTING
+// SCORE FORMATTING (thresholds from config/thresholds.ts)
 // =============================================================================
 
-export type ScoreLevel = 'excellent' | 'good' | 'moderate' | 'low' | 'critical'
+export type { ScoreLevel } from '@/lib/config/thresholds'
 
-export function getScoreLevel(score: number): ScoreLevel {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  if (score >= 40) return 'moderate'
-  if (score >= 20) return 'low'
-  return 'critical'
-}
+// Re-export from config for backward compatibility
+export const getScoreLevel = getScoreLevelFromConfig
 
 export function getScoreLabel(score: number): string {
   // Use SSOT from constants/labels.ts
@@ -103,24 +111,13 @@ export function getScoreBadgeClass(score: number): string {
 }
 
 // =============================================================================
-// HARMONY STATUS
+// HARMONY STATUS (thresholds from config/thresholds.ts)
 // =============================================================================
 
-export type HarmonyStatus = 'excellent' | 'good' | 'moderate' | 'concerning' | 'critical'
+export type HarmonyStatus = HarmonyLevel
 
-export function getHarmonyStatus(
-  avgCompatibility: number,
-  recentConflicts: number
-): HarmonyStatus {
-  let harmonyScore = avgCompatibility
-  harmonyScore -= recentConflicts * 10
-
-  if (harmonyScore >= 80) return 'excellent'
-  if (harmonyScore >= 60) return 'good'
-  if (harmonyScore >= 40) return 'moderate'
-  if (harmonyScore >= 20) return 'concerning'
-  return 'critical'
-}
+// Re-export from config for backward compatibility
+export const getHarmonyStatus = getHarmonyLevel
 
 export function getHarmonyColorClass(status: HarmonyStatus): string {
   const classes: Record<HarmonyStatus, string> = {
@@ -179,13 +176,11 @@ export function getSeverityRadioClass(severity: string): string {
 }
 
 // =============================================================================
-// OCCUPANCY COLORS
+// OCCUPANCY COLORS (thresholds from config/thresholds.ts)
 // =============================================================================
 
 export function getOccupancyColorClass(percent: number): string {
-  if (percent >= 90) return 'bg-red-500'
-  if (percent >= 70) return 'bg-yellow-500'
-  return 'bg-green-500'
+  return OCCUPANCY_COLORS[getOccupancyLevel(percent)]
 }
 
 // =============================================================================

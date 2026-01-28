@@ -347,32 +347,44 @@ export const TREND_LABELS: Record<string, string> = {
 // LANGUAGE & DIET LABELS
 // =============================================================================
 
-// Config SSOT uses uppercase keys (DE, EN, etc.)
-// Form/DB historically uses lowercase - keeping for backward compatibility
-// TODO: Standardize to uppercase (config) in future migration
-
+// LANGUAGE_LABELS derived from config (SSOT)
+// Includes both uppercase (from config/form) and lowercase (legacy) for compatibility
 export const LANGUAGE_LABELS: Record<string, string> = {
+  // From config (SSOT) - uppercase keys
+  ...getLabelsFromFactor('languages'),
+  // Lowercase aliases for backward compatibility with legacy data
   de: 'Deutsch',
-  en: 'English',
-  fr: 'Français',
-  it: 'Italiano',
-  ar: 'العربية',
-  tr: 'Türkçe',
-  uk: 'Українська',
-  ru: 'Русский',
-  fa: 'فارسی',
-  ti: 'ትግርኛ',
-  es: 'Español',
-  pt: 'Português',
-  so: 'Soomaali',
-  ps: 'پښتو',
+  en: 'Englisch',
+  fr: 'Französisch',
+  ar: 'Arabisch',
+  fa: 'Farsi',
+  tr: 'Türkisch',
+  ti: 'Tigrinya',
+  uk: 'Ukrainisch',
+  ru: 'Russisch',
+  ps: 'Paschtu',
+  // Full language names for legacy seed data
+  German: 'Deutsch',
+  English: 'Englisch',
+  French: 'Französisch',
+  Arabic: 'Arabisch',
+  Spanish: 'Spanisch',
+  Turkish: 'Türkisch',
+  Russian: 'Russisch',
+  Ukrainian: 'Ukrainisch',
+  Italian: 'Italienisch',
 }
 
+// DIET_LABELS derived from config (SSOT)
 export const DIET_LABELS: Record<string, string> = {
+  // From config (SSOT) - uppercase keys
+  ...getLabelsFromFactor('dietaryNeeds'),
+  // Lowercase aliases for backward compatibility
   halal: 'Halal',
   kosher: 'Koscher',
   vegetarian: 'Vegetarisch',
   vegan: 'Vegan',
+  none: 'Keine besonderen',
 }
 
 // =============================================================================
