@@ -239,12 +239,12 @@ function getMostCommonIncidentType(incidents: { type: string }[]): string {
 
   let maxType = ''
   let maxCount = 0
-  for (const [type, count] of typeCounts.entries()) {
+  typeCounts.forEach((count, type) => {
     if (count > maxCount) {
       maxType = type
       maxCount = count
     }
-  }
+  })
 
   return maxType
 }
