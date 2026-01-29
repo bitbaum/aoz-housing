@@ -150,7 +150,7 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   const interpersonalIncidents = recentIncidents.filter(i => i.category === 'INTERPERSONAL')
-  let conflictFreeDays = PROBLEM_DETECTION.recentIncidentsDays
+  let conflictFreeDays: number = PROBLEM_DETECTION.recentIncidentsDays
 
   if (interpersonalIncidents.length > 0) {
     const mostRecent = interpersonalIncidents[0] // already sorted by date desc
