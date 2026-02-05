@@ -24,11 +24,9 @@ export default function RootLayout({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <Link href="/" className="flex items-center gap-3 hover:opacity-90">
-                  <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                    <span className="text-aoz-secondary font-bold text-sm">AOZ</span>
-                  </div>
+                  <span className="text-aoz-primary font-bold text-2xl tracking-tight">AOZ</span>
                   <div>
-                    <span className="font-semibold">{APP_LABELS.name}</span>
+                    <span className="font-semibold">Wohnen</span>
                     <span className="hidden lg:inline text-white/70 ml-2 text-sm">
                       {APP_LABELS.tagline}
                     </span>
@@ -114,10 +112,8 @@ export default function RootLayout({
             <footer className="bg-white border-t border-gray-200 px-6 py-4 mt-auto">
               <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
                 <div className="flex items-center gap-2 text-gray-500">
-                  <div className="w-6 h-6 bg-aoz-secondary rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">AOZ</span>
-                  </div>
-                  <span className="font-medium text-gray-700">{APP_LABELS.name}</span>
+                  <span className="text-aoz-primary font-bold text-lg tracking-tight">AOZ</span>
+                  <span className="font-medium text-gray-700">Wohnen</span>
                   <span className="text-gray-400">|</span>
                   <span className="text-gray-500">{APP_LABELS.metaDescription}</span>
                 </div>

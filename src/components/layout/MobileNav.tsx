@@ -20,7 +20,10 @@ export function MobileNav() {
       {/* Mobile header */}
       <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-bold text-aoz-secondary">{APP_LABELS.name}</h1>
+          <h1 className="flex items-center gap-1">
+            <span className="text-aoz-primary font-bold text-xl tracking-tight">AOZ</span>
+            <span className="text-aoz-secondary font-semibold">Wohnen</span>
+          </h1>
           <button
             onClick={() => setIsOpen(true)}
             className="p-2 text-gray-600 hover:text-aoz-secondary"
@@ -50,7 +53,10 @@ export function MobileNav() {
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold text-aoz-secondary">{APP_LABELS.name}</h1>
+              <h1 className="flex items-center gap-1">
+                <span className="text-aoz-primary font-bold text-2xl tracking-tight">AOZ</span>
+                <span className="text-aoz-secondary font-semibold text-lg">Wohnen</span>
+              </h1>
               <p className="text-sm text-gray-500 mt-1">{APP_LABELS.tagline}</p>
             </div>
             <button

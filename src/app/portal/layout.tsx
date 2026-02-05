@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 export default function PortalLayout({
@@ -6,38 +9,78 @@ export default function PortalLayout({
 }: {
   children: React.ReactNode
 }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
-    <div className="min-h-screen bg-aoz-background">
-      {/* Simple header for residents */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+    <div className="min-h-screen bg-aoz-background flex flex-col">
+      {/* Header with responsive navigation */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/portal" className="text-xl font-bold text-aoz-primary">
-                {PORTAL_LABELS.title}
-              </Link>
-            </div>
-            <nav className="flex items-center gap-6">
+            <Link href="/portal" className="text-lg sm:text-xl font-bold text-aoz-primary">
+              {PORTAL_LABELS.title}
+            </Link>
+
+            {/* Desktop navigation */}
+            <nav className="hidden sm:flex items-center gap-4 md:gap-6">
               <PortalNavLink href="/portal">{PORTAL_LABELS.nav.overview}</PortalNavLink>
               <PortalNavLink href="/portal/roommates">{PORTAL_LABELS.nav.roommates}</PortalNavLink>
               <PortalNavLink href="/portal/report">{PORTAL_LABELS.nav.report}</PortalNavLink>
               <PortalNavLink href="/portal/preferences">{PORTAL_LABELS.nav.preferences}</PortalNavLink>
             </nav>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label={menuOpen ? 'Menu schliessen' : 'Menu öffnen'}
+            >
+              {menuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
+
+          {/* Mobile navigation dropdown */}
+          {menuOpen && (
+            <nav className="sm:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
+              <PortalNavLinkMobile href="/portal" onClick={() => setMenuOpen(false)}>
+                {PORTAL_LABELS.nav.overview}
+              </PortalNavLinkMobile>
+              <PortalNavLinkMobile href="/portal/roommates" onClick={() => setMenuOpen(false)}>
+                {PORTAL_LABELS.nav.roommates}
+              </PortalNavLinkMobile>
+              <PortalNavLinkMobile href="/portal/report" onClick={() => setMenuOpen(false)}>
+                {PORTAL_LABELS.nav.report}
+              </PortalNavLinkMobile>
+              <PortalNavLinkMobile href="/portal/preferences" onClick={() => setMenuOpen(false)}>
+                {PORTAL_LABELS.nav.preferences}
+              </PortalNavLinkMobile>
+              <PortalNavLinkMobile href="/portal/help" onClick={() => setMenuOpen(false)}>
+                {PORTAL_LABELS.nav.help}
+              </PortalNavLinkMobile>
+            </nav>
+          )}
         </div>
       </header>
 
       {/* Main content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
         {children}
       </main>
 
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white mt-auto">
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <p>{PORTAL_LABELS.emergency}</p>
-            <Link href="/portal/help" className="hover:text-aoz-primary">
+        <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-500">
+            <p className="text-center sm:text-left">{PORTAL_LABELS.emergency}</p>
+            <Link href="/portal/help" className="hover:text-aoz-primary min-h-[44px] flex items-center">
               {PORTAL_LABELS.nav.help}
             </Link>
           </div>
@@ -57,7 +100,27 @@ function PortalNavLink({
   return (
     <Link
       href={href}
-      className="text-gray-600 hover:text-aoz-primary transition-colors"
+      className="text-gray-600 hover:text-aoz-primary transition-colors text-sm md:text-base"
+    >
+      {children}
+    </Link>
+  )
+}
+
+function PortalNavLinkMobile({
+  href,
+  children,
+  onClick,
+}: {
+  href: string
+  children: React.ReactNode
+  onClick: () => void
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="text-gray-600 hover:text-aoz-primary hover:bg-gray-50 transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center"
     >
       {children}
     </Link>

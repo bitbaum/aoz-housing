@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
-import { getDateDaysAgo } from '@/lib/utils'
+import { getDateDaysAgo, getOccupancyColorClass } from '@/lib/utils'
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { HousingCardActions } from '@/components/housing/HousingCardActions'
 
@@ -41,7 +41,7 @@ export default async function HousingListPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Unterkünfte" value={stats.total} />
         <StatCard label="Verfügbar" value={stats.available} />
         <StatCard label="Voll belegt" value={stats.full} />
@@ -110,7 +110,7 @@ function UnitCard({ unit }: { unit: any }) {
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={`h-full ${occupancyPercent >= 90 ? 'bg-red-500' : occupancyPercent >= 70 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
                 style={{ width: `${occupancyPercent}%` }}
               />
             </div>

@@ -53,7 +53,7 @@ export default async function ResidentsListPage() {
 
       {/* Contextual Action Banner */}
       {stats.unplaced > 0 && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+        <div className="mb-4 sm:mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="font-medium text-blue-800">
               {stats.unplaced} Bewohner warten auf Platzierung
@@ -62,14 +62,14 @@ export default async function ResidentsListPage() {
               Starten Sie den Matching-Prozess um passende Unterkünfte zu finden
             </p>
           </div>
-          <Link href="/matching" className="btn-primary">
+          <Link href="/matching" className="btn-primary text-center min-h-[44px] flex items-center justify-center">
             Matching starten
           </Link>
         </div>
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Gesamt" value={stats.total} />
         <StatCard label="Aktiv" value={stats.active} />
         <StatCard label="Platziert" value={stats.placed} />

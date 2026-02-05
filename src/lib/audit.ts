@@ -1,10 +1,13 @@
 /**
  * Audit logging utilities for tracking important changes
  * SSOT for audit log creation
+ *
+ * Auth-ready: Automatically captures current user when auth is implemented
  */
 
 import { prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
+import { getCurrentUser } from '@/lib/auth'
 
 export type AuditAction =
   | 'CREATE'
@@ -27,7 +30,7 @@ interface AuditLogEntry {
   action: AuditAction
   entity: AuditEntity
   entityId: string
-  userId?: string
+  userId?: string // Optional: will auto-capture from session if not provided
   changes?: Prisma.InputJsonValue
   reason?: string
 }
@@ -35,6 +38,10 @@ interface AuditLogEntry {
 /**
  * Create an audit log entry
  * Non-blocking - failures are logged but don't throw
+ *
+ * Auth-ready: If userId not provided, attempts to get from current session
+ * During pilot: userId will be null (no auth)
+ * After auth: userId will be automatically captured
  */
 export async function logAudit({
   action,
@@ -45,12 +52,19 @@ export async function logAudit({
   reason,
 }: AuditLogEntry): Promise<void> {
   try {
+    // Auto-capture user from session if not explicitly provided
+    let resolvedUserId = userId
+    if (!resolvedUserId) {
+      const currentUser = await getCurrentUser()
+      resolvedUserId = currentUser?.id
+    }
+
     await prisma.auditLog.create({
       data: {
         action,
         entity,
         entityId,
-        userId,
+        userId: resolvedUserId,
         changes: changes ?? undefined,
         reason,
       },

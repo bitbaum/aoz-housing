@@ -577,6 +577,38 @@ model AlgorithmWeight {
   @@index([active])
 }
 
+// =============================================================================
+// AUTHENTICATION (prepared for future implementation)
+// =============================================================================
+
+model User {
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Identity
+  email        String    @unique
+  passwordHash String?   // Null if using SSO/external auth
+  name         String
+
+  // Role & Status
+  role         StaffRole @default(CASE_WORKER)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+
+  // Relations
+  auditLogs    AuditLog[]
+
+  @@index([email])
+  @@index([role])
+}
+
+enum StaffRole {
+  ADMIN        // Full access + user management
+  CASE_WORKER  // Residents, placements, incidents
+  VIEWER       // Read-only access
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -586,8 +618,9 @@ model AuditLog {
   entity    String
   entityId  String
 
-  // Who did it
+  // Who did it (optional during pilot, required after auth)
   userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
 
   // Details
   changes   Json?
@@ -595,6 +628,7 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@index([createdAt])
+  @@index([userId])
 }
 
 // =============================================================================
