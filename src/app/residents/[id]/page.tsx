@@ -5,7 +5,8 @@ import {
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
-import { PlacementActions } from '@/components/residents/PlacementActions'
+import { PlacementActions, QuickCheckIn } from '@/components/residents'
+import type { UnitCompatibilityData } from '@/components/residents/TransferRecommendations'
 import { calculateCompatibility } from '@/lib/compatibility/scoring'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
@@ -85,7 +86,7 @@ export default async function ResidentDetailPage({ params }: Props) {
     },
   })
 
-  // Fetch available housing units with their available spots for transfer
+  // Fetch available housing units with their available spots and current placements for transfer
   const availableUnits = await prisma.housingUnit.findMany({
     where: {
       status: { in: ['AVAILABLE', 'FULL'] },
@@ -98,6 +99,10 @@ export default async function ResidentDetailPage({ params }: Props) {
         },
         orderBy: { code: 'asc' },
       },
+      placements: {
+        where: { status: 'ACTIVE' },
+        include: { resident: true },
+      },
     },
     orderBy: { code: 'asc' },
   })
@@ -109,13 +114,81 @@ export default async function ResidentDetailPage({ params }: Props) {
   const currentPlacement = resident.placements.find((p) => p.status === 'ACTIVE')
   const pastPlacements = resident.placements.filter((p) => p.status !== 'ACTIVE')
 
+  // Fetch check-ins for quick check-in component (placed residents only)
+  let checkInCount = 0
+  let lastSatisfaction: number | undefined
+  let weeksSinceStart = 0
+
+  if (currentPlacement) {
+    const checkIns = await getPlacementCheckIns(currentPlacement.id)
+    checkInCount = checkIns.length
+    if (checkIns.length > 0) {
+      lastSatisfaction = checkIns[0].overallSatisfaction
+    }
+    weeksSinceStart = Math.floor(
+      (Date.now() - new Date(currentPlacement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
+    )
+  }
+
   // For unplaced residents: calculate compatible matches
   let compatibleUnits: { unit: any; fitScore: number; residents: number }[] = []
   let compatibleResidents: { resident: any; score: number }[] = []
 
-  if (!currentPlacement) {
-    const residentProfile = toResidentProfile(resident)
+  // For placed residents: full compatibility data for transfer recommendations
+  let unitCompatibility: Record<string, UnitCompatibilityData> = {}
 
+  // Create resident profile for matching calculations
+  const residentProfile = toResidentProfile(resident)
+
+  if (currentPlacement) {
+    // Calculate full compatibility data for all available units (for transfer recommendations)
+    // This includes: apartment fit score, pairwise compatibility with each resident
+    for (const unit of availableUnits) {
+      if (unit.id === currentPlacement.housingUnitId) continue // Skip current unit
+      if (unit.spots.length === 0) continue // No available spots
+
+      const currentResidentProfiles = unit.placements.map(p => ({
+        profile: toResidentProfile(p.resident),
+        resident: p.resident,
+      }))
+
+      // Calculate apartment-level fit
+      const apartmentProfile = calculateApartmentProfile(currentResidentProfiles.map(r => r.profile))
+      const fit = calculateApartmentFit(residentProfile, apartmentProfile)
+
+      // Calculate pairwise compatibility with each resident in the unit
+      const residentsWithCompatibility = currentResidentProfiles.map(({ profile, resident: otherResident }) => {
+        const pairwise = calculateCompatibility(residentProfile, profile)
+        // Extract key factors from the pairwise assessment
+        const keyFactors: string[] = []
+        if (pairwise.lifestyle >= 70) keyFactors.push('Ähnlicher Lebensstil')
+        else if (pairwise.lifestyle < 40) keyFactors.push('Unterschiedlicher Lebensstil')
+        if (pairwise.social >= 70) keyFactors.push('Gute soziale Passung')
+        else if (pairwise.social < 40) keyFactors.push('Soziale Unterschiede')
+        if (pairwise.practical >= 70) keyFactors.push('Praktisch kompatibel')
+        // Add strengths if any
+        if (pairwise.strengths.length > 0) {
+          keyFactors.push(...pairwise.strengths.slice(0, 2))
+        }
+
+        return {
+          id: otherResident.id,
+          code: otherResident.code,
+          compatibilityScore: Math.round(pairwise.overall),
+          keyFactors: keyFactors.slice(0, 3), // Limit to 3 factors
+        }
+      })
+
+      unitCompatibility[unit.id] = {
+        fitScore: fit.fitScore,
+        strengths: fit.strengths,
+        concerns: fit.warnings,
+        residents: residentsWithCompatibility,
+      }
+    }
+  }
+
+  if (!currentPlacement) {
     // Get units with current residents for apartment-level matching
     const unitsWithResidents = await prisma.housingUnit.findMany({
       where: { status: { in: ['AVAILABLE', 'FULL'] } },
@@ -257,6 +330,20 @@ export default async function ResidentDetailPage({ params }: Props) {
                   )}
                 </div>
 
+                {/* Quick Check-in - Primary action for case workers */}
+                <div className="pt-4 border-t border-gray-100">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                    Schnell-Check-in
+                  </h3>
+                  <QuickCheckIn
+                    placementId={currentPlacement.id}
+                    residentId={resident.id}
+                    checkInCount={checkInCount}
+                    weeksSinceStart={weeksSinceStart}
+                    lastSatisfaction={lastSatisfaction}
+                  />
+                </div>
+
                 {/* Actions Section - Client Component */}
                 <PlacementActions
                   placementId={currentPlacement.id}
@@ -278,6 +365,7 @@ export default async function ResidentDetailPage({ params }: Props) {
                     resident.hasMedicalDocumentation,
                     resident.medicalDocType
                   )}
+                  unitCompatibility={unitCompatibility}
                 />
               </div>
             ) : (
@@ -317,10 +405,7 @@ export default async function ResidentDetailPage({ params }: Props) {
                             {residents === 0 ? 'Leer' : `${residents} Bewohner`}
                           </p>
                         </div>
-                        <span className={`text-sm font-bold ${
-                          fitScore >= 80 ? 'text-green-600' :
-                          fitScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
+                        <span className={`text-sm font-bold ${getScoreColorClass(fitScore)}`}>
                           {fitScore}%
                         </span>
                       </Link>
@@ -351,10 +436,7 @@ export default async function ResidentDetailPage({ params }: Props) {
                             </p>
                           </div>
                         </div>
-                        <span className={`text-sm font-bold ${
-                          score >= 80 ? 'text-green-600' :
-                          score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                        }`}>
+                        <span className={`text-sm font-bold ${getScoreColorClass(score)}`}>
                           {Math.round(score)}%
                         </span>
                       </Link>

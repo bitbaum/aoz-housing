@@ -24,6 +24,8 @@ import { validatePlacementFormData } from '@/lib/validation/placement'
 import { logAudit } from '@/lib/audit'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
+import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
+import { getScoreColorClass } from '@/lib/utils'
 import type { Resident } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
@@ -714,10 +716,7 @@ export default async function MatchingPage({ searchParams }: Props) {
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className={`text-lg font-bold ${
-                            match.fitScore >= 70 ? 'text-green-600' :
-                            match.fitScore >= 50 ? 'text-yellow-600' : 'text-red-600'
-                          }`}>
+                          <span className={`text-lg font-bold ${getScoreColorClass(match.fitScore)}`}>
                             {match.fitScore}%
                           </span>
                           <Link
@@ -987,11 +986,7 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
             <p className="text-xs font-semibold text-blue-800 uppercase">
               Wohnungs-Profil ({match.apartmentProfile.currentResidentCount} Bewohner)
             </p>
-            <span className={`text-sm font-bold ${
-              match.apartmentFit.fitScore >= 70 ? 'text-green-600' :
-              match.apartmentFit.fitScore >= 50 ? 'text-yellow-600' :
-              'text-red-600'
-            }`}>
+            <span className={`text-sm font-bold ${getScoreColorClass(match.apartmentFit.fitScore)}`}>
               {match.apartmentFit.fitScore}% Passend
             </span>
           </div>
@@ -1084,11 +1079,7 @@ function MatchCard({ match, resident }: { match: any; resident: any }) {
                 <span className="text-xs text-purple-700">
                   📊 Historische Daten ({realSuccessData.totalPlacements} Platzierungen):
                 </span>
-                <span className={`text-xs font-bold ${
-                  realSuccessData.successRate >= 80 ? 'text-green-600' :
-                  realSuccessData.successRate >= 60 ? 'text-yellow-600' :
-                  'text-orange-600'
-                }`}>
+                <span className={`text-xs font-bold ${getScoreColorClass(realSuccessData.successRate)}`}>
                   {realSuccessData.successRate}% Erfolgsrate
                 </span>
               </div>

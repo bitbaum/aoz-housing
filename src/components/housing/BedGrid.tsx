@@ -1,11 +1,19 @@
 'use client'
 
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
+import {
+  AGE_RANGE_LABELS,
+  LANGUAGE_LABELS,
+  getLabel,
+} from '@/lib/constants'
 import type { HousingSpot } from './types'
 
 interface BedGridProps {
   spots: HousingSpot[]
   onBedClick?: (spot: HousingSpot) => void
+  onOccupiedBedClick?: (spot: HousingSpot) => void
   compact?: boolean
   showLabels?: boolean
 }
@@ -19,10 +27,10 @@ function getBedStatus(spot: HousingSpot): BedStatus {
   return 'unavailable'
 }
 
-function getBedColorClasses(status: BedStatus): string {
+function getBedColorClasses(status: BedStatus, isClickable: boolean): string {
   switch (status) {
     case 'occupied':
-      return 'bg-rose-100 border-rose-300 text-rose-700'
+      return `bg-rose-100 border-rose-300 text-rose-700 ${isClickable ? 'hover:bg-rose-200 hover:border-rose-400 cursor-pointer' : ''}`
     case 'available':
       return 'bg-emerald-100 border-emerald-300 text-emerald-700 hover:bg-emerald-200 cursor-pointer'
     case 'unavailable':
@@ -37,9 +45,27 @@ function getActivePlacement(spot: HousingSpot) {
 export function BedGrid({
   spots,
   onBedClick,
+  onOccupiedBedClick,
   compact = false,
   showLabels = true,
 }: BedGridProps) {
+  const [selectedSpot, setSelectedSpot] = useState<HousingSpot | null>(null)
+  const [popoverPosition, setPopoverPosition] = useState<{ x: number; y: number } | null>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        setSelectedSpot(null)
+      }
+    }
+
+    if (selectedSpot) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [selectedSpot])
+
   if (spots.length === 0) {
     return (
       <div className="text-sm text-gray-500 text-center py-2">
@@ -52,50 +78,184 @@ export function BedGrid({
   const fontSize = compact ? 'text-xs' : 'text-sm'
   const iconSize = compact ? 'text-sm' : 'text-base'
 
-  return (
-    <div className="flex flex-wrap gap-2">
-      {spots.map((spot) => {
-        const status = getBedStatus(spot)
-        const activePlacement = getActivePlacement(spot)
-        const isClickable = status === 'available' && onBedClick
+  const handleBedClick = (spot: HousingSpot, event: React.MouseEvent) => {
+    const status = getBedStatus(spot)
 
-        return (
-          <div
-            key={spot.id}
-            onClick={() => isClickable && onBedClick(spot)}
-            className={`
-              ${gridSize}
-              border-2 rounded-md
-              flex flex-col items-center justify-center
-              transition-colors
-              ${getBedColorClasses(status)}
-              ${isClickable ? 'hover:shadow-md' : ''}
-            `}
-            title={
-              status === 'occupied' && activePlacement
-                ? `${spot.label || spot.code}: ${activePlacement.resident.code}`
-                : status === 'available'
-                  ? `${spot.label || spot.code}: Verfügbar`
-                  : `${spot.label || spot.code}: Nicht verfügbar`
-            }
-          >
-            {compact ? (
-              // Compact mode: just the icon
-              <span className={iconSize}>{SPOT_TYPE_ICONS[spot.type]}</span>
-            ) : (
-              // Full mode: icon + status indicator
-              <>
+    if (status === 'available' && onBedClick) {
+      onBedClick(spot)
+    } else if (status === 'occupied') {
+      // Show popover with resident info
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+      setPopoverPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + 8,
+      })
+      setSelectedSpot(spot)
+
+      if (onOccupiedBedClick) {
+        onOccupiedBedClick(spot)
+      }
+    }
+  }
+
+  return (
+    <div className="relative">
+      <div className="flex flex-wrap gap-2">
+        {spots.map((spot) => {
+          const status = getBedStatus(spot)
+          const activePlacement = getActivePlacement(spot)
+          const isAvailableClickable = status === 'available' && onBedClick
+          const isOccupiedClickable = status === 'occupied'
+          const isSelected = selectedSpot?.id === spot.id
+
+          return (
+            <div
+              key={spot.id}
+              onClick={(e) => handleBedClick(spot, e)}
+              className={`
+                ${gridSize}
+                border-2 rounded-md
+                flex flex-col items-center justify-center
+                transition-all
+                ${getBedColorClasses(status, isOccupiedClickable)}
+                ${isAvailableClickable || isOccupiedClickable ? 'hover:shadow-md' : ''}
+                ${isSelected ? 'ring-2 ring-aoz-primary ring-offset-1' : ''}
+              `}
+              title={
+                status === 'occupied' && activePlacement
+                  ? `${spot.label || spot.code}: ${activePlacement.resident.code} - Klicken für Details`
+                  : status === 'available'
+                    ? `${spot.label || spot.code}: Verfügbar - Klicken zum Platzieren`
+                    : `${spot.label || spot.code}: Nicht verfügbar`
+              }
+            >
+              {compact ? (
+                // Compact mode: just the icon
                 <span className={iconSize}>{SPOT_TYPE_ICONS[spot.type]}</span>
-                {showLabels && status === 'occupied' && activePlacement && (
-                  <span className={`${fontSize} font-medium truncate max-w-full px-0.5`}>
-                    {activePlacement.resident.code.slice(0, 3)}
-                  </span>
-                )}
-              </>
-            )}
+              ) : (
+                // Full mode: icon + status indicator
+                <>
+                  <span className={iconSize}>{SPOT_TYPE_ICONS[spot.type]}</span>
+                  {showLabels && status === 'occupied' && activePlacement && (
+                    <span className={`${fontSize} font-medium truncate max-w-full px-0.5`}>
+                      {activePlacement.resident.code.slice(0, 3)}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Resident Popover */}
+      {selectedSpot && popoverPosition && (
+        <ResidentBedPopover
+          ref={popoverRef}
+          spot={selectedSpot}
+          position={popoverPosition}
+          onClose={() => setSelectedSpot(null)}
+        />
+      )}
+    </div>
+  )
+}
+
+interface ResidentBedPopoverProps {
+  spot: HousingSpot
+  position: { x: number; y: number }
+  onClose: () => void
+}
+
+const ResidentBedPopover = ({
+  spot,
+  position,
+  onClose,
+}: ResidentBedPopoverProps & { ref?: React.Ref<HTMLDivElement> }) => {
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const placement = getActivePlacement(spot)
+  const resident = placement?.resident
+
+  useEffect(() => {
+    if (popoverRef.current) {
+      const rect = popoverRef.current.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+
+      if (rect.right > viewportWidth) {
+        popoverRef.current.style.left = `${viewportWidth - rect.width - 16}px`
+      }
+      if (rect.left < 0) {
+        popoverRef.current.style.left = '16px'
+      }
+      if (rect.bottom > viewportHeight) {
+        popoverRef.current.style.top = `${position.y - rect.height - 60}px`
+      }
+    }
+  }, [position])
+
+  if (!resident) return null
+
+  return (
+    <div
+      ref={popoverRef}
+      className="fixed z-50 w-64 bg-white rounded-lg shadow-xl border border-gray-200"
+      style={{
+        left: position.x - 128,
+        top: position.y,
+      }}
+    >
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-100 bg-rose-50 rounded-t-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-bold">
+              {resident.code.slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <p className="font-semibold text-gray-900">{resident.code}</p>
+              <p className="text-xs text-gray-500">
+                {spot.label || spot.code}
+              </p>
+            </div>
           </div>
-        )
-      })}
+          <button
+            onClick={onClose}
+            className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-4 py-3 space-y-2">
+        {resident.ageRange && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500">Alter</span>
+            <span className="text-gray-900">{getLabel(AGE_RANGE_LABELS, resident.ageRange)}</span>
+          </div>
+        )}
+        {resident.languages && resident.languages.length > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-500">Sprachen</span>
+            <span className="text-gray-900">
+              {resident.languages.slice(0, 2).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+        <Link
+          href={`/residents/${resident.id}`}
+          className="block w-full text-center text-sm text-aoz-primary hover:text-aoz-primary-dark font-medium"
+          onClick={onClose}
+        >
+          Profil anzeigen →
+        </Link>
+      </div>
     </div>
   )
 }

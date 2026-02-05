@@ -163,3 +163,92 @@ export const HARMONY_LABELS: Record<HarmonyLevel, string> = {
   concerning: 'Spannungen',
   critical: 'Kritisch',
 }
+
+// =============================================================================
+// FIT SCORE CALCULATION CONFIG
+// =============================================================================
+
+/**
+ * Penalties and bonuses for fit score calculation
+ * Used in lib/compatibility/aggregate.ts
+ */
+export const FIT_SCORE_CONFIG = {
+  /** Point deductions per conflict severity */
+  penalties: {
+    BLOCKING: 40,
+    HIGH: 20,
+    MEDIUM: 10,
+    LOW: 5,
+  },
+  /** Bonus points for positive factors */
+  bonuses: {
+    /** Points per strength factor */
+    perStrength: 3,
+    /** Maximum total bonus from strengths */
+    maxStrengthBonus: 20,
+    /** Bonus for small groups (easier integration) */
+    smallGroup: 5,
+    /** Threshold for small group bonus */
+    smallGroupThreshold: 2,
+  },
+} as const
+
+// =============================================================================
+// UI DISPLAY LIMITS
+// =============================================================================
+
+/**
+ * Limits for UI list displays
+ */
+export const DISPLAY_LIMITS = {
+  /** "Beste Unterkünfte" shows top N units */
+  topUnits: 5,
+  /** "Wer passt hierher" shows top N residents */
+  topResidents: 5,
+  /** Dashboard action tiles show top N items */
+  dashboardItems: 3,
+  /** Dashboard problem units shows top N */
+  problemUnits: 5,
+} as const
+
+// =============================================================================
+// PROBLEM DETECTION THRESHOLDS
+// =============================================================================
+
+/**
+ * Thresholds for problem unit detection
+ * Used in dashboard to identify units that need attention
+ */
+export const PROBLEM_DETECTION = {
+  /**
+   * Roommate compatibility threshold - alert when score below this
+   * Only applies to residents sharing the same room/spot
+   */
+  roommateCompatibilityAlert: 60,
+
+  /**
+   * Recent incidents window - days to look back for incident history
+   */
+  recentIncidentsDays: 30,
+
+  /**
+   * Minimum incidents to flag a unit as problematic
+   */
+  minIncidentsToFlag: 2,
+
+  /**
+   * Days without incidents to consider unit "stable"
+   */
+  stableUnitDays: 30,
+} as const
+
+/**
+ * Severity weights for incident-based problem scoring
+ * Higher score = more serious problem
+ */
+export const INCIDENT_SEVERITY_WEIGHTS = {
+  CRITICAL: 10,
+  HIGH: 5,
+  MEDIUM: 2,
+  LOW: 1,
+} as const

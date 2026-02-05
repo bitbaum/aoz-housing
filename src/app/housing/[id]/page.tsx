@@ -19,10 +19,15 @@ import {
   formatRelativeDate,
   formatDate,
   getDateDaysAgo,
+  getHarmonyStatus,
   type HarmonyStatus,
 } from '@/lib/utils'
+import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
 import { DetailRow } from '@/components/ui/Card'
 import { RoomVisualizationWithPlacement } from '@/components/housing/RoomVisualizationWithPlacement'
+import { CompatibilityMatrixInteractive } from '@/components/housing/CompatibilityMatrixInteractive'
+import { ApartmentProfileCard } from '@/components/housing/ApartmentProfileCard'
+import { ProblemDetectionCard } from '@/components/housing/ProblemDetectionCard'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 
@@ -88,8 +93,15 @@ export default async function HousingDetailPage({ params }: Props) {
       })
     : []
 
-  // Calculate harmony status
-  const harmonyStatus = calculateHarmonyStatus(unit, compatibilityScores)
+  // Calculate harmony status using shared utility
+  const avgCompatibility = compatibilityScores.length > 0
+    ? compatibilityScores.reduce((sum, s) => sum + s.overallScore, 0) / compatibilityScores.length
+    : 70
+  const recentConflicts = unit.incidents.filter((i: { category: string; date: Date | string }) =>
+    i.category === 'INTERPERSONAL' &&
+    new Date(i.date) > getDateDaysAgo(30)
+  ).length
+  const harmonyStatus = getHarmonyStatus(avgCompatibility, recentConflicts)
 
   // Split incidents by category
   const interpersonalIncidents = unit.incidents.filter(
@@ -300,6 +312,22 @@ export default async function HousingDetailPage({ params }: Props) {
             </div>
           )}
 
+          {/* Apartment Profile Card */}
+          {unit.placements.length > 0 && (
+            <ApartmentProfileCard
+              residents={unit.placements.map(p => p.resident) as any}
+            />
+          )}
+
+          {/* Problem Detection Card */}
+          {unit.placements.length > 1 && (
+            <ProblemDetectionCard
+              residents={unit.placements.map(p => p.resident) as any}
+              compatibilityScores={compatibilityScores}
+              housingUnitId={unit.id}
+            />
+          )}
+
           {/* Who Fits Here - Only show if there's available space */}
           {hasAvailableSpace && (
             <div className="card">
@@ -330,13 +358,16 @@ export default async function HousingDetailPage({ params }: Props) {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {compatibleResidents.map((match) => (
+                  {compatibleResidents.map((match) => {
+                    const scoreLevel = getScoreLevel(match.fitScore)
+                    const isGoodFit = scoreLevel === 'excellent' || scoreLevel === 'good'
+                    return (
                     <div
                       key={match.resident.id}
                       className={`flex items-center justify-between p-3 rounded-lg border ${
                         match.concerns.length > 0
                           ? 'border-orange-200 bg-orange-50'
-                          : match.fitScore >= 70
+                          : isGoodFit
                           ? 'border-green-200 bg-green-50'
                           : 'border-gray-200 bg-gray-50'
                       }`}
@@ -363,21 +394,13 @@ export default async function HousingDetailPage({ params }: Props) {
                           )}
                           {match.concerns.length > 0 && (
                             <p className="text-xs text-orange-600 mt-0.5">
-                              ⚠️ {match.concerns[0]}
+                              {match.concerns[0]}
                             </p>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span
-                          className={`text-lg font-bold ${
-                            match.fitScore >= 70
-                              ? 'text-green-600'
-                              : match.fitScore >= 50
-                              ? 'text-yellow-600'
-                              : 'text-red-600'
-                          }`}
-                        >
+                        <span className={`text-lg font-bold ${getScoreColorClass(match.fitScore)}`}>
                           {match.fitScore}%
                         </span>
                         <Link
@@ -388,7 +411,7 @@ export default async function HousingDetailPage({ params }: Props) {
                         </Link>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>
@@ -400,7 +423,10 @@ export default async function HousingDetailPage({ params }: Props) {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Kompatibilitätsmatrix
               </h2>
-              <CompatibilityMatrix
+              <p className="text-sm text-gray-500 mb-4">
+                Klicken Sie auf eine Zelle, um Details zur Kompatibilität zu sehen
+              </p>
+              <CompatibilityMatrixInteractive
                 residents={unit.placements.map(p => p.resident)}
                 scores={compatibilityScores}
               />
@@ -640,55 +666,6 @@ function ResidentCard({
   )
 }
 
-function CompatibilityMatrix({ residents, scores }: { residents: any[]; scores: any[] }) {
-  const getScore = (r1: string, r2: string) => {
-    if (r1 === r2) return null
-    const assessment = scores.find(
-      s => (s.residentId === r1 && s.comparedWithId === r2) ||
-           (s.residentId === r2 && s.comparedWithId === r1)
-    )
-    return assessment?.overallScore ?? null
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr>
-            <th className="p-2"></th>
-            {residents.map(r => (
-              <th key={r.id} className="p-2 text-center font-medium text-gray-700">
-                {r.code}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {residents.map(r1 => (
-            <tr key={r1.id}>
-              <td className="p-2 font-medium text-gray-700">{r1.code}</td>
-              {residents.map(r2 => {
-                const score = getScore(r1.id, r2.id)
-                return (
-                  <td key={r2.id} className="p-2 text-center">
-                    {score === null ? (
-                      <span className="text-gray-300">-</span>
-                    ) : (
-                      <span className={`inline-flex items-center justify-center w-12 h-8 rounded ${getScoreBgClass(score)} text-xs font-medium`}>
-                        {score}
-                      </span>
-                    )}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
-
 function IncidentCard({ incident }: { incident: any }) {
   const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
 
@@ -768,27 +745,6 @@ function LocationItem({ label, available }: { label: string; available: boolean 
 }
 
 // Utility functions - use imported shared utilities
-// getScoreColorClass, getScoreBgClass, getSeverityBorderClass, formatRelativeDate imported from @/lib/utils
-
-function calculateHarmonyStatus(unit: any, scores: any[]): HarmonyStatus {
-  if (unit.placements.length <= 1) return 'excellent'
-
-  const avgCompatibility = scores.length > 0
-    ? scores.reduce((sum, s) => sum + s.overallScore, 0) / scores.length
-    : 70
-
-  const recentIncidents = unit.incidents.filter((i: any) =>
-    i.category === 'INTERPERSONAL' &&
-    new Date(i.date) > getDateDaysAgo(30)
-  ).length
-
-  let harmonyScore = avgCompatibility - recentIncidents * 10
-
-  if (harmonyScore >= 80) return 'excellent'
-  if (harmonyScore >= 60) return 'good'
-  if (harmonyScore >= 40) return 'moderate'
-  if (harmonyScore >= 20) return 'concerning'
-  return 'critical'
-}
+// getScoreColorClass, getScoreBgClass, getSeverityBorderClass, formatRelativeDate, getHarmonyStatus imported from @/lib/utils
 
 const getIncidentTypeLabel = (type: string) => INCIDENT_TYPE_LABELS[type] || type

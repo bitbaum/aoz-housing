@@ -68,6 +68,91 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
   redirect(`/residents/${placement.residentId}`)
 }
 
+/**
+ * Quick check-in - minimal data collection for fast feedback
+ * Used by the inline QuickCheckIn component
+ */
+interface QuickCheckInInput {
+  placementId: string
+  overallSatisfaction: number
+  roommateRelations?: number | null
+  concerns?: string
+  checkInType: 'INITIAL' | 'REGULAR' | 'AD_HOC' | 'EXIT'
+  weekNumber: number
+}
+
+export async function createQuickCheckIn(
+  input: QuickCheckInInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const placement = await prisma.placement.findUnique({
+      where: { id: input.placementId },
+      select: { residentId: true, status: true },
+    })
+
+    if (!placement) {
+      return { success: false, error: 'Platzierung nicht gefunden' }
+    }
+
+    if (placement.status !== 'ACTIVE') {
+      return { success: false, error: 'Platzierung ist nicht aktiv' }
+    }
+
+    // Validate satisfaction score
+    if (input.overallSatisfaction < 1 || input.overallSatisfaction > 5) {
+      return { success: false, error: 'Ungültiger Zufriedenheitswert' }
+    }
+
+    const checkIn = await prisma.satisfactionCheckIn.create({
+      data: {
+        placementId: input.placementId,
+        checkInType: input.checkInType,
+        weekNumber: input.weekNumber,
+        overallSatisfaction: input.overallSatisfaction,
+        roommateRelations: input.roommateRelations ?? null,
+        concerns: input.concerns || null,
+        // Quick check-ins don't collect these - use full form for detailed data
+        facilitySatisfaction: null,
+        safetyFeeling: null,
+        improvements: null,
+        positives: null,
+        collectedBy: null,
+        isAnonymous: false,
+      },
+    })
+
+    // Update placement satisfaction rating with latest overall
+    await prisma.placement.update({
+      where: { id: input.placementId },
+      data: {
+        satisfactionRating: input.overallSatisfaction,
+      },
+    })
+
+    await logAudit({
+      action: 'CREATE',
+      entity: 'CHECK_IN',
+      entityId: checkIn.id,
+      changes: {
+        type: 'QUICK',
+        placementId: input.placementId,
+        overallSatisfaction: input.overallSatisfaction,
+        roommateRelations: input.roommateRelations,
+        hasConcerns: !!input.concerns,
+      },
+    })
+
+    revalidatePath('/placements')
+    revalidatePath('/residents')
+    revalidatePath(`/residents/${placement.residentId}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('Quick check-in error:', error)
+    return { success: false, error: 'Fehler beim Speichern' }
+  }
+}
+
 export async function getPlacementCheckIns(placementId: string) {
   return prisma.satisfactionCheckIn.findMany({
     where: { placementId },

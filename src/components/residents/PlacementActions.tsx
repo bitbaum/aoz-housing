@@ -8,6 +8,7 @@ import {
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS } from '@/lib/constants'
+import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
 
 interface Spot {
   id: string
@@ -30,6 +31,8 @@ interface PlacementActionsProps {
   hasMedicalDocumentation: boolean
   availableUnits: Unit[]
   eligibleSpotTypes: string[]
+  /** Full compatibility data per unit (enables algorithm-powered transfer recommendations) */
+  unitCompatibility?: Record<string, UnitCompatibilityData>
 }
 
 export function PlacementActions({
@@ -39,6 +42,7 @@ export function PlacementActions({
   hasMedicalDocumentation,
   availableUnits,
   eligibleSpotTypes,
+  unitCompatibility,
 }: PlacementActionsProps) {
   const [showTransfer, setShowTransfer] = useState(false)
   const [showEnd, setShowEnd] = useState(false)
@@ -121,30 +125,13 @@ export function PlacementActions({
 
           <div>
             <label className="label">Ziel-Unterkunft *</label>
-            <select
-              name="targetHousingUnitId"
-              required
-              className="input"
-              value={selectedUnitId}
-              onChange={(e) => setSelectedUnitId(e.target.value)}
-            >
-              <option value="">Bitte wählen</option>
-              {eligibleUnits.map((unit) => {
-                const eligibleSpots = unit.spots.filter((spot) =>
-                  eligibleSpotTypes.includes(spot.type)
-                )
-                return (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.code} - {unit.address} ({eligibleSpots.length} Plätze frei)
-                  </option>
-                )
-              })}
-            </select>
-            {eligibleUnits.length === 0 && (
-              <p className="text-xs text-orange-600 mt-1">
-                Keine Unterkünfte mit geeigneten Plätzen verfügbar
-              </p>
-            )}
+            <TransferUnitSelector
+              eligibleUnits={eligibleUnits}
+              eligibleSpotTypes={eligibleSpotTypes}
+              selectedUnitId={selectedUnitId}
+              onUnitSelect={setSelectedUnitId}
+              unitCompatibility={unitCompatibility}
+            />
           </div>
 
           <div>

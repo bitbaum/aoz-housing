@@ -56,7 +56,77 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
       riskScore = Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length)
     }
 
-    // 2. Create the placement
+    // 2. Create pair-wise compatibility assessments with each existing resident
+    if (existingPlacements.length > 0) {
+      const residentProfile = toResidentProfile(resident)
+
+      for (const existingPlacement of existingPlacements) {
+        const otherProfile = toResidentProfile(existingPlacement.resident)
+        const score = calculateCompatibility(residentProfile, otherProfile)
+
+        // Create assessment for new resident -> existing resident
+        await prisma.compatibilityAssessment.upsert({
+          where: {
+            residentId_comparedWithId: {
+              residentId: residentId,
+              comparedWithId: existingPlacement.residentId,
+            },
+          },
+          update: {
+            overallScore: score.overall,
+            lifestyleScore: score.lifestyle,
+            socialScore: score.social,
+            practicalScore: score.practical,
+            riskScore: score.risk,
+            strengths: score.strengths || [],
+            concerns: score.concerns || [],
+          },
+          create: {
+            residentId: residentId,
+            comparedWithId: existingPlacement.residentId,
+            overallScore: score.overall,
+            lifestyleScore: score.lifestyle,
+            socialScore: score.social,
+            practicalScore: score.practical,
+            riskScore: score.risk,
+            strengths: score.strengths || [],
+            concerns: score.concerns || [],
+          },
+        })
+
+        // Create reverse assessment (existing -> new) for matrix symmetry
+        await prisma.compatibilityAssessment.upsert({
+          where: {
+            residentId_comparedWithId: {
+              residentId: existingPlacement.residentId,
+              comparedWithId: residentId,
+            },
+          },
+          update: {
+            overallScore: score.overall,
+            lifestyleScore: score.lifestyle,
+            socialScore: score.social,
+            practicalScore: score.practical,
+            riskScore: score.risk,
+            strengths: score.strengths || [],
+            concerns: score.concerns || [],
+          },
+          create: {
+            residentId: existingPlacement.residentId,
+            comparedWithId: residentId,
+            overallScore: score.overall,
+            lifestyleScore: score.lifestyle,
+            socialScore: score.social,
+            practicalScore: score.practical,
+            riskScore: score.risk,
+            strengths: score.strengths || [],
+            concerns: score.concerns || [],
+          },
+        })
+      }
+    }
+
+    // 3. Create the placement
     const placement = await prisma.placement.create({
       data: {
         residentId,
@@ -73,19 +143,19 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
       },
     })
 
-    // 3. Mark spot as occupied
+    // 4. Mark spot as occupied
     await prisma.placementSpot.update({
       where: { id: spotId },
       data: { status: 'OCCUPIED' },
     })
 
-    // 4. Update resident status
+    // 5. Update resident status
     await prisma.resident.update({
       where: { id: residentId },
       data: { status: 'PLACED' },
     })
 
-    // 5. Check if housing unit is now full
+    // 6. Check if housing unit is now full
     const unit = await prisma.housingUnit.findUnique({
       where: { id: housingUnitId },
       include: {

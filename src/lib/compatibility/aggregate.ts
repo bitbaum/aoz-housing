@@ -15,6 +15,7 @@ import type {
   SmokingStatus,
 } from './types'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
+import { FIT_SCORE_CONFIG } from '@/lib/config/thresholds'
 import {
   SLEEP_SCHEDULE_LABELS,
   SMOKING_STATUS_LABELS,
@@ -305,39 +306,31 @@ export function calculateApartmentFit(
 
 /**
  * Calculate fit score from 0-100 based on conflicts and strengths
+ * Uses FIT_SCORE_CONFIG from thresholds.ts (SSOT)
  */
 function calculateFitScore(
   conflicts: ApartmentConflict[],
   strengths: string[],
   residentCount: number
 ): number {
+  const { penalties, bonuses } = FIT_SCORE_CONFIG
   let score = 100
 
-  // Deduct points for conflicts
+  // Deduct points for conflicts using config values
   conflicts.forEach(conflict => {
-    switch (conflict.severity) {
-      case 'BLOCKING':
-        score -= 40
-        break
-      case 'HIGH':
-        score -= 20
-        break
-      case 'MEDIUM':
-        score -= 10
-        break
-      case 'LOW':
-        score -= 5
-        break
-    }
+    score -= penalties[conflict.severity] ?? 0
   })
 
-  // Add bonus for strengths (capped at +20)
-  const strengthBonus = Math.min(strengths.length * 3, 20)
+  // Add bonus for strengths (capped)
+  const strengthBonus = Math.min(
+    strengths.length * bonuses.perStrength,
+    bonuses.maxStrengthBonus
+  )
   score += strengthBonus
 
   // Slight bonus for joining a smaller group (easier integration)
-  if (residentCount <= 2) {
-    score += 5
+  if (residentCount <= bonuses.smallGroupThreshold) {
+    score += bonuses.smallGroup
   }
 
   // Clamp to 0-100

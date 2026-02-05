@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { getScoreLevel, type ScoreLevel } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
@@ -228,14 +229,18 @@ function RoommateCard({
   )
 }
 
+// Config for compatibility indicator styling (uses thresholds from SSOT)
+const COMPATIBILITY_INDICATOR_CONFIG: Record<ScoreLevel, { label: string; color: string; textColor: string }> = {
+  excellent: { label: 'Sehr gut', color: 'bg-green-500', textColor: 'text-green-700' },
+  good: { label: 'Gut', color: 'bg-emerald-500', textColor: 'text-emerald-700' },
+  moderate: { label: 'OK', color: 'bg-yellow-500', textColor: 'text-yellow-700' },
+  low: { label: 'Herausfordernd', color: 'bg-orange-500', textColor: 'text-orange-700' },
+  critical: { label: 'Schwierig', color: 'bg-red-500', textColor: 'text-red-700' },
+}
+
 function CompatibilityIndicator({ score }: { score: number }) {
-  const config = score >= 80
-    ? { label: 'Sehr gut', color: 'bg-green-500', textColor: 'text-green-700' }
-    : score >= 60
-    ? { label: 'Gut', color: 'bg-emerald-500', textColor: 'text-emerald-700' }
-    : score >= 40
-    ? { label: 'OK', color: 'bg-yellow-500', textColor: 'text-yellow-700' }
-    : { label: 'Herausfordernd', color: 'bg-orange-500', textColor: 'text-orange-700' }
+  const level = getScoreLevel(score)
+  const config = COMPATIBILITY_INDICATOR_CONFIG[level]
 
   return (
     <div className="text-right">

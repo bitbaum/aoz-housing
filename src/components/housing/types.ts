@@ -8,7 +8,14 @@ export interface HousingResident {
   id: string
   code: string
   ageRange?: string
+  gender?: string
   languages?: string[]
+  socialStyle?: string
+  sleepSchedule?: string
+  smokingStatus?: string
+  noiseTolerance?: number
+  cleanlinessLevel?: number
+  privacyNeed?: number
 }
 
 export interface HousingPlacement {
