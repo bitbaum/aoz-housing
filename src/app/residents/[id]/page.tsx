@@ -366,6 +366,13 @@ export default async function ResidentDetailPage({ params }: Props) {
                     resident.medicalDocType
                   )}
                   unitCompatibility={unitCompatibility}
+                  recentIncidents={resident.incidentsAsSubject.map((i) => ({
+                    id: i.id,
+                    date: i.date,
+                    type: i.type,
+                    description: i.description,
+                  }))}
+                  initialCompatibilityScore={currentPlacement.compatibilityScore}
                 />
               </div>
             ) : (

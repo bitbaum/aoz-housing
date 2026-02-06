@@ -189,21 +189,49 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
 }
 
 export async function endPlacement(formData: FormData): Promise<void> {
-  const { placementId, residentId, endReason, notes } = validateFormData(EndPlacementSchema, formData)
+  const {
+    placementId,
+    residentId,
+    endReason,
+    notes,
+    conflictGap,
+    wasPredictable,
+    relatedIncidentId
+  } = validateFormData(EndPlacementSchema, formData)
 
   const currentPlacement = await prisma.placement.findUnique({
     where: { id: placementId },
     include: { spot: true },
   })
 
+  // Build update data, including conflict fields only when endReason is CONFLICT
+  const updateData: {
+    status: 'ENDED'
+    endDate: Date
+    endReason: typeof endReason
+    placementNotes?: string
+    conflictGap?: string
+    wasPredictable?: boolean
+    relatedIncidentId?: string
+  } = {
+    status: 'ENDED',
+    endDate: new Date(),
+    endReason,
+    placementNotes: notes || undefined,
+  }
+
+  // Only save conflict analysis fields when ending due to CONFLICT
+  if (endReason === 'CONFLICT') {
+    if (conflictGap) updateData.conflictGap = conflictGap
+    if (wasPredictable !== null && wasPredictable !== undefined) {
+      updateData.wasPredictable = wasPredictable
+    }
+    if (relatedIncidentId) updateData.relatedIncidentId = relatedIncidentId
+  }
+
   await prisma.placement.update({
     where: { id: placementId },
-    data: {
-      status: 'ENDED',
-      endDate: new Date(),
-      endReason,
-      placementNotes: notes || undefined,
-    },
+    data: updateData,
   })
 
   // Free up the old spot if there was one

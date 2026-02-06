@@ -7,7 +7,7 @@ import {
   SPOT_TYPE_LABELS,
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
-import { END_REASON_LABELS, END_REASON_DESCRIPTIONS } from '@/lib/constants'
+import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS } from '@/lib/constants'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
 
 interface Spot {
@@ -24,6 +24,13 @@ interface Unit {
   spots: Spot[]
 }
 
+interface RecentIncident {
+  id: string
+  date: Date
+  type: string
+  description: string
+}
+
 interface PlacementActionsProps {
   placementId: string
   residentId: string
@@ -33,6 +40,10 @@ interface PlacementActionsProps {
   eligibleSpotTypes: string[]
   /** Full compatibility data per unit (enables algorithm-powered transfer recommendations) */
   unitCompatibility?: Record<string, UnitCompatibilityData>
+  /** Recent incidents for linking to conflict end reason */
+  recentIncidents?: RecentIncident[]
+  /** Initial compatibility score at placement time (for predictability question) */
+  initialCompatibilityScore?: number | null
 }
 
 export function PlacementActions({
@@ -43,10 +54,13 @@ export function PlacementActions({
   availableUnits,
   eligibleSpotTypes,
   unitCompatibility,
+  recentIncidents = [],
+  initialCompatibilityScore,
 }: PlacementActionsProps) {
   const [showTransfer, setShowTransfer] = useState(false)
   const [showEnd, setShowEnd] = useState(false)
   const [selectedUnitId, setSelectedUnitId] = useState<string>('')
+  const [selectedEndReason, setSelectedEndReason] = useState<string>('')
 
   // Get eligible units (different from current, has eligible spots)
   const eligibleUnits = availableUnits.filter((u) => {
@@ -230,6 +244,7 @@ export function PlacementActions({
                     value={key}
                     required
                     className="mt-1"
+                    onChange={() => setSelectedEndReason(key)}
                   />
                   <div>
                     <span className="font-medium text-gray-900">{label}</span>
@@ -241,6 +256,80 @@ export function PlacementActions({
               ))}
             </div>
           </div>
+
+          {/* Conflict Analysis Fields - shown only when CONFLICT is selected */}
+          {selectedEndReason === 'CONFLICT' && (
+            <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-orange-600 text-lg">📊</span>
+                <h5 className="font-medium text-orange-900">Konfliktanalyse</h5>
+              </div>
+              <p className="text-sm text-orange-700 mb-3">
+                Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.
+              </p>
+
+              <div>
+                <label className="label">Hauptursache des Konflikts *</label>
+                <select name="conflictGap" required className="input">
+                  <option value="">Bitte wählen</option>
+                  {Object.entries(COMPATIBILITY_GAP_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="label">War der Konflikt vorhersehbar?</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="wasPredictable"
+                      value="true"
+                      className="accent-orange-600"
+                    />
+                    <span className="text-sm text-gray-700">
+                      Ja
+                      {initialCompatibilityScore !== null && initialCompatibilityScore !== undefined && initialCompatibilityScore < 60 && (
+                        <span className="text-orange-600 ml-1">(Score war {Math.round(initialCompatibilityScore)}%)</span>
+                      )}
+                    </span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="wasPredictable"
+                      value="false"
+                      className="accent-orange-600"
+                    />
+                    <span className="text-sm text-gray-700">Nein</span>
+                  </label>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Hätte der Algorithmus diesen Konflikt vorhersagen können?
+                </p>
+              </div>
+
+              {recentIncidents.length > 0 && (
+                <div>
+                  <label className="label">Verknüpfter Vorfall</label>
+                  <select name="relatedIncidentId" className="input">
+                    <option value="">Keinen Vorfall verknüpfen</option>
+                    {recentIncidents.map((incident) => (
+                      <option key={incident.id} value={incident.id}>
+                        {new Date(incident.date).toLocaleDateString('de-CH')} - {incident.type}: {incident.description.slice(0, 50)}...
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Optional: Vorfall der zu dieser Beendigung geführt hat
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="label">Notizen</label>

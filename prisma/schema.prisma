@@ -322,6 +322,12 @@ model Placement {
   placementNotes      String? // Why this placement was chosen
   outcomeNotes        String? // How it went
 
+  // Conflict analysis (captured when endReason is CONFLICT)
+  conflictGap         String?    // Which compatibility dimension failed (NOISE, CLEANLINESS, etc.)
+  wasPredictable      Boolean?   // Was this predictable from initial compatibility score?
+  relatedIncidentId   String?    // Optional link to related incident
+  relatedIncident     Incident?  @relation("PlacementConflictIncident", fields: [relatedIncidentId], references: [id])
+
   // Relations
   incidents           Incident[]
   checkIns            SatisfactionCheckIn[]
@@ -419,6 +425,9 @@ model Incident {
   followUps         IncidentFollowUp[]
   nextFollowUpDate  DateTime? // Scheduled next follow-up
   followUpPriority  FollowUpPriority? // How urgent is follow-up
+
+  // Reverse relation for placements ended due to this incident
+  conflictPlacements Placement[] @relation("PlacementConflictIncident")
 
   @@index([type, severity])
   @@index([date])

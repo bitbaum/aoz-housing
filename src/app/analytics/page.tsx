@@ -5,6 +5,7 @@ import {
   END_REASON_LABELS,
   SATISFACTION_EMOJIS,
   SUPPORT_LEVEL_LABELS,
+  COMPATIBILITY_GAP_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getDateDaysAgo, formatDate } from '@/lib/utils'
@@ -70,10 +71,15 @@ export default async function AnalyticsPage() {
     }),
   ])
 
-  // Get all ended placements for end reason analysis
+  // Get all ended placements for end reason analysis (including conflict analysis fields)
   const endedPlacements = await prisma.placement.findMany({
     where: { status: { not: 'ACTIVE' } },
-    select: { endReason: true },
+    select: {
+      endReason: true,
+      conflictGap: true,
+      wasPredictable: true,
+      compatibilityScore: true,
+    },
   })
 
   // Calculate metrics
@@ -131,6 +137,24 @@ export default async function AnalyticsPage() {
     }
     return acc
   }, {} as Record<string, number>)
+
+  // Conflict gap analysis (only placements that ended due to CONFLICT with gap data)
+  const conflictPlacements = endedPlacements.filter(
+    (p) => p.endReason === 'CONFLICT' && p.conflictGap
+  )
+  const conflictsByGap = conflictPlacements.reduce((acc, p) => {
+    if (p.conflictGap) {
+      acc[p.conflictGap] = (acc[p.conflictGap] || 0) + 1
+    }
+    return acc
+  }, {} as Record<string, number>)
+
+  // Predictability analysis
+  const predictableConflicts = conflictPlacements.filter((p) => p.wasPredictable === true)
+  const unpredictableConflicts = conflictPlacements.filter((p) => p.wasPredictable === false)
+  const lowScoreConflicts = conflictPlacements.filter(
+    (p) => p.compatibilityScore !== null && p.compatibilityScore < 60
+  )
 
   // Units with most conflicts (30 days)
   const incidentsByUnit = recentIncidents.reduce((acc, i) => {
@@ -349,6 +373,119 @@ export default async function AnalyticsPage() {
           )}
         </div>
       </div>
+
+      {/* Conflict Analysis Section */}
+      {conflictEnds > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          {/* Conflict Gap Breakdown */}
+          <div className="card border-l-4 border-orange-400">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-orange-500 text-xl">📊</span>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Konfliktursachen
+              </h2>
+            </div>
+            {Object.keys(conflictsByGap).length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-gray-500 text-sm">
+                  Noch keine detaillierten Konfliktdaten erfasst.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Bei zukünftigen Konfliktbeendigungen werden Ursachen dokumentiert.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(conflictsByGap)
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([gap, count]) => (
+                    <div key={gap} className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium text-gray-900">
+                            {getLabel(COMPATIBILITY_GAP_LABELS, gap)}
+                          </span>
+                          <span className="text-gray-500">
+                            {count} ({Math.round((count / conflictPlacements.length) * 100)}%)
+                          </span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-orange-500"
+                            style={{
+                              width: `${(count / conflictPlacements.length) * 100}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Predictability Insights */}
+          <div className="card border-l-4 border-blue-400">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-blue-500 text-xl">🔮</span>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Algorithmus-Einsichten
+              </h2>
+            </div>
+            {conflictPlacements.length === 0 ? (
+              <div className="text-center py-6">
+                <p className="text-gray-500 text-sm">
+                  Noch keine Vorhersagbarkeits-Daten erfasst.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-green-50 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-green-600">
+                      {predictableConflicts.length}
+                    </p>
+                    <p className="text-xs text-green-700">Vorhersehbar</p>
+                  </div>
+                  <div className="p-3 bg-red-50 rounded-lg text-center">
+                    <p className="text-2xl font-bold text-red-600">
+                      {unpredictableConflicts.length}
+                    </p>
+                    <p className="text-xs text-red-700">Nicht vorhersehbar</p>
+                  </div>
+                </div>
+
+                {(predictableConflicts.length + unpredictableConflicts.length) > 0 && (
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      <strong>
+                        {Math.round(
+                          (predictableConflicts.length /
+                            (predictableConflicts.length + unpredictableConflicts.length)) *
+                            100
+                        )}%
+                      </strong>{' '}
+                      der Konflikte waren laut Fallarbeitern vorhersehbar.
+                    </p>
+                  </div>
+                )}
+
+                {lowScoreConflicts.length > 0 && (
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <p className="text-sm text-amber-800">
+                      <strong>{lowScoreConflicts.length}</strong> Konflikte hatten einen
+                      Kompatibilitäts-Score unter 60% bei Platzierung.
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      → Erwägen Sie höhere Schwellenwerte für Platzierungen
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Recent Placements with Check-in Status */}
       <div className="card mt-6">

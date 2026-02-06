@@ -52,6 +52,7 @@ import {
   MAINTENANCE_PRIORITY_LABELS,
   MAINTENANCE_STATUS_LABELS,
   CHECK_IN_TYPE_LABELS,
+  COMPATIBILITY_GAP_LABELS,
 } from '@/lib/constants/labels'
 import {
   SPOT_TYPE_LABELS,
@@ -124,6 +125,9 @@ export const MaintenanceStatusSchema = enumFromKeys<MaintenanceStatus>(MAINTENAN
 
 // Check-in - derived from labels
 export const CheckInTypeSchema = enumFromKeys<CheckInType>(CHECK_IN_TYPE_LABELS)
+
+// Compatibility gap - for conflict analysis
+export const CompatibilityGapSchema = enumFromKeys<string>(COMPATIBILITY_GAP_LABELS)
 
 // =============================================================================
 // COMMON HELPERS
@@ -256,6 +260,10 @@ export const EndPlacementSchema = z.object({
   residentId: z.string().cuid(),
   endReason: EndReasonSchema,
   notes: z.string().optional().nullable(),
+  // Conflict analysis fields (required when endReason is CONFLICT)
+  conflictGap: CompatibilityGapSchema.optional().nullable(),
+  wasPredictable: z.coerce.boolean().optional().nullable(),
+  relatedIncidentId: z.string().cuid().optional().nullable(),
 })
 
 export const TransferPlacementSchema = z.object({

@@ -246,6 +246,19 @@ export const END_REASON_DESCRIPTIONS: Record<string, string> = {
   OTHER: 'Sonstige Gründe (bitte in Notizen erläutern)',
 }
 
+// Compatibility gaps - for conflict analysis when placements end due to CONFLICT
+export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {
+  NOISE: 'Lärm / Geräusche',
+  CLEANLINESS: 'Sauberkeit / Ordnung',
+  SLEEP_SCHEDULE: 'Schlafrhythmus',
+  SOCIAL_STYLE: 'Soziale Unterschiede',
+  LANGUAGE: 'Sprachbarriere',
+  SMOKING: 'Rauchen',
+  PRIVACY: 'Privatsphäre',
+  CHORES: 'Haushaltsaufgaben',
+  OTHER: 'Sonstiges',
+}
+
 // =============================================================================
 // MAINTENANCE REQUEST LABELS
 // =============================================================================
