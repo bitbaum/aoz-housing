@@ -15,6 +15,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showConcernsField, setShowConcernsField] = useState(false)
+  const [forceShowForm, setForceShowForm] = useState(false)
 
   // Determine if we should prompt (no check-in in the last 7 days)
   const daysSinceLastCheckIn = lastCheckInDate
@@ -93,7 +94,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   }
 
   // Show subtle indicator if recently checked in
-  if (!shouldPrompt && !rating) {
+  if (!shouldPrompt && !rating && !forceShowForm) {
     return (
       <div className="card bg-gray-50">
         <div className="flex items-center justify-between">
@@ -109,7 +110,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             </div>
           </div>
           <button
-            onClick={() => setRating(0)} // Trigger showing the form
+            onClick={() => setForceShowForm(true)}
             className="text-sm text-aoz-primary hover:underline"
           >
             Neues Feedback
