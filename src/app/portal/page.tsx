@@ -43,6 +43,10 @@ export default async function ResidentPortal() {
               },
             },
           },
+          checkIns: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
         },
       },
       incidentsReported: {
@@ -65,6 +69,7 @@ export default async function ResidentPortal() {
   const roommates = housingUnit?.placements
     .filter(p => p.residentId !== resident.id)
     .map(p => p.resident) || []
+  const lastCheckIn = currentPlacement?.checkIns?.[0]
 
   // Get compatibility scores with roommates
   const compatibilityScores = roommates.length > 0
@@ -81,7 +86,7 @@ export default async function ResidentPortal() {
   return (
     <div>
       {/* Welcome */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">
           Willkommen, {resident.code}
         </h1>
@@ -89,6 +94,16 @@ export default async function ResidentPortal() {
           Hier findest du alles zu deiner Unterkunft
         </p>
       </div>
+
+      {/* Satisfaction Check-In - Prominent Position */}
+      {currentPlacement && (
+        <div className="mb-8">
+          <SatisfactionRating
+            currentRating={currentPlacement.satisfactionRating}
+            lastCheckInDate={lastCheckIn?.createdAt}
+          />
+        </div>
+      )}
 
       {/* Current Housing */}
       {currentPlacement ? (
@@ -288,9 +303,6 @@ export default async function ResidentPortal() {
             </div>
           </div>
         )}
-
-        {/* Satisfaction */}
-        <SatisfactionRating currentRating={currentPlacement?.satisfactionRating} />
       </div>
     </div>
   )
