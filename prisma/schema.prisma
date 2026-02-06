@@ -504,6 +504,9 @@ enum IncidentType {
   SECURITY_SYSTEM
   GENERAL_MAINTENANCE
 
+  // Wellbeing/Satisfaction
+  LOW_SATISFACTION  // Auto-generated from portal check-in
+
   OTHER
 }
 
@@ -511,6 +514,7 @@ enum IncidentCategory {
   INTERPERSONAL  // Conflicts between residents
   MAINTENANCE    // Facility/equipment issues
   SAFETY         // Safety-related (could be either)
+  WELLBEING      // Satisfaction/wellbeing concerns
 }
 
 enum IncidentSeverity {

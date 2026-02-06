@@ -69,6 +69,23 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Create alert for staff if low rating (≤2)
+    if (rating <= 2) {
+      await prisma.incident.create({
+        data: {
+          housingUnitId: placement.housingUnitId,
+          reportedById: resident.id,
+          date: new Date(),
+          category: 'WELLBEING',
+          type: 'LOW_SATISFACTION',
+          severity: rating === 1 ? 'HIGH' : 'MEDIUM',
+          description: concerns
+            ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
+            : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
+        },
+      })
+    }
+
     return NextResponse.json({ success: true, rating })
   } catch (error) {
     console.error('Failed to save satisfaction rating:', error)

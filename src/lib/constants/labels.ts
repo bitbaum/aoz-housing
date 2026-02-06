@@ -60,6 +60,8 @@ export const INCIDENT_TYPE_LABELS: Record<string, string> = {
   PEST_CONTROL: 'Schädlinge',
   SECURITY_SYSTEM: 'Sicherheitssystem',
   GENERAL_MAINTENANCE: 'Allgemeine Wartung',
+  // Wellbeing
+  LOW_SATISFACTION: 'Unzufriedenheit gemeldet',
   OTHER: 'Sonstiges',
 }
 
@@ -67,12 +69,14 @@ export const INCIDENT_CATEGORY_LABELS: Record<string, string> = {
   INTERPERSONAL: 'Zwischenmenschlich',
   MAINTENANCE: 'Wartung',
   SAFETY: 'Sicherheit',
+  WELLBEING: 'Wohlbefinden',
 }
 
 export const INCIDENT_CATEGORY_ICONS: Record<string, string> = {
   INTERPERSONAL: '💬',
   MAINTENANCE: '🔧',
   SAFETY: '⚠️',
+  WELLBEING: '😟',
 }
 
 // Incident types by category (for form grouping)
@@ -95,6 +99,9 @@ export const INCIDENT_TYPES_BY_CATEGORY: Record<string, string[]> = {
     'PEST_CONTROL',
     'SECURITY_SYSTEM',
     'GENERAL_MAINTENANCE',
+  ],
+  WELLBEING: [
+    'LOW_SATISFACTION',
   ],
 }
 
