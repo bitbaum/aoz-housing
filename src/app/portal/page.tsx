@@ -5,10 +5,9 @@ import { redirect } from 'next/navigation'
 import {
   SOCIAL_STYLE_LABELS,
   INCIDENT_TYPE_LABELS,
-  SATISFACTION_EMOJIS,
-  SATISFACTION_LABELS,
   getLabel,
 } from '@/lib/constants'
+import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
 import { getScoreBgClass, getScoreLabel, formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -291,28 +290,7 @@ export default async function ResidentPortal() {
         )}
 
         {/* Satisfaction */}
-        <div className="card md:col-span-2">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Wie gefällt es dir?
-          </h2>
-          <p className="text-gray-500 mb-4">
-            Dein Feedback hilft uns, die Unterkunft zu verbessern
-          </p>
-          <div className="flex gap-4">
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <button
-                key={rating}
-                className="flex-1 py-4 rounded-lg bg-gray-50 hover:bg-aoz-primary hover:text-white transition-colors text-2xl"
-                title={SATISFACTION_LABELS[rating - 1]}
-              >
-                {SATISFACTION_EMOJIS[rating - 1]}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs text-gray-400 mt-2 text-center">
-            Anonym gespeichert
-          </p>
-        </div>
+        <SatisfactionRating currentRating={currentPlacement?.satisfactionRating} />
       </div>
     </div>
   )

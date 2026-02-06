@@ -570,7 +570,7 @@ export default async function MatchingPage({ searchParams }: Props) {
                   </Link>
                   <Link
                     href={`/matching?resident=${resident.id}`}
-                    className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 min-h-[44px] flex items-center justify-center rounded text-sm font-medium transition-colors ${
                       params.resident === resident.id
                         ? 'bg-aoz-primary text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-aoz-primary hover:text-white'
@@ -721,7 +721,7 @@ export default async function MatchingPage({ searchParams }: Props) {
                           </span>
                           <Link
                             href={`/matching?resident=${match.resident.id}`}
-                            className="btn-primary text-sm px-3 py-1"
+                            className="btn-primary text-sm px-4 py-2 min-h-[44px]"
                           >
                             Platzieren
                           </Link>
@@ -838,8 +838,8 @@ function HeadToHeadComparison({
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs border-collapse">
+    <div className="overflow-x-auto -mx-2 px-2">
+      <table className="w-full text-xs border-collapse min-w-[400px]">
         <thead>
           <tr className="bg-gray-100">
             <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>

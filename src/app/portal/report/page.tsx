@@ -121,14 +121,14 @@ export default async function ReportPage() {
 
           <div>
             <label className="label">Dringlichkeit</label>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
               {[
                 { value: 'LOW', label: 'Kann warten', icon: '🟢' },
                 { value: 'MEDIUM', label: 'Bald beheben', icon: '🟡' },
                 { value: 'HIGH', label: 'Dringend', icon: '🟠' },
                 { value: 'CRITICAL', label: 'Notfall', icon: '🔴' },
               ].map((sev) => (
-                <label key={sev.value} className="flex-1 cursor-pointer">
+                <label key={sev.value} className="cursor-pointer">
                   <input
                     type="radio"
                     name="severity"
@@ -136,7 +136,7 @@ export default async function ReportPage() {
                     defaultChecked={sev.value === 'MEDIUM'}
                     className="sr-only peer"
                   />
-                  <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-blue-50 transition-colors">
+                  <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-blue-50 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                     <span className="text-xl block mb-1">{sev.icon}</span>
                     <span className="text-xs">{sev.label}</span>
                   </div>
@@ -221,14 +221,14 @@ export default async function ReportPage() {
 
           <div>
             <label className="label">Wie schwer wiegt es für dich?</label>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               {[
                 { value: 'LOW', label: 'Störend', desc: 'Aber ich komme zurecht' },
                 { value: 'MEDIUM', label: 'Belastend', desc: 'Beeinträchtigt meinen Alltag' },
                 { value: 'HIGH', label: 'Sehr belastend', desc: 'Brauche Unterstützung' },
                 { value: 'CRITICAL', label: 'Unerträglich', desc: 'Dringende Hilfe nötig' },
               ].map((sev) => (
-                <label key={sev.value} className="flex-1 cursor-pointer">
+                <label key={sev.value} className="cursor-pointer">
                   <input
                     type="radio"
                     name="severity"
@@ -236,7 +236,7 @@ export default async function ReportPage() {
                     defaultChecked={sev.value === 'MEDIUM'}
                     className="sr-only peer"
                   />
-                  <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-blue-50 transition-colors">
+                  <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-blue-50 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                     <span className="text-sm font-medium block">{sev.label}</span>
                     <span className="text-xs text-gray-500">{sev.desc}</span>
                   </div>
