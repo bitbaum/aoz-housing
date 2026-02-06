@@ -1,0 +1,22 @@
+import type { Metadata } from 'next'
+import { APP_LABELS, LOGIN_LABELS } from '@/lib/constants/labels'
+import '../globals.css'
+
+export const metadata: Metadata = {
+  title: `${LOGIN_LABELS.title} | ${APP_LABELS.name}`,
+  description: APP_LABELS.metaDescription,
+}
+
+export default function LoginLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="de">
+      <body className="min-h-screen bg-aoz-background flex items-center justify-center p-4">
+        {children}
+      </body>
+    </html>
+  )
+}

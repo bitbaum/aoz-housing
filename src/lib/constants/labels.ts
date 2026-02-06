@@ -522,3 +522,25 @@ export function getLabel(
 ): string {
   return labels[key] || fallback || key
 }
+
+// =============================================================================
+// LOGIN LABELS
+// =============================================================================
+
+export const LOGIN_LABELS = {
+  title: 'Anmelden',
+  subtitle: 'AOZ Wohnen - Platzierungssystem',
+  email: 'E-Mail',
+  emailPlaceholder: 'ihre.email@aoz.ch',
+  password: 'Passwort',
+  passwordPlaceholder: 'Passwort eingeben',
+  submit: 'Anmelden',
+  submitting: 'Anmelden...',
+  error: {
+    required: 'E-Mail und Passwort erforderlich',
+    invalid: 'Ungültige E-Mail oder Passwort',
+    rateLimit: 'Zu viele Anmeldeversuche',
+    generic: 'Ein Fehler ist aufgetreten',
+  },
+  help: 'Bei Problemen wenden Sie sich an die IT-Abteilung.',
+} as const

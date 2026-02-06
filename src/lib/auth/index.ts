@@ -1,23 +1,21 @@
 /**
- * Authentication helpers (prepared for future implementation)
+ * Authentication Module
  *
- * CURRENT STATE: Returns null/undefined (no auth during pilot)
- *
- * USAGE IN SERVER ACTIONS:
- * ```typescript
- * import { getCurrentUser } from '@/lib/auth'
- *
- * export async function createPlacement(...) {
- *   const user = await getCurrentUser() // null during pilot
- *   // ... do work ...
- *   await logAudit({ userId: user?.id, ... })
- * }
- * ```
+ * Provides session management for staff and residents.
+ * Uses stateless JWT tokens stored in httpOnly cookies.
  */
 
 import { cookies } from 'next/headers'
+import { prisma } from '@/lib/db'
+import { AUTH_CONFIG } from './config'
+import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
+import { verifyPassword } from './password'
+import { checkRateLimit, recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 
-// Types for future auth
+// Re-export types
+export type { TokenPayload }
+
+// Types for auth
 export interface AuthUser {
   id: string
   email: string
@@ -30,25 +28,50 @@ export interface AuthResident {
   code: string
 }
 
+export type LoginResult =
+  | { success: true; user: AuthUser }
+  | { success: false; error: string; retryAfter?: number }
+
 /**
- * Get current staff user from session
- * Returns null during pilot (no auth implemented)
+ * Get current staff user from session cookie
+ * Returns null if not logged in or session invalid
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  // PILOT MODE: No auth
-  // TODO: Implement session validation
-  return null
-
-  /*
-  // FUTURE IMPLEMENTATION:
   const cookieStore = await cookies()
-  const sessionToken = cookieStore.get('staff_session')?.value
+  const token = cookieStore.get(AUTH_CONFIG.cookie.name)?.value
 
-  if (!sessionToken) return null
+  if (!token) return null
 
-  // Validate and decode session token
-  // Return user from database
-  */
+  const payload = await verifyToken(token)
+  if (!payload) return null
+
+  return {
+    id: payload.sub,
+    email: payload.email,
+    name: payload.name,
+    role: payload.role,
+  }
+}
+
+/**
+ * Get token payload for middleware use (no cookie access needed)
+ */
+export async function getTokenPayload(token: string): Promise<TokenPayload | null> {
+  return verifyToken(token)
+}
+
+/**
+ * Check if token should be refreshed and return new token if so
+ */
+export async function maybeRefreshToken(token: string): Promise<string | null> {
+  const payload = await verifyToken(token)
+  if (!payload) return null
+
+  if (shouldRefreshToken(payload)) {
+    return refreshToken(payload)
+  }
+
+  return null
 }
 
 /**
@@ -61,57 +84,142 @@ export async function getCurrentResident(): Promise<AuthResident | null> {
 
   if (!residentCode) return null
 
-  // During pilot, just return the code
-  // TODO: Validate code exists in database
+  // Validate code exists in database
+  const resident = await prisma.resident.findUnique({
+    where: { code: residentCode },
+    select: { id: true, code: true },
+  })
+
+  if (!resident) return null
+
   return {
-    id: '', // Would be fetched from DB
-    code: residentCode,
+    id: resident.id,
+    code: resident.code,
   }
 }
 
 /**
  * Check if current user has required role
- * During pilot: Always returns true (no restrictions)
+ * Throws error if not authenticated or insufficient permissions
  */
-export async function requireRole(
-  allowedRoles: AuthUser['role'][]
-): Promise<AuthUser> {
+export async function requireRole(allowedRoles: AuthUser['role'][]): Promise<AuthUser> {
   const user = await getCurrentUser()
 
-  // PILOT MODE: Return mock user
-  // TODO: Throw error if no user or wrong role
-  return user || {
-    id: 'pilot-user',
-    email: 'pilot@aoz.ch',
-    name: 'Pilot User',
-    role: 'ADMIN',
-  }
-
-  /*
-  // FUTURE IMPLEMENTATION:
   if (!user) {
-    throw new Error('Authentication required')
+    throw new Error('Authentifizierung erforderlich')
   }
 
   if (!allowedRoles.includes(user.role)) {
-    throw new Error('Insufficient permissions')
+    throw new Error('Unzureichende Berechtigungen')
   }
 
   return user
-  */
 }
 
 /**
  * Check if current request is from authenticated staff
- * During pilot: Always returns true
  */
 export async function isAuthenticated(): Promise<boolean> {
-  // PILOT MODE: Everyone is authenticated
-  return true
-
-  /*
-  // FUTURE IMPLEMENTATION:
   const user = await getCurrentUser()
   return user !== null
-  */
+}
+
+/**
+ * Authenticate user with email and password
+ * Returns user data on success, error on failure
+ */
+export async function login(email: string, password: string, clientIp: string): Promise<LoginResult> {
+  // Check rate limit
+  const rateCheck = checkRateLimit(clientIp)
+  if (!rateCheck.allowed) {
+    return {
+      success: false,
+      error: `Zu viele Anmeldeversuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.`,
+      retryAfter: rateCheck.retryAfter,
+    }
+  }
+
+  // Find user by email
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      passwordHash: true,
+      active: true,
+    },
+  })
+
+  // User not found or inactive
+  if (!user || !user.active) {
+    recordLoginAttempt(clientIp)
+    return {
+      success: false,
+      error: 'Ungültige E-Mail oder Passwort',
+    }
+  }
+
+  // No password set (shouldn't happen but handle gracefully)
+  if (!user.passwordHash) {
+    recordLoginAttempt(clientIp)
+    return {
+      success: false,
+      error: 'Konto nicht vollständig eingerichtet',
+    }
+  }
+
+  // Verify password
+  const passwordValid = await verifyPassword(password, user.passwordHash)
+  if (!passwordValid) {
+    recordLoginAttempt(clientIp)
+    return {
+      success: false,
+      error: 'Ungültige E-Mail oder Passwort',
+    }
+  }
+
+  // Success - clear rate limit and update last login
+  clearLoginAttempts(clientIp)
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: new Date() },
+  })
+
+  return {
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+  }
+}
+
+/**
+ * Create session cookie with JWT token
+ */
+export async function setSessionCookie(user: AuthUser): Promise<void> {
+  const token = await createToken({
+    sub: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  })
+
+  const cookieStore = await cookies()
+  cookieStore.set(AUTH_CONFIG.cookie.name, token, {
+    ...AUTH_CONFIG.cookie.options,
+    maxAge: AUTH_CONFIG.jwt.expiresIn,
+  })
+}
+
+/**
+ * Clear session cookie (logout)
+ */
+export async function clearSessionCookie(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete(AUTH_CONFIG.cookie.name)
 }

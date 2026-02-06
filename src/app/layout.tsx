@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { UserMenu } from '@/components/layout/UserMenu'
 import { NAV_ITEMS, NAV_ICONS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
+import { getCurrentUser } from '@/lib/auth'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -10,11 +12,13 @@ export const metadata: Metadata = {
   description: APP_LABELS.metaDescription,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getCurrentUser()
+
   return (
     <html lang="de">
       <body className="min-h-screen bg-aoz-background">
@@ -33,11 +37,22 @@ export default function RootLayout({
                   </div>
                 </Link>
               </div>
-              <nav className="flex items-center gap-1">
-                <HeaderLink href="/algorithm">Algorithmus</HeaderLink>
-                <HeaderLink href="/analytics">Statistiken</HeaderLink>
-                <HeaderLink href="/portal/help">Hilfe</HeaderLink>
-              </nav>
+              <div className="flex items-center gap-4">
+                <nav className="flex items-center gap-1">
+                  <HeaderLink href="/algorithm">Algorithmus</HeaderLink>
+                  <HeaderLink href="/analytics">Statistiken</HeaderLink>
+                  <HeaderLink href="/portal/help">Hilfe</HeaderLink>
+                </nav>
+                {user && (
+                  <UserMenu
+                    user={{
+                      name: user.name,
+                      email: user.email,
+                      role: user.role,
+                    }}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </header>
