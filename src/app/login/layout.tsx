@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { APP_LABELS, LOGIN_LABELS } from '@/lib/constants/labels'
-import '../globals.css'
 
 export const metadata: Metadata = {
   title: `${LOGIN_LABELS.title} | ${APP_LABELS.name}`,
@@ -12,11 +11,10 @@ export default function LoginLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Full-screen overlay to hide the main app navigation
   return (
-    <html lang="de">
-      <body className="min-h-screen bg-aoz-background flex items-center justify-center p-4">
-        {children}
-      </body>
-    </html>
+    <div className="fixed inset-0 z-[100] min-h-screen bg-aoz-background flex items-center justify-center p-4">
+      {children}
+    </div>
   )
 }
