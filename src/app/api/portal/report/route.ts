@@ -77,10 +77,11 @@ export async function POST(request: NextRequest) {
         requestedMediation: requestMediation,
       },
     })
-
-    redirect('/portal?success=report_submitted')
   } catch (error) {
     console.error('Failed to create incident:', error)
     redirect('/portal/report?error=submission_failed')
   }
+
+  // Redirect outside try/catch to avoid catching NEXT_REDIRECT error
+  redirect('/portal?success=report_submitted')
 }
