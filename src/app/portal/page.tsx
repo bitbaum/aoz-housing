@@ -86,13 +86,23 @@ export default async function ResidentPortal() {
   return (
     <div>
       {/* Welcome */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Willkommen, {resident.code}
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Hier findest du alles zu deiner Unterkunft
-        </p>
+      <div className="flex items-start justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Willkommen, {resident.code}
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Hier findest du alles zu deiner Unterkunft
+          </p>
+        </div>
+        <form action="/api/portal/logout" method="POST">
+          <button
+            type="submit"
+            className="min-h-[44px] px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            Abmelden
+          </button>
+        </form>
       </div>
 
       {/* Satisfaction Check-In - Prominent Position */}

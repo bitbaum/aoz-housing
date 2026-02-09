@@ -9,11 +9,18 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getDateDaysAgo, formatDate } from '@/lib/utils'
+import { PeriodSelector } from '@/components/ui/PeriodSelector'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AnalyticsPage() {
-  const thirtyDaysAgo = getDateDaysAgo(30)
+interface Props {
+  searchParams: Promise<{ days?: string }>
+}
+
+export default async function AnalyticsPage({ searchParams }: Props) {
+  const params = await searchParams
+  const days = Math.min(Math.max(Number(params.days) || 30, 7), 365)
+  const periodStart = getDateDaysAgo(days)
   const ninetyDaysAgo = getDateDaysAgo(90)
 
   const [
@@ -55,13 +62,13 @@ export default async function AnalyticsPage() {
     }),
     prisma.incident.findMany({
       where: {
-        date: { gte: thirtyDaysAgo },
+        date: { gte: periodStart },
         category: 'INTERPERSONAL', // Only conflicts, not maintenance
       },
       include: { housingUnit: true },
     }),
     prisma.satisfactionCheckIn.findMany({
-      where: { createdAt: { gte: thirtyDaysAgo } },
+      where: { createdAt: { gte: periodStart } },
       include: {
         placement: {
           include: { resident: true, housingUnit: true },
@@ -169,11 +176,14 @@ export default async function AnalyticsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Auswertung</h1>
-        <p className="text-gray-500">
-          Übersicht über Belegung, Check-ins und Konflikte
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Auswertung</h1>
+          <p className="text-gray-500">
+            Übersicht über Belegung, Check-ins und Konflikte
+          </p>
+        </div>
+        <PeriodSelector currentDays={days} />
       </div>
 
       {/* Key Metrics - All based on REAL DATA */}
@@ -191,7 +201,7 @@ export default async function AnalyticsPage() {
           highlight={overdueCheckIns.length > 0}
         />
         <MetricCard
-          label="Konflikte (30 Tage)"
+          label="Konflikte ({days} Tage)"
           value={recentIncidents.length}
           subtitle={`${unresolvedIncidents.length} ungelöst`}
           href="/incidents?category=INTERPERSONAL"
@@ -210,7 +220,7 @@ export default async function AnalyticsPage() {
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">
-              Zufriedenheit (30 Tage)
+              Zufriedenheit ({days} Tage)
             </h2>
             <Link href="/placements" className="text-sm text-aoz-primary hover:underline">
               Alle Check-ins
@@ -264,7 +274,7 @@ export default async function AnalyticsPage() {
         {/* Conflict Hotspots */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Konflikt-Hotspots (30 Tage)
+            Konflikt-Hotspots ({days} Tage)
           </h2>
           {hotspotUnits.length === 0 ? (
             <div className="text-center py-8">
@@ -296,7 +306,7 @@ export default async function AnalyticsPage() {
         {/* Conflict Types */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Konfliktarten (30 Tage)
+            Konfliktarten ({days} Tage)
           </h2>
           {topIncidentTypes.length === 0 ? (
             <p className="text-gray-500 text-center py-8">

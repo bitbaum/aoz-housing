@@ -1,16 +1,9 @@
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import {
-  AGE_RANGE_LABELS,
-  GENDER_LABELS_SHORT,
-  RESIDENT_STATUS_LABELS,
-  LANGUAGE_LABELS,
-  EMPTY_STATE_LABELS,
-  getLabel,
-} from '@/lib/constants'
-import { getStatusBadgeClass, getDateDaysAgo, formatDate } from '@/lib/utils'
+import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { getDateDaysAgo } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
-import { ResidentCardActions } from '@/components/residents/ResidentCardActions'
+import { ResidentsList } from '@/components/residents/ResidentsList'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,82 +82,8 @@ export default async function ResidentsListPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {residents.map((resident) => (
-            <ResidentCard key={resident.id} resident={resident} />
-          ))}
-        </div>
+        <ResidentsList residents={residents} />
       )}
-    </div>
-  )
-}
-
-function ResidentCard({ resident }: { resident: any }) {
-  const currentPlacement = resident.placements[0]
-  const recentIncidents = resident.incidentsAsSubject?.length || 0
-
-  const languages = resident.languages
-    .slice(0, 3)
-    .map((lang: string) => getLabel(LANGUAGE_LABELS, lang, lang))
-    .join(', ')
-
-  return (
-    <div className="card-hover relative">
-      <div className="absolute top-3 right-3 z-10">
-        <ResidentCardActions residentId={resident.id} />
-      </div>
-      <Link href={`/residents/${resident.id}`} className="block">
-        <div className="flex items-start justify-between mb-3 pr-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-              {resident.code.slice(0, 2).toUpperCase()}
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{resident.code}</h3>
-              <p className="text-sm text-gray-500">
-                {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-                {getLabel(GENDER_LABELS_SHORT, resident.gender)}
-              </p>
-            </div>
-          </div>
-          <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
-            {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
-          </span>
-        </div>
-
-        <div className="space-y-2 text-sm">
-          {currentPlacement ? (
-            <div className="flex items-center gap-2 text-gray-600">
-              <span>🏠</span>
-              <span>{currentPlacement.housingUnit.code}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-orange-600">
-              <span>⚠️</span>
-              <span>Nicht platziert</span>
-            </div>
-          )}
-
-          {languages && (
-            <div className="flex items-center gap-2 text-gray-600">
-              <span>🗣️</span>
-              <span>{languages}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">
-            Erfasst:{' '}
-            {formatDate(resident.createdAt)}
-          </span>
-          {recentIncidents > 0 && (
-            <span className="text-xs text-orange-600">
-              {recentIncidents} Vorfälle
-            </span>
-          )}
-        </div>
-      </Link>
     </div>
   )
 }

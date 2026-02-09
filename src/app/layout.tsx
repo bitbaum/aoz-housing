@@ -161,19 +161,13 @@ function HeaderLink({ href, children }: { href: string; children: React.ReactNod
 }
 
 function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label: string }) {
+  const Icon = NAV_ICONS[icon] || NAV_ICONS.home
   return (
     <Link
       href={href}
       className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors"
     >
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d={NAV_ICONS[icon] || NAV_ICONS.home}
-        />
-      </svg>
+      <Icon className="w-4 h-4" />
       {label}
     </Link>
   )
@@ -221,19 +215,13 @@ function SidebarLink({
   icon: string
   children: React.ReactNode
 }) {
+  const Icon = NAV_ICONS[icon] || NAV_ICONS.home
   return (
     <Link
       href={href}
       className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-aoz-primary hover:bg-aoz-accent rounded-md transition-colors"
     >
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d={NAV_ICONS[icon] || NAV_ICONS.home}
-        />
-      </svg>
+      <Icon className="w-4 h-4" />
       <span>{children}</span>
     </Link>
   )

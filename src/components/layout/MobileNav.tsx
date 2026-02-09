@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { NAV_ITEMS, NAV_ICONS } from '@/lib/config/navigation'
+import { NAV_ITEMS, NAV_ICONS, type NavItem } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 
 export function MobileNav() {
@@ -72,26 +72,35 @@ export function MobileNav() {
         </div>
         <nav className="px-4 py-4">
           {NAV_ITEMS.map((item) => (
-            <Link
+            <MobileNavLink
               key={item.href}
-              href={item.href}
+              item={item}
+              active={isActive(item.href)}
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                isActive(item.href)
-                  ? 'text-aoz-secondary bg-aoz-accent font-medium'
-                  : 'text-gray-700 hover:text-aoz-secondary hover:bg-aoz-accent'
-              }`}
-            >
-              <span className="w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center text-aoz-secondary">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={NAV_ICONS[item.icon]} />
-                </svg>
-              </span>
-              <span>{item.label}</span>
-            </Link>
+            />
           ))}
         </nav>
       </div>
     </>
+  )
+}
+
+function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
+  const Icon = NAV_ICONS[item.icon]
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+        active
+          ? 'text-aoz-secondary bg-aoz-accent font-medium'
+          : 'text-gray-700 hover:text-aoz-secondary hover:bg-aoz-accent'
+      }`}
+    >
+      <span className="w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center text-aoz-secondary">
+        <Icon className="w-5 h-5" />
+      </span>
+      <span>{item.label}</span>
+    </Link>
   )
 }

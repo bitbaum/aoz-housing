@@ -42,6 +42,7 @@ import {
 } from '@/lib/utils'
 import { INCIDENT_THRESHOLDS, getIncidentLevel, INCIDENT_BG_COLORS } from '@/lib/config/thresholds'
 import { DetailRow } from '@/components/ui/Card'
+import { CollapsibleSection } from '@/components/ui/CollapsibleSection'
 
 export const dynamic = 'force-dynamic'
 
@@ -702,10 +703,7 @@ export default async function ResidentDetailPage({ params }: Props) {
           </div>
 
           {/* Lifestyle & Daily Habits - Combined */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Lebensstil
-            </h2>
+          <CollapsibleSection title="Lebensstil">
             <dl className="space-y-2 text-sm">
               <DetailRow
                 label="Schlafrhythmus"
@@ -732,13 +730,10 @@ export default async function ResidentDetailPage({ params }: Props) {
                 value={getLabel(SMOKING_STATUS_LABELS, resident.smokingStatus)}
               />
             </dl>
-          </div>
+          </CollapsibleSection>
 
           {/* Languages & Background */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Sprachen & Herkunft
-            </h2>
+          <CollapsibleSection title="Sprachen & Herkunft">
             <dl className="space-y-3 text-sm">
               <div>
                 <dt className="text-gray-500 mb-2">Sprachen</dt>
@@ -757,13 +752,10 @@ export default async function ResidentDetailPage({ params }: Props) {
                 <DetailRow label="Region" value={resident.culturalRegion} />
               )}
             </dl>
-          </div>
+          </CollapsibleSection>
 
           {/* Household & Independence */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Haushalt & Selbständigkeit
-            </h2>
+          <CollapsibleSection title="Haushalt & Selbständigkeit" defaultOpen={false}>
             <dl className="space-y-2 text-sm">
               <DetailRow
                 label="Haushaltsbereitschaft"
@@ -782,13 +774,10 @@ export default async function ResidentDetailPage({ params }: Props) {
                 value={getLabel(SUPPORT_LEVEL_LABELS, resident.supportLevel)}
               />
             </dl>
-          </div>
+          </CollapsibleSection>
 
           {/* Special Needs - Combined */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Besondere Bedürfnisse
-            </h2>
+          <CollapsibleSection title="Besondere Bedürfnisse" defaultOpen={false}>
             <div className="space-y-2 text-sm">
               <PreferenceItem
                 label="Nächtliche Unruhe"
@@ -822,13 +811,10 @@ export default async function ResidentDetailPage({ params }: Props) {
                 </div>
               )}
             </div>
-          </div>
+          </CollapsibleSection>
 
           {/* Sharing Preferences */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Teilen & Präferenzen
-            </h2>
+          <CollapsibleSection title="Teilen & Präferenzen" defaultOpen={false}>
             <div className="space-y-2 text-sm">
               <PreferenceItem
                 label="Geteiltes Bad"
@@ -843,7 +829,7 @@ export default async function ResidentDetailPage({ params }: Props) {
                 value={resident.petTolerance}
               />
             </div>
-          </div>
+          </CollapsibleSection>
 
           {/* Notes */}
           {resident.notes && (
