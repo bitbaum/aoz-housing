@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 export default function PortalHelpPage() {
   const faqs = [
@@ -48,11 +49,11 @@ export default function PortalHelpPage() {
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
-          ← Zurück zur Übersicht
+          {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Hilfe & FAQ</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.help}</h1>
         <p className="text-gray-500">
-          Antworten auf häufig gestellte Fragen und Kontaktinformationen
+          {PORTAL_LABELS.pages.helpSubtitle}
         </p>
       </div>
 

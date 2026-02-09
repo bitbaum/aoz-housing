@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
@@ -10,6 +11,7 @@ export default function PortalLayout({
   children: React.ReactNode
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   return (
     <div className="min-h-screen bg-aoz-background flex flex-col">
@@ -22,11 +24,20 @@ export default function PortalLayout({
             </Link>
 
             {/* Desktop navigation */}
-            <nav className="hidden sm:flex items-center gap-4 md:gap-6">
-              <PortalNavLink href="/portal">{PORTAL_LABELS.nav.overview}</PortalNavLink>
-              <PortalNavLink href="/portal/roommates">{PORTAL_LABELS.nav.roommates}</PortalNavLink>
-              <PortalNavLink href="/portal/report">{PORTAL_LABELS.nav.report}</PortalNavLink>
-              <PortalNavLink href="/portal/preferences">{PORTAL_LABELS.nav.preferences}</PortalNavLink>
+            <nav className="hidden sm:flex items-center gap-1 md:gap-2">
+              <PortalNavLink href="/portal" active={pathname === '/portal'}>{PORTAL_LABELS.nav.overview}</PortalNavLink>
+              <PortalNavLink href="/portal/roommates" active={pathname === '/portal/roommates'}>{PORTAL_LABELS.nav.roommates}</PortalNavLink>
+              <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
+              <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
+              <PortalNavLink href="/portal/help" active={pathname === '/portal/help'}>{PORTAL_LABELS.nav.help}</PortalNavLink>
+              <form action="/api/portal/logout" method="POST" className="ml-2">
+                <button
+                  type="submit"
+                  className="min-h-[44px] px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  {PORTAL_LABELS.nav.logout}
+                </button>
+              </form>
             </nav>
 
             {/* Mobile menu button */}
@@ -50,21 +61,29 @@ export default function PortalLayout({
           {/* Mobile navigation dropdown */}
           {menuOpen && (
             <nav className="sm:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
-              <PortalNavLinkMobile href="/portal" onClick={() => setMenuOpen(false)}>
+              <PortalNavLinkMobile href="/portal" active={pathname === '/portal'} onClick={() => setMenuOpen(false)}>
                 {PORTAL_LABELS.nav.overview}
               </PortalNavLinkMobile>
-              <PortalNavLinkMobile href="/portal/roommates" onClick={() => setMenuOpen(false)}>
+              <PortalNavLinkMobile href="/portal/roommates" active={pathname === '/portal/roommates'} onClick={() => setMenuOpen(false)}>
                 {PORTAL_LABELS.nav.roommates}
               </PortalNavLinkMobile>
-              <PortalNavLinkMobile href="/portal/report" onClick={() => setMenuOpen(false)}>
+              <PortalNavLinkMobile href="/portal/report" active={pathname === '/portal/report'} onClick={() => setMenuOpen(false)}>
                 {PORTAL_LABELS.nav.report}
               </PortalNavLinkMobile>
-              <PortalNavLinkMobile href="/portal/preferences" onClick={() => setMenuOpen(false)}>
+              <PortalNavLinkMobile href="/portal/preferences" active={pathname === '/portal/preferences'} onClick={() => setMenuOpen(false)}>
                 {PORTAL_LABELS.nav.preferences}
               </PortalNavLinkMobile>
-              <PortalNavLinkMobile href="/portal/help" onClick={() => setMenuOpen(false)}>
+              <PortalNavLinkMobile href="/portal/help" active={pathname === '/portal/help'} onClick={() => setMenuOpen(false)}>
                 {PORTAL_LABELS.nav.help}
               </PortalNavLinkMobile>
+              <form action="/api/portal/logout" method="POST" className="mt-1">
+                <button
+                  type="submit"
+                  className="w-full text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center"
+                >
+                  {PORTAL_LABELS.nav.logout}
+                </button>
+              </form>
             </nav>
           )}
         </div>
@@ -93,14 +112,20 @@ export default function PortalLayout({
 function PortalNavLink({
   href,
   children,
+  active,
 }: {
   href: string
   children: React.ReactNode
+  active: boolean
 }) {
   return (
     <Link
       href={href}
-      className="text-gray-600 hover:text-aoz-primary transition-colors text-sm md:text-base"
+      className={`min-h-[44px] px-3 py-2 rounded-lg transition-colors text-sm md:text-base flex items-center ${
+        active
+          ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
+          : 'text-gray-600 hover:text-aoz-primary hover:bg-gray-50'
+      }`}
     >
       {children}
     </Link>
@@ -110,17 +135,23 @@ function PortalNavLink({
 function PortalNavLinkMobile({
   href,
   children,
+  active,
   onClick,
 }: {
   href: string
   children: React.ReactNode
+  active: boolean
   onClick: () => void
 }) {
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="text-gray-600 hover:text-aoz-primary hover:bg-gray-50 transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center"
+      className={`transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center ${
+        active
+          ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
+          : 'text-gray-600 hover:text-aoz-primary hover:bg-gray-50'
+      }`}
     >
       {children}
     </Link>

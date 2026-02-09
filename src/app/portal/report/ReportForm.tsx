@@ -1,63 +1,63 @@
 'use client'
 
 import { useState } from 'react'
-
-const MAINTENANCE_TYPES = [
-  { value: 'PLUMBING', label: 'Sanitär (WC, Dusche, Wasserhahn)' },
-  { value: 'ELECTRICAL', label: 'Elektrik (Licht, Steckdosen)' },
-  { value: 'HEATING_COOLING', label: 'Heizung / Klima' },
-  { value: 'APPLIANCE', label: 'Gerät defekt (Kühlschrank, Herd etc.)' },
-  { value: 'STRUCTURAL', label: 'Bauschaden (Fenster, Türen, Boden)' },
-  { value: 'PEST_CONTROL', label: 'Schädlinge' },
-  { value: 'SECURITY_SYSTEM', label: 'Sicherheit (Schloss, Tür)' },
-  { value: 'GENERAL_MAINTENANCE', label: 'Sonstiges' },
-]
-
-const CONFLICT_TYPES = [
-  { value: 'NOISE_COMPLAINT', label: 'Lärm' },
-  { value: 'CLEANLINESS_DISPUTE', label: 'Sauberkeit' },
-  { value: 'SPACE_DISPUTE', label: 'Platz / Nutzung gemeinsamer Räume' },
-  { value: 'SCHEDULE_CONFLICT', label: 'Zeitliche Konflikte (Bad, Küche)' },
-  { value: 'PERSONAL_CONFLICT', label: 'Persönlicher Konflikt' },
-  { value: 'CULTURAL_FRICTION', label: 'Kulturelle Missverständnisse' },
-  { value: 'SAFETY_CONCERN', label: 'Sicherheitsbedenken' },
-  { value: 'OTHER', label: 'Sonstiges' },
-]
-
-const LOCATIONS = [
-  { value: 'room', label: 'Mein Zimmer' },
-  { value: 'bathroom', label: 'Badezimmer' },
-  { value: 'kitchen', label: 'Küche' },
-  { value: 'common', label: 'Gemeinschaftsraum' },
-  { value: 'entrance', label: 'Eingang / Flur' },
-  { value: 'other', label: 'Anderer Ort' },
-]
-
-const SEVERITY_OPTIONS = {
-  MAINTENANCE: [
-    { value: 'LOW', label: 'Kann warten', icon: '🟢' },
-    { value: 'MEDIUM', label: 'Bald beheben', icon: '🟡' },
-    { value: 'HIGH', label: 'Dringend', icon: '🟠' },
-    { value: 'CRITICAL', label: 'Notfall', icon: '🔴' },
-  ],
-  INTERPERSONAL: [
-    { value: 'LOW', label: 'Störend', desc: 'Aber ich komme zurecht' },
-    { value: 'MEDIUM', label: 'Belastend', desc: 'Beeinträchtigt meinen Alltag' },
-    { value: 'HIGH', label: 'Sehr belastend', desc: 'Brauche Unterstützung' },
-    { value: 'CRITICAL', label: 'Unerträglich', desc: 'Dringende Hilfe nötig' },
-  ],
-}
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 interface Props {
-  residentId: string
-  housingUnitId: string
   roommates: { id: string; code: string }[]
 }
 
 type Category = 'MAINTENANCE' | 'INTERPERSONAL'
 
-export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
+export function ReportForm({ roommates }: Props) {
   const [category, setCategory] = useState<Category | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+    setError(null)
+
+    try {
+      const formData = new FormData(e.currentTarget)
+      const response = await fetch('/api/portal/report', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || PORTAL_LABELS.report.errorGeneric)
+      }
+
+      setSubmitted(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : PORTAL_LABELS.report.errorGeneric)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (submitted) {
+    return (
+      <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+        <div className="text-center py-6">
+          <span className="text-5xl mb-4 block">✓</span>
+          <h2 className="text-xl font-semibold text-green-800 mb-2">
+            {PORTAL_LABELS.report.successTitle}
+          </h2>
+          <p className="text-green-700">
+            {PORTAL_LABELS.report.successMessage}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -65,28 +65,28 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <button
           type="button"
-          onClick={() => setCategory('MAINTENANCE')}
+          onClick={() => { setCategory('MAINTENANCE'); setError(null) }}
           className={`card-hover flex items-center gap-4 text-left transition-all ${
             category === 'MAINTENANCE' ? 'ring-2 ring-aoz-primary' : ''
           }`}
         >
           <span className="text-4xl">🔧</span>
           <div>
-            <h3 className="font-semibold text-gray-900">Technisches Problem</h3>
-            <p className="text-sm text-gray-500">Defekte Geräte, Wasserschäden, Heizung etc.</p>
+            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.categoryMaintenance}</h3>
+            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.categoryMaintenanceDesc}</p>
           </div>
         </button>
         <button
           type="button"
-          onClick={() => setCategory('INTERPERSONAL')}
+          onClick={() => { setCategory('INTERPERSONAL'); setError(null) }}
           className={`card-hover flex items-center gap-4 text-left transition-all ${
             category === 'INTERPERSONAL' ? 'ring-2 ring-aoz-primary' : ''
           }`}
         >
           <span className="text-4xl">💬</span>
           <div>
-            <h3 className="font-semibold text-gray-900">Konflikt melden</h3>
-            <p className="text-sm text-gray-500">Probleme mit Mitbewohnern oder Nachbarn</p>
+            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.categoryConflict}</h3>
+            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.categoryConflictDesc}</p>
           </div>
         </button>
       </div>
@@ -95,27 +95,31 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
       {category && (
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            {category === 'MAINTENANCE' ? '🔧 Technisches Problem melden' : '💬 Konflikt melden'}
+            {category === 'MAINTENANCE' ? PORTAL_LABELS.report.titleMaintenance : PORTAL_LABELS.report.titleConflict}
           </h2>
           {category === 'INTERPERSONAL' && (
             <p className="text-sm text-gray-500 mb-4">
-              Bei Problemen mit Mitbewohnern. Deine Meldung wird vertraulich behandelt.
+              {PORTAL_LABELS.report.conflictSubtitle}
             </p>
           )}
 
-          <form action="/api/portal/report" method="POST" className="space-y-4">
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input type="hidden" name="category" value={category} />
-            <input type="hidden" name="housingUnitId" value={housingUnitId} />
-            <input type="hidden" name="residentId" value={residentId} />
 
             {/* Type Selection */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? 'Art des Problems' : 'Art des Konflikts'}
+                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.typeLabel : PORTAL_LABELS.report.conflictTypeLabel}
               </label>
               <select name="type" className="input" required>
-                <option value="">Bitte auswählen...</option>
-                {(category === 'MAINTENANCE' ? MAINTENANCE_TYPES : CONFLICT_TYPES).map((t) => (
+                <option value="">{PORTAL_LABELS.report.selectPlaceholder}</option>
+                {(category === 'MAINTENANCE' ? PORTAL_LABELS.report.maintenanceTypes : PORTAL_LABELS.report.conflictTypes).map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
@@ -124,9 +128,9 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
             {/* Location (maintenance only) */}
             {category === 'MAINTENANCE' && (
               <div>
-                <label className="label">Wo ist das Problem?</label>
+                <label className="label">{PORTAL_LABELS.report.locationLabel}</label>
                 <select name="location" className="input">
-                  {LOCATIONS.map((l) => (
+                  {PORTAL_LABELS.report.locations.map((l) => (
                     <option key={l.value} value={l.value}>{l.label}</option>
                   ))}
                 </select>
@@ -136,16 +140,16 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
             {/* Involved person (conflict only) */}
             {category === 'INTERPERSONAL' && roommates.length > 0 && (
               <div>
-                <label className="label">Betrifft (optional)</label>
+                <label className="label">{PORTAL_LABELS.report.involvedLabel}</label>
                 <select name="involvedResident" className="input">
-                  <option value="">Möchte ich nicht sagen</option>
+                  <option value="">{PORTAL_LABELS.report.involvedPlaceholder}</option>
                   {roommates.map((rm) => (
                     <option key={rm.id} value={rm.id}>{rm.code}</option>
                   ))}
-                  <option value="external">Jemand von ausserhalb</option>
+                  <option value="external">{PORTAL_LABELS.report.involvedExternal}</option>
                 </select>
                 <p className="text-xs text-gray-400 mt-1">
-                  Diese Information bleibt vertraulich
+                  {PORTAL_LABELS.report.confidentialNote}
                 </p>
               </div>
             )}
@@ -153,23 +157,24 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
             {/* Description */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? 'Beschreibung' : 'Was ist passiert?'}
+                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.descriptionLabel : PORTAL_LABELS.report.conflictDescriptionLabel}
               </label>
               <textarea
                 name="description"
                 className="input"
                 rows={4}
                 placeholder={category === 'MAINTENANCE'
-                  ? 'Beschreibe das Problem möglichst genau...'
-                  : 'Beschreibe die Situation...'}
+                  ? PORTAL_LABELS.report.descriptionPlaceholder
+                  : PORTAL_LABELS.report.conflictDescriptionPlaceholder}
                 required
+                maxLength={2000}
               />
             </div>
 
             {/* Incident date (conflict only) */}
             {category === 'INTERPERSONAL' && (
               <div>
-                <label className="label">Wann ist es passiert?</label>
+                <label className="label">{PORTAL_LABELS.report.dateLabel}</label>
                 <input
                   type="date"
                   name="incidentDate"
@@ -182,12 +187,12 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
             {/* Severity */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? 'Dringlichkeit' : 'Wie schwer wiegt es für dich?'}
+                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.severityLabel : PORTAL_LABELS.report.conflictSeverityLabel}
               </label>
               <div className={`grid gap-2 sm:gap-3 ${
                 category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2'
               }`}>
-                {SEVERITY_OPTIONS[category].map((sev) => (
+                {PORTAL_LABELS.report.severityOptions[category].map((sev) => (
                   <label key={sev.value} className="cursor-pointer">
                     <input
                       type="radio"
@@ -220,14 +225,22 @@ export function ReportForm({ residentId, housingUnitId, roommates }: Props) {
                     className="w-5 h-5 mt-0.5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
                   />
                   <span className="text-sm text-gray-700">
-                    Ich wünsche ein Vermittlungsgespräch mit der Hausverwaltung
+                    {PORTAL_LABELS.report.mediationLabel}
                   </span>
                 </label>
               </div>
             )}
 
-            <button type="submit" className="btn-primary w-full">
-              {category === 'MAINTENANCE' ? 'Problem melden' : 'Konflikt melden'}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting
+                ? PORTAL_LABELS.report.submitting
+                : category === 'MAINTENANCE'
+                  ? PORTAL_LABELS.report.submitMaintenance
+                  : PORTAL_LABELS.report.submitConflict}
             </button>
           </form>
         </div>

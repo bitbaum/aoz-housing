@@ -56,6 +56,9 @@ model Resident {
   hasSleepEquipment    Boolean @default(false) // CPAP, etc.
   supportLevel         SupportLevel @default(STANDARD)
 
+  // Roommate preferences (from portal self-service)
+  roommatePreferences String?
+
   // Status
   status            ResidentStatus @default(ACTIVE)
   notes             String? // Caseworker notes

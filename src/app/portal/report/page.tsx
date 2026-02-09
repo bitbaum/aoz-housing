@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ReportForm } from './ReportForm'
 
 export const dynamic = 'force-dynamic'
@@ -34,7 +35,7 @@ export default async function ReportPage() {
   })
 
   if (!resident) {
-    redirect('/portal')
+    redirect('/portal?error=account_not_found')
   }
 
   const currentPlacement = resident.placements[0]
@@ -47,26 +48,28 @@ export default async function ReportPage() {
     <div>
       <div className="mb-6">
         <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
-          ← Zurück zur Übersicht
+          {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Problem melden</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.report}</h1>
         <p className="text-gray-500">
-          Melde technische Probleme oder Konflikte
+          {PORTAL_LABELS.pages.reportSubtitle}
         </p>
       </div>
 
-      <ReportForm
-        residentId={resident.id}
-        housingUnitId={housingUnit?.id || ''}
-        roommates={roommates}
-      />
+      {!currentPlacement ? (
+        <div className="card text-center py-8">
+          <p className="text-gray-500 mb-3">{PORTAL_LABELS.report.noPlacement}</p>
+          <p className="text-sm text-gray-500 font-medium">{PORTAL_LABELS.report.noPlacementContact}</p>
+        </div>
+      ) : (
+        <ReportForm roommates={roommates} />
+      )}
 
       {/* Emergency Notice */}
       <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="font-medium text-red-800 mb-2">Bei Notfällen</h3>
+        <h3 className="font-medium text-red-800 mb-2">{PORTAL_LABELS.report.emergencyTitle}</h3>
         <p className="text-sm text-red-700">
-          Bei akuter Gefahr oder medizinischen Notfällen rufe sofort <strong>112</strong> an.
-          Diese Meldung ist <strong>nicht</strong> für Notfälle gedacht.
+          {PORTAL_LABELS.report.emergencyMessage}
         </p>
       </div>
     </div>

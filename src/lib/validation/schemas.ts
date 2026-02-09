@@ -355,6 +355,47 @@ export const SatisfactionCheckInInputSchema = z.object({
 })
 
 // =============================================================================
+// PORTAL SCHEMAS (Resident self-service)
+// =============================================================================
+
+export const portalLoginSchema = z.object({
+  code: z.string().min(1, 'Code ist erforderlich').max(50),
+})
+
+export const portalReportSchema = z.object({
+  category: IncidentCategorySchema,
+  type: IncidentTypeSchema,
+  severity: IncidentSeveritySchema,
+  description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
+  location: z.string().max(200).optional(),
+  incidentDate: z.string().optional(),
+  involvedResident: z.string().optional(),
+  requestMediation: z.coerce.boolean().default(false),
+})
+
+export const portalPreferencesSchema = z.object({
+  sleepSchedule: SleepScheduleSchema,
+  noiseTolerance: scaleSchema,
+  cleanlinessLevel: scaleSchema,
+  socialStyle: SocialStyleSchema,
+  privacyNeed: scaleSchema,
+  smokingStatus: SmokingStatusSchema,
+  petTolerance: z.coerce.boolean().default(false),
+  sharedBathroom: z.coerce.boolean().default(false),
+  sharedKitchen: z.coerce.boolean().default(false),
+  languages: z.array(z.string()).default([]),
+  dietaryNeeds: z.array(z.string()).default([]),
+  preferredAgeRange: z.string().max(50).optional(),
+  culturalPreference: z.string().max(50).optional(),
+  additionalPreferences: z.string().max(1000).optional(),
+})
+
+export const portalSatisfactionSchema = z.object({
+  rating: z.coerce.number().int().min(1).max(5),
+  concerns: z.string().max(2000).optional(),
+})
+
+// =============================================================================
 // VALIDATION HELPER
 // =============================================================================
 

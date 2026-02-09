@@ -28,6 +28,9 @@ const RESIDENT_ROUTES = [
   '/portal/preferences',
   '/portal/roommates',
   '/portal/report',
+  '/api/portal/report',
+  '/api/portal/preferences',
+  '/api/portal/satisfaction',
 ]
 
 // Routes that remain public

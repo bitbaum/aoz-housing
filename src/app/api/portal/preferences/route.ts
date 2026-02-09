@@ -1,87 +1,75 @@
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
+import { portalPreferencesSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    redirect('/portal')
+    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
   }
 
-  // Find resident
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
   })
 
   if (!resident) {
-    redirect('/portal')
+    return NextResponse.json({ success: false, error: 'Bewohner nicht gefunden' }, { status: 404 })
   }
 
-  const formData = await request.formData()
+  let data: ReturnType<typeof validateFormData<typeof portalPreferencesSchema>>
+  try {
+    const formData = await request.formData()
+    data = validateFormData(portalPreferencesSchema, formData)
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      return NextResponse.json({ success: false, error: err.message }, { status: 400 })
+    }
+    return NextResponse.json({ success: false, error: 'Ungültige Eingabe' }, { status: 400 })
+  }
 
-  // Parse form data
-  const sleepSchedule = formData.get('sleepSchedule')?.toString()
-  const noiseTolerance = parseInt(formData.get('noiseTolerance')?.toString() || '3')
-  const cleanlinessLevel = parseInt(formData.get('cleanlinessLevel')?.toString() || '3')
-  const socialStyle = formData.get('socialStyle')?.toString()
-  const privacyNeed = parseInt(formData.get('privacyNeed')?.toString() || '3')
-  const smokingStatus = formData.get('smokingStatus')?.toString()
-  const petTolerance = formData.get('petTolerance') === 'on'
-  const sharedBathroom = formData.get('sharedBathroom') === 'on'
-  const sharedKitchen = formData.get('sharedKitchen') === 'on'
-
-  // Languages (multiple checkboxes)
-  const languages = formData.getAll('languages').map(l => l.toString())
-
-  // Dietary needs (multiple checkboxes)
-  const dietaryNeeds = formData.getAll('dietaryNeeds').map(d => d.toString())
-
-  // Optional roommate preferences
-  const preferredAgeRange = formData.get('preferredAgeRange')?.toString() || null
-  const culturalPreference = formData.get('culturalPreference')?.toString() || null
-  const additionalPreferences = formData.get('additionalPreferences')?.toString() || null
+  // Build roommate preferences text (stored in dedicated column, NOT notes)
+  const roommatePrefsText = [
+    data.preferredAgeRange ? `Altersgruppe: ${data.preferredAgeRange}` : null,
+    data.culturalPreference ? `Kultur: ${data.culturalPreference}` : null,
+    data.additionalPreferences || null,
+  ].filter(Boolean).join('. ') || null
 
   try {
-    // Update resident
     await prisma.resident.update({
       where: { id: resident.id },
       data: {
-        sleepSchedule: sleepSchedule as any,
-        noiseTolerance,
-        cleanlinessLevel,
-        socialStyle: socialStyle as any,
-        privacyNeed,
-        smokingStatus: smokingStatus as any,
-        petTolerance,
-        sharedBathroom,
-        sharedKitchen,
-        languages,
-        dietaryNeeds,
-        // Store additional preferences in notes for now
-        notes: additionalPreferences
-          ? `Präferenzen: ${preferredAgeRange || 'keine'} Altersgruppe, ${culturalPreference || 'keine'} kulturelle Präferenz. ${additionalPreferences}`
-          : resident.notes,
+        sleepSchedule: data.sleepSchedule,
+        noiseTolerance: data.noiseTolerance,
+        cleanlinessLevel: data.cleanlinessLevel,
+        socialStyle: data.socialStyle,
+        privacyNeed: data.privacyNeed,
+        smokingStatus: data.smokingStatus,
+        petTolerance: data.petTolerance,
+        sharedBathroom: data.sharedBathroom,
+        sharedKitchen: data.sharedKitchen,
+        languages: data.languages,
+        dietaryNeeds: data.dietaryNeeds,
+        roommatePreferences: roommatePrefsText,
       },
     })
 
-    // Audit log
     await logAudit({
       action: 'UPDATE',
       entity: 'RESIDENT',
       entityId: resident.id,
       changes: {
         updatedBy: 'portal',
-        fields: ['sleepSchedule', 'noiseTolerance', 'cleanlinessLevel', 'socialStyle', 'privacyNeed', 'smokingStatus', 'languages', 'dietaryNeeds'],
+        fields: ['sleepSchedule', 'noiseTolerance', 'cleanlinessLevel', 'socialStyle', 'privacyNeed', 'smokingStatus', 'languages', 'dietaryNeeds', 'roommatePreferences'],
       },
     })
 
-    redirect('/portal?success=preferences_saved')
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Failed to update preferences:', error)
-    redirect('/portal/preferences?error=save_failed')
+    return NextResponse.json({ success: false, error: 'Einstellungen konnten nicht gespeichert werden' }, { status: 500 })
   }
 }

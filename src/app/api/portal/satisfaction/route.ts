@@ -1,21 +1,24 @@
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { portalSatisfactionSchema } from '@/lib/validation/schemas'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
   }
 
   const body = await request.json()
-  const { rating, concerns } = body
+  const parsed = portalSatisfactionSchema.safeParse(body)
 
-  if (!rating || rating < 1 || rating > 5) {
-    return NextResponse.json({ error: 'Invalid rating' }, { status: 400 })
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Ungültige Bewertung' }, { status: 400 })
   }
+
+  const { rating, concerns } = parsed.data
 
   // Find resident and their active placement
   const resident = await prisma.resident.findUnique({
@@ -29,67 +32,67 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ error: 'Resident not found' }, { status: 404 })
+    return NextResponse.json({ success: false, error: 'Bewohner nicht gefunden' }, { status: 404 })
   }
 
   const placement = resident.placements[0]
   if (!placement) {
-    return NextResponse.json({ error: 'No active placement' }, { status: 400 })
+    return NextResponse.json({ success: false, error: 'Keine aktive Platzierung' }, { status: 400 })
   }
 
   try {
-    // Calculate week number since placement start
     const weeksSinceStart = Math.floor(
       (Date.now() - new Date(placement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
     )
 
-    // Create a satisfaction check-in record
-    await prisma.satisfactionCheckIn.create({
-      data: {
-        placementId: placement.id,
-        checkInType: 'AD_HOC',
-        weekNumber: weeksSinceStart,
-        overallSatisfaction: rating,
-        roommateRelations: null,
-        facilitySatisfaction: null,
-        safetyFeeling: null,
-        concerns: concerns || null,
-        improvements: null,
-        positives: null,
-        collectedBy: null,
-        isAnonymous: true, // Portal check-ins are anonymous
-      },
-    })
-
-    // Update the placement's satisfaction rating
-    await prisma.placement.update({
-      where: { id: placement.id },
-      data: {
-        satisfactionRating: rating,
-      },
-    })
-
-    // Create alert for staff if low rating (≤2)
-    if (rating <= 2) {
-      await prisma.incident.create({
+    // Wrap all DB writes in a transaction
+    await prisma.$transaction(async (tx) => {
+      await tx.satisfactionCheckIn.create({
         data: {
-          housingUnitId: placement.housingUnitId,
-          reportedById: resident.id,
-          date: new Date(),
-          category: 'WELLBEING',
-          type: 'LOW_SATISFACTION',
-          severity: rating === 1 ? 'HIGH' : 'MEDIUM',
-          description: concerns
-            ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
-            : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
+          placementId: placement.id,
+          checkInType: 'AD_HOC',
+          weekNumber: weeksSinceStart,
+          overallSatisfaction: rating,
+          roommateRelations: null,
+          facilitySatisfaction: null,
+          safetyFeeling: null,
+          concerns: concerns || null,
+          improvements: null,
+          positives: null,
+          collectedBy: null,
+          isAnonymous: true,
         },
       })
-    }
+
+      await tx.placement.update({
+        where: { id: placement.id },
+        data: {
+          satisfactionRating: rating,
+        },
+      })
+
+      // Create alert for staff if low rating
+      if (rating <= 2) {
+        await tx.incident.create({
+          data: {
+            housingUnitId: placement.housingUnitId,
+            reportedById: resident.id,
+            date: new Date(),
+            category: 'WELLBEING',
+            type: 'LOW_SATISFACTION',
+            severity: rating === 1 ? 'HIGH' : 'MEDIUM',
+            description: concerns
+              ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
+              : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
+          },
+        })
+      }
+    })
 
     return NextResponse.json({ success: true, rating })
   } catch (error) {
     console.error('Failed to save satisfaction rating:', error)
-    return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
+    return NextResponse.json({ success: false, error: 'Speichern fehlgeschlagen' }, { status: 500 })
   }
 }
 
@@ -99,7 +102,7 @@ export async function GET() {
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
   }
 
   const resident = await prisma.resident.findUnique({

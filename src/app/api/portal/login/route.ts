@@ -2,12 +2,42 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
+import { portalLoginSchema, validateFormData } from '@/lib/validation/schemas'
+
+// Simple in-memory rate limiting
+const loginAttempts = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT_WINDOW = 60 * 1000 // 1 minute
+const MAX_ATTEMPTS = 5
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now()
+  const record = loginAttempts.get(ip)
+
+  if (!record || now > record.resetAt) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW })
+    return false
+  }
+
+  record.count++
+  return record.count > MAX_ATTEMPTS
+}
 
 export async function POST(request: NextRequest) {
-  const formData = await request.formData()
-  const code = formData.get('code')?.toString().trim().toUpperCase()
+  // Rate limiting by IP
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown'
 
-  if (!code) {
+  if (isRateLimited(ip)) {
+    redirect('/portal?error=rate_limited')
+  }
+
+  let code: string
+  try {
+    const formData = await request.formData()
+    const data = validateFormData(portalLoginSchema, formData)
+    code = data.code.trim().toUpperCase()
+  } catch {
     redirect('/portal?error=code_required')
   }
 

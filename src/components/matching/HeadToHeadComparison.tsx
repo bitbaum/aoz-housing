@@ -72,7 +72,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
         </thead>
         <tbody>
           {COMPARISON_ATTRIBUTES.map((attr) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line
             const profile = apartmentProfile as Record<string, any>
             const avgValue = attr.type === 'numeric'
               ? profile[attr.avgKey as string]
@@ -82,7 +82,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
               <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
                 <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
                 {currentResidents.slice(0, 4).map((r) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  // eslint-disable-next-line
                   const val = (r as Record<string, any>)[attr.key]
                   return (
                     <td key={r.id} className="p-1.5 text-center text-gray-500">
@@ -100,7 +100,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                 </td>
                 <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
                   {(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // eslint-disable-next-line
                     const newVal = (newResident as Record<string, any>)[attr.key]
                     return attr.type === 'numeric' ? (
                       <span className="inline-flex items-center gap-0.5">

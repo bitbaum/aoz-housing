@@ -3,6 +3,15 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getScoreLevel, type ScoreLevel } from '@/lib/config/thresholds'
+import {
+  AGE_RANGE_LABELS,
+  SLEEP_SCHEDULE_LABELS,
+  SOCIAL_STYLE_LABELS,
+  PORTAL_LABELS,
+  getLabel,
+} from '@/lib/constants/labels'
+import type { Resident } from '@prisma/client'
+import type { CompatibilityAssessment } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,14 +43,34 @@ export default async function RoommatesPage() {
   })
 
   if (!resident) {
-    redirect('/portal')
+    redirect('/portal?error=account_not_found')
   }
 
   const currentPlacement = resident.placements[0]
-  const housingUnit = currentPlacement?.housingUnit
-  const roommates = housingUnit?.placements
+
+  // Handle unplaced residents gracefully
+  if (!currentPlacement) {
+    return (
+      <div>
+        <div className="mb-6">
+          <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
+            {PORTAL_LABELS.form.back}
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
+        </div>
+        <div className="card text-center py-12">
+          <span className="text-5xl mb-4 block">🏠</span>
+          <p className="text-gray-500 mb-3">{PORTAL_LABELS.roommates.noPlacement}</p>
+          <p className="text-sm text-gray-500 font-medium">{PORTAL_LABELS.roommates.noPlacementContact}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const housingUnit = currentPlacement.housingUnit
+  const roommates = housingUnit.placements
     .filter(p => p.residentId !== resident.id)
-    .map(p => p.resident) || []
+    .map(p => p.resident)
 
   // Get compatibility scores with roommates
   const compatibilityScores = roommates.length > 0
@@ -59,12 +88,12 @@ export default async function RoommatesPage() {
     <div>
       <div className="mb-6">
         <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
-          ← Zurück zur Übersicht
+          {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Deine Mitbewohner</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
         <p className="text-gray-500">
           {roommates.length === 0
-            ? 'Du hast derzeit keine Mitbewohner'
+            ? PORTAL_LABELS.roommates.noRoommates
             : `Du wohnst mit ${roommates.length} ${roommates.length === 1 ? 'Person' : 'Personen'} zusammen`
           }
         </p>
@@ -73,7 +102,7 @@ export default async function RoommatesPage() {
       {roommates.length === 0 ? (
         <div className="card text-center py-12">
           <span className="text-5xl mb-4 block">🏠</span>
-          <p className="text-gray-500">Du hast die Unterkunft für dich allein</p>
+          <p className="text-gray-500">{PORTAL_LABELS.roommates.aloneMessage}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -95,48 +124,30 @@ export default async function RoommatesPage() {
       {/* Tips for Living Together */}
       <div className="card mt-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Tipps für das Zusammenleben
+          {PORTAL_LABELS.roommates.tipsTitle}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TipCard
-            icon="🗣️"
-            title="Kommunikation"
-            description="Sprich Probleme frühzeitig an, bevor sie grösser werden"
-          />
-          <TipCard
-            icon="🤝"
-            title="Respekt"
-            description="Respektiere die Privatsphäre und Ruhezeiten deiner Mitbewohner"
-          />
-          <TipCard
-            icon="🧹"
-            title="Sauberkeit"
-            description="Halte gemeinsame Räume sauber und räume nach dir auf"
-          />
-          <TipCard
-            icon="📅"
-            title="Absprachen"
-            description="Trefft klare Vereinbarungen über Küche, Bad und Gemeinschaftsräume"
-          />
+          {PORTAL_LABELS.roommates.tips.map((tip, i) => (
+            <TipCard key={i} icon={tip.icon} title={tip.title} description={tip.desc} />
+          ))}
         </div>
       </div>
 
       {/* Conflict Resolution */}
       <div className="card mt-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Bei Konflikten
+          {PORTAL_LABELS.roommates.conflictTitle}
         </h2>
         <div className="space-y-3 text-sm text-gray-600">
+          {PORTAL_LABELS.roommates.conflictSteps.map((step, i) => (
+            <p key={i}>
+              <strong>{i + 1}. </strong>{step}
+            </p>
+          ))}
           <p>
-            <strong>1. Direktes Gespräch:</strong> Versuche zuerst, das Problem direkt mit deinem Mitbewohner zu besprechen.
-          </p>
-          <p>
-            <strong>2. Vermittlung:</strong> Wenn das nicht klappt, kann die Hausverwaltung vermitteln.
-          </p>
-          <p>
-            <strong>3. Melden:</strong> Bei ernsthaften Problemen kannst du einen{' '}
+            <strong>3. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
             <Link href="/portal/report" className="text-aoz-primary hover:underline">
-              Vorfall melden
+              {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
           </p>
         </div>
@@ -149,8 +160,8 @@ function RoommateCard({
   roommate,
   assessment,
 }: {
-  roommate: any
-  assessment?: any
+  roommate: Resident
+  assessment?: CompatibilityAssessment
 }) {
   return (
     <div className="card">
@@ -163,7 +174,7 @@ function RoommateCard({
             <div>
               <h3 className="font-semibold text-gray-900">{roommate.code}</h3>
               <p className="text-sm text-gray-500">
-                {getAgeRangeLabel(roommate.ageRange)}
+                {getLabel(AGE_RANGE_LABELS, roommate.ageRange)} Jahre
               </p>
             </div>
             {assessment && (
@@ -175,11 +186,11 @@ function RoommateCard({
           <div className="mt-4 flex flex-wrap gap-2">
             <LifestyleTag
               icon="🌙"
-              label={getSleepScheduleLabel(roommate.sleepSchedule)}
+              label={getLabel(SLEEP_SCHEDULE_LABELS, roommate.sleepSchedule)}
             />
             <LifestyleTag
               icon="👤"
-              label={getSocialStyleLabel(roommate.socialStyle)}
+              label={getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle)}
             />
             {roommate.smokingStatus !== 'NON_SMOKER' && (
               <LifestyleTag icon="🚬" label="Raucher" />
@@ -197,7 +208,7 @@ function RoommateCard({
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">Stärken</p>
+                  <p className="text-gray-500">{PORTAL_LABELS.roommates.strengths}</p>
                   {assessment.strengths.length > 0 ? (
                     <ul className="mt-1 space-y-1">
                       {assessment.strengths.slice(0, 2).map((s: string, i: number) => (
@@ -209,7 +220,7 @@ function RoommateCard({
                   )}
                 </div>
                 <div>
-                  <p className="text-gray-500">Achtung</p>
+                  <p className="text-gray-500">{PORTAL_LABELS.roommates.concerns}</p>
                   {assessment.concerns.length > 0 ? (
                     <ul className="mt-1 space-y-1">
                       {assessment.concerns.slice(0, 2).map((c: string, i: number) => (
@@ -229,7 +240,6 @@ function RoommateCard({
   )
 }
 
-// Config for compatibility indicator styling (uses thresholds from SSOT)
 const COMPATIBILITY_INDICATOR_CONFIG: Record<ScoreLevel, { label: string; color: string; textColor: string }> = {
   excellent: { label: 'Sehr gut', color: 'bg-green-500', textColor: 'text-green-700' },
   good: { label: 'Gut', color: 'bg-emerald-500', textColor: 'text-emerald-700' },
@@ -248,7 +258,7 @@ function CompatibilityIndicator({ score }: { score: number }) {
         <div className={`w-3 h-3 rounded-full ${config.color}`} />
         <span className={`font-medium ${config.textColor}`}>{config.label}</span>
       </div>
-      <p className="text-xs text-gray-400 mt-1">{score}% kompatibel</p>
+      <p className="text-xs text-gray-400 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
     </div>
   )
 }
@@ -279,34 +289,4 @@ function TipCard({
       </div>
     </div>
   )
-}
-
-// Labels
-function getAgeRangeLabel(range: string): string {
-  const labels: Record<string, string> = {
-    YOUNG_ADULT: '18-25 Jahre',
-    ADULT: '26-40 Jahre',
-    MIDDLE_AGED: '41-55 Jahre',
-    SENIOR: '56+ Jahre',
-  }
-  return labels[range] || range
-}
-
-function getSleepScheduleLabel(schedule: string): string {
-  const labels: Record<string, string> = {
-    EARLY_BIRD: 'Frühaufsteher',
-    STANDARD: 'Normal',
-    NIGHT_OWL: 'Nachteule',
-    IRREGULAR: 'Unregelmässig',
-  }
-  return labels[schedule] || schedule
-}
-
-function getSocialStyleLabel(style: string): string {
-  const labels: Record<string, string> = {
-    INTROVERTED: 'Ruhig',
-    MODERATE: 'Ausgeglichen',
-    EXTROVERTED: 'Gesellig',
-  }
-  return labels[style] || style
 }
