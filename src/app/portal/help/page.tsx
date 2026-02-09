@@ -77,20 +77,20 @@ export default function PortalHelpPage() {
           <ContactItem
             icon="📞"
             label="Allgemeine Anfragen"
-            value="044 XXX XX XX"
+            value="044 415 66 66"
             sublabel="Mo-Fr 8:00-17:00"
           />
           <ContactItem
             icon="📧"
             label="E-Mail"
-            value="housing@aoz.ch"
+            value="wohnen@aoz.ch"
             sublabel="Antwort innerhalb von 2 Arbeitstagen"
           />
           <ContactItem
             icon="📍"
             label="Adresse"
             value="AOZ Zürich"
-            sublabel="Beispielstrasse 1, 8000 Zürich"
+            sublabel="Zollstrasse 115, 8005 Zürich"
           />
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function PortalHelpPage() {
             <span className="text-2xl">🆘</span>
             <div>
               <p className="font-semibold text-gray-900">AOZ Notfallnummer</p>
-              <p className="text-lg font-bold text-gray-900">044 XXX XX XX</p>
+              <p className="text-lg font-bold text-gray-900">044 415 66 00</p>
               <p className="text-sm text-gray-500">24h erreichbar</p>
             </div>
           </div>

@@ -34,6 +34,42 @@ export async function createResident(formData: FormData): Promise<void> {
   redirect(`/matching?resident=${resident.id}&new=1`)
 }
 
+export async function exitResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const resident = await prisma.resident.findUnique({
+      where: { id: residentId },
+      include: { placements: { where: { status: 'ACTIVE' } } },
+    })
+
+    if (!resident) {
+      return { success: false, error: 'Bewohner nicht gefunden' }
+    }
+
+    if (resident.placements.length > 0) {
+      return { success: false, error: 'Bewohner hat noch aktive Platzierungen. Bitte zuerst beenden.' }
+    }
+
+    await prisma.resident.update({
+      where: { id: residentId },
+      data: { status: 'EXITED' },
+    })
+
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'RESIDENT',
+      entityId: residentId,
+      changes: { status: 'EXITED' },
+    })
+
+    revalidatePath('/residents')
+    revalidatePath(`/residents/${residentId}`)
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to exit resident:', error)
+    return { success: false, error: 'Fehler beim Aktualisieren des Bewohners' }
+  }
+}
+
 export async function updateResident(formData: FormData): Promise<void> {
   const data = validateFormData(ResidentUpdateSchema, formData)
   const { id, ...updateData } = data

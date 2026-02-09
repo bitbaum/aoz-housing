@@ -12,6 +12,7 @@ import { logAudit } from '@/lib/audit'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
+import type { Resident, Placement } from '@prisma/client'
 
 interface CreatePlacementInput {
   residentId: string
@@ -21,40 +22,62 @@ interface CreatePlacementInput {
   notes?: string
 }
 
+/** Calculate average compatibility scores between a resident and existing placements */
+function calculateAverageScores(resident: Resident, existingPlacements: (Placement & { resident: Resident })[]) {
+  if (existingPlacements.length === 0) {
+    return { compatibilityScore: 100, lifestyleScore: 100, socialScore: 100, practicalScore: 100, riskScore: 0 }
+  }
+
+  const residentProfile = toResidentProfile(resident)
+  const scores = existingPlacements.map((p) => {
+    const otherProfile = toResidentProfile(p.resident)
+    return calculateCompatibility(residentProfile, otherProfile)
+  })
+
+  return {
+    compatibilityScore: Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length),
+    lifestyleScore: Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length),
+    socialScore: Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length),
+    practicalScore: Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length),
+    riskScore: Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length),
+  }
+}
+
 export async function createPlacement(input: CreatePlacementInput): Promise<{ success: boolean; placementId?: string; error?: string }> {
   const { residentId, housingUnitId, spotId, startDate, notes } = input
 
   try {
-    // 1. Calculate compatibility scores with existing residents
+    // 1. Validate resident exists
     const resident = await prisma.resident.findUnique({ where: { id: residentId } })
     if (!resident) {
       return { success: false, error: 'Resident not found' }
     }
 
+    // 2. Prevent duplicate active placement
+    const existingActivePlacement = await prisma.placement.findFirst({
+      where: { residentId, status: 'ACTIVE' },
+    })
+    if (existingActivePlacement) {
+      return { success: false, error: 'Bewohner hat bereits eine aktive Platzierung' }
+    }
+
+    // 3. Validate spot is available
+    const spot = await prisma.placementSpot.findUnique({ where: { id: spotId } })
+    if (!spot) {
+      return { success: false, error: 'Platz nicht gefunden' }
+    }
+    if (spot.status !== 'AVAILABLE') {
+      return { success: false, error: 'Platz ist nicht verfügbar' }
+    }
+
+    // 4. Calculate compatibility scores with existing residents
     const existingPlacements = await prisma.placement.findMany({
       where: { housingUnitId, status: 'ACTIVE' },
       include: { resident: true },
     })
 
-    let compatibilityScore = 100
-    let lifestyleScore = 100
-    let socialScore = 100
-    let practicalScore = 100
-    let riskScore = 0
-
-    if (existingPlacements.length > 0) {
-      const residentProfile = toResidentProfile(resident)
-      const scores = existingPlacements.map((p) => {
-        const otherProfile = toResidentProfile(p.resident)
-        return calculateCompatibility(residentProfile, otherProfile)
-      })
-
-      compatibilityScore = Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length)
-      lifestyleScore = Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length)
-      socialScore = Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length)
-      practicalScore = Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length)
-      riskScore = Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length)
-    }
+    const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
+      calculateAverageScores(resident, existingPlacements)
 
     // 2. Create pair-wise compatibility assessments with each existing resident
     if (existingPlacements.length > 0) {
@@ -204,6 +227,10 @@ export async function endPlacement(formData: FormData): Promise<void> {
     include: { spot: true },
   })
 
+  if (!currentPlacement || currentPlacement.status !== 'ACTIVE') {
+    throw new Error('Placement not found or not active')
+  }
+
   // Build update data, including conflict fields only when endReason is CONFLICT
   const updateData: {
     status: 'ENDED'
@@ -297,8 +324,17 @@ export async function transferPlacement(formData: FormData): Promise<void> {
   if (!currentPlacement) {
     throw new Error('Current placement not found')
   }
+  if (currentPlacement.status !== 'ACTIVE') {
+    throw new Error('Only active placements can be transferred')
+  }
 
-  // 2. End current placement with TRANSFERRED status
+  // 2. Validate target spot is available
+  const targetSpot = await prisma.placementSpot.findUnique({ where: { id: targetSpotId } })
+  if (!targetSpot || targetSpot.status !== 'AVAILABLE') {
+    throw new Error('Target spot is not available')
+  }
+
+  // 3. End current placement with TRANSFERRED status
   await prisma.placement.update({
     where: { id: currentPlacementId },
     data: {
@@ -309,7 +345,7 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     },
   })
 
-  // 3. Free up the old spot
+  // 4. Free up the old spot
   if (currentPlacement.spotId) {
     await prisma.placementSpot.update({
       where: { id: currentPlacement.spotId },
@@ -317,7 +353,7 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     })
   }
 
-  // 4. Calculate compatibility scores with existing residents at target
+  // 5. Calculate compatibility scores with existing residents at target
   const resident = await prisma.resident.findUnique({ where: { id: residentId } })
   if (!resident) throw new Error('Resident not found')
 
@@ -326,27 +362,10 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     include: { resident: true },
   })
 
-  let compatibilityScore = 100
-  let lifestyleScore = 100
-  let socialScore = 100
-  let practicalScore = 100
-  let riskScore = 0
+  const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
+    calculateAverageScores(resident, targetResidents)
 
-  if (targetResidents.length > 0) {
-    const residentProfile = toResidentProfile(resident)
-    const scores = targetResidents.map((p) => {
-      const otherProfile = toResidentProfile(p.resident)
-      return calculateCompatibility(residentProfile, otherProfile)
-    })
-
-    compatibilityScore = Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length)
-    lifestyleScore = Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length)
-    socialScore = Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length)
-    practicalScore = Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length)
-    riskScore = Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length)
-  }
-
-  // 5. Create new placement at target with calculated scores
+  // 6. Create new placement at target with calculated scores
   await prisma.placement.create({
     data: {
       residentId,
@@ -363,19 +382,19 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     },
   })
 
-  // 6. Mark new spot as occupied
+  // 7. Mark new spot as occupied
   await prisma.placementSpot.update({
     where: { id: targetSpotId },
     data: { status: 'OCCUPIED' },
   })
 
-  // 7. Update resident status
+  // 8. Update resident status
   await prisma.resident.update({
     where: { id: residentId },
     data: { status: 'PLACED' },
   })
 
-  // 8. Update housing unit statuses
+  // 9. Update housing unit statuses
   // Old unit: check if it was FULL and now has space
   const oldUnit = await prisma.housingUnit.findUnique({
     where: { id: currentPlacement.housingUnitId },

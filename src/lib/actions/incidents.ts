@@ -162,7 +162,7 @@ export async function addFollowUp(formData: FormData): Promise<void> {
   const data = validateFormData(FollowUpInputSchema, formData)
 
   // Create the follow-up record
-  await prisma.incidentFollowUp.create({
+  const followUp = await prisma.incidentFollowUp.create({
     data: {
       incidentId: data.incidentId,
       action: data.action,
@@ -188,6 +188,13 @@ export async function addFollowUp(formData: FormData): Promise<void> {
       data: updateData,
     })
   }
+
+  await logAudit({
+    action: 'CREATE',
+    entity: 'INCIDENT',
+    entityId: data.incidentId,
+    changes: { followUpId: followUp.id, action: data.action },
+  })
 
   revalidatePath('/incidents')
   revalidatePath(`/incidents/${data.incidentId}`)

@@ -2,6 +2,11 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+import { LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
+
+const LANGUAGE_OPTIONS = (RESIDENT_FACTORS.languages as { options: readonly string[] }).options.filter(c => c !== 'OTHER')
+const DIET_OPTIONS = (RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }).options.filter(c => c !== 'NONE')
 
 export const dynamic = 'force-dynamic'
 
@@ -169,23 +174,23 @@ export default async function PreferencesPage() {
                 Welche Sprachen sprichst du?
               </p>
               <div className="flex flex-wrap gap-2">
-                {['de', 'en', 'fr', 'it', 'ar', 'tr', 'uk', 'ru', 'fa', 'ti'].map((lang) => (
-                  <label
-                    key={lang}
-                    className="cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      name="languages"
-                      value={lang}
-                      defaultChecked={resident.languages.includes(lang)}
-                      className="sr-only peer"
-                    />
-                    <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
-                      {getLanguageLabel(lang)}
-                    </div>
-                  </label>
-                ))}
+                {LANGUAGE_OPTIONS.map((code) => {
+                    const lowerCode = code.toLowerCase()
+                    return (
+                      <label key={code} className="cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="languages"
+                          value={lowerCode}
+                          defaultChecked={resident.languages.includes(lowerCode) || resident.languages.includes(code)}
+                          className="sr-only peer"
+                        />
+                        <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
+                          {LANGUAGE_LABELS[code] || LANGUAGE_LABELS[lowerCode] || code}
+                        </div>
+                      </label>
+                    )
+                  })}
               </div>
             </div>
           </div>
@@ -244,23 +249,23 @@ export default async function PreferencesPage() {
             <div>
               <label className="label">Ernährung</label>
               <div className="flex flex-wrap gap-2">
-                {['halal', 'kosher', 'vegetarian', 'vegan'].map((diet) => (
-                  <label
-                    key={diet}
-                    className="cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      name="dietaryNeeds"
-                      value={diet}
-                      defaultChecked={resident.dietaryNeeds.includes(diet)}
-                      className="sr-only peer"
-                    />
-                    <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
-                      {getDietLabel(diet)}
-                    </div>
-                  </label>
-                ))}
+                {DIET_OPTIONS.map((opt) => {
+                    const lowerOpt = opt.toLowerCase()
+                    return (
+                      <label key={opt} className="cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="dietaryNeeds"
+                          value={lowerOpt}
+                          defaultChecked={resident.dietaryNeeds.includes(lowerOpt) || resident.dietaryNeeds.includes(opt)}
+                          className="sr-only peer"
+                        />
+                        <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
+                          {DIET_LABELS[opt] || DIET_LABELS[lowerOpt] || opt}
+                        </div>
+                      </label>
+                    )
+                  })}
               </div>
             </div>
           </div>
@@ -334,28 +339,3 @@ export default async function PreferencesPage() {
   )
 }
 
-function getLanguageLabel(code: string): string {
-  const labels: Record<string, string> = {
-    de: 'Deutsch',
-    en: 'English',
-    fr: 'Français',
-    it: 'Italiano',
-    ar: 'العربية',
-    tr: 'Türkçe',
-    uk: 'Українська',
-    ru: 'Русский',
-    fa: 'فارسی',
-    ti: 'ትግርኛ',
-  }
-  return labels[code] || code
-}
-
-function getDietLabel(diet: string): string {
-  const labels: Record<string, string> = {
-    halal: 'Halal',
-    kosher: 'Koscher',
-    vegetarian: 'Vegetarisch',
-    vegan: 'Vegan',
-  }
-  return labels[diet] || diet
-}

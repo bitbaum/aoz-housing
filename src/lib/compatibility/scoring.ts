@@ -12,13 +12,14 @@ import type {
   DimensionResult,
   FactorResult,
 } from './types'
+import {
+  LIFESTYLE_SCALES,
+  SOCIAL_SCALES,
+  PRACTICAL_SCALES,
+  OVERALL_DIMENSION_WEIGHTS,
+} from '@/lib/config/scoring-scales'
 
-const DEFAULT_WEIGHTS: CompatibilityWeights = {
-  lifestyle: 30,
-  social: 25,
-  practical: 25,
-  risk: 20,
-}
+const DEFAULT_WEIGHTS: CompatibilityWeights = OVERALL_DIMENSION_WEIGHTS
 
 /**
  * Calculate overall compatibility between two residents
@@ -81,7 +82,7 @@ function calculateLifestyleCompatibility(
 
   // Noise tolerance (closer values = better)
   const noiseDiff = Math.abs(r1.noiseTolerance - r2.noiseTolerance)
-  const noiseScore = 100 - noiseDiff * 20
+  const noiseScore = 100 - noiseDiff * LIFESTYLE_SCALES.noiseTolerance
   factors.push({
     name: 'noise_tolerance',
     score: noiseScore,
@@ -91,7 +92,7 @@ function calculateLifestyleCompatibility(
 
   // Cleanliness (closer values = better)
   const cleanDiff = Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel)
-  const cleanScore = 100 - cleanDiff * 20
+  const cleanScore = 100 - cleanDiff * LIFESTYLE_SCALES.cleanlinessLevel
   factors.push({
     name: 'cleanliness',
     score: cleanScore,
@@ -135,7 +136,7 @@ function calculateSocialCompatibility(
 
   // Privacy needs compatibility
   const privacyDiff = Math.abs(r1.privacyNeed - r2.privacyNeed)
-  const privacyScore = 100 - privacyDiff * 15
+  const privacyScore = 100 - privacyDiff * SOCIAL_SCALES.privacyNeed
   factors.push({
     name: 'privacy_needs',
     score: privacyScore,
@@ -192,7 +193,7 @@ function calculatePracticalCompatibility(
 
   // Chores contribution compatibility (similar levels = less conflict)
   const choresDiff = Math.abs(r1.choresContribution - r2.choresContribution)
-  const choresScore = 100 - choresDiff * 20 // Each level difference reduces by 20
+  const choresScore = 100 - choresDiff * PRACTICAL_SCALES.choresContribution
   factors.push({
     name: 'chores',
     score: choresScore,
