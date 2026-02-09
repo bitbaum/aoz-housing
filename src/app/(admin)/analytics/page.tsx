@@ -9,6 +9,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getDateDaysAgo, formatDate } from '@/lib/utils'
+import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
 
 export const dynamic = 'force-dynamic'
@@ -98,7 +99,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const now = new Date()
   const overdueCheckIns = placements.filter((p) => {
     const supportLevel = p.resident.supportLevel || 'STANDARD'
-    const intervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+    const intervalDays = getCheckInInterval(supportLevel)
     const lastCheckIn = p.checkIns[0]
     const daysSinceCheckIn = lastCheckIn
       ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
@@ -532,7 +533,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                 {recentPlacements.slice(0, 10).map((placement) => {
                   const lastCheckIn = placement.checkIns[0]
                   const supportLevel = placement.resident.supportLevel || 'STANDARD'
-                  const intervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+                  const intervalDays = getCheckInInterval(supportLevel)
                   const daysSinceCheckIn = lastCheckIn
                     ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
                     : null

@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalReportSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
@@ -46,15 +47,8 @@ export async function POST(request: NextRequest) {
   // Build description with location for maintenance
   let fullDescription = data.description
   if (data.category === 'MAINTENANCE' && data.location) {
-    const locationLabels: Record<string, string> = {
-      room: 'Zimmer',
-      bathroom: 'Badezimmer',
-      kitchen: 'Küche',
-      common: 'Gemeinschaftsraum',
-      entrance: 'Eingang/Flur',
-      other: 'Anderer Ort',
-    }
-    fullDescription = `[${locationLabels[data.location] || data.location}] ${data.description}`
+    const locationLabel = PORTAL_LABELS.report.locations.find(l => l.value === data.location)?.label || data.location
+    fullDescription = `[${locationLabel}] ${data.description}`
   }
 
   // Add mediation request note for conflicts

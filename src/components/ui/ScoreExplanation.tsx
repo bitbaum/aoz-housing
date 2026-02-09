@@ -7,6 +7,7 @@ import {
   type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
+import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS } from '@/lib/constants/labels'
 
 /**
  * Factor impacting a score
@@ -16,32 +17,6 @@ export interface ScoreFactor {
   impact: 'positive' | 'negative' | 'neutral'
   /** Optional detail about the factor */
   detail?: string
-}
-
-/**
- * Score explanation configuration per level
- */
-const SCORE_LEVEL_EXPLANATIONS: Record<ScoreLevel, { description: string; recommendation: string }> = {
-  excellent: {
-    description: 'Sehr hohe Übereinstimmung bei Lebensstil und Präferenzen.',
-    recommendation: 'Ideale Platzierung empfohlen.',
-  },
-  good: {
-    description: 'Gute Übereinstimmung mit wenigen Unterschieden.',
-    recommendation: 'Gute Option für Platzierung.',
-  },
-  moderate: {
-    description: 'Moderate Übereinstimmung mit einigen Abweichungen.',
-    recommendation: 'Mit Vorsicht platzieren, regelmässige Check-ins.',
-  },
-  low: {
-    description: 'Geringe Übereinstimmung, potenzielle Konflikte.',
-    recommendation: 'Nur platzieren wenn keine Alternativen.',
-  },
-  critical: {
-    description: 'Sehr geringe Übereinstimmung, hohe Konfliktgefahr.',
-    recommendation: 'Nicht zusammen platzieren.',
-  },
 }
 
 interface ScoreExplanationProps {
@@ -57,12 +32,6 @@ interface ScoreExplanationProps {
   size?: 'sm' | 'md' | 'lg'
   /** Optional className */
   className?: string
-}
-
-const TYPE_LABELS = {
-  compatibility: 'Kompatibilität',
-  fit: 'Passgenauigkeit',
-  harmony: 'Harmonie',
 }
 
 const sizeClasses = {
@@ -148,7 +117,7 @@ export function ScoreExplanation({
         <div
           ref={popoverRef}
           role="dialog"
-          aria-label={`${TYPE_LABELS[type]} Erklärung`}
+          aria-label={`${SCORE_TYPE_LABELS[type]} Erklärung`}
           className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
@@ -158,7 +127,7 @@ export function ScoreExplanation({
           <div className="flex items-start justify-between mb-3 relative">
             <div>
               <h3 className="font-semibold text-gray-900">
-                {TYPE_LABELS[type]}: {score}%
+                {SCORE_TYPE_LABELS[type]}: {score}%
               </h3>
               <span className={`text-sm font-medium ${colorClass}`}>
                 {levelLabel}

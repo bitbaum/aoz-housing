@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { getOccupancyLevel, OCCUPANCY_COLORS, type OccupancyLevel } from '@/lib/config/thresholds'
 
 interface UnitStatus {
   available: number
@@ -19,19 +20,15 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
   const freeBeds = totalBeds - occupiedBeds
   const occupancyPercent = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0
 
-  const getOccupancyColor = (percent: number): string => {
-    if (percent >= 95) return 'bg-red-500'
-    if (percent >= 85) return 'bg-orange-500'
-    if (percent >= 70) return 'bg-yellow-500'
-    return 'bg-green-500'
+  const OCCUPANCY_TEXT_COLORS: Record<OccupancyLevel, string> = {
+    critical: 'text-red-600',
+    warning: 'text-yellow-600',
+    healthy: 'text-green-600',
   }
 
-  const getOccupancyTextColor = (percent: number): string => {
-    if (percent >= 95) return 'text-red-600'
-    if (percent >= 85) return 'text-orange-600'
-    if (percent >= 70) return 'text-yellow-600'
-    return 'text-green-600'
-  }
+  const occupancyLevel = getOccupancyLevel(occupancyPercent)
+  const occupancyColor = OCCUPANCY_COLORS[occupancyLevel]
+  const occupancyTextColor = OCCUPANCY_TEXT_COLORS[occupancyLevel]
 
   return (
     <div className="card">
@@ -40,14 +37,14 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
       {/* Progress bar visualization */}
       <Link href="/housing" className="block mb-4 group">
         <div className="flex items-baseline gap-2 mb-2">
-          <span className={`text-3xl font-bold ${getOccupancyTextColor(occupancyPercent)}`}>
+          <span className={`text-3xl font-bold ${occupancyTextColor}`}>
             {occupancyPercent}%
           </span>
           <span className="text-gray-500 text-sm">belegt</span>
         </div>
         <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className={`h-full ${getOccupancyColor(occupancyPercent)} transition-all duration-300`}
+            className={`h-full ${occupancyColor} transition-all duration-300`}
             style={{ width: `${occupancyPercent}%` }}
           />
         </div>

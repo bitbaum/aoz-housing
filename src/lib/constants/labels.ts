@@ -329,6 +329,68 @@ export const MAINTENANCE_STATUS_COLORS: Record<string, string> = {
 }
 
 // =============================================================================
+// ROLE LABELS (Staff roles)
+// =============================================================================
+
+export const ROLE_LABELS: Record<string, string> = {
+  ADMIN: 'Administrator',
+  CASE_WORKER: 'Sachbearbeiter',
+  VIEWER: 'Betrachter',
+}
+
+// =============================================================================
+// INCIDENT TYPE LABELS - SHORT (for compact UI like dashboard tiles)
+// =============================================================================
+
+export const INCIDENT_TYPE_LABELS_SHORT: Record<string, string> = {
+  NOISE_COMPLAINT: 'Lärm',
+  CLEANLINESS_DISPUTE: 'Sauberkeit',
+  PERSONAL_CONFLICT: 'Persönlicher Konflikt',
+  CULTURAL_FRICTION: 'Kulturelle Spannungen',
+  SPACE_DISPUTE: 'Platzmangel',
+  SCHEDULE_CONFLICT: 'Zeitkonflikte',
+  SAFETY_CONCERN: 'Sicherheit',
+  OTHER: 'Sonstiges',
+}
+
+// =============================================================================
+// SCORE TYPE LABELS (for score explanation UI)
+// =============================================================================
+
+export const SCORE_TYPE_LABELS: Record<string, string> = {
+  compatibility: 'Kompatibilität',
+  fit: 'Passgenauigkeit',
+  harmony: 'Harmonie',
+}
+
+// =============================================================================
+// SCORE LEVEL EXPLANATIONS (for score explanation popover)
+// =============================================================================
+
+export const SCORE_LEVEL_EXPLANATIONS: Record<string, { description: string; recommendation: string }> = {
+  excellent: {
+    description: 'Sehr hohe Übereinstimmung bei Lebensstil und Präferenzen.',
+    recommendation: 'Ideale Platzierung empfohlen.',
+  },
+  good: {
+    description: 'Gute Übereinstimmung mit wenigen Unterschieden.',
+    recommendation: 'Gute Option für Platzierung.',
+  },
+  moderate: {
+    description: 'Moderate Übereinstimmung mit einigen Abweichungen.',
+    recommendation: 'Mit Vorsicht platzieren, regelmässige Check-ins.',
+  },
+  low: {
+    description: 'Geringe Übereinstimmung, potenzielle Konflikte.',
+    recommendation: 'Nur platzieren wenn keine Alternativen.',
+  },
+  critical: {
+    description: 'Sehr geringe Übereinstimmung, hohe Konfliktgefahr.',
+    recommendation: 'Nicht zusammen platzieren.',
+  },
+}
+
+// =============================================================================
 // COMPATIBILITY LABELS
 // =============================================================================
 

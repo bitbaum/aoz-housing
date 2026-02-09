@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { ROLE_LABELS } from '@/lib/constants/labels'
 
 interface UserMenuProps {
   user: {
@@ -9,12 +10,6 @@ interface UserMenuProps {
     email: string
     role: string
   }
-}
-
-const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Administrator',
-  CASE_WORKER: 'Sachbearbeiter',
-  VIEWER: 'Betrachter',
 }
 
 export function UserMenu({ user }: UserMenuProps) {
@@ -41,8 +36,7 @@ export function UserMenu({ user }: UserMenuProps) {
       await fetch('/api/auth/logout', { method: 'POST' })
       router.push('/login')
       router.refresh()
-    } catch (error) {
-      console.error('Logout failed:', error)
+    } catch {
       setIsLoggingOut(false)
     }
   }

@@ -50,7 +50,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
     // 1. Validate resident exists
     const resident = await prisma.resident.findUnique({ where: { id: residentId } })
     if (!resident) {
-      return { success: false, error: 'Resident not found' }
+      return { success: false, error: 'Bewohner nicht gefunden' }
     }
 
     // 2. Prevent duplicate active placement

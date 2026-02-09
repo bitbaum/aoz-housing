@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { INCIDENT_TYPE_LABELS_SHORT } from '@/lib/constants/labels'
 
 // =============================================================================
 // Types
@@ -75,21 +76,6 @@ interface ActionDashboardProps {
   // Health indicators
   conflictFreeDays: number
   openMaintenanceCount: number
-}
-
-// =============================================================================
-// Incident Type Labels (German)
-// =============================================================================
-
-const INCIDENT_TYPE_LABELS: Record<string, string> = {
-  NOISE_COMPLAINT: 'Lärm',
-  CLEANLINESS_DISPUTE: 'Sauberkeit',
-  PERSONAL_CONFLICT: 'Persönlicher Konflikt',
-  CULTURAL_FRICTION: 'Kulturelle Spannungen',
-  SPACE_DISPUTE: 'Platzmangel',
-  SCHEDULE_CONFLICT: 'Zeitkonflikte',
-  SAFETY_CONCERN: 'Sicherheit',
-  OTHER: 'Sonstiges',
 }
 
 // =============================================================================
@@ -242,7 +228,7 @@ export function ActionDashboard({
               color="red"
               items={problemUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map(u => ({
                 label: u.code,
-                sublabel: `${u.incidentCount} Vorfälle · ${INCIDENT_TYPE_LABELS[u.primaryIssue] || u.primaryIssue}`,
+                sublabel: `${u.incidentCount} Vorfälle · ${INCIDENT_TYPE_LABELS_SHORT[u.primaryIssue] || u.primaryIssue}`,
                 href: `/housing/${u.id}`,
               }))}
               allHref="/incidents"
@@ -316,7 +302,7 @@ function determinePrimaryAction({
     return {
       type: 'critical',
       title: `${criticalIncidents.length} kritische Vorfälle`,
-      description: `${INCIDENT_TYPE_LABELS[criticalIncidents[0].type] || criticalIncidents[0].type} in ${criticalIncidents[0].unitCode}`,
+      description: `${INCIDENT_TYPE_LABELS_SHORT[criticalIncidents[0].type] || criticalIncidents[0].type} in ${criticalIncidents[0].unitCode}`,
       href: `/incidents/${criticalIncidents[0].id}`,
       buttonText: 'Sofort bearbeiten',
       count: criticalIncidents.length,
@@ -355,7 +341,7 @@ function determinePrimaryAction({
     return {
       type: 'problem',
       title: `${topUnit.code}: ${topUnit.unresolvedCount} offene Konflikte`,
-      description: `Hauptproblem: ${INCIDENT_TYPE_LABELS[topUnit.primaryIssue] || topUnit.primaryIssue}`,
+      description: `Hauptproblem: ${INCIDENT_TYPE_LABELS_SHORT[topUnit.primaryIssue] || topUnit.primaryIssue}`,
       href: `/housing/${topUnit.id}`,
       buttonText: 'Analysieren',
       count: unitsWithUnresolved.length,
@@ -446,7 +432,7 @@ function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident[] }) {
 
   if (dismissed) return null
 
-  const incidentLabel = INCIDENT_TYPE_LABELS[incidents[0].type] || incidents[0].type
+  const incidentLabel = INCIDENT_TYPE_LABELS_SHORT[incidents[0].type] || incidents[0].type
 
   return (
     <div className="bg-red-600 text-white px-4 py-3 rounded-lg flex items-center justify-between animate-pulse">
@@ -621,7 +607,7 @@ function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: number; f
   const showMatchingHighlight = unplacedCount > 0 && freeBeds > 0
 
   return (
-    <div className="sticky top-0 z-20 bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Schnellaktionen</h2>
         {freeBeds > 0 && (
