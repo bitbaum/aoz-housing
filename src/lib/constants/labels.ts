@@ -453,6 +453,13 @@ export const EMPTY_STATE_LABELS = {
   noCheckIns: 'Noch keine Check-ins erfasst',
   noMatches: 'Keine passenden Ergebnisse',
   noData: 'Keine Daten verfügbar',
+  // Matching page
+  noResidentsAtAll: 'Keine Bewohner vorhanden',
+  allResidentsPlaced: 'Alle Bewohner sind platziert',
+  noAvailableUnits: 'Keine verfügbaren Unterkünfte',
+  createResident: 'Neuen Bewohner erfassen',
+  createHousing: 'Neue Unterkunft erfassen',
+  algorithmLink: 'Wie funktioniert der Algorithmus?',
 }
 
 // =============================================================================
@@ -683,6 +690,7 @@ export const PORTAL_LABELS = {
     registerLanguages: 'Sprachen (optional)',
     registerCreating: 'Wird erstellt...',
     registerSelectPlaceholder: 'Bitte auswählen...',
+    staffLink: 'Mitarbeitende? Zum Mitarbeiter-Login',
   },
   // Roommates page
   roommates: {
@@ -776,12 +784,33 @@ export function getLabel(
 export const LOGIN_LABELS = {
   title: 'Anmelden',
   subtitle: 'AOZ Wohnen - Platzierungssystem',
+  tabs: {
+    login: 'Anmelden',
+    register: 'Registrieren',
+  },
   email: 'E-Mail',
   emailPlaceholder: 'ihre.email@aoz.ch',
   password: 'Passwort',
   passwordPlaceholder: 'Passwort eingeben',
   submit: 'Anmelden',
   submitting: 'Anmelden...',
+  register: {
+    name: 'Name',
+    namePlaceholder: 'Vor- und Nachname',
+    email: 'E-Mail',
+    emailPlaceholder: 'ihre.email@aoz.ch',
+    password: 'Passwort',
+    passwordPlaceholder: 'Mindestens 8 Zeichen',
+    inviteCode: 'Einladungscode',
+    inviteCodePlaceholder: 'Code eingeben',
+    submit: 'Registrieren',
+    submitting: 'Registrieren...',
+    error: {
+      generic: 'Registrierung fehlgeschlagen',
+      emailExists: 'Diese E-Mail ist bereits registriert',
+      invalidCode: 'Ungültiger Einladungscode',
+    },
+  },
   error: {
     required: 'E-Mail und Passwort erforderlich',
     invalid: 'Ungültige E-Mail oder Passwort',
@@ -789,4 +818,5 @@ export const LOGIN_LABELS = {
     generic: 'Ein Fehler ist aufgetreten',
   },
   help: 'Bei Problemen wenden Sie sich an die IT-Abteilung.',
+  portalLink: 'Bewohner? Zum Bewohnerportal',
 } as const

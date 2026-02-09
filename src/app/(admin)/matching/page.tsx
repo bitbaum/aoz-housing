@@ -3,6 +3,7 @@ import Link from 'next/link'
 import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
+  EMPTY_STATE_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { calculateCompatibility } from '@/lib/compatibility'
@@ -54,6 +55,9 @@ export default async function MatchingPage({ searchParams }: Props) {
     },
     orderBy: { code: 'asc' },
   })
+
+  // Total resident count (for empty state detection)
+  const totalResidentCount = await prisma.resident.count()
 
   // Get available units with current residents and spots
   const availableUnits: MatchUnit[] = await prisma.housingUnit.findMany({
@@ -282,14 +286,22 @@ export default async function MatchingPage({ searchParams }: Props) {
             ? 'Unterkunft finden'
             : 'Matching'}
         </h1>
-        <p className="text-gray-500">
-          {isUnitMode
-            ? `Finden Sie passende Bewohner für ${selectedUnit?.address}`
-            : isNewResident
-            ? `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${selectedResident?.code}`
-            : 'Finden Sie die optimale Platzierung für Bewohner'
-          }
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-gray-500">
+            {isUnitMode
+              ? `Finden Sie passende Bewohner für ${selectedUnit?.address}`
+              : isNewResident
+              ? `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${selectedResident?.code}`
+              : 'Finden Sie die optimale Platzierung für Bewohner'
+            }
+          </p>
+          <Link
+            href="/algorithm"
+            className="text-sm text-aoz-secondary hover:underline whitespace-nowrap ml-4"
+          >
+            {EMPTY_STATE_LABELS.algorithmLink}
+          </Link>
+        </div>
       </div>
 
       {/* Step indicator for new residents */}
@@ -355,9 +367,18 @@ export default async function MatchingPage({ searchParams }: Props) {
           </h2>
 
           {unplacedResidents.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              Alle Bewohner sind platziert
-            </p>
+            <div className="text-center py-8">
+              <p className="text-gray-500">
+                {totalResidentCount === 0
+                  ? EMPTY_STATE_LABELS.noResidentsAtAll
+                  : EMPTY_STATE_LABELS.allResidentsPlaced}
+              </p>
+              {totalResidentCount === 0 && (
+                <Link href="/residents/new" className="btn-outline mt-4 inline-block">
+                  {EMPTY_STATE_LABELS.createResident}
+                </Link>
+              )}
+            </div>
           ) : (
             <div className="space-y-2">
               {unplacedResidents.map((resident) => (
@@ -582,9 +603,12 @@ export default async function MatchingPage({ searchParams }: Props) {
               </div>
 
               {matches.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
-                  Keine verfügbaren Unterkünfte
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-gray-500">{EMPTY_STATE_LABELS.noAvailableUnits}</p>
+                  <Link href="/housing/new" className="btn-outline mt-4 inline-block">
+                    {EMPTY_STATE_LABELS.createHousing}
+                  </Link>
+                </div>
               ) : (
                 <div className="space-y-4">
                   {matches.slice(0, 10).map((match) => (

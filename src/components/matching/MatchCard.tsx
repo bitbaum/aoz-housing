@@ -331,31 +331,6 @@ export function MatchCard({ match, resident }: Props) {
             <input type="hidden" name="housingUnitId" value={match.unit.id} />
             <input
               type="hidden"
-              name="compatibilityScore"
-              value={match.compatibilityDetails[0]?.score.overall || 0}
-            />
-            <input
-              type="hidden"
-              name="lifestyleScore"
-              value={match.compatibilityDetails[0]?.score.lifestyle || 0}
-            />
-            <input
-              type="hidden"
-              name="socialScore"
-              value={match.compatibilityDetails[0]?.score.social || 0}
-            />
-            <input
-              type="hidden"
-              name="practicalScore"
-              value={match.compatibilityDetails[0]?.score.practical || 0}
-            />
-            <input
-              type="hidden"
-              name="riskScore"
-              value={match.compatibilityDetails[0]?.score.risk || 0}
-            />
-            <input
-              type="hidden"
               name="apartmentFitScore"
               value={fitScore}
             />
