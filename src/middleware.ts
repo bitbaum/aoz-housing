@@ -36,11 +36,13 @@ const RESIDENT_ROUTES = [
 // Routes that remain public
 const PUBLIC_ROUTES = [
   '/login',
-  '/portal',        // Portal login page
-  '/portal/help',   // Help is always accessible
-  '/algorithm',     // Public explanation of how it works
-  '/api/auth',      // Auth endpoints themselves
-  '/api/health',    // Health check
+  '/portal',            // Portal landing page
+  '/portal/help',       // Help is always accessible
+  '/algorithm',         // Public explanation of how it works
+  '/api/auth',          // Auth endpoints themselves
+  '/api/health',        // Health check
+  '/api/portal/login',  // Resident login
+  '/api/portal/register', // Resident self-registration
 ]
 
 // Auth config (must match lib/auth/config.ts)

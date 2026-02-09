@@ -390,6 +390,13 @@ export const portalPreferencesSchema = z.object({
   additionalPreferences: z.string().max(1000).optional(),
 })
 
+export const portalRegistrationSchema = z.object({
+  ageRange: AgeRangeSchema,
+  gender: GenderSchema,
+  familyStatus: FamilyStatusSchema,
+  languages: z.array(z.string()).default([]),
+})
+
 export const portalSatisfactionSchema = z.object({
   rating: z.coerce.number().int().min(1).max(5),
   concerns: z.string().max(2000).optional(),

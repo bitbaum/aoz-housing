@@ -638,6 +638,46 @@ export const PORTAL_LABELS = {
       preferences: { icon: '⚙️', title: 'Einstellungen', desc: 'Deine Präferenzen anpassen' },
     },
   },
+  // Landing page
+  landing: {
+    hero: 'Besseres Zusammenleben beginnt hier',
+    heroSubtitle: 'Die intelligente Plattform für Wohngemeinschaften — weniger Konflikte, zufriedenere Bewohner, entlastete Teams.',
+    features: [
+      {
+        icon: '🎯',
+        title: 'Kompatibilitäts-Matching',
+        desc: 'Schlafrhythmus, Sauberkeit, Sprache — unser Algorithmus findet passende Mitbewohner, bevor Konflikte entstehen.',
+      },
+      {
+        icon: '📊',
+        title: 'Frühwarnsystem',
+        desc: 'Anonymes Zufriedenheits-Tracking erkennt Probleme, bevor sie eskalieren. Weniger Notfälle, mehr Prävention.',
+      },
+      {
+        icon: '⚡',
+        title: 'Einfache Verwaltung',
+        desc: 'Platzierungen in Minuten statt Stunden. Bewohner melden Probleme selbst. Dein Team hat den Überblick.',
+      },
+    ],
+    statsTitle: 'Entwickelt für Organisationen wie deine',
+    stats: [
+      { value: '-30%', label: 'Weniger Konflikte' },
+      { value: '-50%', label: 'Weniger Umzüge' },
+      { value: '85%', label: 'Matching-Genauigkeit' },
+    ],
+    loginTitle: 'Bereits registriert?',
+    loginDesc: 'Melde dich mit deinem Bewohnercode an',
+    registerTitle: 'Neu hier?',
+    registerDesc: 'Erstelle in 30 Sekunden dein Profil',
+    registerButton: 'Profil erstellen',
+    registerSuccess: 'Profil erstellt! Dein Code ist:',
+    registerAgeRange: 'Altersgruppe',
+    registerGender: 'Geschlecht',
+    registerFamilyStatus: 'Familienstatus',
+    registerLanguages: 'Sprachen (optional)',
+    registerCreating: 'Wird erstellt...',
+    registerSelectPlaceholder: 'Bitte auswählen...',
+  },
   // Roommates page
   roommates: {
     noRoommates: 'Du hast derzeit keine Mitbewohner',

@@ -8,6 +8,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
+import { PortalLanding } from '@/components/portal/PortalLanding'
 import { getScoreBgClass, getScoreLabel, formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -22,7 +23,7 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return <LoginPrompt error={params.error} />
+    return <PortalLanding error={params.error} />
   }
 
   const resident = await prisma.resident.findUnique({
@@ -66,7 +67,7 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
 
   if (!resident) {
     // Clear the invalid cookie by redirecting with error
-    return <LoginPrompt error="account_not_found" />
+    return <PortalLanding error="account_not_found" />
   }
 
   const currentPlacement = resident.placements[0]
@@ -322,51 +323,6 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
 }
 
 // Components
-
-function LoginPrompt({ error }: { error?: string }) {
-  const errorMessages: Record<string, string> = {
-    code_required: PORTAL_LABELS.login.errors.code_required,
-    invalid_code: PORTAL_LABELS.login.errors.invalid_code,
-    rate_limited: PORTAL_LABELS.login.errors.rate_limited,
-  }
-
-  const errorMessage = error ? (errorMessages[error] || error) : undefined
-
-  return (
-    <div className="max-w-md mx-auto mt-12">
-      <div className="card text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{PORTAL_LABELS.login.title}</h1>
-        <p className="text-gray-500 mb-6">
-          {PORTAL_LABELS.login.subtitle}
-        </p>
-
-        {errorMessage && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-            {errorMessage}
-          </div>
-        )}
-
-        <form action="/api/portal/login" method="POST">
-          <input
-            type="text"
-            name="code"
-            placeholder={PORTAL_LABELS.login.placeholder}
-            className="input mb-4"
-            required
-            autoFocus
-          />
-          <button type="submit" className="btn-primary w-full">
-            {PORTAL_LABELS.login.submit}
-          </button>
-        </form>
-
-        <p className="text-xs text-gray-400 mt-4">
-          {PORTAL_LABELS.login.hint}
-        </p>
-      </div>
-    </div>
-  )
-}
 
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
