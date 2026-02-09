@@ -12,7 +12,8 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Clean existing data
+  // Clean existing data (order matters: FK constraints)
+  await prisma.satisfactionCheckIn.deleteMany()
   await prisma.incidentInvolvement.deleteMany()
   await prisma.incident.deleteMany()
   await prisma.compatibilityAssessment.deleteMany()

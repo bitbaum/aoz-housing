@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 
@@ -232,6 +233,15 @@ export function PortalLanding({ error }: PortalLandingProps) {
               </form>
             )}
           </div>
+        </div>
+
+        <div className="text-center mt-6">
+          <Link
+            href="/login"
+            className="text-sm text-aoz-secondary hover:text-aoz-secondary/80 transition-colors"
+          >
+            {PORTAL_LABELS.landing.staffLink}
+          </Link>
         </div>
       </div>
     </div>
