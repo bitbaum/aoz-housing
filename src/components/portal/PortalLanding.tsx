@@ -86,7 +86,7 @@ export function PortalLanding({ error }: PortalLandingProps) {
   }
 
   return (
-    <div className="-mx-4 -mt-6 sm:-mt-8">
+    <div>
       {/* Hero */}
       <div className="bg-aoz-secondary text-white px-4 py-12 sm:py-20 text-center">
         <div className="max-w-2xl mx-auto">
@@ -115,23 +115,8 @@ export function PortalLanding({ error }: PortalLandingProps) {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="px-4 py-10 sm:py-14 text-center">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">
-          {PORTAL_LABELS.landing.statsTitle}
-        </h2>
-        <div className="flex justify-center gap-8 sm:gap-16">
-          {PORTAL_LABELS.landing.stats.map((stat) => (
-            <div key={stat.label}>
-              <p className="text-3xl sm:text-4xl font-bold text-aoz-primary">{stat.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Login + Register */}
-      <div className="px-4 pb-10 max-w-3xl mx-auto">
+      <div className="px-4 pt-8 sm:pt-10 pb-10 max-w-3xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
           {/* Login */}
