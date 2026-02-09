@@ -347,11 +347,22 @@ ComponentName/
 
 | Context | Language |
 |---------|----------|
-| UI labels, buttons, messages | German |
+| UI labels, buttons, messages | German (Swiss) |
 | Code, comments, docs | English |
 | Variable/function names | English |
-| Error messages (user-facing) | German |
+| Error messages (user-facing) | German (Swiss) |
 | Error messages (logs) | English |
+
+### Swiss German Spelling (MANDATORY)
+
+All user-facing German text MUST use correct **Swiss German** spelling:
+
+- **Always use umlauts**: ä, ö, ü, Ä, Ö, Ü — NEVER skip them
+  - Menü (NOT Menu), Übersicht (NOT Ubersicht), Rückzugsort (NOT Ruckzugsort), Wünsche (NOT Wunsche), für (NOT fur), öffnen (NOT offnen)
+- **Swiss German uses `ss` instead of `ß`**: schliessen (NOT schließen), Strasse (NOT Straße), grösser (NOT größer), Aussenbereich (NOT Außenbereich)
+- **Common aria-label mistakes to avoid**: "Menü öffnen" (NOT "Menu öffnen"), "Menü schliessen" (NOT "Menu schliessen")
+
+**Pre-commit check**: Before writing ANY German text, verify every word has correct umlauts. If unsure, check against a German dictionary.
 
 ---
 

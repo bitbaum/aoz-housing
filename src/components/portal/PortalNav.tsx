@@ -37,7 +37,7 @@ export function PortalNav() {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
-          aria-label={menuOpen ? 'Menu schliessen' : 'Menu öffnen'}
+          aria-label={menuOpen ? 'Menü schliessen' : 'Menü öffnen'}
         >
           {menuOpen ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
