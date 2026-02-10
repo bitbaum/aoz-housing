@@ -168,7 +168,9 @@ export const ResidentInputSchema = z.object({
   supportLevel: SupportLevelSchema.default('STANDARD' as SupportLevel),
   hasMedicalDocumentation: z.coerce.boolean().default(false),
   medicalDocType: MedicalDocTypeSchema.optional().nullable(),
-  medicalDocDate: z.string().optional().nullable().transform((val) => val ? new Date(val) : null),
+  medicalDocDate: z.string().optional().nullable()
+    .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
+    .transform((val) => val ? new Date(val) : null),
   medicalDocNotes: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 })
@@ -287,7 +289,9 @@ export const IncidentInputSchema = z.object({
   type: IncidentTypeSchema,
   severity: IncidentSeveritySchema,
   description: z.string().min(1, 'Beschreibung ist erforderlich'),
-  date: z.string().transform((val) => new Date(val)),
+  date: z.string()
+    .refine((val) => !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
+    .transform((val) => new Date(val)),
 })
 
 export const ResolveIncidentSchema = z.object({
@@ -301,7 +305,9 @@ export const FollowUpInputSchema = z.object({
   notes: z.string().optional().nullable(),
   outcome: z.string().optional().nullable(),
   staffName: z.string().optional().nullable(),
-  scheduledNextDate: z.string().optional().nullable().transform((val) => val ? new Date(val) : null),
+  scheduledNextDate: z.string().optional().nullable()
+    .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
+    .transform((val) => val ? new Date(val) : null),
   followUpPriority: FollowUpPrioritySchema.optional().nullable(),
 })
 

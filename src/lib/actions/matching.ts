@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { logAudit } from '@/lib/audit'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
+import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import type { Resident, Placement } from '@prisma/client'
 import { z } from 'zod'
 
@@ -13,34 +15,8 @@ const placeResidentSchema = z.object({
   residentId: z.string().min(1),
   housingUnitId: z.string().min(1),
   spotId: z.string().nullable(),
-  apartmentFitScore: z.number().min(0).max(100).default(100),
-  hasBlockingConflicts: z.boolean().default(false),
   notes: z.string().optional(),
 })
-
-/** Calculate average compatibility scores between a resident and existing placements */
-function calculateAverageScores(
-  resident: Resident,
-  existingPlacements: (Placement & { resident: Resident })[]
-) {
-  if (existingPlacements.length === 0) {
-    return { compatibilityScore: 100, lifestyleScore: 100, socialScore: 100, practicalScore: 100, riskScore: 0 }
-  }
-
-  const residentProfile = toResidentProfile(resident)
-  const scores = existingPlacements.map((p) => {
-    const otherProfile = toResidentProfile(p.resident)
-    return calculateCompatibility(residentProfile, otherProfile)
-  })
-
-  return {
-    compatibilityScore: Math.round(scores.reduce((a, s) => a + s.overall, 0) / scores.length),
-    lifestyleScore: Math.round(scores.reduce((a, s) => a + s.lifestyle, 0) / scores.length),
-    socialScore: Math.round(scores.reduce((a, s) => a + s.social, 0) / scores.length),
-    practicalScore: Math.round(scores.reduce((a, s) => a + s.practical, 0) / scores.length),
-    riskScore: Math.round(scores.reduce((a, s) => a + s.risk, 0) / scores.length),
-  }
-}
 
 /** Build structured placement rationale from computed scores and compatibility data */
 function buildPlacementRationale(
@@ -89,8 +65,6 @@ export async function placeResident(formData: FormData) {
       residentId: formData.get('residentId') as string,
       housingUnitId: formData.get('housingUnitId') as string,
       spotId: (formData.get('spotId') as string) || null,
-      apartmentFitScore: parseFloat(formData.get('apartmentFitScore') as string) || 100,
-      hasBlockingConflicts: formData.get('hasBlockingConflicts') === 'true',
       notes: (formData.get('notes') as string) || undefined,
     })
   } catch (error) {
@@ -104,18 +78,8 @@ export async function placeResident(formData: FormData) {
     residentId,
     housingUnitId,
     spotId,
-    apartmentFitScore,
-    hasBlockingConflicts,
     notes,
   } = validatedData
-
-  // BLOCKING CHECK: Prevent placement if blocking conflicts exist
-  if (hasBlockingConflicts) {
-    throw new Error(
-      'Placement blockiert: Kritische Konflikte mit Wohnungsprofil erkannt. ' +
-      'Bitte wählen Sie eine besser passende Unterkunft.'
-    )
-  }
 
   // Execute all placement operations in a transaction to ensure atomicity
   const placement = await prisma.$transaction(async (tx) => {
@@ -159,17 +123,34 @@ export async function placeResident(formData: FormData) {
       include: { resident: true },
     })
 
-    // 4. Calculate scores server-side (replaces client-sent scores)
+    // 4. Server-side blocking conflict check (never trust client)
+    const residentProfile = toResidentProfile(resident)
+    const existingProfiles = existingPlacements.map(p => toResidentProfile(p.resident))
+    const apartmentProfile = calculateApartmentProfile(existingProfiles)
+    const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
+    const apartmentFitScore = apartmentFit.fitScore
+
+    const hasBlockingConflicts = apartmentFit.conflicts.some(c => c.severity === 'BLOCKING')
+    if (hasBlockingConflicts) {
+      const blockingDetails = apartmentFit.conflicts
+        .filter(c => c.severity === 'BLOCKING')
+        .map(c => c.message)
+        .join('; ')
+      throw new Error(
+        `Placement blockiert: ${blockingDetails}. ` +
+        'Bitte wählen Sie eine besser passende Unterkunft.'
+      )
+    }
+
+    // 5. Calculate scores server-side
     const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
       calculateAverageScores(resident, existingPlacements)
 
-    // 5. Collect strengths/concerns for structured rationale
+    // 6. Collect strengths/concerns for structured rationale
     const allStrengths: string[] = []
     const allConcerns: string[] = []
 
     if (existingPlacements.length > 0) {
-      const residentProfile = toResidentProfile(resident)
-
       for (const existingPlacement of existingPlacements) {
         const otherProfile = toResidentProfile(existingPlacement.resident)
         const score = calculateCompatibility(residentProfile, otherProfile)
@@ -291,14 +272,15 @@ export async function placeResident(formData: FormData) {
       include: { placements: { where: { status: 'ACTIVE' } } },
     })
 
-    if (unit && unit.placements.length + 1 >= unit.totalBeds) {
+    // placements already includes the newly created one (same transaction)
+    if (unit && unit.placements.length >= unit.totalBeds) {
       await tx.housingUnit.update({
         where: { id: housingUnitId },
         data: { status: 'FULL' },
       })
     }
 
-    return { placement: newPlacement, compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore }
+    return { placement: newPlacement, compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore, apartmentFitScore }
   })
 
   // AUDIT LOG: Record placement for compliance and debugging
@@ -316,9 +298,8 @@ export async function placeResident(formData: FormData) {
         social: placement.socialScore,
         practical: placement.practicalScore,
         risk: placement.riskScore,
-        apartmentFit: apartmentFitScore,
+        apartmentFit: placement.apartmentFitScore,
       },
-      hasBlockingConflicts,
     },
     reason: notes || undefined,
   })

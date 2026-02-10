@@ -40,7 +40,11 @@ export const PRACTICAL_SCALES = {
 
 /**
  * Weight percentages within each dimension
- * These determine how much each factor contributes to its dimension score
+ * These determine how much each factor contributes to its dimension score.
+ * Must match the hardcoded weights in scoring.ts factor arrays.
+ *
+ * NOTE: practical weights sum to 120 (not 100) — weightedAverage() normalizes
+ * by dividing by total weight, so the ratios are what matter.
  */
 export const DIMENSION_WEIGHTS = {
   lifestyle: {
@@ -57,8 +61,8 @@ export const DIMENSION_WEIGHTS = {
     smoking: 40,
     sharedSpaces: 30,
     chores: 20,
-    pets: 5,
-    dietary: 5,
+    pets: 15,
+    dietary: 15,
   },
 } as const
 

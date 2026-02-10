@@ -60,20 +60,23 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
   const avgChoresContribution = average(residents.map(r => r.choresContribution))
 
   // Enum distributions and dominants
-  const sleepScheduleDistribution = distribution(residents.map(r => r.sleepSchedule))
+  const ALL_SLEEP_SCHEDULES: readonly SleepSchedule[] = ['EARLY_BIRD', 'STANDARD', 'NIGHT_OWL', 'IRREGULAR']
+  const sleepScheduleDistribution = distribution(residents.map(r => r.sleepSchedule), ALL_SLEEP_SCHEDULES)
   const dominantSleepSchedule = findMode(residents.map(r => r.sleepSchedule))
   const dominantSocialStyle = findMode(residents.map(r => r.socialStyle))
   const dominantSmokingStatus = findMode(residents.map(r => r.smokingStatus))
 
-  // Language overlap
+  // Language overlap — for a single resident, their languages ARE the common languages
+  // (the new resident needs to share at least one with them to communicate)
   const languageCounts: Record<string, number> = {}
   residents.forEach(r => {
     r.languages.forEach(lang => {
       languageCounts[lang] = (languageCounts[lang] || 0) + 1
     })
   })
+  const minCount = residents.length === 1 ? 1 : 2
   const commonLanguages = Object.entries(languageCounts)
-    .filter(([_, count]) => count >= 2)
+    .filter(([_, count]) => count >= minCount)
     .map(([lang]) => lang)
     .sort((a, b) => languageCounts[b] - languageCounts[a])
 
@@ -371,17 +374,25 @@ function findMode<T extends string>(values: T[]): T | null {
 }
 
 /**
- * Calculate percentage distribution of enum values
+ * Calculate percentage distribution of enum values.
+ * Initializes all known keys to 0 so consumers can rely on all keys being present.
  */
-function distribution<T extends string>(values: T[]): Record<T, number> {
-  if (values.length === 0) return {} as Record<T, number>
+function distribution<T extends string>(values: T[], allKeys?: readonly T[]): Record<T, number> {
+  // Initialize all keys to 0 if provided
+  const percentages: Record<string, number> = {}
+  if (allKeys) {
+    for (const key of allKeys) {
+      percentages[key] = 0
+    }
+  }
+
+  if (values.length === 0) return percentages as Record<T, number>
 
   const counts: Record<string, number> = {}
   values.forEach(v => {
     counts[v] = (counts[v] || 0) + 1
   })
 
-  const percentages: Record<string, number> = {}
   Object.entries(counts).forEach(([value, count]) => {
     percentages[value] = (count / values.length) * 100
   })
