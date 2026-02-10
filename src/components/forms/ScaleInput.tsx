@@ -40,7 +40,7 @@ export function ScaleInput({
               onChange={onChange ? () => onChange(level) : undefined}
               className="sr-only peer"
             />
-            <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors font-medium">
+            <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors font-medium min-h-[44px] flex items-center justify-center">
               {level}
             </div>
           </label>

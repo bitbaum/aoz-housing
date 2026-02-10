@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
+import { Logo } from '@/components/ui/Logo'
 import { NAV_ITEMS, NAV_ICONS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
@@ -19,15 +20,7 @@ export default async function AdminLayout({
         <div className="max-w-screen-2xl mx-auto px-6 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/" className="flex items-center gap-3 hover:opacity-90">
-                <span className="text-aoz-primary font-bold text-2xl tracking-tight">AOZ</span>
-                <div>
-                  <span className="font-semibold">Wohnen</span>
-                  <span className="hidden lg:inline text-white/70 ml-2 text-sm">
-                    {APP_LABELS.tagline}
-                  </span>
-                </div>
-              </Link>
+              <Logo href="/" size="lg" showTagline />
             </div>
             <div className="flex items-center gap-4">
               <nav className="flex items-center gap-1">
@@ -117,9 +110,8 @@ export default async function AdminLayout({
           {/* Footer */}
           <footer className="bg-white border-t border-gray-200 px-6 py-4 mt-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
-              <div className="flex items-center gap-2 text-gray-500">
-                <span className="text-aoz-primary font-bold text-lg tracking-tight">AOZ</span>
-                <span className="font-medium text-gray-700">Wohnen</span>
+              <div className="flex items-center gap-3 text-gray-500">
+                <Logo size="sm" />
                 <span className="text-gray-400">|</span>
                 <span className="text-gray-500">{APP_LABELS.metaDescription}</span>
               </div>
@@ -143,7 +135,7 @@ function HeaderLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="px-3 py-1 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors"
+      className="px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors min-h-[44px] inline-flex items-center"
     >
       {children}
     </Link>
@@ -174,7 +166,7 @@ function MegaMenuDropdown({
     <div className="relative group">
       <button className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors">
         {label}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
@@ -184,7 +176,7 @@ function MegaMenuDropdown({
             <Link
               key={item.href}
               href={item.href}
-              className="block px-4 py-2 hover:bg-gray-50 transition-colors"
+              className="block px-4 py-3 hover:bg-gray-50 transition-colors min-h-[44px]"
             >
               <div className="font-medium text-gray-900 text-sm">{item.label}</div>
               <div className="text-xs text-gray-500">{item.desc}</div>
@@ -209,7 +201,7 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-aoz-primary hover:bg-aoz-accent rounded-md transition-colors"
+      className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 hover:text-aoz-primary hover:bg-aoz-accent rounded-md transition-colors min-h-[44px]"
     >
       <Icon className="w-4 h-4" />
       <span>{children}</span>

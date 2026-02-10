@@ -57,7 +57,7 @@ export default async function ReportPage() {
       </div>
 
       {!currentPlacement ? (
-        <div className="card text-center py-8">
+        <div className="card text-center py-12">
           <p className="text-gray-500 mb-3">{PORTAL_LABELS.report.noPlacement}</p>
           <p className="text-sm text-gray-500 font-medium">{PORTAL_LABELS.report.noPlacementContact}</p>
         </div>

@@ -506,7 +506,7 @@ export default async function ResidentDetailPage({ params }: Props) {
             </h2>
             {/* Warning banner for frequent subjects */}
             {resident.incidentsAsSubject.length >= INCIDENT_THRESHOLDS.severe && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-amber-600 text-lg">!</span>
                   <p className="text-sm text-amber-800">

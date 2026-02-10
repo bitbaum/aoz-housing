@@ -214,7 +214,7 @@ export default async function HousingDetailPage({ params }: Props) {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div className="card">
           <p className="text-sm text-gray-500">Belegung</p>
           <p className="text-2xl font-bold text-gray-900">
@@ -446,7 +446,7 @@ export default async function HousingDetailPage({ params }: Props) {
 
             {/* Frequent Subjects Warning */}
             {frequentSubjects.length > 0 && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                 <div className="flex items-start gap-2">
                   <span className="text-amber-600 text-lg">!</span>
                   <div>

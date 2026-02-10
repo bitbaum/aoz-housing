@@ -3,6 +3,7 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Logo } from '@/components/ui/Logo'
 import { LOGIN_LABELS, APP_LABELS } from '@/lib/constants/labels'
 
 type Mode = 'login' | 'register'
@@ -94,9 +95,8 @@ export default function LoginPage() {
     <div className="w-full max-w-md">
       {/* Logo/Branding */}
       <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <span className="text-aoz-primary font-bold text-4xl tracking-tight">AOZ</span>
-          <span className="text-aoz-secondary font-semibold text-2xl">Wohnen</span>
+        <div className="flex justify-center mb-2">
+          <Logo size="xl" />
         </div>
         <p className="text-gray-500">{APP_LABELS.tagline}</p>
       </div>
@@ -154,9 +154,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 
@@ -176,9 +174,7 @@ export default function LoginPage() {
                 placeholder={LOGIN_LABELS.passwordPlaceholder}
                 required
                 autoComplete="current-password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 
@@ -211,9 +207,7 @@ export default function LoginPage() {
                 required
                 autoComplete="name"
                 autoFocus
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 
@@ -232,9 +226,7 @@ export default function LoginPage() {
                 placeholder={LOGIN_LABELS.register.emailPlaceholder}
                 required
                 autoComplete="email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 
@@ -254,9 +246,7 @@ export default function LoginPage() {
                 required
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 
@@ -275,9 +265,7 @@ export default function LoginPage() {
                 placeholder={LOGIN_LABELS.register.inviteCodePlaceholder}
                 required
                 autoComplete="off"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                         focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary
-                         placeholder:text-gray-400"
+                className="input placeholder:text-gray-400"
               />
             </div>
 

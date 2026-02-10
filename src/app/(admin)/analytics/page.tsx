@@ -188,7 +188,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       </div>
 
       {/* Key Metrics - All based on REAL DATA */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <MetricCard
           label="Belegungsrate"
           value={`${occupancyRate}%`}

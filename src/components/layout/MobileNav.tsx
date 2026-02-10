@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { NAV_ITEMS, NAV_ICONS, type NavItem } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
+import { Logo } from '@/components/ui/Logo'
 
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
@@ -20,16 +21,13 @@ export function MobileNav() {
       {/* Mobile header */}
       <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40">
         <div className="flex items-center justify-between px-4 py-3">
-          <h1 className="flex items-center gap-1">
-            <span className="text-aoz-primary font-bold text-xl tracking-tight">AOZ</span>
-            <span className="text-aoz-secondary font-semibold">Wohnen</span>
-          </h1>
+          <Logo size="md" />
           <button
             onClick={() => setIsOpen(true)}
-            className="p-2 text-gray-600 hover:text-aoz-secondary"
+            className="p-2 text-gray-600 hover:text-aoz-secondary min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Menü öffnen"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -46,25 +44,22 @@ export function MobileNav() {
 
       {/* Slide-out drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden ${
+        className={`fixed top-0 left-0 h-full w-[85vw] max-w-[256px] bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="flex items-center gap-1">
-                <span className="text-aoz-primary font-bold text-2xl tracking-tight">AOZ</span>
-                <span className="text-aoz-secondary font-semibold text-lg">Wohnen</span>
-              </h1>
+              <Logo size="lg" />
               <p className="text-sm text-gray-500 mt-1">{APP_LABELS.tagline}</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 text-gray-500 hover:text-gray-700"
+              className="p-2 text-gray-500 hover:text-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Menü schliessen"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
