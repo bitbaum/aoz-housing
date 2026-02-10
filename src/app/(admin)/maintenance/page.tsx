@@ -35,10 +35,27 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
   const requests = await prisma.maintenanceRequest.findMany({
     where: whereClause,
-    include: {
-      housingUnit: true,
-      spot: true,
-      reportedBy: { select: { id: true, code: true } },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      category: true,
+      priority: true,
+      status: true,
+      location: true,
+      assignedTo: true,
+      createdAt: true,
+      housingUnitId: true,
+      reportedById: true,
+      housingUnit: {
+        select: { code: true },
+      },
+      spot: {
+        select: { code: true, label: true },
+      },
+      reportedBy: {
+        select: { id: true, code: true },
+      },
     },
     orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
     take: 100,
@@ -88,7 +105,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Offen" value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
         <StatCard label="In Bearbeitung" value={stats.inProgress} />
         <StatCard label="Dringend" value={stats.urgent} trend={stats.urgent > 0 ? 'warning' : 'neutral'} />
@@ -152,7 +169,24 @@ export default async function MaintenancePage({ searchParams }: Props) {
   )
 }
 
-function RequestRow({ request }: { request: any }) {
+interface RequestRowData {
+  id: string
+  title: string
+  description: string
+  category: string
+  priority: string
+  status: string
+  location: string | null
+  assignedTo: string | null
+  createdAt: Date | string
+  housingUnitId: string
+  reportedById: string | null
+  housingUnit: { code: string }
+  spot: { code: string; label: string | null } | null
+  reportedBy: { id: string; code: string } | null
+}
+
+function RequestRow({ request }: { request: RequestRowData }) {
   const categoryIcon = MAINTENANCE_CATEGORY_ICONS[request.category] || '🔧'
   const priorityClass = MAINTENANCE_PRIORITY_COLORS[request.priority] || ''
   const statusClass = MAINTENANCE_STATUS_COLORS[request.status] || 'badge'
@@ -214,7 +248,7 @@ function RequestRow({ request }: { request: any }) {
   )
 }
 
-function QuickActions({ request }: { request: any }) {
+function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'status'> }) {
   if (request.status === 'COMPLETED' || request.status === 'CANCELLED') {
     return null
   }

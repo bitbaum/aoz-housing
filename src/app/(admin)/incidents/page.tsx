@@ -28,10 +28,25 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
   const incidents = await prisma.incident.findMany({
     where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
-    include: {
-      housingUnit: true,
-      reportedBy: true,
-      subject: true,
+    select: {
+      id: true,
+      type: true,
+      category: true,
+      severity: true,
+      description: true,
+      date: true,
+      resolvedAt: true,
+      resolution: true,
+      nextFollowUpDate: true,
+      housingUnit: {
+        select: { code: true },
+      },
+      reportedBy: {
+        select: { code: true },
+      },
+      subject: {
+        select: { code: true },
+      },
       _count: {
         select: { followUps: true },
       },
@@ -83,7 +98,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Offen" value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
         <StatCard label="Kritisch" value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
         <StatCard label="Konflikte" value={stats.interpersonal} />
@@ -137,7 +152,23 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   )
 }
 
-function IncidentRow({ incident }: { incident: any }) {
+interface IncidentRowData {
+  id: string
+  type: string
+  category: string
+  severity: string
+  description: string
+  date: Date | string
+  resolvedAt: Date | string | null
+  resolution: string | null
+  nextFollowUpDate: Date | string | null
+  housingUnit: { code: string }
+  reportedBy: { code: string } | null
+  subject: { code: string } | null
+  _count: { followUps: number }
+}
+
+function IncidentRow({ incident }: { incident: IncidentRowData }) {
   const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
   const isOverdue = incident.nextFollowUpDate && new Date(incident.nextFollowUpDate) < new Date() && !incident.resolvedAt
 

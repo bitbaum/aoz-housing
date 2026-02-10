@@ -30,9 +30,21 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       : statusFilter === 'ended'
       ? { status: { not: 'ACTIVE' } }
       : undefined,
-    include: {
-      resident: true,
-      housingUnit: true,
+    select: {
+      id: true,
+      status: true,
+      startDate: true,
+      endDate: true,
+      satisfactionRating: true,
+      endReason: true,
+      residentId: true,
+      housingUnitId: true,
+      resident: {
+        select: { code: true, supportLevel: true },
+      },
+      housingUnit: {
+        select: { code: true, address: true },
+      },
       checkIns: {
         orderBy: { createdAt: 'desc' },
         take: 1,
@@ -82,7 +94,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Aktiv" value={stats.active} />
         <StatCard label="Beendet" value={stats.ended} />
         <StatCard
@@ -149,7 +161,25 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   )
 }
 
-function PlacementRow({ placement }: { placement: any }) {
+interface PlacementRowData {
+  id: string
+  status: string
+  startDate: Date | string
+  endDate: Date | string | null
+  satisfactionRating: number | null
+  endReason: string | null
+  residentId: string
+  housingUnitId: string
+  resident: { code: string; supportLevel: string | null }
+  housingUnit: { code: string; address: string }
+  checkIns: {
+    createdAt: Date | string
+    overallSatisfaction: number
+    concerns: string | null
+  }[]
+}
+
+function PlacementRow({ placement }: { placement: PlacementRowData }) {
   const daysSinceStart = Math.ceil(
     (Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)
   )

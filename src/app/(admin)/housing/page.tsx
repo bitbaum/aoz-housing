@@ -9,14 +9,25 @@ export const dynamic = 'force-dynamic'
 
 export default async function HousingListPage() {
   const units = await prisma.housingUnit.findMany({
-    include: {
-      placements: {
-        where: { status: 'ACTIVE' },
-      },
-      incidents: {
-        where: {
-          date: { gte: getDateDaysAgo(30) },
-          category: 'INTERPERSONAL',
+    select: {
+      id: true,
+      code: true,
+      address: true,
+      status: true,
+      totalBeds: true,
+      totalRooms: true,
+      wheelchairAccess: true,
+      _count: {
+        select: {
+          placements: {
+            where: { status: 'ACTIVE' },
+          },
+          incidents: {
+            where: {
+              date: { gte: getDateDaysAgo(30) },
+              category: 'INTERPERSONAL',
+            },
+          },
         },
       },
     },
@@ -28,7 +39,7 @@ export default async function HousingListPage() {
     available: units.filter(u => u.status === 'AVAILABLE').length,
     full: units.filter(u => u.status === 'FULL').length,
     totalBeds: units.reduce((sum, u) => sum + u.totalBeds, 0),
-    occupiedBeds: units.reduce((sum, u) => sum + u.placements.length, 0),
+    occupiedBeds: units.reduce((sum, u) => sum + u._count.placements, 0),
   }
 
   return (
@@ -61,7 +72,11 @@ export default async function HousingListPage() {
           </Link>
         </div>
       ) : (
-        <HousingList units={units} />
+        <HousingList units={units.map(u => ({
+          ...u,
+          placementCount: u._count.placements,
+          incidentCount: u._count.incidents,
+        }))} />
       )}
     </div>
   )

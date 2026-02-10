@@ -22,49 +22,53 @@ export default async function AdminDashboard() {
     units,
     placements,
     recentIncidents,
-    maintenanceRequests,
+    openMaintenanceCount,
   ] = await Promise.all([
     prisma.resident.findMany({
       where: { status: { in: ['ACTIVE', 'PLACED'] } },
+      select: { id: true, code: true, status: true, createdAt: true },
     }),
     prisma.housingUnit.findMany({
-      include: {
-        placements: {
-          where: { status: 'ACTIVE' },
-          include: { resident: true },
-        },
-      },
+      select: { totalBeds: true, status: true },
     }),
     prisma.placement.findMany({
       where: { status: 'ACTIVE' },
-      include: {
-        resident: true,
-        housingUnit: true,
-        spot: true,
+      select: {
+        id: true,
+        startDate: true,
+        resident: {
+          select: { id: true, code: true, supportLevel: true },
+        },
+        housingUnit: {
+          select: { code: true },
+        },
         checkIns: {
           orderBy: { createdAt: 'desc' },
           take: 1,
+          select: { createdAt: true },
         },
       },
     }),
-    // Get incidents from configured window
     prisma.incident.findMany({
       where: {
         date: { gte: getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays) },
       },
-      include: {
-        housingUnit: true,
-        subject: true,
-        involvedResidents: { include: { resident: true } },
+      select: {
+        id: true,
+        type: true,
+        category: true,
+        severity: true,
+        date: true,
+        resolvedAt: true,
+        housingUnitId: true,
+        housingUnit: { select: { code: true } },
       },
       orderBy: { date: 'desc' },
     }),
-    prisma.maintenanceRequest.findMany({
+    prisma.maintenanceRequest.count({
       where: {
         status: { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] },
       },
-      include: { housingUnit: true },
-      orderBy: { createdAt: 'asc' },
     }),
   ])
 
@@ -208,8 +212,6 @@ export default async function AdminDashboard() {
   // =============================================================================
   // Open Maintenance
   // =============================================================================
-
-  const openMaintenanceCount = maintenanceRequests.length
 
   return (
     <ActionDashboard

@@ -14,8 +14,8 @@ export interface HousingListItem {
   totalBeds: number
   totalRooms: number
   wheelchairAccess: boolean
-  placements: { id: string }[]
-  incidents: { id: string }[]
+  placementCount: number
+  incidentCount: number
 }
 
 const STATUS_OPTIONS = [
@@ -73,9 +73,9 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
 }
 
 function UnitCard({ unit }: { unit: HousingListItem }) {
-  const occupancy = unit.placements.length
+  const occupancy = unit.placementCount
   const occupancyPercent = Math.round((occupancy / unit.totalBeds) * 100)
-  const recentConflicts = unit.incidents.length
+  const recentConflicts = unit.incidentCount
 
   const statusConfig: Record<string, { label: string; class: string }> = {
     AVAILABLE: { label: 'Verfügbar', class: 'badge-active' },

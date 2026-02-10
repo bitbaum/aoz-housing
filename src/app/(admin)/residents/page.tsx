@@ -9,17 +9,30 @@ export const dynamic = 'force-dynamic'
 
 export default async function ResidentsListPage() {
   const residents = await prisma.resident.findMany({
-    include: {
+    select: {
+      id: true,
+      code: true,
+      ageRange: true,
+      gender: true,
+      status: true,
+      languages: true,
+      createdAt: true,
       placements: {
         where: { status: 'ACTIVE' },
-        include: {
-          housingUnit: true,
+        select: {
+          housingUnit: {
+            select: { code: true },
+          },
         },
       },
-      incidentsAsSubject: {
-        where: {
-          date: { gte: getDateDaysAgo(30) },
-          category: 'INTERPERSONAL',
+      _count: {
+        select: {
+          incidentsAsSubject: {
+            where: {
+              date: { gte: getDateDaysAgo(30) },
+              category: 'INTERPERSONAL',
+            },
+          },
         },
       },
     },
@@ -82,7 +95,10 @@ export default async function ResidentsListPage() {
           </Link>
         </div>
       ) : (
-        <ResidentsList residents={residents} />
+        <ResidentsList residents={residents.map(r => ({
+          ...r,
+          incidentCount: r._count.incidentsAsSubject,
+        }))} />
       )}
     </div>
   )

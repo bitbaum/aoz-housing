@@ -26,7 +26,7 @@ export interface ResidentListItem {
       code: string
     }
   }[]
-  incidentsAsSubject: { id: string }[]
+  incidentCount: number
 }
 
 const STATUS_OPTIONS = [
@@ -83,7 +83,7 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
 
 function ResidentCard({ resident }: { resident: ResidentListItem }) {
   const currentPlacement = resident.placements[0]
-  const recentIncidents = resident.incidentsAsSubject?.length || 0
+  const recentIncidents = resident.incidentCount
 
   const languages = resident.languages
     .slice(0, 3)
