@@ -25,19 +25,19 @@ export const RESIDENT_DIMENSIONS: DimensionConfig[] = [
   {
     id: 'lifestyle',
     label: 'Lebensstil',
-    weight: 0.30,
-    description: 'Tagesablauf, Lärm, Sauberkeit',
+    weight: 0.35,
+    description: 'Tagesablauf, Lärm, Sauberkeit, Besucher',
   },
   {
     id: 'social',
     label: 'Soziales',
     weight: 0.25,
-    description: 'Kommunikation, Privatsphäre, Interaktion',
+    description: 'Kommunikation, Privatsphäre, Interaktion, Konfliktlösung',
   },
   {
     id: 'practical',
     label: 'Praktisches',
-    weight: 0.25,
+    weight: 0.20,
     description: 'Rauchen, Ernährung, Ausstattung',
   },
   {
@@ -195,7 +195,24 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Entspannt',
     highLabel: 'Sehr ordentlich',
     dimension: 'lifestyle',
-    weight: 0.25,
+    weight: 0.30,
+    rule: 'SIMILAR_IS_BETTER',
+  },
+
+  guestTolerance: {
+    id: 'guestTolerance',
+    type: 'scale',
+    label: 'Besuchertoleranz',
+    description: 'Wie stehen Sie zu Besuchern in der Wohnung?',
+    formSection: 'lifestyle',
+    formOrder: 4,
+    min: 1,
+    max: 5,
+    default: 3,
+    lowLabel: 'Lieber keine Besucher',
+    highLabel: 'Besucher willkommen',
+    dimension: 'lifestyle',
+    weight: 0.10,
     rule: 'SIMILAR_IS_BETTER',
   },
 
@@ -234,7 +251,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Offen',
     highLabel: 'Viel Privatsphäre',
     dimension: 'social',
-    weight: 0.2,
+    weight: 0.30,
     rule: 'SIMILAR_IS_BETTER',
   },
 
@@ -260,7 +277,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
       OTHER: 'Andere',
     },
     dimension: 'social',
-    weight: 0.3,
+    weight: 0.35,
     rule: 'OVERLAP_IS_BETTER',
   },
 
@@ -275,6 +292,26 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     dimension: 'social',
     weight: 0.1,
     rule: 'NONE', // Used for context, not scoring
+  },
+
+  conflictStyle: {
+    id: 'conflictStyle',
+    type: 'enum',
+    label: 'Umgang mit Meinungsverschiedenheiten',
+    description: 'Wie geht die Person mit Konflikten um?',
+    required: true,
+    formSection: 'social',
+    formOrder: 5,
+    options: ['AVOIDANT', 'COOPERATIVE', 'DIRECT'] as const,
+    optionLabels: {
+      AVOIDANT: 'Vermeidend (meidet Konfrontation)',
+      COOPERATIVE: 'Kooperativ (sucht Kompromiss)',
+      DIRECT: 'Direkt (spricht Probleme offen an)',
+    },
+    default: 'COOPERATIVE',
+    dimension: 'social',
+    weight: 0.10,
+    rule: 'SAME_IS_BETTER',
   },
 
   // ---------------------------------------------------------------------------
@@ -294,7 +331,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
       INDOOR_SMOKER: 'Raucht auch drinnen',
     },
     dimension: 'practical',
-    weight: 0.35,
+    weight: 0.45,
     rule: 'MUST_ALLOW',
     housingField: 'smokingAllowed',
   },
@@ -315,7 +352,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
       NONE: 'Keine besonderen',
     },
     dimension: 'practical',
-    weight: 0.15,
+    weight: 0.05,
     rule: 'OVERLAP_IS_BETTER',
   },
 
@@ -369,7 +406,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Wenig aktiv',
     highLabel: 'Sehr aktiv',
     dimension: 'practical',
-    weight: 0.2,
+    weight: 0.15,
     rule: 'SIMILAR_IS_BETTER', // Match people with similar contribution levels
   },
 
@@ -496,7 +533,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     trueLabel: 'Ja',
     falseLabel: 'Nein',
     dimension: 'practical',
-    weight: 0.15,
+    weight: 0.10,
     rule: 'MUST_ALLOW',
     housingField: 'petsAllowed',
   },

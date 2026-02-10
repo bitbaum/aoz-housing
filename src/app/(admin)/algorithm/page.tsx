@@ -6,7 +6,6 @@ import {
   Brain,
   Shield,
   Users,
-  Home,
   ChevronDown,
   ChevronUp,
   AlertTriangle,
@@ -22,6 +21,9 @@ import {
   FileText,
   Database,
   MapPin,
+  Beaker,
+  History,
+  Grid3X3,
 } from 'lucide-react'
 import { Tabs } from '@/components/ui'
 
@@ -35,24 +37,68 @@ import {
   RESEARCH_SOURCES,
   FACTOR_SCIENCE,
   RULE_DOCUMENTATION,
+  RESEARCH_METHODOLOGY,
+  ALGORITHM_VERSIONS,
+  EVIDENCE_STRENGTH_CONFIG,
   getSourcesByRegion,
   getSourceById,
   type ResearchSource,
+  type EvidenceStrength,
 } from '@/lib/config/algorithm-docs'
 
 // =============================================================================
 // Derived Data from Config (SSOT)
 // =============================================================================
 
-// Count factors with compatibility impact (weight > 0)
 const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter(f => f.weight > 0).length
 const DIMENSION_COUNT = RESIDENT_DIMENSIONS.length
+const SOURCE_COUNT = RESEARCH_SOURCES.length
 
 // Get factors by dimension
 function getFactorsByDimension(dimensionId: string) {
   return Object.values(RESIDENT_FACTORS)
     .filter(f => f.dimension === dimensionId && f.weight > 0)
     .sort((a, b) => b.weight - a.weight)
+}
+
+// =============================================================================
+// Evidence Strength Badge (reusable across tabs)
+// =============================================================================
+
+function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength }) {
+  const config = EVIDENCE_STRENGTH_CONFIG[strength]
+  const colorClasses: Record<string, string> = {
+    green: 'bg-green-100 text-green-800',
+    yellow: 'bg-yellow-100 text-yellow-800',
+    gray: 'bg-gray-100 text-gray-600',
+  }
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colorClasses[config.color]}`}>
+      {config.label}
+    </span>
+  )
+}
+
+// =============================================================================
+// Evidence Strength Bar (visual indicator for factor cards)
+// =============================================================================
+
+function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }) {
+  const barWidths: Record<EvidenceStrength, string> = {
+    strong: 'w-full',
+    moderate: 'w-2/3',
+    preliminary: 'w-1/3',
+  }
+  const barColors: Record<EvidenceStrength, string> = {
+    strong: 'bg-green-500',
+    moderate: 'bg-yellow-500',
+    preliminary: 'bg-gray-400',
+  }
+  return (
+    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+      <div className={`h-full rounded-full ${barColors[strength]} ${barWidths[strength]}`} />
+    </div>
+  )
 }
 
 // =============================================================================
@@ -108,8 +154,8 @@ export default function AlgorithmPage() {
             />
             <FactStat
               icon={<MapPin className="w-5 h-5" />}
-              value="CH/DE"
-              label="Forschung"
+              value="CH/DE/INT"
+              label={`${SOURCE_COUNT} Quellen`}
             />
             <FactStat
               icon={<Shield className="w-5 h-5" />}
@@ -177,6 +223,8 @@ function FactStat({ icon, value, label }: { icon: React.ReactNode; value: string
 // =============================================================================
 
 function OverviewTab() {
+  const dimensionColors = ['purple', 'blue', 'green', 'orange'] as const
+
   return (
     <div className="space-y-8">
       {/* How it Works */}
@@ -208,26 +256,74 @@ function OverviewTab() {
         </div>
       </section>
 
-      {/* Dimensions from Config */}
+      {/* Scientific Methodology Summary */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Beaker className="w-5 h-5 text-aoz-primary" />
+          Wissenschaftliche Methodik
+        </h2>
+        <div className="text-gray-600 space-y-2">
+          <p>
+            Die Gewichtung der Faktoren basiert auf einem evidenzbasierten Ansatz: Jeder Faktor wird
+            durch mindestens eine publizierte Studie gestützt. Wir unterscheiden zwischen starker
+            Evidenz (experimentelle Studien, grosse Umfragen), moderater Evidenz (Beobachtungsstudien,
+            Expertenkonsens) und vorläufiger Evidenz (Einzelstudien, indirekte Belege).
+          </p>
+          <p>
+            Schweizer Forschung wird priorisiert, da sie den lokalen Kontext von Asylunterkünften
+            am besten abbildet. Internationale Studien dienen zur Validierung und Ergänzung.
+            Die Gewichtungen werden regelmässig überprüft, wenn neue Forschungsergebnisse vorliegen.
+          </p>
+        </div>
+      </section>
+
+      {/* Dimensions with Visual Weight Bars */}
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           <Layers className="w-5 h-5 text-aoz-primary" />
           Die {DIMENSION_COUNT} Dimensionen
         </h2>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {RESIDENT_DIMENSIONS.map((dim, i) => {
-            const colors = ['purple', 'blue', 'green', 'orange'] as const
             const factors = getFactorsByDimension(dim.id)
             return (
               <DimensionCard
                 key={dim.id}
                 name={dim.label}
                 weight={Math.round(dim.weight * 100)}
-                color={colors[i % colors.length]}
+                color={dimensionColors[i % dimensionColors.length]}
                 description={dim.description}
                 factorCount={factors.length}
               />
+            )
+          })}
+        </div>
+
+        {/* CSS-only weight visualization bars */}
+        <div className="space-y-3">
+          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+            Gewichtungsverteilung
+          </h3>
+          {RESIDENT_DIMENSIONS.map((dim, i) => {
+            const pct = Math.round(dim.weight * 100)
+            const barColors = [
+              'bg-purple-500',
+              'bg-blue-500',
+              'bg-green-500',
+              'bg-orange-500',
+            ]
+            return (
+              <div key={dim.id} className="flex items-center gap-3">
+                <span className="text-sm text-gray-700 w-28 flex-shrink-0">{dim.label}</span>
+                <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${barColors[i % barColors.length]}`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <span className="text-sm font-semibold text-gray-700 w-10 text-right">{pct}%</span>
+              </div>
             )
           })}
         </div>
@@ -252,12 +348,17 @@ function OverviewTab() {
           <ScoreLevel score="0-19" label="Kritisch" color="red" action="Blockiert" />
         </div>
       </section>
+
+      {/* Version Footer */}
+      <div className="text-center text-sm text-gray-400 pt-4">
+        Letzte Aktualisierung: v2.0 – 10. Februar 2026
+      </div>
     </div>
   )
 }
 
 // =============================================================================
-// Science Tab - Research Basis
+// Science Tab - Research Basis (Enhanced)
 // =============================================================================
 
 function ScienceTab() {
@@ -267,6 +368,7 @@ function ScienceTab() {
 
   return (
     <div className="space-y-6">
+      {/* Introduction */}
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-aoz-primary" />
@@ -278,83 +380,279 @@ function ScienceTab() {
         </p>
       </section>
 
-      {/* Swiss Research */}
-      {swissSources.length > 0 && (
-        <section className="card">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-lg">🇨🇭</span> Schweizer Forschung
-          </h3>
-          <div className="space-y-4">
-            {swissSources.map(source => (
-              <SourceCard key={source.id} source={source} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Research Methodology Hierarchy */}
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Beaker className="w-5 h-5 text-gray-500" />
+          Evidenz-Hierarchie
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Nicht alle Forschung hat die gleiche Aussagekraft. Wir bewerten jede Quelle nach
+          ihrer methodischen Stärke.
+        </p>
 
-      {/* German Research */}
-      {germanSources.length > 0 && (
-        <section className="card">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-lg">🇩🇪</span> Deutsche Forschung
-          </h3>
-          <div className="space-y-4">
-            {germanSources.map(source => (
-              <SourceCard key={source.id} source={source} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* International Research */}
-      {intlSources.length > 0 && (
-        <section className="card">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="text-lg">🌍</span> Internationale Studien
-          </h3>
-          <div className="space-y-4">
-            {intlSources.map(source => (
-              <SourceCard key={source.id} source={source} />
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  )
-}
-
-function SourceCard({ source }: { source: ResearchSource }) {
-  return (
-    <div className="border border-gray-200 rounded-lg p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h4 className="font-medium text-gray-900">{source.title}</h4>
-          <p className="text-sm text-gray-500">
-            {source.publication}
-            {source.year && ` (${source.year})`}
-          </p>
-        </div>
-        {source.url && (
-          <a
-            href={source.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-aoz-primary hover:underline text-sm flex items-center gap-1 flex-shrink-0"
-          >
-            Quelle <ExternalLink className="w-3 h-3" />
-          </a>
-        )}
-      </div>
-      {source.keyFindings.length > 0 && (
-        <ul className="mt-3 space-y-1">
-          {source.keyFindings.map((finding, i) => (
-            <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
-              <span className="text-aoz-primary mt-0.5">•</span>
-              {finding}
-            </li>
+        <div className="space-y-3">
+          {RESEARCH_METHODOLOGY.map(method => (
+            <div
+              key={method.type}
+              className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-start gap-3"
+            >
+              <div className="flex-shrink-0">
+                <EvidenceStrengthBadge strength={method.strength} />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-medium text-gray-900">{method.type}</h4>
+                <p className="text-sm text-gray-600 mt-1">{method.description}</p>
+                <p className="text-xs text-gray-400 mt-1 italic">Beispiel: {method.example}</p>
+              </div>
+            </div>
           ))}
-        </ul>
-      )}
+        </div>
+      </section>
+
+      {/* Evidence Map per Dimension */}
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Grid3X3 className="w-5 h-5 text-gray-500" />
+          Evidenz-Karte pro Dimension
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Welche Forschung stützt welche Dimension? Schweizer Studien sind mit einem Flag markiert.
+        </p>
+
+        <div className="space-y-6">
+          {RESIDENT_DIMENSIONS.map(dim => {
+            const factors = getFactorsByDimension(dim.id)
+            // Collect all unique source IDs for this dimension
+            const dimensionSourceIds = new Set<string>()
+            factors.forEach(f => {
+              const science = FACTOR_SCIENCE[f.id]
+              if (science) {
+                science.sourceIds.forEach(id => dimensionSourceIds.add(id))
+              }
+            })
+            const dimensionSources = Array.from(dimensionSourceIds)
+              .map(id => getSourceById(id))
+              .filter((s): s is ResearchSource => s !== undefined)
+
+            if (dimensionSources.length === 0) return null
+
+            return (
+              <div key={dim.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium text-gray-900">{dim.label}</h4>
+                    <span className="text-xs text-gray-500">
+                      {Math.round(dim.weight * 100)}% Gewicht
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{dim.description}</p>
+                </div>
+                <div className="p-4 space-y-2">
+                  {dimensionSources.map(source => (
+                    <div
+                      key={source.id}
+                      className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm"
+                    >
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {source.region === 'CH' && <span className="flex-shrink-0">🇨🇭</span>}
+                        {source.region === 'DE' && <span className="flex-shrink-0">🇩🇪</span>}
+                        {source.region === 'INT' && <span className="flex-shrink-0">🌍</span>}
+                        <span className="text-gray-700 truncate">{source.title}</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 pl-6 sm:pl-0">
+                        <EvidenceStrengthBadge strength={source.evidenceStrength} />
+                        {source.year && (
+                          <span className="text-xs text-gray-400">{source.year}</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Per-Factor Evidence Cards */}
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-gray-500" />
+          Evidenz pro Faktor
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Detaillierte wissenschaftliche Grundlage für jeden Kompatibilitätsfaktor.
+        </p>
+
+        <div className="space-y-6">
+          {RESIDENT_DIMENSIONS.map(dim => {
+            const factors = getFactorsByDimension(dim.id)
+            const factorsWithScience = factors.filter(f => FACTOR_SCIENCE[f.id])
+            if (factorsWithScience.length === 0) return null
+
+            return (
+              <div key={dim.id}>
+                <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                  {dim.label}
+                </h4>
+                <div className="space-y-3">
+                  {factorsWithScience.map(factor => {
+                    const science = FACTOR_SCIENCE[factor.id]!
+                    const sources = science.sourceIds
+                      .map(id => getSourceById(id))
+                      .filter((s): s is ResearchSource => s !== undefined)
+
+                    return (
+                      <div key={factor.id} className="border border-gray-200 rounded-lg p-4">
+                        {/* Header with name and evidence badge */}
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <h5 className="font-medium text-gray-900">{factor.label}</h5>
+                          <EvidenceStrengthBadge strength={science.evidenceStrength} />
+                        </div>
+
+                        {/* Evidence strength bar */}
+                        <EvidenceStrengthBar strength={science.evidenceStrength} />
+
+                        {/* Evidence note */}
+                        <p className="text-xs text-gray-500 mt-2 italic">{science.evidenceNote}</p>
+
+                        {/* Key quantitative findings */}
+                        <div className="mt-3 space-y-1">
+                          {science.researchFindings.map((finding, i) => (
+                            <p key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-aoz-primary mt-0.5 flex-shrink-0">-</span>
+                              <span>{finding}</span>
+                            </p>
+                          ))}
+                        </div>
+
+                        {/* Swiss context */}
+                        {science.swissContext && (
+                          <p className="text-xs text-aoz-primary mt-3 flex items-start gap-1.5 bg-green-50 rounded px-2 py-1.5">
+                            <span className="flex-shrink-0">🇨🇭</span>
+                            <span>{science.swissContext}</span>
+                          </p>
+                        )}
+
+                        {/* Source citations */}
+                        {sources.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <p className="text-xs text-gray-400 mb-1">Quellen:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {sources.map(source => (
+                                <span
+                                  key={source.id}
+                                  className="text-xs bg-gray-50 border border-gray-200 px-2 py-0.5 rounded"
+                                  title={source.title}
+                                >
+                                  {source.publication?.split('/')[0]?.trim() || source.title}
+                                  {source.year ? ` (${source.year})` : ''}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Full Source Table */}
+      <section className="card">
+        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <FileText className="w-5 h-5 text-gray-500" />
+          Quellenverzeichnis ({SOURCE_COUNT} Quellen)
+        </h3>
+
+        {/* Mobile: card layout; Desktop: table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Titel</th>
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Region</th>
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Jahr</th>
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Publikation</th>
+                <th className="text-left py-2 font-medium text-gray-500">Evidenz</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RESEARCH_SOURCES.map(source => (
+                <tr key={source.id} className="border-b border-gray-100">
+                  <td className="py-2 pr-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900">{source.title}</span>
+                      {source.url && (
+                        <a
+                          href={source.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-aoz-primary flex-shrink-0"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-2 pr-3 whitespace-nowrap">
+                    {source.region === 'CH' && '🇨🇭 Schweiz'}
+                    {source.region === 'DE' && '🇩🇪 Deutschland'}
+                    {source.region === 'INT' && '🌍 International'}
+                  </td>
+                  <td className="py-2 pr-3 text-gray-500">
+                    {source.year || '-'}
+                  </td>
+                  <td className="py-2 pr-3 text-gray-500 max-w-[200px] truncate">
+                    {source.publication || '-'}
+                  </td>
+                  <td className="py-2">
+                    <EvidenceStrengthBadge strength={source.evidenceStrength} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile: stacked cards */}
+        <div className="md:hidden space-y-3">
+          {RESEARCH_SOURCES.map(source => (
+            <div key={source.id} className="border border-gray-200 rounded-lg p-3">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h4 className="text-sm font-medium text-gray-900">{source.title}</h4>
+                {source.url && (
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-aoz-primary flex-shrink-0"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                <span>
+                  {source.region === 'CH' && '🇨🇭 Schweiz'}
+                  {source.region === 'DE' && '🇩🇪 Deutschland'}
+                  {source.region === 'INT' && '🌍 International'}
+                </span>
+                {source.year && <span>{source.year}</span>}
+                <EvidenceStrengthBadge strength={source.evidenceStrength} />
+              </div>
+              {source.publication && (
+                <p className="text-xs text-gray-400 mt-1">{source.publication}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }
@@ -421,8 +719,13 @@ function DimensionsTab({
                     const science = FACTOR_SCIENCE[factor.id]
                     return (
                       <div key={factor.id} className="bg-gray-50 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900">{factor.label}</h4>
+                        <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium text-gray-900">{factor.label}</h4>
+                            {science && (
+                              <EvidenceStrengthBadge strength={science.evidenceStrength} />
+                            )}
+                          </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs bg-white border border-gray-200 px-2 py-1 rounded">
                               {Math.round(factor.weight * 100)}%
@@ -463,7 +766,6 @@ function DimensionsTab({
 // =============================================================================
 
 function DataCollectionTab() {
-  // Get factors that have science documentation
   const documentedFactors = Object.values(RESIDENT_FACTORS).filter(
     f => FACTOR_SCIENCE[f.id]?.dataCollectionMethod
   )
@@ -483,10 +785,10 @@ function DataCollectionTab() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-medium text-blue-900 mb-2">Datenschutz-Grundsätze</h3>
           <ul className="text-sm text-blue-800 space-y-1">
-            <li>• Nur funktionale Daten, keine medizinischen Diagnosen</li>
-            <li>• Selbstauskunft der Bewohner</li>
-            <li>• Anonymisierte Verarbeitung</li>
-            <li>• Keine politischen/religiösen Daten</li>
+            <li>- Nur funktionale Daten, keine medizinischen Diagnosen</li>
+            <li>- Selbstauskunft der Bewohner</li>
+            <li>- Anonymisierte Verarbeitung</li>
+            <li>- Keine politischen/religiösen Daten</li>
           </ul>
         </div>
       </section>
@@ -543,7 +845,7 @@ function DataCollectionTab() {
 }
 
 // =============================================================================
-// Technical Tab
+// Technical Tab (Enhanced)
 // =============================================================================
 
 function TechnicalTab() {
@@ -568,6 +870,76 @@ function TechnicalTab() {
               <p className="text-xs text-gray-400 mt-2">Logik: {rule.scoringLogic}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Weight Derivation */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-aoz-primary" />
+          Gewichtungsherleitung
+        </h2>
+
+        <p className="text-gray-600 mb-4">
+          Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der
+          Forschungsbelege für die zugehörigen Faktoren.
+        </p>
+
+        {/* Mobile: stacked cards; Desktop: table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Dimension</th>
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Gewicht</th>
+                <th className="text-left py-2 font-medium text-gray-500">Begründung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RESIDENT_DIMENSIONS.map(dim => {
+                const factors = getFactorsByDimension(dim.id)
+                const strongCount = factors.filter(
+                  f => FACTOR_SCIENCE[f.id]?.evidenceStrength === 'strong'
+                ).length
+                return (
+                  <tr key={dim.id} className="border-b border-gray-100">
+                    <td className="py-3 pr-3 font-medium text-gray-900">{dim.label}</td>
+                    <td className="py-3 pr-3">
+                      <span className="font-bold text-gray-700">
+                        {Math.round(dim.weight * 100)}%
+                      </span>
+                    </td>
+                    <td className="py-3 text-gray-600">
+                      {getDimensionRationale(dim.id, factors.length, strongCount)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {RESIDENT_DIMENSIONS.map(dim => {
+            const factors = getFactorsByDimension(dim.id)
+            const strongCount = factors.filter(
+              f => FACTOR_SCIENCE[f.id]?.evidenceStrength === 'strong'
+            ).length
+            return (
+              <div key={dim.id} className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-gray-900">{dim.label}</span>
+                  <span className="font-bold text-gray-700">
+                    {Math.round(dim.weight * 100)}%
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {getDimensionRationale(dim.id, factors.length, strongCount)}
+                </p>
+              </div>
+            )
+          })}
         </div>
       </section>
 
@@ -613,6 +985,101 @@ function TechnicalTab() {
         </div>
       </section>
 
+      {/* Confidence Matrix */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Grid3X3 className="w-5 h-5 text-aoz-primary" />
+          Konfidenz-Matrix
+        </h2>
+
+        <p className="text-gray-600 mb-4">
+          Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres
+          Vertrauen in die Gewichtung.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {Object.entries(FACTOR_SCIENCE).map(([factorId, science]) => {
+            const factor = RESIDENT_FACTORS[factorId]
+            if (!factor) return null
+            const config = EVIDENCE_STRENGTH_CONFIG[science.evidenceStrength]
+            const colorClasses: Record<string, string> = {
+              green: 'border-green-300 bg-green-50',
+              yellow: 'border-yellow-300 bg-yellow-50',
+              gray: 'border-gray-300 bg-gray-50',
+            }
+            return (
+              <div
+                key={factorId}
+                className={`border rounded-lg p-3 ${colorClasses[config.color]}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-gray-900 truncate">
+                    {factor.label}
+                  </span>
+                  <EvidenceStrengthBadge strength={science.evidenceStrength} />
+                </div>
+                <div className="mt-1.5">
+                  <EvidenceStrengthBar strength={science.evidenceStrength} />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {Math.round(factor.weight * 100)}% Gewicht
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Algorithm Version History */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <History className="w-5 h-5 text-aoz-primary" />
+          Algorithmus-Versionshistorie
+        </h2>
+
+        <div className="space-y-6">
+          {ALGORITHM_VERSIONS.map((version, versionIndex) => (
+            <div key={version.version} className="relative">
+              {/* Timeline connector */}
+              {versionIndex < ALGORITHM_VERSIONS.length - 1 && (
+                <div className="absolute top-10 left-4 w-0.5 h-full bg-gray-200 -z-10" />
+              )}
+
+              <div className="flex items-start gap-4">
+                {/* Version badge */}
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                  versionIndex === 0
+                    ? 'bg-aoz-primary text-white'
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {version.version}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h4 className="font-semibold text-gray-900">Version {version.version}</h4>
+                    <span className="text-xs text-gray-500">{formatDate(version.date)}</span>
+                    {versionIndex === 0 && (
+                      <span className="text-xs bg-aoz-primary/10 text-aoz-primary px-2 py-0.5 rounded-full font-medium">
+                        Aktuell
+                      </span>
+                    )}
+                  </div>
+                  <ul className="space-y-1">
+                    {version.changes.map((change, i) => (
+                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="text-gray-400 mt-0.5 flex-shrink-0">-</span>
+                        <span>{change}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Config Location */}
       <section className="card bg-gray-50">
         <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -624,13 +1091,51 @@ function TechnicalTab() {
           Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.
         </p>
         <div className="font-mono text-xs text-gray-500 space-y-1">
-          <p>src/lib/config/resident-factors.ts → Faktoren & Dimensionen</p>
-          <p>src/lib/config/algorithm-docs.ts → Wissenschaftliche Basis</p>
-          <p>src/lib/config/types.ts → Typdefinitionen</p>
+          <p>src/lib/config/resident-factors.ts - Faktoren & Dimensionen</p>
+          <p>src/lib/config/algorithm-docs.ts - Wissenschaftliche Basis</p>
+          <p>src/lib/config/types.ts - Typdefinitionen</p>
         </div>
       </section>
     </div>
   )
+}
+
+// =============================================================================
+// Helper: Dimension weight rationale text
+// =============================================================================
+
+function getDimensionRationale(
+  dimensionId: string,
+  factorCount: number,
+  strongEvidenceCount: number
+): string {
+  const rationales: Record<string, string> = {
+    lifestyle:
+      'Höchstes Gewicht: Schlafrhythmus und Sauberkeit haben die stärkste experimentelle Evidenz als Konfliktauslöser (RCT-Studien, n=3\'098). v2.0: erhöht von 30% auf 35%.',
+    social:
+      'Kommunikation (Sprache) und Privatsphäre sind durch BFH-HSLU 2024 (1\'000 Familien) als "kritisch" bestätigt. Stabile Gewichtung bei 25%.',
+    practical:
+      'Rauchen ist nicht-verhandelbar (Gesundheitsrecht), andere Faktoren haben geringere Konfliktevidenz. v2.0: reduziert von 25% auf 20%.',
+    requirements:
+      'Binäre Anforderungen (Rollstuhl, Einzelzimmer) – kein Kompromiss möglich. Blockieren statt gewichten.',
+  }
+  return (
+    rationales[dimensionId] ||
+    `${factorCount} Faktoren, davon ${strongEvidenceCount} mit starker Evidenz.`
+  )
+}
+
+// =============================================================================
+// Helper: Format ISO date to German
+// =============================================================================
+
+function formatDate(isoDate: string): string {
+  const months = [
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+  ]
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return `${day}. ${months[month - 1]} ${year}`
 }
 
 // =============================================================================

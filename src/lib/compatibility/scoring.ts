@@ -1,8 +1,11 @@
 /**
  * Core compatibility scoring algorithm
- * 
+ *
  * Calculates how well two residents would live together
  * based on lifestyle, social, and practical factors.
+ *
+ * v2.0: Research-justified weight adjustments + new factors
+ * See algorithm-docs.ts for evidence mapping.
  */
 
 import type {
@@ -11,6 +14,7 @@ import type {
   CompatibilityWeights,
   DimensionResult,
   FactorResult,
+  ConflictStyle,
 } from './types'
 import {
   LIFESTYLE_SCALES,
@@ -63,7 +67,7 @@ export function calculateCompatibility(
 }
 
 /**
- * Lifestyle compatibility: sleep, noise, cleanliness
+ * Lifestyle compatibility: sleep, noise, cleanliness, guest tolerance
  */
 function calculateLifestyleCompatibility(
   r1: ResidentProfile,
@@ -76,7 +80,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'sleep_schedule',
     score: sleepScore,
-    weight: 40,
+    weight: 35,
     note: sleepScore < 50 ? 'Unterschiedliche Schlafzeiten' : undefined,
   })
 
@@ -86,7 +90,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'noise_tolerance',
     score: noiseScore,
-    weight: 30,
+    weight: 25,
     note: noiseDiff > 2 ? 'Unterschiedliche Lärmtoleranz' : undefined,
   })
 
@@ -100,6 +104,16 @@ function calculateLifestyleCompatibility(
     note: cleanDiff > 2 ? 'Unterschiedliche Sauberkeitsstandards' : undefined,
   })
 
+  // Guest tolerance (closer values = better)
+  const guestDiff = Math.abs(r1.guestTolerance - r2.guestTolerance)
+  const guestScore = 100 - guestDiff * LIFESTYLE_SCALES.guestTolerance
+  factors.push({
+    name: 'guest_tolerance',
+    score: guestScore,
+    weight: 10,
+    note: guestDiff > 2 ? 'Unterschiedliche Besuchertoleranz' : undefined,
+  })
+
   return {
     score: weightedAverage(factors),
     factors,
@@ -107,7 +121,7 @@ function calculateLifestyleCompatibility(
 }
 
 /**
- * Social compatibility: communication style, language, social needs
+ * Social compatibility: communication style, language, privacy, conflict resolution
  */
 function calculateSocialCompatibility(
   r1: ResidentProfile,
@@ -120,7 +134,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'social_style',
     score: socialStyleScore,
-    weight: 35,
+    weight: 25,
   })
 
   // Language overlap (enhanced with lingua franca support)
@@ -129,7 +143,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'language',
     score: languageScore,
-    weight: 40,
+    weight: 35,
     note: languageScore < 50 ? 'Kommunikation könnte schwierig sein' :
           languageScore === 100 ? `Gemeinsame Sprache: ${sharedLanguages.join(', ')}` : undefined,
   })
@@ -140,7 +154,16 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'privacy_needs',
     score: privacyScore,
-    weight: 25,
+    weight: 30,
+  })
+
+  // Conflict resolution style compatibility
+  const conflictScore = calculateConflictStyleCompatibility(r1.conflictStyle, r2.conflictStyle)
+  factors.push({
+    name: 'conflict_style',
+    score: conflictScore,
+    weight: 10,
+    note: conflictScore < 60 ? 'Unvereinbare Konfliktlösungsstile' : undefined,
   })
 
   return {
@@ -163,7 +186,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'smoking',
     score: smokingScore,
-    weight: 40,
+    weight: 45,
     note: smokingScore < 50 ? 'Raucher/Nichtraucher Konflikt möglich' : undefined,
   })
 
@@ -172,7 +195,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'shared_spaces',
     score: sharedSpaceScore,
-    weight: 30,
+    weight: 25,
   })
 
   // Pet tolerance
@@ -180,7 +203,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'pets',
     score: petScore,
-    weight: 15,
+    weight: 10,
   })
 
   // Dietary compatibility (kitchen sharing)
@@ -188,7 +211,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'dietary',
     score: dietScore,
-    weight: 15,
+    weight: 5,
   })
 
   // Chores contribution compatibility (similar levels = less conflict)
@@ -197,7 +220,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'chores',
     score: choresScore,
-    weight: 20,
+    weight: 15,
     note: choresDiff >= 2 ? 'Unterschiedliche Beiträge zu Haushaltsaufgaben' : undefined,
   })
 
@@ -304,6 +327,22 @@ function calculateRiskFactors(
     totalRisk += 25 * 0.1
   }
 
+  // Guest tolerance mismatch risk
+  const guestDiff = Math.abs(r1.guestTolerance - r2.guestTolerance)
+  if (guestDiff >= 3) {
+    factors.push({ name: 'guest_conflict', score: 30, weight: 1 })
+    totalRisk += 30 * 0.15
+  }
+
+  // Conflict style mismatch risk (avoidant + direct = worst combo)
+  if (
+    (r1.conflictStyle === 'AVOIDANT' && r2.conflictStyle === 'DIRECT') ||
+    (r2.conflictStyle === 'AVOIDANT' && r1.conflictStyle === 'DIRECT')
+  ) {
+    factors.push({ name: 'conflict_style_mismatch', score: 25, weight: 1 })
+    totalRisk += 25 * 0.1
+  }
+
   return {
     score: Math.min(100, Math.round(totalRisk)),
     factors,
@@ -333,6 +372,18 @@ function calculateSocialStyleCompatibility(s1: string, s2: string): number {
   return 60
 }
 
+/**
+ * Conflict style compatibility
+ * Based on IJIP Big Five research: agreeableness → constructive tactics
+ */
+function calculateConflictStyleCompatibility(s1: ConflictStyle, s2: ConflictStyle): number {
+  if (s1 === s2) return 100
+  // Cooperative bridges all styles (high agreeableness)
+  if (s1 === 'COOPERATIVE' || s2 === 'COOPERATIVE') return 85
+  // Avoidant + Direct is worst mismatch — one avoids, other confronts
+  return 50
+}
+
 function calculateSmokingCompatibility(s1: string, s2: string): number {
   if (s1 === s2) return 100
   if (s1 === 'NON_SMOKER' && s2 === 'OUTDOOR_SMOKER') return 80
@@ -346,13 +397,13 @@ function calculateSmokingCompatibility(s1: string, s2: string): number {
 
 function calculateSharedSpaceCompatibility(r1: ResidentProfile, r2: ResidentProfile): number {
   let score = 100
-  
+
   // Both need to accept shared spaces
   if (!r1.sharedBathroom && r2.sharedBathroom) score -= 20
   if (!r2.sharedBathroom && r1.sharedBathroom) score -= 20
   if (!r1.sharedKitchen && r2.sharedKitchen) score -= 15
   if (!r2.sharedKitchen && r1.sharedKitchen) score -= 15
-  
+
   return Math.max(0, score)
 }
 
@@ -458,7 +509,7 @@ function generateInsights(
   if (dimensions.lifestyle.score >= 80) {
     strengths.push('Ähnlicher Lebensstil und Tagesrhythmus')
   }
-  
+
   // Analyze social
   const sharedLanguages = r1.languages.filter((l) => r2.languages.includes(l))
   if (sharedLanguages.length > 0) {
@@ -492,6 +543,24 @@ function generateInsights(
   // Positive factors
   if (r1.socialStyle === r2.socialStyle) {
     strengths.push('Ähnliche soziale Bedürfnisse')
+  }
+
+  // Conflict style insights
+  if (r1.conflictStyle === r2.conflictStyle) {
+    strengths.push('Ähnlicher Konfliktlösungsstil')
+  } else if (
+    (r1.conflictStyle === 'AVOIDANT' && r2.conflictStyle === 'DIRECT') ||
+    (r2.conflictStyle === 'AVOIDANT' && r1.conflictStyle === 'DIRECT')
+  ) {
+    concerns.push('Gegensätzliche Konfliktlösungsstile (vermeidend/direkt)')
+    recommendations.push('Mediation bei Konflikten frühzeitig anbieten')
+  }
+
+  // Guest tolerance insights
+  const guestDiff = Math.abs(r1.guestTolerance - r2.guestTolerance)
+  if (guestDiff >= 3) {
+    concerns.push('Sehr unterschiedliche Besuchertoleranz')
+    recommendations.push('Klare Besucherregeln vereinbaren')
   }
 
   // Health/Support factors
@@ -560,13 +629,18 @@ function generateInsights(
     predictions.push('Mittlere Wahrscheinlichkeit Hausarbeitskonflikt in Wochen 4-8')
   }
 
+  // Guest conflict prediction
+  if (guestDiff >= 3) {
+    predictions.push('Mittlere Wahrscheinlichkeit Besucherkonflikt in Wochen 2-6')
+  }
+
   // Add temporal recommendations
   if (predictions.length > 0) {
-    recommendations.push('⏰ Check-in in Woche 3 empfohlen (kritische Phase)')
+    recommendations.push('Check-in in Woche 3 empfohlen (kritische Phase)')
   }
 
   if (dimensions.risk.score > 60) {
-    recommendations.push('⏰ Wöchentliche Check-ins für ersten Monat')
+    recommendations.push('Wöchentliche Check-ins für ersten Monat')
   }
 
   return { strengths, concerns, recommendations, predictions }

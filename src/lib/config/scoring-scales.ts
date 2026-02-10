@@ -20,6 +20,8 @@ export const LIFESTYLE_SCALES = {
   noiseTolerance: 20,
   /** Cleanliness level difference multiplier (0-5 scale) */
   cleanlinessLevel: 20,
+  /** Guest tolerance difference multiplier (0-5 scale) */
+  guestTolerance: 20,
 } as const
 
 /**
@@ -43,35 +45,40 @@ export const PRACTICAL_SCALES = {
  * These determine how much each factor contributes to its dimension score.
  * Must match the hardcoded weights in scoring.ts factor arrays.
  *
- * NOTE: practical weights sum to 120 (not 100) — weightedAverage() normalizes
- * by dividing by total weight, so the ratios are what matter.
+ * Research justification for v2.0 changes documented in algorithm-docs.ts
  */
 export const DIMENSION_WEIGHTS = {
   lifestyle: {
-    sleepSchedule: 40,
-    noiseTolerance: 30,
-    cleanliness: 30,
+    sleepSchedule: 35,   // #1 conflict trigger (PMC cortisol study)
+    cleanliness: 30,     // #1-2 conflict trigger (Kansas State/ASU)
+    noiseTolerance: 25,  // Top-5 trigger (Brunnenhof, GdW)
+    guestTolerance: 10,  // Top-5 trigger (national survey, 31k students)
   },
   social: {
-    language: 40,
-    socialStyle: 35,
-    privacyNeed: 25,
+    language: 35,        // "Central factor" (BFH)
+    privacyNeed: 30,     // "Critical" (BFH-HSLU 2024)
+    socialStyle: 25,     // Big Five support (IJIP)
+    conflictStyle: 10,   // Agreeableness effect (IJIP, PMC 2024)
   },
   practical: {
-    smoking: 40,
-    sharedSpaces: 30,
-    chores: 20,
-    pets: 15,
-    dietary: 15,
+    smoking: 45,         // Non-negotiable (Wuppertal Institut)
+    sharedSpaces: 25,    // Functional requirement
+    chores: 15,          // Moderate evidence (Kansas State)
+    pets: 10,            // Lower conflict evidence
+    dietary: 5,          // Minimal conflict evidence
   },
 } as const
 
 /**
  * Overall dimension weights for final score
+ *
+ * v2.0 changes:
+ * - Lifestyle: 30 → 35 (sleep + cleanliness are #1-2 conflict triggers)
+ * - Practical: 25 → 20 (secondary factors have less conflict evidence)
  */
 export const OVERALL_DIMENSION_WEIGHTS = {
-  lifestyle: 30,
+  lifestyle: 35,
   social: 25,
-  practical: 25,
+  practical: 20,
   risk: 20,
 } as const

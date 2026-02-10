@@ -11,9 +11,11 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     sleepSchedule: 'STANDARD',
     noiseTolerance: 3,
     cleanlinessLevel: 3,
+    guestTolerance: 3,
     socialStyle: 'MODERATE',
     languages: ['German'],
     culturalRegion: null,
+    conflictStyle: 'COOPERATIVE',
     smokingStatus: 'NON_SMOKER',
     dietaryNeeds: [],
     mobilityNeeds: 'NONE',
@@ -35,6 +37,7 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     medicalDocType: null,
     medicalDocDate: null,
     medicalDocNotes: null,
+    roommatePreferences: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -54,7 +57,9 @@ describe('toResidentProfile', () => {
     expect(profile.sleepSchedule).toBe('STANDARD')
     expect(profile.noiseTolerance).toBe(3)
     expect(profile.cleanlinessLevel).toBe(3)
+    expect(profile.guestTolerance).toBe(3)
     expect(profile.socialStyle).toBe('MODERATE')
+    expect(profile.conflictStyle).toBe('COOPERATIVE')
     expect(profile.languages).toEqual(['German'])
     expect(profile.smokingStatus).toBe('NON_SMOKER')
     expect(profile.dietaryNeeds).toEqual([])
@@ -111,8 +116,8 @@ describe('toResidentProfile', () => {
 
     const requiredFields = [
       'id', 'code', 'ageRange', 'gender', 'familyStatus',
-      'sleepSchedule', 'noiseTolerance', 'cleanlinessLevel',
-      'socialStyle', 'languages', 'smokingStatus', 'dietaryNeeds',
+      'sleepSchedule', 'noiseTolerance', 'cleanlinessLevel', 'guestTolerance',
+      'socialStyle', 'languages', 'conflictStyle', 'smokingStatus', 'dietaryNeeds',
       'mobilityNeeds', 'medicalEquipment', 'petTolerance',
       'sharedBathroom', 'sharedKitchen', 'privacyNeed',
       'choresContribution', 'recyclingKnowledge', 'roomSharingStatus',

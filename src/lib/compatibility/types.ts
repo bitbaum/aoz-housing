@@ -15,11 +15,13 @@ export interface ResidentProfile {
   sleepSchedule: SleepSchedule
   noiseTolerance: number // 1-5
   cleanlinessLevel: number // 1-5
+  guestTolerance: number // 1-5
 
   // Social
   socialStyle: SocialStyle
   languages: string[]
   culturalRegion?: string
+  conflictStyle: ConflictStyle
 
   // Practical
   smokingStatus: SmokingStatus
@@ -55,6 +57,7 @@ export type MobilityNeed = 'NONE' | 'GROUND_FLOOR' | 'WHEELCHAIR'
 export type RoomSharingStatus = 'CAN_SHARE' | 'PREFERS_PRIVATE' | 'NEEDS_PRIVATE'
 export type SupportLevel = 'STANDARD' | 'ELEVATED' | 'INTENSIVE'
 export type RecyclingKnowledge = 'NONE' | 'BASIC' | 'GOOD'
+export type ConflictStyle = 'AVOIDANT' | 'COOPERATIVE' | 'DIRECT'
 
 export interface CompatibilityScore {
   overall: number // 0-100
@@ -66,13 +69,13 @@ export interface CompatibilityScore {
   strengths: string[]
   concerns: string[]
   recommendations: string[]
-  predictions?: string[] // NEW: Predicted conflict types and timeframes
+  predictions?: string[] // Predicted conflict types and timeframes
 }
 
 export interface CompatibilityWeights {
-  lifestyle: number // Default 30
+  lifestyle: number // Default 35
   social: number // Default 25
-  practical: number // Default 25
+  practical: number // Default 20
   risk: number // Default 20
 }
 

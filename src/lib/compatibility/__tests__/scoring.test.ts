@@ -98,25 +98,25 @@ describe('calculateCompatibility — lifestyle', () => {
       const a = makeResident({ sleepSchedule: 'EARLY_BIRD' })
       const b = makeResident({ id: '2', sleepSchedule: 'NIGHT_OWL' })
       const result = calculateCompatibility(a, b)
-      // Sleep=30 (weight 40), noise=100 (weight 30), clean=100 (weight 30)
-      // Weighted avg: (30*40 + 100*30 + 100*30) / 100 = (1200+3000+3000)/100 = 72
-      expect(result.lifestyle).toBe(72)
+      // Sleep=30 (w35), noise=100 (w25), clean=100 (w30), guest=100 (w10)
+      // (30*35 + 100*25 + 100*30 + 100*10) / 100 = (1050+2500+3000+1000)/100 = 75.5 → 76
+      expect(result.lifestyle).toBe(76)
     })
 
     it('IRREGULAR + anything → sleep factor scores 70', () => {
       const a = makeResident({ sleepSchedule: 'IRREGULAR' })
       const b = makeResident({ id: '2', sleepSchedule: 'EARLY_BIRD' })
       const result = calculateCompatibility(a, b)
-      // Sleep=70 (weight 40), noise=100 (weight 30), clean=100 (weight 30)
-      // (70*40 + 100*30 + 100*30) / 100 = (2800+3000+3000)/100 = 88
-      expect(result.lifestyle).toBe(88)
+      // Sleep=70 (w35), noise=100 (w25), clean=100 (w30), guest=100 (w10)
+      // (70*35 + 100*25 + 100*30 + 100*10) / 100 = (2450+2500+3000+1000)/100 = 89.5 → 90
+      expect(result.lifestyle).toBe(90)
     })
 
     it('adjacent schedules (EARLY_BIRD + STANDARD) → sleep factor scores 70', () => {
       const a = makeResident({ sleepSchedule: 'EARLY_BIRD' })
       const b = makeResident({ id: '2', sleepSchedule: 'STANDARD' })
       const result = calculateCompatibility(a, b)
-      expect(result.lifestyle).toBe(88)
+      expect(result.lifestyle).toBe(90)
     })
   })
 
@@ -132,18 +132,18 @@ describe('calculateCompatibility — lifestyle', () => {
       const a = makeResident({ noiseTolerance: 1 })
       const b = makeResident({ id: '2', noiseTolerance: 3 })
       const result = calculateCompatibility(a, b)
-      // Sleep=100 (w40), noise=60 (w30), clean=100 (w30)
-      // (100*40 + 60*30 + 100*30) / 100 = (4000+1800+3000)/100 = 88
-      expect(result.lifestyle).toBe(88)
+      // Sleep=100 (w35), noise=60 (w25), clean=100 (w30), guest=100 (w10)
+      // (100*35 + 60*25 + 100*30 + 100*10) / 100 = (3500+1500+3000+1000)/100 = 90
+      expect(result.lifestyle).toBe(90)
     })
 
     it('diff of 4 → noise factor 20', () => {
       const a = makeResident({ noiseTolerance: 1 })
       const b = makeResident({ id: '2', noiseTolerance: 5 })
       const result = calculateCompatibility(a, b)
-      // Sleep=100 (w40), noise=100-4*20=20 (w30), clean=100 (w30)
-      // (100*40 + 20*30 + 100*30) / 100 = (4000+600+3000)/100 = 76
-      expect(result.lifestyle).toBe(76)
+      // Sleep=100 (w35), noise=100-4*20=20 (w25), clean=100 (w30), guest=100 (w10)
+      // (100*35 + 20*25 + 100*30 + 100*10) / 100 = (3500+500+3000+1000)/100 = 80
+      expect(result.lifestyle).toBe(80)
     })
   })
 
@@ -159,9 +159,36 @@ describe('calculateCompatibility — lifestyle', () => {
       const a = makeResident({ cleanlinessLevel: 1 })
       const b = makeResident({ id: '2', cleanlinessLevel: 4 })
       const result = calculateCompatibility(a, b)
-      // Sleep=100 (w40), noise=100 (w30), clean=100-3*20=40 (w30)
-      // (100*40 + 100*30 + 40*30) / 100 = (4000+3000+1200)/100 = 82
+      // Sleep=100 (w35), noise=100 (w25), clean=100-3*20=40 (w30), guest=100 (w10)
+      // (100*35 + 100*25 + 40*30 + 100*10) / 100 = (3500+2500+1200+1000)/100 = 82
       expect(result.lifestyle).toBe(82)
+    })
+  })
+
+  describe('guest tolerance', () => {
+    it('same tolerance → 100', () => {
+      const a = makeResident({ guestTolerance: 3 })
+      const b = makeResident({ id: '2', guestTolerance: 3 })
+      const result = calculateCompatibility(a, b)
+      expect(result.lifestyle).toBe(100)
+    })
+
+    it('diff of 2 → guest factor 60', () => {
+      const a = makeResident({ guestTolerance: 1 })
+      const b = makeResident({ id: '2', guestTolerance: 3 })
+      const result = calculateCompatibility(a, b)
+      // Sleep=100 (w35), noise=100 (w25), clean=100 (w30), guest=60 (w10)
+      // (100*35 + 100*25 + 100*30 + 60*10) / 100 = (3500+2500+3000+600)/100 = 96
+      expect(result.lifestyle).toBe(96)
+    })
+
+    it('diff of 4 → guest factor 20', () => {
+      const a = makeResident({ guestTolerance: 1 })
+      const b = makeResident({ id: '2', guestTolerance: 5 })
+      const result = calculateCompatibility(a, b)
+      // Sleep=100 (w35), noise=100 (w25), clean=100 (w30), guest=20 (w10)
+      // (3500+2500+3000+200)/100 = 92
+      expect(result.lifestyle).toBe(92)
     })
   })
 })
@@ -191,8 +218,9 @@ describe('calculateCompatibility — social', () => {
       const a = makeResident({ languages: ['English'] })
       const b = makeResident({ id: '2', languages: ['English', 'Arabic'] })
       const result = calculateCompatibility(a, b)
-      // socialStyle MODERATE+MODERATE=100 (w35), language=95 (w40), privacy=100 (w25)
-      // (100*35 + 95*40 + 100*25) / 100 = (3500+3800+2500)/100 = 98
+      // socialStyle MODERATE+MODERATE=100 (w25), language=95 (w35), privacy=100 (w30), conflict=85 (w10, both COOPERATIVE but different defaults don't apply — both are COOPERATIVE=same=100)
+      // Actually: both default to COOPERATIVE, so conflict=100
+      // (100*25 + 95*35 + 100*30 + 100*10) / 100 = (2500+3325+3000+1000)/100 = 98.25 → 98
       expect(result.social).toBe(98)
     })
 
@@ -200,9 +228,9 @@ describe('calculateCompatibility — social', () => {
       const a = makeResident({ languages: ['Arabic'] })
       const b = makeResident({ id: '2', languages: ['Turkish'] })
       const result = calculateCompatibility(a, b)
-      // socialStyle=100 (w35), language=25 (w40), privacy=100 (w25)
-      // (100*35 + 25*40 + 100*25) / 100 = (3500+1000+2500)/100 = 70
-      expect(result.social).toBe(70)
+      // socialStyle=100 (w25), language=25 (w35), privacy=100 (w30), conflict=100 (w10)
+      // (100*25 + 25*35 + 100*30 + 100*10) / 100 = (2500+875+3000+1000)/100 = 73.75 → 74
+      expect(result.social).toBe(74)
     })
   })
 
@@ -218,18 +246,18 @@ describe('calculateCompatibility — social', () => {
       const a = makeResident({ socialStyle: 'INTROVERTED' })
       const b = makeResident({ id: '2', socialStyle: 'EXTROVERTED' })
       const result = calculateCompatibility(a, b)
-      // socialStyle=60 (w35), language=100 (w40), privacy=100 (w25)
-      // (60*35 + 100*40 + 100*25) / 100 = (2100+4000+2500)/100 = 86
-      expect(result.social).toBe(86)
+      // socialStyle=60 (w25), language=100 (w35), privacy=100 (w30), conflict=100 (w10)
+      // (60*25 + 100*35 + 100*30 + 100*10) / 100 = (1500+3500+3000+1000)/100 = 90
+      expect(result.social).toBe(90)
     })
 
     it('MODERATE + any → 80', () => {
       const a = makeResident({ socialStyle: 'MODERATE' })
       const b = makeResident({ id: '2', socialStyle: 'EXTROVERTED' })
       const result = calculateCompatibility(a, b)
-      // socialStyle=80 (w35), language=100 (w40), privacy=100 (w25)
-      // (80*35 + 100*40 + 100*25) / 100 = (2800+4000+2500)/100 = 93
-      expect(result.social).toBe(93)
+      // socialStyle=80 (w25), language=100 (w35), privacy=100 (w30), conflict=100 (w10)
+      // (80*25 + 100*35 + 100*30 + 100*10) / 100 = (2000+3500+3000+1000)/100 = 95
+      expect(result.social).toBe(95)
     })
   })
 
@@ -245,9 +273,36 @@ describe('calculateCompatibility — social', () => {
       const a = makeResident({ privacyNeed: 1 })
       const b = makeResident({ id: '2', privacyNeed: 3 })
       const result = calculateCompatibility(a, b)
-      // socialStyle=100 (w35), language=100 (w40), privacy=70 (w25)
-      // (100*35 + 100*40 + 70*25) / 100 = (3500+4000+1750)/100 = 92.5 → 93
-      expect(result.social).toBe(93)
+      // socialStyle=100 (w25), language=100 (w35), privacy=70 (w30), conflict=100 (w10)
+      // (100*25 + 100*35 + 70*30 + 100*10) / 100 = (2500+3500+2100+1000)/100 = 91
+      expect(result.social).toBe(91)
+    })
+  })
+
+  describe('conflict style', () => {
+    it('same style → 100', () => {
+      const a = makeResident({ conflictStyle: 'COOPERATIVE' })
+      const b = makeResident({ id: '2', conflictStyle: 'COOPERATIVE' })
+      const result = calculateCompatibility(a, b)
+      expect(result.social).toBe(100)
+    })
+
+    it('COOPERATIVE + DIRECT → 85', () => {
+      const a = makeResident({ conflictStyle: 'COOPERATIVE' })
+      const b = makeResident({ id: '2', conflictStyle: 'DIRECT' })
+      const result = calculateCompatibility(a, b)
+      // socialStyle=100 (w25), language=100 (w35), privacy=100 (w30), conflict=85 (w10)
+      // (100*25 + 100*35 + 100*30 + 85*10) / 100 = (2500+3500+3000+850)/100 = 98.5 → 99
+      expect(result.social).toBe(99)
+    })
+
+    it('AVOIDANT + DIRECT → 50 (worst mismatch)', () => {
+      const a = makeResident({ conflictStyle: 'AVOIDANT' })
+      const b = makeResident({ id: '2', conflictStyle: 'DIRECT' })
+      const result = calculateCompatibility(a, b)
+      // socialStyle=100 (w25), language=100 (w35), privacy=100 (w30), conflict=50 (w10)
+      // (2500+3500+3000+500)/100 = 95
+      expect(result.social).toBe(95)
     })
   })
 })
@@ -269,20 +324,20 @@ describe('calculateCompatibility — practical', () => {
       const a = makeResident({ smokingStatus: 'NON_SMOKER' })
       const b = makeResident({ id: '2', smokingStatus: 'INDOOR_SMOKER' })
       const result = calculateCompatibility(a, b)
-      // smoking=20 (w40), sharedSpaces=100 (w30), pets=100 (w15), dietary=100 (w15), chores=100 (w20)
-      // Total weight = 40+30+15+15+20 = 120
-      // (20*40 + 100*30 + 100*15 + 100*15 + 100*20) / 120
-      // = (800 + 3000 + 1500 + 1500 + 2000) / 120 = 8800/120 = 73.33 → 73
-      expect(result.practical).toBe(73)
+      // smoking=20 (w45), sharedSpaces=100 (w25), pets=100 (w10), dietary=100 (w5), chores=100 (w15)
+      // Total weight = 100
+      // (20*45 + 100*25 + 100*10 + 100*5 + 100*15) / 100
+      // = (900 + 2500 + 1000 + 500 + 1500) / 100 = 6400/100 = 64
+      expect(result.practical).toBe(64)
     })
 
     it('NON_SMOKER + OUTDOOR_SMOKER → smoking factor 80', () => {
       const a = makeResident({ smokingStatus: 'NON_SMOKER' })
       const b = makeResident({ id: '2', smokingStatus: 'OUTDOOR_SMOKER' })
       const result = calculateCompatibility(a, b)
-      // (80*40 + 100*30 + 100*15 + 100*15 + 100*20) / 120
-      // = (3200 + 3000 + 1500 + 1500 + 2000) / 120 = 11200/120 = 93.33 → 93
-      expect(result.practical).toBe(93)
+      // (80*45 + 100*25 + 100*10 + 100*5 + 100*15) / 100
+      // = (3600 + 2500 + 1000 + 500 + 1500) / 100 = 9100/100 = 91
+      expect(result.practical).toBe(91)
     })
   })
 
@@ -299,9 +354,9 @@ describe('calculateCompatibility — practical', () => {
       const b = makeResident({ id: '2', sharedBathroom: true, sharedKitchen: true })
       const result = calculateCompatibility(a, b)
       // sharedSpace = 100 - 20 = 80
-      // smoking=100 (w40), sharedSpaces=80 (w30), pets=100 (w15), diet=100 (w15), chores=100 (w20)
-      // (100*40 + 80*30 + 100*15 + 100*15 + 100*20) / 120
-      // = (4000 + 2400 + 1500 + 1500 + 2000) / 120 = 11400/120 = 95
+      // smoking=100 (w45), sharedSpaces=80 (w25), pets=100 (w10), diet=100 (w5), chores=100 (w15)
+      // (100*45 + 80*25 + 100*10 + 100*5 + 100*15) / 100
+      // = (4500 + 2000 + 1000 + 500 + 1500) / 100 = 9500/100 = 95
       expect(result.practical).toBe(95)
     })
   })
@@ -325,10 +380,10 @@ describe('calculateCompatibility — practical', () => {
       const a = makeResident({ dietaryNeeds: ['halal'] })
       const b = makeResident({ id: '2', dietaryNeeds: [] })
       const result = calculateCompatibility(a, b)
-      // diet=75 (w15), rest=100
-      // (100*40 + 100*30 + 100*15 + 75*15 + 100*20) / 120
-      // = (4000 + 3000 + 1500 + 1125 + 2000) / 120 = 11625/120 = 96.875 → 97
-      expect(result.practical).toBe(97)
+      // diet=75 (w5), rest=100
+      // (100*45 + 100*25 + 100*10 + 75*5 + 100*15) / 100
+      // = (4500 + 2500 + 1000 + 375 + 1500) / 100 = 9875/100 = 98.75 → 99
+      expect(result.practical).toBe(99)
     })
   })
 })
@@ -433,6 +488,22 @@ describe('calculateCompatibility — risk', () => {
     const result = calculateCompatibility(a, b)
     // ageGapRisk = 40, * 0.15 = 6
     expect(result.risk).toBeGreaterThanOrEqual(6)
+  })
+
+  it('guest tolerance diff >=3 → guest conflict risk', () => {
+    const a = makeResident({ guestTolerance: 1 })
+    const b = makeResident({ id: '2', guestTolerance: 5 })
+    const result = calculateCompatibility(a, b)
+    // guest_conflict: 30 * 0.15 = 4.5
+    expect(result.risk).toBeGreaterThanOrEqual(4)
+  })
+
+  it('AVOIDANT + DIRECT → conflict style mismatch risk', () => {
+    const a = makeResident({ conflictStyle: 'AVOIDANT' })
+    const b = makeResident({ id: '2', conflictStyle: 'DIRECT' })
+    const result = calculateCompatibility(a, b)
+    // conflict_style_mismatch: 25 * 0.1 = 2.5
+    expect(result.risk).toBeGreaterThanOrEqual(2)
   })
 })
 
@@ -575,5 +646,39 @@ describe('calculateCompatibility — insights', () => {
     const result = calculateCompatibility(a, b)
     expect(result.concerns).toContain('Nächtliche Unruhe trifft auf Ruhebedürfnis')
     expect(result.recommendations).toContain('Nicht im selben Zimmer platzieren')
+  })
+
+  it('same conflict style → generates conflict style strength', () => {
+    const a = makeResident({ conflictStyle: 'DIRECT' })
+    const b = makeResident({ id: '2', conflictStyle: 'DIRECT' })
+    const result = calculateCompatibility(a, b)
+    expect(result.strengths).toContain('Ähnlicher Konfliktlösungsstil')
+  })
+
+  it('AVOIDANT + DIRECT → generates conflict style concern', () => {
+    const a = makeResident({ conflictStyle: 'AVOIDANT' })
+    const b = makeResident({ id: '2', conflictStyle: 'DIRECT' })
+    const result = calculateCompatibility(a, b)
+    expect(result.concerns).toContain('Gegensätzliche Konfliktlösungsstile (vermeidend/direkt)')
+    expect(result.recommendations).toContain('Mediation bei Konflikten frühzeitig anbieten')
+  })
+
+  it('guest tolerance diff ≥ 3 → generates guest concern', () => {
+    const a = makeResident({ guestTolerance: 1 })
+    const b = makeResident({ id: '2', guestTolerance: 5 })
+    const result = calculateCompatibility(a, b)
+    expect(result.concerns).toContain('Sehr unterschiedliche Besuchertoleranz')
+    expect(result.recommendations).toContain('Klare Besucherregeln vereinbaren')
+  })
+
+  it('guest tolerance diff ≥ 3 → generates guest prediction', () => {
+    const a = makeResident({ guestTolerance: 1 })
+    const b = makeResident({ id: '2', guestTolerance: 5 })
+    const result = calculateCompatibility(a, b)
+    expect(result.predictions).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('Besucherkonflikt'),
+      ])
+    )
   })
 })
