@@ -77,6 +77,20 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
     .map(p => p.resident) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
 
+  // Get pending chores (NEEDS_ATTENTION or REQUESTED)
+  const pendingChores = currentPlacement
+    ? await prisma.householdTask.findMany({
+        where: {
+          housingUnitId: currentPlacement.housingUnitId,
+          isCompleted: false,
+          currentStatus: { in: ['NEEDS_ATTENTION', 'REQUESTED'] },
+        },
+        select: { id: true, title: true, currentStatus: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 3,
+      })
+    : []
+
   // Get compatibility scores with roommates
   const compatibilityScores = roommates.length > 0
     ? await prisma.compatibilityAssessment.findMany({
@@ -236,7 +250,13 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
       )}
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <QuickActionCard
+          href="/portal/chores"
+          icon="📋"
+          title="Aufgaben"
+          description="Haushaltsaufgaben verwalten"
+        />
         <QuickActionCard
           href="/portal/report"
           icon={PORTAL_LABELS.dashboard.quickActions.report.icon}
@@ -256,6 +276,35 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
           description={PORTAL_LABELS.dashboard.quickActions.preferences.desc}
         />
       </div>
+
+      {/* Pending Chores */}
+      {currentPlacement && pendingChores.length > 0 && (
+        <div className="card mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Offene Aufgaben</h2>
+            <Link href="/portal/chores" className="text-sm text-aoz-primary hover:underline">
+              Alle anzeigen
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {pendingChores.slice(0, 3).map((task) => (
+              <Link
+                key={task.id}
+                href={`/portal/chores/${task.id}`}
+                className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
+              >
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-medium text-gray-900 text-sm">{task.title}</p>
+                  <p className="text-xs text-gray-500">
+                    {task.currentStatus === 'NEEDS_ATTENTION' ? 'Braucht Aufmerksamkeit' : 'Anfrage offen'}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Roommates Preview */}

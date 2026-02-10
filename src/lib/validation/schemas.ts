@@ -416,6 +416,54 @@ export const portalSatisfactionSchema = z.object({
 })
 
 // =============================================================================
+// HOUSEHOLD TASK SCHEMAS (Portal chore management)
+// =============================================================================
+
+import {
+  TASK_TYPE_LABELS,
+  TASK_CATEGORY_LABELS,
+  TASK_PRIORITY_LABELS,
+} from '@/lib/config/household-tasks'
+import type {
+  HouseholdTaskType,
+  HouseholdTaskCategory,
+  HouseholdTaskPriority,
+} from '@prisma/client'
+
+export const HouseholdTaskTypeSchema = enumFromKeys<HouseholdTaskType>(TASK_TYPE_LABELS)
+export const HouseholdTaskCategorySchema = enumFromKeys<HouseholdTaskCategory>(TASK_CATEGORY_LABELS)
+export const HouseholdTaskPrioritySchema = enumFromKeys<HouseholdTaskPriority>(TASK_PRIORITY_LABELS)
+
+export const portalCreateTaskSchema = z.object({
+  title: z.string().min(1, 'Titel ist erforderlich').max(200),
+  description: z.string().max(2000).optional(),
+  instructions: z.string().max(2000).optional(),
+  taskType: HouseholdTaskTypeSchema,
+  category: HouseholdTaskCategorySchema,
+  priority: HouseholdTaskPrioritySchema.default('NORMAL' as HouseholdTaskPriority),
+  scheduleHuman: z.string().max(100).optional(),
+  estimatedMinutes: z.coerce.number().int().positive().max(480).optional(),
+})
+
+export const portalCompleteTaskSchema = z.object({
+  notes: z.string().max(500).optional(),
+  durationMinutes: z.coerce.number().int().positive().max(480).optional(),
+})
+
+export const portalAttentionFlagSchema = z.object({
+  message: z.string().max(500).optional(),
+})
+
+export const portalTaskRequestSchema = z.object({
+  requestedResidentId: z.string().cuid().optional(),
+  message: z.string().max(500).optional(),
+})
+
+export const portalTaskComplaintSchema = z.object({
+  description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
+})
+
+// =============================================================================
 // VALIDATION HELPER
 // =============================================================================
 

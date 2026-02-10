@@ -27,11 +27,13 @@ model Resident {
   sleepSchedule     SleepSchedule
   noiseTolerance    Int // 1-5 scale
   cleanlinessLevel  Int // 1-5 scale
-  
+  guestTolerance    Int @default(3) // 1-5 scale
+
   // Social factors
   socialStyle       SocialStyle
   languages         String[] // ISO language codes
   culturalRegion    String? // Broad region, not country
+  conflictStyle     ConflictStyle @default(COOPERATIVE)
   
   // Practical needs
   smokingStatus     SmokingStatus
@@ -77,6 +79,13 @@ model Resident {
   incidentsAsSubject    Incident[] @relation("IncidentSubject")
   incidentInvolvements  IncidentInvolvement[]
   maintenanceRequests   MaintenanceRequest[]
+
+  // Household tasks
+  createdTasks          HouseholdTask[]     @relation("TaskCreator")
+  taskCompletions       TaskCompletion[]
+  taskAttentionFlags    TaskAttentionFlag[]
+  taskRequestsMade      TaskRequest[]       @relation("TaskRequestsMade")
+  taskRequestsReceived  TaskRequest[]       @relation("TaskRequestsReceived")
 
   @@index([status])
   @@index([ageRange, gender])
@@ -159,6 +168,12 @@ enum RecyclingKnowledge {
   GOOD                // Understands full system (compost, textiles, etc.)
 }
 
+enum ConflictStyle {
+  AVOIDANT            // Avoids confrontation
+  COOPERATIVE         // Seeks compromise
+  DIRECT              // Addresses issues head-on
+}
+
 // =============================================================================
 // HOUSING
 // =============================================================================
@@ -208,6 +223,7 @@ model HousingUnit {
   placements           Placement[]
   incidents            Incident[]
   maintenanceRequests  MaintenanceRequest[]
+  householdTasks       HouseholdTask[]
 
   @@index([status])
   @@index([totalBeds])
@@ -722,4 +738,165 @@ enum MaintenanceStatus {
   ON_HOLD       // Waiting for parts/access
   COMPLETED     // Work finished
   CANCELLED     // Request cancelled
+}
+
+// =============================================================================
+// HOUSEHOLD TASKS (Chore Management)
+// =============================================================================
+
+model HouseholdTask {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Location
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnitId String
+
+  // Details
+  title         String
+  description   String?
+  instructions  String?
+
+  // Classification
+  taskType      HouseholdTaskType     @default(ONE_TIME)
+  category      HouseholdTaskCategory @default(OTHER)
+  priority      HouseholdTaskPriority @default(NORMAL)
+
+  // Schedule (for recurring)
+  scheduleHuman    String? // Human-readable, e.g., "Jeden Montag"
+  estimatedMinutes Int?
+
+  // Status
+  currentStatus HouseholdTaskStatus @default(IDLE)
+  isCompleted   Boolean             @default(false)
+  completedAt   DateTime?
+
+  // Creator (dual: resident OR staff)
+  createdByResident   Resident? @relation("TaskCreator", fields: [createdByResidentId], references: [id])
+  createdByResidentId String?
+  createdByStaff      String?   // Staff name (no FK, staff auth is separate)
+
+  // Relations
+  completions    TaskCompletion[]
+  attentionFlags TaskAttentionFlag[]
+  requests       TaskRequest[]
+
+  @@index([housingUnitId, currentStatus])
+  @@index([housingUnitId, category])
+}
+
+model TaskCompletion {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // What was completed
+  task   HouseholdTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
+  // Who completed it
+  completedBy   Resident @relation(fields: [completedById], references: [id])
+  completedById String
+
+  // Details
+  completedAt     DateTime @default(now())
+  notes           String?
+  durationMinutes Int?
+
+  // Reverse relations
+  resolvedFlags     TaskAttentionFlag[] @relation("FlagResolvedByCompletion")
+  fulfilledRequests TaskRequest[]       @relation("RequestFulfilledByCompletion")
+
+  @@index([taskId])
+  @@index([completedById])
+}
+
+model TaskAttentionFlag {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // What needs attention
+  task   HouseholdTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
+  // Who flagged it
+  flaggedBy   Resident @relation(fields: [flaggedById], references: [id])
+  flaggedById String
+
+  // Details
+  message String?
+
+  // Resolution
+  isResolved             Boolean         @default(false)
+  resolvedAt             DateTime?
+  resolvedByCompletion   TaskCompletion? @relation("FlagResolvedByCompletion", fields: [resolvedByCompletionId], references: [id])
+  resolvedByCompletionId String?
+
+  @@index([taskId])
+}
+
+model TaskRequest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // What task
+  task   HouseholdTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+
+  // Who requested
+  requestedBy   Resident @relation("TaskRequestsMade", fields: [requestedById], references: [id])
+  requestedById String
+
+  // Who is requested (null = broadcast to all)
+  requestedResident   Resident? @relation("TaskRequestsReceived", fields: [requestedResidentId], references: [id])
+  requestedResidentId String?
+  isBroadcast         Boolean   @default(false)
+
+  // Details
+  message         String?
+  status          TaskRequestStatus @default(PENDING)
+  responseMessage String?
+
+  // Fulfillment
+  completion   TaskCompletion? @relation("RequestFulfilledByCompletion", fields: [completionId], references: [id])
+  completionId String?
+
+  @@index([taskId])
+  @@index([requestedResidentId])
+}
+
+enum HouseholdTaskType {
+  ONE_TIME              // Do once
+  RECURRING_SCHEDULED   // Regular schedule (e.g., weekly)
+  RECURRING_AS_NEEDED   // Do when needed (e.g., take out trash)
+}
+
+enum HouseholdTaskCategory {
+  CLEANING
+  SHOPPING
+  MAINTENANCE
+  COOKING
+  TRASH
+  OTHER
+}
+
+enum HouseholdTaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum HouseholdTaskStatus {
+  IDLE              // No action needed
+  NEEDS_ATTENTION   // Flagged by someone
+  REQUESTED         // Someone requested help
+  IN_PROGRESS       // Being worked on
+}
+
+enum TaskRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  COMPLETED
 }

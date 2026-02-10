@@ -20,6 +20,7 @@ export function PortalNav() {
         <nav className="hidden sm:flex items-center gap-1 md:gap-2">
           <PortalNavLink href="/portal" active={pathname === '/portal'}>{PORTAL_LABELS.nav.overview}</PortalNavLink>
           <PortalNavLink href="/portal/roommates" active={pathname === '/portal/roommates'}>{PORTAL_LABELS.nav.roommates}</PortalNavLink>
+          <PortalNavLink href="/portal/chores" active={pathname.startsWith('/portal/chores')}>{PORTAL_LABELS.nav.chores}</PortalNavLink>
           <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
           <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
           <PortalNavLink href="/portal/help" active={pathname === '/portal/help'}>{PORTAL_LABELS.nav.help}</PortalNavLink>
@@ -40,11 +41,11 @@ export function PortalNav() {
           aria-label={menuOpen ? 'Menü schliessen' : 'Menü öffnen'}
         >
           {menuOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           )}
@@ -59,6 +60,9 @@ export function PortalNav() {
           </PortalNavLinkMobile>
           <PortalNavLinkMobile href="/portal/roommates" active={pathname === '/portal/roommates'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.roommates}
+          </PortalNavLinkMobile>
+          <PortalNavLinkMobile href="/portal/chores" active={pathname.startsWith('/portal/chores')} onClick={() => setMenuOpen(false)}>
+            {PORTAL_LABELS.nav.chores}
           </PortalNavLinkMobile>
           <PortalNavLinkMobile href="/portal/report" active={pathname === '/portal/report'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.report}

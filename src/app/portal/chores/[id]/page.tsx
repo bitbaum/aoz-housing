@@ -1,0 +1,239 @@
+import { prisma } from '@/lib/db'
+import { cookies } from 'next/headers'
+import { redirect, notFound } from 'next/navigation'
+import Link from 'next/link'
+import { ChoreActions } from '@/components/portal/ChoreActions'
+import {
+  TASK_CATEGORY_ICONS,
+  TASK_CATEGORY_LABELS,
+  TASK_TYPE_LABELS,
+  TASK_STATUS_LABELS,
+  TASK_STATUS_COLORS,
+  TASK_PRIORITY_LABELS,
+  TASK_PRIORITY_COLORS,
+  REQUEST_STATUS_LABELS,
+  CHORE_LABELS,
+} from '@/lib/config/household-tasks'
+import { formatDate } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
+
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function ChoreDetailPage({ params }: PageProps) {
+  const { id } = await params
+  const cookieStore = await cookies()
+  const residentCode = cookieStore.get('resident_code')?.value
+
+  if (!residentCode) {
+    redirect('/portal')
+  }
+
+  const resident = await prisma.resident.findUnique({
+    where: { code: residentCode },
+    include: {
+      placements: {
+        where: { status: 'ACTIVE' },
+        take: 1,
+      },
+    },
+  })
+
+  if (!resident || !resident.placements[0]) {
+    redirect('/portal')
+  }
+
+  const placement = resident.placements[0]
+
+  const task = await prisma.householdTask.findFirst({
+    where: {
+      id,
+      housingUnitId: placement.housingUnitId,
+    },
+    include: {
+      createdByResident: { select: { id: true, code: true } },
+      completions: {
+        orderBy: { completedAt: 'desc' },
+        take: 10,
+        include: { completedBy: { select: { id: true, code: true } } },
+      },
+      attentionFlags: {
+        orderBy: { createdAt: 'desc' },
+        include: { flaggedBy: { select: { id: true, code: true } } },
+      },
+      requests: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          requestedBy: { select: { id: true, code: true } },
+          requestedResident: { select: { id: true, code: true } },
+        },
+      },
+    },
+  })
+
+  if (!task) {
+    notFound()
+  }
+
+  // Roommates for request form
+  const roommatePlacements = await prisma.placement.findMany({
+    where: {
+      housingUnitId: placement.housingUnitId,
+      status: 'ACTIVE',
+      residentId: { not: resident.id },
+    },
+    select: {
+      resident: { select: { id: true, code: true } },
+    },
+  })
+  const roommates = roommatePlacements.map(p => p.resident)
+
+  const icon = TASK_CATEGORY_ICONS[task.category] || '📋'
+  const categoryLabel = TASK_CATEGORY_LABELS[task.category] || task.category
+  const typeLabel = TASK_TYPE_LABELS[task.taskType] || task.taskType
+  const statusLabel = TASK_STATUS_LABELS[task.currentStatus] || task.currentStatus
+  const statusColor = TASK_STATUS_COLORS[task.currentStatus] || TASK_STATUS_COLORS.IDLE
+  const priorityLabel = TASK_PRIORITY_LABELS[task.priority] || task.priority
+  const priorityColor = TASK_PRIORITY_COLORS[task.priority] || TASK_PRIORITY_COLORS.NORMAL
+
+  const activeFlags = task.attentionFlags.filter(f => !f.isResolved)
+  const activeRequests = task.requests.filter(r => r.status === 'PENDING' || r.status === 'ACCEPTED')
+
+  return (
+    <div>
+      <Link
+        href="/portal/chores"
+        className="text-sm text-aoz-primary hover:underline mb-4 inline-block"
+      >
+        ← {CHORE_LABELS.pages.list}
+      </Link>
+
+      {/* Header */}
+      <div className="card mb-6">
+        <div className="flex items-start gap-3 mb-4">
+          <span className="text-3xl" aria-hidden="true">{icon}</span>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-gray-900">{task.title}</h1>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                {categoryLabel}
+              </span>
+              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+                {typeLabel}
+              </span>
+              <span className={`text-xs px-2 py-1 rounded-full ${statusColor}`}>
+                {statusLabel}
+              </span>
+              <span className={`text-xs px-2 py-1 rounded-full ${priorityColor}`}>
+                {priorityLabel}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {task.description && (
+          <div className="mb-3">
+            <h3 className="text-sm font-medium text-gray-700">{CHORE_LABELS.detail.description}</h3>
+            <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+          </div>
+        )}
+
+        {task.instructions && (
+          <div className="mb-3">
+            <h3 className="text-sm font-medium text-gray-700">{CHORE_LABELS.detail.instructions}</h3>
+            <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{task.instructions}</p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+          {task.scheduleHuman && (
+            <span>📅 {CHORE_LABELS.detail.schedule}: {task.scheduleHuman}</span>
+          )}
+          {task.estimatedMinutes && (
+            <span>⏱️ ~{task.estimatedMinutes} {CHORE_LABELS.detail.minutes}</span>
+          )}
+          {task.createdByResident && (
+            <span>👤 {task.createdByResident.code}</span>
+          )}
+          {task.createdByStaff && (
+            <span>👤 {task.createdByStaff}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      {!task.isCompleted && (
+        <div className="mb-6">
+          <ChoreActions taskId={task.id} roommates={roommates} />
+        </div>
+      )}
+
+      {/* Completion history */}
+      <div className="card mb-6">
+        <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.history}</h2>
+        {task.completions.length === 0 ? (
+          <p className="text-sm text-gray-500">{CHORE_LABELS.detail.noHistory}</p>
+        ) : (
+          <div className="space-y-3">
+            {task.completions.map(c => (
+              <div key={c.id} className="flex items-start justify-between p-3 bg-green-50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{c.completedBy.code}</p>
+                  {c.notes && <p className="text-xs text-gray-600 mt-0.5">{c.notes}</p>}
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">{formatDate(c.completedAt)}</p>
+                  {c.durationMinutes && (
+                    <p className="text-xs text-gray-400">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Active requests */}
+      {activeRequests.length > 0 && (
+        <div className="card mb-6">
+          <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.activeRequests}</h2>
+          <div className="space-y-3">
+            {activeRequests.map(r => (
+              <div key={r.id} className="p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-900">
+                    {r.requestedBy.code} → {r.requestedResident?.code || CHORE_LABELS.request.broadcast}
+                  </p>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                    {REQUEST_STATUS_LABELS[r.status]}
+                  </span>
+                </div>
+                {r.message && <p className="text-xs text-gray-600 mt-1">{r.message}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Attention flags */}
+      {activeFlags.length > 0 && (
+        <div className="card mb-6">
+          <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.attentionFlags}</h2>
+          <div className="space-y-3">
+            {activeFlags.map(f => (
+              <div key={f.id} className="p-3 bg-yellow-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-900">
+                  ⚠️ {f.flaggedBy.code}
+                </p>
+                {f.message && <p className="text-xs text-gray-600 mt-1">{f.message}</p>}
+                <p className="text-xs text-gray-400 mt-1">{formatDate(f.createdAt)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

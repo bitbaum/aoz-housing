@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Settings,
   Lightbulb,
+  ClipboardList,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -25,6 +26,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   alert: AlertTriangle,
   wrench: Settings,
   brain: Lightbulb,
+  clipboard: ClipboardList,
 }
 
 export interface NavItem {
@@ -41,5 +43,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/matching', icon: 'heart', label: 'Matching' },
   { href: '/incidents', icon: 'alert', label: 'Vorfälle' },
   { href: '/maintenance', icon: 'wrench', label: 'Wartung' },
+  { href: '/chores', icon: 'clipboard', label: 'Aufgaben' },
   { href: '/analytics', icon: 'chart', label: 'Auswertung' },
 ]

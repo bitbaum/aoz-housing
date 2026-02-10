@@ -21,6 +21,7 @@ const STAFF_ROUTES = [
   '/maintenance',
   '/matching',
   '/analytics',
+  '/chores',
 ]
 
 // Routes that require resident authentication
@@ -28,9 +29,11 @@ const RESIDENT_ROUTES = [
   '/portal/preferences',
   '/portal/roommates',
   '/portal/report',
+  '/portal/chores',
   '/api/portal/report',
   '/api/portal/preferences',
   '/api/portal/satisfaction',
+  '/api/portal/chores',
 ]
 
 // Routes that remain public

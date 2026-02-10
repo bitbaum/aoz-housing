@@ -533,6 +533,7 @@ export const PORTAL_LABELS = {
   nav: {
     overview: 'Übersicht',
     roommates: 'Mitbewohner',
+    chores: 'Aufgaben',
     report: 'Melden',
     preferences: 'Einstellungen',
     help: 'Hilfe',

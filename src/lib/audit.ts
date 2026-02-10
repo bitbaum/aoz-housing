@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
 import { getCurrentUser } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export type AuditAction =
   | 'CREATE'
@@ -25,6 +26,7 @@ export type AuditEntity =
   | 'INCIDENT'
   | 'MAINTENANCE'
   | 'CHECK_IN'
+  | 'HOUSEHOLD_TASK'
 
 interface AuditLogEntry {
   action: AuditAction
@@ -71,7 +73,8 @@ export async function logAudit({
     })
   } catch (error) {
     // Log error but don't throw - audit logging should never break operations
-    console.error('[Audit] Failed to log:', { action, entity, entityId, error })
+    // Audit logging should never break operations — log and swallow
+    logger.errorWithCause('Audit log failed', error, { action, entity, entityId })
   }
 }
 
