@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalReportSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
+import { logger } from '@/lib/logger'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 export async function POST(request: NextRequest) {
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to create incident:', error)
+    logger.errorWithCause('Failed to create portal incident', error)
     return NextResponse.json({ success: false, error: 'Meldung konnte nicht gespeichert werden' }, { status: 500 })
   }
 }

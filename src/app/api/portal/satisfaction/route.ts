@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { portalSatisfactionSchema } from '@/lib/validation/schemas'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, rating })
   } catch (error) {
-    console.error('Failed to save satisfaction rating:', error)
+    logger.errorWithCause('Failed to save satisfaction rating', error)
     return NextResponse.json({ success: false, error: 'Speichern fehlgeschlagen' }, { status: 500 })
   }
 }

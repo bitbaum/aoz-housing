@@ -1,6 +1,7 @@
 'use server'
 
 import { prisma } from '@/lib/db'
+import { logger } from '@/lib/logger'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import {
@@ -188,7 +189,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
 
     return { success: true, placementId: placement.id }
   } catch (error) {
-    console.error('Failed to create placement:', error)
+    logger.errorWithCause('Failed to create placement', error, { residentId, housingUnitId, spotId })
     const message = error instanceof Error ? error.message : 'Failed to create placement'
     return { success: false, error: message }
   }

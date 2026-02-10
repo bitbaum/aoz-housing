@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { logger } from '@/lib/logger'
 import Link from 'next/link'
 import {
   AGE_RANGE_LABELS,
@@ -168,7 +169,7 @@ export default async function MatchingPage({ searchParams }: Props) {
         try {
           unitMetrics = await calculateUnitMetrics(unit.id)
         } catch (error) {
-          console.error(`Failed to calculate metrics for unit ${unit.id}:`, error)
+          logger.warn(`Failed to calculate metrics for unit ${unit.id}`, { unitId: unit.id })
         }
 
         // Get REAL success rate data from database
@@ -176,7 +177,7 @@ export default async function MatchingPage({ searchParams }: Props) {
         try {
           realSuccessData = await getSimilarPlacementSuccessRate(apartmentFit.fitScore, 10)
         } catch (error) {
-          console.error(`Failed to get success rate data:`, error)
+          logger.warn('Failed to get success rate data')
         }
 
           // Calculate compatibility details with current residents

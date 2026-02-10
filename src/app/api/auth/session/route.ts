@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -22,7 +23,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Session error:', error)
+    logger.errorWithCause('Session check failed', error)
     return NextResponse.json(
       { success: false, error: 'Ein Fehler ist aufgetreten' },
       { status: 500 }

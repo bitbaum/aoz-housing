@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalPreferencesSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Failed to update preferences:', error)
+    logger.errorWithCause('Failed to update portal preferences', error)
     return NextResponse.json({ success: false, error: 'Einstellungen konnten nicht gespeichert werden' }, { status: 500 })
   }
 }

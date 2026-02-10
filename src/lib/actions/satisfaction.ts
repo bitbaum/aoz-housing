@@ -8,6 +8,7 @@ import {
   SatisfactionCheckInInputSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { logger } from '@/lib/logger'
 
 export async function createCheckInFromForm(formData: FormData): Promise<void> {
   const data = validateFormData(SatisfactionCheckInInputSchema, formData)
@@ -148,7 +149,7 @@ export async function createQuickCheckIn(
 
     return { success: true }
   } catch (error) {
-    console.error('Quick check-in error:', error)
+    logger.errorWithCause('Quick check-in failed', error)
     return { success: false, error: 'Fehler beim Speichern' }
   }
 }

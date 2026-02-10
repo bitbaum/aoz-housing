@@ -9,6 +9,7 @@ import {
   ResidentUpdateSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 
 export async function createResident(formData: FormData): Promise<void> {
@@ -65,7 +66,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
     revalidatePath(`/residents/${residentId}`)
     return { success: true }
   } catch (error) {
-    console.error('Failed to exit resident:', error)
+    logger.errorWithCause('Failed to exit resident', error, { residentId })
     return { success: false, error: 'Fehler beim Aktualisieren des Bewohners' }
   }
 }
