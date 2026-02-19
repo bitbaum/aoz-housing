@@ -17,7 +17,7 @@ test.describe('Placement list and management', () => {
     await expect(page.locator('[role="tab"]').first()).toBeVisible()
 
     // "New placement" link should go to matching
-    await expect(page.getByRole('link', { name: /Neue Platzierung|Matching/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Neue Platzierung|Matching/i }).first()).toBeVisible()
   })
 
   test('placement tabs filter correctly', async ({ page }) => {

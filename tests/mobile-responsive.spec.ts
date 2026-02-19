@@ -56,7 +56,7 @@ test.describe('Mobile Responsiveness', () => {
     await menuTrigger.click()
 
     // Navigation links should become visible in the drawer
-    await expect(page.locator('a[href="/residents"]').first()).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="dialog"] a[href="/residents"]')).toBeVisible({ timeout: 5000 })
   })
 
   test('portal pages work on mobile', async ({ page }) => {

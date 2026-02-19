@@ -31,6 +31,7 @@ export function SelectFilter({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="input text-sm"
+        aria-label={label}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
