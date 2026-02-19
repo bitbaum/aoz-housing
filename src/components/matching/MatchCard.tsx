@@ -33,9 +33,10 @@ function formatConflictValue(attribute: string, value: string | number): string 
 interface Props {
   match: MatchResult
   resident: Resident
+  rank?: number
 }
 
-export function MatchCard({ match, resident }: Props) {
+export function MatchCard({ match, resident, rank }: Props) {
   const occupancy = match.unit.placements.length
   const realSuccessData = match.realSuccessData
 
@@ -66,10 +67,15 @@ export function MatchCard({ match, resident }: Props) {
   )
 
   return (
-    <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-red-200 bg-red-50' : 'border-gray-200'}`}>
-      <div className="flex items-start justify-between mb-3">
+    <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-red-200 bg-red-50' : rank === 1 ? 'border-green-300 bg-green-50/50' : rank && rank <= 3 ? 'border-blue-200 bg-blue-50/40' : 'border-gray-200'}`}>
+      <div className="flex items-start justify-between mb-3 gap-2">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {rank && rank <= 3 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${rank === 1 ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                {rank === 1 ? 'Top Empfehlung' : `Top ${rank}`}
+              </span>
+            )}
             <Link
               href={`/housing/${match.unit.id}`}
               className="font-semibold text-gray-900 hover:text-aoz-primary"

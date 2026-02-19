@@ -33,7 +33,7 @@ const STATUS_OPTIONS = [
   { value: '', label: 'Alle Status' },
   { value: 'ACTIVE', label: 'Aktiv' },
   { value: 'PLACED', label: 'Platziert' },
-  { value: 'EXITED', label: 'Ausgetreten' },
+  { value: 'EXITED', label: 'Archiviert' },
 ]
 
 export function ResidentsList({ residents }: { residents: ResidentListItem[] }) {
@@ -93,7 +93,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
   return (
     <div className="card-hover relative">
       <div className="absolute top-3 right-3 z-10">
-        <ResidentCardActions residentId={resident.id} />
+        <ResidentCardActions residentId={resident.id} status={resident.status} />
       </div>
       <Link href={`/residents/${resident.id}`} className="block">
         <div className="flex items-start justify-between mb-3 pr-8">
@@ -110,7 +110,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
             </div>
           </div>
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
-            {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
+            {resident.status === 'EXITED' ? 'Archiviert' : getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
         </div>
 

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { getOccupancyLevel, OCCUPANCY_COLORS, type OccupancyLevel } from '@/lib/config/thresholds'
+import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 interface UnitStatus {
   available: number
@@ -32,7 +33,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Belegung</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{DASHBOARD_LABELS.sectionOccupancy}</h2>
 
       {/* Progress bar visualization */}
       <Link href="/housing" className="block mb-4 group">
@@ -40,7 +41,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           <span className={`text-3xl font-bold ${occupancyTextColor}`}>
             {occupancyPercent}%
           </span>
-          <span className="text-gray-500 text-sm">belegt</span>
+          <span className="text-gray-500 text-sm">{DASHBOARD_LABELS.occupancyOccupied}</span>
         </div>
         <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
           <div
@@ -49,35 +50,35 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           />
         </div>
         <p className="text-sm text-gray-500 mt-2 group-hover:text-gray-700">
-          {occupiedBeds} von {totalBeds} Plätzen • <span className="font-medium">{freeBeds} frei</span>
+          {occupiedBeds} {DASHBOARD_LABELS.occupancyOf} {totalBeds} {DASHBOARD_LABELS.occupancyPlaces} • <span className="font-medium">{freeBeds} {DASHBOARD_LABELS.occupancyFree}</span>
         </p>
       </Link>
 
       {/* Unit status breakdown */}
       <div className="border-t border-gray-100 pt-4 mt-4">
-        <p className="text-sm font-medium text-gray-700 mb-3">Unterkünfte</p>
+        <p className="text-sm font-medium text-gray-700 mb-3">{DASHBOARD_LABELS.sectionHousing}</p>
         <div className="space-y-2">
           <StatusRow
-            label="Verfügbar"
+            label={DASHBOARD_LABELS.occupancyAvailable}
             count={unitStatus.available}
             color="bg-green-500"
             href="/housing?status=AVAILABLE"
           />
           <StatusRow
-            label="Voll belegt"
+            label={DASHBOARD_LABELS.occupancyFull}
             count={unitStatus.full}
             color="bg-yellow-500"
             href="/housing?status=FULL"
           />
           <StatusRow
-            label="In Wartung"
+            label={DASHBOARD_LABELS.occupancyMaintenance}
             count={unitStatus.maintenance}
             color="bg-orange-500"
             href="/housing?status=MAINTENANCE"
           />
           {unitStatus.closed > 0 && (
             <StatusRow
-              label="Geschlossen"
+              label={DASHBOARD_LABELS.occupancyClosed}
               count={unitStatus.closed}
               color="bg-gray-400"
               href="/housing?status=CLOSED"
@@ -90,7 +91,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
         href="/housing"
         className="block text-center mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
       >
-        Alle Unterkünfte →
+        {DASHBOARD_LABELS.occupancyViewAll} →
       </Link>
     </div>
   )

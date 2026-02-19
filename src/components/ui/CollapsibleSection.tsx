@@ -23,6 +23,7 @@ export function CollapsibleSection({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between min-h-[44px]"
+        aria-expanded={isOpen}
       >
         <h3 className="font-semibold text-gray-900">{title}</h3>
         <svg
@@ -30,6 +31,7 @@ export function CollapsibleSection({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>

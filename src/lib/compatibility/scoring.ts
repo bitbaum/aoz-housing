@@ -444,9 +444,36 @@ function calculateAgeGapRisk(a1: string, a2: string): number {
   return 40 // Maximum gap (young adult + senior)
 }
 
+// Language codes/names that indicate German
+const GERMAN_VARIANTS = ['de', 'german', 'deutsch']
+// Language codes/names that indicate English
+const ENGLISH_VARIANTS = ['en', 'english']
+// Language codes/names that indicate French/Italian
+const FRENCH_VARIANTS = ['fr', 'french']
+const ITALIAN_VARIANTS = ['it', 'italian']
+
+function isGermanOrEnglish(lang: string): boolean {
+  const l = lang.toLowerCase()
+  return GERMAN_VARIANTS.includes(l) || ENGLISH_VARIANTS.includes(l)
+}
+
+function isGerman(lang: string): boolean {
+  return GERMAN_VARIANTS.includes(lang.toLowerCase())
+}
+
+function isEnglish(lang: string): boolean {
+  return ENGLISH_VARIANTS.includes(lang.toLowerCase())
+}
+
+function isFrenchOrItalian(lang: string): boolean {
+  const l = lang.toLowerCase()
+  return FRENCH_VARIANTS.includes(l) || ITALIAN_VARIANTS.includes(l)
+}
+
 /**
  * Enhanced language compatibility scoring
  * Considers: native language match, lingua franca (German/English), multiple shared languages
+ * Handles both config codes (DE, EN) and legacy labels (German, English)
  */
 function calculateLanguageScore(
   langs1: string[],
@@ -456,21 +483,17 @@ function calculateLanguageScore(
   // Perfect match - share native or multiple languages
   if (sharedLanguages.length >= 2) return 100
   if (sharedLanguages.length === 1) {
-    const shared = sharedLanguages[0].toLowerCase()
+    const shared = sharedLanguages[0]
     // Native language match or strong lingua franca
-    if (shared === 'german' || shared === 'deutsch') return 100
-    if (shared === 'english') return 95
-    if (shared === 'french' || shared === 'italian') return 90
+    if (isGerman(shared)) return 100
+    if (isEnglish(shared)) return 95
+    if (isFrenchOrItalian(shared)) return 90
     return 100 // Any shared native language
   }
 
-  // No direct overlap - check for potential communication
-  const hasGermanOrEnglish1 = langs1.some(l =>
-    ['german', 'deutsch', 'english'].includes(l.toLowerCase())
-  )
-  const hasGermanOrEnglish2 = langs2.some(l =>
-    ['german', 'deutsch', 'english'].includes(l.toLowerCase())
-  )
+  // No direct overlap - check for potential communication via lingua franca
+  const hasGermanOrEnglish1 = langs1.some(isGermanOrEnglish)
+  const hasGermanOrEnglish2 = langs2.some(isGermanOrEnglish)
 
   // Both speak German or English (even if different levels)
   if (hasGermanOrEnglish1 && hasGermanOrEnglish2) return 75

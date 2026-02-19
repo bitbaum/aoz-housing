@@ -20,7 +20,7 @@ const CLEANUP_INTERVAL = 5 * 60 * 1000
 
 // Start cleanup timer
 if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     const now = Date.now()
     loginAttempts.forEach((entry, key) => {
       if (now - entry.firstAttempt > AUTH_CONFIG.rateLimit.windowMs) {
@@ -28,6 +28,11 @@ if (typeof setInterval !== 'undefined') {
       }
     })
   }, CLEANUP_INTERVAL)
+
+  // Avoid keeping test/node processes alive just for the cleanup interval
+  if (typeof (cleanupTimer as NodeJS.Timeout).unref === 'function') {
+    ;(cleanupTimer as NodeJS.Timeout).unref()
+  }
 }
 
 /**

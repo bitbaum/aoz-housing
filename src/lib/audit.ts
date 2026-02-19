@@ -17,6 +17,8 @@ export type AuditAction =
   | 'END'
   | 'TRANSFER'
   | 'RESOLVE'
+  | 'ARCHIVE'
+  | 'RESTORE'
 
 export type AuditEntity =
   | 'RESIDENT'

@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
+
+test.beforeEach(async ({ page }) => {
+  await ensureStaffLogin(page)
+})
 
 test.describe('Incident detail and follow-up', () => {
   test('incident creation form has all required fields', async ({ page }) => {

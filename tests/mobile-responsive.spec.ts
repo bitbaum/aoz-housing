@@ -1,0 +1,72 @@
+import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
+
+test.setTimeout(60_000)
+
+test.use({ viewport: { width: 375, height: 667 } })
+
+test.beforeEach(async ({ page }) => {
+  await ensureStaffLogin(page)
+})
+
+test.describe('Mobile Responsiveness', () => {
+  test('dashboard loads without horizontal scroll', async ({ page }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+    const viewportWidth = await page.evaluate(() => window.innerWidth)
+    expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1) // +1 for rounding
+  })
+
+  test('residents list is usable on mobile', async ({ page }) => {
+    await page.goto('/residents')
+    await page.waitForLoadState('networkidle')
+
+    // Should not have forced horizontal scroll
+    const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+    const viewportWidth = await page.evaluate(() => window.innerWidth)
+    expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
+  })
+
+  test('housing detail page works on mobile', async ({ page }) => {
+    await page.goto('/housing')
+    await page.waitForLoadState('networkidle')
+
+    // Click first housing unit if available
+    const firstUnit = page.locator('a[href*="/housing/"]').first()
+    if (await firstUnit.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await firstUnit.click()
+      await page.waitForLoadState('networkidle')
+
+      const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+      const viewportWidth = await page.evaluate(() => window.innerWidth)
+      expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
+    }
+  })
+
+  test('navigation hamburger works on mobile', async ({ page }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    // Look for mobile menu trigger (hamburger)
+    const mobileMenuButton = page.locator('button').filter({ has: page.locator('[class*="Menu"], [data-testid="mobile-menu"]') }).first()
+    // Alternative: look for any button that's only visible on mobile
+    const menuTrigger = page.locator('button[aria-label*="Menü"], button[aria-label*="Menu"], button[aria-label*="Navigation"]').first()
+
+    if (await menuTrigger.isVisible({ timeout: 5000 }).catch(() => false)) {
+      await menuTrigger.click()
+      // Navigation links should become visible
+      await expect(page.locator('a[href="/residents"]').first()).toBeVisible({ timeout: 5000 })
+    }
+  })
+
+  test('portal pages work on mobile', async ({ page }) => {
+    await page.goto('/portal')
+    await page.waitForLoadState('networkidle')
+
+    const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
+    const viewportWidth = await page.evaluate(() => window.innerWidth)
+    expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
+  })
+})

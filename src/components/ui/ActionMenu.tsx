@@ -7,6 +7,7 @@ interface ActionMenuProps {
   onEdit?: () => void
   onDuplicate?: () => void
   onDelete?: () => void
+  deleteLabel?: string
   size?: 'sm' | 'md'
 }
 
@@ -28,6 +29,7 @@ export function ActionMenu({
   onEdit,
   onDuplicate,
   onDelete,
+  deleteLabel,
   size = 'md',
 }: ActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -132,7 +134,7 @@ export function ActionMenu({
               role="menuitem"
             >
               <ActionIcon name="trash" className="w-4 h-4" />
-              {CRUD_ACTIONS.delete.label}
+              {deleteLabel || CRUD_ACTIONS.delete.label}
             </button>
           )}
         </div>

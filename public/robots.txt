@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /api/
+Disallow: /portal/
+Allow: /
+
+Sitemap: /sitemap.xml

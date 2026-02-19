@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { createQuickCheckIn } from '@/lib/actions/satisfaction'
+import { showToast } from '@/components/ui/Toast'
 
 interface QuickCheckInProps {
   placementId: string
@@ -84,6 +85,7 @@ export function QuickCheckIn({
         if (result.success) {
           setSavedSuccess(true)
           setShowExpanded(false)
+          showToast('success', 'Check-in erfolgreich gespeichert')
           // Reset form after short delay
           setTimeout(() => {
             setSelectedSatisfaction(null)
@@ -227,7 +229,7 @@ export function QuickCheckIn({
 
           {/* Error message */}
           {error && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-600" role="alert" aria-live="polite">{error}</p>
           )}
 
           {/* Actions */}

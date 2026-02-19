@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
+
+test.beforeEach(async ({ page }) => {
+  await ensureStaffLogin(page)
+})
 
 test.describe('Resident creation flow', () => {
   test('new resident form loads with all sections', async ({ page }) => {

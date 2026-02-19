@@ -47,6 +47,13 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
   const activeTasks = filteredTasks.filter(t => !t.isCompleted)
   const completedTasks = filteredTasks.filter(t => t.isCompleted)
 
+  const urgentActionTasks = activeTasks.filter(
+    t => t.currentStatus === 'NEEDS_ATTENTION' || t.currentStatus === 'REQUESTED' || t.priority === 'URGENT'
+  )
+  const routineTasks = activeTasks.filter(
+    t => !(t.currentStatus === 'NEEDS_ATTENTION' || t.currentStatus === 'REQUESTED' || t.priority === 'URGENT')
+  )
+
   async function handleQuickComplete(taskId: string) {
     setCompletingId(taskId)
     try {
@@ -106,7 +113,14 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {activeTasks.map(task => (
+          {urgentActionTasks.length > 0 && (
+            <div className="p-3 rounded-lg border border-amber-200 bg-amber-50">
+              <p className="text-sm font-medium text-amber-900">Jetzt wichtig</p>
+              <p className="text-xs text-amber-700">Diese Aufgaben brauchen zuerst eine Entscheidung.</p>
+            </div>
+          )}
+
+          {urgentActionTasks.map(task => (
             <ChoreCard
               key={task.id}
               task={task}
@@ -114,6 +128,19 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
               isCompleting={completingId === task.id}
             />
           ))}
+
+          {routineTasks.length > 0 && (
+            <p className="text-sm text-gray-500 pt-2">Danach</p>
+          )}
+          {routineTasks.map(task => (
+            <ChoreCard
+              key={task.id}
+              task={task}
+              onQuickComplete={handleQuickComplete}
+              isCompleting={completingId === task.id}
+            />
+          ))}
+
           {completedTasks.length > 0 && (
             <>
               <p className="text-sm text-gray-500 pt-4">{CHORE_LABELS.card.completed}</p>

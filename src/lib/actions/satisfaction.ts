@@ -66,7 +66,7 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
 
   revalidatePath('/placements')
   revalidatePath('/residents')
-  redirect(`/residents/${placement.residentId}`)
+  redirect(`/residents/${placement.residentId}?checkin=true`)
 }
 
 /**

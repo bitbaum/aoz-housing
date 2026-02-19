@@ -17,12 +17,15 @@ import { TabLink } from '@/components/ui/Tabs'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ status?: string }>
+  searchParams: Promise<{ status?: string; q?: string; overdue?: string; conflicts?: string }>
 }
 
 export default async function PlacementsListPage({ searchParams }: Props) {
   const params = await searchParams
   const statusFilter = params.status || 'active'
+  const query = (params.q || '').trim().toLowerCase()
+  const overdueOnly = params.overdue === '1'
+  const conflictsOnly = params.conflicts === '1'
 
   const placements = await prisma.placement.findMany({
     where: statusFilter === 'active'
@@ -84,6 +87,29 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       .length,
   }
 
+  const filteredPlacements = placements.filter((placement) => {
+    const matchesQuery = !query ||
+      placement.resident.code.toLowerCase().includes(query) ||
+      placement.housingUnit.code.toLowerCase().includes(query) ||
+      placement.housingUnit.address.toLowerCase().includes(query)
+
+    const lastCheckIn = placement.checkIns?.[0]
+    const daysSinceCheckIn = lastCheckIn
+      ? Math.ceil((Date.now() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+      : null
+    const supportLevel = placement.resident.supportLevel || 'STANDARD'
+    const checkInIntervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+    const isOverdue = placement.status === 'ACTIVE' &&
+      (daysSinceCheckIn === null
+        ? Math.ceil((Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)) > checkInIntervalDays
+        : daysSinceCheckIn > checkInIntervalDays)
+
+    const matchesOverdue = !overdueOnly || isOverdue
+    const matchesConflicts = !conflictsOnly || placement.endReason === 'CONFLICT'
+
+    return matchesQuery && matchesOverdue && matchesConflicts
+  })
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -92,6 +118,34 @@ export default async function PlacementsListPage({ searchParams }: Props) {
           Neue Platzierung
         </Link>
       </div>
+
+      {/* Search & Quick Filters */}
+      <form className="mb-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <input type="hidden" name="status" value={statusFilter} />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            type="search"
+            name="q"
+            defaultValue={params.q || ''}
+            placeholder="Suchen: Bewohner, Unterkunft, Adresse"
+            className="input md:col-span-2"
+          />
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" name="overdue" value="1" defaultChecked={overdueOnly} />
+            Nur überfällige Check-ins
+          </label>
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input type="checkbox" name="conflicts" value="1" defaultChecked={conflictsOnly} />
+            Nur konfliktbedingt beendet
+          </label>
+        </div>
+        <div className="mt-3 flex items-center gap-2">
+          <button type="submit" className="btn-outline text-sm">Filter anwenden</button>
+          <Link href={`/placements?status=${statusFilter}`} className="text-sm text-gray-500 hover:text-gray-700">
+            Filter zurücksetzen
+          </Link>
+        </div>
+      </form>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -137,7 +191,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       </div>
 
       {/* Placements List */}
-      {placements.length === 0 ? (
+      {filteredPlacements.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
             {statusFilter === 'active'
@@ -152,7 +206,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="space-y-3">
-          {placements.map((placement) => (
+          {filteredPlacements.map((placement) => (
             <PlacementRow key={placement.id} placement={placement} />
           ))}
         </div>

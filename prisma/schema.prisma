@@ -287,6 +287,7 @@ model PlacementSpot {
   @@unique([housingUnitId, code])
   @@index([type, status])
   @@index([requiresMedicalDocs])
+  @@index([housingUnitId])
 }
 
 enum SpotType {
@@ -355,6 +356,8 @@ model Placement {
   @@unique([residentId, housingUnitId, startDate])
   @@index([status])
   @@index([startDate, endDate])
+  @@index([residentId])
+  @@index([housingUnitId])
 }
 
 enum PlacementStatus {
@@ -552,7 +555,7 @@ model SatisfactionCheckIn {
   createdAt DateTime @default(now())
 
   // Who and where
-  placement     Placement @relation(fields: [placementId], references: [id])
+  placement     Placement @relation(fields: [placementId], references: [id], onDelete: Cascade)
   placementId   String
 
   // Timing
@@ -687,7 +690,7 @@ model MaintenanceRequest {
   location      String?   // Specific location within unit (e.g., "Bathroom", "Kitchen")
 
   // Who reported it
-  reportedBy    Resident? @relation(fields: [reportedById], references: [id])
+  reportedBy    Resident? @relation(fields: [reportedById], references: [id], onDelete: SetNull)
   reportedById  String?
   reporterName  String?   // For non-resident reporters
 
@@ -709,6 +712,7 @@ model MaintenanceRequest {
   @@index([status])
   @@index([priority, status])
   @@index([createdAt])
+  @@index([reportedById])
 }
 
 enum MaintenanceCategory {

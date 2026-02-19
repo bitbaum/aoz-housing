@@ -77,7 +77,11 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/')
+      if (data.profileType === 'resident') {
+        router.push('/portal')
+      } else {
+        router.push('/')
+      }
       router.refresh()
     } catch {
       setError(LOGIN_LABELS.register.error.generic)
@@ -263,10 +267,10 @@ export default function LoginPage() {
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
                 placeholder={LOGIN_LABELS.register.inviteCodePlaceholder}
-                required
                 autoComplete="off"
                 className="input placeholder:text-gray-400"
               />
+              <p className="mt-1 text-xs text-gray-500">{LOGIN_LABELS.register.inviteCodeHelp}</p>
             </div>
 
             <button

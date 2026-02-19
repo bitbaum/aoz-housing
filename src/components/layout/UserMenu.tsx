@@ -54,6 +54,7 @@ export function UserMenu({ user }: UserMenuProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition-colors min-h-[44px]"
+        aria-label="Benutzermenü"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >

@@ -23,7 +23,7 @@ const STATUS_OPTIONS = [
   { value: 'AVAILABLE', label: 'Verfügbar' },
   { value: 'FULL', label: 'Voll belegt' },
   { value: 'MAINTENANCE', label: 'In Wartung' },
-  { value: 'CLOSED', label: 'Geschlossen' },
+  { value: 'CLOSED', label: 'Archiviert' },
 ]
 
 export function HousingList({ units }: { units: HousingListItem[] }) {
@@ -74,14 +74,17 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
 
 function UnitCard({ unit }: { unit: HousingListItem }) {
   const occupancy = unit.placementCount
-  const occupancyPercent = Math.round((occupancy / unit.totalBeds) * 100)
+  const totalBeds = Math.max(unit.totalBeds, 0)
+  const occupancyPercent = totalBeds > 0
+    ? Math.max(0, Math.min(100, Math.round((occupancy / totalBeds) * 100)))
+    : 0
   const recentConflicts = unit.incidentCount
 
   const statusConfig: Record<string, { label: string; class: string }> = {
     AVAILABLE: { label: 'Verfügbar', class: 'badge-active' },
     FULL: { label: 'Voll', class: 'badge-pending' },
     MAINTENANCE: { label: 'Wartung', class: 'badge-alert' },
-    CLOSED: { label: 'Geschlossen', class: 'badge-ended' },
+    CLOSED: { label: 'Archiviert', class: 'badge-ended' },
   }
   const statusInfo = statusConfig[unit.status] || statusConfig.AVAILABLE
 
@@ -91,7 +94,7 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
   return (
     <div className="card-hover relative">
       <div className="absolute top-3 right-3 z-10">
-        <HousingCardActions housingId={unit.id} />
+        <HousingCardActions housingId={unit.id} status={unit.status} />
       </div>
       <Link href={`/housing/${unit.id}`} className="block">
         <div className="flex items-start justify-between mb-3 pr-8">
@@ -106,7 +109,7 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
           <div className="flex-1">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500">Belegung</span>
-              <span className="font-medium">{occupancy}/{unit.totalBeds}</span>
+              <span className="font-medium">{occupancy}/{totalBeds}</span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div

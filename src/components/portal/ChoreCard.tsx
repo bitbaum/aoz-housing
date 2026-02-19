@@ -35,6 +35,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
   const statusColor = TASK_STATUS_COLORS[task.currentStatus] || TASK_STATUS_COLORS.IDLE
   const statusLabel = TASK_STATUS_LABELS[task.currentStatus] || task.currentStatus
   const lastCompletion = task.completions[0]
+  const needsDecision = task.currentStatus === 'NEEDS_ATTENTION' || task.currentStatus === 'REQUESTED'
 
   return (
     <div className="card flex items-start gap-3 p-4">
@@ -61,18 +62,32 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
               ? `${formatDate(lastCompletion.completedAt)} ${CHORE_LABELS.card.by} ${lastCompletion.completedBy.code}`
               : CHORE_LABELS.card.never}
           </p>
+          {needsDecision && (
+            <p className="text-xs text-amber-700 mt-1">Empfohlen: Aufgabe öffnen und zuerst Entscheidung treffen.</p>
+          )}
         </div>
       </Link>
 
       {/* Quick complete button */}
       {!task.isCompleted && (
-        <button
-          onClick={() => onQuickComplete(task.id)}
-          disabled={isCompleting}
-          className="min-h-[44px] min-w-[44px] px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex-shrink-0"
-        >
-          {isCompleting ? '...' : '✓'}
-        </button>
+        needsDecision ? (
+          <Link
+            href={`/portal/chores/${task.id}`}
+            className="min-h-[44px] px-3 py-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-sm font-medium transition-colors flex items-center"
+            title="Aufgabe öffnen und Entscheidung treffen"
+          >
+            Details
+          </Link>
+        ) : (
+          <button
+            onClick={() => onQuickComplete(task.id)}
+            disabled={isCompleting}
+            className="min-h-[44px] px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex-shrink-0"
+            title="Direkt als erledigt markieren"
+          >
+            {isCompleting ? '...' : 'Erledigt'}
+          </button>
+        )
       )}
     </div>
   )

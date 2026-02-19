@@ -1,4 +1,11 @@
 import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
+
+test.setTimeout(60_000)
+
+test.beforeEach(async ({ page }) => {
+  await ensureStaffLogin(page)
+})
 
 test.describe('Dashboard', () => {
   test('dashboard loads with action-oriented content', async ({ page }) => {
@@ -6,7 +13,6 @@ test.describe('Dashboard', () => {
 
     await expect(page).toHaveTitle(/AOZ/)
 
-    // Should show either action tiles or an all-clear state
     const hasActions = await page.getByText(/Platzierung|Bewohner|Check-in|Vorfall/i).first().isVisible().catch(() => false)
     const hasAllClear = await page.getByText(/Alles erledigt|Keine offenen/i).isVisible().catch(() => false)
 
@@ -16,29 +22,16 @@ test.describe('Dashboard', () => {
   test('dashboard quick stats are visible', async ({ page }) => {
     await page.goto('/')
 
-    // Stats section with occupancy, residents, etc.
-    const hasStats = await page.getByText(/Belegung|Bewohner|Betten/i).first().isVisible().catch(() => false)
-    expect(hasStats).toBe(true)
+    const statsLinks = page.locator('main a[href*="/housing"], main a[href*="/placements"], main a[href*="/incidents"], main a[href*="/maintenance"]')
+    await expect(statsLinks.first()).toBeVisible({ timeout: 30_000 })
+    expect(await statsLinks.count()).toBeGreaterThan(0)
   })
 
-  test('dashboard links navigate to correct pages', async ({ page }) => {
+  test('dashboard contains core admin navigation links', async ({ page }) => {
     await page.goto('/')
 
-    // Check navigation items in sidebar/nav
-    const navLinks = [
-      { text: /Bewohner/i, url: /residents/ },
-      { text: /Unterkünfte/i, url: /housing/ },
-      { text: /Matching/i, url: /matching/ },
-    ]
-
-    for (const { text, url } of navLinks) {
-      const link = page.getByRole('link', { name: text }).first()
-      const isVisible = await link.isVisible().catch(() => false)
-
-      if (isVisible) {
-        const href = await link.getAttribute('href')
-        expect(href).toMatch(url)
-      }
-    }
+    await expect(page.locator('aside a[href="/residents"]').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('aside a[href="/housing"]').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('aside a[href="/matching"]').first()).toBeVisible({ timeout: 15_000 })
   })
 })

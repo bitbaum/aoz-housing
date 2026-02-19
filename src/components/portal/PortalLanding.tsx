@@ -130,7 +130,7 @@ export function PortalLanding({ error }: PortalLandingProps) {
             </p>
 
             {loginError && (
-              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
                 {loginError}
               </div>
             )}
@@ -162,7 +162,7 @@ export function PortalLanding({ error }: PortalLandingProps) {
             </p>
 
             {registerState.status === 'success' ? (
-              <div className="text-center py-4">
+              <div className="text-center py-4" role="status" aria-live="polite">
                 <p className="text-sm text-gray-600 mb-2">{PORTAL_LABELS.landing.registerSuccess}</p>
                 <p className="text-2xl font-bold text-aoz-primary font-mono">{registerState.code}</p>
                 <p className="text-xs text-gray-400 mt-3">{PORTAL_LABELS.login.hint}</p>
@@ -170,7 +170,7 @@ export function PortalLanding({ error }: PortalLandingProps) {
             ) : (
               <form onSubmit={handleRegister}>
                 {registerState.status === 'error' && (
-                  <div className="mb-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+                  <div className="mb-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
                     {registerState.message}
                   </div>
                 )}

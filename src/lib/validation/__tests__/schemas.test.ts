@@ -661,12 +661,21 @@ describe('portalSatisfactionSchema', () => {
 })
 
 describe('staffRegistrationSchema', () => {
-  it('accepts valid registration', () => {
+  it('accepts valid registration with AOZ code', () => {
     const result = staffRegistrationSchema.safeParse({
       name: 'Test User',
       email: 'test@aoz.ch',
       password: 'securepass123',
       inviteCode: 'AOZ2024',
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts registration without AOZ code (resident path)', () => {
+    const result = staffRegistrationSchema.safeParse({
+      name: 'Test User',
+      email: 'test@aoz.ch',
+      password: 'securepass123',
     })
     expect(result.success).toBe(true)
   })

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { NAV_ITEMS, NAV_ICONS, type NavItem } from '@/lib/config/navigation'
@@ -10,6 +10,24 @@ import { Logo } from '@/components/ui/Logo'
 export function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -47,6 +65,9 @@ export function MobileNav() {
         className={`fixed top-0 left-0 h-full w-[85vw] max-w-[256px] bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation"
       >
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">

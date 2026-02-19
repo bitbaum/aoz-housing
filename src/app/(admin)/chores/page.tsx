@@ -76,44 +76,82 @@ export default async function AdminChoresPage() {
             Keine Unterkünfte mit Aufgaben gefunden
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Unterkunft</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-600">Adresse</th>
-                  <th className="text-center py-3 px-2 font-medium text-gray-600">Bewohner</th>
-                  <th className="text-center py-3 px-2 font-medium text-gray-600">Aufgaben</th>
-                  <th className="text-center py-3 px-2 font-medium text-gray-600">Aktiv</th>
-                  <th className="text-center py-3 px-2 font-medium text-gray-600">Achtung</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unitSummaries.map(unit => (
-                  <tr key={unit.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-2 font-medium">
-                      <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline">
+          <>
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-3">
+              {unitSummaries.map((unit) => (
+                <div key={unit.id} className="border border-gray-200 rounded-lg p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline font-medium">
                         {unit.code}
                       </Link>
-                    </td>
-                    <td className="py-3 px-2 text-gray-600">{unit.address}</td>
-                    <td className="py-3 px-2 text-center">{unit.residents}</td>
-                    <td className="py-3 px-2 text-center">{unit.totalTasks}</td>
-                    <td className="py-3 px-2 text-center">{unit.activeTasks}</td>
-                    <td className="py-3 px-2 text-center">
-                      {unit.attentionTasks > 0 ? (
-                        <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs">
-                          {unit.attentionTasks}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">0</span>
-                      )}
-                    </td>
+                      <p className="text-sm text-gray-600 mt-1">{unit.address}</p>
+                    </div>
+                    {unit.attentionTasks > 0 ? (
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+                        {unit.attentionTasks} Achtung
+                      </span>
+                    ) : null}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
+                    <div className="bg-gray-50 rounded p-2 text-center">
+                      <p className="text-gray-500">Bewohner</p>
+                      <p className="font-semibold text-gray-900">{unit.residents}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded p-2 text-center">
+                      <p className="text-gray-500">Aufgaben</p>
+                      <p className="font-semibold text-gray-900">{unit.totalTasks}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded p-2 text-center">
+                      <p className="text-gray-500">Aktiv</p>
+                      <p className="font-semibold text-gray-900">{unit.activeTasks}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-2 font-medium text-gray-600">Unterkunft</th>
+                    <th className="text-left py-3 px-2 font-medium text-gray-600">Adresse</th>
+                    <th className="text-center py-3 px-2 font-medium text-gray-600">Bewohner</th>
+                    <th className="text-center py-3 px-2 font-medium text-gray-600">Aufgaben</th>
+                    <th className="text-center py-3 px-2 font-medium text-gray-600">Aktiv</th>
+                    <th className="text-center py-3 px-2 font-medium text-gray-600">Achtung</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {unitSummaries.map(unit => (
+                    <tr key={unit.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-2 font-medium">
+                        <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline">
+                          {unit.code}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-2 text-gray-600">{unit.address}</td>
+                      <td className="py-3 px-2 text-center">{unit.residents}</td>
+                      <td className="py-3 px-2 text-center">{unit.totalTasks}</td>
+                      <td className="py-3 px-2 text-center">{unit.activeTasks}</td>
+                      <td className="py-3 px-2 text-center">
+                        {unit.attentionTasks > 0 ? (
+                          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs">
+                            {unit.attentionTasks}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">0</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

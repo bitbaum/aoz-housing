@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { endPlacement, transferPlacement } from '@/lib/actions'
 import {
@@ -44,6 +44,8 @@ interface PlacementActionsProps {
   recentIncidents?: RecentIncident[]
   /** Initial compatibility score at placement time (for predictability question) */
   initialCompatibilityScore?: number | null
+  /** Optionally open one action panel by default */
+  initialAction?: 'transfer' | 'end'
 }
 
 export function PlacementActions({
@@ -56,11 +58,33 @@ export function PlacementActions({
   unitCompatibility,
   recentIncidents = [],
   initialCompatibilityScore,
+  initialAction,
 }: PlacementActionsProps) {
-  const [showTransfer, setShowTransfer] = useState(false)
-  const [showEnd, setShowEnd] = useState(false)
+  const [showTransfer, setShowTransfer] = useState(initialAction === 'transfer')
+  const [showEnd, setShowEnd] = useState(initialAction === 'end')
   const [selectedUnitId, setSelectedUnitId] = useState<string>('')
   const [selectedEndReason, setSelectedEndReason] = useState<string>('')
+
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if (!(event.altKey && event.shiftKey)) return
+
+      if (event.key.toLowerCase() === 'v') {
+        event.preventDefault()
+        setShowTransfer(true)
+        setShowEnd(false)
+      }
+
+      if (event.key.toLowerCase() === 'e') {
+        event.preventDefault()
+        setShowEnd(true)
+        setShowTransfer(false)
+      }
+    }
+
+    window.addEventListener('keydown', onShortcut)
+    return () => window.removeEventListener('keydown', onShortcut)
+  }, [])
 
   // Get eligible units (different from current, has eligible spots)
   const eligibleUnits = availableUnits.filter((u) => {
@@ -77,9 +101,20 @@ export function PlacementActions({
     ? selectedUnit.spots.filter((spot) => eligibleSpotTypes.includes(spot.type))
     : []
 
+  const transferSummary = selectedUnit
+    ? `Bewohner wird in ${selectedUnit.code} verlegt. Ziel-Unterkunft prüfen und Grund dokumentieren.`
+    : 'Wählen Sie eine Ziel-Unterkunft, um die Verlegung zu bestätigen.'
+
+  const endSummary = selectedEndReason
+    ? `Diese Platzierung wird beendet (Grund: ${END_REASON_LABELS[selectedEndReason] || selectedEndReason}). Bewohner wird als unplatziert geführt.`
+    : 'Wählen Sie einen Grund, um die Beendigung zu bestätigen.'
+
   return (
-    <div className="mt-4 pt-4 border-t">
-      <h3 className="text-sm font-medium text-gray-700 mb-3">Aktionen</h3>
+    <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
+      <h3 className="text-sm font-medium text-gray-700 mb-1">Aktionen</h3>
+      <p className="text-xs text-gray-500 mb-3">
+        Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)
+      </p>
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/placements/${placementId}/checkin`}
@@ -136,6 +171,13 @@ export function PlacementActions({
           </div>
           <input type="hidden" name="currentPlacementId" value={placementId} />
           <input type="hidden" name="residentId" value={residentId} />
+
+          {eligibleUnits.length === 0 && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
+              Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diesen Bewohner.
+              Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.
+            </div>
+          )}
 
           <div>
             <label className="label">Ziel-Unterkunft *</label>
@@ -203,7 +245,15 @@ export function PlacementActions({
             />
           </div>
 
-          <button type="submit" className="btn-primary text-sm">
+          <div className="p-3 bg-white border border-blue-200 rounded text-sm text-blue-900">
+            <strong>Zusammenfassung:</strong> {transferSummary}
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={eligibleUnits.length === 0 || !selectedUnitId}
+          >
             Verlegen bestätigen
           </button>
         </form>
@@ -339,6 +389,10 @@ export function PlacementActions({
               placeholder="Optionale Anmerkungen..."
               className="input"
             />
+          </div>
+
+          <div className="p-3 bg-white border border-red-200 rounded text-sm text-red-900">
+            <strong>Zusammenfassung:</strong> {endSummary}
           </div>
 
           <button

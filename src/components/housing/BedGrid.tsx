@@ -74,7 +74,7 @@ export function BedGrid({
     )
   }
 
-  const gridSize = compact ? 'w-8 h-8' : 'w-10 h-10'
+  const gridSize = compact ? 'w-11 h-11' : 'w-11 h-11'
   const fontSize = compact ? 'text-xs' : 'text-sm'
   const iconSize = compact ? 'text-sm' : 'text-base'
 
@@ -112,6 +112,14 @@ export function BedGrid({
             <div
               key={spot.id}
               onClick={(e) => handleBedClick(spot, e)}
+              role={isAvailableClickable || isOccupiedClickable ? 'button' : undefined}
+              tabIndex={isAvailableClickable || isOccupiedClickable ? 0 : undefined}
+              onKeyDown={isAvailableClickable || isOccupiedClickable ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleBedClick(spot, e as unknown as React.MouseEvent)
+                }
+              } : undefined}
               className={`
                 ${gridSize}
                 border-2 rounded-md
@@ -121,6 +129,13 @@ export function BedGrid({
                 ${isAvailableClickable || isOccupiedClickable ? 'hover:shadow-md' : ''}
                 ${isSelected ? 'ring-2 ring-aoz-primary ring-offset-1' : ''}
               `}
+              aria-label={
+                status === 'occupied' && activePlacement
+                  ? `Platz ${spot.label || spot.code}: belegt von ${activePlacement.resident.code}`
+                  : status === 'available'
+                    ? `Platz ${spot.label || spot.code}: verfügbar`
+                    : `Platz ${spot.label || spot.code}: nicht verfügbar`
+              }
               title={
                 status === 'occupied' && activePlacement
                   ? `${spot.label || spot.code}: ${activePlacement.resident.code} - Klicken für Details`
@@ -181,12 +196,13 @@ const ResidentBedPopover = ({
       const rect = popoverRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
+      const padding = 8
 
       if (rect.right > viewportWidth) {
-        popoverRef.current.style.left = `${viewportWidth - rect.width - 16}px`
+        popoverRef.current.style.left = `${viewportWidth - rect.width - padding}px`
       }
       if (rect.left < 0) {
-        popoverRef.current.style.left = '16px'
+        popoverRef.current.style.left = `${padding}px`
       }
       if (rect.bottom > viewportHeight) {
         popoverRef.current.style.top = `${position.y - rect.height - 60}px`
@@ -199,9 +215,9 @@ const ResidentBedPopover = ({
   return (
     <div
       ref={popoverRef}
-      className="fixed z-50 w-64 bg-white rounded-lg shadow-xl border border-gray-200"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-white rounded-lg shadow-xl border border-gray-200"
       style={{
-        left: position.x - 128,
+        left: Math.max(8, position.x - 128),
         top: position.y,
       }}
     >
@@ -221,7 +237,8 @@ const ResidentBedPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            aria-label="Schliessen"
           >
             ✕
           </button>

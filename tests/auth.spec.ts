@@ -7,14 +7,14 @@ test.describe('Staff authentication flow', () => {
     // Login form visible
     await expect(page.locator('input[type="email"]')).toBeVisible()
     await expect(page.locator('input[type="password"]')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Anmelden/i })).toBeVisible()
+    await expect(page.locator('form').getByRole('button', { name: /^Anmelden$/i })).toBeVisible()
   })
 
   test('shows registration tab with invite code field', async ({ page }) => {
     await page.goto('/login')
 
     // Click register tab
-    await page.getByRole('button', { name: /Registrieren/i }).click()
+    await page.getByRole('button', { name: /Registrieren/i }).first().click()
 
     // Registration fields visible
     await expect(page.locator('#reg-name')).toBeVisible()
@@ -28,7 +28,7 @@ test.describe('Staff authentication flow', () => {
 
     await page.locator('input[type="email"]').fill('nobody@aoz.ch')
     await page.locator('input[type="password"]').fill('wrongpassword')
-    await page.getByRole('button', { name: /Anmelden/i }).click()
+    await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
     // Should show error message
     await expect(page.locator('.bg-red-50, [role="alert"]')).toBeVisible({ timeout: 5000 })
@@ -44,7 +44,7 @@ test.describe('Staff authentication flow', () => {
     await page.locator('#reg-email').fill('test@aoz.ch')
     await page.locator('#reg-password').fill('password123')
     await page.locator('#invite-code').fill('WRONG-CODE')
-    await page.getByRole('button', { name: /Registrieren$/i }).click()
+    await page.locator('form').getByRole('button', { name: /^Registrieren$/i }).click()
 
     // Should show error
     await expect(page.locator('.bg-red-50, [role="alert"]')).toBeVisible({ timeout: 5000 })

@@ -136,7 +136,16 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} onChange={() => setIsDirty(true)} className="space-y-6">
+      <form ref={formRef} onSubmit={handleSubmit} onChange={() => setIsDirty(true)} className="space-y-6 pb-24 sm:pb-0">
+        <div className="card bg-blue-50 border-blue-200">
+          <p className="text-sm text-blue-900">
+            Tipp: Speichern Sie unten, sobald Sie fertig sind. Änderungen sind erst nach dem Speichern aktiv.
+          </p>
+          {isDirty && (
+            <p className="text-xs text-blue-700 mt-1">Nicht gespeicherte Änderungen vorhanden.</p>
+          )}
+        </div>
+
         {/* Lifestyle Section */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Lebensstil</h2>
@@ -364,15 +373,15 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
 
         {/* Submit */}
-        <div className="flex gap-4">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary w-full sm:w-auto min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? PORTAL_LABELS.preferences.saving : PORTAL_LABELS.preferences.saveButton}
           </button>
-          <button type="button" onClick={handleCancel} className="btn-outline">
+          <button type="button" onClick={handleCancel} className="btn-outline w-full sm:w-auto min-h-[44px]">
             {PORTAL_LABELS.form.cancel}
           </button>
         </div>

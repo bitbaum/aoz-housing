@@ -2,6 +2,34 @@
  * Types for the compatibility scoring system
  */
 
+import type {
+  AgeRange,
+  Gender,
+  FamilyStatus,
+  SleepSchedule,
+  SocialStyle,
+  SmokingStatus,
+  MobilityNeed,
+  RoomSharingStatus,
+  SupportLevel,
+  RecyclingKnowledge,
+  ConflictStyle,
+} from '@prisma/client'
+
+export type {
+  AgeRange,
+  Gender,
+  FamilyStatus,
+  SleepSchedule,
+  SocialStyle,
+  SmokingStatus,
+  MobilityNeed,
+  RoomSharingStatus,
+  SupportLevel,
+  RecyclingKnowledge,
+  ConflictStyle,
+}
+
 export interface ResidentProfile {
   id: string
   code: string
@@ -47,17 +75,7 @@ export interface ResidentProfile {
   supportLevel: SupportLevel
 }
 
-export type AgeRange = 'YOUNG_ADULT' | 'ADULT' | 'MIDDLE_AGED' | 'SENIOR'
-export type Gender = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_SAY'
-export type FamilyStatus = 'SINGLE' | 'COUPLE' | 'FAMILY_WITH_CHILDREN' | 'SINGLE_PARENT'
-export type SleepSchedule = 'EARLY_BIRD' | 'STANDARD' | 'NIGHT_OWL' | 'IRREGULAR'
-export type SocialStyle = 'INTROVERTED' | 'MODERATE' | 'EXTROVERTED'
-export type SmokingStatus = 'NON_SMOKER' | 'OUTDOOR_SMOKER' | 'INDOOR_SMOKER'
-export type MobilityNeed = 'NONE' | 'GROUND_FLOOR' | 'WHEELCHAIR'
-export type RoomSharingStatus = 'CAN_SHARE' | 'PREFERS_PRIVATE' | 'NEEDS_PRIVATE'
-export type SupportLevel = 'STANDARD' | 'ELEVATED' | 'INTENSIVE'
-export type RecyclingKnowledge = 'NONE' | 'BASIC' | 'GOOD'
-export type ConflictStyle = 'AVOIDANT' | 'COOPERATIVE' | 'DIRECT'
+// Types imported from @prisma/client above (SSOT: schema.prisma)
 
 export interface CompatibilityScore {
   overall: number // 0-100

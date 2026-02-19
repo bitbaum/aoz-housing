@@ -131,7 +131,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center">
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center" role="alert" aria-live="polite">
           {error}
         </div>
       )}

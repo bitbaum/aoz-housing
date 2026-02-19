@@ -304,5 +304,5 @@ export async function placeResident(formData: FormData) {
     reason: notes || undefined,
   })
 
-  redirect(`/residents/${residentId}`)
+  redirect(`/residents/${residentId}?placed=true`)
 }

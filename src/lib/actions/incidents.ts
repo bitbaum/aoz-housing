@@ -67,6 +67,7 @@ export async function resolveIncident(formData: FormData): Promise<void> {
   })
 
   revalidatePath('/incidents')
+  redirect(`/incidents/${incidentId}?resolved=true`)
 }
 
 export interface ResidentIncidentStats {

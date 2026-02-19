@@ -782,6 +782,135 @@ export const PORTAL_LABELS = {
 } as const
 
 // =============================================================================
+// DASHBOARD LABELS (Staff dashboard)
+// =============================================================================
+
+export const DASHBOARD_LABELS = {
+  // Greetings
+  greetingMorning: 'Guten Morgen',
+  greetingDay: 'Guten Tag',
+  greetingEvening: 'Guten Abend',
+
+  // Date relative
+  today: 'heute',
+  yesterday: 'gestern',
+  daysAgo: 'Tagen', // used as "vor X Tagen" or "X Tagen"
+
+  // Status summary
+  allClearSummary: 'Alles unter Kontrolle heute.',
+  oneTaskWaiting: '1 Aufgabe wartet auf Sie.',
+  tasksWaitingSuffix: 'Aufgaben warten auf Sie.',
+
+  // Section headers
+  sectionOpenTasks: 'Offene Aufgaben',
+  sectionDueSoon: 'Bald fällig',
+  sectionQuickActions: 'Schnellaktionen',
+  sectionTasks: 'Aufgaben',
+  sectionOccupancy: 'Belegung',
+  sectionHousing: 'Unterkünfte',
+
+  // Quick stats
+  statFreeBeds: 'Freie Plätze',
+  statCheckIns: 'Check-ins',
+  statOverdueSuffix: 'überfällig',
+  statCurrentSuffix: 'aktuell',
+  statHarmony: 'Harmonie',
+  statDaysSuffix: 'Tage',
+  statNoConflicts: 'ohne Konflikte',
+  statMaintenance: 'Wartung',
+  statOpenSuffix: 'offen',
+
+  // Action tile titles & descriptions
+  tileCheckIns: 'Check-ins durchführen',
+  tilePlaceResidents: 'Bewohner platzieren',
+  tileWaitingForPlacement: 'Warten auf Wohnplatz',
+  tileConflictUnits: 'Einheiten mit Konflikten',
+  tileConflictUnitsDesc: 'Wiederholte Vorfälle in den letzten 30 Tagen',
+  tileCheckInsThisWeek: 'Check-ins diese Woche',
+  tilePlanProactively: 'Proaktiv planen',
+  tileWaitingLongestSuffix: 'wartet am längsten',
+  tileSincePrefix: 'Seit',
+  tileIncidents: 'Vorfälle',
+
+  // Due labels
+  dueTodayPrefix: 'Heute fällig',
+  dueTomorrowPrefix: 'Morgen fällig',
+  dueInPrefix: 'In',
+  dueInSuffix: 'Tagen',
+
+  // Show all / more
+  showAllPrefix: 'Alle',
+  showAllSuffix: 'anzeigen',
+  showMoreSuffix: 'weitere',
+  showAllLink: 'Alle',
+
+  // All clear state
+  allClearTitle: 'Alles unter Kontrolle!',
+  allClearAllDone: 'Alles erledigt!',
+  allClearConflictFreeSuffix: 'Tage ohne Konflikte.',
+  allClearBedsReadySuffix: 'Plätze für neue Bewohner bereit.',
+  allClearAllOccupied: 'Alle Plätze belegt.',
+  allClearNoDringend: 'Keine dringenden Aufgaben',
+  allClearBedsFreeSuffix: 'Plätze frei',
+
+  // Quick action buttons
+  actionNewResident: 'Neuer Bewohner',
+  actionNewUnit: 'Neue Einheit',
+  actionStartMatching: 'Matching starten',
+  actionReportIncident: 'Vorfall melden',
+  actionMaintenanceTicket: 'Wartungsticket',
+  actionCreateResident: 'Neuen Bewohner erfassen',
+  actionViewStats: 'Statistiken ansehen',
+
+  // Primary hero actions
+  heroCriticalIncidentsSuffix: 'kritische Vorfälle',
+  heroActionNow: 'Sofort bearbeiten',
+  heroCheckInUrgentPrefix: 'Check-in dringend:',
+  heroNotSeenSuffix: 'Tagen nicht gesehen',
+  heroStartCheckIn: 'Check-in starten',
+  heroPlaceResidentsSuffix: 'Bewohner platzieren',
+  heroFreeBedsAvailableSuffix: 'freie Plätze verfügbar',
+  heroOpenConflictsSuffix: 'offene Konflikte',
+  heroMainProblemPrefix: 'Hauptproblem:',
+  heroAnalyze: 'Analysieren',
+  heroCheckInsPendingSuffix: 'Check-ins anstehend',
+  heroNextPrefix: 'Nächster:',
+  heroMonitorUnitsSuffix: 'Einheiten beobachten',
+  heroHadSuffix: 'hatte',
+  heroIncidentsSuffix: 'Vorfälle',
+  heroReview: 'Überprüfen',
+
+  // Critical alert banner
+  alertCriticalAttentionSuffix: 'kritische Vorfälle erfordern sofortige Aufmerksamkeit',
+  alertEdit: 'Bearbeiten',
+  alertCloseAriaLabel: 'Schliessen',
+
+  // Occupancy card
+  occupancyOccupied: 'belegt',
+  occupancyOf: 'von',
+  occupancyPlaces: 'Plätzen',
+  occupancyFree: 'frei',
+  occupancyAvailable: 'Verfügbar',
+  occupancyFull: 'Voll belegt',
+  occupancyMaintenance: 'In Wartung',
+  occupancyClosed: 'Geschlossen',
+  occupancyViewAll: 'Alle Unterkünfte',
+
+  // Task section
+  taskCriticalOpenSuffix: 'kritische Vorfälle offen',
+  taskNoCritical: 'Keine kritischen Vorfälle',
+  taskCheckInsOverdueSuffix: 'Check-ins überfällig',
+  taskAllCheckInsCurrent: 'Alle Check-ins aktuell',
+  taskWaitingPlacementSuffix: 'Bewohner warten auf Platzierung',
+  taskAllPlaced: 'Alle Bewohner platziert',
+  taskMaintenanceOverdueSuffix: 'Wartungstickets überfällig',
+  taskMaintenanceCurrent: 'Wartung aktuell',
+  taskWeek: 'Woche',
+  taskDaysAgoPrefix: 'Vor',
+  taskSincePrefix: 'Seit',
+} as const
+
+// =============================================================================
 // FORM LABELS
 // =============================================================================
 
@@ -864,14 +993,15 @@ export const LOGIN_LABELS = {
     emailPlaceholder: 'ihre.email@aoz.ch',
     password: 'Passwort',
     passwordPlaceholder: 'Mindestens 8 Zeichen',
-    inviteCode: 'Einladungscode',
-    inviteCodePlaceholder: 'Code eingeben',
+    inviteCode: 'AOZ-Code (optional)',
+    inviteCodePlaceholder: 'Nur für AOZ-Profil eingeben',
+    inviteCodeHelp: 'Ohne Code wird ein Bewohnerprofil erstellt.',
     submit: 'Registrieren',
     submitting: 'Registrieren...',
     error: {
       generic: 'Registrierung fehlgeschlagen',
       emailExists: 'Diese E-Mail ist bereits registriert',
-      invalidCode: 'Ungültiger Einladungscode',
+      invalidCode: 'Ungültiger AOZ-Code',
     },
   },
   error: {

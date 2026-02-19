@@ -1,6 +1,7 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { APP_LABELS } from '@/lib/constants/labels'
+import { ToastContainer } from '@/components/ui/Toast'
 import './globals.css'
 
 const inter = Inter({
@@ -8,6 +9,12 @@ const inter = Inter({
   display: 'swap',
   variable: '--font-inter',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+}
 
 export const metadata: Metadata = {
   title: APP_LABELS.metaTitle,
@@ -32,6 +39,7 @@ export default function RootLayout({
     <html lang="de" className={inter.variable}>
       <body className="min-h-screen bg-aoz-background font-sans">
         {children}
+        <ToastContainer />
       </body>
     </html>
   )

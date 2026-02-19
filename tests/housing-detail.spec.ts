@@ -1,4 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
+
+test.beforeEach(async ({ page }) => {
+  await ensureStaffLogin(page)
+})
 
 test.describe('Housing unit pages', () => {
   test('housing list shows units with occupancy info', async ({ page }) => {

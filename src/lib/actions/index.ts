@@ -1,6 +1,6 @@
 export { endPlacement, transferPlacement } from './placements'
-export { createResident, updateResident } from './residents'
-export { createHousingUnit, updateHousingUnit } from './housing'
+export { createResident, updateResident, archiveResident, restoreResident, hardDeleteResidentProtected } from './residents'
+export { createHousingUnit, updateHousingUnit, archiveHousingUnit, restoreHousingUnit, hardDeleteHousingUnitProtected } from './housing'
 export {
   createCheckInFromForm,
   getPlacementCheckIns,

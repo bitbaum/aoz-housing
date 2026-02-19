@@ -88,7 +88,14 @@ export function CompatibilityMatrixInteractive({
   }
 
   return (
-    <div className="relative overflow-x-auto">
+    <div className="relative">
+      {/* Mobile scroll hint */}
+      <div className="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-1">
+        <span>←</span>
+        <span>Wischen zum Scrollen</span>
+        <span>→</span>
+      </div>
+      <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
       <table className="min-w-full text-sm">
         <thead>
           <tr>
@@ -156,6 +163,7 @@ export function CompatibilityMatrixInteractive({
         </tbody>
       </table>
 
+      </div>
       {/* Detail Popover */}
       {selectedCell && (
         <CompatibilityDetailPopover
@@ -219,9 +227,13 @@ const CompatibilityDetailPopover = ({
       const rect = popoverRef.current.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
+      const padding = 8
 
       if (rect.right > viewportWidth) {
-        popoverRef.current.style.left = `${viewportWidth - rect.width - 16}px`
+        popoverRef.current.style.left = `${viewportWidth - rect.width - padding}px`
+      }
+      if (rect.left < 0) {
+        popoverRef.current.style.left = `${padding}px`
       }
       if (rect.bottom > viewportHeight) {
         popoverRef.current.style.top = `${position.y - rect.height - 60}px`
@@ -232,9 +244,9 @@ const CompatibilityDetailPopover = ({
   return (
     <div
       ref={popoverRef}
-      className="fixed z-50 w-80 bg-white rounded-lg shadow-xl border border-gray-200"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-lg shadow-xl border border-gray-200"
       style={{
-        left: position.x - 160, // Center the 320px wide popover
+        left: Math.max(8, position.x - 160),
         top: position.y,
       }}
     >
@@ -252,7 +264,8 @@ const CompatibilityDetailPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-6 h-6 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            aria-label="Schliessen"
           >
             ✕
           </button>

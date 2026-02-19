@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 interface OverdueCheckIn {
   id: string
@@ -57,9 +58,9 @@ export function TaskSection({
   return (
     <div className="card mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Aufgaben</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{DASHBOARD_LABELS.sectionTasks}</h2>
         {allClear && (
-          <span className="text-sm text-green-600 font-medium">Alles erledigt!</span>
+          <span className="text-sm text-green-600 font-medium">{DASHBOARD_LABELS.allClearAllDone}</span>
         )}
       </div>
 
@@ -68,7 +69,7 @@ export function TaskSection({
         {hasCritical ? (
           <TaskCategory
             icon="🚨"
-            title={`${criticalIncidents.length} kritische Vorfälle offen`}
+            title={`${criticalIncidents.length} ${DASHBOARD_LABELS.taskCriticalOpenSuffix}`}
             href="/incidents?severity=CRITICAL&resolved=false"
             variant="critical"
           >
@@ -77,7 +78,7 @@ export function TaskSection({
                 key={incident.id}
                 href={`/incidents/${incident.id}`}
                 primary={incident.type}
-                secondary={`${incident.unitCode} • Vor ${incident.daysSinceCreated} Tagen`}
+                secondary={`${incident.unitCode} • ${DASHBOARD_LABELS.taskDaysAgoPrefix} ${incident.daysSinceCreated} ${DASHBOARD_LABELS.daysAgo}`}
               />
             ))}
             {criticalIncidents.length > 3 && (
@@ -85,14 +86,14 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🚨" title="Keine kritischen Vorfälle" />
+          <CompletedCategory icon="🚨" title={DASHBOARD_LABELS.taskNoCritical} />
         )}
 
         {/* Overdue Check-ins */}
         {hasOverdueCheckIns ? (
           <TaskCategory
             icon="⚠️"
-            title={`${overdueCheckIns.length} Check-ins überfällig`}
+            title={`${overdueCheckIns.length} ${DASHBOARD_LABELS.taskCheckInsOverdueSuffix}`}
             href="/placements?status=active"
             variant="warning"
           >
@@ -101,7 +102,7 @@ export function TaskSection({
                 key={checkIn.id}
                 href={`/residents/${checkIn.residentId}`}
                 primary={checkIn.residentCode}
-                secondary={`Woche ${checkIn.weekNumber} • ${checkIn.unitCode}`}
+                secondary={`${DASHBOARD_LABELS.taskWeek} ${checkIn.weekNumber} • ${checkIn.unitCode}`}
               />
             ))}
             {overdueCheckIns.length > 3 && (
@@ -109,14 +110,14 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="⚠️" title="Alle Check-ins aktuell" />
+          <CompletedCategory icon="⚠️" title={DASHBOARD_LABELS.taskAllCheckInsCurrent} />
         )}
 
         {/* Unplaced Residents */}
         {hasUnplaced ? (
           <TaskCategory
             icon="🏠"
-            title={`${unplacedResidents.length} Bewohner warten auf Platzierung`}
+            title={`${unplacedResidents.length} ${DASHBOARD_LABELS.taskWaitingPlacementSuffix}`}
             href="/matching"
             variant="warning"
           >
@@ -125,7 +126,7 @@ export function TaskSection({
                 key={resident.id}
                 href={`/residents/${resident.id}`}
                 primary={resident.code}
-                secondary={`Seit ${formatDateShort(resident.createdAt)}`}
+                secondary={`${DASHBOARD_LABELS.taskSincePrefix} ${formatDateShort(resident.createdAt)}`}
               />
             ))}
             {unplacedResidents.length > 3 && (
@@ -133,14 +134,14 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🏠" title="Alle Bewohner platziert" />
+          <CompletedCategory icon="🏠" title={DASHBOARD_LABELS.taskAllPlaced} />
         )}
 
         {/* Overdue Maintenance */}
         {hasOverdueMaintenance ? (
           <TaskCategory
             icon="🔧"
-            title={`${overdueMaintenance.length} Wartungstickets überfällig`}
+            title={`${overdueMaintenance.length} ${DASHBOARD_LABELS.taskMaintenanceOverdueSuffix}`}
             href="/maintenance"
             variant="info"
           >
@@ -149,7 +150,7 @@ export function TaskSection({
                 key={ticket.id}
                 href={`/maintenance/${ticket.id}`}
                 primary={ticket.title}
-                secondary={`${ticket.unitCode} • Vor ${ticket.daysSinceCreated} Tagen`}
+                secondary={`${ticket.unitCode} • ${DASHBOARD_LABELS.taskDaysAgoPrefix} ${ticket.daysSinceCreated} ${DASHBOARD_LABELS.daysAgo}`}
               />
             ))}
             {overdueMaintenance.length > 3 && (
@@ -157,7 +158,7 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🔧" title="Wartung aktuell" />
+          <CompletedCategory icon="🔧" title={DASHBOARD_LABELS.taskMaintenanceCurrent} />
         )}
       </div>
     </div>
@@ -198,7 +199,7 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
           href={href}
           className={`text-sm ${textStyles[variant]} hover:underline`}
         >
-          Alle →
+          {DASHBOARD_LABELS.showAllLink} →
         </Link>
       </div>
       <div className="space-y-2">
@@ -245,7 +246,7 @@ function MoreItems({ count, href }: { count: number; href: string }) {
       href={href}
       className="block text-center py-2 text-sm text-gray-600 hover:text-gray-900"
     >
-      + {count} weitere
+      + {count} {DASHBOARD_LABELS.showMoreSuffix}
     </Link>
   )
 }

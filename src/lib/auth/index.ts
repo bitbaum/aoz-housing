@@ -11,6 +11,7 @@ import { AUTH_CONFIG } from './config'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
 import { verifyPassword } from './password'
 import { checkRateLimit, recordLoginAttempt, clearLoginAttempts } from './rate-limit'
+import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
 
 // Re-export types
 export type { TokenPayload }
@@ -109,7 +110,24 @@ export async function requireRole(allowedRoles: AuthUser['role'][]): Promise<Aut
     throw new Error('Authentifizierung erforderlich')
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  if (!canRoleAccess(allowedRoles, user.role)) {
+    throw new Error('Unzureichende Berechtigungen')
+  }
+
+  return user
+}
+
+/**
+ * Check if current user has required permission
+ */
+export async function requirePermission(permission: StaffPermission): Promise<AuthUser> {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    throw new Error('Authentifizierung erforderlich')
+  }
+
+  if (!hasPermission(user.role, permission)) {
     throw new Error('Unzureichende Berechtigungen')
   }
 

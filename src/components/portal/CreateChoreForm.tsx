@@ -83,7 +83,7 @@ export function CreateChoreForm() {
 
       {/* Form */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">

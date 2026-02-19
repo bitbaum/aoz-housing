@@ -141,12 +141,12 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     <div>
       {/* Success / Error messages */}
       {success && (
-        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm" role="status" aria-live="polite">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
           {error}
         </div>
       )}

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
+import { FormValidationUX } from '@/components/forms'
 import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
@@ -50,7 +51,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
         >
           &larr; Zurück zur Liste
         </Link>
-        <div className="flex items-start justify-between mt-2">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
           <div className="flex items-center gap-4">
             <span className="text-3xl">{categoryIcon}</span>
             <div>
@@ -64,7 +65,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <span className={`text-sm px-3 py-1 rounded-full ${priorityClass}`}>
               {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
             </span>
@@ -94,10 +95,12 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Status aktualisieren
               </h2>
-              <form action={updateMaintenanceStatus} className="space-y-4">
+              <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
                 <input type="hidden" name="requestId" value={request.id} />
+                <div id="maintenance-status-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+                <FormValidationUX formId="maintenance-status-form" summaryId="maintenance-status-validation-summary" />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="label">Neuer Status</label>
                     <select name="status" className="input" defaultValue={request.status}>
@@ -132,7 +135,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="label">Kosten (CHF)</label>
                     <input
@@ -156,7 +159,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                <button type="submit" className="btn-primary">
+                <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
                   Status aktualisieren
                 </button>
               </form>

@@ -43,11 +43,11 @@ export default function NewHousingPage() {
         <HousingFormFields />
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <button type="submit" className="btn-primary">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+          <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
             Weiter zu Zimmer & Betten →
           </button>
-          <Link href="/housing" className="btn-outline">
+          <Link href="/housing" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
             Abbrechen
           </Link>
         </div>

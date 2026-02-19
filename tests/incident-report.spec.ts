@@ -1,6 +1,11 @@
 import { test, expect } from '@playwright/test'
+import { ensureStaffLogin } from './helpers'
 
 test.describe('Incident reporting flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await ensureStaffLogin(page)
+  })
+
   test('new incident form loads', async ({ page }) => {
     await page.goto('/incidents/new')
 

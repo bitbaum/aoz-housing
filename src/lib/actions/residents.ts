@@ -56,10 +56,11 @@ export async function exitResident(residentId: string): Promise<{ success: boole
     })
 
     await logAudit({
-      action: 'UPDATE',
+      action: 'END',
       entity: 'RESIDENT',
       entityId: residentId,
       changes: { status: 'EXITED' },
+      reason: 'Bewohner ausgetreten',
     })
 
     revalidatePath('/residents')
@@ -90,4 +91,148 @@ export async function updateResident(formData: FormData): Promise<void> {
   revalidatePath('/residents')
   revalidatePath(`/residents/${id}`)
   redirect(`/residents/${id}`)
+}
+
+export async function archiveResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const resident = await prisma.resident.findUnique({
+      where: { id: residentId },
+      include: { placements: { where: { status: 'ACTIVE' } } },
+    })
+
+    if (!resident) {
+      return { success: false, error: 'Bewohner nicht gefunden' }
+    }
+
+    if (resident.placements.length > 0) {
+      return { success: false, error: 'Archivieren nicht möglich: aktive Platzierung vorhanden' }
+    }
+
+    await prisma.resident.update({
+      where: { id: residentId },
+      data: { status: 'EXITED' },
+    })
+
+    await logAudit({
+      action: 'ARCHIVE',
+      entity: 'RESIDENT',
+      entityId: residentId,
+      changes: { status: 'EXITED' },
+    })
+
+    revalidatePath('/residents')
+    revalidatePath(`/residents/${residentId}`)
+    return { success: true }
+  } catch (error) {
+    logger.errorWithCause('Failed to archive resident', error, { residentId })
+    return { success: false, error: 'Fehler beim Archivieren' }
+  }
+}
+
+export async function restoreResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const resident = await prisma.resident.findUnique({
+      where: { id: residentId },
+      include: { placements: { where: { status: 'ACTIVE' } } },
+    })
+
+    if (!resident) {
+      return { success: false, error: 'Bewohner nicht gefunden' }
+    }
+
+    const nextStatus = resident.placements.length > 0 ? 'PLACED' : 'ACTIVE'
+
+    await prisma.resident.update({
+      where: { id: residentId },
+      data: { status: nextStatus },
+    })
+
+    await logAudit({
+      action: 'RESTORE',
+      entity: 'RESIDENT',
+      entityId: residentId,
+      changes: { status: nextStatus },
+    })
+
+    revalidatePath('/residents')
+    revalidatePath(`/residents/${residentId}`)
+    return { success: true }
+  } catch (error) {
+    logger.errorWithCause('Failed to restore resident', error, { residentId })
+    return { success: false, error: 'Fehler beim Wiederherstellen' }
+  }
+}
+
+function isTestOrDemoCode(code: string): boolean {
+  const c = code.toLowerCase()
+  return c.startsWith('test-') || c.startsWith('demo-') || c.includes('test') || c.includes('demo')
+}
+
+export async function hardDeleteResidentProtected(
+  residentId: string,
+  confirmation: string,
+  reason: string
+): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
+  try {
+    if (confirmation !== 'DELETE') {
+      return { success: false, error: 'Bestätigung fehlt (DELETE)' }
+    }
+
+    if (!reason || reason.trim().length < 10) {
+      return { success: false, error: 'Bitte einen aussagekräftigen Grund angeben (mind. 10 Zeichen)' }
+    }
+
+    const resident = await prisma.resident.findUnique({ where: { id: residentId } })
+    if (!resident) {
+      return { success: false, error: 'Bewohner nicht gefunden' }
+    }
+
+    if (!isTestOrDemoCode(resident.code)) {
+      return { success: false, error: 'Hard-Delete nur für Test-/Demo-Bewohner erlaubt' }
+    }
+
+    const [placements, incidentsReported, incidentsAsSubject, involvements, maintenanceRequests, assessments] = await Promise.all([
+      prisma.placement.count({ where: { residentId } }),
+      prisma.incident.count({ where: { reportedById: residentId } }),
+      prisma.incident.count({ where: { subjectId: residentId } }),
+      prisma.incidentInvolvement.count({ where: { residentId } }),
+      prisma.maintenanceRequest.count({ where: { reportedById: residentId } }),
+      prisma.compatibilityAssessment.count({
+        where: {
+          OR: [{ residentId }, { comparedWithId: residentId }],
+        },
+      }),
+    ])
+
+    if (placements + incidentsReported + incidentsAsSubject + involvements + maintenanceRequests + assessments > 0) {
+      return {
+        success: false,
+        error: 'Hard-Delete blockiert: Bewohner hat verknüpfte Historie',
+        blockerReport: {
+          placements,
+          incidentsReported,
+          incidentsAsSubject,
+          involvements,
+          maintenanceRequests,
+          assessments,
+        },
+      }
+    }
+
+    await prisma.resident.delete({ where: { id: residentId } })
+
+    await logAudit({
+      action: 'DELETE',
+      entity: 'RESIDENT',
+      entityId: residentId,
+      reason,
+      changes: { code: resident.code, protectedDelete: true },
+    })
+
+    revalidatePath('/residents')
+    return { success: true }
+  } catch (error) {
+    logger.errorWithCause('Failed to hard-delete resident', error, { residentId })
+    return { success: false, error: 'Hard-Delete fehlgeschlagen' }
+  }
 }

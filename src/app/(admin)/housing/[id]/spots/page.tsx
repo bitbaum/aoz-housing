@@ -61,7 +61,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
   return (
     <div>
       <div className="mb-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <Link
               href={`/housing/${id}`}
@@ -75,7 +75,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             <p className="text-gray-500">{unit.address}</p>
           </div>
           {isNewUnit && unit.spots.length > 0 && (
-            <Link href={`/housing/${id}`} className="btn-primary">
+            <Link href={`/housing/${id}`} className="btn-primary min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto">
               Fertig &rarr;
             </Link>
           )}
@@ -153,7 +153,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             </p>
             <form action={createMultipleSpots} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Zimmer-Code *</label>
                   <input
@@ -177,7 +177,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Fläche (m²)</label>
                   <input
@@ -209,7 +209,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   className="input"
                 />
               </div>
-              <button type="submit" className="btn-primary w-full">
+              <button type="submit" className="btn-primary w-full min-h-[44px]">
                 Zimmer erstellen
               </button>
             </form>
@@ -228,7 +228,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             </p>
             <form action={createSpot} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Code *</label>
                   <input
@@ -259,7 +259,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   className="input"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">Fläche (m²)</label>
                   <input
@@ -285,7 +285,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   Erfordert med. Dokumentation
                 </span>
               </label>
-              <button type="submit" className="btn-primary w-full">
+              <button type="submit" className="btn-primary w-full min-h-[44px]">
                 Platz erstellen
               </button>
             </form>
@@ -312,7 +312,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 key={room.id}
                 className="border border-gray-200 rounded-lg overflow-hidden"
               >
-                <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+                <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{SPOT_TYPE_ICONS.ROOM}</span>
                     <div>
@@ -374,7 +374,7 @@ function SpotRow({
 
   return (
     <div
-      className={`flex items-center justify-between p-3 rounded-lg border ${
+      className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-lg border ${
         isOccupied
           ? 'bg-blue-50 border-blue-200'
           : spot.status === 'AVAILABLE'
@@ -412,7 +412,7 @@ function SpotRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 self-end sm:self-auto">
         {isOccupied ? (
           <span className="badge badge-info text-xs">Belegt</span>
         ) : spot.status === 'AVAILABLE' ? (

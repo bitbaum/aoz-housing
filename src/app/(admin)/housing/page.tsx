@@ -4,11 +4,24 @@ import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
+import { TabLink } from '@/components/ui/Tabs'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HousingListPage() {
+interface Props {
+  searchParams: Promise<{ view?: string }>
+}
+
+export default async function HousingListPage({ searchParams }: Props) {
+  const params = await searchParams
+  const view = params.view || 'active'
+
   const units = await prisma.housingUnit.findMany({
+    where: view === 'active'
+      ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
+      : view === 'archived'
+      ? { status: 'CLOSED' }
+      : undefined,
     select: {
       id: true,
       code: true,
@@ -34,13 +47,28 @@ export default async function HousingListPage() {
     orderBy: { code: 'asc' },
   })
 
+  const allUnits = await prisma.housingUnit.findMany({
+    select: {
+      status: true,
+      totalBeds: true,
+      _count: {
+        select: { placements: { where: { status: 'ACTIVE' } } },
+      },
+    },
+  })
+
   const stats = {
-    total: units.length,
-    available: units.filter(u => u.status === 'AVAILABLE').length,
-    full: units.filter(u => u.status === 'FULL').length,
-    totalBeds: units.reduce((sum, u) => sum + u.totalBeds, 0),
-    occupiedBeds: units.reduce((sum, u) => sum + u._count.placements, 0),
+    total: allUnits.length,
+    available: allUnits.filter(u => u.status === 'AVAILABLE').length,
+    full: allUnits.filter(u => u.status === 'FULL').length,
+    archived: allUnits.filter(u => u.status === 'CLOSED').length,
+    totalBeds: allUnits.reduce((sum, u) => sum + u.totalBeds, 0),
+    occupiedBeds: allUnits.reduce((sum, u) => sum + u._count.placements, 0),
+    visible: units.length,
   }
+  const occupancyPercent = stats.totalBeds > 0
+    ? Math.max(0, Math.min(100, Math.round((stats.occupiedBeds / stats.totalBeds) * 100)))
+    : 0
 
   return (
     <div>
@@ -51,6 +79,14 @@ export default async function HousingListPage() {
         </Link>
       </div>
 
+      <div className="mb-4">
+        <div className="flex gap-2 border-b border-gray-200">
+          <TabLink href="/housing?view=active" label="Aktiv" count={stats.total - stats.archived} active={view === 'active'} />
+          <TabLink href="/housing?view=archived" label="Archiviert" count={stats.archived} active={view === 'archived'} />
+          <TabLink href="/housing?view=all" label="Alle" count={stats.total} active={view === 'all'} />
+        </div>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Unterkünfte" value={stats.total} />
@@ -59,17 +95,21 @@ export default async function HousingListPage() {
         <StatCard
           label="Belegung"
           value={`${stats.occupiedBeds}/${stats.totalBeds}`}
-          subtitle={`${Math.round((stats.occupiedBeds / stats.totalBeds) * 100) || 0}%`}
+          subtitle={`${occupancyPercent}%`}
         />
       </div>
 
       {/* Unit List */}
       {units.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">{EMPTY_STATE_LABELS.noHousing}</p>
-          <Link href="/housing/new" className="btn-primary">
-            Erste Unterkunft erstellen
-          </Link>
+          <p className="text-gray-500 mb-4">
+            {view === 'archived' ? 'Keine archivierten Unterkünfte' : EMPTY_STATE_LABELS.noHousing}
+          </p>
+          {view !== 'archived' && (
+            <Link href="/housing/new" className="btn-primary">
+              Erste Unterkunft erstellen
+            </Link>
+          )}
         </div>
       ) : (
         <HousingList units={units.map(u => ({

@@ -240,14 +240,14 @@ export default async function NewCheckInPage({ params }: Props) {
           </div>
 
           {/* Submit */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link
               href={`/residents/${placement.residentId}`}
-              className="btn-outline"
+              className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
             >
               Abbrechen
             </Link>
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
               Check-in speichern
             </button>
           </div>

@@ -1,8 +1,9 @@
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ResidentFormFields } from '@/components/forms'
+import { ResidentFormFields, FormValidationUX } from '@/components/forms'
 import { updateResident } from '@/lib/actions'
+import { ResidentDangerZone } from '@/components/residents/ResidentDangerZone'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,8 +39,11 @@ export default async function EditResidentPage({ params }: Props) {
         </p>
       </div>
 
-      <form action={updateResident} className="space-y-6">
+      <form id="resident-edit-form" action={updateResident} className="space-y-6">
         <input type="hidden" name="id" value={id} />
+
+        <div id="resident-edit-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+        <FormValidationUX formId="resident-edit-form" summaryId="resident-edit-validation-summary" />
 
         <ResidentFormFields
           defaultValues={{
@@ -81,15 +85,17 @@ export default async function EditResidentPage({ params }: Props) {
         />
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <button type="submit" className="btn-primary">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+          <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
             Änderungen speichern
           </button>
-          <Link href={`/residents/${id}`} className="btn-outline">
+          <Link href={`/residents/${id}`} className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
             Abbrechen
           </Link>
         </div>
       </form>
+
+      <ResidentDangerZone residentId={id} residentCode={resident.code} />
     </div>
   )
 }

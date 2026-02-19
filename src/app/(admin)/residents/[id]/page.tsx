@@ -43,15 +43,18 @@ import {
 import { INCIDENT_THRESHOLDS, getIncidentLevel, INCIDENT_BG_COLORS } from '@/lib/config/thresholds'
 import { DetailRow } from '@/components/ui/Card'
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection'
+import { SuccessToast } from '@/components/ui/SuccessToast'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ action?: string }>
 }
 
-export default async function ResidentDetailPage({ params }: Props) {
+export default async function ResidentDetailPage({ params, searchParams }: Props) {
   const { id } = await params
+  const query = await searchParams
 
   const resident = await prisma.resident.findUnique({
     where: { id },
@@ -236,6 +239,12 @@ export default async function ResidentDetailPage({ params }: Props) {
 
   return (
     <div>
+      <SuccessToast
+        triggers={[
+          { param: 'placed', message: 'Bewohner erfolgreich platziert' },
+          { param: 'checkin', message: 'Check-in erfolgreich gespeichert' },
+        ]}
+      />
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
@@ -269,6 +278,11 @@ export default async function ResidentDetailPage({ params }: Props) {
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
             {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
+          {currentPlacement && (
+            <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
+              Verlegen
+            </Link>
+          )}
           <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
             Bearbeiten
           </Link>
@@ -374,6 +388,7 @@ export default async function ResidentDetailPage({ params }: Props) {
                     description: i.description,
                   }))}
                   initialCompatibilityScore={currentPlacement.compatibilityScore}
+                  initialAction={query.action === 'transfer' ? 'transfer' : query.action === 'end' ? 'end' : undefined}
                 />
               </div>
             ) : (

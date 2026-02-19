@@ -6,6 +6,7 @@ import {
   MAINTENANCE_CATEGORY_ICONS,
   MAINTENANCE_PRIORITY_LABELS,
 } from '@/lib/constants'
+import { FormValidationUX } from '@/components/forms'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,11 +53,14 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
       </div>
 
       <div className="card">
-        <form action={createMaintenanceRequest} className="space-y-6">
+        <form id="maintenance-new-form" action={createMaintenanceRequest} className="space-y-6">
+          <div id="maintenance-new-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+          <FormValidationUX formId="maintenance-new-form" summaryId="maintenance-new-validation-summary" />
+
           {/* Location Section */}
           <div className="space-y-4">
             <h2 className="font-semibold text-gray-900">Ort</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Unterkunft *</label>
                 <select
@@ -105,7 +109,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           {/* Request Details */}
           <div className="space-y-4">
             <h2 className="font-semibold text-gray-900">Anfrage</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Kategorie *</label>
                 <select name="category" required className="input">
@@ -153,7 +157,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           {/* Reporter */}
           <div className="space-y-4">
             <h2 className="font-semibold text-gray-900">Gemeldet von</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">Bewohner</label>
                 <select name="reportedById" className="input">
@@ -178,11 +182,11 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           </div>
 
           {/* Submit */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Link href="/maintenance" className="btn-outline">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
+            <Link href="/maintenance" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
               Abbrechen
             </Link>
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
               Anfrage erstellen
             </button>
           </div>

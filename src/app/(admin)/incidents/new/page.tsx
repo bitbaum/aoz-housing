@@ -13,7 +13,16 @@ import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ unit?: string; reporter?: string; subject?: string }>
+  searchParams: Promise<{
+    unit?: string
+    reporter?: string
+    subject?: string
+    quick?: string
+    category?: string
+    type?: string
+    severity?: string
+    description?: string
+  }>
 }
 
 export default async function NewIncidentPage({ searchParams }: Props) {
@@ -33,6 +42,34 @@ export default async function NewIncidentPage({ searchParams }: Props) {
   const interpersonalTypes = INCIDENT_TYPES_BY_CATEGORY.INTERPERSONAL
   // Note: Maintenance requests go to /maintenance, not incidents
 
+  const selectedCategory = params.category === 'SAFETY' ? 'SAFETY' : 'INTERPERSONAL'
+  const selectedType = params.type || ''
+  const selectedSeverity = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(params.severity || '')
+    ? (params.severity as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL')
+    : 'MEDIUM'
+  const selectedDescription = params.description || ''
+
+  const queryBase = new URLSearchParams()
+  if (params.unit) queryBase.set('unit', params.unit)
+  if (params.reporter) queryBase.set('reporter', params.reporter)
+  if (params.subject) queryBase.set('subject', params.subject)
+
+  const quickPresetHref = (preset: {
+    quick: string
+    category: 'INTERPERSONAL' | 'SAFETY'
+    type: string
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+    description: string
+  }) => {
+    const q = new URLSearchParams(queryBase)
+    q.set('quick', preset.quick)
+    q.set('category', preset.category)
+    q.set('type', preset.type)
+    q.set('severity', preset.severity)
+    q.set('description', preset.description)
+    return `/incidents/new?${q.toString()}`
+  }
+
   return (
     <div>
       <div className="mb-6">
@@ -44,6 +81,58 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         </Link>
         <h1 className="text-2xl font-bold text-gray-900 mt-2">Neuer Vorfall</h1>
         <p className="text-gray-500">Dokumentieren Sie einen neuen Vorfall</p>
+      </div>
+
+      <div className="card mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">Schnellerfassung</h2>
+            <p className="text-sm text-gray-500">Typische Vorfälle mit einem Klick vorbefüllen</p>
+          </div>
+          {params.quick && (
+            <Link href={`/incidents/new?${queryBase.toString()}`} className="text-sm text-gray-500 hover:text-gray-700">
+              Preset zurücksetzen
+            </Link>
+          )}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link
+            href={quickPresetHref({
+              quick: 'noise',
+              category: 'INTERPERSONAL',
+              type: 'NOISE_COMPLAINT',
+              severity: 'MEDIUM',
+              description: 'Lärmbeschwerde: Zeitpunkt, beteiligte Personen und Sofortmassnahmen dokumentieren.',
+            })}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'noise' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+          >
+            🔊 Lärmkonflikt
+          </Link>
+          <Link
+            href={quickPresetHref({
+              quick: 'aggression',
+              category: 'INTERPERSONAL',
+              type: 'VERBAL_ARGUMENT',
+              severity: 'HIGH',
+              description: 'Eskalation/verbaler Konflikt: Verlauf, Deeskalation und Sicherheitslage festhalten.',
+            })}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'aggression' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+          >
+            ⚠️ Eskalation
+          </Link>
+          <Link
+            href={quickPresetHref({
+              quick: 'safety',
+              category: 'SAFETY',
+              type: 'SAFETY_CONCERN',
+              severity: 'HIGH',
+              description: 'Sicherheitsbedenken: Risiko, Betroffene, sofortige Schutzmassnahmen und nächste Schritte notieren.',
+            })}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'safety' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+          >
+            🚨 Sicherheit
+          </Link>
+        </div>
       </div>
 
       <form action={createIncident} className="space-y-6">
@@ -119,7 +208,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                       name="category"
                       value={key}
                       required
-                      defaultChecked={key === 'INTERPERSONAL'}
+                      defaultChecked={selectedCategory === key}
                       className="sr-only peer"
                     />
                     <div className="p-4 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
@@ -140,7 +229,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
             <div>
               <label className="label">Art des Vorfalls *</label>
-              <select name="type" required className="input">
+              <select name="type" required className="input" defaultValue={selectedType}>
                 <option value="">Bitte wählen</option>
                 <optgroup label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}>
                   {interpersonalTypes.map((type) => (
@@ -171,7 +260,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                   name="severity"
                   value={key}
                   required
-                  defaultChecked={key === 'MEDIUM'}
+                  defaultChecked={selectedSeverity === key}
                   className="sr-only peer"
                 />
                 <div
@@ -208,6 +297,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 required
                 rows={4}
                 placeholder="Beschreiben Sie den Vorfall..."
+                defaultValue={selectedDescription}
                 className="input"
               />
             </div>
@@ -215,11 +305,11 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4">
-          <button type="submit" className="btn-primary">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+          <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
             Vorfall erfassen
           </button>
-          <Link href="/incidents" className="btn-outline">
+          <Link href="/incidents" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
             Abbrechen
           </Link>
         </div>

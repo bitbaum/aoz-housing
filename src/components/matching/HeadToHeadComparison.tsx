@@ -52,78 +52,123 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
     return null
   }
 
-  return (
-    <div className="overflow-x-auto -mx-2 px-2">
-      <table className="w-full text-xs border-collapse min-w-[400px]">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
-            {currentResidents.slice(0, 4).map((r) => (
-              <th key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
-                {r.code.slice(-3)}
-              </th>
-            ))}
-            {currentResidents.length > 4 && (
-              <th className="p-1.5 text-center text-gray-400 border-b">+{currentResidents.length - 4}</th>
-            )}
-            <th className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
-            <th className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
-          </tr>
-        </thead>
-        <tbody>
-          {COMPARISON_ATTRIBUTES.map((attr) => {
-            // eslint-disable-next-line
-            const profile = apartmentProfile as Record<string, any>
-            const avgValue = attr.type === 'numeric'
-              ? profile[attr.avgKey as string]
-              : profile[attr.dominantKey as string]
+  const getFormattedValue = (
+    // eslint-disable-next-line
+    val: any,
+    attr: typeof COMPARISON_ATTRIBUTES[number]
+  ) => {
+    return attr.type === 'numeric'
+      ? String(val)
+      : getLabel(attr.labels as Record<string, string>, String(val)).slice(0, 6)
+  }
 
-            return (
-              <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
-                <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
-                {currentResidents.slice(0, 4).map((r) => {
-                  // eslint-disable-next-line
-                  const val = (r as Record<string, any>)[attr.key]
-                  return (
-                    <td key={r.id} className="p-1.5 text-center text-gray-500">
-                      {attr.type === 'numeric'
-                        ? String(val)
-                        : getLabel(attr.labels as Record<string, string>, String(val)).slice(0, 6)}
-                    </td>
-                  )
-                })}
-                {currentResidents.length > 4 && <td className="p-1.5 text-center text-gray-300">…</td>}
-                <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
-                  {attr.type === 'numeric'
+  return (
+    <>
+      {/* Mobile card view */}
+      <div className="sm:hidden space-y-2">
+        {COMPARISON_ATTRIBUTES.map((attr) => {
+          // eslint-disable-next-line
+          const profile = apartmentProfile as Record<string, any>
+          const avgValue = attr.type === 'numeric'
+            ? profile[attr.avgKey as string]
+            : profile[attr.dominantKey as string]
+          // eslint-disable-next-line
+          const newVal = (newResident as Record<string, any>)[attr.key]
+
+          return (
+            <div key={attr.key} className="flex items-center justify-between py-2 border-b border-gray-100">
+              <span className="text-xs font-medium text-gray-600">{attr.label}</span>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title="Durchschnitt">
+                  Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
                     : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, 6) : '–'}
-                </td>
-                <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
-                  {(() => {
+                </span>
+                <span className="text-aoz-primary bg-aoz-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
+                  {getFormattedValue(newVal, attr)}
+                  {attr.type === 'numeric' && getDiffIndicator(
+                    newVal as number,
+                    avgValue as number | null,
+                    'threshold' in attr ? attr.threshold as ThresholdKey : undefined
+                  )}
+                </span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block overflow-x-auto -mx-2 px-2">
+        <table className="w-full text-xs border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
+              {currentResidents.slice(0, 4).map((r) => (
+                <th key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
+                  {r.code.slice(-3)}
+                </th>
+              ))}
+              {currentResidents.length > 4 && (
+                <th className="p-1.5 text-center text-gray-400 border-b">+{currentResidents.length - 4}</th>
+              )}
+              <th className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
+              <th className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARISON_ATTRIBUTES.map((attr) => {
+              // eslint-disable-next-line
+              const profile = apartmentProfile as Record<string, any>
+              const avgValue = attr.type === 'numeric'
+                ? profile[attr.avgKey as string]
+                : profile[attr.dominantKey as string]
+
+              return (
+                <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
+                  {currentResidents.slice(0, 4).map((r) => {
                     // eslint-disable-next-line
-                    const newVal = (newResident as Record<string, any>)[attr.key]
-                    return attr.type === 'numeric' ? (
-                      <span className="inline-flex items-center gap-0.5">
-                        {String(newVal)}
-                        {getDiffIndicator(
-                          newVal as number,
-                          avgValue as number | null,
-                          'threshold' in attr ? attr.threshold as ThresholdKey : undefined
-                        )}
-                      </span>
-                    ) : (
-                      getLabel(
-                        attr.labels as Record<string, string>,
-                        String(newVal)
-                      ).slice(0, 6)
+                    const val = (r as Record<string, any>)[attr.key]
+                    return (
+                      <td key={r.id} className="p-1.5 text-center text-gray-500">
+                        {getFormattedValue(val, attr)}
+                      </td>
                     )
-                  })()}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                  })}
+                  {currentResidents.length > 4 && <td className="p-1.5 text-center text-gray-300">…</td>}
+                  <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
+                    {attr.type === 'numeric'
+                      ? (avgValue as number | null)?.toFixed(1) || '–'
+                      : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, 6) : '–'}
+                  </td>
+                  <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
+                    {(() => {
+                      // eslint-disable-next-line
+                      const newVal = (newResident as Record<string, any>)[attr.key]
+                      return attr.type === 'numeric' ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          {String(newVal)}
+                          {getDiffIndicator(
+                            newVal as number,
+                            avgValue as number | null,
+                            'threshold' in attr ? attr.threshold as ThresholdKey : undefined
+                          )}
+                        </span>
+                      ) : (
+                        getLabel(
+                          attr.labels as Record<string, string>,
+                          String(newVal)
+                        ).slice(0, 6)
+                      )
+                    })()}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }

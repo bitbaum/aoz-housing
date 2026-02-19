@@ -690,17 +690,17 @@ function DimensionsTab({
           <div key={dim.id} className="border border-gray-200 rounded-xl overflow-hidden">
             <button
               onClick={() => setExpandedDimension(isExpanded ? null : dim.id)}
-              className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+              className="w-full flex items-start sm:items-center justify-between gap-3 p-4 text-left hover:bg-gray-50 transition-colors min-h-[44px]"
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500`} />
-                <div>
+              <div className="flex items-start sm:items-center gap-3 min-w-0">
+                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500 mt-1 sm:mt-0`} />
+                <div className="min-w-0">
                   <h3 className="font-semibold text-gray-900">{dim.label}</h3>
                   <p className="text-sm text-gray-500">{dim.description}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">{factors.length} Faktoren</span>
+              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                <span className="text-xs sm:text-sm text-gray-500">{factors.length} Faktoren</span>
                 <span className="px-3 py-1 rounded-full text-sm font-bold bg-gray-100 text-gray-700">
                   {Math.round(dim.weight * 100)}%
                 </span>
