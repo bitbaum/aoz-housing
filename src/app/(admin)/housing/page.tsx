@@ -80,7 +80,7 @@ export default async function HousingListPage({ searchParams }: Props) {
       </div>
 
       <div className="mb-4">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-gray-200" role="tablist">
           <TabLink href="/housing?view=active" label="Aktiv" count={stats.total - stats.archived} active={view === 'active'} />
           <TabLink href="/housing?view=archived" label="Archiviert" count={stats.archived} active={view === 'archived'} />
           <TabLink href="/housing?view=all" label="Alle" count={stats.total} active={view === 'all'} />

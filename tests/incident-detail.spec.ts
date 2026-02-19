@@ -11,16 +11,17 @@ test.describe('Incident detail and follow-up', () => {
 
     // Required fields
     await expect(page.locator('select[name="housingUnitId"]')).toBeVisible()
-    await expect(page.locator('select[name="category"]')).toBeVisible()
+    // Category and severity use radio buttons, not selects
+    await expect(page.locator('input[name="category"]').first()).toBeAttached()
     await expect(page.locator('select[name="type"]')).toBeVisible()
-    await expect(page.locator('select[name="severity"]')).toBeVisible()
-    await expect(page.locator('textarea[name="description"], input[name="description"]')).toBeVisible()
+    await expect(page.locator('input[name="severity"]').first()).toBeAttached()
+    await expect(page.locator('textarea[name="description"]')).toBeVisible()
 
     // Date field
     await expect(page.locator('input[name="date"]')).toBeVisible()
 
     // Submit button
-    await expect(page.getByRole('button', { name: /Speichern|Melden/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i })).toBeVisible()
   })
 
   test('incident detail page shows follow-up section', async ({ page }) => {

@@ -19,8 +19,8 @@ test.describe('Matching workflow', () => {
   test('shows unplaced residents list or empty state', async ({ page }) => {
     await page.goto('/matching')
 
-    // Either there are resident cards or an empty state message
-    const hasResidents = await page.getByRole('button', { name: /Matching/i }).first().isVisible().catch(() => false)
+    // Either there are resident cards with matching links, or an empty state message
+    const hasResidents = await page.getByRole('link', { name: /Matching/i }).first().isVisible().catch(() => false)
     const hasEmptyState = await page.getByText(/Keine Bewohner|Alle Bewohner sind platziert/i).isVisible().catch(() => false)
 
     expect(hasResidents || hasEmptyState).toBe(true)
@@ -29,8 +29,11 @@ test.describe('Matching workflow', () => {
   test('shows available units section', async ({ page }) => {
     await page.goto('/matching')
 
-    // Right panel: available units or prompt to select
-    await expect(page.getByText(/Verfügbare Unterkünfte|Wählen Sie einen Bewohner/i)).toBeVisible()
+    // Right panel: available units heading or prompt to select a resident
+    const hasUnitsHeading = await page.getByText(/Verfügbare Unterkünfte/i).isVisible().catch(() => false)
+    const hasPrompt = await page.getByText(/Wählen Sie einen Bewohner/i).isVisible().catch(() => false)
+
+    expect(hasUnitsHeading || hasPrompt).toBe(true)
   })
 
   test('algorithm explanation link is present', async ({ page }) => {

@@ -49,16 +49,14 @@ test.describe('Mobile Responsiveness', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    // Look for mobile menu trigger (hamburger)
-    const mobileMenuButton = page.locator('button').filter({ has: page.locator('[class*="Menu"], [data-testid="mobile-menu"]') }).first()
-    // Alternative: look for any button that's only visible on mobile
-    const menuTrigger = page.locator('button[aria-label*="Menü"], button[aria-label*="Menu"], button[aria-label*="Navigation"]').first()
+    // Mobile menu trigger has aria-label="Menü öffnen"
+    const menuTrigger = page.locator('button[aria-label="Menü öffnen"]')
 
-    if (await menuTrigger.isVisible({ timeout: 5000 }).catch(() => false)) {
-      await menuTrigger.click()
-      // Navigation links should become visible
-      await expect(page.locator('a[href="/residents"]').first()).toBeVisible({ timeout: 5000 })
-    }
+    await expect(menuTrigger).toBeVisible({ timeout: 5000 })
+    await menuTrigger.click()
+
+    // Navigation links should become visible in the drawer
+    await expect(page.locator('a[href="/residents"]').first()).toBeVisible({ timeout: 5000 })
   })
 
   test('portal pages work on mobile', async ({ page }) => {

@@ -27,8 +27,8 @@ test.describe('Housing unit pages', () => {
     await expect(page.locator('input[name="address"]')).toBeVisible()
     await expect(page.locator('input[name="totalBeds"]')).toBeVisible()
 
-    // Submit button
-    await expect(page.getByRole('button', { name: /Speichern|Erstellen/i })).toBeVisible()
+    // Submit button (actual text: "Weiter zu Zimmer & Betten →")
+    await expect(page.getByRole('button', { name: /Speichern|Erstellen|Weiter/i })).toBeVisible()
   })
 
   test('housing form validates required fields', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('Housing unit pages', () => {
 
     // Clear code field and submit
     await page.locator('input[name="code"]').fill('')
-    await page.getByRole('button', { name: /Speichern|Erstellen/i }).click()
+    await page.getByRole('button', { name: /Speichern|Erstellen|Weiter/i }).click()
 
     // Should stay on form (validation prevents navigation)
     await expect(page).toHaveURL(/housing\/new/)

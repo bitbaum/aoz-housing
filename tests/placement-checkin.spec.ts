@@ -12,8 +12,9 @@ test.describe('Placement list and management', () => {
     // Page heading
     await expect(page.locator('h1, h2').first()).toContainText(/Platzierung/i)
 
-    // Tabs should be visible
-    await expect(page.getByText(/Aktiv/i).first()).toBeVisible()
+    // Tab bar with "Aktiv" tab should be visible
+    await expect(page.locator('[role="tablist"]').first()).toBeVisible()
+    await expect(page.locator('[role="tab"]').first()).toBeVisible()
 
     // "New placement" link should go to matching
     await expect(page.getByRole('link', { name: /Neue Platzierung|Matching/i })).toBeVisible()

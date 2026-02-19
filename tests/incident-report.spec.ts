@@ -11,7 +11,7 @@ test.describe('Incident reporting flow', () => {
 
     // Form elements present
     await expect(page.locator('select[name="housingUnitId"]')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Speichern|Melden/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i })).toBeVisible()
   })
 
   test('incident list shows existing incidents', async ({ page }) => {

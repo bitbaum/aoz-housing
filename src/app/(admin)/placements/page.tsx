@@ -168,7 +168,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
       {/* Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-gray-200" role="tablist">
           <TabLink
             href="/placements?status=active"
             label="Aktiv"
