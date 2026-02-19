@@ -84,6 +84,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: aoz_test
+          POSTGRES_PASSWORD: aoz_test
+          POSTGRES_DB: aoz_housing_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U aoz_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -97,18 +112,21 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: Initialize database schema
+        run: npx prisma db push --skip-generate
+        env:
+          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
           SESSION_SECRET: "ci-test-secret-not-for-production"
-          E2E_STAFF_EMAIL: ${{ secrets.E2E_STAFF_EMAIL }}
-          E2E_STAFF_PASSWORD: ${{ secrets.E2E_STAFF_PASSWORD }}
-          STAFF_INVITE_CODE: ${{ secrets.STAFF_INVITE_CODE }}
+          STAFF_INVITE_CODE: "0000"
 
       - name: Upload E2E report
         if: always()

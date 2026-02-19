@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
   testDir: './tests',
+  globalSetup: './tests/auth.setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -22,5 +23,8 @@ export default defineConfig({
     url: 'http://localhost:3101',
     reuseExistingServer: true,
     timeout: 120_000,
+    env: Object.fromEntries(
+      Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] != null),
+    ),
   },
 })
