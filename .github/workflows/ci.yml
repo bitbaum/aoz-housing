@@ -116,6 +116,7 @@ jobs:
         run: npx prisma db push --skip-generate
         env:
           DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
