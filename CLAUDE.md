@@ -119,14 +119,21 @@ src/
 │   │   ├── placements/    # Placement history
 │   │   ├── incidents/     # Conflict tracking
 │   │   ├── matching/      # Compatibility UI
-│   │   └── maintenance/   # Maintenance tickets
-│   └── portal/            # Resident self-service (simple layout)
+│   │   ├── maintenance/   # Maintenance tickets
+│   │   └── transfer-requests/ # Staff transfer approval queue
+│   ├── portal/            # Resident self-service (simple layout)
+│   │   └── transfer/      # Resident transfer request
+│   └── api/
+│       ├── cron/          # Daily notification cron
+│       ├── export/        # CSV export routes
+│       └── import/        # CSV import routes
 ├── components/
 │   ├── ui/               # Generic UI (Card, Badge, Tabs)
 │   ├── forms/            # Config-driven form components
 │   ├── layout/           # MobileNav, headers
 │   ├── dashboard/        # Dashboard widgets
 │   ├── housing/          # Housing-specific components
+│   ├── portal/           # Portal-specific components
 │   └── residents/        # Resident-specific components
 └── lib/
     ├── config/           # SSOT for all config
@@ -135,7 +142,9 @@ src/
     │   ├── housing-factors.ts
     │   └── thresholds.ts
     ├── compatibility/    # Scoring algorithm
-    ├── actions/          # Server actions
+    ├── actions/          # Server actions (auth-guarded)
+    ├── email/            # Email service (Resend) + templates
+    ├── export/           # CSV export (papaparse)
     ├── validation/       # Zod schemas
     └── constants/        # Labels (German UI text)
 ```
@@ -375,13 +384,17 @@ All user-facing German text MUST use correct **Swiss German** spelling:
 | **Staff** | Full admin interface | Email/password or AOZ SSO |
 | **Resident** | Portal only (own data) | Simple code (e.g., RES-001) |
 
-### Staff Authentication (Phase 1)
+### Staff Authentication
+
+**Single role: ADMIN** — all staff have full access. Role simplification removed CASE_WORKER/VIEWER.
 
 **What staff can do:**
 - View/edit all residents and housing
-- Make placements
-- Record incidents
-- View analytics
+- Make placements and record incidents
+- View analytics and export CSV data
+- Import residents via CSV
+- Approve/deny resident transfer requests
+- Receive email notifications (overdue follow-ups, low satisfaction)
 
 **Implementation:**
 ```
@@ -390,14 +403,8 @@ All user-facing German text MUST use correct **Swiss German** spelling:
 /api/auth/logout    → Clear session
 
 Middleware: Check session on all /admin routes
+All server actions: requireStaffAuth() guard
 ```
-
-**Permission levels (future):**
-| Role | Permissions |
-|------|-------------|
-| Admin | Everything + user management |
-| Case Worker | Residents, placements, incidents |
-| Viewer | Read-only access |
 
 ### Resident Portal (Phase 2)
 
@@ -406,14 +413,20 @@ Middleware: Check session on all /admin routes
 - See current roommates
 - Update preferences (triggers staff review)
 - Report issues (goes to staff queue)
+- Request transfer to different housing (goes to staff approval queue)
+- Manage chore assignments
 - View help/FAQ
 
 **Implementation:**
 ```
 /portal             → Enter resident code
-/portal/dashboard   → After login, see own info
 /portal/preferences → Update own preferences
+/portal/roommates   → See current roommates
+/portal/chores      → View/manage chore assignments
+/portal/housing     → Browse available housing
+/portal/transfer    → Request transfer (if placed)
 /portal/report      → Submit issue to staff
+/portal/help        → FAQ and help info
 
 Session: Store resident code in cookie (httpOnly)
 No password needed - code is printed on welcome letter
@@ -471,14 +484,16 @@ Both authentication systems are live and enforced:
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 704 tests, 31 suites
+### Unit Tests (Jest) — 808 tests, 38 suites
 
 | Area | Suites | Coverage |
 |------|--------|----------|
-| Server actions | 8 | All CRUD actions for residents, housing, placements, incidents, maintenance, matching, satisfaction, spots |
-| API routes | 8 | Auth (login, register, session, logout), portal (login, register, chores, report, satisfaction, preferences) |
+| Server actions | 9 | All CRUD actions for residents, housing, placements, incidents, maintenance, matching, satisfaction, spots, transfers |
+| API routes | 11 | Auth (login, register, session, logout), portal (login, register, chores, report, satisfaction, preferences, transfer), cron notifications, CSV export, CSV import |
 | Compatibility | 3 | Algorithm, conversion, aggregate scoring |
 | Auth utilities | 3 | JWT, password, rate limiting, role policy, route boundaries |
+| Email | 2 | Templates (German content, structure), cron notifications (auth, triggering) |
+| CSV export/import | 3 | CSV generation (papaparse), export routes (auth, content type), import routes (validation, duplicates) |
 | Analytics | 1 | Unit metrics calculation |
 | UI components | 2 | BedGrid, style utilities |
 | Config | 3 | Labels, formatting, factor config |
@@ -534,7 +549,7 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (704 tests)
+npm run test             # Run Jest tests (808 tests)
 npm run test:e2e         # Run Playwright tests (50 tests)
 ```
 
@@ -548,6 +563,13 @@ npm run test:e2e         # Run Playwright tests (50 tests)
 | German labels | `src/lib/constants/labels/` |
 | Error messages | `src/lib/constants/error-messages.ts` |
 | Compatibility calc | `src/lib/compatibility/index.ts` |
+| Email service | `src/lib/email/service.ts` |
+| Email templates | `src/lib/email/templates.ts` |
+| CSV export | `src/lib/export/csv.ts` |
+| Export column config | `src/lib/export/config.ts` |
+| Transfer actions | `src/lib/actions/transfers.ts` |
+| Auth guards | `src/lib/auth/index.ts` (`requireStaffAuth()`) |
+| Route boundaries | `src/lib/auth/route-boundaries.ts` |
 | Prisma schema | `prisma/schema.prisma` |
 
 ---
