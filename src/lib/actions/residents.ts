@@ -11,23 +11,30 @@ import {
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function createResident(formData: FormData): Promise<void> {
   const data = validateFormData(ResidentInputSchema, formData)
 
-  const resident = await prisma.resident.create({
-    data: {
-      ...data,
-      status: DEFAULT_STATUSES.resident,
-    },
-  })
+  let resident
+  try {
+    resident = await prisma.resident.create({
+      data: {
+        ...data,
+        status: DEFAULT_STATUSES.resident,
+      },
+    })
 
-  await logAudit({
-    action: 'CREATE',
-    entity: 'RESIDENT',
-    entityId: resident.id,
-    changes: { code: data.code },
-  })
+    await logAudit({
+      action: 'CREATE',
+      entity: 'RESIDENT',
+      entityId: resident.id,
+      changes: { code: data.code },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to create resident', error, { code: data.code })
+    throw new Error(ERROR_MESSAGES.RESIDENT_CREATE_ERROR)
+  }
 
   revalidatePath('/residents')
   revalidatePath('/matching')
@@ -43,11 +50,11 @@ export async function exitResident(residentId: string): Promise<{ success: boole
     })
 
     if (!resident) {
-      return { success: false, error: 'Bewohner nicht gefunden' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
     }
 
     if (resident.placements.length > 0) {
-      return { success: false, error: 'Bewohner hat noch aktive Platzierungen. Bitte zuerst beenden.' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_HAS_ACTIVE_PLACEMENTS }
     }
 
     await prisma.resident.update({
@@ -68,7 +75,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
     return { success: true }
   } catch (error) {
     logger.errorWithCause('Failed to exit resident', error, { residentId })
-    return { success: false, error: 'Fehler beim Aktualisieren des Bewohners' }
+    return { success: false, error: ERROR_MESSAGES.RESIDENT_UPDATE_ERROR }
   }
 }
 
@@ -76,17 +83,22 @@ export async function updateResident(formData: FormData): Promise<void> {
   const data = validateFormData(ResidentUpdateSchema, formData)
   const { id, ...updateData } = data
 
-  await prisma.resident.update({
-    where: { id },
-    data: updateData,
-  })
+  try {
+    await prisma.resident.update({
+      where: { id },
+      data: updateData,
+    })
 
-  await logAudit({
-    action: 'UPDATE',
-    entity: 'RESIDENT',
-    entityId: id,
-    changes: updateData,
-  })
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'RESIDENT',
+      entityId: id,
+      changes: updateData,
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to update resident', error, { residentId: id })
+    throw new Error(ERROR_MESSAGES.RESIDENT_UPDATE_ERROR)
+  }
 
   revalidatePath('/residents')
   revalidatePath(`/residents/${id}`)
@@ -101,11 +113,11 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
     })
 
     if (!resident) {
-      return { success: false, error: 'Bewohner nicht gefunden' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
     }
 
     if (resident.placements.length > 0) {
-      return { success: false, error: 'Archivieren nicht möglich: aktive Platzierung vorhanden' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_ARCHIVE_BLOCKED }
     }
 
     await prisma.resident.update({
@@ -125,7 +137,7 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
     return { success: true }
   } catch (error) {
     logger.errorWithCause('Failed to archive resident', error, { residentId })
-    return { success: false, error: 'Fehler beim Archivieren' }
+    return { success: false, error: ERROR_MESSAGES.ARCHIVE_ERROR }
   }
 }
 
@@ -137,7 +149,7 @@ export async function restoreResident(residentId: string): Promise<{ success: bo
     })
 
     if (!resident) {
-      return { success: false, error: 'Bewohner nicht gefunden' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
     }
 
     const nextStatus = resident.placements.length > 0 ? 'PLACED' : 'ACTIVE'
@@ -159,7 +171,7 @@ export async function restoreResident(residentId: string): Promise<{ success: bo
     return { success: true }
   } catch (error) {
     logger.errorWithCause('Failed to restore resident', error, { residentId })
-    return { success: false, error: 'Fehler beim Wiederherstellen' }
+    return { success: false, error: ERROR_MESSAGES.RESTORE_ERROR }
   }
 }
 
@@ -184,7 +196,7 @@ export async function hardDeleteResidentProtected(
 
     const resident = await prisma.resident.findUnique({ where: { id: residentId } })
     if (!resident) {
-      return { success: false, error: 'Bewohner nicht gefunden' }
+      return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
     }
 
     if (!isTestOrDemoCode(resident.code)) {

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { portalRegistrationSchema } from '@/lib/validation/schemas'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Rate limiting: 3 registrations per IP per minute
 const registerAttempts = new Map<string, { count: number; resetAt: number }>()
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
 
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { success: false, error: 'Zu viele Versuche. Bitte warte eine Minute.' },
+      { success: false, error: ERROR_MESSAGES.RATE_LIMITED },
       { status: 429 }
     )
   }
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     body = await request.json()
   } catch {
     return NextResponse.json(
-      { success: false, error: 'Ungültige Anfrage.' },
+      { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
       { status: 400 }
     )
   }
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
   const result = portalRegistrationSchema.safeParse(body)
   if (!result.success) {
     return NextResponse.json(
-      { success: false, error: 'Bitte alle Pflichtfelder ausfüllen.', details: result.error.flatten().fieldErrors },
+      { success: false, error: ERROR_MESSAGES.REGISTRATION_FIELDS_REQUIRED, details: result.error.flatten().fieldErrors },
       { status: 400 }
     )
   }
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
 
   if (!code) {
     return NextResponse.json(
-      { success: false, error: 'Code-Generierung fehlgeschlagen. Bitte erneut versuchen.' },
+      { success: false, error: ERROR_MESSAGES.CODE_GENERATION_ERROR },
       { status: 500 }
     )
   }

@@ -8,11 +8,12 @@
 
 import type { FactorDef, FormSectionConfig } from '@/lib/config/types'
 import { DynamicFormField } from './DynamicFormField'
+import type { FormFieldValue } from './DynamicFormField'
 
 interface DynamicFormSectionProps {
   section: FormSectionConfig
   factors: FactorDef[]
-  values?: Record<string, any>
+  values?: Record<string, FormFieldValue>
   disabledFields?: string[]
 }
 

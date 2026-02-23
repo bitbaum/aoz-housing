@@ -11,6 +11,8 @@ import {
   FollowUpInputSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Simple schema for clearing follow-up
 const ClearFollowUpSchema = z.object({
@@ -20,30 +22,35 @@ const ClearFollowUpSchema = z.object({
 export async function createIncident(formData: FormData): Promise<void> {
   const data = validateFormData(IncidentInputSchema, formData)
 
-  const incident = await prisma.incident.create({
-    data: {
-      housingUnitId: data.housingUnitId,
-      reportedById: data.reportedById || undefined,
-      subjectId: data.subjectId || undefined,
-      category: data.category,
-      type: data.type,
-      severity: data.severity,
-      description: data.description,
-      date: data.date,
-    },
-  })
+  try {
+    const incident = await prisma.incident.create({
+      data: {
+        housingUnitId: data.housingUnitId,
+        reportedById: data.reportedById || undefined,
+        subjectId: data.subjectId || undefined,
+        category: data.category,
+        type: data.type,
+        severity: data.severity,
+        description: data.description,
+        date: data.date,
+      },
+    })
 
-  await logAudit({
-    action: 'CREATE',
-    entity: 'INCIDENT',
-    entityId: incident.id,
-    changes: {
-      category: data.category,
-      type: data.type,
-      severity: data.severity,
-      housingUnitId: data.housingUnitId,
-    },
-  })
+    await logAudit({
+      action: 'CREATE',
+      entity: 'INCIDENT',
+      entityId: incident.id,
+      changes: {
+        category: data.category,
+        type: data.type,
+        severity: data.severity,
+        housingUnitId: data.housingUnitId,
+      },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to create incident', error, { housingUnitId: data.housingUnitId })
+    throw new Error(ERROR_MESSAGES.INCIDENT_CREATE_ERROR)
+  }
 
   redirect('/incidents')
 }
@@ -51,20 +58,25 @@ export async function createIncident(formData: FormData): Promise<void> {
 export async function resolveIncident(formData: FormData): Promise<void> {
   const { incidentId, resolution } = validateFormData(ResolveIncidentSchema, formData)
 
-  await prisma.incident.update({
-    where: { id: incidentId },
-    data: {
-      resolvedAt: new Date(),
-      resolution,
-    },
-  })
+  try {
+    await prisma.incident.update({
+      where: { id: incidentId },
+      data: {
+        resolvedAt: new Date(),
+        resolution,
+      },
+    })
 
-  await logAudit({
-    action: 'RESOLVE',
-    entity: 'INCIDENT',
-    entityId: incidentId,
-    changes: { resolution },
-  })
+    await logAudit({
+      action: 'RESOLVE',
+      entity: 'INCIDENT',
+      entityId: incidentId,
+      changes: { resolution },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to resolve incident', error, { incidentId })
+    throw new Error(ERROR_MESSAGES.INCIDENT_RESOLVE_ERROR)
+  }
 
   revalidatePath('/incidents')
   redirect(`/incidents/${incidentId}?resolved=true`)
@@ -162,40 +174,45 @@ export async function getHousingUnitIncidentHistory(housingUnitId: string) {
 export async function addFollowUp(formData: FormData): Promise<void> {
   const data = validateFormData(FollowUpInputSchema, formData)
 
-  // Create the follow-up record
-  const followUp = await prisma.incidentFollowUp.create({
-    data: {
-      incidentId: data.incidentId,
-      action: data.action,
-      notes: data.notes,
-      outcome: data.outcome,
-      staffName: data.staffName,
-      scheduledNextDate: data.scheduledNextDate,
-    },
-  })
-
-  // Update the incident with next follow-up date and priority
-  const updateData: Record<string, Date | string | null> = {}
-  if (data.scheduledNextDate) {
-    updateData.nextFollowUpDate = data.scheduledNextDate
-  }
-  if (data.followUpPriority) {
-    updateData.followUpPriority = data.followUpPriority
-  }
-
-  if (Object.keys(updateData).length > 0) {
-    await prisma.incident.update({
-      where: { id: data.incidentId },
-      data: updateData,
+  try {
+    // Create the follow-up record
+    const followUp = await prisma.incidentFollowUp.create({
+      data: {
+        incidentId: data.incidentId,
+        action: data.action,
+        notes: data.notes,
+        outcome: data.outcome,
+        staffName: data.staffName,
+        scheduledNextDate: data.scheduledNextDate,
+      },
     })
-  }
 
-  await logAudit({
-    action: 'CREATE',
-    entity: 'INCIDENT',
-    entityId: data.incidentId,
-    changes: { followUpId: followUp.id, action: data.action },
-  })
+    // Update the incident with next follow-up date and priority
+    const updateData: Record<string, Date | string | null> = {}
+    if (data.scheduledNextDate) {
+      updateData.nextFollowUpDate = data.scheduledNextDate
+    }
+    if (data.followUpPriority) {
+      updateData.followUpPriority = data.followUpPriority
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await prisma.incident.update({
+        where: { id: data.incidentId },
+        data: updateData,
+      })
+    }
+
+    await logAudit({
+      action: 'CREATE',
+      entity: 'INCIDENT',
+      entityId: data.incidentId,
+      changes: { followUpId: followUp.id, action: data.action },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to add follow-up', error, { incidentId: data.incidentId })
+    throw new Error(ERROR_MESSAGES.FOLLOWUP_CREATE_ERROR)
+  }
 
   revalidatePath('/incidents')
   revalidatePath(`/incidents/${data.incidentId}`)
@@ -274,13 +291,25 @@ export async function getIncidentsNeedingFollowUp() {
 export async function clearFollowUpReminder(formData: FormData): Promise<void> {
   const { incidentId } = validateFormData(ClearFollowUpSchema, formData)
 
-  await prisma.incident.update({
-    where: { id: incidentId },
-    data: {
-      nextFollowUpDate: null,
-      followUpPriority: null,
-    },
-  })
+  try {
+    await prisma.incident.update({
+      where: { id: incidentId },
+      data: {
+        nextFollowUpDate: null,
+        followUpPriority: null,
+      },
+    })
+
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'INCIDENT',
+      entityId: incidentId,
+      changes: { nextFollowUpDate: null, followUpPriority: null },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to clear follow-up reminder', error, { incidentId })
+    throw new Error(ERROR_MESSAGES.REMINDER_DELETE_ERROR)
+  }
 
   revalidatePath('/incidents')
 }

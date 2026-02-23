@@ -12,6 +12,7 @@ import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenP
 import { verifyPassword } from './password'
 import { checkRateLimit, recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Re-export types
 export type { TokenPayload }
@@ -107,11 +108,11 @@ export async function requireRole(allowedRoles: AuthUser['role'][]): Promise<Aut
   const user = await getCurrentUser()
 
   if (!user) {
-    throw new Error('Authentifizierung erforderlich')
+    throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
   }
 
   if (!canRoleAccess(allowedRoles, user.role)) {
-    throw new Error('Unzureichende Berechtigungen')
+    throw new Error(ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS)
   }
 
   return user
@@ -124,11 +125,11 @@ export async function requirePermission(permission: StaffPermission): Promise<Au
   const user = await getCurrentUser()
 
   if (!user) {
-    throw new Error('Authentifizierung erforderlich')
+    throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
   }
 
   if (!hasPermission(user.role, permission)) {
-    throw new Error('Unzureichende Berechtigungen')
+    throw new Error(ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS)
   }
 
   return user
@@ -175,7 +176,7 @@ export async function login(email: string, password: string, clientIp: string): 
     recordLoginAttempt(clientIp)
     return {
       success: false,
-      error: 'Ungültige E-Mail oder Passwort',
+      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
     }
   }
 
@@ -184,7 +185,7 @@ export async function login(email: string, password: string, clientIp: string): 
     recordLoginAttempt(clientIp)
     return {
       success: false,
-      error: 'Konto nicht vollständig eingerichtet',
+      error: ERROR_MESSAGES.ACCOUNT_NOT_SETUP,
     }
   }
 
@@ -194,7 +195,7 @@ export async function login(email: string, password: string, clientIp: string): 
     recordLoginAttempt(clientIp)
     return {
       success: false,
-      error: 'Ungültige E-Mail oder Passwort',
+      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
     }
   }
 

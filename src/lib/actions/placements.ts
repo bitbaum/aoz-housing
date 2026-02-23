@@ -14,6 +14,7 @@ import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import type { Resident, Placement } from '@prisma/client'
 
 interface CreatePlacementInput {
@@ -32,7 +33,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
       // 1. Validate resident exists
       const resident = await tx.resident.findUnique({ where: { id: residentId } })
       if (!resident) {
-        throw new Error('Bewohner nicht gefunden')
+        throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND)
       }
 
       // 2. Prevent duplicate active placement
@@ -40,16 +41,16 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
         where: { residentId, status: 'ACTIVE' },
       })
       if (existingActivePlacement) {
-        throw new Error('Bewohner hat bereits eine aktive Platzierung')
+        throw new Error(ERROR_MESSAGES.RESIDENT_HAS_ACTIVE_PLACEMENT)
       }
 
       // 3. Validate spot is available
       const spot = await tx.placementSpot.findUnique({ where: { id: spotId } })
       if (!spot) {
-        throw new Error('Platz nicht gefunden')
+        throw new Error(ERROR_MESSAGES.SPOT_NOT_FOUND)
       }
       if (spot.status !== 'AVAILABLE') {
-        throw new Error('Platz ist nicht verfügbar')
+        throw new Error(ERROR_MESSAGES.SPOT_NOT_AVAILABLE)
       }
 
       // 4. Calculate compatibility scores with existing residents
@@ -206,80 +207,92 @@ export async function endPlacement(formData: FormData): Promise<void> {
     relatedIncidentId
   } = validateFormData(EndPlacementSchema, formData)
 
-  await prisma.$transaction(async (tx) => {
-    const currentPlacement = await tx.placement.findUnique({
-      where: { id: placementId },
-      include: { spot: true },
-    })
+  try {
+    await prisma.$transaction(async (tx) => {
+      const currentPlacement = await tx.placement.findUnique({
+        where: { id: placementId },
+        include: { spot: true },
+      })
 
-    if (!currentPlacement || currentPlacement.status !== 'ACTIVE') {
-      throw new Error('Placement not found or not active')
-    }
-
-    // Build update data, including conflict fields only when endReason is CONFLICT
-    const updateData: {
-      status: 'ENDED'
-      endDate: Date
-      endReason: typeof endReason
-      placementNotes?: string
-      conflictGap?: string
-      wasPredictable?: boolean
-      relatedIncidentId?: string
-    } = {
-      status: 'ENDED',
-      endDate: new Date(),
-      endReason,
-      placementNotes: notes || undefined,
-    }
-
-    if (endReason === 'CONFLICT') {
-      if (conflictGap) updateData.conflictGap = conflictGap
-      if (wasPredictable !== null && wasPredictable !== undefined) {
-        updateData.wasPredictable = wasPredictable
+      if (!currentPlacement || currentPlacement.status !== 'ACTIVE') {
+        throw new Error('Placement not found or not active')
       }
-      if (relatedIncidentId) updateData.relatedIncidentId = relatedIncidentId
-    }
 
-    await tx.placement.update({
-      where: { id: placementId },
-      data: updateData,
-    })
+      // Build update data, including conflict fields only when endReason is CONFLICT
+      const updateData: {
+        status: 'ENDED'
+        endDate: Date
+        endReason: typeof endReason
+        placementNotes?: string
+        conflictGap?: string
+        wasPredictable?: boolean
+        relatedIncidentId?: string
+      } = {
+        status: 'ENDED',
+        endDate: new Date(),
+        endReason,
+        placementNotes: notes || undefined,
+      }
 
-    // Free up the old spot if there was one
-    if (currentPlacement.spotId) {
-      await tx.placementSpot.update({
-        where: { id: currentPlacement.spotId },
-        data: { status: 'AVAILABLE' },
+      if (endReason === 'CONFLICT') {
+        if (conflictGap) updateData.conflictGap = conflictGap
+        if (wasPredictable !== null && wasPredictable !== undefined) {
+          updateData.wasPredictable = wasPredictable
+        }
+        if (relatedIncidentId) updateData.relatedIncidentId = relatedIncidentId
+      }
+
+      await tx.placement.update({
+        where: { id: placementId },
+        data: updateData,
       })
-    }
 
-    // Update resident status back to ACTIVE (unplaced)
-    await tx.resident.update({
-      where: { id: residentId },
-      data: { status: 'ACTIVE' },
-    })
-
-    // Update housing unit status if it was full
-    if (currentPlacement.housingUnitId) {
-      const unit = await tx.housingUnit.findUnique({
-        where: { id: currentPlacement.housingUnitId },
-      })
-      if (unit?.status === 'FULL') {
-        await tx.housingUnit.update({
-          where: { id: currentPlacement.housingUnitId },
+      // Free up the old spot if there was one
+      if (currentPlacement.spotId) {
+        await tx.placementSpot.update({
+          where: { id: currentPlacement.spotId },
           data: { status: 'AVAILABLE' },
         })
       }
-    }
-  })
 
-  await logAudit({
-    action: 'END',
-    entity: 'PLACEMENT',
-    entityId: placementId,
-    changes: { residentId, endReason },
-    reason: notes || undefined,
-  })
+      // Update resident status back to ACTIVE (unplaced)
+      await tx.resident.update({
+        where: { id: residentId },
+        data: { status: 'ACTIVE' },
+      })
+
+      // Update housing unit status if it was full
+      if (currentPlacement.housingUnitId) {
+        const unit = await tx.housingUnit.findUnique({
+          where: { id: currentPlacement.housingUnitId },
+        })
+        if (unit?.status === 'FULL') {
+          await tx.housingUnit.update({
+            where: { id: currentPlacement.housingUnitId },
+            data: { status: 'AVAILABLE' },
+          })
+        }
+      }
+    })
+
+    await logAudit({
+      action: 'END',
+      entity: 'PLACEMENT',
+      entityId: placementId,
+      changes: { residentId, endReason },
+      reason: notes || undefined,
+    })
+  } catch (error) {
+    // Re-throw known validation errors from transaction
+    if (error instanceof Error && (
+      error.message.includes('not found') ||
+      error.message.includes('not active')
+    )) {
+      throw error
+    }
+    logger.errorWithCause('Failed to end placement', error, { placementId, residentId })
+    throw new Error(ERROR_MESSAGES.PLACEMENT_END_ERROR)
+  }
 
   revalidatePath(`/residents/${residentId}`)
   revalidatePath('/placements')
@@ -296,7 +309,9 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     notes
   } = validateFormData(TransferPlacementSchema, formData)
 
-  const fromHousingUnitId = await prisma.$transaction(async (tx) => {
+  let fromHousingUnitId: string
+  try {
+    fromHousingUnitId = await prisma.$transaction(async (tx) => {
     // 1. Get current placement to access spot
     const currentPlacement = await tx.placement.findUnique({
       where: { id: currentPlacementId },
@@ -463,21 +478,34 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     }
 
     return currentPlacement.housingUnitId
-  })
+    })
 
-  await logAudit({
-    action: 'TRANSFER',
-    entity: 'PLACEMENT',
-    entityId: currentPlacementId,
-    changes: {
-      residentId,
-      fromHousingUnitId,
-      toHousingUnitId: targetHousingUnitId,
-      toSpotId: targetSpotId,
-      transferReason,
-    },
-    reason: notes || undefined,
-  })
+    await logAudit({
+      action: 'TRANSFER',
+      entity: 'PLACEMENT',
+      entityId: currentPlacementId,
+      changes: {
+        residentId,
+        fromHousingUnitId,
+        toHousingUnitId: targetHousingUnitId,
+        toSpotId: targetSpotId,
+        transferReason,
+      },
+      reason: notes || undefined,
+    })
+  } catch (error) {
+    // Re-throw known validation errors from transaction
+    if (error instanceof Error && (
+      error.message.includes('not found') ||
+      error.message.includes('not active') ||
+      error.message.includes('not available') ||
+      error.message.includes('cannot be transferred')
+    )) {
+      throw error
+    }
+    logger.errorWithCause('Failed to transfer placement', error, { currentPlacementId, residentId, targetHousingUnitId })
+    throw new Error(ERROR_MESSAGES.TRANSFER_ERROR)
+  }
 
   revalidatePath(`/residents/${residentId}`)
   revalidatePath('/placements')

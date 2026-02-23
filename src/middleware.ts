@@ -25,7 +25,7 @@ const AUTH_CONFIG = {
   expiresIn: parseInt(process.env.SESSION_DURATION || '28800', 10),
 }
 
-async function verifyStaffToken(token: string): Promise<{ valid: boolean; shouldRefresh: boolean; payload?: any }> {
+async function verifyStaffToken(token: string): Promise<{ valid: boolean; shouldRefresh: boolean; payload?: Record<string, unknown> }> {
   try {
     const secret = new TextEncoder().encode(AUTH_CONFIG.secret)
     const { payload } = await jwtVerify(token, secret, {

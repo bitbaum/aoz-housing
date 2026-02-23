@@ -8,14 +8,17 @@
  */
 
 import { DynamicFormField } from './DynamicFormField'
+import type { FormFieldValue } from './DynamicFormField'
 import {
   RESIDENT_FORM_SECTIONS,
   getFactorsBySection,
 } from '@/lib/config/resident-factors'
 import { MEDICAL_DOC_TYPE_LABELS } from '@/lib/config/placement-spots'
 
+type FormValues = Record<string, FormFieldValue>
+
 interface ResidentFormFieldsProps {
-  defaultValues?: Record<string, any>
+  defaultValues?: FormValues
   isEdit?: boolean
 }
 
@@ -112,7 +115,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
  *
  * Separate from compatibility factors - relates to placement eligibility.
  */
-function MedicalDocumentationSection({ defaultValues }: { defaultValues: Record<string, any> }) {
+function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormValues }) {
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Medizinische Dokumentation</h2>
@@ -125,7 +128,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: Record<
             type="checkbox"
             name="hasMedicalDocumentation"
             value="true"
-            defaultChecked={defaultValues.hasMedicalDocumentation}
+            defaultChecked={!!defaultValues.hasMedicalDocumentation}
             className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
           />
           <div>
@@ -164,7 +167,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: Record<
               name="medicalDocDate"
               defaultValue={
                 defaultValues.medicalDocDate
-                  ? new Date(defaultValues.medicalDocDate).toISOString().split('T')[0]
+                  ? new Date(defaultValues.medicalDocDate as string | number | Date).toISOString().split('T')[0]
                   : ''
               }
               className="input max-w-xs"
@@ -176,7 +179,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: Record<
             <textarea
               name="medicalDocNotes"
               rows={2}
-              defaultValue={defaultValues.medicalDocNotes || ''}
+              defaultValue={(defaultValues.medicalDocNotes as string) || ''}
               placeholder="z.B. Referenznummer, ausstellende Stelle..."
               className="input"
             />

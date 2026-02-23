@@ -4,7 +4,9 @@ import { getPortalAuth } from '@/lib/portal-auth'
 import { portalTaskComplaintSchema, ValidationError } from '@/lib/validation/schemas'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
+import type { IncidentType } from '@prisma/client'
 import { CHORE_COMPLAINT_INCIDENT_MAP } from '@/lib/config/household-tasks'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function POST(
   request: NextRequest,
@@ -12,7 +14,7 @@ export async function POST(
 ) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   const { id } = await params
@@ -22,11 +24,11 @@ export async function POST(
     const body = await request.json()
     const parsed = portalTaskComplaintSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ success: false, error: parsed.error.flatten().fieldErrors.description?.[0] || 'Ungültige Eingabe' }, { status: 400 })
+      return NextResponse.json({ success: false, error: parsed.error.flatten().fieldErrors.description?.[0] || ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
     }
     description = parsed.data.description
   } catch {
-    return NextResponse.json({ success: false, error: 'Ungültige Eingabe' }, { status: 400 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
   try {
@@ -35,7 +37,7 @@ export async function POST(
     })
 
     if (!task) {
-      return NextResponse.json({ success: false, error: 'Aufgabe nicht gefunden' }, { status: 404 })
+      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
     }
 
     // Map chore category to incident type
@@ -48,7 +50,7 @@ export async function POST(
         placementId: auth.placement.id,
         reportedById: auth.resident.id,
         category: 'INTERPERSONAL',
-        type: incidentType as any,
+        type: incidentType as IncidentType,
         severity: 'MEDIUM',
         description: `[Haushaltsaufgabe: ${task.title}]\n\n${description}`,
         date: new Date(),
@@ -70,6 +72,6 @@ export async function POST(
     return NextResponse.json({ success: true, data: { incidentId: incident.id } })
   } catch (error) {
     logger.errorWithCause('Failed to create task complaint incident', error)
-    return NextResponse.json({ success: false, error: 'Problem konnte nicht gemeldet werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_COMPLAINT_ERROR }, { status: 500 })
   }
 }

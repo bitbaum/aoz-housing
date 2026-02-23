@@ -4,13 +4,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalPreferencesSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   const resident = await prisma.resident.findUnique({
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ success: false, error: 'Bewohner nicht gefunden' }, { status: 404 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
   }
 
   let data: ReturnType<typeof validateFormData<typeof portalPreferencesSchema>>
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (err instanceof ValidationError) {
       return NextResponse.json({ success: false, error: err.message }, { status: 400 })
     }
-    return NextResponse.json({ success: false, error: 'Ungültige Eingabe' }, { status: 400 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
   // Build roommate preferences text (stored in dedicated column, NOT notes)
@@ -71,6 +72,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to update portal preferences', error)
-    return NextResponse.json({ success: false, error: 'Einstellungen konnten nicht gespeichert werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.PREFERENCES_SAVE_ERROR }, { status: 500 })
   }
 }

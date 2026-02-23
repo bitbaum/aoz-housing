@@ -5,13 +5,14 @@ import { logAudit } from '@/lib/audit'
 import { portalReportSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   // Derive resident and placement from cookie — never trust client-submitted IDs
@@ -26,12 +27,12 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ success: false, error: 'Bewohner nicht gefunden' }, { status: 404 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
   }
 
   const placement = resident.placements[0]
   if (!placement) {
-    return NextResponse.json({ success: false, error: 'Keine aktive Platzierung' }, { status: 400 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NO_ACTIVE_PLACEMENT }, { status: 400 })
   }
 
   let data: ReturnType<typeof validateFormData<typeof portalReportSchema>>
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (err instanceof ValidationError) {
       return NextResponse.json({ success: false, error: err.message }, { status: 400 })
     }
-    return NextResponse.json({ success: false, error: 'Ungültige Eingabe' }, { status: 400 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
   // Build description with location for maintenance
@@ -87,6 +88,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to create portal incident', error)
-    return NextResponse.json({ success: false, error: 'Meldung konnte nicht gespeichert werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.REPORT_SAVE_ERROR }, { status: 500 })
   }
 }

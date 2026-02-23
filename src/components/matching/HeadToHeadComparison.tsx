@@ -53,8 +53,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
   }
 
   const getFormattedValue = (
-    // eslint-disable-next-line
-    val: any,
+    val: string | number | null,
     attr: typeof COMPARISON_ATTRIBUTES[number]
   ) => {
     return attr.type === 'numeric'
@@ -67,13 +66,11 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
       {/* Mobile card view */}
       <div className="sm:hidden space-y-2">
         {COMPARISON_ATTRIBUTES.map((attr) => {
-          // eslint-disable-next-line
-          const profile = apartmentProfile as Record<string, any>
+          const profile = apartmentProfile as unknown as Record<string, unknown>
           const avgValue = attr.type === 'numeric'
             ? profile[attr.avgKey as string]
             : profile[attr.dominantKey as string]
-          // eslint-disable-next-line
-          const newVal = (newResident as Record<string, any>)[attr.key]
+          const newVal = (newResident as Record<string, unknown>)[attr.key]
 
           return (
             <div key={attr.key} className="flex items-center justify-between py-2 border-b border-gray-100">
@@ -85,7 +82,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                     : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, 6) : '–'}
                 </span>
                 <span className="text-aoz-primary bg-aoz-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
-                  {getFormattedValue(newVal, attr)}
+                  {getFormattedValue(newVal as string | number | null, attr)}
                   {attr.type === 'numeric' && getDiffIndicator(
                     newVal as number,
                     avgValue as number | null,
@@ -118,8 +115,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
           </thead>
           <tbody>
             {COMPARISON_ATTRIBUTES.map((attr) => {
-              // eslint-disable-next-line
-              const profile = apartmentProfile as Record<string, any>
+              const profile = apartmentProfile as unknown as Record<string, string | number | null>
               const avgValue = attr.type === 'numeric'
                 ? profile[attr.avgKey as string]
                 : profile[attr.dominantKey as string]
@@ -128,8 +124,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                 <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
                   {currentResidents.slice(0, 4).map((r) => {
-                    // eslint-disable-next-line
-                    const val = (r as Record<string, any>)[attr.key]
+                    const val = (r as Record<string, unknown>)[attr.key] as string | number | null
                     return (
                       <td key={r.id} className="p-1.5 text-center text-gray-500">
                         {getFormattedValue(val, attr)}
@@ -144,8 +139,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                   </td>
                   <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
                     {(() => {
-                      // eslint-disable-next-line
-                      const newVal = (newResident as Record<string, any>)[attr.key]
+                      const newVal = (newResident as unknown as Record<string, unknown>)[attr.key] as string | number | null
                       return attr.type === 'numeric' ? (
                         <span className="inline-flex items-center gap-0.5">
                           {String(newVal)}

@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function GET(
   _request: NextRequest,
@@ -9,7 +10,7 @@ export async function GET(
 ) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   const { id } = await params
@@ -42,7 +43,7 @@ export async function GET(
     })
 
     if (!task) {
-      return NextResponse.json({ success: false, error: 'Aufgabe nicht gefunden' }, { status: 404 })
+      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
     }
 
     // Get roommates for request form
@@ -67,6 +68,6 @@ export async function GET(
     })
   } catch (error) {
     logger.errorWithCause('Failed to get household task detail', error)
-    return NextResponse.json({ success: false, error: 'Aufgabe konnte nicht geladen werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_LOAD_ERROR }, { status: 500 })
   }
 }

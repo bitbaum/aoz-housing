@@ -8,13 +8,14 @@
  */
 
 import { DynamicFormField } from './DynamicFormField'
+import type { FormFieldValue } from './DynamicFormField'
 import {
   HOUSING_FORM_SECTIONS,
   getHousingFactorsBySection,
 } from '@/lib/config/housing-factors'
 
 interface HousingFormFieldsProps {
-  defaultValues?: Record<string, any>
+  defaultValues?: Record<string, FormFieldValue>
   isEdit?: boolean
 }
 

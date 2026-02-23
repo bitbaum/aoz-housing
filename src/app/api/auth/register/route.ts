@@ -5,6 +5,7 @@ import { staffRegistrationSchema } from '@/lib/validation/schemas'
 import { hashPassword } from '@/lib/auth/password'
 import { setSessionCookie } from '@/lib/auth'
 import type { AuthUser } from '@/lib/auth'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Rate limiting: 3 registrations per IP per minute
 const registerAttempts = new Map<string, { count: number; resetAt: number }>()
@@ -98,7 +99,7 @@ async function createResidentAndSession(email: string) {
 
   if (!code) {
     return NextResponse.json(
-      { success: false, error: 'Code-Generierung fehlgeschlagen. Bitte erneut versuchen.' },
+      { success: false, error: ERROR_MESSAGES.CODE_GENERATION_ERROR },
       { status: 500 }
     )
   }
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
 
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { success: false, error: 'Zu viele Versuche. Bitte warte eine Minute.' },
+      { success: false, error: ERROR_MESSAGES.RATE_LIMITED },
       { status: 429 }
     )
   }
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest) {
     body = await request.json()
   } catch {
     return NextResponse.json(
-      { success: false, error: 'Ungültige Anfrage.' },
+      { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
       { status: 400 }
     )
   }
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
   const result = staffRegistrationSchema.safeParse(body)
   if (!result.success) {
     return NextResponse.json(
-      { success: false, error: 'Bitte alle Pflichtfelder korrekt ausfüllen.', details: result.error.flatten().fieldErrors },
+      { success: false, error: ERROR_MESSAGES.REGISTRATION_FIELDS_REQUIRED_CORRECT, details: result.error.flatten().fieldErrors },
       { status: 400 }
     )
   }
@@ -154,7 +155,7 @@ export async function POST(request: NextRequest) {
   // With AOZ code, create staff profile.
   if (inviteCode !== AOZ_REGISTRATION_CODE) {
     return NextResponse.json(
-      { success: false, error: 'Ungültiger AOZ-Code' },
+      { success: false, error: ERROR_MESSAGES.INVALID_AOZ_CODE },
       { status: 403 }
     )
   }
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
 
   if (existing) {
     return NextResponse.json(
-      { success: false, error: 'Diese E-Mail ist bereits als AOZ-Profil registriert' },
+      { success: false, error: ERROR_MESSAGES.EMAIL_ALREADY_REGISTERED },
       { status: 409 }
     )
   }

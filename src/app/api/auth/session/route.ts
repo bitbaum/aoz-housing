@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function GET() {
   try {
@@ -8,7 +9,7 @@ export async function GET() {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: 'Nicht angemeldet' },
+        { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
         { status: 401 }
       )
     }
@@ -25,7 +26,7 @@ export async function GET() {
   } catch (error) {
     logger.errorWithCause('Session check failed', error)
     return NextResponse.json(
-      { success: false, error: 'Ein Fehler ist aufgetreten' },
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
       { status: 500 }
     )
   }

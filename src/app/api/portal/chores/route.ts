@@ -4,11 +4,12 @@ import { getPortalAuth } from '@/lib/portal-auth'
 import { portalCreateTaskSchema, ValidationError, validateFormData } from '@/lib/validation/schemas'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function GET() {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   try {
@@ -64,14 +65,14 @@ export async function GET() {
     return NextResponse.json({ success: true, data: { tasks, fairness } })
   } catch (error) {
     logger.errorWithCause('Failed to list household tasks', error)
-    return NextResponse.json({ success: false, error: 'Aufgaben konnten nicht geladen werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASKS_LOAD_ERROR }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
   }
 
   let data: ReturnType<typeof validateFormData<typeof portalCreateTaskSchema>>
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
     if (err instanceof ValidationError) {
       return NextResponse.json({ success: false, error: err.message }, { status: 400 })
     }
-    return NextResponse.json({ success: false, error: 'Ungültige Eingabe' }, { status: 400 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
   try {
@@ -111,6 +112,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: task })
   } catch (error) {
     logger.errorWithCause('Failed to create household task', error)
-    return NextResponse.json({ success: false, error: 'Aufgabe konnte nicht erstellt werden' }, { status: 500 })
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_CREATE_ERROR }, { status: 500 })
   }
 }

@@ -359,12 +359,22 @@ export default async function SpotManagementPage({ params, searchParams }: Props
   )
 }
 
+interface SpotRowData {
+  id: string
+  code: string
+  label: string | null
+  type: string
+  status: string
+  requiresMedicalDocs: boolean
+  placements?: { id: string; status: string; resident: { id: string; code: string } }[]
+}
+
 function SpotRow({
   spot,
   housingUnitId,
   compact = false,
 }: {
-  spot: any
+  spot: SpotRowData
   housingUnitId: string
   compact?: boolean
 }) {

@@ -7,8 +7,10 @@ import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
+import { logger } from '@/lib/logger'
 import type { Resident, Placement } from '@prisma/client'
 import { z } from 'zod'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 /** Minimal schema — scores are now computed server-side */
 const placeResidentSchema = z.object({
@@ -71,7 +73,7 @@ export async function placeResident(formData: FormData) {
     if (error instanceof Error) {
       throw new Error(`Validierungsfehler: ${error.message}`)
     }
-    throw new Error('Ungültige Eingabedaten')
+    throw new Error(ERROR_MESSAGES.INVALID_INPUT_DATA)
   }
 
   const {
@@ -82,7 +84,9 @@ export async function placeResident(formData: FormData) {
   } = validatedData
 
   // Execute all placement operations in a transaction to ensure atomicity
-  const placement = await prisma.$transaction(async (tx) => {
+  let placement
+  try {
+    placement = await prisma.$transaction(async (tx) => {
     // 1. Check if spot is still available (prevents double-booking)
     if (spotId) {
       const spot = await tx.placementSpot.findUnique({
@@ -91,15 +95,15 @@ export async function placeResident(formData: FormData) {
       })
 
       if (!spot) {
-        throw new Error('Platz nicht gefunden.')
+        throw new Error(ERROR_MESSAGES.SPOT_NOT_FOUND_P)
       }
 
       if (spot.status !== 'AVAILABLE') {
-        throw new Error('Platz ist nicht mehr verfügbar.')
+        throw new Error(ERROR_MESSAGES.SPOT_NOT_AVAILABLE_ANYMORE)
       }
 
       if (spot.placements.length > 0) {
-        throw new Error('Platz ist bereits belegt.')
+        throw new Error(ERROR_MESSAGES.SPOT_ALREADY_OCCUPIED)
       }
     }
 
@@ -110,11 +114,11 @@ export async function placeResident(formData: FormData) {
     })
 
     if (!resident) {
-      throw new Error('Bewohner nicht gefunden.')
+      throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND_P)
     }
 
     if (resident.placements.length > 0) {
-      throw new Error('Bewohner ist bereits platziert.')
+      throw new Error(ERROR_MESSAGES.RESIDENT_ALREADY_PLACED)
     }
 
     // 3. Fetch existing active placements in the unit for score calculation
@@ -280,29 +284,42 @@ export async function placeResident(formData: FormData) {
       })
     }
 
-    return { placement: newPlacement, compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore, apartmentFitScore }
-  })
+      return { placement: newPlacement, compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore, apartmentFitScore }
+    })
 
-  // AUDIT LOG: Record placement for compliance and debugging
-  await logAudit({
-    action: 'CREATE',
-    entity: 'PLACEMENT',
-    entityId: placement.placement.id,
-    changes: {
-      residentId,
-      housingUnitId,
-      spotId,
-      scores: {
-        compatibility: placement.compatibilityScore,
-        lifestyle: placement.lifestyleScore,
-        social: placement.socialScore,
-        practical: placement.practicalScore,
-        risk: placement.riskScore,
-        apartmentFit: placement.apartmentFitScore,
+    // AUDIT LOG: Record placement for compliance and debugging
+    await logAudit({
+      action: 'CREATE',
+      entity: 'PLACEMENT',
+      entityId: placement.placement.id,
+      changes: {
+        residentId,
+        housingUnitId,
+        spotId,
+        scores: {
+          compatibility: placement.compatibilityScore,
+          lifestyle: placement.lifestyleScore,
+          social: placement.socialScore,
+          practical: placement.practicalScore,
+          risk: placement.riskScore,
+          apartmentFit: placement.apartmentFitScore,
+        },
       },
-    },
-    reason: notes || undefined,
-  })
+      reason: notes || undefined,
+    })
+  } catch (error) {
+    // Re-throw known validation errors (from inside transaction)
+    if (error instanceof Error && (
+      error.message.includes('nicht gefunden') ||
+      error.message.includes('nicht mehr verfügbar') ||
+      error.message.includes('bereits') ||
+      error.message.includes('blockiert')
+    )) {
+      throw error
+    }
+    logger.errorWithCause('Failed to place resident', error, { residentId, housingUnitId, spotId })
+    throw new Error(ERROR_MESSAGES.PLACEMENT_ERROR)
+  }
 
   redirect(`/residents/${residentId}?placed=true`)
 }

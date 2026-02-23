@@ -9,6 +9,7 @@ import {
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function createCheckInFromForm(formData: FormData): Promise<void> {
   const data = validateFormData(SatisfactionCheckInInputSchema, formData)
@@ -19,50 +20,55 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
   })
 
   if (!placement) {
-    throw new Error('Platzierung nicht gefunden')
+    throw new Error(ERROR_MESSAGES.PLACEMENT_NOT_FOUND)
   }
 
-  // Calculate week number since placement start
-  const weeksSinceStart = Math.floor(
-    (Date.now() - new Date(placement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
-  )
+  try {
+    // Calculate week number since placement start
+    const weeksSinceStart = Math.floor(
+      (Date.now() - new Date(placement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
+    )
 
-  const checkIn = await prisma.satisfactionCheckIn.create({
-    data: {
-      placementId: data.placementId,
-      checkInType: data.checkInType,
-      weekNumber: data.weekNumber ?? weeksSinceStart,
-      overallSatisfaction: data.overallSatisfaction,
-      roommateRelations: data.roommateRelations,
-      facilitySatisfaction: data.facilitySatisfaction,
-      safetyFeeling: data.safetyFeeling,
-      concerns: data.concerns || null,
-      improvements: data.improvements || null,
-      positives: data.positives || null,
-      collectedBy: data.collectedBy || null,
-      isAnonymous: data.isAnonymous ?? false,
-    },
-  })
+    const checkIn = await prisma.satisfactionCheckIn.create({
+      data: {
+        placementId: data.placementId,
+        checkInType: data.checkInType,
+        weekNumber: data.weekNumber ?? weeksSinceStart,
+        overallSatisfaction: data.overallSatisfaction,
+        roommateRelations: data.roommateRelations,
+        facilitySatisfaction: data.facilitySatisfaction,
+        safetyFeeling: data.safetyFeeling,
+        concerns: data.concerns || null,
+        improvements: data.improvements || null,
+        positives: data.positives || null,
+        collectedBy: data.collectedBy || null,
+        isAnonymous: data.isAnonymous ?? false,
+      },
+    })
 
-  // Update placement satisfaction rating with latest overall
-  await prisma.placement.update({
-    where: { id: data.placementId },
-    data: {
-      satisfactionRating: data.overallSatisfaction,
-    },
-  })
+    // Update placement satisfaction rating with latest overall
+    await prisma.placement.update({
+      where: { id: data.placementId },
+      data: {
+        satisfactionRating: data.overallSatisfaction,
+      },
+    })
 
-  await logAudit({
-    action: 'CREATE',
-    entity: 'CHECK_IN',
-    entityId: checkIn.id,
-    changes: {
-      placementId: data.placementId,
-      checkInType: data.checkInType,
-      overallSatisfaction: data.overallSatisfaction,
-      hasConcerns: !!data.concerns,
-    },
-  })
+    await logAudit({
+      action: 'CREATE',
+      entity: 'CHECK_IN',
+      entityId: checkIn.id,
+      changes: {
+        placementId: data.placementId,
+        checkInType: data.checkInType,
+        overallSatisfaction: data.overallSatisfaction,
+        hasConcerns: !!data.concerns,
+      },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to create check-in', error, { placementId: data.placementId })
+    throw new Error(ERROR_MESSAGES.CHECKIN_SAVE_ERROR)
+  }
 
   revalidatePath('/placements')
   revalidatePath('/residents')
@@ -92,16 +98,16 @@ export async function createQuickCheckIn(
     })
 
     if (!placement) {
-      return { success: false, error: 'Platzierung nicht gefunden' }
+      return { success: false, error: ERROR_MESSAGES.PLACEMENT_NOT_FOUND }
     }
 
     if (placement.status !== 'ACTIVE') {
-      return { success: false, error: 'Platzierung ist nicht aktiv' }
+      return { success: false, error: ERROR_MESSAGES.PLACEMENT_NOT_ACTIVE }
     }
 
     // Validate satisfaction score
     if (input.overallSatisfaction < 1 || input.overallSatisfaction > 5) {
-      return { success: false, error: 'Ungültiger Zufriedenheitswert' }
+      return { success: false, error: ERROR_MESSAGES.INVALID_SATISFACTION_VALUE }
     }
 
     const checkIn = await prisma.satisfactionCheckIn.create({
@@ -150,7 +156,7 @@ export async function createQuickCheckIn(
     return { success: true }
   } catch (error) {
     logger.errorWithCause('Quick check-in failed', error)
-    return { success: false, error: 'Fehler beim Speichern' }
+    return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 }
 

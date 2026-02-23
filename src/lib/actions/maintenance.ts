@@ -10,36 +10,43 @@ import {
   AssignMaintenanceSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
+import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 export async function createMaintenanceRequest(formData: FormData): Promise<void> {
   const data = validateFormData(MaintenanceRequestInputSchema, formData)
 
-  const request = await prisma.maintenanceRequest.create({
-    data: {
-      housingUnitId: data.housingUnitId,
-      spotId: data.spotId || undefined,
-      category: data.category,
-      priority: data.priority,
-      title: data.title,
-      description: data.description,
-      location: data.location,
-      reportedById: data.reportedById || undefined,
-      reporterName: data.reporterName,
-      status: DEFAULT_STATUSES.maintenance,
-    },
-  })
+  try {
+    const request = await prisma.maintenanceRequest.create({
+      data: {
+        housingUnitId: data.housingUnitId,
+        spotId: data.spotId || undefined,
+        category: data.category,
+        priority: data.priority,
+        title: data.title,
+        description: data.description,
+        location: data.location,
+        reportedById: data.reportedById || undefined,
+        reporterName: data.reporterName,
+        status: DEFAULT_STATUSES.maintenance,
+      },
+    })
 
-  await logAudit({
-    action: 'CREATE',
-    entity: 'MAINTENANCE',
-    entityId: request.id,
-    changes: {
-      category: data.category,
-      priority: data.priority,
-      title: data.title,
-    },
-  })
+    await logAudit({
+      action: 'CREATE',
+      entity: 'MAINTENANCE',
+      entityId: request.id,
+      changes: {
+        category: data.category,
+        priority: data.priority,
+        title: data.title,
+      },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to create maintenance request', error, { housingUnitId: data.housingUnitId })
+    throw new Error(ERROR_MESSAGES.MAINTENANCE_CREATE_ERROR)
+  }
 
   revalidatePath('/maintenance')
   revalidatePath(`/housing/${data.housingUnitId}`)
@@ -49,57 +56,74 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
 export async function updateMaintenanceStatus(formData: FormData): Promise<void> {
   const data = validateFormData(MaintenanceStatusUpdateSchema, formData)
 
-  const updateData: Record<string, string | number | Date | null> = { status: data.status }
+  try {
+    const updateData: Record<string, string | number | Date | null> = { status: data.status }
 
-  // Set timestamps based on status
-  if (data.status === 'ASSIGNED' && data.assignedTo) {
-    updateData.assignedTo = data.assignedTo
-    updateData.assignedAt = new Date()
+    // Set timestamps based on status
+    if (data.status === 'ASSIGNED' && data.assignedTo) {
+      updateData.assignedTo = data.assignedTo
+      updateData.assignedAt = new Date()
+    }
+    if (data.status === 'IN_PROGRESS') {
+      updateData.startedAt = new Date()
+    }
+    if (data.status === 'COMPLETED') {
+      updateData.completedAt = new Date()
+      if (data.resolution) updateData.resolution = data.resolution
+      if (data.cost !== null && data.cost !== undefined) updateData.cost = data.cost
+    }
+    if (data.notes) updateData.notes = data.notes
+
+    const request = await prisma.maintenanceRequest.update({
+      where: { id: data.requestId },
+      data: updateData,
+      select: { housingUnitId: true },
+    })
+
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'MAINTENANCE',
+      entityId: data.requestId,
+      changes: { status: data.status, ...updateData },
+    })
+
+    revalidatePath('/maintenance')
+    revalidatePath(`/maintenance/${data.requestId}`)
+    revalidatePath(`/housing/${request.housingUnitId}`)
+  } catch (error) {
+    logger.errorWithCause('Failed to update maintenance status', error, { requestId: data.requestId })
+    throw new Error(ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR)
   }
-  if (data.status === 'IN_PROGRESS') {
-    updateData.startedAt = new Date()
-  }
-  if (data.status === 'COMPLETED') {
-    updateData.completedAt = new Date()
-    if (data.resolution) updateData.resolution = data.resolution
-    if (data.cost !== null && data.cost !== undefined) updateData.cost = data.cost
-  }
-  if (data.notes) updateData.notes = data.notes
-
-  const request = await prisma.maintenanceRequest.update({
-    where: { id: data.requestId },
-    data: updateData,
-    select: { housingUnitId: true },
-  })
-
-  await logAudit({
-    action: 'UPDATE',
-    entity: 'MAINTENANCE',
-    entityId: data.requestId,
-    changes: { status: data.status, ...updateData },
-  })
-
-  revalidatePath('/maintenance')
-  revalidatePath(`/maintenance/${data.requestId}`)
-  revalidatePath(`/housing/${request.housingUnitId}`)
 }
 
 export async function assignMaintenanceRequest(formData: FormData): Promise<void> {
   const { requestId, assignedTo } = validateFormData(AssignMaintenanceSchema, formData)
 
-  const request = await prisma.maintenanceRequest.update({
-    where: { id: requestId },
-    data: {
-      status: 'ASSIGNED',
-      assignedTo,
-      assignedAt: new Date(),
-    },
-    select: { housingUnitId: true },
-  })
+  try {
+    const request = await prisma.maintenanceRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'ASSIGNED',
+        assignedTo,
+        assignedAt: new Date(),
+      },
+      select: { housingUnitId: true },
+    })
 
-  revalidatePath('/maintenance')
-  revalidatePath(`/maintenance/${requestId}`)
-  revalidatePath(`/housing/${request.housingUnitId}`)
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'MAINTENANCE',
+      entityId: requestId,
+      changes: { status: 'ASSIGNED', assignedTo },
+    })
+
+    revalidatePath('/maintenance')
+    revalidatePath(`/maintenance/${requestId}`)
+    revalidatePath(`/housing/${request.housingUnitId}`)
+  } catch (error) {
+    logger.errorWithCause('Failed to assign maintenance request', error, { requestId })
+    throw new Error(ERROR_MESSAGES.MAINTENANCE_ASSIGN_ERROR)
+  }
 }
 
 export async function getMaintenanceStats() {
