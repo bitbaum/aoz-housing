@@ -38,6 +38,7 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     medicalDocDate: null,
     medicalDocNotes: null,
     roommatePreferences: null,
+    preferencesCompletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

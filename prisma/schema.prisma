@@ -59,7 +59,8 @@ model Resident {
   supportLevel          SupportLevel      @default(STANDARD)
 
   // Roommate preferences (from portal self-service)
-  roommatePreferences String?
+  roommatePreferences    String?
+  preferencesCompletedAt DateTime? // Set when portal preferences form is submitted
 
   // Status
   status ResidentStatus @default(ACTIVE)

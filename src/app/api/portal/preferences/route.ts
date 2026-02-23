@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
         languages: data.languages,
         dietaryNeeds: data.dietaryNeeds,
         roommatePreferences: roommatePrefsText,
+        preferencesCompletedAt: new Date(),
       },
     })
 

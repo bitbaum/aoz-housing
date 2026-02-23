@@ -82,7 +82,15 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
   )
 }
 
-export function PortalOnboardingCard() {
+interface PortalOnboardingCardProps {
+  preferencesCompleted: boolean
+}
+
+export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingCardProps) {
+  const steps = PORTAL_LABELS.dashboard.onboarding.steps
+  const stepDone = [true, preferencesCompleted, false, false]
+  const activeStep = stepDone.indexOf(false)
+
   return (
     <div className="card mb-6 py-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-1">
@@ -94,49 +102,58 @@ export function PortalOnboardingCard() {
 
       {/* Progress timeline */}
       <div className="space-y-4 mb-6">
-        {PORTAL_LABELS.dashboard.onboarding.steps.map((step, i) => (
-          <div key={step.label} className="flex items-start gap-3">
-            <div className="flex flex-col items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                step.done
-                  ? 'bg-green-100 text-green-600'
-                  : i === 1
-                    ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
-                    : 'bg-gray-100 text-gray-400'
-              }`}>
-                {step.done ? (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <span className="text-sm font-medium">{i + 1}</span>
+        {steps.map((label, i) => {
+          const done = stepDone[i]
+          const isActive = i === activeStep
+
+          return (
+            <div key={label} className="flex items-start gap-3">
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  done
+                    ? 'bg-green-100 text-green-600'
+                    : isActive
+                      ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
+                      : 'bg-gray-100 text-gray-400'
+                }`}>
+                  {done ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <span className="text-sm font-medium">{i + 1}</span>
+                  )}
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-green-200' : 'bg-gray-200'}`} />
                 )}
               </div>
-              {i < PORTAL_LABELS.dashboard.onboarding.steps.length - 1 && (
-                <div className={`w-0.5 h-6 mt-1 ${step.done ? 'bg-green-200' : 'bg-gray-200'}`} />
-              )}
+              <div className="pt-1">
+                <p className={`text-sm font-medium ${
+                  done ? 'text-green-700' : isActive ? 'text-aoz-primary' : 'text-gray-400'
+                }`}>
+                  {label}
+                </p>
+              </div>
             </div>
-            <div className="pt-1">
-              <p className={`text-sm font-medium ${
-                step.done ? 'text-green-700' : i === 1 ? 'text-aoz-primary' : 'text-gray-400'
-              }`}>
-                {step.label}
-              </p>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* CTA */}
       <div className="bg-aoz-primary/5 rounded-lg p-4">
         <p className="text-sm text-gray-600 mb-3">
-          {PORTAL_LABELS.dashboard.onboarding.completePreferencesHint}
+          {preferencesCompleted
+            ? PORTAL_LABELS.dashboard.onboarding.browseHousingHint
+            : PORTAL_LABELS.dashboard.onboarding.completePreferencesHint}
         </p>
         <Link
-          href="/portal/preferences"
+          href={preferencesCompleted ? '/portal/housing' : '/portal/preferences'}
           className="btn-primary inline-flex items-center min-h-[44px] px-6"
         >
-          {PORTAL_LABELS.dashboard.onboarding.completePreferences} →
+          {preferencesCompleted
+            ? PORTAL_LABELS.dashboard.onboarding.browseHousing
+            : PORTAL_LABELS.dashboard.onboarding.completePreferences} →
         </Link>
       </div>
 

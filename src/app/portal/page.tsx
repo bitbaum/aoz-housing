@@ -144,7 +144,7 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
           roommatesCount={roommates.length}
         />
       ) : (
-        <PortalOnboardingCard />
+        <PortalOnboardingCard preferencesCompleted={resident.preferencesCompletedAt !== null} />
       )}
 
       <PortalQuickActions pendingChoresCount={pendingChores.length} />

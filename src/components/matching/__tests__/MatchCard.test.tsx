@@ -102,6 +102,7 @@ const mockResident = {
   notes: null,
   status: 'ACTIVE',
   roommatePreferences: null,
+  preferencesCompletedAt: null,
   hasMedicalDocumentation: false,
   medicalDocType: null,
   medicalDocDate: null,
