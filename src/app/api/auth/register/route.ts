@@ -160,52 +160,59 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { email: result.data.email.toLowerCase() },
-    select: { id: true },
-  })
+  try {
+    const existing = await prisma.user.findUnique({
+      where: { email: result.data.email.toLowerCase() },
+      select: { id: true },
+    })
 
-  if (existing) {
+    if (existing) {
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.EMAIL_ALREADY_REGISTERED },
+        { status: 409 }
+      )
+    }
+
+    const passwordHash = await hashPassword(result.data.password)
+    const user = await prisma.user.create({
+      data: {
+        email: result.data.email.toLowerCase(),
+        name: result.data.name,
+        passwordHash,
+        role: 'ADMIN',
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+      },
+    })
+
+    const authUser: AuthUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role as 'ADMIN',
+    }
+    await setSessionCookie(authUser)
+
+    // For testing both sides with the same email, also provision/reuse a resident profile.
+    const residentCode = await ensureResidentProfile(result.data.email, 'Dualprofil via AOZ-Registrierung')
+    if (residentCode) {
+      await setResidentCookie(residentCode)
+    }
+
+    return NextResponse.json({
+      success: true,
+      profileType: 'staff',
+      residentCode,
+      user: authUser,
+    })
+  } catch {
     return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.EMAIL_ALREADY_REGISTERED },
-      { status: 409 }
+      { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
+      { status: 500 }
     )
   }
-
-  const passwordHash = await hashPassword(result.data.password)
-  const user = await prisma.user.create({
-    data: {
-      email: result.data.email.toLowerCase(),
-      name: result.data.name,
-      passwordHash,
-      role: 'ADMIN',
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-    },
-  })
-
-  const authUser: AuthUser = {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role as 'ADMIN',
-  }
-  await setSessionCookie(authUser)
-
-  // For testing both sides with the same email, also provision/reuse a resident profile.
-  const residentCode = await ensureResidentProfile(result.data.email, 'Dualprofil via AOZ-Registrierung')
-  if (residentCode) {
-    await setResidentCookie(residentCode)
-  }
-
-  return NextResponse.json({
-    success: true,
-    profileType: 'staff',
-    residentCode,
-    user: authUser,
-  })
 }

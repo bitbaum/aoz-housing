@@ -10,19 +10,23 @@ export async function GET() {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
-  const data = await prisma.incident.findMany({
-    orderBy: { date: 'desc' },
-  })
+  try {
+    const data = await prisma.incident.findMany({
+      orderBy: { date: 'desc' },
+    })
 
-  const csv = generateCSV(
-    data as unknown as Record<string, unknown>[],
-    EXPORT_COLUMNS.incidents
-  )
+    const csv = generateCSV(
+      data as unknown as Record<string, unknown>[],
+      EXPORT_COLUMNS.incidents
+    )
 
-  return new NextResponse(csv, {
-    headers: {
-      'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="vorfaelle-${new Date().toISOString().split('T')[0]}.csv"`,
-    },
-  })
+    return new NextResponse(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': `attachment; filename="vorfaelle-${new Date().toISOString().split('T')[0]}.csv"`,
+      },
+    })
+  } catch {
+    return NextResponse.json({ error: 'Export fehlgeschlagen' }, { status: 500 })
+  }
 }
