@@ -45,14 +45,14 @@ export function SpotSelection({ spots, resident, match }: Props) {
   }
 
   return (
-    <div className="space-y-2">
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+    <fieldset className="space-y-2">
+      <legend className="text-xs font-medium text-gray-500 uppercase tracking-wide">
         Platz auswählen
-      </p>
+      </legend>
 
       {eligibleSpots.length === 0 && (
-        <p className="text-xs text-orange-600 mb-2">
-          ⚠️ Keine Plätze für diesen Bewohner geeignet
+        <p className="text-xs text-orange-600 mb-2" role="alert">
+          <span aria-hidden="true">⚠️</span> Keine Plätze für diesen Bewohner geeignet
           {!resident.hasMedicalDocumentation && ' (med. Dokumente fehlen)'}
         </p>
       )}
@@ -62,6 +62,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
           (c: ApartmentConflict) => c.severity === 'BLOCKING'
         ) || false
         const fitScore = match.apartmentFit?.fitScore || 100
+        const spotName = spot.label || spot.code
 
         return (
           <form key={spot.id} action={placeResident} className="flex gap-2">
@@ -79,10 +80,10 @@ export function SpotSelection({ spots, resident, match }: Props) {
               value={String(hasBlockingConflicts)}
             />
             <div className="flex-1 flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-green-50">
-              <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+              <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">
-                  {spot.label || spot.code}
+                  {spotName}
                 </p>
                 <p className="text-xs text-gray-500">
                   {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
@@ -97,6 +98,9 @@ export function SpotSelection({ spots, resident, match }: Props) {
                   : ''
               }`}
               disabled={hasBlockingConflicts}
+              aria-label={hasBlockingConflicts
+                ? `${spotName} blockiert`
+                : `${resident.code} in ${spotName} platzieren`}
             >
               {hasBlockingConflicts
                 ? 'Blockiert'
@@ -116,7 +120,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
           <div className="mt-2 space-y-1 pl-2">
             {ineligibleSpots.map((spot) => (
               <div key={spot.id} className="flex items-center gap-2 opacity-50">
-                <span>{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+                <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
                 <span>{spot.label || spot.code}</span>
                 <span className="text-orange-500">
                   {spot.requiresMedicalDocs && !resident.hasMedicalDocumentation
@@ -128,6 +132,6 @@ export function SpotSelection({ spots, resident, match }: Props) {
           </div>
         </details>
       )}
-    </div>
+    </fieldset>
   )
 }

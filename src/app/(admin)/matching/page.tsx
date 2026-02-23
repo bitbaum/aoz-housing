@@ -1,17 +1,14 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { logger } from '@/lib/logger'
+
+export const metadata: Metadata = { title: 'Matching' }
 import Link from 'next/link'
-import {
-  AGE_RANGE_LABELS,
-  LANGUAGE_LABELS,
-  EMPTY_STATE_LABELS,
-  getLabel,
-} from '@/lib/constants'
+import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
-import { getScoreColorClass } from '@/lib/utils'
 import type { Resident } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type {
@@ -21,8 +18,9 @@ import type {
   ResidentWithPlacement,
   UnitMatch,
 } from '@/lib/matching/types'
-import { MatchCard } from '@/components/matching/MatchCard'
-import { placeResident } from '@/lib/actions/matching'
+import { ResidentSelectorPanel } from '@/components/matching/ResidentSelectorPanel'
+import { UnitModePanel } from '@/components/matching/UnitModePanel'
+import { MatchResultsPanel } from '@/components/matching/MatchResultsPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -276,26 +274,15 @@ export default async function MatchingPage({ searchParams }: Props) {
     }
   }
 
-  const isNewResident = params.new === '1' && selectedResident
+  const isNewResident = params.new === '1' && !!selectedResident
   const isUnitMode = !!selectedUnit && !selectedResident
   const fastMode = params.mode === 'fast'
-
-  const topMatches = matches.slice(0, 3)
-  const otherMatches = matches.slice(3, 10)
 
   const filteredUnplacedResidents = unplacedResidents.filter((resident) => {
     if (!residentQuery) return true
     const languageText = (resident.languages || []).join(' ').toLowerCase()
     return resident.code.toLowerCase().includes(residentQuery) || languageText.includes(residentQuery)
   })
-
-  const bestQuickMatch = selectedResident
-    ? matches.find((m) => {
-        const hasBlockingConflicts = m.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
-        const hasSpot = !!m.unit.spots?.some((s) => s.status === 'AVAILABLE')
-        return !m.hasBlockingIssue && !hasBlockingConflicts && hasSpot
-      })
-    : null
 
   return (
     <div>
@@ -382,378 +369,30 @@ export default async function MatchingPage({ searchParams }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left panel: Unplaced residents */}
-        <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Unplatzierte Bewohner ({filteredUnplacedResidents.length}/{unplacedResidents.length})
-          </h2>
-
-          <form className="mb-3">
-            <div className="flex gap-2">
-              <input
-                type="search"
-                name="q"
-                defaultValue={params.q || ''}
-                placeholder="Bewohner suchen (Code, Sprache)"
-                className="input flex-1"
-              />
-              <button type="submit" className="btn-outline text-sm min-h-[44px]">Suchen</button>
-            </div>
-            {params.resident && <input type="hidden" name="resident" value={params.resident} />}
-            {params.unit && <input type="hidden" name="unit" value={params.unit} />}
-            {params.new && <input type="hidden" name="new" value={params.new} />}
-          </form>
-
-          {filteredUnplacedResidents.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">
-                {totalResidentCount === 0
-                  ? EMPTY_STATE_LABELS.noResidentsAtAll
-                  : residentQuery
-                  ? 'Keine Bewohner für diese Suche gefunden'
-                  : EMPTY_STATE_LABELS.allResidentsPlaced}
-              </p>
-              {totalResidentCount === 0 && (
-                <Link href="/residents/new" className="btn-outline mt-4 inline-block">
-                  {EMPTY_STATE_LABELS.createResident}
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredUnplacedResidents.map((resident) => (
-                <div
-                  key={resident.id}
-                  className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
-                    params.resident === resident.id
-                      ? 'border-aoz-primary bg-aoz-primary/5'
-                      : 'border-gray-200'
-                  }`}
-                >
-                  <Link
-                    href={`/residents/${resident.id}`}
-                    className="flex items-center gap-3 flex-1 hover:opacity-80"
-                  >
-                    <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      {resident.code.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 hover:text-aoz-primary">
-                        {resident.code}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-                        {resident.languages
-                          .slice(0, 2)
-                          .map((l) => getLabel(LANGUAGE_LABELS, l))
-                          .join(', ')}
-                      </p>
-                    </div>
-                  </Link>
-                  <Link
-                    href={`/matching?resident=${resident.id}`}
-                    className={`px-3 py-2 min-h-[44px] flex items-center justify-center rounded text-sm font-medium transition-colors ${
-                      params.resident === resident.id
-                        ? 'bg-aoz-primary text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-aoz-primary hover:text-white'
-                    }`}
-                  >
-                    {params.resident === resident.id ? 'Ausgewählt' : 'Matching'}
-                  </Link>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Placed residents section */}
-          {placedResidents.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h3 className="text-md font-semibold text-gray-700 mb-3">
-                Platzierte Bewohner ({placedResidents.length})
-              </h3>
-              <p className="text-xs text-gray-500 mb-3">
-                Wählen Sie einen Bewohner für &quot;Was-wäre-wenn&quot;-Analyse
-              </p>
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {placedResidents.map((resident) => (
-                  <div
-                    key={resident.id}
-                    className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
-                      params.resident === resident.id
-                        ? 'border-aoz-primary bg-aoz-primary/5'
-                        : 'border-gray-200 bg-gray-50'
-                    }`}
-                  >
-                    <Link
-                      href={`/residents/${resident.id}`}
-                      className="flex items-center gap-2 flex-1 hover:opacity-80"
-                    >
-                      <div className="w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium">
-                        {resident.code.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          {resident.code}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {resident.placements[0]?.housingUnit?.code || 'Platziert'}
-                        </p>
-                      </div>
-                    </Link>
-                    <Link
-                      href={`/matching?resident=${resident.id}`}
-                      className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        params.resident === resident.id
-                          ? 'bg-aoz-primary text-white'
-                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                      }`}
-                    >
-                      Vergleichen
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <ResidentSelectorPanel
+          filteredUnplacedResidents={filteredUnplacedResidents}
+          totalUnplaced={unplacedResidents.length}
+          placedResidents={placedResidents}
+          totalResidentCount={totalResidentCount}
+          residentQuery={residentQuery}
+          params={params}
+        />
 
         {/* Right panel: Matches, Unit mode, or available units */}
         <div className="card">
           {isUnitMode && selectedUnit ? (
-            <>
-              {/* UNIT MODE: Show who fits in this unit */}
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Passende Bewohner
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    {selectedUnit.placements.length}/{selectedUnit.totalBeds} belegt ·{' '}
-                    {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} freie Plätze
-                  </p>
-                </div>
-                <Link
-                  href="/matching"
-                  className="text-sm text-gray-500 hover:text-gray-700"
-                >
-                  Zurück
-                </Link>
-              </div>
-
-              {/* Current residents in unit */}
-              {selectedUnit.placements.length > 0 && (
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-                    Aktuelle Bewohner
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedUnit.placements.map((p) => (
-                      <Link
-                        key={p.id}
-                        href={`/residents/${p.residentId}`}
-                        className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-sm hover:border-aoz-primary"
-                      >
-                        <span className="w-5 h-5 bg-aoz-primary text-white rounded-full flex items-center justify-center text-xs">
-                          {p.resident.code.slice(0, 1)}
-                        </span>
-                        {p.resident.code}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {unitMatches.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">Keine passenden unplatzierten Bewohner</p>
-                  <Link href="/residents/new" className="btn-outline mt-4 inline-block">
-                    Neuen Bewohner erfassen
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {unitMatches.slice(0, 10).map((match) => (
-                    <div
-                      key={match.resident.id}
-                      className={`p-3 border rounded-lg ${
-                        match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-                            {match.resident.code.slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <Link
-                              href={`/residents/${match.resident.id}`}
-                              className="font-medium text-gray-900 hover:text-aoz-primary"
-                            >
-                              {match.resident.code}
-                            </Link>
-                            <p className="text-sm text-gray-500">
-                              {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                              {match.resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className={`text-lg font-bold ${getScoreColorClass(match.fitScore)}`}>
-                            {match.fitScore}%
-                          </span>
-                          <Link
-                            href={`/matching?resident=${match.resident.id}`}
-                            className="btn-primary text-sm px-4 py-2 min-h-[44px]"
-                          >
-                            Platzieren
-                          </Link>
-                        </div>
-                      </div>
-                      {match.concerns.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-orange-200">
-                          {match.concerns.map((c: string, i: number) => (
-                            <p key={i} className="text-xs text-orange-600">⚠️ {c}</p>
-                          ))}
-                        </div>
-                      )}
-                      {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
-                        <div className="mt-2 pt-2 border-t border-gray-100">
-                          {match.apartmentFit.strengths.slice(0, 2).map((s: string, i: number) => (
-                            <p key={i} className="text-xs text-green-600">✓ {s}</p>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+            <UnitModePanel
+              selectedUnit={selectedUnit}
+              unitMatches={unitMatches}
+            />
           ) : selectedResident ? (
-            <>
-              <div className="flex items-center justify-between mb-4 gap-3">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Matches für {selectedResident.code}
-                </h2>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/matching?resident=${selectedResident.id}${isNewResident ? '&new=1' : ''}${params.q ? `&q=${encodeURIComponent(params.q)}` : ''}`}
-                    className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${!fastMode ? 'bg-gray-100' : ''}`}
-                  >
-                    Standard
-                  </Link>
-                  <Link
-                    href={`/matching?resident=${selectedResident.id}&mode=fast${isNewResident ? '&new=1' : ''}${params.q ? `&q=${encodeURIComponent(params.q)}` : ''}`}
-                    className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}`}
-                  >
-                    Fast Mode
-                  </Link>
-                  <Link
-                    href="/matching"
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Abbrechen
-                  </Link>
-                </div>
-              </div>
-
-              {matches.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">{EMPTY_STATE_LABELS.noAvailableUnits}</p>
-                  <Link href="/housing/new" className="btn-outline mt-4 inline-block">
-                    {EMPTY_STATE_LABELS.createHousing}
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {bestQuickMatch && (
-                    <form action={placeResident} className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <input type="hidden" name="residentId" value={selectedResident.id} />
-                      <input type="hidden" name="housingUnitId" value={bestQuickMatch.unit.id} />
-                      <input
-                        type="hidden"
-                        name="spotId"
-                        value={bestQuickMatch.unit.spots.find((s) => s.status === 'AVAILABLE')?.id || ''}
-                      />
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <p className="text-sm text-green-800">
-                          Schnellaktion: Bestes Match ist <strong>{bestQuickMatch.unit.code}</strong> ({bestQuickMatch.apartmentFit.fitScore}%). Top-Empfehlungen sind unten hervorgehoben.
-                        </p>
-                        <button type="submit" className="btn-primary text-sm min-h-[44px]">
-                          Bestes Match platzieren
-                        </button>
-                      </div>
-                    </form>
-                  )}
-
-                  {fastMode ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Fast Mode · Top 5</h3>
-                        <span className="text-xs text-gray-500">Kompakte Ansicht für schnelle Entscheidungen</span>
-                      </div>
-                      {matches.slice(0, 5).map((match, idx) => {
-                        const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
-                        const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
-                        return (
-                          <div key={match.unit.id} className={`p-3 rounded-lg border ${idx === 0 ? 'border-green-300 bg-green-50/60' : 'border-gray-200'}`}>
-                            <div className="flex items-center justify-between gap-3">
-                              <div>
-                                <p className="font-semibold text-gray-900">#{idx + 1} · {match.unit.code}</p>
-                                <p className="text-sm text-gray-500">{match.unit.address}</p>
-                                <p className="text-xs text-gray-600 mt-1">
-                                  Fit: {match.apartmentFit.fitScore}% · Belegung: {match.unit.placements.length}/{match.unit.totalBeds}
-                                </p>
-                              </div>
-                              {availableSpot && !hasBlockingConflicts ? (
-                                <form action={placeResident}>
-                                  <input type="hidden" name="residentId" value={selectedResident.id} />
-                                  <input type="hidden" name="housingUnitId" value={match.unit.id} />
-                                  <input type="hidden" name="spotId" value={availableSpot.id} />
-                                  <button type="submit" className="btn-primary text-sm min-h-[44px]">Platzieren</button>
-                                </form>
-                              ) : (
-                                <span className="text-xs text-red-600">Blockiert</span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  ) : (
-                    <>
-                      {topMatches.length > 0 && (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Top Empfehlungen</h3>
-                            <span className="text-xs text-gray-500">Schnellste sichere Auswahl</span>
-                          </div>
-                          {topMatches.map((match, idx) => (
-                            <MatchCard
-                              key={match.unit.id}
-                              match={match}
-                              resident={selectedResident!}
-                              rank={idx + 1}
-                            />
-                          ))}
-                        </div>
-                      )}
-
-                      {otherMatches.length > 0 && (
-                        <div className="space-y-3 pt-2">
-                          <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Weitere Optionen</h3>
-                          {otherMatches.map((match) => (
-                            <MatchCard
-                              key={match.unit.id}
-                              match={match}
-                              resident={selectedResident!}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </>
+            <MatchResultsPanel
+              selectedResident={selectedResident}
+              matches={matches}
+              isNewResident={isNewResident}
+              fastMode={fastMode}
+              searchQuery={params.q}
+            />
           ) : (
             <>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">

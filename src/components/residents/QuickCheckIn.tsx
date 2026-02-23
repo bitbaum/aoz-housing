@@ -141,7 +141,7 @@ export function QuickCheckIn({
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="radiogroup" aria-label="Zufriedenheit">
           {SATISFACTION_OPTIONS.map((option) => (
             <label
               key={option.value}
@@ -156,13 +156,14 @@ export function QuickCheckIn({
                 onChange={() => handleSatisfactionSelect(option.value)}
                 disabled={isPending}
                 className="sr-only peer"
+                aria-label={`${option.label} (${option.value} von 5)`}
               />
               <div className={`
                 text-center p-2 rounded-lg border-2 transition-all
                 ${option.color}
                 ${isPending ? 'opacity-50 cursor-wait' : ''}
               `}>
-                <div className="text-2xl">{option.emoji}</div>
+                <div className="text-2xl" aria-hidden="true">{option.emoji}</div>
               </div>
             </label>
           ))}
@@ -175,20 +176,23 @@ export function QuickCheckIn({
 
       {/* Expanded form for low satisfaction */}
       {showExpanded && selectedSatisfaction !== null && selectedSatisfaction < 4 && (
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3" aria-live="polite">
           {/* Roommate relations - KEY for matching algorithm */}
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
+            <label id="roommate-label" className="text-sm font-medium text-gray-700 block mb-1">
               Wie ist die Beziehung zu Ihren Mitbewohnern?
               {needsExplanation && !concerns.trim() && (
-                <span className="text-red-500 ml-1">*</span>
+                <span className="text-red-500 ml-1" aria-label="erforderlich">*</span>
               )}
             </label>
-            <div className="flex gap-1">
+            <div className="flex gap-1" role="radiogroup" aria-labelledby="roommate-label">
               {ROOMMATE_OPTIONS.map((option) => (
                 <button
                   key={option.value}
                   type="button"
+                  role="radio"
+                  aria-checked={roommateRelations === option.value}
+                  aria-label={`${option.label} (${option.value} von 5)`}
                   onClick={() => setRoommateRelations(option.value)}
                   disabled={isPending}
                   className={`
@@ -211,18 +215,20 @@ export function QuickCheckIn({
 
           {/* Concerns text - required if very unhappy and no roommate rating */}
           <div>
-            <label className="text-sm font-medium text-gray-700 block mb-1">
+            <label htmlFor="concerns-input" className="text-sm font-medium text-gray-700 block mb-1">
               Was beschäftigt Sie?
               {needsExplanation && !roommateRelations && (
-                <span className="text-red-500 ml-1">*</span>
+                <span className="text-red-500 ml-1" aria-label="erforderlich">*</span>
               )}
             </label>
             <textarea
+              id="concerns-input"
               value={concerns}
               onChange={(e) => setConcerns(e.target.value)}
               placeholder="Gibt es Probleme oder Anliegen?"
               rows={2}
               disabled={isPending}
+              aria-required={needsExplanation && !roommateRelations}
               className="input text-sm"
             />
           </div>

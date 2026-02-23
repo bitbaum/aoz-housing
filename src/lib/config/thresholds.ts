@@ -130,10 +130,10 @@ export const SCORE_COLORS = {
 
 export const SCORE_BG_COLORS = {
   excellent: 'bg-green-500',
-  good: 'bg-yellow-500',
-  moderate: 'bg-orange-500',
-  low: 'bg-red-500',
-  critical: 'bg-red-700',
+  good: 'bg-emerald-500',
+  moderate: 'bg-yellow-500',
+  low: 'bg-orange-500',
+  critical: 'bg-red-500',
 } as const
 
 export const OCCUPANCY_COLORS = {

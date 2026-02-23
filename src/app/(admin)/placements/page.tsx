@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
@@ -7,6 +8,8 @@ import {
   SUPPORT_LEVEL_LABELS,
   getLabel,
 } from '@/lib/constants'
+
+export const metadata: Metadata = { title: 'Platzierungen' }
 import {
   getStatusBadgeClass,
   formatDate,

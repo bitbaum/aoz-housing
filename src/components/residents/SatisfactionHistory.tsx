@@ -1,0 +1,120 @@
+import { getPlacementCheckIns } from '@/lib/actions'
+import { CHECK_IN_TYPE_LABELS } from '@/lib/constants'
+import { formatDate } from '@/lib/utils'
+
+interface SatisfactionHistoryProps {
+  placementId: string
+}
+
+export async function SatisfactionHistory({ placementId }: SatisfactionHistoryProps) {
+  const checkIns = await getPlacementCheckIns(placementId)
+
+  if (checkIns.length === 0) {
+    return (
+      <div className="card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Zufriedenheits-Check-ins
+        </h2>
+        <p className="text-gray-500 text-sm">
+          Noch keine Check-ins erfasst.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card">
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        Zufriedenheits-Check-ins ({checkIns.length})
+      </h2>
+      <div className="space-y-3">
+        {checkIns.map((checkIn) => (
+          <div
+            key={checkIn.id}
+            className="p-3 bg-gray-50 rounded-lg border-l-4"
+            style={{
+              borderLeftColor:
+                checkIn.overallSatisfaction >= 4
+                  ? '#22c55e'
+                  : checkIn.overallSatisfaction >= 3
+                  ? '#eab308'
+                  : '#ef4444',
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">
+                  {checkIn.overallSatisfaction === 1
+                    ? '\u{1F622}'
+                    : checkIn.overallSatisfaction === 2
+                    ? '\u{1F615}'
+                    : checkIn.overallSatisfaction === 3
+                    ? '\u{1F610}'
+                    : checkIn.overallSatisfaction === 4
+                    ? '\u{1F642}'
+                    : '\u{1F60A}'}
+                </span>
+                <div>
+                  <span className="font-medium text-gray-900">
+                    {CHECK_IN_TYPE_LABELS[checkIn.checkInType] || checkIn.checkInType}
+                  </span>
+                  {checkIn.weekNumber && (
+                    <span className="text-gray-500 text-sm ml-2">
+                      Woche {checkIn.weekNumber}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <span className="text-sm text-gray-500">
+                {formatDate(checkIn.createdAt)}
+              </span>
+            </div>
+
+            {/* Detailed scores if available */}
+            {(checkIn.roommateRelations || checkIn.facilitySatisfaction || checkIn.safetyFeeling) && (
+              <div className="flex gap-4 text-xs text-gray-600 mb-2">
+                {checkIn.roommateRelations && (
+                  <span>Mitbewohner: {checkIn.roommateRelations}/5</span>
+                )}
+                {checkIn.facilitySatisfaction && (
+                  <span>Einrichtung: {checkIn.facilitySatisfaction}/5</span>
+                )}
+                {checkIn.safetyFeeling && (
+                  <span>Sicherheit: {checkIn.safetyFeeling}/5</span>
+                )}
+              </div>
+            )}
+
+            {/* Concerns highlighted */}
+            {checkIn.concerns && (
+              <div className="text-sm text-red-700 bg-red-50 p-2 rounded mt-2">
+                <span className="font-medium">Anliegen:</span> {checkIn.concerns}
+              </div>
+            )}
+
+            {/* Improvements */}
+            {checkIn.improvements && (
+              <div className="text-sm text-amber-700 bg-amber-50 p-2 rounded mt-2">
+                <span className="font-medium">Verbesserungen:</span> {checkIn.improvements}
+              </div>
+            )}
+
+            {/* Positives */}
+            {checkIn.positives && (
+              <div className="text-sm text-green-700 bg-green-50 p-2 rounded mt-2">
+                <span className="font-medium">Positives:</span> {checkIn.positives}
+              </div>
+            )}
+
+            {/* Collector info */}
+            {checkIn.collectedBy && !checkIn.isAnonymous && (
+              <div className="text-xs text-gray-400 mt-2">
+                Erfasst von: {checkIn.collectedBy}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

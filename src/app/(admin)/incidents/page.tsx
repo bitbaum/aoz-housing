@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
@@ -7,6 +8,8 @@ import {
   INCIDENT_SEVERITY_LABELS,
   getLabel,
 } from '@/lib/constants'
+
+export const metadata: Metadata = { title: 'Vorfälle' }
 import {
   getSeverityBorderClass,
   getSeverityDotClass,

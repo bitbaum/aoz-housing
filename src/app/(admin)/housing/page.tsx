@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
+
+export const metadata: Metadata = { title: 'Unterkünfte' }
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'

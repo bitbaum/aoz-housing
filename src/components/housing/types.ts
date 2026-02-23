@@ -3,24 +3,14 @@
  */
 
 import type { SpotTypeKey, SpotStatusKey } from '@/lib/config/placement-spots'
+import type { ResidentSummary } from '@/lib/types'
 
-export interface HousingResident {
-  id: string
-  code: string
-  ageRange?: string
-  gender?: string
-  languages?: string[]
-  socialStyle?: string
-  sleepSchedule?: string
-  smokingStatus?: string
-  noiseTolerance?: number
-  cleanlinessLevel?: number
-  privacyNeed?: number
-}
+/** @deprecated Use ResidentSummary from @/lib/types directly */
+export type HousingResident = ResidentSummary
 
 export interface HousingPlacement {
   id: string
-  resident: HousingResident
+  resident: ResidentSummary
   status: string
 }
 
@@ -38,7 +28,7 @@ export interface HousingSpot {
 }
 
 export interface CompatibleResident {
-  resident: HousingResident & { ageRange: string; languages: string[] }
+  resident: ResidentSummary
   fitScore: number
   strengths: string[]
   concerns: string[]

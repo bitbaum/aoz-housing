@@ -8,22 +8,10 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
-
-interface Resident {
-  id: string
-  code: string
-  cleanlinessLevel: number
-  noiseTolerance: number
-  privacyNeed: number
-  choresContribution: number
-  sleepSchedule: string
-  socialStyle: string
-  smokingStatus: string
-  languages: string[]
-}
+import type { ResidentHouseholdProfile } from '@/lib/types'
 
 interface ApartmentProfileCardProps {
-  residents: Resident[]
+  residents: ResidentHouseholdProfile[]
   showDetails?: boolean
 }
 
@@ -46,7 +34,7 @@ interface ProfileMetrics {
   harmonyScore: number
 }
 
-function calculateProfileMetrics(residents: Resident[]): ProfileMetrics {
+function calculateProfileMetrics(residents: ResidentHouseholdProfile[]): ProfileMetrics {
   if (residents.length === 0) {
     return {
       avgCleanliness: 0,

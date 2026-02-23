@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
+
+export const metadata: Metadata = { title: 'Wartungsanfragen' }
 import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
@@ -13,7 +16,7 @@ import {
 import { formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
-import type { MaintenanceStatus } from '@prisma/client'
+import type { MaintenanceStatus, Prisma } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +29,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
   const statusFilter = params.status || 'active'
 
   // Build where clause based on status filter
-  let whereClause: any = {}
+  let whereClause: Prisma.MaintenanceRequestWhereInput = {}
   if (statusFilter === 'active') {
     whereClause.status = { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] }
   } else if (statusFilter !== 'all') {

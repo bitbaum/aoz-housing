@@ -18,84 +18,84 @@ model Resident {
   updatedAt DateTime @updatedAt
 
   // Basic info (non-identifying)
-  code          String  @unique // Internal reference code, not name
-  ageRange      AgeRange
-  gender        Gender
-  familyStatus  FamilyStatus
+  code         String       @unique // Internal reference code, not name
+  ageRange     AgeRange
+  gender       Gender
+  familyStatus FamilyStatus
 
   // Lifestyle preferences
-  sleepSchedule     SleepSchedule
-  noiseTolerance    Int // 1-5 scale
-  cleanlinessLevel  Int // 1-5 scale
-  guestTolerance    Int @default(3) // 1-5 scale
+  sleepSchedule    SleepSchedule
+  noiseTolerance   Int // 1-5 scale
+  cleanlinessLevel Int // 1-5 scale
+  guestTolerance   Int           @default(3) // 1-5 scale
 
   // Social factors
-  socialStyle       SocialStyle
-  languages         String[] // ISO language codes
-  culturalRegion    String? // Broad region, not country
-  conflictStyle     ConflictStyle @default(COOPERATIVE)
-  
+  socialStyle    SocialStyle
+  languages      String[] // ISO language codes
+  culturalRegion String? // Broad region, not country
+  conflictStyle  ConflictStyle @default(COOPERATIVE)
+
   // Practical needs
-  smokingStatus     SmokingStatus
-  dietaryNeeds      String[] // e.g., ["halal", "vegetarian"]
-  mobilityNeeds     MobilityNeed
-  medicalEquipment  Boolean @default(false) // Needs space for equipment
+  smokingStatus    SmokingStatus
+  dietaryNeeds     String[] // e.g., ["halal", "vegetarian"]
+  mobilityNeeds    MobilityNeed
+  medicalEquipment Boolean       @default(false) // Needs space for equipment
 
   // Preferences
-  petTolerance      Boolean @default(true)
-  sharedBathroom    Boolean @default(true)
-  sharedKitchen     Boolean @default(true)
-  privacyNeed       Int // 1-5 scale
+  petTolerance   Boolean @default(true)
+  sharedBathroom Boolean @default(true)
+  sharedKitchen  Boolean @default(true)
+  privacyNeed    Int // 1-5 scale
 
   // Household (chores, recycling)
-  choresContribution   Int @default(3) // 1-5 scale: contribution to shared tasks
-  recyclingKnowledge   RecyclingKnowledge @default(NONE)
+  choresContribution Int                @default(3) // 1-5 scale: contribution to shared tasks
+  recyclingKnowledge RecyclingKnowledge @default(NONE)
 
   // Health/Support needs (functional, not diagnostic)
-  roomSharingStatus    RoomSharingStatus @default(CAN_SHARE)
-  hasNightDisturbances Boolean @default(false) // Nightmares, sleep talking
-  needsQuietEnvironment Boolean @default(false) // Anxiety, sensory needs
-  hasSleepEquipment    Boolean @default(false) // CPAP, etc.
-  supportLevel         SupportLevel @default(STANDARD)
+  roomSharingStatus     RoomSharingStatus @default(CAN_SHARE)
+  hasNightDisturbances  Boolean           @default(false) // Nightmares, sleep talking
+  needsQuietEnvironment Boolean           @default(false) // Anxiety, sensory needs
+  hasSleepEquipment     Boolean           @default(false) // CPAP, etc.
+  supportLevel          SupportLevel      @default(STANDARD)
 
   // Roommate preferences (from portal self-service)
   roommatePreferences String?
 
   // Status
-  status            ResidentStatus @default(ACTIVE)
-  notes             String? // Caseworker notes
+  status ResidentStatus @default(ACTIVE)
+  notes  String? // Caseworker notes
 
   // Medical documentation for private placement eligibility
-  hasMedicalDocumentation Boolean @default(false)
+  hasMedicalDocumentation Boolean         @default(false)
   medicalDocType          MedicalDocType?
   medicalDocDate          DateTime?
   medicalDocNotes         String?
 
   // Relations
-  placements            Placement[]
-  assessments           CompatibilityAssessment[] @relation("ResidentAssessments")
-  comparedWith          CompatibilityAssessment[] @relation("ComparedResidentAssessments")
-  incidentsReported     Incident[] @relation("IncidentReporter")
-  incidentsAsSubject    Incident[] @relation("IncidentSubject")
-  incidentInvolvements  IncidentInvolvement[]
-  maintenanceRequests   MaintenanceRequest[]
+  placements           Placement[]
+  assessments          CompatibilityAssessment[] @relation("ResidentAssessments")
+  comparedWith         CompatibilityAssessment[] @relation("ComparedResidentAssessments")
+  incidentsReported    Incident[]                @relation("IncidentReporter")
+  incidentsAsSubject   Incident[]                @relation("IncidentSubject")
+  incidentInvolvements IncidentInvolvement[]
+  maintenanceRequests  MaintenanceRequest[] // Already has onDelete: SetNull on FK side
 
   // Household tasks
-  createdTasks          HouseholdTask[]     @relation("TaskCreator")
-  taskCompletions       TaskCompletion[]
-  taskAttentionFlags    TaskAttentionFlag[]
-  taskRequestsMade      TaskRequest[]       @relation("TaskRequestsMade")
-  taskRequestsReceived  TaskRequest[]       @relation("TaskRequestsReceived")
+  createdTasks         HouseholdTask[]     @relation("TaskCreator")
+  taskCompletions      TaskCompletion[]
+  taskAttentionFlags   TaskAttentionFlag[]
+  taskRequestsMade     TaskRequest[]       @relation("TaskRequestsMade")
+  taskRequestsReceived TaskRequest[]       @relation("TaskRequestsReceived")
 
   @@index([status])
   @@index([ageRange, gender])
 }
 
 enum AgeRange {
-  YOUNG_ADULT    // 18-25
-  ADULT          // 26-40
-  MIDDLE_AGED    // 41-55
-  SENIOR         // 56+
+  YOUNG_ADULT // 18-25
+  ADULT // 26-40
+  MIDDLE_AGED // 41-55
+  SENIOR // 56+
 }
 
 enum Gender {
@@ -113,65 +113,65 @@ enum FamilyStatus {
 }
 
 enum SleepSchedule {
-  EARLY_BIRD     // Sleep before 22:00, wake before 06:00
-  STANDARD       // Sleep 22:00-24:00, wake 06:00-08:00
-  NIGHT_OWL      // Sleep after 24:00, wake after 08:00
-  IRREGULAR      // Shift work or variable
+  EARLY_BIRD // Sleep before 22:00, wake before 06:00
+  STANDARD // Sleep 22:00-24:00, wake 06:00-08:00
+  NIGHT_OWL // Sleep after 24:00, wake after 08:00
+  IRREGULAR // Shift work or variable
 }
 
 enum SocialStyle {
-  INTROVERTED    // Prefers solitude, minimal interaction
-  MODERATE       // Balanced social needs
-  EXTROVERTED    // Enjoys frequent interaction
+  INTROVERTED // Prefers solitude, minimal interaction
+  MODERATE // Balanced social needs
+  EXTROVERTED // Enjoys frequent interaction
 }
 
 enum SmokingStatus {
   NON_SMOKER
   OUTDOOR_SMOKER // Smokes but only outside
-  INDOOR_SMOKER  // Needs to smoke indoors
+  INDOOR_SMOKER // Needs to smoke indoors
 }
 
 enum MobilityNeed {
   NONE
-  GROUND_FLOOR   // Cannot use stairs
-  WHEELCHAIR     // Full accessibility required
+  GROUND_FLOOR // Cannot use stairs
+  WHEELCHAIR // Full accessibility required
 }
 
 enum ResidentStatus {
-  ACTIVE         // Currently in system
-  PLACED         // Has housing assignment
-  TRANSFERRED    // Moved to different housing
-  EXITED         // Left the system
+  ACTIVE // Currently in system
+  PLACED // Has housing assignment
+  TRANSFERRED // Moved to different housing
+  EXITED // Left the system
 }
 
 enum MedicalDocType {
-  PRIVATE_ROOM    // Qualifies for single room
-  STUDIO          // Qualifies for studio/apartment
-  BOTH            // Qualifies for either
+  PRIVATE_ROOM // Qualifies for single room
+  STUDIO // Qualifies for studio/apartment
+  BOTH // Qualifies for either
 }
 
 enum RoomSharingStatus {
-  CAN_SHARE           // Default - can share room
-  PREFERS_PRIVATE     // Would prefer single but can manage
-  NEEDS_PRIVATE       // Cannot share (medical/psychological reason)
+  CAN_SHARE // Default - can share room
+  PREFERS_PRIVATE // Would prefer single but can manage
+  NEEDS_PRIVATE // Cannot share (medical/psychological reason)
 }
 
 enum SupportLevel {
-  STANDARD            // Normal check-ins
-  ELEVATED            // More frequent monitoring
-  INTENSIVE           // Close support needed
+  STANDARD // Normal check-ins
+  ELEVATED // More frequent monitoring
+  INTENSIVE // Close support needed
 }
 
 enum RecyclingKnowledge {
-  NONE                // No experience with Swiss recycling
-  BASIC               // Knows basics (paper, glass, PET)
-  GOOD                // Understands full system (compost, textiles, etc.)
+  NONE // No experience with Swiss recycling
+  BASIC // Knows basics (paper, glass, PET)
+  GOOD // Understands full system (compost, textiles, etc.)
 }
 
 enum ConflictStyle {
-  AVOIDANT            // Avoids confrontation
-  COOPERATIVE         // Seeks compromise
-  DIRECT              // Addresses issues head-on
+  AVOIDANT // Avoids confrontation
+  COOPERATIVE // Seeks compromise
+  DIRECT // Addresses issues head-on
 }
 
 // =============================================================================
@@ -184,30 +184,30 @@ model HousingUnit {
   updatedAt DateTime @updatedAt
 
   // Identification
-  code          String @unique // Internal reference
-  address       String
-  
+  code    String @unique // Internal reference
+  address String
+
   // Capacity
-  totalBeds     Int
-  totalRooms    Int
-  sharedRooms   Int // Rooms with multiple beds
-  privateRooms  Int // Single-occupancy rooms
+  totalBeds    Int
+  totalRooms   Int
+  sharedRooms  Int // Rooms with multiple beds
+  privateRooms Int // Single-occupancy rooms
 
   // Facilities
-  sharedBathrooms   Int
-  privateBathrooms  Int
-  sharedKitchen     Boolean @default(true)
-  privateKitchen    Boolean @default(false)
-  
+  sharedBathrooms  Int
+  privateBathrooms Int
+  sharedKitchen    Boolean @default(true)
+  privateKitchen   Boolean @default(false)
+
   // Accessibility
-  groundFloor       Boolean @default(false)
-  wheelchairAccess  Boolean @default(false)
-  elevator          Boolean @default(false)
+  groundFloor      Boolean @default(false)
+  wheelchairAccess Boolean @default(false)
+  elevator         Boolean @default(false)
 
   // Rules
-  smokingAllowed    Boolean @default(false)
-  petsAllowed       Boolean @default(false)
-  quietHours        String? // e.g., "22:00-07:00"
+  smokingAllowed Boolean @default(false)
+  petsAllowed    Boolean @default(false)
+  quietHours     String? // e.g., "22:00-07:00"
 
   // Location factors
   nearPublicTransport Boolean @default(true)
@@ -215,25 +215,25 @@ model HousingUnit {
   nearSchools         Boolean @default(false)
 
   // Status
-  status            HousingStatus @default(AVAILABLE)
-  notes             String?
+  status HousingStatus @default(AVAILABLE)
+  notes  String?
 
   // Relations
-  spots                PlacementSpot[]
-  placements           Placement[]
-  incidents            Incident[]
-  maintenanceRequests  MaintenanceRequest[]
-  householdTasks       HouseholdTask[]
+  spots               PlacementSpot[]
+  placements          Placement[]
+  incidents           Incident[]
+  maintenanceRequests MaintenanceRequest[]
+  householdTasks      HouseholdTask[]
 
   @@index([status])
   @@index([totalBeds])
 }
 
 enum HousingStatus {
-  AVAILABLE      // Open for placements
-  FULL           // At capacity
-  MAINTENANCE    // Temporarily unavailable
-  CLOSED         // Permanently closed
+  AVAILABLE // Open for placements
+  FULL // At capacity
+  MAINTENANCE // Temporarily unavailable
+  CLOSED // Permanently closed
 }
 
 // =============================================================================
@@ -241,29 +241,29 @@ enum HousingStatus {
 // =============================================================================
 
 model PlacementSpot {
-  id            String   @id @default(cuid())
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Location
   housingUnitId String
-  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
 
   // Identification
-  code          String   // "R1-B1", "R2", "STUDIO-A"
-  label         String?  // Human-friendly name
+  code  String // "R1-B1", "R2", "STUDIO-A"
+  label String? // Human-friendly name
 
   // Type determines what this spot is
-  type          SpotType
+  type SpotType
 
   // Hierarchy (for beds within rooms)
-  parentSpotId  String?
-  parentSpot    PlacementSpot?  @relation("SpotHierarchy", fields: [parentSpotId], references: [id])
-  childSpots    PlacementSpot[] @relation("SpotHierarchy")
+  parentSpotId String?
+  parentSpot   PlacementSpot?  @relation("SpotHierarchy", fields: [parentSpotId], references: [id], onDelete: Cascade)
+  childSpots   PlacementSpot[] @relation("SpotHierarchy")
 
   // Physical attributes
-  squareMeters  Float?
-  floor         Int?
+  squareMeters Float?
+  floor        Int?
 
   // Facilities (mainly for PRIVATE_ROOM and STUDIO)
   hasPrivateBathroom Boolean @default(false)
@@ -271,18 +271,18 @@ model PlacementSpot {
   hasPrivateToilet   Boolean @default(false)
 
   // Capacity (beds per room, or 1 for single spots)
-  capacity      Int @default(1)
+  capacity Int @default(1)
 
   // Eligibility
   requiresMedicalDocs Boolean @default(false)
 
   // Status
-  status        SpotStatus @default(AVAILABLE)
-  notes         String?
+  status SpotStatus @default(AVAILABLE)
+  notes  String?
 
   // Relations
-  placements           Placement[]
-  maintenanceRequests  MaintenanceRequest[]
+  placements          Placement[]
+  maintenanceRequests MaintenanceRequest[]
 
   @@unique([housingUnitId, code])
   @@index([type, status])
@@ -291,17 +291,17 @@ model PlacementSpot {
 }
 
 enum SpotType {
-  BED           // Individual bed in shared room
-  PRIVATE_ROOM  // Single-occupancy room (medical)
-  STUDIO        // Self-contained unit (medical)
-  ROOM          // Container for beds (not directly assignable)
+  BED // Individual bed in shared room
+  PRIVATE_ROOM // Single-occupancy room (medical)
+  STUDIO // Self-contained unit (medical)
+  ROOM // Container for beds (not directly assignable)
 }
 
 enum SpotStatus {
-  AVAILABLE     // Can be assigned
-  OCCUPIED      // Currently has placement
-  MAINTENANCE   // Temporarily unavailable
-  CLOSED        // Permanently unavailable
+  AVAILABLE // Can be assigned
+  OCCUPIED // Currently has placement
+  MAINTENANCE // Temporarily unavailable
+  CLOSED // Permanently unavailable
 }
 
 // =============================================================================
@@ -314,44 +314,44 @@ model Placement {
   updatedAt DateTime @updatedAt
 
   // Assignment
-  resident      Resident     @relation(fields: [residentId], references: [id])
+  resident      Resident    @relation(fields: [residentId], references: [id], onDelete: Restrict)
   residentId    String
-  housingUnit   HousingUnit  @relation(fields: [housingUnitId], references: [id])
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Restrict)
   housingUnitId String
 
   // Specific spot within the unit (bed, room, or studio)
-  spot          PlacementSpot? @relation(fields: [spotId], references: [id])
-  spotId        String?
+  spot   PlacementSpot? @relation(fields: [spotId], references: [id], onDelete: SetNull)
+  spotId String?
 
   // Dates
-  startDate     DateTime
-  endDate       DateTime?
+  startDate DateTime
+  endDate   DateTime?
 
   // Compatibility at placement time
-  compatibilityScore  Float? // 0-100 overall score
-  lifestyleScore      Float? // Dimension scores
-  socialScore         Float?
-  practicalScore      Float?
-  riskScore           Float?
+  compatibilityScore Float? // 0-100 overall score
+  lifestyleScore     Float? // Dimension scores
+  socialScore        Float?
+  practicalScore     Float?
+  riskScore          Float?
 
   // Outcome tracking
-  status              PlacementStatus @default(ACTIVE)
-  endReason           EndReason?
-  satisfactionRating  Int? // 1-5, self-reported
+  status             PlacementStatus @default(ACTIVE)
+  endReason          EndReason?
+  satisfactionRating Int? // 1-5, self-reported
 
   // Notes
-  placementNotes      String? // Why this placement was chosen
-  outcomeNotes        String? // How it went
+  placementNotes String? // Why this placement was chosen
+  outcomeNotes   String? // How it went
 
   // Conflict analysis (captured when endReason is CONFLICT)
-  conflictGap         String?    // Which compatibility dimension failed (NOISE, CLEANLINESS, etc.)
-  wasPredictable      Boolean?   // Was this predictable from initial compatibility score?
-  relatedIncidentId   String?    // Optional link to related incident
-  relatedIncident     Incident?  @relation("PlacementConflictIncident", fields: [relatedIncidentId], references: [id])
+  conflictGap       String? // Which compatibility dimension failed (NOISE, CLEANLINESS, etc.)
+  wasPredictable    Boolean? // Was this predictable from initial compatibility score?
+  relatedIncidentId String? // Optional link to related incident
+  relatedIncident   Incident? @relation("PlacementConflictIncident", fields: [relatedIncidentId], references: [id], onDelete: SetNull)
 
   // Relations
-  incidents           Incident[]
-  checkIns            SatisfactionCheckIn[]
+  incidents Incident[]
+  checkIns  SatisfactionCheckIn[]
 
   @@unique([residentId, housingUnitId, startDate])
   @@index([status])
@@ -367,11 +367,11 @@ enum PlacementStatus {
 }
 
 enum EndReason {
-  NATURAL          // Normal exit from system
-  CONFLICT         // Due to roommate issues
-  REQUEST          // Resident requested move
-  CAPACITY         // Housing capacity change
-  UPGRADE          // Moved to better situation
+  NATURAL // Normal exit from system
+  CONFLICT // Due to roommate issues
+  REQUEST // Resident requested move
+  CAPACITY // Housing capacity change
+  UPGRADE // Moved to better situation
   OTHER
 }
 
@@ -384,17 +384,17 @@ model CompatibilityAssessment {
   createdAt DateTime @default(now())
 
   // Compared residents
-  resident        Resident @relation("ResidentAssessments", fields: [residentId], references: [id])
-  residentId      String
-  comparedWith    Resident @relation("ComparedResidentAssessments", fields: [comparedWithId], references: [id])
-  comparedWithId  String
+  resident       Resident @relation("ResidentAssessments", fields: [residentId], references: [id], onDelete: Cascade)
+  residentId     String
+  comparedWith   Resident @relation("ComparedResidentAssessments", fields: [comparedWithId], references: [id], onDelete: Cascade)
+  comparedWithId String
 
   // Scores (0-100)
-  overallScore    Float
-  lifestyleScore  Float
-  socialScore     Float
-  practicalScore  Float
-  riskScore       Float // Lower is better (inverse of compatibility)
+  overallScore   Float
+  lifestyleScore Float
+  socialScore    Float
+  practicalScore Float
+  riskScore      Float // Lower is better (inverse of compatibility)
 
   // Details
   strengths       String[] // What makes them compatible
@@ -415,39 +415,39 @@ model Incident {
   updatedAt DateTime @updatedAt
 
   // Location
-  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Restrict)
   housingUnitId String
-  placement     Placement?  @relation(fields: [placementId], references: [id])
+  placement     Placement?  @relation(fields: [placementId], references: [id], onDelete: SetNull)
   placementId   String?
 
   // Attribution - WHO reported this incident
-  reportedBy    Resident? @relation("IncidentReporter", fields: [reportedById], references: [id])
-  reportedById  String?
+  reportedBy   Resident? @relation("IncidentReporter", fields: [reportedById], references: [id], onDelete: SetNull)
+  reportedById String?
 
   // Attribution - WHO the incident is about (the troublemaker/affected party)
-  subject       Resident? @relation("IncidentSubject", fields: [subjectId], references: [id])
-  subjectId     String?
+  subject   Resident? @relation("IncidentSubject", fields: [subjectId], references: [id], onDelete: SetNull)
+  subjectId String?
 
   // For multi-party conflicts
   involvedResidents IncidentInvolvement[]
 
   // Details
-  date          DateTime
-  category      IncidentCategory @default(INTERPERSONAL)
-  type          IncidentType
-  severity      IncidentSeverity
-  description   String
-  resolution    String?
-  resolvedAt    DateTime?
+  date        DateTime
+  category    IncidentCategory @default(INTERPERSONAL)
+  type        IncidentType
+  severity    IncidentSeverity
+  description String
+  resolution  String?
+  resolvedAt  DateTime?
 
   // For algorithm improvement
-  predictable       Boolean? // Could this have been predicted?
-  compatibilityGap  String? // Which compatibility dimension failed?
+  predictable      Boolean? // Could this have been predicted?
+  compatibilityGap String? // Which compatibility dimension failed?
 
   // Follow-up tracking
-  followUps         IncidentFollowUp[]
-  nextFollowUpDate  DateTime? // Scheduled next follow-up
-  followUpPriority  FollowUpPriority? // How urgent is follow-up
+  followUps        IncidentFollowUp[]
+  nextFollowUpDate DateTime? // Scheduled next follow-up
+  followUpPriority FollowUpPriority? // How urgent is follow-up
 
   // Reverse relation for placements ended due to this incident
   conflictPlacements Placement[] @relation("PlacementConflictIncident")
@@ -467,12 +467,12 @@ model IncidentFollowUp {
   incidentId String
 
   // Content
-  action      String    // What action was taken
-  notes       String?   // Additional notes
-  outcome     String?   // Result of the follow-up
+  action  String // What action was taken
+  notes   String? // Additional notes
+  outcome String? // Result of the follow-up
 
   // Who did the follow-up
-  staffName   String?   // Caseworker name
+  staffName String? // Caseworker name
 
   // Scheduling
   scheduledNextDate DateTime? // If another follow-up is needed
@@ -482,17 +482,17 @@ model IncidentFollowUp {
 }
 
 enum FollowUpPriority {
-  LOW         // Check within a week
-  NORMAL      // Check within 2-3 days
-  HIGH        // Check within 24 hours
-  URGENT      // Check today
+  LOW // Check within a week
+  NORMAL // Check within 2-3 days
+  HIGH // Check within 24 hours
+  URGENT // Check today
 }
 
 model IncidentInvolvement {
   id         String          @id @default(cuid())
   incident   Incident        @relation(fields: [incidentId], references: [id], onDelete: Cascade)
   incidentId String
-  resident   Resident        @relation(fields: [residentId], references: [id])
+  resident   Resident        @relation(fields: [residentId], references: [id], onDelete: Cascade)
   residentId String
   role       InvolvementRole @default(INVOLVED)
 
@@ -501,9 +501,9 @@ model IncidentInvolvement {
 }
 
 enum InvolvementRole {
-  INVOLVED   // Party in the conflict
-  WITNESS    // Witnessed the incident
-  MEDIATOR   // Helped resolve
+  INVOLVED // Party in the conflict
+  WITNESS // Witnessed the incident
+  MEDIATOR // Helped resolve
 }
 
 enum IncidentType {
@@ -527,23 +527,23 @@ enum IncidentType {
   GENERAL_MAINTENANCE
 
   // Wellbeing/Satisfaction
-  LOW_SATISFACTION  // Auto-generated from portal check-in
+  LOW_SATISFACTION // Auto-generated from portal check-in
 
   OTHER
 }
 
 enum IncidentCategory {
-  INTERPERSONAL  // Conflicts between residents
-  MAINTENANCE    // Facility/equipment issues
-  SAFETY         // Safety-related (could be either)
-  WELLBEING      // Satisfaction/wellbeing concerns
+  INTERPERSONAL // Conflicts between residents
+  MAINTENANCE // Facility/equipment issues
+  SAFETY // Safety-related (could be either)
+  WELLBEING // Satisfaction/wellbeing concerns
 }
 
 enum IncidentSeverity {
-  LOW        // Minor, resolved quickly
-  MEDIUM     // Required intervention
-  HIGH       // Serious, may require transfer
-  CRITICAL   // Immediate action needed
+  LOW // Minor, resolved quickly
+  MEDIUM // Required intervention
+  HIGH // Serious, may require transfer
+  CRITICAL // Immediate action needed
 }
 
 // =============================================================================
@@ -555,18 +555,18 @@ model SatisfactionCheckIn {
   createdAt DateTime @default(now())
 
   // Who and where
-  placement     Placement @relation(fields: [placementId], references: [id], onDelete: Cascade)
-  placementId   String
+  placement   Placement @relation(fields: [placementId], references: [id], onDelete: Cascade)
+  placementId String
 
   // Timing
-  checkInType   CheckInType
-  weekNumber    Int? // Week number since placement start
+  checkInType CheckInType
+  weekNumber  Int? // Week number since placement start
 
   // Ratings (all 1-5)
-  overallSatisfaction Int // How happy overall?
-  roommateRelations   Int? // How are relations with roommates?
+  overallSatisfaction  Int // How happy overall?
+  roommateRelations    Int? // How are relations with roommates?
   facilitySatisfaction Int? // How satisfied with the unit itself?
-  safetyFeeling       Int? // How safe do they feel?
+  safetyFeeling        Int? // How safe do they feel?
 
   // Qualitative
   concerns     String? // Any specific concerns?
@@ -574,18 +574,18 @@ model SatisfactionCheckIn {
   positives    String? // What's working well?
 
   // Meta
-  collectedBy  String? // Caseworker or self-reported
-  isAnonymous  Boolean @default(false)
+  collectedBy String? // Caseworker or self-reported
+  isAnonymous Boolean @default(false)
 
   @@index([placementId])
   @@index([checkInType])
 }
 
 enum CheckInType {
-  INITIAL        // First week check-in
-  REGULAR        // Scheduled periodic check-in
-  AD_HOC         // Unscheduled check-in
-  EXIT           // When placement ends
+  INITIAL // First week check-in
+  REGULAR // Scheduled periodic check-in
+  AD_HOC // Unscheduled check-in
+  EXIT // When placement ends
 }
 
 // =============================================================================
@@ -597,18 +597,18 @@ model AlgorithmWeight {
   updatedAt DateTime @updatedAt
 
   // Dimension weights (should sum to 100)
-  lifestyleWeight  Float @default(30)
-  socialWeight     Float @default(25)
-  practicalWeight  Float @default(25)
-  riskWeight       Float @default(20)
+  lifestyleWeight Float @default(30)
+  socialWeight    Float @default(25)
+  practicalWeight Float @default(25)
+  riskWeight      Float @default(20)
 
   // Individual factor weights within dimensions
-  factorWeights    Json // Detailed weights per factor
+  factorWeights Json // Detailed weights per factor
 
   // Versioning
-  version          Int @default(1)
-  active           Boolean @default(true)
-  notes            String?
+  version Int     @default(1)
+  active  Boolean @default(true)
+  notes   String?
 
   @@index([active])
 }
@@ -618,31 +618,31 @@ model AlgorithmWeight {
 // =============================================================================
 
 model User {
-  id           String    @id @default(cuid())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Identity
-  email        String    @unique
-  passwordHash String?   // Null if using SSO/external auth
+  email        String  @unique
+  passwordHash String? // Null if using SSO/external auth
   name         String
 
   // Role & Status
-  role         StaffRole @default(CASE_WORKER)
-  active       Boolean   @default(true)
-  lastLoginAt  DateTime?
+  role        StaffRole @default(CASE_WORKER)
+  active      Boolean   @default(true)
+  lastLoginAt DateTime?
 
   // Relations
-  auditLogs    AuditLog[]
+  auditLogs AuditLog[]
 
   @@index([email])
   @@index([role])
 }
 
 enum StaffRole {
-  ADMIN        // Full access + user management
-  CASE_WORKER  // Residents, placements, incidents
-  VIEWER       // Read-only access
+  ADMIN // Full access + user management
+  CASE_WORKER // Residents, placements, incidents
+  VIEWER // Read-only access
 }
 
 model AuditLog {
@@ -650,17 +650,17 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   // What happened
-  action    String
-  entity    String
-  entityId  String
+  action   String
+  entity   String
+  entityId String
 
   // Who did it (optional during pilot, required after auth)
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   // Details
-  changes   Json?
-  reason    String?
+  changes Json?
+  reason  String?
 
   @@index([entity, entityId])
   @@index([createdAt])
@@ -677,36 +677,36 @@ model MaintenanceRequest {
   updatedAt DateTime @updatedAt
 
   // Location
-  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnit   HousingUnit    @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
   housingUnitId String
-  spot          PlacementSpot? @relation(fields: [spotId], references: [id])
+  spot          PlacementSpot? @relation(fields: [spotId], references: [id], onDelete: SetNull)
   spotId        String?
 
   // Request details
-  category      MaintenanceCategory
-  priority      MaintenancePriority @default(NORMAL)
-  title         String
-  description   String
-  location      String?   // Specific location within unit (e.g., "Bathroom", "Kitchen")
+  category    MaintenanceCategory
+  priority    MaintenancePriority @default(NORMAL)
+  title       String
+  description String
+  location    String? // Specific location within unit (e.g., "Bathroom", "Kitchen")
 
   // Who reported it
-  reportedBy    Resident? @relation(fields: [reportedById], references: [id], onDelete: SetNull)
-  reportedById  String?
-  reporterName  String?   // For non-resident reporters
+  reportedBy   Resident? @relation(fields: [reportedById], references: [id], onDelete: SetNull)
+  reportedById String?
+  reporterName String? // For non-resident reporters
 
   // Assignment
-  assignedTo    String?   // Staff member name
-  assignedAt    DateTime?
+  assignedTo String? // Staff member name
+  assignedAt DateTime?
 
   // Status tracking
-  status        MaintenanceStatus @default(OPEN)
-  startedAt     DateTime?
-  completedAt   DateTime?
+  status      MaintenanceStatus @default(OPEN)
+  startedAt   DateTime?
+  completedAt DateTime?
 
   // Resolution
-  resolution    String?
-  cost          Float?
-  notes         String?
+  resolution String?
+  cost       Float?
+  notes      String?
 
   @@index([housingUnitId])
   @@index([status])
@@ -716,32 +716,32 @@ model MaintenanceRequest {
 }
 
 enum MaintenanceCategory {
-  PLUMBING        // Water, drains, toilets
-  ELECTRICAL      // Power, lights, outlets
+  PLUMBING // Water, drains, toilets
+  ELECTRICAL // Power, lights, outlets
   HEATING_COOLING // Heating, AC, ventilation
-  APPLIANCE       // Refrigerator, stove, washer
-  STRUCTURAL      // Walls, floors, ceilings, doors
-  PEST_CONTROL    // Insects, rodents
-  SECURITY        // Locks, alarms, cameras
-  CLEANING        // Deep cleaning, sanitation
-  EXTERIOR        // Garden, parking, common areas
-  OTHER           // Miscellaneous
+  APPLIANCE // Refrigerator, stove, washer
+  STRUCTURAL // Walls, floors, ceilings, doors
+  PEST_CONTROL // Insects, rodents
+  SECURITY // Locks, alarms, cameras
+  CLEANING // Deep cleaning, sanitation
+  EXTERIOR // Garden, parking, common areas
+  OTHER // Miscellaneous
 }
 
 enum MaintenancePriority {
-  LOW       // Can wait a week
-  NORMAL    // Should be done within a few days
-  HIGH      // Should be done within 24 hours
-  URGENT    // Same-day emergency
+  LOW // Can wait a week
+  NORMAL // Should be done within a few days
+  HIGH // Should be done within 24 hours
+  URGENT // Same-day emergency
 }
 
 enum MaintenanceStatus {
-  OPEN          // New request
-  ASSIGNED      // Assigned to maintenance staff
-  IN_PROGRESS   // Work has started
-  ON_HOLD       // Waiting for parts/access
-  COMPLETED     // Work finished
-  CANCELLED     // Request cancelled
+  OPEN // New request
+  ASSIGNED // Assigned to maintenance staff
+  IN_PROGRESS // Work has started
+  ON_HOLD // Waiting for parts/access
+  COMPLETED // Work finished
+  CANCELLED // Request cancelled
 }
 
 // =============================================================================
@@ -754,18 +754,18 @@ model HouseholdTask {
   updatedAt DateTime @updatedAt
 
   // Location
-  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id])
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
   housingUnitId String
 
   // Details
-  title         String
-  description   String?
-  instructions  String?
+  title        String
+  description  String?
+  instructions String?
 
   // Classification
-  taskType      HouseholdTaskType     @default(ONE_TIME)
-  category      HouseholdTaskCategory @default(OTHER)
-  priority      HouseholdTaskPriority @default(NORMAL)
+  taskType HouseholdTaskType     @default(ONE_TIME)
+  category HouseholdTaskCategory @default(OTHER)
+  priority HouseholdTaskPriority @default(NORMAL)
 
   // Schedule (for recurring)
   scheduleHuman    String? // Human-readable, e.g., "Jeden Montag"
@@ -777,9 +777,9 @@ model HouseholdTask {
   completedAt   DateTime?
 
   // Creator (dual: resident OR staff)
-  createdByResident   Resident? @relation("TaskCreator", fields: [createdByResidentId], references: [id])
+  createdByResident   Resident? @relation("TaskCreator", fields: [createdByResidentId], references: [id], onDelete: SetNull)
   createdByResidentId String?
-  createdByStaff      String?   // Staff name (no FK, staff auth is separate)
+  createdByStaff      String? // Staff name (no FK, staff auth is separate)
 
   // Relations
   completions    TaskCompletion[]
@@ -799,7 +799,7 @@ model TaskCompletion {
   taskId String
 
   // Who completed it
-  completedBy   Resident @relation(fields: [completedById], references: [id])
+  completedBy   Resident @relation(fields: [completedById], references: [id], onDelete: Cascade)
   completedById String
 
   // Details
@@ -824,7 +824,7 @@ model TaskAttentionFlag {
   taskId String
 
   // Who flagged it
-  flaggedBy   Resident @relation(fields: [flaggedById], references: [id])
+  flaggedBy   Resident @relation(fields: [flaggedById], references: [id], onDelete: Cascade)
   flaggedById String
 
   // Details
@@ -848,11 +848,11 @@ model TaskRequest {
   taskId String
 
   // Who requested
-  requestedBy   Resident @relation("TaskRequestsMade", fields: [requestedById], references: [id])
+  requestedBy   Resident @relation("TaskRequestsMade", fields: [requestedById], references: [id], onDelete: Cascade)
   requestedById String
 
   // Who is requested (null = broadcast to all)
-  requestedResident   Resident? @relation("TaskRequestsReceived", fields: [requestedResidentId], references: [id])
+  requestedResident   Resident? @relation("TaskRequestsReceived", fields: [requestedResidentId], references: [id], onDelete: SetNull)
   requestedResidentId String?
   isBroadcast         Boolean   @default(false)
 
@@ -870,9 +870,9 @@ model TaskRequest {
 }
 
 enum HouseholdTaskType {
-  ONE_TIME              // Do once
-  RECURRING_SCHEDULED   // Regular schedule (e.g., weekly)
-  RECURRING_AS_NEEDED   // Do when needed (e.g., take out trash)
+  ONE_TIME // Do once
+  RECURRING_SCHEDULED // Regular schedule (e.g., weekly)
+  RECURRING_AS_NEEDED // Do when needed (e.g., take out trash)
 }
 
 enum HouseholdTaskCategory {
@@ -892,10 +892,10 @@ enum HouseholdTaskPriority {
 }
 
 enum HouseholdTaskStatus {
-  IDLE              // No action needed
-  NEEDS_ATTENTION   // Flagged by someone
-  REQUESTED         // Someone requested help
-  IN_PROGRESS       // Being worked on
+  IDLE // No action needed
+  NEEDS_ATTENTION // Flagged by someone
+  REQUESTED // Someone requested help
+  IN_PROGRESS // Being worked on
 }
 
 enum TaskRequestStatus {

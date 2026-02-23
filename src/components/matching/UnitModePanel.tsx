@@ -1,0 +1,121 @@
+import Link from 'next/link'
+import type { MatchUnit, UnitMatch } from '@/lib/matching/types'
+import { AGE_RANGE_LABELS, LANGUAGE_LABELS, getLabel } from '@/lib/constants'
+import { getScoreColorClass } from '@/lib/utils'
+
+interface Props {
+  selectedUnit: MatchUnit
+  unitMatches: UnitMatch[]
+}
+
+export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
+  return (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Passende Bewohner
+          </h2>
+          <p className="text-sm text-gray-500">
+            {selectedUnit.placements.length}/{selectedUnit.totalBeds} belegt ·{' '}
+            {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} freie Plätze
+          </p>
+        </div>
+        <Link
+          href="/matching"
+          className="text-sm text-gray-500 hover:text-gray-700"
+        >
+          Zurück
+        </Link>
+      </div>
+
+      {/* Current residents in unit */}
+      {selectedUnit.placements.length > 0 && (
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+            Aktuelle Bewohner
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {selectedUnit.placements.map((p) => (
+              <Link
+                key={p.id}
+                href={`/residents/${p.residentId}`}
+                className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-sm hover:border-aoz-primary"
+              >
+                <span className="w-5 h-5 bg-aoz-primary text-white rounded-full flex items-center justify-center text-xs">
+                  {p.resident.code.slice(0, 1)}
+                </span>
+                {p.resident.code}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {unitMatches.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-500">Keine passenden unplatzierten Bewohner</p>
+          <Link href="/residents/new" className="btn-outline mt-4 inline-block">
+            Neuen Bewohner erfassen
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {unitMatches.slice(0, 10).map((match) => (
+            <div
+              key={match.resident.id}
+              className={`p-3 border rounded-lg ${
+                match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-200'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+                    {match.resident.code.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <Link
+                      href={`/residents/${match.resident.id}`}
+                      className="font-medium text-gray-900 hover:text-aoz-primary"
+                    >
+                      {match.resident.code}
+                    </Link>
+                    <p className="text-sm text-gray-500">
+                      {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
+                      {match.resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-lg font-bold ${getScoreColorClass(match.fitScore)}`}>
+                    {match.fitScore}%
+                  </span>
+                  <Link
+                    href={`/matching?resident=${match.resident.id}`}
+                    className="btn-primary text-sm px-4 py-2 min-h-[44px]"
+                  >
+                    Platzieren
+                  </Link>
+                </div>
+              </div>
+              {match.concerns.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-orange-200">
+                  {match.concerns.map((c: string, i: number) => (
+                    <p key={i} className="text-xs text-orange-600">⚠️ {c}</p>
+                  ))}
+                </div>
+              )}
+              {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
+                <div className="mt-2 pt-2 border-t border-gray-100">
+                  {match.apartmentFit.strengths.slice(0, 2).map((s: string, i: number) => (
+                    <p key={i} className="text-xs text-green-600">✓ {s}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  )
+}

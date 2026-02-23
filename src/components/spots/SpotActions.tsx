@@ -5,15 +5,22 @@ import { updateSpot, deleteSpot } from '@/lib/actions'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { DELETE_CONFIRM_CONFIG } from '@/lib/config/crud-actions'
 
+interface Spot {
+  id: string
+  type: string
+  status: string
+  placements?: { status: string }[]
+}
+
 interface SpotActionsProps {
-  spot: any
+  spot: Spot
   housingUnitId: string
 }
 
 export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
   const deleteFormRef = useRef<HTMLFormElement>(null)
   const hasActivePlacement = spot.placements?.some(
-    (p: any) => p.status === 'ACTIVE'
+    (p) => p.status === 'ACTIVE'
   )
 
   const handleDelete = async () => {

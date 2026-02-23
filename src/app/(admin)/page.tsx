@@ -1,5 +1,8 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { getDateDaysAgo } from '@/lib/utils'
+
+export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
 import {
   getCheckInInterval,

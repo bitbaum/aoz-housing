@@ -1,5 +1,8 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+
+export const metadata: Metadata = { title: 'Hilfe' }
 
 export default function PortalHelpPage() {
   const faqs = [

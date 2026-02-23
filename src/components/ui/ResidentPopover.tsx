@@ -10,23 +10,10 @@ import {
   SMOKING_STATUS_LABELS,
   getLabel,
 } from '@/lib/constants'
-
-interface ResidentData {
-  id: string
-  code: string
-  ageRange?: string
-  gender?: string
-  languages?: string[]
-  socialStyle?: string
-  sleepSchedule?: string
-  smokingStatus?: string
-  noiseTolerance?: number
-  cleanlinessLevel?: number
-  privacyNeed?: number
-}
+import type { ResidentSummary } from '@/lib/types'
 
 interface ResidentPopoverProps {
-  resident: ResidentData
+  resident: ResidentSummary
   trigger: React.ReactNode
   placement?: 'top' | 'bottom' | 'left' | 'right'
 }

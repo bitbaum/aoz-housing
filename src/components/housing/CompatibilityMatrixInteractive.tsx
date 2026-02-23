@@ -4,13 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
 import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants'
-
-interface Resident {
-  id: string
-  code: string
-  ageRange?: string
-  languages?: string[]
-}
+import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
+import type { ResidentBasic } from '@/lib/types'
 
 interface CompatibilityScore {
   id: string
@@ -26,13 +21,13 @@ interface CompatibilityScore {
 }
 
 interface CompatibilityMatrixInteractiveProps {
-  residents: Resident[]
+  residents: ResidentBasic[]
   scores: CompatibilityScore[]
 }
 
 interface SelectedCell {
-  resident1: Resident
-  resident2: Resident
+  resident1: ResidentBasic
+  resident2: ResidentBasic
   score: CompatibilityScore | null
   position: { x: number; y: number }
 }
@@ -51,9 +46,19 @@ export function CompatibilityMatrixInteractive({
       }
     }
 
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setSelectedCell(null)
+      }
+    }
+
     if (selectedCell) {
       document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleKeyDown)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('keydown', handleKeyDown)
+      }
     }
   }, [selectedCell])
 
@@ -67,8 +72,8 @@ export function CompatibilityMatrixInteractive({
   }
 
   const handleCellClick = (
-    r1: Resident,
-    r2: Resident,
+    r1: ResidentBasic,
+    r2: ResidentBasic,
     event: React.MouseEvent
   ) => {
     if (r1.id === r2.id) return
@@ -90,7 +95,7 @@ export function CompatibilityMatrixInteractive({
   return (
     <div className="relative">
       {/* Mobile scroll hint */}
-      <div className="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-1">
+      <div className="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-1" aria-hidden="true">
         <span>←</span>
         <span>Wischen zum Scrollen</span>
         <span>→</span>
@@ -133,12 +138,12 @@ export function CompatibilityMatrixInteractive({
                 return (
                   <td key={r2.id} className="p-2 text-center">
                     {r1.id === r2.id ? (
-                      <span className="text-gray-300">-</span>
+                      <span className="text-gray-300" aria-hidden="true">-</span>
                     ) : score === null ? (
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
                         className="inline-flex items-center justify-center w-12 h-8 rounded bg-gray-100 text-gray-400 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
-                        title="Keine Bewertung"
+                        aria-label={`Keine Bewertung: ${r1.code} und ${r2.code}`}
                       >
                         ?
                       </button>
@@ -150,7 +155,8 @@ export function CompatibilityMatrixInteractive({
                         )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-aoz-primary ${
                           isSelected ? 'ring-2 ring-offset-1 ring-aoz-primary' : ''
                         }`}
-                        title={`Kompatibilität: ${score.overallScore}%`}
+                        aria-label={`Kompatibilität ${r1.code} und ${r2.code}: ${score.overallScore}%`}
+                        aria-expanded={isSelected ? true : undefined}
                       >
                         {score.overallScore}
                       </button>
@@ -205,8 +211,8 @@ export function CompatibilityMatrixInteractive({
 }
 
 interface CompatibilityDetailPopoverProps {
-  resident1: Resident
-  resident2: Resident
+  resident1: ResidentBasic
+  resident2: ResidentBasic
   score: CompatibilityScore | null
   position: { x: number; y: number }
   onClose: () => void
@@ -244,6 +250,8 @@ const CompatibilityDetailPopover = ({
   return (
     <div
       ref={popoverRef}
+      role="dialog"
+      aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
       className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-lg shadow-xl border border-gray-200"
       style={{
         left: Math.max(8, position.x - 160),
@@ -406,17 +414,7 @@ function ScoreDimension({
       </div>
       <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
         <div
-          className={`h-full transition-all ${
-            score >= 80
-              ? 'bg-green-500'
-              : score >= 60
-              ? 'bg-emerald-500'
-              : score >= 40
-              ? 'bg-yellow-500'
-              : score >= 20
-              ? 'bg-orange-500'
-              : 'bg-red-500'
-          }`}
+          className={`h-full transition-all ${SCORE_BG_COLORS[getScoreLevel(score)]}`}
           style={{ width: `${score}%` }}
         />
       </div>

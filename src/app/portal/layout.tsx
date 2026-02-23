@@ -1,7 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PortalNav } from '@/components/portal/PortalNav'
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | Bewohnerportal',
+    default: 'Bewohnerportal',
+  },
+}
 
 export default async function PortalLayout({
   children,

@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+
+export const metadata: Metadata = { title: 'Präferenzen' }
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PreferencesForm } from './PreferencesForm'

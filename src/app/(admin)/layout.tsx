@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
@@ -5,6 +6,13 @@ import { Logo } from '@/components/ui/Logo'
 import { NAV_ITEMS, NAV_ICONS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
+
+export const metadata: Metadata = {
+  title: {
+    template: `%s | ${APP_LABELS.name}`,
+    default: APP_LABELS.name,
+  },
+}
 
 export default async function AdminLayout({
   children,

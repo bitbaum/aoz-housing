@@ -7,19 +7,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
-
-interface Resident {
-  id: string
-  code: string
-  ageRange?: string
-  languages?: string[]
-  cleanlinessLevel: number
-  noiseTolerance: number
-  privacyNeed: number
-  sleepSchedule: string
-  socialStyle: string
-  smokingStatus: string
-}
+import type { ResidentSummary } from '@/lib/types'
 
 interface CompatibilityScore {
   residentId: string
@@ -28,20 +16,20 @@ interface CompatibilityScore {
 }
 
 interface ProblemDetectionCardProps {
-  residents: Resident[]
+  residents: ResidentSummary[]
   compatibilityScores: CompatibilityScore[]
   housingUnitId: string
 }
 
 interface ResidentIssue {
-  resident: Resident
+  resident: ResidentSummary
   avgCompatibility: number
   issues: string[]
   severity: 'warning' | 'critical'
 }
 
 function detectProblems(
-  residents: Resident[],
+  residents: ResidentSummary[],
   scores: CompatibilityScore[]
 ): ResidentIssue[] {
   if (residents.length < 2) return []
@@ -235,7 +223,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
             <p className="text-sm text-gray-500">
               {resident.ageRange && getLabel(AGE_RANGE_LABELS, resident.ageRange)}
               {resident.languages && resident.languages.length > 0 && (
-                <> · {resident.languages.slice(0, 2).map(l => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
+                <> · {resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
               )}
             </p>
 

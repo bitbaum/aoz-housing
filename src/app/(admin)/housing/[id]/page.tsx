@@ -2,34 +2,30 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
-  INCIDENT_TYPE_LABELS,
-  INCIDENT_CATEGORY_ICONS,
   HOUSING_STATUS_LABELS,
   HARMONY_STATUS_LABELS,
-  AGE_RANGE_LABELS,
-  LANGUAGE_LABELS,
-  getLabel,
 } from '@/lib/constants'
 import {
   getScoreLabel,
   getScoreColorClass,
-  getScoreBgClass,
-  getSeverityBorderClass,
-  getOccupancyColorClass,
-  formatRelativeDate,
   formatDate,
   getDateDaysAgo,
   getHarmonyStatus,
   type HarmonyStatus,
 } from '@/lib/utils'
-import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
-import { DetailRow } from '@/components/ui/Card'
 import { RoomVisualizationWithPlacement } from '@/components/housing/RoomVisualizationWithPlacement'
 import { CompatibilityMatrixInteractive } from '@/components/housing/CompatibilityMatrixInteractive'
 import { ApartmentProfileCard } from '@/components/housing/ApartmentProfileCard'
 import { ProblemDetectionCard } from '@/components/housing/ProblemDetectionCard'
+import { UnitOverviewCards } from '@/components/housing/UnitOverviewCards'
+import { UnitSidebar } from '@/components/housing/UnitSidebar'
+import { UnitIncidentSection } from '@/components/housing/UnitIncidentSection'
+import { WhoFitsHereCard } from '@/components/housing/WhoFitsHereCard'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import type { Resident, CompatibilityAssessment } from '@prisma/client'
+import type { ApartmentConflict } from '@/lib/compatibility/types'
+import type { HousingSpot } from '@/components/housing/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -128,10 +124,9 @@ export default async function HousingDetailPage({ params }: Props) {
     .sort((a, b) => b.count - a.count)
 
   const occupancy = unit.placements.length
-  const occupancyPercent = Math.round((occupancy / unit.totalBeds) * 100)
 
   // Calculate who fits in this unit (only if there's space)
-  let compatibleResidents: { resident: any; fitScore: number; strengths: string[]; concerns: string[] }[] = []
+  let compatibleResidents: { resident: Resident; fitScore: number; strengths: string[]; concerns: string[] }[] = []
   const hasAvailableSpace = unit.placements.length < unit.totalBeds
 
   if (hasAvailableSpace) {
@@ -147,14 +142,14 @@ export default async function HousingDetailPage({ params }: Props) {
       // Calculate apartment profile from current residents
       const currentResidents = unit.placements.map(p => p.resident)
       const apartmentProfile = calculateApartmentProfile(
-        currentResidents.map(r => toResidentProfile(r as any))
+        currentResidents.map(r => toResidentProfile(r))
       )
       apartmentProfile.unitId = unit.id
 
       // Calculate fit for each unplaced resident
       compatibleResidents = unplacedResidents
         .map(resident => {
-          const residentProfile = toResidentProfile(resident as any)
+          const residentProfile = toResidentProfile(resident)
           const fit = calculateApartmentFit(residentProfile, apartmentProfile)
 
           // Check for blocking concerns based on unit requirements
@@ -171,8 +166,8 @@ export default async function HousingDetailPage({ params }: Props) {
 
           // Add apartment-level blocking conflicts to concerns
           fit.conflicts
-            .filter((c: any) => c.severity === 'BLOCKING')
-            .forEach((c: any) => concerns.push(c.message))
+            .filter((c: ApartmentConflict) => c.severity === 'BLOCKING')
+            .forEach((c: ApartmentConflict) => concerns.push(c.message))
 
           return {
             resident,
@@ -214,45 +209,15 @@ export default async function HousingDetailPage({ params }: Props) {
       </div>
 
       {/* Overview Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <div className="card">
-          <p className="text-sm text-gray-500">Belegung</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {occupancy} / {unit.totalBeds}
-          </p>
-          <div className="mt-2 h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
-              style={{ width: `${occupancyPercent}%` }}
-            />
-          </div>
-        </div>
-        <div className="card">
-          <p className="text-sm text-gray-500">Zimmer</p>
-          <p className="text-2xl font-bold text-gray-900">{unit.totalRooms}</p>
-          <p className="text-sm text-gray-500 mt-1">
-            {unit.privateRooms} privat, {unit.sharedRooms} geteilt
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-sm text-gray-500">Konflikte (30 Tage)</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {interpersonalIncidents.filter(i =>
-              new Date(i.date) > getDateDaysAgo(30)
-            ).length}
-          </p>
-          <p className="text-sm text-gray-500 mt-1">
-            {interpersonalIncidents.filter(i => !i.resolvedAt).length} offen
-          </p>
-        </div>
-        <div className="card">
-          <p className="text-sm text-gray-500">Wartung</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {maintenanceIncidents.filter(i => !i.resolvedAt).length}
-          </p>
-          <p className="text-sm text-gray-500 mt-1">offene Meldungen</p>
-        </div>
-      </div>
+      <UnitOverviewCards
+        occupancy={occupancy}
+        totalBeds={unit.totalBeds}
+        totalRooms={unit.totalRooms}
+        privateRooms={unit.privateRooms}
+        sharedRooms={unit.sharedRooms}
+        interpersonalIncidents={interpersonalIncidents}
+        maintenanceIncidents={maintenanceIncidents}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left column: Residents */}
@@ -269,7 +234,7 @@ export default async function HousingDetailPage({ params }: Props) {
                 </Link>
               </div>
               <RoomVisualizationWithPlacement
-                spots={unit.spots as any}
+                spots={unit.spots as unknown as HousingSpot[]}
                 housingUnitId={unit.id}
                 compatibleResidents={compatibleResidents}
               />
@@ -315,14 +280,14 @@ export default async function HousingDetailPage({ params }: Props) {
           {/* Apartment Profile Card */}
           {unit.placements.length > 0 && (
             <ApartmentProfileCard
-              residents={unit.placements.map(p => p.resident) as any}
+              residents={unit.placements.map(p => p.resident)}
             />
           )}
 
           {/* Problem Detection Card */}
           {unit.placements.length > 1 && (
             <ProblemDetectionCard
-              residents={unit.placements.map(p => p.resident) as any}
+              residents={unit.placements.map(p => p.resident)}
               compatibilityScores={compatibilityScores}
               housingUnitId={unit.id}
             />
@@ -330,91 +295,11 @@ export default async function HousingDetailPage({ params }: Props) {
 
           {/* Who Fits Here - Only show if there's available space */}
           {hasAvailableSpace && (
-            <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Wer passt hierher?
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    {unit.totalBeds - unit.placements.length} freie{' '}
-                    {unit.totalBeds - unit.placements.length === 1 ? 'Platz' : 'Plätze'}
-                  </p>
-                </div>
-                <Link
-                  href={`/matching?unit=${unit.id}`}
-                  className="btn-outline text-sm"
-                >
-                  Alle anzeigen
-                </Link>
-              </div>
-
-              {compatibleResidents.length === 0 ? (
-                <div className="text-center py-6">
-                  <p className="text-gray-500 mb-3">Keine passenden unplatzierten Bewohner</p>
-                  <Link href="/residents/new" className="btn-primary text-sm">
-                    Neuen Bewohner erfassen
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {compatibleResidents.map((match) => {
-                    const scoreLevel = getScoreLevel(match.fitScore)
-                    const isGoodFit = scoreLevel === 'excellent' || scoreLevel === 'good'
-                    return (
-                    <div
-                      key={match.resident.id}
-                      className={`flex items-center justify-between p-3 rounded-lg border ${
-                        match.concerns.length > 0
-                          ? 'border-orange-200 bg-orange-50'
-                          : isGoodFit
-                          ? 'border-green-200 bg-green-50'
-                          : 'border-gray-200 bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-                          {match.resident.code.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <Link
-                            href={`/residents/${match.resident.id}`}
-                            className="font-medium text-gray-900 hover:text-aoz-primary"
-                          >
-                            {match.resident.code}
-                          </Link>
-                          <p className="text-sm text-gray-500">
-                            {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                            {match.resident.languages?.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
-                          </p>
-                          {match.strengths.length > 0 && match.concerns.length === 0 && (
-                            <p className="text-xs text-green-600 mt-0.5">
-                              ✓ {match.strengths[0]}
-                            </p>
-                          )}
-                          {match.concerns.length > 0 && (
-                            <p className="text-xs text-orange-600 mt-0.5">
-                              {match.concerns[0]}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className={`text-lg font-bold ${getScoreColorClass(match.fitScore)}`}>
-                          {match.fitScore}%
-                        </span>
-                        <Link
-                          href={`/matching?resident=${match.resident.id}`}
-                          className="btn-primary text-sm px-3 py-1"
-                        >
-                          Platzieren
-                        </Link>
-                      </div>
-                    </div>
-                  )})}
-                </div>
-              )}
-            </div>
+            <WhoFitsHereCard
+              unitId={unit.id}
+              availableSpaces={unit.totalBeds - unit.placements.length}
+              compatibleResidents={compatibleResidents}
+            />
           )}
 
           {/* Compatibility Matrix */}
@@ -434,147 +319,17 @@ export default async function HousingDetailPage({ params }: Props) {
           )}
 
           {/* Incidents */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Vorfälle & Meldungen
-              </h2>
-              <Link href={`/incidents/new?unit=${unit.id}`} className="btn-outline text-sm">
-                Neuer Vorfall
-              </Link>
-            </div>
-
-            {/* Frequent Subjects Warning */}
-            {frequentSubjects.length > 0 && (
-              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <span className="text-amber-600 text-lg">!</span>
-                  <div>
-                    <p className="text-sm font-medium text-amber-800">
-                      Häufig betroffene Bewohner
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {frequentSubjects.map((s) => (
-                        <Link
-                          key={s.id}
-                          href={`/residents/${s.id}`}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-800 rounded text-sm hover:bg-amber-200 transition-colors"
-                        >
-                          <span className="font-medium">{s.code}</span>
-                          <span className="text-amber-600">({s.count}x)</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="mb-4">
-              <div className="flex gap-2 border-b border-gray-200">
-                <TabButton active>Alle ({unit.incidents.length})</TabButton>
-                <TabButton>Konflikte ({interpersonalIncidents.length})</TabButton>
-                <TabButton>Wartung ({maintenanceIncidents.length})</TabButton>
-              </div>
-            </div>
-
-            {unit.incidents.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">
-                Keine Vorfälle dokumentiert
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {unit.incidents.map((incident) => (
-                  <IncidentCard key={incident.id} incident={incident} />
-                ))}
-              </div>
-            )}
-          </div>
+          <UnitIncidentSection
+            unitId={unit.id}
+            incidents={unit.incidents}
+            interpersonalCount={interpersonalIncidents.length}
+            maintenanceCount={maintenanceIncidents.length}
+            frequentSubjects={frequentSubjects}
+          />
         </div>
 
         {/* Right column: Unit details */}
-        <div className="space-y-6">
-          {/* Facilities */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Ausstattung
-            </h2>
-            <dl className="space-y-3 text-sm">
-              <DetailRow
-                label="Badezimmer"
-                value={`${unit.privateBathrooms} privat, ${unit.sharedBathrooms} geteilt`}
-              />
-              <DetailRow
-                label="Küche"
-                value={unit.privateKitchen ? 'Privat' : unit.sharedKitchen ? 'Geteilt' : 'Keine'}
-              />
-              <DetailRow
-                label="Barrierefreiheit"
-                value={
-                  unit.wheelchairAccess ? 'Rollstuhlgerecht' :
-                  unit.groundFloor ? 'Erdgeschoss' :
-                  unit.elevator ? 'Lift vorhanden' : 'Eingeschränkt'
-                }
-              />
-            </dl>
-          </div>
-
-          {/* Rules */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Hausregeln
-            </h2>
-            <div className="space-y-2 text-sm">
-              <RuleItem
-                label="Rauchen"
-                allowed={unit.smokingAllowed}
-              />
-              <RuleItem
-                label="Haustiere"
-                allowed={unit.petsAllowed}
-              />
-              {unit.quietHours && (
-                <div className="flex items-center gap-2 text-gray-600">
-                  <span className="text-blue-500">🌙</span>
-                  Ruhezeiten: {unit.quietHours}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Lage
-            </h2>
-            <div className="space-y-2 text-sm">
-              <LocationItem
-                label="ÖV"
-                available={unit.nearPublicTransport}
-              />
-              <LocationItem
-                label="Gesundheit"
-                available={unit.nearHealthServices}
-              />
-              <LocationItem
-                label="Schulen"
-                available={unit.nearSchools}
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          {unit.notes && (
-            <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Notizen
-              </h2>
-              <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                {unit.notes}
-              </p>
-            </div>
-          )}
-        </div>
+        <UnitSidebar unit={unit} />
       </div>
     </div>
   )
@@ -613,13 +368,20 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
+interface ResidentCardPlacement {
+  id: string
+  residentId: string
+  startDate: Date | string
+  resident: { code: string }
+}
+
 function ResidentCard({
   placement,
   compatibilityScores,
   otherResidentIds,
 }: {
-  placement: any
-  compatibilityScores: any[]
+  placement: ResidentCardPlacement
+  compatibilityScores: CompatibilityAssessment[]
   otherResidentIds: string[]
 }) {
   const avgScore = otherResidentIds.length > 0
@@ -665,86 +427,3 @@ function ResidentCard({
     </div>
   )
 }
-
-function IncidentCard({ incident }: { incident: any }) {
-  const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
-
-  return (
-    <div className={`p-4 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          <span className="text-lg">{categoryIcon}</span>
-          <div>
-            <p className="font-medium text-gray-900">
-              {getIncidentTypeLabel(incident.type)}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">{incident.description}</p>
-            {incident.resident && (
-              <p className="text-sm text-gray-500 mt-1">
-                Betrifft: {incident.resident.code}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="text-right text-sm">
-          <p className="text-gray-500">
-            {formatRelativeDate(incident.date)}
-          </p>
-          {incident.resolvedAt ? (
-            <span className="badge badge-active">Gelöst</span>
-          ) : (
-            <span className="badge badge-pending">Offen</span>
-          )}
-        </div>
-      </div>
-      {incident.resolution && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium">Lösung:</span> {incident.resolution}
-          </p>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function TabButton({ children, active = false }: { children: React.ReactNode; active?: boolean }) {
-  return (
-    <button
-      className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-        active
-          ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-gray-500 hover:text-gray-700'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
-function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
-  return (
-    <div className="flex items-center gap-2 text-gray-600">
-      <span className={allowed ? 'text-green-500' : 'text-red-500'}>
-        {allowed ? '✓' : '✗'}
-      </span>
-      {label} {allowed ? 'erlaubt' : 'nicht erlaubt'}
-    </div>
-  )
-}
-
-function LocationItem({ label, available }: { label: string; available: boolean }) {
-  return (
-    <div className="flex items-center gap-2 text-gray-600">
-      <span className={available ? 'text-green-500' : 'text-gray-400'}>
-        {available ? '✓' : '○'}
-      </span>
-      {label} {available ? 'in der Nähe' : '-'}
-    </div>
-  )
-}
-
-// Utility functions - use imported shared utilities
-// getScoreColorClass, getScoreBgClass, getSeverityBorderClass, formatRelativeDate, getHarmonyStatus imported from @/lib/utils
-
-const getIncidentTypeLabel = (type: string) => INCIDENT_TYPE_LABELS[type] || type

@@ -1,16 +1,19 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
+
+export const metadata: Metadata = { title: 'Statistiken' }
 import {
   INCIDENT_TYPE_LABELS,
   END_REASON_LABELS,
-  SATISFACTION_EMOJIS,
-  SUPPORT_LEVEL_LABELS,
-  COMPATIBILITY_GAP_LABELS,
   getLabel,
 } from '@/lib/constants'
-import { getDateDaysAgo, formatDate } from '@/lib/utils'
+import { getDateDaysAgo } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
+import { SatisfactionChart } from '@/components/analytics/SatisfactionChart'
+import { ConflictAnalysisSection } from '@/components/analytics/ConflictAnalysisSection'
+import { RecentPlacementsTable } from '@/components/analytics/RecentPlacementsTable'
 
 export const dynamic = 'force-dynamic'
 
@@ -169,7 +172,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     acc[i.housingUnitId] = acc[i.housingUnitId] || { count: 0, unit: i.housingUnit }
     acc[i.housingUnitId].count++
     return acc
-  }, {} as Record<string, { count: number; unit: any }>)
+  }, {} as Record<string, { count: number; unit: { id: string; code: string; address: string } }>)
 
   const hotspotUnits = Object.values(incidentsByUnit)
     .sort((a, b) => b.count - a.count)
@@ -187,7 +190,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <PeriodSelector currentDays={days} />
       </div>
 
-      {/* Key Metrics - All based on REAL DATA */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <MetricCard
           label="Belegungsrate"
@@ -202,7 +205,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           highlight={overdueCheckIns.length > 0}
         />
         <MetricCard
-          label="Konflikte ({days} Tage)"
+          label={`Konflikte (${days} Tage)`}
           value={recentIncidents.length}
           subtitle={`${unresolvedIncidents.length} ungelöst`}
           href="/incidents?category=INTERPERSONAL"
@@ -217,60 +220,14 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Check-in Satisfaction (30 days) */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Zufriedenheit ({days} Tage)
-            </h2>
-            <Link href="/placements" className="text-sm text-aoz-primary hover:underline">
-              Alle Check-ins
-            </Link>
-          </div>
-          {totalCheckIns === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              Keine Check-ins in diesem Zeitraum
-            </p>
-          ) : (
-            <>
-              <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="text-4xl">
-                  {avgSatisfaction && parseFloat(avgSatisfaction) >= 4 ? '🙂' :
-                   avgSatisfaction && parseFloat(avgSatisfaction) >= 3 ? '😐' : '😕'}
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{avgSatisfaction}/5</p>
-                  <p className="text-sm text-gray-500">Ø aus {totalCheckIns} Check-ins</p>
-                </div>
-                {lowSatisfactionCheckIns.length > 0 && (
-                  <div className="ml-auto text-right">
-                    <p className="text-orange-600 font-semibold">{lowSatisfactionCheckIns.length}</p>
-                    <p className="text-sm text-gray-500">mit Bedenken</p>
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                {satisfactionCounts.map((count, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <span className="w-8 text-lg text-center">{SATISFACTION_EMOJIS[index]}</span>
-                    <div className="flex-1">
-                      <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${
-                            index >= 3 ? 'bg-green-500' :
-                            index === 2 ? 'bg-yellow-500' : 'bg-orange-500'
-                          }`}
-                          style={{ width: `${totalCheckIns > 0 ? (count / totalCheckIns) * 100 : 0}%` }}
-                        />
-                      </div>
-                    </div>
-                    <span className="w-12 text-sm text-gray-500 text-right">{count}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        {/* Satisfaction Chart */}
+        <SatisfactionChart
+          days={days}
+          totalCheckIns={totalCheckIns}
+          avgSatisfaction={avgSatisfaction}
+          satisfactionCounts={satisfactionCounts}
+          lowSatisfactionCount={lowSatisfactionCheckIns.length}
+        />
 
         {/* Conflict Hotspots */}
         <div className="card">
@@ -279,7 +236,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           </h2>
           {hotspotUnits.length === 0 ? (
             <div className="text-center py-8">
-              <span className="text-3xl mb-2 block">✓</span>
+              <span className="text-3xl mb-2 block" aria-hidden="true">✓</span>
               <p className="text-gray-500">Keine Konflikt-Hotspots</p>
             </div>
           ) : (
@@ -387,251 +344,17 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
       {/* Conflict Analysis Section */}
       {conflictEnds > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          {/* Conflict Gap Breakdown */}
-          <div className="card border-l-4 border-orange-400">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-orange-500 text-xl">📊</span>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Konfliktursachen
-              </h2>
-            </div>
-            {Object.keys(conflictsByGap).length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-gray-500 text-sm">
-                  Noch keine detaillierten Konfliktdaten erfasst.
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Bei zukünftigen Konfliktbeendigungen werden Ursachen dokumentiert.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(conflictsByGap)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([gap, count]) => (
-                    <div key={gap} className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium text-gray-900">
-                            {getLabel(COMPATIBILITY_GAP_LABELS, gap)}
-                          </span>
-                          <span className="text-gray-500">
-                            {count} ({Math.round((count / conflictPlacements.length) * 100)}%)
-                          </span>
-                        </div>
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-orange-500"
-                            style={{
-                              width: `${(count / conflictPlacements.length) * 100}%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-          {/* Predictability Insights */}
-          <div className="card border-l-4 border-blue-400">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-blue-500 text-xl">🔮</span>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Algorithmus-Einsichten
-              </h2>
-            </div>
-            {conflictPlacements.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-gray-500 text-sm">
-                  Noch keine Vorhersagbarkeits-Daten erfasst.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-green-50 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-green-600">
-                      {predictableConflicts.length}
-                    </p>
-                    <p className="text-xs text-green-700">Vorhersehbar</p>
-                  </div>
-                  <div className="p-3 bg-red-50 rounded-lg text-center">
-                    <p className="text-2xl font-bold text-red-600">
-                      {unpredictableConflicts.length}
-                    </p>
-                    <p className="text-xs text-red-700">Nicht vorhersehbar</p>
-                  </div>
-                </div>
-
-                {(predictableConflicts.length + unpredictableConflicts.length) > 0 && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      <strong>
-                        {Math.round(
-                          (predictableConflicts.length /
-                            (predictableConflicts.length + unpredictableConflicts.length)) *
-                            100
-                        )}%
-                      </strong>{' '}
-                      der Konflikte waren laut Fallarbeitern vorhersehbar.
-                    </p>
-                  </div>
-                )}
-
-                {lowScoreConflicts.length > 0 && (
-                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                    <p className="text-sm text-amber-800">
-                      <strong>{lowScoreConflicts.length}</strong> Konflikte hatten einen
-                      Kompatibilitäts-Score unter 60% bei Platzierung.
-                    </p>
-                    <p className="text-xs text-amber-600 mt-1">
-                      → Erwägen Sie höhere Schwellenwerte für Platzierungen
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        <ConflictAnalysisSection
+          conflictsByGap={conflictsByGap}
+          conflictPlacementsCount={conflictPlacements.length}
+          predictableCount={predictableConflicts.length}
+          unpredictableCount={unpredictableConflicts.length}
+          lowScoreCount={lowScoreConflicts.length}
+        />
       )}
 
-      {/* Recent Placements with Check-in Status */}
-      <div className="card mt-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Neueste Platzierungen (90 Tage)
-        </h2>
-        {recentPlacements.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
-            Keine neuen Platzierungen
-          </p>
-        ) : (
-          <>
-            {/* Mobile cards */}
-            <div className="md:hidden space-y-3">
-              {recentPlacements.slice(0, 10).map((placement) => {
-                const lastCheckIn = placement.checkIns[0]
-                const supportLevel = placement.resident.supportLevel || 'STANDARD'
-                const intervalDays = getCheckInInterval(supportLevel)
-                const daysSinceCheckIn = lastCheckIn
-                  ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-                  : null
-                const daysSinceStart = Math.ceil((now.getTime() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24))
-                const isOverdue = placement.status === 'ACTIVE' &&
-                  (daysSinceCheckIn === null ? daysSinceStart > intervalDays : daysSinceCheckIn > intervalDays)
-
-                return (
-                  <div key={placement.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs text-gray-500">{formatDate(placement.startDate)}</p>
-                        <Link href={`/residents/${placement.residentId}`} className="text-aoz-primary hover:underline font-medium">
-                          {placement.resident.code}
-                        </Link>
-                        <p className="text-sm text-gray-600">
-                          <Link href={`/housing/${placement.housingUnitId}`} className="text-aoz-primary hover:underline">
-                            {placement.housingUnit.code}
-                          </Link>
-                        </p>
-                      </div>
-                      <span className={`badge ${placement.status === 'ACTIVE' ? 'badge-active' : 'badge-ended'}`}>
-                        {placement.status === 'ACTIVE' ? 'Aktiv' : 'Beendet'}
-                      </span>
-                    </div>
-
-                    <div className="mt-2 text-sm">
-                      {lastCheckIn ? (
-                        <div className="flex items-center gap-2">
-                          <span>{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                          <span className={isOverdue ? 'text-orange-600' : 'text-gray-500'}>Check-in vor {daysSinceCheckIn}d</span>
-                        </div>
-                      ) : (
-                        <span className={isOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}>
-                          {isOverdue ? 'Check-in überfällig' : 'Check-in ausstehend'}
-                        </span>
-                      )}
-                    </div>
-
-                    {supportLevel !== 'STANDARD' && (
-                      <p className="mt-1 text-xs text-orange-600">{getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}</p>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Desktop table */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-2 font-medium text-gray-500">Datum</th>
-                    <th className="text-left py-3 px-2 font-medium text-gray-500">Bewohner</th>
-                    <th className="text-left py-3 px-2 font-medium text-gray-500">Unterkunft</th>
-                    <th className="text-left py-3 px-2 font-medium text-gray-500">Letzter Check-in</th>
-                    <th className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentPlacements.slice(0, 10).map((placement) => {
-                    const lastCheckIn = placement.checkIns[0]
-                    const supportLevel = placement.resident.supportLevel || 'STANDARD'
-                    const intervalDays = getCheckInInterval(supportLevel)
-                    const daysSinceCheckIn = lastCheckIn
-                      ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-                      : null
-                    const daysSinceStart = Math.ceil((now.getTime() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24))
-                    const isOverdue = placement.status === 'ACTIVE' &&
-                      (daysSinceCheckIn === null ? daysSinceStart > intervalDays : daysSinceCheckIn > intervalDays)
-
-                    return (
-                      <tr key={placement.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-2 text-gray-500">{formatDate(placement.startDate)}</td>
-                        <td className="py-3 px-2">
-                          <Link href={`/residents/${placement.residentId}`} className="text-aoz-primary hover:underline">
-                            {placement.resident.code}
-                          </Link>
-                          {supportLevel !== 'STANDARD' && (
-                            <span className="ml-2 text-xs text-orange-600">
-                              {getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3 px-2">
-                          <Link href={`/housing/${placement.housingUnitId}`} className="text-aoz-primary hover:underline">
-                            {placement.housingUnit.code}
-                          </Link>
-                        </td>
-                        <td className="py-3 px-2">
-                          {lastCheckIn ? (
-                            <div className="flex items-center gap-2">
-                              <span>{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                              <span className={`text-sm ${isOverdue ? 'text-orange-600' : 'text-gray-500'}`}>
-                                vor {daysSinceCheckIn}d
-                              </span>
-                            </div>
-                          ) : (
-                            <span className={`text-sm ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}`}>
-                              {isOverdue ? 'Überfällig' : 'Ausstehend'}
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3 px-2">
-                          <span className={`badge ${placement.status === 'ACTIVE' ? 'badge-active' : 'badge-ended'}`}>
-                            {placement.status === 'ACTIVE' ? 'Aktiv' : 'Beendet'}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-      </div>
+      {/* Recent Placements */}
+      <RecentPlacementsTable placements={recentPlacements} />
     </div>
   )
 }

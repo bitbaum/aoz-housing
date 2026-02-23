@@ -1,0 +1,280 @@
+'use client'
+
+import {
+  AlertTriangle,
+  XCircle,
+  Scale,
+  Layers,
+  History,
+  Grid3X3,
+  Database,
+} from 'lucide-react'
+import {
+  RESIDENT_DIMENSIONS,
+  RESIDENT_FACTORS,
+} from '@/lib/config/resident-factors'
+import {
+  FACTOR_SCIENCE,
+  RULE_DOCUMENTATION,
+  EVIDENCE_STRENGTH_CONFIG,
+  ALGORITHM_VERSIONS,
+} from '@/lib/config/algorithm-docs'
+import {
+  getFactorsByDimension,
+  getDimensionRationale,
+  formatDate,
+  EvidenceStrengthBadge,
+  EvidenceStrengthBar,
+} from './shared'
+
+export function TechnicalTab() {
+  return (
+    <div className="space-y-6">
+      {/* Scoring Rules */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Scale className="w-5 h-5 text-aoz-primary" />
+          Bewertungsregeln
+        </h2>
+
+        <div className="space-y-4">
+          {RULE_DOCUMENTATION.map(rule => (
+            <div key={rule.rule} className="border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="font-medium text-gray-900">{rule.name}</h4>
+                <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">{rule.rule}</code>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">{rule.description}</p>
+              <p className="text-sm text-gray-500 italic">Beispiel: {rule.example}</p>
+              <p className="text-xs text-gray-400 mt-2">Logik: {rule.scoringLogic}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Weight Derivation */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-aoz-primary" />
+          Gewichtungsherleitung
+        </h2>
+
+        <p className="text-gray-600 mb-4">
+          Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der
+          Forschungsbelege für die zugehörigen Faktoren.
+        </p>
+
+        {/* Mobile: stacked cards; Desktop: table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Dimension</th>
+                <th className="text-left py-2 pr-3 font-medium text-gray-500">Gewicht</th>
+                <th className="text-left py-2 font-medium text-gray-500">Begründung</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RESIDENT_DIMENSIONS.map(dim => {
+                const factors = getFactorsByDimension(dim.id)
+                const strongCount = factors.filter(
+                  f => FACTOR_SCIENCE[f.id]?.evidenceStrength === 'strong'
+                ).length
+                return (
+                  <tr key={dim.id} className="border-b border-gray-100">
+                    <td className="py-3 pr-3 font-medium text-gray-900">{dim.label}</td>
+                    <td className="py-3 pr-3">
+                      <span className="font-bold text-gray-700">
+                        {Math.round(dim.weight * 100)}%
+                      </span>
+                    </td>
+                    <td className="py-3 text-gray-600">
+                      {getDimensionRationale(dim.id, factors.length, strongCount)}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {RESIDENT_DIMENSIONS.map(dim => {
+            const factors = getFactorsByDimension(dim.id)
+            const strongCount = factors.filter(
+              f => FACTOR_SCIENCE[f.id]?.evidenceStrength === 'strong'
+            ).length
+            return (
+              <div key={dim.id} className="border border-gray-200 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-medium text-gray-900">{dim.label}</span>
+                  <span className="font-bold text-gray-700">
+                    {Math.round(dim.weight * 100)}%
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600">
+                  {getDimensionRationale(dim.id, factors.length, strongCount)}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Blocking */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          Blockierung
+        </h2>
+
+        <p className="text-gray-600 mb-4">
+          Bei kritischen Inkompatibilitäten wird die Platzierung <strong>blockiert</strong>:
+        </p>
+
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Harte Anforderungen:</span>{' '}
+              <span className="text-red-800">
+                Rollstuhlzugang, Einzelzimmer-Bedarf, etc. müssen erfüllt sein
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Extreme Differenzen:</span>{' '}
+              <span className="text-red-800">
+                3+ Stufen Unterschied bei Sauberkeit oder Lärmtoleranz
+              </span>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="font-medium text-red-900">Inkompatibles Verhalten:</span>{' '}
+              <span className="text-red-800">
+                Innen-Raucher + Nichtraucher in gleicher Einheit
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Confidence Matrix */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Grid3X3 className="w-5 h-5 text-aoz-primary" />
+          Konfidenz-Matrix
+        </h2>
+
+        <p className="text-gray-600 mb-4">
+          Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres
+          Vertrauen in die Gewichtung.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {Object.entries(FACTOR_SCIENCE).map(([factorId, science]) => {
+            const factor = RESIDENT_FACTORS[factorId]
+            if (!factor) return null
+            const config = EVIDENCE_STRENGTH_CONFIG[science.evidenceStrength]
+            const colorClasses: Record<string, string> = {
+              green: 'border-green-300 bg-green-50',
+              yellow: 'border-yellow-300 bg-yellow-50',
+              gray: 'border-gray-300 bg-gray-50',
+            }
+            return (
+              <div
+                key={factorId}
+                className={`border rounded-lg p-3 ${colorClasses[config.color]}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-gray-900 truncate">
+                    {factor.label}
+                  </span>
+                  <EvidenceStrengthBadge strength={science.evidenceStrength} />
+                </div>
+                <div className="mt-1.5">
+                  <EvidenceStrengthBar strength={science.evidenceStrength} />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {Math.round(factor.weight * 100)}% Gewicht
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Algorithm Version History */}
+      <section className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <History className="w-5 h-5 text-aoz-primary" />
+          Algorithmus-Versionshistorie
+        </h2>
+
+        <div className="space-y-6">
+          {ALGORITHM_VERSIONS.map((version, versionIndex) => (
+            <div key={version.version} className="relative">
+              {/* Timeline connector */}
+              {versionIndex < ALGORITHM_VERSIONS.length - 1 && (
+                <div className="absolute top-10 left-4 w-0.5 h-full bg-gray-200 -z-10" />
+              )}
+
+              <div className="flex items-start gap-4">
+                {/* Version badge */}
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                  versionIndex === 0
+                    ? 'bg-aoz-primary text-white'
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {version.version}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <h4 className="font-semibold text-gray-900">Version {version.version}</h4>
+                    <span className="text-xs text-gray-500">{formatDate(version.date)}</span>
+                    {versionIndex === 0 && (
+                      <span className="text-xs bg-aoz-primary/10 text-aoz-primary px-2 py-0.5 rounded-full font-medium">
+                        Aktuell
+                      </span>
+                    )}
+                  </div>
+                  <ul className="space-y-1">
+                    {version.changes.map((change, i) => (
+                      <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="text-gray-400 mt-0.5 flex-shrink-0">-</span>
+                        <span>{change}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Config Location */}
+      <section className="card bg-gray-50">
+        <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+          <Database className="w-5 h-5 text-gray-500" />
+          Konfiguration (SSOT)
+        </h3>
+        <p className="text-sm text-gray-600 mb-3">
+          Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert.
+          Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.
+        </p>
+        <div className="font-mono text-xs text-gray-500 space-y-1">
+          <p>src/lib/config/resident-factors.ts - Faktoren & Dimensionen</p>
+          <p>src/lib/config/algorithm-docs.ts - Wissenschaftliche Basis</p>
+          <p>src/lib/config/types.ts - Typdefinitionen</p>
+        </div>
+      </section>
+    </div>
+  )
+}

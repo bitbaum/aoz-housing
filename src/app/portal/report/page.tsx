@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+
+export const metadata: Metadata = { title: 'Problem melden' }
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ReportForm } from './ReportForm'
 
@@ -25,7 +28,11 @@ export default async function ReportPage() {
             include: {
               placements: {
                 where: { status: 'ACTIVE' },
-                include: { resident: true },
+                include: {
+                  resident: {
+                    select: { id: true, code: true },
+                  },
+                },
               },
             },
           },

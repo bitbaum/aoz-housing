@@ -7,25 +7,12 @@ import {
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
-import { getScoreColorClass } from '@/lib/utils/formatting'
+import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
+import type { SpotInfo, UnitWithSpots } from '@/lib/types'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
 // =============================================================================
-
-interface Spot {
-  id: string
-  code: string
-  type: string
-  label: string | null
-}
-
-interface Unit {
-  id: string
-  code: string
-  address: string
-  spots: Spot[]
-}
 
 /** A resident living in a potential destination unit */
 interface ResidentInUnit {
@@ -51,7 +38,7 @@ interface UnitCompatibilityData {
 
 interface TransferRecommendationsProps {
   /** Units eligible for transfer */
-  eligibleUnits: Unit[]
+  eligibleUnits: UnitWithSpots[]
   /** Spot types the resident is eligible for */
   eligibleSpotTypes: string[]
   /** Currently selected unit ID */
@@ -177,13 +164,7 @@ export function TransferRecommendations({
                           {unit.residents.slice(0, 3).map((resident, i) => (
                             <span
                               key={resident.id}
-                              className={`text-xs px-1.5 py-0.5 rounded ${
-                                resident.compatibilityScore >= 60
-                                  ? 'bg-green-100 text-green-700'
-                                  : resident.compatibilityScore >= 40
-                                  ? 'bg-yellow-100 text-yellow-700'
-                                  : 'bg-red-100 text-red-700'
-                              }`}
+                              className={`text-xs px-1.5 py-0.5 rounded ${getScoreBgClass(resident.compatibilityScore)}`}
                               title={`${resident.compatibilityScore}% kompatibel`}
                             >
                               {resident.code} ({resident.compatibilityScore}%)
@@ -315,7 +296,7 @@ export function TransferRecommendations({
 // =============================================================================
 
 interface TransferUnitSelectorProps {
-  eligibleUnits: Unit[]
+  eligibleUnits: UnitWithSpots[]
   eligibleSpotTypes: string[]
   selectedUnitId: string
   onUnitSelect: (unitId: string) => void

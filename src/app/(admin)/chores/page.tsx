@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
+
+export const metadata: Metadata = { title: 'Haushaltsaufgaben' }
 import {
   TASK_CATEGORY_LABELS,
   TASK_CATEGORY_ICONS,

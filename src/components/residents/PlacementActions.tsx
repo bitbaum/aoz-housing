@@ -9,20 +9,7 @@ import {
 } from '@/lib/config/placement-spots'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS } from '@/lib/constants'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
-
-interface Spot {
-  id: string
-  code: string
-  type: string
-  label: string | null
-}
-
-interface Unit {
-  id: string
-  code: string
-  address: string
-  spots: Spot[]
-}
+import type { UnitWithSpots } from '@/lib/types'
 
 interface RecentIncident {
   id: string
@@ -36,7 +23,7 @@ interface PlacementActionsProps {
   residentId: string
   currentUnitId: string
   hasMedicalDocumentation: boolean
-  availableUnits: Unit[]
+  availableUnits: UnitWithSpots[]
   eligibleSpotTypes: string[]
   /** Full compatibility data per unit (enables algorithm-powered transfer recommendations) */
   unitCompatibility?: Record<string, UnitCompatibilityData>

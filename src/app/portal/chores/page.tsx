@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+
+export const metadata: Metadata = { title: 'Aufgaben' }
 import { ChoreList } from '@/components/portal/ChoreList'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 

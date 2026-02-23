@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
+
+export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'

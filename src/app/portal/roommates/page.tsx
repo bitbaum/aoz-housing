@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+
+export const metadata: Metadata = { title: 'Mitbewohner' }
 import { getScoreLevel, type ScoreLevel } from '@/lib/config/thresholds'
 import {
   AGE_RANGE_LABELS,
@@ -10,8 +13,9 @@ import {
   PORTAL_LABELS,
   getLabel,
 } from '@/lib/constants/labels'
-import type { Resident } from '@prisma/client'
-import type { CompatibilityAssessment } from '@prisma/client'
+import type { Resident, CompatibilityAssessment } from '@prisma/client'
+
+type RoommateResident = Pick<Resident, 'id' | 'code' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages'>
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +37,19 @@ export default async function RoommatesPage() {
             include: {
               placements: {
                 where: { status: 'ACTIVE' },
-                include: { resident: true },
+                include: {
+                  resident: {
+                    select: {
+                      id: true,
+                      code: true,
+                      ageRange: true,
+                      sleepSchedule: true,
+                      socialStyle: true,
+                      smokingStatus: true,
+                      languages: true,
+                    },
+                  },
+                },
               },
             },
           },
@@ -80,6 +96,13 @@ export default async function RoommatesPage() {
             { residentId: resident.id, comparedWithId: { in: roommates.map(r => r.id) } },
             { residentId: { in: roommates.map(r => r.id) }, comparedWithId: resident.id },
           ],
+        },
+        select: {
+          residentId: true,
+          comparedWithId: true,
+          overallScore: true,
+          strengths: true,
+          concerns: true,
         },
       })
     : []
@@ -160,8 +183,8 @@ function RoommateCard({
   roommate,
   assessment,
 }: {
-  roommate: Resident
-  assessment?: CompatibilityAssessment
+  roommate: RoommateResident
+  assessment?: Pick<CompatibilityAssessment, 'overallScore' | 'strengths' | 'concerns'>
 }) {
   return (
     <div className="card">
