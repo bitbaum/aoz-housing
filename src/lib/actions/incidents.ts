@@ -95,6 +95,7 @@ export interface ResidentIncidentStats {
 }
 
 export async function getResidentIncidentStats(residentId: string): Promise<ResidentIncidentStats> {
+  await requireStaffAuth()
   const [reported, asSubject, involved] = await Promise.all([
     prisma.incident.count({
       where: { reportedById: residentId },
@@ -128,6 +129,7 @@ export async function getResidentIncidentStats(residentId: string): Promise<Resi
 }
 
 export async function getHousingUnitIncidentHistory(housingUnitId: string) {
+  await requireStaffAuth()
   const incidents = await prisma.incident.findMany({
     where: { housingUnitId },
     include: {
@@ -226,6 +228,7 @@ export async function addFollowUp(formData: FormData): Promise<void> {
 }
 
 export async function getIncidentWithFollowUps(incidentId: string) {
+  await requireStaffAuth()
   return prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
@@ -243,6 +246,7 @@ export async function getIncidentWithFollowUps(incidentId: string) {
 }
 
 export async function getIncidentsNeedingFollowUp() {
+  await requireStaffAuth()
   const now = new Date()
   const tomorrow = new Date(now)
   tomorrow.setDate(tomorrow.getDate() + 1)

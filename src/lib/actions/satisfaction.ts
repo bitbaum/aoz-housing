@@ -166,6 +166,7 @@ export async function createQuickCheckIn(
 }
 
 export async function getPlacementCheckIns(placementId: string) {
+  await requireStaffAuth()
   return prisma.satisfactionCheckIn.findMany({
     where: { placementId },
     orderBy: { createdAt: 'desc' },
@@ -173,6 +174,7 @@ export async function getPlacementCheckIns(placementId: string) {
 }
 
 export async function getPlacementSatisfactionTrend(placementId: string) {
+  await requireStaffAuth()
   const checkIns = await prisma.satisfactionCheckIn.findMany({
     where: { placementId },
     orderBy: { createdAt: 'asc' },

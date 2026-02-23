@@ -134,6 +134,7 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
 }
 
 export async function getMaintenanceStats() {
+  await requireStaffAuth()
   const [open, assigned, inProgress, onHold, completedThisMonth] = await Promise.all([
     prisma.maintenanceRequest.count({ where: { status: 'OPEN' } }),
     prisma.maintenanceRequest.count({ where: { status: 'ASSIGNED' } }),
@@ -166,6 +167,7 @@ export async function getMaintenanceStats() {
 }
 
 export async function getHousingUnitMaintenance(housingUnitId: string) {
+  await requireStaffAuth()
   return prisma.maintenanceRequest.findMany({
     where: { housingUnitId },
     include: {

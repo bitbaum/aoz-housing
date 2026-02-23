@@ -9,6 +9,7 @@ import { requireStaffAuth } from '@/lib/auth'
 import type { ReviewTransferRequestInput } from '@/lib/validation/transfer'
 
 export async function getTransferRequests(status?: string) {
+  await requireStaffAuth()
   const where = status ? { status: status as 'PENDING' | 'APPROVED' | 'DENIED' | 'COMPLETED' | 'CANCELLED' } : {}
 
   return prisma.transferRequest.findMany({
