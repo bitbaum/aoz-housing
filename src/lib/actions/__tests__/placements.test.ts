@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { createPlacement } from '../placements'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // =============================================================================
 // MOCKS
@@ -144,7 +145,7 @@ describe('createPlacement', () => {
     const result = await createPlacement(baseInput)
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Bewohner nicht gefunden')
+    expect(result.error).toBe(ERROR_MESSAGES.RESIDENT_NOT_FOUND)
     expect(logAudit).not.toHaveBeenCalled()
   })
 
@@ -157,7 +158,7 @@ describe('createPlacement', () => {
     const result = await createPlacement(baseInput)
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Bewohner hat bereits eine aktive Platzierung')
+    expect(result.error).toBe(ERROR_MESSAGES.RESIDENT_HAS_ACTIVE_PLACEMENT)
   })
 
   it('returns error when spot not found', async () => {
@@ -170,7 +171,7 @@ describe('createPlacement', () => {
     const result = await createPlacement(baseInput)
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Platz nicht gefunden')
+    expect(result.error).toBe(ERROR_MESSAGES.SPOT_NOT_FOUND)
   })
 
   it('returns error when spot is not available', async () => {
@@ -183,7 +184,7 @@ describe('createPlacement', () => {
     const result = await createPlacement(baseInput)
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Platz ist nicht verfügbar')
+    expect(result.error).toBe(ERROR_MESSAGES.SPOT_NOT_AVAILABLE)
   })
 
   it('succeeds and creates placement with correct data', async () => {

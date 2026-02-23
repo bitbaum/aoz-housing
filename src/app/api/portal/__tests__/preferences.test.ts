@@ -5,6 +5,7 @@
  */
 
 import { NextRequest } from 'next/server'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
@@ -89,7 +90,7 @@ describe('POST /api/portal/preferences', () => {
 
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('Nicht angemeldet')
+    expect(body.error).toBe(ERROR_MESSAGES.NOT_AUTHENTICATED)
   })
 
   test('returns 404 when resident code not found in DB', async () => {
@@ -102,7 +103,7 @@ describe('POST /api/portal/preferences', () => {
 
     expect(res.status).toBe(404)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('Bewohner nicht gefunden')
+    expect(body.error).toBe(ERROR_MESSAGES.RESIDENT_NOT_FOUND)
   })
 
   test('updates preferences and returns success', async () => {
@@ -182,6 +183,6 @@ describe('POST /api/portal/preferences', () => {
 
     expect(res.status).toBe(500)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('Einstellungen konnten nicht gespeichert werden')
+    expect(body.error).toBe(ERROR_MESSAGES.PREFERENCES_SAVE_ERROR)
   })
 })

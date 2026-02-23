@@ -5,6 +5,7 @@
  */
 
 import { NextRequest } from 'next/server'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
@@ -87,7 +88,7 @@ describe('POST /api/auth/login', () => {
   test('returns 401 on invalid credentials', async () => {
     mockLogin.mockResolvedValue({
       success: false,
-      error: 'Ungültige E-Mail oder Passwort',
+      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
     })
 
     const req = createJsonRequest(
@@ -99,7 +100,7 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('Ungültige E-Mail oder Passwort')
+    expect(body.error).toBe(ERROR_MESSAGES.INVALID_CREDENTIALS)
     expect(mockSetSessionCookie).not.toHaveBeenCalled()
   })
 
@@ -156,7 +157,7 @@ describe('POST /api/auth/login', () => {
 
     expect(res.status).toBe(500)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('Ein Fehler ist aufgetreten')
+    expect(body.error).toBe(ERROR_MESSAGES.SESSION_ERROR)
   })
 
   test('extracts IP from x-forwarded-for header', async () => {

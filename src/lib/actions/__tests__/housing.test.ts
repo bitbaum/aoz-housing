@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { archiveHousingUnit, restoreHousingUnit, hardDeleteHousingUnitProtected } from '../housing'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // =============================================================================
 // MOCKS
@@ -72,7 +73,7 @@ describe('archiveHousingUnit', () => {
 
     const result = await archiveHousingUnit('nonexistent-id')
 
-    expect(result).toEqual({ success: false, error: 'Unterkunft nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND })
     expect(mockPrisma.housingUnit.update).not.toHaveBeenCalled()
   })
 
@@ -142,7 +143,7 @@ describe('restoreHousingUnit', () => {
 
     const result = await restoreHousingUnit('nonexistent-id')
 
-    expect(result).toEqual({ success: false, error: 'Unterkunft nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND })
   })
 
   it('succeeds and sets status to AVAILABLE', async () => {
@@ -195,7 +196,7 @@ describe('hardDeleteHousingUnitProtected', () => {
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
-    expect(result).toEqual({ success: false, error: 'Unterkunft nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND })
   })
 
   it('returns error when housing unit is not test/demo', async () => {

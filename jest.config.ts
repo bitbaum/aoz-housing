@@ -14,6 +14,12 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.test.ts',
         '<rootDir>/src/**/__tests__/**/*.spec.ts',
       ],
+      // jose v6 ships ESM-only; transform its .js files through ts-jest
+      transformIgnorePatterns: ['node_modules/(?!jose)'],
+      transform: {
+        '^.+\\.tsx?$': 'ts-jest',
+        '^.+\\.js$': 'ts-jest',
+      },
     },
     // Component tests (React, jsdom)
     {

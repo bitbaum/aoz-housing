@@ -8,6 +8,7 @@
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { exitResident, archiveResident, restoreResident, hardDeleteResidentProtected } from '../residents'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // =============================================================================
 // MOCKS
@@ -72,7 +73,7 @@ describe('exitResident', () => {
 
     const result = await exitResident('nonexistent-id')
 
-    expect(result).toEqual({ success: false, error: 'Bewohner nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND })
     expect(mockPrisma.resident.update).not.toHaveBeenCalled()
     expect(logAudit).not.toHaveBeenCalled()
   })
@@ -122,7 +123,7 @@ describe('exitResident', () => {
     const result = await exitResident('res-1')
 
     expect(result.success).toBe(false)
-    expect(result.error).toBe('Fehler beim Aktualisieren des Bewohners')
+    expect(result.error).toBe(ERROR_MESSAGES.RESIDENT_UPDATE_ERROR)
   })
 })
 
@@ -136,7 +137,7 @@ describe('archiveResident', () => {
 
     const result = await archiveResident('nonexistent-id')
 
-    expect(result).toEqual({ success: false, error: 'Bewohner nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND })
   })
 
   it('returns error when resident has active placements', async () => {
@@ -185,7 +186,7 @@ describe('restoreResident', () => {
 
     const result = await restoreResident('nonexistent-id')
 
-    expect(result).toEqual({ success: false, error: 'Bewohner nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND })
   })
 
   it('restores to ACTIVE when no active placements', async () => {
@@ -253,7 +254,7 @@ describe('hardDeleteResidentProtected', () => {
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
-    expect(result).toEqual({ success: false, error: 'Bewohner nicht gefunden' })
+    expect(result).toEqual({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND })
   })
 
   it('returns error when resident is not test/demo', async () => {
