@@ -17,7 +17,10 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: APP_LABELS.metaTitle,
+  title: {
+    template: `%s | ${APP_LABELS.name}`,
+    default: APP_LABELS.metaTitle,
+  },
   description: APP_LABELS.metaDescription,
   icons: {
     icon: '/favicon.svg',
