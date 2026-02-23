@@ -445,48 +445,56 @@ enum Role {
 // Resident model already has 'code' field for portal login
 ```
 
-### Priority
+### Auth Status: FULLY IMPLEMENTED
 
-1. **Now**: Demo without auth (pilot testing)
-2. **Before production**: Staff auth (protect admin routes)
-3. **After launch**: Resident portal auth (nice-to-have)
-
-### Auth Preparation (DONE)
-
-The codebase is prepared for auth without implementing it:
+Both authentication systems are live and enforced:
 
 | Component | Status | Location |
 |-----------|--------|----------|
-| User model | Ready | `prisma/schema.prisma` |
-| StaffRole enum | Ready | `prisma/schema.prisma` |
-| Middleware stub | Ready | `src/middleware.ts` |
-| Auth helpers | Ready | `src/lib/auth/index.ts` |
-| Audit auto-capture | Ready | `src/lib/audit.ts` |
-| Env vars documented | Ready | `.env.example` |
+| Staff JWT auth | Active | `src/lib/auth/jwt.ts` |
+| Middleware enforcement | Active | `src/middleware.ts` |
+| Login page | Working | `src/app/login/page.tsx` |
+| Registration (invite code) | Working | `src/app/api/auth/register/route.ts` |
+| Rate limiting | Active | `src/lib/auth/rate-limit.ts` |
+| Role-based access | Active | `src/lib/auth/role-policy.ts` |
+| Portal code auth | Active | `src/lib/portal-auth.ts` |
+| Portal login/register | Working | `src/app/api/portal/login/route.ts` |
+| Session refresh | Active | Middleware handles sliding sessions |
+| Audit logging | Active | `src/lib/audit.ts` |
 
-**To enable auth later:**
-1. Uncomment middleware checks in `src/middleware.ts`
-2. Implement session validation in `src/lib/auth/index.ts`
-3. Create login pages (`/login` for staff, portal already has code entry)
-4. Run `prisma db push` to create User table
-5. Create initial admin user
+**Staff auth flow:** Email/password → JWT token → httpOnly cookie (`staff_session`)
+**Portal auth flow:** Resident code (e.g., `RES-A2B3C4`) → httpOnly cookie (`resident_code`)
+
+**To create initial admin:** Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env`, run `npx ts-node prisma/seed-admin.ts`
 
 ---
 
 ## Testing Strategy
 
-### Unit Tests (Jest)
+### Unit Tests (Jest) — 704 tests, 31 suites
 
-- Compatibility algorithm
-- Validation functions
-- Utility functions
+| Area | Suites | Coverage |
+|------|--------|----------|
+| Server actions | 8 | All CRUD actions for residents, housing, placements, incidents, maintenance, matching, satisfaction, spots |
+| API routes | 8 | Auth (login, register, session, logout), portal (login, register, chores, report, satisfaction, preferences) |
+| Compatibility | 3 | Algorithm, conversion, aggregate scoring |
+| Auth utilities | 3 | JWT, password, rate limiting, role policy, route boundaries |
+| Analytics | 1 | Unit metrics calculation |
+| UI components | 2 | BedGrid, style utilities |
+| Config | 3 | Labels, formatting, factor config |
 
-### E2E Tests (Playwright)
+### E2E Tests (Playwright) — 50 tests, 11 specs
 
-- Critical user flows:
-  - Create resident → Match → Place
-  - Report incident
-  - Check-in flow
+- Auth flow (login, registration)
+- Resident creation
+- Matching workflow
+- Incident reporting + detail
+- Placement check-in
+- Housing detail
+- Dashboard
+- Navigation
+- Mobile responsiveness
+- Accessibility
 
 ### Manual Testing
 
@@ -522,10 +530,12 @@ The codebase is prepared for auth without implementing it:
 npm run dev              # Development server (port 3001)
 npm run build            # Production build
 npm run prisma:generate  # Regenerate Prisma client
-npm run prisma:push      # Push schema changes
+npm run prisma:migrate   # Run pending migrations (production)
+npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
-npm run test             # Run Jest tests
-npm run test:e2e         # Run Playwright tests
+npm run prisma:seed      # Seed demo data
+npm run test             # Run Jest tests (704 tests)
+npm run test:e2e         # Run Playwright tests (50 tests)
 ```
 
 ### Key Files
@@ -535,7 +545,8 @@ npm run test:e2e         # Run Playwright tests
 | Resident factors | `src/lib/config/resident-factors.ts` |
 | Housing factors | `src/lib/config/housing-factors.ts` |
 | Score thresholds | `src/lib/config/thresholds.ts` |
-| German labels | `src/lib/constants/labels.ts` |
+| German labels | `src/lib/constants/labels/` |
+| Error messages | `src/lib/constants/error-messages.ts` |
 | Compatibility calc | `src/lib/compatibility/index.ts` |
 | Prisma schema | `prisma/schema.prisma` |
 
@@ -543,7 +554,8 @@ npm run test:e2e         # Run Playwright tests
 
 ## Don'ts
 
-- Hardcode labels in JSX → Use `lib/constants/labels.ts`
+- Hardcode labels in JSX → Use `lib/constants/labels/`
+- Hardcode error messages → Use `lib/constants/error-messages.ts`
 - Hardcode factor options → Use `lib/config/`
 - Track medical diagnoses → Track functional needs only
 - Edit 5+ files for new factor → Should be 2 max
@@ -555,6 +567,12 @@ npm run test:e2e         # Run Playwright tests
 ---
 
 ## Troubleshooting
+
+### Schema changes workflow
+1. Edit `prisma/schema.prisma`
+2. Run `npx prisma migrate dev --name describe-change` to create migration
+3. Run `npm run prisma:generate` to update client types
+4. Restart dev server
 
 ### "Column not found" errors after schema change
 1. Run `npm run prisma:generate`
@@ -571,4 +589,4 @@ npm run test:e2e         # Run Playwright tests
 
 ---
 
-**Last Updated**: 2026-02-05
+**Last Updated**: 2026-02-23

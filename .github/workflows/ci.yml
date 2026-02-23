@@ -113,7 +113,7 @@ jobs:
         run: npx prisma generate
 
       - name: Initialize database schema
-        run: npx prisma db push --skip-generate
+        run: npx prisma migrate deploy
         env:
           DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
           DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
