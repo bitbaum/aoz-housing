@@ -15,6 +15,7 @@ import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 import type { Resident, Placement } from '@prisma/client'
 
 interface CreatePlacementInput {
@@ -26,6 +27,7 @@ interface CreatePlacementInput {
 }
 
 export async function createPlacement(input: CreatePlacementInput): Promise<{ success: boolean; placementId?: string; error?: string }> {
+  const user = await requireStaffAuth()
   const { residentId, housingUnitId, spotId, startDate, notes } = input
 
   try {
@@ -180,6 +182,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
       action: 'CREATE',
       entity: 'PLACEMENT',
       entityId: placement.id,
+      userId: user.id,
       changes: { residentId, housingUnitId, spotId },
       reason: notes,
     })
@@ -197,6 +200,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
 }
 
 export async function endPlacement(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const {
     placementId,
     residentId,
@@ -279,6 +283,7 @@ export async function endPlacement(formData: FormData): Promise<void> {
       action: 'END',
       entity: 'PLACEMENT',
       entityId: placementId,
+      userId: user.id,
       changes: { residentId, endReason },
       reason: notes || undefined,
     })
@@ -300,6 +305,7 @@ export async function endPlacement(formData: FormData): Promise<void> {
 }
 
 export async function transferPlacement(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const {
     currentPlacementId,
     residentId,
@@ -484,6 +490,7 @@ export async function transferPlacement(formData: FormData): Promise<void> {
       action: 'TRANSFER',
       entity: 'PLACEMENT',
       entityId: currentPlacementId,
+      userId: user.id,
       changes: {
         residentId,
         fromHousingUnitId,

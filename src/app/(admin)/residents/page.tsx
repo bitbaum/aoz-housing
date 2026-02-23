@@ -8,6 +8,7 @@ import { getDateDaysAgo } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
 import { TabLink } from '@/components/ui/Tabs'
+import { CSVImport } from '@/components/residents/CSVImport'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,11 +79,24 @@ export default async function ResidentsListPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Bewohner</h1>
-        <Link href="/residents/new" className="btn-ghost">
-          <span className="mr-1">+</span> Bewohner
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/export/residents"
+            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+          >
+            Exportieren
+          </a>
+          <Link href="/residents/new" className="btn-ghost">
+            <span className="mr-1">+</span> Bewohner
+          </Link>
+        </div>
+      </div>
+
+      {/* CSV Import */}
+      <div className="mb-6">
+        <CSVImport />
       </div>
 
       <div className="mb-4">

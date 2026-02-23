@@ -11,6 +11,7 @@ import { logger } from '@/lib/logger'
 import type { Resident, Placement } from '@prisma/client'
 import { z } from 'zod'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 /** Minimal schema — scores are now computed server-side */
 const placeResidentSchema = z.object({
@@ -60,6 +61,7 @@ function buildPlacementRationale(
 }
 
 export async function placeResident(formData: FormData) {
+  const user = await requireStaffAuth()
   // Parse minimal form data (scores excluded — computed server-side)
   let validatedData
   try {
@@ -292,6 +294,7 @@ export async function placeResident(formData: FormData) {
       action: 'CREATE',
       entity: 'PLACEMENT',
       entityId: placement.placement.id,
+      userId: user.id,
       changes: {
         residentId,
         housingUnitId,

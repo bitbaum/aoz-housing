@@ -13,8 +13,10 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 export async function createMaintenanceRequest(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(MaintenanceRequestInputSchema, formData)
 
   try {
@@ -37,6 +39,7 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
       action: 'CREATE',
       entity: 'MAINTENANCE',
       entityId: request.id,
+      userId: user.id,
       changes: {
         category: data.category,
         priority: data.priority,
@@ -54,6 +57,7 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
 }
 
 export async function updateMaintenanceStatus(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(MaintenanceStatusUpdateSchema, formData)
 
   try {
@@ -84,6 +88,7 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
       action: 'UPDATE',
       entity: 'MAINTENANCE',
       entityId: data.requestId,
+      userId: user.id,
       changes: { status: data.status, ...updateData },
     })
 
@@ -97,6 +102,7 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
 }
 
 export async function assignMaintenanceRequest(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const { requestId, assignedTo } = validateFormData(AssignMaintenanceSchema, formData)
 
   try {
@@ -114,6 +120,7 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
       action: 'UPDATE',
       entity: 'MAINTENANCE',
       entityId: requestId,
+      userId: user.id,
       changes: { status: 'ASSIGNED', assignedTo },
     })
 

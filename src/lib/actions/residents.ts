@@ -12,8 +12,10 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 export async function createResident(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(ResidentInputSchema, formData)
 
   let resident
@@ -29,6 +31,7 @@ export async function createResident(formData: FormData): Promise<void> {
       action: 'CREATE',
       entity: 'RESIDENT',
       entityId: resident.id,
+      userId: user.id,
       changes: { code: data.code },
     })
   } catch (error) {
@@ -43,6 +46,7 @@ export async function createResident(formData: FormData): Promise<void> {
 }
 
 export async function exitResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -66,6 +70,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
       action: 'END',
       entity: 'RESIDENT',
       entityId: residentId,
+      userId: user.id,
       changes: { status: 'EXITED' },
       reason: 'Bewohner ausgetreten',
     })
@@ -80,6 +85,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
 }
 
 export async function updateResident(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(ResidentUpdateSchema, formData)
   const { id, ...updateData } = data
 
@@ -93,6 +99,7 @@ export async function updateResident(formData: FormData): Promise<void> {
       action: 'UPDATE',
       entity: 'RESIDENT',
       entityId: id,
+      userId: user.id,
       changes: updateData,
     })
   } catch (error) {
@@ -106,6 +113,7 @@ export async function updateResident(formData: FormData): Promise<void> {
 }
 
 export async function archiveResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -129,6 +137,7 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
       action: 'ARCHIVE',
       entity: 'RESIDENT',
       entityId: residentId,
+      userId: user.id,
       changes: { status: 'EXITED' },
     })
 
@@ -142,6 +151,7 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
 }
 
 export async function restoreResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -163,6 +173,7 @@ export async function restoreResident(residentId: string): Promise<{ success: bo
       action: 'RESTORE',
       entity: 'RESIDENT',
       entityId: residentId,
+      userId: user.id,
       changes: { status: nextStatus },
     })
 
@@ -185,6 +196,7 @@ export async function hardDeleteResidentProtected(
   confirmation: string,
   reason: string
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
+  const user = await requireStaffAuth()
   try {
     if (confirmation !== 'DELETE') {
       return { success: false, error: 'Bestätigung fehlt (DELETE)' }
@@ -237,6 +249,7 @@ export async function hardDeleteResidentProtected(
       action: 'DELETE',
       entity: 'RESIDENT',
       entityId: residentId,
+      userId: user.id,
       reason,
       changes: { code: resident.code, protectedDelete: true },
     })

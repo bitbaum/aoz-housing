@@ -14,6 +14,9 @@ export const STAFF_ROUTES = [
   '/matching',
   '/analytics',
   '/chores',
+  '/transfer-requests',
+  '/api/export',
+  '/api/import',
 ]
 
 // Routes that require resident authentication
@@ -22,6 +25,8 @@ export const RESIDENT_ROUTES = [
   '/portal/roommates',
   '/portal/report',
   '/portal/chores',
+  '/portal/transfer',
+  '/api/portal/transfer',
   '/api/portal/report',
   '/api/portal/preferences',
   '/api/portal/satisfaction',
@@ -38,6 +43,7 @@ export const PUBLIC_ROUTES = [
   '/api/health',
   '/api/portal/login',
   '/api/portal/register',
+  '/api/cron',
 ]
 
 export function matchesRoute(pathname: string, route: string): boolean {

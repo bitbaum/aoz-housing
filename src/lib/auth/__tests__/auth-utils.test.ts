@@ -22,7 +22,7 @@ const SAMPLE_PAYLOAD = {
   sub: 'user-123',
   email: 'test@aoz.ch',
   name: 'Test User',
-  role: 'CASE_WORKER' as const,
+  role: 'ADMIN' as const,
 }
 
 /** Base64url encode a buffer or string. */

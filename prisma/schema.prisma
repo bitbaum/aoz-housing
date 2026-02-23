@@ -88,6 +88,9 @@ model Resident {
   taskRequestsMade     TaskRequest[]       @relation("TaskRequestsMade")
   taskRequestsReceived TaskRequest[]       @relation("TaskRequestsReceived")
 
+  // Transfer requests
+  transferRequests TransferRequest[]
+
   @@index([status])
   @@index([ageRange, gender])
 }
@@ -225,6 +228,7 @@ model HousingUnit {
   incidents           Incident[]
   maintenanceRequests MaintenanceRequest[]
   householdTasks      HouseholdTask[]
+  transferRequests    TransferRequest[]
 
   @@index([status])
   @@index([totalBeds])
@@ -351,8 +355,9 @@ model Placement {
   relatedIncident   Incident? @relation("PlacementConflictIncident", fields: [relatedIncidentId], references: [id], onDelete: SetNull)
 
   // Relations
-  incidents Incident[]
-  checkIns  SatisfactionCheckIn[]
+  incidents        Incident[]
+  checkIns         SatisfactionCheckIn[]
+  transferRequests TransferRequest[] @relation("TransferFromPlacement")
 
   @@unique([residentId, housingUnitId, startDate])
   @@index([status])
@@ -629,7 +634,7 @@ model User {
   name         String
 
   // Role & Status
-  role        StaffRole @default(CASE_WORKER)
+  role        StaffRole @default(ADMIN)
   active      Boolean   @default(true)
   lastLoginAt DateTime?
 
@@ -641,9 +646,7 @@ model User {
 }
 
 enum StaffRole {
-  ADMIN // Full access + user management
-  CASE_WORKER // Residents, placements, incidents
-  VIEWER // Read-only access
+  ADMIN // Full access — single role for all staff
 }
 
 model AuditLog {
@@ -904,4 +907,46 @@ enum TaskRequestStatus {
   ACCEPTED
   DECLINED
   COMPLETED
+}
+
+// =============================================================================
+// TRANSFER REQUESTS (Resident-initiated)
+// =============================================================================
+
+model TransferRequest {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Who is requesting
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  // Current placement context
+  currentPlacement   Placement? @relation("TransferFromPlacement", fields: [currentPlacementId], references: [id], onDelete: SetNull)
+  currentPlacementId String?
+
+  // Optional target
+  targetUnit   HousingUnit? @relation(fields: [targetUnitId], references: [id], onDelete: SetNull)
+  targetUnitId String?
+
+  // Request details
+  reason String
+  status TransferRequestStatus @default(PENDING)
+
+  // Staff review
+  staffNotes String?
+  reviewedBy String?
+  reviewedAt DateTime?
+
+  @@index([residentId])
+  @@index([status])
+}
+
+enum TransferRequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+  COMPLETED
+  CANCELLED
 }

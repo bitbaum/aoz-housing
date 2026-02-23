@@ -12,7 +12,7 @@ export interface TokenPayload extends JWTPayload {
   sub: string // User ID
   email: string
   name: string
-  role: 'ADMIN' | 'CASE_WORKER' | 'VIEWER'
+  role: 'ADMIN'
 }
 
 /**

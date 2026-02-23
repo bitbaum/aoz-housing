@@ -13,6 +13,7 @@ import {
   Settings,
   Lightbulb,
   ClipboardList,
+  ArrowRightLeft,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -27,6 +28,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   wrench: Settings,
   brain: Lightbulb,
   clipboard: ClipboardList,
+  transfer: ArrowRightLeft,
 }
 
 export interface NavItem {
@@ -44,5 +46,6 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/incidents', icon: 'alert', label: 'Vorfälle' },
   { href: '/maintenance', icon: 'wrench', label: 'Wartung' },
   { href: '/chores', icon: 'clipboard', label: 'Aufgaben' },
+  { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungen' },
   { href: '/analytics', icon: 'chart', label: 'Auswertung' },
 ]

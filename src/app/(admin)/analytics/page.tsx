@@ -187,7 +187,15 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             Übersicht über Belegung, Check-ins und Konflikte
           </p>
         </div>
-        <PeriodSelector currentDays={days} />
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/export/satisfaction"
+            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+          >
+            Exportieren
+          </a>
+          <PeriodSelector currentDays={days} />
+        </div>
       </div>
 
       {/* Key Metrics */}

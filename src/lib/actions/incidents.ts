@@ -13,6 +13,7 @@ import {
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 // Simple schema for clearing follow-up
 const ClearFollowUpSchema = z.object({
@@ -20,6 +21,7 @@ const ClearFollowUpSchema = z.object({
 })
 
 export async function createIncident(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(IncidentInputSchema, formData)
 
   try {
@@ -40,6 +42,7 @@ export async function createIncident(formData: FormData): Promise<void> {
       action: 'CREATE',
       entity: 'INCIDENT',
       entityId: incident.id,
+      userId: user.id,
       changes: {
         category: data.category,
         type: data.type,
@@ -56,6 +59,7 @@ export async function createIncident(formData: FormData): Promise<void> {
 }
 
 export async function resolveIncident(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const { incidentId, resolution } = validateFormData(ResolveIncidentSchema, formData)
 
   try {
@@ -71,6 +75,7 @@ export async function resolveIncident(formData: FormData): Promise<void> {
       action: 'RESOLVE',
       entity: 'INCIDENT',
       entityId: incidentId,
+      userId: user.id,
       changes: { resolution },
     })
   } catch (error) {
@@ -172,6 +177,7 @@ export async function getHousingUnitIncidentHistory(housingUnitId: string) {
 // =============================================================================
 
 export async function addFollowUp(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(FollowUpInputSchema, formData)
 
   try {
@@ -207,6 +213,7 @@ export async function addFollowUp(formData: FormData): Promise<void> {
       action: 'CREATE',
       entity: 'INCIDENT',
       entityId: data.incidentId,
+      userId: user.id,
       changes: { followUpId: followUp.id, action: data.action },
     })
   } catch (error) {
@@ -289,6 +296,7 @@ export async function getIncidentsNeedingFollowUp() {
 }
 
 export async function clearFollowUpReminder(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const { incidentId } = validateFormData(ClearFollowUpSchema, formData)
 
   try {
@@ -304,6 +312,7 @@ export async function clearFollowUpReminder(formData: FormData): Promise<void> {
       action: 'UPDATE',
       entity: 'INCIDENT',
       entityId: incidentId,
+      userId: user.id,
       changes: { nextFollowUpDate: null, followUpPriority: null },
     })
   } catch (error) {

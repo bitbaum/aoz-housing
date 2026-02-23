@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
       email: result.data.email.toLowerCase(),
       name: result.data.name,
       passwordHash,
-      role: 'CASE_WORKER',
+      role: 'ADMIN',
     },
     select: {
       id: true,
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
     id: user.id,
     email: user.email,
     name: user.name,
-    role: user.role,
+    role: user.role as 'ADMIN',
   }
   await setSessionCookie(authUser)
 

@@ -76,11 +76,19 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Vorfälle</h1>
-        <Link href="/incidents/new" className="btn-primary">
-          Neuer Vorfall
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/export/incidents"
+            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+          >
+            Exportieren
+          </a>
+          <Link href="/incidents/new" className="btn-primary">
+            Neuer Vorfall
+          </Link>
+        </div>
       </div>
 
       {/* Critical Incidents Alert */}

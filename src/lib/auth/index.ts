@@ -22,7 +22,7 @@ export interface AuthUser {
   id: string
   email: string
   name: string
-  role: 'ADMIN' | 'CASE_WORKER' | 'VIEWER'
+  role: 'ADMIN'
 }
 
 export interface AuthResident {
@@ -98,6 +98,18 @@ export async function getCurrentResident(): Promise<AuthResident | null> {
     id: resident.id,
     code: resident.code,
   }
+}
+
+/**
+ * Require authenticated staff user — throws if not logged in.
+ * Use as first line in all mutation server actions.
+ */
+export async function requireStaffAuth(): Promise<AuthUser> {
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
+  }
+  return user
 }
 
 /**

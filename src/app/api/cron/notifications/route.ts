@@ -1,0 +1,102 @@
+/**
+ * Daily cron endpoint for email notifications.
+ * Authenticated via Bearer token (CRON_SECRET).
+ *
+ * Checks for:
+ * 1. Overdue incident follow-ups (HIGH/CRITICAL, past nextFollowUpDate)
+ * 2. Overdue resident check-ins (based on support level thresholds)
+ */
+
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/db'
+import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
+import { logger } from '@/lib/logger'
+
+// Check-in frequency thresholds by support level (days)
+const CHECK_IN_THRESHOLDS: Record<string, number> = {
+  INTENSIVE: 7,
+  ELEVATED: 14,
+  STANDARD: 30,
+}
+
+export async function GET(request: Request) {
+  // Auth: verify Bearer token matches CRON_SECRET
+  const authHeader = request.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const results = { incidents: 0, checkIns: 0, errors: [] as string[] }
+
+  try {
+    // 1. Overdue incident follow-ups
+    const overdueIncidents = await prisma.incident.findMany({
+      where: {
+        resolvedAt: null,
+        nextFollowUpDate: { lt: new Date() },
+        severity: { in: ['HIGH', 'CRITICAL'] },
+      },
+      include: {
+        housingUnit: { select: { code: true } },
+      },
+      take: 50,
+    })
+
+    if (overdueIncidents.length > 0) {
+      const template = incidentFollowUpReminder(
+        overdueIncidents.map(i => ({
+          id: i.id,
+          description: i.description.slice(0, 100),
+          severity: i.severity,
+          housingUnitCode: i.housingUnit.code,
+          nextFollowUpDate: i.nextFollowUpDate!,
+        }))
+      )
+      const sent = await notifyStaff(template.subject, template.html)
+      if (sent) results.incidents = overdueIncidents.length
+    }
+
+    // 2. Overdue resident check-ins
+    const now = new Date()
+    const activePlacements = await prisma.placement.findMany({
+      where: { status: 'ACTIVE' },
+      include: {
+        resident: { select: { code: true, supportLevel: true } },
+        checkIns: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    })
+
+    const overdueResidents = activePlacements
+      .map(p => {
+        const lastCheckIn = p.checkIns[0]?.createdAt || p.startDate
+        const daysSince = Math.floor(
+          (now.getTime() - new Date(lastCheckIn).getTime()) / (1000 * 60 * 60 * 24)
+        )
+        const threshold = CHECK_IN_THRESHOLDS[p.resident.supportLevel] || 30
+        return {
+          code: p.resident.code,
+          supportLevel: p.resident.supportLevel,
+          lastCheckInDate: lastCheckIn,
+          daysSinceLastCheckIn: daysSince,
+          isOverdue: daysSince > threshold,
+        }
+      })
+      .filter(r => r.isOverdue)
+
+    if (overdueResidents.length > 0) {
+      const template = checkInReminder(overdueResidents)
+      const sent = await notifyStaff(template.subject, template.html)
+      if (sent) results.checkIns = overdueResidents.length
+    }
+  } catch (error) {
+    logger.errorWithCause('Cron notification error', error)
+    results.errors.push(error instanceof Error ? error.message : 'Unknown error')
+  }
+
+  return NextResponse.json({
+    success: true,
+    timestamp: new Date().toISOString(),
+    ...results,
+  })
+}

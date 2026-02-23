@@ -22,6 +22,7 @@ export function PortalNav() {
           <PortalNavLink href="/portal/roommates" active={pathname === '/portal/roommates'}>{PORTAL_LABELS.nav.roommates}</PortalNavLink>
           <PortalNavLink href="/portal/chores" active={pathname.startsWith('/portal/chores')}>{PORTAL_LABELS.nav.chores}</PortalNavLink>
           <PortalNavLink href="/portal/housing" active={pathname === '/portal/housing'}>{PORTAL_LABELS.nav.housing}</PortalNavLink>
+          <PortalNavLink href="/portal/transfer" active={pathname === '/portal/transfer'}>{PORTAL_LABELS.transfer.navLabel}</PortalNavLink>
           <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
           <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
           <PortalNavLink href="/portal/help" active={pathname === '/portal/help'}>{PORTAL_LABELS.nav.help}</PortalNavLink>
@@ -67,6 +68,9 @@ export function PortalNav() {
           </PortalNavLinkMobile>
           <PortalNavLinkMobile href="/portal/housing" active={pathname === '/portal/housing'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.housing}
+          </PortalNavLinkMobile>
+          <PortalNavLinkMobile href="/portal/transfer" active={pathname === '/portal/transfer'} onClick={() => setMenuOpen(false)}>
+            {PORTAL_LABELS.transfer.navLabel}
           </PortalNavLinkMobile>
           <PortalNavLinkMobile href="/portal/report" active={pathname === '/portal/report'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.report}

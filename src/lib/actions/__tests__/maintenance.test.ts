@@ -49,8 +49,11 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
+const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue(null),
+  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -178,6 +181,7 @@ describe('createMaintenanceRequest', () => {
       action: 'CREATE',
       entity: 'MAINTENANCE',
       entityId: 'mr-1',
+      userId: 'staff-1',
       changes: {
         category: 'PLUMBING',
         priority: 'NORMAL',
@@ -374,6 +378,7 @@ describe('assignMaintenanceRequest', () => {
       action: 'UPDATE',
       entity: 'MAINTENANCE',
       entityId: 'clxxxxxxxxxxxxxxxxx0010',
+      userId: 'staff-1',
       changes: { status: 'ASSIGNED', assignedTo: 'Hans Mueller' },
     })
   })
@@ -468,5 +473,19 @@ describe('getHousingUnitMaintenance', () => {
     const result = await getHousingUnitMaintenance('hu-1')
 
     expect(result).toEqual([])
+  })
+})
+
+// =============================================================================
+// auth guard
+// =============================================================================
+
+describe('auth guard', () => {
+  it('rejects unauthenticated requests', async () => {
+    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
+
+    const fd = new FormData()
+    await expect(createMaintenanceRequest(fd)).rejects.toThrow('Anmeldung erforderlich')
   })
 })

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { portalSatisfactionSchema } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { notifyStaff, lowSatisfactionAlert } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
       placements: {
         where: { status: 'ACTIVE' },
         take: 1,
+        include: { housingUnit: { select: { code: true } } },
       },
     },
   })
@@ -90,6 +92,19 @@ export async function POST(request: NextRequest) {
         })
       }
     })
+
+    // Fire-and-forget email notification for low satisfaction
+    if (rating <= 2) {
+      const email = lowSatisfactionAlert({
+        residentCode: resident.code,
+        housingUnitCode: placement.housingUnit.code,
+        overallSatisfaction: rating,
+        concerns,
+      })
+      notifyStaff(email.subject, email.html).catch(() => {
+        // Silently ignore — incident already created in DB
+      })
+    }
 
     return NextResponse.json({ success: true, rating })
   } catch (error) {

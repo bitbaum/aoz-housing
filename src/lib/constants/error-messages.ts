@@ -94,6 +94,13 @@ export const ERROR_MESSAGES = {
   TASK_COMPLAINT_ERROR: 'Problem konnte nicht gemeldet werden',
   TASK_REQUEST_ERROR: 'Anfrage konnte nicht gesendet werden',
 
+  // ─── Transfer requests ─────────────────────────────────────────
+  TRANSFER_REQUEST_NOT_FOUND: 'Verlegungsanfrage nicht gefunden',
+  TRANSFER_REQUEST_ALREADY_PENDING: 'Du hast bereits eine offene Verlegungsanfrage',
+  TRANSFER_REQUEST_NO_PLACEMENT: 'Keine aktive Platzierung vorhanden',
+  TRANSFER_REQUEST_CREATE_ERROR: 'Fehler beim Erstellen der Verlegungsanfrage',
+  TRANSFER_REQUEST_REVIEW_ERROR: 'Fehler beim Bearbeiten der Verlegungsanfrage',
+
   // ─── Portal / Registration ─────────────────────────────────────
   PREFERENCES_SAVE_ERROR: 'Einstellungen konnten nicht gespeichert werden',
   REPORT_SAVE_ERROR: 'Meldung konnte nicht gespeichert werden',

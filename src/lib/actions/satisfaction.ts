@@ -10,8 +10,10 @@ import {
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 export async function createCheckInFromForm(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(SatisfactionCheckInInputSchema, formData)
 
   const placement = await prisma.placement.findUnique({
@@ -58,6 +60,7 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
       action: 'CREATE',
       entity: 'CHECK_IN',
       entityId: checkIn.id,
+      userId: user.id,
       changes: {
         placementId: data.placementId,
         checkInType: data.checkInType,
@@ -91,6 +94,7 @@ interface QuickCheckInInput {
 export async function createQuickCheckIn(
   input: QuickCheckInInput
 ): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const placement = await prisma.placement.findUnique({
       where: { id: input.placementId },
@@ -140,6 +144,7 @@ export async function createQuickCheckIn(
       action: 'CREATE',
       entity: 'CHECK_IN',
       entityId: checkIn.id,
+      userId: user.id,
       changes: {
         type: 'QUICK',
         placementId: input.placementId,

@@ -1,0 +1,210 @@
+/**
+ * Email templates — all content in German (Swiss spelling).
+ * Each function returns { subject, html } for use with sendEmail/notifyStaff.
+ */
+
+// -- Template data interfaces --
+
+interface OverdueIncident {
+  id: string
+  description: string
+  severity: string
+  housingUnitCode?: string
+  nextFollowUpDate: Date
+}
+
+interface OverdueResident {
+  code: string
+  supportLevel: string
+  lastCheckInDate: Date | null
+  daysSinceLastCheckIn: number
+}
+
+interface LowSatisfactionData {
+  residentCode: string
+  housingUnitCode: string
+  overallSatisfaction: number
+  concerns?: string | null
+}
+
+interface TransferRequestData {
+  residentCode: string
+  currentUnitCode: string
+  reason: string
+  targetUnitCode?: string
+}
+
+// -- Shared styles --
+
+const STYLES = {
+  table: 'border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 14px;',
+  th: 'background-color: #f3f4f6; padding: 8px 12px; text-align: left; border: 1px solid #d1d5db; font-weight: 600;',
+  td: 'padding: 8px 12px; border: 1px solid #d1d5db;',
+  header: 'font-family: Arial, sans-serif; color: #1f2937; margin-bottom: 16px;',
+  paragraph: 'font-family: Arial, sans-serif; color: #374151; font-size: 14px; line-height: 1.5;',
+  warning: 'background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 16px; margin-bottom: 16px;',
+  footer: 'font-family: Arial, sans-serif; color: #9ca3af; font-size: 12px; margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 12px;',
+} as const
+
+function severityColor(severity: string): string {
+  switch (severity) {
+    case 'CRITICAL': return '#dc2626'
+    case 'HIGH': return '#dc2626'
+    case 'MEDIUM': return '#f59e0b'
+    case 'LOW': return '#6b7280'
+    default: return '#374151'
+  }
+}
+
+function severityLabel(severity: string): string {
+  switch (severity) {
+    case 'CRITICAL': return 'Kritisch'
+    case 'HIGH': return 'Hoch'
+    case 'MEDIUM': return 'Mittel'
+    case 'LOW': return 'Niedrig'
+    default: return severity
+  }
+}
+
+function supportLevelLabel(level: string): string {
+  switch (level) {
+    case 'INTENSIVE': return 'Intensiv'
+    case 'ELEVATED': return 'Erhöht'
+    case 'STANDARD': return 'Standard'
+    default: return level
+  }
+}
+
+function supportLevelColor(level: string): string {
+  switch (level) {
+    case 'INTENSIVE': return '#dc2626'
+    case 'ELEVATED': return '#f59e0b'
+    default: return '#374151'
+  }
+}
+
+function formatDate(date: Date): string {
+  return new Date(date).toLocaleDateString('de-CH', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+function stars(rating: number): string {
+  return '\u2605'.repeat(rating) + '\u2606'.repeat(5 - rating)
+}
+
+function emailFooter(): string {
+  return `<p style="${STYLES.footer}">Diese E-Mail wurde automatisch vom AOZ Housing System generiert.</p>`
+}
+
+// -- Template functions --
+
+export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subject: string; html: string } {
+  const subject = `[AOZ Housing] ${incidents.length} überfällige Nachverfolgungen`
+
+  const rows = incidents.map(i => `
+    <tr>
+      <td style="${STYLES.td}">${i.id.slice(-8)}</td>
+      <td style="${STYLES.td}">${i.description}</td>
+      <td style="${STYLES.td}"><span style="color: ${severityColor(i.severity)}; font-weight: 600;">${severityLabel(i.severity)}</span></td>
+      <td style="${STYLES.td}">${i.housingUnitCode || '-'}</td>
+      <td style="${STYLES.td}">${formatDate(i.nextFollowUpDate)}</td>
+    </tr>
+  `).join('')
+
+  const html = `
+    <h2 style="${STYLES.header}">Überfällige Nachverfolgungen</h2>
+    <p style="${STYLES.paragraph}">${incidents.length} Vorfall/Vorfälle benötigen dringend eine Nachverfolgung:</p>
+    <table style="${STYLES.table}">
+      <thead>
+        <tr>
+          <th style="${STYLES.th}">ID</th>
+          <th style="${STYLES.th}">Beschreibung</th>
+          <th style="${STYLES.th}">Schweregrad</th>
+          <th style="${STYLES.th}">Wohneinheit</th>
+          <th style="${STYLES.th}">Fällig seit</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+export function checkInReminder(overdueResidents: OverdueResident[]): { subject: string; html: string } {
+  const subject = `[AOZ Housing] ${overdueResidents.length} Check-ins überfällig`
+
+  const rows = overdueResidents.map(r => `
+    <tr>
+      <td style="${STYLES.td}">${r.code}</td>
+      <td style="${STYLES.td}"><span style="color: ${supportLevelColor(r.supportLevel)}; font-weight: 600;">${supportLevelLabel(r.supportLevel)}</span></td>
+      <td style="${STYLES.td}">${r.lastCheckInDate ? formatDate(r.lastCheckInDate) : 'Nie'}</td>
+      <td style="${STYLES.td}">${r.daysSinceLastCheckIn} Tage</td>
+    </tr>
+  `).join('')
+
+  const html = `
+    <h2 style="${STYLES.header}">Überfällige Check-ins</h2>
+    <p style="${STYLES.paragraph}">${overdueResidents.length} Bewohner benötigen einen Check-in:</p>
+    <table style="${STYLES.table}">
+      <thead>
+        <tr>
+          <th style="${STYLES.th}">Bewohner</th>
+          <th style="${STYLES.th}">Betreuungsstufe</th>
+          <th style="${STYLES.th}">Letzter Check-in</th>
+          <th style="${STYLES.th}">Überfällig</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: string; html: string } {
+  const subject = `[AOZ Housing] Niedrige Zufriedenheit: ${data.residentCode}`
+
+  const html = `
+    <div style="${STYLES.warning}">
+      <h2 style="font-family: Arial, sans-serif; color: #991b1b; margin: 0 0 12px 0;">Niedrige Zufriedenheit gemeldet</h2>
+      <p style="${STYLES.paragraph}">
+        <strong>Bewohner:</strong> ${data.residentCode}<br>
+        <strong>Wohneinheit:</strong> ${data.housingUnitCode}<br>
+        <strong>Bewertung:</strong> <span style="font-size: 18px; color: #dc2626;">${stars(data.overallSatisfaction)}</span> (${data.overallSatisfaction}/5)
+      </p>
+      ${data.concerns ? `<p style="${STYLES.paragraph}"><strong>Anliegen:</strong> ${data.concerns}</p>` : ''}
+    </div>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Situation und kontaktieren Sie den Bewohner zeitnah.</p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+export function newTransferRequestNotification(data: TransferRequestData): { subject: string; html: string } {
+  const subject = `[AOZ Housing] Neue Verlegungsanfrage: ${data.residentCode}`
+
+  const html = `
+    <h2 style="${STYLES.header}">Neue Verlegungsanfrage</h2>
+    <p style="${STYLES.paragraph}">
+      <strong>Bewohner:</strong> ${data.residentCode}<br>
+      <strong>Aktuelle Wohneinheit:</strong> ${data.currentUnitCode}<br>
+      ${data.targetUnitCode ? `<strong>Gewünschte Wohneinheit:</strong> ${data.targetUnitCode}<br>` : ''}
+      <strong>Grund:</strong> ${data.reason}
+    </p>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Anfrage im AOZ Housing System.</p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}

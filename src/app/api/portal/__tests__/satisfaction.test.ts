@@ -55,6 +55,11 @@ jest.mock('@/lib/validation/schemas', () => ({
   },
 }))
 
+jest.mock('@/lib/email', () => ({
+  notifyStaff: jest.fn().mockResolvedValue(true),
+  lowSatisfactionAlert: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
+}))
+
 // --- Import after mocks ---
 import { POST, GET } from '../satisfaction/route'
 
@@ -76,6 +81,7 @@ const RESIDENT_WITH_PLACEMENT = {
   placements: [{
     id: 'pl-1',
     housingUnitId: 'hu-1',
+    housingUnit: { code: 'WE-001' },
     status: 'ACTIVE',
     startDate: TEN_WEEKS_AGO,
     satisfactionRating: 4,

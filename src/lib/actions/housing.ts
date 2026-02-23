@@ -12,8 +12,10 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { requireStaffAuth } from '@/lib/auth'
 
 export async function createHousingUnit(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(HousingUnitInputSchema, formData)
 
   let unit
@@ -29,6 +31,7 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
       action: 'CREATE',
       entity: 'HOUSING_UNIT',
       entityId: unit.id,
+      userId: user.id,
       changes: { code: data.code, address: data.address },
     })
   } catch (error) {
@@ -42,6 +45,7 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
 }
 
 export async function updateHousingUnit(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
   const data = validateFormData(HousingUnitUpdateSchema, formData)
   const { id, ...updateData } = data
 
@@ -55,6 +59,7 @@ export async function updateHousingUnit(formData: FormData): Promise<void> {
       action: 'UPDATE',
       entity: 'HOUSING_UNIT',
       entityId: id,
+      userId: user.id,
       changes: updateData,
     })
   } catch (error) {
@@ -68,6 +73,7 @@ export async function updateHousingUnit(formData: FormData): Promise<void> {
 }
 
 export async function archiveHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const unit = await prisma.housingUnit.findUnique({
       where: { id: housingUnitId },
@@ -91,6 +97,7 @@ export async function archiveHousingUnit(housingUnitId: string): Promise<{ succe
       action: 'ARCHIVE',
       entity: 'HOUSING_UNIT',
       entityId: housingUnitId,
+      userId: user.id,
       changes: { status: 'CLOSED' },
     })
 
@@ -104,6 +111,7 @@ export async function archiveHousingUnit(housingUnitId: string): Promise<{ succe
 }
 
 export async function restoreHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
+  const user = await requireStaffAuth()
   try {
     const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })
     if (!unit) return { success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND }
@@ -117,6 +125,7 @@ export async function restoreHousingUnit(housingUnitId: string): Promise<{ succe
       action: 'RESTORE',
       entity: 'HOUSING_UNIT',
       entityId: housingUnitId,
+      userId: user.id,
       changes: { status: 'AVAILABLE' },
     })
 
@@ -139,6 +148,7 @@ export async function hardDeleteHousingUnitProtected(
   confirmation: string,
   reason: string
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
+  const user = await requireStaffAuth()
   try {
     if (confirmation !== 'DELETE') {
       return { success: false, error: 'Bestätigung fehlt (DELETE)' }
@@ -183,6 +193,7 @@ export async function hardDeleteHousingUnitProtected(
       action: 'DELETE',
       entity: 'HOUSING_UNIT',
       entityId: housingUnitId,
+      userId: user.id,
       reason,
       changes: { code: unit.code, protectedDelete: true },
     })

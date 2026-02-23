@@ -43,8 +43,11 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
+const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue(null),
+  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -255,5 +258,18 @@ describe('hardDeleteHousingUnitProtected', () => {
         entityId: 'hu-1',
       })
     )
+  })
+})
+
+// =============================================================================
+// auth guard
+// =============================================================================
+
+describe('auth guard', () => {
+  it('rejects unauthenticated requests', async () => {
+    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
+
+    await expect(archiveHousingUnit('test-id')).rejects.toThrow('Anmeldung erforderlich')
   })
 })
