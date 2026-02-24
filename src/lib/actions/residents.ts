@@ -87,7 +87,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
 export async function updateResident(formData: FormData): Promise<void> {
   const user = await requireStaffAuth()
   const data = validateFormData(ResidentUpdateSchema, formData)
-  const { id, ...updateData } = data
+  const { id, code: _code, ...updateData } = data
 
   try {
     await prisma.resident.update({

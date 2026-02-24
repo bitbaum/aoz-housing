@@ -177,6 +177,8 @@ export const ResidentInputSchema = z.object({
 
 export const ResidentUpdateSchema = ResidentInputSchema.extend({
   id: z.string().cuid(),
+  // code is disabled (read-only) in edit form, so it's not included in FormData
+  code: z.string().optional(),
 })
 
 // =============================================================================
@@ -496,8 +498,28 @@ export function validateFormData<T extends z.ZodTypeAny>(
     }
   })
 
-  // Handle checkbox boolean conversion
-  // Unchecked checkboxes don't appear in FormData
+  // Coerce single values to arrays for schema fields that expect arrays.
+  // FormData sends a single string when only one checkbox is checked,
+  // but Zod array fields need an actual array.
+  if ('shape' in schema && typeof schema.shape === 'object') {
+    const shape = schema.shape as Record<string, z.ZodTypeAny>
+    for (const [key, fieldSchema] of Object.entries(shape)) {
+      if (rawData[key] !== undefined && !Array.isArray(rawData[key])) {
+        // Unwrap ZodDefault, ZodOptional, etc. to find the inner type
+        let inner: z.ZodTypeAny = fieldSchema
+        while (
+          inner instanceof z.ZodDefault ||
+          inner instanceof z.ZodOptional ||
+          inner instanceof z.ZodNullable
+        ) {
+          inner = inner._def.innerType
+        }
+        if (inner instanceof z.ZodArray) {
+          rawData[key] = [rawData[key]]
+        }
+      }
+    }
+  }
 
   const result = schema.safeParse(rawData)
 
