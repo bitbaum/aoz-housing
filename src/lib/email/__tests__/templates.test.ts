@@ -8,6 +8,7 @@ import {
   checkInReminder,
   lowSatisfactionAlert,
   newTransferRequestNotification,
+  newIncidentNotification,
 } from '../templates'
 
 // =============================================================================
@@ -259,6 +260,103 @@ describe('lowSatisfactionAlert', () => {
     })
     expect(result.html).toContain('\u2605\u2606\u2606\u2606\u2606')
     expect(result.html).toContain('1/5')
+  })
+})
+
+// =============================================================================
+// newTransferRequestNotification
+// =============================================================================
+
+// =============================================================================
+// newIncidentNotification
+// =============================================================================
+
+describe('newIncidentNotification', () => {
+  const baseData = {
+    residentCode: 'RES-042',
+    housingUnitCode: 'WE-007',
+    category: 'INTERPERSONAL',
+    type: 'NOISE_COMPLAINT',
+    severity: 'HIGH',
+    description: 'Laute Musik nach 22 Uhr, jeden Abend',
+    requestedMediation: false,
+  }
+
+  test('returns subject with type and severity in German', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Lärmbeschwerde (Hoch)')
+  })
+
+  test('html contains resident code and housing unit', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('RES-042')
+    expect(result.html).toContain('WE-007')
+  })
+
+  test('html contains category and type labels in German', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('Zwischenmenschlich')
+    expect(result.html).toContain('Lärmbeschwerde')
+  })
+
+  test('html contains severity with color', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('Hoch')
+    expect(result.html).toContain('#dc2626')
+  })
+
+  test('html contains description', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('Laute Musik nach 22 Uhr, jeden Abend')
+  })
+
+  test('html contains subject code when provided', () => {
+    const result = newIncidentNotification({ ...baseData, subjectCode: 'RES-099' })
+    expect(result.html).toContain('RES-099')
+    expect(result.html).toContain('Betroffene Person')
+  })
+
+  test('omits subject code section when not provided', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).not.toContain('Betroffene Person')
+  })
+
+  test('shows mediation request when true', () => {
+    const result = newIncidentNotification({ ...baseData, requestedMediation: true })
+    expect(result.html).toContain('Vermittlung gewünscht')
+  })
+
+  test('omits mediation line when false', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).not.toContain('Vermittlung gewünscht')
+  })
+
+  test('html contains review prompt', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('Bitte prüfen Sie den Vorfall')
+  })
+
+  test('html contains footer', () => {
+    const result = newIncidentNotification(baseData)
+    expect(result.html).toContain('automatisch vom AOZ Housing System')
+  })
+
+  test('handles CRITICAL severity correctly', () => {
+    const result = newIncidentNotification({ ...baseData, severity: 'CRITICAL', type: 'SAFETY_CONCERN' })
+    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Sicherheitsbedenken (Kritisch)')
+    expect(result.html).toContain('Kritisch')
+  })
+
+  test('handles MAINTENANCE category correctly', () => {
+    const result = newIncidentNotification({
+      ...baseData,
+      category: 'MAINTENANCE',
+      type: 'PLUMBING',
+      severity: 'MEDIUM',
+    })
+    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Sanitär (Mittel)')
+    expect(result.html).toContain('Wartung')
+    expect(result.html).toContain('Sanitär')
   })
 })
 

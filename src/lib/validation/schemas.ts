@@ -381,8 +381,9 @@ export const portalReportSchema = z.object({
   severity: IncidentSeveritySchema,
   description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
   location: z.string().max(200).optional(),
-  incidentDate: z.string().optional(),
-  involvedResident: z.string().optional(),
+  incidentDate: z.string().optional()
+    .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' }),
+  involvedResident: z.union([z.literal('external'), z.literal('anonymous'), z.string().cuid()]).optional(),
   requestMediation: z.coerce.boolean().default(false),
 })
 

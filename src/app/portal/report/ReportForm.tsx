@@ -302,7 +302,7 @@ export function ReportForm({ roommates }: Props) {
                 {category === 'MAINTENANCE' ? PORTAL_LABELS.report.severityLabel : PORTAL_LABELS.report.conflictSeverityLabel}
               </label>
               <div className={`grid gap-2 sm:gap-3 ${
-                category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2'
+                category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'
               }`}>
                 {PORTAL_LABELS.report.severityOptions[category].map((sev) => (
                   <label key={sev.value} className="cursor-pointer">

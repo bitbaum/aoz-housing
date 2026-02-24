@@ -95,7 +95,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
           <div className="flex items-center gap-4">
-            <span className="text-3xl">
+            <span className="text-3xl" role="img" aria-label={getLabel(INCIDENT_CATEGORY_LABELS, incident.category)}>
               {INCIDENT_CATEGORY_ICONS[incident.category] || '💬'}
             </span>
             <div>
@@ -124,13 +124,13 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">⏰</span>
+              <span className="text-2xl" role="img" aria-label="Überfällig">⏰</span>
               <div>
                 <p className="font-semibold text-red-800">
                   Follow-up überfällig seit {formatRelativeDate(incident.nextFollowUpDate!)}
                 </p>
                 {incident.followUpPriority && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-sm text-red-700">
                     Priorität: {getLabel(FOLLOW_UP_PRIORITY_LABELS, incident.followUpPriority)}
                   </p>
                 )}
@@ -149,7 +149,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       {incident.nextFollowUpDate && !isOverdue && !incident.resolvedAt && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">📅</span>
+            <span className="text-2xl" role="img" aria-label="Geplant">📅</span>
             <div>
               <p className="font-semibold text-blue-800">
                 Nächste Follow-up: {formatDate(incident.nextFollowUpDate)}

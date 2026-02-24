@@ -8,5 +8,6 @@ export {
   checkInReminder,
   lowSatisfactionAlert,
   newTransferRequestNotification,
+  newIncidentNotification,
 } from './templates'
 export { EMAIL_CONFIG } from './config'

@@ -143,6 +143,20 @@ describe('overdue incident follow-ups', () => {
     expect(mockNotifyStaff).toHaveBeenCalled()
   })
 
+  test('queries for MEDIUM, HIGH, and CRITICAL severity incidents', async () => {
+    mockIncidentFindMany.mockResolvedValue([])
+
+    await GET(createCronRequest(`Bearer ${CRON_SECRET}`))
+
+    expect(mockIncidentFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          severity: { in: ['MEDIUM', 'HIGH', 'CRITICAL'] },
+        }),
+      })
+    )
+  })
+
   test('does not send when no overdue incidents', async () => {
     mockIncidentFindMany.mockResolvedValue([])
 

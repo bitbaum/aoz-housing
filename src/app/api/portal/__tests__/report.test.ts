@@ -45,6 +45,16 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
+const mockNotifyStaff = jest.fn().mockResolvedValue(true)
+const mockNewIncidentNotification = jest.fn().mockReturnValue({
+  subject: '[AOZ Housing] Neuer Vorfall',
+  html: '<p>test</p>',
+})
+jest.mock('@/lib/email', () => ({
+  notifyStaff: (...args: unknown[]) => mockNotifyStaff(...args),
+  newIncidentNotification: (...args: unknown[]) => mockNewIncidentNotification(...args),
+}))
+
 // Mock validation — the route uses validateFormData + ValidationError
 const mockValidateFormData = jest.fn()
 const MockValidationError = class ValidationError extends Error {
@@ -96,7 +106,7 @@ function createFormDataRequest(data: Record<string, string>): NextRequest {
 const RESIDENT_WITH_PLACEMENT = {
   id: 'res-1',
   code: 'RES-001',
-  placements: [{ id: 'pl-1', housingUnitId: 'hu-1', status: 'ACTIVE' }],
+  placements: [{ id: 'pl-1', housingUnitId: 'hu-1', status: 'ACTIVE', housingUnit: { code: 'WE-001' } }],
 }
 
 /** Resident without any active placement */
@@ -314,9 +324,44 @@ describe('POST /api/portal/report', () => {
         type: 'PLUMBING',
         severity: 'HIGH',
         reportedBy: 'RES-001',
+        subjectId: null,
+        description: '[Badezimmer] Rohrbruch',
         requestedMediation: false,
       },
     })
+  })
+
+  test('sends staff notification after successful incident creation', async () => {
+    mockCookieGet.mockReturnValue({ value: 'RES-001' })
+    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockValidateFormData.mockReturnValue({
+      category: 'INTERPERSONAL',
+      type: 'NOISE_COMPLAINT',
+      severity: 'HIGH',
+      description: 'Laute Musik',
+      requestMediation: true,
+      involvedResident: 'external',
+      incidentDate: null,
+    })
+    mockIncidentCreate.mockResolvedValue({ id: 'inc-notify' })
+
+    const req = createFormDataRequest({ description: 'Laute Musik' })
+    await POST(req)
+
+    // Wait for fire-and-forget promise
+    await new Promise((r) => setTimeout(r, 0))
+
+    expect(mockNewIncidentNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        residentCode: 'RES-001',
+        housingUnitCode: 'WE-001',
+        category: 'INTERPERSONAL',
+        type: 'NOISE_COMPLAINT',
+        severity: 'HIGH',
+        requestedMediation: true,
+      })
+    )
+    expect(mockNotifyStaff).toHaveBeenCalledWith('[AOZ Housing] Neuer Vorfall', '<p>test</p>')
   })
 
   test('returns 500 when prisma.incident.create fails', async () => {

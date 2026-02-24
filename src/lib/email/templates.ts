@@ -34,6 +34,17 @@ interface TransferRequestData {
   targetUnitCode?: string
 }
 
+interface NewIncidentData {
+  residentCode: string
+  housingUnitCode: string
+  category: string
+  type: string
+  severity: string
+  description: string
+  subjectCode?: string
+  requestedMediation: boolean
+}
+
 // -- Shared styles --
 
 const STYLES = {
@@ -185,6 +196,66 @@ export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: stri
       ${data.concerns ? `<p style="${STYLES.paragraph}"><strong>Anliegen:</strong> ${data.concerns}</p>` : ''}
     </div>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie die Situation und kontaktieren Sie den Bewohner zeitnah.</p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+function categoryLabel(category: string): string {
+  switch (category) {
+    case 'INTERPERSONAL': return 'Zwischenmenschlich'
+    case 'MAINTENANCE': return 'Wartung'
+    case 'SAFETY': return 'Sicherheit'
+    case 'WELLBEING': return 'Wohlbefinden'
+    default: return category
+  }
+}
+
+function typeLabel(type: string): string {
+  switch (type) {
+    case 'NOISE_COMPLAINT': return 'Lärmbeschwerde'
+    case 'CLEANLINESS_DISPUTE': return 'Sauberkeitskonflikt'
+    case 'PERSONAL_CONFLICT': return 'Persönlicher Konflikt'
+    case 'CULTURAL_FRICTION': return 'Kulturelle Differenzen'
+    case 'SPACE_DISPUTE': return 'Platzkonflikt'
+    case 'SCHEDULE_CONFLICT': return 'Zeitplankonflikt'
+    case 'SAFETY_CONCERN': return 'Sicherheitsbedenken'
+    case 'PLUMBING': return 'Sanitär'
+    case 'ELECTRICAL': return 'Elektrik'
+    case 'HEATING_COOLING': return 'Heizung/Klima'
+    case 'APPLIANCE': return 'Gerät defekt'
+    case 'STRUCTURAL': return 'Bauschaden'
+    case 'PEST_CONTROL': return 'Schädlinge'
+    case 'SECURITY_SYSTEM': return 'Sicherheitssystem'
+    case 'GENERAL_MAINTENANCE': return 'Allgemeine Wartung'
+    case 'LOW_SATISFACTION': return 'Unzufriedenheit gemeldet'
+    case 'OTHER': return 'Sonstiges'
+    default: return type
+  }
+}
+
+export function newIncidentNotification(data: NewIncidentData): { subject: string; html: string } {
+  const subject = `[AOZ Housing] Neuer Vorfall: ${typeLabel(data.type)} (${severityLabel(data.severity)})`
+
+  const html = `
+    <div style="${STYLES.warning}">
+      <h2 style="font-family: Arial, sans-serif; color: #991b1b; margin: 0 0 12px 0;">Neuer Vorfall gemeldet</h2>
+      <p style="${STYLES.paragraph}">
+        <strong>Gemeldet von:</strong> ${data.residentCode}<br>
+        <strong>Wohneinheit:</strong> ${data.housingUnitCode}<br>
+        <strong>Kategorie:</strong> ${categoryLabel(data.category)}<br>
+        <strong>Typ:</strong> ${typeLabel(data.type)}<br>
+        <strong>Schweregrad:</strong> <span style="color: ${severityColor(data.severity)}; font-weight: 600;">${severityLabel(data.severity)}</span>
+        ${data.subjectCode ? `<br><strong>Betroffene Person:</strong> ${data.subjectCode}` : ''}
+        ${data.requestedMediation ? `<br><strong>Vermittlung gewünscht:</strong> Ja` : ''}
+      </p>
+    </div>
+    <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+      <h3 style="font-family: Arial, sans-serif; color: #374151; margin: 0 0 8px 0; font-size: 14px;">Beschreibung</h3>
+      <p style="${STYLES.paragraph}">${data.description}</p>
+    </div>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie den Vorfall im AOZ Housing System.</p>
     ${emailFooter()}
   `
 

@@ -6,6 +6,7 @@ import { portalReportSchema, validateFormData, ValidationError } from '@/lib/val
 import { logger } from '@/lib/logger'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { notifyStaff, newIncidentNotification } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
       placements: {
         where: { status: 'ACTIVE' },
         take: 1,
+        include: { housingUnit: { select: { code: true } } },
       },
     },
   })
@@ -81,9 +83,27 @@ export async function POST(request: NextRequest) {
         type: data.type,
         severity: data.severity,
         reportedBy: residentCode,
+        subjectId: data.involvedResident && data.involvedResident !== 'external' ? data.involvedResident : null,
+        description: fullDescription.slice(0, 200),
         requestedMediation: data.requestMediation,
       },
     })
+
+    // Fire-and-forget staff notification
+    const housingUnitCode = placement.housingUnit?.code || '-'
+    const email = newIncidentNotification({
+      residentCode,
+      housingUnitCode,
+      category: data.category,
+      type: data.type,
+      severity: data.severity,
+      description: fullDescription.slice(0, 500),
+      subjectCode: data.involvedResident && data.involvedResident !== 'external' && data.involvedResident !== 'anonymous'
+        ? data.involvedResident : undefined,
+      requestedMediation: data.requestMediation ?? false,
+    })
+    notifyStaff(email.subject, email.html)
+      .catch((err) => logger.errorWithCause('Failed to send incident notification', err))
 
     return NextResponse.json({ success: true })
   } catch (error) {

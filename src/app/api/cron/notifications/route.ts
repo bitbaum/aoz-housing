@@ -3,7 +3,7 @@
  * Authenticated via Bearer token (CRON_SECRET).
  *
  * Checks for:
- * 1. Overdue incident follow-ups (HIGH/CRITICAL, past nextFollowUpDate)
+ * 1. Overdue incident follow-ups (MEDIUM/HIGH/CRITICAL, past nextFollowUpDate)
  * 2. Overdue resident check-ins (based on support level thresholds)
  */
 
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       where: {
         resolvedAt: null,
         nextFollowUpDate: { lt: new Date() },
-        severity: { in: ['HIGH', 'CRITICAL'] },
+        severity: { in: ['MEDIUM', 'HIGH', 'CRITICAL'] },
       },
       include: {
         housingUnit: { select: { code: true } },

@@ -95,7 +95,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {stats.critical > 0 && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🚨</span>
+            <span className="text-2xl" role="img" aria-label="Warnung">🚨</span>
             <div>
               <p className="font-semibold text-red-800">
                 {stats.critical} kritische Vorfälle erfordern sofortige Aufmerksamkeit
@@ -192,7 +192,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          <span className="text-2xl">{categoryIcon}</span>
+          <span className="text-2xl" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-gray-900">
@@ -220,14 +220,14 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
               <span className="hover:text-aoz-primary">
-                🏠 {incident.housingUnit.code}
+                <span aria-hidden="true">🏠</span> {incident.housingUnit.code}
               </span>
               {incident.reportedBy && (
                 <span
                   className="hover:text-aoz-primary"
                   title="Gemeldet von"
                 >
-                  📢 {incident.reportedBy.code}
+                  <span aria-hidden="true">📢</span> {incident.reportedBy.code}
                 </span>
               )}
               {incident.subject && (
@@ -235,7 +235,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   className="hover:text-aoz-primary font-medium"
                   title="Betrifft"
                 >
-                  👤 {incident.subject.code}
+                  <span aria-hidden="true">👤</span> {incident.subject.code}
                 </span>
               )}
               <span>{formatRelativeDate(incident.date)}</span>
