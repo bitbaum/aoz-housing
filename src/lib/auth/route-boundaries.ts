@@ -41,8 +41,6 @@ export const PUBLIC_ROUTES = [
   '/algorithm',
   '/api/auth',
   '/api/health',
-  '/api/portal/login',
-  '/api/portal/register',
   '/api/cron',
 ]
 

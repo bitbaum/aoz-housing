@@ -1,60 +1,50 @@
 import { test, expect } from '@playwright/test'
 
-test.describe('Staff authentication flow', () => {
-  test('login page loads with form', async ({ page }) => {
+test.describe('Authentication flow', () => {
+  test('login page loads with code input', async ({ page }) => {
     await page.goto('/login')
 
-    // Login form visible
-    await expect(page.locator('input[type="email"]')).toBeVisible()
-    await expect(page.locator('input[type="password"]')).toBeVisible()
+    // Code input visible
+    await expect(page.locator('#code')).toBeVisible()
+    await expect(page.locator('#code')).toHaveAttribute('placeholder', /AOZ-|RES-/)
+
+    // Submit button visible
     await expect(page.locator('form').getByRole('button', { name: /^Anmelden$/i })).toBeVisible()
   })
 
-  test('shows registration tab with invite code field', async ({ page }) => {
+  test('rejects login with invalid code', async ({ page }) => {
     await page.goto('/login')
 
-    // Click register tab
-    await page.getByRole('button', { name: /Registrieren/i }).first().click()
-
-    // Registration fields visible
-    await expect(page.locator('#reg-name')).toBeVisible()
-    await expect(page.locator('#reg-email')).toBeVisible()
-    await expect(page.locator('#reg-password')).toBeVisible()
-    await expect(page.locator('#invite-code')).toBeVisible()
-  })
-
-  test('rejects login with invalid credentials', async ({ page }) => {
-    await page.goto('/login')
-
-    await page.locator('input[type="email"]').fill('nobody@aoz.ch')
-    await page.locator('input[type="password"]').fill('wrongpassword')
+    await page.locator('#code').fill('INVALID-CODE')
     await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
     // Should show error message
-    await expect(page.locator('.bg-red-50, [role="alert"]')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 5000 })
   })
 
-  test('rejects registration with invalid invite code', async ({ page }) => {
+  test('shows success and redirects on valid staff login', async ({ page }) => {
+    const staffCode = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
     await page.goto('/login')
 
-    // Switch to register tab
-    await page.getByRole('button', { name: /Registrieren/i }).first().click()
+    await page.locator('#code').fill(staffCode)
+    await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
-    await page.locator('#reg-name').fill('Test User')
-    await page.locator('#reg-email').fill('test@aoz.ch')
-    await page.locator('#reg-password').fill('password123')
-    await page.locator('#invite-code').fill('WRONG-CODE')
-    await page.locator('form').getByRole('button', { name: /^Registrieren$/i }).click()
+    // Success state shows green checkmark
+    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 5000 })
 
-    // Should show error
-    await expect(page.locator('.bg-red-50, [role="alert"]')).toBeVisible({ timeout: 5000 })
+    // Redirects to dashboard
+    await page.waitForURL((url) => url.pathname === '/', { timeout: 10000 })
   })
 
-  test('portal link is accessible from login page', async ({ page }) => {
+  test('code input is case-insensitive', async ({ page }) => {
+    const staffCode = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
     await page.goto('/login')
 
-    // Should have link to resident portal
-    const portalLink = page.getByRole('link', { name: /Bewohner|Portal/i })
-    await expect(portalLink).toBeVisible()
+    // Enter lowercase code
+    await page.locator('#code').fill(staffCode.toLowerCase())
+    await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
+
+    // Should still succeed (API uppercases)
+    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 5000 })
   })
 })

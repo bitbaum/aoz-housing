@@ -8,8 +8,8 @@ describe('auth route boundaries', () => {
   test('public routes are public', () => {
     expect(isPublicRoute('/portal')).toBe(true)
     expect(isPublicRoute('/portal/help')).toBe(true)
-    expect(isPublicRoute('/api/portal/login')).toBe(true)
     expect(isPublicRoute('/login')).toBe(true)
+    expect(isPublicRoute('/api/auth/login')).toBe(true)
   })
 
   test('staff routes require staff auth', () => {

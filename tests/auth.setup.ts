@@ -15,25 +15,19 @@ export default async function globalSetup(config: FullConfig) {
 
   const ctx = await request.newContext({ baseURL })
 
-  const email = process.env.E2E_STAFF_EMAIL || 'e2e.staff@aoz.test'
-  const password = process.env.E2E_STAFF_PASSWORD || 'Password123!'
-  const inviteCode = process.env.AOZ_REGISTRATION_CODE || process.env.STAFF_INVITE_CODE || '0000'
+  const staffCode = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
 
-  // Try registration first (works for fresh DB)
-  const registerRes = await ctx.post('/api/auth/register', {
-    data: {
-      name: 'E2E Staff',
-      email,
-      password,
-      inviteCode,
-    },
+  // Login with staff code (assumes DB is seeded with this user)
+  const loginRes = await ctx.post('/api/auth/login', {
+    data: { code: staffCode },
   })
 
-  // If already exists, login instead
-  if (!registerRes.ok()) {
-    await ctx.post('/api/auth/login', {
-      data: { email, password },
-    })
+  if (!loginRes.ok()) {
+    const body = await loginRes.text()
+    throw new Error(
+      `E2E global setup: login failed (${loginRes.status()}). ` +
+      `Ensure DB is seeded with code "${staffCode}". Response: ${body}`
+    )
   }
 
   await ctx.storageState({ path: STAFF_STATE_PATH })

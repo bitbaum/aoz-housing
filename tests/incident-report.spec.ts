@@ -25,22 +25,12 @@ test.describe('Incident reporting flow', () => {
   })
 })
 
-test.describe('Portal — resident login', () => {
-  test('portal login page loads', async ({ page }) => {
+test.describe('Portal — unauthenticated access', () => {
+  test('portal redirects to login without resident cookie', async ({ page }) => {
     await page.goto('/portal')
 
-    // Login form visible
-    await expect(page.getByPlaceholder(/Code/i)).toBeVisible()
-    await expect(page.getByRole('button', { name: /Einloggen|Anmelden/i })).toBeVisible()
-  })
-
-  test('rejects invalid code', async ({ page }) => {
-    await page.goto('/portal')
-
-    await page.getByPlaceholder(/Code/i).fill('INVALID-CODE-123')
-    await page.getByRole('button', { name: /Einloggen|Anmelden/i }).click()
-
-    // Should show error
-    await expect(page.getByText(/nicht gefunden|ungültig/i)).toBeVisible({ timeout: 5000 })
+    // Should redirect to /login
+    await page.waitForURL(/\/login/, { timeout: 5000 })
+    await expect(page.locator('#code')).toBeVisible()
   })
 })

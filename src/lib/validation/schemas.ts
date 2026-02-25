@@ -366,13 +366,6 @@ export const SatisfactionCheckInInputSchema = z.object({
 // PORTAL SCHEMAS (Resident self-service)
 // =============================================================================
 
-export const staffRegistrationSchema = z.object({
-  name: z.string().min(1).max(100),
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-  inviteCode: z.string().min(1).optional().or(z.literal('')),
-})
-
 export const portalLoginSchema = z.object({
   code: z.string().min(1, 'Code ist erforderlich').max(50),
 })

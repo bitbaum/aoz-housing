@@ -1,8 +1,7 @@
 /**
- * Tests for JWT token management (jwt.ts) and password hashing (password.ts).
+ * Tests for JWT token management (jwt.ts).
  *
- * Integration-style: uses real jose (via createToken/verifyToken) and real
- * bcryptjs -- no mocking of crypto libraries.
+ * Integration-style: uses real jose (via createToken/verifyToken).
  *
  * For edge-case JWT tests (wrong secret, wrong issuer, missing fields, expired),
  * we build JWTs manually with Node's crypto module so we don't need to import
@@ -11,7 +10,6 @@
 
 import crypto from 'crypto'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from '@/lib/auth/jwt'
-import { hashPassword, verifyPassword } from '@/lib/auth/password'
 import { AUTH_CONFIG } from '@/lib/auth/config'
 
 // ---------------------------------------------------------------------------
@@ -401,69 +399,3 @@ describe('JWT Token Management', () => {
   })
 })
 
-// ---------------------------------------------------------------------------
-// Password Hashing
-// ---------------------------------------------------------------------------
-
-describe('Password Hashing', () => {
-  // ----- hashPassword -----
-  describe('hashPassword', () => {
-    it('returns a string different from the original password', async () => {
-      const password = 'MySecretPassword123!'
-      const hash = await hashPassword(password)
-
-      expect(hash).not.toBe(password)
-      expect(typeof hash).toBe('string')
-    })
-
-    it('produces a valid bcrypt hash format', async () => {
-      const hash = await hashPassword('test-password')
-
-      // bcryptjs produces $2a$ hashes; bcrypt may produce $2b$
-      expect(hash).toMatch(/^\$2[aby]\$\d{2}\$/)
-    })
-
-    it('generates different hashes for the same password (unique salts)', async () => {
-      const password = 'SamePassword!'
-      const hash1 = await hashPassword(password)
-      const hash2 = await hashPassword(password)
-
-      expect(hash1).not.toBe(hash2)
-    })
-
-    it('generates a hash of expected bcrypt length (60 chars)', async () => {
-      const hash = await hashPassword('any-password')
-      expect(hash).toHaveLength(60)
-    })
-  })
-
-  // ----- verifyPassword -----
-  describe('verifyPassword', () => {
-    it('returns true for the correct password', async () => {
-      const password = 'CorrectPassword!'
-      const hash = await hashPassword(password)
-
-      expect(await verifyPassword(password, hash)).toBe(true)
-    })
-
-    it('returns false for an incorrect password', async () => {
-      const hash = await hashPassword('CorrectPassword!')
-
-      expect(await verifyPassword('WrongPassword!', hash)).toBe(false)
-    })
-
-    it('returns false for an empty password against a real hash', async () => {
-      const hash = await hashPassword('SomePassword')
-
-      expect(await verifyPassword('', hash)).toBe(false)
-    })
-
-    it('handles passwords with special characters and unicode', async () => {
-      const password = 'P@$$w0rd! mit Umlauten: ae oe ue'
-      const hash = await hashPassword(password)
-
-      expect(await verifyPassword(password, hash)).toBe(true)
-      expect(await verifyPassword(password + ' ', hash)).toBe(false)
-    })
-  })
-})

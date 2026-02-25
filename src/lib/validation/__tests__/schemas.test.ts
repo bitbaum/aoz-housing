@@ -18,7 +18,6 @@ import {
   portalPreferencesSchema,
   portalRegistrationSchema,
   portalSatisfactionSchema,
-  staffRegistrationSchema,
   validateFormData,
   ValidationError,
 } from '../schemas'
@@ -656,47 +655,6 @@ describe('portalSatisfactionSchema', () => {
 
   it('rejects rating above 5', () => {
     const result = portalSatisfactionSchema.safeParse({ rating: 6 })
-    expect(result.success).toBe(false)
-  })
-})
-
-describe('staffRegistrationSchema', () => {
-  it('accepts valid registration with AOZ code', () => {
-    const result = staffRegistrationSchema.safeParse({
-      name: 'Test User',
-      email: 'test@aoz.ch',
-      password: 'securepass123',
-      inviteCode: 'AOZ2024',
-    })
-    expect(result.success).toBe(true)
-  })
-
-  it('accepts registration without AOZ code (resident path)', () => {
-    const result = staffRegistrationSchema.safeParse({
-      name: 'Test User',
-      email: 'test@aoz.ch',
-      password: 'securepass123',
-    })
-    expect(result.success).toBe(true)
-  })
-
-  it('rejects invalid email', () => {
-    const result = staffRegistrationSchema.safeParse({
-      name: 'Test',
-      email: 'not-an-email',
-      password: 'securepass123',
-      inviteCode: 'AOZ2024',
-    })
-    expect(result.success).toBe(false)
-  })
-
-  it('rejects password shorter than 8 chars', () => {
-    const result = staffRegistrationSchema.safeParse({
-      name: 'Test',
-      email: 'test@aoz.ch',
-      password: 'short',
-      inviteCode: 'AOZ2024',
-    })
     expect(result.success).toBe(false)
   })
 })
