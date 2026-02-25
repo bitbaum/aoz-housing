@@ -5,7 +5,11 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
-export function PortalNav() {
+interface PortalNavProps {
+  hasStaffAccess?: boolean
+}
+
+export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
 
@@ -26,6 +30,14 @@ export function PortalNav() {
           <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
           <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
           <PortalNavLink href="/portal/help" active={pathname === '/portal/help'}>{PORTAL_LABELS.nav.help}</PortalNavLink>
+          {hasStaffAccess && (
+            <Link
+              href="/"
+              className="min-h-[44px] px-3 py-2 rounded-lg transition-colors text-sm md:text-base flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+            >
+              Zur Verwaltung
+            </Link>
+          )}
           <form action="/api/portal/logout" method="POST" className="ml-2">
             <button
               type="submit"
@@ -81,6 +93,15 @@ export function PortalNav() {
           <PortalNavLinkMobile href="/portal/help" active={pathname === '/portal/help'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.help}
           </PortalNavLinkMobile>
+          {hasStaffAccess && (
+            <Link
+              href="/"
+              onClick={() => setMenuOpen(false)}
+              className="transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+            >
+              Zur Verwaltung
+            </Link>
+          )}
           <form action="/api/portal/logout" method="POST" className="mt-1">
             <button
               type="submit"

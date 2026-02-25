@@ -9,7 +9,6 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import { AUTH_CONFIG } from './config'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
-import { verifyPassword } from './password'
 import { checkRateLimit, recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -20,7 +19,7 @@ export type { TokenPayload }
 // Types for auth
 export interface AuthUser {
   id: string
-  email: string
+  email: string // JWT still carries email (may be empty string for code-only users)
   name: string
   role: 'ADMIN'
 }
@@ -30,9 +29,10 @@ export interface AuthResident {
   code: string
 }
 
-export type LoginResult =
-  | { success: true; user: AuthUser }
-  | { success: false; error: string; retryAfter?: number }
+export type LoginByCodeResult =
+  | { success: true; type: 'staff'; user: AuthUser }
+  | { success: true; type: 'resident'; code: string }
+  | { success: false; error: string }
 
 /**
  * Get current staff user from session cookie
@@ -156,77 +156,68 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 /**
- * Authenticate user with email and password
- * Returns user data on success, error on failure
+ * Authenticate by code (unified login)
+ * AOZ-prefixed codes → staff login
+ * RES-prefixed codes → resident login
  */
-export async function login(email: string, password: string, clientIp: string): Promise<LoginResult> {
-  // Check rate limit
-  const rateCheck = checkRateLimit(clientIp)
-  if (!rateCheck.allowed) {
+export async function loginByCode(code: string, clientIp: string): Promise<LoginByCodeResult> {
+  if (code.startsWith('AOZ-')) {
+    // Staff login
+    const user = await prisma.user.findUnique({
+      where: { code },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        active: true,
+      },
+    })
+
+    if (!user || !user.active) {
+      recordLoginAttempt(clientIp)
+      return { success: false, error: 'Ungültiger Code' }
+    }
+
+    clearLoginAttempts(clientIp)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    })
+
     return {
-      success: false,
-      error: `Zu viele Anmeldeversuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.`,
-      retryAfter: rateCheck.retryAfter,
+      success: true,
+      type: 'staff',
+      user: {
+        id: user.id,
+        email: user.email || '',
+        name: user.name,
+        role: user.role,
+      },
     }
   }
 
-  // Find user by email
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      passwordHash: true,
-      active: true,
-    },
-  })
+  if (code.startsWith('RES-')) {
+    // Resident login
+    const resident = await prisma.resident.findUnique({
+      where: { code },
+      select: { id: true, code: true },
+    })
 
-  // User not found or inactive
-  if (!user || !user.active) {
-    recordLoginAttempt(clientIp)
+    if (!resident) {
+      recordLoginAttempt(clientIp)
+      return { success: false, error: 'Ungültiger Code' }
+    }
+
+    clearLoginAttempts(clientIp)
     return {
-      success: false,
-      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
+      success: true,
+      type: 'resident',
+      code: resident.code,
     }
   }
 
-  // No password set (shouldn't happen but handle gracefully)
-  if (!user.passwordHash) {
-    recordLoginAttempt(clientIp)
-    return {
-      success: false,
-      error: ERROR_MESSAGES.ACCOUNT_NOT_SETUP,
-    }
-  }
-
-  // Verify password
-  const passwordValid = await verifyPassword(password, user.passwordHash)
-  if (!passwordValid) {
-    recordLoginAttempt(clientIp)
-    return {
-      success: false,
-      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
-    }
-  }
-
-  // Success - clear rate limit and update last login
-  clearLoginAttempts(clientIp)
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { lastLoginAt: new Date() },
-  })
-
-  return {
-    success: true,
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
-  }
+  return { success: false, error: 'Ungültiger Code. Codes beginnen mit AOZ- oder RES-.' }
 }
 
 /**
@@ -249,8 +240,12 @@ export async function setSessionCookie(user: AuthUser): Promise<void> {
 
 /**
  * Clear session cookie (logout)
+ * Optionally clears both staff and resident cookies for full logout
  */
-export async function clearSessionCookie(): Promise<void> {
+export async function clearSessionCookie(clearAll = false): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete(AUTH_CONFIG.cookie.name)
+  if (clearAll) {
+    cookieStore.delete('resident_code')
+  }
 }

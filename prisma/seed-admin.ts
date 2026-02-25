@@ -1,44 +1,63 @@
 /**
- * Seed Initial Admin User
+ * Seed Initial Admin User (code-based auth)
  *
  * Usage:
  *   npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
  *
- * Or with custom password:
- *   ADMIN_PASSWORD=mypassword npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+ * Or with custom code:
+ *   ADMIN_CODE=AOZ-CUSTOM npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
  */
 
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@aoz.ch'
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123' // CHANGE IN PRODUCTION
+const ADMIN_CODE = process.env.ADMIN_CODE || 'AOZ-ADMIN1'
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Administrator'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@aoz.ch'
+
+function generateStaffCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code = 'AOZ-'
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return code
+}
 
 async function main() {
   console.log('Creating admin user...')
 
-  // Check if admin already exists
-  const existing = await prisma.user.findUnique({
-    where: { email: ADMIN_EMAIL },
+  // Check if admin already exists by code
+  const existingByCode = await prisma.user.findUnique({
+    where: { code: ADMIN_CODE },
   })
 
-  if (existing) {
-    console.log(`Admin user already exists: ${ADMIN_EMAIL}`)
-    console.log('To update the password, delete the user first and re-run this script.')
+  if (existingByCode) {
+    console.log(`Admin user already exists with code: ${ADMIN_CODE}`)
     return
   }
 
-  // Hash password
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10)
+  // Check if admin exists by email (legacy)
+  const existingByEmail = ADMIN_EMAIL
+    ? await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } })
+    : null
+
+  if (existingByEmail) {
+    // Update existing user to have a code
+    await prisma.user.update({
+      where: { id: existingByEmail.id },
+      data: { code: ADMIN_CODE },
+    })
+    console.log(`Updated existing admin with code: ${ADMIN_CODE}`)
+    return
+  }
 
   // Create admin user
   const admin = await prisma.user.create({
     data: {
+      code: ADMIN_CODE,
       email: ADMIN_EMAIL,
-      passwordHash,
       name: ADMIN_NAME,
       role: 'ADMIN',
       active: true,
@@ -46,11 +65,13 @@ async function main() {
   })
 
   console.log('Admin user created successfully!')
-  console.log(`  Email: ${admin.email}`)
+  console.log(`  Code: ${admin.code}`)
   console.log(`  Name: ${admin.name}`)
   console.log(`  Role: ${admin.role}`)
   console.log('')
-  console.log('IMPORTANT: Change the default password immediately after first login!')
+  console.log(`Use code "${admin.code}" to log in.`)
+  console.log('')
+  console.log(`To generate additional staff codes, use: ${generateStaffCode()}`)
 }
 
 main()

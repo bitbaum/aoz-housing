@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { ROLE_LABELS } from '@/lib/constants/labels'
 
 interface UserMenuProps {
@@ -10,9 +11,10 @@ interface UserMenuProps {
     email: string
     role: string
   }
+  hasPortalAccess?: boolean
 }
 
-export function UserMenu({ user }: UserMenuProps) {
+export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -76,11 +78,29 @@ export function UserMenu({ user }: UserMenuProps) {
           {/* User info */}
           <div className="px-4 py-3 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900">{user.name}</p>
-            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            {user.email && (
+              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            )}
             <p className="text-xs text-aoz-primary mt-1">
               {ROLE_LABELS[user.role] || user.role}
             </p>
           </div>
+
+          {/* Role switcher — portal link */}
+          {hasPortalAccess && (
+            <Link
+              href="/portal"
+              onClick={() => setIsOpen(false)}
+              className="w-full px-4 py-3 text-left text-sm text-gray-700 hover:bg-gray-50
+                       flex items-center gap-2 min-h-[44px]"
+            >
+              <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              Zum Portal wechseln
+            </Link>
+          )}
 
           {/* Logout button */}
           <button

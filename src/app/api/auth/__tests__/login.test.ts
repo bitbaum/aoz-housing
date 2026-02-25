@@ -1,19 +1,28 @@
 /**
- * Tests for staff auth login API route (POST /api/auth/login)
+ * Tests for unified code-based login API route (POST /api/auth/login)
  *
- * Tests: successful login, invalid credentials, missing fields, rate limit, server error
+ * Tests: successful staff/resident login, missing code, rate limit,
+ * invalid credentials, server error, IP extraction, code normalisation
  */
 
 import { NextRequest } from 'next/server'
-import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockLogin = jest.fn()
+const mockLoginByCode = jest.fn()
 const mockSetSessionCookie = jest.fn()
 jest.mock('@/lib/auth', () => ({
-  login: (...args: unknown[]) => mockLogin(...args),
+  loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
   setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
+}))
+
+const mockCheckRateLimit = jest.fn()
+const mockRecordLoginAttempt = jest.fn()
+const mockClearLoginAttempts = jest.fn()
+jest.mock('@/lib/auth/rate-limit', () => ({
+  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
+  recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
+  clearLoginAttempts: (...args: unknown[]) => mockClearLoginAttempts(...args),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -26,23 +35,26 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
+const mockCookieSet = jest.fn()
+jest.mock('next/headers', () => ({
+  cookies: jest.fn().mockResolvedValue({
+    set: (...args: unknown[]) => mockCookieSet(...args),
+  }),
+}))
+
 // --- Import after mocks ---
 import { POST } from '../login/route'
 
 // --- Helpers ---
 
-function createJsonRequest(body: Record<string, unknown>, ip?: string): NextRequest {
-  const headers: Record<string, string> = {
-    'content-type': 'application/json',
-  }
-  if (ip) {
-    headers['x-forwarded-for'] = ip
-  }
-
+function createJsonRequest(body: Record<string, unknown>, headers?: Record<string, string>): NextRequest {
   return new NextRequest('http://localhost:3001/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(body),
-    headers,
+    headers: {
+      'content-type': 'application/json',
+      ...headers,
+    },
   })
 }
 
@@ -58,84 +70,101 @@ const STAFF_USER = {
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    // Default: rate limit allows
+    mockCheckRateLimit.mockReturnValue({ allowed: true })
   })
 
-  test('returns user data on successful login', async () => {
-    mockLogin.mockResolvedValue({ success: true, user: STAFF_USER })
+  test('returns staff user data on successful staff login', async () => {
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
     const req = createJsonRequest(
-      { email: 'admin@aoz.ch', password: 'securepass' },
-      '10.0.0.1'
+      { code: 'AOZ-ABC123' },
+      { 'x-forwarded-for': '10.0.0.1' }
     )
     const res = await POST(req)
     const body = await res.json()
 
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(body.user).toEqual({
-      id: 'user-1',
-      email: 'admin@aoz.ch',
-      name: 'Test Admin',
-      role: 'ADMIN',
-    })
+    expect(body.type).toBe('staff')
+    expect(body.user).toEqual(STAFF_USER)
 
-    // Verify login was called with email, password, and IP
-    expect(mockLogin).toHaveBeenCalledWith('admin@aoz.ch', 'securepass', '10.0.0.1')
+    expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', '10.0.0.1')
     expect(mockSetSessionCookie).toHaveBeenCalledWith(STAFF_USER)
+    expect(mockClearLoginAttempts).toHaveBeenCalledWith('10.0.0.1')
   })
 
-  test('returns 401 on invalid credentials', async () => {
-    mockLogin.mockResolvedValue({
+  test('returns resident data on successful resident login', async () => {
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'resident', code: 'RES-XYZ789' })
+
+    const req = createJsonRequest(
+      { code: 'RES-XYZ789' },
+      { 'x-forwarded-for': '10.0.0.2' }
+    )
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.type).toBe('resident')
+    expect(body.code).toBe('RES-XYZ789')
+
+    // Resident login sets cookie, not staff session
+    expect(mockSetSessionCookie).not.toHaveBeenCalled()
+    expect(mockCookieSet).toHaveBeenCalledWith(
+      'resident_code',
+      'RES-XYZ789',
+      expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' })
+    )
+  })
+
+  test('returns 401 on invalid code', async () => {
+    mockLoginByCode.mockResolvedValue({
       success: false,
-      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
+      error: 'Ungültiger Code',
     })
 
     const req = createJsonRequest(
-      { email: 'wrong@aoz.ch', password: 'wrongpass' },
-      '10.0.0.2'
+      { code: 'AOZ-WRONG1' },
+      { 'x-forwarded-for': '10.0.0.3' }
     )
     const res = await POST(req)
     const body = await res.json()
 
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
-    expect(body.error).toBe(ERROR_MESSAGES.INVALID_CREDENTIALS)
+    expect(body.error).toBe('Ungültiger Code')
     expect(mockSetSessionCookie).not.toHaveBeenCalled()
   })
 
-  test('returns 400 when email is missing', async () => {
-    const req = createJsonRequest({ password: 'somepass' }, '10.0.0.3')
+  test('returns 400 when code is missing', async () => {
+    const req = createJsonRequest({})
     const res = await POST(req)
     const body = await res.json()
 
     expect(res.status).toBe(400)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('E-Mail und Passwort erforderlich')
-    expect(mockLogin).not.toHaveBeenCalled()
+    expect(body.error).toBe('Code erforderlich')
+    expect(mockLoginByCode).not.toHaveBeenCalled()
   })
 
-  test('returns 400 when password is missing', async () => {
-    const req = createJsonRequest({ email: 'admin@aoz.ch' }, '10.0.0.4')
+  test('returns 400 when code is not a string', async () => {
+    const req = createJsonRequest({ code: 12345 })
     const res = await POST(req)
     const body = await res.json()
 
     expect(res.status).toBe(400)
     expect(body.success).toBe(false)
-    expect(body.error).toBe('E-Mail und Passwort erforderlich')
-    expect(mockLogin).not.toHaveBeenCalled()
+    expect(body.error).toBe('Code erforderlich')
   })
 
   test('returns 429 when rate limited', async () => {
-    mockLogin.mockResolvedValue({
-      success: false,
-      error: 'Zu viele Anmeldeversuche. Bitte warten Sie 120 Sekunden.',
-      retryAfter: 120,
-    })
+    mockCheckRateLimit.mockReturnValue({ allowed: false, retryAfter: 120 })
 
     const req = createJsonRequest(
-      { email: 'admin@aoz.ch', password: 'test' },
-      '10.0.0.5'
+      { code: 'AOZ-ABC123' },
+      { 'x-forwarded-for': '10.0.0.5' }
     )
     const res = await POST(req)
     const body = await res.json()
@@ -143,74 +172,68 @@ describe('POST /api/auth/login', () => {
     expect(res.status).toBe(429)
     expect(body.success).toBe(false)
     expect(body.retryAfter).toBe(120)
+    expect(mockLoginByCode).not.toHaveBeenCalled()
   })
 
   test('returns 500 on unexpected server error', async () => {
-    mockLogin.mockRejectedValue(new Error('Database connection failed'))
+    mockLoginByCode.mockRejectedValue(new Error('Database connection failed'))
 
     const req = createJsonRequest(
-      { email: 'admin@aoz.ch', password: 'test' },
-      '10.0.0.6'
+      { code: 'AOZ-ABC123' },
+      { 'x-forwarded-for': '10.0.0.6' }
     )
     const res = await POST(req)
     const body = await res.json()
 
     expect(res.status).toBe(500)
     expect(body.success).toBe(false)
-    expect(body.error).toBe(ERROR_MESSAGES.SESSION_ERROR)
+    expect(body.error).toBe('Ein Fehler ist aufgetreten')
   })
 
-  test('extracts IP from x-forwarded-for header', async () => {
-    mockLogin.mockResolvedValue({ success: true, user: STAFF_USER })
+  test('trims and uppercases the code before login', async () => {
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
-    const req = new NextRequest('http://localhost:3001/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: 'admin@aoz.ch', password: 'test' }),
-      headers: {
-        'content-type': 'application/json',
-        'x-forwarded-for': '192.168.1.1, 10.0.0.1',
-      },
-    })
-
+    const req = createJsonRequest({ code: '  aoz-abc123  ' })
     await POST(req)
 
-    // Should use the first IP from x-forwarded-for
-    expect(mockLogin).toHaveBeenCalledWith('admin@aoz.ch', 'test', '192.168.1.1')
+    expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', expect.any(String))
+  })
+
+  test('extracts IP from x-forwarded-for header (first IP)', async () => {
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
+    mockSetSessionCookie.mockResolvedValue(undefined)
+
+    const req = createJsonRequest(
+      { code: 'AOZ-ABC123' },
+      { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' }
+    )
+    await POST(req)
+
+    expect(mockCheckRateLimit).toHaveBeenCalledWith('192.168.1.1')
+    expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', '192.168.1.1')
   })
 
   test('falls back to x-real-ip when x-forwarded-for is absent', async () => {
-    mockLogin.mockResolvedValue({ success: true, user: STAFF_USER })
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
-    const req = new NextRequest('http://localhost:3001/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: 'admin@aoz.ch', password: 'test' }),
-      headers: {
-        'content-type': 'application/json',
-        'x-real-ip': '172.16.0.1',
-      },
-    })
-
+    const req = createJsonRequest(
+      { code: 'AOZ-ABC123' },
+      { 'x-real-ip': '172.16.0.1' }
+    )
     await POST(req)
 
-    expect(mockLogin).toHaveBeenCalledWith('admin@aoz.ch', 'test', '172.16.0.1')
+    expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', '172.16.0.1')
   })
 
   test('uses "unknown" when no IP headers present', async () => {
-    mockLogin.mockResolvedValue({ success: true, user: STAFF_USER })
+    mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
-    const req = new NextRequest('http://localhost:3001/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: 'admin@aoz.ch', password: 'test' }),
-      headers: {
-        'content-type': 'application/json',
-      },
-    })
-
+    const req = createJsonRequest({ code: 'AOZ-ABC123' })
     await POST(req)
 
-    expect(mockLogin).toHaveBeenCalledWith('admin@aoz.ch', 'test', 'unknown')
+    expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', 'unknown')
   })
 })

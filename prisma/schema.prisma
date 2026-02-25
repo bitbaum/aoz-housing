@@ -629,8 +629,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Identity
-  email        String  @unique
-  passwordHash String? // Null if using SSO/external auth
+  code         String  @unique // AOZ-XXXXXX login code
+  email        String? @unique // Optional, kept for legacy/reference
+  passwordHash String? // Deprecated: no longer used for login
   name         String
 
   // Role & Status
@@ -641,7 +642,7 @@ model User {
   // Relations
   auditLogs AuditLog[]
 
-  @@index([email])
+  @@index([code])
   @@index([role])
 }
 

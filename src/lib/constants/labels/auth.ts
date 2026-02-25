@@ -4,47 +4,26 @@
 
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrator',
-  CASE_WORKER: 'Sachbearbeiter',
-  VIEWER: 'Betrachter',
 }
 
 export const LOGIN_LABELS = {
   title: 'Anmelden',
-  subtitle: 'AOZ Wohnen - Platzierungssystem',
-  tabs: {
-    login: 'Anmelden',
-    register: 'Registrieren',
-  },
-  email: 'E-Mail',
-  emailPlaceholder: 'ihre.email@aoz.ch',
-  password: 'Passwort',
-  passwordPlaceholder: 'Passwort eingeben',
+  subtitle: 'Code eingeben, um sich anzumelden',
+  code: 'Zugangscode',
+  codePlaceholder: 'AOZ-XXXXXX oder RES-XXXXXX',
+  codeHint: 'Verwenden Sie Ihren persönlichen Zugangscode.',
   submit: 'Anmelden',
   submitting: 'Anmelden...',
-  register: {
-    name: 'Name',
-    namePlaceholder: 'Vor- und Nachname',
-    email: 'E-Mail',
-    emailPlaceholder: 'ihre.email@aoz.ch',
-    password: 'Passwort',
-    passwordPlaceholder: 'Mindestens 8 Zeichen',
-    inviteCode: 'AOZ-Code (optional)',
-    inviteCodePlaceholder: 'Nur für AOZ-Profil eingeben',
-    inviteCodeHelp: 'Ohne Code wird ein Bewohnerprofil erstellt.',
-    submit: 'Registrieren',
-    submitting: 'Registrieren...',
-    error: {
-      generic: 'Registrierung fehlgeschlagen',
-      emailExists: 'Diese E-Mail ist bereits registriert',
-      invalidCode: 'Ungültiger AOZ-Code',
-    },
+  success: {
+    staff: 'Admin-Zugang aktiviert',
+    resident: 'Bewohner-Zugang aktiviert',
+    redirecting: 'Weiterleitung...',
   },
   error: {
-    required: 'E-Mail und Passwort erforderlich',
-    invalid: 'Ungültige E-Mail oder Passwort',
+    required: 'Code erforderlich',
+    invalid: 'Ungültiger Code',
     rateLimit: 'Zu viele Anmeldeversuche',
     generic: 'Ein Fehler ist aufgetreten',
   },
-  help: 'Bei Problemen wenden Sie sich an die IT-Abteilung.',
-  portalLink: 'Bewohner? Zum Bewohnerportal',
+  help: 'Bei Problemen wenden Sie sich an die AOZ-Verwaltung.',
 } as const

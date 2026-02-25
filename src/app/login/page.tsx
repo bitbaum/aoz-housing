@@ -2,97 +2,56 @@
 
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { LOGIN_LABELS, APP_LABELS } from '@/lib/constants/labels'
 
-type Mode = 'login' | 'register'
+type LoginState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; type: 'staff' | 'resident'; message: string }
+  | { status: 'error'; message: string }
 
 export default function LoginPage() {
   const router = useRouter()
-  const [mode, setMode] = useState<Mode>('login')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [code, setCode] = useState('')
+  const [state, setState] = useState<LoginState>({ status: 'idle' })
 
-  // Login fields
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-  // Register fields
-  const [regName, setRegName] = useState('')
-  const [regEmail, setRegEmail] = useState('')
-  const [regPassword, setRegPassword] = useState('')
-  const [inviteCode, setInviteCode] = useState('')
-
-  async function handleLogin(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    setState({ status: 'loading' })
 
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ code: code.trim() }),
       })
 
       const data = await response.json()
 
       if (!data.success) {
-        setError(data.error || LOGIN_LABELS.error.generic)
-        setIsLoading(false)
+        setState({ status: 'error', message: data.error || LOGIN_LABELS.error.generic })
         return
       }
 
-      router.push('/')
-      router.refresh()
+      const successMessage = data.type === 'staff'
+        ? LOGIN_LABELS.success.staff
+        : LOGIN_LABELS.success.resident
+
+      setState({ status: 'success', type: data.type, message: successMessage })
+
+      // Redirect after brief delay to show success
+      setTimeout(() => {
+        if (data.type === 'staff') {
+          router.push('/')
+        } else {
+          router.push('/portal')
+        }
+        router.refresh()
+      }, 1000)
     } catch {
-      setError(LOGIN_LABELS.error.generic)
-      setIsLoading(false)
+      setState({ status: 'error', message: LOGIN_LABELS.error.generic })
     }
-  }
-
-  async function handleRegister(e: FormEvent) {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
-
-    try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: regName,
-          email: regEmail,
-          password: regPassword,
-          inviteCode,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!data.success) {
-        setError(data.error || LOGIN_LABELS.register.error.generic)
-        setIsLoading(false)
-        return
-      }
-
-      if (data.profileType === 'resident') {
-        router.push('/portal')
-      } else {
-        router.push('/')
-      }
-      router.refresh()
-    } catch {
-      setError(LOGIN_LABELS.register.error.generic)
-      setIsLoading(false)
-    }
-  }
-
-  function switchMode(newMode: Mode) {
-    setMode(newMode)
-    setError('')
-    setIsLoading(false)
   }
 
   return (
@@ -105,195 +64,71 @@ export default function LoginPage() {
         <p className="text-gray-500">{APP_LABELS.tagline}</p>
       </div>
 
-      {/* Login/Register Card */}
+      {/* Login Card */}
       <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
-        {/* Tab Toggle */}
-        <div className="flex mb-6 border-b border-gray-200">
-          <button
-            type="button"
-            onClick={() => switchMode('login')}
-            className={`flex-1 pb-3 text-sm font-medium text-center transition-colors min-h-[44px] ${
-              mode === 'login'
-                ? 'text-aoz-primary border-b-2 border-aoz-primary'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {LOGIN_LABELS.tabs.login}
-          </button>
-          <button
-            type="button"
-            onClick={() => switchMode('register')}
-            className={`flex-1 pb-3 text-sm font-medium text-center transition-colors min-h-[44px] ${
-              mode === 'register'
-                ? 'text-aoz-primary border-b-2 border-aoz-primary'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {LOGIN_LABELS.tabs.register}
-          </button>
-        </div>
+        <h1 className="text-lg font-semibold text-gray-900 mb-1 text-center">
+          {LOGIN_LABELS.title}
+        </h1>
+        <p className="text-sm text-gray-500 mb-6 text-center">
+          {LOGIN_LABELS.subtitle}
+        </p>
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-            {error}
+        {state.status === 'success' ? (
+          <div className="text-center py-4" role="status" aria-live="polite">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-green-700 font-medium">{state.message}</p>
+            <p className="text-sm text-gray-500 mt-2">{LOGIN_LABELS.success.redirecting}</p>
           </div>
-        )}
-
-        {mode === 'login' ? (
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {LOGIN_LABELS.email}
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={LOGIN_LABELS.emailPlaceholder}
-                required
-                autoComplete="email"
-                autoFocus
-                className="input placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {LOGIN_LABELS.password}
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={LOGIN_LABELS.passwordPlaceholder}
-                required
-                autoComplete="current-password"
-                className="input placeholder:text-gray-400"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-aoz-primary text-white font-medium rounded-md
-                       hover:bg-aoz-primary/90 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-colors min-h-[44px]"
-            >
-              {isLoading ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
-            </button>
-          </form>
         ) : (
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {state.status === 'error' && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm" role="alert" aria-live="polite">
+                {state.message}
+              </div>
+            )}
+
             <div>
               <label
-                htmlFor="reg-name"
+                htmlFor="code"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {LOGIN_LABELS.register.name}
+                {LOGIN_LABELS.code}
               </label>
               <input
                 type="text"
-                id="reg-name"
-                value={regName}
-                onChange={(e) => setRegName(e.target.value)}
-                placeholder={LOGIN_LABELS.register.namePlaceholder}
+                id="code"
+                name="code"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder={LOGIN_LABELS.codePlaceholder}
                 required
-                autoComplete="name"
-                autoFocus
-                className="input placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="reg-email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {LOGIN_LABELS.register.email}
-              </label>
-              <input
-                type="email"
-                id="reg-email"
-                value={regEmail}
-                onChange={(e) => setRegEmail(e.target.value)}
-                placeholder={LOGIN_LABELS.register.emailPlaceholder}
-                required
-                autoComplete="email"
-                className="input placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="reg-password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {LOGIN_LABELS.register.password}
-              </label>
-              <input
-                type="password"
-                id="reg-password"
-                value={regPassword}
-                onChange={(e) => setRegPassword(e.target.value)}
-                placeholder={LOGIN_LABELS.register.passwordPlaceholder}
-                required
-                minLength={8}
-                autoComplete="new-password"
-                className="input placeholder:text-gray-400"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="invite-code"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                {LOGIN_LABELS.register.inviteCode}
-              </label>
-              <input
-                type="text"
-                id="invite-code"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-                placeholder={LOGIN_LABELS.register.inviteCodePlaceholder}
                 autoComplete="off"
-                className="input placeholder:text-gray-400"
+                autoFocus
+                className="input placeholder:text-gray-400 font-mono text-center text-lg tracking-wider"
               />
-              <p className="mt-1 text-xs text-gray-500">{LOGIN_LABELS.register.inviteCodeHelp}</p>
+              <p className="mt-1.5 text-xs text-gray-400">{LOGIN_LABELS.codeHint}</p>
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={state.status === 'loading'}
               className="w-full py-2.5 px-4 bg-aoz-primary text-white font-medium rounded-md
                        hover:bg-aoz-primary/90 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2
                        disabled:opacity-50 disabled:cursor-not-allowed
                        transition-colors min-h-[44px]"
             >
-              {isLoading ? LOGIN_LABELS.register.submitting : LOGIN_LABELS.register.submit}
+              {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
             </button>
           </form>
         )}
 
-        <div className="mt-6 text-center">
-          <Link
-            href="/portal"
-            className="text-sm text-aoz-secondary hover:text-aoz-secondary/80 transition-colors"
-          >
-            {LOGIN_LABELS.portalLink}
-          </Link>
-        </div>
+        <p className="mt-6 text-center text-xs text-gray-400">
+          {LOGIN_LABELS.help}
+        </p>
       </div>
     </div>
   )

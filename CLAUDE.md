@@ -377,36 +377,43 @@ All user-facing German text MUST use correct **Swiss German** spelling:
 
 ## Authentication Roadmap
 
-### Two User Types
+### Unified Code-Based Authentication
 
-| User | Access | Auth Method |
-|------|--------|-------------|
-| **Staff** | Full admin interface | Email/password or AOZ SSO |
-| **Resident** | Portal only (own data) | Simple code (e.g., RES-001) |
+Both staff and residents log in with a single code input at `/login`.
 
-### Staff Authentication
+| User | Code Format | Access | Session Cookie |
+|------|-------------|--------|----------------|
+| **Staff** | `AOZ-XXXXXX` | Full admin interface | `staff_session` (JWT) |
+| **Resident** | `RES-XXXXXX` | Portal only (own data) | `resident_code` |
 
-**Single role: ADMIN** — all staff have full access. Role simplification removed CASE_WORKER/VIEWER.
+**Single role: ADMIN** — all staff have full access.
 
-**What staff can do:**
-- View/edit all residents and housing
-- Make placements and record incidents
-- View analytics and export CSV data
-- Import residents via CSV
-- Approve/deny resident transfer requests
-- Receive email notifications (overdue follow-ups, low satisfaction)
+### Login Flow
 
-**Implementation:**
 ```
-/login              → Staff login page
-/api/auth/login     → Verify credentials
-/api/auth/logout    → Clear session
-
-Middleware: Check session on all /admin routes
-All server actions: requireStaffAuth() guard
+/login              → Single code input (no email/password)
+/api/auth/login     → loginByCode() routes by prefix:
+                        AOZ-* → staff JWT session
+                        RES-* → resident cookie session
+/api/auth/logout    → Clears both cookies
+/api/auth/register  → Admin-only staff provisioning (POST { name, code? })
 ```
 
-### Resident Portal (Phase 2)
+- Code is trimmed and uppercased before lookup
+- Rate limiting on login attempts (per IP)
+- Staff users get JWT in `staff_session` httpOnly cookie
+- Residents get code in `resident_code` httpOnly cookie
+- Users with both cookies see role-switching links in nav
+
+### Staff Provisioning
+
+New staff users are created by admins via `POST /api/auth/register`:
+- Requires authenticated admin session
+- Takes `{ name: string, code?: string }` — code auto-generated if omitted
+- Code must start with `AOZ-`
+- No email/password needed
+
+### Resident Portal
 
 **What residents can do:**
 - View their profile and preferences
@@ -419,7 +426,7 @@ All server actions: requireStaffAuth() guard
 
 **Implementation:**
 ```
-/portal             → Enter resident code
+/portal             → Resident dashboard (redirects to /login if no code)
 /portal/preferences → Update own preferences
 /portal/roommates   → See current roommates
 /portal/chores      → View/manage chore assignments
@@ -427,9 +434,6 @@ All server actions: requireStaffAuth() guard
 /portal/transfer    → Request transfer (if placed)
 /portal/report      → Submit issue to staff
 /portal/help        → FAQ and help info
-
-Session: Store resident code in cookie (httpOnly)
-No password needed - code is printed on welcome letter
 ```
 
 **Security considerations:**
@@ -438,53 +442,46 @@ No password needed - code is printed on welcome letter
 - Sensitive actions (transfers, incidents) go to staff for approval
 - Rate limiting on code entry to prevent guessing
 
-### Database Changes Needed
+### Database Model
 
 ```prisma
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  passwordHash  String
-  role          Role     @default(CASE_WORKER)
-  createdAt     DateTime @default(now())
+  id            String    @id @default(cuid())
+  code          String    @unique  // AOZ-XXXXXX login code
+  email         String?   @unique  // Optional, for reference
+  passwordHash  String?            // Deprecated
+  name          String
+  role          StaffRole @default(ADMIN)
+  active        Boolean   @default(true)
+  lastLoginAt   DateTime?
+  // ...
+  @@index([code])
 }
-
-enum Role {
-  ADMIN
-  CASE_WORKER
-  VIEWER
-}
-
-// Resident model already has 'code' field for portal login
 ```
 
 ### Auth Status: FULLY IMPLEMENTED
 
-Both authentication systems are live and enforced:
-
 | Component | Status | Location |
 |-----------|--------|----------|
+| Unified code login | Active | `src/lib/auth/index.ts` (`loginByCode()`) |
 | Staff JWT auth | Active | `src/lib/auth/jwt.ts` |
 | Middleware enforcement | Active | `src/middleware.ts` |
-| Login page | Working | `src/app/login/page.tsx` |
-| Registration (invite code) | Working | `src/app/api/auth/register/route.ts` |
+| Login page (unified) | Working | `src/app/login/page.tsx` |
+| Staff provisioning | Working | `src/app/api/auth/register/route.ts` |
 | Rate limiting | Active | `src/lib/auth/rate-limit.ts` |
 | Role-based access | Active | `src/lib/auth/role-policy.ts` |
 | Portal code auth | Active | `src/lib/portal-auth.ts` |
-| Portal login/register | Working | `src/app/api/portal/login/route.ts` |
 | Session refresh | Active | Middleware handles sliding sessions |
 | Audit logging | Active | `src/lib/audit.ts` |
+| Role switching | Active | UserMenu + PortalNav show cross-links |
 
-**Staff auth flow:** Email/password → JWT token → httpOnly cookie (`staff_session`)
-**Portal auth flow:** Resident code (e.g., `RES-A2B3C4`) → httpOnly cookie (`resident_code`)
-
-**To create initial admin:** Set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env`, run `npx ts-node prisma/seed-admin.ts`
+**To create initial admin:** Run `npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts` (default code: `AOZ-ADMIN1`)
 
 ---
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 808 tests, 38 suites
+### Unit Tests (Jest) — 820 tests, 38 suites
 
 | Area | Suites | Coverage |
 |------|--------|----------|
@@ -549,7 +546,7 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (808 tests)
+npm run test             # Run Jest tests (820 tests)
 npm run test:e2e         # Run Playwright tests (50 tests)
 ```
 

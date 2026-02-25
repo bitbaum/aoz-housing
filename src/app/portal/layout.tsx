@@ -18,6 +18,7 @@ export default async function PortalLayout({
 }) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
+  const hasStaffAccess = !!cookieStore.get('staff_session')?.value
 
   if (!residentCode) {
     return (
@@ -30,7 +31,7 @@ export default async function PortalLayout({
       {/* Header with responsive navigation */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
-          <PortalNav />
+          <PortalNav hasStaffAccess={hasStaffAccess} />
         </div>
       </header>
 

@@ -217,6 +217,19 @@ describe('JWT Token Management', () => {
       expect(await verifyToken(token)).toBeNull()
     })
 
+    it('accepts empty string email (code-only users)', async () => {
+      const token = await createToken({
+        sub: 'user-456',
+        email: '',
+        name: 'Code Only User',
+        role: 'ADMIN',
+      })
+
+      const payload = await verifyToken(token)
+      expect(payload).not.toBeNull()
+      expect(payload!.email).toBe('')
+    })
+
     it('returns null when required field "name" is missing', async () => {
       const now = Math.floor(Date.now() / 1000)
       const token = buildRawJwt(

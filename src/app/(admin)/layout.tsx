@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { Logo } from '@/components/ui/Logo'
@@ -20,6 +21,8 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const user = await getCurrentUser()
+  const cookieStore = await cookies()
+  const hasPortalAccess = !!cookieStore.get('resident_code')?.value
 
   return (
     <>
@@ -43,6 +46,7 @@ export default async function AdminLayout({
                     email: user.email,
                     role: user.role,
                   }}
+                  hasPortalAccess={hasPortalAccess}
                 />
               )}
             </div>

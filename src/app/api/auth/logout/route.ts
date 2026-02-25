@@ -4,7 +4,8 @@ import { logger } from '@/lib/logger'
 
 export async function POST() {
   try {
-    await clearSessionCookie()
+    // Clear both staff and resident cookies on logout
+    await clearSessionCookie(true)
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Logout failed', error)

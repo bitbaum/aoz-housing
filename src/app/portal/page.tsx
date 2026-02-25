@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = { title: 'Mein Bereich' }
 import { PORTAL_LABELS } from '@/lib/constants'
 import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
-import { PortalLanding } from '@/components/portal/PortalLanding'
 import { PortalHousingCard, PortalOnboardingCard } from '@/components/portal/PortalHousingCard'
 import { PortalQuickActions } from '@/components/portal/PortalQuickActions'
 import { PortalPendingChores } from '@/components/portal/PortalPendingChores'
@@ -15,17 +15,12 @@ import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard
 
 export const dynamic = 'force-dynamic'
 
-interface PageProps {
-  searchParams: Promise<{ error?: string; success?: string }>
-}
-
-export default async function ResidentPortal({ searchParams }: PageProps) {
-  const params = await searchParams
+export default async function ResidentPortal() {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get('resident_code')?.value
 
   if (!residentCode) {
-    return <PortalLanding error={params.error} />
+    redirect('/login')
   }
 
   const resident = await prisma.resident.findUnique({
@@ -70,8 +65,7 @@ export default async function ResidentPortal({ searchParams }: PageProps) {
   })
 
   if (!resident) {
-    // Clear the invalid cookie by redirecting with error
-    return <PortalLanding error="account_not_found" />
+    redirect('/login')
   }
 
   const currentPlacement = resident.placements[0]

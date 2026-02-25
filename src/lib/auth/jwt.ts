@@ -43,8 +43,8 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
       issuer: AUTH_CONFIG.jwt.issuer,
     })
 
-    // Validate required fields
-    if (!payload.sub || !payload.email || !payload.name || !payload.role) {
+    // Validate required fields (email may be empty string for code-only users)
+    if (!payload.sub || typeof payload.email !== 'string' || !payload.name || !payload.role) {
       return null
     }
 
