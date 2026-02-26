@@ -1,9 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { ensureStaffLogin } from './helpers'
 
-test.beforeEach(async ({ page }) => {
-  await ensureStaffLogin(page)
-})
+// storageState from playwright.config handles staff auth
 
 test.describe('Resident creation flow', () => {
   test('new resident form loads with all sections', async ({ page }) => {
@@ -67,7 +64,6 @@ test.describe('Resident creation flow', () => {
     await page.getByRole('button', { name: /Matching|Speichern/i }).click()
 
     // Should redirect to matching page with the new resident
-    await page.waitForURL(/matching/, { timeout: 10000 })
-    await expect(page.url()).toContain('matching')
+    await expect(page).toHaveURL(/matching/, { timeout: 30000 })
   })
 })

@@ -1,13 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { ensureStaffLogin } from './helpers'
 
-test.setTimeout(60_000)
-
+// storageState from playwright.config handles staff auth
 test.use({ viewport: { width: 375, height: 667 } })
-
-test.beforeEach(async ({ page }) => {
-  await ensureStaffLogin(page)
-})
 
 test.describe('Mobile Responsiveness', () => {
   test('dashboard loads without horizontal scroll', async ({ page }) => {
@@ -59,12 +53,15 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.locator('[role="dialog"] a[href="/residents"]')).toBeVisible({ timeout: 5000 })
   })
 
-  test('portal pages work on mobile', async ({ page }) => {
-    await page.goto('/portal')
+  test('login page works on mobile', async ({ page }) => {
+    await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
     const bodyWidth = await page.evaluate(() => document.body.scrollWidth)
     const viewportWidth = await page.evaluate(() => window.innerWidth)
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
+
+    // Code input should be visible and usable
+    await expect(page.locator('#code')).toBeVisible()
   })
 })

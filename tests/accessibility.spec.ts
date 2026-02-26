@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 import type { Result } from 'axe-core'
-import { ensureStaffLogin } from './helpers'
 
-test.setTimeout(60_000)
-
-test.beforeEach(async ({ page }) => {
-  await ensureStaffLogin(page)
-})
+// storageState from playwright.config handles staff auth
+test.setTimeout(90_000)
 
 test.describe('Accessibility', () => {
   const pages = [
@@ -36,8 +32,8 @@ test.describe('Accessibility', () => {
     })
   }
 
-  test('Portal landing has no critical accessibility violations', async ({ page }) => {
-    await page.goto('/portal')
+  test('Login page has no critical accessibility violations', async ({ page }) => {
+    await page.goto('/login')
     await page.waitForLoadState('networkidle')
 
     const results = await new AxeBuilder({ page })

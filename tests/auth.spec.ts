@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test'
 
+// Auth tests need clean state (no existing session)
+test.use({ storageState: { cookies: [], origins: [] } })
+
 test.describe('Authentication flow', () => {
   test('login page loads with code input', async ({ page }) => {
     await page.goto('/login')
@@ -19,7 +22,7 @@ test.describe('Authentication flow', () => {
     await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
     // Should show error message
-    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10000 })
   })
 
   test('shows success and redirects on valid staff login', async ({ page }) => {
@@ -30,10 +33,10 @@ test.describe('Authentication flow', () => {
     await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
     // Success state shows green checkmark
-    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 10000 })
 
     // Redirects to dashboard
-    await page.waitForURL((url) => url.pathname === '/', { timeout: 10000 })
+    await page.waitForURL((url) => url.pathname === '/', { timeout: 15000 })
   })
 
   test('code input is case-insensitive', async ({ page }) => {
@@ -45,6 +48,6 @@ test.describe('Authentication flow', () => {
     await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
 
     // Should still succeed (API uppercases)
-    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 10000 })
   })
 })

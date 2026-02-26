@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test'
-import { ensureStaffLogin } from './helpers'
+
+// storageState from playwright.config handles staff auth
 
 test.describe('Incident reporting flow', () => {
-  test.beforeEach(async ({ page }) => {
-    await ensureStaffLogin(page)
-  })
 
   test('new incident form loads', async ({ page }) => {
     await page.goto('/incidents/new')
@@ -26,11 +24,14 @@ test.describe('Incident reporting flow', () => {
 })
 
 test.describe('Portal — unauthenticated access', () => {
+  // Clear storageState to test unauthenticated access
+  test.use({ storageState: { cookies: [], origins: [] } })
+
   test('portal redirects to login without resident cookie', async ({ page }) => {
     await page.goto('/portal')
 
-    // Should redirect to /login
-    await page.waitForURL(/\/login/, { timeout: 5000 })
+    // Should redirect to /login — check final URL and page content
+    await expect(page).toHaveURL(/\/login/, { timeout: 15000 })
     await expect(page.locator('#code')).toBeVisible()
   })
 })

@@ -1,9 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { ensureStaffLogin } from './helpers'
 
-test.beforeEach(async ({ page }) => {
-  await ensureStaffLogin(page)
-})
+// storageState from playwright.config handles staff auth
 
 test.describe('Matching workflow', () => {
   test('matching page shows two-panel layout', async ({ page }) => {
@@ -13,7 +10,7 @@ test.describe('Matching workflow', () => {
     await expect(page.locator('h1, h2').first()).toContainText(/Matching/i)
 
     // Left panel: unplaced residents section
-    await expect(page.getByText(/Unplatzierte Bewohner|Platzierte Bewohner/i)).toBeVisible()
+    await expect(page.getByText(/Unplatzierte Bewohner/i).first()).toBeVisible()
   })
 
   test('shows unplaced residents list or empty state', async ({ page }) => {

@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { ensureStaffLogin } from './helpers'
 
-test.setTimeout(60_000)
-
-test.beforeEach(async ({ page }) => {
-  await ensureStaffLogin(page)
-})
+// storageState from playwright.config handles staff auth
 
 test.describe('Dashboard', () => {
   test('dashboard loads with action-oriented content', async ({ page }) => {
