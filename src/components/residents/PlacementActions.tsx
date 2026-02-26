@@ -8,6 +8,7 @@ import {
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS } from '@/lib/constants'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
 import type { UnitWithSpots } from '@/lib/types'
 
@@ -356,7 +357,7 @@ export function PlacementActions({
                     <option value="">Keinen Vorfall verknüpfen</option>
                     {recentIncidents.map((incident) => (
                       <option key={incident.id} value={incident.id}>
-                        {new Date(incident.date).toLocaleDateString('de-CH')} - {incident.type}: {incident.description.slice(0, 50)}...
+                        {new Date(incident.date).toLocaleDateString('de-CH')} - {incident.type}: {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
                       </option>
                     ))}
                   </select>

@@ -24,7 +24,7 @@ function LogoMark({ size = 'md', showTagline = false, className = '' }: Omit<Log
       <span className={`text-aoz-primary font-bold ${s.aoz} tracking-tight`}>AOZ</span>
       <span className={`text-aoz-secondary font-semibold ${s.label}`}>Wohnen</span>
       {showTagline && (
-        <span className={`hidden lg:inline text-gray-400 ml-1.5 ${s.tagline}`}>
+        <span className={`hidden lg:inline text-gray-500 ml-1.5 ${s.tagline}`}>
           {APP_LABELS.tagline}
         </span>
       )}

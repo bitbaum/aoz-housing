@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { INCIDENT_TYPE_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface ReportedIncident {
   id: string
@@ -39,7 +40,7 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
                     {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
-                    {incident.description.slice(0, 50)}
+                    {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}
                     {incident.description.length > 50 && '...'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">

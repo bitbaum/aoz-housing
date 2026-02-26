@@ -158,7 +158,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <details className="group">
       <summary className="flex items-center justify-between cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
         <span className="font-medium text-gray-900">{question}</span>
-        <span className="text-gray-400 group-open:rotate-180 transition-transform">
+        <span className="text-gray-500 group-open:rotate-180 transition-transform">
           ▼
         </span>
       </summary>
@@ -184,7 +184,7 @@ function ContactItem({
       <div>
         <p className="text-sm text-gray-500">{label}</p>
         <p className="font-medium text-gray-900">{value}</p>
-        {sublabel && <p className="text-xs text-gray-400">{sublabel}</p>}
+        {sublabel && <p className="text-xs text-gray-500">{sublabel}</p>}
       </div>
     </div>
   )

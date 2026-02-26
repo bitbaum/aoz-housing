@@ -63,7 +63,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                         <span className={isOverdue ? 'text-orange-600' : 'text-gray-500'}>Check-in vor {daysSinceCheckIn}d</span>
                       </div>
                     ) : (
-                      <span className={isOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}>
+                      <span className={isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}>
                         {isOverdue ? 'Check-in überfällig' : 'Check-in ausstehend'}
                       </span>
                     )}
@@ -120,7 +120,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                             </span>
                           </div>
                         ) : (
-                          <span className={`text-sm ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}`}>
+                          <span className={`text-sm ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
                             {isOverdue ? 'Überfällig' : 'Ausstehend'}
                           </span>
                         )}

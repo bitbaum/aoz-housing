@@ -95,7 +95,7 @@ export function CompatibilityMatrixInteractive({
   return (
     <div className="relative">
       {/* Mobile scroll hint */}
-      <div className="sm:hidden text-xs text-gray-400 mb-2 flex items-center gap-1" aria-hidden="true">
+      <div className="sm:hidden text-xs text-gray-500 mb-2 flex items-center gap-1" aria-hidden="true">
         <span>←</span>
         <span>Wischen zum Scrollen</span>
         <span>→</span>
@@ -138,11 +138,11 @@ export function CompatibilityMatrixInteractive({
                 return (
                   <td key={r2.id} className="p-2 text-center">
                     {r1.id === r2.id ? (
-                      <span className="text-gray-300" aria-hidden="true">-</span>
+                      <span className="text-gray-400" aria-hidden="true">-</span>
                     ) : score === null ? (
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
-                        className="inline-flex items-center justify-center w-12 h-8 rounded bg-gray-100 text-gray-400 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-12 h-8 rounded bg-gray-100 text-gray-500 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
                         aria-label={`Keine Bewertung: ${r1.code} und ${r2.code}`}
                       >
                         ?
@@ -272,7 +272,7 @@ const CompatibilityDetailPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="w-8 h-8 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             aria-label="Schliessen"
           >
             ✕
@@ -370,7 +370,7 @@ const CompatibilityDetailPopover = ({
         ) : (
           <div className="text-center py-4">
             <p className="text-gray-500 mb-2">Keine Bewertung vorhanden</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               Die Kompatibilität wurde noch nicht berechnet
             </p>
           </div>
@@ -385,7 +385,7 @@ const CompatibilityDetailPopover = ({
         >
           {resident1.code}
         </Link>
-        <span className="text-gray-300">|</span>
+        <span className="text-gray-400">|</span>
         <Link
           href={`/residents/${resident2.id}`}
           className="flex-1 text-center text-sm text-aoz-primary hover:underline"
@@ -410,7 +410,7 @@ function ScoreDimension({
     <div className="flex items-center gap-2">
       <div className="w-20">
         <p className="text-xs font-medium text-gray-700">{label}</p>
-        <p className="text-[10px] text-gray-400">{description}</p>
+        <p className="text-[10px] text-gray-500">{description}</p>
       </div>
       <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
         <div

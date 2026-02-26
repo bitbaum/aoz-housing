@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
 
 interface PortalNavProps {
   hasStaffAccess?: boolean
@@ -35,7 +35,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
               href="/"
               className="min-h-[44px] px-3 py-2 rounded-lg transition-colors text-sm md:text-base flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
-              Zur Verwaltung
+              {UI_LABELS.switchToAdmin}
             </Link>
           )}
           <form action="/api/portal/logout" method="POST" className="ml-2">
@@ -52,7 +52,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
-          aria-label={menuOpen ? 'Menü schliessen' : 'Menü öffnen'}
+          aria-label={menuOpen ? UI_LABELS.menuClose : UI_LABELS.menuOpen}
         >
           {menuOpen ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -99,7 +99,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
               onClick={() => setMenuOpen(false)}
               className="transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
-              Zur Verwaltung
+              {UI_LABELS.switchToAdmin}
             </Link>
           )}
           <form action="/api/portal/logout" method="POST" className="mt-1">

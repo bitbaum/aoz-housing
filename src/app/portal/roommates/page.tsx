@@ -281,7 +281,7 @@ function CompatibilityIndicator({ score }: { score: number }) {
         <div className={`w-3 h-3 rounded-full ${config.color}`} />
         <span className={`font-medium ${config.textColor}`}>{config.label}</span>
       </div>
-      <p className="text-xs text-gray-400 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
+      <p className="text-xs text-gray-500 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
     </div>
   )
 }

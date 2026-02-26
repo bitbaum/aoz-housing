@@ -108,7 +108,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
 
             {/* Collector info */}
             {checkIn.collectedBy && !checkIn.isAnonymous && (
-              <div className="text-xs text-gray-400 mt-2">
+              <div className="text-xs text-gray-500 mt-2">
                 Erfasst von: {checkIn.collectedBy}
               </div>
             )}

@@ -135,7 +135,7 @@ export function ScoreExplanation({
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1"
+              className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
               aria-label="Schliessen"
             >
               ×
@@ -156,7 +156,7 @@ export function ScoreExplanation({
                     <span className="text-gray-700">
                       {factor.label}
                       {factor.detail && (
-                        <span className="text-gray-400 ml-1">({factor.detail})</span>
+                        <span className="text-gray-500 ml-1">({factor.detail})</span>
                       )}
                     </span>
                   </div>
@@ -176,7 +176,7 @@ export function ScoreExplanation({
                     <span className="text-gray-700">
                       {factor.label}
                       {factor.detail && (
-                        <span className="text-gray-400 ml-1">({factor.detail})</span>
+                        <span className="text-gray-500 ml-1">({factor.detail})</span>
                       )}
                     </span>
                   </div>
@@ -193,7 +193,7 @@ export function ScoreExplanation({
 
           {/* Threshold reference */}
           <div className="mt-3 pt-3 border-t border-gray-100">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               Bewertungsskala: {'>='}{SCORE_THRESHOLDS.excellent} ausgezeichnet,{' '}
               {'>='}{SCORE_THRESHOLDS.good} gut, {'>='}{SCORE_THRESHOLDS.moderate} mittel
             </p>

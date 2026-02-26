@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { UI_LABELS } from '@/lib/constants'
 
 interface ConfirmDialogProps {
   title: string
@@ -15,8 +16,8 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   title,
   message,
-  confirmLabel = 'Bestätigen',
-  cancelLabel = 'Abbrechen',
+  confirmLabel = UI_LABELS.confirm,
+  cancelLabel = UI_LABELS.cancel,
   onConfirm,
   children,
   variant = 'primary',
@@ -68,7 +69,7 @@ export function ConfirmDialog({
                     : 'btn-primary'
                 }
               >
-                {isPending ? 'Wird verarbeitet...' : confirmLabel}
+                {isPending ? UI_LABELS.processing : confirmLabel}
               </button>
             </div>
           </div>

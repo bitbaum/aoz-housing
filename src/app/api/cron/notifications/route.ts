@@ -11,6 +11,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
 import { logger } from '@/lib/logger'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 // Check-in frequency thresholds by support level (days)
 const CHECK_IN_THRESHOLDS: Record<string, number> = {
@@ -47,7 +48,7 @@ export async function GET(request: Request) {
       const template = incidentFollowUpReminder(
         overdueIncidents.map(i => ({
           id: i.id,
-          description: i.description.slice(0, 100),
+          description: i.description.slice(0, DISPLAY_LIMITS.emailSummary),
           severity: i.severity,
           housingUnitCode: i.housingUnit.code,
           nextFollowUpDate: i.nextFollowUpDate!,

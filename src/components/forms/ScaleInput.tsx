@@ -55,7 +55,7 @@ export function ScaleInput({
         ))}
       </div>
       {(minLabel || maxLabel) && (
-        <div id={descriptionId} className="flex justify-between text-xs text-gray-400 mt-1">
+        <div id={descriptionId} className="flex justify-between text-xs text-gray-500 mt-1">
           <span>{minLabel}</span>
           <span>{maxLabel}</span>
         </div>

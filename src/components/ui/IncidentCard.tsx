@@ -2,7 +2,7 @@
  * Incident display components
  */
 
-import { INCIDENT_TYPE_LABELS } from '@/lib/constants/labels'
+import { INCIDENT_TYPE_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { formatRelativeDate, getSeverityBorderClass } from '@/lib/utils/formatting'
 import { Badge } from './Badge'
 
@@ -50,7 +50,7 @@ export function IncidentCard({
           <div className="text-right">
             <p className="text-xs text-gray-500">{formatRelativeDate(incident.date)}</p>
             {!incident.resolvedAt && (
-              <Badge variant="pending" className="text-xs">Offen</Badge>
+              <Badge variant="pending" className="text-xs">{UI_LABELS.open}</Badge>
             )}
           </div>
         </div>
@@ -76,16 +76,16 @@ export function IncidentCard({
         <div className="text-right text-sm">
           <p className="text-gray-500">{formatRelativeDate(incident.date)}</p>
           {incident.resolvedAt ? (
-            <Badge variant="active">Gelöst</Badge>
+            <Badge variant="active">{UI_LABELS.resolved}</Badge>
           ) : (
-            <Badge variant="pending">Offen</Badge>
+            <Badge variant="pending">{UI_LABELS.open}</Badge>
           )}
         </div>
       </div>
       {incident.resolution && (
         <div className="mt-3 pt-3 border-t border-gray-200">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Lösung:</span> {incident.resolution}
+            <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>
       )}

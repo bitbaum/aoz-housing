@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { AGE_RANGE_LABELS, LANGUAGE_LABELS, getLabel } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
-import { getScoreLevel } from '@/lib/config/thresholds'
+import { getScoreLevel, DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface CompatibleResident {
   resident: {
@@ -78,7 +78,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                     </Link>
                     <p className="text-sm text-gray-500">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                      {match.resident.languages?.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                      {match.resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
                     </p>
                     {match.strengths.length > 0 && match.concerns.length === 0 && (
                       <p className="text-xs text-green-600 mt-0.5">

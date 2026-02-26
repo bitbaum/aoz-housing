@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { MATCHING_LABELS, PLACEMENT_CONFIRM_LABELS } from '@/lib/constants'
 
 interface PlacementConfirmProps {
   residentCode: string
@@ -46,10 +47,10 @@ export function PlacementConfirm({
     : 'btn-primary text-sm px-3 py-1'
 
   const buttonLabel = hasConflicts
-    ? 'Blockiert'
+    ? MATCHING_LABELS.blocked
     : fitScore < 50
-    ? 'Platzieren (niedrige Kompatibilität)'
-    : 'Platzieren'
+    ? MATCHING_LABELS.placeLowCompat
+    : MATCHING_LABELS.place
 
   return (
     <>
@@ -70,31 +71,31 @@ export function PlacementConfirm({
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">
-                Platzierung bestätigen
+                {PLACEMENT_CONFIRM_LABELS.title}
               </h3>
             </div>
 
             {/* Content */}
             <div className="px-6 py-4 space-y-4">
               <div>
-                <p className="text-sm text-gray-500 mb-2">Sie sind dabei zu platzieren:</p>
+                <p className="text-sm text-gray-500 mb-2">{PLACEMENT_CONFIRM_LABELS.prompt}</p>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">Bewohner:</span>
+                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.resident}</span>
                     <span className="text-sm text-gray-900">{residentCode}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">Unterkunft:</span>
+                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.unit}</span>
                     <span className="text-sm text-gray-900">{unitCode}</span>
                   </div>
                   {spotLabel && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">Platz:</span>
+                      <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.spot}</span>
                       <span className="text-sm text-gray-900">{spotLabel}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">Kompatibilität:</span>
+                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.compatibility}</span>
                     <span
                       className={`text-sm font-bold ${
                         fitScore >= 70
@@ -114,11 +115,10 @@ export function PlacementConfirm({
               {fitScore < 50 && (
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                   <p className="text-sm text-orange-800 font-medium">
-                    ⚠️ Niedrige Kompatibilität
+                    ⚠️ {PLACEMENT_CONFIRM_LABELS.lowCompatWarning}
                   </p>
                   <p className="text-xs text-orange-700 mt-1">
-                    Diese Platzierung hat eine niedrige Kompatibilitätsbewertung. Bitte stellen
-                    Sie sicher, dass dies die beste verfügbare Option ist.
+                    {PLACEMENT_CONFIRM_LABELS.lowCompatMessage}
                   </p>
                 </div>
               )}
@@ -127,7 +127,7 @@ export function PlacementConfirm({
               {conflicts.length > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                   <p className="text-sm text-yellow-800 font-medium mb-2">
-                    Beachten Sie folgende Punkte:
+                    {PLACEMENT_CONFIRM_LABELS.notePoints}
                   </p>
                   <ul className="text-xs text-yellow-700 space-y-1">
                     {conflicts.map((conflict, i) => (
@@ -138,8 +138,7 @@ export function PlacementConfirm({
               )}
 
               <p className="text-sm text-gray-600">
-                Diese Aktion wird den Bewohner platzieren und den Platz als belegt markieren.
-                Möchten Sie fortfahren?
+                {PLACEMENT_CONFIRM_LABELS.confirmMessage}
               </p>
             </div>
 
@@ -150,7 +149,7 @@ export function PlacementConfirm({
                 disabled={isPending}
                 className="btn-outline"
               >
-                Abbrechen
+                {PLACEMENT_CONFIRM_LABELS.cancel}
               </button>
               <button
                 onClick={handleConfirm}
@@ -161,7 +160,7 @@ export function PlacementConfirm({
                     : 'btn-primary disabled:opacity-50'
                 }
               >
-                {isPending ? 'Wird platziert...' : 'Jetzt platzieren'}
+                {isPending ? PLACEMENT_CONFIRM_LABELS.placing : PLACEMENT_CONFIRM_LABELS.confirm}
               </button>
             </div>
           </div>

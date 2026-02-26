@@ -192,7 +192,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
               </h3>
               <button
                 onClick={() => setActiveModal(null)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-700"
                 aria-label="Schliessen"
               >
                 ✕

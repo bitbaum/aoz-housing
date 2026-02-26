@@ -136,7 +136,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
         </div>
 
         <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-gray-500">
             Erfasst: {formatDate(resident.createdAt)}
           </span>
           {recentIncidents > 0 && (

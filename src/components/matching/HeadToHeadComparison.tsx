@@ -7,6 +7,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 /**
  * Config-driven comparison attributes (SSOT)
@@ -58,7 +59,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
   ) => {
     return attr.type === 'numeric'
       ? String(val)
-      : getLabel(attr.labels as Record<string, string>, String(val)).slice(0, 6)
+      : getLabel(attr.labels as Record<string, string>, String(val)).slice(0, DISPLAY_LIMITS.labelAbbreviation)
   }
 
   return (
@@ -79,7 +80,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                 <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title="Durchschnitt">
                   Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
-                    : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, 6) : '–'}
+                    : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, DISPLAY_LIMITS.labelAbbreviation) : '–'}
                 </span>
                 <span className="text-aoz-primary bg-aoz-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
                   {getFormattedValue(newVal as string | number | null, attr)}
@@ -101,13 +102,13 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
           <thead>
             <tr className="bg-gray-100">
               <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
-              {currentResidents.slice(0, 4).map((r) => (
+              {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => (
                 <th key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
                   {r.code.slice(-3)}
                 </th>
               ))}
-              {currentResidents.length > 4 && (
-                <th className="p-1.5 text-center text-gray-400 border-b">+{currentResidents.length - 4}</th>
+              {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (
+                <th className="p-1.5 text-center text-gray-500 border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
               )}
               <th className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
               <th className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
@@ -123,7 +124,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
               return (
                 <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
-                  {currentResidents.slice(0, 4).map((r) => {
+                  {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => {
                     const val = (r as Record<string, unknown>)[attr.key] as string | number | null
                     return (
                       <td key={r.id} className="p-1.5 text-center text-gray-500">
@@ -131,11 +132,11 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                       </td>
                     )
                   })}
-                  {currentResidents.length > 4 && <td className="p-1.5 text-center text-gray-300">…</td>}
+                  {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && <td className="p-1.5 text-center text-gray-400">…</td>}
                   <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
                     {attr.type === 'numeric'
                       ? (avgValue as number | null)?.toFixed(1) || '–'
-                      : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, 6) : '–'}
+                      : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, DISPLAY_LIMITS.labelAbbreviation) : '–'}
                   </td>
                   <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
                     {(() => {
@@ -153,7 +154,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                         getLabel(
                           attr.labels as Record<string, string>,
                           String(newVal)
-                        ).slice(0, 6)
+                        ).slice(0, DISPLAY_LIMITS.labelAbbreviation)
                       )
                     })()}
                   </td>

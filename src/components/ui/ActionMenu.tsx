@@ -72,7 +72,7 @@ export function ActionMenu({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`${sizeClasses} flex items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors`}
+        className={`${sizeClasses} flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors`}
         aria-label="Aktionen"
         aria-expanded={isOpen}
         aria-haspopup="menu"

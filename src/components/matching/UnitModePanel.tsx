@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import type { MatchUnit, UnitMatch } from '@/lib/matching/types'
-import { AGE_RANGE_LABELS, LANGUAGE_LABELS, getLabel } from '@/lib/constants'
+import { AGE_RANGE_LABELS, LANGUAGE_LABELS, MATCHING_LABELS, getLabel } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface Props {
   selectedUnit: MatchUnit
@@ -14,18 +15,18 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            Passende Bewohner
+            {MATCHING_LABELS.matchingResidents}
           </h2>
           <p className="text-sm text-gray-500">
-            {selectedUnit.placements.length}/{selectedUnit.totalBeds} belegt ·{' '}
-            {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} freie Plätze
+            {selectedUnit.placements.length}/{selectedUnit.totalBeds} {MATCHING_LABELS.occupied} ·{' '}
+            {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} {MATCHING_LABELS.freeSpots}
           </p>
         </div>
         <Link
           href="/matching"
           className="text-sm text-gray-500 hover:text-gray-700"
         >
-          Zurück
+          {MATCHING_LABELS.back}
         </Link>
       </div>
 
@@ -33,7 +34,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
       {selectedUnit.placements.length > 0 && (
         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
           <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
-            Aktuelle Bewohner
+            {MATCHING_LABELS.currentResidents}
           </p>
           <div className="flex flex-wrap gap-2">
             {selectedUnit.placements.map((p) => (
@@ -54,14 +55,14 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
 
       {unitMatches.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">Keine passenden unplatzierten Bewohner</p>
+          <p className="text-gray-500">{MATCHING_LABELS.noMatchingResidents}</p>
           <Link href="/residents/new" className="btn-outline mt-4 inline-block">
-            Neuen Bewohner erfassen
+            {MATCHING_LABELS.createNewResident}
           </Link>
         </div>
       ) : (
         <div className="space-y-3">
-          {unitMatches.slice(0, 10).map((match) => (
+          {unitMatches.slice(0, DISPLAY_LIMITS.unitMatches).map((match) => (
             <div
               key={match.resident.id}
               className={`p-3 border rounded-lg ${
@@ -82,7 +83,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                     </Link>
                     <p className="text-sm text-gray-500">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                      {match.resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                      {match.resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
                     </p>
                   </div>
                 </div>
@@ -94,7 +95,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                     href={`/matching?resident=${match.resident.id}`}
                     className="btn-primary text-sm px-4 py-2 min-h-[44px]"
                   >
-                    Platzieren
+                    {MATCHING_LABELS.place}
                   </Link>
                 </div>
               </div>
@@ -107,7 +108,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               )}
               {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
                 <div className="mt-2 pt-2 border-t border-gray-100">
-                  {match.apartmentFit.strengths.slice(0, 2).map((s: string, i: number) => (
+                  {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((s: string, i: number) => (
                     <p key={i} className="text-xs text-green-600">✓ {s}</p>
                   ))}
                 </div>

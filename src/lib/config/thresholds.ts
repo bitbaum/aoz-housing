@@ -209,6 +209,22 @@ export const DISPLAY_LIMITS = {
   dashboardItems: 3,
   /** Dashboard problem units shows top N */
   problemUnits: 5,
+  /** MatchCard strengths preview count */
+  matchStrengths: 2,
+  /** MatchCard concerns preview count */
+  matchConcerns: 3,
+  /** UnitModePanel visible match results */
+  unitMatches: 10,
+  /** Language/tag chips shown before +N overflow */
+  languagePreview: 2,
+  /** HeadToHead comparison resident columns */
+  comparisonResidents: 4,
+  /** Portal report description character preview */
+  descriptionPreview: 50,
+  /** Cron notification description character limit */
+  emailSummary: 100,
+  /** HeadToHead label abbreviation length */
+  labelAbbreviation: 6,
 } as const
 
 // =============================================================================

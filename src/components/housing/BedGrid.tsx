@@ -8,6 +8,7 @@ import {
   LANGUAGE_LABELS,
   getLabel,
 } from '@/lib/constants'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { HousingSpot } from './types'
 
 interface BedGridProps {
@@ -237,7 +238,7 @@ const ResidentBedPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="w-8 h-8 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             aria-label="Schliessen"
           >
             ✕
@@ -257,7 +258,7 @@ const ResidentBedPopover = ({
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Sprachen</span>
             <span className="text-gray-900">
-              {resident.languages.slice(0, 2).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+              {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
             </span>
           </div>
         )}

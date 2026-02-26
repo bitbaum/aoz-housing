@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ROLE_LABELS } from '@/lib/constants/labels'
+import { ROLE_LABELS, UI_LABELS } from '@/lib/constants/labels'
 
 interface UserMenuProps {
   user: {
@@ -56,7 +56,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition-colors min-h-[44px]"
-        aria-label="Benutzermenü"
+        aria-label={UI_LABELS.userMenu}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -98,7 +98,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
-              Zum Portal wechseln
+              {UI_LABELS.switchToPortal}
             </Link>
           )}
 
@@ -113,7 +113,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            {isLoggingOut ? 'Abmelden...' : 'Abmelden'}
+            {isLoggingOut ? UI_LABELS.loggingOut : UI_LABELS.logout}
           </button>
         </div>
       )}

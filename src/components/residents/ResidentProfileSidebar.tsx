@@ -32,7 +32,7 @@ export interface ResidentProfileSidebarProps {
 function PreferenceItem({ label, value }: { label: string; value: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
-      <span className={value ? 'text-green-500' : 'text-gray-400'}>
+      <span className={value ? 'text-green-500' : 'text-gray-500'}>
         {value ? '\u2713' : '\u25CB'}
       </span>
       {label}

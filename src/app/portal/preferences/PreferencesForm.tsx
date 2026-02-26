@@ -55,7 +55,7 @@ function RatingScale({
           </label>
         ))}
       </div>
-      <div className="flex justify-between text-xs text-gray-400 mt-1">
+      <div className="flex justify-between text-xs text-gray-500 mt-1">
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
       </div>
@@ -354,7 +354,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 <option value="SAME_REGION">Aus meiner Region</option>
                 <option value="DIFFERENT_REGION">Aus anderen Regionen (zum Kennenlernen)</option>
               </select>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 Dies ist nur eine Präferenz, keine Garantie
               </p>
             </div>

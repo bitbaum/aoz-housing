@@ -111,7 +111,7 @@ export function ExplainableNumber({
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1"
+              className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
               aria-label="Schliessen"
             >
               ✕

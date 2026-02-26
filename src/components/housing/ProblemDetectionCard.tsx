@@ -4,9 +4,11 @@ import Link from 'next/link'
 import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
+  PROBLEM_DETECTION_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { ResidentSummary } from '@/lib/types'
 
 interface CompatibilityScore {
@@ -70,40 +72,40 @@ function detectProblems(
 
     // Check for scale outliers (more than 1.5 away from average)
     if (Math.abs(resident.cleanlinessLevel - avgCleanliness) > 1.5) {
-      const direction = resident.cleanlinessLevel < avgCleanliness ? 'niedrigere' : 'höhere'
+      const direction = resident.cleanlinessLevel < avgCleanliness ? PROBLEM_DETECTION_LABELS.lowerCleanliness : PROBLEM_DETECTION_LABELS.higherCleanliness
       residentIssues.push(`Deutlich ${direction} Sauberkeit als Durchschnitt`)
     }
 
     if (Math.abs(resident.noiseTolerance - avgNoiseTolerance) > 1.5) {
-      const direction = resident.noiseTolerance > avgNoiseTolerance ? 'höhere' : 'niedrigere'
+      const direction = resident.noiseTolerance > avgNoiseTolerance ? PROBLEM_DETECTION_LABELS.higherNoiseTolerance : PROBLEM_DETECTION_LABELS.lowerNoiseTolerance
       residentIssues.push(`Deutlich ${direction} Lärmtoleranz als Durchschnitt`)
     }
 
     if (Math.abs(resident.privacyNeed - avgPrivacyNeed) > 1.5) {
-      const direction = resident.privacyNeed > avgPrivacyNeed ? 'höheres' : 'niedrigeres'
+      const direction = resident.privacyNeed > avgPrivacyNeed ? PROBLEM_DETECTION_LABELS.higherPrivacy : PROBLEM_DETECTION_LABELS.lowerPrivacy
       residentIssues.push(`Deutlich ${direction} Bedürfnis nach Privatsphäre`)
     }
 
     // Check for categorical outliers
     if (dominantSleep && sleepCounts[resident.sleepSchedule] === 1 && residents.length > 2) {
       if (resident.sleepSchedule === 'NIGHT_OWL') {
-        residentIssues.push('Einzige Nachteule unter Frühaufstehern/Normalen')
+        residentIssues.push(PROBLEM_DETECTION_LABELS.onlyNightOwl)
       } else if (resident.sleepSchedule === 'EARLY_BIRD') {
-        residentIssues.push('Einziger Frühaufsteher unter Nachteulen/Normalen')
+        residentIssues.push(PROBLEM_DETECTION_LABELS.onlyEarlyBird)
       }
     }
 
     if (dominantSocial && socialCounts[resident.socialStyle] === 1 && residents.length > 2) {
       if (resident.socialStyle === 'EXTROVERTED') {
-        residentIssues.push('Einziger Extrovertierter unter Introvertierten/Moderaten')
+        residentIssues.push(PROBLEM_DETECTION_LABELS.onlyExtrovert)
       } else if (resident.socialStyle === 'INTROVERTED') {
-        residentIssues.push('Einziger Introvertierter unter Extrovertierten/Moderaten')
+        residentIssues.push(PROBLEM_DETECTION_LABELS.onlyIntrovert)
       }
     }
 
     // Check for smoking mismatch
     if (resident.smokingStatus !== 'NON_SMOKER' && nonSmokerCount >= residents.length - 1) {
-      residentIssues.push('Raucher in einer Nichtraucher-Wohnung')
+      residentIssues.push(PROBLEM_DETECTION_LABELS.smokerInNonSmoking)
     }
 
     // Only add if there are issues
@@ -112,7 +114,7 @@ function detectProblems(
 
       // Add low compatibility as an issue if applicable
       if (avgCompatibility < 70) {
-        residentIssues.unshift(`Durchschnittliche Kompatibilität nur ${avgCompatibility}%`)
+        residentIssues.unshift(`${PROBLEM_DETECTION_LABELS.avgCompatibilityOnly} ${avgCompatibility}%`)
       }
 
       issues.push({
@@ -146,9 +148,9 @@ export function ProblemDetectionCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">✓</span>
           <div>
-            <h2 className="text-lg font-semibold text-green-800">Keine Probleme erkannt</h2>
+            <h2 className="text-lg font-semibold text-green-800">{PROBLEM_DETECTION_LABELS.noProblems}</h2>
             <p className="text-sm text-green-600">
-              Alle Bewohner passen gut zusammen. Harmonie in der Wohnung.
+              {PROBLEM_DETECTION_LABELS.noProblemsDesc}
             </p>
           </div>
         </div>
@@ -161,10 +163,10 @@ export function ProblemDetectionCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">⚠️</span>
-          <h2 className="text-lg font-semibold text-gray-900">Probleme erkannt</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{PROBLEM_DETECTION_LABELS.problemsDetected}</h2>
         </div>
         <span className="text-sm text-gray-500">
-          {problems.length} {problems.length === 1 ? 'Bewohner' : 'Bewohner'} mit Anpassungsproblemen
+          {problems.length} {problems.length === 1 ? 'Bewohner' : 'Bewohner'} {PROBLEM_DETECTION_LABELS.adaptationIssues}
         </span>
       </div>
 
@@ -180,8 +182,7 @@ export function ProblemDetectionCard({
 
       <div className="mt-4 pt-4 border-t border-gray-200">
         <p className="text-sm text-gray-500">
-          💡 <strong>Tipp:</strong> Bewohner mit Anpassungsproblemen könnten in einer anderen Wohnung
-          besser passen. Nutzen Sie &quot;Umplatzieren&quot;, um passende Alternativen zu finden.
+          💡 <strong>{PROBLEM_DETECTION_LABELS.tip}</strong> {PROBLEM_DETECTION_LABELS.tipMessage}
         </p>
       </div>
     </div>
@@ -223,7 +224,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
             <p className="text-sm text-gray-500">
               {resident.ageRange && getLabel(AGE_RANGE_LABELS, resident.ageRange)}
               {resident.languages && resident.languages.length > 0 && (
-                <> · {resident.languages.slice(0, 2).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
+                <> · {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
               )}
             </p>
 
@@ -247,7 +248,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
               severity === 'critical' ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-500 hover:bg-orange-600'
             }`}
           >
-            Umplatzieren
+            {PROBLEM_DETECTION_LABELS.relocate}
           </Link>
           <Link
             href={`/residents/${resident.id}`}

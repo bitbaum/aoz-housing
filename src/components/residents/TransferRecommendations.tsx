@@ -171,7 +171,7 @@ export function TransferRecommendations({
                             </span>
                           ))}
                           {unit.residents.length > 3 && (
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-gray-500">
                               +{unit.residents.length - 3} weitere
                             </span>
                           )}

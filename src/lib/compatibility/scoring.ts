@@ -20,6 +20,7 @@ import {
   LIFESTYLE_SCALES,
   SOCIAL_SCALES,
   PRACTICAL_SCALES,
+  DIMENSION_WEIGHTS,
   OVERALL_DIMENSION_WEIGHTS,
 } from '@/lib/config/scoring-scales'
 
@@ -80,7 +81,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'sleep_schedule',
     score: sleepScore,
-    weight: 35,
+    weight: DIMENSION_WEIGHTS.lifestyle.sleepSchedule,
     note: sleepScore < 50 ? 'Unterschiedliche Schlafzeiten' : undefined,
   })
 
@@ -90,7 +91,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'noise_tolerance',
     score: noiseScore,
-    weight: 25,
+    weight: DIMENSION_WEIGHTS.lifestyle.noiseTolerance,
     note: noiseDiff > 2 ? 'Unterschiedliche Lärmtoleranz' : undefined,
   })
 
@@ -100,7 +101,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'cleanliness',
     score: cleanScore,
-    weight: 30,
+    weight: DIMENSION_WEIGHTS.lifestyle.cleanliness,
     note: cleanDiff > 2 ? 'Unterschiedliche Sauberkeitsstandards' : undefined,
   })
 
@@ -110,7 +111,7 @@ function calculateLifestyleCompatibility(
   factors.push({
     name: 'guest_tolerance',
     score: guestScore,
-    weight: 10,
+    weight: DIMENSION_WEIGHTS.lifestyle.guestTolerance,
     note: guestDiff > 2 ? 'Unterschiedliche Besuchertoleranz' : undefined,
   })
 
@@ -134,7 +135,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'social_style',
     score: socialStyleScore,
-    weight: 25,
+    weight: DIMENSION_WEIGHTS.social.socialStyle,
   })
 
   // Language overlap (enhanced with lingua franca support)
@@ -143,7 +144,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'language',
     score: languageScore,
-    weight: 35,
+    weight: DIMENSION_WEIGHTS.social.language,
     note: languageScore < 50 ? 'Kommunikation könnte schwierig sein' :
           languageScore === 100 ? `Gemeinsame Sprache: ${sharedLanguages.join(', ')}` : undefined,
   })
@@ -154,7 +155,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'privacy_needs',
     score: privacyScore,
-    weight: 30,
+    weight: DIMENSION_WEIGHTS.social.privacyNeed,
   })
 
   // Conflict resolution style compatibility
@@ -162,7 +163,7 @@ function calculateSocialCompatibility(
   factors.push({
     name: 'conflict_style',
     score: conflictScore,
-    weight: 10,
+    weight: DIMENSION_WEIGHTS.social.conflictStyle,
     note: conflictScore < 60 ? 'Unvereinbare Konfliktlösungsstile' : undefined,
   })
 
@@ -186,7 +187,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'smoking',
     score: smokingScore,
-    weight: 45,
+    weight: DIMENSION_WEIGHTS.practical.smoking,
     note: smokingScore < 50 ? 'Raucher/Nichtraucher Konflikt möglich' : undefined,
   })
 
@@ -195,7 +196,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'shared_spaces',
     score: sharedSpaceScore,
-    weight: 25,
+    weight: DIMENSION_WEIGHTS.practical.sharedSpaces,
   })
 
   // Pet tolerance
@@ -203,7 +204,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'pets',
     score: petScore,
-    weight: 10,
+    weight: DIMENSION_WEIGHTS.practical.pets,
   })
 
   // Dietary compatibility (kitchen sharing)
@@ -211,7 +212,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'dietary',
     score: dietScore,
-    weight: 5,
+    weight: DIMENSION_WEIGHTS.practical.dietary,
   })
 
   // Chores contribution compatibility (similar levels = less conflict)
@@ -220,7 +221,7 @@ function calculatePracticalCompatibility(
   factors.push({
     name: 'chores',
     score: choresScore,
-    weight: 15,
+    weight: DIMENSION_WEIGHTS.practical.chores,
     note: choresDiff >= 2 ? 'Unterschiedliche Beiträge zu Haushaltsaufgaben' : undefined,
   })
 

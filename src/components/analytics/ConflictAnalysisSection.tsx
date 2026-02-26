@@ -32,7 +32,7 @@ export function ConflictAnalysisSection({
             <p className="text-gray-500 text-sm">
               Noch keine detaillierten Konfliktdaten erfasst.
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Bei zukünftigen Konfliktbeendigungen werden Ursachen dokumentiert.
             </p>
           </div>

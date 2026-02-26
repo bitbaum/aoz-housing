@@ -7,9 +7,11 @@ import {
   SLEEP_SCHEDULE_LABELS,
   SMOKING_STATUS_LABELS,
   SOCIAL_STYLE_LABELS,
+  MATCHING_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { HeadToHeadComparison } from './HeadToHeadComparison'
 import { SpotSelection } from './SpotSelection'
 
@@ -73,7 +75,7 @@ export function MatchCard({ match, resident, rank }: Props) {
           <div className="flex items-center gap-2 flex-wrap">
             {rank && rank <= 3 && (
               <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${rank === 1 ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                {rank === 1 ? 'Top Empfehlung' : `Top ${rank}`}
+                {rank === 1 ? MATCHING_LABELS.topRecommendation : MATCHING_LABELS.topRank(rank)}
               </span>
             )}
             <Link
@@ -90,7 +92,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             {occupancy}/{match.unit.totalBeds} belegt
           </p>
           {occupancy === 0 && (
-            <p className="text-xs text-green-600">Leer</p>
+            <p className="text-xs text-green-600">{MATCHING_LABELS.empty}</p>
           )}
         </div>
       </div>
@@ -106,7 +108,7 @@ export function MatchCard({ match, resident, rank }: Props) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-700">
-                Verlauf: {match.unitMetrics.label}
+                {MATCHING_LABELS.history} {match.unitMetrics.label}
               </span>
               {match.unitMetrics.incidentFreeMonths > 0 && (
                 <span className="text-xs text-green-600">
@@ -131,10 +133,10 @@ export function MatchCard({ match, resident, rank }: Props) {
         <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-semibold text-blue-800 uppercase">
-              Wohnungs-Profil ({match.apartmentProfile.currentResidentCount} Bewohner)
+              {MATCHING_LABELS.apartmentProfile} ({match.apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
             </p>
             <span className={`text-sm font-bold ${getScoreColorClass(match.apartmentFit.fitScore)}`}>
-              {match.apartmentFit.fitScore}% Passend
+              {match.apartmentFit.fitScore}% {MATCHING_LABELS.matching}
             </span>
           </div>
 
@@ -164,7 +166,7 @@ export function MatchCard({ match, resident, rank }: Props) {
           {/* Strengths */}
           {match.apartmentFit.strengths.length > 0 && match.apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length === 0 && (
             <div className="space-y-1">
-              {match.apartmentFit.strengths.slice(0, 2).map((strength: string, i: number) => (
+              {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength: string, i: number) => (
                 <p key={i} className="text-xs text-green-600">✓ {strength}</p>
               ))}
             </div>
@@ -173,16 +175,16 @@ export function MatchCard({ match, resident, rank }: Props) {
           {/* Expandable score derivation */}
           <details className="mt-2 text-xs">
             <summary className="cursor-pointer text-blue-700 hover:text-blue-900 font-medium">
-              📊 Score-Berechnung anzeigen
+              📊 {MATCHING_LABELS.scoreDerivation}
             </summary>
             <div className="mt-2 p-2 bg-white border border-blue-100 rounded text-gray-700">
               <p className="font-semibold mb-1">Fit Score: {match.apartmentFit.fitScore}%</p>
-              <p className="text-gray-500 mb-2">Basis: 100 Punkte</p>
+              <p className="text-gray-500 mb-2">{MATCHING_LABELS.basePenalty}</p>
 
               {/* Conflict deductions */}
               {match.apartmentFit.conflicts.length > 0 && (
                 <div className="mb-2">
-                  <p className="font-medium text-red-700">Abzüge (Konflikte):</p>
+                  <p className="font-medium text-red-700">{MATCHING_LABELS.conflictDeductions}</p>
                   {match.apartmentFit.conflicts.map((c: ApartmentConflict, i: number) => (
                     <p key={i} className="ml-2">
                       • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
@@ -197,7 +199,7 @@ export function MatchCard({ match, resident, rank }: Props) {
               {/* Strength bonuses */}
               {match.apartmentFit.strengths.length > 0 && (
                 <div className="mb-2">
-                  <p className="font-medium text-green-700">Bonus (Stärken): +{Math.min(match.apartmentFit.strengths.length * 3, 20)}</p>
+                  <p className="font-medium text-green-700">{MATCHING_LABELS.strengthBonus} +{Math.min(match.apartmentFit.strengths.length * 3, 20)}</p>
                   {match.apartmentFit.strengths.map((s: string, i: number) => (
                     <p key={i} className="ml-2 text-green-600">• {s}</p>
                   ))}
@@ -206,11 +208,11 @@ export function MatchCard({ match, resident, rank }: Props) {
 
               {/* Small group bonus */}
               {match.apartmentProfile.currentResidentCount <= 2 && (
-                <p className="text-green-700">Bonus (kleine Gruppe): +5</p>
+                <p className="text-green-700">{MATCHING_LABELS.smallGroupBonus} +5</p>
               )}
 
               <p className="mt-2 pt-2 border-t border-gray-200 font-semibold">
-                = {match.apartmentFit.fitScore}% Gesamtpassung
+                = {match.apartmentFit.fitScore}% {MATCHING_LABELS.totalFit}
               </p>
             </div>
           </details>
@@ -224,19 +226,19 @@ export function MatchCard({ match, resident, rank }: Props) {
             <>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-purple-700">
-                  📊 Historische Daten ({realSuccessData.totalPlacements} Platzierungen):
+                  📊 {MATCHING_LABELS.historicalData} ({realSuccessData.totalPlacements} {MATCHING_LABELS.placements}):
                 </span>
                 <span className={`text-xs font-bold ${getScoreColorClass(realSuccessData.successRate)}`}>
-                  {realSuccessData.successRate}% Erfolgsrate
+                  {realSuccessData.successRate}% {MATCHING_LABELS.successRate}
                 </span>
               </div>
               <p className="text-xs text-purple-600 mt-1">
-                {realSuccessData.successfulPlacements}/{realSuccessData.totalPlacements} Platzierungen mit ähnlicher Kompatibilität ({match.apartmentFit.fitScore}% ±10) waren erfolgreich
+                {realSuccessData.successfulPlacements}/{realSuccessData.totalPlacements} {MATCHING_LABELS.placementsWithSimilar} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.successRateDesc(realSuccessData.successRate)}
               </p>
             </>
           ) : (
             <div className="text-xs text-purple-600">
-              📊 Keine historischen Daten für ähnliche Kompatibilitätswerte ({match.apartmentFit.fitScore}% ±10) verfügbar.
+              📊 {MATCHING_LABELS.noHistoricalData} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.available}.
             </div>
           )}
         </div>
@@ -246,16 +248,16 @@ export function MatchCard({ match, resident, rank }: Props) {
       {(allStrengths.length > 0 || sharedLanguages.length > 0 || occupancy === 0) && (
         <div className="mb-3 space-y-1">
           {occupancy === 0 && (
-            <p className="text-xs text-green-600">✓ Keine Mitbewohner - keine Konflikte</p>
+            <p className="text-xs text-green-600">✓ {MATCHING_LABELS.noRoommatesNoConflicts}</p>
           )}
           {sharedLanguages.length > 0 && (
             <p className="text-xs text-green-600">
-              ✓ Gemeinsame Sprache mit {match.unit.placements.filter((p) =>
+              ✓ {MATCHING_LABELS.sharedLanguageWith} {match.unit.placements.filter((p) =>
                 (resident.languages || []).some((l: string) => (p.resident.languages || []).includes(l))
-              ).length} Bewohner(n)
+              ).length} {MATCHING_LABELS.residentsCount}
             </p>
           )}
-          {allStrengths.slice(0, 2).map((strength, i) => (
+          {allStrengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength, i) => (
             <p key={i} className="text-xs text-green-600">✓ {strength}</p>
           ))}
         </div>
@@ -264,7 +266,7 @@ export function MatchCard({ match, resident, rank }: Props) {
       {/* Current residents with actual compatibility info */}
       {match.unit.placements.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">Aktuelle Bewohner:</p>
+          <p className="text-xs text-gray-500 mb-1">{MATCHING_LABELS.currentResidents}</p>
           <div className="space-y-1">
             {match.unit.placements.map((p) => {
               const detail = match.compatibilityDetails.find(
@@ -279,7 +281,7 @@ export function MatchCard({ match, resident, rank }: Props) {
                   <span className="font-medium">{p.resident.code}</span>
                   <span className={concernCount > 0 ? 'text-orange-600' : 'text-green-600'}>
                     {hasSharedLang ? '✓ Sprache' : '✗ Sprache'}
-                    {concernCount > 0 && ` · ${concernCount} Bedenken`}
+                    {concernCount > 0 && ` · ${concernCount} ${MATCHING_LABELS.concerns}`}
                   </span>
                 </div>
               )
@@ -306,11 +308,11 @@ export function MatchCard({ match, resident, rank }: Props) {
       {/* Roommate concerns */}
       {allConcerns.length > 0 && (
         <div className="mb-3">
-          {allConcerns.slice(0, 3).map((concern, i) => (
+          {allConcerns.slice(0, DISPLAY_LIMITS.matchConcerns).map((concern, i) => (
             <p key={i} className="text-xs text-orange-600">⚠️ {concern}</p>
           ))}
-          {allConcerns.length > 3 && (
-            <p className="text-xs text-gray-400">+{allConcerns.length - 3} weitere Bedenken</p>
+          {allConcerns.length > DISPLAY_LIMITS.matchConcerns && (
+            <p className="text-xs text-gray-500">{MATCHING_LABELS.moreConcerns(allConcerns.length - DISPLAY_LIMITS.matchConcerns)}</p>
           )}
         </div>
       )}
@@ -355,10 +357,10 @@ export function MatchCard({ match, resident, rank }: Props) {
               disabled={hasBlockingConflicts}
             >
               {hasBlockingConflicts
-                ? 'Blockiert'
+                ? MATCHING_LABELS.blocked
                 : fitScore < 50
-                ? 'Platzieren (niedrige Kompatibilität)'
-                : 'Platzieren'}
+                ? MATCHING_LABELS.placeLowCompat
+                : MATCHING_LABELS.place}
             </button>
           </form>
         )

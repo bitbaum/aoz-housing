@@ -8,6 +8,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { HousingSpot, CompatibleResident } from './types'
 
 interface PlacementPanelProps {
@@ -63,7 +64,7 @@ export function PlacementPanel({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             aria-label="Schliessen"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -164,7 +165,7 @@ function ResidentRow({
             </Link>
             <p className="text-sm text-gray-500 truncate">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-              {resident.languages?.slice(0, 2).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+              {resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
             </p>
           </div>
         </div>

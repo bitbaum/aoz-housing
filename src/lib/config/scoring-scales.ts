@@ -43,7 +43,7 @@ export const PRACTICAL_SCALES = {
 /**
  * Weight percentages within each dimension
  * These determine how much each factor contributes to its dimension score.
- * Must match the hardcoded weights in scoring.ts factor arrays.
+ * Imported directly by scoring.ts — single source of truth.
  *
  * Research justification for v2.0 changes documented in algorithm-docs.ts
  */

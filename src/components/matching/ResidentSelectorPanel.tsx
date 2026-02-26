@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import type { Resident } from '@prisma/client'
 import type { ResidentWithPlacement } from '@/lib/matching/types'
-import { AGE_RANGE_LABELS, LANGUAGE_LABELS, EMPTY_STATE_LABELS, getLabel } from '@/lib/constants'
+import { AGE_RANGE_LABELS, LANGUAGE_LABELS, EMPTY_STATE_LABELS, MATCHING_LABELS, getLabel } from '@/lib/constants'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface Props {
   filteredUnplacedResidents: Resident[]
@@ -23,7 +24,7 @@ export function ResidentSelectorPanel({
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Unplatzierte Bewohner ({filteredUnplacedResidents.length}/{totalUnplaced})
+        {MATCHING_LABELS.unplacedResidents} ({filteredUnplacedResidents.length}/{totalUnplaced})
       </h2>
 
       <form className="mb-3">
@@ -32,10 +33,10 @@ export function ResidentSelectorPanel({
             type="search"
             name="q"
             defaultValue={params.q || ''}
-            placeholder="Bewohner suchen (Code, Sprache)"
+            placeholder={MATCHING_LABELS.searchPlaceholder}
             className="input flex-1"
           />
-          <button type="submit" className="btn-outline text-sm min-h-[44px]">Suchen</button>
+          <button type="submit" className="btn-outline text-sm min-h-[44px]">{MATCHING_LABELS.search}</button>
         </div>
         {params.resident && <input type="hidden" name="resident" value={params.resident} />}
         {params.unit && <input type="hidden" name="unit" value={params.unit} />}
@@ -48,7 +49,7 @@ export function ResidentSelectorPanel({
             {totalResidentCount === 0
               ? EMPTY_STATE_LABELS.noResidentsAtAll
               : residentQuery
-              ? 'Keine Bewohner für diese Suche gefunden'
+              ? MATCHING_LABELS.noResidentsFound
               : EMPTY_STATE_LABELS.allResidentsPlaced}
           </p>
           {totalResidentCount === 0 && (
@@ -82,7 +83,7 @@ export function ResidentSelectorPanel({
                   <p className="text-sm text-gray-500">
                     {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
                     {resident.languages
-                      .slice(0, 2)
+                      .slice(0, DISPLAY_LIMITS.languagePreview)
                       .map((l) => getLabel(LANGUAGE_LABELS, l))
                       .join(', ')}
                   </p>
@@ -96,7 +97,7 @@ export function ResidentSelectorPanel({
                     : 'bg-gray-100 text-gray-700 hover:bg-aoz-primary hover:text-white'
                 }`}
               >
-                {params.resident === resident.id ? 'Ausgewählt' : 'Matching'}
+                {params.resident === resident.id ? MATCHING_LABELS.selected : MATCHING_LABELS.matching}
               </Link>
             </div>
           ))}
@@ -107,10 +108,10 @@ export function ResidentSelectorPanel({
       {placedResidents.length > 0 && (
         <div className="mt-6 pt-6 border-t border-gray-200">
           <h3 className="text-md font-semibold text-gray-700 mb-3">
-            Platzierte Bewohner ({placedResidents.length})
+            {MATCHING_LABELS.placedResidents} ({placedResidents.length})
           </h3>
           <p className="text-xs text-gray-500 mb-3">
-            Wählen Sie einen Bewohner für &quot;Was-wäre-wenn&quot;-Analyse
+            {MATCHING_LABELS.selectForAnalysis}
           </p>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {placedResidents.map((resident) => (
@@ -134,7 +135,7 @@ export function ResidentSelectorPanel({
                       {resident.code}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {resident.placements[0]?.housingUnit?.code || 'Platziert'}
+                      {resident.placements[0]?.housingUnit?.code || MATCHING_LABELS.placed}
                     </p>
                   </div>
                 </Link>
@@ -146,7 +147,7 @@ export function ResidentSelectorPanel({
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                   }`}
                 >
-                  Vergleichen
+                  {MATCHING_LABELS.compare}
                 </Link>
               </div>
             ))}

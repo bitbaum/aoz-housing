@@ -110,7 +110,7 @@ export default function LoginPage() {
                 autoFocus
                 className="input placeholder:text-gray-400 font-mono text-center text-lg tracking-wider"
               />
-              <p className="mt-1.5 text-xs text-gray-400">{LOGIN_LABELS.codeHint}</p>
+              <p className="mt-1.5 text-xs text-gray-500">{LOGIN_LABELS.codeHint}</p>
             </div>
 
             <button
@@ -126,7 +126,7 @@ export default function LoginPage() {
           </form>
         )}
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-gray-500">
           {LOGIN_LABELS.help}
         </p>
       </div>

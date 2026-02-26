@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getScoreColorClass } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface CompatibleUnit {
   unit: { id: string; code: string }
@@ -77,7 +78,7 @@ export function CompatibleMatchesCard({
                   <div>
                     <p className="font-medium text-gray-900">{other.code}</p>
                     <p className="text-xs text-gray-500">
-                      {other.languages?.slice(0, 2).join(', ')}
+                      {other.languages?.slice(0, DISPLAY_LIMITS.languagePreview).join(', ')}
                     </p>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { SATISFACTION_EMOJIS, SATISFACTION_LABELS, PORTAL_LABELS } from '@/lib/constants'
+import { SATISFACTION_EMOJIS, SATISFACTION_LABELS, SATISFACTION_SURVEY_LABELS, PORTAL_LABELS } from '@/lib/constants'
 
 interface SatisfactionRatingProps {
   currentRating?: number | null
@@ -53,7 +53,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       setShowConcernsField(false)
       setConcerns('')
     } catch {
-      setError('Speichern fehlgeschlagen. Bitte erneut versuchen.')
+      setError(SATISFACTION_SURVEY_LABELS.saveFailed)
     } finally {
       setIsSubmitting(false)
     }
@@ -92,7 +92,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
     // Format days display — "Heute" instead of "vor 0 Tagen"
     const daysDisplay = daysSinceLastCheckIn === 0
       ? PORTAL_LABELS.satisfaction.today
-      : `vor ${daysSinceLastCheckIn} ${daysSinceLastCheckIn === 1 ? 'Tag' : 'Tagen'}`
+      : `vor ${daysSinceLastCheckIn} ${daysSinceLastCheckIn === 1 ? SATISFACTION_SURVEY_LABELS.day : SATISFACTION_SURVEY_LABELS.days}`
 
     return (
       <div className="card bg-gray-50">
@@ -158,23 +158,23 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
 
       {/* Labels under buttons */}
       <div className="flex justify-center gap-3 sm:gap-4 mb-4">
-        <span className="text-xs text-gray-400 w-14 sm:w-16 text-center">Schlecht</span>
-        <span className="text-xs text-gray-400 w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-gray-400 w-14 sm:w-16 text-center">Okay</span>
-        <span className="text-xs text-gray-400 w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-gray-400 w-14 sm:w-16 text-center">Super</span>
+        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.bad}</span>
+        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center"></span>
+        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.okay}</span>
+        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center"></span>
+        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.great}</span>
       </div>
 
       {/* Concerns field for low ratings */}
       {showConcernsField && rating && rating <= 2 && (
         <div className="mt-6 p-4 bg-white rounded-lg border border-orange-200">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Möchtest du uns mehr erzählen? <span className="text-gray-400">(optional)</span>
+            {SATISFACTION_SURVEY_LABELS.commentPrompt} <span className="text-gray-500">{SATISFACTION_SURVEY_LABELS.optional}</span>
           </label>
           <textarea
             value={concerns}
             onChange={(e) => setConcerns(e.target.value)}
-            placeholder="Was können wir verbessern? Was beschäftigt dich?"
+            placeholder={SATISFACTION_SURVEY_LABELS.commentPlaceholder}
             className="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary"
             rows={3}
             disabled={isSubmitting}
@@ -186,14 +186,14 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
               disabled={isSubmitting}
               className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Wird gesendet...' : 'Absenden'}
+              {isSubmitting ? SATISFACTION_SURVEY_LABELS.submitting : SATISFACTION_SURVEY_LABELS.submit}
             </button>
             <button
               onClick={() => submitCheckIn(rating, '')}
               disabled={isSubmitting}
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 min-h-[44px]"
             >
-              Ohne Kommentar absenden
+              {SATISFACTION_SURVEY_LABELS.submitWithoutComment}
             </button>
           </div>
         </div>
@@ -207,12 +207,12 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             disabled={isSubmitting}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Wird gesendet...' : 'Feedback absenden'}
+            {isSubmitting ? SATISFACTION_SURVEY_LABELS.submitting : SATISFACTION_SURVEY_LABELS.submitFeedback}
           </button>
         </div>
       )}
 
-      <p className="text-xs text-gray-400 mt-4 text-center">
+      <p className="text-xs text-gray-500 mt-4 text-center">
         {PORTAL_LABELS.satisfaction.privacyNote}
       </p>
     </div>

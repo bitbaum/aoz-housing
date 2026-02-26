@@ -8,6 +8,7 @@ import {
   TASK_PRIORITY_COLORS,
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
+import { CHORE_LABELS as CHORE_UI_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 
 interface ChoreCardProps {
@@ -63,7 +64,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
               : CHORE_LABELS.card.never}
           </p>
           {needsDecision && (
-            <p className="text-xs text-amber-700 mt-1">Empfohlen: Aufgabe öffnen und zuerst Entscheidung treffen.</p>
+            <p className="text-xs text-amber-700 mt-1">{CHORE_UI_LABELS.openTaskHint}</p>
           )}
         </div>
       </Link>
@@ -74,7 +75,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           <Link
             href={`/portal/chores/${task.id}`}
             className="min-h-[44px] px-3 py-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-sm font-medium transition-colors flex items-center"
-            title="Aufgabe öffnen und Entscheidung treffen"
+            title={CHORE_UI_LABELS.openTaskAction}
           >
             Details
           </Link>
@@ -83,9 +84,9 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
             onClick={() => onQuickComplete(task.id)}
             disabled={isCompleting}
             className="min-h-[44px] px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex-shrink-0"
-            title="Direkt als erledigt markieren"
+            title={CHORE_UI_LABELS.markDoneDirectly}
           >
-            {isCompleting ? '...' : 'Erledigt'}
+            {isCompleting ? '...' : CHORE_UI_LABELS.done}
           </button>
         )
       )}

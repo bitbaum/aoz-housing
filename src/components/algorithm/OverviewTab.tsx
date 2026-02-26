@@ -147,7 +147,7 @@ export function OverviewTab() {
       </section>
 
       {/* Version Footer */}
-      <div className="text-center text-sm text-gray-400 pt-4">
+      <div className="text-center text-sm text-gray-500 pt-4">
         Letzte Aktualisierung: v2.0 – 10. Februar 2026
       </div>
     </div>

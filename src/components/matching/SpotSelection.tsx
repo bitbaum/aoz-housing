@@ -7,6 +7,7 @@ import {
   SPOT_TYPE_ICONS,
   getEligibleSpotTypes,
 } from '@/lib/config/placement-spots'
+import { MATCHING_LABELS } from '@/lib/constants'
 
 type SpotWithPlacements = PlacementSpot & { placements: Placement[] }
 
@@ -39,7 +40,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
   if (availableSpots.length === 0) {
     return (
       <p className="text-sm text-gray-500 text-center py-2">
-        Keine freien Plätze verfügbar
+        {MATCHING_LABELS.noSpotsAvailable}
       </p>
     )
   }
@@ -47,13 +48,13 @@ export function SpotSelection({ spots, resident, match }: Props) {
   return (
     <fieldset className="space-y-2">
       <legend className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-        Platz auswählen
+        {MATCHING_LABELS.selectSpot}
       </legend>
 
       {eligibleSpots.length === 0 && (
         <p className="text-xs text-orange-600 mb-2" role="alert">
-          <span aria-hidden="true">⚠️</span> Keine Plätze für diesen Bewohner geeignet
-          {!resident.hasMedicalDocumentation && ' (med. Dokumente fehlen)'}
+          <span aria-hidden="true">⚠️</span> {MATCHING_LABELS.noSuitableSpots}
+          {!resident.hasMedicalDocumentation && ` ${MATCHING_LABELS.medDocsMissing}`}
         </p>
       )}
 
@@ -99,23 +100,23 @@ export function SpotSelection({ spots, resident, match }: Props) {
               }`}
               disabled={hasBlockingConflicts}
               aria-label={hasBlockingConflicts
-                ? `${spotName} blockiert`
-                : `${resident.code} in ${spotName} platzieren`}
+                ? `${spotName} ${MATCHING_LABELS.blocked.toLowerCase()}`
+                : `${resident.code} in ${spotName} ${MATCHING_LABELS.place.toLowerCase()}`}
             >
               {hasBlockingConflicts
-                ? 'Blockiert'
+                ? MATCHING_LABELS.blocked
                 : fitScore < 50
-                ? 'Platzieren (niedrige Kompatibilität)'
-                : 'Platzieren'}
+                ? MATCHING_LABELS.placeLowCompat
+                : MATCHING_LABELS.place}
             </button>
           </form>
         )
       })}
 
       {ineligibleSpots.length > 0 && (
-        <details className="text-xs text-gray-400">
-          <summary className="cursor-pointer hover:text-gray-600">
-            {ineligibleSpots.length} weitere Plätze (nicht geeignet)
+        <details className="text-xs text-gray-500">
+          <summary className="cursor-pointer hover:text-gray-700">
+            {MATCHING_LABELS.moreUnsuitableSpots(ineligibleSpots.length)}
           </summary>
           <div className="mt-2 space-y-1 pl-2">
             {ineligibleSpots.map((spot) => (
@@ -124,8 +125,8 @@ export function SpotSelection({ spots, resident, match }: Props) {
                 <span>{spot.label || spot.code}</span>
                 <span className="text-orange-500">
                   {spot.requiresMedicalDocs && !resident.hasMedicalDocumentation
-                    ? '(med. Dok. erforderlich)'
-                    : '(nicht berechtigt)'}
+                    ? MATCHING_LABELS.medDocsRequired
+                    : MATCHING_LABELS.notAuthorized}
                 </span>
               </div>
             ))}

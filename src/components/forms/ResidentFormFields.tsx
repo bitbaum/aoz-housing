@@ -135,7 +135,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             <span className="text-sm font-medium text-gray-700">
               Medizinische Dokumentation vorhanden
             </span>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               Ärztliche Bestätigung für besondere Unterbringungsbedürfnisse
             </p>
           </div>
@@ -183,7 +183,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
               placeholder="z.B. Referenznummer, ausstellende Stelle..."
               className="input"
             />
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               Nur Verwaltungsnotizen, keine medizinischen Details
             </p>
           </div>

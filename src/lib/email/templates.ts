@@ -45,6 +45,17 @@ interface NewIncidentData {
   requestedMediation: boolean
 }
 
+// -- HTML escaping for user-controlled data --
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 // -- Shared styles --
 
 const STYLES = {
@@ -118,9 +129,9 @@ export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subjec
   const rows = incidents.map(i => `
     <tr>
       <td style="${STYLES.td}">${i.id.slice(-8)}</td>
-      <td style="${STYLES.td}">${i.description}</td>
+      <td style="${STYLES.td}">${escapeHtml(i.description)}</td>
       <td style="${STYLES.td}"><span style="color: ${severityColor(i.severity)}; font-weight: 600;">${severityLabel(i.severity)}</span></td>
-      <td style="${STYLES.td}">${i.housingUnitCode || '-'}</td>
+      <td style="${STYLES.td}">${i.housingUnitCode ? escapeHtml(i.housingUnitCode) : '-'}</td>
       <td style="${STYLES.td}">${formatDate(i.nextFollowUpDate)}</td>
     </tr>
   `).join('')
@@ -153,7 +164,7 @@ export function checkInReminder(overdueResidents: OverdueResident[]): { subject:
 
   const rows = overdueResidents.map(r => `
     <tr>
-      <td style="${STYLES.td}">${r.code}</td>
+      <td style="${STYLES.td}">${escapeHtml(r.code)}</td>
       <td style="${STYLES.td}"><span style="color: ${supportLevelColor(r.supportLevel)}; font-weight: 600;">${supportLevelLabel(r.supportLevel)}</span></td>
       <td style="${STYLES.td}">${r.lastCheckInDate ? formatDate(r.lastCheckInDate) : 'Nie'}</td>
       <td style="${STYLES.td}">${r.daysSinceLastCheckIn} Tage</td>
@@ -189,11 +200,11 @@ export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: stri
     <div style="${STYLES.warning}">
       <h2 style="font-family: Arial, sans-serif; color: #991b1b; margin: 0 0 12px 0;">Niedrige Zufriedenheit gemeldet</h2>
       <p style="${STYLES.paragraph}">
-        <strong>Bewohner:</strong> ${data.residentCode}<br>
-        <strong>Wohneinheit:</strong> ${data.housingUnitCode}<br>
+        <strong>Bewohner:</strong> ${escapeHtml(data.residentCode)}<br>
+        <strong>Wohneinheit:</strong> ${escapeHtml(data.housingUnitCode)}<br>
         <strong>Bewertung:</strong> <span style="font-size: 18px; color: #dc2626;">${stars(data.overallSatisfaction)}</span> (${data.overallSatisfaction}/5)
       </p>
-      ${data.concerns ? `<p style="${STYLES.paragraph}"><strong>Anliegen:</strong> ${data.concerns}</p>` : ''}
+      ${data.concerns ? `<p style="${STYLES.paragraph}"><strong>Anliegen:</strong> ${escapeHtml(data.concerns)}</p>` : ''}
     </div>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie die Situation und kontaktieren Sie den Bewohner zeitnah.</p>
     ${emailFooter()}
@@ -242,18 +253,18 @@ export function newIncidentNotification(data: NewIncidentData): { subject: strin
     <div style="${STYLES.warning}">
       <h2 style="font-family: Arial, sans-serif; color: #991b1b; margin: 0 0 12px 0;">Neuer Vorfall gemeldet</h2>
       <p style="${STYLES.paragraph}">
-        <strong>Gemeldet von:</strong> ${data.residentCode}<br>
-        <strong>Wohneinheit:</strong> ${data.housingUnitCode}<br>
+        <strong>Gemeldet von:</strong> ${escapeHtml(data.residentCode)}<br>
+        <strong>Wohneinheit:</strong> ${escapeHtml(data.housingUnitCode)}<br>
         <strong>Kategorie:</strong> ${categoryLabel(data.category)}<br>
         <strong>Typ:</strong> ${typeLabel(data.type)}<br>
         <strong>Schweregrad:</strong> <span style="color: ${severityColor(data.severity)}; font-weight: 600;">${severityLabel(data.severity)}</span>
-        ${data.subjectCode ? `<br><strong>Betroffene Person:</strong> ${data.subjectCode}` : ''}
+        ${data.subjectCode ? `<br><strong>Betroffene Person:</strong> ${escapeHtml(data.subjectCode)}` : ''}
         ${data.requestedMediation ? `<br><strong>Vermittlung gewünscht:</strong> Ja` : ''}
       </p>
     </div>
     <div style="background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
       <h3 style="font-family: Arial, sans-serif; color: #374151; margin: 0 0 8px 0; font-size: 14px;">Beschreibung</h3>
-      <p style="${STYLES.paragraph}">${data.description}</p>
+      <p style="${STYLES.paragraph}">${escapeHtml(data.description)}</p>
     </div>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie den Vorfall im AOZ Housing System.</p>
     ${emailFooter()}
@@ -268,10 +279,10 @@ export function newTransferRequestNotification(data: TransferRequestData): { sub
   const html = `
     <h2 style="${STYLES.header}">Neue Verlegungsanfrage</h2>
     <p style="${STYLES.paragraph}">
-      <strong>Bewohner:</strong> ${data.residentCode}<br>
-      <strong>Aktuelle Wohneinheit:</strong> ${data.currentUnitCode}<br>
-      ${data.targetUnitCode ? `<strong>Gewünschte Wohneinheit:</strong> ${data.targetUnitCode}<br>` : ''}
-      <strong>Grund:</strong> ${data.reason}
+      <strong>Bewohner:</strong> ${escapeHtml(data.residentCode)}<br>
+      <strong>Aktuelle Wohneinheit:</strong> ${escapeHtml(data.currentUnitCode)}<br>
+      ${data.targetUnitCode ? `<strong>Gewünschte Wohneinheit:</strong> ${escapeHtml(data.targetUnitCode)}<br>` : ''}
+      <strong>Grund:</strong> ${escapeHtml(data.reason)}
     </p>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie die Anfrage im AOZ Housing System.</p>
     ${emailFooter()}

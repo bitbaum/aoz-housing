@@ -93,7 +93,7 @@ function TextField({
         readOnly={disabled}
       />
       {disabled && (
-        <p className="text-xs text-gray-400 mt-1">Kann nicht geändert werden</p>
+        <p className="text-xs text-gray-500 mt-1">Kann nicht geändert werden</p>
       )}
     </div>
   )
@@ -204,7 +204,7 @@ function ScaleField({
         ))}
       </div>
       {(factor.lowLabel || factor.highLabel) && (
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
           <span>{factor.lowLabel}</span>
           <span>{factor.highLabel}</span>
         </div>
@@ -236,7 +236,7 @@ function BooleanField({
       />
       <span className="text-sm text-gray-700">{factor.label}</span>
       {factor.description && (
-        <span className="text-xs text-gray-400">({factor.description})</span>
+        <span className="text-xs text-gray-500">({factor.description})</span>
       )}
     </label>
   )

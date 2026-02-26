@@ -94,7 +94,7 @@ export default async function AdminLayout({
         {/* Desktop Sidebar */}
         <aside className="hidden md:block w-56 bg-white border-r border-gray-200 fixed top-[100px] h-[calc(100vh-100px)] overflow-y-auto">
           <nav className="p-3">
-            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
               Navigation
             </div>
             {NAV_ITEMS.map((item) => (
@@ -103,7 +103,7 @@ export default async function AdminLayout({
               </SidebarLink>
             ))}
             <div className="border-t border-gray-200 mt-4 pt-4">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
                 System
               </div>
               <SidebarLink href="/algorithm" icon="brain">
@@ -124,10 +124,10 @@ export default async function AdminLayout({
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
               <div className="flex items-center gap-3 text-gray-500">
                 <Logo size="sm" />
-                <span className="text-gray-400">|</span>
+                <span className="text-gray-500">|</span>
                 <span className="text-gray-500">{APP_LABELS.metaDescription}</span>
               </div>
-              <div className="flex items-center gap-4 text-gray-400">
+              <div className="flex items-center gap-4 text-gray-500">
                 <Link href="/algorithm" className="hover:text-aoz-primary transition-colors">
                   Algorithmus
                 </Link>

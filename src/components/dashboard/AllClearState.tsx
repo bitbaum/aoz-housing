@@ -38,7 +38,7 @@ export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: nu
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{DASHBOARD_LABELS.sectionQuickActions}</h2>
         {freeBeds > 0 && (
-          <span className="text-xs text-gray-400">{freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}</span>
+          <span className="text-xs text-gray-500">{freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}</span>
         )}
       </div>
       <div className="flex flex-wrap gap-2">

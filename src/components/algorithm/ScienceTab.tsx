@@ -66,7 +66,7 @@ export function ScienceTab() {
               <div className="min-w-0">
                 <h4 className="font-medium text-gray-900">{method.type}</h4>
                 <p className="text-sm text-gray-600 mt-1">{method.description}</p>
-                <p className="text-xs text-gray-400 mt-1 italic">Beispiel: {method.example}</p>
+                <p className="text-xs text-gray-500 mt-1 italic">Beispiel: {method.example}</p>
               </div>
             </div>
           ))}
@@ -126,7 +126,7 @@ export function ScienceTab() {
                       <div className="flex items-center gap-2 flex-shrink-0 pl-6 sm:pl-0">
                         <EvidenceStrengthBadge strength={source.evidenceStrength} />
                         {source.year && (
-                          <span className="text-xs text-gray-400">{source.year}</span>
+                          <span className="text-xs text-gray-500">{source.year}</span>
                         )}
                       </div>
                     </div>
@@ -201,7 +201,7 @@ export function ScienceTab() {
                         {/* Source citations */}
                         {sources.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-gray-100">
-                            <p className="text-xs text-gray-400 mb-1">Quellen:</p>
+                            <p className="text-xs text-gray-500 mb-1">Quellen:</p>
                             <div className="flex flex-wrap gap-1">
                               {sources.map(source => (
                                 <span
@@ -310,7 +310,7 @@ export function ScienceTab() {
                 <EvidenceStrengthBadge strength={source.evidenceStrength} />
               </div>
               {source.publication && (
-                <p className="text-xs text-gray-400 mt-1">{source.publication}</p>
+                <p className="text-xs text-gray-500 mt-1">{source.publication}</p>
               )}
             </div>
           ))}

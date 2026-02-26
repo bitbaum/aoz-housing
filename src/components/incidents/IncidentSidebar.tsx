@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { resolveIncident } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
 import { formatDate } from '@/lib/utils'
+import { INCIDENT_SIDEBAR_LABELS } from '@/lib/constants'
 
 interface Props {
   incident: {
@@ -32,7 +33,7 @@ export function IncidentSidebar({ incident }: Props) {
       {/* Location */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Ort
+          {INCIDENT_SIDEBAR_LABELS.location}
         </h2>
         <Link
           href={`/housing/${incident.housingUnitId}`}
@@ -53,7 +54,7 @@ export function IncidentSidebar({ incident }: Props) {
       {/* People Involved */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Beteiligte
+          {INCIDENT_SIDEBAR_LABELS.involved}
         </h2>
         <div className="space-y-3">
           {incident.reportedBy && (
@@ -63,7 +64,7 @@ export function IncidentSidebar({ incident }: Props) {
             >
               <span className="text-lg">📢</span>
               <div>
-                <p className="text-sm text-gray-500">Gemeldet von</p>
+                <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.reportedBy}</p>
                 <p className="font-medium text-gray-900">
                   {incident.reportedBy.code}
                 </p>
@@ -78,7 +79,7 @@ export function IncidentSidebar({ incident }: Props) {
             >
               <span className="text-lg">👤</span>
               <div>
-                <p className="text-sm text-gray-500">Betrifft</p>
+                <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.subject}</p>
                 <p className="font-medium text-amber-900">
                   {incident.subject.code}
                 </p>
@@ -88,7 +89,7 @@ export function IncidentSidebar({ incident }: Props) {
 
           {incident.involvedResidents.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm text-gray-500">Weitere Beteiligte</p>
+              <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.otherInvolved}</p>
               {incident.involvedResidents.map((inv) => (
                 <Link
                   key={inv.id}
@@ -108,7 +109,7 @@ export function IncidentSidebar({ incident }: Props) {
 
           {!incident.reportedBy && !incident.subject && incident.involvedResidents.length === 0 && (
             <p className="text-gray-500 text-sm">
-              Keine Bewohner zugeordnet
+              {INCIDENT_SIDEBAR_LABELS.noResidentsAssigned}
             </p>
           )}
         </div>
@@ -118,23 +119,23 @@ export function IncidentSidebar({ incident }: Props) {
       {!incident.resolvedAt && (
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Aktionen
+            {INCIDENT_SIDEBAR_LABELS.actions}
           </h2>
           <form id="incident-resolve-form" action={resolveIncident} className="space-y-4">
             <input type="hidden" name="incidentId" value={incident.id} />
             <div id="incident-resolve-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
             <FormValidationUX formId="incident-resolve-form" summaryId="incident-resolve-validation-summary" />
             <div>
-              <label className="label">Lösung</label>
+              <label className="label">{INCIDENT_SIDEBAR_LABELS.resolution}</label>
               <textarea
                 name="resolution"
                 rows={3}
-                placeholder="Wie wurde der Vorfall gelöst?"
+                placeholder={INCIDENT_SIDEBAR_LABELS.resolutionPlaceholder}
                 className="input"
               />
             </div>
             <button type="submit" className="btn-primary w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-              Als gelöst markieren
+              {INCIDENT_SIDEBAR_LABELS.markResolved}
             </button>
           </form>
         </div>
@@ -143,26 +144,26 @@ export function IncidentSidebar({ incident }: Props) {
       {/* Meta Info */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Details
+          {INCIDENT_SIDEBAR_LABELS.details}
         </h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-gray-500">Erstellt</dt>
+            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.created}</dt>
             <dd className="text-gray-900">
               {formatDate(incident.createdAt)}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Vorfallsdatum</dt>
+            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.incidentDate}</dt>
             <dd className="text-gray-900">{formatDate(incident.date)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">Follow-ups</dt>
+            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.followUps}</dt>
             <dd className="text-gray-900">{incident.followUpCount}</dd>
           </div>
           {incident.resolvedAt && (
             <div className="flex justify-between">
-              <dt className="text-gray-500">Gelöst am</dt>
+              <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.resolvedAt}</dt>
               <dd className="text-gray-900">
                 {formatDate(incident.resolvedAt)}
               </dd>

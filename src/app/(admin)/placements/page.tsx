@@ -9,6 +9,8 @@ import {
   getLabel,
 } from '@/lib/constants'
 
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+
 export const metadata: Metadata = { title: 'Platzierungen' }
 import {
   getStatusBadgeClass,
@@ -337,7 +339,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
               {lastCheckIn ? (
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                  <span className={`text-xs ${isCheckInOverdue ? 'text-orange-600 font-medium' : 'text-gray-400'}`}>
+                  <span className={`text-xs ${isCheckInOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
                     vor {daysSinceCheckIn}d
                   </span>
                 </div>
@@ -382,7 +384,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
       {/* Concerns Alert */}
       {lastCheckIn?.concerns && (
         <div className="mt-3 p-2 bg-orange-50 rounded text-sm text-orange-700 border-t border-orange-100">
-          ⚠️ Anliegen: {lastCheckIn.concerns.slice(0, 100)}{lastCheckIn.concerns.length > 100 ? '...' : ''}
+          ⚠️ Anliegen: {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}{lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
         </div>
       )}
 

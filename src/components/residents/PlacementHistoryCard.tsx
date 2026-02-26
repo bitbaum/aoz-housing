@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
-import { END_REASON_LABELS, getLabel } from '@/lib/constants'
+import { END_REASON_LABELS, PLACEMENT_HISTORY_LABELS, getLabel } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 
 interface PlacementSpot {
@@ -32,7 +32,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Platzierungshistorie ({placements.length})
+        {PLACEMENT_HISTORY_LABELS.title} ({placements.length})
       </h2>
       <div className="space-y-3">
         {placements.map((placement) => (
@@ -66,13 +66,13 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
                 {formatDate(placement.startDate)} -{' '}
                 {placement.endDate
                   ? formatDate(placement.endDate)
-                  : 'heute'}
+                  : PLACEMENT_HISTORY_LABELS.today}
               </p>
             </div>
             <div className="text-right">
               {placement.status === 'TRANSFERRED' ? (
                 <span className="badge bg-blue-100 text-blue-800">
-                  Verlegt
+                  {PLACEMENT_HISTORY_LABELS.transferred}
                 </span>
               ) : placement.endReason ? (
                 <span className="badge badge-ended">

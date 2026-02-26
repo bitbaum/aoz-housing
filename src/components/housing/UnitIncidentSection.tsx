@@ -2,6 +2,8 @@ import Link from 'next/link'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_ICONS,
+  UI_LABELS,
+  UNIT_INCIDENT_LABELS,
 } from '@/lib/constants'
 import { getSeverityBorderClass, formatRelativeDate } from '@/lib/utils'
 
@@ -44,10 +46,10 @@ export function UnitIncidentSection({
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">
-          Vorfälle & Meldungen
+          {UNIT_INCIDENT_LABELS.title}
         </h2>
         <Link href={`/incidents/new?unit=${unitId}`} className="btn-outline text-sm">
-          Neuer Vorfall
+          {UNIT_INCIDENT_LABELS.newIncident}
         </Link>
       </div>
 
@@ -58,7 +60,7 @@ export function UnitIncidentSection({
             <span className="text-amber-600 text-lg" aria-hidden="true">!</span>
             <div>
               <p className="text-sm font-medium text-amber-800">
-                Häufig betroffene Bewohner
+                {UNIT_INCIDENT_LABELS.frequentResidents}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {frequentSubjects.map((s) => (
@@ -79,15 +81,15 @@ export function UnitIncidentSection({
 
       <div className="mb-4">
         <div className="flex gap-2 border-b border-gray-200">
-          <TabButton active>Alle ({incidents.length})</TabButton>
-          <TabButton>Konflikte ({interpersonalCount})</TabButton>
-          <TabButton>Wartung ({maintenanceCount})</TabButton>
+          <TabButton active>{UNIT_INCIDENT_LABELS.tabs.all} ({incidents.length})</TabButton>
+          <TabButton>{UNIT_INCIDENT_LABELS.tabs.conflicts} ({interpersonalCount})</TabButton>
+          <TabButton>{UNIT_INCIDENT_LABELS.tabs.maintenance} ({maintenanceCount})</TabButton>
         </div>
       </div>
 
       {incidents.length === 0 ? (
         <p className="text-gray-500 text-center py-8">
-          Keine Vorfälle dokumentiert
+          {UNIT_INCIDENT_LABELS.noIncidents}
         </p>
       ) : (
         <div className="space-y-3">
@@ -125,16 +127,16 @@ function IncidentCard({ incident }: { incident: Incident }) {
             {formatRelativeDate(incident.date)}
           </p>
           {incident.resolvedAt ? (
-            <span className="badge badge-active">Gelöst</span>
+            <span className="badge badge-active">{UI_LABELS.resolved}</span>
           ) : (
-            <span className="badge badge-pending">Offen</span>
+            <span className="badge badge-pending">{UI_LABELS.open}</span>
           )}
         </div>
       </div>
       {incident.resolution && (
         <div className="mt-3 pt-3 border-t border-gray-200">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Lösung:</span> {incident.resolution}
+            <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>
       )}

@@ -130,7 +130,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
               </div>
               <div className="pt-1">
                 <p className={`text-sm font-medium ${
-                  done ? 'text-green-700' : isActive ? 'text-aoz-primary' : 'text-gray-400'
+                  done ? 'text-green-700' : isActive ? 'text-aoz-primary' : 'text-gray-500'
                 }`}>
                   {label}
                 </p>

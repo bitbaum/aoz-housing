@@ -107,7 +107,7 @@ function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
 function LocationItem({ label, available }: { label: string; available: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
-      <span className={available ? 'text-green-500' : 'text-gray-400'}>
+      <span className={available ? 'text-green-500' : 'text-gray-500'}>
         {available ? '✓' : '○'}
       </span>
       {label} {available ? 'in der Nähe' : '-'}
