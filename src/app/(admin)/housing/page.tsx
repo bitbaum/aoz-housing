@@ -76,7 +76,7 @@ export default async function HousingListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Unterkünfte</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Unterkünfte</h1>
         <Link href="/housing/new" className="btn-primary">
           Neue Unterkunft
         </Link>

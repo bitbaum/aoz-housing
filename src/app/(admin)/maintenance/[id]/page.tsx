@@ -55,7 +55,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           <div className="flex items-center gap-4">
             <span className="text-3xl">{categoryIcon}</span>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {request.title}
               </h1>
               <p className="text-gray-500">

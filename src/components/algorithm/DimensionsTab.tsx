@@ -40,10 +40,12 @@ export function DimensionsTab({
           <div key={dim.id} className="border border-gray-200 rounded-xl overflow-hidden">
             <button
               onClick={() => setExpandedDimension(isExpanded ? null : dim.id)}
-              className="w-full flex items-start sm:items-center justify-between gap-3 p-4 text-left hover:bg-gray-50 transition-colors min-h-[44px]"
+              className="w-full flex items-start sm:items-center justify-between gap-3 p-4 text-left hover:bg-gray-50 transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 rounded-xl"
+              aria-expanded={isExpanded}
+              aria-controls={`dimension-${dim.id}`}
             >
               <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500 mt-1 sm:mt-0`} />
+                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500 mt-1 sm:mt-0`} aria-hidden="true" />
                 <div className="min-w-0">
                   <h3 className="font-semibold text-gray-900">{dim.label}</h3>
                   <p className="text-sm text-gray-500">{dim.description}</p>
@@ -63,7 +65,7 @@ export function DimensionsTab({
             </button>
 
             {isExpanded && (
-              <div className="p-4 pt-0 border-t border-gray-100">
+              <div id={`dimension-${dim.id}`} className="p-4 pt-0 border-t border-gray-100">
                 <div className="space-y-3 mt-4">
                   {factors.map(factor => {
                     const science = FACTOR_SCIENCE[factor.id]

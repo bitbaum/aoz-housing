@@ -47,7 +47,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
         >
           &larr; Zurück zur Liste
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
           Neue Wartungsanfrage
         </h1>
       </div>

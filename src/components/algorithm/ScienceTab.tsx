@@ -238,11 +238,11 @@ export function ScienceTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Titel</th>
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Region</th>
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Jahr</th>
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Publikation</th>
-                <th className="text-left py-2 font-medium text-gray-500">Evidenz</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Titel</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Region</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Jahr</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Publikation</th>
+                <th scope="col" className="text-left py-2 font-medium text-gray-500">Evidenz</th>
               </tr>
             </thead>
             <tbody>

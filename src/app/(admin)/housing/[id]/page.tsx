@@ -197,7 +197,7 @@ export default async function HousingDetailPage({ params }: Props) {
             <span className="text-gray-400">/</span>
             <span className="text-gray-900">{unit.code}</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">{unit.address}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{unit.address}</h1>
         </div>
         <div className="flex items-center gap-3">
           <HarmonyBadge status={harmonyStatus} />

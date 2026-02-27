@@ -51,8 +51,10 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         {/* Mobile menu button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
           aria-label={menuOpen ? UI_LABELS.menuClose : UI_LABELS.menuOpen}
+          aria-expanded={menuOpen}
+          aria-controls="portal-mobile-nav"
         >
           {menuOpen ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -68,7 +70,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
 
       {/* Mobile navigation dropdown */}
       {menuOpen && (
-        <nav className="sm:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
+        <nav id="portal-mobile-nav" className="sm:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
           <PortalNavLinkMobile href="/portal" active={pathname === '/portal'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.overview}
           </PortalNavLinkMobile>

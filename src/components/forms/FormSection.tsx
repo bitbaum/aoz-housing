@@ -53,7 +53,7 @@ export function FormField({
         <p className="text-xs text-gray-500 mb-2">{description}</p>
       )}
       {children}
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p role="alert" className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   )
 }

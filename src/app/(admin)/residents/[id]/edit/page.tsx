@@ -31,7 +31,7 @@ export default async function EditResidentPage({ params }: Props) {
         >
           ← Zurück zum Profil
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
           {resident.code} bearbeiten
         </h1>
         <p className="text-gray-500">

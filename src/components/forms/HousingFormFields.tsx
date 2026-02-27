@@ -70,7 +70,7 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
             ) : hasScalesOrNumbers ? (
               // Grid layout for numeric fields (capacity, facilities)
               <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {factors
                     .filter(f => f.type === 'scale')
                     .map((factor) => (

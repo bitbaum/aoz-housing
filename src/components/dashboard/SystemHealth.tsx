@@ -28,7 +28,7 @@ export function SystemHealth({
     <div className="lg:col-span-2 card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Systemstatus</h2>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {/* Conflicts - actual number */}
         <div className="text-center">
           <div className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-green-600' : totalConflicts <= 3 ? 'text-yellow-600' : 'text-red-600'}`}>

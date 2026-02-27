@@ -28,7 +28,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Verlegungsanfragen</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Verlegungsanfragen</h1>
       </div>
 
       {/* Status Tabs */}

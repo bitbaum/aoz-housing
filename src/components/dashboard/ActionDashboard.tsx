@@ -83,7 +83,7 @@ export function ActionDashboard({
       {/* Header with greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{greeting}!</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{greeting}!</h1>
           <p className="text-gray-500">
             {totalIssues === 0
               ? DASHBOARD_LABELS.allClearSummary
@@ -109,7 +109,7 @@ export function ActionDashboard({
       <HeroAction action={primaryAction} />
 
       {/* Quick Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <QuickStat
           label={DASHBOARD_LABELS.statFreeBeds}
           value={freeBeds}

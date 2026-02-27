@@ -18,7 +18,7 @@ export function ConflictAnalysisSection({
   const totalPredictability = predictableCount + unpredictableCount
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mt-4 sm:mt-6">
       {/* Conflict Gap Breakdown */}
       <div className="card border-l-4 border-orange-400">
         <div className="flex items-center gap-2 mb-4">

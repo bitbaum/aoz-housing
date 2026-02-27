@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { SATISFACTION_EMOJIS, SUPPORT_LEVEL_LABELS, getLabel } from '@/lib/constants'
+import { PLACEMENT_STATUS_LABELS } from '@/lib/constants/labels/housing'
 import { formatDate } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 
@@ -52,7 +53,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                       </p>
                     </div>
                     <span className={`badge ${placement.status === 'ACTIVE' ? 'badge-active' : 'badge-ended'}`}>
-                      {placement.status === 'ACTIVE' ? 'Aktiv' : 'Beendet'}
+                      {PLACEMENT_STATUS_LABELS[placement.status] || placement.status}
                     </span>
                   </div>
 
@@ -82,11 +83,11 @@ export function RecentPlacementsTable({ placements }: Props) {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Datum</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Bewohner</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Unterkunft</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Letzter Check-in</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Datum</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Bewohner</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Unterkunft</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Letzter Check-in</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
                 </tr>
               </thead>
               <tbody>

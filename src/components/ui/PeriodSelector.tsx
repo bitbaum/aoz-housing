@@ -31,7 +31,7 @@ export function PeriodSelector({ currentDays }: { currentDays: number }) {
         <button
           key={opt.value}
           onClick={() => handleChange(opt.value)}
-          className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+          className={`px-3 py-1.5 text-sm rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1 ${
             String(currentDays) === opt.value
               ? 'bg-white text-gray-900 shadow-sm font-medium'
               : 'text-gray-500 hover:text-gray-700'

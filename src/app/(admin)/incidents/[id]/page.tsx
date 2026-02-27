@@ -99,7 +99,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
               {INCIDENT_CATEGORY_ICONS[incident.category] || '💬'}
             </span>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </h1>
               <p className="text-gray-500">

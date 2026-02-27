@@ -36,7 +36,7 @@ export default async function PreferencesPage() {
         <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.preferences}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.preferences}</h1>
         <p className="text-gray-500">
           {PORTAL_LABELS.pages.preferencesSubtitle}
         </p>

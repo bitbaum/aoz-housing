@@ -55,7 +55,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition-colors min-h-[44px]"
+        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-aoz-secondary"
         aria-label={UI_LABELS.userMenu}
         aria-expanded={isOpen}
         aria-haspopup="true"

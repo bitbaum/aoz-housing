@@ -69,9 +69,9 @@ export function TechnicalTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Dimension</th>
-                <th className="text-left py-2 pr-3 font-medium text-gray-500">Gewicht</th>
-                <th className="text-left py-2 font-medium text-gray-500">Begründung</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Dimension</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Gewicht</th>
+                <th scope="col" className="text-left py-2 font-medium text-gray-500">Begründung</th>
               </tr>
             </thead>
             <tbody>

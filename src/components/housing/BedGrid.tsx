@@ -127,7 +127,7 @@ export function BedGrid({
                 flex flex-col items-center justify-center
                 transition-all
                 ${getBedColorClasses(status, isOccupiedClickable)}
-                ${isAvailableClickable || isOccupiedClickable ? 'hover:shadow-md' : ''}
+                ${isAvailableClickable || isOccupiedClickable ? 'hover:shadow-md focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1' : ''}
                 ${isSelected ? 'ring-2 ring-aoz-primary ring-offset-1' : ''}
               `}
               aria-label={
@@ -238,7 +238,7 @@ const ResidentBedPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             aria-label="Schliessen"
           >
             ✕

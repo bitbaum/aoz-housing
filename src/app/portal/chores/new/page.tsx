@@ -38,7 +38,7 @@ export default async function NewChorePage() {
         ← {CHORE_LABELS.pages.list}
       </Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">{CHORE_LABELS.pages.create}</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">{CHORE_LABELS.pages.create}</h1>
       <p className="text-gray-500 mb-6">{CHORE_LABELS.pages.createSubtitle}</p>
 
       <CreateChoreForm />

@@ -118,7 +118,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Platzierungen</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Platzierungen</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/placements"

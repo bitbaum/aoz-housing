@@ -102,6 +102,7 @@ export function CSVImport() {
                 <tr>
                   {Object.keys(preview[0]).map((key) => (
                     <th
+                      scope="col"
                       key={key}
                       className="px-3 py-2 text-left font-medium text-gray-500"
                     >

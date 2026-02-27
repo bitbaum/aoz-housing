@@ -60,7 +60,7 @@ export function ActionMenu({
   const hasActions = onEdit || onDuplicate || onDelete
   if (!hasActions) return null
 
-  const sizeClasses = size === 'sm' ? 'w-6 h-6' : 'w-8 h-8'
+  const sizeClasses = size === 'sm' ? 'w-8 h-8 min-w-[44px] min-h-[44px]' : 'w-10 h-10 min-w-[44px] min-h-[44px]'
   const iconSize = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5'
 
   return (
@@ -72,7 +72,7 @@ export function ActionMenu({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`${sizeClasses} flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors`}
+        className={`${sizeClasses} flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1`}
         aria-label="Aktionen"
         aria-expanded={isOpen}
         aria-haspopup="menu"

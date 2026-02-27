@@ -60,10 +60,10 @@ export default async function AdminChoresPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Haushaltsaufgaben</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Haushaltsaufgaben</h1>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Total Aufgaben" value={totalTasks} />
         <StatCard label="Aktive Aufgaben" value={activeTasks} />
         <StatCard label="Braucht Aufmerksamkeit" value={attentionTasks} trend={attentionTasks > 0 ? 'warning' : 'good'} />
@@ -120,12 +120,12 @@ export default async function AdminChoresPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-2 font-medium text-gray-600">Unterkunft</th>
-                    <th className="text-left py-3 px-2 font-medium text-gray-600">Adresse</th>
-                    <th className="text-center py-3 px-2 font-medium text-gray-600">Bewohner</th>
-                    <th className="text-center py-3 px-2 font-medium text-gray-600">Aufgaben</th>
-                    <th className="text-center py-3 px-2 font-medium text-gray-600">Aktiv</th>
-                    <th className="text-center py-3 px-2 font-medium text-gray-600">Achtung</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">Unterkunft</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">Adresse</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Bewohner</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Aufgaben</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Aktiv</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Achtung</th>
                   </tr>
                 </thead>
                 <tbody>

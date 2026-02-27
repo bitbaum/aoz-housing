@@ -53,14 +53,15 @@ function TextField({
   if (isTextarea) {
     return (
       <div>
-        <label className="label">
+        <label htmlFor={factor.id} className="label">
           {factor.label}
           {factor.required && ' *'}
         </label>
         {factor.description && (
-          <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+          <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
         )}
         <textarea
+          id={factor.id}
           name={factor.id}
           rows={4}
           defaultValue={value || factor.default || ''}
@@ -68,6 +69,7 @@ function TextField({
           className="input"
           disabled={disabled}
           required={factor.required}
+          aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
         />
       </div>
     )
@@ -75,22 +77,24 @@ function TextField({
 
   return (
     <div>
-      <label className="label">
+      <label htmlFor={factor.id} className="label">
         {factor.label}
         {factor.required && ' *'}
       </label>
       {factor.description && (
-        <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
       )}
       <input
+        id={factor.id}
         type="text"
         name={factor.id}
         defaultValue={value || factor.default || ''}
         placeholder={factor.placeholder}
-        className="input"
+        className={`input ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
         disabled={disabled}
         required={factor.required}
         readOnly={disabled}
+        aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
       />
       {disabled && (
         <p className="text-xs text-gray-500 mt-1">Kann nicht geändert werden</p>
@@ -110,19 +114,21 @@ function EnumField({
 }) {
   return (
     <div>
-      <label className="label">
+      <label htmlFor={factor.id} className="label">
         {factor.label}
         {factor.required && ' *'}
       </label>
       {factor.description && (
-        <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
       )}
       <select
+        id={factor.id}
         name={factor.id}
         defaultValue={value || factor.default || ''}
         className="input"
         disabled={disabled}
         required={factor.required}
+        aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
       >
         <option value="">Bitte wählen</option>
         {factor.options.map((opt) => (
@@ -150,14 +156,15 @@ function ScaleField({
   if (isNumericInput) {
     return (
       <div>
-        <label className="label">
+        <label htmlFor={factor.id} className="label">
           {factor.label}
           {factor.required && ' *'}
         </label>
         {factor.description && (
-          <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+          <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
         )}
         <input
+          id={factor.id}
           type="number"
           name={factor.id}
           min={factor.min}
@@ -166,6 +173,7 @@ function ScaleField({
           className="input"
           disabled={disabled}
           required={factor.required}
+          aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
         />
       </div>
     )
@@ -178,38 +186,46 @@ function ScaleField({
   )
 
   return (
-    <div>
-      <label className="label">
+    <fieldset>
+      <legend className="label">
         {factor.label}
         {factor.required && ' *'}
-      </label>
+      </legend>
       {factor.description && (
         <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
       )}
       <div className="flex gap-2">
-        {range.map((level) => (
-          <label key={level} className="flex-1 cursor-pointer">
-            <input
-              type="radio"
-              name={factor.id}
-              value={level}
-              defaultChecked={level === currentValue}
-              className="sr-only peer"
-              disabled={disabled}
-            />
-            <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors">
-              {level}
-            </div>
-          </label>
-        ))}
+        {range.map((level) => {
+          const ariaLabel = level === factor.min && factor.lowLabel
+            ? `${level} – ${factor.lowLabel}`
+            : level === factor.max && factor.highLabel
+              ? `${level} – ${factor.highLabel}`
+              : String(level)
+          return (
+            <label key={level} className="flex-1 cursor-pointer">
+              <input
+                type="radio"
+                name={factor.id}
+                value={level}
+                defaultChecked={level === currentValue}
+                className="sr-only peer"
+                disabled={disabled}
+                aria-label={ariaLabel}
+              />
+              <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors">
+                {level}
+              </div>
+            </label>
+          )
+        })}
       </div>
       {(factor.lowLabel || factor.highLabel) && (
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="flex justify-between text-xs text-gray-500 mt-1" aria-hidden="true">
           <span>{factor.lowLabel}</span>
           <span>{factor.highLabel}</span>
         </div>
       )}
-    </div>
+    </fieldset>
   )
 }
 
@@ -254,11 +270,11 @@ function MultiField({
   const selectedValues = value || factor.default || []
 
   return (
-    <div>
-      <label className="label">
+    <fieldset>
+      <legend className="label">
         {factor.label}
         {factor.required && ' *'}
-      </label>
+      </legend>
       {factor.description && (
         <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
       )}
@@ -272,6 +288,7 @@ function MultiField({
               defaultChecked={selectedValues.includes(opt)}
               className="sr-only peer"
               disabled={disabled}
+              aria-label={factor.optionLabels[opt]}
             />
             <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
               {factor.optionLabels[opt]}
@@ -279,6 +296,6 @@ function MultiField({
           </label>
         ))}
       </div>
-    </div>
+    </fieldset>
   )
 }

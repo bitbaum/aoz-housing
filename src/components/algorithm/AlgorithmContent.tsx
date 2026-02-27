@@ -51,7 +51,7 @@ export function AlgorithmContent() {
             <span className="text-white/80 text-sm font-medium">Evidenzbasiertes Matching</span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
             Kompatibilitäts-Algorithmus
           </h1>
 
@@ -60,7 +60,7 @@ export function AlgorithmContent() {
             System {FACTOR_COUNT} Faktoren in {DIMENSION_COUNT} Dimensionen für harmonisches Zusammenleben.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             <FactStat
               icon={<Layers className="w-5 h-5" />}
               value={String(DIMENSION_COUNT)}
@@ -105,7 +105,7 @@ export function AlgorithmContent() {
       {/* CTA Section */}
       <section className="mt-12 text-center py-12 px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
         <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
           Bereit für bessere Platzierungen?
         </h2>
         <p className="text-gray-600 mb-6 max-w-lg mx-auto">

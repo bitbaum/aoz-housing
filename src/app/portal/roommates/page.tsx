@@ -72,7 +72,7 @@ export default async function RoommatesPage() {
           <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
             {PORTAL_LABELS.form.back}
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
         </div>
         <div className="card text-center py-12">
           <span className="text-5xl mb-4 block">🏠</span>
@@ -113,7 +113,7 @@ export default async function RoommatesPage() {
         <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
         <p className="text-gray-500">
           {roommates.length === 0
             ? PORTAL_LABELS.roommates.noRoommates

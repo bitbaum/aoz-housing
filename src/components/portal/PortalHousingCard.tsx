@@ -32,7 +32,7 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
         <span className="badge badge-active">{PORTAL_LABELS.dashboard.active}</span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
         <InfoBox
           label={PORTAL_LABELS.dashboard.moveIn}
           value={formatDate(placement.startDate)}

@@ -104,9 +104,9 @@ export function CompatibilityMatrixInteractive({
       <table className="min-w-full text-sm">
         <thead>
           <tr>
-            <th className="p-2"></th>
+            <th scope="col" className="p-2"></th>
             {residents.map((r) => (
-              <th key={r.id} className="p-2 text-center font-medium text-gray-700">
+              <th scope="col" key={r.id} className="p-2 text-center font-medium text-gray-700">
                 <Link
                   href={`/residents/${r.id}`}
                   className="hover:text-aoz-primary transition-colors"
@@ -120,14 +120,14 @@ export function CompatibilityMatrixInteractive({
         <tbody>
           {residents.map((r1) => (
             <tr key={r1.id}>
-              <td className="p-2 font-medium text-gray-700">
+              <th scope="row" className="p-2 font-medium text-gray-700 text-left">
                 <Link
                   href={`/residents/${r1.id}`}
                   className="hover:text-aoz-primary transition-colors"
                 >
                   {r1.code}
                 </Link>
-              </td>
+              </th>
               {residents.map((r2) => {
                 const score = getScore(r1.id, r2.id)
                 const isSelected =
@@ -272,7 +272,7 @@ const CompatibilityDetailPopover = ({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
             aria-label="Schliessen"
           >
             ✕

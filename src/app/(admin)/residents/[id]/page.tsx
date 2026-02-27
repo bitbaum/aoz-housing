@@ -254,7 +254,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               {resident.code.slice(0, 2).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 {resident.code}
               </h1>
               <p className="text-gray-500">

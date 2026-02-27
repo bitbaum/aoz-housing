@@ -38,7 +38,7 @@ export function SatisfactionChart({
                avgSatisfaction && parseFloat(avgSatisfaction) >= 3 ? '😐' : '😕'}
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{avgSatisfaction}/5</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{avgSatisfaction}/5</p>
               <p className="text-sm text-gray-500">Ø aus {totalCheckIns} Check-ins</p>
             </div>
             {lowSatisfactionCount > 0 && (

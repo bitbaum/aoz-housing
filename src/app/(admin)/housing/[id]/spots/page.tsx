@@ -69,7 +69,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             >
               &larr; Zurück zur Unterkunft
             </Link>
-            <h1 className="text-2xl font-bold text-gray-900 mt-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
               {isNewUnit ? 'Zimmer & Betten einrichten' : 'Plätze verwalten'}: {unit.code}
             </h1>
             <p className="text-gray-500">{unit.address}</p>

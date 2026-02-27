@@ -287,7 +287,7 @@ export default async function MatchingPage({ searchParams }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           {isUnitMode
             ? `Wer passt in ${selectedUnit?.code}?`
             : isNewResident

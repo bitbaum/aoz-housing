@@ -14,7 +14,7 @@ export default function NewHousingPage() {
         >
           ← Zurück zur Übersicht
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
           Neue Unterkunft erstellen
         </h1>
         <p className="text-gray-500">

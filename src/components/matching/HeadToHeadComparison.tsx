@@ -101,17 +101,17 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
         <table className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
+              <th scope="col" className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
               {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => (
-                <th key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
+                <th scope="col" key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
                   {r.code.slice(-3)}
                 </th>
               ))}
               {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (
-                <th className="p-1.5 text-center text-gray-500 border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
+                <th scope="col" className="p-1.5 text-center text-gray-500 border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
               )}
-              <th className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
-              <th className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
+              <th scope="col" className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
+              <th scope="col" className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
             </tr>
           </thead>
           <tbody>
