@@ -26,4 +26,9 @@ export const LOGIN_LABELS = {
     generic: 'Ein Fehler ist aufgetreten',
   },
   help: 'Bei Problemen wenden Sie sich an die AOZ-Verwaltung.',
+  demo: {
+    title: 'Demo-Zugang',
+    description: 'Erkunden Sie die Anwendung ohne eigenen Code.',
+    button: 'Demo öffnen',
+  },
 } as const

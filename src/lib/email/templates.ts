@@ -273,6 +273,43 @@ export function newIncidentNotification(data: NewIncidentData): { subject: strin
   return { subject, html }
 }
 
+// -- Staff invite template --
+
+interface StaffInviteData {
+  recipientEmail: string
+  staffCode: string
+  invitedByName: string
+  appUrl: string
+}
+
+export function staffInviteEmail(data: StaffInviteData): { subject: string; html: string } {
+  const subject = `Einladung zu AOZ Housing`
+  const loginUrl = `${data.appUrl}/login?code=${data.staffCode}`
+
+  const html = `
+    <h2 style="${STYLES.header}">Willkommen bei AOZ Housing</h2>
+    <p style="${STYLES.paragraph}">
+      ${escapeHtml(data.invitedByName)} hat Sie zum AOZ Housing System eingeladen.
+    </p>
+    <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 20px; margin: 20px 0; text-align: center;">
+      <p style="font-family: Arial, sans-serif; color: #0369a1; font-size: 13px; margin: 0 0 8px 0;">Ihr persönlicher Zugangscode</p>
+      <p style="font-family: monospace; font-size: 28px; font-weight: 700; color: #0c4a6e; letter-spacing: 3px; margin: 0 0 16px 0;">${escapeHtml(data.staffCode)}</p>
+      <a href="${loginUrl}" style="display: inline-block; background-color: #0369a1; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 14px; font-weight: 600;">
+        Jetzt anmelden
+      </a>
+    </div>
+    <p style="${STYLES.paragraph}">
+      Oder öffnen Sie <a href="${data.appUrl}/login" style="color: #0369a1;">${data.appUrl}/login</a> und geben Sie Ihren Code manuell ein.
+    </p>
+    <p style="${STYLES.paragraph}">
+      Bewahren Sie Ihren Code sicher auf — er ist Ihr persönlicher Zugang zum System.
+    </p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
 export function newTransferRequestNotification(data: TransferRequestData): { subject: string; html: string } {
   const subject = `[AOZ Housing] Neue Verlegungsanfrage: ${data.residentCode}`
 

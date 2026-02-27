@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, FormEvent, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { LOGIN_LABELS, APP_LABELS } from '@/lib/constants/labels'
 
@@ -11,20 +11,28 @@ type LoginState =
   | { status: 'success'; type: 'staff' | 'resident'; message: string }
   | { status: 'error'; message: string }
 
-export default function LoginPage() {
+const DEMO_CODE = 'AOZ-ADMIN1'
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [code, setCode] = useState('')
   const [state, setState] = useState<LoginState>({ status: 'idle' })
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
+  // Pre-fill code from URL param (used by email invite links)
+  useEffect(() => {
+    const urlCode = searchParams.get('code')
+    if (urlCode) setCode(urlCode.toUpperCase())
+  }, [searchParams])
+
+  async function submitCode(codeToSubmit: string) {
     setState({ status: 'loading' })
 
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim() }),
+        body: JSON.stringify({ code: codeToSubmit.trim() }),
       })
 
       const data = await response.json()
@@ -40,7 +48,6 @@ export default function LoginPage() {
 
       setState({ status: 'success', type: data.type, message: successMessage })
 
-      // Redirect after brief delay to show success
       setTimeout(() => {
         if (data.type === 'staff') {
           router.push('/')
@@ -52,6 +59,16 @@ export default function LoginPage() {
     } catch {
       setState({ status: 'error', message: LOGIN_LABELS.error.generic })
     }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    await submitCode(code)
+  }
+
+  async function handleDemo() {
+    setCode(DEMO_CODE)
+    await submitCode(DEMO_CODE)
   }
 
   return (
@@ -92,10 +109,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label
-                htmlFor="code"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
                 {LOGIN_LABELS.code}
               </label>
               <input
@@ -103,11 +117,11 @@ export default function LoginPage() {
                 id="code"
                 name="code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder={LOGIN_LABELS.codePlaceholder}
                 required
                 autoComplete="off"
-                autoFocus
+                autoFocus={!searchParams.get('code')}
                 className="input placeholder:text-gray-400 font-mono text-center text-lg tracking-wider"
               />
               <p className="mt-1.5 text-xs text-gray-500">{LOGIN_LABELS.codeHint}</p>
@@ -130,6 +144,36 @@ export default function LoginPage() {
           {LOGIN_LABELS.help}
         </p>
       </div>
+
+      {/* Demo access */}
+      {state.status !== 'success' && (
+        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <span className="text-amber-600 text-lg leading-none mt-0.5" aria-hidden="true">⚡</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-amber-900">{LOGIN_LABELS.demo.title}</p>
+              <p className="text-xs text-amber-700 mt-0.5">{LOGIN_LABELS.demo.description}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleDemo}
+            disabled={state.status === 'loading'}
+            className="mt-3 w-full py-2 px-4 bg-amber-600 text-white text-sm font-medium rounded-md
+                     hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
+                     disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
+          >
+            {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.demo.button}
+          </button>
+        </div>
+      )}
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }
