@@ -22,9 +22,10 @@ test.describe('Settings page', () => {
   test('invite form has name and email fields', async ({ page }) => {
     await page.goto('/settings')
 
-    await expect(page.locator('input[name="name"]')).toBeVisible({ timeout: 15_000 })
-    await expect(page.locator('input[name="email"]')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Einladen/i })).toBeVisible()
+    // Inputs have id="invite-name" / id="invite-email" (no name attr)
+    await expect(page.locator('#invite-name')).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('#invite-email')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Einladung senden/i })).toBeVisible()
   })
 
   test('team list shows at least one staff member', async ({ page }) => {
@@ -39,15 +40,15 @@ test.describe('Settings page', () => {
     await page.goto('/settings')
 
     // Wait for form to load
-    await expect(page.locator('input[name="name"]')).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('#invite-name')).toBeVisible({ timeout: 15_000 })
 
     // Submit without filling in fields
-    await page.getByRole('button', { name: /Einladen/i }).click()
+    await page.getByRole('button', { name: /Einladung senden/i }).click()
 
     // Browser HTML5 validation or our error message
     const hasError =
       await page.locator('[role="alert"]').isVisible().catch(() => false) ||
-      await page.locator('input[name="name"]:invalid').count() > 0
+      await page.locator('#invite-name:invalid').count() > 0
 
     expect(hasError).toBe(true)
   })
