@@ -65,7 +65,7 @@ export default async function SettingsPage() {
                     Zuletzt: {new Date(user.lastLoginAt).toLocaleDateString('de-CH')}
                   </p>
                 ) : (
-                  <p className="text-xs text-gray-400">Noch nie angemeldet</p>
+                  <p className="text-xs text-gray-500">Noch nie angemeldet</p>
                 )}
               </div>
             </div>

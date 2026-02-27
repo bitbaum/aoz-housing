@@ -146,7 +146,7 @@ export default async function AdminChoresPage() {
                             {unit.attentionTasks}
                           </span>
                         ) : (
-                          <span className="text-gray-400">0</span>
+                          <span className="text-gray-500">0</span>
                         )}
                       </td>
                     </tr>
