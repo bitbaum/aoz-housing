@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { generateStaffCode } from '@/lib/auth/code-generation'
 
 /**
  * Staff user provisioning (admin-only).
@@ -11,15 +12,6 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
  * - If code is not provided, one is generated.
  * - Requires authenticated admin session.
  */
-
-function generateStaffCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'AOZ-'
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return code
-}
 
 export async function POST(request: NextRequest) {
   // Only admins can create new staff users

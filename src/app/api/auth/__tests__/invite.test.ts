@@ -1,0 +1,280 @@
+/**
+ * Tests for POST /api/auth/invite
+ *
+ * Tests: auth guard, rate limiting, validation, email uniqueness,
+ * code generation, successful invite, email send failure
+ */
+
+import { NextRequest } from 'next/server'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+
+// --- Mocks ---
+
+const mockGetCurrentUser = jest.fn()
+jest.mock('@/lib/auth', () => ({
+  getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
+}))
+
+const mockCheckRateLimit = jest.fn()
+const mockRecordLoginAttempt = jest.fn()
+jest.mock('@/lib/auth/rate-limit', () => ({
+  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
+  recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
+}))
+
+jest.mock('@/lib/auth/code-generation', () => ({
+  generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
+}))
+
+const mockUserFindUnique = jest.fn()
+const mockUserCreate = jest.fn()
+jest.mock('@/lib/db', () => ({
+  prisma: {
+    user: {
+      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
+      create: (...args: unknown[]) => mockUserCreate(...args),
+    },
+  },
+}))
+
+const mockSendEmail = jest.fn()
+jest.mock('@/lib/email/service', () => ({
+  sendEmail: (...args: unknown[]) => mockSendEmail(...args),
+}))
+
+jest.mock('@/lib/email/templates', () => ({
+  staffInviteEmail: jest.fn(() => ({
+    subject: 'Ihr AOZ Housing Zugangscode',
+    html: '<p>Your code</p>',
+  })),
+}))
+
+// --- Import after mocks ---
+import { POST } from '../invite/route'
+
+// --- Helpers ---
+
+function createJsonRequest(body: Record<string, unknown>, headers?: Record<string, string>): NextRequest {
+  return new NextRequest('http://localhost:3001/api/auth/invite', {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      'content-type': 'application/json',
+      'x-forwarded-for': '10.0.0.1',
+      ...headers,
+    },
+  })
+}
+
+const ADMIN_USER = {
+  id: 'user-1',
+  name: 'Admin',
+  role: 'ADMIN' as const,
+}
+
+// --- Tests ---
+
+describe('POST /api/auth/invite', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockCheckRateLimit.mockReturnValue({ allowed: true })
+    mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
+    mockUserFindUnique.mockResolvedValue(null) // code not taken, email not taken
+    mockUserCreate.mockResolvedValue({
+      id: 'new-1',
+      code: 'AOZ-GEN001',
+      name: 'New Staff',
+      email: 'new@aoz.ch',
+    })
+    mockSendEmail.mockResolvedValue(true)
+  })
+
+  // ── Rate limiting ──────────────────────────────────────────────────────────
+
+  test('returns 429 when rate limited', async () => {
+    mockCheckRateLimit.mockReturnValue({ allowed: false, retryAfter: 60 })
+
+    const req = createJsonRequest({ email: 'test@aoz.ch', name: 'Test' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(429)
+    expect(body.success).toBe(false)
+    expect(body.retryAfter).toBe(60)
+    expect(mockGetCurrentUser).not.toHaveBeenCalled()
+  })
+
+  test('checks rate limit using x-forwarded-for IP', async () => {
+    const req = createJsonRequest(
+      { email: 'test@aoz.ch', name: 'Test' },
+      { 'x-forwarded-for': '203.0.113.5, 10.0.0.1' }
+    )
+    await POST(req)
+
+    expect(mockCheckRateLimit).toHaveBeenCalledWith('203.0.113.5')
+  })
+
+  // ── Auth guard ─────────────────────────────────────────────────────────────
+
+  test('returns 401 when not authenticated', async () => {
+    mockGetCurrentUser.mockResolvedValue(null)
+
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(401)
+    expect(body.success).toBe(false)
+    expect(body.error).toBe(ERROR_MESSAGES.AUTH_REQUIRED)
+    expect(mockRecordLoginAttempt).toHaveBeenCalled()
+  })
+
+  test('returns 400 for invalid JSON body', async () => {
+    const req = new NextRequest('http://localhost:3001/api/auth/invite', {
+      method: 'POST',
+      body: 'not json',
+      headers: {
+        'content-type': 'application/json',
+        'x-forwarded-for': '10.0.0.1',
+      },
+    })
+
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(body.success).toBe(false)
+    expect(mockRecordLoginAttempt).toHaveBeenCalled()
+  })
+
+  // ── Validation ─────────────────────────────────────────────────────────────
+
+  test('returns 400 when email is missing', async () => {
+    const req = createJsonRequest({ name: 'Test' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(body.success).toBe(false)
+    expect(mockRecordLoginAttempt).toHaveBeenCalled()
+  })
+
+  test('returns 400 when email is invalid (no @)', async () => {
+    const req = createJsonRequest({ email: 'notanemail', name: 'Test' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(body.success).toBe(false)
+    expect(mockRecordLoginAttempt).toHaveBeenCalled()
+  })
+
+  test('returns 400 when name is too short', async () => {
+    const req = createJsonRequest({ email: 'test@aoz.ch', name: 'X' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(body.success).toBe(false)
+    expect(mockRecordLoginAttempt).toHaveBeenCalled()
+  })
+
+  // ── Email uniqueness ───────────────────────────────────────────────────────
+
+  test('returns 409 when email already registered', async () => {
+    // First findUnique (code collision check) returns null, second (email check) returns existing
+    mockUserFindUnique
+      .mockResolvedValueOnce(null)    // generated code is free
+      .mockResolvedValueOnce({ id: 'existing-1' }) // email already taken
+
+    const req = createJsonRequest({ email: 'existing@aoz.ch', name: 'Duplicate' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(409)
+    expect(body.success).toBe(false)
+    expect(body.error).toContain('E-Mail')
+  })
+
+  // ── Code generation ────────────────────────────────────────────────────────
+
+  test('returns 500 when all code generation attempts fail', async () => {
+    // All generated codes collide
+    mockUserFindUnique.mockResolvedValue({ id: 'existing' })
+
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(500)
+    expect(body.success).toBe(false)
+    expect(body.error).toBe(ERROR_MESSAGES.CODE_GENERATION_ERROR)
+  })
+
+  // ── Successful invite ──────────────────────────────────────────────────────
+
+  test('creates user and sends email on valid invite', async () => {
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.user.code).toBe('AOZ-GEN001')
+    expect(body.user.name).toBe('New Staff')
+    expect(body.user.email).toBe('new@aoz.ch')
+    expect(body.emailSent).toBe(true)
+
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          code: 'AOZ-GEN001',
+          name: 'New Staff',
+          email: 'new@aoz.ch',
+          role: 'ADMIN',
+          active: true,
+        }),
+      })
+    )
+    expect(mockSendEmail).toHaveBeenCalledWith(
+      ['new@aoz.ch'],
+      expect.any(String),
+      expect.any(String)
+    )
+  })
+
+  test('lowercases email before storing', async () => {
+    const req = createJsonRequest({ email: 'Upper@AOZ.CH', name: 'Mixed Case' })
+    await POST(req)
+
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ email: 'upper@aoz.ch' }),
+      })
+    )
+  })
+
+  test('trims name before storing', async () => {
+    const req = createJsonRequest({ email: 'test@aoz.ch', name: '  Padded Name  ' })
+    await POST(req)
+
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ name: 'Padded Name' }),
+      })
+    )
+  })
+
+  test('returns emailSent false when email service fails', async () => {
+    mockSendEmail.mockResolvedValue(false)
+
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    // Still returns success — user was created, email just failed
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+    expect(body.emailSent).toBe(false)
+  })
+})

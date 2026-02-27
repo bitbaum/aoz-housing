@@ -4,15 +4,8 @@ import { getCurrentUser } from '@/lib/auth'
 import { sendEmail } from '@/lib/email/service'
 import { staffInviteEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-
-function generateStaffCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'AOZ-'
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return code
-}
+import { generateStaffCode } from '@/lib/auth/code-generation'
+import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
 
 /**
  * POST /api/auth/invite
@@ -23,8 +16,22 @@ function generateStaffCode(): string {
  * Requires: authenticated admin session
  */
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+
+  const rateCheck = checkRateLimit(ip)
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.RATE_LIMITED, retryAfter: rateCheck.retryAfter },
+      { status: 429 }
+    )
+  }
+
   const currentUser = await getCurrentUser()
   if (!currentUser) {
+    recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.AUTH_REQUIRED },
       { status: 401 }
@@ -35,6 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
+    recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
       { status: 400 }
@@ -44,6 +52,7 @@ export async function POST(request: NextRequest) {
   const { email, name } = body as { email?: string; name?: string }
 
   if (!email || typeof email !== 'string' || !email.includes('@')) {
+    recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: 'Gültige E-Mail-Adresse erforderlich' },
       { status: 400 }
@@ -51,6 +60,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
+    recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: 'Name ist erforderlich (mindestens 2 Zeichen)' },
       { status: 400 }

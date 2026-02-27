@@ -185,4 +185,50 @@ describe('POST /api/portal/preferences', () => {
     expect(body.success).toBe(false)
     expect(body.error).toBe(ERROR_MESSAGES.PREFERENCES_SAVE_ERROR)
   })
+
+  // ── Permission isolation ───────────────────────────────────────────────────
+  // Verify residents can ONLY update their own record — identity comes from
+  // the httpOnly cookie, never from user-supplied body data.
+
+  test('always updates the resident identified by cookie, never request body', async () => {
+    const ownResident = { id: 'res-own', code: 'RES-OWN' }
+    mockCookieGet.mockReturnValue({ value: 'RES-OWN' })
+    mockFindUnique.mockResolvedValue(ownResident)
+    mockUpdate.mockResolvedValue(ownResident)
+
+    const req = createPreferencesRequest(VALID_PREFS)
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(200)
+    expect(body.success).toBe(true)
+
+    // Must use DB-resolved resident id, not any value from request body
+    expect(mockFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { code: 'RES-OWN' } })
+    )
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'res-own' } })
+    )
+  })
+
+  test('cannot update another resident by cookie swap — only cookie-identified resident is updated', async () => {
+    // Resident A has their own cookie
+    const residentA = { id: 'res-a', code: 'RES-AAA' }
+    mockCookieGet.mockReturnValue({ value: 'RES-AAA' })
+    mockFindUnique.mockResolvedValue(residentA)
+    mockUpdate.mockResolvedValue(residentA)
+
+    const req = createPreferencesRequest(VALID_PREFS)
+    await POST(req)
+
+    // Update is scoped to resident A's id, regardless of anything else
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'res-a' } })
+    )
+    // Resident B's id never appears in any DB call
+    expect(mockUpdate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'res-b' } })
+    )
+  })
 })

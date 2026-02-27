@@ -67,8 +67,8 @@ export default async function HousingDetailPage({ params }: Props) {
         orderBy: { date: 'desc' },
         take: 20,
         include: {
-          reportedBy: true,
-          subject: true,
+          reportedBy: { select: { code: true } },
+          subject: { select: { code: true } },
         },
       },
     },
