@@ -9,6 +9,7 @@ import {
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
+import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels/scores'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -54,11 +55,11 @@ interface TransferRecommendationsProps {
 // =============================================================================
 
 const SCORE_BADGE_STYLES: Record<ScoreLevel, { bg: string; text: string; border: string; label: string }> = {
-  excellent: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Sehr gut' },
-  good: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: 'Gut' },
-  moderate: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: 'Mittel' },
-  low: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: 'Kritisch' },
-  critical: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Nicht empfohlen' },
+  excellent: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: COMPATIBILITY_SCORE_LABELS.excellent },
+  good: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: COMPATIBILITY_SCORE_LABELS.good },
+  moderate: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: COMPATIBILITY_SCORE_LABELS.moderate },
+  low: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: COMPATIBILITY_SCORE_LABELS.low },
+  critical: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: COMPATIBILITY_SCORE_LABELS.critical },
 }
 
 // =============================================================================

@@ -18,6 +18,7 @@ import {
   DimensionCard,
   ScoreLevel,
 } from './shared'
+import { COMPATIBILITY_SCORE_LABELS, SCORE_LEVEL_ACTION_LABELS } from '@/lib/constants/labels/scores'
 
 export function OverviewTab() {
   const dimensionColors = ['purple', 'blue', 'green', 'orange'] as const
@@ -31,7 +32,7 @@ export function OverviewTab() {
           So funktioniert das Matching
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <ProcessStep
             number={1}
             title="Profil erfassen"
@@ -138,11 +139,11 @@ export function OverviewTab() {
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-          <ScoreLevel score="80-100" label="Sehr gut" color="green" action="Empfohlen" />
-          <ScoreLevel score="60-79" label="Gut" color="emerald" action="Gute Option" />
-          <ScoreLevel score="40-59" label="Mittel" color="yellow" action="Mit Begleitung" />
-          <ScoreLevel score="20-39" label="Niedrig" color="orange" action="Vermeiden" />
-          <ScoreLevel score="0-19" label="Kritisch" color="red" action="Blockiert" />
+          <ScoreLevel score="80-100" label={COMPATIBILITY_SCORE_LABELS.excellent} color="green" action={SCORE_LEVEL_ACTION_LABELS.excellent} />
+          <ScoreLevel score="60-79" label={COMPATIBILITY_SCORE_LABELS.good} color="emerald" action={SCORE_LEVEL_ACTION_LABELS.good} />
+          <ScoreLevel score="40-59" label={COMPATIBILITY_SCORE_LABELS.moderate} color="yellow" action={SCORE_LEVEL_ACTION_LABELS.moderate} />
+          <ScoreLevel score="20-39" label={COMPATIBILITY_SCORE_LABELS.low} color="orange" action={SCORE_LEVEL_ACTION_LABELS.low} />
+          <ScoreLevel score="0-19" label={COMPATIBILITY_SCORE_LABELS.critical} color="red" action={SCORE_LEVEL_ACTION_LABELS.critical} />
         </div>
       </section>
 

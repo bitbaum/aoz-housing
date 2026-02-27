@@ -51,7 +51,7 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
   ACTIVE: 'Aktiv',
   PLACED: 'Platziert',
   TRANSFERRED: 'Umgezogen',
-  EXITED: 'Ausgetreten',
+  EXITED: 'Archiviert',
 }
 
 // Health / Support labels (derived from config SSOT)

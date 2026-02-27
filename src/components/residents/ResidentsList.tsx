@@ -31,9 +31,9 @@ export interface ResidentListItem {
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Alle Status' },
-  { value: 'ACTIVE', label: 'Aktiv' },
-  { value: 'PLACED', label: 'Platziert' },
-  { value: 'EXITED', label: 'Archiviert' },
+  { value: 'ACTIVE', label: RESIDENT_STATUS_LABELS.ACTIVE },
+  { value: 'PLACED', label: RESIDENT_STATUS_LABELS.PLACED },
+  { value: 'EXITED', label: RESIDENT_STATUS_LABELS.EXITED },
 ]
 
 export function ResidentsList({ residents }: { residents: ResidentListItem[] }) {
@@ -68,7 +68,24 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
 
       {filtered.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500">Keine Bewohner gefunden</p>
+          {residents.length === 0 ? (
+            <>
+              <p className="text-gray-500 mb-3">Noch keine Bewohner vorhanden</p>
+              <a href="/residents/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
+                Ersten Bewohner erfassen
+              </a>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 mb-3">Keine Bewohner für diese Filter</p>
+              <button
+                onClick={() => { setSearch(''); setStatusFilter('') }}
+                className="text-sm text-aoz-primary hover:underline"
+              >
+                Filter zurücksetzen
+              </button>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -110,7 +127,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
             </div>
           </div>
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
-            {resident.status === 'EXITED' ? 'Archiviert' : getLabel(RESIDENT_STATUS_LABELS, resident.status)}
+            {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
         </div>
 

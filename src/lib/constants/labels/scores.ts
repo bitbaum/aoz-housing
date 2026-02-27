@@ -54,6 +54,14 @@ export const HEALTH_STATUS_LABELS: Record<string, string> = {
   critical: 'Kritisch',
 }
 
+export const SCORE_LEVEL_ACTION_LABELS: Record<string, string> = {
+  excellent: 'Empfohlen',
+  good: 'Gute Option',
+  moderate: 'Mit Begleitung',
+  low: 'Vermeiden',
+  critical: 'Blockiert',
+}
+
 export const TREND_LABELS: Record<string, string> = {
   good: 'Positiv',
   warning: 'Warnung',
