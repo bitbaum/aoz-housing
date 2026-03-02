@@ -1,0 +1,267 @@
+/**
+ * Mission KPI Tracking
+ *
+ * Tracks the 4 KPIs from the AOZ Housing mission:
+ * 1. Incidents per month (target: -30%)
+ * 2. Relocations due to conflict (target: -50%)
+ * 3. Average placement decision time (target: same or faster)
+ * 4. Conflict trend (improving / stable / worsening)
+ *
+ * @see CLAUDE.md "Measuring Success" section
+ */
+
+import { prisma } from '@/lib/db'
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface MonthlyDataPoint {
+  month: string // YYYY-MM
+  label: string // "Jan 2026"
+  value: number
+}
+
+export interface MissionKPIs {
+  // KPI 1: Incidents per month
+  incidentsPerMonth: MonthlyDataPoint[]
+  currentMonthIncidents: number
+  avgIncidentsPerMonth: number
+
+  // KPI 2: Conflict relocations per month
+  conflictRelocationsPerMonth: MonthlyDataPoint[]
+  currentMonthRelocations: number
+  avgRelocationsPerMonth: number
+
+  // KPI 3: Average placement decision time (days from ACTIVE to first placement)
+  avgPlacementTimeDays: number | null
+  recentPlacementTimeDays: number | null // last 30 days
+
+  // KPI 4: Conflict trend
+  trend: 'improving' | 'stable' | 'worsening'
+  trendDetail: string // German explanation
+
+  // Summary
+  monthsTracked: number
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+const MONTHS_DE = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+
+function formatMonth(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+}
+
+function formatMonthLabel(date: Date): string {
+  return `${MONTHS_DE[date.getMonth()]} ${date.getFullYear()}`
+}
+
+function getMonthStart(year: number, month: number): Date {
+  return new Date(year, month, 1)
+}
+
+function getMonthEnd(year: number, month: number): Date {
+  return new Date(year, month + 1, 0, 23, 59, 59, 999)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Main Function
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Calculate all mission KPIs over the specified number of months.
+ */
+export async function calculateMissionKPIs(months: number = 6): Promise<MissionKPIs> {
+  const now = new Date()
+  const startDate = new Date(now.getFullYear(), now.getMonth() - months + 1, 1)
+
+  // ── Fetch data ─────────────────────────────────────────────────────
+
+  const [incidents, endedPlacements, residents, placements] = await Promise.all([
+    // Interpersonal incidents in range
+    prisma.incident.findMany({
+      where: {
+        category: 'INTERPERSONAL',
+        date: { gte: startDate },
+      },
+      select: { date: true },
+      orderBy: { date: 'asc' },
+    }),
+
+    // Placements that ended in range
+    prisma.placement.findMany({
+      where: {
+        endDate: { gte: startDate },
+        status: { not: 'ACTIVE' },
+      },
+      select: { endDate: true, endReason: true },
+    }),
+
+    // Residents created in range (for placement time calculation)
+    prisma.resident.findMany({
+      where: {
+        createdAt: { gte: startDate },
+        status: { in: ['PLACED', 'ACTIVE'] },
+      },
+      select: { id: true, createdAt: true },
+    }),
+
+    // First placement per recent resident
+    prisma.placement.findMany({
+      where: {
+        startDate: { gte: startDate },
+      },
+      select: { residentId: true, startDate: true },
+      orderBy: { startDate: 'asc' },
+    }),
+  ])
+
+  // ── Build monthly data points ──────────────────────────────────────
+
+  const incidentsByMonth = new Map<string, number>()
+  const relocationsByMonth = new Map<string, number>()
+
+  // Initialize all months with 0
+  for (let i = 0; i < months; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - months + 1 + i, 1)
+    const key = formatMonth(d)
+    incidentsByMonth.set(key, 0)
+    relocationsByMonth.set(key, 0)
+  }
+
+  // Count incidents per month
+  for (const incident of incidents) {
+    const key = formatMonth(new Date(incident.date))
+    if (incidentsByMonth.has(key)) {
+      incidentsByMonth.set(key, (incidentsByMonth.get(key) || 0) + 1)
+    }
+  }
+
+  // Count conflict relocations per month
+  for (const placement of endedPlacements) {
+    if (placement.endReason === 'CONFLICT' && placement.endDate) {
+      const key = formatMonth(new Date(placement.endDate))
+      if (relocationsByMonth.has(key)) {
+        relocationsByMonth.set(key, (relocationsByMonth.get(key) || 0) + 1)
+      }
+    }
+  }
+
+  // Convert to sorted arrays
+  const incidentsPerMonth: MonthlyDataPoint[] = Array.from(incidentsByMonth.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, value]) => {
+      const [y, m] = month.split('-').map(Number)
+      return { month, label: formatMonthLabel(new Date(y, m - 1)), value }
+    })
+
+  const conflictRelocationsPerMonth: MonthlyDataPoint[] = Array.from(relocationsByMonth.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, value]) => {
+      const [y, m] = month.split('-').map(Number)
+      return { month, label: formatMonthLabel(new Date(y, m - 1)), value }
+    })
+
+  // ── Current month stats ────────────────────────────────────────────
+
+  const currentKey = formatMonth(now)
+  const currentMonthIncidents = incidentsByMonth.get(currentKey) || 0
+  const currentMonthRelocations = relocationsByMonth.get(currentKey) || 0
+
+  // Averages (excluding current incomplete month)
+  const completedMonths = incidentsPerMonth.slice(0, -1)
+  const avgIncidents = completedMonths.length > 0
+    ? Math.round(completedMonths.reduce((s, d) => s + d.value, 0) / completedMonths.length * 10) / 10
+    : 0
+  const avgRelocations = completedMonths.length > 0
+    ? Math.round(conflictRelocationsPerMonth.slice(0, -1).reduce((s, d) => s + d.value, 0) / completedMonths.length * 10) / 10
+    : 0
+
+  // ── Placement decision time ────────────────────────────────────────
+
+  // Map: residentId → earliest placement startDate
+  const firstPlacementMap = new Map<string, Date>()
+  for (const p of placements) {
+    if (!firstPlacementMap.has(p.residentId) || new Date(p.startDate) < firstPlacementMap.get(p.residentId)!) {
+      firstPlacementMap.set(p.residentId, new Date(p.startDate))
+    }
+  }
+
+  const placementTimes: number[] = []
+  const recentPlacementTimes: number[] = []
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  for (const r of residents) {
+    const firstPlacement = firstPlacementMap.get(r.id)
+    if (firstPlacement) {
+      const days = (firstPlacement.getTime() - new Date(r.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+      if (days >= 0) {
+        placementTimes.push(days)
+        if (new Date(r.createdAt) >= thirtyDaysAgo) {
+          recentPlacementTimes.push(days)
+        }
+      }
+    }
+  }
+
+  const avgPlacementTime = placementTimes.length > 0
+    ? Math.round(placementTimes.reduce((s, d) => s + d, 0) / placementTimes.length * 10) / 10
+    : null
+  const recentPlacementTime = recentPlacementTimes.length > 0
+    ? Math.round(recentPlacementTimes.reduce((s, d) => s + d, 0) / recentPlacementTimes.length * 10) / 10
+    : null
+
+  // ── Conflict trend ─────────────────────────────────────────────────
+
+  // Compare last 3 months vs previous 3 months
+  const recentMonths = incidentsPerMonth.slice(-3)
+  const previousMonths = incidentsPerMonth.slice(-6, -3)
+
+  const recentAvg = recentMonths.length > 0
+    ? recentMonths.reduce((s, d) => s + d.value, 0) / recentMonths.length
+    : 0
+  const previousAvg = previousMonths.length > 0
+    ? previousMonths.reduce((s, d) => s + d.value, 0) / previousMonths.length
+    : 0
+
+  let trend: 'improving' | 'stable' | 'worsening'
+  let trendDetail: string
+
+  if (previousAvg === 0 && recentAvg === 0) {
+    trend = 'stable'
+    trendDetail = 'Keine Konflikte in den letzten 6 Monaten'
+  } else if (previousAvg === 0) {
+    trend = 'worsening'
+    trendDetail = `${Math.round(recentAvg)} Konflikte/Monat (vorher keine)`
+  } else {
+    const change = ((recentAvg - previousAvg) / previousAvg) * 100
+
+    if (change <= -15) {
+      trend = 'improving'
+      trendDetail = `${Math.round(Math.abs(change))}% weniger Konflikte als in den 3 Monaten davor`
+    } else if (change >= 15) {
+      trend = 'worsening'
+      trendDetail = `${Math.round(change)}% mehr Konflikte als in den 3 Monaten davor`
+    } else {
+      trend = 'stable'
+      trendDetail = 'Konfliktrate stabil (±15%)'
+    }
+  }
+
+  return {
+    incidentsPerMonth,
+    currentMonthIncidents,
+    avgIncidentsPerMonth: avgIncidents,
+    conflictRelocationsPerMonth,
+    currentMonthRelocations,
+    avgRelocationsPerMonth: avgRelocations,
+    avgPlacementTimeDays: avgPlacementTime,
+    recentPlacementTimeDays: recentPlacementTime,
+    trend,
+    trendDetail,
+    monthsTracked: months,
+  }
+}

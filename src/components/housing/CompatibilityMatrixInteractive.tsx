@@ -410,7 +410,7 @@ function ScoreDimension({
     <div className="flex items-center gap-2">
       <div className="w-20">
         <p className="text-xs font-medium text-gray-700">{label}</p>
-        <p className="text-[10px] text-gray-500">{description}</p>
+        <p className="text-xs text-gray-500">{description}</p>
       </div>
       <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
         <div

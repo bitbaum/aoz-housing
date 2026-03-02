@@ -317,6 +317,20 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
+      {/* Discrimination safeguard warnings */}
+      {match.safeguardWarnings.length > 0 && (
+        <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+          <p className="text-xs font-semibold text-amber-800 uppercase mb-1">
+            Hinweis zur Bewertung
+          </p>
+          {match.safeguardWarnings.map((warning, i) => (
+            <p key={i} className="text-xs text-amber-700">
+              {warning.message}
+            </p>
+          ))}
+        </div>
+      )}
+
       {/* Available Spots */}
       {match.unit.spots && match.unit.spots.length > 0 && (
         <SpotSelection

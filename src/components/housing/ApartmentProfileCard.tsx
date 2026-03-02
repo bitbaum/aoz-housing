@@ -278,7 +278,7 @@ function ScaleMetric({ label, value, values }: ScaleMetricProps) {
           )
         })}
       </div>
-      <div className="flex justify-between text-[10px] text-gray-500 mt-0.5">
+      <div className="flex justify-between text-xs text-gray-500 mt-0.5">
         <span>1</span>
         <span>5</span>
       </div>

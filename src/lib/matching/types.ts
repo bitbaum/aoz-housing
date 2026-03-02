@@ -5,6 +5,7 @@
 import type { Resident, HousingUnit, Placement, PlacementSpot } from '@prisma/client'
 import type { ApartmentProfile, ApartmentCompatibility, CompatibilityScore } from '@/lib/compatibility/types'
 import type { UnitMetrics } from '@/lib/analytics/unit-metrics'
+import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 
 /** Housing unit with active placements (including resident) and available spots */
 export type MatchUnit = HousingUnit & {
@@ -37,6 +38,7 @@ export interface MatchResult {
   hasBlockingIssue: boolean
   sharedLanguageCount: number
   totalRoommateConcerns: number
+  safeguardWarnings: SafeguardWarning[]
   sortScore: number
 }
 

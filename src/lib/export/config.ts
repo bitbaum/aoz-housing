@@ -1,11 +1,13 @@
 /**
  * Column configurations for CSV export.
- * German headers for user-facing CSV files.
+ * Headers sourced from EXPORT_COLUMN_HEADERS (SSOT in lib/constants/labels/export.ts).
  */
+
+import { EXPORT_COLUMN_HEADERS } from '@/lib/constants/labels/export'
 
 export interface ExportColumn<T = Record<string, unknown>> {
   key: string
-  header: string // German
+  header: string // German — from EXPORT_COLUMN_HEADERS
   transform?: (value: unknown, row: T) => string
 }
 
@@ -19,51 +21,53 @@ function formatArray(v: unknown): string {
   return Array.isArray(v) ? v.join(', ') : String(v || '')
 }
 
+const h = EXPORT_COLUMN_HEADERS
+
 export const EXPORT_COLUMNS: Record<string, ExportColumn[]> = {
   residents: [
-    { key: 'code', header: 'Code' },
-    { key: 'status', header: 'Status' },
-    { key: 'ageRange', header: 'Altersgruppe' },
-    { key: 'gender', header: 'Geschlecht' },
-    { key: 'familyStatus', header: 'Familienstatus' },
-    { key: 'sleepSchedule', header: 'Schlafrhythmus' },
-    { key: 'noiseTolerance', header: 'Lärmtoleranz' },
-    { key: 'cleanlinessLevel', header: 'Sauberkeit' },
-    { key: 'socialStyle', header: 'Sozialstil' },
-    { key: 'smokingStatus', header: 'Raucherstatus' },
-    { key: 'mobilityNeeds', header: 'Mobilitätsbedarf' },
-    { key: 'supportLevel', header: 'Unterstützungsstufe' },
-    { key: 'languages', header: 'Sprachen', transform: formatArray },
-    { key: 'createdAt', header: 'Erstellt am', transform: formatDate },
+    { key: 'code', header: h.code },
+    { key: 'status', header: h.status },
+    { key: 'ageRange', header: h.ageRange },
+    { key: 'gender', header: h.gender },
+    { key: 'familyStatus', header: h.familyStatus },
+    { key: 'sleepSchedule', header: h.sleepSchedule },
+    { key: 'noiseTolerance', header: h.noiseTolerance },
+    { key: 'cleanlinessLevel', header: h.cleanlinessLevel },
+    { key: 'socialStyle', header: h.socialStyle },
+    { key: 'smokingStatus', header: h.smokingStatus },
+    { key: 'mobilityNeeds', header: h.mobilityNeeds },
+    { key: 'supportLevel', header: h.supportLevel },
+    { key: 'languages', header: h.languages, transform: formatArray },
+    { key: 'createdAt', header: h.createdAt, transform: formatDate },
   ],
   incidents: [
-    { key: 'id', header: 'ID' },
-    { key: 'date', header: 'Datum', transform: formatDate },
-    { key: 'category', header: 'Kategorie' },
-    { key: 'type', header: 'Typ' },
-    { key: 'severity', header: 'Schweregrad' },
-    { key: 'description', header: 'Beschreibung' },
-    { key: 'resolution', header: 'Lösung' },
-    { key: 'resolvedAt', header: 'Gelöst am', transform: formatDate },
+    { key: 'id', header: h.id },
+    { key: 'date', header: h.date, transform: formatDate },
+    { key: 'category', header: h.category },
+    { key: 'type', header: h.type },
+    { key: 'severity', header: h.severity },
+    { key: 'description', header: h.description },
+    { key: 'resolution', header: h.resolution },
+    { key: 'resolvedAt', header: h.resolvedAt, transform: formatDate },
   ],
   placements: [
-    { key: 'id', header: 'ID' },
-    { key: 'startDate', header: 'Startdatum', transform: formatDate },
-    { key: 'endDate', header: 'Enddatum', transform: formatDate },
-    { key: 'status', header: 'Status' },
-    { key: 'endReason', header: 'Endgrund' },
-    { key: 'compatibilityScore', header: 'Kompatibilität' },
-    { key: 'satisfactionRating', header: 'Zufriedenheit' },
+    { key: 'id', header: h.id },
+    { key: 'startDate', header: h.startDate, transform: formatDate },
+    { key: 'endDate', header: h.endDate, transform: formatDate },
+    { key: 'status', header: h.status },
+    { key: 'endReason', header: h.endReason },
+    { key: 'compatibilityScore', header: h.compatibilityScore },
+    { key: 'satisfactionRating', header: h.satisfactionRating },
   ],
   satisfaction: [
-    { key: 'id', header: 'ID' },
-    { key: 'createdAt', header: 'Datum', transform: formatDate },
-    { key: 'checkInType', header: 'Typ' },
-    { key: 'overallSatisfaction', header: 'Gesamtzufriedenheit' },
-    { key: 'roommateRelations', header: 'Mitbewohner' },
-    { key: 'facilitySatisfaction', header: 'Einrichtung' },
-    { key: 'safetyFeeling', header: 'Sicherheit' },
-    { key: 'concerns', header: 'Bedenken' },
-    { key: 'improvements', header: 'Verbesserungen' },
+    { key: 'id', header: h.id },
+    { key: 'createdAt', header: h.date, transform: formatDate },
+    { key: 'checkInType', header: h.checkInType },
+    { key: 'overallSatisfaction', header: h.overallSatisfaction },
+    { key: 'roommateRelations', header: h.roommateRelations },
+    { key: 'facilitySatisfaction', header: h.facilitySatisfaction },
+    { key: 'safetyFeeling', header: h.safetyFeeling },
+    { key: 'concerns', header: h.concerns },
+    { key: 'improvements', header: h.improvements },
   ],
 }

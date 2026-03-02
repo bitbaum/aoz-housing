@@ -12,3 +12,45 @@ export const EXPORT_LABELS = {
   noFile: 'Keine Datei hochgeladen',
   parseFailed: 'CSV-Parsing fehlgeschlagen',
 } as const
+
+/** Column headers for CSV export files — SSOT for all export German text */
+export const EXPORT_COLUMN_HEADERS = {
+  // Residents
+  code: 'Code',
+  status: 'Status',
+  ageRange: 'Altersgruppe',
+  gender: 'Geschlecht',
+  familyStatus: 'Familienstatus',
+  sleepSchedule: 'Schlafrhythmus',
+  noiseTolerance: 'Lärmtoleranz',
+  cleanlinessLevel: 'Sauberkeit',
+  socialStyle: 'Sozialstil',
+  smokingStatus: 'Raucherstatus',
+  mobilityNeeds: 'Mobilitätsbedarf',
+  supportLevel: 'Unterstützungsstufe',
+  languages: 'Sprachen',
+  createdAt: 'Erstellt am',
+  // Incidents
+  id: 'ID',
+  date: 'Datum',
+  category: 'Kategorie',
+  type: 'Typ',
+  severity: 'Schweregrad',
+  description: 'Beschreibung',
+  resolution: 'Lösung',
+  resolvedAt: 'Gelöst am',
+  // Placements
+  startDate: 'Startdatum',
+  endDate: 'Enddatum',
+  endReason: 'Endgrund',
+  compatibilityScore: 'Kompatibilität',
+  satisfactionRating: 'Zufriedenheit',
+  // Satisfaction
+  checkInType: 'Typ',
+  overallSatisfaction: 'Gesamtzufriedenheit',
+  roommateRelations: 'Mitbewohner',
+  facilitySatisfaction: 'Einrichtung',
+  safetyFeeling: 'Sicherheit',
+  concerns: 'Bedenken',
+  improvements: 'Verbesserungen',
+} as const

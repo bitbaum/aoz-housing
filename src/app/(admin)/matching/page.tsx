@@ -8,6 +8,8 @@ import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { validateScoreForDiscrimination } from '@/lib/compatibility/safeguards'
+import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
 import type { Resident } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
@@ -246,6 +248,18 @@ export default async function MatchingPage({ searchParams }: Props) {
                unitMetrics.riskLevel === 'MEDIUM' ? 50 : 0)
             : 0
 
+          // Run discrimination safeguard checks on pairwise scores
+          const safeguardWarnings: SafeguardWarning[] = []
+          const residentProfile = toResidentProfile(foundResident)
+          for (const detail of compatibilityDetails) {
+            const result = validateScoreForDiscrimination(
+              detail.score,
+              residentProfile,
+              toResidentProfile(detail.resident)
+            )
+            safeguardWarnings.push(...result.warnings)
+          }
+
           return {
             unit,
             apartmentProfile,
@@ -257,6 +271,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             hasBlockingIssue,
             sharedLanguageCount,
             totalRoommateConcerns,
+            safeguardWarnings,
             sortScore: (hasBlockingIssue ? 1000 : 0) +
               (apartmentFit.conflicts.filter(c => c.severity === 'BLOCKING').length * 500) +
               (apartmentFit.conflicts.filter(c => c.severity === 'HIGH').length * 100) +

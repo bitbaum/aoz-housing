@@ -5,6 +5,11 @@
  * Environment variables with sensible defaults.
  */
 
+// Fail fast if production is missing the signing secret
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable must be set in production')
+}
+
 export const AUTH_CONFIG = {
   // JWT Settings
   jwt: {

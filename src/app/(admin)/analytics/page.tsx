@@ -14,6 +14,10 @@ import { PeriodSelector } from '@/components/ui/PeriodSelector'
 import { SatisfactionChart } from '@/components/analytics/SatisfactionChart'
 import { ConflictAnalysisSection } from '@/components/analytics/ConflictAnalysisSection'
 import { RecentPlacementsTable } from '@/components/analytics/RecentPlacementsTable'
+import { MissionKPISection } from '@/components/analytics/MissionKPISection'
+import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccuracySection'
+import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
+import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,15 +87,19 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   ])
 
   // Get all ended placements for end reason analysis (including conflict analysis fields)
-  const endedPlacements = await prisma.placement.findMany({
-    where: { status: { not: 'ACTIVE' } },
-    select: {
-      endReason: true,
-      conflictGap: true,
-      wasPredictable: true,
-      compatibilityScore: true,
-    },
-  })
+  const [endedPlacements, missionKPIs, algorithmAccuracy] = await Promise.all([
+    prisma.placement.findMany({
+      where: { status: { not: 'ACTIVE' } },
+      select: {
+        endReason: true,
+        conflictGap: true,
+        wasPredictable: true,
+        compatibilityScore: true,
+      },
+    }),
+    calculateMissionKPIs(6),
+    calculateAlgorithmAccuracy(),
+  ])
 
   // Calculate metrics
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
@@ -196,6 +204,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           </a>
           <PeriodSelector currentDays={days} />
         </div>
+      </div>
+
+      {/* Mission KPIs */}
+      <div className="mb-6 sm:mb-8">
+        <MissionKPISection kpis={missionKPIs} />
       </div>
 
       {/* Key Metrics */}
@@ -360,6 +373,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           lowScoreCount={lowScoreConflicts.length}
         />
       )}
+
+      {/* Algorithm Accuracy */}
+      <div className="mt-6 sm:mt-8">
+        <AlgorithmAccuracySection report={algorithmAccuracy} />
+      </div>
 
       {/* Recent Placements */}
       <RecentPlacementsTable placements={recentPlacements} />
