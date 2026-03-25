@@ -11,7 +11,8 @@ type LoginState =
   | { status: 'success'; type: 'staff' | 'resident'; message: string }
   | { status: 'error'; message: string }
 
-const DEMO_CODE = 'AOZ-ADMIN1'
+const DEMO_ADMIN_CODE = 'AOZ-ADMIN1'
+const DEMO_RESIDENT_CODE = 'RES-001'
 
 function LoginForm() {
   const router = useRouter()
@@ -66,9 +67,14 @@ function LoginForm() {
     await submitCode(code)
   }
 
-  async function handleDemo() {
-    setCode(DEMO_CODE)
-    await submitCode(DEMO_CODE)
+  async function handleDemoAdmin() {
+    setCode(DEMO_ADMIN_CODE)
+    await submitCode(DEMO_ADMIN_CODE)
+  }
+
+  async function handleDemoResident() {
+    setCode(DEMO_RESIDENT_CODE)
+    await submitCode(DEMO_RESIDENT_CODE)
   }
 
   return (
@@ -152,18 +158,29 @@ function LoginForm() {
             <span className="text-amber-600 text-lg leading-none mt-0.5" aria-hidden="true">⚡</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-amber-900">{LOGIN_LABELS.demo.title}</p>
-              <p className="text-xs text-amber-700 mt-0.5">{LOGIN_LABELS.demo.description}</p>
+              <p className="text-xs text-amber-700 mt-0.5">Erkunden Sie die Anwendung aus beiden Perspektiven.</p>
             </div>
           </div>
-          <button
-            onClick={handleDemo}
-            disabled={state.status === 'loading'}
-            className="mt-3 w-full py-2 px-4 bg-amber-600 text-white text-sm font-medium rounded-md
-                     hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
-                     disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
-          >
-            {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.demo.button}
-          </button>
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={handleDemoAdmin}
+              disabled={state.status === 'loading'}
+              className="flex-1 py-2.5 px-4 bg-teal-700 text-white text-sm font-medium rounded-md
+                       hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2
+                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
+            >
+              🏢 AOZ-Verwaltung
+            </button>
+            <button
+              onClick={handleDemoResident}
+              disabled={state.status === 'loading'}
+              className="flex-1 py-2.5 px-4 bg-amber-600 text-white text-sm font-medium rounded-md
+                       hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
+                       disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
+            >
+              👤 Bewohner-Portal
+            </button>
+          </div>
         </div>
       )}
     </div>
