@@ -42,47 +42,47 @@ export default async function ChoresPage() {
     )
   }
 
-  const tasks = await prisma.householdTask.findMany({
-    where: { housingUnitId: placement.housingUnitId },
-    include: {
-      completions: {
-        orderBy: { completedAt: 'desc' },
-        take: 1,
-        include: { completedBy: { select: { id: true, code: true } } },
+  // tasks, completionCounts, roommates all only need placement.housingUnitId — fetch in parallel
+  const [tasks, completionCounts, roommates] = await Promise.all([
+    prisma.householdTask.findMany({
+      where: { housingUnitId: placement.housingUnitId },
+      include: {
+        completions: {
+          orderBy: { completedAt: 'desc' },
+          take: 1,
+          include: { completedBy: { select: { id: true, code: true } } },
+        },
+        attentionFlags: {
+          where: { isResolved: false },
+        },
+        requests: {
+          where: { status: { in: ['PENDING', 'ACCEPTED'] } },
+        },
+        createdByResident: { select: { id: true, code: true } },
       },
-      attentionFlags: {
-        where: { isResolved: false },
+      orderBy: [
+        { currentStatus: 'desc' },
+        { priority: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    }),
+    prisma.taskCompletion.groupBy({
+      by: ['completedById'],
+      where: {
+        task: { housingUnitId: placement.housingUnitId },
       },
-      requests: {
-        where: { status: { in: ['PENDING', 'ACCEPTED'] } },
+      _count: { id: true },
+    }),
+    prisma.placement.findMany({
+      where: {
+        housingUnitId: placement.housingUnitId,
+        status: 'ACTIVE',
       },
-      createdByResident: { select: { id: true, code: true } },
-    },
-    orderBy: [
-      { currentStatus: 'desc' },
-      { priority: 'desc' },
-      { createdAt: 'desc' },
-    ],
-  })
-
-  // Fairness data
-  const completionCounts = await prisma.taskCompletion.groupBy({
-    by: ['completedById'],
-    where: {
-      task: { housingUnitId: placement.housingUnitId },
-    },
-    _count: { id: true },
-  })
-
-  const roommates = await prisma.placement.findMany({
-    where: {
-      housingUnitId: placement.housingUnitId,
-      status: 'ACTIVE',
-    },
-    select: {
-      resident: { select: { id: true, code: true } },
-    },
-  })
+      select: {
+        resident: { select: { id: true, code: true } },
+      },
+    }),
+  ])
 
   const fairness = roommates.map(p => ({
     residentId: p.resident.id,

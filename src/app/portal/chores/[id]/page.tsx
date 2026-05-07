@@ -47,47 +47,49 @@ export default async function ChoreDetailPage({ params }: PageProps) {
 
   const placement = resident.placements[0]
 
-  const task = await prisma.householdTask.findFirst({
-    where: {
-      id,
-      housingUnitId: placement.housingUnitId,
-    },
-    include: {
-      createdByResident: { select: { id: true, code: true } },
-      completions: {
-        orderBy: { completedAt: 'desc' },
-        take: 10,
-        include: { completedBy: { select: { id: true, code: true } } },
+  // task and roommatePlacements both depend only on placement — fetch in parallel
+  const [task, roommatePlacements] = await Promise.all([
+    prisma.householdTask.findFirst({
+      where: {
+        id,
+        housingUnitId: placement.housingUnitId,
       },
-      attentionFlags: {
-        orderBy: { createdAt: 'desc' },
-        include: { flaggedBy: { select: { id: true, code: true } } },
-      },
-      requests: {
-        orderBy: { createdAt: 'desc' },
-        include: {
-          requestedBy: { select: { id: true, code: true } },
-          requestedResident: { select: { id: true, code: true } },
+      include: {
+        createdByResident: { select: { id: true, code: true } },
+        completions: {
+          orderBy: { completedAt: 'desc' },
+          take: 10,
+          include: { completedBy: { select: { id: true, code: true } } },
+        },
+        attentionFlags: {
+          orderBy: { createdAt: 'desc' },
+          include: { flaggedBy: { select: { id: true, code: true } } },
+        },
+        requests: {
+          orderBy: { createdAt: 'desc' },
+          include: {
+            requestedBy: { select: { id: true, code: true } },
+            requestedResident: { select: { id: true, code: true } },
+          },
         },
       },
-    },
-  })
+    }),
+    prisma.placement.findMany({
+      where: {
+        housingUnitId: placement.housingUnitId,
+        status: 'ACTIVE',
+        residentId: { not: resident.id },
+      },
+      select: {
+        resident: { select: { id: true, code: true } },
+      },
+    }),
+  ])
 
   if (!task) {
     notFound()
   }
 
-  // Roommates for request form
-  const roommatePlacements = await prisma.placement.findMany({
-    where: {
-      housingUnitId: placement.housingUnitId,
-      status: 'ACTIVE',
-      residentId: { not: resident.id },
-    },
-    select: {
-      resident: { select: { id: true, code: true } },
-    },
-  })
   const roommates = roommatePlacements.map(p => p.resident)
 
   const icon = TASK_CATEGORY_ICONS[task.category] || '📋'
