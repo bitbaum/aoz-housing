@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 
@@ -300,30 +300,30 @@ const CompatibilityDetailPopover = ({
             <div className="space-y-2 mb-4">
               {score.lifestyleScore !== undefined && (
                 <ScoreDimension
-                  label="Lebensstil"
+                  label={COMPATIBILITY_DIMENSION_LABELS.lifestyle.label}
                   score={score.lifestyleScore}
-                  description="Schlaf, Lärm, Sauberkeit"
+                  description={COMPATIBILITY_DIMENSION_LABELS.lifestyle.description}
                 />
               )}
               {score.socialScore !== undefined && (
                 <ScoreDimension
-                  label="Sozial"
+                  label={COMPATIBILITY_DIMENSION_LABELS.social.label}
                   score={score.socialScore}
-                  description="Sprache, Umgang"
+                  description={COMPATIBILITY_DIMENSION_LABELS.social.description}
                 />
               )}
               {score.practicalScore !== undefined && (
                 <ScoreDimension
-                  label="Praktisch"
+                  label={COMPATIBILITY_DIMENSION_LABELS.practical.label}
                   score={score.practicalScore}
-                  description="Rauchen, Küche"
+                  description={COMPATIBILITY_DIMENSION_LABELS.practical.description}
                 />
               )}
               {score.riskScore !== undefined && (
                 <ScoreDimension
-                  label="Risiko"
+                  label={COMPATIBILITY_DIMENSION_LABELS.risk.label}
                   score={score.riskScore}
-                  description="Konfliktpotenzial"
+                  description={COMPATIBILITY_DIMENSION_LABELS.risk.description}
                 />
               )}
             </div>

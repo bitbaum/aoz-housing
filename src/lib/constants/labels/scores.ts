@@ -67,3 +67,10 @@ export const TREND_LABELS: Record<string, string> = {
   warning: 'Warnung',
   neutral: 'Neutral',
 }
+
+export const COMPATIBILITY_DIMENSION_LABELS: Record<string, { label: string; description: string }> = {
+  lifestyle: { label: 'Lebensstil', description: 'Schlaf, Lärm, Sauberkeit' },
+  social:    { label: 'Sozial',     description: 'Sprache, Umgang' },
+  practical: { label: 'Praktisch',  description: 'Rauchen, Küche' },
+  risk:      { label: 'Risiko',     description: 'Konfliktpotenzial' },
+}

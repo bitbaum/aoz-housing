@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 
 interface ResidentData {
   sleepSchedule: string
@@ -173,8 +174,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="noiseTolerance"
                 defaultValue={resident.noiseTolerance}
-                lowLabel="Sehr empfindlich"
-                highLabel="Sehr tolerant"
+                lowLabel={RESIDENT_FACTORS.noiseTolerance.lowLabel}
+                highLabel={RESIDENT_FACTORS.noiseTolerance.highLabel}
               />
             </div>
 
@@ -186,8 +187,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="cleanlinessLevel"
                 defaultValue={resident.cleanlinessLevel}
-                lowLabel="Entspannt"
-                highLabel="Sehr ordentlich"
+                lowLabel={RESIDENT_FACTORS.cleanlinessLevel.lowLabel}
+                highLabel={RESIDENT_FACTORS.cleanlinessLevel.highLabel}
               />
             </div>
           </div>
@@ -219,8 +220,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="privacyNeed"
                 defaultValue={resident.privacyNeed}
-                lowLabel="Offen"
-                highLabel="Viel Privatsphäre"
+                lowLabel={RESIDENT_FACTORS.privacyNeed.lowLabel}
+                highLabel={RESIDENT_FACTORS.privacyNeed.highLabel}
               />
             </div>
 
