@@ -176,13 +176,16 @@ function MegaMenuDropdown({
 }) {
   return (
     <div className="relative group">
-      <button className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors">
+      <button
+        className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors"
+        aria-haspopup="true"
+      >
         {label}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+      <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50">
         <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[220px]">
           {items.map((item) => (
             <Link

@@ -5,6 +5,25 @@ import type { UnitWithSpots } from '@/lib/types'
 
 // --- Mocks ---
 
+// Suppress React 18 jsdom warning: Next.js server action functions passed to
+// <form action> are valid in the App Router but React 18 DOM doesn't know that.
+const originalConsoleError = console.error
+beforeAll(() => {
+  console.error = (...args: unknown[]) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Invalid value for prop') &&
+      args[1] === '`action`'
+    ) {
+      return
+    }
+    originalConsoleError(...args)
+  }
+})
+afterAll(() => {
+  console.error = originalConsoleError
+})
+
 jest.mock('@/lib/actions', () => ({
   endPlacement: jest.fn(),
   transferPlacement: jest.fn(),
