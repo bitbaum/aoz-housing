@@ -6,27 +6,29 @@ interface PortalQuickActionsProps {
 }
 
 export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
+  const L = PORTAL_LABELS.dashboard
+
+  const nowDesc = pendingChoresCount > 0
+    ? `${pendingChoresCount} ${pendingChoresCount === 1 ? L.prioritySections.now.taskSingular : L.prioritySections.now.taskPlural}`
+    : L.prioritySections.now.noTasks
+
   return (
     <>
       {/* Prioritized resident actions */}
       <div className="mb-8 space-y-3">
         <div className="p-3 rounded-lg border border-amber-200 bg-amber-50">
-          <h2 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">Jetzt</h2>
-          <p className="text-xs text-amber-700">
-            {pendingChoresCount > 0
-              ? `${pendingChoresCount} Aufgabe${pendingChoresCount === 1 ? '' : 'n'} brauchen Aufmerksamkeit.`
-              : 'Keine dringenden Aufgaben offen.'}
-          </p>
+          <h2 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">{L.prioritySections.now.heading}</h2>
+          <p className="text-xs text-amber-700">{nowDesc}</p>
         </div>
 
         <div className="p-3 rounded-lg border border-blue-200 bg-blue-50">
-          <h2 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">Als Nächstes</h2>
-          <p className="text-xs text-blue-700">Melden Sie Probleme früh und halten Sie Ihre Präferenzen aktuell.</p>
+          <h2 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">{L.prioritySections.next.heading}</h2>
+          <p className="text-xs text-blue-700">{L.prioritySections.next.desc}</p>
         </div>
 
         <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
-          <h2 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">Info</h2>
-          <p className="text-xs text-gray-600">Mitbewohner- und Gebäudestatus helfen bei der Planung des Alltags.</p>
+          <h2 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">{L.prioritySections.info.heading}</h2>
+          <p className="text-xs text-gray-600">{L.prioritySections.info.desc}</p>
         </div>
       </div>
 
@@ -34,30 +36,30 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <QuickActionCard
           href="/portal/chores"
-          icon="📋"
-          title="Aufgaben"
-          description="Haushaltsaufgaben verwalten"
+          icon={L.quickActions.chores.icon}
+          title={L.quickActions.chores.title}
+          description={L.quickActions.chores.desc}
           priority={pendingChoresCount > 0 ? 'now' : 'next'}
         />
         <QuickActionCard
           href="/portal/report"
-          icon={PORTAL_LABELS.dashboard.quickActions.report.icon}
-          title={PORTAL_LABELS.dashboard.quickActions.report.title}
-          description={PORTAL_LABELS.dashboard.quickActions.report.desc}
+          icon={L.quickActions.report.icon}
+          title={L.quickActions.report.title}
+          description={L.quickActions.report.desc}
           priority="next"
         />
         <QuickActionCard
           href="/portal/roommates"
-          icon={PORTAL_LABELS.dashboard.quickActions.roommates.icon}
-          title={PORTAL_LABELS.dashboard.quickActions.roommates.title}
-          description={PORTAL_LABELS.dashboard.quickActions.roommates.desc}
+          icon={L.quickActions.roommates.icon}
+          title={L.quickActions.roommates.title}
+          description={L.quickActions.roommates.desc}
           priority="info"
         />
         <QuickActionCard
           href="/portal/preferences"
-          icon={PORTAL_LABELS.dashboard.quickActions.preferences.icon}
-          title={PORTAL_LABELS.dashboard.quickActions.preferences.title}
-          description={PORTAL_LABELS.dashboard.quickActions.preferences.desc}
+          icon={L.quickActions.preferences.icon}
+          title={L.quickActions.preferences.title}
+          description={L.quickActions.preferences.desc}
           priority="next"
         />
       </div>

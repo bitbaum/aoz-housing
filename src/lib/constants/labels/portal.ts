@@ -208,9 +208,26 @@ export const PORTAL_LABELS = {
       },
     },
     quickActions: {
+      chores: { icon: '📋', title: 'Aufgaben', desc: 'Haushaltsaufgaben verwalten' },
       report: { icon: '🔧', title: 'Problem melden', desc: 'Defekte oder Wartung melden' },
       roommates: { icon: '👥', title: 'Mitbewohner', desc: 'Infos zu deinen Mitbewohnern' },
       preferences: { icon: '⚙️', title: 'Einstellungen', desc: 'Deine Präferenzen anpassen' },
+    },
+    prioritySections: {
+      now: {
+        heading: 'Jetzt',
+        taskSingular: 'Aufgabe braucht Aufmerksamkeit.',
+        taskPlural: 'Aufgaben brauchen Aufmerksamkeit.',
+        noTasks: 'Keine dringenden Aufgaben offen.',
+      },
+      next: {
+        heading: 'Als Nächstes',
+        desc: 'Melden Sie Probleme früh und halten Sie Ihre Präferenzen aktuell.',
+      },
+      info: {
+        heading: 'Info',
+        desc: 'Mitbewohner- und Gebäudestatus helfen bei der Planung des Alltags.',
+      },
     },
   },
   landing: {
