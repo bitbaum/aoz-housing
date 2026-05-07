@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+import type { ScaleFactorDef } from '@/lib/config/types'
 
 interface ResidentData {
   sleepSchedule: string
@@ -174,8 +175,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="noiseTolerance"
                 defaultValue={resident.noiseTolerance}
-                lowLabel={RESIDENT_FACTORS.noiseTolerance.lowLabel}
-                highLabel={RESIDENT_FACTORS.noiseTolerance.highLabel}
+                lowLabel={(RESIDENT_FACTORS.noiseTolerance as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.noiseTolerance as ScaleFactorDef).highLabel}
               />
             </div>
 
@@ -187,8 +188,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="cleanlinessLevel"
                 defaultValue={resident.cleanlinessLevel}
-                lowLabel={RESIDENT_FACTORS.cleanlinessLevel.lowLabel}
-                highLabel={RESIDENT_FACTORS.cleanlinessLevel.highLabel}
+                lowLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).highLabel}
               />
             </div>
           </div>
@@ -220,8 +221,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <RatingScale
                 name="privacyNeed"
                 defaultValue={resident.privacyNeed}
-                lowLabel={RESIDENT_FACTORS.privacyNeed.lowLabel}
-                highLabel={RESIDENT_FACTORS.privacyNeed.highLabel}
+                lowLabel={(RESIDENT_FACTORS.privacyNeed as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.privacyNeed as ScaleFactorDef).highLabel}
               />
             </div>
 

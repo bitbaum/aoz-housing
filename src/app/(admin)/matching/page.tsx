@@ -34,58 +34,64 @@ export default async function MatchingPage({ searchParams }: Props) {
   const params = await searchParams
   const residentQuery = (params.q || '').trim().toLowerCase()
 
-  // Get unplaced residents
-  const unplacedResidents = await prisma.resident.findMany({
-    where: {
-      status: 'ACTIVE',
-      placements: { none: { status: 'ACTIVE' } },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  // Get placed residents for "what-if" analysis
-  const placedResidents: ResidentWithPlacement[] = await prisma.resident.findMany({
-    where: {
-      status: 'PLACED',
-      placements: { some: { status: 'ACTIVE' } },
-    },
-    include: {
-      placements: {
-        where: { status: 'ACTIVE' },
-        include: { housingUnit: { select: { id: true, code: true } } },
-        take: 1,
+  // All four queries are independent — fetch in parallel
+  const [
+    unplacedResidents,
+    placedResidents,
+    totalResidentCount,
+    availableUnits,
+  ]: [
+    Resident[],
+    ResidentWithPlacement[],
+    number,
+    MatchUnit[],
+  ] = await Promise.all([
+    prisma.resident.findMany({
+      where: {
+        status: 'ACTIVE',
+        placements: { none: { status: 'ACTIVE' } },
       },
-    },
-    orderBy: { code: 'asc' },
-  })
-
-  // Total resident count (for empty state detection)
-  const totalResidentCount = await prisma.resident.count()
-
-  // Get available units with current residents and spots
-  const availableUnits: MatchUnit[] = await prisma.housingUnit.findMany({
-    where: {
-      status: { in: ['AVAILABLE', 'FULL'] },
-    },
-    include: {
-      placements: {
-        where: { status: 'ACTIVE' },
-        include: { resident: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.resident.findMany({
+      where: {
+        status: 'PLACED',
+        placements: { some: { status: 'ACTIVE' } },
       },
-      spots: {
-        where: {
-          status: 'AVAILABLE',
-          type: { not: 'ROOM' },
+      include: {
+        placements: {
+          where: { status: 'ACTIVE' },
+          include: { housingUnit: { select: { id: true, code: true } } },
+          take: 1,
         },
-        include: {
-          placements: {
-            where: { status: 'ACTIVE' },
+      },
+      orderBy: { code: 'asc' },
+    }),
+    prisma.resident.count(),
+    prisma.housingUnit.findMany({
+      where: {
+        status: { in: ['AVAILABLE', 'FULL'] },
+      },
+      include: {
+        placements: {
+          where: { status: 'ACTIVE' },
+          include: { resident: true },
+        },
+        spots: {
+          where: {
+            status: 'AVAILABLE',
+            type: { not: 'ROOM' },
+          },
+          include: {
+            placements: {
+              where: { status: 'ACTIVE' },
+            },
           },
         },
       },
-    },
-    orderBy: { code: 'asc' },
-  })
+      orderBy: { code: 'asc' },
+    }),
+  ])
 
   // If resident is selected, calculate matches
   let selectedResident: ResidentWithPlacement | null = null
