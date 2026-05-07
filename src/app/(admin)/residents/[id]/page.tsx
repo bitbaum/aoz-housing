@@ -47,60 +47,62 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const { id } = await params
   const query = await searchParams
 
-  const resident = await prisma.resident.findUnique({
-    where: { id },
-    include: {
-      placements: {
-        include: {
-          housingUnit: true,
-          spot: true,
+  // resident and availableUnits are independent — fetch in parallel
+  const [resident, availableUnits] = await Promise.all([
+    prisma.resident.findUnique({
+      where: { id },
+      include: {
+        placements: {
+          include: {
+            housingUnit: true,
+            spot: true,
+          },
+          orderBy: { startDate: 'desc' },
         },
-        orderBy: { startDate: 'desc' },
-      },
-      incidentsAsSubject: {
-        include: {
-          housingUnit: true,
+        incidentsAsSubject: {
+          include: {
+            housingUnit: true,
+          },
+          orderBy: { date: 'desc' },
+          take: 10,
         },
-        orderBy: { date: 'desc' },
-        take: 10,
-      },
-      incidentsReported: {
-        include: {
-          housingUnit: true,
+        incidentsReported: {
+          include: {
+            housingUnit: true,
+          },
+          orderBy: { date: 'desc' },
+          take: 10,
         },
-        orderBy: { date: 'desc' },
-        take: 10,
-      },
-      assessments: {
-        include: {
-          comparedWith: true,
+        assessments: {
+          include: {
+            comparedWith: true,
+          },
+          orderBy: { overallScore: 'desc' },
+          take: 5,
         },
-        orderBy: { overallScore: 'desc' },
-        take: 5,
       },
-    },
-  })
-
-  // Fetch available housing units with their available spots and current placements for transfer
-  const availableUnits = await prisma.housingUnit.findMany({
-    where: {
-      status: { in: ['AVAILABLE', 'FULL'] },
-    },
-    include: {
-      spots: {
-        where: {
-          status: 'AVAILABLE',
-          type: { not: 'ROOM' }, // Only assignable spots
+    }),
+    // Available units for placement/transfer actions
+    prisma.housingUnit.findMany({
+      where: {
+        status: { in: ['AVAILABLE', 'FULL'] },
+      },
+      include: {
+        spots: {
+          where: {
+            status: 'AVAILABLE',
+            type: { not: 'ROOM' }, // Only assignable spots
+          },
+          orderBy: { code: 'asc' },
         },
-        orderBy: { code: 'asc' },
+        placements: {
+          where: { status: 'ACTIVE' },
+          include: { resident: true },
+        },
       },
-      placements: {
-        where: { status: 'ACTIVE' },
-        include: { resident: true },
-      },
-    },
-    orderBy: { code: 'asc' },
-  })
+      orderBy: { code: 'asc' },
+    }),
+  ])
 
   if (!resident) {
     notFound()
@@ -184,17 +186,26 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   }
 
   if (!currentPlacement) {
-    // Get units with current residents for apartment-level matching
-    const unitsWithResidents = await prisma.housingUnit.findMany({
-      where: { status: { in: ['AVAILABLE', 'FULL'] } },
-      include: {
-        placements: {
-          where: { status: 'ACTIVE' },
-          include: { resident: true },
+    // Both queries depend only on resident.id — fetch in parallel
+    const [unitsWithResidents, otherUnplaced] = await Promise.all([
+      prisma.housingUnit.findMany({
+        where: { status: { in: ['AVAILABLE', 'FULL'] } },
+        include: {
+          placements: {
+            where: { status: 'ACTIVE' },
+            include: { resident: true },
+          },
+          spots: { where: { status: 'AVAILABLE' } },
         },
-        spots: { where: { status: 'AVAILABLE' } },
-      },
-    })
+      }),
+      prisma.resident.findMany({
+        where: {
+          id: { not: resident.id },
+          status: 'ACTIVE',
+          placements: { none: { status: 'ACTIVE' } },
+        },
+      }),
+    ])
 
     // Calculate fit for each unit
     compatibleUnits = unitsWithResidents
@@ -207,15 +218,6 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
       })
       .sort((a, b) => b.fitScore - a.fitScore)
       .slice(0, 3)
-
-    // Get other unplaced residents for pairing
-    const otherUnplaced = await prisma.resident.findMany({
-      where: {
-        id: { not: resident.id },
-        status: 'ACTIVE',
-        placements: { none: { status: 'ACTIVE' } },
-      },
-    })
 
     // Calculate pairwise compatibility
     compatibleResidents = otherUnplaced

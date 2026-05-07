@@ -15,9 +15,10 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   const params = await searchParams
   const statusFilter = params.status || 'PENDING'
 
-  const requests = await getTransferRequests(statusFilter === 'ALL' ? undefined : statusFilter)
-
-  const allRequests = await getTransferRequests()
+  const [requests, allRequests] = await Promise.all([
+    getTransferRequests(statusFilter === 'ALL' ? undefined : statusFilter),
+    getTransferRequests(),
+  ])
   const counts = {
     all: allRequests.length,
     pending: allRequests.filter(r => r.status === 'PENDING').length,
