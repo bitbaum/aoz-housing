@@ -19,46 +19,48 @@ export default async function HousingListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
 
-  const units = await prisma.housingUnit.findMany({
-    where: view === 'active'
-      ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
-      : view === 'archived'
-      ? { status: 'CLOSED' }
-      : undefined,
-    select: {
-      id: true,
-      code: true,
-      address: true,
-      status: true,
-      totalBeds: true,
-      totalRooms: true,
-      wheelchairAccess: true,
-      _count: {
-        select: {
-          placements: {
-            where: { status: 'ACTIVE' },
-          },
-          incidents: {
-            where: {
-              date: { gte: getDateDaysAgo(30) },
-              category: 'INTERPERSONAL',
+  const [units, allUnits] = await Promise.all([
+    prisma.housingUnit.findMany({
+      where: view === 'active'
+        ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
+        : view === 'archived'
+        ? { status: 'CLOSED' }
+        : undefined,
+      select: {
+        id: true,
+        code: true,
+        address: true,
+        status: true,
+        totalBeds: true,
+        totalRooms: true,
+        wheelchairAccess: true,
+        _count: {
+          select: {
+            placements: {
+              where: { status: 'ACTIVE' },
+            },
+            incidents: {
+              where: {
+                date: { gte: getDateDaysAgo(30) },
+                category: 'INTERPERSONAL',
+              },
             },
           },
         },
       },
-    },
-    orderBy: { code: 'asc' },
-  })
-
-  const allUnits = await prisma.housingUnit.findMany({
-    select: {
-      status: true,
-      totalBeds: true,
-      _count: {
-        select: { placements: { where: { status: 'ACTIVE' } } },
+      orderBy: { code: 'asc' },
+    }),
+    // Unfiltered for tab counts and stats
+    prisma.housingUnit.findMany({
+      select: {
+        status: true,
+        totalBeds: true,
+        _count: {
+          select: { placements: { where: { status: 'ACTIVE' } } },
+        },
       },
-    },
-  })
+    }),
+  ])
 
   const stats = {
     total: allUnits.length,

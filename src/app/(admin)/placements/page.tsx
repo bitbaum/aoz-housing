@@ -32,45 +32,46 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   const overdueOnly = params.overdue === '1'
   const conflictsOnly = params.conflicts === '1'
 
-  const placements = await prisma.placement.findMany({
-    where: statusFilter === 'active'
-      ? { status: 'ACTIVE' }
-      : statusFilter === 'ended'
-      ? { status: { not: 'ACTIVE' } }
-      : undefined,
-    select: {
-      id: true,
-      status: true,
-      startDate: true,
-      endDate: true,
-      satisfactionRating: true,
-      endReason: true,
-      residentId: true,
-      housingUnitId: true,
-      resident: {
-        select: { code: true, supportLevel: true },
-      },
-      housingUnit: {
-        select: { code: true, address: true },
-      },
-      checkIns: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: {
-          createdAt: true,
-          overallSatisfaction: true,
-          concerns: true,
+  const [placements, allPlacements] = await Promise.all([
+    prisma.placement.findMany({
+      where: statusFilter === 'active'
+        ? { status: 'ACTIVE' }
+        : statusFilter === 'ended'
+        ? { status: { not: 'ACTIVE' } }
+        : undefined,
+      select: {
+        id: true,
+        status: true,
+        startDate: true,
+        endDate: true,
+        satisfactionRating: true,
+        endReason: true,
+        residentId: true,
+        housingUnitId: true,
+        resident: {
+          select: { code: true, supportLevel: true },
+        },
+        housingUnit: {
+          select: { code: true, address: true },
+        },
+        checkIns: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            createdAt: true,
+            overallSatisfaction: true,
+            concerns: true,
+          },
         },
       },
-    },
-    orderBy: { startDate: 'desc' },
-    take: 200,
-  })
-
-  // Get counts for all statuses (unfiltered)
-  const allPlacements = await prisma.placement.findMany({
-    select: { status: true, satisfactionRating: true, endReason: true },
-  })
+      orderBy: { startDate: 'desc' },
+      take: 200,
+    }),
+    // Unfiltered for tab counts
+    prisma.placement.findMany({
+      select: { status: true, satisfactionRating: true, endReason: true },
+    }),
+  ])
 
   const activePlacements = allPlacements.filter((p) => p.status === 'ACTIVE')
   const endedPlacements = allPlacements.filter((p) => p.status !== 'ACTIVE')

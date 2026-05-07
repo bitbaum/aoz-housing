@@ -36,38 +36,39 @@ export default async function MaintenancePage({ searchParams }: Props) {
     whereClause.status = statusFilter as MaintenanceStatus
   }
 
-  const requests = await prisma.maintenanceRequest.findMany({
-    where: whereClause,
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      category: true,
-      priority: true,
-      status: true,
-      location: true,
-      assignedTo: true,
-      createdAt: true,
-      housingUnitId: true,
-      reportedById: true,
-      housingUnit: {
-        select: { code: true },
+  const [requests, allRequests] = await Promise.all([
+    prisma.maintenanceRequest.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        priority: true,
+        status: true,
+        location: true,
+        assignedTo: true,
+        createdAt: true,
+        housingUnitId: true,
+        reportedById: true,
+        housingUnit: {
+          select: { code: true },
+        },
+        spot: {
+          select: { code: true, label: true },
+        },
+        reportedBy: {
+          select: { id: true, code: true },
+        },
       },
-      spot: {
-        select: { code: true, label: true },
-      },
-      reportedBy: {
-        select: { id: true, code: true },
-      },
-    },
-    orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
-    take: 100,
-  })
-
-  // Get stats
-  const allRequests = await prisma.maintenanceRequest.findMany({
-    select: { status: true, priority: true },
-  })
+      orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
+      take: 100,
+    }),
+    // Unfiltered for tab counts
+    prisma.maintenanceRequest.findMany({
+      select: { status: true, priority: true },
+    }),
+  ])
 
   const stats = {
     total: allRequests.length,

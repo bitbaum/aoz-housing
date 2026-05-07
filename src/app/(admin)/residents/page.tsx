@@ -20,51 +20,52 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
 
-  const residents = await prisma.resident.findMany({
-    where: view === 'active'
-      ? { status: { in: ['ACTIVE', 'PLACED'] } }
-      : view === 'archived'
-      ? { status: 'EXITED' }
-      : undefined,
-    select: {
-      id: true,
-      code: true,
-      ageRange: true,
-      gender: true,
-      status: true,
-      languages: true,
-      createdAt: true,
-      placements: {
-        where: { status: 'ACTIVE' },
-        select: {
-          housingUnit: {
-            select: { code: true },
+  const [residents, allResidents] = await Promise.all([
+    prisma.resident.findMany({
+      where: view === 'active'
+        ? { status: { in: ['ACTIVE', 'PLACED'] } }
+        : view === 'archived'
+        ? { status: 'EXITED' }
+        : undefined,
+      select: {
+        id: true,
+        code: true,
+        ageRange: true,
+        gender: true,
+        status: true,
+        languages: true,
+        createdAt: true,
+        placements: {
+          where: { status: 'ACTIVE' },
+          select: {
+            housingUnit: {
+              select: { code: true },
+            },
           },
         },
-      },
-      _count: {
-        select: {
-          incidentsAsSubject: {
-            where: {
-              date: { gte: getDateDaysAgo(30) },
-              category: 'INTERPERSONAL',
+        _count: {
+          select: {
+            incidentsAsSubject: {
+              where: {
+                date: { gte: getDateDaysAgo(30) },
+                category: 'INTERPERSONAL',
+              },
             },
           },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  const allResidents = await prisma.resident.findMany({
-    select: {
-      status: true,
-      placements: {
-        where: { status: 'ACTIVE' },
-        select: { id: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.resident.findMany({
+      select: {
+        status: true,
+        placements: {
+          where: { status: 'ACTIVE' },
+          select: { id: true },
+        },
       },
-    },
-  })
+    }),
+  ])
 
   const stats = {
     total: allResidents.length,

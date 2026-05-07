@@ -29,39 +29,40 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const categoryFilter = params.category || 'all'
 
-  const incidents = await prisma.incident.findMany({
-    where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
-    select: {
-      id: true,
-      type: true,
-      category: true,
-      severity: true,
-      description: true,
-      date: true,
-      resolvedAt: true,
-      resolution: true,
-      nextFollowUpDate: true,
-      housingUnit: {
-        select: { code: true },
+  const [incidents, allIncidents] = await Promise.all([
+    prisma.incident.findMany({
+      where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
+      select: {
+        id: true,
+        type: true,
+        category: true,
+        severity: true,
+        description: true,
+        date: true,
+        resolvedAt: true,
+        resolution: true,
+        nextFollowUpDate: true,
+        housingUnit: {
+          select: { code: true },
+        },
+        reportedBy: {
+          select: { code: true },
+        },
+        subject: {
+          select: { code: true },
+        },
+        _count: {
+          select: { followUps: true },
+        },
       },
-      reportedBy: {
-        select: { code: true },
-      },
-      subject: {
-        select: { code: true },
-      },
-      _count: {
-        select: { followUps: true },
-      },
-    },
-    orderBy: { date: 'desc' },
-    take: 100,
-  })
-
-  // Get counts for all categories (unfiltered)
-  const allIncidents = await prisma.incident.findMany({
-    select: { category: true, severity: true, resolvedAt: true },
-  })
+      orderBy: { date: 'desc' },
+      take: 100,
+    }),
+    // Unfiltered for tab counts
+    prisma.incident.findMany({
+      select: { category: true, severity: true, resolvedAt: true },
+    }),
+  ])
 
   const stats = {
     total: allIncidents.length,

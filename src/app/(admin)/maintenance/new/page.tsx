@@ -19,24 +19,23 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
   const preselectedUnitId = params.unit
   const preselectedSpotId = params.spot
 
-  // Fetch housing units with their spots
-  const housingUnits = await prisma.housingUnit.findMany({
-    where: { status: { not: 'CLOSED' } },
-    include: {
-      spots: {
-        where: { type: { not: 'ROOM' } },
-        orderBy: { code: 'asc' },
+  const [housingUnits, residents] = await Promise.all([
+    prisma.housingUnit.findMany({
+      where: { status: { not: 'CLOSED' } },
+      include: {
+        spots: {
+          where: { type: { not: 'ROOM' } },
+          orderBy: { code: 'asc' },
+        },
       },
-    },
-    orderBy: { code: 'asc' },
-  })
-
-  // Fetch residents for reporter selection
-  const residents = await prisma.resident.findMany({
-    where: { status: { in: ['ACTIVE', 'PLACED'] } },
-    select: { id: true, code: true },
-    orderBy: { code: 'asc' },
-  })
+      orderBy: { code: 'asc' },
+    }),
+    prisma.resident.findMany({
+      where: { status: { in: ['ACTIVE', 'PLACED'] } },
+      select: { id: true, code: true },
+      orderBy: { code: 'asc' },
+    }),
+  ])
 
   return (
     <div className="max-w-2xl mx-auto">
