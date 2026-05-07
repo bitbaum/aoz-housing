@@ -141,7 +141,7 @@ export function ResidentSelectorPanel({
                 </Link>
                 <Link
                   href={`/matching?resident=${resident.id}`}
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                  className={`min-h-[44px] px-3 py-2 rounded text-xs font-medium transition-colors flex items-center ${
                     params.resident === resident.id
                       ? 'bg-aoz-primary text-white'
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
