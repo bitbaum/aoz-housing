@@ -104,12 +104,9 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   <div>
                     <label className="label">Neuer Status</label>
                     <select name="status" className="input" defaultValue={request.status}>
-                      <option value="OPEN">Offen</option>
-                      <option value="ASSIGNED">Zugewiesen</option>
-                      <option value="IN_PROGRESS">In Bearbeitung</option>
-                      <option value="ON_HOLD">Wartend</option>
-                      <option value="COMPLETED">Abgeschlossen</option>
-                      <option value="CANCELLED">Abgebrochen</option>
+                      {Object.entries(MAINTENANCE_STATUS_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
                     </select>
                   </div>
                   <div>

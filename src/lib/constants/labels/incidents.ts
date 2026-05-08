@@ -91,6 +91,11 @@ export const FOLLOW_UP_PRIORITY_COLORS: Record<string, string> = {
   URGENT: 'bg-red-100 text-red-700',
 }
 
+export const INCIDENT_RESOLVED_LABELS = {
+  open: 'Offen',
+  resolved: 'Gelöst',
+} as const
+
 export const INCIDENT_TYPE_LABELS_SHORT: Record<string, string> = {
   NOISE_COMPLAINT: 'Lärm',
   CLEANLINESS_DISPUTE: 'Sauberkeit',

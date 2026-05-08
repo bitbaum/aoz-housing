@@ -6,6 +6,7 @@ import {
   INCIDENT_CATEGORY_LABELS,
   INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
+  INCIDENT_RESOLVED_LABELS,
   getLabel,
 } from '@/lib/constants'
 
@@ -245,9 +246,9 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
         </div>
         <div className="flex items-center gap-3">
           {incident.resolvedAt ? (
-            <span className="badge badge-active">Gelöst</span>
+            <span className="badge badge-active">{INCIDENT_RESOLVED_LABELS.resolved}</span>
           ) : (
-            <span className="badge badge-pending">Offen</span>
+            <span className="badge badge-pending">{INCIDENT_RESOLVED_LABELS.open}</span>
           )}
         </div>
       </div>

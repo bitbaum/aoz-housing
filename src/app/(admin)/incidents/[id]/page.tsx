@@ -9,6 +9,7 @@ import {
   INCIDENT_SEVERITY_LABELS,
   FOLLOW_UP_PRIORITY_LABELS,
   FOLLOW_UP_PRIORITY_COLORS,
+  INCIDENT_RESOLVED_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
@@ -111,9 +112,9 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
           </div>
           <div className="flex items-center gap-3">
             {incident.resolvedAt ? (
-              <span className="badge badge-active">Gelöst</span>
+              <span className="badge badge-active">{INCIDENT_RESOLVED_LABELS.resolved}</span>
             ) : (
-              <span className="badge badge-pending">Offen</span>
+              <span className="badge badge-pending">{INCIDENT_RESOLVED_LABELS.open}</span>
             )}
           </div>
         </div>

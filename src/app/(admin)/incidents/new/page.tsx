@@ -242,7 +242,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 <optgroup label={INCIDENT_CATEGORY_LABELS.SAFETY}>
                   <option value="SAFETY_CONCERN">{INCIDENT_TYPE_LABELS.SAFETY_CONCERN}</option>
                 </optgroup>
-                <option value="OTHER">Sonstiges</option>
+                <option value="OTHER">{INCIDENT_TYPE_LABELS.OTHER}</option>
               </select>
             </div>
           </div>

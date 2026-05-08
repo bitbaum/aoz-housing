@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
-import type { ScaleFactorDef } from '@/lib/config/types'
+import type { ScaleFactorDef, EnumFactorDef } from '@/lib/config/types'
 
 interface ResidentData {
   sleepSchedule: string
@@ -160,10 +160,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.sleepSchedule}
                 className="input"
               >
-                <option value="EARLY_BIRD">Frühaufsteher (vor 22 Uhr schlafen)</option>
-                <option value="STANDARD">Normal (22-24 Uhr schlafen)</option>
-                <option value="NIGHT_OWL">Nachteule (nach Mitternacht)</option>
-                <option value="IRREGULAR">Unregelmässig (Schichtarbeit etc.)</option>
+                {(RESIDENT_FACTORS.sleepSchedule as EnumFactorDef).options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {(RESIDENT_FACTORS.sleepSchedule as EnumFactorDef).optionLabels[opt]}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -207,9 +208,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.socialStyle}
                 className="input"
               >
-                <option value="INTROVERTED">Ruhig - Ich brauche viel Zeit für mich</option>
-                <option value="MODERATE">Ausgeglichen - Mal allein, mal mit anderen</option>
-                <option value="EXTROVERTED">Gesellig - Ich bin gern unter Menschen</option>
+                {(RESIDENT_FACTORS.socialStyle as EnumFactorDef).options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {(RESIDENT_FACTORS.socialStyle as EnumFactorDef).optionLabels[opt]}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -266,9 +269,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.smokingStatus}
                 className="input"
               >
-                <option value="NON_SMOKER">Nichtraucher</option>
-                <option value="OUTDOOR_SMOKER">Raucher (nur draussen)</option>
-                <option value="INDOOR_SMOKER">Raucher (auch drinnen)</option>
+                {(RESIDENT_FACTORS.smokingStatus as EnumFactorDef).options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {(RESIDENT_FACTORS.smokingStatus as EnumFactorDef).optionLabels[opt]}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -342,10 +347,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <select name="preferredAgeRange" className="input">
                 <option value="">Keine Präferenz</option>
                 <option value="SIMILAR">Ähnliches Alter wie ich</option>
-                <option value="YOUNG_ADULT">Jüngere (18-25)</option>
-                <option value="ADULT">Erwachsene (26-40)</option>
-                <option value="MIDDLE_AGED">Mittleres Alter (41-55)</option>
-                <option value="SENIOR">Ältere (56+)</option>
+                {(RESIDENT_FACTORS.ageRange as EnumFactorDef).options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {(RESIDENT_FACTORS.ageRange as EnumFactorDef).optionLabels[opt]}
+                  </option>
+                ))}
               </select>
             </div>
 
