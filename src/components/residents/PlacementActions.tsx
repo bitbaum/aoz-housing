@@ -7,7 +7,7 @@ import {
   SPOT_TYPE_LABELS,
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
-import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS } from '@/lib/constants'
+import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, UI_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
 import type { UnitWithSpots } from '@/lib/types'
@@ -207,7 +207,7 @@ export function PlacementActions({
           <div>
             <label className="label">Grund für Verlegung *</label>
             <select name="transferReason" required className="input">
-              <option value="">Bitte wählen</option>
+              <option value="">{UI_LABELS.selectPlaceholder}</option>
               {Object.entries(END_REASON_LABELS).map(([key, label]) => (
                 <option
                   key={key}
@@ -309,7 +309,7 @@ export function PlacementActions({
               <div>
                 <label className="label">Hauptursache des Konflikts *</label>
                 <select name="conflictGap" required className="input">
-                  <option value="">Bitte wählen</option>
+                  <option value="">{UI_LABELS.selectPlaceholder}</option>
                   {Object.entries(COMPATIBILITY_GAP_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>
                       {label}

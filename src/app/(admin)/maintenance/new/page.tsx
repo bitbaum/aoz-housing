@@ -5,6 +5,7 @@ import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
   MAINTENANCE_PRIORITY_LABELS,
+  UI_LABELS,
 } from '@/lib/constants'
 import { FormValidationUX } from '@/components/forms'
 
@@ -68,7 +69,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
                   className="input"
                   defaultValue={preselectedUnitId || ''}
                 >
-                  <option value="">Bitte wählen</option>
+                  <option value="">{UI_LABELS.selectPlaceholder}</option>
                   {housingUnits.map((unit) => (
                     <option key={unit.id} value={unit.id}>
                       {unit.code} - {unit.address}
@@ -112,7 +113,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
               <div>
                 <label className="label">Kategorie *</label>
                 <select name="category" required className="input">
-                  <option value="">Bitte wählen</option>
+                  <option value="">{UI_LABELS.selectPlaceholder}</option>
                   {Object.entries(MAINTENANCE_CATEGORY_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>
                       {MAINTENANCE_CATEGORY_ICONS[key]} {label}

@@ -25,6 +25,8 @@ export const UI_LABELS = {
   switchToAdmin: 'Zur Verwaltung',
   logout: 'Abmelden',
   loggingOut: 'Abmelden...',
+  // Form common
+  selectPlaceholder: 'Bitte wählen',
   // Incidents common
   solution: 'Lösung:',
 } as const

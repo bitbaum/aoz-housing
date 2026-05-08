@@ -7,6 +7,7 @@ import {
   INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
   INCIDENT_TYPES_BY_CATEGORY,
+  UI_LABELS,
 } from '@/lib/constants'
 import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
 
@@ -148,7 +149,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 defaultValue={params.unit || ''}
                 className="input"
               >
-                <option value="">Bitte wählen</option>
+                <option value="">{UI_LABELS.selectPlaceholder}</option>
                 {units.map((unit) => (
                   <option key={unit.id} value={unit.id}>
                     {unit.code} - {unit.address}
@@ -230,7 +231,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             <div>
               <label className="label">Art des Vorfalls *</label>
               <select name="type" required className="input" defaultValue={selectedType}>
-                <option value="">Bitte wählen</option>
+                <option value="">{UI_LABELS.selectPlaceholder}</option>
                 <optgroup label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}>
                   {interpersonalTypes.map((type) => (
                     <option key={type} value={type}>

@@ -9,6 +9,7 @@
  */
 
 import type { FactorDef } from '@/lib/config/types'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 export type FormFieldValue = string | number | boolean | string[] | Date | null | undefined
 
@@ -130,7 +131,7 @@ function EnumField({
         required={factor.required}
         aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
       >
-        <option value="">Bitte wählen</option>
+        <option value="">{UI_LABELS.selectPlaceholder}</option>
         {factor.options.map((opt) => (
           <option key={opt} value={opt}>
             {factor.optionLabels[opt]}

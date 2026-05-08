@@ -67,6 +67,9 @@ jest.mock('@/lib/constants', () => ({
     LIFESTYLE: 'Lebensstil',
     LANGUAGE: 'Sprache',
   },
+  UI_LABELS: {
+    selectPlaceholder: 'Bitte wählen',
+  },
 }))
 
 jest.mock('@/lib/config/thresholds', () => ({
