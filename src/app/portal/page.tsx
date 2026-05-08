@@ -75,36 +75,35 @@ export default async function ResidentPortal() {
     .map(p => p.resident) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
 
-  // Get pending chores (NEEDS_ATTENTION or REQUESTED)
-  const pendingChores = currentPlacement
-    ? await prisma.householdTask.findMany({
-        where: {
-          housingUnitId: currentPlacement.housingUnitId,
-          isCompleted: false,
-          currentStatus: { in: ['NEEDS_ATTENTION', 'REQUESTED'] },
-        },
-        select: { id: true, title: true, currentStatus: true },
-        orderBy: { updatedAt: 'desc' },
-        take: 3,
-      })
-    : []
-
-  // Get compatibility scores with roommates
-  const compatibilityScores = roommates.length > 0
-    ? await prisma.compatibilityAssessment.findMany({
-        where: {
-          OR: [
-            { residentId: resident.id, comparedWithId: { in: roommates.map(r => r.id) } },
-            { residentId: { in: roommates.map(r => r.id) }, comparedWithId: resident.id },
-          ],
-        },
-        select: {
-          residentId: true,
-          comparedWithId: true,
-          overallScore: true,
-        },
-      })
-    : []
+  const [pendingChores, compatibilityScores] = await Promise.all([
+    currentPlacement
+      ? prisma.householdTask.findMany({
+          where: {
+            housingUnitId: currentPlacement.housingUnitId,
+            isCompleted: false,
+            currentStatus: { in: ['NEEDS_ATTENTION', 'REQUESTED'] },
+          },
+          select: { id: true, title: true, currentStatus: true },
+          orderBy: { updatedAt: 'desc' },
+          take: 3,
+        })
+      : Promise.resolve([]),
+    roommates.length > 0
+      ? prisma.compatibilityAssessment.findMany({
+          where: {
+            OR: [
+              { residentId: resident.id, comparedWithId: { in: roommates.map(r => r.id) } },
+              { residentId: { in: roommates.map(r => r.id) }, comparedWithId: resident.id },
+            ],
+          },
+          select: {
+            residentId: true,
+            comparedWithId: true,
+            overallScore: true,
+          },
+        })
+      : Promise.resolve([]),
+  ])
 
   return (
     <div>
