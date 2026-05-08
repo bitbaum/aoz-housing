@@ -7,7 +7,7 @@ import {
   type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
-import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS } from '@/lib/constants/labels'
+import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, MATCHING_LABELS } from '@/lib/constants/labels'
 
 /**
  * Factor impacting a score
@@ -148,7 +148,7 @@ export function ScoreExplanation({
           {/* Positive factors */}
           {positiveFactors.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-medium text-gray-500 mb-1">Stärken</p>
+              <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.strengths}</p>
               <div className="space-y-1">
                 {positiveFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
@@ -234,7 +234,7 @@ export function ScoreExplanationBadge({
   const negativeCount = factors.filter(f => f.impact === 'negative').length
 
   const tooltipContent = hasFactors
-    ? `${positiveCount > 0 ? `+${positiveCount} Stärken` : ''}${positiveCount > 0 && negativeCount > 0 ? ', ' : ''}${negativeCount > 0 ? `-${negativeCount} Herausforderungen` : ''}`
+    ? `${positiveCount > 0 ? `+${positiveCount} ${MATCHING_LABELS.strengths}` : ''}${positiveCount > 0 && negativeCount > 0 ? ', ' : ''}${negativeCount > 0 ? `-${negativeCount} ${MATCHING_LABELS.challenges}` : ''}`
     : undefined
 
   return (

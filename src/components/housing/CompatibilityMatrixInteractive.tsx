@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 
@@ -331,7 +331,7 @@ const CompatibilityDetailPopover = ({
             {/* Strengths */}
             {score.strengths && score.strengths.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Stärken</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.strengths}</p>
                 <ul className="space-y-1">
                   {score.strengths.slice(0, 2).map((s, i) => (
                     <li key={i} className="text-sm text-green-600 flex items-start gap-1">
@@ -346,7 +346,7 @@ const CompatibilityDetailPopover = ({
             {/* Conflicts */}
             {score.conflicts && score.conflicts.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">Bedenken</p>
+                <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.concerns}</p>
                 <ul className="space-y-1">
                   {score.conflicts.slice(0, 2).map((c, i) => (
                     <li

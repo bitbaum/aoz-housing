@@ -44,11 +44,11 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
                     {incident.description.length > 50 && '...'}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    {incident.resolvedAt ? 'Abgeschlossen' : 'Das Team prüft diese Meldung aktuell.'}
+                    {incident.resolvedAt ? PORTAL_LABELS.dashboard.reportResolved : PORTAL_LABELS.dashboard.reportPending}
                   </p>
                 </div>
                 <span className={`badge ${incident.resolvedAt ? 'badge-active' : 'badge-pending'}`}>
-                  {incident.resolvedAt ? `${PORTAL_LABELS.dashboard.resolved}` : `${PORTAL_LABELS.dashboard.open} · in Bearbeitung`}
+                  {incident.resolvedAt ? PORTAL_LABELS.dashboard.resolved : `${PORTAL_LABELS.dashboard.open} · ${PORTAL_LABELS.dashboard.inProgress}`}
                 </span>
               </div>
             </div>
