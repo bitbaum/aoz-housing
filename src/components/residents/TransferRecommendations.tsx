@@ -10,6 +10,7 @@ import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thr
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
 import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels/scores'
+import { UI_LABELS } from '@/lib/constants'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -334,7 +335,7 @@ export function TransferUnitSelector({
       value={selectedUnitId}
       onChange={(e) => onUnitSelect(e.target.value)}
     >
-      <option value="">Bitte wählen</option>
+      <option value="">{UI_LABELS.selectPlaceholder}</option>
       {eligibleUnits.map((unit) => {
         const eligibleSpots = unit.spots.filter((spot) =>
           eligibleSpotTypes.includes(spot.type)

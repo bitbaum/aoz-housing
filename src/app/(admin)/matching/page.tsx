@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 
 export const metadata: Metadata = { title: 'Matching' }
 import Link from 'next/link'
-import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, PLACEMENT_CONCERN_LABELS } from '@/lib/constants'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
@@ -119,13 +119,13 @@ export default async function MatchingPage({ searchParams }: Props) {
 
           const concerns: string[] = []
           if (resident.mobilityNeeds === 'WHEELCHAIR' && !selectedUnit!.wheelchairAccess) {
-            concerns.push('Benötigt Rollstuhlzugang')
+            concerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
           }
           if (resident.mobilityNeeds === 'GROUND_FLOOR' && !selectedUnit!.groundFloor && !selectedUnit!.elevator) {
-            concerns.push('Benötigt Erdgeschoss')
+            concerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
           }
           if (resident.smokingStatus !== 'NON_SMOKER' && !selectedUnit!.smokingAllowed) {
-            concerns.push('Raucher, aber Nichtraucher-Unterkunft')
+            concerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
           }
 
           return {

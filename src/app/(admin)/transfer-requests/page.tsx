@@ -3,6 +3,7 @@ import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
+import { TRANSFER_REQUEST_STATUS_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Verlegungsanfragen' }
 export const dynamic = 'force-dynamic'
@@ -90,13 +91,7 @@ const STATUS_BADGE: Record<string, string> = {
   CANCELLED: 'badge badge-inactive',
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  PENDING: 'Offen',
-  APPROVED: 'Genehmigt',
-  DENIED: 'Abgelehnt',
-  COMPLETED: 'Abgeschlossen',
-  CANCELLED: 'Storniert',
-}
+const STATUS_LABEL = TRANSFER_REQUEST_STATUS_LABELS
 
 interface TransferRequestData {
   id: string

@@ -64,6 +64,12 @@ export const MATCHING_LABELS = {
   compare: 'Vergleichen',
 } as const
 
+export const PLACEMENT_CONCERN_LABELS = {
+  wheelchairRequired: 'Benötigt Rollstuhlzugang',
+  groundFloorRequired: 'Benötigt Erdgeschoss',
+  smokerInNonSmokingUnit: 'Raucher, aber Nichtraucher-Unterkunft',
+} as const
+
 export const PLACEMENT_CONFIRM_LABELS = {
   title: 'Platzierung bestätigen',
   prompt: 'Sie sind dabei zu platzieren:',

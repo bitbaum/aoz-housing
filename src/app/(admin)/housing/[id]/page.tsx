@@ -4,6 +4,7 @@ import Link from 'next/link'
 import {
   HOUSING_STATUS_LABELS,
   HARMONY_STATUS_LABELS,
+  PLACEMENT_CONCERN_LABELS,
 } from '@/lib/constants'
 import {
   getScoreLabel,
@@ -155,13 +156,13 @@ export default async function HousingDetailPage({ params }: Props) {
           // Check for blocking concerns based on unit requirements
           const concerns: string[] = []
           if (resident.mobilityNeeds === 'WHEELCHAIR' && !unit.wheelchairAccess) {
-            concerns.push('Benötigt Rollstuhlzugang')
+            concerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
           }
           if (resident.mobilityNeeds === 'GROUND_FLOOR' && !unit.groundFloor && !unit.elevator) {
-            concerns.push('Benötigt Erdgeschoss')
+            concerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
           }
           if (resident.smokingStatus !== 'NON_SMOKER' && !unit.smokingAllowed) {
-            concerns.push('Raucher, aber Nichtraucher-Unterkunft')
+            concerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
           }
 
           // Add apartment-level blocking conflicts to concerns

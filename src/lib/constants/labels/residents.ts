@@ -65,6 +65,14 @@ export const SUPPORT_LEVEL_LABELS: Record<string, string> = {
   INTENSIVE: 'Intensiv',
 }
 
+export const TRANSFER_REQUEST_STATUS_LABELS: Record<string, string> = {
+  PENDING: 'Offen',
+  APPROVED: 'Genehmigt',
+  DENIED: 'Abgelehnt',
+  COMPLETED: 'Abgeschlossen',
+  CANCELLED: 'Storniert',
+}
+
 export const CHECK_IN_TYPE_LABELS: Record<string, string> = {
   INITIAL: 'Erstgespräch',
   REGULAR: 'Regelmässig',

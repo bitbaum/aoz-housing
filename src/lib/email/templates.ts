@@ -3,6 +3,13 @@
  * Each function returns { subject, html } for use with sendEmail/notifyStaff.
  */
 
+import {
+  INCIDENT_SEVERITY_LABELS,
+  INCIDENT_CATEGORY_LABELS,
+  SUPPORT_LEVEL_LABELS,
+  INCIDENT_TYPE_LABELS,
+} from '@/lib/constants/labels'
+
 // -- Template data interfaces --
 
 interface OverdueIncident {
@@ -78,24 +85,8 @@ function severityColor(severity: string): string {
   }
 }
 
-function severityLabel(severity: string): string {
-  switch (severity) {
-    case 'CRITICAL': return 'Kritisch'
-    case 'HIGH': return 'Hoch'
-    case 'MEDIUM': return 'Mittel'
-    case 'LOW': return 'Niedrig'
-    default: return severity
-  }
-}
-
-function supportLevelLabel(level: string): string {
-  switch (level) {
-    case 'INTENSIVE': return 'Intensiv'
-    case 'ELEVATED': return 'Erhöht'
-    case 'STANDARD': return 'Standard'
-    default: return level
-  }
-}
+const severityLabel = (severity: string) => INCIDENT_SEVERITY_LABELS[severity] ?? severity
+const supportLevelLabel = (level: string) => SUPPORT_LEVEL_LABELS[level] ?? level
 
 function supportLevelColor(level: string): string {
   switch (level) {
@@ -213,38 +204,9 @@ export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: stri
   return { subject, html }
 }
 
-function categoryLabel(category: string): string {
-  switch (category) {
-    case 'INTERPERSONAL': return 'Zwischenmenschlich'
-    case 'MAINTENANCE': return 'Wartung'
-    case 'SAFETY': return 'Sicherheit'
-    case 'WELLBEING': return 'Wohlbefinden'
-    default: return category
-  }
-}
+const categoryLabel = (category: string) => INCIDENT_CATEGORY_LABELS[category] ?? category
 
-function typeLabel(type: string): string {
-  switch (type) {
-    case 'NOISE_COMPLAINT': return 'Lärmbeschwerde'
-    case 'CLEANLINESS_DISPUTE': return 'Sauberkeitskonflikt'
-    case 'PERSONAL_CONFLICT': return 'Persönlicher Konflikt'
-    case 'CULTURAL_FRICTION': return 'Kulturelle Differenzen'
-    case 'SPACE_DISPUTE': return 'Platzkonflikt'
-    case 'SCHEDULE_CONFLICT': return 'Zeitplankonflikt'
-    case 'SAFETY_CONCERN': return 'Sicherheitsbedenken'
-    case 'PLUMBING': return 'Sanitär'
-    case 'ELECTRICAL': return 'Elektrik'
-    case 'HEATING_COOLING': return 'Heizung/Klima'
-    case 'APPLIANCE': return 'Gerät defekt'
-    case 'STRUCTURAL': return 'Bauschaden'
-    case 'PEST_CONTROL': return 'Schädlinge'
-    case 'SECURITY_SYSTEM': return 'Sicherheitssystem'
-    case 'GENERAL_MAINTENANCE': return 'Allgemeine Wartung'
-    case 'LOW_SATISFACTION': return 'Unzufriedenheit gemeldet'
-    case 'OTHER': return 'Sonstiges'
-    default: return type
-  }
-}
+const typeLabel = (type: string) => INCIDENT_TYPE_LABELS[type] ?? type
 
 export function newIncidentNotification(data: NewIncidentData): { subject: string; html: string } {
   const subject = `[AOZ Housing] Neuer Vorfall: ${typeLabel(data.type)} (${severityLabel(data.severity)})`
