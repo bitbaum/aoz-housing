@@ -10,6 +10,7 @@ import {
 } from '@/lib/constants'
 import { getDateDaysAgo } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
 import { SatisfactionChart } from '@/components/analytics/SatisfactionChart'
 import { ConflictAnalysisSection } from '@/components/analytics/ConflictAnalysisSection'
@@ -147,7 +148,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   const topIncidentTypes = Object.entries(incidentsByType)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
+    .slice(0, DISPLAY_LIMITS.topIncidentTypes)
 
   // End reason breakdown
   const endsByReason = endedPlacements.reduce((acc, p) => {
@@ -184,7 +185,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   const hotspotUnits = Object.values(incidentsByUnit)
     .sort((a, b) => b.count - a.count)
-    .slice(0, 5)
+    .slice(0, DISPLAY_LIMITS.problemUnits)
 
   return (
     <div>

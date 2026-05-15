@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import Papa from 'papaparse'
 import { EXPORT_LABELS } from '@/lib/constants/labels/export'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface ImportResult {
   success: boolean
@@ -148,7 +149,7 @@ export function CSVImport() {
               <p className="text-xs font-medium text-red-600">
                 {EXPORT_LABELS.errors}:
               </p>
-              {result.errors.slice(0, 10).map((err, i) => (
+              {result.errors.slice(0, DISPLAY_LIMITS.importErrorPreview).map((err, i) => (
                 <p key={i} className="text-xs text-red-600">
                   {EXPORT_LABELS.row} {err.row}: {err.error}
                 </p>

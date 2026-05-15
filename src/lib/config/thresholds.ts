@@ -225,6 +225,10 @@ export const DISPLAY_LIMITS = {
   emailSummary: 100,
   /** HeadToHead label abbreviation length */
   labelAbbreviation: 6,
+  /** Analytics: top incident types shown in breakdown chart */
+  topIncidentTypes: 5,
+  /** CSV import: max validation errors displayed before truncating */
+  importErrorPreview: 10,
 } as const
 
 // =============================================================================

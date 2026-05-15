@@ -14,6 +14,7 @@ import {
   getHarmonyStatus,
   type HarmonyStatus,
 } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { RoomVisualizationWithPlacement } from '@/components/housing/RoomVisualizationWithPlacement'
 import { CompatibilityMatrixInteractive } from '@/components/housing/CompatibilityMatrixInteractive'
 import { ApartmentProfileCard } from '@/components/housing/ApartmentProfileCard'
@@ -179,7 +180,7 @@ export default async function HousingDetailPage({ params }: Props) {
         })
         .filter(m => !m.concerns.some(c => c.includes('Rollstuhl') || c.includes('Erdgeschoss')))
         .sort((a, b) => b.fitScore - a.fitScore)
-        .slice(0, 5)
+        .slice(0, DISPLAY_LIMITS.topResidents)
     }
   }
 
