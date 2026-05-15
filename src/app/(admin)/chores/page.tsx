@@ -12,6 +12,8 @@ import {
 } from '@/lib/config/household-tasks'
 import { CHORE_LABELS } from '@/lib/constants'
 
+const C = CHORE_LABELS.admin
+
 export const dynamic = 'force-dynamic'
 
 export default async function AdminChoresPage() {
@@ -61,7 +63,7 @@ export default async function AdminChoresPage() {
 
   return (
     <div>
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Haushaltsaufgaben</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">{C.pageTitle}</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -73,11 +75,11 @@ export default async function AdminChoresPage() {
 
       {/* Unit table */}
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4">Aufgaben pro Unterkunft</h2>
+        <h2 className="font-semibold text-gray-900 mb-4">{C.perUnitTitle}</h2>
 
         {unitSummaries.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            Keine Unterkünfte mit Aufgaben gefunden
+            {C.noUnits}
           </p>
         ) : (
           <>
@@ -94,21 +96,21 @@ export default async function AdminChoresPage() {
                     </div>
                     {unit.attentionTasks > 0 ? (
                       <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
-                        {unit.attentionTasks} Achtung
+                        {unit.attentionTasks} {C.attention}
                       </span>
                     ) : null}
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
                     <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">Bewohner</p>
+                      <p className="text-gray-500">{C.colResidents}</p>
                       <p className="font-semibold text-gray-900">{unit.residents}</p>
                     </div>
                     <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">Aufgaben</p>
+                      <p className="text-gray-500">{C.colTasks}</p>
                       <p className="font-semibold text-gray-900">{unit.totalTasks}</p>
                     </div>
                     <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">Aktiv</p>
+                      <p className="text-gray-500">{C.colActive}</p>
                       <p className="font-semibold text-gray-900">{unit.activeTasks}</p>
                     </div>
                   </div>
@@ -121,12 +123,12 @@ export default async function AdminChoresPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">Unterkunft</th>
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">Adresse</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Bewohner</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Aufgaben</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Aktiv</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">Achtung</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">{C.colUnit}</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">{C.colAddress}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colResidents}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colTasks}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colActive}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.attention}</th>
                   </tr>
                 </thead>
                 <tbody>

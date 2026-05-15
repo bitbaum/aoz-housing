@@ -168,6 +168,25 @@ export const CHORE_LABELS = {
   statActive: 'Aktive Aufgaben',
   statNeedsAttention: 'Braucht Aufmerksamkeit',
   statCompletions: 'Erledigungen',
+  admin: {
+    pageTitle: 'Haushaltsaufgaben',
+    perUnitTitle: 'Aufgaben pro Unterkunft',
+    noUnits: 'Keine Unterkünfte mit Aufgaben gefunden',
+    attention: 'Achtung',
+    colUnit: 'Unterkunft',
+    colAddress: 'Adresse',
+    colResidents: 'Bewohner',
+    colTasks: 'Aufgaben',
+    colActive: 'Aktiv',
+  },
+} as const
+
+export const TRANSFER_ACTION_LABELS = {
+  notesPlaceholder: 'Notiz (optional)',
+  approve: 'Genehmigen',
+  deny: 'Ablehnen',
+  processing: 'Wird bearbeitet...',
+  success: 'Erfolgreich bearbeitet',
 } as const
 
 export const PROBLEM_DETECTION_LABELS = {

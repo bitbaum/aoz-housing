@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { approveTransferRequest, denyTransferRequest } from '@/lib/actions/transfers'
+import { TRANSFER_ACTION_LABELS as L } from '@/lib/constants'
 
 interface TransferActionsProps {
   requestId: string
@@ -25,7 +26,7 @@ export function TransferActions({ requestId }: TransferActionsProps) {
 
   if (result?.success) {
     return (
-      <p role="status" className="text-sm text-green-600 font-medium">Erfolgreich bearbeitet</p>
+      <p role="status" className="text-sm text-green-600 font-medium">{L.success}</p>
     )
   }
 
@@ -34,7 +35,7 @@ export function TransferActions({ requestId }: TransferActionsProps) {
       <textarea
         value={staffNotes}
         onChange={(e) => setStaffNotes(e.target.value)}
-        placeholder="Notiz (optional)"
+        placeholder={L.notesPlaceholder}
         rows={2}
         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
       />
@@ -49,14 +50,14 @@ export function TransferActions({ requestId }: TransferActionsProps) {
           disabled={loading}
           className="btn-primary min-h-[44px] px-4 py-2 text-sm disabled:opacity-50"
         >
-          {loading ? 'Wird bearbeitet...' : 'Genehmigen'}
+          {loading ? L.processing : L.approve}
         </button>
         <button
           onClick={() => handleAction('deny')}
           disabled={loading}
           className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
         >
-          {loading ? 'Wird bearbeitet...' : 'Ablehnen'}
+          {loading ? L.processing : L.deny}
         </button>
       </div>
     </div>
