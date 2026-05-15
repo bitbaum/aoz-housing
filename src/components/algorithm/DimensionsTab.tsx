@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { RESIDENT_DIMENSIONS } from '@/lib/config/resident-factors'
 import { FACTOR_SCIENCE } from '@/lib/config/algorithm-docs'
+import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants'
 import {
   getFactorsByDimension,
   EvidenceStrengthBadge,
@@ -28,8 +29,7 @@ export function DimensionsTab({
   return (
     <div className="space-y-4">
       <p className="text-gray-600 mb-4">
-        Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert.
-        Klicken Sie auf eine Dimension für Details.
+        {ALGORITHM_OVERVIEW_LABELS.dimensionsIntro}
       </p>
 
       {RESIDENT_DIMENSIONS.map(dim => {
@@ -52,7 +52,7 @@ export function DimensionsTab({
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                <span className="text-xs sm:text-sm text-gray-500">{factors.length} Faktoren</span>
+                <span className="text-xs sm:text-sm text-gray-500">{ALGORITHM_OVERVIEW_LABELS.factorsCount(factors.length)}</span>
                 <span className="px-3 py-1 rounded-full text-sm font-bold bg-gray-100 text-gray-700">
                   {Math.round(dim.weight * 100)}%
                 </span>

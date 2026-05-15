@@ -94,6 +94,8 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   sourcesLabel: (count: number) => `${count} Quellen`,
   ethicsValue: 'Ethisch',
   ethicsLabel: 'gestaltet',
+  dimensionsIntro: 'Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert. Klicken Sie auf eine Dimension für Details.',
+  factorsCount: (n: number) => `${n} Faktoren`,
 } as const
 
 export const PLACEMENT_ACTIONS_LABELS = {
