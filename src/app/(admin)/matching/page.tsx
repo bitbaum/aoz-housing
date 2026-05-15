@@ -212,7 +212,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             foundResident.mobilityNeeds === 'WHEELCHAIR' &&
             !unit.wheelchairAccess
           ) {
-            unitConcerns.push('Keine Rollstuhlzugänglichkeit')
+            unitConcerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
             hasBlockingIssue = true
           }
           if (
@@ -220,20 +220,20 @@ export default async function MatchingPage({ searchParams }: Props) {
             !unit.groundFloor &&
             !unit.elevator
           ) {
-            unitConcerns.push('Nicht im Erdgeschoss')
+            unitConcerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
             hasBlockingIssue = true
           }
           if (
             foundResident.smokingStatus !== 'NON_SMOKER' &&
             !unit.smokingAllowed
           ) {
-            unitConcerns.push('Rauchen nicht erlaubt')
+            unitConcerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
           }
           if (!foundResident.sharedKitchen && unit.sharedKitchen) {
-            unitConcerns.push('Nur geteilte Küche')
+            unitConcerns.push(PLACEMENT_CONCERN_LABELS.sharedKitchenOnly)
           }
           if (!foundResident.sharedBathroom && unit.sharedBathrooms > 0) {
-            unitConcerns.push('Geteiltes Badezimmer')
+            unitConcerns.push(PLACEMENT_CONCERN_LABELS.sharedBathroomOnly)
           }
 
           // Count shared languages with current residents

@@ -154,6 +154,8 @@ export const PLACEMENT_CONCERN_LABELS = {
   wheelchairRequired: 'Benötigt Rollstuhlzugang',
   groundFloorRequired: 'Benötigt Erdgeschoss',
   smokerInNonSmokingUnit: 'Raucher, aber Nichtraucher-Unterkunft',
+  sharedKitchenOnly: 'Nur geteilte Küche',
+  sharedBathroomOnly: 'Geteiltes Badezimmer',
 } as const
 
 export const PLACEMENT_CONFIRM_LABELS = {

@@ -183,7 +183,10 @@ export default async function HousingDetailPage({ params }: Props) {
             concerns,
           }
         })
-        .filter(m => !m.concerns.some(c => c.includes('Rollstuhl') || c.includes('Erdgeschoss')))
+        .filter(m => !m.concerns.some(c =>
+          c === PLACEMENT_CONCERN_LABELS.wheelchairRequired ||
+          c === PLACEMENT_CONCERN_LABELS.groundFloorRequired
+        ))
         .sort((a, b) => b.fitScore - a.fitScore)
         .slice(0, DISPLAY_LIMITS.topResidents)
     }
