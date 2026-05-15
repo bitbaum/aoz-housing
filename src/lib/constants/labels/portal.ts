@@ -162,7 +162,7 @@ export const PORTAL_LABELS = {
     },
     transparency: {
       title: 'Transparenz',
-      before: 'Nach dem Absenden wird Ihre Meldung als',
+      before: 'Nach dem Absenden wird deine Meldung als',
       open: 'offen',
       middle: 'geführt und später als',
       resolved: 'gelöst',
@@ -170,11 +170,11 @@ export const PORTAL_LABELS = {
     },
     nextStepsTitle: 'Was passiert als Nächstes?',
     nextSteps: [
-      'Ihr Bericht ist gespeichert und für das Team sichtbar.',
+      'Dein Bericht ist gespeichert und für das Team sichtbar.',
       'Das Team priorisiert den Fall nach Dringlichkeit.',
       'Bei Rückfragen oder bei hoher Priorität meldet sich die Betreuung zeitnah.',
     ],
-    successTip: 'Tipp: Unter "Meine Meldungen" im Dashboard sehen Sie, ob ein Bericht offen oder gelöst ist.',
+    successTip: 'Tipp: Unter "Meine Meldungen" im Dashboard siehst du, ob ein Bericht offen oder gelöst ist.',
   },
   preferences: {
     saving: 'Wird gespeichert...',
@@ -184,7 +184,7 @@ export const PORTAL_LABELS = {
     errorGeneric: 'Einstellungen konnten nicht gespeichert werden. Bitte erneut versuchen.',
     privacyTitle: 'Datenschutz',
     privacyMessage: 'Deine Angaben werden nur verwendet, um passende Mitbewohner zu finden. Sie werden nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit ändern oder löschen lassen.',
-    saveTip: 'Tipp: Speichern Sie unten, sobald Sie fertig sind. Änderungen sind erst nach dem Speichern aktiv.',
+    saveTip: 'Tipp: Speichere unten, sobald du fertig bist. Änderungen sind erst nach dem Speichern aktiv.',
     unsavedChanges: 'Nicht gespeicherte Änderungen vorhanden.',
     confirmDiscard: 'Änderungen verwerfen?',
     confirmDiscardBody: 'Nicht gespeicherte Eingaben gehen verloren.',
@@ -313,11 +313,11 @@ export const PORTAL_LABELS = {
       },
       next: {
         heading: 'Als Nächstes',
-        desc: 'Melden Sie Probleme früh und halten Sie Ihre Präferenzen aktuell.',
+        desc: 'Melde Probleme früh und halte deine Präferenzen aktuell.',
       },
       info: {
         heading: 'Info',
-        desc: 'Mitbewohner- und Gebäudestatus helfen bei der Planung des Alltags.',
+        desc: 'Schau dir deine Mitbewohner an und bleib über den Gebäudestatus informiert.',
       },
     },
   },
@@ -376,7 +376,7 @@ export const PORTAL_LABELS = {
     faqTitle: 'Häufig gestellte Fragen',
     contactTitle: 'Kontakt',
     emergencyTitle: 'Notfall',
-    emergencyDesc: 'Bei Notfällen oder akuter Gefahr wenden Sie sich sofort an:',
+    emergencyDesc: 'Bei Notfällen oder akuter Gefahr wende dich sofort an:',
     emergency: {
       police: 'Polizei / Rettung',
       policeNumber: '117 / 144',
@@ -392,35 +392,35 @@ export const PORTAL_LABELS = {
     faqs: [
       {
         question: 'Wie funktioniert die Zimmerverteilung?',
-        answer: 'Wir berücksichtigen verschiedene Faktoren wie Schlafrhythmus, Lärmtoleranz und Sprachkenntnisse, um passende Mitbewohner zu finden. Je genauer Ihre Angaben, desto besser können wir Sie platzieren.',
+        answer: 'Wir berücksichtigen verschiedene Faktoren wie Schlafrhythmus, Lärmtoleranz und Sprachkenntnisse, um passende Mitbewohner zu finden. Je genauer deine Angaben, desto besser können wir dich platzieren.',
       },
       {
         question: 'Kann ich meine Präferenzen ändern?',
-        answer: 'Ja, Sie können Ihre Präferenzen jederzeit unter "Einstellungen" aktualisieren. Änderungen werden bei zukünftigen Platzierungen berücksichtigt.',
+        answer: 'Ja, du kannst deine Präferenzen jederzeit unter "Einstellungen" aktualisieren. Änderungen werden bei zukünftigen Platzierungen berücksichtigt.',
       },
       {
         question: 'Was passiert bei einem Konflikt mit Mitbewohnern?',
-        answer: 'Bitte melden Sie Probleme über "Problem melden" in Ihrem Portal. Wir nehmen alle Meldungen ernst und suchen gemeinsam nach Lösungen.',
+        answer: 'Bitte melde Probleme über "Problem melden" im Portal. Wir nehmen alle Meldungen ernst und suchen gemeinsam nach Lösungen.',
       },
       {
         question: 'Wie lange dauert eine Platzierung?',
-        answer: 'Die Dauer hängt von Ihrer individuellen Situation ab. Wir informieren Sie über voraussichtliche Zeiträume und mögliche Änderungen.',
+        answer: 'Die Dauer hängt von deiner individuellen Situation ab. Wir informieren dich über voraussichtliche Zeiträume und mögliche Änderungen.',
       },
       {
         question: 'Kann ich einen Umzug beantragen?',
-        answer: 'Bei berechtigten Gründen können Sie einen Umzug beantragen. Sprechen Sie mit Ihrer Betreuungsperson oder nutzen Sie das Meldeformular.',
+        answer: 'Bei berechtigten Gründen kannst du einen Umzug beantragen. Sprich mit deiner Betreuungsperson oder nutze das Meldeformular.',
       },
       {
         question: 'Was bedeuten die Kompatibilitätswerte?',
-        answer: 'Die Werte zeigen, wie gut Sie voraussichtlich mit anderen Bewohnern zusammenpassen. Hohe Werte bedeuten ähnliche Präferenzen bei Schlaf, Sauberkeit und Sozialverhalten.',
+        answer: 'Die Werte zeigen, wie gut du voraussichtlich mit anderen Bewohnern zusammenpasst. Hohe Werte bedeuten ähnliche Präferenzen bei Schlaf, Sauberkeit und Sozialverhalten.',
       },
       {
         question: 'Werden meine Daten geschützt?',
-        answer: 'Ja, Ihre Daten werden nur zur Zimmerzuteilung verwendet und nicht an Dritte weitergegeben. Sie können Ihre Daten jederzeit einsehen oder löschen lassen.',
+        answer: 'Ja, deine Daten werden nur zur Zimmerzuteilung verwendet und nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit einsehen oder löschen lassen.',
       },
       {
         question: 'An wen wende ich mich bei technischen Problemen?',
-        answer: 'Bei technischen Problemen mit dem Portal wenden Sie sich bitte an die unten stehenden Kontakte oder sprechen Sie Ihre Betreuungsperson an.',
+        answer: 'Bei technischen Problemen mit dem Portal wende dich bitte an die unten stehenden Kontakte oder sprich deine Betreuungsperson an.',
       },
     ],
     quickLinks: [
