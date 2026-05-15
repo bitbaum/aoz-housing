@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { Logo } from '@/components/ui/Logo'
-import { NAV_ITEMS, NAV_ICONS } from '@/lib/config/navigation'
+import { NAV_ITEMS, NAV_ICONS, MEGAMENU_GROUPS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
 
@@ -35,9 +35,9 @@ export default async function AdminLayout({
             </div>
             <div className="flex items-center gap-4">
               <nav className="flex items-center gap-1">
-                <HeaderLink href="/algorithm">Algorithmus</HeaderLink>
-                <HeaderLink href="/analytics">Statistiken</HeaderLink>
-                <HeaderLink href="/portal/help">Hilfe</HeaderLink>
+                <HeaderLink href="/algorithm">{APP_LABELS.algorithm}</HeaderLink>
+                <HeaderLink href="/analytics">{APP_LABELS.statistics}</HeaderLink>
+                <HeaderLink href="/portal/help">{APP_LABELS.help}</HeaderLink>
               </nav>
               {user && (
                 <UserMenu
@@ -58,32 +58,13 @@ export default async function AdminLayout({
       <nav className="hidden md:block bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-screen-2xl mx-auto px-6">
           <div className="flex items-center gap-0.5">
-            <MegaMenuItem href="/" icon="home" label="Dashboard" />
-            <MegaMenuDropdown
-              label="Personen"
-              items={[
-                { href: '/residents', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
-                { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
-                { href: '/matching', label: 'Matching', desc: 'Platzierung finden' },
-              ]}
-            />
-            <MegaMenuDropdown
-              label="Unterkünfte"
-              items={[
-                { href: '/housing', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
-                { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
-                { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
-              ]}
-            />
-            <MegaMenuDropdown
-              label="Monitoring"
-              items={[
-                { href: '/incidents', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
-                { href: '/analytics', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
-                { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
-              ]}
-            />
-            <MegaMenuItem href="/ai-assistant" icon="bot" label="KI-Assistent" />
+            {MEGAMENU_GROUPS.map((group) =>
+              'items' in group ? (
+                <MegaMenuDropdown key={group.label} label={group.label} items={group.items} />
+              ) : (
+                <MegaMenuItem key={group.href} href={group.href} icon={group.icon} label={group.label} />
+              )
+            )}
           </div>
         </div>
       </nav>
@@ -96,7 +77,7 @@ export default async function AdminLayout({
         <aside className="hidden md:block w-56 bg-white/80 backdrop-blur-sm border-r border-gray-100 fixed top-[96px] h-[calc(100vh-96px)] overflow-y-auto">
           <nav className="p-3 pt-4">
             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
-              Navigation
+              {APP_LABELS.navSection}
             </div>
             {NAV_ITEMS.map((item) => (
               <SidebarLink key={item.href} href={item.href} icon={item.icon}>
@@ -105,10 +86,10 @@ export default async function AdminLayout({
             ))}
             <div className="border-t border-gray-100 mt-4 pt-4">
               <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
-                System
+                {APP_LABELS.systemSection}
               </div>
               <SidebarLink href="/algorithm" icon="brain">
-                Algorithmus
+                {APP_LABELS.algorithm}
               </SidebarLink>
             </div>
           </nav>
@@ -130,10 +111,10 @@ export default async function AdminLayout({
               </div>
               <div className="flex items-center gap-4 text-gray-400">
                 <Link href="/algorithm" className="hover:text-aoz-primary transition-colors">
-                  Algorithmus
+                  {APP_LABELS.algorithm}
                 </Link>
                 <Link href="/portal/help" className="hover:text-aoz-primary transition-colors">
-                  Hilfe
+                  {APP_LABELS.help}
                 </Link>
               </div>
             </div>

@@ -55,3 +55,42 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
   { href: '/settings', icon: 'settings', label: 'Einstellungen' },
 ]
+
+export interface MegaMenuDropdownItem {
+  href: string
+  label: string
+  desc: string
+}
+
+export type MegaMenuGroup =
+  | { label: string; href: string; icon: string }
+  | { label: string; items: MegaMenuDropdownItem[] }
+
+export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
+  { href: '/', icon: 'home', label: 'Dashboard' },
+  {
+    label: 'Personen',
+    items: [
+      { href: '/residents', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
+      { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
+      { href: '/matching', label: 'Matching', desc: 'Platzierung finden' },
+    ],
+  },
+  {
+    label: 'Unterkünfte',
+    items: [
+      { href: '/housing', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
+      { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
+      { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
+    ],
+  },
+  {
+    label: 'Monitoring',
+    items: [
+      { href: '/incidents', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
+      { href: '/analytics', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
+      { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
+    ],
+  },
+  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
+]

@@ -9,6 +9,12 @@ export const APP_LABELS = {
   metaTitle: 'AOZ Wohnen - Intelligentes Platzierungssystem',
   metaDescription:
     'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+  // Layout navigation section headers and utility links
+  navSection: 'Navigation',
+  systemSection: 'System',
+  algorithm: 'Algorithmus',
+  statistics: 'Statistiken',
+  help: 'Hilfe',
 } as const
 
 export const PAGE_TITLES: Record<string, string> = {
