@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
-import { CHECK_IN_TYPE_LABELS } from '@/lib/constants'
+import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,15 +48,15 @@ export default async function NewCheckInPage({ params }: Props) {
           href={`/residents/${placement.residentId}`}
           className="text-aoz-primary hover:underline text-sm"
         >
-          &larr; Zurück zu {placement.resident.code}
+          {CHECKIN_FORM_LABELS.backLink(placement.resident.code)}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-          Zufriedenheits-Check-in
+          {CHECKIN_FORM_LABELS.title}
         </h1>
         <p className="text-gray-500">
           {placement.resident.code} in {placement.housingUnit.code}
           {placement.spot && ` (${placement.spot.label || placement.spot.code})`}
-          {' • '}Woche {weeksSinceStart}
+          {' • '}{CHECKIN_FORM_LABELS.week(weeksSinceStart)}
         </p>
       </div>
 
@@ -64,18 +64,18 @@ export default async function NewCheckInPage({ params }: Props) {
       {checkInCount > 0 && (
         <div className="card mb-6 bg-blue-50">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">
-            Letzte Check-ins
+            {CHECKIN_FORM_LABELS.previousTitle}
           </h2>
           <div className="space-y-2">
             {placement.checkIns.slice(0, 3).map((checkIn) => (
               <div key={checkIn.id} className="flex items-center justify-between text-sm">
                 <span className="text-gray-600">
                   {CHECK_IN_TYPE_LABELS[checkIn.checkInType] || checkIn.checkInType}
-                  {' • '}Woche {checkIn.weekNumber}
+                  {' • '}{CHECKIN_FORM_LABELS.week(checkIn.weekNumber ?? 0)}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">
-                    Zufriedenheit: {checkIn.overallSatisfaction}/5
+                    {CHECKIN_FORM_LABELS.satisfactionScore(checkIn.overallSatisfaction)}
                   </span>
                   <span
                     className={`w-3 h-3 rounded-full ${
@@ -100,7 +100,7 @@ export default async function NewCheckInPage({ params }: Props) {
 
           {/* Check-in Type */}
           <div>
-            <label className="label">Art des Check-ins *</label>
+            <label className="label">{CHECKIN_FORM_LABELS.typeLabel}</label>
             <select
               name="checkInType"
               required
@@ -117,7 +117,7 @@ export default async function NewCheckInPage({ params }: Props) {
 
           {/* Main Satisfaction Score */}
           <div>
-            <label className="label">Allgemeine Zufriedenheit *</label>
+            <label className="label">{CHECKIN_FORM_LABELS.overallLabel}</label>
             <div className="flex gap-2 mt-2">
               {[1, 2, 3, 4, 5].map((score) => (
                 <label
@@ -141,41 +141,41 @@ export default async function NewCheckInPage({ params }: Props) {
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              1 = Sehr unzufrieden, 5 = Sehr zufrieden
+              {CHECKIN_FORM_LABELS.scaleHint}
             </p>
           </div>
 
           {/* Detailed Scores */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="label">Beziehung zu Mitbewohnern</label>
+              <label className="label">{CHECKIN_FORM_LABELS.roommatesLabel}</label>
               <select name="roommateRelations" className="input">
-                <option value="">Nicht bewertet</option>
+                <option value="">{CHECKIN_FORM_LABELS.notRated}</option>
                 {[1, 2, 3, 4, 5].map((score) => (
                   <option key={score} value={score}>
-                    {score} - {score === 1 ? 'Sehr schlecht' : score === 2 ? 'Schlecht' : score === 3 ? 'OK' : score === 4 ? 'Gut' : 'Sehr gut'}
+                    {score} - {CHECKIN_FORM_LABELS.scaleGeneral[score]}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">Zufriedenheit mit Einrichtung</label>
+              <label className="label">{CHECKIN_FORM_LABELS.facilityLabel}</label>
               <select name="facilitySatisfaction" className="input">
-                <option value="">Nicht bewertet</option>
+                <option value="">{CHECKIN_FORM_LABELS.notRated}</option>
                 {[1, 2, 3, 4, 5].map((score) => (
                   <option key={score} value={score}>
-                    {score} - {score === 1 ? 'Sehr schlecht' : score === 2 ? 'Schlecht' : score === 3 ? 'OK' : score === 4 ? 'Gut' : 'Sehr gut'}
+                    {score} - {CHECKIN_FORM_LABELS.scaleGeneral[score]}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">Sicherheitsgefühl</label>
+              <label className="label">{CHECKIN_FORM_LABELS.safetyLabel}</label>
               <select name="safetyFeeling" className="input">
-                <option value="">Nicht bewertet</option>
+                <option value="">{CHECKIN_FORM_LABELS.notRated}</option>
                 {[1, 2, 3, 4, 5].map((score) => (
                   <option key={score} value={score}>
-                    {score} - {score === 1 ? 'Sehr unsicher' : score === 2 ? 'Unsicher' : score === 3 ? 'OK' : score === 4 ? 'Sicher' : 'Sehr sicher'}
+                    {score} - {CHECKIN_FORM_LABELS.scaleSafety[score]}
                   </option>
                 ))}
               </select>
@@ -185,29 +185,29 @@ export default async function NewCheckInPage({ params }: Props) {
           {/* Text Feedback */}
           <div className="space-y-4">
             <div>
-              <label className="label">Anliegen / Sorgen</label>
+              <label className="label">{CHECKIN_FORM_LABELS.concernsLabel}</label>
               <textarea
                 name="concerns"
                 rows={2}
-                placeholder="Was beschäftigt Sie? Gibt es Probleme?"
+                placeholder={CHECKIN_FORM_LABELS.concernsPlaceholder}
                 className="input"
               />
             </div>
             <div>
-              <label className="label">Verbesserungsvorschläge</label>
+              <label className="label">{CHECKIN_FORM_LABELS.improvementsLabel}</label>
               <textarea
                 name="improvements"
                 rows={2}
-                placeholder="Was könnte verbessert werden?"
+                placeholder={CHECKIN_FORM_LABELS.improvementsPlaceholder}
                 className="input"
               />
             </div>
             <div>
-              <label className="label">Positives</label>
+              <label className="label">{CHECKIN_FORM_LABELS.positivesLabel}</label>
               <textarea
                 name="positives"
                 rows={2}
-                placeholder="Was läuft gut? Was gefällt Ihnen?"
+                placeholder={CHECKIN_FORM_LABELS.positivesPlaceholder}
                 className="input"
               />
             </div>
@@ -216,11 +216,11 @@ export default async function NewCheckInPage({ params }: Props) {
           {/* Staff Info */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Erfasst von</label>
+              <label className="label">{CHECKIN_FORM_LABELS.collectedByLabel}</label>
               <input
                 type="text"
                 name="collectedBy"
-                placeholder="Name des Mitarbeiters"
+                placeholder={CHECKIN_FORM_LABELS.collectedByPlaceholder}
                 className="input"
               />
             </div>
@@ -233,7 +233,7 @@ export default async function NewCheckInPage({ params }: Props) {
                   className="rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
                 />
                 <span className="text-sm text-gray-600">
-                  Anonym erfassen
+                  {CHECKIN_FORM_LABELS.anonymousLabel}
                 </span>
               </label>
             </div>
@@ -245,10 +245,10 @@ export default async function NewCheckInPage({ params }: Props) {
               href={`/residents/${placement.residentId}`}
               className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
             >
-              Abbrechen
+              {UI_LABELS.cancel}
             </Link>
             <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-              Check-in speichern
+              {CHECKIN_FORM_LABELS.submit}
             </button>
           </div>
         </form>

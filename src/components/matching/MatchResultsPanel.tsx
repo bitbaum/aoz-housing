@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { MatchResult, ResidentWithPlacement } from '@/lib/matching/types'
-import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, MATCH_RESULTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants'
 import { placeResident } from '@/lib/actions/matching'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { MatchCard } from './MatchCard'
@@ -33,26 +33,26 @@ export function MatchResultsPanel({
     <>
       <div className="flex items-center justify-between mb-4 gap-3">
         <h2 className="text-lg font-semibold text-gray-900">
-          Matches für {selectedResident.code}
+          {MATCH_RESULTS_LABELS.heading(selectedResident.code)}
         </h2>
         <div className="flex items-center gap-2">
           <Link
             href={`/matching?resident=${selectedResident.id}${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
             className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${!fastMode ? 'bg-gray-100' : ''}`}
           >
-            Standard
+            {MATCH_RESULTS_LABELS.modeStandard}
           </Link>
           <Link
             href={`/matching?resident=${selectedResident.id}&mode=fast${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
             className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}`}
           >
-            Fast Mode
+            {MATCH_RESULTS_LABELS.modeFast}
           </Link>
           <Link
             href="/matching"
             className="text-sm text-gray-500 hover:text-gray-700"
           >
-            Abbrechen
+            {MATCH_RESULTS_LABELS.cancel}
           </Link>
         </div>
       </div>
@@ -77,10 +77,10 @@ export function MatchResultsPanel({
               />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <p className="text-sm text-green-800">
-                  Schnellaktion: Bestes Match ist <strong>{bestQuickMatch.unit.code}</strong> ({bestQuickMatch.apartmentFit.fitScore}%). Top-Empfehlungen sind unten hervorgehoben.
+                  {MATCH_RESULTS_LABELS.quickActionDesc(bestQuickMatch.unit.code, bestQuickMatch.apartmentFit.fitScore)}
                 </p>
                 <button type="submit" className="btn-primary text-sm min-h-[44px]">
-                  Bestes Match platzieren
+                  {MATCH_RESULTS_LABELS.quickActionBtn}
                 </button>
               </div>
             </form>
@@ -89,8 +89,8 @@ export function MatchResultsPanel({
           {fastMode ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Fast Mode · Top 5</h3>
-                <span className="text-xs text-gray-500">Kompakte Ansicht für schnelle Entscheidungen</span>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.fastModeTitle}</h3>
+                <span className="text-xs text-gray-500">{MATCH_RESULTS_LABELS.fastModeSubtitle}</span>
               </div>
               {matches.slice(0, DISPLAY_LIMITS.topUnits).map((match, idx) => {
                 const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
@@ -102,7 +102,7 @@ export function MatchResultsPanel({
                         <p className="font-semibold text-gray-900">#{idx + 1} · {match.unit.code}</p>
                         <p className="text-sm text-gray-500">{match.unit.address}</p>
                         <p className="text-xs text-gray-600 mt-1">
-                          Fit: {match.apartmentFit.fitScore}% · Belegung: {match.unit.placements.length}/{match.unit.totalBeds}
+                          {MATCH_RESULTS_LABELS.fitInfo(match.apartmentFit.fitScore, match.unit.placements.length, match.unit.totalBeds)}
                         </p>
                       </div>
                       {availableSpot && !hasBlockingConflicts ? (
@@ -110,10 +110,10 @@ export function MatchResultsPanel({
                           <input type="hidden" name="residentId" value={selectedResident.id} />
                           <input type="hidden" name="housingUnitId" value={match.unit.id} />
                           <input type="hidden" name="spotId" value={availableSpot.id} />
-                          <button type="submit" className="btn-primary text-sm min-h-[44px]">Platzieren</button>
+                          <button type="submit" className="btn-primary text-sm min-h-[44px]">{PLACEMENT_PANEL_LABELS.place}</button>
                         </form>
                       ) : (
-                        <span className="text-xs text-red-600">Blockiert</span>
+                        <span className="text-xs text-red-600">{PLACEMENT_PANEL_LABELS.blocked}</span>
                       )}
                     </div>
                   </div>
@@ -125,8 +125,8 @@ export function MatchResultsPanel({
               {topMatches.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Top Empfehlungen</h3>
-                    <span className="text-xs text-gray-500">Schnellste sichere Auswahl</span>
+                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.topMatchesTitle}</h3>
+                    <span className="text-xs text-gray-500">{MATCH_RESULTS_LABELS.topMatchesSubtitle}</span>
                   </div>
                   {topMatches.map((match, idx) => (
                     <MatchCard
@@ -141,7 +141,7 @@ export function MatchResultsPanel({
 
               {otherMatches.length > 0 && (
                 <div className="space-y-3 pt-2">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Weitere Optionen</h3>
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.otherMatchesTitle}</h3>
                   {otherMatches.map((match) => (
                     <MatchCard
                       key={match.unit.id}

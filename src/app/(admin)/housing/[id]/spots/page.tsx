@@ -13,6 +13,7 @@ import {
   SPOT_STATUS_LABELS,
 } from '@/lib/config/placement-spots'
 import { SpotActions } from '@/components/spots/SpotActions'
+import { HOUSING_SPOTS_LABELS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,16 +68,16 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               href={`/housing/${id}`}
               className="text-aoz-primary hover:underline text-sm"
             >
-              &larr; Zurück zur Unterkunft
+              {HOUSING_SPOTS_LABELS.backLink}
             </Link>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-              {isNewUnit ? 'Zimmer & Betten einrichten' : 'Plätze verwalten'}: {unit.code}
+              {isNewUnit ? HOUSING_SPOTS_LABELS.titleNew : HOUSING_SPOTS_LABELS.titleManage}: {unit.code}
             </h1>
             <p className="text-gray-500">{unit.address}</p>
           </div>
           {isNewUnit && unit.spots.length > 0 && (
             <Link href={`/housing/${id}`} className="btn-primary min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto">
-              Fertig &rarr;
+              {HOUSING_SPOTS_LABELS.doneBtn}
             </Link>
           )}
         </div>
@@ -89,15 +90,15 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             <span className="text-3xl">🏢</span>
             <div className="flex-1">
               <h2 className="font-bold text-blue-900 text-lg mb-2">
-                Schritt 2 von 2: Zimmer und Betten einrichten
+                {HOUSING_SPOTS_LABELS.welcomeTitle}
               </h2>
               <p className="text-sm text-blue-800 mb-4">
-                Sie haben das Gebäude <strong>{unit.code}</strong> erstellt. Jetzt fügen Sie die Zimmer und Betten hinzu.
+                {HOUSING_SPOTS_LABELS.welcomeDescPre}<strong>{unit.code}</strong>{HOUSING_SPOTS_LABELS.welcomeDescPost}
               </p>
 
               {/* Hierarchy Explanation */}
               <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">So funktioniert die Hierarchie:</p>
+                <p className="text-sm font-semibold text-gray-700 mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium">🏢 Gebäude</span>
                   <span>→</span>
@@ -106,8 +107,8 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-medium">🛏️ Betten</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  • <strong>Zimmer</strong> = gemeinsam genutzter Raum (z.B. Schlafzimmer mit 2-4 Betten)<br/>
-                  • <strong>Betten</strong> = einzelne Schlafplätze in einem Zimmer
+                  {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}<br/>
+                  {HOUSING_SPOTS_LABELS.hierarchyBedDesc}
                 </p>
               </div>
 
@@ -115,15 +116,17 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
                   <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                  <span className="text-blue-900">Code eingeben (z.B. <code className="bg-white px-1 rounded">Z1</code>)</span>
+                  <span className="text-blue-900">
+                    {HOUSING_SPOTS_LABELS.step1}<code className="bg-white px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
                   <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                  <span className="text-blue-900">Anzahl Betten wählen</span>
+                  <span className="text-blue-900">{HOUSING_SPOTS_LABELS.step2}</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
                   <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                  <span className="text-blue-900">&quot;Zimmer erstellen&quot; klicken</span>
+                  <span className="text-blue-900">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
                 </div>
               </div>
             </div>
@@ -136,7 +139,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">➕</span>
           <h2 className="text-lg font-semibold text-gray-900">
-            {isNewUnit && unit.spots.length === 0 ? 'Zimmer & Betten erstellen' : 'Plätze hinzufügen'}
+            {isNewUnit && unit.spots.length === 0 ? HOUSING_SPOTS_LABELS.addTitleNew : HOUSING_SPOTS_LABELS.addTitle}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -145,27 +148,27 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">🚪</span>
               <h3 className="font-semibold text-green-900">
-                Gemeinsames Zimmer (mit mehreren Betten)
+                {HOUSING_SPOTS_LABELS.roomGroupTitle}
               </h3>
             </div>
             <p className="text-xs text-green-700 mb-4">
-              Erstellt 1 Zimmer + die angegebene Anzahl Betten darin
+              {HOUSING_SPOTS_LABELS.roomGroupDesc}
             </p>
             <form action={createMultipleSpots} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Zimmer-Code *</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.roomCodeLabel}</label>
                   <input
                     type="text"
                     name="roomCode"
                     required
-                    placeholder="z.B. R1, Z101"
+                    placeholder={HOUSING_SPOTS_LABELS.roomCodePlaceholder}
                     className="input"
                   />
                 </div>
                 <div>
-                  <label className="label">Anzahl Betten *</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.bedCountLabel}</label>
                   <input
                     type="number"
                     name="bedCount"
@@ -179,38 +182,38 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Fläche (m²)</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.squareMetersLabel}</label>
                   <input
                     type="number"
                     name="squareMeters"
                     step="0.1"
-                    placeholder="z.B. 18"
+                    placeholder={HOUSING_SPOTS_LABELS.squareMetersPlaceholder}
                     className="input"
                   />
                 </div>
                 <div>
-                  <label className="label">Stockwerk</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.floorLabel}</label>
                   <input
                     type="number"
                     name="floor"
                     min="-1"
                     max="20"
-                    placeholder="z.B. 0, 1, 2"
+                    placeholder={HOUSING_SPOTS_LABELS.floorPlaceholder}
                     className="input"
                   />
                 </div>
               </div>
               <div>
-                <label className="label">Bezeichnung</label>
+                <label className="label">{HOUSING_SPOTS_LABELS.labelField}</label>
                 <input
                   type="text"
                   name="roomLabel"
-                  placeholder="z.B. Zimmer Nord"
+                  placeholder={HOUSING_SPOTS_LABELS.roomLabelPlaceholder}
                   className="input"
                 />
               </div>
               <button type="submit" className="btn-primary w-full min-h-[44px]">
-                Zimmer erstellen
+                {HOUSING_SPOTS_LABELS.createRoomBtn}
               </button>
             </form>
           </div>
@@ -220,27 +223,27 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">🏠</span>
               <h3 className="font-semibold text-purple-900">
-                Privatzimmer oder Studio
+                {HOUSING_SPOTS_LABELS.singleTitle}
               </h3>
             </div>
             <p className="text-xs text-purple-700 mb-4">
-              Einzelplatz ohne gemeinsam genutztes Schlafzimmer
+              {HOUSING_SPOTS_LABELS.singleDesc}
             </p>
             <form action={createSpot} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Code *</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.codeLabel}</label>
                   <input
                     type="text"
                     name="code"
                     required
-                    placeholder="z.B. EZ1, ST-A"
+                    placeholder={HOUSING_SPOTS_LABELS.codePlaceholder}
                     className="input"
                   />
                 </div>
                 <div>
-                  <label className="label">Typ *</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.typeLabel}</label>
                   <select name="type" required className="input">
                     <option value="BED">{SPOT_TYPE_LABELS.BED}</option>
                     <option value="PRIVATE_ROOM">
@@ -251,17 +254,17 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 </div>
               </div>
               <div>
-                <label className="label">Bezeichnung</label>
+                <label className="label">{HOUSING_SPOTS_LABELS.labelField}</label>
                 <input
                   type="text"
                   name="label"
-                  placeholder="z.B. Einzelzimmer Süd"
+                  placeholder={HOUSING_SPOTS_LABELS.singleLabelPlaceholder}
                   className="input"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="label">Fläche (m²)</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.squareMetersLabel}</label>
                   <input
                     type="number"
                     name="squareMeters"
@@ -270,7 +273,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   />
                 </div>
                 <div>
-                  <label className="label">Stockwerk</label>
+                  <label className="label">{HOUSING_SPOTS_LABELS.floorLabel}</label>
                   <input type="number" name="floor" className="input" />
                 </div>
               </div>
@@ -282,11 +285,11 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   className="w-4 h-4 rounded border-gray-300 text-aoz-primary"
                 />
                 <span className="text-sm text-gray-700">
-                  Erfordert med. Dokumentation
+                  {HOUSING_SPOTS_LABELS.requiresMedDocs}
                 </span>
               </label>
               <button type="submit" className="btn-primary w-full min-h-[44px]">
-                Platz erstellen
+                {HOUSING_SPOTS_LABELS.createSpotBtn}
               </button>
             </form>
           </div>
@@ -296,13 +299,13 @@ export default async function SpotManagementPage({ params, searchParams }: Props
       {/* Existing Spots */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Vorhandene Plätze ({unit.spots.length})
+          {HOUSING_SPOTS_LABELS.existingTitle} ({unit.spots.length})
         </h2>
 
         {unit.spots.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <span className="text-3xl mb-2 block">📦</span>
-            Noch keine Plätze definiert
+            {HOUSING_SPOTS_LABELS.emptySpots}
           </div>
         ) : (
           <div className="space-y-4">
@@ -345,7 +348,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             {standaloneSpots.length > 0 && (
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                  Einzelne Plätze
+                  {HOUSING_SPOTS_LABELS.standaloneSection}
                 </h3>
                 {standaloneSpots.map((spot) => (
                   <SpotRow key={spot.id} spot={spot} housingUnitId={id} />
@@ -424,9 +427,9 @@ function SpotRow({
 
       <div className="flex items-center gap-2 self-end sm:self-auto">
         {isOccupied ? (
-          <span className="badge badge-info text-xs">Belegt</span>
+          <span className="badge badge-info text-xs">{HOUSING_SPOTS_LABELS.occupied}</span>
         ) : spot.status === 'AVAILABLE' ? (
-          <span className="badge badge-success text-xs">Frei</span>
+          <span className="badge badge-success text-xs">{HOUSING_SPOTS_LABELS.available}</span>
         ) : (
           <span className="badge badge-pending text-xs">
             {SPOT_STATUS_LABELS[spot.status as keyof typeof SPOT_STATUS_LABELS]}

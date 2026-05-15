@@ -10,6 +10,7 @@ import {
   FOLLOW_UP_PRIORITY_LABELS,
   FOLLOW_UP_PRIORITY_COLORS,
   INCIDENT_RESOLVED_LABELS,
+  INCIDENT_DETAIL_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
@@ -92,7 +93,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
           href="/incidents"
           className="text-aoz-primary hover:underline text-sm"
         >
-          &larr; Zurück zur Liste
+          {INCIDENT_DETAIL_LABELS.backLink}
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
           <div className="flex items-center gap-4">
@@ -125,14 +126,14 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl" role="img" aria-label="Überfällig">⏰</span>
+              <span className="text-2xl" role="img" aria-label={INCIDENT_DETAIL_LABELS.overdueAria}>⏰</span>
               <div>
                 <p className="font-semibold text-red-800">
-                  Follow-up überfällig seit {formatRelativeDate(incident.nextFollowUpDate!)}
+                  {INCIDENT_DETAIL_LABELS.overdueTitle(formatRelativeDate(incident.nextFollowUpDate!))}
                 </p>
                 {incident.followUpPriority && (
                   <p className="text-sm text-red-700">
-                    Priorität: {getLabel(FOLLOW_UP_PRIORITY_LABELS, incident.followUpPriority)}
+                    {INCIDENT_DETAIL_LABELS.priorityPrefix}{getLabel(FOLLOW_UP_PRIORITY_LABELS, incident.followUpPriority)}
                   </p>
                 )}
               </div>
@@ -140,7 +141,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
             <form action={clearFollowUpReminder}>
               <input type="hidden" name="incidentId" value={incident.id} />
               <button type="submit" className="btn-outline text-sm">
-                Erinnerung löschen
+                {INCIDENT_DETAIL_LABELS.clearReminder}
               </button>
             </form>
           </div>
@@ -150,10 +151,10 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       {incident.nextFollowUpDate && !isOverdue && !incident.resolvedAt && (
         <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" role="img" aria-label="Geplant">📅</span>
+            <span className="text-2xl" role="img" aria-label={INCIDENT_DETAIL_LABELS.scheduledAria}>📅</span>
             <div>
               <p className="font-semibold text-blue-800">
-                Nächste Follow-up: {formatDate(incident.nextFollowUpDate)}
+                {INCIDENT_DETAIL_LABELS.scheduledTitle(formatDate(incident.nextFollowUpDate))}
               </p>
               {incident.followUpPriority && (
                 <span className={`text-xs px-2 py-0.5 rounded ${FOLLOW_UP_PRIORITY_COLORS[incident.followUpPriority]}`}>
@@ -171,7 +172,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
           {/* Incident Details */}
           <div className={`card border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Beschreibung
+              {INCIDENT_DETAIL_LABELS.descriptionTitle}
             </h2>
             <p className="text-gray-600 whitespace-pre-wrap">
               {incident.description}
@@ -179,10 +180,10 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
 
             {incident.resolution && (
               <div className="mt-4 pt-4 border-t border-gray-100">
-                <h3 className="font-medium text-gray-900 mb-2">Lösung</h3>
+                <h3 className="font-medium text-gray-900 mb-2">{INCIDENT_DETAIL_LABELS.resolutionTitle}</h3>
                 <p className="text-gray-600">{incident.resolution}</p>
                 <p className="text-sm text-gray-500 mt-1">
-                  Gelöst am {formatDate(incident.resolvedAt!)}
+                  {INCIDENT_DETAIL_LABELS.resolvedAt(formatDate(incident.resolvedAt!))}
                 </p>
               </div>
             )}

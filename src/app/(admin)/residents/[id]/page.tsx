@@ -25,6 +25,7 @@ import {
   GENDER_LABELS,
   FAMILY_STATUS_LABELS,
   RESIDENT_STATUS_LABELS,
+  RESIDENT_DETAIL_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getPlacementCheckIns } from '@/lib/actions'
@@ -159,11 +160,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
         const pairwise = calculateCompatibility(residentProfile, profile)
         // Extract key factors from the pairwise assessment
         const keyFactors: string[] = []
-        if (pairwise.lifestyle >= 70) keyFactors.push('Ähnlicher Lebensstil')
-        else if (pairwise.lifestyle < 40) keyFactors.push('Unterschiedlicher Lebensstil')
-        if (pairwise.social >= 70) keyFactors.push('Gute soziale Passung')
-        else if (pairwise.social < 40) keyFactors.push('Soziale Unterschiede')
-        if (pairwise.practical >= 70) keyFactors.push('Praktisch kompatibel')
+        if (pairwise.lifestyle >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleSimilar)
+        else if (pairwise.lifestyle < 40) keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleDifferent)
+        if (pairwise.social >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.socialGood)
+        else if (pairwise.social < 40) keyFactors.push(RESIDENT_DETAIL_LABELS.socialDifferent)
+        if (pairwise.practical >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.practicalCompat)
         // Add strengths if any
         if (pairwise.strengths.length > 0) {
           keyFactors.push(...pairwise.strengths.slice(0, 2))
@@ -235,8 +236,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     <div>
       <SuccessToast
         triggers={[
-          { param: 'placed', message: 'Bewohner erfolgreich platziert' },
-          { param: 'checkin', message: 'Check-in erfolgreich gespeichert' },
+          { param: 'placed', message: RESIDENT_DETAIL_LABELS.toastPlaced },
+          { param: 'checkin', message: RESIDENT_DETAIL_LABELS.toastCheckin },
         ]}
       />
       {/* Header */}
@@ -247,7 +248,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               href="/residents"
               className="text-gray-500 hover:text-gray-700"
             >
-              Bewohner
+              {RESIDENT_DETAIL_LABELS.breadcrumb}
             </Link>
             <span className="text-gray-400">/</span>
             <span className="text-gray-900">{resident.code}</span>
@@ -274,15 +275,15 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           </span>
           {currentPlacement && (
             <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
-              Verlegen
+              {RESIDENT_DETAIL_LABELS.transferBtn}
             </Link>
           )}
           <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
-            Bearbeiten
+            {RESIDENT_DETAIL_LABELS.editBtn}
           </Link>
           {!currentPlacement && (
             <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
-              Platzieren
+              {RESIDENT_DETAIL_LABELS.placeBtn}
             </Link>
           )}
         </div>
@@ -294,7 +295,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           {/* Current Placement */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Aktuelle Platzierung
+              {RESIDENT_DETAIL_LABELS.currentPlacementTitle}
             </h2>
             {currentPlacement ? (
               <div className="space-y-4">
@@ -320,13 +321,13 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                         </p>
                       )}
                       <p className="text-sm text-gray-500">
-                        Seit {formatDate(currentPlacement.startDate)}
+                        {RESIDENT_DETAIL_LABELS.since}{formatDate(currentPlacement.startDate)}
                       </p>
                     </div>
                   </div>
                   {currentPlacement.compatibilityScore && (
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">Kompatibilität</p>
+                      <p className="text-sm text-gray-500">{RESIDENT_DETAIL_LABELS.compatibility}</p>
                       <p
                         className={`text-lg font-semibold ${getScoreColorClass(
                           currentPlacement.compatibilityScore
@@ -342,7 +343,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                 {/* Quick Check-in - Primary action for case workers */}
                 <div className="pt-4 border-t border-gray-100">
                   <h3 className="text-sm font-medium text-gray-700 mb-3">
-                    Schnell-Check-in
+                    {RESIDENT_DETAIL_LABELS.quickCheckin}
                   </h3>
                   <QuickCheckIn
                     placementId={currentPlacement.id}
@@ -387,12 +388,12 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">Nicht platziert</p>
+                <p className="text-gray-500 mb-4">{RESIDENT_DETAIL_LABELS.notPlaced}</p>
                 <Link
                   href={`/matching?resident=${resident.id}`}
                   className="btn-primary"
                 >
-                  Passende Unterkunft finden
+                  {RESIDENT_DETAIL_LABELS.findUnit}
                 </Link>
               </div>
             )}
