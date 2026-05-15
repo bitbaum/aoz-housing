@@ -297,6 +297,33 @@ export const COMPATIBILITY_MATRIX_LABELS = {
   noScoreDesc: 'Die Kompatibilität wurde noch nicht berechnet',
 } as const
 
+export const PILOT_BASELINE_LABELS = {
+  sectionTitle: 'Pilot-Baseline',
+  sectionDesc: 'Erfassen Sie die Werte von vor dem System-Einsatz, um den Fortschritt zu messen.',
+  startDateLabel: 'Pilot-Startdatum',
+  startDateHint: 'Ab wann wird das System für alle Platzzuweisungen verwendet?',
+  incidentsLabel: 'Konflikte pro Monat (vor System)',
+  incidentsHint: 'Durchschnittliche Anzahl Zimmerkonflikte pro Monat (Phase 1)',
+  relocationsLabel: 'Konflikt-Umzüge pro Monat (vor System)',
+  relocationsHint: 'Durchschnittliche Anzahl Umzüge wegen Unverträglichkeit pro Monat (Phase 1)',
+  mediationHoursLabel: 'Mediationsstunden pro Woche (vor System)',
+  mediationHoursHint: 'Durchschnittlich aufgewendete Stunden für Konfliktmediation pro Woche (Phase 1)',
+  saveButton: 'Baseline speichern',
+  saveSuccess: 'Baseline gespeichert',
+  notSet: 'Nicht erfasst',
+  comparedToBaseline: (pct: number, direction: 'up' | 'down' | 'same') =>
+    direction === 'down'
+      ? `${pct}% weniger als Baseline`
+      : direction === 'up'
+      ? `${pct}% mehr als Baseline`
+      : 'Unverändert zur Baseline',
+  baselineLabel: 'Baseline',
+  currentLabel: 'Aktuell',
+  targetLabel: 'Ziel',
+  progressLabel: 'Fortschritt',
+  noBaselineHint: 'Keine Baseline konfiguriert. Gehen Sie zu Einstellungen, um Vorher-Werte einzutragen.',
+} as const
+
 export const SETTINGS_LABELS = {
   title: 'Einstellungen',
   subtitle: 'Teamverwaltung und Systemkonfiguration',

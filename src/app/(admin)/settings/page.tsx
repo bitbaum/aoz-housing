@@ -3,20 +3,30 @@ import { requireStaffAuth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { InviteForm } from './InviteForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
-import { SETTINGS_LABELS } from '@/lib/constants'
+import { SETTINGS_LABELS, PILOT_BASELINE_LABELS } from '@/lib/constants'
+import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
 
 export const metadata: Metadata = { title: 'Einstellungen' }
+
+export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
   await requireStaffAuth()
 
-  const staffUsers = await prisma.user.findMany({
-    where: { active: true },
-    select: { id: true, code: true, name: true, email: true, lastLoginAt: true },
-    orderBy: { name: 'asc' },
-  })
+  const [staffUsers, systemConfig] = await Promise.all([
+    prisma.user.findMany({
+      where: { active: true },
+      select: { id: true, code: true, name: true, email: true, lastLoginAt: true },
+      orderBy: { name: 'asc' },
+    }),
+    getSystemConfig(),
+  ])
 
   const emailEnabled = EMAIL_CONFIG.enabled
+
+  const pilotStartValue = systemConfig.pilotStartDate
+    ? new Date(systemConfig.pilotStartDate).toISOString().split('T')[0]
+    : ''
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -71,6 +81,71 @@ export default async function SettingsPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Pilot Baseline */}
+      <div className="card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">{PILOT_BASELINE_LABELS.sectionTitle}</h2>
+        <p className="text-sm text-gray-500 mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
+
+        <form action={saveSystemConfig} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">{PILOT_BASELINE_LABELS.startDateLabel}</label>
+              <input
+                type="date"
+                name="pilotStartDate"
+                defaultValue={pilotStartValue}
+                className="input"
+              />
+              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
+            </div>
+            <div>
+              <label className="label">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
+              <input
+                type="number"
+                name="pilotBaselineIncidentsPerMonth"
+                min="0"
+                step="0.1"
+                defaultValue={systemConfig.pilotBaselineIncidentsPerMonth ?? ''}
+                placeholder="z.B. 15"
+                className="input"
+              />
+              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
+            </div>
+            <div>
+              <label className="label">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
+              <input
+                type="number"
+                name="pilotBaselineRelocationsPerMonth"
+                min="0"
+                step="0.1"
+                defaultValue={systemConfig.pilotBaselineRelocationsPerMonth ?? ''}
+                placeholder="z.B. 4"
+                className="input"
+              />
+              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
+            </div>
+            <div>
+              <label className="label">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
+              <input
+                type="number"
+                name="pilotBaselineMediationHoursPerWeek"
+                min="0"
+                step="0.5"
+                defaultValue={systemConfig.pilotBaselineMediationHoursPerWeek ?? ''}
+                placeholder="z.B. 12"
+                className="input"
+              />
+              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.mediationHoursHint}</p>
+            </div>
+          </div>
+          <div>
+            <button type="submit" className="btn-primary min-h-[44px]">
+              {PILOT_BASELINE_LABELS.saveButton}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* Email config status */}

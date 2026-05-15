@@ -22,6 +22,7 @@ import { MissionKPISection } from '@/components/analytics/MissionKPISection'
 import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccuracySection'
 import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
+import { getSystemConfig } from '@/lib/actions/config'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,7 +92,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   ])
 
   // Get all ended placements for end reason analysis (including conflict analysis fields)
-  const [endedPlacements, missionKPIs, algorithmAccuracy] = await Promise.all([
+  const [endedPlacements, missionKPIs, algorithmAccuracy, systemConfig] = await Promise.all([
     prisma.placement.findMany({
       where: { status: { not: 'ACTIVE' } },
       select: {
@@ -103,6 +104,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     }),
     calculateMissionKPIs(6),
     calculateAlgorithmAccuracy(),
+    getSystemConfig(),
   ])
 
   // Calculate metrics
@@ -212,7 +214,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
       {/* Mission KPIs */}
       <div className="mb-6 sm:mb-8">
-        <MissionKPISection kpis={missionKPIs} />
+        <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
       </div>
 
       {/* Key Metrics */}

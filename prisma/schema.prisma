@@ -952,3 +952,16 @@ enum TransferRequestStatus {
   COMPLETED
   CANCELLED
 }
+
+// Singleton config row for pilot baseline measurements and org settings.
+// id is always "singleton" — upsert guarantees exactly one row.
+model SystemConfig {
+  id        String   @id @default("singleton")
+  updatedAt DateTime @updatedAt
+
+  // Pre-system baseline metrics (entered manually by admin from Phase-1 tracking)
+  pilotBaselineIncidentsPerMonth     Float?
+  pilotBaselineRelocationsPerMonth   Float?
+  pilotBaselineMediationHoursPerWeek Float?
+  pilotStartDate                     DateTime?
+}
