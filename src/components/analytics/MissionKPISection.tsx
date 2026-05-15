@@ -137,7 +137,7 @@ function MiniChart({
       <p className={`text-sm font-medium ${color} mb-3`}>{label}</p>
       <div className="flex items-end gap-1 h-16">
         {data.map((d, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          <div key={i} className="flex-1 h-full flex flex-col justify-end">
             <div
               className={`w-full rounded-t ${barColor} transition-all`}
               style={{ height: `${Math.max((d.value / maxValue) * 100, 4)}%` }}
