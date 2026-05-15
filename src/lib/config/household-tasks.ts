@@ -273,4 +273,9 @@ export const CHORE_LABELS = {
     title: 'Noch keine Aufgaben',
     message: 'Erstelle die erste Aufgabe für eure Wohnung.',
   },
+  sections: {
+    urgentNow: 'Jetzt wichtig',
+    urgentDesc: 'Diese Aufgaben brauchen zuerst eine Entscheidung.',
+    after: 'Danach',
+  },
 } as const
