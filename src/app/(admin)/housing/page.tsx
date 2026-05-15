@@ -5,7 +5,7 @@ import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS, UI_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
 
@@ -94,9 +94,9 @@ export default async function HousingListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Unterkünfte" value={stats.total} />
-        <StatCard label="Verfügbar" value={stats.available} />
-        <StatCard label="Voll belegt" value={stats.full} />
+        <StatCard label={HOUSING_STAT_LABELS.total} value={stats.total} />
+        <StatCard label={HOUSING_STATUS_LABELS.AVAILABLE} value={stats.available} />
+        <StatCard label={HOUSING_STATUS_LABELS.FULL} value={stats.full} />
         <StatCard
           label="Belegung"
           value={`${stats.occupiedBeds}/${stats.totalBeds}`}

@@ -10,6 +10,7 @@ import {
   TASK_STATUS_LABELS,
   TASK_STATUS_COLORS,
 } from '@/lib/config/household-tasks'
+import { CHORE_LABELS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,10 +65,10 @@ export default async function AdminChoresPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Total Aufgaben" value={totalTasks} />
-        <StatCard label="Aktive Aufgaben" value={activeTasks} />
-        <StatCard label="Braucht Aufmerksamkeit" value={attentionTasks} trend={attentionTasks > 0 ? 'warning' : 'good'} />
-        <StatCard label="Erledigungen" value={totalCompletions} />
+        <StatCard label={CHORE_LABELS.statTotal} value={totalTasks} />
+        <StatCard label={CHORE_LABELS.statActive} value={activeTasks} />
+        <StatCard label={CHORE_LABELS.statNeedsAttention} value={attentionTasks} trend={attentionTasks > 0 ? 'warning' : 'good'} />
+        <StatCard label={CHORE_LABELS.statCompletions} value={totalCompletions} />
       </div>
 
       {/* Unit table */}

@@ -11,6 +11,7 @@ import {
   MAINTENANCE_PRIORITY_COLORS,
   MAINTENANCE_STATUS_LABELS,
   MAINTENANCE_STATUS_COLORS,
+  MAINTENANCE_STAT_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -115,7 +116,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
         <StatCard label={MAINTENANCE_STATUS_LABELS.OPEN} value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
         <StatCard label={MAINTENANCE_STATUS_LABELS.IN_PROGRESS} value={stats.inProgress} />
         <StatCard label={MAINTENANCE_PRIORITY_LABELS.URGENT} value={stats.urgent} trend={stats.urgent > 0 ? 'warning' : 'neutral'} />
-        <StatCard label="Diesen Monat erledigt" value={stats.completed} />
+        <StatCard label={MAINTENANCE_STAT_LABELS.completedThisMonth} value={stats.completed} />
       </div>
 
       {/* Status Tabs */}

@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Statistiken' }
 import {
   INCIDENT_TYPE_LABELS,
   END_REASON_LABELS,
+  DASHBOARD_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getDateDaysAgo } from '@/lib/utils'
@@ -215,12 +216,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <MetricCard
-          label="Belegungsrate"
+          label={DASHBOARD_LABELS.analyticsOccupancyRate}
           value={`${occupancyRate}%`}
           subtitle={`${occupiedBeds} von ${totalBeds} Betten`}
         />
         <MetricCard
-          label="Überfällige Check-ins"
+          label={DASHBOARD_LABELS.analyticsOverdueCheckIns}
           value={overdueCheckIns.length}
           subtitle={`von ${placements.length} aktiven`}
           href="/placements?status=active"
@@ -234,7 +235,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           highlight={unresolvedIncidents.length > 0}
         />
         <MetricCard
-          label="Konfliktbedingt beendet"
+          label={DASHBOARD_LABELS.analyticsConflictEnded}
           value={`${conflictRate}%`}
           subtitle={`${conflictEnds} von ${endedPlacements.length} Beendungen`}
           highlight={conflictRate > 20}

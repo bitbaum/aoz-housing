@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { EMPTY_STATE_LABELS, UI_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
@@ -127,11 +127,11 @@ export default async function ResidentsListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Gesamt" value={stats.total} />
+        <StatCard label={UI_LABELS.total} value={stats.total} />
         <StatCard label={UI_LABELS.active} value={stats.active} />
-        <StatCard label="Platziert" value={stats.placed} />
+        <StatCard label={RESIDENT_STATUS_LABELS.PLACED} value={stats.placed} />
         <StatCard
-          label="Unplatziert"
+          label={RESIDENT_STAT_LABELS.unplaced}
           value={stats.unplaced}
           trend={stats.unplaced > 0 ? 'warning' : 'neutral'}
         />

@@ -9,6 +9,10 @@ export const HOUSING_STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Geschlossen',
 }
 
+export const HOUSING_STAT_LABELS = {
+  total: 'Unterkünfte',
+} as const
+
 // Re-export spot labels from config (SSOT)
 export {
   SPOT_TYPE_LABELS,

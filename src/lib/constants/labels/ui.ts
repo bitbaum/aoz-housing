@@ -15,6 +15,8 @@ export const UI_LABELS = {
   actions: 'Aktionen',
   required: 'erforderlich',
   processing: 'Wird verarbeitet...',
+  // Common stat labels
+  total: 'Gesamt',
   // Statuses
   open: 'Offen',
   resolved: 'Gelöst',
@@ -161,6 +163,11 @@ export const CHORE_LABELS = {
   openTaskAction: 'Aufgabe öffnen und Entscheidung treffen',
   markDoneDirectly: 'Direkt als erledigt markieren',
   done: 'Erledigt',
+  // Stat card labels (admin chores page)
+  statTotal: 'Total Aufgaben',
+  statActive: 'Aktive Aufgaben',
+  statNeedsAttention: 'Braucht Aufmerksamkeit',
+  statCompletions: 'Erledigungen',
 } as const
 
 export const PROBLEM_DETECTION_LABELS = {

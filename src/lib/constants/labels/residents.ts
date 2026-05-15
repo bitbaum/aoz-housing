@@ -114,6 +114,10 @@ export const DIET_LABELS: Record<string, string> = {
   none: 'Keine besonderen',
 }
 
+export const RESIDENT_STAT_LABELS = {
+  unplaced: 'Unplatziert',
+} as const
+
 // Satisfaction
 export const SATISFACTION_EMOJIS = ['😞', '😕', '😐', '🙂', '😊']
 

@@ -59,3 +59,7 @@ export const MAINTENANCE_STATUS_COLORS: Record<string, string> = {
   COMPLETED: 'badge-active',
   CANCELLED: 'bg-gray-200 text-gray-500',
 }
+
+export const MAINTENANCE_STAT_LABELS = {
+  completedThisMonth: 'Diesen Monat erledigt',
+} as const
