@@ -18,7 +18,7 @@ export function PortalPendingChores({ chores }: PortalPendingChoresProps) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.pendingChores.title}</h2>
         <Link href="/portal/chores" className="text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.showAll}
+          {PORTAL_LABELS.dashboard.showAll}
         </Link>
       </div>
       <div className="space-y-3">
