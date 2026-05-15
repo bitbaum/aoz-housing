@@ -168,7 +168,7 @@ export default async function RoommatesPage() {
             </p>
           ))}
           <p>
-            <strong>3. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
+            <strong>{PORTAL_LABELS.roommates.conflictSteps.length + 1}. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
             <Link href="/portal/report" className="text-aoz-primary hover:underline">
               {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
@@ -226,34 +226,30 @@ function RoommateCard({
             )}
           </div>
 
-          {/* Compatibility Insights */}
-          {assessment && (
+          {/* Compatibility Insights — only render sections that have content */}
+          {assessment && (assessment.strengths.length > 0 || assessment.concerns.length > 0) && (
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">{PORTAL_LABELS.roommates.strengths}</p>
-                  {assessment.strengths.length > 0 ? (
+              <div className={`grid gap-4 text-sm ${assessment.concerns.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                {assessment.strengths.length > 0 && (
+                  <div>
+                    <p className="text-gray-500">{PORTAL_LABELS.roommates.strengths}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.strengths.slice(0, 2).map((s: string, i: number) => (
                         <li key={i} className="text-green-700">✓ {s}</li>
                       ))}
                     </ul>
-                  ) : (
-                    <p className="text-gray-400 mt-1">-</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-gray-500">{PORTAL_LABELS.roommates.concerns}</p>
-                  {assessment.concerns.length > 0 ? (
+                  </div>
+                )}
+                {assessment.concerns.length > 0 && (
+                  <div>
+                    <p className="text-gray-500">{PORTAL_LABELS.roommates.concerns}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.concerns.slice(0, 2).map((c: string, i: number) => (
                         <li key={i} className="text-orange-700">! {c}</li>
                       ))}
                     </ul>
-                  ) : (
-                    <p className="text-gray-400 mt-1">-</p>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
