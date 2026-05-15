@@ -74,3 +74,20 @@ export const COMPATIBILITY_DIMENSION_LABELS: Record<string, { label: string; des
   practical: { label: 'Praktisch',  description: 'Rauchen, Küche' },
   risk:      { label: 'Risiko',     description: 'Konfliktpotenzial' },
 }
+
+export const SCORE_EXPLANATION_LABELS = {
+  recommendation: 'Empfehlung',
+  scale: 'Bewertungsskala:',
+} as const
+
+export const EXPLAINABLE_NUMBER_LABELS = {
+  formula: 'Formel',
+  dataPoints: 'Datenpunkte',
+  interpretation: 'Interpretation',
+  explanationFor: 'Erklärung für',
+  sources: {
+    database: 'Datenbank',
+    calculation: 'Berechnung',
+    derived: 'Abgeleitet',
+  },
+} as const

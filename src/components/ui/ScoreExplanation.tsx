@@ -7,7 +7,7 @@ import {
   type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
-import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, SCORE_EXPLANATION_LABELS, COMPATIBILITY_SCORE_LABELS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants/labels'
 
 /**
  * Factor impacting a score
@@ -168,7 +168,7 @@ export function ScoreExplanation({
           {/* Negative factors */}
           {negativeFactors.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-medium text-gray-500 mb-1">Herausforderungen</p>
+              <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.challenges}</p>
               <div className="space-y-1">
                 {negativeFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
@@ -187,15 +187,15 @@ export function ScoreExplanation({
 
           {/* Recommendation */}
           <div className="pt-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Empfehlung</p>
+            <p className="text-xs text-gray-500 mb-1">{SCORE_EXPLANATION_LABELS.recommendation}</p>
             <p className="text-sm text-gray-700">{explanation.recommendation}</p>
           </div>
 
           {/* Threshold reference */}
           <div className="mt-3 pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500">
-              Bewertungsskala: {'>='}{SCORE_THRESHOLDS.excellent} ausgezeichnet,{' '}
-              {'>='}{SCORE_THRESHOLDS.good} gut, {'>='}{SCORE_THRESHOLDS.moderate} mittel
+              {SCORE_EXPLANATION_LABELS.scale} {'>='}{SCORE_THRESHOLDS.excellent} {COMPATIBILITY_SCORE_LABELS.excellent.toLowerCase()},{' '}
+              {'>='}{SCORE_THRESHOLDS.good} {COMPATIBILITY_SCORE_LABELS.good.toLowerCase()}, {'>='}{SCORE_THRESHOLDS.moderate} {COMPATIBILITY_SCORE_LABELS.moderate.toLowerCase()}
             </p>
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { UI_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS, EXPLAINABLE_NUMBER_LABELS } from '@/lib/constants/labels'
 
 export interface NumberExplanation {
   label: string
@@ -73,11 +73,7 @@ export function ExplainableNumber({
     derived: '📊',
   }[explanation.source]
 
-  const sourceLabel = {
-    database: 'Datenbank',
-    calculation: 'Berechnung',
-    derived: 'Abgeleitet',
-  }[explanation.source]
+  const sourceLabel = EXPLAINABLE_NUMBER_LABELS.sources[explanation.source]
 
   return (
     <span className="relative inline-block">
@@ -95,7 +91,7 @@ export function ExplainableNumber({
         <div
           ref={popoverRef}
           role="dialog"
-          aria-label={`Erklärung für ${explanation.label}`}
+          aria-label={`${EXPLAINABLE_NUMBER_LABELS.explanationFor} ${explanation.label}`}
           className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-2xl shadow-card-hover border border-gray-100 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
@@ -127,7 +123,7 @@ export function ExplainableNumber({
           {/* Formula (if calculation) */}
           {explanation.formula && (
             <div className="mb-3 p-2 bg-gray-50 rounded border border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">Formel</p>
+              <p className="text-xs text-gray-500 mb-1">{EXPLAINABLE_NUMBER_LABELS.formula}</p>
               <code className="text-sm text-gray-800 font-mono">{explanation.formula}</code>
             </div>
           )}
@@ -135,7 +131,7 @@ export function ExplainableNumber({
           {/* Data points */}
           {explanation.dataPoints && explanation.dataPoints.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs text-gray-500 mb-2">Datenpunkte</p>
+              <p className="text-xs text-gray-500 mb-2">{EXPLAINABLE_NUMBER_LABELS.dataPoints}</p>
               <div className="space-y-1">
                 {explanation.dataPoints.map((point, i) => (
                   <div key={i} className="flex justify-between text-sm">
@@ -150,7 +146,7 @@ export function ExplainableNumber({
           {/* Interpretation */}
           {explanation.interpretation && (
             <div className="pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">Interpretation</p>
+              <p className="text-xs text-gray-500 mb-1">{EXPLAINABLE_NUMBER_LABELS.interpretation}</p>
               <p className="text-sm text-gray-700">{explanation.interpretation}</p>
             </div>
           )}

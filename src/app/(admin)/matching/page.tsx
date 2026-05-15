@@ -388,18 +388,20 @@ export default async function MatchingPage({ searchParams }: Props) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left panel: Unplaced residents */}
-        <ResidentSelectorPanel
-          filteredUnplacedResidents={filteredUnplacedResidents}
-          totalUnplaced={unplacedResidents.length}
-          placedResidents={placedResidents}
-          totalResidentCount={totalResidentCount}
-          residentQuery={residentQuery}
-          params={params}
-        />
+        {/* Left panel: Unplaced residents — pushed below results on mobile when results exist */}
+        <div className={(selectedResident || isUnitMode) ? 'order-last lg:order-none' : undefined}>
+          <ResidentSelectorPanel
+            filteredUnplacedResidents={filteredUnplacedResidents}
+            totalUnplaced={unplacedResidents.length}
+            placedResidents={placedResidents}
+            totalResidentCount={totalResidentCount}
+            residentQuery={residentQuery}
+            params={params}
+          />
+        </div>
 
-        {/* Right panel: Matches, Unit mode, or available units */}
-        <div className="card">
+        {/* Right panel: Matches, Unit mode, or available units — floats to top on mobile when active */}
+        <div className={`card${(selectedResident || isUnitMode) ? ' order-first lg:order-none' : ''}`}>
           {isUnitMode && selectedUnit ? (
             <UnitModePanel
               selectedUnit={selectedUnit}
