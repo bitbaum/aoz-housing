@@ -6,6 +6,7 @@ import {
   END_REASON_LABELS,
   SATISFACTION_EMOJIS,
   SUPPORT_LEVEL_LABELS,
+  UI_LABELS,
   getLabel,
 } from '@/lib/constants'
 
@@ -163,8 +164,8 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Aktiv" value={stats.active} />
-        <StatCard label="Beendet" value={stats.ended} />
+        <StatCard label={UI_LABELS.active} value={stats.active} />
+        <StatCard label={UI_LABELS.ended} value={stats.ended} />
         <StatCard
           label="Ø Zufriedenheit"
           value={
@@ -185,19 +186,19 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         <div className="flex gap-2 border-b border-gray-200" role="tablist">
           <TabLink
             href="/placements?status=active"
-            label="Aktiv"
+            label={UI_LABELS.active}
             count={stats.active}
             active={statusFilter === 'active'}
           />
           <TabLink
             href="/placements?status=ended"
-            label="Beendet"
+            label={UI_LABELS.ended}
             count={stats.ended}
             active={statusFilter === 'ended'}
           />
           <TabLink
             href="/placements?status=all"
-            label="Alle"
+            label={UI_LABELS.all}
             count={stats.total}
             active={statusFilter === 'all'}
           />

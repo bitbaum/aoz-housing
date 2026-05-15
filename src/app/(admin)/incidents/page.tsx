@@ -7,6 +7,7 @@ import {
   INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
   INCIDENT_RESOLVED_LABELS,
+  UI_LABELS,
   getLabel,
 } from '@/lib/constants'
 
@@ -112,10 +113,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label="Offen" value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
-        <StatCard label="Kritisch" value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
-        <StatCard label="Konflikte" value={stats.interpersonal} />
-        <StatCard label="Sicherheit" value={stats.safety} />
+        <StatCard label={UI_LABELS.open} value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
+        <StatCard label={INCIDENT_SEVERITY_LABELS.CRITICAL} value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
+        <StatCard label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL} value={stats.interpersonal} />
+        <StatCard label={INCIDENT_CATEGORY_LABELS.SAFETY} value={stats.safety} />
       </div>
 
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
@@ -123,19 +124,19 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         <div className="flex gap-2 border-b border-gray-200">
           <TabLink
             href="/incidents"
-            label="Alle"
+            label={UI_LABELS.all}
             count={stats.total}
             active={categoryFilter === 'all'}
           />
           <TabLink
             href="/incidents?category=INTERPERSONAL"
-            label="Konflikte"
+            label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}
             count={stats.interpersonal}
             active={categoryFilter === 'INTERPERSONAL'}
           />
           <TabLink
             href="/incidents?category=SAFETY"
-            label="Sicherheit"
+            label={INCIDENT_CATEGORY_LABELS.SAFETY}
             count={stats.safety}
             active={categoryFilter === 'SAFETY'}
           />

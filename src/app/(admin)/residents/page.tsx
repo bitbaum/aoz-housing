@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
@@ -102,9 +102,9 @@ export default async function ResidentsListPage({ searchParams }: Props) {
 
       <div className="mb-4">
         <div className="flex gap-2 border-b border-gray-200" role="tablist">
-          <TabLink href="/residents?view=active" label="Aktiv" count={stats.active + stats.placed} active={view === 'active'} />
-          <TabLink href="/residents?view=archived" label="Archiviert" count={stats.archived} active={view === 'archived'} />
-          <TabLink href="/residents?view=all" label="Alle" count={stats.total} active={view === 'all'} />
+          <TabLink href="/residents?view=active" label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
+          <TabLink href="/residents?view=archived" label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
+          <TabLink href="/residents?view=all" label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
       </div>
 
@@ -128,7 +128,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label="Gesamt" value={stats.total} />
-        <StatCard label="Aktiv" value={stats.active} />
+        <StatCard label={UI_LABELS.active} value={stats.active} />
         <StatCard label="Platziert" value={stats.placed} />
         <StatCard
           label="Unplatziert"

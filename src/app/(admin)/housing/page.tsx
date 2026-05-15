@@ -5,7 +5,7 @@ import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
 
@@ -86,9 +86,9 @@ export default async function HousingListPage({ searchParams }: Props) {
 
       <div className="mb-4">
         <div className="flex gap-2 border-b border-gray-200" role="tablist">
-          <TabLink href="/housing?view=active" label="Aktiv" count={stats.total - stats.archived} active={view === 'active'} />
-          <TabLink href="/housing?view=archived" label="Archiviert" count={stats.archived} active={view === 'archived'} />
-          <TabLink href="/housing?view=all" label="Alle" count={stats.total} active={view === 'all'} />
+          <TabLink href="/housing?view=active" label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
+          <TabLink href="/housing?view=archived" label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
+          <TabLink href="/housing?view=all" label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
       </div>
 

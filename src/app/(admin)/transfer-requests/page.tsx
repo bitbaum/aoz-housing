@@ -3,7 +3,7 @@ import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
-import { TRANSFER_REQUEST_STATUS_LABELS } from '@/lib/constants'
+import { TRANSFER_REQUEST_STATUS_LABELS, UI_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Verlegungsanfragen' }
 export const dynamic = 'force-dynamic'
@@ -38,25 +38,25 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
         <div className="flex gap-2 border-b border-gray-200">
           <TabLink
             href="/transfer-requests?status=PENDING"
-            label="Offen"
+            label={TRANSFER_REQUEST_STATUS_LABELS.PENDING}
             count={counts.pending}
             active={statusFilter === 'PENDING'}
           />
           <TabLink
             href="/transfer-requests?status=APPROVED"
-            label="Genehmigt"
+            label={TRANSFER_REQUEST_STATUS_LABELS.APPROVED}
             count={counts.approved}
             active={statusFilter === 'APPROVED'}
           />
           <TabLink
             href="/transfer-requests?status=DENIED"
-            label="Abgelehnt"
+            label={TRANSFER_REQUEST_STATUS_LABELS.DENIED}
             count={counts.denied}
             active={statusFilter === 'DENIED'}
           />
           <TabLink
             href="/transfer-requests?status=ALL"
-            label="Alle"
+            label={UI_LABELS.all}
             count={counts.all}
             active={statusFilter === 'ALL'}
           />

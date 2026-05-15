@@ -16,6 +16,10 @@ export const UI_LABELS = {
   resolved: 'Gelöst',
   blocked: 'Blockiert',
   active: 'Aktiv',
+  // Common filter tab labels
+  all: 'Alle',
+  ended: 'Beendet',
+  archived: 'Archiviert',
   // Navigation
   menuOpen: 'Menü öffnen',
   menuClose: 'Menü schliessen',
