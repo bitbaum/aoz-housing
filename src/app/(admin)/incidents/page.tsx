@@ -258,7 +258,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
       {incident.resolution && (
         <div className="mt-3 pt-3 border-t border-gray-100 ml-12">
           <p className="text-sm text-gray-600">
-            <span className="font-medium">Lösung:</span> {incident.resolution}
+            <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>
       )}

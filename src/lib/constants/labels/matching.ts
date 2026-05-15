@@ -116,6 +116,69 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   scoreInterpTitle: 'Score-Interpretation',
   scoreInterpDesc: 'Der Kompatibilitäts-Score (0-100) zeigt, wie gut Bewohner zusammenpassen.',
   lastUpdated: 'Letzte Aktualisierung: v2.0 – 10. Februar 2026',
+  // CTA section
+  ctaTitle: 'Bereit für bessere Platzierungen?',
+  ctaDesc: 'Starten Sie das Matching und finden Sie die optimale Wohnkonstellation.',
+  ctaBtn: 'Matching starten',
+} as const
+
+export const TECHNICAL_TAB_LABELS = {
+  scoringRulesTitle: 'Bewertungsregeln',
+  examplePrefix: 'Beispiel:',
+  logicPrefix: 'Logik:',
+  weightDerivationTitle: 'Gewichtungsherleitung',
+  weightDerivationDesc: 'Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der Forschungsbelege für die zugehörigen Faktoren.',
+  colDimension: 'Dimension',
+  colWeight: 'Gewicht',
+  colRationale: 'Begründung',
+  blockingTitle: 'Blockierung',
+  blockingDescPrefix: 'Bei kritischen Inkompatibilitäten wird die Platzierung',
+  blockingDescBold: 'blockiert',
+  hardRequirementsLabel: 'Harte Anforderungen:',
+  hardRequirementsDesc: 'Rollstuhlzugang, Einzelzimmer-Bedarf, etc. müssen erfüllt sein',
+  extremeDifferencesLabel: 'Extreme Differenzen:',
+  extremeDifferencesDesc: '3+ Stufen Unterschied bei Sauberkeit oder Lärmtoleranz',
+  incompatibleBehaviorLabel: 'Inkompatibles Verhalten:',
+  incompatibleBehaviorDesc: 'Innen-Raucher + Nichtraucher in gleicher Einheit',
+  confidenceMatrixTitle: 'Konfidenz-Matrix',
+  confidenceMatrixDesc: 'Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres Vertrauen in die Gewichtung.',
+  weightSuffix: '% Gewicht',
+  versionHistoryTitle: 'Algorithmus-Versionshistorie',
+  versionPrefix: 'Version',
+  currentBadge: 'Aktuell',
+  configTitle: 'Konfiguration (SSOT)',
+  configDesc: 'Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert. Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.',
+  configFile1: 'src/lib/config/resident-factors.ts - Faktoren & Dimensionen',
+  configFile2: 'src/lib/config/algorithm-docs.ts - Wissenschaftliche Basis',
+  configFile3: 'src/lib/config/types.ts - Typdefinitionen',
+} as const
+
+export const SCIENCE_TAB_LABELS = {
+  title: 'Wissenschaftliche Grundlage',
+  intro: 'Die Faktorenauswahl basiert auf Forschung zu Wohnkonflikten aus der Schweiz, Deutschland und internationalen Studien. Die Gewichtungen spiegeln die empirisch belegte Bedeutung wider.',
+  evidenceHierarchyTitle: 'Evidenz-Hierarchie',
+  evidenceHierarchyDesc: 'Nicht alle Forschung hat die gleiche Aussagekraft. Wir bewerten jede Quelle nach ihrer methodischen Stärke.',
+  examplePrefix: 'Beispiel:',
+  evidenceMapTitle: 'Evidenz-Karte pro Dimension',
+  evidenceMapDesc: 'Welche Forschung stützt welche Dimension? Schweizer Studien sind mit einem Flag markiert.',
+  weightSuffix: '% Gewicht',
+  evidencePerFactorTitle: 'Evidenz pro Faktor',
+  evidencePerFactorDesc: 'Detaillierte wissenschaftliche Grundlage für jeden Kompatibilitätsfaktor.',
+  sourcesLabel: 'Quellen:',
+} as const
+
+export const DATA_COLLECTION_TAB_LABELS = {
+  title: 'Wie werden die Daten erfasst?',
+  intro: 'Alle Daten werden bei der Aufnahme durch das Bewohner-Formular erfasst. Die Fragen sind so gestaltet, dass sie ohne Sprachbarrieren verständlich sind (Skalen, Bildauswahl wo möglich).',
+  privacyTitle: 'Datenschutz-Grundsätze',
+  privacyBullet1: '- Nur funktionale Daten, keine medizinischen Diagnosen',
+  privacyBullet2: '- Selbstauskunft der Bewohner',
+  privacyBullet3: '- Anonymisierte Verarbeitung',
+  privacyBullet4: '- Keine politischen/religiösen Daten',
+  methodsTitle: 'Erfassungsmethoden pro Faktor',
+  scaleType: 'Skala 1-5',
+  formSectionsTitle: 'Formular-Sektionen',
+  fieldsSuffix: 'Felder',
 } as const
 
 export const PLACEMENT_ACTIONS_LABELS = {

@@ -41,8 +41,10 @@ export const EMPTY_STATE_LABELS = {
   noResidentsAtAll: 'Keine Bewohner vorhanden',
   allResidentsPlaced: 'Alle Bewohner sind platziert',
   noAvailableUnits: 'Keine verfügbaren Unterkünfte',
+  noHousingArchived: 'Keine archivierten Unterkünfte',
   createResident: 'Neuen Bewohner erfassen',
   createHousing: 'Neue Unterkunft erfassen',
+  createHousingFirst: 'Erste Unterkunft erstellen',
   algorithmLink: 'Wie funktioniert der Algorithmus?',
 }
 

@@ -26,6 +26,7 @@ import {
   EvidenceStrengthBadge,
   EvidenceStrengthBar,
 } from './shared'
+import { TECHNICAL_TAB_LABELS } from '@/lib/constants'
 
 export function TechnicalTab() {
   return (
@@ -34,7 +35,7 @@ export function TechnicalTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Scale className="w-5 h-5 text-aoz-primary" />
-          Bewertungsregeln
+          {TECHNICAL_TAB_LABELS.scoringRulesTitle}
         </h2>
 
         <div className="space-y-4">
@@ -45,8 +46,8 @@ export function TechnicalTab() {
                 <code className="text-xs bg-gray-100 px-2 py-0.5 rounded">{rule.rule}</code>
               </div>
               <p className="text-sm text-gray-600 mb-2">{rule.description}</p>
-              <p className="text-sm text-gray-500 italic">Beispiel: {rule.example}</p>
-              <p className="text-xs text-gray-500 mt-2">Logik: {rule.scoringLogic}</p>
+              <p className="text-sm text-gray-500 italic">{TECHNICAL_TAB_LABELS.examplePrefix} {rule.example}</p>
+              <p className="text-xs text-gray-500 mt-2">{TECHNICAL_TAB_LABELS.logicPrefix} {rule.scoringLogic}</p>
             </div>
           ))}
         </div>
@@ -56,12 +57,11 @@ export function TechnicalTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Layers className="w-5 h-5 text-aoz-primary" />
-          Gewichtungsherleitung
+          {TECHNICAL_TAB_LABELS.weightDerivationTitle}
         </h2>
 
         <p className="text-gray-600 mb-4">
-          Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der
-          Forschungsbelege für die zugehörigen Faktoren.
+          {TECHNICAL_TAB_LABELS.weightDerivationDesc}
         </p>
 
         {/* Mobile: stacked cards; Desktop: table */}
@@ -69,9 +69,9 @@ export function TechnicalTab() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Dimension</th>
-                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Gewicht</th>
-                <th scope="col" className="text-left py-2 font-medium text-gray-500">Begründung</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">{TECHNICAL_TAB_LABELS.colDimension}</th>
+                <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">{TECHNICAL_TAB_LABELS.colWeight}</th>
+                <th scope="col" className="text-left py-2 font-medium text-gray-500">{TECHNICAL_TAB_LABELS.colRationale}</th>
               </tr>
             </thead>
             <tbody>
@@ -126,38 +126,38 @@ export function TechnicalTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-red-500" />
-          Blockierung
+          {TECHNICAL_TAB_LABELS.blockingTitle}
         </h2>
 
         <p className="text-gray-600 mb-4">
-          Bei kritischen Inkompatibilitäten wird die Platzierung <strong>blockiert</strong>:
+          {TECHNICAL_TAB_LABELS.blockingDescPrefix} <strong>{TECHNICAL_TAB_LABELS.blockingDescBold}</strong>:
         </p>
 
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">Harte Anforderungen:</span>{' '}
+              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.hardRequirementsLabel}</span>{' '}
               <span className="text-red-800">
-                Rollstuhlzugang, Einzelzimmer-Bedarf, etc. müssen erfüllt sein
+                {TECHNICAL_TAB_LABELS.hardRequirementsDesc}
               </span>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">Extreme Differenzen:</span>{' '}
+              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.extremeDifferencesLabel}</span>{' '}
               <span className="text-red-800">
-                3+ Stufen Unterschied bei Sauberkeit oder Lärmtoleranz
+                {TECHNICAL_TAB_LABELS.extremeDifferencesDesc}
               </span>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">Inkompatibles Verhalten:</span>{' '}
+              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.incompatibleBehaviorLabel}</span>{' '}
               <span className="text-red-800">
-                Innen-Raucher + Nichtraucher in gleicher Einheit
+                {TECHNICAL_TAB_LABELS.incompatibleBehaviorDesc}
               </span>
             </div>
           </div>
@@ -168,12 +168,11 @@ export function TechnicalTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Grid3X3 className="w-5 h-5 text-aoz-primary" />
-          Konfidenz-Matrix
+          {TECHNICAL_TAB_LABELS.confidenceMatrixTitle}
         </h2>
 
         <p className="text-gray-600 mb-4">
-          Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres
-          Vertrauen in die Gewichtung.
+          {TECHNICAL_TAB_LABELS.confidenceMatrixDesc}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -201,7 +200,7 @@ export function TechnicalTab() {
                   <EvidenceStrengthBar strength={science.evidenceStrength} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  {Math.round(factor.weight * 100)}% Gewicht
+                  {Math.round(factor.weight * 100)}{TECHNICAL_TAB_LABELS.weightSuffix}
                 </p>
               </div>
             )
@@ -213,7 +212,7 @@ export function TechnicalTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <History className="w-5 h-5 text-aoz-primary" />
-          Algorithmus-Versionshistorie
+          {TECHNICAL_TAB_LABELS.versionHistoryTitle}
         </h2>
 
         <div className="space-y-6">
@@ -236,11 +235,11 @@ export function TechnicalTab() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <h4 className="font-semibold text-gray-900">Version {version.version}</h4>
+                    <h4 className="font-semibold text-gray-900">{TECHNICAL_TAB_LABELS.versionPrefix} {version.version}</h4>
                     <span className="text-xs text-gray-500">{formatDate(version.date)}</span>
                     {versionIndex === 0 && (
                       <span className="text-xs bg-aoz-primary/10 text-aoz-primary px-2 py-0.5 rounded-full font-medium">
-                        Aktuell
+                        {TECHNICAL_TAB_LABELS.currentBadge}
                       </span>
                     )}
                   </div>
@@ -263,16 +262,15 @@ export function TechnicalTab() {
       <section className="card bg-gray-50">
         <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
           <Database className="w-5 h-5 text-gray-500" />
-          Konfiguration (SSOT)
+          {TECHNICAL_TAB_LABELS.configTitle}
         </h3>
         <p className="text-sm text-gray-600 mb-3">
-          Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert.
-          Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.
+          {TECHNICAL_TAB_LABELS.configDesc}
         </p>
         <div className="font-mono text-xs text-gray-500 space-y-1">
-          <p>src/lib/config/resident-factors.ts - Faktoren & Dimensionen</p>
-          <p>src/lib/config/algorithm-docs.ts - Wissenschaftliche Basis</p>
-          <p>src/lib/config/types.ts - Typdefinitionen</p>
+          <p>{TECHNICAL_TAB_LABELS.configFile1}</p>
+          <p>{TECHNICAL_TAB_LABELS.configFile2}</p>
+          <p>{TECHNICAL_TAB_LABELS.configFile3}</p>
         </div>
       </section>
     </div>

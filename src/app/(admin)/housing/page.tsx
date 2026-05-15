@@ -5,7 +5,7 @@ import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
 
@@ -78,9 +78,9 @@ export default async function HousingListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Unterkünfte</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.housing}</h1>
         <Link href="/housing/new" className="btn-primary">
-          Neue Unterkunft
+          {PAGE_TITLES.newHousing}
         </Link>
       </div>
 
@@ -108,11 +108,11 @@ export default async function HousingListPage({ searchParams }: Props) {
       {units.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            {view === 'archived' ? 'Keine archivierten Unterkünfte' : EMPTY_STATE_LABELS.noHousing}
+            {view === 'archived' ? EMPTY_STATE_LABELS.noHousingArchived : EMPTY_STATE_LABELS.noHousing}
           </p>
           {view !== 'archived' && (
             <Link href="/housing/new" className="btn-primary">
-              Erste Unterkunft erstellen
+              {EMPTY_STATE_LABELS.createHousingFirst}
             </Link>
           )}
         </div>

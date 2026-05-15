@@ -21,6 +21,7 @@ import {
   EvidenceStrengthBar,
 } from './shared'
 import { ResearchSourceTable } from './ResearchSourceTable'
+import { SCIENCE_TAB_LABELS } from '@/lib/constants'
 
 export function ScienceTab() {
   const swissSources = getSourcesByRegion('CH')
@@ -33,11 +34,10 @@ export function ScienceTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-aoz-primary" />
-          Wissenschaftliche Grundlage
+          {SCIENCE_TAB_LABELS.title}
         </h2>
         <p className="text-gray-600">
-          Die Faktorenauswahl basiert auf Forschung zu Wohnkonflikten aus der Schweiz, Deutschland
-          und internationalen Studien. Die Gewichtungen spiegeln die empirisch belegte Bedeutung wider.
+          {SCIENCE_TAB_LABELS.intro}
         </p>
       </section>
 
@@ -45,11 +45,10 @@ export function ScienceTab() {
       <section className="card">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Beaker className="w-5 h-5 text-gray-500" />
-          Evidenz-Hierarchie
+          {SCIENCE_TAB_LABELS.evidenceHierarchyTitle}
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Nicht alle Forschung hat die gleiche Aussagekraft. Wir bewerten jede Quelle nach
-          ihrer methodischen Stärke.
+          {SCIENCE_TAB_LABELS.evidenceHierarchyDesc}
         </p>
 
         <div className="space-y-3">
@@ -64,7 +63,7 @@ export function ScienceTab() {
               <div className="min-w-0">
                 <h4 className="font-medium text-gray-900">{method.type}</h4>
                 <p className="text-sm text-gray-600 mt-1">{method.description}</p>
-                <p className="text-xs text-gray-500 mt-1 italic">Beispiel: {method.example}</p>
+                <p className="text-xs text-gray-500 mt-1 italic">{SCIENCE_TAB_LABELS.examplePrefix} {method.example}</p>
               </div>
             </div>
           ))}
@@ -75,10 +74,10 @@ export function ScienceTab() {
       <section className="card">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Grid3X3 className="w-5 h-5 text-gray-500" />
-          Evidenz-Karte pro Dimension
+          {SCIENCE_TAB_LABELS.evidenceMapTitle}
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Welche Forschung stützt welche Dimension? Schweizer Studien sind mit einem Flag markiert.
+          {SCIENCE_TAB_LABELS.evidenceMapDesc}
         </p>
 
         <div className="space-y-6">
@@ -104,7 +103,7 @@ export function ScienceTab() {
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-gray-900">{dim.label}</h4>
                     <span className="text-xs text-gray-500">
-                      {Math.round(dim.weight * 100)}% Gewicht
+                      {Math.round(dim.weight * 100)}{SCIENCE_TAB_LABELS.weightSuffix}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">{dim.description}</p>
@@ -140,10 +139,10 @@ export function ScienceTab() {
       <section className="card">
         <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Activity className="w-5 h-5 text-gray-500" />
-          Evidenz pro Faktor
+          {SCIENCE_TAB_LABELS.evidencePerFactorTitle}
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          Detaillierte wissenschaftliche Grundlage für jeden Kompatibilitätsfaktor.
+          {SCIENCE_TAB_LABELS.evidencePerFactorDesc}
         </p>
 
         <div className="space-y-6">
@@ -199,7 +198,7 @@ export function ScienceTab() {
                         {/* Source citations */}
                         {sources.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-gray-100">
-                            <p className="text-xs text-gray-500 mb-1">Quellen:</p>
+                            <p className="text-xs text-gray-500 mb-1">{SCIENCE_TAB_LABELS.sourcesLabel}</p>
                             <div className="flex flex-wrap gap-1">
                               {sources.map(source => (
                                 <span

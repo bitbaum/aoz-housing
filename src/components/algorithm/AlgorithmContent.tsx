@@ -23,7 +23,7 @@ import { ScienceTab } from './ScienceTab'
 import { DimensionsTab } from './DimensionsTab'
 import { DataCollectionTab } from './DataCollectionTab'
 import { TechnicalTab } from './TechnicalTab'
-import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants/labels'
+import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants'
 
 export function AlgorithmContent() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -106,16 +106,16 @@ export function AlgorithmContent() {
       <section className="mt-12 text-center py-12 px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
         <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
-          Bereit für bessere Platzierungen?
+          {ALGORITHM_OVERVIEW_LABELS.ctaTitle}
         </h2>
         <p className="text-gray-600 mb-6 max-w-lg mx-auto">
-          Starten Sie das Matching und finden Sie die optimale Wohnkonstellation.
+          {ALGORITHM_OVERVIEW_LABELS.ctaDesc}
         </p>
         <Link
           href="/matching"
           className="inline-flex items-center gap-2 px-6 py-3 bg-aoz-primary text-white rounded-lg font-medium hover:bg-aoz-primary/90 transition-colors"
         >
-          Matching starten
+          {ALGORITHM_OVERVIEW_LABELS.ctaBtn}
           <ArrowRight className="w-4 h-4" />
         </Link>
       </section>
