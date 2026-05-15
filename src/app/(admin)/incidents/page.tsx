@@ -20,6 +20,7 @@ import {
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
 import type { IncidentCategory } from '@prisma/client'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +59,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         },
       },
       orderBy: { date: 'desc' },
-      take: 100,
+      take: QUERY_LIMITS.pageList,
     }),
     // Unfiltered for tab counts
     prisma.incident.findMany({

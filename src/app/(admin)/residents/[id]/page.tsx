@@ -35,6 +35,7 @@ import {
   formatDate,
 } from '@/lib/utils'
 import { SuccessToast } from '@/components/ui/SuccessToast'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
@@ -64,14 +65,14 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             housingUnit: true,
           },
           orderBy: { date: 'desc' },
-          take: 10,
+          take: QUERY_LIMITS.residentHistory,
         },
         incidentsReported: {
           include: {
             housingUnit: true,
           },
           orderBy: { date: 'desc' },
-          take: 10,
+          take: QUERY_LIMITS.residentHistory,
         },
         assessments: {
           include: {

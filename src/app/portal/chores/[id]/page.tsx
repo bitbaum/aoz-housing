@@ -15,6 +15,7 @@ import {
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
 import { formatDate } from '@/lib/utils'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +59,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         createdByResident: { select: { id: true, code: true } },
         completions: {
           orderBy: { completedAt: 'desc' },
-          take: 10,
+          take: QUERY_LIMITS.choreHistory,
           include: { completedBy: { select: { id: true, code: true } } },
         },
         attentionFlags: {

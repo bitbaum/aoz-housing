@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = { title: 'Mein Bereich' }
 import { PORTAL_LABELS } from '@/lib/constants'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
 import { PortalHousingCard, PortalOnboardingCard } from '@/components/portal/PortalHousingCard'
 import { PortalQuickActions } from '@/components/portal/PortalQuickActions'
@@ -46,7 +47,7 @@ export default async function ResidentPortal() {
                   resolvedAt: null,
                 },
                 orderBy: { date: 'desc' },
-                take: 5,
+                take: DISPLAY_LIMITS.portalIncidentPreview,
                 select: { id: true, type: true, date: true },
               },
             },
@@ -59,7 +60,7 @@ export default async function ResidentPortal() {
       },
       incidentsReported: {
         orderBy: { date: 'desc' },
-        take: 5,
+        take: DISPLAY_LIMITS.portalIncidentPreview,
         select: { id: true, type: true, description: true, resolvedAt: true },
       },
     },
@@ -86,7 +87,7 @@ export default async function ResidentPortal() {
           },
           select: { id: true, title: true, currentStatus: true },
           orderBy: { updatedAt: 'desc' },
-          take: 3,
+          take: DISPLAY_LIMITS.dashboardItems,
         })
       : Promise.resolve([]),
     roommates.length > 0

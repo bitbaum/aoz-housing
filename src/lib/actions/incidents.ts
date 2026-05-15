@@ -14,6 +14,7 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 // Simple schema for clearing follow-up
 const ClearFollowUpSchema = z.object({
@@ -142,7 +143,7 @@ export async function getHousingUnitIncidentHistory(housingUnitId: string) {
       },
     },
     orderBy: { date: 'desc' },
-    take: 50,
+    take: QUERY_LIMITS.entityHistory,
   })
 
   // Calculate which residents appear most frequently as subjects

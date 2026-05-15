@@ -18,6 +18,7 @@ import { formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
 import type { MaintenanceStatus, Prisma } from '@prisma/client'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,7 +64,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
         },
       },
       orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
-      take: 100,
+      take: QUERY_LIMITS.pageList,
     }),
     // Unfiltered for tab counts
     prisma.maintenanceRequest.findMany({

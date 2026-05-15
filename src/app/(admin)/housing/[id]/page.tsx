@@ -14,7 +14,7 @@ import {
   getHarmonyStatus,
   type HarmonyStatus,
 } from '@/lib/utils'
-import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { DISPLAY_LIMITS, QUERY_LIMITS } from '@/lib/config/thresholds'
 import { RoomVisualizationWithPlacement } from '@/components/housing/RoomVisualizationWithPlacement'
 import { CompatibilityMatrixInteractive } from '@/components/housing/CompatibilityMatrixInteractive'
 import { ApartmentProfileCard } from '@/components/housing/ApartmentProfileCard'
@@ -67,7 +67,7 @@ export default async function HousingDetailPage({ params }: Props) {
       },
       incidents: {
         orderBy: { date: 'desc' },
-        take: 20,
+        take: QUERY_LIMITS.unitHistory,
         include: {
           reportedBy: { select: { code: true } },
           subject: { select: { code: true } },

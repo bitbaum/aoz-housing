@@ -9,6 +9,7 @@ import { prisma } from '@/lib/db'
 import { Prisma } from '@prisma/client'
 import { getCurrentUser } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export type AuditAction =
   | 'CREATE'
@@ -88,7 +89,7 @@ export async function getEntityAuditLog(entity: AuditEntity, entityId: string) {
   return prisma.auditLog.findMany({
     where: { entity, entityId },
     orderBy: { createdAt: 'desc' },
-    take: 50,
+    take: QUERY_LIMITS.entityHistory,
   })
 }
 

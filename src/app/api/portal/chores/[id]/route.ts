@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export async function GET(
   _request: NextRequest,
@@ -25,7 +26,7 @@ export async function GET(
         createdByResident: { select: { id: true, code: true } },
         completions: {
           orderBy: { completedAt: 'desc' },
-          take: 10,
+          take: QUERY_LIMITS.choreHistory,
           include: { completedBy: { select: { id: true, code: true } } },
         },
         attentionFlags: {

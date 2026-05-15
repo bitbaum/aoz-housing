@@ -11,7 +11,7 @@ import {
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
-import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
+import { DEFAULT_STATUSES, QUERY_LIMITS } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
 
@@ -175,6 +175,6 @@ export async function getHousingUnitMaintenance(housingUnitId: string) {
       reportedBy: { select: { id: true, code: true } },
     },
     orderBy: { createdAt: 'desc' },
-    take: 20,
+    take: QUERY_LIMITS.unitHistory,
   })
 }

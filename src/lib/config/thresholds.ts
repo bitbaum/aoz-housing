@@ -229,6 +229,29 @@ export const DISPLAY_LIMITS = {
   topIncidentTypes: 5,
   /** CSV import: max validation errors displayed before truncating */
   importErrorPreview: 10,
+  /** Portal dashboard incident/maintenance preview rows */
+  portalIncidentPreview: 5,
+} as const
+
+// =============================================================================
+// DATABASE QUERY LIMITS
+// =============================================================================
+
+/**
+ * Row limits for Prisma queries, grouped by semantic context.
+ * Distinct from DISPLAY_LIMITS (which cap rendered lists after data is fetched).
+ */
+export const QUERY_LIMITS = {
+  /** Recent incidents/maintenance fetched for a single housing unit's detail view */
+  unitHistory: 20,
+  /** Incident/assessment history tabs on the resident detail page */
+  residentHistory: 10,
+  /** Entity-level history: incidents for conflict analysis, audit entity log */
+  entityHistory: 50,
+  /** Maximum rows returned on full list pages (incidents, maintenance) */
+  pageList: 100,
+  /** Chore assignment history on portal chore detail and API route */
+  choreHistory: 10,
 } as const
 
 // =============================================================================
