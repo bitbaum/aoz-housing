@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 interface Roommate {
   id: string
@@ -193,7 +194,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
               <button
                 onClick={() => setActiveModal(null)}
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-700"
-                aria-label="Schliessen"
+                aria-label={UI_LABELS.close}
               >
                 ✕
               </button>

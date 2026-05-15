@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 export interface NumberExplanation {
   label: string
@@ -112,7 +113,7 @@ export function ExplainableNumber({
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
-              aria-label="Schliessen"
+              aria-label={UI_LABELS.close}
             >
               ✕
             </button>

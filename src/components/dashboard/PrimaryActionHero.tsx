@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
-import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
+import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit } from './types'
 
 // =============================================================================
@@ -200,7 +200,7 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
         <button
           onClick={() => setDismissed(true)}
           className="p-1 hover:bg-red-500 rounded"
-          aria-label={DASHBOARD_LABELS.alertCloseAriaLabel}
+          aria-label={UI_LABELS.close}
         >
           ✕
         </button>

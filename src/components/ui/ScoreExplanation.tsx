@@ -7,7 +7,7 @@ import {
   type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
-import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, MATCHING_LABELS } from '@/lib/constants/labels'
+import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants/labels'
 
 /**
  * Factor impacting a score
@@ -108,7 +108,7 @@ export function ScoreExplanation({
         className={`${sizeClasses[size].score} ${colorClass} cursor-pointer hover:underline decoration-dotted underline-offset-4 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2 rounded`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        title="Klicken für Details"
+        title={UI_LABELS.clickForDetails}
       >
         {score}% - {levelLabel}
       </button>
@@ -136,7 +136,7 @@ export function ScoreExplanation({
             <button
               onClick={() => setIsOpen(false)}
               className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
-              aria-label="Schliessen"
+              aria-label={UI_LABELS.close}
             >
               ×
             </button>

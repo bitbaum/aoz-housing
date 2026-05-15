@@ -10,6 +10,7 @@ export const UI_LABELS = {
   save: 'Speichern',
   delete: 'Löschen',
   close: 'Schliessen',
+  clickForDetails: 'Klicken für Details',
   processing: 'Wird verarbeitet...',
   // Statuses
   open: 'Offen',

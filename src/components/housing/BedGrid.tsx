@@ -6,6 +6,7 @@ import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
+  UI_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
@@ -239,7 +240,7 @@ const ResidentBedPopover = ({
           <button
             onClick={onClose}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-            aria-label="Schliessen"
+            aria-label={UI_LABELS.close}
           >
             ✕
           </button>

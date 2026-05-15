@@ -88,7 +88,6 @@ export const DASHBOARD_LABELS = {
 
   alertCriticalAttentionSuffix: 'kritische Vorfälle erfordern sofortige Aufmerksamkeit',
   alertEdit: 'Bearbeiten',
-  alertCloseAriaLabel: 'Schliessen',
 
   occupancyOccupied: 'belegt',
   occupancyOf: 'von',

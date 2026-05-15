@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 
@@ -273,7 +273,7 @@ const CompatibilityDetailPopover = ({
           <button
             onClick={onClose}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-            aria-label="Schliessen"
+            aria-label={UI_LABELS.close}
           >
             ✕
           </button>
