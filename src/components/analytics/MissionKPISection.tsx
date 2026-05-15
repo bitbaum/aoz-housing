@@ -106,7 +106,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           unit={MISSION_KPI_LABELS.daysUnit}
           baselineValue={null}
         />
-        <div className={`rounded-lg border p-4 ${trendStyle.bg}`}>
+        <div className={`rounded-lg border p-4 sm:col-span-2 lg:col-span-1 ${trendStyle.bg}`}>
           <p className="text-sm text-gray-600 mb-1">{MISSION_KPI_LABELS.conflictTrend}</p>
           <p className={`text-2xl font-bold ${trendStyle.text}`}>{trendStyle.label}</p>
           <p className="text-xs text-gray-500 mt-2">{kpis.trendDetail}</p>

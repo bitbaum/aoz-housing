@@ -23,6 +23,7 @@ interface Props {
       resident: { code: string }
     }>
     followUpCount: number
+    mediationMinutes: number | null
   }
 }
 
@@ -161,6 +162,16 @@ export function IncidentSidebar({ incident }: Props) {
             <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.followUps}</dt>
             <dd className="text-gray-900">{incident.followUpCount}</dd>
           </div>
+          {incident.mediationMinutes !== null && incident.mediationMinutes > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.mediationTime}</dt>
+              <dd className="text-gray-900 font-medium">
+                {incident.mediationMinutes >= 60
+                  ? `${Math.floor(incident.mediationMinutes / 60)}h ${incident.mediationMinutes % 60 > 0 ? `${incident.mediationMinutes % 60}min` : ''}`
+                  : `${incident.mediationMinutes} min`}
+              </dd>
+            </div>
+          )}
           {incident.resolvedAt && (
             <div className="flex justify-between">
               <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.resolvedAt}</dt>

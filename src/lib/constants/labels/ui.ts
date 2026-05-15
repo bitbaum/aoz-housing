@@ -101,6 +101,7 @@ export const INCIDENT_SIDEBAR_LABELS = {
   incidentDate: 'Vorfallsdatum',
   followUps: 'Follow-ups',
   resolvedAt: 'Gelöst am',
+  mediationTime: 'Mediationszeit',
 } as const
 
 export const DANGER_ZONE_LABELS = {
