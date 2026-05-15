@@ -117,3 +117,10 @@ export const DASHBOARD_LABELS = {
   analyticsConflictEnded: 'Konfliktbedingt beendet',
   analyticsAvgSatisfaction: 'Ø Zufriedenheit',
 } as const
+
+export const MISSION_KPI_LABELS = {
+  conflictsPerMonth: 'Konflikte / Monat',
+  relocationsPerMonth: 'Umsiedlungen / Monat',
+  conflictsMonthlyChart: 'Konflikte pro Monat',
+  relocationsMonthlyChart: 'Konflikt-Umsiedlungen pro Monat',
+} as const

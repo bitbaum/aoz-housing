@@ -7,7 +7,7 @@ import {
   SPOT_TYPE_LABELS,
   SPOT_TYPE_ICONS,
 } from '@/lib/config/placement-spots'
-import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, UI_LABELS } from '@/lib/constants'
+import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferRecommendations'
 import type { UnitWithSpots } from '@/lib/types'
@@ -99,7 +99,7 @@ export function PlacementActions({
 
   return (
     <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
-      <h3 className="text-sm font-medium text-gray-700 mb-1">Aktionen</h3>
+      <h3 className="text-sm font-medium text-gray-700 mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
       <p className="text-xs text-gray-500 mb-3">
         Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)
       </p>
@@ -148,7 +148,7 @@ export function PlacementActions({
           className="mt-4 p-4 bg-blue-50 rounded-lg space-y-4 border border-blue-200"
         >
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-medium text-blue-900">Bewohner verlegen</h4>
+            <h4 className="font-medium text-blue-900">{PLACEMENT_ACTIONS_LABELS.transferTitle}</h4>
             <button
               type="button"
               className="text-blue-600 hover:text-blue-800 text-sm"
@@ -224,11 +224,11 @@ export function PlacementActions({
           </div>
 
           <div>
-            <label className="label">Notizen</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.transferNotesLabel}</label>
             <textarea
               name="notes"
               rows={2}
-              placeholder="Optionale Anmerkungen zur Verlegung..."
+              placeholder={PLACEMENT_ACTIONS_LABELS.transferNotesPlaceholder}
               className="input"
             />
           </div>
@@ -254,7 +254,7 @@ export function PlacementActions({
           className="mt-4 p-4 bg-red-50 rounded-lg space-y-4 border border-red-200"
         >
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-medium text-red-900">Platzierung beenden</h4>
+            <h4 className="font-medium text-red-900">{PLACEMENT_ACTIONS_LABELS.endTitle}</h4>
             <button
               type="button"
               className="text-red-600 hover:text-red-800 text-sm"
@@ -300,14 +300,14 @@ export function PlacementActions({
             <div className="p-4 bg-orange-50 rounded-lg border border-orange-200 space-y-4">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-orange-600 text-lg">📊</span>
-                <h5 className="font-medium text-orange-900">Konfliktanalyse</h5>
+                <h5 className="font-medium text-orange-900">{PLACEMENT_ACTIONS_LABELS.conflictAnalysisTitle}</h5>
               </div>
               <p className="text-sm text-orange-700 mb-3">
-                Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.
+                {PLACEMENT_ACTIONS_LABELS.conflictAnalysisDesc}
               </p>
 
               <div>
-                <label className="label">Hauptursache des Konflikts *</label>
+                <label className="label">{PLACEMENT_ACTIONS_LABELS.conflictCauseLabel}</label>
                 <select name="conflictGap" required className="input">
                   <option value="">{UI_LABELS.selectPlaceholder}</option>
                   {Object.entries(COMPATIBILITY_GAP_LABELS).map(([key, label]) => (
@@ -319,7 +319,7 @@ export function PlacementActions({
               </div>
 
               <div>
-                <label className="label">War der Konflikt vorhersehbar?</label>
+                <label className="label">{PLACEMENT_ACTIONS_LABELS.conflictPredictableLabel}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
@@ -342,19 +342,19 @@ export function PlacementActions({
                       value="false"
                       className="accent-orange-600"
                     />
-                    <span className="text-sm text-gray-700">Nein</span>
+                    <span className="text-sm text-gray-700">{PLACEMENT_ACTIONS_LABELS.conflictNoPredictable}</span>
                   </label>
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Hätte der Algorithmus diesen Konflikt vorhersagen können?
+                  {PLACEMENT_ACTIONS_LABELS.conflictAlgorithmLabel}
                 </p>
               </div>
 
               {recentIncidents.length > 0 && (
                 <div>
-                  <label className="label">Verknüpfter Vorfall</label>
+                  <label className="label">{PLACEMENT_ACTIONS_LABELS.linkedIncidentLabel}</label>
                   <select name="relatedIncidentId" className="input">
-                    <option value="">Keinen Vorfall verknüpfen</option>
+                    <option value="">{PLACEMENT_ACTIONS_LABELS.noLinkedIncident}</option>
                     {recentIncidents.map((incident) => (
                       <option key={incident.id} value={incident.id}>
                         {new Date(incident.date).toLocaleDateString('de-CH')} - {incident.type}: {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
@@ -370,11 +370,11 @@ export function PlacementActions({
           )}
 
           <div>
-            <label className="label">Notizen</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.endNotesLabel}</label>
             <textarea
               name="notes"
               rows={2}
-              placeholder="Optionale Anmerkungen..."
+              placeholder={PLACEMENT_ACTIONS_LABELS.endNotesPlaceholder}
               className="input"
             />
           </div>
@@ -387,7 +387,7 @@ export function PlacementActions({
             type="submit"
             className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700"
           >
-            Platzierung endgültig beenden
+            {PLACEMENT_ACTIONS_LABELS.endBtn}
           </button>
         </form>
       )}

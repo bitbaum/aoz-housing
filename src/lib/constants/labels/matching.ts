@@ -66,6 +66,34 @@ export const MATCHING_LABELS = {
   compare: 'Vergleichen',
 } as const
 
+export const ALGORITHM_OVERVIEW_LABELS = {
+  processStep1Title: 'Profil erfassen',
+  processStep2Title: 'Kompatibilität berechnen',
+  processStep3Title: 'Empfehlung erhalten',
+  tabDimensions: 'Dimensionen',
+  tabFactors: 'Faktoren',
+  headToHeadAvg: 'Durchschnitt',
+} as const
+
+export const PLACEMENT_ACTIONS_LABELS = {
+  actionsTitle: 'Aktionen',
+  transferTitle: 'Bewohner verlegen',
+  endTitle: 'Platzierung beenden',
+  conflictAnalysisTitle: 'Konfliktanalyse',
+  conflictAnalysisDesc: 'Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.',
+  conflictCauseLabel: 'Hauptursache des Konflikts *',
+  conflictPredictableLabel: 'War der Konflikt vorhersehbar?',
+  conflictAlgorithmLabel: 'Hätte der Algorithmus diesen Konflikt vorhersagen können?',
+  linkedIncidentLabel: 'Verknüpfter Vorfall',
+  noLinkedIncident: 'Keinen Vorfall verknüpfen',
+  transferNotesLabel: 'Notizen',
+  transferNotesPlaceholder: 'Optionale Anmerkungen zur Verlegung...',
+  endNotesLabel: 'Notizen',
+  endNotesPlaceholder: 'Optionale Anmerkungen...',
+  endBtn: 'Platzierung endgültig beenden',
+  conflictNoPredictable: 'Nein',
+} as const
+
 export const PLACEMENT_CONCERN_LABELS = {
   wheelchairRequired: 'Benötigt Rollstuhlzugang',
   groundFloorRequired: 'Benötigt Erdgeschoss',

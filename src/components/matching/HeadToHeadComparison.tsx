@@ -4,6 +4,7 @@ import {
   SLEEP_SCHEDULE_LABELS,
   SMOKING_STATUS_LABELS,
   SOCIAL_STYLE_LABELS,
+  ALGORITHM_OVERVIEW_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
@@ -77,7 +78,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
             <div key={attr.key} className="flex items-center justify-between py-2 border-b border-gray-100">
               <span className="text-xs font-medium text-gray-600">{attr.label}</span>
               <div className="flex items-center gap-3 text-xs">
-                <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title="Durchschnitt">
+                <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
                   Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
                     : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, DISPLAY_LIMITS.labelAbbreviation) : '–'}

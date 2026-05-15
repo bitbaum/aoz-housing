@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { hardDeleteHousingUnitProtected } from '@/lib/actions'
+import { HOUSING_DANGER_ZONE_LABELS } from '@/lib/constants/labels'
 
 interface Props {
   housingUnitId: string
@@ -79,14 +80,14 @@ export function HousingDangerZone({ housingUnitId, code }: Props) {
         <input
           value={confirmation}
           onChange={(e) => setConfirmation(e.target.value)}
-          placeholder="Bestätigung: DELETE"
+          placeholder={HOUSING_DANGER_ZONE_LABELS.confirmPlaceholder}
           className="input min-h-[44px]"
           disabled={!isEligibleCode || isPending}
         />
         <input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Grund (mind. 10 Zeichen)"
+          placeholder={HOUSING_DANGER_ZONE_LABELS.reasonPlaceholder}
           className="input min-h-[44px]"
           disabled={!isEligibleCode || isPending}
         />

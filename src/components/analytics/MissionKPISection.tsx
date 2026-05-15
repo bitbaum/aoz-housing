@@ -5,6 +5,7 @@
  */
 
 import type { MissionKPIs } from '@/lib/analytics/mission-kpis'
+import { MISSION_KPI_LABELS } from '@/lib/constants/labels'
 
 interface Props {
   kpis: MissionKPIs
@@ -37,7 +38,7 @@ export function MissionKPISection({ kpis }: Props) {
       {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KPICard
-          label="Konflikte / Monat"
+          label={MISSION_KPI_LABELS.conflictsPerMonth}
           value={kpis.avgIncidentsPerMonth}
           current={kpis.currentMonthIncidents}
           currentLabel="Dieser Monat"
@@ -45,7 +46,7 @@ export function MissionKPISection({ kpis }: Props) {
           unit=""
         />
         <KPICard
-          label="Umsiedlungen / Monat"
+          label={MISSION_KPI_LABELS.relocationsPerMonth}
           value={kpis.avgRelocationsPerMonth}
           current={kpis.currentMonthRelocations}
           currentLabel="Dieser Monat"
@@ -70,13 +71,13 @@ export function MissionKPISection({ kpis }: Props) {
       {/* Monthly Sparklines */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MiniChart
-          label="Konflikte pro Monat"
+          label={MISSION_KPI_LABELS.conflictsMonthlyChart}
           data={kpis.incidentsPerMonth}
           color="text-orange-500"
           barColor="bg-orange-400"
         />
         <MiniChart
-          label="Konflikt-Umsiedlungen pro Monat"
+          label={MISSION_KPI_LABELS.relocationsMonthlyChart}
           data={kpis.conflictRelocationsPerMonth}
           color="text-red-500"
           barColor="bg-red-400"

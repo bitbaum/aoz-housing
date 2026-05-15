@@ -47,6 +47,11 @@ export const END_REASON_DESCRIPTIONS: Record<string, string> = {
   OTHER: 'Sonstige Gründe (bitte in Notizen erläutern)',
 }
 
+export const HOUSING_DANGER_ZONE_LABELS = {
+  confirmPlaceholder: 'Bestätigung: DELETE',
+  reasonPlaceholder: 'Grund (mind. 10 Zeichen)',
+} as const
+
 export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {
   NOISE: 'Lärm / Geräusche',
   CLEANLINESS: 'Sauberkeit / Ordnung',

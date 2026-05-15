@@ -19,6 +19,7 @@ import {
   ScoreLevel,
 } from './shared'
 import { COMPATIBILITY_SCORE_LABELS, SCORE_LEVEL_ACTION_LABELS } from '@/lib/constants/labels/scores'
+import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants/labels'
 
 export function OverviewTab() {
   const dimensionColors = ['purple', 'blue', 'green', 'orange'] as const
@@ -35,19 +36,19 @@ export function OverviewTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <ProcessStep
             number={1}
-            title="Profil erfassen"
+            title={ALGORITHM_OVERVIEW_LABELS.processStep1Title}
             description="Bei der Aufnahme werden Präferenzen und Bedürfnisse systematisch erfasst."
             icon={<Users className="w-6 h-6" />}
           />
           <ProcessStep
             number={2}
-            title="Kompatibilität berechnen"
+            title={ALGORITHM_OVERVIEW_LABELS.processStep2Title}
             description={`${FACTOR_COUNT} Faktoren werden gewichtet verglichen.`}
             icon={<Brain className="w-6 h-6" />}
           />
           <ProcessStep
             number={3}
-            title="Empfehlung erhalten"
+            title={ALGORITHM_OVERVIEW_LABELS.processStep3Title}
             description="Ein Score zeigt die Eignung, Warnungen weisen auf Risiken hin."
             icon={<Scale className="w-6 h-6" />}
           />

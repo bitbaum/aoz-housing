@@ -100,7 +100,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {stats.critical > 0 && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" role="img" aria-label="Warnung">🚨</span>
+            <span className="text-2xl" role="img" aria-label={UI_LABELS.warning}>🚨</span>
             <div>
               <p className="font-semibold text-red-800">
                 {stats.critical} {INCIDENT_PAGE_LABELS.criticalAlertSuffix}

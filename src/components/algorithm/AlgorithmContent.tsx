@@ -23,6 +23,7 @@ import { ScienceTab } from './ScienceTab'
 import { DimensionsTab } from './DimensionsTab'
 import { DataCollectionTab } from './DataCollectionTab'
 import { TechnicalTab } from './TechnicalTab'
+import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants/labels'
 
 export function AlgorithmContent() {
   const [activeTab, setActiveTab] = useState('overview')
@@ -31,7 +32,7 @@ export function AlgorithmContent() {
   const tabs = [
     { id: 'overview', label: 'Übersicht' },
     { id: 'science', label: 'Forschung' },
-    { id: 'dimensions', label: 'Faktoren' },
+    { id: 'dimensions', label: ALGORITHM_OVERVIEW_LABELS.tabFactors },
     { id: 'collection', label: 'Datenerfassung' },
     { id: 'technical', label: 'Technik' },
   ]
@@ -64,12 +65,12 @@ export function AlgorithmContent() {
             <FactStat
               icon={<Layers className="w-5 h-5" />}
               value={String(DIMENSION_COUNT)}
-              label="Dimensionen"
+              label={ALGORITHM_OVERVIEW_LABELS.tabDimensions}
             />
             <FactStat
               icon={<Activity className="w-5 h-5" />}
               value={String(FACTOR_COUNT)}
-              label="Faktoren"
+              label={ALGORITHM_OVERVIEW_LABELS.tabFactors}
             />
             <FactStat
               icon={<MapPin className="w-5 h-5" />}

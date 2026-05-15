@@ -165,7 +165,7 @@ export function AIChatInterface() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Frage stellen… (Enter zum Senden, Shift+Enter für Zeilenumbruch)"
+          placeholder={UI_LABELS.aiChatPlaceholder}
           rows={1}
           disabled={streaming}
           className="flex-1 resize-none input py-2.5 text-sm min-h-[44px] max-h-32 overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
@@ -183,7 +183,7 @@ export function AIChatInterface() {
           aria-label={UI_LABELS.sendMessage}
         >
           {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          <span className="hidden sm:inline">Senden</span>
+          <span className="hidden sm:inline">{UI_LABELS.aiChatSend}</span>
         </button>
       </div>
     </div>

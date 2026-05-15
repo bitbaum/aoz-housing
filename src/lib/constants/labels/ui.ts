@@ -39,6 +39,10 @@ export const UI_LABELS = {
   selectPlaceholder: 'Bitte wählen',
   // Incidents common
   solution: 'Lösung:',
+  warning: 'Warnung',
+  // AI chat
+  aiChatPlaceholder: 'Frage stellen… (Enter zum Senden, Shift+Enter für Zeilenumbruch)',
+  aiChatSend: 'Senden',
 } as const
 
 export const FOLLOW_UP_FORM_LABELS = {
