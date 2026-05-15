@@ -31,6 +31,9 @@ jest.mock('@/lib/constants', () => ({
     DE: 'Deutsch',
     EN: 'Englisch',
   },
+  UI_LABELS: {
+    close: 'Schliessen',
+  },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
 

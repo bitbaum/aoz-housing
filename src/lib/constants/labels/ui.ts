@@ -11,6 +11,9 @@ export const UI_LABELS = {
   delete: 'Löschen',
   close: 'Schliessen',
   clickForDetails: 'Klicken für Details',
+  sendMessage: 'Nachricht senden',
+  actions: 'Aktionen',
+  required: 'erforderlich',
   processing: 'Wird verarbeitet...',
   // Statuses
   open: 'Offen',
@@ -136,6 +139,7 @@ export const UNIT_INCIDENT_LABELS = {
 
 export const SATISFACTION_SURVEY_LABELS = {
   saveFailed: 'Speichern fehlgeschlagen. Bitte erneut versuchen.',
+  groupLabel: 'Zufriedenheit',
   day: 'Tag',
   days: 'Tagen',
   ratings: {

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { createQuickCheckIn } from '@/lib/actions/satisfaction'
 import { showToast } from '@/components/ui/Toast'
+import { UI_LABELS, SATISFACTION_SURVEY_LABELS } from '@/lib/constants/labels'
 
 interface QuickCheckInProps {
   placementId: string
@@ -141,7 +142,7 @@ export function QuickCheckIn({
           )}
         </div>
 
-        <div className="flex gap-2" role="radiogroup" aria-label="Zufriedenheit">
+        <div className="flex gap-2" role="radiogroup" aria-label={SATISFACTION_SURVEY_LABELS.groupLabel}>
           {SATISFACTION_OPTIONS.map((option) => (
             <label
               key={option.value}
@@ -182,7 +183,7 @@ export function QuickCheckIn({
             <label id="roommate-label" className="text-sm font-medium text-gray-700 block mb-1">
               Wie ist die Beziehung zu Ihren Mitbewohnern?
               {needsExplanation && !concerns.trim() && (
-                <span className="text-red-500 ml-1" aria-label="erforderlich">*</span>
+                <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
             </label>
             <div className="flex gap-1" role="radiogroup" aria-labelledby="roommate-label">
@@ -218,7 +219,7 @@ export function QuickCheckIn({
             <label htmlFor="concerns-input" className="text-sm font-medium text-gray-700 block mb-1">
               Was beschäftigt Sie?
               {needsExplanation && !roommateRelations && (
-                <span className="text-red-500 ml-1" aria-label="erforderlich">*</span>
+                <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
             </label>
             <textarea

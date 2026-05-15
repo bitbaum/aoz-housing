@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Loader2 } from 'lucide-react'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -179,7 +180,7 @@ export function AIChatInterface() {
           onClick={() => sendMessage(input)}
           disabled={!input.trim() || streaming}
           className="btn btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label="Nachricht senden"
+          aria-label={UI_LABELS.sendMessage}
         >
           {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           <span className="hidden sm:inline">Senden</span>

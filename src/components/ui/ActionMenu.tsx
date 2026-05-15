@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { CRUD_ACTIONS, ACTION_ICONS } from '@/lib/config/crud-actions'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 interface ActionMenuProps {
   onEdit?: () => void
@@ -73,7 +74,7 @@ export function ActionMenu({
           setIsOpen(!isOpen)
         }}
         className={`${sizeClasses} flex items-center justify-center rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1`}
-        aria-label="Aktionen"
+        aria-label={UI_LABELS.actions}
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
