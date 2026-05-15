@@ -18,8 +18,9 @@ const loginAttempts = new Map<string, RateLimitEntry>()
 // Cleanup interval (every 5 minutes)
 const CLEANUP_INTERVAL = 5 * 60 * 1000
 
-// Start cleanup timer
-if (typeof setInterval !== 'undefined') {
+// Start cleanup timer — skip in test environments where the interval
+// leaks into Jest worker processes and prevents clean shutdown.
+if (typeof setInterval !== 'undefined' && process.env.NODE_ENV !== 'test') {
   const cleanupTimer = setInterval(() => {
     const now = Date.now()
     loginAttempts.forEach((entry, key) => {
@@ -29,7 +30,7 @@ if (typeof setInterval !== 'undefined') {
     })
   }, CLEANUP_INTERVAL)
 
-  // Avoid keeping test/node processes alive just for the cleanup interval
+  // Belt-and-suspenders: unref so a running process doesn't stay alive for this alone
   if (typeof (cleanupTimer as NodeJS.Timeout).unref === 'function') {
     ;(cleanupTimer as NodeJS.Timeout).unref()
   }

@@ -151,6 +151,142 @@ src/
 
 ---
 
+## Design System
+
+**Tailwind v3** — config at `tailwind.config.ts`. All CSS custom properties live in `src/app/globals.css`.
+
+### CSS Custom Properties (SSOT — from `src/app/globals.css`)
+
+```css
+:root {
+  --foreground: #1e293b;
+  --background: #f8fafc;
+}
+```
+
+These two base tokens are defined in globals.css. All other brand and semantic values are defined as **literal hex values** directly in `tailwind.config.ts` (see below — this is a SSOT violation to fix when retheme work is needed).
+
+### Tailwind Config (`tailwind.config.ts`)
+
+**AOZ brand colors (literal values — current state):**
+
+```
+aoz-primary:          #E63946   ← Red/coral, AOZ logo color, CTAs
+aoz-primary-light:    #EF5A67
+aoz-primary-dark:     #C62D3A
+aoz-secondary:        #2D5A5A   ← Dark teal, navigation, secondary actions
+aoz-secondary-light:  #3D7A7A
+aoz-secondary-dark:   #1D4A4A
+aoz-accent:           #D4EDDA   ← Mint green, backgrounds, icon containers
+aoz-accent-light:     #E8F5E9
+aoz-accent-dark:      #B8DFC2
+aoz-background:       #f8fafc
+aoz-surface:          #ffffff
+```
+
+**Compatibility score colors (5-tier system):**
+
+```
+score-excellent:  #22C55E   ← 80-100: Sehr gut
+score-good:       #84CC16   ← 60-79: Gut
+score-medium:     #F59E0B   ← 40-59: Mittel
+score-low:        #F97316   ← 20-39: Niedrig
+score-critical:   #EF4444   ← 0-19: Kritisch
+```
+
+**Severity colors:**
+
+```
+severity-low:      #9CA3AF   ← Gray
+severity-medium:   #FBBF24   ← Amber
+severity-high:     #F97316   ← Orange
+severity-critical: #EF4444   ← Red
+```
+
+**Status colors:**
+
+```
+status-success:  #22C55E
+status-warning:  #F59E0B
+status-error:    #EF4444
+status-info:     #3B82F6
+```
+
+**Typography & shadows:**
+
+```
+font-sans:   ['var(--font-inter)', 'system-ui', 'sans-serif']
+shadow-card: '0 1px 3px 0 rgb(0 0 0 / 0.08)'
+```
+
+### Component Classes (from `src/app/globals.css`)
+
+**Score indicators:**
+```
+.score-excellent  → bg-score-excellent text-white
+.score-good       → bg-score-good text-white
+.score-medium     → bg-score-medium text-gray-900
+.score-low        → bg-score-low text-white
+.score-critical   → bg-score-critical text-white
+```
+
+**Cards:**
+```
+.card       → bg-white rounded-lg shadow-card border border-gray-200 p-4 sm:p-6
+.card-hover → card + hover:shadow-md hover:border-gray-300 transition-all cursor-pointer
+```
+
+**Icon containers (circular, mint background):**
+```
+.icon-container    → w-10 h-10 rounded-full bg-aoz-accent flex items-center justify-center
+.icon-container-sm → w-8 h-8 ...
+.icon-container-lg → w-12 h-12 ...
+```
+
+**Buttons (all min-h-[44px] for touch targets):**
+```
+.btn           → base (px-4 py-2.5 rounded-md font-medium transition-colors focus:ring-2)
+.btn-primary   → bg-aoz-primary text-white hover:bg-aoz-primary-dark
+.btn-secondary → bg-aoz-secondary text-white hover:bg-aoz-secondary-dark
+.btn-outline   → border border-aoz-primary text-aoz-primary hover:bg-aoz-accent
+.btn-ghost     → text-aoz-primary hover:bg-aoz-accent
+```
+
+**Form elements:**
+```
+.input → w-full px-3 py-2.5 border border-gray-300 rounded-md focus:ring-aoz-primary min-h-[44px]
+.label → block text-sm font-medium text-gray-700 mb-1
+```
+
+**Status badges:**
+```
+.badge         → inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+.badge-active  → bg-green-100 text-green-800
+.badge-success → bg-green-100 text-green-800
+.badge-pending → bg-amber-100 text-amber-900
+.badge-info    → bg-blue-100 text-blue-800
+.badge-ended   → bg-gray-100 text-gray-800
+.badge-alert   → bg-red-100 text-red-800
+```
+
+**Other:**
+```
+.explainable-number → cursor-pointer underline decoration-dotted decoration-gray-400 hover:decoration-aoz-primary
+```
+
+### SSOT Rule
+All design tokens live in `app/globals.css` only. Tailwind config MUST reference CSS vars (`'var(--name)'`), never literal values. Components MUST use semantic Tailwind classes, never arbitrary values like `bg-[#hex]`.
+
+**Violations to fix when touching UI:**
+- `bg-[#hex]` / `text-[#hex]` in className → CSS var + semantic class
+- `style={{ color: '#hex' }}` → CSS var + className
+- Literal hex in tailwind.config → `'var(--color-name)'`
+- Same token defined in 2+ files → consolidate to globals.css
+
+**Audit:** `grep -r '\[#' src/` — every result is a violation.
+
+---
+
 ## Mobile-First Design (MANDATORY)
 
 All UI must work on mobile FIRST, then enhance for larger screens.
