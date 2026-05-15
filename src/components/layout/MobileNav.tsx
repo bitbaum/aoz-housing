@@ -50,7 +50,7 @@ export function MobileNav() {
   return (
     <>
       {/* Mobile header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-40">
+      <header className="md:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm z-40">
         <div className="flex items-center justify-between px-4 py-3">
           <Logo size="md" />
           <button
@@ -87,7 +87,7 @@ export function MobileNav() {
         aria-modal="true"
         aria-label={UI_LABELS.navigation}
       >
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div>
               <Logo size="lg" />
@@ -126,7 +126,7 @@ function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boole
     <Link
       href={item.href}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
         active
           ? 'text-aoz-secondary bg-aoz-accent font-medium'
           : 'text-gray-700 hover:text-aoz-secondary hover:bg-aoz-accent'

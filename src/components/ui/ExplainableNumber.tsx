@@ -95,10 +95,10 @@ export function ExplainableNumber({
           ref={popoverRef}
           role="dialog"
           aria-label={`Erklärung für ${explanation.label}`}
-          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-2xl shadow-card-hover border border-gray-100 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-200 rotate-45" />
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />
 
           {/* Header */}
           <div className="flex items-start justify-between mb-3 relative">

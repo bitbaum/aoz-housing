@@ -66,10 +66,10 @@ export function PlacementConfirm({
 
       {/* Confirmation Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-white rounded-2xl shadow-card-hover max-w-lg w-full mx-4">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900">
                 {PLACEMENT_CONFIRM_LABELS.title}
               </h3>
@@ -143,7 +143,7 @@ export function PlacementConfirm({
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={isPending}

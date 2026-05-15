@@ -72,7 +72,7 @@ export function ActionMenu({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`${sizeClasses} flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1`}
+        className={`${sizeClasses} flex items-center justify-center rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1`}
         aria-label="Aktionen"
         aria-expanded={isOpen}
         aria-haspopup="menu"
@@ -83,7 +83,7 @@ export function ActionMenu({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50 animate-in"
+          className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-card border border-gray-100 py-1 z-50 animate-in"
           role="menu"
         >
           {onEdit && (
