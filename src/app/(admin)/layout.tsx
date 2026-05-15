@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { Logo } from '@/components/ui/Logo'
-import { NAV_ITEMS, NAV_ICONS, MEGAMENU_GROUPS } from '@/lib/config/navigation'
+import { NAV_ICONS, MEGAMENU_GROUPS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
 
@@ -73,30 +73,8 @@ export default async function AdminLayout({
         {/* Mobile Navigation */}
         <MobileNav />
 
-        {/* Desktop Sidebar */}
-        <aside className="hidden md:block w-56 bg-white/80 backdrop-blur-sm border-r border-gray-100 fixed top-[96px] h-[calc(100vh-96px)] overflow-y-auto">
-          <nav className="p-3 pt-4">
-            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
-              {APP_LABELS.navSection}
-            </div>
-            {NAV_ITEMS.map((item) => (
-              <SidebarLink key={item.href} href={item.href} icon={item.icon}>
-                {item.label}
-              </SidebarLink>
-            ))}
-            <div className="border-t border-gray-100 mt-4 pt-4">
-              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
-                {APP_LABELS.systemSection}
-              </div>
-              <SidebarLink href="/algorithm" icon="brain">
-                {APP_LABELS.algorithm}
-              </SidebarLink>
-            </div>
-          </nav>
-        </aside>
-
         {/* Main content */}
-        <main className="flex-1 md:ml-56 flex flex-col">
+        <main className="flex-1 flex flex-col">
           <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
             {children}
           </div>
@@ -185,23 +163,3 @@ function MegaMenuDropdown({
   )
 }
 
-function SidebarLink({
-  href,
-  icon,
-  children,
-}: {
-  href: string
-  icon: string
-  children: React.ReactNode
-}) {
-  const Icon = NAV_ICONS[icon] || NAV_ICONS.home
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-500 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-xl transition-all duration-150 min-h-[44px]"
-    >
-      <Icon className="w-4 h-4 flex-shrink-0" />
-      <span>{children}</span>
-    </Link>
-  )
-}

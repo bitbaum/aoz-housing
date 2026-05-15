@@ -44,7 +44,7 @@ export function StatCard({ label, value, subtitle, trend = 'neutral', href }: St
 
   const content = (
     <>
-      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-sm text-gray-600">{label}</p>
       <p className={`text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
       {subtitle && (
         <p className={`text-sm mt-2 ${getTrendColorClass(trend)}`}>{subtitle}</p>

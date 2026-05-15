@@ -20,17 +20,13 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           {PORTAL_LABELS.title}
         </Link>
 
-        {/* Desktop navigation */}
-        <nav className="hidden sm:flex items-center gap-1 md:gap-2">
+        {/* Desktop navigation — 5 primary items only; full list in hamburger */}
+        <nav className="hidden lg:flex items-center gap-1">
           <PortalNavLink href="/portal" active={pathname === '/portal'}>{PORTAL_LABELS.nav.overview}</PortalNavLink>
           <PortalNavLink href="/portal/roommates" active={pathname === '/portal/roommates'}>{PORTAL_LABELS.nav.roommates}</PortalNavLink>
           <PortalNavLink href="/portal/chores" active={pathname.startsWith('/portal/chores')}>{PORTAL_LABELS.nav.chores}</PortalNavLink>
-          <PortalNavLink href="/portal/housing" active={pathname === '/portal/housing'}>{PORTAL_LABELS.nav.housing}</PortalNavLink>
-          <PortalNavLink href="/portal/activities" active={pathname === '/portal/activities'}>{PORTAL_LABELS.nav.activities}</PortalNavLink>
-          <PortalNavLink href="/portal/transfer" active={pathname === '/portal/transfer'}>{PORTAL_LABELS.transfer.navLabel}</PortalNavLink>
           <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
           <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
-          <PortalNavLink href="/portal/help" active={pathname === '/portal/help'}>{PORTAL_LABELS.nav.help}</PortalNavLink>
           {hasStaffAccess && (
             <Link
               href="/"
@@ -49,10 +45,10 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           </form>
         </nav>
 
-        {/* Mobile menu button */}
+        {/* Mobile / tablet menu button — visible below lg (1024px) */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="sm:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
+          className="lg:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
           aria-label={menuOpen ? UI_LABELS.menuClose : UI_LABELS.menuOpen}
           aria-expanded={menuOpen}
           aria-controls="portal-mobile-nav"
@@ -69,9 +65,9 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         </button>
       </div>
 
-      {/* Mobile navigation dropdown */}
+      {/* Mobile / tablet navigation dropdown */}
       {menuOpen && (
-        <nav id="portal-mobile-nav" className="sm:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
+        <nav id="portal-mobile-nav" className="lg:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
           <PortalNavLinkMobile href="/portal" active={pathname === '/portal'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.overview}
           </PortalNavLinkMobile>
