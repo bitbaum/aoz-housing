@@ -12,6 +12,7 @@ import { PortalPendingChores } from '@/components/portal/PortalPendingChores'
 import { PortalRoommatesCard } from '@/components/portal/PortalRoommatesCard'
 import { PortalReportsCard } from '@/components/portal/PortalReportsCard'
 import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard'
+import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
 
 export const dynamic = 'force-dynamic'
 
@@ -163,6 +164,9 @@ export default async function ResidentPortal() {
         {housingUnit && housingUnit.incidents.length > 0 && (
           <PortalMaintenanceCard incidents={housingUnit.incidents} />
         )}
+
+        {/* Activities */}
+        <PortalActivitiesCard />
       </div>
     </div>
   )

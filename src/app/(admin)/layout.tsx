@@ -83,6 +83,7 @@ export default async function AdminLayout({
                 { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
               ]}
             />
+            <MegaMenuItem href="/ai-assistant" icon="bot" label="KI-Assistent" />
           </div>
         </div>
       </nav>
