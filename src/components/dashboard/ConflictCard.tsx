@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
 
 interface HotspotUnit {
   id: string
@@ -35,7 +36,7 @@ export function ConflictCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Konflikte</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{ALGORITHM_ACCURACY_LABELS.conflictCardTitle}</h2>
 
       {/* Main stat */}
       <Link href="/incidents?category=INTERPERSONAL" className="block mb-4 group">
@@ -43,11 +44,11 @@ export function ConflictCard({
           <span className={`text-3xl font-bold ${getConflictColor(activeConflicts)}`}>
             {activeConflicts}
           </span>
-          <span className="text-gray-500 text-sm">aktiv (30 Tage)</span>
+          <span className="text-gray-500 text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardActiveSuffix}</span>
         </div>
         {oldestConflictDays !== undefined && activeConflicts > 0 && (
           <p className="text-sm text-gray-500 mt-1 group-hover:text-gray-700">
-            Ältester: {oldestConflictDays} Tage ungelöst
+            {ALGORITHM_ACCURACY_LABELS.conflictCardOldest(oldestConflictDays)}
           </p>
         )}
       </Link>
@@ -55,7 +56,7 @@ export function ConflictCard({
       {/* Hotspot units */}
       {hasHotspots && (
         <div className="border-t border-gray-100 pt-4 mt-4">
-          <p className="text-sm font-medium text-gray-700 mb-3">Brennpunkte</p>
+          <p className="text-sm font-medium text-gray-700 mb-3">{ALGORITHM_ACCURACY_LABELS.conflictCardHotspots}</p>
           <div className="space-y-2">
             {hotspotUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map((unit) => (
               <Link
@@ -65,10 +66,10 @@ export function ConflictCard({
               >
                 <div>
                   <span className="font-medium text-gray-900 text-sm">{unit.code}</span>
-                  <span className="text-gray-500 text-sm ml-2">{unit.occupancy} belegt</span>
+                  <span className="text-gray-500 text-sm ml-2">{unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}</span>
                 </div>
                 <span className="text-sm text-orange-600 font-medium">
-                  {unit.conflicts} Konflikte
+                  {ALGORITHM_ACCURACY_LABELS.conflictCardConflictCount(unit.conflicts)}
                 </span>
               </Link>
             ))}
@@ -79,9 +80,9 @@ export function ConflictCard({
       {/* Recent trend */}
       <div className="border-t border-gray-100 pt-4 mt-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Letzte 7 Tage</span>
+          <span className="text-gray-600">{ALGORITHM_ACCURACY_LABELS.conflictCardLast7Days}</span>
           <span className={recentConflicts === 0 ? 'text-green-600' : 'text-gray-900'}>
-            {recentConflicts === 0 ? '✓ Keine neuen' : `${recentConflicts} neue`}
+            {recentConflicts === 0 ? ALGORITHM_ACCURACY_LABELS.conflictCardNoneNew : ALGORITHM_ACCURACY_LABELS.conflictCardNewCount(recentConflicts)}
           </span>
         </div>
       </div>
@@ -90,7 +91,7 @@ export function ConflictCard({
       {!hasConflicts && (
         <div className="py-4 text-center">
           <span className="text-green-600 text-2xl block mb-2">✓</span>
-          <p className="text-green-700 text-sm">Keine aktiven Konflikte</p>
+          <p className="text-green-700 text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}</p>
         </div>
       )}
 
@@ -98,7 +99,7 @@ export function ConflictCard({
         href="/incidents"
         className="block text-center mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
       >
-        Alle Vorfälle →
+        {ALGORITHM_ACCURACY_LABELS.conflictCardViewAll}
       </Link>
     </div>
   )

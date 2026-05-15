@@ -65,7 +65,7 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
             <>
               <p className="text-gray-500 mb-3">{HOUSING_LIST_LABELS.emptyDefault}</p>
               <a href="/housing/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
-                Erste Unterkunft erfassen
+                {HOUSING_LIST_LABELS.createHousingFirst}
               </a>
             </>
           ) : (
@@ -75,7 +75,7 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="text-sm text-aoz-primary hover:underline"
               >
-                Filter zurücksetzen
+                {HOUSING_LIST_LABELS.filterReset}
               </button>
             </>
           )}

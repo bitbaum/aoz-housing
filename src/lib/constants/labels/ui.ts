@@ -249,6 +249,8 @@ export const HOUSING_LIST_LABELS = {
   allStatus: 'Alle Status',
   emptyDefault: 'Noch keine Unterkünfte vorhanden',
   emptyFiltered: 'Keine Unterkünfte für diese Filter',
+  filterReset: 'Filter zurücksetzen',
+  createHousingFirst: 'Erste Unterkunft erfassen',
   occupancy: 'Belegung',
   wheelchairTitle: 'Rollstuhlgerecht',
 } as const
@@ -487,6 +489,8 @@ export const HOUSING_SPOTS_LABELS = {
   createSpotBtn: 'Platz erstellen',
   existingTitle: 'Vorhandene Plätze',
   emptySpots: 'Noch keine Plätze definiert',
+  emptyRoomView: 'Keine Plätze definiert für diese Unterkunft',
+  addSpotsBtn: 'Plätze hinzufügen',
   standaloneSection: 'Einzelne Plätze',
   occupied: 'Belegt',
   available: 'Frei',
@@ -600,10 +604,15 @@ export const HOUSING_EDIT_LABELS = {
 export const FORM_VALIDATION_UX_LABELS = {
   requiredFields: 'Bitte prüfen Sie die markierten Pflichtfelder.',
   fieldRequired: 'Dieses Feld ist erforderlich',
+  readOnly: 'Kann nicht geändert werden',
 } as const
 
 export const COMPATIBLE_MATCHES_LABELS = {
   desc: 'Diese Bewohner könnten zusammen platziert werden.',
+  unitsTitle: 'Beste Unterkünfte',
+  residentsTitle: 'Passende Mitbewohner (unplatziert)',
+  emptyUnit: 'Leer',
+  residentCount: (count: number) => `${count} Bewohner`,
 } as const
 
 export const TOP_COMPATIBILITIES_LABELS = {
@@ -612,7 +621,16 @@ export const TOP_COMPATIBILITIES_LABELS = {
 
 export const AI_ASSISTANT_LABELS = {
   subtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.',
+  componentTitle: 'KI-Assistent für AOZ',
+  componentSubtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften und Vorfällen.',
 } as const
+
+export const AI_SUGGESTED_QUESTIONS = [
+  'Wie viele Bewohner sind aktuell im System?',
+  'Welche Einheiten haben noch freie Plätze?',
+  'Zeige mir die letzten offenen Vorfälle.',
+  'Was ist die aktuelle Belegungsrate?',
+] as const
 
 export const RESIDENT_INCIDENTS_LABELS = {
   sectionTitle: 'Vorfallstatistik',

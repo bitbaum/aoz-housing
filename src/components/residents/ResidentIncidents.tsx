@@ -3,6 +3,7 @@ import type { Incident, HousingUnit } from '@prisma/client'
 import {
   INCIDENT_TYPE_LABELS,
   RESIDENT_INCIDENTS_LABELS,
+  UI_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
@@ -117,9 +118,9 @@ export function ResidentIncidents({
                     </p>
                   </div>
                   {incident.resolvedAt ? (
-                    <span className="badge badge-active">Gelöst</span>
+                    <span className="badge badge-active">{UI_LABELS.resolved}</span>
                   ) : (
-                    <span className="badge badge-pending">Offen</span>
+                    <span className="badge badge-pending">{UI_LABELS.open}</span>
                   )}
                 </div>
               </div>

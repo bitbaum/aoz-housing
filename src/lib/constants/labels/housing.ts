@@ -53,6 +53,12 @@ export const HOUSING_DANGER_ZONE_LABELS = {
   blockerReportTitle: 'Blocker-Report:',
   noDetails: 'Keine Details',
   copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
+  description: 'Nur für Test-/Demo-Unterkünfte. Diese Aktion ist endgültig und entfernt den Datensatz.',
+  notEligible: 'Dieser Unterkunfts-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
+  deleteSuccess: 'Unterkunft wurde endgültig gelöscht',
+  deleteBtn: 'Endgültig löschen',
+  deleteFailed: 'Hard-Delete fehlgeschlagen',
+  reportCopyBtn: 'Report kopieren',
 } as const
 
 export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {

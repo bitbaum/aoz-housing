@@ -1,7 +1,7 @@
 'use client'
 
 import type { FactorDef } from '@/lib/config/types'
-import { UI_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS, FORM_VALIDATION_UX_LABELS } from '@/lib/constants/labels'
 
 export function TextField({
   factor,
@@ -61,7 +61,7 @@ export function TextField({
         aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
       />
       {disabled && (
-        <p className="text-xs text-gray-500 mt-1">Kann nicht geändert werden</p>
+        <p className="text-xs text-gray-500 mt-1">{FORM_VALIDATION_UX_LABELS.readOnly}</p>
       )}
     </div>
   )

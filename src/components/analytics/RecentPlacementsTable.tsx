@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { SATISFACTION_EMOJIS, SUPPORT_LEVEL_LABELS, getLabel } from '@/lib/constants'
 import { PLACEMENT_STATUS_LABELS } from '@/lib/constants/labels/housing'
+import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
 import { formatDate } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
@@ -66,7 +67,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                       </div>
                     ) : (
                       <span className={isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}>
-                        {isOverdue ? 'Check-in überfällig' : 'Check-in ausstehend'}
+                        {isOverdue ? ALGORITHM_ACCURACY_LABELS.checkInOverdueBadge : ALGORITHM_ACCURACY_LABELS.checkInPendingBadge}
                       </span>
                     )}
                   </div>
@@ -84,11 +85,11 @@ export function RecentPlacementsTable({ placements }: Props) {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Datum</th>
-                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Bewohner</th>
-                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Unterkunft</th>
-                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Letzter Check-in</th>
-                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.tableColDate}</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.tableColResident}</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.tableColUnit}</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.tableColLastCheckIn}</th>
+                  <th scope="col" className="text-left py-3 px-2 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.tableColStatus}</th>
                 </tr>
               </thead>
               <tbody>
@@ -123,13 +124,13 @@ export function RecentPlacementsTable({ placements }: Props) {
                           </div>
                         ) : (
                           <span className={`text-sm ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
-                            {isOverdue ? 'Überfällig' : 'Ausstehend'}
+                            {isOverdue ? ALGORITHM_ACCURACY_LABELS.tableOverdue : ALGORITHM_ACCURACY_LABELS.tablePending}
                           </span>
                         )}
                       </td>
                       <td className="py-3 px-2">
                         <span className={`badge ${placement.status === 'ACTIVE' ? 'badge-active' : 'badge-ended'}`}>
-                          {placement.status === 'ACTIVE' ? 'Aktiv' : 'Beendet'}
+                          {PLACEMENT_STATUS_LABELS[placement.status] || placement.status}
                         </span>
                       </td>
                     </tr>

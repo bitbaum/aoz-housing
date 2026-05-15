@@ -1,4 +1,5 @@
 import { COMPATIBILITY_GAP_LABELS, getLabel } from '@/lib/constants'
+import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
 
 interface Props {
   conflictsByGap: Record<string, number>
@@ -24,16 +25,16 @@ export function ConflictAnalysisSection({
         <div className="flex items-center gap-2 mb-4">
           <span className="text-orange-500 text-xl" aria-hidden="true">📊</span>
           <h2 className="text-lg font-semibold text-gray-900">
-            Konfliktursachen
+            {ALGORITHM_ACCURACY_LABELS.conflictCausesTitle}
           </h2>
         </div>
         {Object.keys(conflictsByGap).length === 0 ? (
           <div className="text-center py-6">
             <p className="text-gray-500 text-sm">
-              Noch keine detaillierten Konfliktdaten erfasst.
+              {ALGORITHM_ACCURACY_LABELS.conflictCausesEmpty}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Bei zukünftigen Konfliktbeendigungen werden Ursachen dokumentiert.
+              {ALGORITHM_ACCURACY_LABELS.conflictCausesEmptyHint}
             </p>
           </div>
         ) : (
@@ -71,13 +72,13 @@ export function ConflictAnalysisSection({
         <div className="flex items-center gap-2 mb-4">
           <span className="text-blue-500 text-xl" aria-hidden="true">🔮</span>
           <h2 className="text-lg font-semibold text-gray-900">
-            Algorithmus-Einsichten
+            {ALGORITHM_ACCURACY_LABELS.algorithmInsightsTitle}
           </h2>
         </div>
         {conflictPlacementsCount === 0 ? (
           <div className="text-center py-6">
             <p className="text-gray-500 text-sm">
-              Noch keine Vorhersagbarkeits-Daten erfasst.
+              {ALGORITHM_ACCURACY_LABELS.predictabilityEmpty}
             </p>
           </div>
         ) : (
@@ -87,13 +88,13 @@ export function ConflictAnalysisSection({
                 <p className="text-2xl font-bold text-green-600">
                   {predictableCount}
                 </p>
-                <p className="text-xs text-green-700">Vorhersehbar</p>
+                <p className="text-xs text-green-700">{ALGORITHM_ACCURACY_LABELS.predictableLabel}</p>
               </div>
               <div className="p-3 bg-red-50 rounded-lg text-center">
                 <p className="text-2xl font-bold text-red-600">
                   {unpredictableCount}
                 </p>
-                <p className="text-xs text-red-700">Nicht vorhersehbar</p>
+                <p className="text-xs text-red-700">{ALGORITHM_ACCURACY_LABELS.unpredictableLabel}</p>
               </div>
             </div>
 
@@ -103,7 +104,7 @@ export function ConflictAnalysisSection({
                   <strong>
                     {Math.round((predictableCount / totalPredictability) * 100)}%
                   </strong>{' '}
-                  der Konflikte waren laut Fallarbeitern vorhersehbar.
+                  {ALGORITHM_ACCURACY_LABELS.predictabilityRateSuffix}
                 </p>
               </div>
             )}
@@ -111,11 +112,10 @@ export function ConflictAnalysisSection({
             {lowScoreCount > 0 && (
               <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
                 <p className="text-sm text-amber-800">
-                  <strong>{lowScoreCount}</strong> Konflikte hatten einen
-                  Kompatibilitäts-Score unter 60% bei Platzierung.
+                  <strong>{lowScoreCount}</strong> {ALGORITHM_ACCURACY_LABELS.lowScoreWarningPrefix}
                 </p>
                 <p className="text-xs text-amber-600 mt-1">
-                  → Erwägen Sie höhere Schwellenwerte für Platzierungen
+                  {ALGORITHM_ACCURACY_LABELS.lowScoreHint}
                 </p>
               </div>
             )}

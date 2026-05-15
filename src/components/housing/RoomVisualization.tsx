@@ -48,13 +48,13 @@ export function RoomVisualization({
     return (
       <div className="card text-center py-8">
         <p className="text-gray-500 mb-4">
-          Keine Plätze definiert für diese Unterkunft
+          {HOUSING_SPOTS_LABELS.emptyRoomView}
         </p>
         <Link
           href={`/housing/${housingUnitId}/spots/new`}
           className="btn-primary"
         >
-          Plätze hinzufügen
+          {HOUSING_SPOTS_LABELS.addSpotsBtn}
         </Link>
       </div>
     )

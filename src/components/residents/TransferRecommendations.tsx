@@ -9,7 +9,7 @@ import {
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
-import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -150,7 +150,7 @@ export function TransferRecommendations({
 
                     {/* Spots available */}
                     <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                      <span className="font-medium">{eligibleSpots.length} Plätze frei</span>
+                      <span className="font-medium">{PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)}</span>
                     </div>
 
                     {/* Current residents preview */}

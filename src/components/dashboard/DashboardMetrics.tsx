@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
 
 interface DashboardMetricsProps {
   totalResidents: number
@@ -29,10 +30,10 @@ export function DashboardMetrics({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {/* Residents */}
       <Link href="/residents" className="card-hover">
-        <p className="text-sm text-gray-500">Bewohner</p>
+        <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statResidents}</p>
         <p className="text-3xl font-bold text-gray-900 mt-1">{totalResidents}</p>
         <p className={`text-sm mt-2 ${unplacedCount > 0 ? 'text-orange-600' : 'text-gray-500'}`}>
-          {unplacedCount > 0 ? `${unplacedCount} warten auf Platzierung` : 'Alle platziert'}
+          {unplacedCount > 0 ? ALGORITHM_ACCURACY_LABELS.statWaitingForPlacement(unplacedCount) : ALGORITHM_ACCURACY_LABELS.statAllPlaced}
         </p>
       </Link>
 
@@ -43,7 +44,7 @@ export function DashboardMetrics({
           {freeBeds}
         </p>
         <p className="text-sm mt-2 text-gray-500">
-          von {totalBeds} total
+          {ALGORITHM_ACCURACY_LABELS.statOfTotal(totalBeds)}
         </p>
       </Link>
 
@@ -54,18 +55,18 @@ export function DashboardMetrics({
           {overdueCheckIns}
         </p>
         <p className="text-sm mt-2 text-gray-500">
-          von {activePlacements} aktiven Platzierungen
+          {ALGORITHM_ACCURACY_LABELS.statActivePlacements(activePlacements)}
         </p>
       </Link>
 
       {/* Open incidents */}
       <Link href="/incidents" className="card-hover">
-        <p className="text-sm text-gray-500">Offene Vorfälle</p>
+        <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statOpenIncidents}</p>
         <p className={`text-3xl font-bold mt-1 ${openIncidents === 0 ? 'text-green-600' : openIncidents <= 5 ? 'text-yellow-600' : 'text-red-600'}`}>
           {openIncidents}
         </p>
         <p className="text-sm mt-2 text-gray-500">
-          {interpersonalCount} Konflikte, {maintenanceCount} Wartung
+          {ALGORITHM_ACCURACY_LABELS.statConflictsMaintenance(interpersonalCount, maintenanceCount)}
         </p>
       </Link>
     </div>

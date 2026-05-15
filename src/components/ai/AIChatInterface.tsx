@@ -2,19 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { Send, Bot, User, Loader2 } from 'lucide-react'
-import { UI_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS, AI_ASSISTANT_LABELS, AI_SUGGESTED_QUESTIONS } from '@/lib/constants/labels'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
-const SUGGESTED_QUESTIONS = [
-  'Wie viele Bewohner sind aktuell im System?',
-  'Welche Einheiten haben noch freie Plätze?',
-  'Zeige mir die letzten offenen Vorfälle.',
-  'Was ist die aktuelle Belegungsrate?',
-]
 
 export function AIChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -113,11 +107,11 @@ export function AIChatInterface() {
               <Bot className="w-6 h-6 text-aoz-primary" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">KI-Assistent für AOZ</p>
-              <p className="text-sm text-gray-500 mt-1">Stellen Sie Fragen zu Bewohnern, Unterkünften und Vorfällen.</p>
+              <p className="font-semibold text-gray-900">{AI_ASSISTANT_LABELS.componentTitle}</p>
+              <p className="text-sm text-gray-500 mt-1">{AI_ASSISTANT_LABELS.componentSubtitle}</p>
             </div>
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">
-              {SUGGESTED_QUESTIONS.map(q => (
+              {AI_SUGGESTED_QUESTIONS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}

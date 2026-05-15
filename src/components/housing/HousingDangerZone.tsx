@@ -40,12 +40,12 @@ export function HousingDangerZone({ housingUnitId, code }: Props) {
     <section className="mt-8 p-4 sm:p-5 border-2 border-red-300 rounded-lg bg-red-50" aria-labelledby="housing-danger-zone-title">
       <h2 id="housing-danger-zone-title" className="text-base sm:text-lg font-semibold text-red-900">Danger Zone — Hard-Delete</h2>
       <p className="text-sm text-red-800 mt-1 leading-relaxed">
-        Nur für Test-/Demo-Unterkünfte. Diese Aktion ist endgültig und entfernt den Datensatz.
+        {HOUSING_DANGER_ZONE_LABELS.description}
       </p>
 
       {!isEligibleCode && (
         <p className="mt-3 text-sm text-red-700">
-          Dieser Unterkunfts-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.
+          {HOUSING_DANGER_ZONE_LABELS.notEligible}
         </p>
       )}
 
@@ -71,7 +71,7 @@ export function HousingDangerZone({ housingUnitId, code }: Props) {
               setFeedback({ kind: 'success', text: HOUSING_DANGER_ZONE_LABELS.copiedToClipboard })
             }}
           >
-            Report kopieren
+            {HOUSING_DANGER_ZONE_LABELS.reportCopyBtn}
           </button>
         </div>
       )}
@@ -103,17 +103,17 @@ export function HousingDangerZone({ housingUnitId, code }: Props) {
           startTransition(async () => {
             const result = await hardDeleteHousingUnitProtected(housingUnitId, confirmation, reason)
             if (!result.success) {
-              setFeedback({ kind: 'error', text: result.error || 'Hard-Delete fehlgeschlagen' })
+              setFeedback({ kind: 'error', text: result.error || HOUSING_DANGER_ZONE_LABELS.deleteFailed })
               setBlockerReport(result.blockerReport || null)
               return
             }
-            setFeedback({ kind: 'success', text: 'Unterkunft wurde endgültig gelöscht' })
+            setFeedback({ kind: 'success', text: HOUSING_DANGER_ZONE_LABELS.deleteSuccess })
             router.push('/housing?view=all')
             router.refresh()
           })
         }}
       >
-        Endgültig löschen
+        {HOUSING_DANGER_ZONE_LABELS.deleteBtn}
       </button>
     </section>
   )
