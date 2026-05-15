@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { PORTAL_LABELS } from '@/lib/constants'
 
 export default function PortalError({
   error,
@@ -22,24 +23,23 @@ export default function PortalError({
           <span className="text-red-600 text-xl">!</span>
         </div>
         <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          Etwas ist schiefgelaufen
+          {PORTAL_LABELS.error.title}
         </h2>
         <p className="text-gray-600 mb-6 text-sm">
-          Beim Laden der Portalseite ist ein Fehler aufgetreten.
-          Bitte versuchen Sie es erneut.
+          {PORTAL_LABELS.error.message}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={reset}
             className="btn-primary"
           >
-            Erneut versuchen
+            {PORTAL_LABELS.error.retry}
           </button>
           <Link
             href="/portal"
             className="btn-ghost"
           >
-            Zur Startseite
+            {PORTAL_LABELS.error.home}
           </Link>
         </div>
       </div>

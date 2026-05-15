@@ -40,6 +40,7 @@ export const UI_LABELS = {
   // Incidents common
   solution: 'Lösung:',
   warning: 'Warnung',
+  details: 'Details',
   // AI chat
   aiChatPlaceholder: 'Frage stellen… (Enter zum Senden, Shift+Enter für Zeilenumbruch)',
   aiChatSend: 'Senden',

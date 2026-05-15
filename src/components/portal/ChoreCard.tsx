@@ -8,7 +8,7 @@ import {
   TASK_PRIORITY_COLORS,
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
-import { CHORE_LABELS as CHORE_UI_LABELS } from '@/lib/constants'
+import { CHORE_LABELS as CHORE_UI_LABELS, UI_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 
 interface ChoreCardProps {
@@ -77,7 +77,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
             className="min-h-[44px] px-3 py-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-sm font-medium transition-colors flex items-center"
             title={CHORE_UI_LABELS.openTaskAction}
           >
-            Details
+            {UI_LABELS.details}
           </Link>
         ) : (
           <button

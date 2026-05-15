@@ -452,4 +452,14 @@ export const PORTAL_LABELS = {
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     noPlacementContact: 'Kontaktiere uns: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
   },
+  pendingChores: {
+    title: 'Offene Aufgaben',
+    requestOpen: 'Anfrage offen',
+  },
+  error: {
+    title: 'Etwas ist schiefgelaufen',
+    message: 'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+    retry: 'Erneut versuchen',
+    home: 'Zur Startseite',
+  },
 } as const
