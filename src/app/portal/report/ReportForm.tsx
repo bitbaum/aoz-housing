@@ -72,30 +72,29 @@ export function ReportForm({ roommates }: Props) {
   }
 
   if (submitted) {
+    const R = PORTAL_LABELS.report
     return (
       <div className="space-y-4">
         <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
           <div className="text-center py-6">
             <span className="text-5xl mb-4 block">✓</span>
             <h2 className="text-xl font-semibold text-green-800 mb-2">
-              {PORTAL_LABELS.report.successTitle}
+              {R.successTitle}
             </h2>
             <p className="text-green-700">
-              {PORTAL_LABELS.report.successMessage}
+              {R.successMessage}
             </p>
           </div>
         </div>
 
         <div className="card border-blue-200 bg-blue-50">
-          <h3 className="font-semibold text-blue-900 mb-2">Was passiert als Nächstes?</h3>
+          <h3 className="font-semibold text-blue-900 mb-2">{R.nextStepsTitle}</h3>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal pl-5">
-            <li>Ihr Bericht ist gespeichert und für das Team sichtbar.</li>
-            <li>Das Team priorisiert den Fall nach Dringlichkeit.</li>
-            <li>Bei Rückfragen oder bei hoher Priorität meldet sich die Betreuung zeitnah.</li>
+            {R.nextSteps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
           </ol>
-          <p className="text-xs text-blue-700 mt-3">
-            Tipp: Unter &quot;Meine Meldungen&quot; im Dashboard sehen Sie, ob ein Bericht offen oder gelöst ist.
-          </p>
+          <p className="text-xs text-blue-700 mt-3">{R.successTip}</p>
         </div>
       </div>
     )
@@ -107,8 +106,8 @@ export function ReportForm({ roommates }: Props) {
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-gray-900">Schnell melden</h3>
-            <p className="text-sm text-gray-500">Typische Fälle mit einem Klick vorbefüllen</p>
+            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.quickTitle}</h3>
+            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.quickSubtitle}</p>
           </div>
           {activeTemplate && (
             <button
@@ -116,7 +115,7 @@ export function ReportForm({ roommates }: Props) {
               onClick={() => { setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1) }}
               className="text-sm text-gray-500 hover:text-gray-700 min-h-[44px]"
             >
-              Vorlage zurücksetzen
+              {PORTAL_LABELS.report.resetTemplate}
             </button>
           )}
         </div>
@@ -129,11 +128,11 @@ export function ReportForm({ roommates }: Props) {
               type: '',
               severity: 'HIGH',
               location: 'COMMON_AREA',
-              description: 'Dringender Defekt: Was ist kaputt, seit wann, und was ist aktuell eingeschränkt?',
+              description: PORTAL_LABELS.report.templates.urgentRepair.description,
             })}
             className={`btn-outline min-h-[44px] ${activeTemplate === 'maintenance-urgent' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            🔧 Dringende Reparatur
+            {PORTAL_LABELS.report.templates.urgentRepair.label}
           </button>
           <button
             type="button"
@@ -142,11 +141,11 @@ export function ReportForm({ roommates }: Props) {
               category: 'INTERPERSONAL',
               type: 'NOISE_COMPLAINT',
               severity: 'MEDIUM',
-              description: 'Lärmbelastung: Zeitpunkt, Häufigkeit und eigene Versuche zur Klärung kurz dokumentieren.',
+              description: PORTAL_LABELS.report.templates.noise.description,
             })}
             className={`btn-outline min-h-[44px] ${activeTemplate === 'noise' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            🔊 Lärmkonflikt
+            {PORTAL_LABELS.report.templates.noise.label}
           </button>
           <button
             type="button"
@@ -155,20 +154,23 @@ export function ReportForm({ roommates }: Props) {
               category: 'INTERPERSONAL',
               type: 'SAFETY_CONCERN',
               severity: 'HIGH',
-              description: 'Sicherheitsbedenken: Risiko, Beteiligte und was sofort benötigt wird klar beschreiben.',
+              description: PORTAL_LABELS.report.templates.safety.description,
             })}
             className={`btn-outline min-h-[44px] ${activeTemplate === 'safety' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            🚨 Sicherheit
+            {PORTAL_LABELS.report.templates.safety.label}
           </button>
         </div>
       </div>
 
       <div className="mb-6 p-3 rounded-lg border border-gray-200 bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">Transparenz</h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-1">{PORTAL_LABELS.report.transparency.title}</h3>
         <p className="text-xs text-gray-600">
-          Nach dem Absenden wird Ihre Meldung als <strong>offen</strong> geführt und später als <strong>gelöst</strong> markiert.
-          In dringenden Fällen wird priorisiert reagiert.
+          {PORTAL_LABELS.report.transparency.before}{' '}
+          <strong>{PORTAL_LABELS.report.transparency.open}</strong>{' '}
+          {PORTAL_LABELS.report.transparency.middle}{' '}
+          <strong>{PORTAL_LABELS.report.transparency.resolved}</strong>{' '}
+          {PORTAL_LABELS.report.transparency.after}
         </p>
       </div>
 

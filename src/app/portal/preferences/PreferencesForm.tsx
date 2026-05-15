@@ -7,6 +7,8 @@ import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/lab
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import type { ScaleFactorDef, EnumFactorDef } from '@/lib/config/types'
 
+const P = PORTAL_LABELS.preferences
+
 interface ResidentData {
   sleepSchedule: string
   noiseTolerance: number
@@ -70,14 +72,13 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isDirty, setIsDirty] = useState(false)
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
 
   const handleCancel = () => {
     if (isDirty) {
-      if (window.confirm('Änderungen verwerfen? Nicht gespeicherte Eingaben gehen verloren.')) {
-        router.push('/portal')
-      }
+      setShowDiscardConfirm(true)
     } else {
       router.push('/portal')
     }
@@ -100,12 +101,12 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || PORTAL_LABELS.preferences.errorGeneric)
+        throw new Error(result.error || P.errorGeneric)
       }
 
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : PORTAL_LABELS.preferences.errorGeneric)
+      setError(err instanceof Error ? err.message : P.errorGeneric)
     } finally {
       setIsSubmitting(false)
     }
@@ -117,10 +118,10 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
           <h2 className="text-xl font-semibold text-green-800 mb-2">
-            {PORTAL_LABELS.preferences.successTitle}
+            {P.successTitle}
           </h2>
           <p className="text-green-700">
-            {PORTAL_LABELS.preferences.successMessage}
+            {P.successMessage}
           </p>
           <Link href="/portal" className="text-aoz-primary hover:underline mt-4 inline-block">
             {PORTAL_LABELS.form.back}
@@ -132,6 +133,32 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
   return (
     <>
+      {/* Discard confirmation overlay */}
+      {showDiscardConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 space-y-4">
+            <h3 className="font-semibold text-gray-900">{P.confirmDiscard}</h3>
+            <p className="text-sm text-gray-500">{P.confirmDiscardBody}</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDiscardConfirm(false)}
+                className="btn-outline min-h-[44px]"
+              >
+                {PORTAL_LABELS.form.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push('/portal')}
+                className="btn-primary min-h-[44px]"
+              >
+                {P.confirmDiscardConfirm}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
           {error}
@@ -140,21 +167,19 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
       <form ref={formRef} onSubmit={handleSubmit} onChange={() => setIsDirty(true)} className="space-y-6 pb-24 sm:pb-0">
         <div className="card bg-blue-50 border-blue-200">
-          <p className="text-sm text-blue-900">
-            Tipp: Speichern Sie unten, sobald Sie fertig sind. Änderungen sind erst nach dem Speichern aktiv.
-          </p>
+          <p className="text-sm text-blue-900">{P.saveTip}</p>
           {isDirty && (
-            <p className="text-xs text-blue-700 mt-1">Nicht gespeicherte Änderungen vorhanden.</p>
+            <p className="text-xs text-blue-700 mt-1">{P.unsavedChanges}</p>
           )}
         </div>
 
         {/* Lifestyle Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Lebensstil</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.lifestyle}</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="label">Schlafrhythmus</label>
+              <label className="label">{P.fields.sleepSchedule}</label>
               <select
                 name="sleepSchedule"
                 defaultValue={resident.sleepSchedule}
@@ -169,10 +194,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">Lärmtoleranz</label>
-              <p className="text-xs text-gray-500 mb-2">
-                Wie empfindlich bist du gegenüber Geräuschen?
-              </p>
+              <label className="label">{P.fields.noiseTolerance}</label>
+              <p className="text-xs text-gray-500 mb-2">{P.hints.noiseTolerance}</p>
               <RatingScale
                 name="noiseTolerance"
                 defaultValue={resident.noiseTolerance}
@@ -182,10 +205,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">Sauberkeitsstandard</label>
-              <p className="text-xs text-gray-500 mb-2">
-                Wie wichtig ist dir Ordnung?
-              </p>
+              <label className="label">{P.fields.cleanlinessLevel}</label>
+              <p className="text-xs text-gray-500 mb-2">{P.hints.cleanlinessLevel}</p>
               <RatingScale
                 name="cleanlinessLevel"
                 defaultValue={resident.cleanlinessLevel}
@@ -198,11 +219,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Social Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Soziales</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.social}</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="label">Soziale Präferenz</label>
+              <label className="label">{P.fields.socialStyle}</label>
               <select
                 name="socialStyle"
                 defaultValue={resident.socialStyle}
@@ -217,10 +238,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">Privatsphäre</label>
-              <p className="text-xs text-gray-500 mb-2">
-                Wie viel Rückzugsort brauchst du?
-              </p>
+              <label className="label">{P.fields.privacyNeed}</label>
+              <p className="text-xs text-gray-500 mb-2">{P.hints.privacyNeed}</p>
               <RatingScale
                 name="privacyNeed"
                 defaultValue={resident.privacyNeed}
@@ -230,10 +249,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">Sprachen</label>
-              <p className="text-xs text-gray-500 mb-2">
-                Welche Sprachen sprichst du?
-              </p>
+              <label className="label">{P.fields.languages}</label>
+              <p className="text-xs text-gray-500 mb-2">{P.hints.languages}</p>
               <div className="flex flex-wrap gap-2">
                 {languageOptions.map((code) => {
                   const lowerCode = code.toLowerCase()
@@ -259,11 +276,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Practical Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Praktisches</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.practical}</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="label">Rauchen</label>
+              <label className="label">{P.fields.smoking}</label>
               <select
                 name="smokingStatus"
                 defaultValue={resident.smokingStatus}
@@ -285,7 +302,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   defaultChecked={resident.petTolerance}
                   className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">Haustiere OK</span>
+                <span className="text-sm text-gray-700">{P.fields.petTolerance}</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -295,7 +312,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   defaultChecked={resident.sharedBathroom}
                   className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">Geteiltes Bad OK</span>
+                <span className="text-sm text-gray-700">{P.fields.sharedBathroom}</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -305,12 +322,12 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   defaultChecked={resident.sharedKitchen}
                   className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">Geteilte Küche OK</span>
+                <span className="text-sm text-gray-700">{P.fields.sharedKitchen}</span>
               </label>
             </div>
 
             <div>
-              <label className="label">Ernährung</label>
+              <label className="label">{P.fields.diet}</label>
               <div className="flex flex-wrap gap-2">
                 {dietOptions.map((opt) => {
                   const lowerOpt = opt.toLowerCase()
@@ -336,17 +353,15 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Roommate Preferences */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Mitbewohner-Präferenzen</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Optional: Hast du besondere Wünsche für deine Mitbewohner?
-          </p>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.roommatePrefs}</h2>
+          <p className="text-sm text-gray-500 mb-4">{P.hints.roommatePrefs}</p>
 
           <div className="space-y-4">
             <div>
-              <label className="label">Bevorzugte Altersgruppe</label>
+              <label className="label">{P.fields.preferredAgeRange}</label>
               <select name="preferredAgeRange" className="input">
-                <option value="">Keine Präferenz</option>
-                <option value="SIMILAR">Ähnliches Alter wie ich</option>
+                <option value="">{P.fields.noPref}</option>
+                <option value="SIMILAR">{P.fields.similarAge}</option>
                 {(RESIDENT_FACTORS.ageRange as EnumFactorDef).options.map((opt) => (
                   <option key={opt} value={opt}>
                     {(RESIDENT_FACTORS.ageRange as EnumFactorDef).optionLabels[opt]}
@@ -356,24 +371,22 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">Kulturelle Präferenz</label>
+              <label className="label">{P.fields.culturalPref}</label>
               <select name="culturalPreference" className="input">
-                <option value="">Keine Präferenz</option>
-                <option value="SAME_REGION">Aus meiner Region</option>
-                <option value="DIFFERENT_REGION">Aus anderen Regionen (zum Kennenlernen)</option>
+                <option value="">{P.fields.noPref}</option>
+                <option value="SAME_REGION">{P.fields.sameRegion}</option>
+                <option value="DIFFERENT_REGION">{P.fields.differentRegion}</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
-                Dies ist nur eine Präferenz, keine Garantie
-              </p>
+              <p className="text-xs text-gray-500 mt-1">{P.hints.culturalPref}</p>
             </div>
 
             <div>
-              <label className="label">Zusätzliche Wünsche</label>
+              <label className="label">{P.fields.additionalPrefs}</label>
               <textarea
                 name="additionalPreferences"
                 className="input"
                 rows={3}
-                placeholder="z.B. 'Ich arbeite Nachtschicht', 'Ich habe Allergien gegen Katzen'..."
+                placeholder={P.hints.additionalPrefsPlaceholder}
                 maxLength={1000}
               />
             </div>
@@ -387,7 +400,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             disabled={isSubmitting}
             className="btn-primary w-full sm:w-auto min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? PORTAL_LABELS.preferences.saving : PORTAL_LABELS.preferences.saveButton}
+            {isSubmitting ? P.saving : P.saveButton}
           </button>
           <button type="button" onClick={handleCancel} className="btn-outline w-full sm:w-auto min-h-[44px]">
             {PORTAL_LABELS.form.cancel}
@@ -397,10 +410,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
       {/* Privacy Notice */}
       <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-medium text-gray-900 mb-2">{PORTAL_LABELS.preferences.privacyTitle}</h3>
-        <p className="text-sm text-gray-600">
-          {PORTAL_LABELS.preferences.privacyMessage}
-        </p>
+        <h3 className="font-medium text-gray-900 mb-2">{P.privacyTitle}</h3>
+        <p className="text-sm text-gray-600">{P.privacyMessage}</p>
       </div>
     </>
   )
