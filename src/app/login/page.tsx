@@ -88,7 +88,7 @@ function LoginForm() {
       </div>
 
       {/* Login Card */}
-      <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
+      <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1 text-center">
           {LOGIN_LABELS.title}
         </h1>
@@ -109,7 +109,7 @@ function LoginForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {state.status === 'error' && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm" role="alert" aria-live="polite">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm" role="alert" aria-live="polite">
                 {state.message}
               </div>
             )}
@@ -136,10 +136,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={state.status === 'loading'}
-              className="w-full py-2.5 px-4 bg-aoz-primary text-white font-medium rounded-md
-                       hover:bg-aoz-primary/90 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2
-                       disabled:opacity-50 disabled:cursor-not-allowed
-                       transition-colors min-h-[44px]"
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
             </button>
@@ -165,7 +162,7 @@ function LoginForm() {
             <button
               onClick={handleDemoAdmin}
               disabled={state.status === 'loading'}
-              className="flex-1 py-2.5 px-4 bg-teal-700 text-white text-sm font-medium rounded-md
+              className="flex-1 py-2.5 px-4 bg-teal-700 text-white text-sm font-medium rounded-xl
                        hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2
                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
             >
@@ -174,7 +171,7 @@ function LoginForm() {
             <button
               onClick={handleDemoResident}
               disabled={state.status === 'loading'}
-              className="flex-1 py-2.5 px-4 bg-amber-600 text-white text-sm font-medium rounded-md
+              className="flex-1 py-2.5 px-4 bg-amber-600 text-white text-sm font-medium rounded-xl
                        hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
             >
