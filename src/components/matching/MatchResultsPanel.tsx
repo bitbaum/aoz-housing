@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { MatchResult, ResidentWithPlacement } from '@/lib/matching/types'
 import { EMPTY_STATE_LABELS } from '@/lib/constants'
 import { placeResident } from '@/lib/actions/matching'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { MatchCard } from './MatchCard'
 
 interface Props {
@@ -19,8 +20,8 @@ export function MatchResultsPanel({
   fastMode,
   searchQuery,
 }: Props) {
-  const topMatches = matches.slice(0, 3)
-  const otherMatches = matches.slice(3, 10)
+  const topMatches = matches.slice(0, DISPLAY_LIMITS.dashboardItems)
+  const otherMatches = matches.slice(DISPLAY_LIMITS.dashboardItems, DISPLAY_LIMITS.unitMatches)
 
   const bestQuickMatch = matches.find((m) => {
     const hasBlockingConflicts = m.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
@@ -91,7 +92,7 @@ export function MatchResultsPanel({
                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Fast Mode · Top 5</h3>
                 <span className="text-xs text-gray-500">Kompakte Ansicht für schnelle Entscheidungen</span>
               </div>
-              {matches.slice(0, 5).map((match, idx) => {
+              {matches.slice(0, DISPLAY_LIMITS.topUnits).map((match, idx) => {
                 const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
                 const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface PendingChore {
   id: string
@@ -20,7 +21,7 @@ export function PortalPendingChores({ chores }: PortalPendingChoresProps) {
         </Link>
       </div>
       <div className="space-y-3">
-        {chores.slice(0, 3).map((task) => (
+        {chores.slice(0, DISPLAY_LIMITS.dashboardItems).map((task) => (
           <Link
             key={task.id}
             href={`/portal/chores/${task.id}`}

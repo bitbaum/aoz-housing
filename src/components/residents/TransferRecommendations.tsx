@@ -163,7 +163,7 @@ export function TransferRecommendations({
                       ) : (
                         <div className="flex items-center gap-1 flex-wrap">
                           <span className="text-xs text-gray-500">Bewohner:</span>
-                          {unit.residents.slice(0, 3).map((resident, i) => (
+                          {unit.residents.slice(0, DISPLAY_LIMITS.dashboardItems).map((resident, i) => (
                             <span
                               key={resident.id}
                               className={`text-xs px-1.5 py-0.5 rounded ${getScoreBgClass(resident.compatibilityScore)}`}
@@ -254,7 +254,7 @@ export function TransferRecommendations({
                                 </div>
                                 {resident.keyFactors.length > 0 && (
                                   <div className="mt-1 text-xs text-gray-600">
-                                    {resident.keyFactors.slice(0, 2).map((factor, i) => (
+                                    {resident.keyFactors.slice(0, DISPLAY_LIMITS.matchStrengths).map((factor, i) => (
                                       <span key={i}>
                                         {i > 0 && ' · '}
                                         {factor}

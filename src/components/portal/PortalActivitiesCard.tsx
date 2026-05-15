@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '@/lib/config/activities'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 const COST_BADGE: Record<string, { label: string; class: string }> = {
   free:    { label: PORTAL_LABELS.activities.costFree,    class: 'badge-active' },
@@ -8,7 +9,7 @@ const COST_BADGE: Record<string, { label: string; class: string }> = {
   paid:    { label: PORTAL_LABELS.activities.costPaid,    class: 'badge-info' },
 }
 
-const highlighted = ACTIVITIES.filter(a => a.highlight).slice(0, 3)
+const highlighted = ACTIVITIES.filter(a => a.highlight).slice(0, DISPLAY_LIMITS.dashboardItems)
 
 export function PortalActivitiesCard() {
   return (

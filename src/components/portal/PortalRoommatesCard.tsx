@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { SOCIAL_STYLE_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
 import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface Roommate {
   id: string
@@ -29,7 +30,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
         </Link>
       </div>
       <div className="space-y-3">
-        {roommates.slice(0, 3).map((roommate) => {
+        {roommates.slice(0, DISPLAY_LIMITS.dashboardItems).map((roommate) => {
           const score = compatibilityScores.find(
             s => s.residentId === roommate.id || s.comparedWithId === roommate.id
           )?.overallScore

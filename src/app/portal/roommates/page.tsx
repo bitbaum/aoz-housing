@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Mitbewohner' }
-import { getScoreLevel, type ScoreLevel } from '@/lib/config/thresholds'
+import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import {
   AGE_RANGE_LABELS,
   SLEEP_SCHEDULE_LABELS,
@@ -221,7 +221,7 @@ function RoommateCard({
             {roommate.languages.length > 0 && (
               <LifestyleTag
                 icon="💬"
-                label={roommate.languages.slice(0, 2).join(', ')}
+                label={roommate.languages.slice(0, DISPLAY_LIMITS.languagePreview).join(', ')}
               />
             )}
           </div>

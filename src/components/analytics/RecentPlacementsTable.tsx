@@ -3,6 +3,7 @@ import { SATISFACTION_EMOJIS, SUPPORT_LEVEL_LABELS, getLabel } from '@/lib/const
 import { PLACEMENT_STATUS_LABELS } from '@/lib/constants/labels/housing'
 import { formatDate } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface PlacementRow {
   id: string
@@ -35,7 +36,7 @@ export function RecentPlacementsTable({ placements }: Props) {
         <>
           {/* Mobile cards */}
           <div className="md:hidden space-y-3">
-            {placements.slice(0, 10).map((placement) => {
+            {placements.slice(0, DISPLAY_LIMITS.unitMatches).map((placement) => {
               const { lastCheckIn, daysSinceCheckIn, isOverdue, supportLevel } = getCheckInStatus(placement, now)
 
               return (
@@ -91,7 +92,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                 </tr>
               </thead>
               <tbody>
-                {placements.slice(0, 10).map((placement) => {
+                {placements.slice(0, DISPLAY_LIMITS.unitMatches).map((placement) => {
                   const { lastCheckIn, daysSinceCheckIn, isOverdue, supportLevel } = getCheckInStatus(placement, now)
 
                   return (

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 interface HotspotUnit {
   id: string
@@ -56,7 +57,7 @@ export function ConflictCard({
         <div className="border-t border-gray-100 pt-4 mt-4">
           <p className="text-sm font-medium text-gray-700 mb-3">Brennpunkte</p>
           <div className="space-y-2">
-            {hotspotUnits.slice(0, 3).map((unit) => (
+            {hotspotUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map((unit) => (
               <Link
                 key={unit.id}
                 href={`/housing/${unit.id}`}
