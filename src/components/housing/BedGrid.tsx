@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, forwardRef } from 'react'
 import Link from 'next/link'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import {
@@ -185,39 +185,36 @@ interface ResidentBedPopoverProps {
   onClose: () => void
 }
 
-const ResidentBedPopover = ({
-  spot,
-  position,
-  onClose,
-}: ResidentBedPopoverProps & { ref?: React.Ref<HTMLDivElement> }) => {
-  const popoverRef = useRef<HTMLDivElement>(null)
+const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverProps>(
+  function ResidentBedPopover({ spot, position, onClose }, ref) {
   const placement = getActivePlacement(spot)
   const resident = placement?.resident
 
   useEffect(() => {
-    if (popoverRef.current) {
-      const rect = popoverRef.current.getBoundingClientRect()
+    const el = (ref as React.RefObject<HTMLDivElement>)?.current
+    if (el) {
+      const rect = el.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
       const padding = 8
 
       if (rect.right > viewportWidth) {
-        popoverRef.current.style.left = `${viewportWidth - rect.width - padding}px`
+        el.style.left = `${viewportWidth - rect.width - padding}px`
       }
       if (rect.left < 0) {
-        popoverRef.current.style.left = `${padding}px`
+        el.style.left = `${padding}px`
       }
       if (rect.bottom > viewportHeight) {
-        popoverRef.current.style.top = `${position.y - rect.height - 60}px`
+        el.style.top = `${position.y - rect.height - 60}px`
       }
     }
-  }, [position])
+  }, [position, ref])
 
   if (!resident) return null
 
   return (
     <div
-      ref={popoverRef}
+      ref={ref}
       className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-white rounded-xl shadow-card-hover border border-gray-100"
       style={{
         left: Math.max(8, position.x - 128),
@@ -278,7 +275,7 @@ const ResidentBedPopover = ({
       </div>
     </div>
   )
-}
+})
 
 interface BedGridSummaryProps {
   occupied: number

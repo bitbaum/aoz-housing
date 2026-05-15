@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, forwardRef } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
 import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS, UI_LABELS } from '@/lib/constants'
@@ -218,38 +218,32 @@ interface CompatibilityDetailPopoverProps {
   onClose: () => void
 }
 
-const CompatibilityDetailPopover = ({
-  resident1,
-  resident2,
-  score,
-  position,
-  onClose,
-}: CompatibilityDetailPopoverProps & { ref?: React.Ref<HTMLDivElement> }) => {
-  const popoverRef = useRef<HTMLDivElement>(null)
+const CompatibilityDetailPopover = forwardRef<HTMLDivElement, CompatibilityDetailPopoverProps>(
+  function CompatibilityDetailPopover({ resident1, resident2, score, position, onClose }, ref) {
 
-  // Adjust position to stay within viewport
   useEffect(() => {
-    if (popoverRef.current) {
-      const rect = popoverRef.current.getBoundingClientRect()
+    const el = (ref as React.RefObject<HTMLDivElement>)?.current
+    if (el) {
+      const rect = el.getBoundingClientRect()
       const viewportWidth = window.innerWidth
       const viewportHeight = window.innerHeight
       const padding = 8
 
       if (rect.right > viewportWidth) {
-        popoverRef.current.style.left = `${viewportWidth - rect.width - padding}px`
+        el.style.left = `${viewportWidth - rect.width - padding}px`
       }
       if (rect.left < 0) {
-        popoverRef.current.style.left = `${padding}px`
+        el.style.left = `${padding}px`
       }
       if (rect.bottom > viewportHeight) {
-        popoverRef.current.style.top = `${position.y - rect.height - 60}px`
+        el.style.top = `${position.y - rect.height - 60}px`
       }
     }
-  }, [position])
+  }, [position, ref])
 
   return (
     <div
-      ref={popoverRef}
+      ref={ref}
       role="dialog"
       aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
       className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-xl shadow-card-hover border border-gray-100"
@@ -395,7 +389,7 @@ const CompatibilityDetailPopover = ({
       </div>
     </div>
   )
-}
+})
 
 function ScoreDimension({
   label,
