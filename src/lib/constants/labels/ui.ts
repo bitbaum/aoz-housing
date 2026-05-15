@@ -413,7 +413,7 @@ export const UNIT_SIDEBAR_LABELS = {
   locationHealth: 'Gesundheit',
   locationSchools: 'Schulen',
   locationNearby: 'in der Nähe',
-  locationNotNearby: '-',
+  locationNotNearby: 'nicht in der Nähe',
 } as const
 
 export const QUICK_CHECKIN_LABELS = {
