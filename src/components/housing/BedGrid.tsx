@@ -46,7 +46,7 @@ export function BedGrid({
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setSelectedSpot(null)
       }
@@ -54,7 +54,11 @@ export function BedGrid({
 
     if (selectedSpot) {
       document.addEventListener('mousedown', handleClickOutside)
-      return () => document.removeEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('touchstart', handleClickOutside)
+      }
     }
   }, [selectedSpot])
 
@@ -66,7 +70,7 @@ export function BedGrid({
     )
   }
 
-  const gridSize = compact ? 'w-11 h-11' : 'w-11 h-11'
+  const gridSize = 'w-11 h-11'
   const fontSize = compact ? 'text-xs' : 'text-sm'
   const iconSize = compact ? 'text-sm' : 'text-base'
 

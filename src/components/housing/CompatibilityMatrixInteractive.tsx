@@ -27,7 +27,7 @@ export function CompatibilityMatrixInteractive({
   const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setSelectedCell(null)
       }
@@ -41,9 +41,11 @@ export function CompatibilityMatrixInteractive({
 
     if (selectedCell) {
       document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
       document.addEventListener('keydown', handleKeyDown)
       return () => {
         document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('touchstart', handleClickOutside)
         document.removeEventListener('keydown', handleKeyDown)
       }
     }
