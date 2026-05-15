@@ -7,6 +7,7 @@ import {
   AGE_RANGE_LABELS,
   GENDER_LABELS_SHORT,
   RESIDENT_STATUS_LABELS,
+  RESIDENT_LIST_LABELS,
   LANGUAGE_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -30,7 +31,7 @@ export interface ResidentListItem {
 }
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'Alle Status' },
+  { value: '', label: RESIDENT_LIST_LABELS.allStatus },
   { value: 'ACTIVE', label: RESIDENT_STATUS_LABELS.ACTIVE },
   { value: 'PLACED', label: RESIDENT_STATUS_LABELS.PLACED },
   { value: 'EXITED', label: RESIDENT_STATUS_LABELS.EXITED },
@@ -55,11 +56,11 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Bewohner suchen..."
+          placeholder={RESIDENT_LIST_LABELS.searchPlaceholder}
           className="w-full sm:w-64"
         />
         <SelectFilter
-          label="Status"
+          label={RESIDENT_LIST_LABELS.statusFilter}
           value={statusFilter}
           options={STATUS_OPTIONS}
           onChange={setStatusFilter}
@@ -70,14 +71,14 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
         <div className="card text-center py-12">
           {residents.length === 0 ? (
             <>
-              <p className="text-gray-500 mb-3">Noch keine Bewohner vorhanden</p>
+              <p className="text-gray-500 mb-3">{RESIDENT_LIST_LABELS.emptyDefault}</p>
               <a href="/residents/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
                 Ersten Bewohner erfassen
               </a>
             </>
           ) : (
             <>
-              <p className="text-gray-500 mb-3">Keine Bewohner für diese Filter</p>
+              <p className="text-gray-500 mb-3">{RESIDENT_LIST_LABELS.emptyFiltered}</p>
               <button
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="text-sm text-aoz-primary hover:underline"

@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { createQuickCheckIn } from '@/lib/actions/satisfaction'
 import { showToast } from '@/components/ui/Toast'
-import { UI_LABELS, SATISFACTION_SURVEY_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS, SATISFACTION_SURVEY_LABELS, QUICK_CHECKIN_LABELS } from '@/lib/constants/labels'
 
 interface QuickCheckInProps {
   placementId: string
@@ -18,11 +18,11 @@ interface QuickCheckInProps {
 }
 
 const SATISFACTION_OPTIONS = [
-  { value: 1, emoji: '😢', label: 'Sehr unzufrieden', color: 'border-red-300 hover:border-red-400 peer-checked:border-red-500 peer-checked:bg-red-50' },
-  { value: 2, emoji: '😕', label: 'Unzufrieden', color: 'border-orange-300 hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50' },
-  { value: 3, emoji: '😐', label: 'Neutral', color: 'border-yellow-300 hover:border-yellow-400 peer-checked:border-yellow-500 peer-checked:bg-yellow-50' },
-  { value: 4, emoji: '🙂', label: 'Zufrieden', color: 'border-emerald-300 hover:border-emerald-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-50' },
-  { value: 5, emoji: '😊', label: 'Sehr zufrieden', color: 'border-green-300 hover:border-green-400 peer-checked:border-green-500 peer-checked:bg-green-50' },
+  { value: 1, emoji: '😢', label: QUICK_CHECKIN_LABELS.satisfactionLabels[1], color: 'border-red-300 hover:border-red-400 peer-checked:border-red-500 peer-checked:bg-red-50' },
+  { value: 2, emoji: '😕', label: QUICK_CHECKIN_LABELS.satisfactionLabels[2], color: 'border-orange-300 hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50' },
+  { value: 3, emoji: '😐', label: QUICK_CHECKIN_LABELS.satisfactionLabels[3], color: 'border-yellow-300 hover:border-yellow-400 peer-checked:border-yellow-500 peer-checked:bg-yellow-50' },
+  { value: 4, emoji: '🙂', label: QUICK_CHECKIN_LABELS.satisfactionLabels[4], color: 'border-emerald-300 hover:border-emerald-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-50' },
+  { value: 5, emoji: '😊', label: QUICK_CHECKIN_LABELS.satisfactionLabels[5], color: 'border-green-300 hover:border-green-400 peer-checked:border-green-500 peer-checked:bg-green-50' },
 ]
 
 const ROOMMATE_OPTIONS = [
@@ -32,6 +32,7 @@ const ROOMMATE_OPTIONS = [
   { value: 4, label: 'Gut' },
   { value: 5, label: 'Sehr gut' },
 ]
+
 
 export function QuickCheckIn({
   placementId,
@@ -86,7 +87,7 @@ export function QuickCheckIn({
         if (result.success) {
           setSavedSuccess(true)
           setShowExpanded(false)
-          showToast('success', 'Check-in erfolgreich gespeichert')
+          showToast('success', QUICK_CHECKIN_LABELS.toastSuccess)
           // Reset form after short delay
           setTimeout(() => {
             setSelectedSatisfaction(null)
@@ -95,10 +96,10 @@ export function QuickCheckIn({
             setSavedSuccess(false)
           }, 3000)
         } else {
-          setError(result.error || 'Fehler beim Speichern')
+          setError(result.error || QUICK_CHECKIN_LABELS.errorSaving)
         }
       } catch (e) {
-        setError('Ein Fehler ist aufgetreten')
+        setError(QUICK_CHECKIN_LABELS.errorGeneric)
       }
     })
   }
@@ -106,7 +107,7 @@ export function QuickCheckIn({
   const handleExpandedSubmit = () => {
     if (!selectedSatisfaction) return
     if (needsExplanation && !roommateRelations && !concerns.trim()) {
-      setError('Bitte bewerten Sie die Mitbewohner-Beziehung oder beschreiben Sie Ihre Anliegen')
+      setError(QUICK_CHECKIN_LABELS.errorValidation)
       return
     }
     submitCheckIn(selectedSatisfaction, roommateRelations, concerns)
@@ -118,7 +119,7 @@ export function QuickCheckIn({
       <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
         <div className="flex items-center gap-2 text-green-700">
           <span className="text-lg">✓</span>
-          <span className="font-medium">Check-in gespeichert</span>
+          <span className="font-medium">{QUICK_CHECKIN_LABELS.successSaved}</span>
           <span className="text-2xl ml-2">
             {SATISFACTION_OPTIONS.find(o => o.value === selectedSatisfaction)?.emoji}
           </span>
@@ -133,11 +134,11 @@ export function QuickCheckIn({
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-sm font-medium text-gray-700">
-            Wie geht es Ihnen hier?
+            {QUICK_CHECKIN_LABELS.mainLabel}
           </label>
           {lastSatisfaction && (
             <span className="text-xs text-gray-500">
-              Letzter: {SATISFACTION_OPTIONS.find(o => o.value === lastSatisfaction)?.emoji}
+              {QUICK_CHECKIN_LABELS.lastPrefix}{SATISFACTION_OPTIONS.find(o => o.value === lastSatisfaction)?.emoji}
             </span>
           )}
         </div>
@@ -171,7 +172,7 @@ export function QuickCheckIn({
         </div>
 
         {isPending && selectedSatisfaction && selectedSatisfaction >= 4 && (
-          <p className="text-xs text-gray-500 mt-1 animate-pulse">Speichern...</p>
+          <p className="text-xs text-gray-500 mt-1 animate-pulse">{QUICK_CHECKIN_LABELS.savingState}</p>
         )}
       </div>
 
@@ -181,7 +182,7 @@ export function QuickCheckIn({
           {/* Roommate relations - KEY for matching algorithm */}
           <div>
             <label id="roommate-label" className="text-sm font-medium text-gray-700 block mb-1">
-              Wie ist die Beziehung zu Ihren Mitbewohnern?
+              {QUICK_CHECKIN_LABELS.roommateLabel}
               {needsExplanation && !concerns.trim() && (
                 <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
@@ -210,14 +211,14 @@ export function QuickCheckIn({
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              1 = Sehr schlecht, 5 = Sehr gut
+              {QUICK_CHECKIN_LABELS.roommateScaleHint}
             </p>
           </div>
 
           {/* Concerns text - required if very unhappy and no roommate rating */}
           <div>
             <label htmlFor="concerns-input" className="text-sm font-medium text-gray-700 block mb-1">
-              Was beschäftigt Sie?
+              {QUICK_CHECKIN_LABELS.concernsLabel}
               {needsExplanation && !roommateRelations && (
                 <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
@@ -226,7 +227,7 @@ export function QuickCheckIn({
               id="concerns-input"
               value={concerns}
               onChange={(e) => setConcerns(e.target.value)}
-              placeholder="Gibt es Probleme oder Anliegen?"
+              placeholder={QUICK_CHECKIN_LABELS.concernsPlaceholder}
               rows={2}
               disabled={isPending}
               aria-required={needsExplanation && !roommateRelations}
@@ -245,7 +246,7 @@ export function QuickCheckIn({
               href={`/placements/${placementId}/checkin`}
               className="text-xs text-gray-500 hover:text-gray-700"
             >
-              Alle Details erfassen →
+              {QUICK_CHECKIN_LABELS.fullFormLink}
             </Link>
             <div className="flex gap-2">
               <button
@@ -260,7 +261,7 @@ export function QuickCheckIn({
                 disabled={isPending}
                 className="btn-outline text-sm py-1 px-3"
               >
-                Abbrechen
+                {UI_LABELS.cancel}
               </button>
               <button
                 type="button"
@@ -268,7 +269,7 @@ export function QuickCheckIn({
                 disabled={isPending || !canSubmit}
                 className="btn-primary text-sm py-1 px-3"
               >
-                {isPending ? 'Speichern...' : 'Speichern'}
+                {isPending ? QUICK_CHECKIN_LABELS.savingState : QUICK_CHECKIN_LABELS.saveBtn}
               </button>
             </div>
           </div>
@@ -279,13 +280,13 @@ export function QuickCheckIn({
       {!showExpanded && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500">
-            Woche {weeksSinceStart} · {checkInCount} Check-in{checkInCount !== 1 ? 's' : ''} bisher
+            {QUICK_CHECKIN_LABELS.statsLine(weeksSinceStart, checkInCount)}
           </span>
           <Link
             href={`/placements/${placementId}/checkin`}
             className="text-aoz-primary hover:underline"
           >
-            Detaillierter Check-in →
+            {QUICK_CHECKIN_LABELS.detailedLink}
           </Link>
         </div>
       )}

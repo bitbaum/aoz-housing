@@ -1,4 +1,5 @@
 import { DetailRow } from '@/components/ui/Card'
+import { UNIT_SIDEBAR_LABELS } from '@/lib/constants/labels'
 
 interface UnitDetails {
   privateBathrooms: number
@@ -27,23 +28,23 @@ export function UnitSidebar({ unit }: Props) {
       {/* Facilities */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Ausstattung
+          {UNIT_SIDEBAR_LABELS.facilitiesTitle}
         </h2>
         <dl className="space-y-3 text-sm">
           <DetailRow
-            label="Badezimmer"
-            value={`${unit.privateBathrooms} privat, ${unit.sharedBathrooms} geteilt`}
+            label={UNIT_SIDEBAR_LABELS.bathroomLabel}
+            value={UNIT_SIDEBAR_LABELS.bathroomValue(unit.privateBathrooms, unit.sharedBathrooms)}
           />
           <DetailRow
-            label="Küche"
-            value={unit.privateKitchen ? 'Privat' : unit.sharedKitchen ? 'Geteilt' : 'Keine'}
+            label={UNIT_SIDEBAR_LABELS.kitchenLabel}
+            value={unit.privateKitchen ? UNIT_SIDEBAR_LABELS.kitchenPrivate : unit.sharedKitchen ? UNIT_SIDEBAR_LABELS.kitchenShared : UNIT_SIDEBAR_LABELS.kitchenNone}
           />
           <DetailRow
-            label="Barrierefreiheit"
+            label={UNIT_SIDEBAR_LABELS.accessLabel}
             value={
-              unit.wheelchairAccess ? 'Rollstuhlgerecht' :
-              unit.groundFloor ? 'Erdgeschoss' :
-              unit.elevator ? 'Lift vorhanden' : 'Eingeschränkt'
+              unit.wheelchairAccess ? UNIT_SIDEBAR_LABELS.accessWheelchair :
+              unit.groundFloor ? UNIT_SIDEBAR_LABELS.accessGroundFloor :
+              unit.elevator ? UNIT_SIDEBAR_LABELS.accessElevator : UNIT_SIDEBAR_LABELS.accessLimited
             }
           />
         </dl>
@@ -52,15 +53,15 @@ export function UnitSidebar({ unit }: Props) {
       {/* Rules */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Hausregeln
+          {UNIT_SIDEBAR_LABELS.rulesTitle}
         </h2>
         <div className="space-y-2 text-sm">
-          <RuleItem label="Rauchen" allowed={unit.smokingAllowed} />
-          <RuleItem label="Haustiere" allowed={unit.petsAllowed} />
+          <RuleItem label={UNIT_SIDEBAR_LABELS.smokingLabel} allowed={unit.smokingAllowed} />
+          <RuleItem label={UNIT_SIDEBAR_LABELS.petsLabel} allowed={unit.petsAllowed} />
           {unit.quietHours && (
             <div className="flex items-center gap-2 text-gray-600">
               <span className="text-blue-500" aria-hidden="true">🌙</span>
-              Ruhezeiten: {unit.quietHours}
+              {UNIT_SIDEBAR_LABELS.quietHoursPrefix}{unit.quietHours}
             </div>
           )}
         </div>
@@ -69,12 +70,12 @@ export function UnitSidebar({ unit }: Props) {
       {/* Location */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Lage
+          {UNIT_SIDEBAR_LABELS.locationTitle}
         </h2>
         <div className="space-y-2 text-sm">
-          <LocationItem label="ÖV" available={unit.nearPublicTransport} />
-          <LocationItem label="Gesundheit" available={unit.nearHealthServices} />
-          <LocationItem label="Schulen" available={unit.nearSchools} />
+          <LocationItem label={UNIT_SIDEBAR_LABELS.locationPT} available={unit.nearPublicTransport} />
+          <LocationItem label={UNIT_SIDEBAR_LABELS.locationHealth} available={unit.nearHealthServices} />
+          <LocationItem label={UNIT_SIDEBAR_LABELS.locationSchools} available={unit.nearSchools} />
         </div>
       </div>
 
@@ -82,7 +83,7 @@ export function UnitSidebar({ unit }: Props) {
       {unit.notes && (
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Notizen
+            {UNIT_SIDEBAR_LABELS.notesTitle}
           </h2>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">
             {unit.notes}
@@ -99,7 +100,7 @@ function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
       <span className={allowed ? 'text-green-500' : 'text-red-500'}>
         {allowed ? '✓' : '✗'}
       </span>
-      {label} {allowed ? 'erlaubt' : 'nicht erlaubt'}
+      {label} {allowed ? UNIT_SIDEBAR_LABELS.ruleAllowed : UNIT_SIDEBAR_LABELS.ruleNotAllowed}
     </div>
   )
 }
@@ -110,7 +111,7 @@ function LocationItem({ label, available }: { label: string; available: boolean 
       <span className={available ? 'text-green-500' : 'text-gray-500'}>
         {available ? '✓' : '○'}
       </span>
-      {label} {available ? 'in der Nähe' : '-'}
+      {label} {available ? UNIT_SIDEBAR_LABELS.locationNearby : UNIT_SIDEBAR_LABELS.locationNotNearby}
     </div>
   )
 }

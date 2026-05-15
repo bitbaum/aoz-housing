@@ -10,6 +10,7 @@ import {
   ROOM_SHARING_STATUS_LABELS,
   SUPPORT_LEVEL_LABELS,
   MEDICAL_DOC_TYPE_LABELS,
+  RESIDENT_PROFILE_SIDEBAR_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
@@ -33,7 +34,7 @@ function PreferenceItem({ label, value }: { label: string; value: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
       <span className={value ? 'text-green-500' : 'text-gray-500'}>
-        {value ? '\u2713' : '\u25CB'}
+        {value ? '✓' : '○'}
       </span>
       {label}
     </div>
@@ -46,31 +47,31 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       {/* CRITICAL: Housing Authorization - Most important info at top */}
       <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}>
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          {'\u{1F3E0}'} Unterkunftsberechtigung
+          {'\u{1F3E0}'} {RESIDENT_PROFILE_SIDEBAR_LABELS.authCardTitle}
         </h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between items-center">
-            <dt className="text-gray-600">Ärztliche Dokumentation</dt>
+            <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authDocLabel}</dt>
             <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-blue-700' : 'text-gray-500'}`}>
-              {resident.hasMedicalDocumentation ? '\u2713 Vorhanden' : '\u2717 Keine'}
+              {resident.hasMedicalDocumentation ? RESIDENT_PROFILE_SIDEBAR_LABELS.authDocPresent : RESIDENT_PROFILE_SIDEBAR_LABELS.authDocAbsent}
             </dd>
           </div>
           {resident.hasMedicalDocumentation && resident.medicalDocType && (
             <div className="flex justify-between items-center">
-              <dt className="text-gray-600">Berechtigung für</dt>
+              <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authForLabel}</dt>
               <dd className="font-semibold text-blue-700">
                 {getLabel(MEDICAL_DOC_TYPE_LABELS, resident.medicalDocType)}
               </dd>
             </div>
           )}
           <div className="flex justify-between items-center">
-            <dt className="text-gray-600">Zimmerteilung</dt>
+            <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.roomSharingLabel}</dt>
             <dd className="font-medium text-gray-900">
               {getLabel(ROOM_SHARING_STATUS_LABELS, resident.roomSharingStatus)}
             </dd>
           </div>
           <div className="pt-2 border-t border-gray-200">
-            <dt className="text-gray-500 text-xs mb-1">Erlaubte Platztypen</dt>
+            <dt className="text-gray-500 text-xs mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.eligibleTypesLabel}</dt>
             <dd className="flex flex-wrap gap-1">
               {getEligibleSpotTypes(resident.hasMedicalDocumentation, resident.medicalDocType).map((type) => (
                 <span
@@ -79,7 +80,8 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
                     type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-800'
                   }`}
                 >
-                  {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]} {type === 'BED' ? 'Bett' : type === 'PRIVATE_ROOM' ? 'Einzelzimmer' : 'Studio'}
+                  {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}
+                  {type === 'BED' ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeBed : type === 'PRIVATE_ROOM' ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypePrivate : RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeStudio}
                 </span>
               ))}
             </dd>
@@ -88,40 +90,40 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       </div>
 
       {/* Lifestyle & Daily Habits - Combined */}
-      <CollapsibleSection title="Lebensstil">
+      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionLifestyle}>
         <dl className="space-y-2 text-sm">
           <DetailRow
-            label="Schlafrhythmus"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSleepSchedule}
             value={getLabel(SLEEP_SCHEDULE_LABELS, resident.sleepSchedule)}
           />
           <DetailRow
-            label="Lärmtoleranz"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldNoiseTolerance}
             value={`${resident.noiseTolerance}/5`}
           />
           <DetailRow
-            label="Sauberkeit"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldCleanliness}
             value={`${resident.cleanlinessLevel}/5`}
           />
           <DetailRow
-            label="Sozialstil"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSocialStyle}
             value={getLabel(SOCIAL_STYLE_LABELS, resident.socialStyle)}
           />
           <DetailRow
-            label="Privatsphäre"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldPrivacy}
             value={`${resident.privacyNeed}/5`}
           />
           <DetailRow
-            label="Rauchen"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSmoking}
             value={getLabel(SMOKING_STATUS_LABELS, resident.smokingStatus)}
           />
         </dl>
       </CollapsibleSection>
 
       {/* Languages & Background */}
-      <CollapsibleSection title="Sprachen & Herkunft">
+      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionLanguages}>
         <dl className="space-y-3 text-sm">
           <div>
-            <dt className="text-gray-500 mb-2">Sprachen</dt>
+            <dt className="text-gray-500 mb-2">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldLanguages}</dt>
             <dd className="flex flex-wrap gap-1">
               {resident.languages.map((lang) => (
                 <span
@@ -134,55 +136,55 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
             </dd>
           </div>
           {resident.culturalRegion && (
-            <DetailRow label="Region" value={resident.culturalRegion} />
+            <DetailRow label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldRegion} value={resident.culturalRegion} />
           )}
         </dl>
       </CollapsibleSection>
 
       {/* Household & Independence */}
-      <CollapsibleSection title="Haushalt & Selbständigkeit" defaultOpen={false}>
+      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionHousehold} defaultOpen={false}>
         <dl className="space-y-2 text-sm">
           <DetailRow
-            label="Haushaltsbereitschaft"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldChores}
             value={`${resident.choresContribution}/5`}
           />
           <DetailRow
-            label="Recycling"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldRecycling}
             value={getLabel(RECYCLING_KNOWLEDGE_LABELS, resident.recyclingKnowledge)}
           />
           <DetailRow
-            label="Mobilität"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldMobility}
             value={getLabel(MOBILITY_NEED_LABELS, resident.mobilityNeeds)}
           />
           <DetailRow
-            label="Betreuungsstufe"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSupportLevel}
             value={getLabel(SUPPORT_LEVEL_LABELS, resident.supportLevel)}
           />
         </dl>
       </CollapsibleSection>
 
       {/* Special Needs - Combined */}
-      <CollapsibleSection title="Besondere Bedürfnisse" defaultOpen={false}>
+      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionNeeds} defaultOpen={false}>
         <div className="space-y-2 text-sm">
           <PreferenceItem
-            label="Nächtliche Unruhe"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldNightDisturbances}
             value={resident.hasNightDisturbances}
           />
           <PreferenceItem
-            label="Ruhige Umgebung nötig"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldQuietEnv}
             value={resident.needsQuietEnvironment}
           />
           <PreferenceItem
-            label="Schlafgeräte"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSleepEquipment}
             value={resident.hasSleepEquipment}
           />
           <PreferenceItem
-            label="Med. Geräte"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldMedEquipment}
             value={resident.medicalEquipment}
           />
           {resident.dietaryNeeds.length > 0 && (
             <div className="pt-2">
-              <dt className="text-gray-500 mb-1">Ernährung</dt>
+              <dt className="text-gray-500 mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldDiet}</dt>
               <dd className="flex flex-wrap gap-1">
                 {resident.dietaryNeeds.map((diet) => (
                   <span
@@ -199,18 +201,18 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       </CollapsibleSection>
 
       {/* Sharing Preferences */}
-      <CollapsibleSection title="Teilen & Präferenzen" defaultOpen={false}>
+      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionSharing} defaultOpen={false}>
         <div className="space-y-2 text-sm">
           <PreferenceItem
-            label="Geteiltes Bad"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSharedBathroom}
             value={resident.sharedBathroom}
           />
           <PreferenceItem
-            label="Geteilte Küche"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSharedKitchen}
             value={resident.sharedKitchen}
           />
           <PreferenceItem
-            label="Haustiere"
+            label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldPets}
             value={resident.petTolerance}
           />
         </div>
@@ -220,7 +222,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       {resident.notes && (
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Notizen
+            {RESIDENT_PROFILE_SIDEBAR_LABELS.notesTitle}
           </h2>
           <p className="text-sm text-gray-600 whitespace-pre-wrap">
             {resident.notes}

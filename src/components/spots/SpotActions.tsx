@@ -4,7 +4,7 @@ import { useRef } from 'react'
 import { updateSpot, deleteSpot } from '@/lib/actions'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { DELETE_CONFIRM_CONFIG } from '@/lib/config/crud-actions'
-import { UI_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS, SPOT_ACTIONS_LABELS } from '@/lib/constants/labels'
 
 interface Spot {
   id: string
@@ -40,7 +40,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           <button
             type="submit"
             className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
-            title="In Wartung setzen"
+            title={SPOT_ACTIONS_LABELS.setMaintenance}
           >
             🔧
           </button>
@@ -55,7 +55,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           <button
             type="submit"
             className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-green-600 hover:bg-green-50 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-            title="Wieder verfügbar"
+            title={SPOT_ACTIONS_LABELS.setAvailable}
           >
             ✓
           </button>
@@ -71,7 +71,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           </form>
           <ConfirmDialog
             title={DELETE_CONFIRM_CONFIG.title}
-            message="Dieser Platz wird unwiderruflich gelöscht."
+            message={SPOT_ACTIONS_LABELS.deleteMessage}
             confirmLabel={DELETE_CONFIRM_CONFIG.confirmLabel}
             cancelLabel={DELETE_CONFIRM_CONFIG.cancelLabel}
             onConfirm={handleDelete}

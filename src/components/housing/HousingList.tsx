@@ -6,6 +6,7 @@ import { SearchInput, SelectFilter, FilterBar } from '@/components/ui/FilterBar'
 import { getOccupancyColorClass } from '@/lib/utils'
 import { HousingCardActions } from '@/components/housing/HousingCardActions'
 import { HOUSING_STATUS_LABELS } from '@/lib/constants/labels/housing'
+import { HOUSING_LIST_LABELS } from '@/lib/constants/labels'
 
 export interface HousingListItem {
   id: string
@@ -20,7 +21,7 @@ export interface HousingListItem {
 }
 
 const STATUS_OPTIONS = [
-  { value: '', label: 'Alle Status' },
+  { value: '', label: HOUSING_LIST_LABELS.allStatus },
   { value: 'AVAILABLE', label: HOUSING_STATUS_LABELS.AVAILABLE },
   { value: 'FULL', label: HOUSING_STATUS_LABELS.FULL },
   { value: 'MAINTENANCE', label: HOUSING_STATUS_LABELS.MAINTENANCE },
@@ -47,11 +48,11 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Unterkunft suchen..."
+          placeholder={HOUSING_LIST_LABELS.searchPlaceholder}
           className="w-full sm:w-64"
         />
         <SelectFilter
-          label="Status"
+          label={HOUSING_LIST_LABELS.statusFilter}
           value={statusFilter}
           options={STATUS_OPTIONS}
           onChange={setStatusFilter}
@@ -62,14 +63,14 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
         <div className="card text-center py-12">
           {units.length === 0 ? (
             <>
-              <p className="text-gray-500 mb-3">Noch keine Unterkünfte vorhanden</p>
+              <p className="text-gray-500 mb-3">{HOUSING_LIST_LABELS.emptyDefault}</p>
               <a href="/housing/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
                 Erste Unterkunft erfassen
               </a>
             </>
           ) : (
             <>
-              <p className="text-gray-500 mb-3">Keine Unterkünfte für diese Filter</p>
+              <p className="text-gray-500 mb-3">{HOUSING_LIST_LABELS.emptyFiltered}</p>
               <button
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="text-sm text-aoz-primary hover:underline"
@@ -126,7 +127,7 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
         <div className="flex items-center gap-4 mb-3">
           <div className="flex-1">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500">Belegung</span>
+              <span className="text-gray-500">{HOUSING_LIST_LABELS.occupancy}</span>
               <span className="font-medium">{occupancy}/{totalBeds}</span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -141,7 +142,7 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <span>{unit.totalRooms} Zimmer</span>
-            {unit.wheelchairAccess && <span title="Rollstuhlgerecht">♿</span>}
+            {unit.wheelchairAccess && <span title={HOUSING_LIST_LABELS.wheelchairTitle}>♿</span>}
           </div>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${harmonyColor}`} role="img" aria-label={`Harmonie: ${harmonyColor.includes('green') ? 'Gut' : harmonyColor.includes('yellow') ? 'Mittel' : harmonyColor.includes('red') ? 'Schlecht' : 'Unbekannt'}`} />

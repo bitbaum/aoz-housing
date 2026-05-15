@@ -5,6 +5,7 @@ import {
   SPOT_TYPE_ICONS,
   SPOT_STATUS_LABELS,
 } from '@/lib/config/placement-spots'
+import { HOUSING_SPOTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants/labels'
 import { BedGrid, BedGridSummary } from './BedGrid'
 import type { HousingSpot } from './types'
 
@@ -209,7 +210,7 @@ function SpotCard({
             {spot.requiresMedicalDocs && (
               <span
                 className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded"
-                title="Erfordert medizinische Dokumentation"
+                title={HOUSING_SPOTS_LABELS.requiresMedDocs}
               >
                 Med.
               </span>
@@ -230,16 +231,16 @@ function SpotCard({
 
       <div className="flex items-center gap-2">
         {isOccupied ? (
-          <span className="badge badge-info text-xs">Belegt</span>
+          <span className="badge badge-info text-xs">{HOUSING_SPOTS_LABELS.occupied}</span>
         ) : isAvailable ? (
           <>
-            <span className="badge badge-success text-xs">Frei</span>
+            <span className="badge badge-success text-xs">{HOUSING_SPOTS_LABELS.available}</span>
             {onPlaceResident && (
               <button
                 onClick={() => onPlaceResident(spot.id)}
                 className="btn-primary text-xs px-2 py-1"
               >
-                Platzieren
+                {PLACEMENT_PANEL_LABELS.place}
               </button>
             )}
           </>

@@ -10,6 +10,7 @@ import {
   MAINTENANCE_PRIORITY_COLORS,
   MAINTENANCE_STATUS_LABELS,
   MAINTENANCE_STATUS_COLORS,
+  MAINTENANCE_PAGE_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { formatDate, formatRelativeDate } from '@/lib/utils'
@@ -49,7 +50,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           href="/maintenance"
           className="text-aoz-primary hover:underline text-sm"
         >
-          &larr; Zurück zur Liste
+          {MAINTENANCE_PAGE_LABELS.backToList}
         </Link>
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
           <div className="flex items-center gap-4">
@@ -82,7 +83,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Description */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Beschreibung
+              {MAINTENANCE_PAGE_LABELS.descriptionTitle}
             </h2>
             <p className="text-gray-600 whitespace-pre-wrap">
               {request.description}
@@ -93,7 +94,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {isActive && (
             <div className="card">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Status aktualisieren
+                {MAINTENANCE_PAGE_LABELS.updateStatusTitle}
               </h2>
               <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
                 <input type="hidden" name="requestId" value={request.id} />
@@ -102,7 +103,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label">Neuer Status</label>
+                    <label className="label">{MAINTENANCE_PAGE_LABELS.fieldNewStatus}</label>
                     <select name="status" className="input" defaultValue={request.status}>
                       {Object.entries(MAINTENANCE_STATUS_LABELS).map(([key, label]) => (
                         <option key={key} value={key}>{label}</option>
@@ -110,31 +111,31 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                     </select>
                   </div>
                   <div>
-                    <label className="label">Zugewiesen an</label>
+                    <label className="label">{MAINTENANCE_PAGE_LABELS.fieldAssignedTo}</label>
                     <input
                       type="text"
                       name="assignedTo"
                       defaultValue={request.assignedTo || ''}
-                      placeholder="Name des Mitarbeiters"
+                      placeholder={MAINTENANCE_PAGE_LABELS.fieldAssignedPlaceholder}
                       className="input"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="label">Lösung / Erledigte Arbeiten</label>
+                  <label className="label">{MAINTENANCE_PAGE_LABELS.fieldResolution}</label>
                   <textarea
                     name="resolution"
                     rows={3}
                     defaultValue={request.resolution || ''}
-                    placeholder="Beschreibung der durchgeführten Arbeiten..."
+                    placeholder={MAINTENANCE_PAGE_LABELS.fieldResolutionPlaceholder}
                     className="input"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label">Kosten (CHF)</label>
+                    <label className="label">{MAINTENANCE_PAGE_LABELS.fieldCost}</label>
                     <input
                       type="number"
                       name="cost"
@@ -145,19 +146,19 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="label">Notizen</label>
+                    <label className="label">{MAINTENANCE_PAGE_LABELS.fieldNotes}</label>
                     <input
                       type="text"
                       name="notes"
                       defaultValue={request.notes || ''}
-                      placeholder="Interne Notizen..."
+                      placeholder={MAINTENANCE_PAGE_LABELS.fieldNotesPlaceholder}
                       className="input"
                     />
                   </div>
                 </div>
 
                 <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-                  Status aktualisieren
+                  {MAINTENANCE_PAGE_LABELS.updateStatusBtn}
                 </button>
               </form>
             </div>
@@ -167,14 +168,14 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {request.resolution && (
             <div className="card bg-green-50">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Lösung
+                {MAINTENANCE_PAGE_LABELS.resolutionTitle}
               </h2>
               <p className="text-gray-600 whitespace-pre-wrap">
                 {request.resolution}
               </p>
               {request.cost && (
                 <p className="text-sm text-gray-500 mt-2">
-                  Kosten: CHF {request.cost.toFixed(2)}
+                  {MAINTENANCE_PAGE_LABELS.costPrefix}{request.cost.toFixed(2)}
                 </p>
               )}
             </div>
@@ -186,7 +187,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Location */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Ort
+              {MAINTENANCE_PAGE_LABELS.locationTitle}
             </h2>
             <Link
               href={`/housing/${request.housingUnitId}`}
@@ -204,7 +205,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
             </Link>
             {request.spot && (
               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Platz</p>
+                <p className="text-sm text-gray-500">{MAINTENANCE_PAGE_LABELS.spotLabel}</p>
                 <p className="font-medium text-gray-900">
                   {request.spot.label || request.spot.code}
                 </p>
@@ -212,7 +213,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
             )}
             {request.location && (
               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">Standort</p>
+                <p className="text-sm text-gray-500">{MAINTENANCE_PAGE_LABELS.locationLabel}</p>
                 <p className="font-medium text-gray-900">{request.location}</p>
               </div>
             )}
@@ -221,7 +222,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Reporter */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Gemeldet von
+              {MAINTENANCE_PAGE_LABELS.reporterTitle}
             </h2>
             {request.reportedBy ? (
               <Link
@@ -240,7 +241,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                 </p>
               </div>
             ) : (
-              <p className="text-gray-500">Nicht angegeben</p>
+              <p className="text-gray-500">{MAINTENANCE_PAGE_LABELS.notAngegeben}</p>
             )}
           </div>
 
@@ -248,7 +249,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {request.assignedTo && (
             <div className="card">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Zugewiesen an
+                {MAINTENANCE_PAGE_LABELS.assignedTitle}
               </h2>
               <div className="p-3 bg-blue-50 rounded-lg">
                 <div className="flex items-center gap-2">
@@ -259,7 +260,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                 </div>
                 {request.assignedAt && (
                   <p className="text-sm text-gray-500 mt-1">
-                    Seit {formatDate(request.assignedAt)}
+                    {MAINTENANCE_PAGE_LABELS.assignedSince(formatDate(request.assignedAt))}
                   </p>
                 )}
               </div>
@@ -269,28 +270,28 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Timeline */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Zeitlinie
+              {MAINTENANCE_PAGE_LABELS.timelineTitle}
             </h2>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <dt className="text-gray-500">Erstellt</dt>
+                <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineCreated}</dt>
                 <dd className="text-gray-900">{formatDate(request.createdAt)}</dd>
               </div>
               {request.assignedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Zugewiesen</dt>
+                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineAssigned}</dt>
                   <dd className="text-gray-900">{formatDate(request.assignedAt)}</dd>
                 </div>
               )}
               {request.startedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Gestartet</dt>
+                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineStarted}</dt>
                   <dd className="text-gray-900">{formatDate(request.startedAt)}</dd>
                 </div>
               )}
               {request.completedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Abgeschlossen</dt>
+                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineCompleted}</dt>
                   <dd className="text-gray-900">{formatDate(request.completedAt)}</dd>
                 </div>
               )}
@@ -301,7 +302,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {request.notes && (
             <div className="card">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Notizen
+                {MAINTENANCE_PAGE_LABELS.notesTitle}
               </h2>
               <p className="text-sm text-gray-600">{request.notes}</p>
             </div>
