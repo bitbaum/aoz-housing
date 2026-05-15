@@ -29,7 +29,7 @@ export default async function PortalLayout({
   return (
     <div className="min-h-screen bg-aoz-background flex flex-col">
       {/* Header with responsive navigation */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
           <PortalNav hasStaffAccess={hasStaffAccess} />
         </div>
@@ -41,7 +41,7 @@ export default async function PortalLayout({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white mt-auto">
+      <footer className="border-t border-gray-100 bg-white/60 mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-500">
             <p className="text-center sm:text-left">{PORTAL_LABELS.emergency}</p>

@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #1e293b;
-  --background: #f8fafc;
+  --foreground: #0f172a;
+  --background: #F1F4F8;
 }
 
 body {
@@ -22,16 +22,16 @@ body {
 .score-moderate { @apply bg-score-medium text-gray-900; }
 .score-poor { @apply bg-score-critical text-white; }
 
-/* Card styles - AOZ Design System */
+/* Card styles — refined for elevated surfaces */
 .card {
-  @apply bg-white rounded-lg shadow-card border border-gray-200 p-4 sm:p-6;
+  @apply bg-white rounded-2xl shadow-card border border-gray-100 p-4 sm:p-6;
 }
 
 .card-hover {
-  @apply card hover:shadow-md hover:border-gray-300 transition-all cursor-pointer;
+  @apply card hover:shadow-card-hover hover:border-gray-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer;
 }
 
-/* Icon container - AOZ style (circular with mint background) */
+/* Icon container */
 .icon-container {
   @apply w-10 h-10 rounded-full bg-aoz-accent flex items-center justify-center;
 }
@@ -44,43 +44,43 @@ body {
   @apply w-12 h-12 rounded-full bg-aoz-accent flex items-center justify-center;
 }
 
-/* Button styles - AOZ Design System */
+/* Button styles */
 .btn {
-  @apply px-4 py-2.5 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px];
+  @apply px-4 py-2.5 rounded-lg font-semibold tracking-tight transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] inline-flex items-center justify-center;
 }
 
 .btn-primary {
-  @apply btn bg-aoz-primary text-white hover:bg-aoz-primary-dark focus:ring-aoz-primary;
+  @apply btn bg-aoz-primary text-white hover:bg-aoz-primary-dark active:scale-[.98] focus:ring-aoz-primary/40;
 }
 
 .btn-secondary {
-  @apply btn bg-aoz-secondary text-white hover:bg-aoz-secondary-dark focus:ring-aoz-secondary;
+  @apply btn bg-aoz-secondary text-white hover:bg-aoz-secondary-dark active:scale-[.98] focus:ring-aoz-secondary/40;
 }
 
 .btn-outline {
-  @apply btn border border-aoz-primary text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary;
+  @apply btn border border-aoz-primary/60 text-aoz-primary hover:bg-aoz-accent hover:border-aoz-primary focus:ring-aoz-primary/30;
 }
 
 .btn-ghost {
-  @apply btn text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary;
+  @apply btn text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary/30;
 }
 
 /* Form styles */
 .input {
-  @apply w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary min-h-[44px];
+  @apply w-full px-3 py-2.5 border border-gray-200 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-aoz-primary/25 focus:border-aoz-primary min-h-[44px] transition-shadow duration-150;
 }
 
 .label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-sm font-medium text-gray-700 mb-1.5;
 }
 
 /* Table styles */
 .table {
-  @apply min-w-full divide-y divide-gray-200;
+  @apply min-w-full divide-y divide-gray-100;
 }
 
 .table th {
-  @apply px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+  @apply px-6 py-3 bg-gray-50/80 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
 }
 
 .table td {
@@ -89,15 +89,15 @@ body {
 
 /* Status badges */
 .badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
 }
 
-.badge-active { @apply bg-green-100 text-green-800; }
-.badge-success { @apply bg-green-100 text-green-800; }
-.badge-pending { @apply bg-amber-100 text-amber-900; }
-.badge-info { @apply bg-blue-100 text-blue-800; }
-.badge-ended { @apply bg-gray-100 text-gray-800; }
-.badge-alert { @apply bg-red-100 text-red-800; }
+.badge-active  { @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60; }
+.badge-success { @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60; }
+.badge-pending { @apply bg-amber-50  text-amber-700   ring-1 ring-amber-200/60; }
+.badge-info    { @apply bg-blue-50   text-blue-700    ring-1 ring-blue-200/60; }
+.badge-ended   { @apply bg-gray-50   text-gray-600    ring-1 ring-gray-200/60; }
+.badge-alert   { @apply bg-red-50    text-red-700     ring-1 ring-red-200/60; }
 
 /* Popover animations */
 @keyframes fade-in {

@@ -27,8 +27,8 @@ export default async function AdminLayout({
   return (
     <>
       {/* Top Header Bar - AOZ Branding */}
-      <header className="hidden md:block bg-aoz-secondary text-white">
-        <div className="max-w-screen-2xl mx-auto px-6 py-2">
+      <header className="hidden md:flex items-center bg-gradient-to-r from-aoz-secondary-dark via-aoz-secondary to-aoz-secondary-light text-white shadow-md z-50">
+        <div className="max-w-screen-2xl mx-auto px-6 py-2.5 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Logo href="/" size="lg" showTagline />
@@ -55,9 +55,9 @@ export default async function AdminLayout({
       </header>
 
       {/* Megamenu Navigation */}
-      <nav className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
+      <nav className="hidden md:block bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-screen-2xl mx-auto px-6">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <MegaMenuItem href="/" icon="home" label="Dashboard" />
             <MegaMenuDropdown
               label="Personen"
@@ -88,14 +88,14 @@ export default async function AdminLayout({
         </div>
       </nav>
 
-      <div className="flex min-h-[calc(100vh-100px)]">
+      <div className="flex min-h-[calc(100vh-96px)]">
         {/* Mobile Navigation */}
         <MobileNav />
 
         {/* Desktop Sidebar */}
-        <aside className="hidden md:block w-56 bg-white border-r border-gray-200 fixed top-[100px] h-[calc(100vh-100px)] overflow-y-auto">
-          <nav className="p-3">
-            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+        <aside className="hidden md:block w-56 bg-white/80 backdrop-blur-sm border-r border-gray-100 fixed top-[96px] h-[calc(100vh-96px)] overflow-y-auto">
+          <nav className="p-3 pt-4">
+            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
               Navigation
             </div>
             {NAV_ITEMS.map((item) => (
@@ -103,8 +103,8 @@ export default async function AdminLayout({
                 {item.label}
               </SidebarLink>
             ))}
-            <div className="border-t border-gray-200 mt-4 pt-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 py-2">
+            <div className="border-t border-gray-100 mt-4 pt-4">
+              <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-3 pb-1">
                 System
               </div>
               <SidebarLink href="/algorithm" icon="brain">
@@ -121,14 +121,14 @@ export default async function AdminLayout({
           </div>
 
           {/* Footer */}
-          <footer className="bg-white border-t border-gray-200 px-6 py-4 mt-auto">
+          <footer className="bg-white/60 border-t border-gray-100 px-6 py-4 mt-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
-              <div className="flex items-center gap-3 text-gray-500">
+              <div className="flex items-center gap-3 text-gray-400">
                 <Logo size="sm" />
-                <span className="text-gray-500">|</span>
-                <span className="text-gray-500">{APP_LABELS.metaDescription}</span>
+                <span className="text-gray-300">|</span>
+                <span>{APP_LABELS.metaDescription}</span>
               </div>
-              <div className="flex items-center gap-4 text-gray-500">
+              <div className="flex items-center gap-4 text-gray-400">
                 <Link href="/algorithm" className="hover:text-aoz-primary transition-colors">
                   Algorithmus
                 </Link>
@@ -160,7 +160,7 @@ function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors"
+      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-lg transition-all duration-150"
     >
       <Icon className="w-4 h-4" />
       {label}
@@ -178,24 +178,24 @@ function MegaMenuDropdown({
   return (
     <div className="relative group">
       <button
-        className="flex items-center gap-1 px-4 py-3 text-sm font-medium text-gray-700 hover:text-aoz-primary hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-lg transition-all duration-150"
         aria-haspopup="true"
       >
         {label}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <svg className="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      <div className="absolute left-0 top-full pt-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[220px]">
+      <div className="absolute left-0 top-full pt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
+        <div className="bg-white rounded-2xl shadow-card-hover border border-gray-100 py-2 min-w-[230px]">
           {items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-4 py-3 hover:bg-gray-50 transition-colors min-h-[44px]"
+              className="block px-4 py-2.5 hover:bg-gray-50 transition-colors min-h-[44px] flex flex-col justify-center"
             >
-              <div className="font-medium text-gray-900 text-sm">{item.label}</div>
-              <div className="text-xs text-gray-500">{item.desc}</div>
+              <div className="font-semibold text-gray-900 text-sm leading-tight">{item.label}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
             </Link>
           ))}
         </div>
@@ -217,9 +217,9 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 hover:text-aoz-primary hover:bg-aoz-accent rounded-md transition-colors min-h-[44px]"
+      className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-gray-500 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-xl transition-all duration-150 min-h-[44px]"
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-4 h-4 flex-shrink-0" />
       <span>{children}</span>
     </Link>
   )
