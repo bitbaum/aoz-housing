@@ -4,6 +4,7 @@ import { useRef } from 'react'
 import { updateSpot, deleteSpot } from '@/lib/actions'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { DELETE_CONFIRM_CONFIG } from '@/lib/config/crud-actions'
+import { UI_LABELS } from '@/lib/constants/labels'
 
 interface Spot {
   id: string
@@ -79,7 +80,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
             <button
               type="button"
               className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-              title="Löschen"
+              title={UI_LABELS.delete}
             >
               🗑️
             </button>
