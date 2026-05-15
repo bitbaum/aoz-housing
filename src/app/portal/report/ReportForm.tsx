@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 interface Props {
@@ -12,6 +12,18 @@ type Category = 'MAINTENANCE' | 'INTERPERSONAL'
 export function ReportForm({ roommates }: Props) {
   const [category, setCategory] = useState<Category | null>(null)
   const [formKey, setFormKey] = useState(0)
+  const formRef = useRef<HTMLDivElement>(null)
+  const prevCategoryRef = useRef<Category | null>(null)
+
+  // Scroll the form into view when it first appears (category transitions null → value)
+  useEffect(() => {
+    if (category !== null && prevCategoryRef.current === null) {
+      setTimeout(() => {
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }, 50)
+    }
+    prevCategoryRef.current = category
+  }, [category])
   const [defaults, setDefaults] = useState<{
     type?: string
     severity?: string
@@ -206,7 +218,7 @@ export function ReportForm({ roommates }: Props) {
 
       {/* Dynamic Form */}
       {category && (
-        <div className="card">
+        <div ref={formRef} className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             {category === 'MAINTENANCE' ? PORTAL_LABELS.report.titleMaintenance : PORTAL_LABELS.report.titleConflict}
           </h2>
