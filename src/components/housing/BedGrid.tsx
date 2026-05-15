@@ -216,7 +216,7 @@ const ResidentBedPopover = ({
   return (
     <div
       ref={popoverRef}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-white rounded-lg shadow-xl border border-gray-200"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-white rounded-xl shadow-card-hover border border-gray-100"
       style={{
         left: Math.max(8, position.x - 128),
         top: position.y,

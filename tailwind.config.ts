@@ -9,49 +9,49 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // AOZ brand colors (from aoz.ch)
+        // AOZ brand colors — references globals.css CSS vars; supports opacity modifiers
         'aoz': {
-          'primary': '#E63946',    // Red/coral - AOZ logo color, CTAs
-          'primary-light': '#EF5A67',
-          'primary-dark': '#C62D3A',
-          'secondary': '#2D5A5A',  // Dark teal - navigation, secondary actions
-          'secondary-light': '#3D7A7A',
-          'secondary-dark': '#1D4A4A',
-          'accent': '#D4EDDA',     // Mint green - backgrounds, highlights
-          'accent-light': '#E8F5E9',
-          'accent-dark': '#B8DFC2',
-          'background': '#f8fafc', // Light background
-          'surface': '#ffffff',
+          'primary':        'rgb(var(--color-aoz-primary) / <alpha-value>)',
+          'primary-light':  'rgb(var(--color-aoz-primary-light) / <alpha-value>)',
+          'primary-dark':   'rgb(var(--color-aoz-primary-dark) / <alpha-value>)',
+          'secondary':      'rgb(var(--color-aoz-secondary) / <alpha-value>)',
+          'secondary-light':'rgb(var(--color-aoz-secondary-light) / <alpha-value>)',
+          'secondary-dark': 'rgb(var(--color-aoz-secondary-dark) / <alpha-value>)',
+          'accent':         'rgb(var(--color-aoz-accent) / <alpha-value>)',
+          'accent-light':   'rgb(var(--color-aoz-accent-light) / <alpha-value>)',
+          'accent-dark':    'rgb(var(--color-aoz-accent-dark) / <alpha-value>)',
+          'background':     'rgb(var(--color-aoz-background) / <alpha-value>)',
+          'surface':        'rgb(var(--color-aoz-surface) / <alpha-value>)',
         },
         // Compatibility score colors (5-tier system)
         'score': {
-          'excellent': '#22C55E', // 80-100: Sehr gut
-          'good': '#84CC16',      // 60-79: Gut
-          'medium': '#F59E0B',    // 40-59: Mittel
-          'low': '#F97316',       // 20-39: Niedrig
-          'critical': '#EF4444', // 0-19: Kritisch
+          'excellent': 'rgb(var(--color-score-excellent) / <alpha-value>)',
+          'good':      'rgb(var(--color-score-good) / <alpha-value>)',
+          'medium':    'rgb(var(--color-score-medium) / <alpha-value>)',
+          'low':       'rgb(var(--color-score-low) / <alpha-value>)',
+          'critical':  'rgb(var(--color-score-critical) / <alpha-value>)',
         },
         // Incident severity colors
         'severity': {
-          'low': '#9CA3AF',       // Gray
-          'medium': '#FBBF24',    // Amber
-          'high': '#F97316',      // Orange
-          'critical': '#EF4444',  // Red
+          'low':      'rgb(var(--color-severity-low) / <alpha-value>)',
+          'medium':   'rgb(var(--color-severity-medium) / <alpha-value>)',
+          'high':     'rgb(var(--color-severity-high) / <alpha-value>)',
+          'critical': 'rgb(var(--color-severity-critical) / <alpha-value>)',
         },
         // Status colors
         'status': {
-          'success': '#22C55E',
-          'warning': '#F59E0B',
-          'error': '#EF4444',
-          'info': '#3B82F6',
+          'success': 'rgb(var(--color-status-success) / <alpha-value>)',
+          'warning': 'rgb(var(--color-status-warning) / <alpha-value>)',
+          'error':   'rgb(var(--color-status-error) / <alpha-value>)',
+          'info':    'rgb(var(--color-status-info) / <alpha-value>)',
         },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'card': '0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.06)',
-        'card-hover': '0 2px 4px rgb(0 0 0 / 0.05), 0 8px 24px rgb(0 0 0 / 0.09)',
+        'card':      'var(--shadow-card)',
+        'card-hover':'var(--shadow-card-hover)',
       },
     },
   },

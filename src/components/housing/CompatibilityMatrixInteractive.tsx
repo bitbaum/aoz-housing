@@ -252,7 +252,7 @@ const CompatibilityDetailPopover = ({
       ref={popoverRef}
       role="dialog"
       aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-lg shadow-xl border border-gray-200"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-xl shadow-card-hover border border-gray-100"
       style={{
         left: Math.max(8, position.x - 160),
         top: position.y,

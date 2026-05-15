@@ -31,15 +31,13 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
         {checkIns.map((checkIn) => (
           <div
             key={checkIn.id}
-            className="p-3 bg-gray-50 rounded-lg border-l-4"
-            style={{
-              borderLeftColor:
-                checkIn.overallSatisfaction >= 4
-                  ? '#22c55e'
-                  : checkIn.overallSatisfaction >= 3
-                  ? '#eab308'
-                  : '#ef4444',
-            }}
+            className={`p-3 bg-gray-50 rounded-lg border-l-4 ${
+              checkIn.overallSatisfaction >= 4
+                ? 'border-l-status-success'
+                : checkIn.overallSatisfaction >= 3
+                ? 'border-l-status-warning'
+                : 'border-l-status-error'
+            }`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">

@@ -5,6 +5,42 @@
 :root {
   --foreground: #0f172a;
   --background: #F1F4F8;
+
+  /* AOZ brand — RGB channels for Tailwind opacity modifier support */
+  --color-aoz-primary:        230 57 70;
+  --color-aoz-primary-light:  239 90 103;
+  --color-aoz-primary-dark:   198 45 58;
+  --color-aoz-secondary:      45 90 90;
+  --color-aoz-secondary-light:61 122 122;
+  --color-aoz-secondary-dark: 29 74 74;
+  --color-aoz-accent:         212 237 218;
+  --color-aoz-accent-light:   232 245 233;
+  --color-aoz-accent-dark:    184 223 194;
+  --color-aoz-background:     248 250 252;
+  --color-aoz-surface:        255 255 255;
+
+  /* Compatibility score colors */
+  --color-score-excellent: 34 197 94;
+  --color-score-good:      132 204 22;
+  --color-score-medium:    245 158 11;
+  --color-score-low:       249 115 22;
+  --color-score-critical:  239 68 68;
+
+  /* Incident severity colors */
+  --color-severity-low:      156 163 175;
+  --color-severity-medium:   251 191 36;
+  --color-severity-high:     249 115 22;
+  --color-severity-critical: 239 68 68;
+
+  /* Status colors */
+  --color-status-success: 34 197 94;
+  --color-status-warning: 245 158 11;
+  --color-status-error:   239 68 68;
+  --color-status-info:    59 130 246;
+
+  /* Shadows */
+  --shadow-card:      0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.06);
+  --shadow-card-hover:0 2px 4px rgb(0 0 0 / 0.05), 0 8px 24px rgb(0 0 0 / 0.09);
 }
 
 body {
