@@ -11,6 +11,13 @@ const scriptSrc = isDev
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Prevent webpack from bundling ws and @neondatabase/serverless.
+  // ws must load as a native Node.js module so bufferUtil binaries resolve.
+  // Both the Next.js 14 name and Next.js 15 name are specified for compatibility.
+  experimental: {
+    serverComponentsExternalPackages: ['ws', '@neondatabase/serverless'],
+  },
+  serverExternalPackages: ['ws', '@neondatabase/serverless'],
   async headers() {
     return [
       {
