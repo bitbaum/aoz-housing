@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getScoreBgClass } from '@/lib/utils'
+import { TOP_COMPATIBILITIES_LABELS } from '@/lib/constants'
 
 interface Assessment {
   id: string
@@ -20,7 +21,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Top Kompatibilitäten
+        {TOP_COMPATIBILITIES_LABELS.title}
       </h2>
       <div className="space-y-3">
         {assessments.map((assessment) => (

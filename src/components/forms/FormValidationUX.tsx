@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { FORM_VALIDATION_UX_LABELS } from '@/lib/constants'
 
 interface Props {
   formId: string
@@ -21,7 +22,7 @@ export function FormValidationUX({ formId, summaryId }: Props) {
     if (!form || !summary) return
 
     const showSummary = () => {
-      summary.textContent = 'Bitte prüfen Sie die markierten Pflichtfelder.'
+      summary.textContent = FORM_VALIDATION_UX_LABELS.requiredFields
       summary.classList.remove('hidden')
     }
 
@@ -38,7 +39,7 @@ export function FormValidationUX({ formId, summaryId }: Props) {
         if (fieldContainer && !fieldContainer.querySelector('.field-error')) {
           const errorMsg = document.createElement('p')
           errorMsg.className = 'field-error text-red-600 text-xs mt-1'
-          errorMsg.textContent = 'Dieses Feld ist erforderlich'
+          errorMsg.textContent = FORM_VALIDATION_UX_LABELS.fieldRequired
           errorMsg.setAttribute('role', 'alert')
           fieldContainer.appendChild(errorMsg)
         }

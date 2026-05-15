@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Incident, HousingUnit } from '@prisma/client'
 import {
   INCIDENT_TYPE_LABELS,
+  RESIDENT_INCIDENTS_LABELS,
   getLabel,
 } from '@/lib/constants'
 import {
@@ -32,7 +33,7 @@ export function ResidentIncidents({
       {/* Incident Stats - Troublemaker Detection */}
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Vorfallstatistik
+          {RESIDENT_INCIDENTS_LABELS.sectionTitle}
         </h2>
         {/* Warning banner for frequent subjects */}
         {incidentsAsSubject.length >= INCIDENT_THRESHOLDS.severe && (
@@ -40,24 +41,24 @@ export function ResidentIncidents({
             <div className="flex items-center gap-2">
               <span className="text-amber-600 text-lg">!</span>
               <p className="text-sm text-amber-800">
-                Diese Person war in {incidentsAsSubject.length} Vorfällen betroffen.
-                Eine Überprüfung der Platzierung wird empfohlen.
+                {RESIDENT_INCIDENTS_LABELS.warningMessage(incidentsAsSubject.length)}{' '}
+                {RESIDENT_INCIDENTS_LABELS.reviewRecommendation}
               </p>
             </div>
           </div>
         )}
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">Gemeldet</p>
+            <p className="text-sm text-gray-500">{RESIDENT_INCIDENTS_LABELS.reportedLabel}</p>
             <p className="text-xl sm:text-2xl font-bold text-gray-900">
               {incidentsReportedCount}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Vorfälle von dieser Person gemeldet
+              {RESIDENT_INCIDENTS_LABELS.reportedDesc}
             </p>
           </div>
           <div className={`p-4 rounded-lg ${INCIDENT_BG_COLORS[subjectLevel]}`}>
-            <p className="text-sm text-gray-500">Betroffen</p>
+            <p className="text-sm text-gray-500">{RESIDENT_INCIDENTS_LABELS.subjectLabel}</p>
             <p className={`text-2xl font-bold ${
               subjectLevel === 'severe'
                 ? 'text-red-600'
@@ -68,7 +69,7 @@ export function ResidentIncidents({
               {incidentsAsSubject.length}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Vorfälle über diese Person
+              {RESIDENT_INCIDENTS_LABELS.subjectDesc}
             </p>
           </div>
         </div>
@@ -78,20 +79,20 @@ export function ResidentIncidents({
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-900">
-            Vorfälle über diese Person ({incidentsAsSubject.length})
+            {RESIDENT_INCIDENTS_LABELS.subjectTitle(incidentsAsSubject.length)}
           </h2>
           {currentPlacement && (
             <Link
               href={`/incidents/new?subject=${residentId}&unit=${currentPlacement.housingUnitId}`}
               className="btn-outline text-sm"
             >
-              Vorfall melden
+              {RESIDENT_INCIDENTS_LABELS.reportIncident}
             </Link>
           )}
         </div>
         {incidentsAsSubject.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            Keine Vorfälle dokumentiert
+            {RESIDENT_INCIDENTS_LABELS.noIncidents}
           </p>
         ) : (
           <div className="space-y-3">

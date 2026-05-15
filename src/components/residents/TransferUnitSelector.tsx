@@ -1,6 +1,6 @@
 'use client'
 
-import { UI_LABELS } from '@/lib/constants'
+import { UI_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
 import type { UnitWithSpots } from '@/lib/types'
 import { TransferRecommendations } from './TransferRecommendations'
 import type { UnitCompatibilityData } from './TransferRecommendations'
@@ -47,7 +47,7 @@ export function TransferUnitSelector({
         )
         return (
           <option key={unit.id} value={unit.id}>
-            {unit.code} - {unit.address} ({eligibleSpots.length} Plätze frei)
+            {unit.code} - {unit.address} ({PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)})
           </option>
         )
       })}

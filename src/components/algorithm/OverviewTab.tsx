@@ -30,26 +30,26 @@ export function OverviewTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           <Target className="w-5 h-5 text-aoz-primary" />
-          So funktioniert das Matching
+          {ALGORITHM_OVERVIEW_LABELS.howItWorksTitle}
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <ProcessStep
             number={1}
             title={ALGORITHM_OVERVIEW_LABELS.processStep1Title}
-            description="Bei der Aufnahme werden Präferenzen und Bedürfnisse systematisch erfasst."
+            description={ALGORITHM_OVERVIEW_LABELS.processStep1Desc}
             icon={<Users className="w-6 h-6" />}
           />
           <ProcessStep
             number={2}
             title={ALGORITHM_OVERVIEW_LABELS.processStep2Title}
-            description={`${FACTOR_COUNT} Faktoren werden gewichtet verglichen.`}
+            description={ALGORITHM_OVERVIEW_LABELS.processStep2Desc(FACTOR_COUNT)}
             icon={<Brain className="w-6 h-6" />}
           />
           <ProcessStep
             number={3}
             title={ALGORITHM_OVERVIEW_LABELS.processStep3Title}
-            description="Ein Score zeigt die Eignung, Warnungen weisen auf Risiken hin."
+            description={ALGORITHM_OVERVIEW_LABELS.processStep3Desc}
             icon={<Scale className="w-6 h-6" />}
           />
         </div>
@@ -59,20 +59,11 @@ export function OverviewTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Beaker className="w-5 h-5 text-aoz-primary" />
-          Wissenschaftliche Methodik
+          {ALGORITHM_OVERVIEW_LABELS.scienceMethodTitle}
         </h2>
         <div className="text-gray-600 space-y-2">
-          <p>
-            Die Gewichtung der Faktoren basiert auf einem evidenzbasierten Ansatz: Jeder Faktor wird
-            durch mindestens eine publizierte Studie gestützt. Wir unterscheiden zwischen starker
-            Evidenz (experimentelle Studien, grosse Umfragen), moderater Evidenz (Beobachtungsstudien,
-            Expertenkonsens) und vorläufiger Evidenz (Einzelstudien, indirekte Belege).
-          </p>
-          <p>
-            Schweizer Forschung wird priorisiert, da sie den lokalen Kontext von Asylunterkünften
-            am besten abbildet. Internationale Studien dienen zur Validierung und Ergänzung.
-            Die Gewichtungen werden regelmässig überprüft, wenn neue Forschungsergebnisse vorliegen.
-          </p>
+          <p>{ALGORITHM_OVERVIEW_LABELS.scienceMethodP1}</p>
+          <p>{ALGORITHM_OVERVIEW_LABELS.scienceMethodP2}</p>
         </div>
       </section>
 
@@ -80,7 +71,7 @@ export function OverviewTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           <Layers className="w-5 h-5 text-aoz-primary" />
-          Die {DIMENSION_COUNT} Dimensionen
+          {ALGORITHM_OVERVIEW_LABELS.dimensionsSectionTitle(DIMENSION_COUNT)}
         </h2>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -102,7 +93,7 @@ export function OverviewTab() {
         {/* CSS-only weight visualization bars */}
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-            Gewichtungsverteilung
+            {ALGORITHM_OVERVIEW_LABELS.weightDistribution}
           </h3>
           {RESIDENT_DIMENSIONS.map((dim, i) => {
             const pct = Math.round(dim.weight * 100)
@@ -132,11 +123,11 @@ export function OverviewTab() {
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
           <Scale className="w-5 h-5 text-aoz-primary" />
-          Score-Interpretation
+          {ALGORITHM_OVERVIEW_LABELS.scoreInterpTitle}
         </h2>
 
         <p className="text-gray-600 mb-6">
-          Der Kompatibilitäts-Score (0-100) zeigt, wie gut Bewohner zusammenpassen.
+          {ALGORITHM_OVERVIEW_LABELS.scoreInterpDesc}
         </p>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -150,7 +141,7 @@ export function OverviewTab() {
 
       {/* Version Footer */}
       <div className="text-center text-sm text-gray-500 pt-4">
-        Letzte Aktualisierung: v2.0 – 10. Februar 2026
+        {ALGORITHM_OVERVIEW_LABELS.lastUpdated}
       </div>
     </div>
   )

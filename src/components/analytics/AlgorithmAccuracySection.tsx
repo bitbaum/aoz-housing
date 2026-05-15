@@ -5,7 +5,7 @@
  */
 
 import type { AlgorithmAccuracyReport } from '@/lib/analytics/algorithm-accuracy'
-import { SATISFACTION_HISTORY_LABELS } from '@/lib/constants/labels'
+import { SATISFACTION_HISTORY_LABELS, ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels'
 
 interface Props {
   report: AlgorithmAccuracyReport
@@ -15,9 +15,9 @@ export function AlgorithmAccuracySection({ report }: Props) {
   if (report.totalWithScores === 0) {
     return (
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Algorithmus-Genauigkeit</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">{ALGORITHM_ACCURACY_LABELS.sectionTitle}</h2>
         <p className="text-gray-500 text-center py-8">
-          Noch keine beendeten Platzierungen mit Kompatibilitätsbewertung vorhanden.
+          {ALGORITHM_ACCURACY_LABELS.empty}
         </p>
       </div>
     )
@@ -26,9 +26,9 @@ export function AlgorithmAccuracySection({ report }: Props) {
   return (
     <div className="card">
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">Algorithmus-Genauigkeit</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{ALGORITHM_ACCURACY_LABELS.sectionTitle}</h2>
         <p className="text-sm text-gray-500">
-          Vergleich: Kompatibilitätsbewertung vs. tatsächliches Ergebnis ({report.totalWithScores} Platzierungen)
+          {ALGORITHM_ACCURACY_LABELS.subtitle(report.totalWithScores)}
         </p>
       </div>
 
@@ -36,11 +36,11 @@ export function AlgorithmAccuracySection({ report }: Props) {
       {report.avgScoreConflictEnds !== null && report.avgScoreSuccessfulEnds !== null && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="rounded-lg bg-red-50 border border-red-100 p-4 text-center">
-            <p className="text-sm text-red-600 mb-1">Ø Score bei Konflikt-Ende</p>
+            <p className="text-sm text-red-600 mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreConflict}</p>
             <p className="text-3xl font-bold text-red-700">{report.avgScoreConflictEnds}</p>
           </div>
           <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4 text-center">
-            <p className="text-sm text-emerald-600 mb-1">Ø Score bei erfolgreichem Ende</p>
+            <p className="text-sm text-emerald-600 mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreSuccess}</p>
             <p className="text-3xl font-bold text-emerald-700">{report.avgScoreSuccessfulEnds}</p>
           </div>
         </div>
@@ -49,7 +49,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
       {/* Tiered accuracy table */}
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-          Ergebnisse nach Kompatibilitätsstufe
+          {ALGORITHM_ACCURACY_LABELS.resultsByTierTitle}
         </h3>
 
         {/* Mobile cards */}
@@ -58,21 +58,21 @@ export function AlgorithmAccuracySection({ report }: Props) {
             <div key={tier.tier} className="rounded-lg border border-gray-200 p-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-gray-900">{tier.label}</span>
-                <span className="text-sm text-gray-500">{tier.totalPlacements} Platzierungen</span>
+                <span className="text-sm text-gray-500">{tier.totalPlacements} {ALGORITHM_ACCURACY_LABELS.placementsLabel}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 text-center text-sm">
                 <div>
-                  <p className="text-gray-500">Konflikte</p>
+                  <p className="text-gray-500">{ALGORITHM_ACCURACY_LABELS.conflictsLabel}</p>
                   <p className={`font-semibold ${tier.conflictRate > 30 ? 'text-red-600' : tier.conflictRate > 15 ? 'text-orange-600' : 'text-emerald-600'}`}>
                     {tier.conflictRate}%
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Zufriedenheit</p>
+                  <p className="text-gray-500">{ALGORITHM_ACCURACY_LABELS.satisfactionLabel}</p>
                   <p className="font-semibold text-gray-900">{tier.avgSatisfaction ?? '—'}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Ø Dauer</p>
+                  <p className="text-gray-500">{ALGORITHM_ACCURACY_LABELS.avgDurationLabel}</p>
                   <p className="font-semibold text-gray-900">{tier.avgDurationDays ? `${tier.avgDurationDays}d` : '—'}</p>
                 </div>
               </div>
@@ -85,11 +85,11 @@ export function AlgorithmAccuracySection({ report }: Props) {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left py-2 pr-4 font-medium text-gray-500">Stufe</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500">Platzierungen</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500">Konfliktrate</th>
-                <th className="text-right py-2 px-4 font-medium text-gray-500">Ø Zufriedenheit</th>
-                <th className="text-right py-2 pl-4 font-medium text-gray-500">Ø Dauer (Tage)</th>
+                <th className="text-left py-2 pr-4 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.colTier}</th>
+                <th className="text-right py-2 px-4 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.placementsLabel}</th>
+                <th className="text-right py-2 px-4 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.colConflictRate}</th>
+                <th className="text-right py-2 px-4 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.colAvgSatisfaction}</th>
+                <th className="text-right py-2 pl-4 font-medium text-gray-500">{ALGORITHM_ACCURACY_LABELS.colAvgDuration}</th>
               </tr>
             </thead>
             <tbody>
@@ -113,7 +113,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
       {report.satisfactionCorrelation.some(s => s.checkInCount > 0) && (
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Zufriedenheit nach Kompatibilitätsstufe
+            {ALGORITHM_ACCURACY_LABELS.satisfactionByTierTitle}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {report.satisfactionCorrelation.map(tier => (
@@ -127,7 +127,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
                     {SATISFACTION_HISTORY_LABELS.roommateRelations} {tier.avgRoommateRelations}/5
                   </p>
                 )}
-                <p className="text-xs text-gray-400 mt-1">{tier.checkInCount} Check-ins</p>
+                <p className="text-xs text-gray-400 mt-1">{tier.checkInCount} {ALGORITHM_ACCURACY_LABELS.checkInsLabel}</p>
               </div>
             ))}
           </div>
@@ -138,19 +138,19 @@ export function AlgorithmAccuracySection({ report }: Props) {
       {report.predictionAccuracy.accuracy !== null && (
         <div>
           <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Vorhersage-Genauigkeit
+            {ALGORITHM_ACCURACY_LABELS.predictionTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-sm text-gray-500">Vorhersagbare Konflikte</p>
+              <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.predictableConflicts}</p>
               <p className="text-2xl font-bold text-gray-900">{report.predictionAccuracy.predictableConflicts}</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-sm text-gray-500">Unvorhersagbare</p>
+              <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.unpredictable}</p>
               <p className="text-2xl font-bold text-gray-900">{report.predictionAccuracy.unpredictableConflicts}</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-sm text-gray-500">Noch nicht bewertet</p>
+              <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.notRated}</p>
               <p className="text-2xl font-bold text-gray-900">{report.predictionAccuracy.unmarked}</p>
             </div>
           </div>

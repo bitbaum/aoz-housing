@@ -9,7 +9,7 @@ import {
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
-import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels/scores'
+import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS } from '@/lib/constants'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -98,7 +98,7 @@ export function TransferRecommendations({
   if (rankedUnits.length === 0) {
     return (
       <div className="text-sm text-orange-600 p-3 bg-orange-50 rounded-lg border border-orange-200">
-        Keine Unterkünfte mit geeigneten Plätzen verfügbar.
+        {TRANSFER_RECOMMENDATIONS_LABELS.noUnitsAvailable}
       </div>
     )
   }
@@ -107,7 +107,7 @@ export function TransferRecommendations({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-gray-500">
-          {rankedUnits.length} Unterkünfte verfügbar · Sortiert nach Passgenauigkeit
+          {TRANSFER_RECOMMENDATIONS_LABELS.unitsAvailable(rankedUnits.length)}
         </p>
       </div>
 
@@ -228,7 +228,7 @@ export function TransferRecommendations({
                       {/* Individual resident compatibility */}
                       <div>
                         <p className="text-xs font-medium text-gray-700 mb-2">
-                          Kompatibilität mit Mitbewohnern
+                          {TRANSFER_RECOMMENDATIONS_LABELS.roommateCompatibility}
                         </p>
                         <div className="space-y-2">
                           {unit.residents.map(resident => {
@@ -282,7 +282,7 @@ export function TransferRecommendations({
           onClick={() => setShowAll(true)}
           className="w-full py-2 text-xs text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 rounded-lg hover:border-gray-400"
         >
-          +{hiddenCount} weitere Unterkünfte anzeigen
+          {TRANSFER_RECOMMENDATIONS_LABELS.showMoreUnits(hiddenCount)}
         </button>
       )}
 

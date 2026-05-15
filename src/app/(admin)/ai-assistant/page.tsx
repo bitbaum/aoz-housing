@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { AIChatInterface } from '@/components/ai/AIChatInterface'
+import { AI_ASSISTANT_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'KI-Assistent' }
 
@@ -9,7 +10,7 @@ export default function AIAssistantPage() {
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">KI-Assistent</h1>
         <p className="text-gray-500 mt-1">
-          Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.
+          {AI_ASSISTANT_LABELS.subtitle}
         </p>
       </div>
       <div className="card">

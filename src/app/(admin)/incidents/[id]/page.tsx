@@ -84,7 +84,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
     <div>
       <SuccessToast
         triggers={[
-          { param: 'resolved', message: 'Vorfall als gelöst markiert' },
+          { param: 'resolved', message: INCIDENT_DETAIL_LABELS.markedResolved },
         ]}
       />
       {/* Header */}

@@ -232,6 +232,8 @@ export const RESIDENT_LIST_LABELS = {
   emptyDefault: 'Noch keine Bewohner vorhanden',
   emptyFiltered: 'Keine Bewohner für diese Filter',
   notPlaced: 'Nicht platziert',
+  filterReset: 'Filter zurücksetzen',
+  recentIncidentsSuffix: 'Vorfälle',
 } as const
 
 export const SATISFACTION_HISTORY_LABELS = {
@@ -565,6 +567,71 @@ export const INCIDENT_DETAIL_LABELS = {
   descriptionTitle: 'Beschreibung',
   resolutionTitle: 'Lösung',
   resolvedAt: (date: string) => `Gelöst am ${date}`,
+  markedResolved: 'Vorfall als gelöst markiert',
+  nextScheduledPrefix: 'Nächste:',
+} as const
+
+export const RESIDENT_NEW_LABELS = {
+  backLink: '← Zurück zur Übersicht',
+  title: 'Neuen Bewohner erfassen',
+  step1Subtitle: 'Schritt 1 von 2: Profil erfassen. Danach finden wir passende Unterkünfte.',
+  step1Label: 'Profil erfassen',
+  step2Label: 'Unterkunft finden',
+  submit: 'Weiter zum Matching →',
+  cancel: 'Abbrechen',
+} as const
+
+export const RESIDENT_EDIT_LABELS = {
+  backLink: '← Zurück zum Profil',
+  title: (code: string) => `${code} bearbeiten`,
+  subtitle: 'Aktualisieren Sie die Informationen des Bewohners',
+  submit: 'Änderungen speichern',
+  cancel: 'Abbrechen',
+} as const
+
+export const HOUSING_EDIT_LABELS = {
+  backLink: '← Zurück zur Übersicht',
+  title: (code: string) => `${code} bearbeiten`,
+  subtitle: 'Aktualisieren Sie die Informationen der Unterkunft',
+  submit: 'Änderungen speichern',
+  cancel: 'Abbrechen',
+} as const
+
+export const FORM_VALIDATION_UX_LABELS = {
+  requiredFields: 'Bitte prüfen Sie die markierten Pflichtfelder.',
+  fieldRequired: 'Dieses Feld ist erforderlich',
+} as const
+
+export const COMPATIBLE_MATCHES_LABELS = {
+  desc: 'Diese Bewohner könnten zusammen platziert werden.',
+} as const
+
+export const TOP_COMPATIBILITIES_LABELS = {
+  title: 'Top Kompatibilitäten',
+} as const
+
+export const AI_ASSISTANT_LABELS = {
+  subtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.',
+} as const
+
+export const RESIDENT_INCIDENTS_LABELS = {
+  sectionTitle: 'Vorfallstatistik',
+  warningMessage: (count: number) => `Diese Person war in ${count} Vorfällen betroffen.`,
+  reviewRecommendation: 'Eine Überprüfung der Platzierung wird empfohlen.',
+  reportedLabel: 'Gemeldet',
+  reportedDesc: 'Vorfälle von dieser Person gemeldet',
+  subjectLabel: 'Betroffen',
+  subjectDesc: 'Vorfälle über diese Person',
+  subjectTitle: (count: number) => `Vorfälle über diese Person (${count})`,
+  reportIncident: 'Vorfall melden',
+  noIncidents: 'Keine Vorfälle dokumentiert',
+} as const
+
+export const TRANSFER_RECOMMENDATIONS_LABELS = {
+  noUnitsAvailable: 'Keine Unterkünfte mit geeigneten Plätzen verfügbar.',
+  unitsAvailable: (count: number) => `${count} Unterkünfte verfügbar · Sortiert nach Passgenauigkeit`,
+  roommateCompatibility: 'Kompatibilität mit Mitbewohnern',
+  showMoreUnits: (count: number) => `+${count} weitere Unterkünfte anzeigen`,
 } as const
 
 export const PROBLEM_DETECTION_LABELS = {

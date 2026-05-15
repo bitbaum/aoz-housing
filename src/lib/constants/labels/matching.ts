@@ -65,6 +65,7 @@ export const MATCHING_LABELS = {
   placed: 'Platziert',
   compare: 'Vergleichen',
   // Matching page header
+  title: 'Matching',
   findMatchingResidents: (address: string) => `Finden Sie passende Bewohner für ${address}`,
   step2SelectUnit: (code: string) => `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${code}`,
   findOptimalPlacement: 'Finden Sie die optimale Platzierung für Bewohner',
@@ -74,6 +75,12 @@ export const MATCHING_LABELS = {
   residentCreated: (code: string) => `Bewohner ${code} erfolgreich erstellt`,
   newResidentBannerDesc: 'Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach Kompatibilität sortiert - oben die besten Matches.',
   selectResidentForMatches: 'Wählen Sie einen Bewohner aus, um Matches zu sehen',
+  // Available units panel
+  availableUnitsTitle: (count: number) => `Verfügbare Unterkünfte (${count})`,
+  // What-if analysis banner (placed resident selected)
+  whatIfTitle: (code: string) => `Was-wäre-wenn-Analyse für ${code}`,
+  whatIfCurrentPlacement: (code: string) => `Aktuell platziert in ${code}.`,
+  whatIfDesc: 'Diese Ansicht zeigt Kompatibilität mit anderen Unterkünften.',
 } as const
 
 export const ALGORITHM_OVERVIEW_LABELS = {
@@ -96,6 +103,19 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   ethicsLabel: 'gestaltet',
   dimensionsIntro: 'Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert. Klicken Sie auf eine Dimension für Details.',
   factorsCount: (n: number) => `${n} Faktoren`,
+  // Overview tab sections
+  howItWorksTitle: 'So funktioniert das Matching',
+  processStep1Desc: 'Bei der Aufnahme werden Präferenzen und Bedürfnisse systematisch erfasst.',
+  processStep2Desc: (count: number) => `${count} Faktoren werden gewichtet verglichen.`,
+  processStep3Desc: 'Ein Score zeigt die Eignung, Warnungen weisen auf Risiken hin.',
+  scienceMethodTitle: 'Wissenschaftliche Methodik',
+  scienceMethodP1: 'Die Gewichtung der Faktoren basiert auf einem evidenzbasierten Ansatz: Jeder Faktor wird durch mindestens eine publizierte Studie gestützt. Wir unterscheiden zwischen starker Evidenz (experimentelle Studien, grosse Umfragen), moderater Evidenz (Beobachtungsstudien, Expertenkonsens) und vorläufiger Evidenz (Einzelstudien, indirekte Belege).',
+  scienceMethodP2: 'Schweizer Forschung wird priorisiert, da sie den lokalen Kontext von Asylunterkünften am besten abbildet. Internationale Studien dienen zur Validierung und Ergänzung. Die Gewichtungen werden regelmässig überprüft, wenn neue Forschungsergebnisse vorliegen.',
+  dimensionsSectionTitle: (count: number) => `Die ${count} Dimensionen`,
+  weightDistribution: 'Gewichtungsverteilung',
+  scoreInterpTitle: 'Score-Interpretation',
+  scoreInterpDesc: 'Der Kompatibilitäts-Score (0-100) zeigt, wie gut Bewohner zusammenpassen.',
+  lastUpdated: 'Letzte Aktualisierung: v2.0 – 10. Februar 2026',
 } as const
 
 export const PLACEMENT_ACTIONS_LABELS = {
@@ -141,6 +161,8 @@ export const PLACEMENT_ACTIONS_LABELS = {
   conflictPredictableYes: 'Ja',
   conflictScoreHint: (score: number) => `(Score war ${score}%)`,
   incidentOptionalHint: 'Optional: Vorfall der zu dieser Beendigung geführt hat',
+  // Unit select option
+  spotsAvailableCount: (count: number) => `${count} Plätze frei`,
   // Dynamic summaries
   transferSummaryWithUnit: (unitCode: string) =>
     `Bewohner wird in ${unitCode} verlegt. Ziel-Unterkunft prüfen und Grund dokumentieren.`,

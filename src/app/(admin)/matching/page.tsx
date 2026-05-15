@@ -313,7 +313,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             ? MATCHING_LABELS.whoFitsIn(selectedUnit?.code ?? '')
             : isNewResident
             ? MATCHING_LABELS.findUnit
-            : 'Matching'}
+            : MATCHING_LABELS.title}
         </h1>
         <div className="flex items-center justify-between">
           <p className="text-gray-500">
@@ -376,11 +376,11 @@ export default async function MatchingPage({ searchParams }: Props) {
             <span className="text-xl">ℹ️</span>
             <div>
               <h2 className="font-semibold text-blue-800">
-                Was-wäre-wenn-Analyse für {selectedResident.code}
+                {MATCHING_LABELS.whatIfTitle(selectedResident.code)}
               </h2>
               <p className="text-sm text-blue-700 mt-1">
-                Aktuell platziert in {selectedResident.placements[0]?.housingUnit?.code}.
-                Diese Ansicht zeigt Kompatibilität mit anderen Unterkünften.
+                {MATCHING_LABELS.whatIfCurrentPlacement(selectedResident.placements[0]?.housingUnit?.code ?? '')}{' '}
+                {MATCHING_LABELS.whatIfDesc}
               </p>
             </div>
           </div>
@@ -416,7 +416,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           ) : (
             <>
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Verfügbare Unterkünfte ({availableUnits.filter(u => u.placements.length < u.totalBeds).length})
+                {MATCHING_LABELS.availableUnitsTitle(availableUnits.filter(u => u.placements.length < u.totalBeds).length)}
               </h2>
               <p className="text-gray-500 text-center py-8">
                 {MATCHING_LABELS.selectResidentForMatches}

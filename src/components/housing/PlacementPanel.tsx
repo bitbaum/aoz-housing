@@ -6,6 +6,7 @@ import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
   PLACEMENT_PANEL_LABELS,
+  PLACEMENT_CONCERN_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -131,7 +132,7 @@ function ResidentRow({
 }) {
   const { resident, fitScore, strengths, concerns } = match
   const hasBlockingConcerns = concerns.some(
-    (c) => c.includes('Rollstuhl') || c.includes('Erdgeschoss') || c.includes('BLOCKING')
+    (c) => c === PLACEMENT_CONCERN_LABELS.wheelchairRequired || c === PLACEMENT_CONCERN_LABELS.groundFloorRequired
   )
 
   const borderColor = hasBlockingConcerns

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { HousingFormFields, FormValidationUX } from '@/components/forms'
 import { updateHousingUnit } from '@/lib/actions'
 import { HousingDangerZone } from '@/components/housing/HousingDangerZone'
+import { HOUSING_EDIT_LABELS } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,13 +30,13 @@ export default async function EditHousingPage({ params }: Props) {
           href={`/housing/${id}`}
           className="text-aoz-primary hover:underline text-sm"
         >
-          ← Zurück zur Übersicht
+          {HOUSING_EDIT_LABELS.backLink}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-          {unit.code} bearbeiten
+          {HOUSING_EDIT_LABELS.title(unit.code)}
         </h1>
         <p className="text-gray-500">
-          Aktualisieren Sie die Informationen der Unterkunft
+          {HOUSING_EDIT_LABELS.subtitle}
         </p>
       </div>
 
@@ -74,10 +75,10 @@ export default async function EditHousingPage({ params }: Props) {
         {/* Actions */}
         <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-            Änderungen speichern
+            {HOUSING_EDIT_LABELS.submit}
           </button>
           <Link href={`/housing/${id}`} className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
-            Abbrechen
+            {HOUSING_EDIT_LABELS.cancel}
           </Link>
         </div>
       </form>

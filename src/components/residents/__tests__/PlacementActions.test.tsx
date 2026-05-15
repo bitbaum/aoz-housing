@@ -106,6 +106,7 @@ jest.mock('@/lib/constants', () => ({
     conflictPredictableYes: 'Ja',
     conflictScoreHint: (score: number) => `(Score war ${score}%)`,
     incidentOptionalHint: 'Optional: Vorfall der zu dieser Beendigung geführt hat',
+    spotsAvailableCount: (count: number) => `${count} Plätze frei`,
     transferSummaryWithUnit: (unitCode: string) => `Bewohner wird in ${unitCode} verlegt.`,
     transferSummaryEmpty: 'Wählen Sie eine Ziel-Unterkunft, um die Verlegung zu bestätigen.',
     endSummaryWithReason: (reason: string) => `Diese Platzierung wird beendet (Grund: ${reason}).`,

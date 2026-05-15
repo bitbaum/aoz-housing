@@ -116,6 +116,12 @@ export const DASHBOARD_LABELS = {
   analyticsOverdueCheckIns: 'Überfällige Check-ins',
   analyticsConflictEnded: 'Konfliktbedingt beendet',
   analyticsAvgSatisfaction: 'Ø Zufriedenheit',
+  // Analytics page
+  analyticsPageSubtitle: 'Übersicht über Belegung, Check-ins und Konflikte',
+  analyticsConflictsTitle: (days: number) => `Konflikte (${days} Tage)`,
+  analyticsUnresolved: (count: number) => `${count} ungelöst`,
+  analyticsEndReasonsTitle: 'Beendigungsgründe (gesamt)',
+  analyticsNoEndedPlacements: 'Keine beendeten Platzierungen',
 } as const
 
 export const MISSION_KPI_LABELS = {
@@ -138,4 +144,27 @@ export const MISSION_KPI_LABELS = {
 
 export const MAINTENANCE_CARD_LABELS = {
   newTicket: 'Neues Ticket',
+} as const
+
+export const ALGORITHM_ACCURACY_LABELS = {
+  sectionTitle: 'Algorithmus-Genauigkeit',
+  empty: 'Noch keine beendeten Platzierungen mit Kompatibilitätsbewertung vorhanden.',
+  subtitle: (count: number) => `Vergleich: Kompatibilitätsbewertung vs. tatsächliches Ergebnis (${count} Platzierungen)`,
+  avgScoreConflict: 'Ø Score bei Konflikt-Ende',
+  avgScoreSuccess: 'Ø Score bei erfolgreichem Ende',
+  resultsByTierTitle: 'Ergebnisse nach Kompatibilitätsstufe',
+  placementsLabel: 'Platzierungen',
+  conflictsLabel: 'Konflikte',
+  satisfactionLabel: 'Zufriedenheit',
+  avgDurationLabel: 'Ø Dauer',
+  colTier: 'Stufe',
+  colConflictRate: 'Konfliktrate',
+  colAvgSatisfaction: 'Ø Zufriedenheit',
+  colAvgDuration: 'Ø Dauer (Tage)',
+  satisfactionByTierTitle: 'Zufriedenheit nach Kompatibilitätsstufe',
+  checkInsLabel: 'Check-ins',
+  predictionTitle: 'Vorhersage-Genauigkeit',
+  predictableConflicts: 'Vorhersagbare Konflikte',
+  unpredictable: 'Unvorhersagbare',
+  notRated: 'Noch nicht bewertet',
 } as const

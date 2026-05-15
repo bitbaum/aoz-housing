@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { COMPATIBLE_MATCHES_LABELS } from '@/lib/constants'
 
 interface CompatibleUnit {
   unit: { id: string; code: string }
@@ -89,7 +90,7 @@ export function CompatibleMatchesCard({
             ))}
           </div>
           <p className="text-xs text-gray-500 mt-3">
-            Diese Bewohner könnten zusammen platziert werden.
+            {COMPATIBLE_MATCHES_LABELS.desc}
           </p>
         </div>
       )}

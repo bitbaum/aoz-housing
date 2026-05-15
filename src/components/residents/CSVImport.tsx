@@ -76,7 +76,7 @@ export function CSVImport() {
           onClick={() => fileRef.current?.click()}
           className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
-          CSV-Datei wählen
+          {EXPORT_LABELS.selectFile}
         </button>
         <a
           href="/api/export/template"

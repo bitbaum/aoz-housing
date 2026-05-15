@@ -83,7 +83,7 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="text-sm text-aoz-primary hover:underline"
               >
-                Filter zurücksetzen
+                {RESIDENT_LIST_LABELS.filterReset}
               </button>
             </>
           )}
@@ -159,7 +159,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
           </span>
           {recentIncidents > 0 && (
             <span className="text-xs text-orange-600">
-              {recentIncidents} Vorfälle
+              {recentIncidents} {RESIDENT_LIST_LABELS.recentIncidentsSuffix}
             </span>
           )}
         </div>

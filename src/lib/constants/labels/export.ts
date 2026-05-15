@@ -11,6 +11,7 @@ export const EXPORT_LABELS = {
   row: 'Zeile',
   noFile: 'Keine Datei hochgeladen',
   parseFailed: 'CSV-Parsing fehlgeschlagen',
+  selectFile: 'CSV-Datei wählen',
 } as const
 
 /** Column headers for CSV export files — SSOT for all export German text */

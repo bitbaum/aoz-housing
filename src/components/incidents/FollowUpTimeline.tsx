@@ -1,5 +1,6 @@
 import type { IncidentFollowUp } from '@prisma/client'
 import { formatRelativeDate, formatDate } from '@/lib/utils'
+import { INCIDENT_DETAIL_LABELS } from '@/lib/constants'
 
 interface Props {
   followUps: IncidentFollowUp[]
@@ -59,7 +60,7 @@ export function FollowUpTimeline({ followUps }: Props) {
                     <span>👤 {followUp.staffName}</span>
                   )}
                   {followUp.scheduledNextDate && (
-                    <span>📅 Nächste: {formatDate(followUp.scheduledNextDate)}</span>
+                    <span>📅 {INCIDENT_DETAIL_LABELS.nextScheduledPrefix} {formatDate(followUp.scheduledNextDate)}</span>
                   )}
                 </div>
               </div>

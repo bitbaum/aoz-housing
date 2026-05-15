@@ -7,6 +7,8 @@ import {
   INCIDENT_TYPE_LABELS,
   END_REASON_LABELS,
   DASHBOARD_LABELS,
+  PAGE_TITLES,
+  FORM_LABELS,
   getLabel,
 } from '@/lib/constants'
 import { getDateDaysAgo } from '@/lib/utils'
@@ -192,9 +194,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Auswertung</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.analytics}</h1>
           <p className="text-gray-500">
-            Übersicht über Belegung, Check-ins und Konflikte
+            {DASHBOARD_LABELS.analyticsPageSubtitle}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -202,7 +204,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
             href="/api/export/satisfaction"
             className="min-h-[44px] rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
           >
-            Exportieren
+            {FORM_LABELS.export}
           </a>
           <PeriodSelector currentDays={days} />
         </div>
@@ -228,9 +230,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           highlight={overdueCheckIns.length > 0}
         />
         <MetricCard
-          label={`Konflikte (${days} Tage)`}
+          label={DASHBOARD_LABELS.analyticsConflictsTitle(days)}
           value={recentIncidents.length}
-          subtitle={`${unresolvedIncidents.length} ungelöst`}
+          subtitle={DASHBOARD_LABELS.analyticsUnresolved(unresolvedIncidents.length)}
           href="/incidents?category=INTERPERSONAL"
           highlight={unresolvedIncidents.length > 0}
         />
@@ -322,11 +324,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         {/* Placement End Reasons */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Beendigungsgründe (gesamt)
+            {DASHBOARD_LABELS.analyticsEndReasonsTitle}
           </h2>
           {endedPlacements.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
-              Keine beendeten Platzierungen
+              {DASHBOARD_LABELS.analyticsNoEndedPlacements}
             </p>
           ) : (
             <div className="space-y-3">
