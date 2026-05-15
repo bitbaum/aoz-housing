@@ -278,6 +278,8 @@ export const PLACEMENT_PANEL_LABELS = {
 } as const
 
 export const COMPATIBILITY_MATRIX_LABELS = {
+  heading: 'Kompatibilitätsmatrix',
+  clickHint: 'Auf eine Zelle klicken für Kompatibilitätsdetails',
   swipeHint: 'Wischen zum Scrollen',
   legend: 'Legende:',
   legendExcellent: '80+ Sehr gut',

@@ -5,6 +5,7 @@ import {
   HOUSING_STATUS_LABELS,
   HARMONY_STATUS_LABELS,
   PLACEMENT_CONCERN_LABELS,
+  COMPATIBILITY_MATRIX_LABELS,
 } from '@/lib/constants'
 import {
   getScoreLabel,
@@ -308,11 +309,8 @@ export default async function HousingDetailPage({ params }: Props) {
           {unit.placements.length > 1 && (
             <div className="card">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Kompatibilitätsmatrix
+                {COMPATIBILITY_MATRIX_LABELS.heading}
               </h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Klicken Sie auf eine Zelle, um Details zur Kompatibilität zu sehen
-              </p>
               <CompatibilityMatrixInteractive
                 residents={unit.placements.map(p => p.resident)}
                 scores={compatibilityScores}

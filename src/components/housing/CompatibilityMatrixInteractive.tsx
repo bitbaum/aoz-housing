@@ -83,7 +83,9 @@ export function CompatibilityMatrixInteractive({
 
   return (
     <div className="relative">
-      {/* Mobile scroll hint */}
+      {/* Desktop: click-to-detail hint */}
+      <p className="hidden sm:block text-sm text-gray-500 mb-4">{COMPATIBILITY_MATRIX_LABELS.clickHint}</p>
+      {/* Mobile: scroll hint */}
       <div className="sm:hidden text-xs text-gray-500 mb-2 flex items-center gap-1" aria-hidden="true">
         <span>←</span>
         <span>{COMPATIBILITY_MATRIX_LABELS.swipeHint}</span>
