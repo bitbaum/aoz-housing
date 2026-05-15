@@ -7,6 +7,7 @@ import {
   INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
   INCIDENT_TYPES_BY_CATEGORY,
+  INCIDENT_PAGE_LABELS,
   UI_LABELS,
 } from '@/lib/constants'
 import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
@@ -78,21 +79,21 @@ export default async function NewIncidentPage({ searchParams }: Props) {
           href="/incidents"
           className="text-aoz-primary hover:underline text-sm"
         >
-          ← Zurück zur Übersicht
+          {INCIDENT_PAGE_LABELS.backToList}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">Neuer Vorfall</h1>
-        <p className="text-gray-500">Dokumentieren Sie einen neuen Vorfall</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{INCIDENT_PAGE_LABELS.newIncident}</h1>
+        <p className="text-gray-500">{INCIDENT_PAGE_LABELS.newSubtitle}</p>
       </div>
 
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Schnellerfassung</h2>
-            <p className="text-sm text-gray-500">Typische Vorfälle mit einem Klick vorbefüllen</p>
+            <h2 className="text-base font-semibold text-gray-900">{INCIDENT_PAGE_LABELS.quickCapture}</h2>
+            <p className="text-sm text-gray-500">{INCIDENT_PAGE_LABELS.quickSubtitle}</p>
           </div>
           {params.quick && (
             <Link href={`/incidents/new?${queryBase.toString()}`} className="text-sm text-gray-500 hover:text-gray-700">
-              Preset zurücksetzen
+              {INCIDENT_PAGE_LABELS.resetPreset}
             </Link>
           )}
         </div>
@@ -103,11 +104,11 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               category: 'INTERPERSONAL',
               type: 'NOISE_COMPLAINT',
               severity: 'MEDIUM',
-              description: 'Lärmbeschwerde: Zeitpunkt, beteiligte Personen und Sofortmassnahmen dokumentieren.',
+              description: INCIDENT_PAGE_LABELS.presets.noiseDesc,
             })}
             className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'noise' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            🔊 Lärmkonflikt
+            {INCIDENT_PAGE_LABELS.presets.noiseLabel}
           </Link>
           <Link
             href={quickPresetHref({
@@ -115,11 +116,11 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               category: 'INTERPERSONAL',
               type: 'VERBAL_ARGUMENT',
               severity: 'HIGH',
-              description: 'Eskalation/verbaler Konflikt: Verlauf, Deeskalation und Sicherheitslage festhalten.',
+              description: INCIDENT_PAGE_LABELS.presets.escalationDesc,
             })}
             className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'aggression' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            ⚠️ Eskalation
+            {INCIDENT_PAGE_LABELS.presets.escalationLabel}
           </Link>
           <Link
             href={quickPresetHref({
@@ -127,11 +128,11 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               category: 'SAFETY',
               type: 'SAFETY_CONCERN',
               severity: 'HIGH',
-              description: 'Sicherheitsbedenken: Risiko, Betroffene, sofortige Schutzmassnahmen und nächste Schritte notieren.',
+              description: INCIDENT_PAGE_LABELS.presets.safetyDesc,
             })}
             className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'safety' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
           >
-            🚨 Sicherheit
+            {INCIDENT_PAGE_LABELS.presets.safetyLabel}
           </Link>
         </div>
       </div>
@@ -139,10 +140,10 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       <form action={createIncident} className="space-y-6">
         {/* Location & Attribution */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Ort & Beteiligte</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{INCIDENT_PAGE_LABELS.sectionLocation}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="label">Unterkunft *</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldUnit}</label>
               <select
                 name="housingUnitId"
                 required
@@ -158,36 +159,36 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </select>
             </div>
             <div>
-              <label className="label">Gemeldet von</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldReporter}</label>
               <select
                 name="reportedById"
                 defaultValue={params.reporter || ''}
                 className="input"
               >
-                <option value="">Unbekannt / Extern</option>
+                <option value="">{INCIDENT_PAGE_LABELS.fieldReporterUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
                     {resident.code}
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">Wer hat den Vorfall gemeldet?</p>
+              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldReporterHint}</p>
             </div>
             <div>
-              <label className="label">Betrifft</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldSubject}</label>
               <select
                 name="subjectId"
                 defaultValue={params.subject || ''}
                 className="input"
               >
-                <option value="">Keiner / Unbekannt</option>
+                <option value="">{INCIDENT_PAGE_LABELS.fieldSubjectUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
                     {resident.code}
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">Wen betrifft der Vorfall?</p>
+              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldSubjectHint}</p>
             </div>
           </div>
         </div>
@@ -195,11 +196,11 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         {/* Category & Type */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Kategorie & Art
+            {INCIDENT_PAGE_LABELS.sectionCategory}
           </h2>
           <div className="space-y-4">
             <div>
-              <label className="label">Kategorie *</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldCategory}</label>
               <div className="flex gap-3">
                 {/* Only INTERPERSONAL and SAFETY - Maintenance goes to /maintenance */}
                 {(['INTERPERSONAL', 'SAFETY'] as const).map((key) => (
@@ -224,12 +225,13 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 ))}
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Für Wartungsanfragen nutzen Sie bitte <a href="/maintenance/new" className="text-aoz-primary hover:underline">Neue Wartungsanfrage</a>
+                {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
+                <a href="/maintenance/new" className="text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</a>
               </p>
             </div>
 
             <div>
-              <label className="label">Art des Vorfalls *</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldType}</label>
               <select name="type" required className="input" defaultValue={selectedType}>
                 <option value="">{UI_LABELS.selectPlaceholder}</option>
                 <optgroup label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}>
@@ -251,7 +253,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         {/* Severity */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Schweregrad
+            {INCIDENT_PAGE_LABELS.sectionSeverity}
           </h2>
           <div className="flex gap-3">
             {Object.entries(INCIDENT_SEVERITY_LABELS).map(([key, label]) => (
@@ -279,10 +281,10 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
         {/* Details */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">{INCIDENT_PAGE_LABELS.sectionDetails}</h2>
           <div className="space-y-4">
             <div>
-              <label className="label">Datum *</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldDate}</label>
               <input
                 type="date"
                 name="date"
@@ -292,12 +294,12 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               />
             </div>
             <div>
-              <label className="label">Beschreibung *</label>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldDescription}</label>
               <textarea
                 name="description"
                 required
                 rows={4}
-                placeholder="Beschreiben Sie den Vorfall..."
+                placeholder={INCIDENT_PAGE_LABELS.fieldDescriptionPlaceholder}
                 defaultValue={selectedDescription}
                 className="input"
               />
@@ -308,10 +310,10 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         {/* Actions */}
         <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-            Vorfall erfassen
+            {INCIDENT_PAGE_LABELS.submit}
           </button>
           <Link href="/incidents" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
-            Abbrechen
+            {UI_LABELS.cancel}
           </Link>
         </div>
       </form>

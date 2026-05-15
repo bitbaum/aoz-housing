@@ -5,6 +5,7 @@ import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
   MAINTENANCE_PRIORITY_LABELS,
+  MAINTENANCE_PAGE_LABELS,
   UI_LABELS,
 } from '@/lib/constants'
 import { FormValidationUX } from '@/components/forms'
@@ -45,10 +46,10 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           href="/maintenance"
           className="text-aoz-primary hover:underline text-sm"
         >
-          &larr; Zurück zur Liste
+          {MAINTENANCE_PAGE_LABELS.backToList}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
-          Neue Wartungsanfrage
+          {MAINTENANCE_PAGE_LABELS.newTitle}
         </h1>
       </div>
 
@@ -59,10 +60,10 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Location Section */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">Ort</h2>
+            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionLocation}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="label">Unterkunft *</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldUnit}</label>
                 <select
                   name="housingUnitId"
                   required
@@ -78,13 +79,13 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
                 </select>
               </div>
               <div>
-                <label className="label">Spezifischer Platz</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldSpot}</label>
                 <select
                   name="spotId"
                   className="input"
                   defaultValue={preselectedSpotId || ''}
                 >
-                  <option value="">Allgemein / Nicht zugeordnet</option>
+                  <option value="">{MAINTENANCE_PAGE_LABELS.fieldSpotDefault}</option>
                   {housingUnits.flatMap((unit) =>
                     unit.spots.map((spot) => (
                       <option key={spot.id} value={spot.id}>
@@ -96,11 +97,11 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
               </div>
             </div>
             <div>
-              <label className="label">Standort-Details</label>
+              <label className="label">{MAINTENANCE_PAGE_LABELS.fieldLocationDetails}</label>
               <input
                 type="text"
                 name="location"
-                placeholder="z.B. Badezimmer, Küche, Flur..."
+                placeholder={MAINTENANCE_PAGE_LABELS.fieldLocationPlaceholder}
                 className="input"
               />
             </div>
@@ -108,10 +109,10 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Request Details */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">Anfrage</h2>
+            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionRequest}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="label">Kategorie *</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldCategory}</label>
                 <select name="category" required className="input">
                   <option value="">{UI_LABELS.selectPlaceholder}</option>
                   {Object.entries(MAINTENANCE_CATEGORY_LABELS).map(([key, label]) => (
@@ -122,7 +123,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
                 </select>
               </div>
               <div>
-                <label className="label">Priorität *</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldPriority}</label>
                 <select name="priority" required className="input" defaultValue="NORMAL">
                   {Object.entries(MAINTENANCE_PRIORITY_LABELS).map(([key, label]) => (
                     <option key={key} value={key}>
@@ -133,22 +134,22 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
               </div>
             </div>
             <div>
-              <label className="label">Titel *</label>
+              <label className="label">{MAINTENANCE_PAGE_LABELS.fieldTitle}</label>
               <input
                 type="text"
                 name="title"
                 required
-                placeholder="Kurze Beschreibung des Problems"
+                placeholder={MAINTENANCE_PAGE_LABELS.fieldTitlePlaceholder}
                 className="input"
               />
             </div>
             <div>
-              <label className="label">Beschreibung *</label>
+              <label className="label">{MAINTENANCE_PAGE_LABELS.fieldDescription}</label>
               <textarea
                 name="description"
                 required
                 rows={4}
-                placeholder="Detaillierte Beschreibung des Problems..."
+                placeholder={MAINTENANCE_PAGE_LABELS.fieldDescriptionPlaceholder}
                 className="input"
               />
             </div>
@@ -156,12 +157,12 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Reporter */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">Gemeldet von</h2>
+            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionReporter}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="label">Bewohner</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldResident}</label>
                 <select name="reportedById" className="input">
-                  <option value="">Nicht zugeordnet</option>
+                  <option value="">{MAINTENANCE_PAGE_LABELS.fieldResidentDefault}</option>
                   {residents.map((resident) => (
                     <option key={resident.id} value={resident.id}>
                       {resident.code}
@@ -170,11 +171,11 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
                 </select>
               </div>
               <div>
-                <label className="label">Oder Name eingeben</label>
+                <label className="label">{MAINTENANCE_PAGE_LABELS.fieldReporterName}</label>
                 <input
                   type="text"
                   name="reporterName"
-                  placeholder="z.B. Hauswart, Nachbar..."
+                  placeholder={MAINTENANCE_PAGE_LABELS.fieldReporterNamePlaceholder}
                   className="input"
                 />
               </div>
@@ -184,10 +185,10 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           {/* Submit */}
           <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link href="/maintenance" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
-              Abbrechen
+              {UI_LABELS.cancel}
             </Link>
             <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
-              Anfrage erstellen
+              {MAINTENANCE_PAGE_LABELS.submit}
             </button>
           </div>
         </form>

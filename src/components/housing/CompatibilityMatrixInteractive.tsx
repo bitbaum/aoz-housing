@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { getScoreBgClass, getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_SCORE_LABELS, COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS, UI_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 
@@ -97,7 +97,7 @@ export function CompatibilityMatrixInteractive({
       {/* Mobile scroll hint */}
       <div className="sm:hidden text-xs text-gray-500 mb-2 flex items-center gap-1" aria-hidden="true">
         <span>←</span>
-        <span>Wischen zum Scrollen</span>
+        <span>{COMPATIBILITY_MATRIX_LABELS.swipeHint}</span>
         <span>→</span>
       </div>
       <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
@@ -184,26 +184,26 @@ export function CompatibilityMatrixInteractive({
 
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-500">
-        <span className="font-medium">Legende:</span>
+        <span className="font-medium">{COMPATIBILITY_MATRIX_LABELS.legend}</span>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-green-100"></span>
-          <span>80+ Sehr gut</span>
+          <span>{COMPATIBILITY_MATRIX_LABELS.legendExcellent}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-emerald-100"></span>
-          <span>60-79 Gut</span>
+          <span>{COMPATIBILITY_MATRIX_LABELS.legendGood}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-yellow-100"></span>
-          <span>40-59 Mittel</span>
+          <span>{COMPATIBILITY_MATRIX_LABELS.legendMedium}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-orange-100"></span>
-          <span>20-39 Niedrig</span>
+          <span>{COMPATIBILITY_MATRIX_LABELS.legendLow}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-red-100"></span>
-          <span>0-19 Kritisch</span>
+          <span>{COMPATIBILITY_MATRIX_LABELS.legendCritical}</span>
         </div>
       </div>
     </div>
@@ -292,7 +292,7 @@ const CompatibilityDetailPopover = ({
                 {score.overallScore}%
               </span>
               <p className="text-sm text-gray-500 mt-1">
-                {getScoreLabel(score.overallScore)} Kompatibilität
+                {getScoreLabel(score.overallScore)} {COMPATIBILITY_MATRIX_LABELS.compatibilitySuffix}
               </p>
             </div>
 
@@ -369,9 +369,9 @@ const CompatibilityDetailPopover = ({
           </>
         ) : (
           <div className="text-center py-4">
-            <p className="text-gray-500 mb-2">Keine Bewertung vorhanden</p>
+            <p className="text-gray-500 mb-2">{COMPATIBILITY_MATRIX_LABELS.noScore}</p>
             <p className="text-xs text-gray-500">
-              Die Kompatibilität wurde noch nicht berechnet
+              {COMPATIBILITY_MATRIX_LABELS.noScoreDesc}
             </p>
           </div>
         )}

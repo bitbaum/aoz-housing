@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { EMPTY_STATE_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, RESIDENT_LIST_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
@@ -81,16 +81,16 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Bewohner</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{RESIDENT_LIST_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/residents"
             className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
           >
-            Exportieren
+            {RESIDENT_LIST_LABELS.export}
           </a>
           <Link href="/residents/new" className="btn-ghost">
-            <span className="mr-1">+</span> Bewohner
+            {RESIDENT_LIST_LABELS.addResident}
           </Link>
         </div>
       </div>
@@ -113,14 +113,14 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         <div className="mb-4 sm:mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="font-medium text-blue-800">
-              {stats.unplaced} Bewohner warten auf Platzierung
+              {stats.unplaced} {RESIDENT_LIST_LABELS.unplacedBannerSuffix}
             </p>
             <p className="text-sm text-blue-600">
-              Starten Sie den Matching-Prozess um passende Unterkünfte zu finden
+              {RESIDENT_LIST_LABELS.unplacedBannerDesc}
             </p>
           </div>
           <Link href="/matching" className="btn-primary text-center min-h-[44px] flex items-center justify-center">
-            Matching starten
+            {RESIDENT_LIST_LABELS.startMatching}
           </Link>
         </div>
       )}
@@ -141,11 +141,11 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       {residents.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            {view === 'archived' ? 'Keine archivierten Bewohner' : EMPTY_STATE_LABELS.noResidents}
+            {view === 'archived' ? RESIDENT_LIST_LABELS.emptyArchived : EMPTY_STATE_LABELS.noResidents}
           </p>
           {view !== 'archived' && (
             <Link href="/residents/new" className="btn-primary">
-              Ersten Bewohner erfassen
+              {RESIDENT_LIST_LABELS.emptyFirst}
             </Link>
           )}
         </div>

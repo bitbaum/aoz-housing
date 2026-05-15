@@ -5,6 +5,7 @@ import Link from 'next/link'
 import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
+  PLACEMENT_PANEL_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -57,7 +58,7 @@ export function PlacementPanel({
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              Bewohner platzieren
+              {PLACEMENT_PANEL_LABELS.title}
             </h2>
             <p className="text-sm text-gray-500">
               {spot.label || spot.code}
@@ -79,16 +80,16 @@ export function PlacementPanel({
           {compatibleResidents.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 mb-4">
-                Keine unplatzierten Bewohner verfügbar
+                {PLACEMENT_PANEL_LABELS.noResidents}
               </p>
               <Link href="/residents/new" className="btn-primary text-sm">
-                Neuen Bewohner erfassen
+                {PLACEMENT_PANEL_LABELS.addResident}
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-gray-500 mb-4">
-                {compatibleResidents.length} passende Bewohner gefunden, nach Kompatibilität sortiert
+                {compatibleResidents.length} {PLACEMENT_PANEL_LABELS.foundSuffix}
               </p>
               {compatibleResidents.map((match) => (
                 <ResidentRow
@@ -109,7 +110,7 @@ export function PlacementPanel({
             href={`/matching?unit=${housingUnitId}`}
             className="btn-outline w-full text-center"
           >
-            Erweitertes Matching
+            {PLACEMENT_PANEL_LABELS.advancedMatching}
           </Link>
         </div>
       </div>
@@ -175,13 +176,13 @@ function ResidentRow({
         <div className="flex items-center gap-3 flex-shrink-0">
           <span
             className={`text-lg font-bold ${getScoreColorClass(fitScore)}`}
-            title={`Kompatibilität: ${fitScore}%`}
+            title={`${PLACEMENT_PANEL_LABELS.compatibilityTitle} ${fitScore}%`}
           >
             {fitScore}%
           </span>
           {hasBlockingConcerns ? (
             <span className="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">
-              Blockiert
+              {PLACEMENT_PANEL_LABELS.blocked}
             </span>
           ) : (
             <button
@@ -195,7 +196,7 @@ function ResidentRow({
                     : 'bg-gray-500 hover:bg-gray-600'
               } disabled:opacity-50`}
             >
-              {isPlacing ? 'Wird platziert...' : 'Platzieren'}
+              {isPlacing ? PLACEMENT_PANEL_LABELS.placing : PLACEMENT_PANEL_LABELS.place}
             </button>
           )}
         </div>

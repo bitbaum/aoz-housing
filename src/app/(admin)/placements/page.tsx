@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import {
   PLACEMENT_STATUS_LABELS,
+  PLACEMENT_LIST_LABELS,
   END_REASON_LABELS,
   SATISFACTION_EMOJIS,
   SATISFACTION_SURVEY_LABELS,
@@ -122,16 +123,16 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Platzierungen</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PLACEMENT_LIST_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/placements"
             className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
           >
-            Exportieren
+            {PLACEMENT_LIST_LABELS.export}
           </a>
           <Link href="/matching" className="btn-primary">
-            Neue Platzierung
+            {PLACEMENT_LIST_LABELS.newPlacement}
           </Link>
         </div>
       </div>
@@ -144,22 +145,22 @@ export default async function PlacementsListPage({ searchParams }: Props) {
             type="search"
             name="q"
             defaultValue={params.q || ''}
-            placeholder="Suchen: Bewohner, Unterkunft, Adresse"
+            placeholder={PLACEMENT_LIST_LABELS.searchPlaceholder}
             className="input md:col-span-2"
           />
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" name="overdue" value="1" defaultChecked={overdueOnly} />
-            Nur überfällige Check-ins
+            {PLACEMENT_LIST_LABELS.filterOverdue}
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" name="conflicts" value="1" defaultChecked={conflictsOnly} />
-            Nur konfliktbedingt beendet
+            {PLACEMENT_LIST_LABELS.filterConflicts}
           </label>
         </div>
         <div className="mt-3 flex items-center gap-2">
-          <button type="submit" className="btn-outline text-sm">Filter anwenden</button>
+          <button type="submit" className="btn-outline text-sm">{PLACEMENT_LIST_LABELS.filterApply}</button>
           <Link href={`/placements?status=${statusFilter}`} className="text-sm text-gray-500 hover:text-gray-700">
-            Filter zurücksetzen
+            {PLACEMENT_LIST_LABELS.filterReset}
           </Link>
         </div>
       </form>
@@ -212,13 +213,13 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
             {statusFilter === 'active'
-              ? 'Keine aktiven Platzierungen'
+              ? PLACEMENT_LIST_LABELS.emptyActive
               : statusFilter === 'ended'
-              ? 'Keine beendeten Platzierungen'
-              : 'Keine Platzierungen vorhanden'}
+              ? PLACEMENT_LIST_LABELS.emptyEnded
+              : PLACEMENT_LIST_LABELS.emptyAll}
           </p>
           <Link href="/matching" className="btn-primary">
-            Neue Platzierung erstellen
+            {PLACEMENT_LIST_LABELS.createPlacement}
           </Link>
         </div>
       ) : (
@@ -322,10 +323,10 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           {/* Duration */}
           <div className="text-right">
             <p className="text-xs text-gray-500">
-              {placement.status === 'ACTIVE' ? 'Seit' : 'Aufenthalt'}
+              {placement.status === 'ACTIVE' ? PLACEMENT_LIST_LABELS.since : PLACEMENT_LIST_LABELS.duration}
             </p>
             <p className="font-medium text-gray-900">
-              {totalDuration} {totalDuration === 1 ? 'Tag' : 'Tage'}
+              {totalDuration} {totalDuration === 1 ? PLACEMENT_LIST_LABELS.day : PLACEMENT_LIST_LABELS.days}
             </p>
           </div>
 
@@ -349,7 +350,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
                 </div>
               ) : (
                 <p className={`text-sm font-medium ${isCheckInOverdue ? 'text-orange-600' : 'text-aoz-primary'}`}>
-                  {isCheckInOverdue ? 'Überfällig!' : 'Erfassen →'}
+                  {isCheckInOverdue ? PLACEMENT_LIST_LABELS.checkInOverdue : PLACEMENT_LIST_LABELS.checkInCapture}
                 </p>
               )}
             </Link>
@@ -388,14 +389,14 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
       {/* Concerns Alert */}
       {lastCheckIn?.concerns && (
         <div className="mt-3 p-2 bg-orange-50 rounded text-sm text-orange-700 border-t border-orange-100">
-          ⚠️ Anliegen: {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}{lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
+          {PLACEMENT_LIST_LABELS.concerns} {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}{lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
         </div>
       )}
 
       {/* Dates */}
       <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 border-t border-gray-100 pt-3">
-        <span>Start: {formatDate(placement.startDate)}</span>
-        {placement.endDate && <span>Ende: {formatDate(placement.endDate)}</span>}
+        <span>{PLACEMENT_LIST_LABELS.dateStart} {formatDate(placement.startDate)}</span>
+        {placement.endDate && <span>{PLACEMENT_LIST_LABELS.dateEnd} {formatDate(placement.endDate)}</span>}
       </div>
     </div>
   )

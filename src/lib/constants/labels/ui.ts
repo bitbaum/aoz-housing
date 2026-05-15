@@ -189,6 +189,108 @@ export const TRANSFER_ACTION_LABELS = {
   success: 'Erfolgreich bearbeitet',
 } as const
 
+export const PLACEMENT_LIST_LABELS = {
+  title: 'Platzierungen',
+  export: 'Exportieren',
+  newPlacement: 'Neue Platzierung',
+  searchPlaceholder: 'Suchen: Bewohner, Unterkunft, Adresse',
+  filterOverdue: 'Nur überfällige Check-ins',
+  filterConflicts: 'Nur konfliktbedingt beendet',
+  filterApply: 'Filter anwenden',
+  filterReset: 'Filter zurücksetzen',
+  emptyActive: 'Keine aktiven Platzierungen',
+  emptyEnded: 'Keine beendeten Platzierungen',
+  emptyAll: 'Keine Platzierungen vorhanden',
+  createPlacement: 'Neue Platzierung erstellen',
+  since: 'Seit',
+  duration: 'Aufenthalt',
+  day: 'Tag',
+  days: 'Tage',
+  checkInOverdue: 'Überfällig!',
+  checkInCapture: 'Erfassen →',
+  concerns: '⚠️ Anliegen:',
+  dateStart: 'Start:',
+  dateEnd: 'Ende:',
+} as const
+
+export const RESIDENT_LIST_LABELS = {
+  title: 'Bewohner',
+  export: 'Exportieren',
+  addResident: '+ Bewohner',
+  unplacedBannerSuffix: 'Bewohner warten auf Platzierung',
+  unplacedBannerDesc: 'Starten Sie den Matching-Prozess um passende Unterkünfte zu finden',
+  startMatching: 'Matching starten',
+  emptyArchived: 'Keine archivierten Bewohner',
+  emptyFirst: 'Ersten Bewohner erfassen',
+} as const
+
+export const BED_GRID_LABELS = {
+  noSpots: 'Keine Plätze definiert',
+  age: 'Alter',
+  languages: 'Sprachen',
+  showProfile: 'Profil anzeigen →',
+  freeSuffix: 'frei',
+} as const
+
+export const PLACEMENT_PANEL_LABELS = {
+  title: 'Bewohner platzieren',
+  noResidents: 'Keine unplatzierten Bewohner verfügbar',
+  addResident: 'Neuen Bewohner erfassen',
+  foundSuffix: 'passende Bewohner gefunden, nach Kompatibilität sortiert',
+  advancedMatching: 'Erweitertes Matching',
+  placing: 'Wird platziert...',
+  place: 'Platzieren',
+  blocked: 'Blockiert',
+  compatibilityTitle: 'Kompatibilität:',
+} as const
+
+export const COMPATIBILITY_MATRIX_LABELS = {
+  swipeHint: 'Wischen zum Scrollen',
+  legend: 'Legende:',
+  legendExcellent: '80+ Sehr gut',
+  legendGood: '60-79 Gut',
+  legendMedium: '40-59 Mittel',
+  legendLow: '20-39 Niedrig',
+  legendCritical: '0-19 Kritisch',
+  compatibilitySuffix: 'Kompatibilität',
+  noScore: 'Keine Bewertung vorhanden',
+  noScoreDesc: 'Die Kompatibilität wurde noch nicht berechnet',
+} as const
+
+export const SETTINGS_LABELS = {
+  title: 'Einstellungen',
+  subtitle: 'Teamverwaltung und Systemkonfiguration',
+  inviteTitle: 'Mitarbeiter einladen',
+  inviteSubtitle: 'Erstellt einen Zugangscode und sendet eine Einladungs-E-Mail.',
+  emailWarning: 'E-Mail nicht konfiguriert (kein BREVO_API_KEY). Der Code wird nach dem Senden angezeigt — bitte manuell übermitteln.',
+  teamTitle: 'Team',
+  lastSeen: 'Zuletzt:',
+  neverLoggedIn: 'Noch nie angemeldet',
+  emailConfigTitle: 'E-Mail-Konfiguration',
+  brevoConnected: 'Brevo API: Verbunden',
+  brevoNotConfigured: 'Brevo API: Nicht konfiguriert',
+  senderPrefix: 'Absender:',
+  notificationsPrefix: 'Benachrichtigungen:',
+  noRecipients: 'Keine Empfänger konfiguriert',
+  addBrevoHint: 'Fügen Sie BREVO_API_KEY zur .env-Datei hinzu, um E-Mails zu aktivieren.',
+} as const
+
+export const INVITE_FORM_LABELS = {
+  errorGeneric: 'Fehler beim Einladen',
+  errorNetwork: 'Netzwerkfehler – bitte erneut versuchen',
+  successTitle: 'Mitarbeiter eingeladen',
+  successDesc: (name: string, email: string) => `${name} (${email}) wurde erstellt.`,
+  emailSent: 'Einladungs-E-Mail gesendet mit Zugangscode.',
+  emailNotSent: 'E-Mail nicht gesendet — Code manuell übermitteln:',
+  inviteAnother: 'Weitere Person einladen',
+  fieldName: 'Name',
+  fieldNamePlaceholder: 'Vorname Nachname',
+  fieldEmail: 'E-Mail-Adresse',
+  fieldEmailPlaceholder: 'name@example.com',
+  sending: 'Wird gesendet...',
+  submit: 'Einladung senden',
+} as const
+
 export const PROBLEM_DETECTION_LABELS = {
   noProblems: 'Keine Probleme erkannt',
   noProblemsDesc: 'Alle Bewohner passen gut zusammen. Harmonie in der Wohnung.',

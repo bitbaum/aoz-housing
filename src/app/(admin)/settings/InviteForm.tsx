@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
+import { INVITE_FORM_LABELS } from '@/lib/constants'
 
 interface InviteResult {
   success: boolean
@@ -32,7 +33,7 @@ export function InviteForm() {
       const data: InviteResult = await res.json()
 
       if (!data.success) {
-        setState({ status: 'error', message: data.error || 'Fehler beim Einladen' })
+        setState({ status: 'error', message: data.error || INVITE_FORM_LABELS.errorGeneric })
         return
       }
 
@@ -40,7 +41,7 @@ export function InviteForm() {
       setName('')
       setEmail('')
     } catch {
-      setState({ status: 'error', message: 'Netzwerkfehler – bitte erneut versuchen' })
+      setState({ status: 'error', message: INVITE_FORM_LABELS.errorNetwork })
     }
   }
 
@@ -53,17 +54,17 @@ export function InviteForm() {
     return (
       <div className="space-y-4">
         <div className="p-4 bg-green-50 border border-green-200 rounded-lg" role="status">
-          <p className="font-medium text-green-800 mb-1">Mitarbeiter eingeladen</p>
+          <p className="font-medium text-green-800 mb-1">{INVITE_FORM_LABELS.successTitle}</p>
           <p className="text-sm text-green-700">
             {user.name} ({user.email}) wurde erstellt.
           </p>
           {emailSent ? (
             <p className="text-sm text-green-700 mt-1">
-              Einladungs-E-Mail gesendet mit Zugangscode.
+              {INVITE_FORM_LABELS.emailSent}
             </p>
           ) : (
             <div className="mt-3 p-3 bg-white border border-green-200 rounded">
-              <p className="text-xs text-gray-500 mb-1">E-Mail nicht gesendet — Code manuell übermitteln:</p>
+              <p className="text-xs text-gray-500 mb-1">{INVITE_FORM_LABELS.emailNotSent}</p>
               <p className="font-mono text-lg font-bold text-gray-900 tracking-wider">{user.code}</p>
             </div>
           )}
@@ -72,7 +73,7 @@ export function InviteForm() {
           onClick={reset}
           className="text-sm text-aoz-primary hover:underline"
         >
-          Weitere Person einladen
+          {INVITE_FORM_LABELS.inviteAnother}
         </button>
       </div>
     )
@@ -89,14 +90,14 @@ export function InviteForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="invite-name" className="label">
-            Name <span className="text-red-500">*</span>
+            {INVITE_FORM_LABELS.fieldName} <span className="text-red-500">*</span>
           </label>
           <input
             id="invite-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Vorname Nachname"
+            placeholder={INVITE_FORM_LABELS.fieldNamePlaceholder}
             required
             minLength={2}
             className="input"
@@ -104,14 +105,14 @@ export function InviteForm() {
         </div>
         <div>
           <label htmlFor="invite-email" className="label">
-            E-Mail-Adresse <span className="text-red-500">*</span>
+            {INVITE_FORM_LABELS.fieldEmail} <span className="text-red-500">*</span>
           </label>
           <input
             id="invite-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@example.com"
+            placeholder={INVITE_FORM_LABELS.fieldEmailPlaceholder}
             required
             className="input"
           />
@@ -123,7 +124,7 @@ export function InviteForm() {
         disabled={state.status === 'loading'}
         className="btn-primary min-h-[44px] px-6 disabled:opacity-50"
       >
-        {state.status === 'loading' ? 'Wird gesendet...' : 'Einladung senden'}
+        {state.status === 'loading' ? INVITE_FORM_LABELS.sending : INVITE_FORM_LABELS.submit}
       </button>
     </form>
   )

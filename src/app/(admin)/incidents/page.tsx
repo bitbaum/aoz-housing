@@ -7,6 +7,7 @@ import {
   INCIDENT_CATEGORY_ICONS,
   INCIDENT_SEVERITY_LABELS,
   INCIDENT_RESOLVED_LABELS,
+  INCIDENT_PAGE_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -81,16 +82,16 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Vorfälle</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{INCIDENT_PAGE_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/incidents"
             className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
           >
-            Exportieren
+            {INCIDENT_PAGE_LABELS.export}
           </a>
           <Link href="/incidents/new" className="btn-primary">
-            Neuer Vorfall
+            {INCIDENT_PAGE_LABELS.newIncident}
           </Link>
         </div>
       </div>
@@ -102,10 +103,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
             <span className="text-2xl" role="img" aria-label="Warnung">🚨</span>
             <div>
               <p className="font-semibold text-red-800">
-                {stats.critical} kritische Vorfälle erfordern sofortige Aufmerksamkeit
+                {stats.critical} {INCIDENT_PAGE_LABELS.criticalAlertSuffix}
               </p>
               <p className="text-sm text-red-600">
-                Diese Vorfälle haben höchste Priorität und sollten umgehend bearbeitet werden
+                {INCIDENT_PAGE_LABELS.criticalAlertDesc}
               </p>
             </div>
           </div>
@@ -149,11 +150,11 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
             {categoryFilter === 'all'
-              ? 'Keine Vorfälle dokumentiert'
-              : `Keine ${getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter)} Vorfälle`}
+              ? INCIDENT_PAGE_LABELS.noIncidents
+              : INCIDENT_PAGE_LABELS.noIncidentsCategory(getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter))}
           </p>
           <Link href="/incidents/new" className="btn-primary">
-            Vorfall erfassen
+            {INCIDENT_PAGE_LABELS.createIncident}
           </Link>
         </div>
       ) : (
@@ -210,7 +211,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               />
               {isOverdue && (
                 <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded">
-                  ⏰ Überfällig
+                  ⏰ {INCIDENT_PAGE_LABELS.overdue}
                 </span>
               )}
               {incident._count?.followUps > 0 && (
@@ -229,7 +230,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident.reportedBy && (
                 <span
                   className="hover:text-aoz-primary"
-                  title="Gemeldet von"
+                  title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
                   <span aria-hidden="true">📢</span> {incident.reportedBy.code}
                 </span>
@@ -237,7 +238,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident.subject && (
                 <span
                   className="hover:text-aoz-primary font-medium"
-                  title="Betrifft"
+                  title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
                   <span aria-hidden="true">👤</span> {incident.subject.code}
                 </span>

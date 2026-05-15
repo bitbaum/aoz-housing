@@ -6,6 +6,7 @@ import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import {
   AGE_RANGE_LABELS,
   LANGUAGE_LABELS,
+  BED_GRID_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -71,7 +72,7 @@ export function BedGrid({
   if (spots.length === 0) {
     return (
       <div className="text-sm text-gray-500 text-center py-2">
-        Keine Plätze definiert
+        {BED_GRID_LABELS.noSpots}
       </div>
     )
   }
@@ -251,13 +252,13 @@ const ResidentBedPopover = ({
       <div className="px-4 py-3 space-y-2">
         {resident.ageRange && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Alter</span>
+            <span className="text-gray-500">{BED_GRID_LABELS.age}</span>
             <span className="text-gray-900">{getLabel(AGE_RANGE_LABELS, resident.ageRange)}</span>
           </div>
         )}
         {resident.languages && resident.languages.length > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Sprachen</span>
+            <span className="text-gray-500">{BED_GRID_LABELS.languages}</span>
             <span className="text-gray-900">
               {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
             </span>
@@ -272,7 +273,7 @@ const ResidentBedPopover = ({
           className="block w-full text-center text-sm text-aoz-primary hover:text-aoz-primary-dark font-medium"
           onClick={onClose}
         >
-          Profil anzeigen →
+          {BED_GRID_LABELS.showProfile}
         </Link>
       </div>
     </div>
@@ -326,7 +327,7 @@ export function BedGridSummary({
         )}
       </div>
       <span className={`${fontSize} text-gray-600`}>
-        {available} frei
+        {available} {BED_GRID_LABELS.freeSuffix}
       </span>
     </div>
   )

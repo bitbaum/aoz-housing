@@ -63,3 +63,38 @@ export const MAINTENANCE_STATUS_COLORS: Record<string, string> = {
 export const MAINTENANCE_STAT_LABELS = {
   completedThisMonth: 'Diesen Monat erledigt',
 } as const
+
+export const MAINTENANCE_PAGE_LABELS = {
+  title: 'Wartungsanfragen',
+  newRequest: 'Neue Anfrage',
+  urgentAlertSuffix: 'dringende Anfragen erfordern sofortige Aufmerksamkeit',
+  urgentAlertSuffixSingular: 'dringende Anfrage erfordert sofortige Aufmerksamkeit',
+  noRequests: 'Keine Wartungsanfragen gefunden',
+  createRequest: 'Anfrage erstellen',
+  assignPlaceholder: 'Zuweisen an...',
+  assignBtn: 'Zuweisen',
+  startBtn: 'Starten',
+  completeBtn: 'Abschliessen',
+
+  backToList: '← Zurück zur Liste',
+  newTitle: 'Neue Wartungsanfrage',
+  sectionLocation: 'Ort',
+  fieldUnit: 'Unterkunft *',
+  fieldSpot: 'Spezifischer Platz',
+  fieldSpotDefault: 'Allgemein / Nicht zugeordnet',
+  fieldLocationDetails: 'Standort-Details',
+  fieldLocationPlaceholder: 'z.B. Badezimmer, Küche, Flur...',
+  sectionRequest: 'Anfrage',
+  fieldCategory: 'Kategorie *',
+  fieldPriority: 'Priorität *',
+  fieldTitle: 'Titel *',
+  fieldTitlePlaceholder: 'Kurze Beschreibung des Problems',
+  fieldDescription: 'Beschreibung *',
+  fieldDescriptionPlaceholder: 'Detaillierte Beschreibung des Problems...',
+  sectionReporter: 'Gemeldet von',
+  fieldResident: 'Bewohner',
+  fieldResidentDefault: 'Nicht zugeordnet',
+  fieldReporterName: 'Oder Name eingeben',
+  fieldReporterNamePlaceholder: 'z.B. Hauswart, Nachbar...',
+  submit: 'Anfrage erstellen',
+} as const

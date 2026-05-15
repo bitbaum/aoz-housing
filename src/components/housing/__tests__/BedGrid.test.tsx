@@ -34,6 +34,13 @@ jest.mock('@/lib/constants', () => ({
   UI_LABELS: {
     close: 'Schliessen',
   },
+  BED_GRID_LABELS: {
+    noSpots: 'Keine Plätze definiert',
+    age: 'Alter',
+    languages: 'Sprachen',
+    showProfile: 'Profil anzeigen →',
+    freeSuffix: 'frei',
+  },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
 

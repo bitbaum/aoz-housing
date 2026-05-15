@@ -12,6 +12,7 @@ import {
   MAINTENANCE_STATUS_LABELS,
   MAINTENANCE_STATUS_COLORS,
   MAINTENANCE_STAT_LABELS,
+  MAINTENANCE_PAGE_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -91,9 +92,9 @@ export default async function MaintenancePage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Wartungsanfragen</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{MAINTENANCE_PAGE_LABELS.title}</h1>
         <Link href="/maintenance/new" className="btn-primary">
-          Neue Anfrage
+          {MAINTENANCE_PAGE_LABELS.newRequest}
         </Link>
       </div>
 
@@ -104,7 +105,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
             <span className="text-2xl">🚨</span>
             <div>
               <p className="font-semibold text-red-800">
-                {stats.urgent} dringende Anfrage{stats.urgent > 1 ? 'n' : ''} erfordern sofortige Aufmerksamkeit
+                {stats.urgent} {stats.urgent > 1 ? MAINTENANCE_PAGE_LABELS.urgentAlertSuffix : MAINTENANCE_PAGE_LABELS.urgentAlertSuffixSingular}
               </p>
             </div>
           </div>
@@ -159,10 +160,10 @@ export default async function MaintenancePage({ searchParams }: Props) {
       {requests.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            Keine Wartungsanfragen gefunden
+            {MAINTENANCE_PAGE_LABELS.noRequests}
           </p>
           <Link href="/maintenance/new" className="btn-primary">
-            Anfrage erstellen
+            {MAINTENANCE_PAGE_LABELS.createRequest}
           </Link>
         </div>
       ) : (
@@ -268,12 +269,12 @@ function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'statu
           <input
             type="text"
             name="assignedTo"
-            placeholder="Zuweisen an..."
+            placeholder={MAINTENANCE_PAGE_LABELS.assignPlaceholder}
             className="input text-sm w-32"
             required
           />
           <button type="submit" className="btn-outline text-sm ml-2">
-            Zuweisen
+            {MAINTENANCE_PAGE_LABELS.assignBtn}
           </button>
         </form>
       )}
@@ -282,7 +283,7 @@ function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'statu
           <input type="hidden" name="requestId" value={request.id} />
           <input type="hidden" name="status" value="IN_PROGRESS" />
           <button type="submit" className="btn-outline text-sm">
-            Starten
+            {MAINTENANCE_PAGE_LABELS.startBtn}
           </button>
         </form>
       )}
@@ -291,7 +292,7 @@ function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'statu
           <input type="hidden" name="requestId" value={request.id} />
           <input type="hidden" name="status" value="COMPLETED" />
           <button type="submit" className="btn-primary text-sm">
-            Abschliessen
+            {MAINTENANCE_PAGE_LABELS.completeBtn}
           </button>
         </form>
       )}
