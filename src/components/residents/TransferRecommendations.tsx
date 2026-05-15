@@ -10,7 +10,6 @@ import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thr
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
 import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels/scores'
-import { UI_LABELS } from '@/lib/constants'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -292,66 +291,5 @@ export function TransferRecommendations({
     </div>
   )
 }
-
-// =============================================================================
-// FALLBACK SELECTOR (when no compatibility data available)
-// =============================================================================
-
-interface TransferUnitSelectorProps {
-  eligibleUnits: UnitWithSpots[]
-  eligibleSpotTypes: string[]
-  selectedUnitId: string
-  onUnitSelect: (unitId: string) => void
-  /** Full compatibility data per unit */
-  unitCompatibility?: Record<string, UnitCompatibilityData>
-}
-
-export function TransferUnitSelector({
-  eligibleUnits,
-  eligibleSpotTypes,
-  selectedUnitId,
-  onUnitSelect,
-  unitCompatibility,
-}: TransferUnitSelectorProps) {
-  // If we have compatibility data, use the rich ranked view
-  if (unitCompatibility && Object.keys(unitCompatibility).length > 0) {
-    return (
-      <TransferRecommendations
-        eligibleUnits={eligibleUnits}
-        eligibleSpotTypes={eligibleSpotTypes}
-        selectedUnitId={selectedUnitId}
-        onUnitSelect={onUnitSelect}
-        unitCompatibility={unitCompatibility}
-      />
-    )
-  }
-
-  // Fallback to simple dropdown when no data available
-  return (
-    <select
-      name="targetHousingUnitId"
-      required
-      className="input"
-      value={selectedUnitId}
-      onChange={(e) => onUnitSelect(e.target.value)}
-    >
-      <option value="">{UI_LABELS.selectPlaceholder}</option>
-      {eligibleUnits.map((unit) => {
-        const eligibleSpots = unit.spots.filter((spot) =>
-          eligibleSpotTypes.includes(spot.type)
-        )
-        return (
-          <option key={unit.id} value={unit.id}>
-            {unit.code} - {unit.address} ({eligibleSpots.length} Plätze frei)
-          </option>
-        )
-      })}
-    </select>
-  )
-}
-
-// =============================================================================
-// TYPE EXPORTS for use in parent components
-// =============================================================================
 
 export type { UnitCompatibilityData, ResidentInUnit }

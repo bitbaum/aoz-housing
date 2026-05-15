@@ -1,36 +1,13 @@
 import Link from 'next/link'
-import type { Resident, Placement } from '@prisma/client'
+import type { Resident } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { MatchResult, CompatibilityDetail } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'
-import {
-  SLEEP_SCHEDULE_LABELS,
-  SMOKING_STATUS_LABELS,
-  SOCIAL_STYLE_LABELS,
-  MATCHING_LABELS,
-  getLabel,
-} from '@/lib/constants'
+import { MATCHING_LABELS } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
-import { HeadToHeadComparison } from './HeadToHeadComparison'
 import { SpotSelection } from './SpotSelection'
-
-/** Format conflict values with proper SSOT labels */
-function formatConflictValue(attribute: string, value: string | number): string {
-  if (typeof value === 'number') {
-    return value.toFixed(1)
-  }
-  switch (attribute) {
-    case 'sleepSchedule':
-      return getLabel(SLEEP_SCHEDULE_LABELS, value)
-    case 'smokingStatus':
-      return getLabel(SMOKING_STATUS_LABELS, value)
-    case 'socialStyle':
-      return getLabel(SOCIAL_STYLE_LABELS, value)
-    default:
-      return value
-  }
-}
+import { ApartmentProfileSection } from './ApartmentProfileSection'
 
 interface Props {
   match: MatchResult
@@ -42,7 +19,6 @@ export function MatchCard({ match, resident, rank }: Props) {
   const occupancy = match.unit.placements.length
   const realSuccessData = match.realSuccessData
 
-  // Collect all strengths and concerns from roommate compatibility
   const allStrengths: string[] = []
   const allConcerns: string[] = []
 
@@ -55,7 +31,6 @@ export function MatchCard({ match, resident, rank }: Props) {
     })
   })
 
-  // Count shared languages with roommates
   const roommateLanguages = match.unit.placements.flatMap(
     (p) => p.resident.languages || []
   )
@@ -63,7 +38,6 @@ export function MatchCard({ match, resident, rank }: Props) {
     (l: string) => roommateLanguages.includes(l)
   )
 
-  const totalIssues = match.unitConcerns.length + allConcerns.length
   const hasBlockingIssues = match.unitConcerns.some((c: string) =>
     c.includes('Rollstuhl') || c.includes('Erdgeschoss')
   )
@@ -97,7 +71,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       </div>
 
-      {/* Unit Historical Performance */}
       {match.unitMetrics && (
         <div className={`mb-3 p-2 rounded border ${
           match.unitMetrics.riskLevel === 'CRITICAL' ? 'bg-red-50 border-red-300' :
@@ -128,98 +101,15 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Apartment Profile Summary */}
-      {match.apartmentProfile && !match.apartmentProfile.isEmpty && (
-        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs font-semibold text-blue-800 uppercase">
-              {MATCHING_LABELS.apartmentProfile} ({match.apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
-            </p>
-            <span className={`text-sm font-bold ${getScoreColorClass(match.apartmentFit.fitScore)}`}>
-              {match.apartmentFit.fitScore}% {MATCHING_LABELS.matching}
-            </span>
-          </div>
-
-          {/* Head-to-head comparison table */}
-          <HeadToHeadComparison
-            currentResidents={match.unit.placements.map((p) => p.resident)}
-            newResident={resident}
-            apartmentProfile={match.apartmentProfile}
-          />
-
-          {/* Blocking/High conflicts */}
-          {match.apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length > 0 && (
-            <div className="space-y-1">
-              {match.apartmentFit.conflicts
-                .filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH')
-                .map((conflict: ApartmentConflict, i: number) => (
-                  <p key={i} className={`text-xs ${
-                    conflict.severity === 'BLOCKING' ? 'text-red-600 font-medium' : 'text-orange-600'
-                  }`}>
-                    {conflict.severity === 'BLOCKING' ? '🚫' : '⚠️'} {conflict.message}
-                  </p>
-                ))
-              }
-            </div>
-          )}
-
-          {/* Strengths */}
-          {match.apartmentFit.strengths.length > 0 && match.apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length === 0 && (
-            <div className="space-y-1">
-              {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength: string, i: number) => (
-                <p key={i} className="text-xs text-green-600">✓ {strength}</p>
-              ))}
-            </div>
-          )}
-
-          {/* Expandable score derivation */}
-          <details className="mt-2 text-xs">
-            <summary className="cursor-pointer text-blue-700 hover:text-blue-900 font-medium">
-              📊 {MATCHING_LABELS.scoreDerivation}
-            </summary>
-            <div className="mt-2 p-2 bg-white border border-blue-100 rounded text-gray-700">
-              <p className="font-semibold mb-1">Fit Score: {match.apartmentFit.fitScore}%</p>
-              <p className="text-gray-500 mb-2">{MATCHING_LABELS.basePenalty}</p>
-
-              {/* Conflict deductions */}
-              {match.apartmentFit.conflicts.length > 0 && (
-                <div className="mb-2">
-                  <p className="font-medium text-red-700">{MATCHING_LABELS.conflictDeductions}</p>
-                  {match.apartmentFit.conflicts.map((c: ApartmentConflict, i: number) => (
-                    <p key={i} className="ml-2">
-                      • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
-                      <span className="text-gray-500 ml-1">
-                        ({formatConflictValue(c.attribute, c.residentValue)} vs {formatConflictValue(c.attribute, c.apartmentAverage)})
-                      </span>
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {/* Strength bonuses */}
-              {match.apartmentFit.strengths.length > 0 && (
-                <div className="mb-2">
-                  <p className="font-medium text-green-700">{MATCHING_LABELS.strengthBonus} +{Math.min(match.apartmentFit.strengths.length * 3, 20)}</p>
-                  {match.apartmentFit.strengths.map((s: string, i: number) => (
-                    <p key={i} className="ml-2 text-green-600">• {s}</p>
-                  ))}
-                </div>
-              )}
-
-              {/* Small group bonus */}
-              {match.apartmentProfile.currentResidentCount <= 2 && (
-                <p className="text-green-700">{MATCHING_LABELS.smallGroupBonus} +5</p>
-              )}
-
-              <p className="mt-2 pt-2 border-t border-gray-100 font-semibold">
-                = {match.apartmentFit.fitScore}% {MATCHING_LABELS.totalFit}
-              </p>
-            </div>
-          </details>
-        </div>
+      {match.apartmentProfile && (
+        <ApartmentProfileSection
+          apartmentProfile={match.apartmentProfile}
+          apartmentFit={match.apartmentFit}
+          placements={match.unit.placements}
+          newResident={resident}
+        />
       )}
 
-      {/* Success Rate - REAL DATA from database */}
       {match.apartmentFit && !match.apartmentProfile.isEmpty && (
         <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded">
           {realSuccessData && realSuccessData.totalPlacements > 0 ? (
@@ -244,7 +134,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Positive factors */}
       {(allStrengths.length > 0 || sharedLanguages.length > 0 || occupancy === 0) && (
         <div className="mb-3 space-y-1">
           {occupancy === 0 && (
@@ -263,7 +152,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Current residents with actual compatibility info */}
       {match.unit.placements.length > 0 && (
         <div className="mb-3">
           <p className="text-xs text-gray-500 mb-1">{MATCHING_LABELS.currentResidents}</p>
@@ -290,7 +178,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Unit concerns (real issues) */}
       {match.unitConcerns.length > 0 && (
         <div className="mb-3">
           {match.unitConcerns.map((concern: string, i: number) => (
@@ -305,7 +192,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Roommate concerns */}
       {allConcerns.length > 0 && (
         <div className="mb-3">
           {allConcerns.slice(0, DISPLAY_LIMITS.matchConcerns).map((concern, i) => (
@@ -317,7 +203,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Discrimination safeguard warnings */}
       {match.safeguardWarnings.length > 0 && (
         <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl">
           <p className="text-xs font-semibold text-amber-800 uppercase mb-1">
@@ -331,7 +216,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {/* Available Spots */}
       {match.unit.spots && match.unit.spots.length > 0 && (
         <SpotSelection
           spots={match.unit.spots}
@@ -340,7 +224,6 @@ export function MatchCard({ match, resident, rank }: Props) {
         />
       )}
 
-      {/* Fallback: Place without spot (legacy) */}
       {(!match.unit.spots || match.unit.spots.length === 0) && (() => {
         const hasBlockingConflicts = match.apartmentFit?.conflicts.some(
           (c: ApartmentConflict) => c.severity === 'BLOCKING'
@@ -351,23 +234,11 @@ export function MatchCard({ match, resident, rank }: Props) {
           <form action={placeResident}>
             <input type="hidden" name="residentId" value={resident.id} />
             <input type="hidden" name="housingUnitId" value={match.unit.id} />
-            <input
-              type="hidden"
-              name="apartmentFitScore"
-              value={fitScore}
-            />
-            <input
-              type="hidden"
-              name="hasBlockingConflicts"
-              value={String(hasBlockingConflicts)}
-            />
+            <input type="hidden" name="apartmentFitScore" value={fitScore} />
+            <input type="hidden" name="hasBlockingConflicts" value={String(hasBlockingConflicts)} />
             <button
               type="submit"
-              className={`btn-primary w-full ${
-                hasBlockingConflicts
-                  ? 'opacity-50 cursor-not-allowed bg-gray-400'
-                  : ''
-              }`}
+              className={`btn-primary w-full ${hasBlockingConflicts ? 'opacity-50 cursor-not-allowed bg-gray-400' : ''}`}
               disabled={hasBlockingConflicts}
             >
               {hasBlockingConflicts

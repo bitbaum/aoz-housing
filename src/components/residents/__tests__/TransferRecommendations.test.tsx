@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
-import { TransferRecommendations, TransferUnitSelector } from '../TransferRecommendations'
+import { TransferRecommendations } from '../TransferRecommendations'
+import { TransferUnitSelector } from '../TransferUnitSelector'
 import type { UnitWithSpots } from '@/lib/types'
 
 // --- Mocks ---
