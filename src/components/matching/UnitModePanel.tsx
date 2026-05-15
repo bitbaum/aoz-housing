@@ -32,7 +32,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
 
       {/* Current residents in unit */}
       {selectedUnit.placements.length > 0 && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-4 p-3 bg-gray-50 rounded-xl">
           <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
             {MATCHING_LABELS.currentResidents}
           </p>
@@ -41,7 +41,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               <Link
                 key={p.id}
                 href={`/residents/${p.residentId}`}
-                className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded border border-gray-200 text-sm hover:border-aoz-primary"
+                className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-gray-100 text-sm hover:border-aoz-primary"
               >
                 <span className="w-5 h-5 bg-aoz-primary text-white rounded-full flex items-center justify-center text-xs">
                   {p.resident.code.slice(0, 1)}
@@ -65,8 +65,8 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
           {unitMatches.slice(0, DISPLAY_LIMITS.unitMatches).map((match) => (
             <div
               key={match.resident.id}
-              className={`p-3 border rounded-lg ${
-                match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-200'
+              className={`p-3 border rounded-xl ${
+                match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-100'
               }`}
             >
               <div className="flex items-center justify-between">

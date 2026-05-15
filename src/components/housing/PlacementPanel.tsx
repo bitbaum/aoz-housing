@@ -46,14 +46,14 @@ export function PlacementPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity"
+        className="fixed inset-0 bg-black/40 z-40 transition-opacity"
         onClick={onClose}
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-card-hover z-50 flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
               Bewohner platzieren
@@ -103,7 +103,7 @@ export function PlacementPanel({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200">
+        <div className="px-6 py-4 border-t border-gray-100">
           <Link
             href={`/matching?unit=${housingUnitId}`}
             className="btn-outline w-full text-center"

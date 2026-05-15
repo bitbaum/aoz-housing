@@ -69,7 +69,7 @@ export function MatchCard({ match, resident, rank }: Props) {
   )
 
   return (
-    <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-red-200 bg-red-50' : rank === 1 ? 'border-green-300 bg-green-50/50' : rank && rank <= 3 ? 'border-blue-200 bg-blue-50/40' : 'border-gray-200'}`}>
+    <div className={`p-4 border rounded-xl ${hasBlockingIssues ? 'border-red-200 bg-red-50' : rank === 1 ? 'border-green-300 bg-green-50/50' : rank && rank <= 3 ? 'border-blue-200 bg-blue-50/40' : 'border-gray-100'}`}>
       <div className="flex items-start justify-between mb-3 gap-2">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -130,7 +130,7 @@ export function MatchCard({ match, resident, rank }: Props) {
 
       {/* Apartment Profile Summary */}
       {match.apartmentProfile && !match.apartmentProfile.isEmpty && (
-        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs font-semibold text-blue-800 uppercase">
               {MATCHING_LABELS.apartmentProfile} ({match.apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
@@ -211,7 +211,7 @@ export function MatchCard({ match, resident, rank }: Props) {
                 <p className="text-green-700">{MATCHING_LABELS.smallGroupBonus} +5</p>
               )}
 
-              <p className="mt-2 pt-2 border-t border-gray-200 font-semibold">
+              <p className="mt-2 pt-2 border-t border-gray-100 font-semibold">
                 = {match.apartmentFit.fitScore}% {MATCHING_LABELS.totalFit}
               </p>
             </div>
@@ -319,7 +319,7 @@ export function MatchCard({ match, resident, rank }: Props) {
 
       {/* Discrimination safeguard warnings */}
       {match.safeguardWarnings.length > 0 && (
-        <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-lg">
+        <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl">
           <p className="text-xs font-semibold text-amber-800 uppercase mb-1">
             Hinweis zur Bewertung
           </p>

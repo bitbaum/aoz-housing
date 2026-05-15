@@ -66,7 +66,7 @@ export function MatchResultsPanel({
       ) : (
         <div className="space-y-4">
           {bestQuickMatch && (
-            <form action={placeResident} className="p-3 bg-green-50 border border-green-200 rounded-lg">
+            <form action={placeResident} className="p-3 bg-green-50 border border-green-200 rounded-xl">
               <input type="hidden" name="residentId" value={selectedResident.id} />
               <input type="hidden" name="housingUnitId" value={bestQuickMatch.unit.id} />
               <input
@@ -95,7 +95,7 @@ export function MatchResultsPanel({
                 const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
                 const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (
-                  <div key={match.unit.id} className={`p-3 rounded-lg border ${idx === 0 ? 'border-green-300 bg-green-50/60' : 'border-gray-200'}`}>
+                  <div key={match.unit.id} className={`p-3 rounded-xl border ${idx === 0 ? 'border-green-300 bg-green-50/60' : 'border-gray-100'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold text-gray-900">#{idx + 1} · {match.unit.code}</p>

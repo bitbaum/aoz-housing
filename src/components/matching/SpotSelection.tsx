@@ -80,7 +80,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
               name="hasBlockingConflicts"
               value={String(hasBlockingConflicts)}
             />
-            <div className="flex-1 flex items-center gap-2 p-2 border border-gray-200 rounded-lg bg-green-50">
+            <div className="flex-1 flex items-center gap-2 p-2 border border-gray-100 rounded-xl bg-green-50">
               <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">

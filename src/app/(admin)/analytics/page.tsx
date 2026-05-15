@@ -198,7 +198,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/satisfaction"
-            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+            className="min-h-[44px] rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
           >
             Exportieren
           </a>

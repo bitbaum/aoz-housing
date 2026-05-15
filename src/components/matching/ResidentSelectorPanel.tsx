@@ -66,7 +66,7 @@ export function ResidentSelectorPanel({
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                 params.resident === resident.id
                   ? 'border-aoz-primary bg-aoz-primary/5'
-                  : 'border-gray-200'
+                  : 'border-gray-100'
               }`}
             >
               <Link
@@ -106,7 +106,7 @@ export function ResidentSelectorPanel({
 
       {/* Placed residents section */}
       {placedResidents.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="mt-6 pt-6 border-t border-gray-100">
           <h3 className="text-md font-semibold text-gray-700 mb-3">
             {MATCHING_LABELS.placedResidents} ({placedResidents.length})
           </h3>
