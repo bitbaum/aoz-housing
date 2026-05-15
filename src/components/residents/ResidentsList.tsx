@@ -141,7 +141,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
           ) : (
             <div className="flex items-center gap-2 text-orange-600">
               <span>⚠️</span>
-              <span>Nicht platziert</span>
+              <span>{RESIDENT_LIST_LABELS.notPlaced}</span>
             </div>
           )}
 

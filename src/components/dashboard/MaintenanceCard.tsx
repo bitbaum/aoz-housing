@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { MAINTENANCE_CARD_LABELS } from '@/lib/constants/labels'
 
 interface MaintenanceCardProps {
   openTickets: number
@@ -73,7 +74,7 @@ export function MaintenanceCard({
         className="flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-gray-200 transition-colors"
       >
         <span>+</span>
-        <span>Neues Ticket</span>
+        <span>{MAINTENANCE_CARD_LABELS.newTicket}</span>
       </Link>
 
       {hasOpenTickets && (

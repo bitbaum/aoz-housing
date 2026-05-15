@@ -30,11 +30,11 @@ export function AlgorithmContent() {
   const [expandedDimension, setExpandedDimension] = useState<string | null>(null)
 
   const tabs = [
-    { id: 'overview', label: 'Übersicht' },
-    { id: 'science', label: 'Forschung' },
+    { id: 'overview', label: ALGORITHM_OVERVIEW_LABELS.tabOverview },
+    { id: 'science', label: ALGORITHM_OVERVIEW_LABELS.tabScience },
     { id: 'dimensions', label: ALGORITHM_OVERVIEW_LABELS.tabFactors },
-    { id: 'collection', label: 'Datenerfassung' },
-    { id: 'technical', label: 'Technik' },
+    { id: 'collection', label: ALGORITHM_OVERVIEW_LABELS.tabCollection },
+    { id: 'technical', label: ALGORITHM_OVERVIEW_LABELS.tabTechnical },
   ]
 
   return (
@@ -49,16 +49,15 @@ export function AlgorithmContent() {
             <div className="p-2 bg-white/20 rounded-lg">
               <Brain className="w-8 h-8" />
             </div>
-            <span className="text-white/80 text-sm font-medium">Evidenzbasiertes Matching</span>
+            <span className="text-white/80 text-sm font-medium">{ALGORITHM_OVERVIEW_LABELS.heroSubtitle}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-            Kompatibilitäts-Algorithmus
+            {ALGORITHM_OVERVIEW_LABELS.heroTitle}
           </h1>
 
           <p className="text-lg text-white/90 mb-8 max-w-2xl">
-            Basierend auf wissenschaftlicher Forschung zu Wohnkonflikten analysiert unser
-            System {FACTOR_COUNT} Faktoren in {DIMENSION_COUNT} Dimensionen für harmonisches Zusammenleben.
+            {ALGORITHM_OVERVIEW_LABELS.heroDesc(FACTOR_COUNT, DIMENSION_COUNT)}
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
@@ -75,12 +74,12 @@ export function AlgorithmContent() {
             <FactStat
               icon={<MapPin className="w-5 h-5" />}
               value="CH/DE/INT"
-              label={`${SOURCE_COUNT} Quellen`}
+              label={ALGORITHM_OVERVIEW_LABELS.sourcesLabel(SOURCE_COUNT)}
             />
             <FactStat
               icon={<Shield className="w-5 h-5" />}
-              value="Ethisch"
-              label="gestaltet"
+              value={ALGORITHM_OVERVIEW_LABELS.ethicsValue}
+              label={ALGORITHM_OVERVIEW_LABELS.ethicsLabel}
             />
           </div>
         </div>

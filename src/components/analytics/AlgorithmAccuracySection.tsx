@@ -5,6 +5,7 @@
  */
 
 import type { AlgorithmAccuracyReport } from '@/lib/analytics/algorithm-accuracy'
+import { SATISFACTION_HISTORY_LABELS } from '@/lib/constants/labels'
 
 interface Props {
   report: AlgorithmAccuracyReport
@@ -123,7 +124,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
                 </p>
                 {tier.avgRoommateRelations !== null && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Mitbewohner: {tier.avgRoommateRelations}/5
+                    {SATISFACTION_HISTORY_LABELS.roommateRelations} {tier.avgRoommateRelations}/5
                   </p>
                 )}
                 <p className="text-xs text-gray-400 mt-1">{tier.checkInCount} Check-ins</p>

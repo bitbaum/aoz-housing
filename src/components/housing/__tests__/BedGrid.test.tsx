@@ -40,6 +40,12 @@ jest.mock('@/lib/constants', () => ({
     languages: 'Sprachen',
     showProfile: 'Profil anzeigen →',
     freeSuffix: 'frei',
+    ariaOccupied: (spot: string, resident: string) => `Platz ${spot}: belegt von ${resident}`,
+    ariaAvailable: (spot: string) => `Platz ${spot}: verfügbar`,
+    ariaUnavailable: (spot: string) => `Platz ${spot}: nicht verfügbar`,
+    titleOccupied: (spot: string, resident: string) => `${spot}: ${resident} - Klicken für Details`,
+    titleAvailable: (spot: string) => `${spot}: Verfügbar - Klicken zum Platzieren`,
+    titleUnavailable: (spot: string) => `${spot}: Nicht verfügbar`,
   },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))

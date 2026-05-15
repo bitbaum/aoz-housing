@@ -90,18 +90,18 @@ export function PlacementActions({
     : []
 
   const transferSummary = selectedUnit
-    ? `Bewohner wird in ${selectedUnit.code} verlegt. Ziel-Unterkunft prüfen und Grund dokumentieren.`
-    : 'Wählen Sie eine Ziel-Unterkunft, um die Verlegung zu bestätigen.'
+    ? PLACEMENT_ACTIONS_LABELS.transferSummaryWithUnit(selectedUnit.code)
+    : PLACEMENT_ACTIONS_LABELS.transferSummaryEmpty
 
   const endSummary = selectedEndReason
-    ? `Diese Platzierung wird beendet (Grund: ${END_REASON_LABELS[selectedEndReason] || selectedEndReason}). Bewohner wird als unplatziert geführt.`
-    : 'Wählen Sie einen Grund, um die Beendigung zu bestätigen.'
+    ? PLACEMENT_ACTIONS_LABELS.endSummaryWithReason(END_REASON_LABELS[selectedEndReason] || selectedEndReason)
+    : PLACEMENT_ACTIONS_LABELS.endSummaryEmpty
 
   return (
     <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
       <h3 className="text-sm font-medium text-gray-700 mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
       <p className="text-xs text-gray-500 mb-3">
-        Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)
+        {PLACEMENT_ACTIONS_LABELS.shortcutHint}
       </p>
       <div className="flex flex-wrap gap-2">
         <Link
@@ -109,7 +109,7 @@ export function PlacementActions({
           className="btn-primary inline-flex items-center gap-2"
         >
           <span>📋</span>
-          Check-in durchführen
+          {PLACEMENT_ACTIONS_LABELS.checkinBtn}
         </Link>
         <button
           type="button"
@@ -122,7 +122,7 @@ export function PlacementActions({
           }}
         >
           <span>🔄</span>
-          Verlegen
+          {PLACEMENT_ACTIONS_LABELS.transferToggleBtn}
         </button>
         <button
           type="button"
@@ -137,7 +137,7 @@ export function PlacementActions({
           }}
         >
           <span>⏹️</span>
-          Beenden
+          {PLACEMENT_ACTIONS_LABELS.endToggleBtn}
         </button>
       </div>
 
@@ -154,7 +154,7 @@ export function PlacementActions({
               className="text-blue-600 hover:text-blue-800 text-sm"
               onClick={() => setShowTransfer(false)}
             >
-              ✕ Schliessen
+              {PLACEMENT_ACTIONS_LABELS.closeBtn}
             </button>
           </div>
           <input type="hidden" name="currentPlacementId" value={placementId} />
@@ -162,13 +162,12 @@ export function PlacementActions({
 
           {eligibleUnits.length === 0 && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
-              Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diesen Bewohner.
-              Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.
+              {PLACEMENT_ACTIONS_LABELS.noEligibleUnits}
             </div>
           )}
 
           <div>
-            <label className="label">Ziel-Unterkunft *</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.targetUnitLabel}</label>
             <TransferUnitSelector
               eligibleUnits={eligibleUnits}
               eligibleSpotTypes={eligibleSpotTypes}
@@ -179,7 +178,7 @@ export function PlacementActions({
           </div>
 
           <div>
-            <label className="label">Ziel-Platz *</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.targetSpotLabel}</label>
             <select
               name="targetSpotId"
               required
@@ -187,7 +186,7 @@ export function PlacementActions({
               disabled={!selectedUnitId}
             >
               <option value="">
-                {selectedUnitId ? 'Platz auswählen' : 'Zuerst Unterkunft wählen'}
+                {selectedUnitId ? PLACEMENT_ACTIONS_LABELS.selectSpot : PLACEMENT_ACTIONS_LABELS.selectUnitFirst}
               </option>
               {spotsForSelectedUnit.map((spot) => (
                 <option key={spot.id} value={spot.id}>
@@ -199,13 +198,13 @@ export function PlacementActions({
             </select>
             <p className="text-xs text-gray-500 mt-1">
               {hasMedicalDocumentation
-                ? 'Zeigt Plätze passend zur med. Dokumentation'
-                : 'Zeigt nur Betten (keine med. Dokumentation)'}
+                ? PLACEMENT_ACTIONS_LABELS.medDocsSpotHint
+                : PLACEMENT_ACTIONS_LABELS.noMedDocsSpotHint}
             </p>
           </div>
 
           <div>
-            <label className="label">Grund für Verlegung *</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.transferReasonLabel}</label>
             <select name="transferReason" required className="input">
               <option value="">{UI_LABELS.selectPlaceholder}</option>
               {Object.entries(END_REASON_LABELS).map(([key, label]) => (
@@ -219,7 +218,7 @@ export function PlacementActions({
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              Wählen Sie den Hauptgrund für die Verlegung
+              {PLACEMENT_ACTIONS_LABELS.transferReasonHint}
             </p>
           </div>
 
@@ -234,7 +233,7 @@ export function PlacementActions({
           </div>
 
           <div className="p-3 bg-white border border-blue-200 rounded text-sm text-blue-900">
-            <strong>Zusammenfassung:</strong> {transferSummary}
+            <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {transferSummary}
           </div>
 
           <button
@@ -242,7 +241,7 @@ export function PlacementActions({
             className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={eligibleUnits.length === 0 || !selectedUnitId}
           >
-            Verlegen bestätigen
+            {PLACEMENT_ACTIONS_LABELS.transferConfirmBtn}
           </button>
         </form>
       )}
@@ -260,19 +259,18 @@ export function PlacementActions({
               className="text-red-600 hover:text-red-800 text-sm"
               onClick={() => setShowEnd(false)}
             >
-              ✕ Schliessen
+              {PLACEMENT_ACTIONS_LABELS.closeBtn}
             </button>
           </div>
           <input type="hidden" name="placementId" value={placementId} />
           <input type="hidden" name="residentId" value={residentId} />
 
           <div className="p-3 bg-red-100 rounded text-sm text-red-800">
-            <strong>Achtung:</strong> Diese Aktion beendet die aktuelle
-            Platzierung. Der Bewohner wird als nicht platziert markiert.
+            <strong>{PLACEMENT_ACTIONS_LABELS.endWarningTitle}</strong> {PLACEMENT_ACTIONS_LABELS.endWarning}
           </div>
 
           <div>
-            <label className="label">Grund *</label>
+            <label className="label">{PLACEMENT_ACTIONS_LABELS.endReasonLabel}</label>
             <div className="space-y-2">
               {Object.entries(END_REASON_LABELS).map(([key, label]) => (
                 <label key={key} className="flex items-start gap-3 p-2 rounded hover:bg-red-100 cursor-pointer">
@@ -329,9 +327,9 @@ export function PlacementActions({
                       className="accent-orange-600"
                     />
                     <span className="text-sm text-gray-700">
-                      Ja
+                      {PLACEMENT_ACTIONS_LABELS.conflictPredictableYes}
                       {initialCompatibilityScore !== null && initialCompatibilityScore !== undefined && initialCompatibilityScore < 60 && (
-                        <span className="text-orange-600 ml-1">(Score war {Math.round(initialCompatibilityScore)}%)</span>
+                        <span className="text-orange-600 ml-1">{PLACEMENT_ACTIONS_LABELS.conflictScoreHint(Math.round(initialCompatibilityScore))}</span>
                       )}
                     </span>
                   </label>
@@ -362,7 +360,7 @@ export function PlacementActions({
                     ))}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Optional: Vorfall der zu dieser Beendigung geführt hat
+                    {PLACEMENT_ACTIONS_LABELS.incidentOptionalHint}
                   </p>
                 </div>
               )}
@@ -380,7 +378,7 @@ export function PlacementActions({
           </div>
 
           <div className="p-3 bg-white border border-red-200 rounded text-sm text-red-900">
-            <strong>Zusammenfassung:</strong> {endSummary}
+            <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {endSummary}
           </div>
 
           <button

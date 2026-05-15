@@ -123,4 +123,19 @@ export const MISSION_KPI_LABELS = {
   relocationsPerMonth: 'Umsiedlungen / Monat',
   conflictsMonthlyChart: 'Konflikte pro Monat',
   relocationsMonthlyChart: 'Konflikt-Umsiedlungen pro Monat',
+  currentLabel: 'Dieser Monat',
+  daysUnit: 'Tage',
+  avgPlacementTime: 'Ø Platzierungszeit',
+  last30Days: 'Letzte 30 Tage',
+  targetDays: '≤ 2 Tage',
+  conflictTrend: 'Konflikt-Trend',
+  sectionTitle: 'Missions-KPIs',
+  sectionDesc: (months: number) => `Letzte ${months} Monate — Ziel: weniger Konflikte, schnellere Platzierung`,
+  trendImproving: 'Verbesserung',
+  trendStable: 'Stabil',
+  trendWorsening: 'Verschlechterung',
+} as const
+
+export const MAINTENANCE_CARD_LABELS = {
+  newTicket: 'Neues Ticket',
 } as const

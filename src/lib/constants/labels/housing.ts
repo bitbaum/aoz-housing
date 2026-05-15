@@ -50,6 +50,9 @@ export const END_REASON_DESCRIPTIONS: Record<string, string> = {
 export const HOUSING_DANGER_ZONE_LABELS = {
   confirmPlaceholder: 'Bestätigung: DELETE',
   reasonPlaceholder: 'Grund (mind. 10 Zeichen)',
+  blockerReportTitle: 'Blocker-Report:',
+  noDetails: 'Keine Details',
+  copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
 } as const
 
 export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {

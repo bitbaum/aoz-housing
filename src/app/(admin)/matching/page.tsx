@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger'
 
 export const metadata: Metadata = { title: 'Matching' }
 import Link from 'next/link'
-import { EMPTY_STATE_LABELS, PLACEMENT_CONCERN_LABELS } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, PLACEMENT_CONCERN_LABELS, MATCHING_LABELS } from '@/lib/constants'
 import { calculateCompatibility } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
@@ -310,18 +310,18 @@ export default async function MatchingPage({ searchParams }: Props) {
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
           {isUnitMode
-            ? `Wer passt in ${selectedUnit?.code}?`
+            ? MATCHING_LABELS.whoFitsIn(selectedUnit?.code ?? '')
             : isNewResident
-            ? 'Unterkunft finden'
+            ? MATCHING_LABELS.findUnit
             : 'Matching'}
         </h1>
         <div className="flex items-center justify-between">
           <p className="text-gray-500">
             {isUnitMode
-              ? `Finden Sie passende Bewohner für ${selectedUnit?.address}`
+              ? MATCHING_LABELS.findMatchingResidents(selectedUnit?.address ?? '')
               : isNewResident
-              ? `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${selectedResident?.code}`
-              : 'Finden Sie die optimale Platzierung für Bewohner'
+              ? MATCHING_LABELS.step2SelectUnit(selectedResident?.code ?? '')
+              : MATCHING_LABELS.findOptimalPlacement
             }
           </p>
           <Link
@@ -340,14 +340,14 @@ export default async function MatchingPage({ searchParams }: Props) {
             <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-medium">
               ✓
             </div>
-            <span className="text-sm text-gray-500">Profil erfasst</span>
+            <span className="text-sm text-gray-500">{MATCHING_LABELS.profileCaptured}</span>
           </div>
           <div className="flex-1 h-0.5 bg-green-500" />
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-aoz-primary text-white flex items-center justify-center text-sm font-medium">
               2
             </div>
-            <span className="text-sm font-medium text-gray-900">Unterkunft finden</span>
+            <span className="text-sm font-medium text-gray-900">{MATCHING_LABELS.findUnit}</span>
           </div>
         </div>
       )}
@@ -359,11 +359,10 @@ export default async function MatchingPage({ searchParams }: Props) {
             <span className="text-2xl">👤</span>
             <div>
               <h2 className="font-semibold text-green-800">
-                Bewohner {selectedResident?.code} erfolgreich erstellt
+                {MATCHING_LABELS.residentCreated(selectedResident?.code ?? '')}
               </h2>
               <p className="text-sm text-green-700 mt-1">
-                Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach
-                Kompatibilität sortiert - oben die besten Matches.
+                {MATCHING_LABELS.newResidentBannerDesc}
               </p>
             </div>
           </div>
@@ -420,7 +419,7 @@ export default async function MatchingPage({ searchParams }: Props) {
                 Verfügbare Unterkünfte ({availableUnits.filter(u => u.placements.length < u.totalBeds).length})
               </h2>
               <p className="text-gray-500 text-center py-8">
-                Wählen Sie einen Bewohner aus, um Matches zu sehen
+                {MATCHING_LABELS.selectResidentForMatches}
               </p>
             </>
           )}

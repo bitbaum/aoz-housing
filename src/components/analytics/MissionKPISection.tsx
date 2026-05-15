@@ -12,10 +12,10 @@ interface Props {
 }
 
 const TREND_STYLES = {
-  improving: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '↓', label: 'Verbesserung' },
-  stable: { bg: 'bg-blue-50', text: 'text-blue-700', icon: '→', label: 'Stabil' },
-  worsening: { bg: 'bg-red-50', text: 'text-red-700', icon: '↑', label: 'Verschlechterung' },
-} as const
+  improving: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
+  stable: { bg: 'bg-blue-50', text: 'text-blue-700', icon: '→', label: MISSION_KPI_LABELS.trendStable },
+  worsening: { bg: 'bg-red-50', text: 'text-red-700', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
+}
 
 export function MissionKPISection({ kpis }: Props) {
   const trendStyle = TREND_STYLES[kpis.trend]
@@ -24,9 +24,9 @@ export function MissionKPISection({ kpis }: Props) {
     <div className="card">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Missions-KPIs</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{MISSION_KPI_LABELS.sectionTitle}</h2>
           <p className="text-sm text-gray-500">
-            Letzte {kpis.monthsTracked} Monate — Ziel: weniger Konflikte, schnellere Platzierung
+            {MISSION_KPI_LABELS.sectionDesc(kpis.monthsTracked)}
           </p>
         </div>
         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${trendStyle.bg} ${trendStyle.text}`}>
@@ -41,7 +41,7 @@ export function MissionKPISection({ kpis }: Props) {
           label={MISSION_KPI_LABELS.conflictsPerMonth}
           value={kpis.avgIncidentsPerMonth}
           current={kpis.currentMonthIncidents}
-          currentLabel="Dieser Monat"
+          currentLabel={MISSION_KPI_LABELS.currentLabel}
           target="-30%"
           unit=""
         />
@@ -49,20 +49,20 @@ export function MissionKPISection({ kpis }: Props) {
           label={MISSION_KPI_LABELS.relocationsPerMonth}
           value={kpis.avgRelocationsPerMonth}
           current={kpis.currentMonthRelocations}
-          currentLabel="Dieser Monat"
+          currentLabel={MISSION_KPI_LABELS.currentLabel}
           target="-50%"
           unit=""
         />
         <KPICard
-          label="Ø Platzierungszeit"
+          label={MISSION_KPI_LABELS.avgPlacementTime}
           value={kpis.avgPlacementTimeDays}
           current={kpis.recentPlacementTimeDays}
-          currentLabel="Letzte 30 Tage"
-          target="≤ 2 Tage"
-          unit="Tage"
+          currentLabel={MISSION_KPI_LABELS.last30Days}
+          target={MISSION_KPI_LABELS.targetDays}
+          unit={MISSION_KPI_LABELS.daysUnit}
         />
         <div className={`rounded-lg border p-4 ${trendStyle.bg}`}>
-          <p className="text-sm text-gray-600 mb-1">Konflikt-Trend</p>
+          <p className="text-sm text-gray-600 mb-1">{MISSION_KPI_LABELS.conflictTrend}</p>
           <p className={`text-2xl font-bold ${trendStyle.text}`}>{trendStyle.label}</p>
           <p className="text-xs text-gray-500 mt-2">{kpis.trendDetail}</p>
         </div>

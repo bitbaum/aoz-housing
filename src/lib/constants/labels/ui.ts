@@ -231,6 +231,14 @@ export const RESIDENT_LIST_LABELS = {
   allStatus: 'Alle Status',
   emptyDefault: 'Noch keine Bewohner vorhanden',
   emptyFiltered: 'Keine Bewohner für diese Filter',
+  notPlaced: 'Nicht platziert',
+} as const
+
+export const SATISFACTION_HISTORY_LABELS = {
+  roommateRelations: 'Mitbewohner:',
+  facilitySatisfaction: 'Einrichtung:',
+  safetyFeeling: 'Sicherheit:',
+  concerns: 'Anliegen:',
 } as const
 
 export const HOUSING_LIST_LABELS = {
@@ -249,6 +257,12 @@ export const BED_GRID_LABELS = {
   languages: 'Sprachen',
   showProfile: 'Profil anzeigen →',
   freeSuffix: 'frei',
+  ariaOccupied: (spot: string, resident: string) => `Platz ${spot}: belegt von ${resident}`,
+  ariaAvailable: (spot: string) => `Platz ${spot}: verfügbar`,
+  ariaUnavailable: (spot: string) => `Platz ${spot}: nicht verfügbar`,
+  titleOccupied: (spot: string, resident: string) => `${spot}: ${resident} - Klicken für Details`,
+  titleAvailable: (spot: string) => `${spot}: Verfügbar - Klicken zum Platzieren`,
+  titleUnavailable: (spot: string) => `${spot}: Nicht verfügbar`,
 } as const
 
 export const PLACEMENT_PANEL_LABELS = {

@@ -61,14 +61,14 @@ export function HousingDangerZone({ housingUnitId, code }: Props) {
 
       {blockerReport && (
         <div className="mt-3 p-3 rounded text-sm bg-amber-50 text-amber-900 border border-amber-300">
-          <p><strong>Blocker-Report:</strong> {blockerText || 'Keine Details'}</p>
+          <p><strong>{HOUSING_DANGER_ZONE_LABELS.blockerReportTitle}</strong> {blockerText || HOUSING_DANGER_ZONE_LABELS.noDetails}</p>
           <button
             type="button"
             className="mt-2 text-xs underline min-h-[44px] px-2 rounded hover:bg-amber-100"
             onClick={async () => {
               const ts = new Date().toISOString()
               await navigator.clipboard.writeText(`Delete Blocker Report | Type: HousingUnit | Code: ${code} | Timestamp: ${ts} | Details: ${blockerText}`)
-              setFeedback({ kind: 'success', text: 'Blocker-Report in Zwischenablage kopiert' })
+              setFeedback({ kind: 'success', text: HOUSING_DANGER_ZONE_LABELS.copiedToClipboard })
             }}
           >
             Report kopieren

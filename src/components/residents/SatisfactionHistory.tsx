@@ -1,5 +1,5 @@
 import { getPlacementCheckIns } from '@/lib/actions'
-import { CHECK_IN_TYPE_LABELS } from '@/lib/constants'
+import { CHECK_IN_TYPE_LABELS, SATISFACTION_HISTORY_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 
 interface SatisfactionHistoryProps {
@@ -72,13 +72,13 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
             {(checkIn.roommateRelations || checkIn.facilitySatisfaction || checkIn.safetyFeeling) && (
               <div className="flex gap-4 text-xs text-gray-600 mb-2">
                 {checkIn.roommateRelations && (
-                  <span>Mitbewohner: {checkIn.roommateRelations}/5</span>
+                  <span>{SATISFACTION_HISTORY_LABELS.roommateRelations} {checkIn.roommateRelations}/5</span>
                 )}
                 {checkIn.facilitySatisfaction && (
-                  <span>Einrichtung: {checkIn.facilitySatisfaction}/5</span>
+                  <span>{SATISFACTION_HISTORY_LABELS.facilitySatisfaction} {checkIn.facilitySatisfaction}/5</span>
                 )}
                 {checkIn.safetyFeeling && (
-                  <span>Sicherheit: {checkIn.safetyFeeling}/5</span>
+                  <span>{SATISFACTION_HISTORY_LABELS.safetyFeeling} {checkIn.safetyFeeling}/5</span>
                 )}
               </div>
             )}
@@ -86,7 +86,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
             {/* Concerns highlighted */}
             {checkIn.concerns && (
               <div className="text-sm text-red-700 bg-red-50 p-2 rounded mt-2">
-                <span className="font-medium">Anliegen:</span> {checkIn.concerns}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.concerns}</span> {checkIn.concerns}
               </div>
             )}
 

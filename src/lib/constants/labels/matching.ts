@@ -64,6 +64,16 @@ export const MATCHING_LABELS = {
   selectForAnalysis: 'Wählen Sie einen Bewohner für "Was-wäre-wenn"-Analyse',
   placed: 'Platziert',
   compare: 'Vergleichen',
+  // Matching page header
+  findMatchingResidents: (address: string) => `Finden Sie passende Bewohner für ${address}`,
+  step2SelectUnit: (code: string) => `Schritt 2 von 2: Wählen Sie eine Unterkunft für ${code}`,
+  findOptimalPlacement: 'Finden Sie die optimale Platzierung für Bewohner',
+  whoFitsIn: (code: string) => `Wer passt in ${code}?`,
+  profileCaptured: 'Profil erfasst',
+  findUnit: 'Unterkunft finden',
+  residentCreated: (code: string) => `Bewohner ${code} erfolgreich erstellt`,
+  newResidentBannerDesc: 'Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach Kompatibilität sortiert - oben die besten Matches.',
+  selectResidentForMatches: 'Wählen Sie einen Bewohner aus, um Matches zu sehen',
 } as const
 
 export const ALGORITHM_OVERVIEW_LABELS = {
@@ -72,7 +82,18 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   processStep3Title: 'Empfehlung erhalten',
   tabDimensions: 'Dimensionen',
   tabFactors: 'Faktoren',
+  tabOverview: 'Übersicht',
+  tabScience: 'Forschung',
+  tabCollection: 'Datenerfassung',
+  tabTechnical: 'Technik',
   headToHeadAvg: 'Durchschnitt',
+  heroSubtitle: 'Evidenzbasiertes Matching',
+  heroTitle: 'Kompatibilitäts-Algorithmus',
+  heroDesc: (factors: number, dimensions: number) =>
+    `Basierend auf wissenschaftlicher Forschung zu Wohnkonflikten analysiert unser System ${factors} Faktoren in ${dimensions} Dimensionen für harmonisches Zusammenleben.`,
+  sourcesLabel: (count: number) => `${count} Quellen`,
+  ethicsValue: 'Ethisch',
+  ethicsLabel: 'gestaltet',
 } as const
 
 export const PLACEMENT_ACTIONS_LABELS = {
@@ -92,6 +113,39 @@ export const PLACEMENT_ACTIONS_LABELS = {
   endNotesPlaceholder: 'Optionale Anmerkungen...',
   endBtn: 'Platzierung endgültig beenden',
   conflictNoPredictable: 'Nein',
+  // Button labels
+  checkinBtn: 'Check-in durchführen',
+  transferToggleBtn: 'Verlegen',
+  endToggleBtn: 'Beenden',
+  closeBtn: '✕ Schliessen',
+  transferConfirmBtn: 'Verlegen bestätigen',
+  // Hints
+  shortcutHint: 'Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)',
+  noEligibleUnits: 'Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diesen Bewohner. Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.',
+  // Transfer form
+  targetUnitLabel: 'Ziel-Unterkunft *',
+  targetSpotLabel: 'Ziel-Platz *',
+  selectSpot: 'Platz auswählen',
+  selectUnitFirst: 'Zuerst Unterkunft wählen',
+  medDocsSpotHint: 'Zeigt Plätze passend zur med. Dokumentation',
+  noMedDocsSpotHint: 'Zeigt nur Betten (keine med. Dokumentation)',
+  transferReasonLabel: 'Grund für Verlegung *',
+  transferReasonHint: 'Wählen Sie den Hauptgrund für die Verlegung',
+  summaryLabel: 'Zusammenfassung:',
+  // End form
+  endWarningTitle: 'Achtung:',
+  endWarning: 'Diese Aktion beendet die aktuelle Platzierung. Der Bewohner wird als nicht platziert markiert.',
+  endReasonLabel: 'Grund *',
+  conflictPredictableYes: 'Ja',
+  conflictScoreHint: (score: number) => `(Score war ${score}%)`,
+  incidentOptionalHint: 'Optional: Vorfall der zu dieser Beendigung geführt hat',
+  // Dynamic summaries
+  transferSummaryWithUnit: (unitCode: string) =>
+    `Bewohner wird in ${unitCode} verlegt. Ziel-Unterkunft prüfen und Grund dokumentieren.`,
+  transferSummaryEmpty: 'Wählen Sie eine Ziel-Unterkunft, um die Verlegung zu bestätigen.',
+  endSummaryWithReason: (reason: string) =>
+    `Diese Platzierung wird beendet (Grund: ${reason}). Bewohner wird als unplatziert geführt.`,
+  endSummaryEmpty: 'Wählen Sie einen Grund, um die Beendigung zu bestätigen.',
 } as const
 
 export const PLACEMENT_CONCERN_LABELS = {

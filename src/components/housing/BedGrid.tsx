@@ -134,17 +134,17 @@ export function BedGrid({
               `}
               aria-label={
                 status === 'occupied' && activePlacement
-                  ? `Platz ${spot.label || spot.code}: belegt von ${activePlacement.resident.code}`
+                  ? BED_GRID_LABELS.ariaOccupied(spot.label || spot.code, activePlacement.resident.code)
                   : status === 'available'
-                    ? `Platz ${spot.label || spot.code}: verfügbar`
-                    : `Platz ${spot.label || spot.code}: nicht verfügbar`
+                    ? BED_GRID_LABELS.ariaAvailable(spot.label || spot.code)
+                    : BED_GRID_LABELS.ariaUnavailable(spot.label || spot.code)
               }
               title={
                 status === 'occupied' && activePlacement
-                  ? `${spot.label || spot.code}: ${activePlacement.resident.code} - Klicken für Details`
+                  ? BED_GRID_LABELS.titleOccupied(spot.label || spot.code, activePlacement.resident.code)
                   : status === 'available'
-                    ? `${spot.label || spot.code}: Verfügbar - Klicken zum Platzieren`
-                    : `${spot.label || spot.code}: Nicht verfügbar`
+                    ? BED_GRID_LABELS.titleAvailable(spot.label || spot.code)
+                    : BED_GRID_LABELS.titleUnavailable(spot.label || spot.code)
               }
             >
               {compact ? (
