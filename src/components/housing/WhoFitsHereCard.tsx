@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { AGE_RANGE_LABELS, LANGUAGE_LABELS, getLabel } from '@/lib/constants'
+import { AGE_RANGE_LABELS, LANGUAGE_LABELS, WHO_FITS_HERE_LABELS, getLabel } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { getScoreLevel, DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
@@ -27,26 +27,25 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            Wer passt hierher?
+            {WHO_FITS_HERE_LABELS.heading}
           </h2>
           <p className="text-sm text-gray-500">
-            {availableSpaces} freie{' '}
-            {availableSpaces === 1 ? 'Platz' : 'Plätze'}
+            {availableSpaces} {availableSpaces === 1 ? WHO_FITS_HERE_LABELS.spaceCountSingular : WHO_FITS_HERE_LABELS.spaceCountPlural}
           </p>
         </div>
         <Link
           href={`/matching?unit=${unitId}`}
           className="btn-outline text-sm"
         >
-          Alle anzeigen
+          {WHO_FITS_HERE_LABELS.showAll}
         </Link>
       </div>
 
       {compatibleResidents.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-gray-500 mb-3">Keine passenden unplatzierten Bewohner</p>
+          <p className="text-gray-500 mb-3">{WHO_FITS_HERE_LABELS.emptyState}</p>
           <Link href="/residents/new" className="btn-primary text-sm">
-            Neuen Bewohner erfassen
+            {WHO_FITS_HERE_LABELS.addResident}
           </Link>
         </div>
       ) : (
@@ -100,7 +99,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                     href={`/matching?resident=${match.resident.id}`}
                     className="btn-primary text-sm px-3 py-1"
                   >
-                    Platzieren
+                    {WHO_FITS_HERE_LABELS.place}
                   </Link>
                 </div>
               </div>

@@ -66,3 +66,24 @@ export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {
   CHORES: 'Haushaltsaufgaben',
   OTHER: 'Sonstiges',
 }
+
+export const HOUSING_DETAIL_LABELS = {
+  spotsHeading: 'Zimmer & Plätze',
+  manageSpots: 'Plätze verwalten',
+  residentsHeading: 'Aktuelle Bewohner',
+  defineSpots: 'Plätze definieren',
+  noActiveResidents: 'Keine aktiven Bewohner',
+  residentSince: 'Seit',
+  avgCompatibility: 'Ø Kompatibilität',
+  details: 'Details',
+} as const
+
+export const WHO_FITS_HERE_LABELS = {
+  heading: 'Wer passt hierher?',
+  spaceCountSingular: 'freier Platz',
+  spaceCountPlural: 'freie Plätze',
+  showAll: 'Alle anzeigen',
+  emptyState: 'Keine passenden unplatzierten Bewohner',
+  addResident: 'Neuen Bewohner erfassen',
+  place: 'Platzieren',
+} as const

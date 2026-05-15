@@ -6,6 +6,10 @@ import {
   HARMONY_STATUS_LABELS,
   PLACEMENT_CONCERN_LABELS,
   COMPATIBILITY_MATRIX_LABELS,
+  HOUSING_DETAIL_LABELS,
+  PAGE_TITLES,
+  FORM_LABELS,
+  ACTION_LABELS,
 } from '@/lib/constants'
 import {
   getScoreLabel,
@@ -195,7 +199,7 @@ export default async function HousingDetailPage({ params }: Props) {
               href="/housing"
               className="text-gray-500 hover:text-gray-700"
             >
-              Unterkünfte
+              {PAGE_TITLES.housing}
             </Link>
             <span className="text-gray-400">/</span>
             <span className="text-gray-900">{unit.code}</span>
@@ -206,7 +210,7 @@ export default async function HousingDetailPage({ params }: Props) {
           <HarmonyBadge status={harmonyStatus} />
           <StatusBadge status={unit.status} />
           <Link href={`/housing/${unit.id}/edit`} className="btn-outline">
-            Bearbeiten
+            {FORM_LABELS.edit}
           </Link>
         </div>
       </div>
@@ -230,10 +234,10 @@ export default async function HousingDetailPage({ params }: Props) {
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Zimmer & Plätze
+                  {HOUSING_DETAIL_LABELS.spotsHeading}
                 </h2>
                 <Link href={`/housing/${unit.id}/spots`} className="btn-outline text-sm">
-                  Plätze verwalten
+                  {HOUSING_DETAIL_LABELS.manageSpots}
                 </Link>
               </div>
               <RoomVisualizationWithPlacement
@@ -249,21 +253,21 @@ export default async function HousingDetailPage({ params }: Props) {
             <div className="card">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Aktuelle Bewohner
+                  {HOUSING_DETAIL_LABELS.residentsHeading}
                 </h2>
                 <div className="flex gap-2">
                   <Link href={`/housing/${unit.id}/spots`} className="btn-primary text-sm">
-                    Plätze definieren
+                    {HOUSING_DETAIL_LABELS.defineSpots}
                   </Link>
                   <Link href={`/matching?unit=${unit.id}`} className="btn-outline text-sm">
-                    Bewohner platzieren
+                    {ACTION_LABELS.placeResident}
                   </Link>
                 </div>
               </div>
 
               {unit.placements.length === 0 ? (
                 <p className="text-gray-500 text-center py-8">
-                  Keine aktiven Bewohner
+                  {HOUSING_DETAIL_LABELS.noActiveResidents}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -404,14 +408,14 @@ function ResidentCard({
         <div>
           <p className="font-medium text-gray-900">{placement.resident.code}</p>
           <p className="text-sm text-gray-500">
-            Seit {formatDate(placement.startDate)}
+            {HOUSING_DETAIL_LABELS.residentSince} {formatDate(placement.startDate)}
           </p>
         </div>
       </div>
       <div className="flex items-center gap-4">
         {avgScore !== null && (
           <div className="text-right">
-            <p className="text-sm text-gray-500">Ø Kompatibilität</p>
+            <p className="text-sm text-gray-500">{HOUSING_DETAIL_LABELS.avgCompatibility}</p>
             <p className={`font-medium ${getScoreColorClass(avgScore)}`}>
               {avgScore}% - {getScoreLabel(avgScore)}
             </p>
@@ -421,7 +425,7 @@ function ResidentCard({
           href={`/residents/${placement.residentId}`}
           className="text-aoz-primary hover:underline text-sm"
         >
-          Details
+          {HOUSING_DETAIL_LABELS.details}
         </Link>
       </div>
     </div>
