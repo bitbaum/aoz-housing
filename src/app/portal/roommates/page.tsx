@@ -216,7 +216,7 @@ function RoommateCard({
               label={getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle)}
             />
             {roommate.smokingStatus !== 'NON_SMOKER' && (
-              <LifestyleTag icon="🚬" label="Raucher" />
+              <LifestyleTag icon="🚬" label={PORTAL_LABELS.roommates.isSmoker} />
             )}
             {roommate.languages.length > 0 && (
               <LifestyleTag

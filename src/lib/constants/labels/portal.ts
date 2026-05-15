@@ -319,6 +319,7 @@ export const PORTAL_LABELS = {
     strengths: 'Stärken',
     concerns: 'Achtung',
     compatible: 'kompatibel',
+    isSmoker: 'Raucher',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     noPlacementContact: 'Kontaktiere uns: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
   },

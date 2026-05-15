@@ -111,8 +111,9 @@ export const DASHBOARD_LABELS = {
   taskDaysAgoPrefix: 'Vor',
   taskSincePrefix: 'Seit',
 
-  // Analytics page stat cards
+  // Analytics / placement stat cards
   analyticsOccupancyRate: 'Belegungsrate',
   analyticsOverdueCheckIns: 'Überfällige Check-ins',
   analyticsConflictEnded: 'Konfliktbedingt beendet',
+  analyticsAvgSatisfaction: 'Ø Zufriedenheit',
 } as const

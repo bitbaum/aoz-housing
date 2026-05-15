@@ -5,7 +5,9 @@ import {
   PLACEMENT_STATUS_LABELS,
   END_REASON_LABELS,
   SATISFACTION_EMOJIS,
+  SATISFACTION_SURVEY_LABELS,
   SUPPORT_LEVEL_LABELS,
+  DASHBOARD_LABELS,
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -167,7 +169,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         <StatCard label={UI_LABELS.active} value={stats.active} />
         <StatCard label={UI_LABELS.ended} value={stats.ended} />
         <StatCard
-          label="Ø Zufriedenheit"
+          label={DASHBOARD_LABELS.analyticsAvgSatisfaction}
           value={
             stats.avgSatisfaction
               ? `${SATISFACTION_EMOJIS[stats.avgSatisfaction - 1]} ${stats.avgSatisfaction}/5`
@@ -175,7 +177,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
           }
         />
         <StatCard
-          label="Konfliktbedingt beendet"
+          label={DASHBOARD_LABELS.analyticsConflictEnded}
           value={stats.conflictEnds}
           trend={stats.conflictEnds > 0 ? 'warning' : 'neutral'}
         />
@@ -356,7 +358,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           {/* Last satisfaction for ended placements */}
           {placement.status !== 'ACTIVE' && placement.satisfactionRating && (
             <div className="text-right">
-              <p className="text-xs text-gray-500">Zufriedenheit</p>
+              <p className="text-xs text-gray-500">{SATISFACTION_SURVEY_LABELS.groupLabel}</p>
               <p className="text-lg">{SATISFACTION_EMOJIS[placement.satisfactionRating - 1]}</p>
             </div>
           )}

@@ -11,6 +11,7 @@ export const HOUSING_STATUS_LABELS: Record<string, string> = {
 
 export const HOUSING_STAT_LABELS = {
   total: 'Unterkünfte',
+  occupancy: 'Belegung',
 } as const
 
 // Re-export spot labels from config (SSOT)

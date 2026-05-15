@@ -98,7 +98,7 @@ export default async function HousingListPage({ searchParams }: Props) {
         <StatCard label={HOUSING_STATUS_LABELS.AVAILABLE} value={stats.available} />
         <StatCard label={HOUSING_STATUS_LABELS.FULL} value={stats.full} />
         <StatCard
-          label="Belegung"
+          label={HOUSING_STAT_LABELS.occupancy}
           value={`${stats.occupiedBeds}/${stats.totalBeds}`}
           subtitle={`${occupancyPercent}%`}
         />
