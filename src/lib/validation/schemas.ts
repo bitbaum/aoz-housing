@@ -294,6 +294,7 @@ export const IncidentInputSchema = z.object({
   date: z.string()
     .refine((val) => !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
     .transform((val) => new Date(val)),
+  mediationMinutes: z.coerce.number().int().min(0).optional().nullable(),
 })
 
 export const ResolveIncidentSchema = z.object({

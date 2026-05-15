@@ -41,6 +41,10 @@ export interface MissionKPIs {
   trend: 'improving' | 'stable' | 'worsening'
   trendDetail: string // German explanation
 
+  // KPI 5: Mediation time
+  mediationMinutesPerMonth: MonthlyDataPoint[]
+  avgMediationHoursPerWeek: number | null // average weekly hours across tracked period
+
   // Summary
   monthsTracked: number
 }
@@ -87,7 +91,7 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
         category: 'INTERPERSONAL',
         date: { gte: startDate },
       },
-      select: { date: true },
+      select: { date: true, mediationMinutes: true },
       orderBy: { date: 'asc' },
     }),
 
@@ -123,6 +127,7 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
 
   const incidentsByMonth = new Map<string, number>()
   const relocationsByMonth = new Map<string, number>()
+  const mediationMinutesByMonth = new Map<string, number>()
 
   // Initialize all months with 0
   for (let i = 0; i < months; i++) {
@@ -130,13 +135,17 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
     const key = formatMonth(d)
     incidentsByMonth.set(key, 0)
     relocationsByMonth.set(key, 0)
+    mediationMinutesByMonth.set(key, 0)
   }
 
-  // Count incidents per month
+  // Count incidents and accumulate mediation minutes per month
   for (const incident of incidents) {
     const key = formatMonth(new Date(incident.date))
     if (incidentsByMonth.has(key)) {
       incidentsByMonth.set(key, (incidentsByMonth.get(key) || 0) + 1)
+      if (incident.mediationMinutes) {
+        mediationMinutesByMonth.set(key, (mediationMinutesByMonth.get(key) || 0) + incident.mediationMinutes)
+      }
     }
   }
 
@@ -164,6 +173,21 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
       const [y, m] = month.split('-').map(Number)
       return { month, label: formatMonthLabel(new Date(y, m - 1)), value }
     })
+
+  // Mediation: convert minutes to hours per month for display
+  const mediationMinutesPerMonth: MonthlyDataPoint[] = Array.from(mediationMinutesByMonth.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, value]) => {
+      const [y, m] = month.split('-').map(Number)
+      return { month, label: formatMonthLabel(new Date(y, m - 1)), value: Math.round(value / 60 * 10) / 10 }
+    })
+
+  // Average weekly mediation hours: total minutes in period ÷ weeks in period ÷ 60
+  const totalMediationMinutes = Array.from(mediationMinutesByMonth.values()).reduce((s, v) => s + v, 0)
+  const weeksInPeriod = months * 4.33
+  const avgMediationHoursPerWeek = totalMediationMinutes > 0
+    ? Math.round((totalMediationMinutes / weeksInPeriod / 60) * 10) / 10
+    : null
 
   // ── Current month stats ────────────────────────────────────────────
 
@@ -262,6 +286,8 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
     recentPlacementTimeDays: recentPlacementTime,
     trend,
     trendDetail,
+    mediationMinutesPerMonth,
+    avgMediationHoursPerWeek,
     monthsTracked: months,
   }
 }

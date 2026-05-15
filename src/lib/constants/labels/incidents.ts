@@ -151,5 +151,7 @@ export const INCIDENT_PAGE_LABELS = {
   fieldDate: 'Datum *',
   fieldDescription: 'Beschreibung *',
   fieldDescriptionPlaceholder: 'Beschreiben Sie den Vorfall...',
+  fieldMediationMinutes: 'Mediationszeit (Minuten)',
+  fieldMediationMinutesHint: 'Aufgewendete Zeit für Gespräche und Mediation (für Auswertung)',
   submit: 'Vorfall erfassen',
 } as const

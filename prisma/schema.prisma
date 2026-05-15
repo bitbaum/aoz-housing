@@ -446,6 +446,7 @@ model Incident {
   description String
   resolution  String?
   resolvedAt  DateTime?
+  mediationMinutes Int? // Staff time spent mediating this incident (for ROI tracking)
 
   // For algorithm improvement
   predictable      Boolean? // Could this have been predicted?

@@ -304,6 +304,18 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 className="input"
               />
             </div>
+            <div>
+              <label className="label">{INCIDENT_PAGE_LABELS.fieldMediationMinutes}</label>
+              <input
+                type="number"
+                name="mediationMinutes"
+                min="0"
+                step="5"
+                placeholder="0"
+                className="input"
+              />
+              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldMediationMinutesHint}</p>
+            </div>
           </div>
         </div>
 

@@ -36,6 +36,7 @@ export async function createIncident(formData: FormData): Promise<void> {
         severity: data.severity,
         description: data.description,
         date: data.date,
+        mediationMinutes: data.mediationMinutes ?? undefined,
       },
     })
 

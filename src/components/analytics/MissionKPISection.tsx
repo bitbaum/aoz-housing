@@ -68,7 +68,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
       )}
 
       {/* KPI Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <KPICard
           label={MISSION_KPI_LABELS.conflictsPerMonth}
           value={kpis.avgIncidentsPerMonth}
@@ -88,6 +88,15 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           baselineValue={baseline?.pilotBaselineRelocationsPerMonth ?? null}
         />
         <KPICard
+          label={MISSION_KPI_LABELS.mediationHoursPerWeek}
+          value={kpis.avgMediationHoursPerWeek}
+          current={null}
+          currentLabel=""
+          targetPct={40}
+          unit={MISSION_KPI_LABELS.hoursUnit}
+          baselineValue={baseline?.pilotBaselineMediationHoursPerWeek ?? null}
+        />
+        <KPICard
           label={MISSION_KPI_LABELS.avgPlacementTime}
           value={kpis.avgPlacementTimeDays}
           current={kpis.recentPlacementTimeDays}
@@ -105,7 +114,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
       </div>
 
       {/* Monthly Sparklines */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MiniChart
           label={MISSION_KPI_LABELS.conflictsMonthlyChart}
           data={kpis.incidentsPerMonth}
@@ -119,6 +128,15 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           color="text-red-500"
           barColor="bg-red-400"
           baseline={baseline?.pilotBaselineRelocationsPerMonth ?? null}
+        />
+        <MiniChart
+          label={MISSION_KPI_LABELS.mediationMonthlyChart}
+          data={kpis.mediationMinutesPerMonth}
+          color="text-purple-500"
+          barColor="bg-purple-400"
+          baseline={baseline?.pilotBaselineMediationHoursPerWeek !== null && baseline?.pilotBaselineMediationHoursPerWeek !== undefined
+            ? Math.round(baseline.pilotBaselineMediationHoursPerWeek * 4.33 * 10) / 10
+            : null}
         />
       </div>
     </div>
