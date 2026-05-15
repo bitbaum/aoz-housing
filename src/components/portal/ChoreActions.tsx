@@ -24,22 +24,24 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  async function handleComplete(e: React.FormEvent<HTMLFormElement>) {
+  async function submitChoreAction(
+    endpoint: string,
+    buildBody: (form: FormData) => Record<string, unknown>,
+    successMessage: string,
+    e: React.FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
     const form = new FormData(e.currentTarget)
     try {
-      const res = await fetch(`/api/portal/chores/${taskId}/complete`, {
+      const res = await fetch(`/api/portal/chores/${taskId}/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          notes: form.get('notes') || undefined,
-          durationMinutes: form.get('durationMinutes') ? Number(form.get('durationMinutes')) : undefined,
-        }),
+        body: JSON.stringify(buildBody(form)),
       })
       if (res.ok) {
-        setSuccess(CHORE_LABELS.success.completed)
+        setSuccess(successMessage)
         setActiveModal(null)
         router.refresh()
       } else {
@@ -53,90 +55,27 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     }
   }
 
-  async function handleRequest(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setSubmitting(true)
-    setError(null)
-    const form = new FormData(e.currentTarget)
-    try {
-      const res = await fetch(`/api/portal/chores/${taskId}/request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          requestedResidentId: form.get('requestedResidentId') || undefined,
-          message: form.get('message') || undefined,
-        }),
-      })
-      if (res.ok) {
-        setSuccess(CHORE_LABELS.success.requested)
-        setActiveModal(null)
-        router.refresh()
-      } else {
-        const data = await res.json()
-        setError(data.error || CHORE_LABELS.errors.generic)
-      }
-    } catch {
-      setError(CHORE_LABELS.errors.generic)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const handleComplete = (e: React.FormEvent<HTMLFormElement>) =>
+    submitChoreAction('complete', (form) => ({
+      notes: form.get('notes') || undefined,
+      durationMinutes: form.get('durationMinutes') ? Number(form.get('durationMinutes')) : undefined,
+    }), CHORE_LABELS.success.completed, e)
 
-  async function handleAttention(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setSubmitting(true)
-    setError(null)
-    const form = new FormData(e.currentTarget)
-    try {
-      const res = await fetch(`/api/portal/chores/${taskId}/attention`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: form.get('message') || undefined,
-        }),
-      })
-      if (res.ok) {
-        setSuccess(CHORE_LABELS.success.flagged)
-        setActiveModal(null)
-        router.refresh()
-      } else {
-        const data = await res.json()
-        setError(data.error || CHORE_LABELS.errors.generic)
-      }
-    } catch {
-      setError(CHORE_LABELS.errors.generic)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const handleRequest = (e: React.FormEvent<HTMLFormElement>) =>
+    submitChoreAction('request', (form) => ({
+      requestedResidentId: form.get('requestedResidentId') || undefined,
+      message: form.get('message') || undefined,
+    }), CHORE_LABELS.success.requested, e)
 
-  async function handleComplaint(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setSubmitting(true)
-    setError(null)
-    const form = new FormData(e.currentTarget)
-    try {
-      const res = await fetch(`/api/portal/chores/${taskId}/complaint`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          description: form.get('description'),
-        }),
-      })
-      if (res.ok) {
-        setSuccess(CHORE_LABELS.success.complained)
-        setActiveModal(null)
-        router.refresh()
-      } else {
-        const data = await res.json()
-        setError(data.error || CHORE_LABELS.errors.generic)
-      }
-    } catch {
-      setError(CHORE_LABELS.errors.generic)
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const handleAttention = (e: React.FormEvent<HTMLFormElement>) =>
+    submitChoreAction('attention', (form) => ({
+      message: form.get('message') || undefined,
+    }), CHORE_LABELS.success.flagged, e)
+
+  const handleComplaint = (e: React.FormEvent<HTMLFormElement>) =>
+    submitChoreAction('complaint', (form) => ({
+      description: form.get('description'),
+    }), CHORE_LABELS.success.complained, e)
 
   return (
     <div>
