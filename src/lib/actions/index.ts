@@ -9,6 +9,7 @@ export {
 export {
   createIncident,
   resolveIncident,
+  updateMediationTime,
   getResidentIncidentStats,
   getHousingUnitIncidentHistory,
   addFollowUp,

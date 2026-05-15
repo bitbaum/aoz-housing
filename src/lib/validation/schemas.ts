@@ -302,6 +302,11 @@ export const ResolveIncidentSchema = z.object({
   resolution: z.string().optional().default('Gelöst durch Administrator'),
 })
 
+export const UpdateMediationTimeSchema = z.object({
+  incidentId: z.string().cuid(),
+  mediationMinutes: z.coerce.number().int().min(0).max(9999),
+})
+
 export const FollowUpInputSchema = z.object({
   incidentId: z.string().cuid(),
   action: z.string().min(1, 'Aktion ist erforderlich'),

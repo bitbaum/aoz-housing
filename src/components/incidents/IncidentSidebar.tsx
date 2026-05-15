@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { resolveIncident } from '@/lib/actions'
+import { resolveIncident, updateMediationTime } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
 import { formatDate } from '@/lib/utils'
 import { INCIDENT_SIDEBAR_LABELS } from '@/lib/constants'
@@ -141,6 +141,31 @@ export function IncidentSidebar({ incident }: Props) {
           </form>
         </div>
       )}
+
+      {/* Mediation Time */}
+      <div className="card">
+        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          {INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
+        </h2>
+        <form action={updateMediationTime} className="flex items-center gap-2">
+          <input type="hidden" name="incidentId" value={incident.id} />
+          <input
+            type="number"
+            name="mediationMinutes"
+            min="0"
+            max="9999"
+            step="5"
+            defaultValue={incident.mediationMinutes ?? 0}
+            placeholder={INCIDENT_SIDEBAR_LABELS.mediationTimePlaceholder}
+            className="input flex-1"
+            aria-label={INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
+          />
+          <span className="text-sm text-gray-500 whitespace-nowrap">{INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}</span>
+          <button type="submit" className="btn-outline min-h-[44px] px-3 text-sm whitespace-nowrap">
+            {INCIDENT_SIDEBAR_LABELS.mediationTimeSave}
+          </button>
+        </form>
+      </div>
 
       {/* Meta Info */}
       <div className="card">

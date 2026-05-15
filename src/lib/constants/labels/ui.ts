@@ -102,6 +102,10 @@ export const INCIDENT_SIDEBAR_LABELS = {
   followUps: 'Follow-ups',
   resolvedAt: 'Gelöst am',
   mediationTime: 'Mediationszeit',
+  mediationTimeEdit: 'Mediationszeit erfassen',
+  mediationTimeSave: 'Speichern',
+  mediationTimePlaceholder: '0',
+  mediationTimeUnit: 'Minuten',
 } as const
 
 export const DANGER_ZONE_LABELS = {

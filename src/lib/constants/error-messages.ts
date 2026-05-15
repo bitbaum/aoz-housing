@@ -75,6 +75,7 @@ export const ERROR_MESSAGES = {
   // ─── Incident ──────────────────────────────────────────────────
   INCIDENT_CREATE_ERROR: 'Fehler beim Erstellen des Vorfalls',
   INCIDENT_RESOLVE_ERROR: 'Fehler beim Auflösen des Vorfalls',
+  INCIDENT_UPDATE_MEDIATION_ERROR: 'Fehler beim Speichern der Mediationszeit',
   FOLLOWUP_CREATE_ERROR: 'Fehler beim Erstellen der Nachverfolgung',
   REMINDER_DELETE_ERROR: 'Fehler beim Löschen der Erinnerung',
 

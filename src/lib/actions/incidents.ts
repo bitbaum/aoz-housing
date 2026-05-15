@@ -9,6 +9,7 @@ import {
   IncidentInputSchema,
   ResolveIncidentSchema,
   FollowUpInputSchema,
+  UpdateMediationTimeSchema,
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
@@ -87,6 +88,32 @@ export async function resolveIncident(formData: FormData): Promise<void> {
 
   revalidatePath('/incidents')
   redirect(`/incidents/${incidentId}?resolved=true`)
+}
+
+export async function updateMediationTime(formData: FormData): Promise<void> {
+  const user = await requireStaffAuth()
+  const { incidentId, mediationMinutes } = validateFormData(UpdateMediationTimeSchema, formData)
+
+  try {
+    await prisma.incident.update({
+      where: { id: incidentId },
+      data: { mediationMinutes },
+    })
+
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'INCIDENT',
+      entityId: incidentId,
+      userId: user.id,
+      changes: { mediationMinutes },
+    })
+  } catch (error) {
+    logger.errorWithCause('Failed to update mediation time', error, { incidentId })
+    throw new Error(ERROR_MESSAGES.INCIDENT_UPDATE_MEDIATION_ERROR)
+  }
+
+  revalidatePath(`/incidents/${incidentId}`)
+  revalidatePath('/analytics')
 }
 
 export interface ResidentIncidentStats {
