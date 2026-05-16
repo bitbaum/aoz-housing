@@ -1,9 +1,9 @@
 import type { Resident } from '@prisma/client'
 import type { ApartmentProfile } from '@/lib/compatibility/types'
 import {
-  SLEEP_SCHEDULE_LABELS,
-  SMOKING_STATUS_LABELS,
-  SOCIAL_STYLE_LABELS,
+  SLEEP_SCHEDULE_LABELS_SHORT,
+  SMOKING_STATUS_LABELS_SHORT,
+  SOCIAL_STYLE_LABELS_SHORT,
   ALGORITHM_OVERVIEW_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -18,9 +18,9 @@ const COMPARISON_ATTRIBUTES = [
   { key: 'noiseTolerance', label: 'Lärmtoleranz', type: 'numeric', avgKey: 'avgNoiseTolerance', threshold: 'noiseTolerance' },
   { key: 'choresContribution', label: 'Hausarbeit', type: 'numeric', avgKey: 'avgChoresContribution', threshold: 'choresContribution' },
   { key: 'privacyNeed', label: 'Privatsphäre', type: 'numeric', avgKey: 'avgPrivacyNeed' },
-  { key: 'sleepSchedule', label: 'Schlaf', type: 'enum', dominantKey: 'dominantSleepSchedule', labels: SLEEP_SCHEDULE_LABELS },
-  { key: 'socialStyle', label: 'Sozialstil', type: 'enum', dominantKey: 'dominantSocialStyle', labels: SOCIAL_STYLE_LABELS },
-  { key: 'smokingStatus', label: 'Rauchen', type: 'enum', dominantKey: 'dominantSmokingStatus', labels: SMOKING_STATUS_LABELS },
+  { key: 'sleepSchedule', label: 'Schlaf', type: 'enum', dominantKey: 'dominantSleepSchedule', labels: SLEEP_SCHEDULE_LABELS_SHORT },
+  { key: 'socialStyle', label: 'Sozialstil', type: 'enum', dominantKey: 'dominantSocialStyle', labels: SOCIAL_STYLE_LABELS_SHORT },
+  { key: 'smokingStatus', label: 'Rauchen', type: 'enum', dominantKey: 'dominantSmokingStatus', labels: SMOKING_STATUS_LABELS_SHORT },
 ] as const
 
 type ThresholdKey = 'cleanliness' | 'noiseTolerance' | 'choresContribution'
@@ -60,7 +60,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
   ) => {
     return attr.type === 'numeric'
       ? String(val)
-      : getLabel(attr.labels as Record<string, string>, String(val)).slice(0, DISPLAY_LIMITS.labelAbbreviation)
+      : getLabel(attr.labels as Record<string, string>, String(val))
   }
 
   return (
@@ -81,7 +81,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                 <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
                   Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
-                    : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, DISPLAY_LIMITS.labelAbbreviation) : '–'}
+                    : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}
                 </span>
                 <span className="text-aoz-primary bg-aoz-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
                   {getFormattedValue(newVal as string | number | null, attr)}
@@ -137,7 +137,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                   <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
                     {attr.type === 'numeric'
                       ? (avgValue as number | null)?.toFixed(1) || '–'
-                      : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)).slice(0, DISPLAY_LIMITS.labelAbbreviation) : '–'}
+                      : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}
                   </td>
                   <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
                     {(() => {
@@ -152,10 +152,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                           )}
                         </span>
                       ) : (
-                        getLabel(
-                          attr.labels as Record<string, string>,
-                          String(newVal)
-                        ).slice(0, DISPLAY_LIMITS.labelAbbreviation)
+                        getLabel(attr.labels as Record<string, string>, String(newVal))
                       )
                     })()}
                   </td>

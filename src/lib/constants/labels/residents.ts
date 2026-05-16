@@ -35,10 +35,29 @@ export const SLEEP_SCHEDULE_LABELS: Record<string, string> = {
   IRREGULAR: 'Unregelmässig',
 }
 
+export const SLEEP_SCHEDULE_LABELS_SHORT: Record<string, string> = {
+  EARLY_BIRD: 'Früh',
+  STANDARD: 'Normal',
+  NIGHT_OWL: 'Nachteule',
+  IRREGULAR: 'Unregelm.',
+}
+
 export const SOCIAL_STYLE_LABELS: Record<string, string> = {
   INTROVERTED: 'Ruhig',
   MODERATE: 'Ausgeglichen',
   EXTROVERTED: 'Gesellig',
+}
+
+export const SOCIAL_STYLE_LABELS_SHORT: Record<string, string> = {
+  INTROVERTED: 'Ruhig',
+  MODERATE: 'Ausgegl.',
+  EXTROVERTED: 'Gesellig',
+}
+
+export const SMOKING_STATUS_LABELS_SHORT: Record<string, string> = {
+  NON_SMOKER: 'Nichtr.',
+  OUTDOOR_SMOKER: 'Draussen',
+  INDOOR_SMOKER: 'Drinnen',
 }
 
 export const MOBILITY_NEED_LABELS: Record<string, string> = {
