@@ -26,7 +26,7 @@ export function MaintenanceCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Wartung & Service</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{MAINTENANCE_CARD_LABELS.title}</h2>
 
       {hasOpenTickets ? (
         <>
@@ -36,11 +36,11 @@ export function MaintenanceCard({
               <span className={`text-3xl font-bold ${getTicketColor(openTickets)}`}>
                 {openTickets}
               </span>
-              <span className="text-gray-500 text-sm">offen</span>
+              <span className="text-gray-500 text-sm">{MAINTENANCE_CARD_LABELS.openSuffix}</span>
             </div>
             {oldestTicketDays !== undefined && (
               <p className="text-sm text-gray-500 mt-1 group-hover:text-gray-700">
-                Ältestes Ticket: {oldestTicketDays} Tage
+                {MAINTENANCE_CARD_LABELS.oldestTicket(oldestTicketDays)}
               </p>
             )}
           </Link>
@@ -54,7 +54,7 @@ export function MaintenanceCard({
               <div className="flex items-center gap-2">
                 <span className="text-status-error">🔥</span>
                 <span className="text-status-error-text text-sm font-medium">
-                  {urgentTickets} dringend
+                  {MAINTENANCE_CARD_LABELS.urgentCount(urgentTickets)}
                 </span>
               </div>
               <span className="text-status-error">→</span>
@@ -64,7 +64,7 @@ export function MaintenanceCard({
       ) : (
         <div className="py-6 text-center">
           <span className="text-status-success text-2xl block mb-2">✓</span>
-          <p className="text-status-success-text text-sm font-medium">Alles erledigt</p>
+          <p className="text-status-success-text text-sm font-medium">{MAINTENANCE_CARD_LABELS.allDone}</p>
         </div>
       )}
 
@@ -82,7 +82,7 @@ export function MaintenanceCard({
           href="/maintenance"
           className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
         >
-          Alle Tickets →
+          {MAINTENANCE_CARD_LABELS.viewAll}
         </Link>
       )}
     </div>

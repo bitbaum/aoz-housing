@@ -39,7 +39,7 @@ export function DashboardMetrics({
 
       {/* Free beds - actionable number */}
       <Link href="/housing" className="card-hover">
-        <p className="text-sm text-gray-500">Freie Plätze</p>
+        <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statFreeBeds}</p>
         <p className={`text-3xl font-bold mt-1 ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}>
           {freeBeds}
         </p>
@@ -50,7 +50,7 @@ export function DashboardMetrics({
 
       {/* Overdue Check-ins - actionable! */}
       <Link href="/placements?status=active&overdue=1" className="card-hover">
-        <p className="text-sm text-gray-500">Check-ins überfällig</p>
+        <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statCheckInsOverdue}</p>
         <p className={`text-3xl font-bold mt-1 ${overdueCheckIns === 0 ? 'text-status-success' : overdueCheckIns <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
           {overdueCheckIns}
         </p>

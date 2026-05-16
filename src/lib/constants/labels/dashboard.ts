@@ -158,6 +158,24 @@ export const MISSION_KPI_LABELS = {
 
 export const MAINTENANCE_CARD_LABELS = {
   newTicket: 'Neues Ticket',
+  title: 'Wartung & Service',
+  openSuffix: 'offen',
+  oldestTicket: (days: number) => `Ältestes Ticket: ${days} Tage`,
+  urgentCount: (count: number) => `${count} dringend`,
+  allDone: 'Alles erledigt',
+  viewAll: 'Alle Tickets →',
+} as const
+
+export const SYSTEM_HEALTH_LABELS = {
+  title: 'Systemstatus',
+  conflictsThirtyDays: 'Konflikte (30 Tage)',
+  worstUnit: (code: string, count: number) => `${code}: ${count} Konflikte →`,
+  noHotspots: 'Keine Brennpunkte',
+  bedsFree: 'Plätze frei',
+  ofTotal: (total: number) => `von ${total} total`,
+  maintenanceOpen: 'Wartung offen',
+  oldest: (days: number) => `Älteste: ${days} Tage →`,
+  allDone: 'Alles erledigt',
 } as const
 
 export const ALGORITHM_ACCURACY_LABELS = {
@@ -182,6 +200,8 @@ export const ALGORITHM_ACCURACY_LABELS = {
   unpredictable: 'Unvorhersagbare',
   notRated: 'Noch nicht bewertet',
   // DashboardMetrics
+  statFreeBeds: 'Freie Plätze',
+  statCheckInsOverdue: 'Check-ins überfällig',
   statResidents: 'Bewohner',
   statWaitingForPlacement: (count: number) => `${count} warten auf Platzierung`,
   statAllPlaced: 'Alle platziert',
