@@ -103,11 +103,11 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               <div className="bg-white p-4 rounded-lg border border-status-info/25 mb-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">🏢 Gebäude</span>
+                  <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBuilding}</span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">🚪 Zimmer</span>
+                  <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyRoom}</span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">🛏️ Betten</span>
+                  <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBeds}</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}<br/>
