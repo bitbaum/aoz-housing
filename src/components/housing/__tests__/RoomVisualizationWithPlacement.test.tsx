@@ -49,7 +49,7 @@ jest.mock('@/components/housing/PlacementPanel', () => ({
     isOpen: boolean
     onClose: () => void
     spot: { id: string; code: string } | null
-    compatibleResidents: { id: string }[]
+    compatibleResidents: { resident: { id: string } }[]
     onPlaceResident: (residentId: string, spotId: string) => Promise<void>
     housingUnitId: string
   }) => (
@@ -61,8 +61,8 @@ jest.mock('@/components/housing/PlacementPanel', () => ({
     >
       <button onClick={onClose}>Close panel</button>
       {compatibleResidents.map(r => (
-        <button key={r.id} onClick={() => onPlaceResident(r.id, spot?.id ?? '')}>
-          Place {r.id}
+        <button key={r.resident.id} onClick={() => onPlaceResident(r.resident.id, spot?.id ?? '')}>
+          Place {r.resident.id}
         </button>
       ))}
     </div>
@@ -88,7 +88,16 @@ function makeSpot(id: string, code = `SPOT-${id}`): HousingSpot {
 }
 
 const RESIDENTS: CompatibleResident[] = [
-  { id: 'r1', code: 'RES-001', compatibilityScore: 85, ageRange: 'ADULT', gender: 'PREFER_NOT_SAY', languages: ['de'], keyFactors: [] },
+  {
+    resident: {
+      id: 'r1', code: 'RES-001', ageRange: 'ADULT', gender: 'PREFER_NOT_SAY',
+      languages: ['de'], socialStyle: 'MODERATE', sleepSchedule: 'STANDARD',
+      smokingStatus: 'NON_SMOKER', noiseTolerance: 3, cleanlinessLevel: 3, privacyNeed: 3,
+    },
+    fitScore: 85,
+    strengths: [],
+    concerns: [],
+  },
 ]
 
 function renderComponent(overrides: {
