@@ -141,12 +141,12 @@ describe('BedGrid', () => {
       expect(screen.getByText('room-icon')).toBeInTheDocument()
     })
 
-    it('shows resident code prefix on occupied spots when showLabels is true', () => {
+    it('shows resident code suffix on occupied spots when showLabels is true', () => {
       const spots = [makeOccupiedSpot()]
       render(<BedGrid spots={spots} showLabels />)
 
-      // Displays first 3 characters of resident code
-      expect(screen.getByText('RES')).toBeInTheDocument()
+      // Displays last 3 characters of resident code (the distinguishing part)
+      expect(screen.getByText('001')).toBeInTheDocument()
     })
 
     it('does not show resident code when showLabels is false', () => {
