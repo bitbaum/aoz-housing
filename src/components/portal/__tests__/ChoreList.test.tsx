@@ -70,12 +70,11 @@ describe('ChoreList', () => {
   const reloadMock = jest.fn()
 
   beforeAll(() => {
-    // jsdom treats window.location as a special getter/setter; delete + reassign
-    // replaces it with a plain object so reload can be mocked.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (window as any).location
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(window as any).location = { reload: reloadMock }
+    // jsdom: delete the non-configurable property, then replace with a plain mock.
+    // @ts-expect-error — window.location is non-optional; deletion is intentional for testing
+    delete window.location
+    // @ts-expect-error — assigning a partial Location object is intentional for testing
+    window.location = { reload: reloadMock }
   })
 
   beforeEach(() => {
