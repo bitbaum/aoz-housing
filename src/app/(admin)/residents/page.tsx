@@ -13,20 +13,20 @@ import { CSVImport } from '@/components/residents/CSVImport'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ view?: string }>
+  searchParams: Promise<{ view?: string; q?: string }>
 }
 
 export default async function ResidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
+  const q = params.q?.trim() || ''
 
   const [residents, allResidents] = await Promise.all([
     prisma.resident.findMany({
-      where: view === 'active'
-        ? { status: { in: ['ACTIVE', 'PLACED'] } }
-        : view === 'archived'
-        ? { status: 'EXITED' }
-        : undefined,
+      where: {
+        ...(view === 'active' ? { status: { in: ['ACTIVE', 'PLACED'] } } : view === 'archived' ? { status: 'EXITED' } : {}),
+        ...(q ? { code: { contains: q, mode: 'insensitive' } } : {}),
+      },
       select: {
         id: true,
         code: true,
@@ -100,11 +100,27 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         <CSVImport />
       </div>
 
+      {/* Search */}
+      <form method="GET" action="/residents" className="mb-4">
+        <input type="hidden" name="view" value={view} />
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true">🔍</span>
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder={RESIDENT_LIST_LABELS.searchPlaceholder}
+            className="input pl-9 w-full sm:max-w-xs"
+            autoComplete="off"
+          />
+        </div>
+      </form>
+
       <div className="mb-4">
         <div className="flex gap-2 border-b border-gray-200" role="tablist">
-          <TabLink href="/residents?view=active" label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
-          <TabLink href="/residents?view=archived" label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
-          <TabLink href="/residents?view=all" label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
+          <TabLink href={`/residents?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
+          <TabLink href={`/residents?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
+          <TabLink href={`/residents?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
       </div>
 
@@ -141,13 +157,21 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       {residents.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            {view === 'archived' ? RESIDENT_LIST_LABELS.emptyArchived : EMPTY_STATE_LABELS.noResidents}
+            {q
+              ? `${RESIDENT_LIST_LABELS.emptyFiltered} («${q}»)`
+              : view === 'archived'
+              ? RESIDENT_LIST_LABELS.emptyArchived
+              : EMPTY_STATE_LABELS.noResidents}
           </p>
-          {view !== 'archived' && (
+          {q ? (
+            <a href={`/residents?view=${view}`} className="btn-outline">
+              {RESIDENT_LIST_LABELS.filterReset}
+            </a>
+          ) : view !== 'archived' ? (
             <Link href="/residents/new" className="btn-primary">
               {RESIDENT_LIST_LABELS.emptyFirst}
             </Link>
-          )}
+          ) : null}
         </div>
       ) : (
         <ResidentsList residents={residents.map(r => ({
