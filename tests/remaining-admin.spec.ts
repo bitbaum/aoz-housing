@@ -130,20 +130,41 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
     await expect(page.getByRole('link', { name: /Alle|All/i })).toBeVisible()
   })
 
-  test('pending tab shows empty state (no seed data)', async ({ page }) => {
+  test('pending tab shows the seeded PENDING request from RES-001', async ({ page }) => {
     await page.goto('/transfer-requests?status=PENDING')
 
-    // No transfer requests seeded → empty state message
-    await expect(
-      page.getByText(/Keine.*Anfragen|keine.*ausstehend|no.*pending|Keine Transferanfragen/i)
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('RES-001')).toBeVisible({ timeout: 15_000 })
   })
 
-  test('all tab shows zero count', async ({ page }) => {
+  test('approved tab shows the seeded APPROVED request from RES-004', async ({ page }) => {
+    await page.goto('/transfer-requests?status=APPROVED')
+
+    await expect(page.getByText('RES-004')).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('denied tab shows the seeded DENIED request from RES-006', async ({ page }) => {
+    await page.goto('/transfer-requests?status=DENIED')
+
+    await expect(page.getByText('RES-006')).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('all tab shows all 3 seeded requests', async ({ page }) => {
     await page.goto('/transfer-requests?status=ALL')
 
-    // Empty state or zero count badge
-    await expect(page.getByRole('heading').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('RES-001')).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('RES-004')).toBeVisible()
+    await expect(page.getByText('RES-006')).toBeVisible()
+  })
+
+  test('pending request shows approve and deny action buttons', async ({ page }) => {
+    await page.goto('/transfer-requests?status=PENDING')
+
+    // TransferActions renders approve/deny buttons for PENDING requests
+    await expect(
+      page.getByRole('button', { name: /Genehmigen|Approve|Zustimmen/i }).or(
+        page.getByRole('button', { name: /Ablehnen|Deny/i })
+      ).first()
+    ).toBeVisible({ timeout: 15_000 })
   })
 
   test('accessible from sidebar navigation', async ({ page }) => {

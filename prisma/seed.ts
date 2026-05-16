@@ -22,6 +22,7 @@ async function main() {
   await prisma.satisfactionCheckIn.deleteMany()
   await prisma.incidentInvolvement.deleteMany()
   await prisma.incident.deleteMany()
+  await prisma.transferRequest.deleteMany()
   await prisma.compatibilityAssessment.deleteMany()
   await prisma.placement.deleteMany()
   await prisma.placementSpot.deleteMany()
@@ -2486,6 +2487,50 @@ async function main() {
   console.log(`✅ Created ${maintenanceRequests.length} maintenance requests`)
 
   // =========================================================================
+  // TRANSFER REQUESTS
+  // =========================================================================
+
+  const transferRequests = await Promise.all([
+    // PENDING: RES-001 wants to move from ZH-001 to ZH-002 (awaiting staff review)
+    prisma.transferRequest.create({
+      data: {
+        residentId: residents[0].id,
+        currentPlacementId: placements[0].id,
+        targetUnitId: units[1].id,
+        reason: 'Meine aktuelle Wohngemeinschaft ist sehr laut und ich schlafe schlecht. Ich würde gerne in eine ruhigere Unterkunft wechseln.',
+        status: 'PENDING',
+      },
+    }),
+    // APPROVED: RES-004 requested transfer from ZH-002 to ZH-003 (approved 5 days ago)
+    prisma.transferRequest.create({
+      data: {
+        residentId: residents[3].id,
+        currentPlacementId: placements[4].id,
+        targetUnitId: units[2].id,
+        reason: 'Ich möchte in eine kleinere Unterkunft wechseln, da ich mehr Privatsphäre benötige.',
+        status: 'APPROVED',
+        staffNotes: 'Transferanfrage genehmigt. Verlegung wird nächste Woche koordiniert.',
+        reviewedBy: 'AOZ-ADMIN1',
+        reviewedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      },
+    }),
+    // DENIED: RES-006 requested transfer (denied — no suitable spot available)
+    prisma.transferRequest.create({
+      data: {
+        residentId: residents[5].id,
+        currentPlacementId: placements[5].id,
+        reason: 'Ich möchte näher an meiner Sprachschule wohnen, um den Weg zu verkürzen.',
+        status: 'DENIED',
+        staffNotes: 'Leider kein geeigneter Platz in der gewünschten Lage verfügbar. Bitte in 4 Wochen erneut anfragen.',
+        reviewedBy: 'AOZ-ADMIN1',
+        reviewedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      },
+    }),
+  ])
+
+  console.log(`✅ Created ${transferRequests.length} transfer requests`)
+
+  // =========================================================================
   // HOUSEHOLD TASKS
   // =========================================================================
 
@@ -2602,6 +2647,7 @@ async function main() {
   console.log(`   - ${checkIns.length} satisfaction check-ins`)
   console.log(`   - ${incidents.length} incidents (${followUps.length} follow-ups)`)
   console.log(`   - ${maintenanceRequests.length} maintenance requests`)
+  console.log(`   - ${transferRequests.length} transfer requests (1 pending, 1 approved, 1 denied)`)
   console.log(`   - ${householdTasks.length} household tasks`)
   console.log('')
   console.log('🚀 Ready to run: npm run dev')
