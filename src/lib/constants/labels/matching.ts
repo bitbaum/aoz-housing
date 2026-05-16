@@ -50,7 +50,7 @@ export const MATCHING_LABELS = {
   // Unit mode
   matchingResidents: 'Passende Bewohner',
   occupied: 'belegt',
-  freeSpots: 'freie Plätze',
+  freeSpots: (n: number) => n === 1 ? 'freier Platz' : 'freie Plätze',
   back: 'Zurück',
   noMatchingResidents: 'Keine passenden unplatzierten Bewohner',
   createNewResident: 'Neuen Bewohner erfassen',

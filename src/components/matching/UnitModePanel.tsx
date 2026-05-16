@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
+  const freeSpots = selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length ?? 0
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -19,7 +20,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
           </h2>
           <p className="text-sm text-gray-500">
             {selectedUnit.placements.length}/{selectedUnit.totalBeds} {MATCHING_LABELS.occupied} ·{' '}
-            {selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length || 0} {MATCHING_LABELS.freeSpots}
+            {freeSpots} {MATCHING_LABELS.freeSpots(freeSpots)}
           </p>
         </div>
         <Link
