@@ -44,6 +44,11 @@ export const UI_LABELS = {
   // AI chat
   aiChatPlaceholder: 'Frage stellen… (Enter zum Senden, Shift+Enter für Zeilenumbruch)',
   aiChatSend: 'Senden',
+  // Error boundaries
+  errorTitle: 'Etwas ist schiefgelaufen',
+  errorIncidentsDesc: 'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorRetry: 'Erneut versuchen',
+  errorToDashboard: 'Zum Dashboard',
 } as const
 
 export const FOLLOW_UP_FORM_LABELS = {

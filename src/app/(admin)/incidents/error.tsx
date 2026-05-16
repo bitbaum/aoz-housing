@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 import Link from 'next/link'
+import { UI_LABELS } from '@/lib/constants'
 
 export default function IncidentsError({
   error,
@@ -22,24 +23,23 @@ export default function IncidentsError({
           <span className="text-status-error-text text-xl">!</span>
         </div>
         <h2 className="text-lg font-semibold text-gray-900 mb-2">
-          Etwas ist schiefgelaufen
+          {UI_LABELS.errorTitle}
         </h2>
         <p className="text-gray-600 mb-6 text-sm">
-          Beim Laden der Vorfälle ist ein Fehler aufgetreten.
-          Bitte versuchen Sie es erneut.
+          {UI_LABELS.errorIncidentsDesc}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={reset}
             className="btn-primary"
           >
-            Erneut versuchen
+            {UI_LABELS.errorRetry}
           </button>
           <Link
             href="/"
             className="btn-ghost"
           >
-            Zum Dashboard
+            {UI_LABELS.errorToDashboard}
           </Link>
         </div>
       </div>
