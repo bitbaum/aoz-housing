@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -13,6 +14,12 @@ import {
   INCIDENT_DETAIL_LABELS,
   getLabel,
 } from '@/lib/constants'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const incident = await prisma.incident.findUnique({ where: { id }, select: { type: true } })
+  return { title: incident ? (INCIDENT_TYPE_LABELS[incident.type as keyof typeof INCIDENT_TYPE_LABELS] ?? 'Vorfall') : 'Vorfall' }
+}
 import {
   getSeverityBorderClass,
   formatRelativeDate,

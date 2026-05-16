@@ -1,7 +1,10 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { HousingFormFields } from '@/components/forms'
 import { createHousingUnit } from '@/lib/actions'
 import { HOUSING_NEW_LABELS, UI_LABELS } from '@/lib/constants'
+
+export const metadata: Metadata = { title: 'Neue Unterkunft' }
 
 export const dynamic = 'force-dynamic'
 

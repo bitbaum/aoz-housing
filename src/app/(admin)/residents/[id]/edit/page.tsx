@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -5,6 +6,8 @@ import { ResidentFormFields, FormValidationUX } from '@/components/forms'
 import { updateResident } from '@/lib/actions'
 import { ResidentDangerZone } from '@/components/residents/ResidentDangerZone'
 import { RESIDENT_EDIT_LABELS } from '@/lib/constants'
+
+export const metadata: Metadata = { title: 'Bewohner bearbeiten' }
 
 export const dynamic = 'force-dynamic'
 

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -14,6 +15,12 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { formatDate, formatRelativeDate } from '@/lib/utils'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const request = await prisma.maintenanceRequest.findUnique({ where: { id }, select: { category: true } })
+  return { title: request ? (MAINTENANCE_CATEGORY_LABELS[request.category as keyof typeof MAINTENANCE_CATEGORY_LABELS] ?? 'Wartungsanfrage') : 'Wartungsanfrage' }
+}
 
 export const dynamic = 'force-dynamic'
 

@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { createMaintenanceRequest } from '@/lib/actions'
+
+export const metadata: Metadata = { title: 'Neue Wartungsanfrage' }
 import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,

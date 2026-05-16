@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -33,6 +34,12 @@ import { toResidentProfile } from '@/lib/compatibility/convert'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const unit = await prisma.housingUnit.findUnique({ where: { id }, select: { code: true } })
+  return { title: unit?.code ?? 'Unterkunft' }
+}
 
 export const dynamic = 'force-dynamic'
 
