@@ -14,6 +14,7 @@ import {
 } from '@/lib/constants'
 
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { PlacementCheckIn } from '@/components/placements/PlacementCheckIn'
 
 export const metadata: Metadata = { title: 'Platzierungen' }
@@ -109,7 +110,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       ? Math.ceil((Date.now() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
       : null
     const supportLevel = placement.resident.supportLevel || 'STANDARD'
-    const checkInIntervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+    const checkInIntervalDays = getCheckInInterval(supportLevel)
     const isOverdue = placement.status === 'ACTIVE' &&
       (daysSinceCheckIn === null
         ? Math.ceil((Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)) > checkInIntervalDays
@@ -272,7 +273,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
   // Check-in frequency based on support level (from resident)
   const supportLevel = placement.resident.supportLevel || 'STANDARD'
-  const checkInIntervalDays = supportLevel === 'INTENSIVE' ? 7 : supportLevel === 'ELEVATED' ? 14 : 28
+  const checkInIntervalDays = getCheckInInterval(supportLevel)
   const isCheckInOverdue = placement.status === 'ACTIVE' &&
     (daysSinceCheckIn === null ? daysSinceStart > checkInIntervalDays : daysSinceCheckIn > checkInIntervalDays)
 
