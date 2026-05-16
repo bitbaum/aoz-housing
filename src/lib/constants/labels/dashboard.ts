@@ -26,6 +26,8 @@ export const DASHBOARD_LABELS = {
   statCheckIns: 'Check-ins',
   statOverdueSuffix: 'überfällig',
   statCurrentSuffix: 'aktuell',
+  statNoneCurrent: 'keine aktuell',
+  statAllCurrent: 'alle aktuell',
   statHarmony: 'Harmonie',
   statDaysSuffix: 'Tage',
   statNoConflicts: 'ohne Konflikte',

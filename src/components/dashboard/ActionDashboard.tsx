@@ -125,7 +125,13 @@ export function ActionDashboard({
           href="/placements?status=active&overdue=1"
           color={overdueCheckIns.length === 0 ? 'green' : overdueCheckIns.length <= 3 ? 'yellow' : 'red'}
           icon={overdueCheckIns.length === 0 ? '✓' : '⏰'}
-          subtext={`${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`}
+          subtext={
+            onTimeCheckIns === 0
+              ? DASHBOARD_LABELS.statNoneCurrent
+              : onTimeCheckIns === totalPlacements
+              ? DASHBOARD_LABELS.statAllCurrent
+              : `${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`
+          }
         />
         <QuickStat
           label={DASHBOARD_LABELS.statHarmony}
