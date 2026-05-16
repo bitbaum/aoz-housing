@@ -13,11 +13,14 @@ import {
   getScoreLevel as getScoreLevelFromConfig,
   getOccupancyLevel,
   getHarmonyLevel,
+  getHealthLevel as getHealthLevelFromConfig,
   type ScoreLevel,
   type OccupancyLevel,
   type HarmonyLevel,
+  type HealthLevel,
   OCCUPANCY_COLORS,
 } from '@/lib/config/thresholds'
+import { SCORE_TOKENS, HARMONY_TOKENS, HEALTH_TOKENS } from '@/lib/config/ui-tokens'
 
 // =============================================================================
 // DATE FORMATTING
@@ -89,14 +92,7 @@ export function getScoreColorClass(score: number): string {
 }
 
 export function getScoreBgClass(score: number): string {
-  const classes: Record<ScoreLevel, string> = {
-    excellent: 'bg-green-100 text-green-800',
-    good: 'bg-emerald-100 text-emerald-800',
-    moderate: 'bg-yellow-100 text-yellow-800',
-    low: 'bg-orange-100 text-orange-800',
-    critical: 'bg-red-100 text-red-800',
-  }
-  return classes[getScoreLevel(score)]
+  return SCORE_TOKENS[getScoreLevel(score)].soft
 }
 
 export function getScoreBadgeClass(score: number): string {
@@ -120,14 +116,7 @@ export type HarmonyStatus = HarmonyLevel
 export const getHarmonyStatus = getHarmonyLevel
 
 export function getHarmonyColorClass(status: HarmonyStatus): string {
-  const classes: Record<HarmonyStatus, string> = {
-    excellent: 'bg-green-100 text-green-800',
-    good: 'bg-emerald-100 text-emerald-800',
-    moderate: 'bg-yellow-100 text-yellow-800',
-    concerning: 'bg-orange-100 text-orange-800',
-    critical: 'bg-red-100 text-red-800',
-  }
-  return classes[status]
+  return HARMONY_TOKENS[status]
 }
 
 // =============================================================================
@@ -207,23 +196,12 @@ export function getStatusBadgeClass(status: string): string {
 // HEALTH INDICATOR (System Health Dashboard)
 // =============================================================================
 
-export type HealthLevel = 'excellent' | 'good' | 'moderate' | 'critical'
-
-export function getHealthLevel(score: number): HealthLevel {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  if (score >= 40) return 'moderate'
-  return 'critical'
-}
+// HealthLevel and getHealthLevel live in thresholds.ts; re-exported for compat
+export type { HealthLevel }
+export const getHealthLevel = getHealthLevelFromConfig
 
 export function getHealthColorClass(score: number): string {
-  const classes: Record<HealthLevel, string> = {
-    excellent: 'text-green-600 bg-green-100',
-    good: 'text-yellow-600 bg-yellow-100',
-    moderate: 'text-orange-600 bg-orange-100',
-    critical: 'text-red-600 bg-red-100',
-  }
-  return classes[getHealthLevel(score)]
+  return HEALTH_TOKENS[getHealthLevel(score)]
 }
 
 // =============================================================================

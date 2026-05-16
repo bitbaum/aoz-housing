@@ -219,6 +219,21 @@ export const DISPLAY_LIMITS = {
 } as const
 
 // =============================================================================
+// HEALTH LEVEL (System Health Dashboard)
+// =============================================================================
+
+export type HealthLevel = 'excellent' | 'good' | 'moderate' | 'critical'
+
+const HEALTH_THRESHOLDS = { excellent: 80, good: 60, moderate: 40 } as const
+
+export function getHealthLevel(score: number): HealthLevel {
+  if (score >= HEALTH_THRESHOLDS.excellent) return 'excellent'
+  if (score >= HEALTH_THRESHOLDS.good) return 'good'
+  if (score >= HEALTH_THRESHOLDS.moderate) return 'moderate'
+  return 'critical'
+}
+
+// =============================================================================
 // DATABASE QUERY LIMITS
 // =============================================================================
 
