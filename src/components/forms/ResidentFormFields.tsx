@@ -15,6 +15,7 @@ import {
   getFactorsBySection,
 } from '@/lib/config/resident-factors'
 import { MEDICAL_DOC_TYPE_LABELS } from '@/lib/config/placement-spots'
+import { RESIDENT_FORM_LABELS } from '@/lib/constants'
 
 type FormValues = Record<string, FormFieldValue>
 
@@ -121,9 +122,9 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Medizinische Dokumentation</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{RESIDENT_FORM_LABELS.medDocTitle}</h2>
       <p className="text-sm text-gray-500 mb-4">
-        Berechtigung für Einzelzimmer oder Studio (erfordert ärztliche Bestätigung)
+        {RESIDENT_FORM_LABELS.medDocDesc}
       </p>
       <div className="space-y-4">
         <label className="flex items-center gap-3 cursor-pointer">
@@ -137,10 +138,10 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
           />
           <div>
             <span className="text-sm font-medium text-gray-700">
-              Medizinische Dokumentation vorhanden
+              {RESIDENT_FORM_LABELS.medDocCheckboxLabel}
             </span>
             <p className="text-xs text-gray-500">
-              Ärztliche Bestätigung für besondere Unterbringungsbedürfnisse
+              {RESIDENT_FORM_LABELS.medDocCheckboxDesc}
             </p>
           </div>
         </label>
@@ -148,7 +149,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
         {hasDoc && (
           <div className="pl-8 space-y-4 border-l-2 border-gray-200 ml-2">
             <div>
-              <label className="label">Art der Berechtigung</label>
+              <label className="label">{RESIDENT_FORM_LABELS.medDocTypeLabel}</label>
               <div className="space-y-2">
                 {Object.entries(MEDICAL_DOC_TYPE_LABELS).map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2 cursor-pointer">

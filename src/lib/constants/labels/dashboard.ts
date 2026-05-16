@@ -154,6 +154,7 @@ export const MISSION_KPI_LABELS = {
   trendImproving: 'Verbesserung',
   trendStable: 'Stabil',
   trendWorsening: 'Verschlechterung',
+  nudgeToLog: '→ Zeit in Vorfällen eintragen',
 } as const
 
 export const MAINTENANCE_CARD_LABELS = {

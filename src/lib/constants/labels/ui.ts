@@ -549,6 +549,14 @@ export const HOUSING_SPOTS_LABELS = {
   available: 'Frei',
 } as const
 
+export const RESIDENT_FORM_LABELS = {
+  medDocTitle: 'Medizinische Dokumentation',
+  medDocDesc: 'Berechtigung für Einzelzimmer oder Studio (erfordert ärztliche Bestätigung)',
+  medDocCheckboxLabel: 'Medizinische Dokumentation vorhanden',
+  medDocCheckboxDesc: 'Ärztliche Bestätigung für besondere Unterbringungsbedürfnisse',
+  medDocTypeLabel: 'Art der Berechtigung',
+} as const
+
 export const RESIDENT_DETAIL_LABELS = {
   breadcrumb: 'Bewohner',
   transferBtn: 'Verlegen',
@@ -716,6 +724,9 @@ export const PROBLEM_DETECTION_LABELS = {
   lowerNoiseTolerance: 'niedrigere',
   higherPrivacy: 'höheres',
   lowerPrivacy: 'niedrigeres',
+  scaleCleanliness: (direction: string) => `Deutlich ${direction} Sauberkeit als Durchschnitt`,
+  scaleNoise: (direction: string) => `Deutlich ${direction} Lärmtoleranz als Durchschnitt`,
+  scalePrivacy: (direction: string) => `Deutlich ${direction} Bedürfnis nach Privatsphäre`,
   onlyNightOwl: 'Einzige Nachteule unter Frühaufstehern/Normalen',
   onlyEarlyBird: 'Einziger Frühaufsteher unter Nachteulen/Normalen',
   onlyExtrovert: 'Einziger Extrovertierter unter Introvertierten/Moderaten',

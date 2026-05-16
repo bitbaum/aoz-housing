@@ -186,7 +186,7 @@ function KPICard({
       </p>
       {value === null && nudgeHref && (
         <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-aoz-primary hover:underline">
-          → Zeit in Vorfällen eintragen
+          {MISSION_KPI_LABELS.nudgeToLog}
         </Link>
       )}
 

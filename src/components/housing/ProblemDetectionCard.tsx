@@ -73,17 +73,17 @@ function detectProblems(
     // Check for scale outliers (more than 1.5 away from average)
     if (Math.abs(resident.cleanlinessLevel - avgCleanliness) > 1.5) {
       const direction = resident.cleanlinessLevel < avgCleanliness ? PROBLEM_DETECTION_LABELS.lowerCleanliness : PROBLEM_DETECTION_LABELS.higherCleanliness
-      residentIssues.push(`Deutlich ${direction} Sauberkeit als Durchschnitt`)
+      residentIssues.push(PROBLEM_DETECTION_LABELS.scaleCleanliness(direction))
     }
 
     if (Math.abs(resident.noiseTolerance - avgNoiseTolerance) > 1.5) {
       const direction = resident.noiseTolerance > avgNoiseTolerance ? PROBLEM_DETECTION_LABELS.higherNoiseTolerance : PROBLEM_DETECTION_LABELS.lowerNoiseTolerance
-      residentIssues.push(`Deutlich ${direction} Lärmtoleranz als Durchschnitt`)
+      residentIssues.push(PROBLEM_DETECTION_LABELS.scaleNoise(direction))
     }
 
     if (Math.abs(resident.privacyNeed - avgPrivacyNeed) > 1.5) {
       const direction = resident.privacyNeed > avgPrivacyNeed ? PROBLEM_DETECTION_LABELS.higherPrivacy : PROBLEM_DETECTION_LABELS.lowerPrivacy
-      residentIssues.push(`Deutlich ${direction} Bedürfnis nach Privatsphäre`)
+      residentIssues.push(PROBLEM_DETECTION_LABELS.scalePrivacy(direction))
     }
 
     // Check for categorical outliers
