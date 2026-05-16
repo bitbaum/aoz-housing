@@ -53,6 +53,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         resolvedAt: true,
         resolution: true,
         nextFollowUpDate: true,
+        mediationMinutes: true,
         housingUnit: {
           select: { code: true },
         },
@@ -224,6 +225,7 @@ interface IncidentRowData {
   resolvedAt: Date | string | null
   resolution: string | null
   nextFollowUpDate: Date | string | null
+  mediationMinutes: number | null
   housingUnit: { code: string }
   reportedBy: { code: string } | null
   subject: { code: string } | null
@@ -263,6 +265,11 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident._count?.followUps > 0 && (
                 <span className="text-xs text-gray-500">
                   {incident._count.followUps} Follow-ups
+                </span>
+              )}
+              {incident.category === 'INTERPERSONAL' && !incident.resolvedAt && !incident.mediationMinutes && (
+                <span className="text-xs px-2 py-0.5 bg-purple-50 text-purple-600 rounded border border-purple-200">
+                  ⏱ Mediationszeit fehlt
                 </span>
               )}
             </div>

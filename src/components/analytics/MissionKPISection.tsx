@@ -95,6 +95,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           targetPct={40}
           unit={MISSION_KPI_LABELS.hoursUnit}
           baselineValue={baseline?.pilotBaselineMediationHoursPerWeek ?? null}
+          nudgeHref="/incidents"
         />
         <KPICard
           label={MISSION_KPI_LABELS.avgPlacementTime}
@@ -152,6 +153,7 @@ function KPICard({
   targetLabel,
   unit,
   baselineValue,
+  nudgeHref,
 }: {
   label: string
   value: number | null
@@ -161,6 +163,7 @@ function KPICard({
   targetLabel?: string
   unit: string
   baselineValue: number | null
+  nudgeHref?: string
 }) {
   const hasBaseline = baselineValue !== null && baselineValue > 0
   const reductionPct = hasBaseline && value !== null ? pctChange(value, baselineValue!) : null
@@ -181,6 +184,11 @@ function KPICard({
         {value !== null ? value : '—'}
         {value !== null && unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
       </p>
+      {value === null && nudgeHref && (
+        <Link href={nudgeHref} className="text-xs text-aoz-primary hover:underline mt-0.5 inline-block">
+          → Zeit in Vorfällen eintragen
+        </Link>
+      )}
 
       {current !== null && (
         <p className="text-xs text-gray-500 mt-1">
