@@ -22,9 +22,9 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
   const occupancyPercent = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0
 
   const OCCUPANCY_TEXT_COLORS: Record<OccupancyLevel, string> = {
-    critical: 'text-red-600',
-    warning: 'text-yellow-600',
-    healthy: 'text-green-600',
+    critical: 'text-status-error',
+    warning: 'text-status-warning',
+    healthy: 'text-status-success',
   }
 
   const occupancyLevel = getOccupancyLevel(occupancyPercent)
@@ -61,19 +61,19 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           <StatusRow
             label={DASHBOARD_LABELS.occupancyAvailable}
             count={unitStatus.available}
-            color="bg-green-500"
+            color="bg-status-success"
             href="/housing?status=AVAILABLE"
           />
           <StatusRow
             label={DASHBOARD_LABELS.occupancyFull}
             count={unitStatus.full}
-            color="bg-yellow-500"
+            color="bg-status-warning"
             href="/housing?status=FULL"
           />
           <StatusRow
             label={DASHBOARD_LABELS.occupancyMaintenance}
             count={unitStatus.maintenance}
-            color="bg-orange-500"
+            color="bg-status-warning"
             href="/housing?status=MAINTENANCE"
           />
           {unitStatus.closed > 0 && (

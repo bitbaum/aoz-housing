@@ -192,9 +192,9 @@ function SpotCard({
     <div
       className={`flex items-center justify-between p-3 rounded-lg border ${
         isOccupied
-          ? 'bg-blue-50 border-blue-200'
+          ? 'bg-status-info/8 border-status-info/25'
           : isAvailable
-            ? 'bg-green-50 border-green-200'
+            ? 'bg-status-success/10 border-status-success/25'
             : 'bg-gray-50 border-gray-200'
       } ${compact ? 'py-2' : ''}`}
     >
@@ -209,7 +209,7 @@ function SpotCard({
             </span>
             {spot.requiresMedicalDocs && (
               <span
-                className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded"
+                className="text-xs px-1.5 py-0.5 bg-status-info/15 text-blue-700 rounded"
                 title={HOUSING_SPOTS_LABELS.requiresMedDocs}
               >
                 Med.
@@ -267,9 +267,9 @@ function OccupancyIndicator({
         <div
           className={`h-full rounded-full ${
             percentage === 100
-              ? 'bg-blue-500'
+              ? 'bg-aoz-primary'
               : percentage > 0
-                ? 'bg-green-500'
+                ? 'bg-status-success'
                 : 'bg-gray-300'
           }`}
           style={{ width: `${percentage}%` }}

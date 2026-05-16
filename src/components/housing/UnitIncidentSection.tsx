@@ -55,9 +55,9 @@ export function UnitIncidentSection({
 
       {/* Frequent Subjects Warning */}
       {frequentSubjects.length > 0 && (
-        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="mb-4 p-4 bg-status-warning/10 border border-status-warning/25 rounded-lg">
           <div className="flex items-start gap-2">
-            <span className="text-amber-600 text-lg" aria-hidden="true">!</span>
+            <span className="text-status-warning text-lg" aria-hidden="true">!</span>
             <div>
               <p className="text-sm font-medium text-amber-800">
                 {UNIT_INCIDENT_LABELS.frequentResidents}
@@ -67,10 +67,10 @@ export function UnitIncidentSection({
                   <Link
                     key={s.id}
                     href={`/residents/${s.id}`}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-800 rounded text-sm hover:bg-amber-200 transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-status-warning/15 text-amber-800 rounded text-sm hover:bg-status-warning/20 transition-colors"
                   >
                     <span className="font-medium">{s.code}</span>
-                    <span className="text-amber-600">({s.count}x)</span>
+                    <span className="text-amber-700">({s.count}x)</span>
                   </Link>
                 ))}
               </div>

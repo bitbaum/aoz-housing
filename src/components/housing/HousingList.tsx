@@ -107,8 +107,8 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
   }
   const statusInfo = statusConfig[unit.status] || statusConfig.AVAILABLE
 
-  const harmonyColor = recentConflicts === 0 ? 'bg-green-500' :
-                       recentConflicts <= 2 ? 'bg-yellow-500' : 'bg-red-500'
+  const harmonyColor = recentConflicts === 0 ? 'bg-status-success' :
+                       recentConflicts <= 2 ? 'bg-status-warning' : 'bg-status-error'
 
   return (
     <div className="card-hover relative">

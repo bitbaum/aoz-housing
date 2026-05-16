@@ -18,17 +18,17 @@ export interface ActionTileProps {
 
 export function ActionTile({ title, count, description, href, color, items, allHref }: ActionTileProps) {
   const colorStyles = {
-    orange: 'border-orange-200 hover:border-orange-300',
-    blue: 'border-blue-200 hover:border-blue-300',
-    red: 'border-red-200 hover:border-red-300',
-    green: 'border-green-200 hover:border-green-300',
+    orange: 'border-status-warning/30 hover:border-status-warning/50',
+    blue: 'border-status-info/30 hover:border-status-info/50',
+    red: 'border-status-error/30 hover:border-status-error/50',
+    green: 'border-status-success/30 hover:border-status-success/50',
   }
 
   const badgeStyles = {
-    orange: 'bg-orange-100 text-orange-700',
-    blue: 'bg-blue-100 text-blue-700',
-    red: 'bg-red-100 text-red-700',
-    green: 'bg-green-100 text-green-700',
+    orange: 'bg-status-warning/15 text-amber-700',
+    blue: 'bg-status-info/15 text-blue-700',
+    red: 'bg-status-error/15 text-red-700',
+    green: 'bg-status-success/15 text-green-700',
   }
 
   return (

@@ -92,8 +92,8 @@ export function PlacementCheckIn({
 
   // Overdue or no check-in — show emoji tapper
   return (
-    <div className={`px-3 py-2 rounded-lg ${isOverdue ? 'bg-orange-50' : ''}`}>
-      <p className={`text-xs mb-1 ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
+    <div className={`px-3 py-2 rounded-lg ${isOverdue ? 'bg-status-warning/10' : ''}`}>
+      <p className={`text-xs mb-1 ${isOverdue ? 'text-status-warning font-medium' : 'text-gray-500'}`}>
         {isOverdue ? PLACEMENT_LIST_LABELS.checkInOverdue : 'Check-in'}
       </p>
       <div className={`flex gap-1 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>

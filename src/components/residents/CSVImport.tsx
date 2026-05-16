@@ -87,7 +87,7 @@ export function CSVImport() {
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-md bg-status-error/8 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
@@ -131,7 +131,7 @@ export function CSVImport() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="min-h-[44px] rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="min-h-[44px] rounded-md bg-aoz-primary px-4 py-2 text-sm font-medium text-white hover:bg-aoz-primary-dark disabled:opacity-50"
           >
             {loading ? EXPORT_LABELS.importing : EXPORT_LABELS.importButton}
           </button>

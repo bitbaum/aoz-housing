@@ -133,9 +133,9 @@ export function TechnicalTab() {
           {TECHNICAL_TAB_LABELS.blockingDescPrefix} <strong>{TECHNICAL_TAB_LABELS.blockingDescBold}</strong>:
         </p>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-3">
+        <div className="bg-status-error/8 border border-status-error/25 rounded-lg p-4 space-y-3">
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
               <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.hardRequirementsLabel}</span>{' '}
               <span className="text-red-800">
@@ -144,7 +144,7 @@ export function TechnicalTab() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
               <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.extremeDifferencesLabel}</span>{' '}
               <span className="text-red-800">
@@ -153,7 +153,7 @@ export function TechnicalTab() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
               <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.incompatibleBehaviorLabel}</span>{' '}
               <span className="text-red-800">
@@ -181,8 +181,8 @@ export function TechnicalTab() {
             if (!factor) return null
             const config = EVIDENCE_STRENGTH_CONFIG[science.evidenceStrength]
             const colorClasses: Record<string, string> = {
-              green: 'border-green-300 bg-green-50',
-              yellow: 'border-yellow-300 bg-yellow-50',
+              green: 'border-status-success/30 bg-status-success/8',
+              yellow: 'border-status-warning/30 bg-status-warning/8',
               gray: 'border-gray-300 bg-gray-50',
             }
             return (

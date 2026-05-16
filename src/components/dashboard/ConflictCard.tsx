@@ -28,10 +28,10 @@ export function ConflictCard({
   const hasHotspots = hotspotUnits.length > 0
 
   const getConflictColor = (count: number): string => {
-    if (count === 0) return 'text-green-600'
-    if (count <= 2) return 'text-yellow-600'
-    if (count <= 5) return 'text-orange-600'
-    return 'text-red-600'
+    if (count === 0) return 'text-status-success'
+    if (count <= 2) return 'text-status-warning'
+    if (count <= 5) return 'text-status-warning'
+    return 'text-status-error'
   }
 
   return (
@@ -68,7 +68,7 @@ export function ConflictCard({
                   <span className="font-medium text-gray-900 text-sm">{unit.code}</span>
                   <span className="text-gray-500 text-sm ml-2">{unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}</span>
                 </div>
-                <span className="text-sm text-orange-600 font-medium">
+                <span className="text-sm text-status-warning font-medium">
                   {ALGORITHM_ACCURACY_LABELS.conflictCardConflictCount(unit.conflicts)}
                 </span>
               </Link>
@@ -81,7 +81,7 @@ export function ConflictCard({
       <div className="border-t border-gray-100 pt-4 mt-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">{ALGORITHM_ACCURACY_LABELS.conflictCardLast7Days}</span>
-          <span className={recentConflicts === 0 ? 'text-green-600' : 'text-gray-900'}>
+          <span className={recentConflicts === 0 ? 'text-status-success' : 'text-gray-900'}>
             {recentConflicts === 0 ? ALGORITHM_ACCURACY_LABELS.conflictCardNoneNew : ALGORITHM_ACCURACY_LABELS.conflictCardNewCount(recentConflicts)}
           </span>
         </div>
@@ -90,7 +90,7 @@ export function ConflictCard({
       {/* All empty state */}
       {!hasConflicts && (
         <div className="py-4 text-center">
-          <span className="text-green-600 text-2xl block mb-2">✓</span>
+          <span className="text-status-success text-2xl block mb-2">✓</span>
           <p className="text-green-700 text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}</p>
         </div>
       )}

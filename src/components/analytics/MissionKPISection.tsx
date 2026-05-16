@@ -16,9 +16,9 @@ interface Props {
 }
 
 const TREND_STYLES = {
-  improving: { bg: 'bg-emerald-50', text: 'text-emerald-700', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
-  stable: { bg: 'bg-blue-50', text: 'text-blue-700', icon: '→', label: MISSION_KPI_LABELS.trendStable },
-  worsening: { bg: 'bg-red-50', text: 'text-red-700', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
+  improving: { bg: 'bg-status-success/10', text: 'text-green-700', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
+  stable: { bg: 'bg-status-info/8', text: 'text-blue-700', icon: '→', label: MISSION_KPI_LABELS.trendStable },
+  worsening: { bg: 'bg-status-error/8', text: 'text-red-700', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
 }
 
 function pctChange(current: number, baseline: number): number {
@@ -56,7 +56,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
 
       {/* No-baseline nudge */}
       {!hasBaseline && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-100 px-3 py-2 text-sm text-amber-700">
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-status-warning/10 border border-status-warning/25 px-3 py-2 text-sm text-amber-700">
           <span aria-hidden="true">ℹ</span>
           <span>
             {PILOT_BASELINE_LABELS.noBaselineHint}{' '}
@@ -119,22 +119,22 @@ export function MissionKPISection({ kpis, baseline }: Props) {
         <MiniChart
           label={MISSION_KPI_LABELS.conflictsMonthlyChart}
           data={kpis.incidentsPerMonth}
-          color="text-orange-500"
-          barColor="bg-orange-400"
+          color="text-status-warning"
+          barColor="bg-status-warning"
           baseline={baseline?.pilotBaselineIncidentsPerMonth ?? null}
         />
         <MiniChart
           label={MISSION_KPI_LABELS.relocationsMonthlyChart}
           data={kpis.conflictRelocationsPerMonth}
-          color="text-red-500"
-          barColor="bg-red-400"
+          color="text-status-error"
+          barColor="bg-status-error"
           baseline={baseline?.pilotBaselineRelocationsPerMonth ?? null}
         />
         <MiniChart
           label={MISSION_KPI_LABELS.mediationMonthlyChart}
           data={kpis.mediationMinutesPerMonth}
-          color="text-purple-500"
-          barColor="bg-purple-400"
+          color="text-aoz-secondary"
+          barColor="bg-aoz-secondary"
           baseline={baseline?.pilotBaselineMediationHoursPerWeek !== null && baseline?.pilotBaselineMediationHoursPerWeek !== undefined
             ? Math.round(baseline.pilotBaselineMediationHoursPerWeek * 4.33 * 10) / 10
             : null}
@@ -209,7 +209,7 @@ function KPICard({
           {progressPct !== null && (
             <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${isAchieved ? 'bg-emerald-500' : 'bg-aoz-primary'}`}
+                className={`h-full rounded-full transition-all ${isAchieved ? 'bg-status-success' : 'bg-aoz-primary'}`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>

@@ -146,9 +146,9 @@ function ResidentRow({
   const bgColor = hasBlockingConcerns
     ? 'bg-gray-50'
     : concerns.length > 0
-      ? 'bg-orange-50'
+      ? 'bg-status-warning/10'
       : fitScore >= 70
-        ? 'bg-green-50'
+        ? 'bg-status-success/8'
         : 'bg-gray-50'
 
   return (
@@ -193,7 +193,7 @@ function ResidentRow({
                 fitScore >= 70
                   ? ''
                   : fitScore >= 50
-                    ? 'bg-orange-500 hover:bg-orange-600'
+                    ? 'bg-status-warning hover:bg-status-warning/90'
                     : 'bg-gray-500 hover:bg-gray-600'
               } disabled:opacity-50`}
             >

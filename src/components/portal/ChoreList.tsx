@@ -114,7 +114,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
       ) : (
         <div className="space-y-3">
           {urgentActionTasks.length > 0 && (
-            <div className="p-3 rounded-lg border border-amber-200 bg-amber-50">
+            <div className="p-3 rounded-lg border border-status-warning/30 bg-status-warning/10">
               <p className="text-sm font-medium text-amber-900">{CHORE_LABELS.sections.urgentNow}</p>
               <p className="text-xs text-amber-700">{CHORE_LABELS.sections.urgentDesc}</p>
             </div>

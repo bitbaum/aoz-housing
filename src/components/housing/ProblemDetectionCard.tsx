@@ -144,12 +144,12 @@ export function ProblemDetectionCard({
 
   if (problems.length === 0) {
     return (
-      <div className="card border-green-200 bg-green-50">
+      <div className="card border-status-success/30 bg-status-success/10">
         <div className="flex items-center gap-3">
           <span className="text-2xl">✓</span>
           <div>
             <h2 className="text-lg font-semibold text-green-800">{PROBLEM_DETECTION_LABELS.noProblems}</h2>
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-700">
               {PROBLEM_DETECTION_LABELS.noProblemsDesc}
             </p>
           </div>
@@ -159,7 +159,7 @@ export function ProblemDetectionCard({
   }
 
   return (
-    <div className="card border-orange-200">
+    <div className="card border-status-warning/30">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">⚠️</span>
@@ -197,9 +197,9 @@ interface ProblemResidentRowProps {
 function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps) {
   const { resident, avgCompatibility, issues, severity } = problem
 
-  const borderColor = severity === 'critical' ? 'border-red-200' : 'border-orange-200'
-  const bgColor = severity === 'critical' ? 'bg-red-50' : 'bg-orange-50'
-  const iconColor = severity === 'critical' ? 'text-red-500' : 'text-orange-500'
+  const borderColor = severity === 'critical' ? 'border-status-error/25' : 'border-status-warning/25'
+  const bgColor = severity === 'critical' ? 'bg-status-error/8' : 'bg-status-warning/10'
+  const iconColor = severity === 'critical' ? 'text-status-error' : 'text-status-warning'
 
   return (
     <div className={`p-4 rounded-lg border ${borderColor} ${bgColor}`}>
@@ -245,7 +245,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
           <Link
             href={`/matching?resident=${resident.id}&transfer=1`}
             className={`btn-primary text-sm px-3 py-1.5 whitespace-nowrap ${
-              severity === 'critical' ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-500 hover:bg-orange-600'
+              severity === 'critical' ? 'bg-status-error hover:bg-status-error/90' : 'bg-status-warning hover:bg-status-warning/90'
             }`}
           >
             {PROBLEM_DETECTION_LABELS.relocate}

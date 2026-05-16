@@ -26,9 +26,9 @@ function getBedStatus(spot: HousingSpot): BedStatus {
 function getBedColorClasses(status: BedStatus, isClickable: boolean): string {
   switch (status) {
     case 'occupied':
-      return `bg-rose-100 border-rose-300 text-rose-700 ${isClickable ? 'hover:bg-rose-200 hover:border-rose-400 cursor-pointer' : ''}`
+      return `bg-aoz-primary/10 border-aoz-primary/30 text-aoz-primary ${isClickable ? 'hover:bg-aoz-primary/15 hover:border-aoz-primary/50 cursor-pointer' : ''}`
     case 'available':
-      return 'bg-emerald-100 border-emerald-300 text-emerald-700 hover:bg-emerald-200 cursor-pointer'
+      return 'bg-status-success/15 border-status-success/40 text-green-700 hover:bg-status-success/20 cursor-pointer'
     case 'unavailable':
       return 'bg-gray-100 border-gray-300 text-gray-400'
   }
@@ -206,9 +206,9 @@ export function BedGridSummary({
               key={i}
               className={`${dotSize} rounded-sm ${
                 status === 'occupied'
-                  ? 'bg-rose-400'
+                  ? 'bg-aoz-primary'
                   : status === 'available'
-                    ? 'bg-emerald-400'
+                    ? 'bg-status-success'
                     : 'bg-gray-300'
               }`}
             />

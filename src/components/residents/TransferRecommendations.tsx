@@ -98,7 +98,7 @@ export function TransferRecommendations({
 
   if (rankedUnits.length === 0) {
     return (
-      <div className="text-sm text-orange-600 p-3 bg-orange-50 rounded-lg border border-orange-200">
+      <div className="text-sm text-amber-700 p-3 bg-status-warning/10 rounded-lg border border-status-warning/25">
         {TRANSFER_RECOMMENDATIONS_LABELS.noUnitsAvailable}
       </div>
     )

@@ -32,7 +32,7 @@ export function DashboardMetrics({
       <Link href="/residents" className="card-hover">
         <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statResidents}</p>
         <p className="text-3xl font-bold text-gray-900 mt-1">{totalResidents}</p>
-        <p className={`text-sm mt-2 ${unplacedCount > 0 ? 'text-orange-600' : 'text-gray-500'}`}>
+        <p className={`text-sm mt-2 ${unplacedCount > 0 ? 'text-status-warning' : 'text-gray-500'}`}>
           {unplacedCount > 0 ? ALGORITHM_ACCURACY_LABELS.statWaitingForPlacement(unplacedCount) : ALGORITHM_ACCURACY_LABELS.statAllPlaced}
         </p>
       </Link>
@@ -40,7 +40,7 @@ export function DashboardMetrics({
       {/* Free beds - actionable number */}
       <Link href="/housing" className="card-hover">
         <p className="text-sm text-gray-500">Freie Plätze</p>
-        <p className={`text-3xl font-bold mt-1 ${freeBeds >= 5 ? 'text-green-600' : freeBeds >= 2 ? 'text-yellow-600' : 'text-red-600'}`}>
+        <p className={`text-3xl font-bold mt-1 ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}>
           {freeBeds}
         </p>
         <p className="text-sm mt-2 text-gray-500">
@@ -51,7 +51,7 @@ export function DashboardMetrics({
       {/* Overdue Check-ins - actionable! */}
       <Link href="/placements?status=active&overdue=1" className="card-hover">
         <p className="text-sm text-gray-500">Check-ins überfällig</p>
-        <p className={`text-3xl font-bold mt-1 ${overdueCheckIns === 0 ? 'text-green-600' : overdueCheckIns <= 3 ? 'text-yellow-600' : 'text-orange-600'}`}>
+        <p className={`text-3xl font-bold mt-1 ${overdueCheckIns === 0 ? 'text-status-success' : overdueCheckIns <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
           {overdueCheckIns}
         </p>
         <p className="text-sm mt-2 text-gray-500">
@@ -62,7 +62,7 @@ export function DashboardMetrics({
       {/* Open incidents */}
       <Link href="/incidents" className="card-hover">
         <p className="text-sm text-gray-500">{ALGORITHM_ACCURACY_LABELS.statOpenIncidents}</p>
-        <p className={`text-3xl font-bold mt-1 ${openIncidents === 0 ? 'text-green-600' : openIncidents <= 5 ? 'text-yellow-600' : 'text-red-600'}`}>
+        <p className={`text-3xl font-bold mt-1 ${openIncidents === 0 ? 'text-status-success' : openIncidents <= 5 ? 'text-status-warning' : 'text-status-error'}`}>
           {openIncidents}
         </p>
         <p className="text-sm mt-2 text-gray-500">

@@ -40,7 +40,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
             key={placement.id}
             className={`flex items-center justify-between p-3 rounded-lg ${
               placement.status === 'TRANSFERRED'
-                ? 'bg-blue-50 border-l-4 border-blue-400'
+                ? 'bg-status-info/8 border-l-4 border-status-info'
                 : 'bg-gray-50'
             }`}
           >
@@ -71,7 +71,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
             </div>
             <div className="text-right">
               {placement.status === 'TRANSFERRED' ? (
-                <span className="badge bg-blue-100 text-blue-800">
+                <span className="badge bg-status-info/15 text-blue-800">
                   {PLACEMENT_HISTORY_LABELS.transferred}
                 </span>
               ) : placement.endReason ? (

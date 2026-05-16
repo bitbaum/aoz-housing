@@ -68,7 +68,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   // Show thank you message if just submitted
   if (submitted) {
     return (
-      <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+      <div className="card bg-status-success/10 border-status-success/25">
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
           <h2 className="text-xl font-semibold text-green-800 mb-2">
@@ -78,7 +78,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             {PORTAL_LABELS.satisfaction.thankYouMessage}
           </p>
           {rating && rating <= 2 && concerns && (
-            <p className="text-sm text-green-600 mt-3">
+            <p className="text-sm text-status-success mt-3">
               {PORTAL_LABELS.satisfaction.concernsForwarded}
             </p>
           )}
@@ -131,7 +131,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm text-center" role="alert" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-error/8 text-red-700 rounded-lg text-sm text-center" role="alert" aria-live="polite">
           {error}
         </div>
       )}

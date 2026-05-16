@@ -41,7 +41,7 @@ export function TransferForm({
   return (
     <form
       action={transferPlacement}
-      className="mt-4 p-4 bg-blue-50 rounded-lg space-y-4 border border-blue-200"
+      className="mt-4 p-4 bg-status-info/8 rounded-lg space-y-4 border border-status-info/25"
     >
       <div className="flex items-center justify-between mb-2">
         <h4 className="font-medium text-blue-900">{PLACEMENT_ACTIONS_LABELS.transferTitle}</h4>
@@ -57,7 +57,7 @@ export function TransferForm({
       <input type="hidden" name="residentId" value={residentId} />
 
       {eligibleUnits.length === 0 && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
+        <div className="p-3 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-amber-800">
           {PLACEMENT_ACTIONS_LABELS.noEligibleUnits}
         </div>
       )}

@@ -214,7 +214,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
                 {metrics.languages.map(({ code, count }) => (
                   <span
                     key={code}
-                    className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded"
+                    className="px-2 py-0.5 bg-status-info/15 text-blue-700 text-xs rounded"
                   >
                     {getLabel(LANGUAGE_LABELS, code)} ({count})
                   </span>
@@ -225,7 +225,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
 
           {/* Smoking Warning */}
           {!hasNonSmokers && (
-            <div className="mt-4 p-2 bg-orange-50 border border-orange-200 rounded text-sm text-orange-700">
+            <div className="mt-4 p-2 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-amber-700">
               ⚠️ {APARTMENT_PROFILE_LABELS.smokerWarning}{Object.entries(metrics.smokingStatuses)
                 .filter(([k]) => k !== 'NON_SMOKER')
                 .map(([k, v]) => `${v}x ${getLabel(SMOKING_STATUS_LABELS, k)}`)
@@ -280,7 +280,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
           return (
             <div
               key={i}
-              className={`absolute top-0 w-1 h-2 ${isOutlier ? 'bg-orange-500' : 'bg-aoz-primary-dark'} rounded-full`}
+              className={`absolute top-0 w-1 h-2 ${isOutlier ? 'bg-status-warning' : 'bg-aoz-primary-dark'} rounded-full`}
               style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
               title={`${v.code}: ${v.value}`}
             />

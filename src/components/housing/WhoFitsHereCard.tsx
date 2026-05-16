@@ -58,9 +58,9 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                 key={match.resident.id}
                 className={`flex items-center justify-between p-3 rounded-lg border ${
                   match.concerns.length > 0
-                    ? 'border-orange-200 bg-orange-50'
+                    ? 'border-status-warning/25 bg-status-warning/10'
                     : isGoodFit
-                    ? 'border-green-200 bg-green-50'
+                    ? 'border-status-success/25 bg-status-success/10'
                     : 'border-gray-200 bg-gray-50'
                 }`}
               >

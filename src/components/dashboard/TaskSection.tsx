@@ -60,7 +60,7 @@ export function TaskSection({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">{DASHBOARD_LABELS.sectionTasks}</h2>
         {allClear && (
-          <span className="text-sm text-green-600 font-medium">{DASHBOARD_LABELS.allClearAllDone}</span>
+          <span className="text-sm text-status-success font-medium">{DASHBOARD_LABELS.allClearAllDone}</span>
         )}
       </div>
 
@@ -177,15 +177,15 @@ interface TaskCategoryProps {
 
 function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProps) {
   const variantStyles = {
-    critical: 'border-red-200 bg-red-50',
-    warning: 'border-orange-200 bg-orange-50',
-    info: 'border-yellow-200 bg-yellow-50',
+    critical: 'border-status-error/25 bg-status-error/8',
+    warning: 'border-status-warning/25 bg-status-warning/10',
+    info: 'border-status-warning/20 bg-status-warning/8',
   }
 
   const textStyles = {
     critical: 'text-red-800',
-    warning: 'text-orange-800',
-    info: 'text-yellow-800',
+    warning: 'text-amber-800',
+    info: 'text-amber-800',
   }
 
   return (
@@ -211,8 +211,8 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
 
 function CompletedCategory({ icon, title }: { icon: string; title: string }) {
   return (
-    <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-green-50 border border-green-200">
-      <span className="text-green-600">✓</span>
+    <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-status-success/10 border border-status-success/25">
+      <span className="text-status-success">✓</span>
       <span className="text-lg opacity-50">{icon}</span>
       <span className="text-green-700">{title}</span>
     </div>

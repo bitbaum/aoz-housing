@@ -98,10 +98,10 @@ export function OverviewTab() {
           {RESIDENT_DIMENSIONS.map((dim, i) => {
             const pct = Math.round(dim.weight * 100)
             const barColors = [
-              'bg-purple-500',
-              'bg-blue-500',
-              'bg-green-500',
-              'bg-orange-500',
+              'bg-aoz-secondary',
+              'bg-status-info',
+              'bg-status-success',
+              'bg-status-warning',
             ]
             return (
               <div key={dim.id} className="flex items-center gap-3">

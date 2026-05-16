@@ -177,23 +177,23 @@ export function CompatibilityMatrixInteractive({
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-500">
         <span className="font-medium">{COMPATIBILITY_MATRIX_LABELS.legend}</span>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded bg-green-100"></span>
+          <span className="w-4 h-4 rounded bg-score-excellent/15"></span>
           <span>{COMPATIBILITY_MATRIX_LABELS.legendExcellent}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded bg-emerald-100"></span>
+          <span className="w-4 h-4 rounded bg-score-good/15"></span>
           <span>{COMPATIBILITY_MATRIX_LABELS.legendGood}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded bg-yellow-100"></span>
+          <span className="w-4 h-4 rounded bg-score-medium/15"></span>
           <span>{COMPATIBILITY_MATRIX_LABELS.legendMedium}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded bg-orange-100"></span>
+          <span className="w-4 h-4 rounded bg-score-low/15"></span>
           <span>{COMPATIBILITY_MATRIX_LABELS.legendLow}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="w-4 h-4 rounded bg-red-100"></span>
+          <span className="w-4 h-4 rounded bg-score-critical/15"></span>
           <span>{COMPATIBILITY_MATRIX_LABELS.legendCritical}</span>
         </div>
       </div>

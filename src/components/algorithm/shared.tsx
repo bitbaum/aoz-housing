@@ -65,8 +65,8 @@ export function formatDate(isoDate: string): string {
 export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength }) {
   const config = EVIDENCE_STRENGTH_CONFIG[strength]
   const colorClasses: Record<string, string> = {
-    green: 'bg-green-100 text-green-800',
-    yellow: 'bg-yellow-100 text-yellow-800',
+    green: 'bg-status-success/15 text-green-800',
+    yellow: 'bg-status-warning/15 text-amber-800',
     gray: 'bg-gray-100 text-gray-600',
   }
   return (
@@ -83,8 +83,8 @@ export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }
     preliminary: 'w-1/3',
   }
   const barColors: Record<EvidenceStrength, string> = {
-    strong: 'bg-green-500',
-    moderate: 'bg-yellow-500',
+    strong: 'bg-status-success',
+    moderate: 'bg-status-warning',
     preliminary: 'bg-gray-400',
   }
   return (
@@ -145,10 +145,10 @@ export function DimensionCard({
   factorCount: number
 }) {
   const colorClasses = {
-    purple: 'bg-purple-50 border-purple-200 text-purple-700',
-    blue: 'bg-blue-50 border-blue-200 text-blue-700',
-    green: 'bg-green-50 border-green-200 text-green-700',
-    orange: 'bg-orange-50 border-orange-200 text-orange-700',
+    purple: 'bg-aoz-secondary/8 border-aoz-secondary/25 text-aoz-secondary',
+    blue: 'bg-status-info/8 border-status-info/25 text-blue-700',
+    green: 'bg-status-success/10 border-status-success/25 text-green-700',
+    orange: 'bg-status-warning/10 border-status-warning/25 text-amber-700',
   }
 
   return (
@@ -175,19 +175,19 @@ export function ScoreLevel({
   action: string
 }) {
   const colorClasses = {
-    green: 'bg-green-500',
-    emerald: 'bg-emerald-500',
-    yellow: 'bg-yellow-500',
-    orange: 'bg-orange-500',
-    red: 'bg-red-500',
+    green: 'bg-score-excellent',
+    emerald: 'bg-score-good',
+    yellow: 'bg-score-medium',
+    orange: 'bg-score-low',
+    red: 'bg-score-critical',
   }
 
   const bgClasses = {
-    green: 'bg-green-50 border-green-200',
-    emerald: 'bg-emerald-50 border-emerald-200',
-    yellow: 'bg-yellow-50 border-yellow-200',
-    orange: 'bg-orange-50 border-orange-200',
-    red: 'bg-red-50 border-red-200',
+    green: 'bg-score-excellent/8 border-score-excellent/25',
+    emerald: 'bg-score-good/8 border-score-good/25',
+    yellow: 'bg-score-medium/8 border-score-medium/25',
+    orange: 'bg-score-low/8 border-score-low/25',
+    red: 'bg-score-critical/8 border-score-critical/25',
   }
 
   return (

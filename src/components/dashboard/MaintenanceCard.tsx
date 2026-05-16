@@ -18,10 +18,10 @@ export function MaintenanceCard({
   const hasUrgent = urgentTickets > 0
 
   const getTicketColor = (count: number): string => {
-    if (count === 0) return 'text-green-600'
-    if (count <= 3) return 'text-yellow-600'
-    if (count <= 7) return 'text-orange-600'
-    return 'text-red-600'
+    if (count === 0) return 'text-status-success'
+    if (count <= 3) return 'text-status-warning'
+    if (count <= 7) return 'text-status-warning'
+    return 'text-status-error'
   }
 
   return (
@@ -49,21 +49,21 @@ export function MaintenanceCard({
           {hasUrgent && (
             <Link
               href="/maintenance?priority=URGENT"
-              className="flex items-center justify-between py-2 px-3 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors mb-4"
+              className="flex items-center justify-between py-2 px-3 bg-status-error/8 border border-status-error/25 rounded-lg hover:bg-status-error/12 transition-colors mb-4"
             >
               <div className="flex items-center gap-2">
-                <span className="text-red-600">🔥</span>
+                <span className="text-status-error">🔥</span>
                 <span className="text-red-800 text-sm font-medium">
                   {urgentTickets} dringend
                 </span>
               </div>
-              <span className="text-red-600">→</span>
+              <span className="text-status-error">→</span>
             </Link>
           )}
         </>
       ) : (
         <div className="py-6 text-center">
-          <span className="text-green-600 text-2xl block mb-2">✓</span>
+          <span className="text-status-success text-2xl block mb-2">✓</span>
           <p className="text-green-700 text-sm font-medium">Alles erledigt</p>
         </div>
       )}

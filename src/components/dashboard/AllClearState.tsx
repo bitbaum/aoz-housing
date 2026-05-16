@@ -7,10 +7,10 @@ import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 export function AllClearState({ freeBeds, conflictFreeDays }: { freeBeds: number; conflictFreeDays: number }) {
   return (
-    <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 text-center py-12">
+    <div className="card bg-status-success/10 border-status-success/25 text-center py-12">
       <div className="text-6xl mb-4">🎉</div>
       <h2 className="text-2xl font-bold text-green-800 mb-2">{DASHBOARD_LABELS.allClearTitle}</h2>
-      <p className="text-green-600 mb-6">
+      <p className="text-green-700 mb-6">
         {conflictFreeDays > 0 && `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
         {freeBeds > 0 ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}` : DASHBOARD_LABELS.allClearAllOccupied}
       </p>
@@ -89,7 +89,7 @@ function QuickActionButton({
       <span>{icon}</span>
       <span>{label}</span>
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute -top-1.5 -right-1.5 bg-status-error text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
           {badge}
         </span>
       )}

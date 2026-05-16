@@ -18,11 +18,11 @@ interface QuickCheckInProps {
 }
 
 const SATISFACTION_OPTIONS = [
-  { value: 1, emoji: '😢', label: QUICK_CHECKIN_LABELS.satisfactionLabels[1], color: 'border-red-300 hover:border-red-400 peer-checked:border-red-500 peer-checked:bg-red-50' },
-  { value: 2, emoji: '😕', label: QUICK_CHECKIN_LABELS.satisfactionLabels[2], color: 'border-orange-300 hover:border-orange-400 peer-checked:border-orange-500 peer-checked:bg-orange-50' },
-  { value: 3, emoji: '😐', label: QUICK_CHECKIN_LABELS.satisfactionLabels[3], color: 'border-yellow-300 hover:border-yellow-400 peer-checked:border-yellow-500 peer-checked:bg-yellow-50' },
-  { value: 4, emoji: '🙂', label: QUICK_CHECKIN_LABELS.satisfactionLabels[4], color: 'border-emerald-300 hover:border-emerald-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-50' },
-  { value: 5, emoji: '😊', label: QUICK_CHECKIN_LABELS.satisfactionLabels[5], color: 'border-green-300 hover:border-green-400 peer-checked:border-green-500 peer-checked:bg-green-50' },
+  { value: 1, emoji: '😢', label: QUICK_CHECKIN_LABELS.satisfactionLabels[1], color: 'border-score-critical/50 hover:border-score-critical/70 peer-checked:border-score-critical peer-checked:bg-score-critical/8' },
+  { value: 2, emoji: '😕', label: QUICK_CHECKIN_LABELS.satisfactionLabels[2], color: 'border-score-low/50 hover:border-score-low/70 peer-checked:border-score-low peer-checked:bg-score-low/8' },
+  { value: 3, emoji: '😐', label: QUICK_CHECKIN_LABELS.satisfactionLabels[3], color: 'border-score-medium/50 hover:border-score-medium/70 peer-checked:border-score-medium peer-checked:bg-score-medium/8' },
+  { value: 4, emoji: '🙂', label: QUICK_CHECKIN_LABELS.satisfactionLabels[4], color: 'border-score-good/50 hover:border-score-good/70 peer-checked:border-score-good peer-checked:bg-score-good/8' },
+  { value: 5, emoji: '😊', label: QUICK_CHECKIN_LABELS.satisfactionLabels[5], color: 'border-score-excellent/50 hover:border-score-excellent/70 peer-checked:border-score-excellent peer-checked:bg-score-excellent/8' },
 ]
 
 const ROOMMATE_OPTIONS = [1, 2, 3, 4, 5].map((v) => ({
@@ -113,7 +113,7 @@ export function QuickCheckIn({
   // Success state
   if (savedSuccess) {
     return (
-      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+      <div className="p-3 bg-status-success/10 border border-status-success/25 rounded-lg">
         <div className="flex items-center gap-2 text-green-700">
           <span className="text-lg">✓</span>
           <span className="font-medium">{QUICK_CHECKIN_LABELS.successSaved}</span>
@@ -197,7 +197,7 @@ export function QuickCheckIn({
                   className={`
                     flex-1 py-2 px-1 text-xs rounded border transition-all
                     ${roommateRelations === option.value
-                      ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium'
+                      ? 'border-aoz-secondary bg-aoz-secondary/8 text-aoz-secondary font-medium'
                       : 'border-gray-200 hover:border-gray-300 text-gray-600'
                     }
                     ${isPending ? 'opacity-50' : ''}

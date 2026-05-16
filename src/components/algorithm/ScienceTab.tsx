@@ -189,7 +189,7 @@ export function ScienceTab() {
 
                         {/* Swiss context */}
                         {science.swissContext && (
-                          <p className="text-xs text-aoz-primary mt-3 flex items-start gap-1.5 bg-green-50 rounded px-2 py-1.5">
+                          <p className="text-xs text-aoz-primary mt-3 flex items-start gap-1.5 bg-status-success/10 rounded px-2 py-1.5">
                             <span className="flex-shrink-0">🇨🇭</span>
                             <span>{science.swissContext}</span>
                           </p>

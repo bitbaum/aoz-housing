@@ -76,7 +76,7 @@ export function IncidentSidebar({ incident }: Props) {
           {incident.subject && (
             <Link
               href={`/residents/${incident.subjectId}`}
-              className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg hover:bg-amber-100"
+              className="flex items-center gap-3 p-3 bg-status-warning/10 rounded-lg hover:bg-status-warning/15"
             >
               <span className="text-lg">👤</span>
               <div>
@@ -124,7 +124,7 @@ export function IncidentSidebar({ incident }: Props) {
           </h2>
           <form id="incident-resolve-form" action={resolveIncident} className="space-y-4">
             <input type="hidden" name="incidentId" value={incident.id} />
-            <div id="incident-resolve-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+            <div id="incident-resolve-validation-summary" className="hidden p-3 rounded border border-status-error/30 bg-status-error/8 text-red-800 text-sm" role="alert" />
             <FormValidationUX formId="incident-resolve-form" summaryId="incident-resolve-validation-summary" />
             <div>
               <label className="label">{INCIDENT_SIDEBAR_LABELS.resolution}</label>

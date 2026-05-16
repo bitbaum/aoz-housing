@@ -85,7 +85,7 @@ export function PlacementActions({
         <button
           type="button"
           className={`btn-outline inline-flex items-center gap-2 ${
-            showTransfer ? 'ring-2 ring-blue-300 bg-blue-50' : ''
+            showTransfer ? 'ring-2 ring-aoz-secondary/40 bg-aoz-secondary/8' : ''
           }`}
           onClick={() => {
             setShowTransfer(!showTransfer)
@@ -99,8 +99,8 @@ export function PlacementActions({
           type="button"
           className={`btn-outline inline-flex items-center gap-2 ${
             showEnd
-              ? 'ring-2 ring-red-300 bg-red-50 text-red-600'
-              : 'text-gray-500 hover:text-red-600 hover:border-red-300'
+              ? 'ring-2 ring-status-error/40 bg-status-error/8 text-status-error'
+              : 'text-gray-500 hover:text-status-error hover:border-status-error/40'
           }`}
           onClick={() => {
             setShowEnd(!showEnd)

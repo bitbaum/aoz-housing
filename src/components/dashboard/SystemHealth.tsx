@@ -31,7 +31,7 @@ export function SystemHealth({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {/* Conflicts - actual number */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-green-600' : totalConflicts <= 3 ? 'text-yellow-600' : 'text-red-600'}`}>
+          <div className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-status-success' : totalConflicts <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
             {totalConflicts}
           </div>
           <p className="text-sm text-gray-600 mt-1">Konflikte (30 Tage)</p>
@@ -43,13 +43,13 @@ export function SystemHealth({
               {worstUnit.code}: {worstUnit.conflicts} Konflikte →
             </Link>
           ) : (
-            <p className="text-xs text-green-600 mt-2">Keine Brennpunkte</p>
+            <p className="text-xs text-status-success mt-2">Keine Brennpunkte</p>
           )}
         </div>
 
         {/* Capacity - actual beds */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${freeBeds >= 5 ? 'text-green-600' : freeBeds >= 2 ? 'text-yellow-600' : 'text-red-600'}`}>
+          <div className={`text-3xl font-bold ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}>
             {freeBeds}
           </div>
           <p className="text-sm text-gray-600 mt-1">Plätze frei</p>
@@ -60,7 +60,7 @@ export function SystemHealth({
 
         {/* Maintenance - actual tickets */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${openMaintenanceCount === 0 ? 'text-green-600' : openMaintenanceCount <= 3 ? 'text-yellow-600' : 'text-red-600'}`}>
+          <div className={`text-3xl font-bold ${openMaintenanceCount === 0 ? 'text-status-success' : openMaintenanceCount <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
             {openMaintenanceCount}
           </div>
           <p className="text-sm text-gray-600 mt-1">Wartung offen</p>
@@ -72,7 +72,7 @@ export function SystemHealth({
               Älteste: {oldestTicketDays} Tage →
             </Link>
           ) : (
-            <p className="text-xs text-green-600 mt-2">Alles erledigt</p>
+            <p className="text-xs text-status-success mt-2">Alles erledigt</p>
           )}
         </div>
       </div>

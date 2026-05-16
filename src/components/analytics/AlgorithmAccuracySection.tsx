@@ -35,13 +35,13 @@ export function AlgorithmAccuracySection({ report }: Props) {
       {/* Score comparison headline */}
       {report.avgScoreConflictEnds !== null && report.avgScoreSuccessfulEnds !== null && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="rounded-lg bg-red-50 border border-red-100 p-4 text-center">
-            <p className="text-sm text-red-600 mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreConflict}</p>
+          <div className="rounded-lg bg-status-error/8 border border-status-error/20 p-4 text-center">
+            <p className="text-sm text-status-error mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreConflict}</p>
             <p className="text-3xl font-bold text-red-700">{report.avgScoreConflictEnds}</p>
           </div>
-          <div className="rounded-lg bg-emerald-50 border border-emerald-100 p-4 text-center">
-            <p className="text-sm text-emerald-600 mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreSuccess}</p>
-            <p className="text-3xl font-bold text-emerald-700">{report.avgScoreSuccessfulEnds}</p>
+          <div className="rounded-lg bg-status-success/10 border border-status-success/25 p-4 text-center">
+            <p className="text-sm text-status-success mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreSuccess}</p>
+            <p className="text-3xl font-bold text-green-700">{report.avgScoreSuccessfulEnds}</p>
           </div>
         </div>
       )}

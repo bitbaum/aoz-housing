@@ -17,18 +17,18 @@ export interface QuickStatProps {
 
 export function QuickStat({ label, value, total, suffix, subtext, href, color, icon }: QuickStatProps) {
   const colorStyles = {
-    green: 'border-green-200 bg-green-50 text-green-700',
-    yellow: 'border-yellow-200 bg-yellow-50 text-yellow-700',
-    red: 'border-red-200 bg-red-50 text-red-700',
-    blue: 'border-blue-200 bg-blue-50 text-blue-700',
+    green: 'border-status-success/25 bg-status-success/10 text-green-700',
+    yellow: 'border-status-warning/25 bg-status-warning/10 text-amber-700',
+    red: 'border-status-error/25 bg-status-error/8 text-red-700',
+    blue: 'border-status-info/25 bg-status-info/8 text-blue-700',
     gray: 'border-gray-200 bg-gray-50 text-gray-600',
   }
 
   const valueColorStyles = {
-    green: 'text-green-600',
-    yellow: 'text-yellow-600',
-    red: 'text-red-600',
-    blue: 'text-blue-600',
+    green: 'text-status-success',
+    yellow: 'text-status-warning',
+    red: 'text-status-error',
+    blue: 'text-status-info',
     gray: 'text-gray-500',
   }
 

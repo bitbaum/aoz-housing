@@ -16,12 +16,12 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
     <>
       {/* Prioritized resident actions */}
       <div className="mb-8 space-y-3">
-        <div className="p-3 rounded-lg border border-amber-200 bg-amber-50">
+        <div className="p-3 rounded-lg border border-status-warning/30 bg-status-warning/10">
           <h2 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">{L.prioritySections.now.heading}</h2>
           <p className="text-xs text-amber-700">{nowDesc}</p>
         </div>
 
-        <div className="p-3 rounded-lg border border-blue-200 bg-blue-50">
+        <div className="p-3 rounded-lg border border-status-info/30 bg-status-info/8">
           <h2 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">{L.prioritySections.next.heading}</h2>
           <p className="text-xs text-blue-700">{L.prioritySections.next.desc}</p>
         </div>
@@ -81,8 +81,8 @@ function QuickActionCard({
   priority?: 'now' | 'next' | 'info'
 }) {
   const priorityStyles = {
-    now: 'border-2 border-amber-300 bg-amber-50/40',
-    next: 'border-2 border-blue-200 bg-blue-50/30',
+    now: 'border-2 border-status-warning/40 bg-status-warning/8',
+    next: 'border-2 border-status-info/30 bg-status-info/6',
     info: 'border border-gray-200',
   }
 

@@ -50,7 +50,7 @@ export function FollowUpTimeline({ followUps }: Props) {
                 )}
 
                 {followUp.outcome && (
-                  <p className="text-sm text-green-700 bg-green-50 px-2 py-1 rounded">
+                  <p className="text-sm text-green-700 bg-status-success/10 px-2 py-1 rounded">
                     Ergebnis: {followUp.outcome}
                   </p>
                 )}

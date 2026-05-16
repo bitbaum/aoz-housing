@@ -64,7 +64,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
   return (
     <div className="space-y-6">
       {/* CRITICAL: Housing Authorization - Most important info at top */}
-      <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}`}>
+      <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-status-info/40 bg-status-info/8' : 'border-gray-200'}`}>
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           {'\u{1F3E0}'} {RESIDENT_PROFILE_SIDEBAR_LABELS.authCardTitle}
         </h2>
@@ -96,7 +96,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
                 <span
                   key={type}
                   className={`px-2 py-1 rounded text-xs font-medium ${
-                    type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-800'
+                    type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-status-info/15 text-blue-800'
                   }`}
                 >
                   {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}

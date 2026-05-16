@@ -54,7 +54,7 @@ export function ConflictAnalysisSection({
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-orange-500"
+                        className="h-full bg-status-warning"
                         style={{
                           width: `${(count / conflictPlacementsCount) * 100}%`,
                         }}
@@ -84,14 +84,14 @@ export function ConflictAnalysisSection({
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-green-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-green-600">
+              <div className="p-3 bg-status-success/10 rounded-lg text-center">
+                <p className="text-2xl font-bold text-status-success">
                   {predictableCount}
                 </p>
                 <p className="text-xs text-green-700">{ALGORITHM_ACCURACY_LABELS.predictableLabel}</p>
               </div>
-              <div className="p-3 bg-red-50 rounded-lg text-center">
-                <p className="text-2xl font-bold text-red-600">
+              <div className="p-3 bg-status-error/8 rounded-lg text-center">
+                <p className="text-2xl font-bold text-status-error">
                   {unpredictableCount}
                 </p>
                 <p className="text-xs text-red-700">{ALGORITHM_ACCURACY_LABELS.unpredictableLabel}</p>
@@ -110,7 +110,7 @@ export function ConflictAnalysisSection({
             )}
 
             {lowScoreCount > 0 && (
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+              <div className="p-3 bg-status-warning/10 rounded-lg border border-status-warning/25">
                 <p className="text-sm text-amber-800">
                   <strong>{lowScoreCount}</strong> {ALGORITHM_ACCURACY_LABELS.lowScoreWarningPrefix}
                 </p>

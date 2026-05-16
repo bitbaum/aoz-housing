@@ -56,8 +56,8 @@ export function SatisfactionChart({
                   <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${
-                        index >= 3 ? 'bg-green-500' :
-                        index === 2 ? 'bg-yellow-500' : 'bg-orange-500'
+                        index >= 3 ? 'bg-status-success' :
+                        index === 2 ? 'bg-status-warning' : 'bg-status-error'
                       }`}
                       style={{ width: `${totalCheckIns > 0 ? (count / totalCheckIns) * 100 : 0}%` }}
                     />

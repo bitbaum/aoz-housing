@@ -43,7 +43,7 @@ export function PlacementConfirm({
   const buttonClass = hasConflicts
     ? 'opacity-50 cursor-not-allowed bg-gray-400 text-white px-3 py-1 rounded text-sm'
     : fitScore < 50
-    ? 'bg-orange-600 text-white px-3 py-1 rounded text-sm hover:bg-orange-700'
+    ? 'bg-status-warning text-white px-3 py-1 rounded text-sm hover:bg-status-warning/90'
     : 'btn-primary text-sm px-3 py-1'
 
   const buttonLabel = hasConflicts
@@ -113,11 +113,11 @@ export function PlacementConfirm({
 
               {/* Warning for low compatibility */}
               {fitScore < 50 && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <p className="text-sm text-orange-800 font-medium">
+                <div className="bg-status-warning/10 border border-status-warning/25 rounded-lg p-3">
+                  <p className="text-sm text-amber-900 font-medium">
                     ⚠️ {PLACEMENT_CONFIRM_LABELS.lowCompatWarning}
                   </p>
-                  <p className="text-xs text-orange-700 mt-1">
+                  <p className="text-xs text-amber-700 mt-1">
                     {PLACEMENT_CONFIRM_LABELS.lowCompatMessage}
                   </p>
                 </div>
@@ -125,11 +125,11 @@ export function PlacementConfirm({
 
               {/* Show conflicts if any */}
               {conflicts.length > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                  <p className="text-sm text-yellow-800 font-medium mb-2">
+                <div className="bg-status-warning/8 border border-status-warning/20 rounded-lg p-3">
+                  <p className="text-sm text-amber-800 font-medium mb-2">
                     {PLACEMENT_CONFIRM_LABELS.notePoints}
                   </p>
-                  <ul className="text-xs text-yellow-700 space-y-1">
+                  <ul className="text-xs text-amber-700 space-y-1">
                     {conflicts.map((conflict, i) => (
                       <li key={i}>• {conflict}</li>
                     ))}
@@ -156,7 +156,7 @@ export function PlacementConfirm({
                 disabled={isPending}
                 className={
                   fitScore < 50
-                    ? 'bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 disabled:opacity-50'
+                    ? 'bg-status-warning text-white px-4 py-2 rounded-lg hover:bg-status-warning/90 disabled:opacity-50'
                     : 'btn-primary disabled:opacity-50'
                 }
               >

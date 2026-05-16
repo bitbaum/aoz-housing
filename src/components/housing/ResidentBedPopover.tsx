@@ -53,7 +53,7 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
       }}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 bg-rose-50 rounded-t-lg">
+      <div className="px-4 py-3 border-b border-gray-100 bg-aoz-primary/8 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-bold">

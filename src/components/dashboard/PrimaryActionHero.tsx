@@ -127,11 +127,11 @@ export function determinePrimaryAction({
 
 export function HeroAction({ action }: { action: PrimaryActionType }) {
   const colorStyles = {
-    critical: 'bg-red-600 text-white',
-    checkin: 'bg-orange-500 text-white',
+    critical: 'bg-status-error text-white',
+    checkin: 'bg-status-warning text-white',
     place: 'bg-aoz-secondary text-white',
-    problem: 'bg-amber-500 text-white',
-    allclear: 'bg-emerald-600 text-white',
+    problem: 'bg-status-warning text-white',
+    allclear: 'bg-status-success text-white',
   }
 
   const icons = {
@@ -182,7 +182,7 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
   const incidentLabel = INCIDENT_TYPE_LABELS_SHORT[incidents[0].type] || incidents[0].type
 
   return (
-    <div className="bg-red-600 text-white px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
+    <div className="bg-status-error text-white px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
       <div className="flex items-center gap-3">
         <span className="text-2xl">🚨</span>
         <div>
@@ -193,13 +193,13 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
       <div className="flex items-center gap-2 self-end sm:self-auto">
         <Link
           href={`/incidents/${incidents[0].id}`}
-          className="px-3 py-1 bg-white text-red-600 rounded font-medium hover:bg-red-50"
+          className="px-3 py-1 bg-white text-status-error rounded font-medium hover:bg-status-error/8"
         >
           {DASHBOARD_LABELS.alertEdit}
         </Link>
         <button
           onClick={() => setDismissed(true)}
-          className="p-1 hover:bg-red-500 rounded"
+          className="p-1 hover:bg-status-error/80 rounded"
           aria-label={UI_LABELS.close}
         >
           ✕
