@@ -20,22 +20,29 @@ import {
 } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
-import type { IncidentCategory } from '@prisma/client'
+import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<{ category?: string; status?: string }>
 }
 
 export default async function IncidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const categoryFilter = params.category || 'all'
+  const statusFilter = params.status || 'all'
+
+  const where: Prisma.IncidentWhereInput = {
+    ...(categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : {}),
+    ...(statusFilter === 'open' ? { resolvedAt: null } : {}),
+    ...(statusFilter === 'resolved' ? { resolvedAt: { not: null } } : {}),
+  }
 
   const [incidents, allIncidents] = await Promise.all([
     prisma.incident.findMany({
-      where: categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : undefined,
+      where: Object.keys(where).length > 0 ? where : undefined,
       select: {
         id: true,
         type: true,
@@ -68,16 +75,29 @@ export default async function IncidentsListPage({ searchParams }: Props) {
     }),
   ])
 
+  const openOnly = (cat?: string) =>
+    allIncidents.filter((i) => !i.resolvedAt && (!cat || i.category === cat)).length
+
   const stats = {
     total: allIncidents.length,
-    open: allIncidents.filter((i) => !i.resolvedAt).length,
+    open: openOnly(),
     interpersonal: allIncidents.filter((i) => i.category === 'INTERPERSONAL').length,
+    openInterpersonal: openOnly('INTERPERSONAL'),
     maintenance: allIncidents.filter((i) => i.category === 'MAINTENANCE').length,
     safety: allIncidents.filter((i) => i.category === 'SAFETY').length,
+    openSafety: openOnly('SAFETY'),
     critical: allIncidents.filter(
       (i) => i.severity === 'CRITICAL' && !i.resolvedAt
     ).length,
   }
+
+  // Tab counts reflect the active status filter
+  const tabTotal = statusFilter === 'open' ? stats.open : stats.total
+  const tabInterpersonal = statusFilter === 'open' ? stats.openInterpersonal : stats.interpersonal
+  const tabSafety = statusFilter === 'open' ? stats.openSafety : stats.safety
+
+  // Build query suffix to preserve status filter across tab links
+  const statusQS = statusFilter !== 'all' ? `&status=${statusFilter}` : ''
 
   return (
     <div>
@@ -115,31 +135,49 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label={UI_LABELS.open} value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
+        <StatCard
+          label={UI_LABELS.open}
+          value={stats.open}
+          trend={stats.open > 0 ? 'warning' : 'neutral'}
+          href={statusFilter === 'open' ? '/incidents' : `/incidents?status=open${categoryFilter !== 'all' ? `&category=${categoryFilter}` : ''}`}
+        />
         <StatCard label={INCIDENT_SEVERITY_LABELS.CRITICAL} value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
         <StatCard label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL} value={stats.interpersonal} />
         <StatCard label={INCIDENT_CATEGORY_LABELS.SAFETY} value={stats.safety} />
       </div>
 
+      {/* Active filter indicator */}
+      {statusFilter === 'open' && (
+        <div className="mb-4 flex items-center gap-2">
+          <span className="text-sm text-gray-600">{INCIDENT_PAGE_LABELS.filterOpen}:</span>
+          <a
+            href={`/incidents${categoryFilter !== 'all' ? `?category=${categoryFilter}` : ''}`}
+            className="inline-flex items-center gap-1 px-2 py-1 bg-aoz-accent text-aoz-secondary text-xs font-medium rounded-full hover:bg-aoz-accent-dark transition-colors"
+          >
+            {UI_LABELS.open} ×
+          </a>
+        </div>
+      )}
+
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
         <div className="flex gap-2 border-b border-gray-200">
           <TabLink
-            href="/incidents"
+            href={`/incidents${statusQS ? `?${statusQS.slice(1)}` : ''}`}
             label={UI_LABELS.all}
-            count={stats.total}
+            count={tabTotal}
             active={categoryFilter === 'all'}
           />
           <TabLink
-            href="/incidents?category=INTERPERSONAL"
+            href={`/incidents?category=INTERPERSONAL${statusQS}`}
             label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}
-            count={stats.interpersonal}
+            count={tabInterpersonal}
             active={categoryFilter === 'INTERPERSONAL'}
           />
           <TabLink
-            href="/incidents?category=SAFETY"
+            href={`/incidents?category=SAFETY${statusQS}`}
             label={INCIDENT_CATEGORY_LABELS.SAFETY}
-            count={stats.safety}
+            count={tabSafety}
             active={categoryFilter === 'SAFETY'}
           />
         </div>
@@ -149,13 +187,21 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {incidents.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            {categoryFilter === 'all'
-              ? INCIDENT_PAGE_LABELS.noIncidents
-              : INCIDENT_PAGE_LABELS.noIncidentsCategory(getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter))}
+            {statusFilter === 'open' && categoryFilter === 'all'
+              ? INCIDENT_PAGE_LABELS.noIncidentsOpen
+              : categoryFilter !== 'all'
+              ? INCIDENT_PAGE_LABELS.noIncidentsCategory(getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter))
+              : INCIDENT_PAGE_LABELS.noIncidents}
           </p>
-          <Link href="/incidents/new" className="btn-primary">
-            {INCIDENT_PAGE_LABELS.createIncident}
-          </Link>
+          {statusFilter === 'open' ? (
+            <a href="/incidents" className="btn-outline">
+              {INCIDENT_PAGE_LABELS.clearFilter}
+            </a>
+          ) : (
+            <Link href="/incidents/new" className="btn-primary">
+              {INCIDENT_PAGE_LABELS.createIncident}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-3">
