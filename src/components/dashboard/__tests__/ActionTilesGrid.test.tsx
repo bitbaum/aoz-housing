@@ -1,0 +1,95 @@
+import '@testing-library/jest-dom'
+import { render, screen } from '@testing-library/react'
+import { ActionTile } from '../ActionTilesGrid'
+
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
+    <a href={href} className={className}>{children}</a>
+  ),
+}))
+
+jest.mock('@/lib/config/thresholds', () => ({
+  DISPLAY_LIMITS: { dashboardItems: 3 },
+}))
+
+jest.mock('@/lib/constants/labels', () => ({
+  DASHBOARD_LABELS: {
+    showAllPrefix: 'Alle',
+    showAllSuffix: 'anzeigen',
+  },
+}))
+
+const BASE_ITEMS = [
+  { label: 'RES-001', sublabel: '10 Tage · A01', href: '/residents/r1' },
+  { label: 'RES-002', sublabel: '5 Tage · B02', href: '/residents/r2' },
+]
+
+const BASE = {
+  title: 'Check-ins durchführen',
+  count: 2,
+  description: 'RES-001 wartet am längsten',
+  href: '/residents/r1',
+  color: 'orange' as const,
+  items: BASE_ITEMS,
+  allHref: '/placements?overdue=1',
+}
+
+describe('ActionTile', () => {
+  it('renders the title', () => {
+    render(<ActionTile {...BASE} />)
+    expect(screen.getByRole('heading', { name: 'Check-ins durchführen' })).toBeInTheDocument()
+  })
+
+  it('renders the description', () => {
+    render(<ActionTile {...BASE} />)
+    expect(screen.getByText('RES-001 wartet am längsten')).toBeInTheDocument()
+  })
+
+  it('renders the count badge', () => {
+    render(<ActionTile {...BASE} count={7} />)
+    expect(screen.getByText('7')).toBeInTheDocument()
+  })
+
+  it('renders each item as a link with label and sublabel', () => {
+    render(<ActionTile {...BASE} />)
+    expect(screen.getByRole('link', { name: /RES-001/ })).toHaveAttribute('href', '/residents/r1')
+    expect(screen.getByText('10 Tage · A01')).toBeInTheDocument()
+  })
+
+  it('renders both items when count equals DISPLAY_LIMITS', () => {
+    render(<ActionTile {...BASE} />)
+    expect(screen.getByText('RES-001')).toBeInTheDocument()
+    expect(screen.getByText('RES-002')).toBeInTheDocument()
+  })
+
+  it('hides "Alle … anzeigen" link when count <= DISPLAY_LIMITS (3)', () => {
+    render(<ActionTile {...BASE} count={3} />)
+    expect(screen.queryByText(/Alle 3 anzeigen/)).not.toBeInTheDocument()
+  })
+
+  it('shows "Alle … anzeigen" link when count > DISPLAY_LIMITS (3)', () => {
+    render(<ActionTile {...BASE} count={5} />)
+    expect(screen.getByText(/Alle 5 anzeigen/)).toBeInTheDocument()
+  })
+
+  it('"Alle anzeigen" link points to allHref', () => {
+    render(<ActionTile {...BASE} count={5} />)
+    expect(screen.getByRole('link', { name: /Alle 5 anzeigen/ })).toHaveAttribute('href', '/placements?overdue=1')
+  })
+
+  it('applies orange border style for color=orange', () => {
+    const { container } = render(<ActionTile {...BASE} color="orange" />)
+    expect(container.querySelector('.border-status-warning\\/30')).toBeInTheDocument()
+  })
+
+  it('applies red badge style for color=red', () => {
+    const { container } = render(<ActionTile {...BASE} color="red" />)
+    expect(container.querySelector('.bg-status-error\\/15')).toBeInTheDocument()
+  })
+
+  it('renders empty item list without errors', () => {
+    render(<ActionTile {...BASE} items={[]} />)
+    expect(screen.getByRole('heading', { name: 'Check-ins durchführen' })).toBeInTheDocument()
+  })
+})
