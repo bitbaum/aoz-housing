@@ -2570,6 +2570,25 @@ async function main() {
   // ZH-007: empty, available
   // ZH-008: empty, available
 
+  // Pilot baseline config (from CLAUDE.md example metrics — pre-system Phase-1 data)
+  const earliestPlacement = await prisma.placement.findFirst({ orderBy: { startDate: 'asc' }, select: { startDate: true } })
+  await prisma.systemConfig.upsert({
+    where: { id: 'singleton' },
+    create: {
+      id: 'singleton',
+      pilotBaselineIncidentsPerMonth: 15,
+      pilotBaselineRelocationsPerMonth: 4,
+      pilotBaselineMediationHoursPerWeek: 12,
+      pilotStartDate: earliestPlacement?.startDate ?? new Date('2025-11-01'),
+    },
+    update: {
+      pilotBaselineIncidentsPerMonth: 15,
+      pilotBaselineRelocationsPerMonth: 4,
+      pilotBaselineMediationHoursPerWeek: 12,
+      pilotStartDate: earliestPlacement?.startDate ?? new Date('2025-11-01'),
+    },
+  })
+
   console.log('✅ Database seeded successfully!')
   console.log('')
   console.log('📊 Summary:')
