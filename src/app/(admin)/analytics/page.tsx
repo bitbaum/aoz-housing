@@ -222,12 +222,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <MetricCard
           label={DASHBOARD_LABELS.analyticsOccupancyRate}
           value={`${occupancyRate}%`}
-          subtitle={`${occupiedBeds} von ${totalBeds} Betten`}
+          subtitle={DASHBOARD_LABELS.analyticsBedSubtitle(occupiedBeds, totalBeds)}
         />
         <MetricCard
           label={DASHBOARD_LABELS.analyticsOverdueCheckIns}
           value={overdueCheckIns.length}
-          subtitle={`von ${placements.length} aktiven`}
+          subtitle={DASHBOARD_LABELS.analyticsActiveSuffix(placements.length)}
           href="/placements?status=active&overdue=1"
           highlight={overdueCheckIns.length > 0}
         />
@@ -241,7 +241,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <MetricCard
           label={DASHBOARD_LABELS.analyticsConflictEnded}
           value={`${conflictRate}%`}
-          subtitle={`${conflictEnds} von ${endedPlacements.length} Beendungen`}
+          subtitle={DASHBOARD_LABELS.analyticsEndingSubtitle(conflictEnds, endedPlacements.length)}
           highlight={conflictRate > 20}
         />
       </div>
@@ -259,12 +259,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         {/* Conflict Hotspots */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Konflikt-Hotspots ({days} Tage)
+            {DASHBOARD_LABELS.analyticsHotspotTitle(days)}
           </h2>
           {hotspotUnits.length === 0 ? (
             <div className="text-center py-8">
               <span className="text-3xl mb-2 block" aria-hidden="true">✓</span>
-              <p className="text-gray-500">Keine Konflikt-Hotspots</p>
+              <p className="text-gray-500">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -280,7 +280,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-status-warning-text">{count}</p>
-                    <p className="text-xs text-gray-500">Konflikte</p>
+                    <p className="text-xs text-gray-500">{DASHBOARD_LABELS.analyticsConflictCountLabel}</p>
                   </div>
                 </Link>
               ))}
@@ -291,11 +291,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         {/* Conflict Types */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Konfliktarten ({days} Tage)
+            {DASHBOARD_LABELS.analyticsConflictTypesTitle(days)}
           </h2>
           {topIncidentTypes.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
-              Keine Konflikte in diesem Zeitraum
+              {DASHBOARD_LABELS.analyticsNoConflictTypes}
             </p>
           ) : (
             <div className="space-y-3">

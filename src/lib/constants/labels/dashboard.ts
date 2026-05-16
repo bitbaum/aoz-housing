@@ -123,6 +123,16 @@ export const DASHBOARD_LABELS = {
   analyticsUnresolved: (count: number) => `${count} ungelöst`,
   analyticsEndReasonsTitle: 'Beendigungsgründe (gesamt)',
   analyticsNoEndedPlacements: 'Keine beendeten Platzierungen',
+  // Analytics metric card subtitles
+  analyticsBedSubtitle: (occupied: number, total: number) => `${occupied} von ${total} Betten`,
+  analyticsActiveSuffix: (total: number) => `von ${total} aktiven`,
+  analyticsEndingSubtitle: (conflict: number, total: number) => `${conflict} von ${total} Beendungen`,
+  // Analytics section headings and empty states
+  analyticsHotspotTitle: (days: number) => `Konflikt-Hotspots (${days} Tage)`,
+  analyticsNoHotspots: 'Keine Konflikt-Hotspots',
+  analyticsConflictCountLabel: 'Konflikte',
+  analyticsConflictTypesTitle: (days: number) => `Konfliktarten (${days} Tage)`,
+  analyticsNoConflictTypes: 'Keine Konflikte in diesem Zeitraum',
 } as const
 
 export const MISSION_KPI_LABELS = {
