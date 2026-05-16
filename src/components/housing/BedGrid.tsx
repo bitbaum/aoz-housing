@@ -149,7 +149,7 @@ export function BedGrid({
                   <span className={iconSize}>{SPOT_TYPE_ICONS[spot.type]}</span>
                   {showLabels && status === 'occupied' && activePlacement && (
                     <span className={`${fontSize} font-medium truncate max-w-full px-0.5`}>
-                      {activePlacement.resident.code.slice(0, 3)}
+                      {activePlacement.resident.code.slice(-3)}
                     </span>
                   )}
                 </>
