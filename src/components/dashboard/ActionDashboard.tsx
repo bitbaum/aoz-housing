@@ -117,6 +117,7 @@ export function ActionDashboard({
           href="/housing?status=AVAILABLE"
           color={freeBeds > 0 ? 'blue' : 'gray'}
           icon="🛏️"
+          subtext={`${occupiedBeds}/${totalBeds} ${DASHBOARD_LABELS.occupancyOccupied}`}
         />
         <QuickStat
           label={DASHBOARD_LABELS.statCheckIns}
