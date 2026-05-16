@@ -46,7 +46,7 @@ function makeIncident(id: string) {
 }
 
 function makeCheckIn(id: string) {
-  return { id, residentCode: `RES-${id}`, residentId: `rid-${id}`, weekNumber: 12, unitCode: 'B02', daysSinceLastCheckIn: 10, supportLevel: 'STANDARD' }
+  return { id, residentCode: `RES-${id}`, residentId: `rid-${id}`, weekNumber: 12, unitCode: 'B02', unitId: `unit-${id}`, daysSinceLastCheckIn: 10, supportLevel: 'STANDARD' }
 }
 
 function makeResident(id: string) {
