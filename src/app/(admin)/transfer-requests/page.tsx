@@ -3,9 +3,9 @@ import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
-import { TRANSFER_REQUEST_STATUS_LABELS, UI_LABELS } from '@/lib/constants'
+import { TRANSFER_REQUEST_STATUS_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
 
-export const metadata: Metadata = { title: 'Verlegungsanfragen' }
+export const metadata: Metadata = { title: PAGE_TITLES.transferRequests }
 export const dynamic = 'force-dynamic'
 
 interface Props {
@@ -30,7 +30,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Verlegungsanfragen</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.transferRequests}</h1>
       </div>
 
       {/* Status Tabs */}

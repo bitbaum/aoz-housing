@@ -74,6 +74,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/residents', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
       { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
       { href: '/matching', label: 'Matching', desc: 'Platzierung finden' },
+      { href: '/transfer-requests', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen' },
     ],
   },
   {
@@ -82,6 +83,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/housing', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
       { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
       { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
+      { href: '/chores', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln' },
     ],
   },
   {
@@ -93,4 +95,5 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     ],
   },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
+  { href: '/settings', icon: 'settings', label: 'Einstellungen' },
 ]

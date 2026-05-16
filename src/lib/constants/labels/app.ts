@@ -26,6 +26,8 @@ export const PAGE_TITLES: Record<string, string> = {
   placements: 'Platzierungen',
   analytics: 'Auswertung',
   settings: 'Einstellungen',
+  chores: 'Haushaltsaufgaben',
+  transferRequests: 'Verlegungsanfragen',
 }
 
 export const EMPTY_STATE_LABELS = {
