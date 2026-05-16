@@ -151,7 +151,7 @@ describe('getScoreBgClass', () => {
 describe('getScoreBadgeClass', () => {
   it('returns badge classes', () => {
     expect(getScoreBadgeClass(90)).toContain('bg-score-excellent')
-    expect(getScoreBadgeClass(10)).toContain('bg-score-poor')
+    expect(getScoreBadgeClass(10)).toContain('bg-score-critical')
   })
 })
 
@@ -222,16 +222,16 @@ describe('getSeverityRadioClass', () => {
 // =============================================================================
 
 describe('getOccupancyColorClass', () => {
-  it('returns red for >= 90%', () => {
-    expect(getOccupancyColorClass(95)).toContain('red')
+  it('returns status-error for >= 90%', () => {
+    expect(getOccupancyColorClass(95)).toBe('bg-status-error')
   })
 
-  it('returns yellow for >= 70%', () => {
-    expect(getOccupancyColorClass(75)).toContain('yellow')
+  it('returns status-warning for >= 70%', () => {
+    expect(getOccupancyColorClass(75)).toBe('bg-status-warning')
   })
 
-  it('returns green for < 70%', () => {
-    expect(getOccupancyColorClass(50)).toContain('green')
+  it('returns status-success for < 70%', () => {
+    expect(getOccupancyColorClass(50)).toBe('bg-status-success')
   })
 })
 
@@ -310,20 +310,20 @@ describe('getTrendColorClass', () => {
 // =============================================================================
 
 describe('getConflictIndicatorClass', () => {
-  it('returns red for 3+ conflicts', () => {
-    expect(getConflictIndicatorClass(3)).toContain('red')
-    expect(getConflictIndicatorClass(5)).toContain('red')
+  it('returns severity-critical for 3+ conflicts', () => {
+    expect(getConflictIndicatorClass(3)).toBe('bg-severity-critical')
+    expect(getConflictIndicatorClass(5)).toBe('bg-severity-critical')
   })
 
-  it('returns orange for 2 conflicts', () => {
-    expect(getConflictIndicatorClass(2)).toContain('orange')
+  it('returns severity-high for 2 conflicts', () => {
+    expect(getConflictIndicatorClass(2)).toBe('bg-severity-high')
   })
 
-  it('returns yellow for 1 conflict', () => {
-    expect(getConflictIndicatorClass(1)).toContain('yellow')
+  it('returns severity-medium for 1 conflict', () => {
+    expect(getConflictIndicatorClass(1)).toBe('bg-severity-medium')
   })
 
-  it('returns green for 0 conflicts', () => {
-    expect(getConflictIndicatorClass(0)).toContain('green')
+  it('returns status-success for 0 conflicts', () => {
+    expect(getConflictIndicatorClass(0)).toBe('bg-status-success')
   })
 })

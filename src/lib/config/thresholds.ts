@@ -120,33 +120,18 @@ export const DEFAULT_STATUSES = {
 // COLOR MAPPINGS
 // =============================================================================
 
-export const SCORE_COLORS = {
-  excellent: 'text-green-600',
-  good: 'text-yellow-600',
-  moderate: 'text-orange-600',
-  low: 'text-red-600',
-  critical: 'text-red-700',
-} as const
-
 export const SCORE_BG_COLORS = {
-  excellent: 'bg-green-500',
-  good: 'bg-emerald-500',
-  moderate: 'bg-yellow-500',
-  low: 'bg-orange-500',
-  critical: 'bg-red-500',
+  excellent: 'bg-score-excellent',
+  good: 'bg-score-good',
+  moderate: 'bg-score-medium',
+  low: 'bg-score-low',
+  critical: 'bg-score-critical',
 } as const
 
 export const OCCUPANCY_COLORS = {
-  critical: 'bg-red-500',
-  warning: 'bg-yellow-500',
-  healthy: 'bg-green-500',
-} as const
-
-export const INCIDENT_COLORS = {
-  severe: 'bg-red-500',
-  moderate: 'bg-orange-500',
-  mild: 'bg-yellow-500',
-  none: 'bg-green-500',
+  critical: 'bg-status-error',
+  warning: 'bg-status-warning',
+  healthy: 'bg-status-success',
 } as const
 
 export const INCIDENT_BG_COLORS = {

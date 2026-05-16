@@ -103,9 +103,9 @@ export function getScoreBadgeClass(score: number): string {
   const classes: Record<ScoreLevel, string> = {
     excellent: 'bg-score-excellent text-white',
     good: 'bg-score-good text-white',
-    moderate: 'bg-score-moderate text-gray-900',
+    moderate: 'bg-score-medium text-gray-900',
     low: 'bg-score-low text-white',
-    critical: 'bg-score-poor text-white',
+    critical: 'bg-score-critical text-white',
   }
   return classes[getScoreLevel(score)]
 }
@@ -246,8 +246,8 @@ export function getTrendColorClass(trend: TrendType): string {
 // =============================================================================
 
 export function getConflictIndicatorClass(conflictCount: number): string {
-  if (conflictCount >= 3) return 'bg-red-500'
-  if (conflictCount >= 2) return 'bg-orange-500'
-  if (conflictCount >= 1) return 'bg-yellow-500'
-  return 'bg-green-500'
+  if (conflictCount >= 3) return 'bg-severity-critical'
+  if (conflictCount >= 2) return 'bg-severity-high'
+  if (conflictCount >= 1) return 'bg-severity-medium'
+  return 'bg-status-success'
 }
