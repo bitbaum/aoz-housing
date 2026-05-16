@@ -7,6 +7,7 @@ import {
   type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
+import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, SCORE_EXPLANATION_LABELS, COMPATIBILITY_SCORE_LABELS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants/labels'
 
 /**
@@ -219,15 +220,6 @@ export function ScoreExplanationBadge({
   className = '',
 }: ScoreExplanationBadgeProps) {
   const level = getScoreLevel(score)
-  const colorClass = getScoreColorClass(score)
-
-  const bgClasses: Record<ScoreLevel, string> = {
-    excellent: 'bg-green-100',
-    good: 'bg-emerald-100',
-    moderate: 'bg-yellow-100',
-    low: 'bg-orange-100',
-    critical: 'bg-red-100',
-  }
 
   const hasFactors = factors.length > 0
   const positiveCount = factors.filter(f => f.impact === 'positive').length
@@ -239,7 +231,7 @@ export function ScoreExplanationBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${bgClasses[level]} ${colorClass} ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${SCORE_TOKENS[level].soft} ${className}`}
       title={tooltipContent}
     >
       {score}%

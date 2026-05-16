@@ -109,7 +109,7 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
       )}
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div className="p-3 bg-status-error/8 border border-status-error/25 rounded-lg text-sm text-red-700">
           {error}
         </div>
       )}

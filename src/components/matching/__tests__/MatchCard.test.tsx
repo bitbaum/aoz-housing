@@ -460,8 +460,8 @@ describe('MatchCard', () => {
       // Check that the concern has red coloring
       const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
       expect(concern.className).toContain('text-red-600')
-      // Card should have red border
-      expect(container.firstChild).toHaveClass('border-red-200')
+      // Card should have error styling for blocking issues
+      expect((container.firstChild as HTMLElement).className).toContain('border-status-error')
     })
   })
 

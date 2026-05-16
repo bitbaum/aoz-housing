@@ -143,8 +143,8 @@ describe('getScoreColorClass', () => {
 
 describe('getScoreBgClass', () => {
   it('returns background classes', () => {
-    expect(getScoreBgClass(90)).toContain('bg-green')
-    expect(getScoreBgClass(10)).toContain('bg-red')
+    expect(getScoreBgClass(90)).toContain('bg-score-excellent')
+    expect(getScoreBgClass(10)).toContain('bg-score-critical')
   })
 })
 

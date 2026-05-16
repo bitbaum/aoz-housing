@@ -1,5 +1,6 @@
 import { PORTAL_LABELS } from '@/lib/constants'
 import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
+import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 
 interface HousingResult {
   unitId: string
@@ -24,14 +25,6 @@ interface HousingResult {
 
 interface PortalHousingBrowseProps {
   results: HousingResult[]
-}
-
-const SCORE_BADGE_COLORS: Record<string, string> = {
-  excellent: 'bg-green-100 text-green-700',
-  good: 'bg-emerald-100 text-emerald-700',
-  moderate: 'bg-yellow-100 text-yellow-700',
-  low: 'bg-orange-100 text-orange-700',
-  critical: 'bg-red-100 text-red-700',
 }
 
 const L = PORTAL_LABELS.dashboard.housingBrowse
@@ -60,7 +53,7 @@ export function PortalHousingBrowse({ results }: PortalHousingBrowseProps) {
 
 function HousingCard({ result }: { result: HousingResult }) {
   const level = getScoreLevel(result.fitScore)
-  const badgeColor = SCORE_BADGE_COLORS[level] || SCORE_BADGE_COLORS.moderate
+  const badgeColor = SCORE_TOKENS[level].soft
 
   return (
     <div className="card">
@@ -99,7 +92,7 @@ function HousingCard({ result }: { result: HousingResult }) {
           <p className="text-xs font-medium text-gray-500 mb-1">{L.strengths}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.strengths.map(s => (
-              <span key={s} className="px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs">
+              <span key={s} className="px-2 py-0.5 bg-score-excellent/10 text-green-700 rounded text-xs">
                 {s}
               </span>
             ))}
@@ -113,12 +106,12 @@ function HousingCard({ result }: { result: HousingResult }) {
           <p className="text-xs font-medium text-gray-500 mb-1">{L.concerns}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.conflicts.map(c => (
-              <span key={c.message} className="px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs">
+              <span key={c.message} className="px-2 py-0.5 bg-score-medium/10 text-amber-700 rounded text-xs">
                 {c.message}
               </span>
             ))}
             {result.concerns.map(c => (
-              <span key={c} className="px-2 py-0.5 bg-yellow-50 text-yellow-700 rounded text-xs">
+              <span key={c} className="px-2 py-0.5 bg-score-medium/10 text-amber-700 rounded text-xs">
                 {c}
               </span>
             ))}

@@ -21,7 +21,7 @@ export function PortalMaintenanceCard({ incidents }: PortalMaintenanceCardProps)
         {incidents.map((incident) => (
           <div
             key={incident.id}
-            className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg"
+            className="flex items-center gap-3 p-3 bg-status-warning/10 rounded-lg"
           >
             <span className="text-xl">🔧</span>
             <div>

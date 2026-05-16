@@ -8,6 +8,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { getScoreColorClass } from '@/lib/utils/formatting'
 import { HeadToHeadComparison } from './HeadToHeadComparison'
 
 function formatConflictValue(attribute: string, value: string | number): string {
@@ -42,12 +43,12 @@ export function ApartmentProfileSection({
   if (apartmentProfile.isEmpty) return null
 
   return (
-    <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+    <div className="mb-3 p-3 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded-xl">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-semibold text-blue-800 uppercase">
+        <p className="text-xs font-semibold text-aoz-secondary uppercase">
           {MATCHING_LABELS.apartmentProfile} ({apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
         </p>
-        <span className={`text-sm font-bold ${apartmentFit.fitScore >= 80 ? 'text-green-600' : apartmentFit.fitScore >= 60 ? 'text-blue-600' : apartmentFit.fitScore >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+        <span className={`text-sm font-bold ${getScoreColorClass(apartmentFit.fitScore)}`}>
           {apartmentFit.fitScore}% {MATCHING_LABELS.matching}
         </span>
       </div>
@@ -82,10 +83,10 @@ export function ApartmentProfileSection({
       )}
 
       <details className="mt-2 text-xs">
-        <summary className="cursor-pointer text-blue-700 hover:text-blue-900 font-medium">
+        <summary className="cursor-pointer text-aoz-secondary hover:text-aoz-secondary-dark font-medium">
           📊 {MATCHING_LABELS.scoreDerivation}
         </summary>
-        <div className="mt-2 p-2 bg-white border border-blue-100 rounded text-gray-700">
+        <div className="mt-2 p-2 bg-white border border-aoz-secondary/15 rounded text-gray-700">
           <p className="font-semibold mb-1">Fit Score: {apartmentFit.fitScore}%</p>
           <p className="text-gray-500 mb-2">{MATCHING_LABELS.basePenalty}</p>
 

@@ -58,20 +58,20 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
         <h3 className="font-medium text-gray-900 mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
         <div className="flex flex-wrap gap-3 text-sm">
           {housingUnit?.quietHours && (
-            <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full">
+            <span className="px-3 py-1 bg-aoz-secondary/10 text-aoz-secondary rounded-full">
               {PORTAL_LABELS.dashboard.quietHours}: {housingUnit.quietHours}
             </span>
           )}
           <span className={`px-3 py-1 rounded-full ${
             housingUnit?.smokingAllowed
-              ? 'bg-green-50 text-green-700'
-              : 'bg-red-50 text-red-700'
+              ? 'bg-status-success/10 text-green-700'
+              : 'bg-status-error/10 text-red-700'
           }`}>
             {housingUnit?.smokingAllowed ? PORTAL_LABELS.dashboard.smokingAllowed : PORTAL_LABELS.dashboard.noSmoking}
           </span>
           <span className={`px-3 py-1 rounded-full ${
             housingUnit?.petsAllowed
-              ? 'bg-green-50 text-green-700'
+              ? 'bg-status-success/10 text-green-700'
               : 'bg-gray-50 text-gray-600'
           }`}>
             {housingUnit?.petsAllowed ? PORTAL_LABELS.dashboard.petsAllowed : PORTAL_LABELS.dashboard.noPets}
@@ -111,7 +111,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   done
-                    ? 'bg-green-100 text-green-600'
+                    ? 'bg-status-success/15 text-green-700'
                     : isActive
                       ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
                       : 'bg-gray-100 text-gray-400'
@@ -125,7 +125,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
                   )}
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-green-200' : 'bg-gray-200'}`} />
+                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-status-success/30' : 'bg-gray-200'}`} />
                 )}
               </div>
               <div className="pt-1">

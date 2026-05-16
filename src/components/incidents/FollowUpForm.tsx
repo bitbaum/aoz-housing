@@ -64,7 +64,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.deescalation.outcome,
               followUpPriority: 'MEDIUM',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'deescalation' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'deescalation' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
           >
             🗣️ {FOLLOW_UP_FORM_LABELS.templates.deescalation.label}
           </Link>
@@ -76,7 +76,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.safety.outcome,
               followUpPriority: 'HIGH',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'safety-check' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'safety-check' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
           >
             🚨 {FOLLOW_UP_FORM_LABELS.templates.safety.label}
           </Link>
@@ -88,7 +88,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.houseRules.outcome,
               followUpPriority: 'LOW',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'house-rules' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'house-rules' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
           >
             📋 {FOLLOW_UP_FORM_LABELS.templates.houseRules.label}
           </Link>

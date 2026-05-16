@@ -46,9 +46,9 @@ export function ToastContainer() {
           key={toast.id}
           className={`px-4 py-3 rounded-xl shadow-card text-sm font-medium animate-slide-up max-w-sm ${
             toast.type === 'success'
-              ? 'bg-green-600 text-white'
+              ? 'bg-status-success text-white'
               : toast.type === 'error'
-                ? 'bg-red-600 text-white'
+                ? 'bg-status-error text-white'
                 : 'bg-gray-800 text-white'
           }`}
         >

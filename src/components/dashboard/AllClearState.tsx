@@ -15,10 +15,10 @@ export function AllClearState({ freeBeds, conflictFreeDays }: { freeBeds: number
         {freeBeds > 0 ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}` : DASHBOARD_LABELS.allClearAllOccupied}
       </p>
       <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-        <Link href="/residents/new" className="btn-primary bg-green-600 hover:bg-green-700 w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+        <Link href="/residents/new" className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
           {DASHBOARD_LABELS.actionCreateResident}
         </Link>
-        <Link href="/analytics" className="btn-outline text-green-700 border-green-300 hover:bg-green-100 w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+        <Link href="/analytics" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
           {DASHBOARD_LABELS.actionViewStats}
         </Link>
       </div>

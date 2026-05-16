@@ -67,7 +67,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
             <div
               key={match.resident.id}
               className={`p-3 border rounded-xl ${
-                match.concerns.length > 0 ? 'border-orange-200 bg-orange-50' : 'border-gray-100'
+                match.concerns.length > 0 ? 'border-score-low/25 bg-score-low/8' : 'border-gray-100'
               }`}
             >
               <div className="flex items-center justify-between">

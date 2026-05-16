@@ -8,6 +8,7 @@ import {
 } from '@/lib/config/placement-spots'
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
+import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import type { SpotInfo, UnitWithSpots } from '@/lib/types'
 import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
 
@@ -54,12 +55,12 @@ interface TransferRecommendationsProps {
 // STYLING CONSTANTS
 // =============================================================================
 
-const SCORE_BADGE_STYLES: Record<ScoreLevel, { bg: string; text: string; border: string; label: string }> = {
-  excellent: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: COMPATIBILITY_SCORE_LABELS.excellent },
-  good: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', label: COMPATIBILITY_SCORE_LABELS.good },
-  moderate: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: COMPATIBILITY_SCORE_LABELS.moderate },
-  low: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: COMPATIBILITY_SCORE_LABELS.low },
-  critical: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: COMPATIBILITY_SCORE_LABELS.critical },
+const SCORE_CARD_BG: Record<ScoreLevel, string> = {
+  excellent: 'bg-score-excellent/8',
+  good:      'bg-score-good/8',
+  moderate:  'bg-score-medium/8',
+  low:       'bg-score-low/8',
+  critical:  'bg-score-critical/8',
 }
 
 // =============================================================================
@@ -114,7 +115,6 @@ export function TransferRecommendations({
       <div className="space-y-2">
         {displayedUnits.map((unit, index) => {
           const level = getScoreLevel(unit.fitScore)
-          const style = SCORE_BADGE_STYLES[level]
           const eligibleSpots = unit.spots.filter(spot => eligibleSpotTypes.includes(spot.type))
           const isSelected = unit.id === selectedUnitId
           const isExpanded = expandedUnitId === unit.id
@@ -125,8 +125,8 @@ export function TransferRecommendations({
               key={unit.id}
               className={`rounded-lg border-2 transition-all ${
                 isSelected
-                  ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-200'
-                  : `border-gray-200 hover:border-gray-300 ${style.bg}`
+                  ? 'border-aoz-primary bg-aoz-primary/8 ring-2 ring-aoz-primary/20'
+                  : `border-gray-200 hover:border-gray-300 ${SCORE_CARD_BG[level]}`
               }`}
             >
               {/* Main clickable area */}
@@ -140,7 +140,7 @@ export function TransferRecommendations({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {index === 0 && level === 'excellent' && (
-                        <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded font-medium">
+                        <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${SCORE_TOKENS.excellent.soft}`}>
                           Empfohlen
                         </span>
                       )}
@@ -186,8 +186,8 @@ export function TransferRecommendations({
                     <span className={`text-xl font-bold ${getScoreColorClass(unit.fitScore)}`}>
                       {unit.fitScore}%
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded border ${style.bg} ${style.text} ${style.border}`}>
-                      {style.label}
+                    <span className={`text-xs px-2 py-0.5 rounded ${SCORE_TOKENS[level].soft}`}>
+                      {COMPATIBILITY_SCORE_LABELS[level]}
                     </span>
                   </div>
                 </div>
@@ -233,11 +233,10 @@ export function TransferRecommendations({
                         <div className="space-y-2">
                           {unit.residents.map(resident => {
                             const residentLevel = getScoreLevel(resident.compatibilityScore)
-                            const residentStyle = SCORE_BADGE_STYLES[residentLevel]
                             return (
                               <div
                                 key={resident.id}
-                                className={`p-2 rounded border ${residentStyle.bg} ${residentStyle.border}`}
+                                className={`p-2 rounded ${SCORE_TOKENS[residentLevel].soft}`}
                               >
                                 <div className="flex items-center justify-between">
                                   <Link

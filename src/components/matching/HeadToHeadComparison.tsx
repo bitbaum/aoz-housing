@@ -78,7 +78,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
             <div key={attr.key} className="flex items-center justify-between py-2 border-b border-gray-100">
               <span className="text-xs font-medium text-gray-600">{attr.label}</span>
               <div className="flex items-center gap-3 text-xs">
-                <span className="text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
+                <span className="text-aoz-secondary bg-aoz-secondary/10 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
                   Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
                     : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}
@@ -111,7 +111,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
               {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (
                 <th scope="col" className="p-1.5 text-center text-gray-500 border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
               )}
-              <th scope="col" className="p-1.5 text-center font-semibold text-blue-700 border-b bg-blue-50">Ø</th>
+              <th scope="col" className="p-1.5 text-center font-semibold text-aoz-secondary border-b bg-aoz-secondary/10">Ø</th>
               <th scope="col" className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
             </tr>
           </thead>
@@ -134,7 +134,7 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                     )
                   })}
                   {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && <td className="p-1.5 text-center text-gray-400">…</td>}
-                  <td className="p-1.5 text-center font-medium bg-blue-50 text-blue-700">
+                  <td className="p-1.5 text-center font-medium bg-aoz-secondary/10 text-aoz-secondary">
                     {attr.type === 'numeric'
                       ? (avgValue as number | null)?.toFixed(1) || '–'
                       : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}

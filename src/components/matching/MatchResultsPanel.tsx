@@ -44,7 +44,7 @@ export function MatchResultsPanel({
           </Link>
           <Link
             href={`/matching?resident=${selectedResident.id}&mode=fast${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
-            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}`}
+            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-aoz-primary/10 text-aoz-primary border-aoz-primary/40' : ''}`}
           >
             {MATCH_RESULTS_LABELS.modeFast}
           </Link>
@@ -67,7 +67,7 @@ export function MatchResultsPanel({
       ) : (
         <div className="space-y-4">
           {bestQuickMatch && (
-            <form action={placeResident} className="p-3 bg-green-50 border border-green-200 rounded-xl">
+            <form action={placeResident} className="p-3 bg-score-excellent/10 border border-score-excellent/25 rounded-xl">
               <input type="hidden" name="residentId" value={selectedResident.id} />
               <input type="hidden" name="housingUnitId" value={bestQuickMatch.unit.id} />
               <input
@@ -76,7 +76,7 @@ export function MatchResultsPanel({
                 value={bestQuickMatch.unit.spots.find((s) => s.status === 'AVAILABLE')?.id || ''}
               />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm text-green-800">
+                <p className="text-sm text-green-700">
                   {MATCH_RESULTS_LABELS.quickActionDesc(bestQuickMatch.unit.code, bestQuickMatch.apartmentFit.fitScore)}
                 </p>
                 <button type="submit" className="btn-primary text-sm min-h-[44px]">
@@ -96,7 +96,7 @@ export function MatchResultsPanel({
                 const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
                 const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (
-                  <div key={match.unit.id} className={`p-3 rounded-xl border ${idx === 0 ? 'border-green-300 bg-green-50/60' : 'border-gray-100'}`}>
+                  <div key={match.unit.id} className={`p-3 rounded-xl border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-gray-100'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold text-gray-900">#{idx + 1} · {match.unit.code}</p>

@@ -6,6 +6,8 @@ import { placeResident } from '@/lib/actions/matching'
 import { MATCHING_LABELS } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
+import { getScoreLevel } from '@/lib/config/thresholds'
 import { SpotSelection } from './SpotSelection'
 import { ApartmentProfileSection } from './ApartmentProfileSection'
 
@@ -43,12 +45,12 @@ export function MatchCard({ match, resident, rank }: Props) {
   )
 
   return (
-    <div className={`p-4 border rounded-xl ${hasBlockingIssues ? 'border-red-200 bg-red-50' : rank === 1 ? 'border-green-300 bg-green-50/50' : rank && rank <= 3 ? 'border-blue-200 bg-blue-50/40' : 'border-gray-100'}`}>
+    <div className={`p-4 border rounded-xl ${hasBlockingIssues ? 'border-status-error/25 bg-status-error/8' : rank === 1 ? 'border-score-excellent/30 bg-score-excellent/8' : rank && rank <= 3 ? 'border-status-info/20 bg-status-info/8' : 'border-gray-100'}`}>
       <div className="flex items-start justify-between mb-3 gap-2">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             {rank && rank <= 3 && (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${rank === 1 ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${rank === 1 ? SCORE_TOKENS.excellent.soft : SCORE_TOKENS.good.soft}`}>
                 {rank === 1 ? MATCHING_LABELS.topRecommendation : MATCHING_LABELS.topRank(rank)}
               </span>
             )}
@@ -73,10 +75,10 @@ export function MatchCard({ match, resident, rank }: Props) {
 
       {match.unitMetrics && (
         <div className={`mb-3 p-2 rounded border ${
-          match.unitMetrics.riskLevel === 'CRITICAL' ? 'bg-red-50 border-red-300' :
-          match.unitMetrics.riskLevel === 'HIGH' ? 'bg-orange-50 border-orange-300' :
-          match.unitMetrics.riskLevel === 'MEDIUM' ? 'bg-yellow-50 border-yellow-300' :
-          'bg-green-50 border-green-300'
+          match.unitMetrics.riskLevel === 'CRITICAL' ? 'bg-severity-critical/10 border-severity-critical/30' :
+          match.unitMetrics.riskLevel === 'HIGH' ? 'bg-severity-high/10 border-severity-high/30' :
+          match.unitMetrics.riskLevel === 'MEDIUM' ? 'bg-severity-medium/10 border-severity-medium/30' :
+          'bg-score-excellent/10 border-score-excellent/30'
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -111,23 +113,23 @@ export function MatchCard({ match, resident, rank }: Props) {
       )}
 
       {match.apartmentFit && !match.apartmentProfile.isEmpty && (
-        <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded">
+        <div className="mb-3 p-2 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded">
           {realSuccessData && realSuccessData.totalPlacements > 0 ? (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-purple-700">
+                <span className="text-xs text-aoz-secondary">
                   📊 {MATCHING_LABELS.historicalData} ({realSuccessData.totalPlacements} {MATCHING_LABELS.placements}):
                 </span>
                 <span className={`text-xs font-bold ${getScoreColorClass(realSuccessData.successRate)}`}>
                   {realSuccessData.successRate}% {MATCHING_LABELS.successRate}
                 </span>
               </div>
-              <p className="text-xs text-purple-600 mt-1">
+              <p className="text-xs text-aoz-secondary/80 mt-1">
                 {realSuccessData.successfulPlacements}/{realSuccessData.totalPlacements} {MATCHING_LABELS.placementsWithSimilar} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.successRateDesc(realSuccessData.successRate)}
               </p>
             </>
           ) : (
-            <div className="text-xs text-purple-600">
+            <div className="text-xs text-aoz-secondary/80">
               📊 {MATCHING_LABELS.noHistoricalData} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.available}.
             </div>
           )}
@@ -204,7 +206,7 @@ export function MatchCard({ match, resident, rank }: Props) {
       )}
 
       {match.safeguardWarnings.length > 0 && (
-        <div className="mb-3 p-3 bg-amber-50 border border-amber-300 rounded-xl">
+        <div className="mb-3 p-3 bg-status-warning/10 border border-status-warning/30 rounded-xl">
           <p className="text-xs font-semibold text-amber-800 uppercase mb-1">
             Hinweis zur Bewertung
           </p>

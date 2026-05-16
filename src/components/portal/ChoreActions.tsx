@@ -81,12 +81,12 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     <div>
       {/* Success / Error messages */}
       {success && (
-        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm" role="status" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-success/10 text-green-700 rounded-lg text-sm" role="status" aria-live="polite">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-error/8 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
           {error}
         </div>
       )}
@@ -95,25 +95,25 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => { setActiveModal('complete'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-success/10 text-green-700 hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors"
         >
           ✓ {CHORE_LABELS.actions.complete}
         </button>
         <button
           onClick={() => { setActiveModal('request'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-aoz-secondary/10 text-aoz-secondary hover:bg-aoz-secondary/15 rounded-lg text-sm font-medium transition-colors"
         >
           📩 {CHORE_LABELS.actions.request}
         </button>
         <button
           onClick={() => { setActiveModal('attention'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-warning/10 text-amber-700 hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors"
         >
           ⚠️ {CHORE_LABELS.actions.attention}
         </button>
         <button
           onClick={() => { setActiveModal('complaint'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-error/8 text-red-700 hover:bg-status-error/12 rounded-lg text-sm font-medium transition-colors"
         >
           🚨 {CHORE_LABELS.actions.complaint}
         </button>
