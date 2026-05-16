@@ -75,6 +75,8 @@ export const MATCHING_LABELS = {
   residentCreated: (code: string) => `Bewohner ${code} erfolgreich erstellt`,
   newResidentBannerDesc: 'Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach Kompatibilität sortiert - oben die besten Matches.',
   selectResidentForMatches: 'Wählen Sie einen Bewohner aus, um Matches zu sehen',
+  orSelectUnit: 'oder wählen Sie eine Unterkunft, um zu sehen wer dort passt:',
+  freeBeds: (free: number, total: number) => `${free} von ${total} frei`,
   // Available units panel
   availableUnitsTitle: (count: number) => `Verfügbare Unterkünfte (${count})`,
   // What-if analysis banner (placed resident selected)
