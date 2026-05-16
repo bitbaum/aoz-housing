@@ -199,6 +199,7 @@ export const PLACEMENT_ACTIONS_LABELS = {
   endNotesLabel: 'Notizen',
   endNotesPlaceholder: 'Optionale Anmerkungen...',
   endBtn: 'Platzierung endgültig beenden',
+  endBtnPending: 'Wird beendet...',
   conflictNoPredictable: 'Nein',
   // Button labels
   checkinBtn: 'Check-in durchführen',
@@ -206,6 +207,7 @@ export const PLACEMENT_ACTIONS_LABELS = {
   endToggleBtn: 'Beenden',
   closeBtn: '✕ Schliessen',
   transferConfirmBtn: 'Verlegen bestätigen',
+  transferConfirmBtnPending: 'Wird verlegt...',
   // Hints
   shortcutHint: 'Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)',
   noEligibleUnits: 'Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diesen Bewohner. Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.',

@@ -1,6 +1,7 @@
 'use client'
 
 import { endPlacement } from '@/lib/actions'
+import { SubmitButton } from '@/components/ui'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
@@ -167,12 +168,12 @@ export function EndPlacementForm({
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {endSummary}
       </div>
 
-      <button
-        type="submit"
-        className="bg-status-error text-white px-4 py-2.5 rounded-lg text-sm hover:bg-status-error/90 min-h-[44px]"
+      <SubmitButton
+        pendingText={PLACEMENT_ACTIONS_LABELS.endBtnPending}
+        className="bg-status-error text-white px-4 py-2.5 rounded-lg text-sm hover:bg-status-error/90 min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
       >
         {PLACEMENT_ACTIONS_LABELS.endBtn}
-      </button>
+      </SubmitButton>
     </form>
   )
 }

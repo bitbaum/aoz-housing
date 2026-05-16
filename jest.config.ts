@@ -33,7 +33,7 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.test.tsx',
         '<rootDir>/src/**/__tests__/**/*.spec.tsx',
       ],
-      setupFilesAfterEnv: ['@testing-library/jest-dom'],
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.components.ts'],
       transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
       },

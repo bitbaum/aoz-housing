@@ -7,12 +7,14 @@ interface SubmitButtonProps {
   children: React.ReactNode
   pendingText?: string
   className?: string
+  disabled?: boolean
 }
 
-export function SubmitButton({ children, pendingText = UI_LABELS.submitting, className }: SubmitButtonProps) {
+export function SubmitButton({ children, pendingText = UI_LABELS.submitting, className, disabled = false }: SubmitButtonProps) {
   const { pending } = useFormStatus()
+  const isDisabled = pending || disabled
   return (
-    <button type="submit" disabled={pending} aria-disabled={pending} className={className}>
+    <button type="submit" disabled={isDisabled} aria-disabled={isDisabled} className={className}>
       {pending ? pendingText : children}
     </button>
   )

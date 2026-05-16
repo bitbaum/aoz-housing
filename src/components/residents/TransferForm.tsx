@@ -1,6 +1,7 @@
 'use client'
 
 import { transferPlacement } from '@/lib/actions'
+import { SubmitButton } from '@/components/ui'
 import { SPOT_TYPE_LABELS, SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferUnitSelector'
@@ -128,13 +129,13 @@ export function TransferForm({
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {transferSummary}
       </div>
 
-      <button
-        type="submit"
-        className="btn-primary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+      <SubmitButton
+        pendingText={PLACEMENT_ACTIONS_LABELS.transferConfirmBtnPending}
         disabled={eligibleUnits.length === 0 || !selectedUnitId}
+        className="btn-primary text-sm disabled:opacity-60 disabled:cursor-wait"
       >
         {PLACEMENT_ACTIONS_LABELS.transferConfirmBtn}
-      </button>
+      </SubmitButton>
     </form>
   )
 }
