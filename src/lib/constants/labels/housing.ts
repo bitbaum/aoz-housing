@@ -48,18 +48,27 @@ export const END_REASON_DESCRIPTIONS: Record<string, string> = {
 }
 
 export const HOUSING_DANGER_ZONE_LABELS = {
-  confirmPlaceholder: 'Bestätigung: DELETE',
-  reasonPlaceholder: 'Grund (mind. 10 Zeichen)',
-  blockerReportTitle: 'Blocker-Report:',
-  noDetails: 'Keine Details',
-  copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
+  title: 'Danger Zone — Hard-Delete',
   description: 'Nur für Test-/Demo-Unterkünfte. Diese Aktion ist endgültig und entfernt den Datensatz.',
   notEligible: 'Dieser Unterkunfts-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
-  deleteSuccess: 'Unterkunft wurde endgültig gelöscht',
-  deleteBtn: 'Endgültig löschen',
+  blockerReportTitle: 'Blocker-Report:',
+  noDetails: 'Keine Details',
+  copyReport: 'Report kopieren',
+  copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
+  confirmPlaceholder: 'Bestätigung: DELETE',
+  reasonPlaceholder: 'Grund (mind. 10 Zeichen)',
+  deleteButton: 'Endgültig löschen',
   deleteFailed: 'Hard-Delete fehlgeschlagen',
-  reportCopyBtn: 'Report kopieren',
+  deleteSuccess: 'Unterkunft wurde endgültig gelöscht',
 } as const
+
+export const HOUSING_BLOCKER_LABELS: Record<string, string> = {
+  placements: 'Platzierungen',
+  incidents: 'Vorfälle',
+  maintenanceRequests: 'Wartungsmeldungen',
+  spots: 'Spots',
+  tasks: 'Aufgaben',
+}
 
 export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {
   NOISE: 'Lärm / Geräusche',
