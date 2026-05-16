@@ -451,6 +451,15 @@ export const PORTAL_LABELS = {
     isSmoker: 'Raucher',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     noPlacementContact: 'Kontaktiere uns: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
+    roommateCount: (n: number) => n === 1 ? 'Du wohnst mit 1 Person zusammen' : `Du wohnst mit ${n} Personen zusammen`,
+    ageYears: 'Jahre',
+    scoreLevels: {
+      excellent: 'Sehr gut',
+      good: 'Gut',
+      moderate: 'OK',
+      low: 'Herausfordernd',
+      critical: 'Schwierig',
+    },
   },
   pendingChores: {
     title: 'Offene Aufgaben',

@@ -6,9 +6,16 @@ import { UI_LABELS } from '@/lib/constants'
 interface ErrorBoundaryUIProps {
   description: string
   onRetry: () => void
+  backHref?: string
+  backLabel?: string
 }
 
-export function ErrorBoundaryUI({ description, onRetry }: ErrorBoundaryUIProps) {
+export function ErrorBoundaryUI({
+  description,
+  onRetry,
+  backHref = '/',
+  backLabel = UI_LABELS.errorToDashboard,
+}: ErrorBoundaryUIProps) {
   return (
     <div className="flex items-center justify-center py-16">
       <div className="max-w-md p-8 bg-white rounded-xl shadow-card text-center">
@@ -23,8 +30,8 @@ export function ErrorBoundaryUI({ description, onRetry }: ErrorBoundaryUIProps) 
           <button onClick={onRetry} className="btn-primary">
             {UI_LABELS.errorRetry}
           </button>
-          <Link href="/" className="btn-ghost">
-            {UI_LABELS.errorToDashboard}
+          <Link href={backHref} className="btn-ghost">
+            {backLabel}
           </Link>
         </div>
       </div>

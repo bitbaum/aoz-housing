@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Mitbewohner' }
-import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
+import { getScoreLevel, DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import {
   AGE_RANGE_LABELS,
@@ -118,7 +118,7 @@ export default async function RoommatesPage() {
         <p className="text-gray-500">
           {roommates.length === 0
             ? PORTAL_LABELS.roommates.noRoommates
-            : `Du wohnst mit ${roommates.length} ${roommates.length === 1 ? 'Person' : 'Personen'} zusammen`
+            : PORTAL_LABELS.roommates.roommateCount(roommates.length)
           }
         </p>
       </div>
@@ -198,7 +198,7 @@ function RoommateCard({
             <div>
               <h3 className="font-semibold text-gray-900">{roommate.code}</h3>
               <p className="text-sm text-gray-500">
-                {getLabel(AGE_RANGE_LABELS, roommate.ageRange)} Jahre
+                {getLabel(AGE_RANGE_LABELS, roommate.ageRange)} {PORTAL_LABELS.roommates.ageYears}
               </p>
             </div>
             {assessment && (
@@ -260,14 +260,6 @@ function RoommateCard({
   )
 }
 
-const PORTAL_SCORE_LABELS: Record<ScoreLevel, string> = {
-  excellent: 'Sehr gut',
-  good: 'Gut',
-  moderate: 'OK',
-  low: 'Herausfordernd',
-  critical: 'Schwierig',
-}
-
 function CompatibilityIndicator({ score }: { score: number }) {
   const level = getScoreLevel(score)
   const tokens = SCORE_TOKENS[level]
@@ -276,7 +268,7 @@ function CompatibilityIndicator({ score }: { score: number }) {
     <div className="text-right">
       <div className="flex items-center gap-2 justify-end">
         <div className={`w-3 h-3 rounded-full ${tokens.bg}`} />
-        <span className={`font-medium ${tokens.text}`}>{PORTAL_SCORE_LABELS[level]}</span>
+        <span className={`font-medium ${tokens.text}`}>{PORTAL_LABELS.roommates.scoreLevels[level]}</span>
       </div>
       <p className="text-xs text-gray-500 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
     </div>
