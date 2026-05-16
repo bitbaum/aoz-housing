@@ -7,6 +7,7 @@
  * Add a new factor to config → it automatically appears in the form.
  */
 
+import { useState } from 'react'
 import { DynamicFormField } from './DynamicFormField'
 import type { FormFieldValue } from './DynamicFormField'
 import {
@@ -116,6 +117,8 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
  * Separate from compatibility factors - relates to placement eligibility.
  */
 function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormValues }) {
+  const [hasDoc, setHasDoc] = useState(!!defaultValues.hasMedicalDocumentation)
+
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Medizinische Dokumentation</h2>
@@ -128,7 +131,8 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             type="checkbox"
             name="hasMedicalDocumentation"
             value="true"
-            defaultChecked={!!defaultValues.hasMedicalDocumentation}
+            checked={hasDoc}
+            onChange={(e) => setHasDoc(e.target.checked)}
             className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
           />
           <div>
@@ -141,53 +145,55 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
           </div>
         </label>
 
-        <div className="pl-8 space-y-4 border-l-2 border-gray-200 ml-2">
-          <div>
-            <label className="label">Art der Berechtigung</label>
-            <div className="space-y-2">
-              {Object.entries(MEDICAL_DOC_TYPE_LABELS).map(([key, label]) => (
-                <label key={key} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="medicalDocType"
-                    value={key}
-                    defaultChecked={defaultValues.medicalDocType === key}
-                    className="w-4 h-4 border-gray-300 text-aoz-primary focus:ring-aoz-primary"
-                  />
-                  <span className="text-sm text-gray-700">{label}</span>
-                </label>
-              ))}
+        {hasDoc && (
+          <div className="pl-8 space-y-4 border-l-2 border-gray-200 ml-2">
+            <div>
+              <label className="label">Art der Berechtigung</label>
+              <div className="space-y-2">
+                {Object.entries(MEDICAL_DOC_TYPE_LABELS).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="medicalDocType"
+                      value={key}
+                      defaultChecked={defaultValues.medicalDocType === key}
+                      className="w-4 h-4 border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                    />
+                    <span className="text-sm text-gray-700">{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Datum der Dokumentation</label>
+              <input
+                type="date"
+                name="medicalDocDate"
+                defaultValue={
+                  defaultValues.medicalDocDate
+                    ? new Date(defaultValues.medicalDocDate as string | number | Date).toISOString().split('T')[0]
+                    : ''
+                }
+                className="input max-w-xs"
+              />
+            </div>
+
+            <div>
+              <label className="label">Notizen zur Dokumentation</label>
+              <textarea
+                name="medicalDocNotes"
+                rows={2}
+                defaultValue={(defaultValues.medicalDocNotes as string) || ''}
+                placeholder="z.B. Referenznummer, ausstellende Stelle..."
+                className="input"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Nur Verwaltungsnotizen, keine medizinischen Details
+              </p>
             </div>
           </div>
-
-          <div>
-            <label className="label">Datum der Dokumentation</label>
-            <input
-              type="date"
-              name="medicalDocDate"
-              defaultValue={
-                defaultValues.medicalDocDate
-                  ? new Date(defaultValues.medicalDocDate as string | number | Date).toISOString().split('T')[0]
-                  : ''
-              }
-              className="input max-w-xs"
-            />
-          </div>
-
-          <div>
-            <label className="label">Notizen zur Dokumentation</label>
-            <textarea
-              name="medicalDocNotes"
-              rows={2}
-              defaultValue={(defaultValues.medicalDocNotes as string) || ''}
-              placeholder="z.B. Referenznummer, ausstellende Stelle..."
-              className="input"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Nur Verwaltungsnotizen, keine medizinischen Details
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )
