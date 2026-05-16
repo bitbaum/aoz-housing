@@ -43,7 +43,7 @@ export default async function SettingsPage() {
         </p>
 
         {!emailEnabled && (
-          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+          <div className="mb-4 p-3 bg-status-warning/10 border border-status-warning/25 rounded-lg text-sm text-status-warning-text">
             {SETTINGS_LABELS.emailWarning}
           </div>
         )}
@@ -153,21 +153,21 @@ export default async function SettingsPage() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">{SETTINGS_LABELS.emailConfigTitle}</h2>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-green-500' : 'bg-gray-300'}`} />
+            <span className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-status-success' : 'bg-gray-300'}`} />
             <span className="text-gray-700">
               {emailEnabled ? SETTINGS_LABELS.brevoConnected : SETTINGS_LABELS.brevoNotConfigured}
             </span>
           </div>
           {emailEnabled && (
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
+              <span className="w-2 h-2 rounded-full bg-status-success" />
               <span className="text-gray-700">
                 {SETTINGS_LABELS.senderPrefix} {EMAIL_CONFIG.fromName} &lt;{EMAIL_CONFIG.fromAddress}&gt;
               </span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-green-500' : 'bg-gray-300'}`} />
+            <span className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-status-success' : 'bg-gray-300'}`} />
             <span className="text-gray-700">
               {SETTINGS_LABELS.notificationsPrefix}{' '}
               {EMAIL_CONFIG.staffRecipients.length > 0

@@ -87,26 +87,26 @@ export function ReportForm({ roommates }: Props) {
     const R = PORTAL_LABELS.report
     return (
       <div className="space-y-4">
-        <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+        <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-status-success/25">
           <div className="text-center py-6">
             <span className="text-5xl mb-4 block">✓</span>
-            <h2 className="text-xl font-semibold text-green-800 mb-2">
+            <h2 className="text-xl font-semibold text-status-success-text mb-2">
               {R.successTitle}
             </h2>
-            <p className="text-green-700">
+            <p className="text-status-success-text">
               {R.successMessage}
             </p>
           </div>
         </div>
 
-        <div className="card border-blue-200 bg-blue-50">
-          <h3 className="font-semibold text-blue-900 mb-2">{R.nextStepsTitle}</h3>
-          <ol className="text-sm text-blue-800 space-y-1 list-decimal pl-5">
+        <div className="card border-status-info/25 bg-status-info/8">
+          <h3 className="font-semibold text-status-info-text mb-2">{R.nextStepsTitle}</h3>
+          <ol className="text-sm text-status-info-text space-y-1 list-decimal pl-5">
             {R.nextSteps.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
           </ol>
-          <p className="text-xs text-blue-700 mt-3">{R.successTip}</p>
+          <p className="text-xs text-status-info-text mt-3">{R.successTip}</p>
         </div>
       </div>
     )
@@ -142,7 +142,7 @@ export function ReportForm({ roommates }: Props) {
               location: 'COMMON_AREA',
               description: PORTAL_LABELS.report.templates.urgentRepair.description,
             })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'maintenance-urgent' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] ${activeTemplate === 'maintenance-urgent' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {PORTAL_LABELS.report.templates.urgentRepair.label}
           </button>
@@ -155,7 +155,7 @@ export function ReportForm({ roommates }: Props) {
               severity: 'MEDIUM',
               description: PORTAL_LABELS.report.templates.noise.description,
             })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'noise' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] ${activeTemplate === 'noise' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {PORTAL_LABELS.report.templates.noise.label}
           </button>
@@ -168,7 +168,7 @@ export function ReportForm({ roommates }: Props) {
               severity: 'HIGH',
               description: PORTAL_LABELS.report.templates.safety.description,
             })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'safety' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] ${activeTemplate === 'safety' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {PORTAL_LABELS.report.templates.safety.label}
           </button>
@@ -229,7 +229,7 @@ export function ReportForm({ roommates }: Props) {
           )}
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -327,7 +327,7 @@ export function ReportForm({ roommates }: Props) {
                       defaultChecked={defaults.severity ? sev.value === defaults.severity : sev.value === 'MEDIUM'}
                       className="sr-only peer"
                     />
-                    <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-blue-50 transition-colors min-h-[70px] flex flex-col items-center justify-center">
+                    <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                       {'icon' in sev && <span className="text-xl block mb-1">{sev.icon}</span>}
                       <span className={`block ${'desc' in sev ? 'text-sm font-medium' : 'text-xs'}`}>
                         {sev.label}

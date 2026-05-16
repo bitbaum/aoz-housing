@@ -46,7 +46,7 @@ export default async function EditHousingPage({ params }: Props) {
       <form id="housing-edit-form" action={updateHousingUnit} className="space-y-6">
         <input type="hidden" name="id" value={id} />
 
-        <div id="housing-edit-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+        <div id="housing-edit-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
         <FormValidationUX formId="housing-edit-form" summaryId="housing-edit-validation-summary" />
 
         <HousingFormFields

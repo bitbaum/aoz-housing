@@ -337,12 +337,12 @@ export default async function MatchingPage({ searchParams }: Props) {
       {isNewResident && (
         <div className="mb-6 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-status-success text-white flex items-center justify-center text-sm font-medium">
               ✓
             </div>
             <span className="text-sm text-gray-500">{MATCHING_LABELS.profileCaptured}</span>
           </div>
-          <div className="flex-1 h-0.5 bg-green-500" />
+          <div className="flex-1 h-0.5 bg-status-success" />
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-aoz-primary text-white flex items-center justify-center text-sm font-medium">
               2
@@ -354,14 +354,14 @@ export default async function MatchingPage({ searchParams }: Props) {
 
       {/* Welcome banner for new residents */}
       {isNewResident && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-6 p-4 bg-status-success/10 border border-status-success/25 rounded-lg">
           <div className="flex items-start gap-3">
             <span className="text-2xl">👤</span>
             <div>
-              <h2 className="font-semibold text-green-800">
+              <h2 className="font-semibold text-status-success-text">
                 {MATCHING_LABELS.residentCreated(selectedResident?.code ?? '')}
               </h2>
-              <p className="text-sm text-green-700 mt-1">
+              <p className="text-sm text-status-success-text mt-1">
                 {MATCHING_LABELS.newResidentBannerDesc}
               </p>
             </div>
@@ -371,14 +371,14 @@ export default async function MatchingPage({ searchParams }: Props) {
 
       {/* Info banner for already-placed residents */}
       {selectedResident && selectedResident.placements.length > 0 && !isNewResident && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-4 bg-status-info/8 border border-status-info/25 rounded-lg">
           <div className="flex items-start gap-3">
             <span className="text-xl">ℹ️</span>
             <div>
-              <h2 className="font-semibold text-blue-800">
+              <h2 className="font-semibold text-status-info-text">
                 {MATCHING_LABELS.whatIfTitle(selectedResident.code)}
               </h2>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="text-sm text-status-info-text mt-1">
                 {MATCHING_LABELS.whatIfCurrentPlacement(selectedResident.placements[0]?.housingUnit?.code ?? '')}{' '}
                 {MATCHING_LABELS.whatIfDesc}
               </p>

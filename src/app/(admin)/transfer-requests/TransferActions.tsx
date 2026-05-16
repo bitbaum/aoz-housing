@@ -26,7 +26,7 @@ export function TransferActions({ requestId }: TransferActionsProps) {
 
   if (result?.success) {
     return (
-      <p role="status" className="text-sm text-green-600 font-medium">{L.success}</p>
+      <p role="status" className="text-sm text-status-success-text font-medium">{L.success}</p>
     )
   }
 
@@ -41,7 +41,7 @@ export function TransferActions({ requestId }: TransferActionsProps) {
       />
 
       {result?.error && (
-        <p role="alert" className="text-sm text-red-600">{result.error}</p>
+        <p role="alert" className="text-sm text-status-error-text">{result.error}</p>
       )}
 
       <div className="flex gap-2">

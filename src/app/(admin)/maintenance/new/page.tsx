@@ -58,7 +58,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
       <div className="card">
         <form id="maintenance-new-form" action={createMaintenanceRequest} className="space-y-6">
-          <div id="maintenance-new-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+          <div id="maintenance-new-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
           <FormValidationUX formId="maintenance-new-form" summaryId="maintenance-new-validation-summary" />
 
           {/* Location Section */}

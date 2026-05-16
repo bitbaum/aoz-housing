@@ -46,7 +46,7 @@ export default async function EditResidentPage({ params }: Props) {
       <form id="resident-edit-form" action={updateResident} className="space-y-6">
         <input type="hidden" name="id" value={id} />
 
-        <div id="resident-edit-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+        <div id="resident-edit-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
         <FormValidationUX formId="resident-edit-form" summaryId="resident-edit-validation-summary" />
 
         <ResidentFormFields

@@ -236,7 +236,7 @@ function RoommateCard({
                     <p className="text-gray-500">{PORTAL_LABELS.roommates.strengths}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.strengths.slice(0, 2).map((s: string, i: number) => (
-                        <li key={i} className="text-green-700">✓ {s}</li>
+                        <li key={i} className="text-status-success-text">✓ {s}</li>
                       ))}
                     </ul>
                   </div>
@@ -246,7 +246,7 @@ function RoommateCard({
                     <p className="text-gray-500">{PORTAL_LABELS.roommates.concerns}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.concerns.slice(0, 2).map((c: string, i: number) => (
-                        <li key={i} className="text-orange-700">! {c}</li>
+                        <li key={i} className="text-status-warning-text">! {c}</li>
                       ))}
                     </ul>
                   </div>

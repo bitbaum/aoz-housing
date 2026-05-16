@@ -98,18 +98,18 @@ function LoginForm() {
 
         {state.status === 'success' ? (
           <div className="text-center py-4" role="status" aria-live="polite">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-status-success/15 flex items-center justify-center">
+              <svg className="w-6 h-6 text-status-success-text" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <p className="text-green-700 font-medium">{state.message}</p>
+            <p className="text-status-success-text font-medium">{state.message}</p>
             <p className="text-sm text-gray-500 mt-2">{LOGIN_LABELS.success.redirecting}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {state.status === 'error' && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm" role="alert" aria-live="polite">
+              <div className="p-3 bg-status-error/8 border border-status-error/25 rounded-xl text-status-error-text text-sm" role="alert" aria-live="polite">
                 {state.message}
               </div>
             )}
@@ -150,12 +150,12 @@ function LoginForm() {
 
       {/* Demo access */}
       {state.status !== 'success' && (
-        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div className="mt-4 bg-status-warning/10 border border-status-warning/25 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <span className="text-amber-600 text-lg leading-none mt-0.5" aria-hidden="true">⚡</span>
+            <span className="text-status-warning-text text-lg leading-none mt-0.5" aria-hidden="true">⚡</span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-amber-900">{LOGIN_LABELS.demo.title}</p>
-              <p className="text-xs text-amber-700 mt-0.5">Erkunden Sie die Anwendung aus beiden Perspektiven.</p>
+              <p className="text-sm font-medium text-status-warning-text">{LOGIN_LABELS.demo.title}</p>
+              <p className="text-xs text-status-warning-text mt-0.5">Erkunden Sie die Anwendung aus beiden Perspektiven.</p>
             </div>
           </div>
           <div className="mt-3 flex gap-2">
@@ -171,8 +171,8 @@ function LoginForm() {
             <button
               onClick={handleDemoResident}
               disabled={state.status === 'loading'}
-              className="flex-1 py-2.5 px-4 bg-amber-600 text-white text-sm font-medium rounded-xl
-                       hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
+              className="flex-1 py-2.5 px-4 bg-status-warning text-white text-sm font-medium rounded-xl
+                       hover:bg-status-warning/90 focus:outline-none focus:ring-2 focus:ring-status-warning focus:ring-offset-2
                        disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[44px]"
             >
               👤 Bewohner-Portal

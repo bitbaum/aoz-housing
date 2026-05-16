@@ -130,16 +130,16 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
 
       {/* Follow-up Reminder Banner */}
       {isOverdue && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl" role="img" aria-label={INCIDENT_DETAIL_LABELS.overdueAria}>⏰</span>
               <div>
-                <p className="font-semibold text-red-800">
+                <p className="font-semibold text-status-error-text">
                   {INCIDENT_DETAIL_LABELS.overdueTitle(formatRelativeDate(incident.nextFollowUpDate!))}
                 </p>
                 {incident.followUpPriority && (
-                  <p className="text-sm text-red-700">
+                  <p className="text-sm text-status-error-text">
                     {INCIDENT_DETAIL_LABELS.priorityPrefix}{getLabel(FOLLOW_UP_PRIORITY_LABELS, incident.followUpPriority)}
                   </p>
                 )}
@@ -156,11 +156,11 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       )}
 
       {incident.nextFollowUpDate && !isOverdue && !incident.resolvedAt && (
-        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-6 p-4 bg-status-info/8 border border-status-info/25 rounded-lg">
           <div className="flex items-center gap-3">
             <span className="text-2xl" role="img" aria-label={INCIDENT_DETAIL_LABELS.scheduledAria}>📅</span>
             <div>
-              <p className="font-semibold text-blue-800">
+              <p className="font-semibold text-status-info-text">
                 {INCIDENT_DETAIL_LABELS.scheduledTitle(formatDate(incident.nextFollowUpDate))}
               </p>
               {incident.followUpPriority && (

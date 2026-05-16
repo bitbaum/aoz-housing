@@ -279,7 +279,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                     <p className="text-sm text-gray-500">{unit.address}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-orange-600">{count}</p>
+                    <p className="font-semibold text-status-warning-text">{count}</p>
                     <p className="text-xs text-gray-500">Konflikte</p>
                   </div>
                 </Link>
@@ -351,10 +351,10 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                         <div
                           className={`h-full ${
                             reason === 'CONFLICT'
-                              ? 'bg-red-500'
+                              ? 'bg-status-error'
                               : reason === 'NATURAL'
-                              ? 'bg-green-500'
-                              : 'bg-yellow-500'
+                              ? 'bg-status-success'
+                              : 'bg-status-warning'
                           }`}
                           style={{
                             width: `${(count / endedPlacements.length) * 100}%`,
@@ -407,11 +407,11 @@ function MetricCard({
   const content = (
     <div className={`card ${href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
       <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-orange-600' : 'text-gray-900'}`}>
+      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-gray-900'}`}>
         {value}
       </p>
       {subtitle && (
-        <p className={`text-sm mt-2 ${highlight ? 'text-orange-500' : 'text-gray-500'}`}>
+        <p className={`text-sm mt-2 ${highlight ? 'text-status-warning-text' : 'text-gray-500'}`}>
           {subtitle}
         </p>
       )}

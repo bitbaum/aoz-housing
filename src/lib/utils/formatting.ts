@@ -212,8 +212,8 @@ export type TrendType = 'good' | 'warning' | 'neutral'
 
 export function getTrendColorClass(trend: TrendType): string {
   const classes: Record<TrendType, string> = {
-    good: 'text-green-600',
-    warning: 'text-orange-600',
+    good:    'text-status-success-text',
+    warning: 'text-status-warning-text',
     neutral: 'text-gray-500',
   }
   return classes[trend]

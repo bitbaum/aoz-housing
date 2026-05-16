@@ -100,11 +100,11 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Urgent Alert */}
       {stats.urgent > 0 && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-6 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🚨</span>
             <div>
-              <p className="font-semibold text-red-800">
+              <p className="font-semibold text-status-error-text">
                 {stats.urgent} {stats.urgent > 1 ? MAINTENANCE_PAGE_LABELS.urgentAlertSuffix : MAINTENANCE_PAGE_LABELS.urgentAlertSuffixSingular}
               </p>
             </div>
@@ -239,7 +239,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
                 </Link>
               )}
               {request.assignedTo && (
-                <span className="text-blue-600">🔧 {request.assignedTo}</span>
+                <span className="text-status-info-text">🔧 {request.assignedTo}</span>
               )}
               <span>{formatRelativeDate(request.createdAt)}</span>
             </div>

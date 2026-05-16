@@ -298,7 +298,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
                 {placement.resident.code}
               </Link>
               {supportLevel !== 'STANDARD' && (
-                <p className="text-xs text-orange-600">
+                <p className="text-xs text-status-warning-text">
                   {getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}
                 </p>
               )}
@@ -376,7 +376,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
       {/* Concerns Alert */}
       {lastCheckIn?.concerns && (
-        <div className="mt-3 p-2 bg-orange-50 rounded text-sm text-orange-700 border-t border-orange-100">
+        <div className="mt-3 p-2 bg-status-warning/10 rounded text-sm text-status-warning-text border-t border-status-warning/15">
           {PLACEMENT_LIST_LABELS.concerns} {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}{lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
         </div>
       )}

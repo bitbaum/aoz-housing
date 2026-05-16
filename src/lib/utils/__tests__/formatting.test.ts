@@ -176,8 +176,8 @@ describe('getHarmonyStatus', () => {
 
 describe('getHarmonyColorClass', () => {
   it('returns correct classes for each level', () => {
-    expect(getHarmonyColorClass('excellent')).toContain('green')
-    expect(getHarmonyColorClass('critical')).toContain('red')
+    expect(getHarmonyColorClass('excellent')).toContain('score-excellent')
+    expect(getHarmonyColorClass('critical')).toContain('score-critical')
   })
 })
 
@@ -282,8 +282,8 @@ describe('getHealthLevel', () => {
 
 describe('getHealthColorClass', () => {
   it('returns color classes', () => {
-    expect(getHealthColorClass(90)).toContain('green')
-    expect(getHealthColorClass(30)).toContain('red')
+    expect(getHealthColorClass(90)).toContain('score-excellent')
+    expect(getHealthColorClass(30)).toContain('score-critical')
   })
 })
 
@@ -293,11 +293,11 @@ describe('getHealthColorClass', () => {
 
 describe('getTrendColorClass', () => {
   it('returns green for good', () => {
-    expect(getTrendColorClass('good')).toContain('green')
+    expect(getTrendColorClass('good')).toContain('status-success-text')
   })
 
   it('returns orange for warning', () => {
-    expect(getTrendColorClass('warning')).toContain('orange')
+    expect(getTrendColorClass('warning')).toContain('status-warning-text')
   })
 
   it('returns gray for neutral', () => {

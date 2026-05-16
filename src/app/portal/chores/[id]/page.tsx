@@ -181,7 +181,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         ) : (
           <div className="space-y-3">
             {task.completions.map(c => (
-              <div key={c.id} className="flex items-start justify-between p-3 bg-green-50 rounded-lg">
+              <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{c.completedBy.code}</p>
                   {c.notes && <p className="text-xs text-gray-600 mt-0.5">{c.notes}</p>}
@@ -226,7 +226,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.attentionFlags}</h2>
           <div className="space-y-3">
             {activeFlags.map(f => (
-              <div key={f.id} className="p-3 bg-yellow-50 rounded-lg">
+              <div key={f.id} className="p-3 bg-status-warning/10 rounded-lg">
                 <p className="text-sm font-medium text-gray-900">
                   ⚠️ {f.flaggedBy.code}
                 </p>

@@ -126,12 +126,12 @@ export default async function ResidentsListPage({ searchParams }: Props) {
 
       {/* Contextual Action Banner */}
       {view !== 'archived' && stats.unplaced > 0 && (
-        <div className="mb-4 sm:mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="mb-4 sm:mb-6 p-4 bg-status-info/8 border border-status-info/25 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <p className="font-medium text-blue-800">
+            <p className="font-medium text-status-info-text">
               {stats.unplaced} {RESIDENT_LIST_LABELS.unplacedBannerSuffix}
             </p>
-            <p className="text-sm text-blue-600">
+            <p className="text-sm text-status-info-text">
               {RESIDENT_LIST_LABELS.unplacedBannerDesc}
             </p>
           </div>

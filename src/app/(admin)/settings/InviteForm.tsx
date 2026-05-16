@@ -53,17 +53,17 @@ export function InviteForm() {
     const { user, emailSent } = state.result
     return (
       <div className="space-y-4">
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg" role="status">
-          <p className="font-medium text-green-800 mb-1">{INVITE_FORM_LABELS.successTitle}</p>
-          <p className="text-sm text-green-700">
+        <div className="p-4 bg-status-success/10 border border-status-success/25 rounded-lg" role="status">
+          <p className="font-medium text-status-success-text mb-1">{INVITE_FORM_LABELS.successTitle}</p>
+          <p className="text-sm text-status-success-text">
             {INVITE_FORM_LABELS.successDesc(user.name, user.email)}
           </p>
           {emailSent ? (
-            <p className="text-sm text-green-700 mt-1">
+            <p className="text-sm text-status-success-text mt-1">
               {INVITE_FORM_LABELS.emailSent}
             </p>
           ) : (
-            <div className="mt-3 p-3 bg-white border border-green-200 rounded">
+            <div className="mt-3 p-3 bg-white border border-status-success/25 rounded">
               <p className="text-xs text-gray-500 mb-1">{INVITE_FORM_LABELS.emailNotSent}</p>
               <p className="font-mono text-lg font-bold text-gray-900 tracking-wider">{user.code}</p>
             </div>
@@ -82,7 +82,7 @@ export function InviteForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {state.status === 'error' && (
-        <p role="alert" className="text-sm text-red-600 p-3 bg-red-50 border border-red-200 rounded">
+        <p role="alert" className="text-sm text-status-error-text p-3 bg-status-error/8 border border-status-error/25 rounded">
           {state.message}
         </p>
       )}
@@ -90,7 +90,7 @@ export function InviteForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="invite-name" className="label">
-            {INVITE_FORM_LABELS.fieldName} <span className="text-red-500">*</span>
+            {INVITE_FORM_LABELS.fieldName} <span className="text-status-error-text">*</span>
           </label>
           <input
             id="invite-name"
@@ -105,7 +105,7 @@ export function InviteForm() {
         </div>
         <div>
           <label htmlFor="invite-email" className="label">
-            {INVITE_FORM_LABELS.fieldEmail} <span className="text-red-500">*</span>
+            {INVITE_FORM_LABELS.fieldEmail} <span className="text-status-error-text">*</span>
           </label>
           <input
             id="invite-email"

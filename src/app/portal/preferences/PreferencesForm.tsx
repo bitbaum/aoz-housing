@@ -114,13 +114,13 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
   if (submitted) {
     return (
-      <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+      <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-status-success/25">
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
-          <h2 className="text-xl font-semibold text-green-800 mb-2">
+          <h2 className="text-xl font-semibold text-status-success-text mb-2">
             {P.successTitle}
           </h2>
-          <p className="text-green-700">
+          <p className="text-status-success-text">
             {P.successMessage}
           </p>
           <Link href="/portal" className="text-aoz-primary hover:underline mt-4 inline-block">
@@ -160,16 +160,16 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm">
           {error}
         </div>
       )}
 
       <form ref={formRef} onSubmit={handleSubmit} onChange={() => setIsDirty(true)} className="space-y-6 pb-24 sm:pb-0">
-        <div className="card bg-blue-50 border-blue-200">
-          <p className="text-sm text-blue-900">{P.saveTip}</p>
+        <div className="card bg-status-info/8 border-status-info/25">
+          <p className="text-sm text-status-info-text">{P.saveTip}</p>
           {isDirty && (
-            <p className="text-xs text-blue-700 mt-1">{P.unsavedChanges}</p>
+            <p className="text-xs text-status-info-text mt-1">{P.unsavedChanges}</p>
           )}
         </div>
 

@@ -88,26 +88,26 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
       {/* Welcome Banner for new units */}
       {isNewUnit && unit.spots.length === 0 && (
-        <div className="mb-6 p-5 bg-blue-50 border-2 border-blue-300 rounded-lg">
+        <div className="mb-6 p-5 bg-status-info/8 border-2 border-status-info/40 rounded-lg">
           <div className="flex items-start gap-4">
             <span className="text-3xl">🏢</span>
             <div className="flex-1">
-              <h2 className="font-bold text-blue-900 text-lg mb-2">
+              <h2 className="font-bold text-status-info-text text-lg mb-2">
                 {HOUSING_SPOTS_LABELS.welcomeTitle}
               </h2>
-              <p className="text-sm text-blue-800 mb-4">
+              <p className="text-sm text-status-info-text mb-4">
                 {HOUSING_SPOTS_LABELS.welcomeDescPre}<strong>{unit.code}</strong>{HOUSING_SPOTS_LABELS.welcomeDescPost}
               </p>
 
               {/* Hierarchy Explanation */}
-              <div className="bg-white p-4 rounded-lg border border-blue-200 mb-4">
+              <div className="bg-white p-4 rounded-lg border border-status-info/25 mb-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-medium">🏢 Gebäude</span>
+                  <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">🏢 Gebäude</span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-medium">🚪 Zimmer</span>
+                  <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">🚪 Zimmer</span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-medium">🛏️ Betten</span>
+                  <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">🛏️ Betten</span>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
                   {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}<br/>
@@ -117,19 +117,19 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
               {/* Quick Start Steps */}
               <div className="flex flex-wrap gap-3 text-sm">
-                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
-                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                  <span className="text-blue-900">
+                <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
+                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="text-status-info-text">
                     {HOUSING_SPOTS_LABELS.step1}<code className="bg-white px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
-                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                  <span className="text-blue-900">{HOUSING_SPOTS_LABELS.step2}</span>
+                <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
+                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="text-status-info-text">{HOUSING_SPOTS_LABELS.step2}</span>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 rounded-lg">
-                  <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
-                  <span className="text-blue-900">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
+                <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
+                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span className="text-status-info-text">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
                 </div>
               </div>
             </div>
@@ -147,14 +147,14 @@ export default async function SpotManagementPage({ params, searchParams }: Props
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Add Room with Beds */}
-          <div className="border-2 border-green-300 bg-green-50 rounded-lg p-4">
+          <div className="border-2 border-status-success/40 bg-status-success/10 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">🚪</span>
-              <h3 className="font-semibold text-green-900">
+              <h3 className="font-semibold text-status-success-text">
                 {HOUSING_SPOTS_LABELS.roomGroupTitle}
               </h3>
             </div>
-            <p className="text-xs text-green-700 mb-4">
+            <p className="text-xs text-status-success-text mb-4">
               {HOUSING_SPOTS_LABELS.roomGroupDesc}
             </p>
             <form action={createMultipleSpots} className="space-y-3">
@@ -392,9 +392,9 @@ function SpotRow({
     <div
       className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3 rounded-lg border ${
         isOccupied
-          ? 'bg-blue-50 border-blue-200'
+          ? 'bg-status-info/8 border-status-info/25'
           : spot.status === 'AVAILABLE'
-            ? 'bg-green-50 border-green-200'
+            ? 'bg-status-success/10 border-status-success/25'
             : 'bg-gray-50 border-gray-200'
       } ${compact ? 'py-2' : ''}`}
     >
@@ -416,7 +416,7 @@ function SpotRow({
           {isOccupied ? (
             <Link
               href={`/residents/${activePlacement.resident.id}`}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-status-info-text hover:underline"
             >
               {activePlacement.resident.code}
             </Link>

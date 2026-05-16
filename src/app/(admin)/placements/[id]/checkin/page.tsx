@@ -65,7 +65,7 @@ export default async function NewCheckInPage({ params }: Props) {
 
       {/* Previous Check-ins Summary */}
       {checkInCount > 0 && (
-        <div className="card mb-6 bg-blue-50">
+        <div className="card mb-6 bg-status-info/8">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">
             {CHECKIN_FORM_LABELS.previousTitle}
           </h2>
@@ -83,10 +83,10 @@ export default async function NewCheckInPage({ params }: Props) {
                   <span
                     className={`w-3 h-3 rounded-full ${
                       checkIn.overallSatisfaction >= 4
-                        ? 'bg-green-500'
+                        ? 'bg-status-success'
                         : checkIn.overallSatisfaction >= 3
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
+                        ? 'bg-status-warning'
+                        : 'bg-status-error'
                     }`}
                   />
                 </div>

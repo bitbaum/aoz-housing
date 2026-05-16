@@ -109,7 +109,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               severity: 'MEDIUM',
               description: INCIDENT_PAGE_LABELS.presets.noiseDesc,
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'noise' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'noise' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {INCIDENT_PAGE_LABELS.presets.noiseLabel}
           </Link>
@@ -121,7 +121,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               severity: 'HIGH',
               description: INCIDENT_PAGE_LABELS.presets.escalationDesc,
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'aggression' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'aggression' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {INCIDENT_PAGE_LABELS.presets.escalationLabel}
           </Link>
@@ -133,7 +133,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               severity: 'HIGH',
               description: INCIDENT_PAGE_LABELS.presets.safetyDesc,
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'safety' ? 'bg-blue-100 border-blue-300 text-blue-700' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${params.quick === 'safety' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
           >
             {INCIDENT_PAGE_LABELS.presets.safetyLabel}
           </Link>

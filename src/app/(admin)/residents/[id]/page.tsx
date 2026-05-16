@@ -306,9 +306,9 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             </h2>
             {currentPlacement ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-status-success/10 rounded-lg">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-green-600 text-white rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-status-success text-white rounded-lg flex items-center justify-center">
                       {'\u{1F3E0}'}
                     </div>
                     <div>

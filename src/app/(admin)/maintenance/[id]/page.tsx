@@ -105,7 +105,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               </h2>
               <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
                 <input type="hidden" name="requestId" value={request.id} />
-                <div id="maintenance-status-validation-summary" className="hidden p-3 rounded border border-red-300 bg-red-50 text-red-800 text-sm" role="alert" />
+                <div id="maintenance-status-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
                 <FormValidationUX formId="maintenance-status-form" summaryId="maintenance-status-validation-summary" />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -173,7 +173,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
 
           {/* Resolution */}
           {request.resolution && (
-            <div className="card bg-green-50">
+            <div className="card bg-status-success/10">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 {MAINTENANCE_PAGE_LABELS.resolutionTitle}
               </h2>
@@ -258,7 +258,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 {MAINTENANCE_PAGE_LABELS.assignedTitle}
               </h2>
-              <div className="p-3 bg-blue-50 rounded-lg">
+              <div className="p-3 bg-status-info/8 rounded-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🔧</span>
                   <p className="font-medium text-gray-900">

@@ -38,15 +38,15 @@ export default function PortalHelpPage() {
       </div>
 
       {/* Emergency Contact */}
-      <div className="card border-l-4 border-l-red-500 bg-red-50">
+      <div className="card border-l-4 border-l-status-error bg-status-error/8">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">{H.emergencyTitle}</h2>
         <p className="text-sm text-gray-600 mb-4">{H.emergencyDesc}</p>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🚨</span>
             <div>
-              <p className="font-semibold text-red-700">{H.emergency.police}</p>
-              <p className="text-lg font-bold text-red-700">{H.emergency.policeNumber}</p>
+              <p className="font-semibold text-status-error-text">{H.emergency.police}</p>
+              <p className="text-lg font-bold text-status-error-text">{H.emergency.policeNumber}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">

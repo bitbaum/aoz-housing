@@ -73,9 +73,9 @@ export default async function ReportPage() {
       )}
 
       {/* Emergency Notice */}
-      <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <h3 className="font-medium text-red-800 mb-2">{PORTAL_LABELS.report.emergencyTitle}</h3>
-        <p className="text-sm text-red-700">
+      <div className="mt-8 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
+        <h3 className="font-medium text-status-error-text mb-2">{PORTAL_LABELS.report.emergencyTitle}</h3>
+        <p className="text-sm text-status-error-text">
           {PORTAL_LABELS.report.emergencyMessage}
         </p>
       </div>

@@ -60,31 +60,28 @@ export const APARTMENT_THRESHOLDS = {
  */
 export function getFitScoreColor(score: number): string {
   if (score >= APARTMENT_THRESHOLDS.fitScore.EXCELLENT) {
-    return 'text-green-600'
+    return 'text-score-excellent-text'
   }
   if (score >= APARTMENT_THRESHOLDS.fitScore.GOOD) {
-    return 'text-yellow-600'
+    return 'text-score-medium-text'
   }
   if (score >= APARTMENT_THRESHOLDS.fitScore.ACCEPTABLE) {
-    return 'text-orange-600'
+    return 'text-score-low-text'
   }
-  return 'text-red-600'
+  return 'text-score-critical-text'
 }
 
-/**
- * Get background color class for fit score display
- */
 export function getFitScoreBgColor(score: number): string {
   if (score >= APARTMENT_THRESHOLDS.fitScore.EXCELLENT) {
-    return 'bg-green-50 border-green-200'
+    return 'bg-status-success/10 border-status-success/25'
   }
   if (score >= APARTMENT_THRESHOLDS.fitScore.GOOD) {
-    return 'bg-yellow-50 border-yellow-200'
+    return 'bg-status-warning/10 border-status-warning/25'
   }
   if (score >= APARTMENT_THRESHOLDS.fitScore.ACCEPTABLE) {
-    return 'bg-orange-50 border-orange-200'
+    return 'bg-status-warning/10 border-status-warning/40'
   }
-  return 'bg-red-50 border-red-200'
+  return 'bg-status-error/8 border-status-error/25'
 }
 
 /**
