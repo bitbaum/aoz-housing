@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { HousingFormFields, FormValidationUX } from '@/components/forms'
+import { SubmitButton } from '@/components/ui'
 import { updateHousingUnit } from '@/lib/actions'
 import { HousingDangerZone } from '@/components/housing/HousingDangerZone'
 import { HOUSING_EDIT_LABELS } from '@/lib/constants'
@@ -77,9 +78,9 @@ export default async function EditHousingPage({ params }: Props) {
 
         {/* Actions */}
         <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
-          <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+          <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {HOUSING_EDIT_LABELS.submit}
-          </button>
+          </SubmitButton>
           <Link href={`/housing/${id}`} className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
             {HOUSING_EDIT_LABELS.cancel}
           </Link>

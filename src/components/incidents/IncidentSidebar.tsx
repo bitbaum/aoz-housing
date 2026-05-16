@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { resolveIncident, updateMediationTime } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
+import { SubmitButton } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
 import { INCIDENT_SIDEBAR_LABELS } from '@/lib/constants'
 
@@ -135,9 +136,9 @@ export function IncidentSidebar({ incident }: Props) {
                 className="input"
               />
             </div>
-            <button type="submit" className="btn-primary w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+            <SubmitButton className="btn-primary w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
               {INCIDENT_SIDEBAR_LABELS.markResolved}
-            </button>
+            </SubmitButton>
           </form>
         </div>
       )}
@@ -161,9 +162,9 @@ export function IncidentSidebar({ incident }: Props) {
             aria-label={INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
           />
           <span className="text-sm text-gray-500 whitespace-nowrap">{INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}</span>
-          <button type="submit" className="btn-outline min-h-[44px] px-3 text-sm whitespace-nowrap">
+          <SubmitButton className="btn-outline min-h-[44px] px-3 text-sm whitespace-nowrap disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_SIDEBAR_LABELS.mediationTimeSave}
-          </button>
+          </SubmitButton>
         </form>
       </div>
 

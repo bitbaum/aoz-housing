@@ -12,6 +12,7 @@ import {
   UI_LABELS,
 } from '@/lib/constants'
 import { FormValidationUX } from '@/components/forms'
+import { SubmitButton } from '@/components/ui'
 
 export const dynamic = 'force-dynamic'
 
@@ -190,9 +191,9 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
             <Link href="/maintenance" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
               {UI_LABELS.cancel}
             </Link>
-            <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+            <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
               {MAINTENANCE_PAGE_LABELS.submit}
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { MatchResult, ResidentWithPlacement } from '@/lib/matching/types'
 import { EMPTY_STATE_LABELS, MATCH_RESULTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants'
+import { SubmitButton } from '@/components/ui'
 import { placeResident } from '@/lib/actions/matching'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { MatchCard } from './MatchCard'
@@ -79,9 +80,9 @@ export function MatchResultsPanel({
                 <p className="text-sm text-status-success-text">
                   {MATCH_RESULTS_LABELS.quickActionDesc(bestQuickMatch.unit.code, bestQuickMatch.apartmentFit.fitScore)}
                 </p>
-                <button type="submit" className="btn-primary text-sm min-h-[44px]">
+                <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
                   {MATCH_RESULTS_LABELS.quickActionBtn}
-                </button>
+                </SubmitButton>
               </div>
             </form>
           )}
@@ -110,7 +111,7 @@ export function MatchResultsPanel({
                           <input type="hidden" name="residentId" value={selectedResident.id} />
                           <input type="hidden" name="housingUnitId" value={match.unit.id} />
                           <input type="hidden" name="spotId" value={availableSpot.id} />
-                          <button type="submit" className="btn-primary text-sm min-h-[44px]">{PLACEMENT_PANEL_LABELS.place}</button>
+                          <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">{PLACEMENT_PANEL_LABELS.place}</SubmitButton>
                         </form>
                       ) : (
                         <span className="text-xs text-status-error-text">{PLACEMENT_PANEL_LABELS.blocked}</span>

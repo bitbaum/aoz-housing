@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
+import { SubmitButton } from '@/components/ui'
 import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
@@ -164,9 +165,9 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+                <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
                   {MAINTENANCE_PAGE_LABELS.updateStatusBtn}
-                </button>
+                </SubmitButton>
               </form>
             </div>
           )}

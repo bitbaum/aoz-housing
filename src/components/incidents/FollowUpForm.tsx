@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { addFollowUp } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
+import { SubmitButton } from '@/components/ui'
 import { FOLLOW_UP_PRIORITY_LABELS, FOLLOW_UP_FORM_LABELS } from '@/lib/constants'
 
 interface Props {
@@ -170,9 +171,9 @@ export function FollowUpForm({
           </div>
         </div>
 
-        <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+        <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
           {FOLLOW_UP_FORM_LABELS.submit}
-        </button>
+        </SubmitButton>
       </form>
     </div>
   )

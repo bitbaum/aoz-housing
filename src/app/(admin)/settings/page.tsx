@@ -5,6 +5,7 @@ import { InviteForm } from './InviteForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import { SETTINGS_LABELS, PILOT_BASELINE_LABELS } from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
+import { SubmitButton } from '@/components/ui'
 
 export const metadata: Metadata = { title: 'Einstellungen' }
 
@@ -141,9 +142,9 @@ export default async function SettingsPage() {
             </div>
           </div>
           <div>
-            <button type="submit" className="btn-primary min-h-[44px]">
+            <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
               {PILOT_BASELINE_LABELS.saveButton}
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </div>
