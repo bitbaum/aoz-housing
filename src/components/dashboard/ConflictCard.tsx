@@ -97,7 +97,7 @@ export function ConflictCard({
 
       <Link
         href="/incidents"
-        className="block text-center mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
+        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
       >
         {ALGORITHM_ACCURACY_LABELS.conflictCardViewAll}
       </Link>

@@ -426,7 +426,7 @@ function ResidentCard({
         )}
         <Link
           href={`/residents/${placement.residentId}`}
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {HOUSING_DETAIL_LABELS.details}
         </Link>

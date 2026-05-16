@@ -25,7 +25,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
         </div>
         <Link
           href="/matching"
-          className="text-sm text-gray-500 hover:text-gray-700"
+          className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700"
         >
           {MATCHING_LABELS.back}
         </Link>
@@ -78,7 +78,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
-                      className="font-medium text-gray-900 hover:text-aoz-primary"
+                      className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
                     >
                       {match.resident.code}
                     </Link>

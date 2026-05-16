@@ -45,11 +45,11 @@ export function RecentPlacementsTable({ placements }: Props) {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs text-gray-500">{formatDate(placement.startDate)}</p>
-                      <Link href={`/residents/${placement.residentId}`} className="text-aoz-primary hover:underline font-medium">
+                      <Link href={`/residents/${placement.residentId}`} className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline font-medium">
                         {placement.resident.code}
                       </Link>
                       <p className="text-sm text-gray-600">
-                        <Link href={`/housing/${placement.housingUnitId}`} className="text-aoz-primary hover:underline">
+                        <Link href={`/housing/${placement.housingUnitId}`} className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
                           {placement.housingUnit.code}
                         </Link>
                       </p>
@@ -100,7 +100,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                     <tr key={placement.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-2 text-gray-500">{formatDate(placement.startDate)}</td>
                       <td className="py-3 px-2">
-                        <Link href={`/residents/${placement.residentId}`} className="text-aoz-primary hover:underline">
+                        <Link href={`/residents/${placement.residentId}`} className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
                           {placement.resident.code}
                         </Link>
                         {supportLevel !== 'STANDARD' && (
@@ -110,7 +110,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                         )}
                       </td>
                       <td className="py-3 px-2">
-                        <Link href={`/housing/${placement.housingUnitId}`} className="text-aoz-primary hover:underline">
+                        <Link href={`/housing/${placement.housingUnitId}`} className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
                           {placement.housingUnit.code}
                         </Link>
                       </td>

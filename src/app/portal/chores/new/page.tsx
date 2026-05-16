@@ -33,7 +33,7 @@ export default async function NewChorePage() {
     <div>
       <Link
         href="/portal/chores"
-        className="text-sm text-aoz-primary hover:underline mb-4 inline-block"
+        className="inline-flex items-center min-h-[44px] px-1 -ml-1 mb-2 text-sm text-aoz-primary hover:underline"
       >
         ← {CHORE_LABELS.pages.list}
       </Link>

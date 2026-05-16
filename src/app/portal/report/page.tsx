@@ -54,7 +54,7 @@ export default async function ReportPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
+        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.report}</h1>

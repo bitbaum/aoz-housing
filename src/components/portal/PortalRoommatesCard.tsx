@@ -25,7 +25,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.dashboard.roommates}</h2>
-        <Link href="/portal/roommates" className="text-sm text-aoz-primary hover:underline">
+        <Link href="/portal/roommates" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.dashboard.showAll}
         </Link>
       </div>

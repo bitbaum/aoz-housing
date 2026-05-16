@@ -208,7 +208,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 href={`/maintenance/${request.id}`}
-                className="font-semibold text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-semibold text-gray-900 hover:text-aoz-primary"
               >
                 {request.title}
               </Link>
@@ -222,7 +222,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
               <Link
                 href={`/housing/${request.housingUnitId}`}
-                className="hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 hover:text-aoz-primary"
               >
                 🏠 {request.housingUnit.code}
               </Link>
@@ -233,7 +233,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
               {request.reportedBy && (
                 <Link
                   href={`/residents/${request.reportedById}`}
-                  className="hover:text-aoz-primary"
+                  className="inline-flex items-center py-2 -my-2 hover:text-aoz-primary"
                 >
                   👤 {request.reportedBy.code}
                 </Link>

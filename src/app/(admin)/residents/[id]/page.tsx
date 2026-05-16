@@ -314,7 +314,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                     <div>
                       <Link
                         href={`/housing/${currentPlacement.housingUnitId}`}
-                        className="font-medium text-gray-900 hover:text-aoz-primary"
+                        className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
                       >
                         {currentPlacement.housingUnit.code}
                       </Link>

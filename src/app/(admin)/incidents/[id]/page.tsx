@@ -98,7 +98,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       <div className="mb-6">
         <Link
           href="/incidents"
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {INCIDENT_DETAIL_LABELS.backLink}
         </Link>

@@ -50,7 +50,7 @@ export function FollowUpForm({
             <p className="text-xs text-gray-500">{FOLLOW_UP_FORM_LABELS.quickTemplatesHint}</p>
           </div>
           {activeTemplate && (
-            <Link href={`/incidents/${incidentId}`} className="text-sm text-gray-500 hover:text-gray-700">
+            <Link href={`/incidents/${incidentId}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
               {FOLLOW_UP_FORM_LABELS.resetTemplate}
             </Link>
           )}

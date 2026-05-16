@@ -185,7 +185,7 @@ function KPICard({
         {value !== null && unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
       </p>
       {value === null && nudgeHref && (
-        <Link href={nudgeHref} className="text-xs text-aoz-primary hover:underline mt-0.5 inline-block">
+        <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-aoz-primary hover:underline">
           → Zeit in Vorfällen eintragen
         </Link>
       )}

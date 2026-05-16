@@ -161,7 +161,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         </div>
         <div className="mt-3 flex items-center gap-2">
           <button type="submit" className="btn-outline text-sm">{PLACEMENT_LIST_LABELS.filterApply}</button>
-          <Link href={`/placements?status=${statusFilter}`} className="text-sm text-gray-500 hover:text-gray-700">
+          <Link href={`/placements?status=${statusFilter}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
             {PLACEMENT_LIST_LABELS.filterReset}
           </Link>
         </div>
@@ -293,7 +293,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
             <div>
               <Link
                 href={`/residents/${placement.residentId}`}
-                className="font-medium text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
               >
                 {placement.resident.code}
               </Link>
@@ -311,7 +311,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           <div>
             <Link
               href={`/housing/${placement.housingUnitId}`}
-              className="font-medium text-gray-900 hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
             >
               {placement.housingUnit.code}
             </Link>

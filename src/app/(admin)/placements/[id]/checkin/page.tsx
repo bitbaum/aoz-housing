@@ -49,7 +49,7 @@ export default async function NewCheckInPage({ params }: Props) {
       <div className="mb-6">
         <Link
           href={`/residents/${placement.residentId}`}
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {CHECKIN_FORM_LABELS.backLink(placement.resident.code)}
         </Link>

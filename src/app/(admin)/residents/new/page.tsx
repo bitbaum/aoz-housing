@@ -14,7 +14,7 @@ export default function NewResidentPage() {
       <div className="mb-6">
         <Link
           href="/residents"
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {RESIDENT_NEW_LABELS.backLink}
         </Link>

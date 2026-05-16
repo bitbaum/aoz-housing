@@ -54,7 +54,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             )}
             <Link
               href={`/housing/${match.unit.id}`}
-              className="font-semibold text-gray-900 hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-semibold text-gray-900 hover:text-aoz-primary"
             >
               {match.unit.code}
             </Link>

@@ -14,7 +14,7 @@ export default function NewHousingPage() {
       <div className="mb-6">
         <Link
           href="/housing"
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {HOUSING_NEW_LABELS.backLink}
         </Link>

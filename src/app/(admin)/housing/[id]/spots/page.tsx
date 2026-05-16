@@ -69,7 +69,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           <div>
             <Link
               href={`/housing/${id}`}
-              className="text-aoz-primary hover:underline text-sm"
+              className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
             >
               {HOUSING_SPOTS_LABELS.backLink}
             </Link>

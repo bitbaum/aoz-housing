@@ -326,7 +326,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           </p>
           <Link
             href="/algorithm"
-            className="text-sm text-aoz-secondary hover:underline whitespace-nowrap ml-4"
+            className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-secondary hover:underline whitespace-nowrap ml-4"
           >
             {EMPTY_STATE_LABELS.algorithmLink}
           </Link>

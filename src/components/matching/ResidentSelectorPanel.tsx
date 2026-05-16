@@ -77,7 +77,7 @@ export function ResidentSelectorPanel({
                   {resident.code.slice(-3)}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900 hover:text-aoz-primary">
+                  <p className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary">
                     {resident.code}
                   </p>
                   <p className="text-sm text-gray-500">

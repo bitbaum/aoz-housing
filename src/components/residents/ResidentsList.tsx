@@ -81,7 +81,7 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
               <p className="text-gray-500 mb-3">{RESIDENT_LIST_LABELS.emptyFiltered}</p>
               <button
                 onClick={() => { setSearch(''); setStatusFilter('') }}
-                className="text-sm text-aoz-primary hover:underline"
+                className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
               >
                 {RESIDENT_LIST_LABELS.filterReset}
               </button>

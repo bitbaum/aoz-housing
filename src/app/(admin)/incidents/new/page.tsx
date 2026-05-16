@@ -80,7 +80,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       <div className="mb-6">
         <Link
           href="/incidents"
-          className="text-aoz-primary hover:underline text-sm"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
         >
           {INCIDENT_PAGE_LABELS.backToList}
         </Link>
@@ -95,7 +95,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             <p className="text-sm text-gray-500">{INCIDENT_PAGE_LABELS.quickSubtitle}</p>
           </div>
           {params.quick && (
-            <Link href={`/incidents/new?${queryBase.toString()}`} className="text-sm text-gray-500 hover:text-gray-700">
+            <Link href={`/incidents/new?${queryBase.toString()}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
               {INCIDENT_PAGE_LABELS.resetPreset}
             </Link>
           )}
@@ -229,7 +229,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </div>
               <p className="text-xs text-gray-500 mt-2">
                 {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
-                <a href="/maintenance/new" className="text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</a>
+                <a href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</a>
               </p>
             </div>
 
