@@ -127,11 +127,11 @@ export function determinePrimaryAction({
 
 export function HeroAction({ action }: { action: PrimaryActionType }) {
   const colorStyles = {
-    critical: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
-    checkin: 'bg-gradient-to-r from-orange-400 to-orange-500 text-white',
-    place: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
-    problem: 'bg-gradient-to-r from-amber-500 to-amber-600 text-white',
-    allclear: 'bg-gradient-to-r from-green-400 to-emerald-500 text-white',
+    critical: 'bg-red-600 text-white',
+    checkin: 'bg-orange-500 text-white',
+    place: 'bg-aoz-secondary text-white',
+    problem: 'bg-amber-500 text-white',
+    allclear: 'bg-emerald-600 text-white',
   }
 
   const icons = {
@@ -145,7 +145,7 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   return (
     <Link
       href={action.href}
-      className={`block rounded-2xl p-6 md:p-8 ${colorStyles[action.type]} shadow-lg hover:shadow-xl transition-all hover:scale-[1.01]`}
+      className={`block rounded-xl p-6 md:p-8 ${colorStyles[action.type]} shadow-sm hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -156,13 +156,13 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
           </div>
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <span className="px-4 py-2 bg-white/20 rounded-lg font-semibold">
+          <span className="px-4 py-2 bg-white/20 rounded-md font-semibold">
             {action.buttonText} →
           </span>
         </div>
       </div>
       <div className="md:hidden mt-4">
-        <span className="inline-block px-4 py-2 bg-white/20 rounded-lg font-semibold">
+        <span className="inline-block px-4 py-2 bg-white/20 rounded-md font-semibold">
           {action.buttonText} →
         </span>
       </div>

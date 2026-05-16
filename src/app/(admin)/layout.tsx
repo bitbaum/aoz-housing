@@ -27,7 +27,7 @@ export default async function AdminLayout({
   return (
     <>
       {/* Top Header Bar - AOZ Branding */}
-      <header className="hidden md:flex items-center bg-gradient-to-r from-aoz-secondary-dark via-aoz-secondary to-aoz-secondary-light text-white shadow-md z-50">
+      <header className="hidden md:flex items-center bg-aoz-secondary text-white border-b border-aoz-secondary-dark/30 z-50">
         <div className="max-w-screen-2xl mx-auto px-6 py-2.5 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -55,7 +55,7 @@ export default async function AdminLayout({
       </header>
 
       {/* Megamenu Navigation */}
-      <nav className="hidden md:block bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm sticky top-0 z-40">
+      <nav className="hidden md:block bg-white border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-screen-2xl mx-auto px-6">
           <div className="flex items-center gap-0.5">
             {MEGAMENU_GROUPS.map((group) =>
@@ -146,7 +146,7 @@ function MegaMenuDropdown({
         </svg>
       </button>
       <div className="absolute left-0 top-full pt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
-        <div className="bg-white rounded-2xl shadow-card-hover border border-gray-100 py-2 min-w-[230px]">
+        <div className="bg-white rounded-xl shadow-card-hover border border-gray-200 py-2 min-w-[230px]">
           {items.map((item) => (
             <Link
               key={item.href}

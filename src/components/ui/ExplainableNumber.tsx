@@ -92,7 +92,7 @@ export function ExplainableNumber({
           ref={popoverRef}
           role="dialog"
           aria-label={`${EXPLAINABLE_NUMBER_LABELS.explanationFor} ${explanation.label}`}
-          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-2xl shadow-card-hover border border-gray-100 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-xl shadow-card-hover border border-gray-100 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />

@@ -40,7 +40,7 @@ export function AlgorithmContent() {
   return (
     <div className="max-w-5xl mx-auto">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-aoz-primary via-aoz-primary to-emerald-600 text-white p-8 md:p-12 mb-8">
+      <section className="relative overflow-hidden rounded-xl bg-aoz-primary text-white p-8 md:p-12 mb-8">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
 
@@ -103,7 +103,7 @@ export function AlgorithmContent() {
       {activeTab === 'technical' && <TechnicalTab />}
 
       {/* CTA Section */}
-      <section className="mt-12 text-center py-12 px-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
+      <section className="mt-12 text-center py-12 px-6 bg-gray-100 rounded-xl">
         <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
           {ALGORITHM_OVERVIEW_LABELS.ctaTitle}

@@ -76,15 +76,15 @@ function QuickActionButton({
   badge?: number
 }) {
   const variantStyles = {
-    primary: 'bg-gray-900 text-white hover:bg-gray-800',
+    primary: 'bg-aoz-primary text-white hover:bg-aoz-primary-dark',
     secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-    highlight: 'bg-blue-600 text-white hover:bg-blue-700',
+    highlight: 'bg-aoz-secondary text-white hover:bg-aoz-secondary-dark',
   }
 
   return (
     <Link
       href={href}
-      className={`relative flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors ${variantStyles[variant]}`}
+      className={`relative flex items-center gap-2 px-4 py-2.5 min-h-[44px] rounded-md text-sm font-medium transition-colors ${variantStyles[variant]}`}
     >
       <span>{icon}</span>
       <span>{label}</span>

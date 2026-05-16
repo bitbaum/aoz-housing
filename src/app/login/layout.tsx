@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { APP_LABELS, LOGIN_LABELS } from '@/lib/constants/labels'
 
 export const metadata: Metadata = {
-  title: `${LOGIN_LABELS.title} | ${APP_LABELS.name}`,
+  title: LOGIN_LABELS.title,
   description: APP_LABELS.metaDescription,
 }
 

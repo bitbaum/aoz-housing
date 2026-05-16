@@ -88,7 +88,7 @@ function LoginForm() {
       </div>
 
       {/* Login Card */}
-      <div className="bg-white rounded-2xl shadow-card p-6 sm:p-8">
+      <div className="bg-white rounded-xl shadow-card p-6 sm:p-8">
         <h1 className="text-lg font-semibold text-gray-900 mb-1 text-center">
           {LOGIN_LABELS.title}
         </h1>
