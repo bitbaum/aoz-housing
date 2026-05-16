@@ -133,7 +133,7 @@ export function CompatibilityMatrixInteractive({
                     ) : score === null ? (
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
-                        className="inline-flex items-center justify-center w-12 h-8 rounded bg-gray-100 text-gray-500 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-gray-100 text-gray-500 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
                         aria-label={`Keine Bewertung: ${r1.code} und ${r2.code}`}
                       >
                         ?
@@ -141,7 +141,7 @@ export function CompatibilityMatrixInteractive({
                     ) : (
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
-                        className={`inline-flex items-center justify-center w-12 h-8 rounded ${getScoreBgClass(
+                        className={`inline-flex items-center justify-center w-12 min-h-[44px] rounded ${getScoreBgClass(
                           score.overallScore
                         )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-aoz-primary ${
                           isSelected ? 'ring-2 ring-offset-1 ring-aoz-primary' : ''
