@@ -70,7 +70,7 @@ export default async function RoommatesPage() {
     return (
       <div>
         <div className="mb-6">
-          <Link href="/portal" className="text-aoz-primary hover:underline text-sm">
+          <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
             {PORTAL_LABELS.form.back}
           </Link>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
@@ -170,7 +170,7 @@ export default async function RoommatesPage() {
           ))}
           <p>
             <strong>{PORTAL_LABELS.roommates.conflictSteps.length + 1}. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
-            <Link href="/portal/report" className="text-aoz-primary hover:underline">
+            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
               {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
           </p>
