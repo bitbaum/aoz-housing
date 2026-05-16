@@ -38,18 +38,18 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
     if (avgVal === null) return null
     const diff = Math.abs(newVal - avgVal)
     if (!thresholdKey) {
-      return diff <= 0.5 ? <span className="text-green-500">✓</span> : null
+      return diff <= 0.5 ? <span className="text-status-success-text">✓</span> : null
     }
     const thresholds = APARTMENT_THRESHOLDS[thresholdKey]
     if (!thresholds || typeof thresholds !== 'object') return null
     if ('BLOCKING' in thresholds && diff >= thresholds.BLOCKING) {
-      return <span className="text-red-500 font-bold">🚫</span>
+      return <span className="text-status-error-text font-bold">🚫</span>
     }
     if ('HIGH' in thresholds && diff >= thresholds.HIGH) {
-      return <span className="text-orange-500">⚠</span>
+      return <span className="text-status-warning-text">⚠</span>
     }
     if (diff <= 0.5) {
-      return <span className="text-green-500">✓</span>
+      return <span className="text-status-success-text">✓</span>
     }
     return null
   }

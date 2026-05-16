@@ -37,11 +37,11 @@ export function AlgorithmAccuracySection({ report }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="rounded-lg bg-status-error/8 border border-status-error/20 p-4 text-center">
             <p className="text-sm text-status-error mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreConflict}</p>
-            <p className="text-3xl font-bold text-red-700">{report.avgScoreConflictEnds}</p>
+            <p className="text-3xl font-bold text-status-error-text">{report.avgScoreConflictEnds}</p>
           </div>
           <div className="rounded-lg bg-status-success/10 border border-status-success/25 p-4 text-center">
             <p className="text-sm text-status-success mb-1">{ALGORITHM_ACCURACY_LABELS.avgScoreSuccess}</p>
-            <p className="text-3xl font-bold text-green-700">{report.avgScoreSuccessfulEnds}</p>
+            <p className="text-3xl font-bold text-status-success-text">{report.avgScoreSuccessfulEnds}</p>
           </div>
         </div>
       )}
@@ -63,7 +63,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
               <div className="grid grid-cols-3 gap-2 text-center text-sm">
                 <div>
                   <p className="text-gray-500">{ALGORITHM_ACCURACY_LABELS.conflictsLabel}</p>
-                  <p className={`font-semibold ${tier.conflictRate > 30 ? 'text-red-600' : tier.conflictRate > 15 ? 'text-orange-600' : 'text-emerald-600'}`}>
+                  <p className={`font-semibold ${tier.conflictRate > 30 ? 'text-status-error-text' : tier.conflictRate > 15 ? 'text-status-warning-text' : 'text-status-success-text'}`}>
                     {tier.conflictRate}%
                   </p>
                 </div>
@@ -97,7 +97,7 @@ export function AlgorithmAccuracySection({ report }: Props) {
                 <tr key={tier.tier} className="border-b border-gray-100">
                   <td className="py-2 pr-4 font-medium text-gray-900">{tier.label}</td>
                   <td className="text-right py-2 px-4 text-gray-600">{tier.totalPlacements}</td>
-                  <td className={`text-right py-2 px-4 font-medium ${tier.conflictRate > 30 ? 'text-red-600' : tier.conflictRate > 15 ? 'text-orange-600' : 'text-emerald-600'}`}>
+                  <td className={`text-right py-2 px-4 font-medium ${tier.conflictRate > 30 ? 'text-status-error-text' : tier.conflictRate > 15 ? 'text-status-warning-text' : 'text-status-success-text'}`}>
                     {tier.totalPlacements > 0 ? `${tier.conflictRate}%` : '—'}
                   </td>
                   <td className="text-right py-2 px-4 text-gray-600">{tier.avgSatisfaction ?? '—'}</td>

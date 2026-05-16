@@ -71,10 +71,10 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       <div className="card bg-status-success/10 border-status-success/25">
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
-          <h2 className="text-xl font-semibold text-green-800 mb-2">
+          <h2 className="text-xl font-semibold text-status-success-text mb-2">
             {PORTAL_LABELS.satisfaction.thankYouTitle}
           </h2>
-          <p className="text-green-700">
+          <p className="text-status-success-text">
             {PORTAL_LABELS.satisfaction.thankYouMessage}
           </p>
           {rating && rating <= 2 && concerns && (
@@ -131,7 +131,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-status-error/8 text-red-700 rounded-lg text-sm text-center" role="alert" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm text-center" role="alert" aria-live="polite">
           {error}
         </div>
       )}

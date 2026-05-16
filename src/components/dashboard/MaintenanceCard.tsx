@@ -53,7 +53,7 @@ export function MaintenanceCard({
             >
               <div className="flex items-center gap-2">
                 <span className="text-status-error">🔥</span>
-                <span className="text-red-800 text-sm font-medium">
+                <span className="text-status-error-text text-sm font-medium">
                   {urgentTickets} dringend
                 </span>
               </div>
@@ -64,7 +64,7 @@ export function MaintenanceCard({
       ) : (
         <div className="py-6 text-center">
           <span className="text-status-success text-2xl block mb-2">✓</span>
-          <p className="text-green-700 text-sm font-medium">Alles erledigt</p>
+          <p className="text-status-success-text text-sm font-medium">Alles erledigt</p>
         </div>
       )}
 

@@ -205,12 +205,12 @@ function ResidentRow({
 
       {/* Concerns or strengths */}
       {concerns.length > 0 && !hasBlockingConcerns && (
-        <p className="text-xs text-orange-600 mt-2">
+        <p className="text-xs text-status-warning-text mt-2">
           ⚠️ {concerns[0]}
         </p>
       )}
       {concerns.length === 0 && strengths.length > 0 && (
-        <p className="text-xs text-green-600 mt-2">
+        <p className="text-xs text-status-success-text mt-2">
           ✓ {strengths[0]}
         </p>
       )}

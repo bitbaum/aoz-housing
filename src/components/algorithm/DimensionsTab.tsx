@@ -82,7 +82,7 @@ export function DimensionsTab({
                             <span className="text-xs bg-white border border-gray-200 px-2 py-1 rounded">
                               {Math.round(factor.weight * 100)}%
                             </span>
-                            <span className="text-xs bg-status-info/10 text-blue-700 px-2 py-1 rounded">
+                            <span className="text-xs bg-status-info/10 text-status-info-text px-2 py-1 rounded">
                               {factor.rule.replace(/_/g, ' ')}
                             </span>
                           </div>

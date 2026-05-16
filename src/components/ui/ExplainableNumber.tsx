@@ -177,9 +177,9 @@ export function ExplainableMetric({
   href,
 }: ExplainableMetricProps) {
   const trendClasses = {
-    good: 'text-green-600',
+    good: 'text-status-success-text',
     neutral: 'text-gray-500',
-    warning: 'text-orange-600',
+    warning: 'text-status-warning-text',
   }
 
   const Content = (

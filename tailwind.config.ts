@@ -25,11 +25,16 @@ const config: Config = {
         },
         // Compatibility score colors (5-tier system)
         'score': {
-          'excellent': 'rgb(var(--color-score-excellent) / <alpha-value>)',
-          'good':      'rgb(var(--color-score-good) / <alpha-value>)',
-          'medium':    'rgb(var(--color-score-medium) / <alpha-value>)',
-          'low':       'rgb(var(--color-score-low) / <alpha-value>)',
-          'critical':  'rgb(var(--color-score-critical) / <alpha-value>)',
+          'excellent':      'rgb(var(--color-score-excellent) / <alpha-value>)',
+          'excellent-text': 'rgb(var(--color-score-excellent-text) / <alpha-value>)',
+          'good':           'rgb(var(--color-score-good) / <alpha-value>)',
+          'good-text':      'rgb(var(--color-score-good-text) / <alpha-value>)',
+          'medium':         'rgb(var(--color-score-medium) / <alpha-value>)',
+          'medium-text':    'rgb(var(--color-score-medium-text) / <alpha-value>)',
+          'low':            'rgb(var(--color-score-low) / <alpha-value>)',
+          'low-text':       'rgb(var(--color-score-low-text) / <alpha-value>)',
+          'critical':       'rgb(var(--color-score-critical) / <alpha-value>)',
+          'critical-text':  'rgb(var(--color-score-critical-text) / <alpha-value>)',
         },
         // Incident severity colors
         'severity': {
@@ -40,10 +45,14 @@ const config: Config = {
         },
         // Status colors
         'status': {
-          'success': 'rgb(var(--color-status-success) / <alpha-value>)',
-          'warning': 'rgb(var(--color-status-warning) / <alpha-value>)',
-          'error':   'rgb(var(--color-status-error) / <alpha-value>)',
-          'info':    'rgb(var(--color-status-info) / <alpha-value>)',
+          'success':      'rgb(var(--color-status-success) / <alpha-value>)',
+          'success-text': 'rgb(var(--color-status-success-text) / <alpha-value>)',
+          'warning':      'rgb(var(--color-status-warning) / <alpha-value>)',
+          'warning-text': 'rgb(var(--color-status-warning-text) / <alpha-value>)',
+          'error':        'rgb(var(--color-status-error) / <alpha-value>)',
+          'error-text':   'rgb(var(--color-status-error-text) / <alpha-value>)',
+          'info':         'rgb(var(--color-status-info) / <alpha-value>)',
+          'info-text':    'rgb(var(--color-status-info-text) / <alpha-value>)',
         },
       },
       fontFamily: {

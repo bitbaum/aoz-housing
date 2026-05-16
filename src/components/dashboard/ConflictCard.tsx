@@ -91,7 +91,7 @@ export function ConflictCard({
       {!hasConflicts && (
         <div className="py-4 text-center">
           <span className="text-status-success text-2xl block mb-2">✓</span>
-          <p className="text-green-700 text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}</p>
+          <p className="text-status-success-text text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}</p>
         </div>
       )}
 

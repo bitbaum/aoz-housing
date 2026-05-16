@@ -32,6 +32,13 @@
   --color-score-low:       249 115 22;
   --color-score-critical:  239 68 68;
 
+  /* Score text colors — dark readable shades per tier */
+  --color-score-excellent-text: 22 163 74;    /* green-600   */
+  --color-score-good-text:      5 150 105;    /* emerald-600 */
+  --color-score-medium-text:    202 138 4;    /* yellow-600  */
+  --color-score-low-text:       234 88 12;    /* orange-600  */
+  --color-score-critical-text:  220 38 38;    /* red-600     */
+
   /* Incident severity colors */
   --color-severity-low:      156 163 175;
   --color-severity-medium:   251 191 36;
@@ -43,6 +50,12 @@
   --color-status-warning: 245 158 11;
   --color-status-error:   239 68 68;
   --color-status-info:    59 130 246;
+
+  /* Status text colors — dark readable shades for text on tinted light backgrounds */
+  --color-status-success-text: 21 128 61;    /* green-700  */
+  --color-status-warning-text: 180 83 9;     /* amber-700  */
+  --color-status-error-text:   185 28 28;    /* red-700    */
+  --color-status-info-text:    29 78 216;    /* blue-700   */
 
   /* Shadows */
   --shadow-card:      0 1px 2px rgb(0 0 0 / 0.04);

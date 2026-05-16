@@ -27,8 +27,8 @@ export function DataCollectionTab() {
           {DATA_COLLECTION_TAB_LABELS.intro}
         </p>
         <div className="bg-status-info/8 border border-status-info/25 rounded-lg p-4">
-          <h3 className="font-medium text-blue-900 mb-2">{DATA_COLLECTION_TAB_LABELS.privacyTitle}</h3>
-          <ul className="text-sm text-blue-800 space-y-1">
+          <h3 className="font-medium text-status-info-text mb-2">{DATA_COLLECTION_TAB_LABELS.privacyTitle}</h3>
+          <ul className="text-sm text-status-info-text space-y-1">
             <li>{DATA_COLLECTION_TAB_LABELS.privacyBullet1}</li>
             <li>{DATA_COLLECTION_TAB_LABELS.privacyBullet2}</li>
             <li>{DATA_COLLECTION_TAB_LABELS.privacyBullet3}</li>

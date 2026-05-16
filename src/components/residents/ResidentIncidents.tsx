@@ -41,7 +41,7 @@ export function ResidentIncidents({
           <div className="mb-4 p-4 bg-status-warning/10 border border-status-warning/25 rounded-lg">
             <div className="flex items-center gap-2">
               <span className="text-status-warning text-lg">!</span>
-              <p className="text-sm text-amber-800">
+              <p className="text-sm text-status-warning-text">
                 {RESIDENT_INCIDENTS_LABELS.warningMessage(incidentsAsSubject.length)}{' '}
                 {RESIDENT_INCIDENTS_LABELS.reviewRecommendation}
               </p>
@@ -62,9 +62,9 @@ export function ResidentIncidents({
             <p className="text-sm text-gray-500">{RESIDENT_INCIDENTS_LABELS.subjectLabel}</p>
             <p className={`text-2xl font-bold ${
               subjectLevel === 'severe'
-                ? 'text-red-600'
+                ? 'text-status-error-text'
                 : subjectLevel !== 'none'
-                  ? 'text-amber-600'
+                  ? 'text-status-warning-text'
                   : 'text-gray-900'
             }`}>
               {incidentsAsSubject.length}

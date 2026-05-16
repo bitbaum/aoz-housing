@@ -65,7 +65,7 @@ export function ApartmentProfileSection({
             .filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH')
             .map((conflict: ApartmentConflict, i: number) => (
               <p key={i} className={`text-xs ${
-                conflict.severity === 'BLOCKING' ? 'text-red-600 font-medium' : 'text-orange-600'
+                conflict.severity === 'BLOCKING' ? 'text-status-error-text font-medium' : 'text-status-warning-text'
               }`}>
                 {conflict.severity === 'BLOCKING' ? '🚫' : '⚠️'} {conflict.message}
               </p>
@@ -77,7 +77,7 @@ export function ApartmentProfileSection({
       {apartmentFit.strengths.length > 0 && apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length === 0 && (
         <div className="space-y-1">
           {apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength: string, i: number) => (
-            <p key={i} className="text-xs text-green-600">✓ {strength}</p>
+            <p key={i} className="text-xs text-status-success-text">✓ {strength}</p>
           ))}
         </div>
       )}
@@ -92,7 +92,7 @@ export function ApartmentProfileSection({
 
           {apartmentFit.conflicts.length > 0 && (
             <div className="mb-2">
-              <p className="font-medium text-red-700">{MATCHING_LABELS.conflictDeductions}</p>
+              <p className="font-medium text-status-error-text">{MATCHING_LABELS.conflictDeductions}</p>
               {apartmentFit.conflicts.map((c: ApartmentConflict, i: number) => (
                 <p key={i} className="ml-2">
                   • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
@@ -106,15 +106,15 @@ export function ApartmentProfileSection({
 
           {apartmentFit.strengths.length > 0 && (
             <div className="mb-2">
-              <p className="font-medium text-green-700">{MATCHING_LABELS.strengthBonus} +{Math.min(apartmentFit.strengths.length * 3, 20)}</p>
+              <p className="font-medium text-status-success-text">{MATCHING_LABELS.strengthBonus} +{Math.min(apartmentFit.strengths.length * 3, 20)}</p>
               {apartmentFit.strengths.map((s: string, i: number) => (
-                <p key={i} className="ml-2 text-green-600">• {s}</p>
+                <p key={i} className="ml-2 text-status-success-text">• {s}</p>
               ))}
             </div>
           )}
 
           {apartmentProfile.currentResidentCount <= 2 && (
-            <p className="text-green-700">{MATCHING_LABELS.smallGroupBonus} +5</p>
+            <p className="text-status-success-text">{MATCHING_LABELS.smallGroupBonus} +5</p>
           )}
 
           <p className="mt-2 pt-2 border-t border-gray-100 font-semibold">

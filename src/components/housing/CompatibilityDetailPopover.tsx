@@ -138,7 +138,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
                 <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.strengths}</p>
                 <ul className="space-y-1">
                   {score.strengths.slice(0, 2).map((s, i) => (
-                    <li key={i} className="text-sm text-green-600 flex items-start gap-1">
+                    <li key={i} className="text-sm text-status-success-text flex items-start gap-1">
                       <span>✓</span>
                       <span>{s}</span>
                     </li>
@@ -157,10 +157,10 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
                       key={i}
                       className={`text-sm flex items-start gap-1 ${
                         c.severity === 'BLOCKING'
-                          ? 'text-red-600'
+                          ? 'text-status-error-text'
                           : c.severity === 'HIGH'
-                          ? 'text-orange-600'
-                          : 'text-yellow-600'
+                          ? 'text-status-warning-text'
+                          : 'text-status-warning-text'
                       }`}
                     >
                       <span>⚠</span>

@@ -16,9 +16,9 @@ interface Props {
 }
 
 const TREND_STYLES = {
-  improving: { bg: 'bg-status-success/10', text: 'text-green-700', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
-  stable: { bg: 'bg-status-info/8', text: 'text-blue-700', icon: '→', label: MISSION_KPI_LABELS.trendStable },
-  worsening: { bg: 'bg-status-error/8', text: 'text-red-700', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
+  improving: { bg: 'bg-status-success/10', text: 'text-status-success-text', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
+  stable: { bg: 'bg-status-info/8', text: 'text-status-info-text', icon: '→', label: MISSION_KPI_LABELS.trendStable },
+  worsening: { bg: 'bg-status-error/8', text: 'text-status-error-text', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
 }
 
 function pctChange(current: number, baseline: number): number {
@@ -42,7 +42,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           <p className="text-sm text-gray-500">
             {MISSION_KPI_LABELS.sectionDesc(kpis.monthsTracked)}
             {hasBaseline && baseline?.pilotStartDate && (
-              <span className="ml-2 text-emerald-600 font-medium">
+              <span className="ml-2 text-status-success-text font-medium">
                 · Pilot seit {new Date(baseline.pilotStartDate).toLocaleDateString('de-CH', { month: 'short', year: 'numeric' })}
               </span>
             )}
@@ -56,11 +56,11 @@ export function MissionKPISection({ kpis, baseline }: Props) {
 
       {/* No-baseline nudge */}
       {!hasBaseline && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-status-warning/10 border border-status-warning/25 px-3 py-2 text-sm text-amber-700">
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-status-warning/10 border border-status-warning/25 px-3 py-2 text-sm text-status-warning-text">
           <span aria-hidden="true">ℹ</span>
           <span>
             {PILOT_BASELINE_LABELS.noBaselineHint}{' '}
-            <Link href="/settings" className="underline font-medium hover:text-amber-900">
+            <Link href="/settings" className="underline font-medium hover:text-status-warning-text">
               Einstellungen
             </Link>
           </span>
@@ -216,7 +216,7 @@ function KPICard({
           )}
           {/* Reduction label */}
           {reductionPct !== null && (
-            <p className={`text-xs font-medium ${reductionPct > 0 ? 'text-emerald-600' : reductionPct < 0 ? 'text-red-500' : 'text-gray-500'}`}>
+            <p className={`text-xs font-medium ${reductionPct > 0 ? 'text-status-success-text' : reductionPct < 0 ? 'text-status-error-text' : 'text-gray-500'}`}>
               {reductionPct > 0 ? `↓ ${reductionPct}%` : reductionPct < 0 ? `↑ ${Math.abs(reductionPct)}%` : '→ 0%'}{' '}
               {PILOT_BASELINE_LABELS.baselineLabel.toLowerCase()}
               {targetPct && (

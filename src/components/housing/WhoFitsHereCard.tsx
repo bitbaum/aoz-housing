@@ -80,12 +80,12 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                       {match.resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
                     </p>
                     {match.strengths.length > 0 && match.concerns.length === 0 && (
-                      <p className="text-xs text-green-600 mt-0.5">
+                      <p className="text-xs text-status-success-text mt-0.5">
                         ✓ {match.strengths[0]}
                       </p>
                     )}
                     {match.concerns.length > 0 && (
-                      <p className="text-xs text-orange-600 mt-0.5">
+                      <p className="text-xs text-status-warning-text mt-0.5">
                         {match.concerns[0]}
                       </p>
                     )}

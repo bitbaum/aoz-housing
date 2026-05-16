@@ -183,9 +183,9 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
   }
 
   const textStyles = {
-    critical: 'text-red-800',
-    warning: 'text-amber-800',
-    info: 'text-amber-800',
+    critical: 'text-status-error-text',
+    warning: 'text-status-warning-text',
+    info: 'text-status-warning-text',
   }
 
   return (
@@ -214,7 +214,7 @@ function CompletedCategory({ icon, title }: { icon: string; title: string }) {
     <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-status-success/10 border border-status-success/25">
       <span className="text-status-success">✓</span>
       <span className="text-lg opacity-50">{icon}</span>
-      <span className="text-green-700">{title}</span>
+      <span className="text-status-success-text">{title}</span>
     </div>
   )
 }

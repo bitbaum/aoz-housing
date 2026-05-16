@@ -63,17 +63,17 @@ export function RecentPlacementsTable({ placements }: Props) {
                     {lastCheckIn ? (
                       <div className="flex items-center gap-2">
                         <span aria-hidden="true">{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                        <span className={isOverdue ? 'text-orange-600' : 'text-gray-500'}>Check-in vor {daysSinceCheckIn}d</span>
+                        <span className={isOverdue ? 'text-status-warning-text' : 'text-gray-500'}>Check-in vor {daysSinceCheckIn}d</span>
                       </div>
                     ) : (
-                      <span className={isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}>
+                      <span className={isOverdue ? 'text-status-warning-text font-medium' : 'text-gray-500'}>
                         {isOverdue ? ALGORITHM_ACCURACY_LABELS.checkInOverdueBadge : ALGORITHM_ACCURACY_LABELS.checkInPendingBadge}
                       </span>
                     )}
                   </div>
 
                   {supportLevel !== 'STANDARD' && (
-                    <p className="mt-1 text-xs text-orange-600">{getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}</p>
+                    <p className="mt-1 text-xs text-status-warning-text">{getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}</p>
                   )}
                 </div>
               )
@@ -104,7 +104,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                           {placement.resident.code}
                         </Link>
                         {supportLevel !== 'STANDARD' && (
-                          <span className="ml-2 text-xs text-orange-600">
+                          <span className="ml-2 text-xs text-status-warning-text">
                             {getLabel(SUPPORT_LEVEL_LABELS, supportLevel)}
                           </span>
                         )}
@@ -118,12 +118,12 @@ export function RecentPlacementsTable({ placements }: Props) {
                         {lastCheckIn ? (
                           <div className="flex items-center gap-2">
                             <span aria-hidden="true">{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                            <span className={`text-sm ${isOverdue ? 'text-orange-600' : 'text-gray-500'}`}>
+                            <span className={`text-sm ${isOverdue ? 'text-status-warning-text' : 'text-gray-500'}`}>
                               vor {daysSinceCheckIn}d
                             </span>
                           </div>
                         ) : (
-                          <span className={`text-sm ${isOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
+                          <span className={`text-sm ${isOverdue ? 'text-status-warning-text font-medium' : 'text-gray-500'}`}>
                             {isOverdue ? ALGORITHM_ACCURACY_LABELS.tableOverdue : ALGORITHM_ACCURACY_LABELS.tablePending}
                           </span>
                         )}

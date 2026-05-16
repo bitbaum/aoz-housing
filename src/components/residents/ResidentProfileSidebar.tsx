@@ -34,7 +34,7 @@ export interface ResidentProfileSidebarProps {
 function PreferenceItem({ label, value }: { label: string; value: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
-      <span className={value ? 'text-green-500' : 'text-gray-500'}>
+      <span className={value ? 'text-status-success-text' : 'text-gray-500'}>
         {value ? '✓' : '○'}
       </span>
       {label}
@@ -71,14 +71,14 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between items-center">
             <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authDocLabel}</dt>
-            <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-blue-700' : 'text-gray-500'}`}>
+            <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-status-info-text' : 'text-gray-500'}`}>
               {resident.hasMedicalDocumentation ? RESIDENT_PROFILE_SIDEBAR_LABELS.authDocPresent : RESIDENT_PROFILE_SIDEBAR_LABELS.authDocAbsent}
             </dd>
           </div>
           {resident.hasMedicalDocumentation && resident.medicalDocType && (
             <div className="flex justify-between items-center">
               <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authForLabel}</dt>
-              <dd className="font-semibold text-blue-700">
+              <dd className="font-semibold text-status-info-text">
                 {getLabel(MEDICAL_DOC_TYPE_LABELS, resident.medicalDocType)}
               </dd>
             </div>
@@ -96,7 +96,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
                 <span
                   key={type}
                   className={`px-2 py-1 rounded text-xs font-medium ${
-                    type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-status-info/15 text-blue-800'
+                    type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-status-info/15 text-status-info-text'
                   }`}
                 >
                   {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}

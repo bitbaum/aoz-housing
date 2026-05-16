@@ -65,8 +65,8 @@ export function formatDate(isoDate: string): string {
 export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength }) {
   const config = EVIDENCE_STRENGTH_CONFIG[strength]
   const colorClasses: Record<string, string> = {
-    green: 'bg-status-success/15 text-green-800',
-    yellow: 'bg-status-warning/15 text-amber-800',
+    green: 'bg-status-success/15 text-status-success-text',
+    yellow: 'bg-status-warning/15 text-status-warning-text',
     gray: 'bg-gray-100 text-gray-600',
   }
   return (
@@ -146,9 +146,9 @@ export function DimensionCard({
 }) {
   const colorClasses = {
     purple: 'bg-aoz-secondary/8 border-aoz-secondary/25 text-aoz-secondary',
-    blue: 'bg-status-info/8 border-status-info/25 text-blue-700',
-    green: 'bg-status-success/10 border-status-success/25 text-green-700',
-    orange: 'bg-status-warning/10 border-status-warning/25 text-amber-700',
+    blue: 'bg-status-info/8 border-status-info/25 text-status-info-text',
+    green: 'bg-status-success/10 border-status-success/25 text-status-success-text',
+    orange: 'bg-status-warning/10 border-status-warning/25 text-status-warning-text',
   }
 
   return (

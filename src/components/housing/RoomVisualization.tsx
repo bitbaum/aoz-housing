@@ -209,7 +209,7 @@ function SpotCard({
             </span>
             {spot.requiresMedicalDocs && (
               <span
-                className="text-xs px-1.5 py-0.5 bg-status-info/15 text-blue-700 rounded"
+                className="text-xs px-1.5 py-0.5 bg-status-info/15 text-status-info-text rounded"
                 title={HOUSING_SPOTS_LABELS.requiresMedDocs}
               >
                 Med.
@@ -219,7 +219,7 @@ function SpotCard({
           {isOccupied && activePlacement ? (
             <Link
               href={`/residents/${activePlacement.resident.id}`}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-status-info-text hover:underline"
             >
               {activePlacement.resident.code}
             </Link>

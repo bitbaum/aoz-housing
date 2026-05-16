@@ -68,7 +68,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             {occupancy}/{match.unit.totalBeds} belegt
           </p>
           {occupancy === 0 && (
-            <p className="text-xs text-green-600">{MATCHING_LABELS.empty}</p>
+            <p className="text-xs text-status-success-text">{MATCHING_LABELS.empty}</p>
           )}
         </div>
       </div>
@@ -86,7 +86,7 @@ export function MatchCard({ match, resident, rank }: Props) {
                 {MATCHING_LABELS.history} {match.unitMetrics.label}
               </span>
               {match.unitMetrics.incidentFreeMonths > 0 && (
-                <span className="text-xs text-green-600">
+                <span className="text-xs text-status-success-text">
                   ({match.unitMetrics.incidentFreeMonths}M konfliktfrei)
                 </span>
               )}
@@ -96,7 +96,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             </span>
           </div>
           {match.unitMetrics.riskLevel === 'HIGH' || match.unitMetrics.riskLevel === 'CRITICAL' ? (
-            <p className="text-xs text-orange-700 mt-1">
+            <p className="text-xs text-status-warning-text mt-1">
               ⚠️ {match.unitMetrics.recentConflicts} Konflikte letzte 30 Tage
             </p>
           ) : null}
@@ -139,17 +139,17 @@ export function MatchCard({ match, resident, rank }: Props) {
       {(allStrengths.length > 0 || sharedLanguages.length > 0 || occupancy === 0) && (
         <div className="mb-3 space-y-1">
           {occupancy === 0 && (
-            <p className="text-xs text-green-600">✓ {MATCHING_LABELS.noRoommatesNoConflicts}</p>
+            <p className="text-xs text-status-success-text">✓ {MATCHING_LABELS.noRoommatesNoConflicts}</p>
           )}
           {sharedLanguages.length > 0 && (
-            <p className="text-xs text-green-600">
+            <p className="text-xs text-status-success-text">
               ✓ {MATCHING_LABELS.sharedLanguageWith} {match.unit.placements.filter((p) =>
                 (resident.languages || []).some((l: string) => (p.resident.languages || []).includes(l))
               ).length} {MATCHING_LABELS.residentsCount}
             </p>
           )}
           {allStrengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength, i) => (
-            <p key={i} className="text-xs text-green-600">✓ {strength}</p>
+            <p key={i} className="text-xs text-status-success-text">✓ {strength}</p>
           ))}
         </div>
       )}
@@ -169,7 +169,7 @@ export function MatchCard({ match, resident, rank }: Props) {
               return (
                 <div key={p.id} className="flex items-center justify-between text-xs">
                   <span className="font-medium">{p.resident.code}</span>
-                  <span className={concernCount > 0 ? 'text-orange-600' : 'text-green-600'}>
+                  <span className={concernCount > 0 ? 'text-status-warning-text' : 'text-status-success-text'}>
                     {hasSharedLang ? '✓ Sprache' : '✗ Sprache'}
                     {concernCount > 0 && ` · ${concernCount} ${MATCHING_LABELS.concerns}`}
                   </span>
@@ -185,8 +185,8 @@ export function MatchCard({ match, resident, rank }: Props) {
           {match.unitConcerns.map((concern: string, i: number) => (
             <p key={i} className={`text-xs ${
               concern.includes('Rollstuhl') || concern.includes('Erdgeschoss')
-                ? 'text-red-600 font-medium'
-                : 'text-orange-600'
+                ? 'text-status-error-text font-medium'
+                : 'text-status-warning-text'
             }`}>
               ⚠️ {concern}
             </p>
@@ -197,7 +197,7 @@ export function MatchCard({ match, resident, rank }: Props) {
       {allConcerns.length > 0 && (
         <div className="mb-3">
           {allConcerns.slice(0, DISPLAY_LIMITS.matchConcerns).map((concern, i) => (
-            <p key={i} className="text-xs text-orange-600">⚠️ {concern}</p>
+            <p key={i} className="text-xs text-status-warning-text">⚠️ {concern}</p>
           ))}
           {allConcerns.length > DISPLAY_LIMITS.matchConcerns && (
             <p className="text-xs text-gray-500">{MATCHING_LABELS.moreConcerns(allConcerns.length - DISPLAY_LIMITS.matchConcerns)}</p>
@@ -207,11 +207,11 @@ export function MatchCard({ match, resident, rank }: Props) {
 
       {match.safeguardWarnings.length > 0 && (
         <div className="mb-3 p-3 bg-status-warning/10 border border-status-warning/30 rounded-xl">
-          <p className="text-xs font-semibold text-amber-800 uppercase mb-1">
+          <p className="text-xs font-semibold text-status-warning-text uppercase mb-1">
             Hinweis zur Bewertung
           </p>
           {match.safeguardWarnings.map((warning, i) => (
-            <p key={i} className="text-xs text-amber-700">
+            <p key={i} className="text-xs text-status-warning-text">
               {warning.message}
             </p>
           ))}

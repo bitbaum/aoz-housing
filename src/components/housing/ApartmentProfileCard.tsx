@@ -214,7 +214,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
                 {metrics.languages.map(({ code, count }) => (
                   <span
                     key={code}
-                    className="px-2 py-0.5 bg-status-info/15 text-blue-700 text-xs rounded"
+                    className="px-2 py-0.5 bg-status-info/15 text-status-info-text text-xs rounded"
                   >
                     {getLabel(LANGUAGE_LABELS, code)} ({count})
                   </span>
@@ -225,7 +225,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
 
           {/* Smoking Warning */}
           {!hasNonSmokers && (
-            <div className="mt-4 p-2 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-amber-700">
+            <div className="mt-4 p-2 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-status-warning-text">
               ⚠️ {APARTMENT_PROFILE_LABELS.smokerWarning}{Object.entries(metrics.smokingStatuses)
                 .filter(([k]) => k !== 'NON_SMOKER')
                 .map(([k, v]) => `${v}x ${getLabel(SMOKING_STATUS_LABELS, k)}`)
@@ -261,7 +261,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-900">{roundedValue.toFixed(1)}</span>
           {outliers.length > 0 && (
-            <span className="text-xs text-orange-600" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.code).join(', ')}`}>
+            <span className="text-xs text-status-warning-text" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.code).join(', ')}`}>
               ⚠️ {outliers.map(o => o.code).join(', ')}
             </span>
           )}

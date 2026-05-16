@@ -40,10 +40,10 @@ export function EndPlacementForm({
       className="mt-4 p-4 bg-status-error/8 rounded-lg space-y-4 border border-status-error/25"
     >
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-medium text-red-900">{PLACEMENT_ACTIONS_LABELS.endTitle}</h4>
+        <h4 className="font-medium text-status-error-text">{PLACEMENT_ACTIONS_LABELS.endTitle}</h4>
         <button
           type="button"
-          className="text-status-error hover:text-red-800 text-sm"
+          className="text-status-error hover:text-status-error-text text-sm"
           onClick={onClose}
         >
           {PLACEMENT_ACTIONS_LABELS.closeBtn}
@@ -52,7 +52,7 @@ export function EndPlacementForm({
       <input type="hidden" name="placementId" value={placementId} />
       <input type="hidden" name="residentId" value={residentId} />
 
-      <div className="p-3 bg-status-error/15 rounded text-sm text-red-800">
+      <div className="p-3 bg-status-error/15 rounded text-sm text-status-error-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.endWarningTitle}</strong> {PLACEMENT_ACTIONS_LABELS.endWarning}
       </div>
 
@@ -84,9 +84,9 @@ export function EndPlacementForm({
         <div className="p-4 bg-status-warning/10 rounded-lg border border-status-warning/25 space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-status-warning text-lg">📊</span>
-            <h5 className="font-medium text-amber-900">{PLACEMENT_ACTIONS_LABELS.conflictAnalysisTitle}</h5>
+            <h5 className="font-medium text-status-warning-text">{PLACEMENT_ACTIONS_LABELS.conflictAnalysisTitle}</h5>
           </div>
-          <p className="text-sm text-amber-700 mb-3">
+          <p className="text-sm text-status-warning-text mb-3">
             {PLACEMENT_ACTIONS_LABELS.conflictAnalysisDesc}
           </p>
 
@@ -163,7 +163,7 @@ export function EndPlacementForm({
         />
       </div>
 
-      <div className="p-3 bg-white border border-status-error/30 rounded text-sm text-red-900">
+      <div className="p-3 bg-white border border-status-error/30 rounded text-sm text-status-error-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {endSummary}
       </div>
 

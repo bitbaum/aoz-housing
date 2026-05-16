@@ -44,10 +44,10 @@ export function TransferForm({
       className="mt-4 p-4 bg-status-info/8 rounded-lg space-y-4 border border-status-info/25"
     >
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-medium text-blue-900">{PLACEMENT_ACTIONS_LABELS.transferTitle}</h4>
+        <h4 className="font-medium text-status-info-text">{PLACEMENT_ACTIONS_LABELS.transferTitle}</h4>
         <button
           type="button"
-          className="text-blue-600 hover:text-blue-800 text-sm"
+          className="text-status-info-text hover:text-status-info-text text-sm"
           onClick={onClose}
         >
           {PLACEMENT_ACTIONS_LABELS.closeBtn}
@@ -57,7 +57,7 @@ export function TransferForm({
       <input type="hidden" name="residentId" value={residentId} />
 
       {eligibleUnits.length === 0 && (
-        <div className="p-3 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-amber-800">
+        <div className="p-3 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-status-warning-text">
           {PLACEMENT_ACTIONS_LABELS.noEligibleUnits}
         </div>
       )}
@@ -124,7 +124,7 @@ export function TransferForm({
         />
       </div>
 
-      <div className="p-3 bg-white border border-blue-200 rounded text-sm text-blue-900">
+      <div className="p-3 bg-white border border-blue-200 rounded text-sm text-status-info-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {transferSummary}
       </div>
 

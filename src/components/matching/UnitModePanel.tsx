@@ -103,14 +103,14 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               {match.concerns.length > 0 && (
                 <div className="mt-2 pt-2 border-t border-orange-200">
                   {match.concerns.map((c: string, i: number) => (
-                    <p key={i} className="text-xs text-orange-600">⚠️ {c}</p>
+                    <p key={i} className="text-xs text-status-warning-text">⚠️ {c}</p>
                   ))}
                 </div>
               )}
               {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
                 <div className="mt-2 pt-2 border-t border-gray-100">
                   {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((s: string, i: number) => (
-                    <p key={i} className="text-xs text-green-600">✓ {s}</p>
+                    <p key={i} className="text-xs text-status-success-text">✓ {s}</p>
                   ))}
                 </div>
               )}

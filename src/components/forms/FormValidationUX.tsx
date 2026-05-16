@@ -38,7 +38,7 @@ export function FormValidationUX({ formId, summaryId }: Props) {
         const fieldContainer = target.closest('.field-group') || target.parentElement
         if (fieldContainer && !fieldContainer.querySelector('.field-error')) {
           const errorMsg = document.createElement('p')
-          errorMsg.className = 'field-error text-red-600 text-xs mt-1'
+          errorMsg.className = 'field-error text-status-error-text text-xs mt-1'
           errorMsg.textContent = FORM_VALIDATION_UX_LABELS.fieldRequired
           errorMsg.setAttribute('role', 'alert')
           fieldContainer.appendChild(errorMsg)

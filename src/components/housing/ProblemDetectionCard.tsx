@@ -148,8 +148,8 @@ export function ProblemDetectionCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">✓</span>
           <div>
-            <h2 className="text-lg font-semibold text-green-800">{PROBLEM_DETECTION_LABELS.noProblems}</h2>
-            <p className="text-sm text-green-700">
+            <h2 className="text-lg font-semibold text-status-success-text">{PROBLEM_DETECTION_LABELS.noProblems}</h2>
+            <p className="text-sm text-status-success-text">
               {PROBLEM_DETECTION_LABELS.noProblemsDesc}
             </p>
           </div>

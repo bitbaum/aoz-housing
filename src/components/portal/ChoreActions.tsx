@@ -81,12 +81,12 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     <div>
       {/* Success / Error messages */}
       {success && (
-        <div className="mb-4 p-3 bg-status-success/10 text-green-700 rounded-lg text-sm" role="status" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-success/10 text-status-success-text rounded-lg text-sm" role="status" aria-live="polite">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 bg-status-error/8 text-red-700 rounded-lg text-sm" role="alert" aria-live="polite">
+        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm" role="alert" aria-live="polite">
           {error}
         </div>
       )}
@@ -95,7 +95,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
       <div className="grid grid-cols-2 gap-3">
         <button
           onClick={() => { setActiveModal('complete'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-status-success/10 text-green-700 hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-success/10 text-status-success-text hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors"
         >
           ✓ {CHORE_LABELS.actions.complete}
         </button>
@@ -107,13 +107,13 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
         </button>
         <button
           onClick={() => { setActiveModal('attention'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-status-warning/10 text-amber-700 hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-warning/10 text-status-warning-text hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors"
         >
           ⚠️ {CHORE_LABELS.actions.attention}
         </button>
         <button
           onClick={() => { setActiveModal('complaint'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-status-error/8 text-red-700 hover:bg-status-error/12 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-status-error/8 text-status-error-text hover:bg-status-error/12 rounded-lg text-sm font-medium transition-colors"
         >
           🚨 {CHORE_LABELS.actions.complaint}
         </button>

@@ -82,11 +82,11 @@ export function getScoreLabel(score: number): string {
 
 export function getScoreColorClass(score: number): string {
   const classes: Record<ScoreLevel, string> = {
-    excellent: 'text-green-600',
-    good: 'text-emerald-600',
-    moderate: 'text-yellow-600',
-    low: 'text-orange-600',
-    critical: 'text-red-600',
+    excellent: 'text-score-excellent-text',
+    good:      'text-score-good-text',
+    moderate:  'text-score-medium-text',
+    low:       'text-score-low-text',
+    critical:  'text-score-critical-text',
   }
   return classes[getScoreLevel(score)]
 }

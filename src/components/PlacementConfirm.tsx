@@ -99,10 +99,10 @@ export function PlacementConfirm({
                     <span
                       className={`text-sm font-bold ${
                         fitScore >= 70
-                          ? 'text-green-600'
+                          ? 'text-status-success-text'
                           : fitScore >= 50
-                          ? 'text-yellow-600'
-                          : 'text-red-600'
+                          ? 'text-status-warning-text'
+                          : 'text-status-error-text'
                       }`}
                     >
                       {fitScore}%
@@ -114,10 +114,10 @@ export function PlacementConfirm({
               {/* Warning for low compatibility */}
               {fitScore < 50 && (
                 <div className="bg-status-warning/10 border border-status-warning/25 rounded-lg p-3">
-                  <p className="text-sm text-amber-900 font-medium">
+                  <p className="text-sm text-status-warning-text font-medium">
                     ⚠️ {PLACEMENT_CONFIRM_LABELS.lowCompatWarning}
                   </p>
-                  <p className="text-xs text-amber-700 mt-1">
+                  <p className="text-xs text-status-warning-text mt-1">
                     {PLACEMENT_CONFIRM_LABELS.lowCompatMessage}
                   </p>
                 </div>
@@ -126,10 +126,10 @@ export function PlacementConfirm({
               {/* Show conflicts if any */}
               {conflicts.length > 0 && (
                 <div className="bg-status-warning/8 border border-status-warning/20 rounded-lg p-3">
-                  <p className="text-sm text-amber-800 font-medium mb-2">
+                  <p className="text-sm text-status-warning-text font-medium mb-2">
                     {PLACEMENT_CONFIRM_LABELS.notePoints}
                   </p>
-                  <ul className="text-xs text-amber-700 space-y-1">
+                  <ul className="text-xs text-status-warning-text space-y-1">
                     {conflicts.map((conflict, i) => (
                       <li key={i}>• {conflict}</li>
                     ))}

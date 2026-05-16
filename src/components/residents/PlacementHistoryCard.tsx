@@ -53,7 +53,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
                   {placement.housingUnit.code}
                 </Link>
                 {placement.status === 'TRANSFERRED' && (
-                  <span className="text-blue-500 text-sm">{'\u{1F504}'}</span>
+                  <span className="text-status-info-text text-sm">{'\u{1F504}'}</span>
                 )}
               </div>
               {placement.spot && (
@@ -71,7 +71,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
             </div>
             <div className="text-right">
               {placement.status === 'TRANSFERRED' ? (
-                <span className="badge bg-status-info/15 text-blue-800">
+                <span className="badge bg-status-info/15 text-status-info-text">
                   {PLACEMENT_HISTORY_LABELS.transferred}
                 </span>
               ) : placement.endReason ? (

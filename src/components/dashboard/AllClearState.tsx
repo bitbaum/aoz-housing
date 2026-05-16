@@ -9,8 +9,8 @@ export function AllClearState({ freeBeds, conflictFreeDays }: { freeBeds: number
   return (
     <div className="card bg-status-success/10 border-status-success/25 text-center py-12">
       <div className="text-6xl mb-4">🎉</div>
-      <h2 className="text-2xl font-bold text-green-800 mb-2">{DASHBOARD_LABELS.allClearTitle}</h2>
-      <p className="text-green-700 mb-6">
+      <h2 className="text-2xl font-bold text-status-success-text mb-2">{DASHBOARD_LABELS.allClearTitle}</h2>
+      <p className="text-status-success-text mb-6">
         {conflictFreeDays > 0 && `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
         {freeBeds > 0 ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}` : DASHBOARD_LABELS.allClearAllOccupied}
       </p>

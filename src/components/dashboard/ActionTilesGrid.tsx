@@ -25,10 +25,10 @@ export function ActionTile({ title, count, description, href, color, items, allH
   }
 
   const badgeStyles = {
-    orange: 'bg-status-warning/15 text-amber-700',
-    blue: 'bg-status-info/15 text-blue-700',
-    red: 'bg-status-error/15 text-red-700',
-    green: 'bg-status-success/15 text-green-700',
+    orange: 'bg-status-warning/15 text-status-warning-text',
+    blue: 'bg-status-info/15 text-status-info-text',
+    red: 'bg-status-error/15 text-status-error-text',
+    green: 'bg-status-success/15 text-status-success-text',
   }
 
   return (

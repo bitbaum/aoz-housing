@@ -60,7 +60,7 @@ export function UnitSidebar({ unit }: Props) {
           <RuleItem label={UNIT_SIDEBAR_LABELS.petsLabel} allowed={unit.petsAllowed} />
           {unit.quietHours && (
             <div className="flex items-center gap-2 text-gray-600">
-              <span className="text-blue-500" aria-hidden="true">🌙</span>
+              <span className="text-status-info-text" aria-hidden="true">🌙</span>
               {UNIT_SIDEBAR_LABELS.quietHoursPrefix}{unit.quietHours}
             </div>
           )}
@@ -97,7 +97,7 @@ export function UnitSidebar({ unit }: Props) {
 function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
   return (
     <div className="flex items-center gap-2 text-gray-600">
-      <span className={allowed ? 'text-green-500' : 'text-red-500'}>
+      <span className={allowed ? 'text-status-success-text' : 'text-status-error-text'}>
         {allowed ? '✓' : '✗'}
       </span>
       {label} {allowed ? UNIT_SIDEBAR_LABELS.ruleAllowed : UNIT_SIDEBAR_LABELS.ruleNotAllowed}
@@ -108,7 +108,7 @@ function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
 function LocationItem({ label, available }: { label: string; available: boolean }) {
   return (
     <div className={`flex items-center gap-2 ${available ? 'text-gray-700' : 'text-gray-400'}`}>
-      <span className={available ? 'text-green-500' : 'text-gray-400'}>
+      <span className={available ? 'text-status-success-text' : 'text-gray-400'}>
         {available ? '✓' : '○'}
       </span>
       {label} {available ? UNIT_SIDEBAR_LABELS.locationNearby : UNIT_SIDEBAR_LABELS.locationNotNearby}

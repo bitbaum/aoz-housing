@@ -139,7 +139,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
               <span>{currentPlacement.housingUnit.code}</span>
             </div>
           ) : (
-            <div className="flex items-center gap-2 text-orange-600">
+            <div className="flex items-center gap-2 text-status-warning-text">
               <span>⚠️</span>
               <span>{RESIDENT_LIST_LABELS.notPlaced}</span>
             </div>
@@ -158,7 +158,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
             Erfasst: {formatDate(resident.createdAt)}
           </span>
           {recentIncidents > 0 && (
-            <span className="text-xs text-orange-600">
+            <span className="text-xs text-status-warning-text">
               {recentIncidents} {RESIDENT_LIST_LABELS.recentIncidentsSuffix}
             </span>
           )}

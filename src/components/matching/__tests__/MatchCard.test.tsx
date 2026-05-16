@@ -85,11 +85,11 @@ jest.mock('@/lib/constants', () => ({
 
 jest.mock('@/lib/utils', () => ({
   getScoreColorClass: (score: number) => {
-    if (score >= 80) return 'text-green-600'
-    if (score >= 60) return 'text-emerald-600'
-    if (score >= 40) return 'text-yellow-600'
-    if (score >= 20) return 'text-orange-600'
-    return 'text-red-600'
+    if (score >= 80) return 'text-score-excellent-text'
+    if (score >= 60) return 'text-score-good-text'
+    if (score >= 40) return 'text-score-medium-text'
+    if (score >= 20) return 'text-score-low-text'
+    return 'text-score-critical-text'
   },
 }))
 
@@ -459,7 +459,7 @@ describe('MatchCard', () => {
 
       // Check that the concern has red coloring
       const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
-      expect(concern.className).toContain('text-red-600')
+      expect(concern.className).toContain('text-status-error-text')
       // Card should have error styling for blocking issues
       expect((container.firstChild as HTMLElement).className).toContain('border-status-error')
     })

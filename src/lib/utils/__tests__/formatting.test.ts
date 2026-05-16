@@ -136,8 +136,8 @@ describe('getScoreLabel', () => {
 
 describe('getScoreColorClass', () => {
   it('returns correct Tailwind classes', () => {
-    expect(getScoreColorClass(90)).toContain('text-green')
-    expect(getScoreColorClass(10)).toContain('text-red')
+    expect(getScoreColorClass(90)).toContain('text-score-excellent-text')
+    expect(getScoreColorClass(10)).toContain('text-score-critical-text')
   })
 })
 

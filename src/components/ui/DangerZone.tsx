@@ -65,15 +65,15 @@ export function DangerZone({
       className="mt-8 p-4 sm:p-5 border-2 border-status-error/30 rounded-lg bg-status-error/8"
       aria-labelledby={ariaId}
     >
-      <h2 id={ariaId} className="text-base sm:text-lg font-semibold text-red-900">
+      <h2 id={ariaId} className="text-base sm:text-lg font-semibold text-status-error-text">
         {labels.title}
       </h2>
-      <p className="text-sm text-red-800 mt-1 leading-relaxed">
+      <p className="text-sm text-status-error-text mt-1 leading-relaxed">
         {labels.description}
       </p>
 
       {!isEligibleCode && (
-        <p className="mt-3 text-sm text-red-700">
+        <p className="mt-3 text-sm text-status-error-text">
           {labels.notEligible}
         </p>
       )}
@@ -84,8 +84,8 @@ export function DangerZone({
           aria-live="polite"
           className={`mt-3 p-3 rounded text-sm ${
             feedback.kind === 'error'
-              ? 'bg-status-error/15 text-red-800 border border-status-error/30'
-              : 'bg-status-success/15 text-green-800 border border-status-success/30'
+              ? 'bg-status-error/15 text-status-error-text border border-status-error/30'
+              : 'bg-status-success/15 text-status-success-text border border-status-success/30'
           }`}
         >
           {feedback.text}
@@ -93,7 +93,7 @@ export function DangerZone({
       )}
 
       {blockerReport && (
-        <div className="mt-3 p-3 rounded text-sm bg-status-warning/10 text-amber-900 border border-status-warning/30">
+        <div className="mt-3 p-3 rounded text-sm bg-status-warning/10 text-status-warning-text border border-status-warning/30">
           <p>
             <strong>{labels.blockerReportTitle}</strong>{' '}
             {blockerText || labels.noDetails}

@@ -153,7 +153,7 @@ export function ScoreExplanation({
               <div className="space-y-1">
                 {positiveFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
-                    <span className="text-green-600 flex-shrink-0">+</span>
+                    <span className="text-status-success-text flex-shrink-0">+</span>
                     <span className="text-gray-700">
                       {factor.label}
                       {factor.detail && (
@@ -173,7 +173,7 @@ export function ScoreExplanation({
               <div className="space-y-1">
                 {negativeFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
-                    <span className="text-red-600 flex-shrink-0">-</span>
+                    <span className="text-status-error-text flex-shrink-0">-</span>
                     <span className="text-gray-700">
                       {factor.label}
                       {factor.detail && (
@@ -237,9 +237,9 @@ export function ScoreExplanationBadge({
       {score}%
       {hasFactors && (
         <span className="text-xs opacity-70">
-          {positiveCount > 0 && <span className="text-green-600">+{positiveCount}</span>}
+          {positiveCount > 0 && <span className="text-status-success-text">+{positiveCount}</span>}
           {positiveCount > 0 && negativeCount > 0 && '/'}
-          {negativeCount > 0 && <span className="text-red-600">-{negativeCount}</span>}
+          {negativeCount > 0 && <span className="text-status-error-text">-{negativeCount}</span>}
         </span>
       )}
     </span>

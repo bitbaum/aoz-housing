@@ -52,7 +52,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
       </legend>
 
       {eligibleSpots.length === 0 && (
-        <p className="text-xs text-orange-600 mb-2" role="alert">
+        <p className="text-xs text-status-warning-text mb-2" role="alert">
           <span aria-hidden="true">⚠️</span> {MATCHING_LABELS.noSuitableSpots}
           {!resident.hasMedicalDocumentation && ` ${MATCHING_LABELS.medDocsMissing}`}
         </p>
@@ -123,7 +123,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
               <div key={spot.id} className="flex items-center gap-2 opacity-50">
                 <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
                 <span>{spot.label || spot.code}</span>
-                <span className="text-orange-500">
+                <span className="text-status-warning-text">
                   {spot.requiresMedicalDocs && !resident.hasMedicalDocumentation
                     ? MATCHING_LABELS.medDocsRequired
                     : MATCHING_LABELS.notAuthorized}

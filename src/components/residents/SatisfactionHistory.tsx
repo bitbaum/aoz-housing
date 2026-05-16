@@ -85,21 +85,21 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
 
             {/* Concerns highlighted */}
             {checkIn.concerns && (
-              <div className="text-sm text-red-700 bg-status-error/8 p-2 rounded mt-2">
+              <div className="text-sm text-status-error-text bg-status-error/8 p-2 rounded mt-2">
                 <span className="font-medium">{SATISFACTION_HISTORY_LABELS.concerns}</span> {checkIn.concerns}
               </div>
             )}
 
             {/* Improvements */}
             {checkIn.improvements && (
-              <div className="text-sm text-amber-700 bg-status-warning/10 p-2 rounded mt-2">
+              <div className="text-sm text-status-warning-text bg-status-warning/10 p-2 rounded mt-2">
                 <span className="font-medium">{SATISFACTION_HISTORY_LABELS.improvements}</span> {checkIn.improvements}
               </div>
             )}
 
             {/* Positives */}
             {checkIn.positives && (
-              <div className="text-sm text-green-700 bg-status-success/10 p-2 rounded mt-2">
+              <div className="text-sm text-status-success-text bg-status-success/10 p-2 rounded mt-2">
                 <span className="font-medium">{SATISFACTION_HISTORY_LABELS.positives}</span> {checkIn.positives}
               </div>
             )}

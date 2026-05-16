@@ -64,14 +64,14 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
           )}
           <span className={`px-3 py-1 rounded-full ${
             housingUnit?.smokingAllowed
-              ? 'bg-status-success/10 text-green-700'
-              : 'bg-status-error/10 text-red-700'
+              ? 'bg-status-success/10 text-status-success-text'
+              : 'bg-status-error/10 text-status-error-text'
           }`}>
             {housingUnit?.smokingAllowed ? PORTAL_LABELS.dashboard.smokingAllowed : PORTAL_LABELS.dashboard.noSmoking}
           </span>
           <span className={`px-3 py-1 rounded-full ${
             housingUnit?.petsAllowed
-              ? 'bg-status-success/10 text-green-700'
+              ? 'bg-status-success/10 text-status-success-text'
               : 'bg-gray-50 text-gray-600'
           }`}>
             {housingUnit?.petsAllowed ? PORTAL_LABELS.dashboard.petsAllowed : PORTAL_LABELS.dashboard.noPets}
@@ -111,7 +111,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   done
-                    ? 'bg-status-success/15 text-green-700'
+                    ? 'bg-status-success/15 text-status-success-text'
                     : isActive
                       ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
                       : 'bg-gray-100 text-gray-400'
@@ -130,7 +130,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
               </div>
               <div className="pt-1">
                 <p className={`text-sm font-medium ${
-                  done ? 'text-green-700' : isActive ? 'text-aoz-primary' : 'text-gray-500'
+                  done ? 'text-status-success-text' : isActive ? 'text-aoz-primary' : 'text-gray-500'
                 }`}>
                   {label}
                 </p>

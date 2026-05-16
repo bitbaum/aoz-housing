@@ -54,7 +54,7 @@ export function PlacementCheckIn({
       <div className="text-right">
         <p className="text-xs text-gray-500">Check-in</p>
         <span className="text-lg">{EMOJIS[saved - 1]}</span>
-        <p className="text-xs text-green-600">{PLACEMENT_LIST_LABELS.checkInSaved}</p>
+        <p className="text-xs text-status-success-text">{PLACEMENT_LIST_LABELS.checkInSaved}</p>
       </div>
     )
   }

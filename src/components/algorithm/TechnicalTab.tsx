@@ -125,7 +125,7 @@ export function TechnicalTab() {
       {/* Blocking */}
       <section className="card">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-red-500" />
+          <AlertTriangle className="w-5 h-5 text-status-error-text" />
           {TECHNICAL_TAB_LABELS.blockingTitle}
         </h2>
 
@@ -137,8 +137,8 @@ export function TechnicalTab() {
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.hardRequirementsLabel}</span>{' '}
-              <span className="text-red-800">
+              <span className="font-medium text-status-error-text">{TECHNICAL_TAB_LABELS.hardRequirementsLabel}</span>{' '}
+              <span className="text-status-error-text">
                 {TECHNICAL_TAB_LABELS.hardRequirementsDesc}
               </span>
             </div>
@@ -146,8 +146,8 @@ export function TechnicalTab() {
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.extremeDifferencesLabel}</span>{' '}
-              <span className="text-red-800">
+              <span className="font-medium text-status-error-text">{TECHNICAL_TAB_LABELS.extremeDifferencesLabel}</span>{' '}
+              <span className="text-status-error-text">
                 {TECHNICAL_TAB_LABELS.extremeDifferencesDesc}
               </span>
             </div>
@@ -155,8 +155,8 @@ export function TechnicalTab() {
           <div className="flex items-start gap-3">
             <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
             <div>
-              <span className="font-medium text-red-900">{TECHNICAL_TAB_LABELS.incompatibleBehaviorLabel}</span>{' '}
-              <span className="text-red-800">
+              <span className="font-medium text-status-error-text">{TECHNICAL_TAB_LABELS.incompatibleBehaviorLabel}</span>{' '}
+              <span className="text-status-error-text">
                 {TECHNICAL_TAB_LABELS.incompatibleBehaviorDesc}
               </span>
             </div>

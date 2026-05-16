@@ -28,7 +28,7 @@ function getBedColorClasses(status: BedStatus, isClickable: boolean): string {
     case 'occupied':
       return `bg-aoz-primary/10 border-aoz-primary/30 text-aoz-primary ${isClickable ? 'hover:bg-aoz-primary/15 hover:border-aoz-primary/50 cursor-pointer' : ''}`
     case 'available':
-      return 'bg-status-success/15 border-status-success/40 text-green-700 hover:bg-status-success/20 cursor-pointer'
+      return 'bg-status-success/15 border-status-success/40 text-status-success-text hover:bg-status-success/20 cursor-pointer'
     case 'unavailable':
       return 'bg-gray-100 border-gray-300 text-gray-400'
   }

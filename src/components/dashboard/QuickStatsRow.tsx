@@ -17,10 +17,10 @@ export interface QuickStatProps {
 
 export function QuickStat({ label, value, total, suffix, subtext, href, color, icon }: QuickStatProps) {
   const colorStyles = {
-    green: 'border-status-success/25 bg-status-success/10 text-green-700',
-    yellow: 'border-status-warning/25 bg-status-warning/10 text-amber-700',
-    red: 'border-status-error/25 bg-status-error/8 text-red-700',
-    blue: 'border-status-info/25 bg-status-info/8 text-blue-700',
+    green: 'border-status-success/25 bg-status-success/10 text-status-success-text',
+    yellow: 'border-status-warning/25 bg-status-warning/10 text-status-warning-text',
+    red: 'border-status-error/25 bg-status-error/8 text-status-error-text',
+    blue: 'border-status-info/25 bg-status-info/8 text-status-info-text',
     gray: 'border-gray-200 bg-gray-50 text-gray-600',
   }
 

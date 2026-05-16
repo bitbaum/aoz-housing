@@ -23,7 +23,7 @@ export function ConflictAnalysisSection({
       {/* Conflict Gap Breakdown */}
       <div className="card border-l-4 border-orange-400">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-orange-500 text-xl" aria-hidden="true">📊</span>
+          <span className="text-status-warning-text text-xl" aria-hidden="true">📊</span>
           <h2 className="text-lg font-semibold text-gray-900">
             {ALGORITHM_ACCURACY_LABELS.conflictCausesTitle}
           </h2>
@@ -70,7 +70,7 @@ export function ConflictAnalysisSection({
       {/* Predictability Insights */}
       <div className="card border-l-4 border-blue-400">
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-blue-500 text-xl" aria-hidden="true">🔮</span>
+          <span className="text-status-info-text text-xl" aria-hidden="true">🔮</span>
           <h2 className="text-lg font-semibold text-gray-900">
             {ALGORITHM_ACCURACY_LABELS.algorithmInsightsTitle}
           </h2>
@@ -88,13 +88,13 @@ export function ConflictAnalysisSection({
                 <p className="text-2xl font-bold text-status-success">
                   {predictableCount}
                 </p>
-                <p className="text-xs text-green-700">{ALGORITHM_ACCURACY_LABELS.predictableLabel}</p>
+                <p className="text-xs text-status-success-text">{ALGORITHM_ACCURACY_LABELS.predictableLabel}</p>
               </div>
               <div className="p-3 bg-status-error/8 rounded-lg text-center">
                 <p className="text-2xl font-bold text-status-error">
                   {unpredictableCount}
                 </p>
-                <p className="text-xs text-red-700">{ALGORITHM_ACCURACY_LABELS.unpredictableLabel}</p>
+                <p className="text-xs text-status-error-text">{ALGORITHM_ACCURACY_LABELS.unpredictableLabel}</p>
               </div>
             </div>
 
@@ -111,10 +111,10 @@ export function ConflictAnalysisSection({
 
             {lowScoreCount > 0 && (
               <div className="p-3 bg-status-warning/10 rounded-lg border border-status-warning/25">
-                <p className="text-sm text-amber-800">
+                <p className="text-sm text-status-warning-text">
                   <strong>{lowScoreCount}</strong> {ALGORITHM_ACCURACY_LABELS.lowScoreWarningPrefix}
                 </p>
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-status-warning-text mt-1">
                   {ALGORITHM_ACCURACY_LABELS.lowScoreHint}
                 </p>
               </div>

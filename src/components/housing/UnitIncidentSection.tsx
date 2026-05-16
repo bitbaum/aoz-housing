@@ -59,7 +59,7 @@ export function UnitIncidentSection({
           <div className="flex items-start gap-2">
             <span className="text-status-warning text-lg" aria-hidden="true">!</span>
             <div>
-              <p className="text-sm font-medium text-amber-800">
+              <p className="text-sm font-medium text-status-warning-text">
                 {UNIT_INCIDENT_LABELS.frequentResidents}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -67,10 +67,10 @@ export function UnitIncidentSection({
                   <Link
                     key={s.id}
                     href={`/residents/${s.id}`}
-                    className="inline-flex items-center gap-1 px-2 py-1 bg-status-warning/15 text-amber-800 rounded text-sm hover:bg-status-warning/20 transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-status-warning/15 text-status-warning-text rounded text-sm hover:bg-status-warning/20 transition-colors"
                   >
                     <span className="font-medium">{s.code}</span>
-                    <span className="text-amber-700">({s.count}x)</span>
+                    <span className="text-status-warning-text">({s.count}x)</span>
                   </Link>
                 ))}
               </div>

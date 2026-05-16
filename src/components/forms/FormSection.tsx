@@ -47,13 +47,13 @@ export function FormField({
     <div>
       <label className="label">
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
+        {required && <span className="text-status-error-text ml-1">*</span>}
       </label>
       {description && (
         <p className="text-xs text-gray-500 mb-2">{description}</p>
       )}
       {children}
-      {error && <p role="alert" className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p role="alert" className="text-xs text-status-error-text mt-1">{error}</p>}
     </div>
   )
 }

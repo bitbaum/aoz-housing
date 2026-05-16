@@ -98,7 +98,7 @@ export function TransferRecommendations({
 
   if (rankedUnits.length === 0) {
     return (
-      <div className="text-sm text-amber-700 p-3 bg-status-warning/10 rounded-lg border border-status-warning/25">
+      <div className="text-sm text-status-warning-text p-3 bg-status-warning/10 rounded-lg border border-status-warning/25">
         {TRANSFER_RECOMMENDATIONS_LABELS.noUnitsAvailable}
       </div>
     )
@@ -156,7 +156,7 @@ export function TransferRecommendations({
                     {/* Current residents preview */}
                     <div className="mt-2">
                       {isEmpty ? (
-                        <p className="text-xs text-green-600 font-medium">
+                        <p className="text-xs text-status-success-text font-medium">
                           Leer - keine Mitbewohner
                         </p>
                       ) : (
@@ -216,10 +216,10 @@ export function TransferRecommendations({
                           <p className="text-xs font-medium text-gray-700 mb-1">Wohnungs-Faktoren</p>
                           <div className="space-y-1">
                             {unit.strengths.map((s, i) => (
-                              <p key={i} className="text-xs text-green-600">+ {s}</p>
+                              <p key={i} className="text-xs text-status-success-text">+ {s}</p>
                             ))}
                             {unit.concerns.map((c, i) => (
-                              <p key={i} className="text-xs text-orange-600">- {c}</p>
+                              <p key={i} className="text-xs text-status-warning-text">- {c}</p>
                             ))}
                           </div>
                         </div>
@@ -241,7 +241,7 @@ export function TransferRecommendations({
                                 <div className="flex items-center justify-between">
                                   <Link
                                     href={`/residents/${resident.id}`}
-                                    className="font-medium text-sm text-gray-900 hover:text-blue-600"
+                                    className="font-medium text-sm text-gray-900 hover:text-status-info-text"
                                     onClick={(e) => e.stopPropagation()}
                                   >
                                     {resident.code}

@@ -43,7 +43,7 @@ export function SatisfactionChart({
             </div>
             {lowSatisfactionCount > 0 && (
               <div className="ml-auto text-right">
-                <p className="text-orange-600 font-semibold">{lowSatisfactionCount}</p>
+                <p className="text-status-warning-text font-semibold">{lowSatisfactionCount}</p>
                 <p className="text-sm text-gray-500">mit Bedenken</p>
               </div>
             )}

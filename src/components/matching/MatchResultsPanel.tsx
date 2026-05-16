@@ -76,7 +76,7 @@ export function MatchResultsPanel({
                 value={bestQuickMatch.unit.spots.find((s) => s.status === 'AVAILABLE')?.id || ''}
               />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-status-success-text">
                   {MATCH_RESULTS_LABELS.quickActionDesc(bestQuickMatch.unit.code, bestQuickMatch.apartmentFit.fitScore)}
                 </p>
                 <button type="submit" className="btn-primary text-sm min-h-[44px]">
@@ -113,7 +113,7 @@ export function MatchResultsPanel({
                           <button type="submit" className="btn-primary text-sm min-h-[44px]">{PLACEMENT_PANEL_LABELS.place}</button>
                         </form>
                       ) : (
-                        <span className="text-xs text-red-600">{PLACEMENT_PANEL_LABELS.blocked}</span>
+                        <span className="text-xs text-status-error-text">{PLACEMENT_PANEL_LABELS.blocked}</span>
                       )}
                     </div>
                   </div>

@@ -80,14 +80,14 @@ export function CSVImport() {
         </button>
         <a
           href="/api/export/template"
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-status-info-text hover:underline"
         >
           {EXPORT_LABELS.downloadTemplate}
         </a>
       </div>
 
       {error && (
-        <div className="rounded-md bg-status-error/8 p-3 text-sm text-red-700">
+        <div className="rounded-md bg-status-error/8 p-3 text-sm text-status-error-text">
           {error}
         </div>
       )}
@@ -146,11 +146,11 @@ export function CSVImport() {
           </p>
           {result.errors.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs font-medium text-red-600">
+              <p className="text-xs font-medium text-status-error-text">
                 {EXPORT_LABELS.errors}:
               </p>
               {result.errors.slice(0, DISPLAY_LIMITS.importErrorPreview).map((err, i) => (
-                <p key={i} className="text-xs text-red-600">
+                <p key={i} className="text-xs text-status-error-text">
                   {EXPORT_LABELS.row} {err.row}: {err.error}
                 </p>
               ))}

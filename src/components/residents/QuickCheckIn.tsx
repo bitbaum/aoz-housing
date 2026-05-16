@@ -114,7 +114,7 @@ export function QuickCheckIn({
   if (savedSuccess) {
     return (
       <div className="p-3 bg-status-success/10 border border-status-success/25 rounded-lg">
-        <div className="flex items-center gap-2 text-green-700">
+        <div className="flex items-center gap-2 text-status-success-text">
           <span className="text-lg">✓</span>
           <span className="font-medium">{QUICK_CHECKIN_LABELS.successSaved}</span>
           <span className="text-2xl ml-2">
@@ -181,7 +181,7 @@ export function QuickCheckIn({
             <label id="roommate-label" className="text-sm font-medium text-gray-700 block mb-1">
               {QUICK_CHECKIN_LABELS.roommateLabel}
               {needsExplanation && !concerns.trim() && (
-                <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
+                <span className="text-status-error-text ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
             </label>
             <div className="flex gap-1" role="radiogroup" aria-labelledby="roommate-label">
@@ -217,7 +217,7 @@ export function QuickCheckIn({
             <label htmlFor="concerns-input" className="text-sm font-medium text-gray-700 block mb-1">
               {QUICK_CHECKIN_LABELS.concernsLabel}
               {needsExplanation && !roommateRelations && (
-                <span className="text-red-500 ml-1" aria-label={UI_LABELS.required}>*</span>
+                <span className="text-status-error-text ml-1" aria-label={UI_LABELS.required}>*</span>
               )}
             </label>
             <textarea
@@ -234,7 +234,7 @@ export function QuickCheckIn({
 
           {/* Error message */}
           {error && (
-            <p className="text-sm text-red-600" role="alert" aria-live="polite">{error}</p>
+            <p className="text-sm text-status-error-text" role="alert" aria-live="polite">{error}</p>
           )}
 
           {/* Actions */}

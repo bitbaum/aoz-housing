@@ -17,13 +17,13 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
       {/* Prioritized resident actions */}
       <div className="mb-8 space-y-3">
         <div className="p-3 rounded-lg border border-status-warning/30 bg-status-warning/10">
-          <h2 className="text-sm font-semibold text-amber-900 uppercase tracking-wide">{L.prioritySections.now.heading}</h2>
-          <p className="text-xs text-amber-700">{nowDesc}</p>
+          <h2 className="text-sm font-semibold text-status-warning-text uppercase tracking-wide">{L.prioritySections.now.heading}</h2>
+          <p className="text-xs text-status-warning-text">{nowDesc}</p>
         </div>
 
         <div className="p-3 rounded-lg border border-status-info/30 bg-status-info/8">
-          <h2 className="text-sm font-semibold text-blue-900 uppercase tracking-wide">{L.prioritySections.next.heading}</h2>
-          <p className="text-xs text-blue-700">{L.prioritySections.next.desc}</p>
+          <h2 className="text-sm font-semibold text-status-info-text uppercase tracking-wide">{L.prioritySections.next.heading}</h2>
+          <p className="text-xs text-status-info-text">{L.prioritySections.next.desc}</p>
         </div>
 
         <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
