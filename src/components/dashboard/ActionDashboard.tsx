@@ -122,7 +122,7 @@ export function ActionDashboard({
           label={DASHBOARD_LABELS.statCheckIns}
           value={overdueCheckIns.length}
           suffix={` ${DASHBOARD_LABELS.statOverdueSuffix}`}
-          href="/placements?status=active"
+          href="/placements?status=active&overdue=1"
           color={overdueCheckIns.length === 0 ? 'green' : overdueCheckIns.length <= 3 ? 'yellow' : 'red'}
           icon={overdueCheckIns.length === 0 ? '✓' : '⏰'}
           subtext={`${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`}
@@ -163,7 +163,7 @@ export function ActionDashboard({
                 sublabel: `${c.daysSinceLastCheckIn} ${DASHBOARD_LABELS.statDaysSuffix} · ${c.unitCode}`,
                 href: `/residents/${c.residentId}`,
               }))}
-              allHref="/placements?status=active"
+              allHref="/placements?status=active&overdue=1"
             />
           )}
 

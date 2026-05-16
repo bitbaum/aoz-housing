@@ -228,7 +228,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           label={DASHBOARD_LABELS.analyticsOverdueCheckIns}
           value={overdueCheckIns.length}
           subtitle={`von ${placements.length} aktiven`}
-          href="/placements?status=active"
+          href="/placements?status=active&overdue=1"
           highlight={overdueCheckIns.length > 0}
         />
         <MetricCard

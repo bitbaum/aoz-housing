@@ -49,7 +49,7 @@ export function DashboardMetrics({
       </Link>
 
       {/* Overdue Check-ins - actionable! */}
-      <Link href="/placements?status=active" className="card-hover">
+      <Link href="/placements?status=active&overdue=1" className="card-hover">
         <p className="text-sm text-gray-500">Check-ins überfällig</p>
         <p className={`text-3xl font-bold mt-1 ${overdueCheckIns === 0 ? 'text-green-600' : overdueCheckIns <= 3 ? 'text-yellow-600' : 'text-orange-600'}`}>
           {overdueCheckIns}
