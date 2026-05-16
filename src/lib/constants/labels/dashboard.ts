@@ -34,7 +34,6 @@ export const DASHBOARD_LABELS = {
 
   tileCheckIns: 'Check-ins durchführen',
   tilePlaceResidents: 'Bewohner platzieren',
-  tileWaitingForPlacement: 'Warten auf Wohnplatz',
   tileConflictUnits: 'Einheiten mit Konflikten',
   tileConflictUnitsDesc: 'Wiederholte Vorfälle in den letzten 30 Tagen',
   tileCheckInsThisWeek: 'Check-ins diese Woche',

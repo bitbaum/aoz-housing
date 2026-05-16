@@ -171,7 +171,7 @@ export function ActionDashboard({
             <ActionTile
               title={DASHBOARD_LABELS.tilePlaceResidents}
               count={unplacedResidents.length}
-              description={DASHBOARD_LABELS.tileWaitingForPlacement}
+              description={`${unplacedResidents[0]?.code} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
               href="/matching"
               color="blue"
               items={unplacedResidents.slice(0, DISPLAY_LIMITS.dashboardItems).map(r => ({
