@@ -44,11 +44,22 @@ export const UI_LABELS = {
   // AI chat
   aiChatPlaceholder: 'Frage stellen… (Enter zum Senden, Shift+Enter für Zeilenumbruch)',
   aiChatSend: 'Senden',
-  // Error boundaries
+  // Error boundaries — shared UI text
   errorTitle: 'Etwas ist schiefgelaufen',
-  errorIncidentsDesc: 'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
   errorRetry: 'Erneut versuchen',
   errorToDashboard: 'Zum Dashboard',
+  // Error boundaries — page-specific descriptions
+  errorGenericDesc: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+  errorHousingDesc: 'Beim Laden der Unterkunftsdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorResidentsDesc: 'Beim Laden der Bewohnerdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorIncidentsDesc: 'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorMaintenanceDesc: 'Beim Laden der Wartungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorAnalyticsDesc: 'Beim Laden der Analysedaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorMatchingDesc: 'Beim Laden des Matchings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorAlgorithmDesc: 'Beim Laden der Algorithmus-Dokumentation ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorChoresDesc: 'Beim Laden der Haushaltsaufgaben ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorTransferRequestsDesc: 'Beim Laden der Verlegungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorPlacementsDesc: 'Beim Laden der Platzierungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
 } as const
 
 export const FOLLOW_UP_FORM_LABELS = {

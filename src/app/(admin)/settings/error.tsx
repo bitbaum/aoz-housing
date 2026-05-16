@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { ErrorBoundaryUI } from '@/components/ui/ErrorBoundaryUI'
 import { UI_LABELS } from '@/lib/constants'
 
-export default function IncidentsError({
+export default function SettingsError({
   error,
   reset,
 }: {
@@ -16,5 +16,5 @@ export default function IncidentsError({
     Sentry.captureException(error)
   }, [error])
 
-  return <ErrorBoundaryUI description={UI_LABELS.errorIncidentsDesc} onRetry={reset} />
+  return <ErrorBoundaryUI description={UI_LABELS.errorGenericDesc} onRetry={reset} />
 }
