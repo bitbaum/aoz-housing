@@ -15,6 +15,7 @@ import {
 } from '@/lib/constants'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import { DetailRow } from '@/components/ui/Card'
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection'
 
@@ -37,6 +38,24 @@ function PreferenceItem({ label, value }: { label: string; value: boolean }) {
         {value ? '✓' : '○'}
       </span>
       {label}
+    </div>
+  )
+}
+
+function ScaleRow({ label, value, factorKey }: { label: string; value: number; factorKey: string }) {
+  const factor = RESIDENT_FACTORS[factorKey]
+  const scaleFactor = factor?.type === 'scale' ? factor : null
+  return (
+    <div className="flex justify-between items-start">
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-right">
+        <span className="text-gray-900 font-medium">{value}/5</span>
+        {scaleFactor && (
+          <span className="block text-xs text-gray-400 mt-0.5">
+            {scaleFactor.lowLabel} – {scaleFactor.highLabel}
+          </span>
+        )}
+      </dd>
     </div>
   )
 }
@@ -96,21 +115,24 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSleepSchedule}
             value={getLabel(SLEEP_SCHEDULE_LABELS, resident.sleepSchedule)}
           />
-          <DetailRow
+          <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldNoiseTolerance}
-            value={`${resident.noiseTolerance}/5`}
+            value={resident.noiseTolerance}
+            factorKey="noiseTolerance"
           />
-          <DetailRow
+          <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldCleanliness}
-            value={`${resident.cleanlinessLevel}/5`}
+            value={resident.cleanlinessLevel}
+            factorKey="cleanlinessLevel"
           />
           <DetailRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSocialStyle}
             value={getLabel(SOCIAL_STYLE_LABELS, resident.socialStyle)}
           />
-          <DetailRow
+          <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldPrivacy}
-            value={`${resident.privacyNeed}/5`}
+            value={resident.privacyNeed}
+            factorKey="privacyNeed"
           />
           <DetailRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSmoking}
@@ -144,9 +166,10 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       {/* Household & Independence */}
       <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionHousehold} defaultOpen={false}>
         <dl className="space-y-2 text-sm">
-          <DetailRow
+          <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldChores}
-            value={`${resident.choresContribution}/5`}
+            value={resident.choresContribution}
+            factorKey="choresContribution"
           />
           <DetailRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldRecycling}

@@ -13,10 +13,10 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
     return (
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Zufriedenheits-Check-ins
+          {SATISFACTION_HISTORY_LABELS.titleEmpty}
         </h2>
         <p className="text-gray-500 text-sm">
-          Noch keine Check-ins erfasst.
+          {SATISFACTION_HISTORY_LABELS.empty}
         </p>
       </div>
     )
@@ -25,7 +25,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Zufriedenheits-Check-ins ({checkIns.length})
+        {SATISFACTION_HISTORY_LABELS.title(checkIns.length)}
       </h2>
       <div className="space-y-3">
         {checkIns.map((checkIn) => (
@@ -58,7 +58,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
                   </span>
                   {checkIn.weekNumber && (
                     <span className="text-gray-500 text-sm ml-2">
-                      Woche {checkIn.weekNumber}
+                      {SATISFACTION_HISTORY_LABELS.weekPrefix} {checkIn.weekNumber}
                     </span>
                   )}
                 </div>
@@ -93,21 +93,21 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
             {/* Improvements */}
             {checkIn.improvements && (
               <div className="text-sm text-amber-700 bg-amber-50 p-2 rounded mt-2">
-                <span className="font-medium">Verbesserungen:</span> {checkIn.improvements}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.improvements}</span> {checkIn.improvements}
               </div>
             )}
 
             {/* Positives */}
             {checkIn.positives && (
               <div className="text-sm text-green-700 bg-green-50 p-2 rounded mt-2">
-                <span className="font-medium">Positives:</span> {checkIn.positives}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.positives}</span> {checkIn.positives}
               </div>
             )}
 
             {/* Collector info */}
             {checkIn.collectedBy && !checkIn.isAnonymous && (
               <div className="text-xs text-gray-500 mt-2">
-                Erfasst von: {checkIn.collectedBy}
+                {SATISFACTION_HISTORY_LABELS.collectedBy(checkIn.collectedBy)}
               </div>
             )}
           </div>

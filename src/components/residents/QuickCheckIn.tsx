@@ -25,13 +25,10 @@ const SATISFACTION_OPTIONS = [
   { value: 5, emoji: '😊', label: QUICK_CHECKIN_LABELS.satisfactionLabels[5], color: 'border-green-300 hover:border-green-400 peer-checked:border-green-500 peer-checked:bg-green-50' },
 ]
 
-const ROOMMATE_OPTIONS = [
-  { value: 1, label: 'Sehr schlecht' },
-  { value: 2, label: 'Schlecht' },
-  { value: 3, label: 'OK' },
-  { value: 4, label: 'Gut' },
-  { value: 5, label: 'Sehr gut' },
-]
+const ROOMMATE_OPTIONS = [1, 2, 3, 4, 5].map((v) => ({
+  value: v,
+  label: QUICK_CHECKIN_LABELS.roommateLabels[v],
+}))
 
 
 export function QuickCheckIn({

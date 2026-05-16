@@ -249,6 +249,13 @@ export const SATISFACTION_HISTORY_LABELS = {
   facilitySatisfaction: 'Einrichtung:',
   safetyFeeling: 'Sicherheit:',
   concerns: 'Anliegen:',
+  improvements: 'Verbesserungen:',
+  positives: 'Positives:',
+  collectedBy: (name: string) => `Erfasst von: ${name}`,
+  weekPrefix: 'Woche',
+  title: (count: number) => `Zufriedenheits-Check-ins (${count})`,
+  titleEmpty: 'Zufriedenheits-Check-ins',
+  empty: 'Noch keine Check-ins erfasst.',
 } as const
 
 export const HOUSING_LIST_LABELS = {
@@ -457,6 +464,7 @@ export const UNIT_SIDEBAR_LABELS = {
 
 export const QUICK_CHECKIN_LABELS = {
   satisfactionLabels: ['', 'Sehr unzufrieden', 'Unzufrieden', 'Neutral', 'Zufrieden', 'Sehr zufrieden'],
+  roommateLabels: ['', 'Sehr schlecht', 'Schlecht', 'OK', 'Gut', 'Sehr gut'],
   mainLabel: 'Wie geht es Ihnen hier?',
   lastPrefix: 'Letzter: ',
   savingState: 'Speichern...',
