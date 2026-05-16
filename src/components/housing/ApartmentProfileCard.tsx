@@ -10,6 +10,7 @@ import {
 } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import type { ResidentHouseholdProfile } from '@/lib/types'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 
 interface ApartmentProfileCardProps {
   residents: ResidentHouseholdProfile[]
@@ -157,21 +158,25 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
               label={APARTMENT_PROFILE_LABELS.fieldCleanliness}
               value={metrics.avgCleanliness}
               values={residents.map(r => ({ code: r.code, value: r.cleanlinessLevel }))}
+              factorKey="cleanlinessLevel"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldNoiseTolerance}
               value={metrics.avgNoiseTolerance}
               values={residents.map(r => ({ code: r.code, value: r.noiseTolerance }))}
+              factorKey="noiseTolerance"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldPrivacy}
               value={metrics.avgPrivacyNeed}
               values={residents.map(r => ({ code: r.code, value: r.privacyNeed }))}
+              factorKey="privacyNeed"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldChores}
               value={metrics.avgChoresContribution}
               values={residents.map(r => ({ code: r.code, value: r.choresContribution }))}
+              factorKey="choresContribution"
             />
           </div>
 
@@ -237,9 +242,12 @@ interface ScaleMetricProps {
   label: string
   value: number
   values: { code: string; value: number }[]
+  factorKey: string
 }
 
-function ScaleMetric({ label, value, values }: ScaleMetricProps) {
+function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
+  const factor = RESIDENT_FACTORS[factorKey]
+  const scaleFactor = factor?.type === 'scale' ? factor : null
   const roundedValue = Math.round(value * 10) / 10
   const percentage = ((value - 1) / 4) * 100 // Convert 1-5 to 0-100%
 
@@ -280,8 +288,8 @@ function ScaleMetric({ label, value, values }: ScaleMetricProps) {
         })}
       </div>
       <div className="flex justify-between text-xs text-gray-500 mt-0.5">
-        <span>1</span>
-        <span>5</span>
+        <span>{scaleFactor ? scaleFactor.lowLabel : '1'}</span>
+        <span>{scaleFactor ? scaleFactor.highLabel : '5'}</span>
       </div>
     </div>
   )

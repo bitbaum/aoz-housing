@@ -59,6 +59,20 @@ export function PlacementCheckIn({
     )
   }
 
+  // No check-in yet and not overdue — show placeholder, reveal tapper on click
+  if (!lastSatisfaction && !isOverdue && !showTapper) {
+    return (
+      <button
+        onClick={() => setShowTapper(true)}
+        className="text-right hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
+        title={PLACEMENT_LIST_LABELS.checkInStart}
+      >
+        <p className="text-xs text-gray-400">{PLACEMENT_LIST_LABELS.checkInNone}</p>
+        <p className="text-xs text-aoz-primary mt-0.5">{PLACEMENT_LIST_LABELS.checkInCapture}</p>
+      </button>
+    )
+  }
+
   // Has a recent check-in and not overdue — show status, allow re-check on click
   if (lastSatisfaction && !isOverdue && !showTapper) {
     return (

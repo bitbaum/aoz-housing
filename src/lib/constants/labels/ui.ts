@@ -220,6 +220,8 @@ export const PLACEMENT_LIST_LABELS = {
   checkInCapture: 'Erfassen →',
   checkInSaved: 'Gespeichert ✓',
   checkInUpdate: 'Check-in aktualisieren',
+  checkInNone: 'Noch kein Check-in',
+  checkInStart: 'Check-in starten',
   concerns: '⚠️ Anliegen:',
   dateStart: 'Start:',
   dateEnd: 'Ende:',
