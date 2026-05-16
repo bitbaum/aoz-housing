@@ -12,13 +12,7 @@ import { prisma } from '@/lib/db'
 import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
 import { logger } from '@/lib/logger'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
-
-// Check-in frequency thresholds by support level (days)
-const CHECK_IN_THRESHOLDS: Record<string, number> = {
-  INTENSIVE: 7,
-  ELEVATED: 14,
-  STANDARD: 30,
-}
+import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 
 export async function GET(request: Request) {
   // Auth: verify Bearer token matches CRON_SECRET
@@ -74,7 +68,7 @@ export async function GET(request: Request) {
         const daysSince = Math.floor(
           (now.getTime() - new Date(lastCheckIn).getTime()) / (1000 * 60 * 60 * 24)
         )
-        const threshold = CHECK_IN_THRESHOLDS[p.resident.supportLevel] || 30
+        const threshold = getCheckInInterval(p.resident.supportLevel)
         return {
           code: p.resident.code,
           supportLevel: p.resident.supportLevel,

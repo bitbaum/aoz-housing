@@ -243,7 +243,7 @@ describe('overdue check-in reminders', () => {
     expect(body.checkIns).toBe(1)
   })
 
-  test('sends notification for overdue STANDARD resident (>30 days)', async () => {
+  test('sends notification for overdue STANDARD resident (>28 days)', async () => {
     mockNotifyStaff.mockResolvedValue(true)
     const fortyDaysAgo = new Date(Date.now() - 40 * 24 * 60 * 60 * 1000)
     mockPlacementFindMany.mockResolvedValue([
@@ -251,6 +251,23 @@ describe('overdue check-in reminders', () => {
         startDate: new Date('2026-01-01'),
         resident: { code: 'RES-003', supportLevel: 'STANDARD' },
         checkIns: [{ createdAt: fortyDaysAgo }],
+      },
+    ])
+
+    const res = await GET(createCronRequest(`Bearer ${CRON_SECRET}`))
+    const body = await res.json()
+
+    expect(body.checkIns).toBe(1)
+  })
+
+  test('flags STANDARD resident at 29 days (SSOT threshold is 28, not 30)', async () => {
+    mockNotifyStaff.mockResolvedValue(true)
+    const twentyNineDaysAgo = new Date(Date.now() - 29 * 24 * 60 * 60 * 1000)
+    mockPlacementFindMany.mockResolvedValue([
+      {
+        startDate: new Date('2026-01-01'),
+        resident: { code: 'RES-003', supportLevel: 'STANDARD' },
+        checkIns: [{ createdAt: twentyNineDaysAgo }],
       },
     ])
 
