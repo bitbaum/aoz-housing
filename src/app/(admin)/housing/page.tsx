@@ -5,27 +5,34 @@ import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES } from '@/lib/constants'
+import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ view?: string }>
+  searchParams: Promise<{ view?: string; q?: string }>
 }
 
 export default async function HousingListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
+  const q = params.q?.trim() || ''
 
   const [units, allUnits] = await Promise.all([
     prisma.housingUnit.findMany({
-      where: view === 'active'
-        ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
-        : view === 'archived'
-        ? { status: 'CLOSED' }
-        : undefined,
+      where: {
+        ...(view === 'active'
+          ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
+          : view === 'archived'
+          ? { status: 'CLOSED' }
+          : {}),
+        ...(q ? { OR: [
+          { code: { contains: q, mode: 'insensitive' } },
+          { address: { contains: q, mode: 'insensitive' } },
+        ] } : {}),
+      },
       select: {
         id: true,
         code: true,
@@ -84,11 +91,27 @@ export default async function HousingListPage({ searchParams }: Props) {
         </Link>
       </div>
 
+      {/* Search */}
+      <form method="GET" action="/housing" className="mb-4">
+        <input type="hidden" name="view" value={view} />
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true">🔍</span>
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder={HOUSING_LIST_LABELS.searchPlaceholder}
+            className="input pl-9 w-full sm:max-w-xs"
+            autoComplete="off"
+          />
+        </div>
+      </form>
+
       <div className="mb-4">
         <div className="flex gap-2 border-b border-gray-200" role="tablist">
-          <TabLink href="/housing?view=active" label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
-          <TabLink href="/housing?view=archived" label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
-          <TabLink href="/housing?view=all" label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
+          <TabLink href={`/housing?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
+          <TabLink href={`/housing?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
+          <TabLink href={`/housing?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
       </div>
 
@@ -108,13 +131,21 @@ export default async function HousingListPage({ searchParams }: Props) {
       {units.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-gray-500 mb-4">
-            {view === 'archived' ? EMPTY_STATE_LABELS.noHousingArchived : EMPTY_STATE_LABELS.noHousing}
+            {q
+              ? `${HOUSING_LIST_LABELS.emptyFiltered} («${q}»)`
+              : view === 'archived'
+              ? EMPTY_STATE_LABELS.noHousingArchived
+              : EMPTY_STATE_LABELS.noHousing}
           </p>
-          {view !== 'archived' && (
+          {q ? (
+            <a href={`/housing?view=${view}`} className="btn-outline">
+              {HOUSING_LIST_LABELS.filterReset}
+            </a>
+          ) : view !== 'archived' ? (
             <Link href="/housing/new" className="btn-primary">
               {EMPTY_STATE_LABELS.createHousingFirst}
             </Link>
-          )}
+          ) : null}
         </div>
       ) : (
         <HousingList units={units.map(u => ({
