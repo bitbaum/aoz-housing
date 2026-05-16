@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TransferForm } from '../TransferForm'
+import type { UnitWithSpots } from '@/lib/types'
 
 // --- Suppress React 18 warning for Next.js server-action form props ---
 
@@ -89,21 +90,21 @@ jest.mock('@/lib/constants', () => ({
 
 // --- Fixtures ---
 
-const UNIT_A = {
+const UNIT_A: UnitWithSpots = {
   id: 'unit-a',
   code: 'A01',
   address: 'Teststr. 1',
   spots: [
-    { id: 'spot-bed', type: 'BED', code: 'B1', label: 'Bett 1', status: 'AVAILABLE' },
-    { id: 'spot-priv', type: 'PRIVATE_ROOM', code: 'PR1', label: '', status: 'AVAILABLE' },
+    { id: 'spot-bed', type: 'BED', code: 'B1', label: 'Bett 1' },
+    { id: 'spot-priv', type: 'PRIVATE_ROOM', code: 'PR1', label: '' },
   ],
 }
-const UNIT_B = {
+const UNIT_B: UnitWithSpots = {
   id: 'unit-b',
   code: 'B02',
   address: 'Hauptweg 5',
   spots: [
-    { id: 'spot-bed-b', type: 'BED', code: 'B2', label: 'Bett 2', status: 'AVAILABLE' },
+    { id: 'spot-bed-b', type: 'BED', code: 'B2', label: 'Bett 2' },
   ],
 }
 

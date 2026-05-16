@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { approveTransferRequest, denyTransferRequest } from '@/lib/actions/transfers'
 import { TRANSFER_ACTION_LABELS as L } from '@/lib/constants'
 
@@ -9,6 +10,7 @@ interface TransferActionsProps {
 }
 
 export function TransferActions({ requestId }: TransferActionsProps) {
+  const router = useRouter()
   const [staffNotes, setStaffNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ success: boolean; error?: string } | null>(null)
@@ -22,6 +24,9 @@ export function TransferActions({ requestId }: TransferActionsProps) {
 
     setResult(res)
     setLoading(false)
+    if (res.success) {
+      router.refresh()
+    }
   }
 
   if (result?.success) {
