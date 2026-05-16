@@ -15,6 +15,7 @@ export const UI_LABELS = {
   actions: 'Aktionen',
   required: 'erforderlich',
   processing: 'Wird verarbeitet...',
+  submitting: 'Wird gesendet...',
   // Common stat labels
   total: 'Gesamt',
   // Statuses

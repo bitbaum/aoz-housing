@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
 import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
+import { SubmitButton } from '@/components/ui'
 
 export const metadata: Metadata = { title: 'Check-in' }
 
@@ -250,9 +251,9 @@ export default async function NewCheckInPage({ params }: Props) {
             >
               {UI_LABELS.cancel}
             </Link>
-            <button type="submit" className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2">
+            <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
               {CHECKIN_FORM_LABELS.submit}
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </div>
