@@ -80,9 +80,10 @@ export const CHECK_IN_TYPE_LABELS: Record<string, string> = {
   EXIT: 'Abschluss',
 }
 
-// Language labels (includes uppercase from config and lowercase aliases for legacy data)
+// Language labels (includes uppercase from config and lowercase ISO-639-1 codes for all stored variants)
 export const LANGUAGE_LABELS: Record<string, string> = {
   ...getLabelsFromFactor('languages'),
+  // Lowercase ISO-639-1 codes (from portal self-entry and CSV import)
   de: 'Deutsch',
   en: 'Englisch',
   fr: 'Französisch',
@@ -93,6 +94,36 @@ export const LANGUAGE_LABELS: Record<string, string> = {
   uk: 'Ukrainisch',
   ru: 'Russisch',
   ps: 'Paschtu',
+  es: 'Spanisch',
+  so: 'Somali',
+  am: 'Amharisch',
+  sw: 'Swahili',
+  it: 'Italienisch',
+  pt: 'Portugiesisch',
+  sq: 'Albanisch',
+  sr: 'Serbisch',
+  hr: 'Kroatisch',
+  bs: 'Bosnisch',
+  ku: 'Kurdisch',
+  ha: 'Hausa',
+  om: 'Oromo',
+  rw: 'Kinyarwanda',
+  // Uppercase variants for the above additions
+  ES: 'Spanisch',
+  SO: 'Somali',
+  AM: 'Amharisch',
+  SW: 'Swahili',
+  IT: 'Italienisch',
+  PT: 'Portugiesisch',
+  SQ: 'Albanisch',
+  SR: 'Serbisch',
+  HR: 'Kroatisch',
+  BS: 'Bosnisch',
+  KU: 'Kurdisch',
+  HA: 'Hausa',
+  OM: 'Oromo',
+  RW: 'Kinyarwanda',
+  // English full-name aliases (from older import paths)
   German: 'Deutsch',
   English: 'Englisch',
   French: 'Französisch',
@@ -102,6 +133,10 @@ export const LANGUAGE_LABELS: Record<string, string> = {
   Russian: 'Russisch',
   Ukrainian: 'Ukrainisch',
   Italian: 'Italienisch',
+  Somali: 'Somali',
+  Amharic: 'Amharisch',
+  Swahili: 'Swahili',
+  Albanian: 'Albanisch',
 }
 
 // Diet labels (includes uppercase from config and lowercase aliases)
