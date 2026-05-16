@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Mitbewohner' }
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
+import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import {
   AGE_RANGE_LABELS,
   SLEEP_SCHEDULE_LABELS,
@@ -259,23 +260,23 @@ function RoommateCard({
   )
 }
 
-const COMPATIBILITY_INDICATOR_CONFIG: Record<ScoreLevel, { label: string; color: string; textColor: string }> = {
-  excellent: { label: 'Sehr gut', color: 'bg-green-500', textColor: 'text-green-700' },
-  good: { label: 'Gut', color: 'bg-emerald-500', textColor: 'text-emerald-700' },
-  moderate: { label: 'OK', color: 'bg-yellow-500', textColor: 'text-yellow-700' },
-  low: { label: 'Herausfordernd', color: 'bg-orange-500', textColor: 'text-orange-700' },
-  critical: { label: 'Schwierig', color: 'bg-red-500', textColor: 'text-red-700' },
+const PORTAL_SCORE_LABELS: Record<ScoreLevel, string> = {
+  excellent: 'Sehr gut',
+  good: 'Gut',
+  moderate: 'OK',
+  low: 'Herausfordernd',
+  critical: 'Schwierig',
 }
 
 function CompatibilityIndicator({ score }: { score: number }) {
   const level = getScoreLevel(score)
-  const config = COMPATIBILITY_INDICATOR_CONFIG[level]
+  const tokens = SCORE_TOKENS[level]
 
   return (
     <div className="text-right">
       <div className="flex items-center gap-2 justify-end">
-        <div className={`w-3 h-3 rounded-full ${config.color}`} />
-        <span className={`font-medium ${config.textColor}`}>{config.label}</span>
+        <div className={`w-3 h-3 rounded-full ${tokens.bg}`} />
+        <span className={`font-medium ${tokens.text}`}>{PORTAL_SCORE_LABELS[level]}</span>
       </div>
       <p className="text-xs text-gray-500 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
     </div>
