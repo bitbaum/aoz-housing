@@ -13,6 +13,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   const [concerns, setConcerns] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [submittedWithConcerns, setSubmittedWithConcerns] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showConcernsField, setShowConcernsField] = useState(false)
   const [forceShowForm, setForceShowForm] = useState(false)
@@ -49,6 +50,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
         throw new Error('Failed to save')
       }
 
+      setSubmittedWithConcerns(!!finalConcerns.trim())
       setSubmitted(true)
       setShowConcernsField(false)
       setConcerns('')
@@ -77,7 +79,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
           <p className="text-status-success-text">
             {PORTAL_LABELS.satisfaction.thankYouMessage}
           </p>
-          {rating && rating <= 2 && concerns && (
+          {rating && rating <= 2 && submittedWithConcerns && (
             <p className="text-sm text-status-success mt-3">
               {PORTAL_LABELS.satisfaction.concernsForwarded}
             </p>
