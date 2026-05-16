@@ -94,7 +94,7 @@ export function TaskSection({
           <TaskCategory
             icon="⚠️"
             title={`${overdueCheckIns.length} ${DASHBOARD_LABELS.taskCheckInsOverdueSuffix}`}
-            href="/placements?status=active"
+            href="/placements?status=active&overdue=1"
             variant="warning"
           >
             {overdueCheckIns.slice(0, 3).map((checkIn) => (

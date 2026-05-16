@@ -218,6 +218,8 @@ export const PLACEMENT_LIST_LABELS = {
   days: 'Tage',
   checkInOverdue: 'Überfällig!',
   checkInCapture: 'Erfassen →',
+  checkInSaved: 'Gespeichert ✓',
+  checkInUpdate: 'Check-in aktualisieren',
   concerns: '⚠️ Anliegen:',
   dateStart: 'Start:',
   dateEnd: 'Ende:',

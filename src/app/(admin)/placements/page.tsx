@@ -14,6 +14,7 @@ import {
 } from '@/lib/constants'
 
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { PlacementCheckIn } from '@/components/placements/PlacementCheckIn'
 
 export const metadata: Metadata = { title: 'Platzierungen' }
 import {
@@ -332,28 +333,14 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
           {/* Check-in Status for Active Placements */}
           {placement.status === 'ACTIVE' && (
-            <Link
-              href={`/placements/${placement.id}/checkin`}
-              className={`text-right px-3 py-2 rounded-lg transition-colors ${
-                isCheckInOverdue
-                  ? 'bg-orange-100 hover:bg-orange-200'
-                  : 'hover:bg-gray-50'
-              }`}
-            >
-              <p className="text-xs text-gray-500">Check-in</p>
-              {lastCheckIn ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{SATISFACTION_EMOJIS[lastCheckIn.overallSatisfaction - 1]}</span>
-                  <span className={`text-xs ${isCheckInOverdue ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
-                    vor {daysSinceCheckIn}d
-                  </span>
-                </div>
-              ) : (
-                <p className={`text-sm font-medium ${isCheckInOverdue ? 'text-orange-600' : 'text-aoz-primary'}`}>
-                  {isCheckInOverdue ? PLACEMENT_LIST_LABELS.checkInOverdue : PLACEMENT_LIST_LABELS.checkInCapture}
-                </p>
-              )}
-            </Link>
+            <PlacementCheckIn
+              placementId={placement.id}
+              isOverdue={isCheckInOverdue}
+              daysSinceCheckIn={daysSinceCheckIn}
+              lastSatisfaction={lastCheckIn?.overallSatisfaction ?? null}
+              weeksSinceStart={Math.floor(daysSinceStart / 7)}
+              checkInCount={placement.checkIns.length}
+            />
           )}
 
           {/* Last satisfaction for ended placements */}
