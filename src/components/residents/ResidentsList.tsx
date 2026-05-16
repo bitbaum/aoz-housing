@@ -117,7 +117,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
         <div className="flex items-start justify-between mb-3 pr-8">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-              {resident.code.slice(0, 2).toUpperCase()}
+              {resident.code.slice(-3)}
             </div>
             <div>
               <h3 className="font-semibold text-gray-900">{resident.code}</h3>

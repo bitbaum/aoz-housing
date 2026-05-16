@@ -262,7 +262,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           </div>
           <div className="flex items-center gap-4 mt-2">
             <div className="w-12 h-12 bg-aoz-primary text-white rounded-full flex items-center justify-center font-semibold text-lg">
-              {resident.code.slice(0, 2).toUpperCase()}
+              {resident.code.slice(-3)}
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-900">

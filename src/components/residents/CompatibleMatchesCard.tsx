@@ -74,7 +74,7 @@ export function CompatibleMatchesCard({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm">
-                    {other.code.slice(0, 2)}
+                    {other.code.slice(-3)}
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">{other.code}</p>

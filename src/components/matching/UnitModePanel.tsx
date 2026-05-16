@@ -73,7 +73,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-                    {match.resident.code.slice(0, 2).toUpperCase()}
+                    {match.resident.code.slice(-3)}
                   </div>
                   <div>
                     <Link

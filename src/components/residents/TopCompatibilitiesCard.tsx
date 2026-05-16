@@ -31,7 +31,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                {assessment.comparedWith.code.slice(0, 2).toUpperCase()}
+                {assessment.comparedWith.code.slice(-3)}
               </div>
               <Link
                 href={`/residents/${assessment.comparedWithId}`}

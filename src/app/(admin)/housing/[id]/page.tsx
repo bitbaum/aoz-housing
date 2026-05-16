@@ -413,7 +413,7 @@ function ResidentCard({
     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
       <div className="flex items-center gap-4">
         <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
-          {placement.resident.code.slice(0, 2).toUpperCase()}
+          {placement.resident.code.slice(-3)}
         </div>
         <div>
           <p className="font-medium text-gray-900">{placement.resident.code}</p>

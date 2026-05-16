@@ -157,7 +157,7 @@ function ResidentRow({
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium flex-shrink-0">
-            {resident.code.slice(0, 2).toUpperCase()}
+            {resident.code.slice(-3)}
           </div>
           <div className="min-w-0">
             <Link

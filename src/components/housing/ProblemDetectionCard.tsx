@@ -207,7 +207,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
         {/* Left: Resident info */}
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
-            {resident.code.slice(0, 2).toUpperCase()}
+            {resident.code.slice(-3)}
           </div>
           <div>
             <div className="flex items-center gap-2">

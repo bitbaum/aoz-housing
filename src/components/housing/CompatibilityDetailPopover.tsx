@@ -67,11 +67,11 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-              {resident1.code.slice(0, 2)}
+              {resident1.code.slice(-3)}
             </div>
             <span className="text-gray-400">↔</span>
             <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-              {resident2.code.slice(0, 2)}
+              {resident2.code.slice(-3)}
             </div>
           </div>
           <button

@@ -190,7 +190,7 @@ function RoommateCard({
     <div className="card">
       <div className="flex items-start gap-4">
         <div className="w-16 h-16 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xl font-bold">
-          {roommate.code.slice(0, 2).toUpperCase()}
+          {roommate.code.slice(-3)}
         </div>
         <div className="flex-1">
           <div className="flex items-start justify-between">

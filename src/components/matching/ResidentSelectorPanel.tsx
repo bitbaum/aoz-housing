@@ -74,7 +74,7 @@ export function ResidentSelectorPanel({
                 className="flex items-center gap-3 flex-1 hover:opacity-80"
               >
                 <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                  {resident.code.slice(0, 2).toUpperCase()}
+                  {resident.code.slice(-3)}
                 </div>
                 <div>
                   <p className="font-medium text-gray-900 hover:text-aoz-primary">
@@ -128,7 +128,7 @@ export function ResidentSelectorPanel({
                   className="flex items-center gap-2 flex-1 hover:opacity-80"
                 >
                   <div className="w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium">
-                    {resident.code.slice(0, 2).toUpperCase()}
+                    {resident.code.slice(-3)}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-700">
