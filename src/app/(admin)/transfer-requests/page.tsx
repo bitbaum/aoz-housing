@@ -3,7 +3,7 @@ import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
-import { TRANSFER_REQUEST_STATUS_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
+import { TRANSFER_REQUEST_STATUS_LABELS, TRANSFER_ACTION_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
 
 export const metadata: Metadata = { title: PAGE_TITLES.transferRequests }
 export const dynamic = 'force-dynamic'
@@ -68,8 +68,8 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
         <div className="card text-center py-12">
           <p className="text-gray-500">
             {statusFilter === 'PENDING'
-              ? 'Keine offenen Verlegungsanfragen'
-              : 'Keine Verlegungsanfragen in dieser Kategorie'}
+              ? TRANSFER_ACTION_LABELS.emptyPending
+              : TRANSFER_ACTION_LABELS.emptyOther}
           </p>
         </div>
       ) : (
@@ -124,10 +124,10 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
           <p className="text-sm text-gray-500">
             {formatRelativeDate(request.createdAt)}
             {request.currentPlacement?.housingUnit && (
-              <> · Von: {request.currentPlacement.housingUnit.code}</>
+              <> · {TRANSFER_ACTION_LABELS.fromUnit} {request.currentPlacement.housingUnit.code}</>
             )}
             {request.targetUnit && (
-              <> · Nach: {request.targetUnit.code}</>
+              <> · {TRANSFER_ACTION_LABELS.toUnit} {request.targetUnit.code}</>
             )}
           </p>
         </div>
@@ -137,7 +137,7 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
 
       {request.staffNotes && (
         <div className="p-2 bg-gray-50 rounded text-sm text-gray-600 mb-3">
-          <span className="font-medium">Notiz:</span> {request.staffNotes}
+          <span className="font-medium">{TRANSFER_ACTION_LABELS.noteLabel}</span> {request.staffNotes}
         </div>
       )}
 

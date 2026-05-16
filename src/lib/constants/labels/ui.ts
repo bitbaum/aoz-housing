@@ -197,6 +197,11 @@ export const TRANSFER_ACTION_LABELS = {
   deny: 'Ablehnen',
   processing: 'Wird bearbeitet...',
   success: 'Erfolgreich bearbeitet',
+  emptyPending: 'Keine offenen Verlegungsanfragen',
+  emptyOther: 'Keine Verlegungsanfragen in dieser Kategorie',
+  noteLabel: 'Notiz:',
+  fromUnit: 'Von:',
+  toUnit: 'Nach:',
 } as const
 
 export const PLACEMENT_LIST_LABELS = {
