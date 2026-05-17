@@ -7,6 +7,7 @@ import { SubmitButton } from '@/components/ui'
 import { updateHousingUnit } from '@/lib/actions'
 import { HousingDangerZone } from '@/components/housing/HousingDangerZone'
 import { HOUSING_EDIT_LABELS } from '@/lib/constants'
+import { HOUSING_STATUS_LABELS } from '@/lib/constants/labels/housing'
 
 export const metadata: Metadata = { title: 'Unterkunft bearbeiten' }
 
@@ -49,6 +50,21 @@ export default async function EditHousingPage({ params }: Props) {
 
         <div id="housing-edit-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
         <FormValidationUX formId="housing-edit-form" summaryId="housing-edit-validation-summary" />
+
+        {/* Status — edit-only field: controls matching eligibility */}
+        <div className="card">
+          <h2 className="text-lg font-semibold text-gray-900 mb-1">{HOUSING_EDIT_LABELS.statusLabel}</h2>
+          <p className="text-sm text-gray-500 mb-4">{HOUSING_EDIT_LABELS.statusDescription}</p>
+          <select
+            name="status"
+            defaultValue={unit.status}
+            className="input max-w-xs"
+          >
+            {Object.entries(HOUSING_STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
 
         <HousingFormFields
           defaultValues={{

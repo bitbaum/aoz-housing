@@ -210,6 +210,7 @@ export const HousingUnitInputSchema = z.object({
 
 export const HousingUnitUpdateSchema = HousingUnitInputSchema.extend({
   id: z.string().cuid(),
+  status: z.enum(['AVAILABLE', 'FULL', 'MAINTENANCE', 'CLOSED']).optional(),
 })
 
 // =============================================================================

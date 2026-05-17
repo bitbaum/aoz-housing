@@ -675,6 +675,8 @@ export const HOUSING_EDIT_LABELS = {
   backLink: '← Zurück zur Übersicht',
   title: (code: string) => `${code} bearbeiten`,
   subtitle: 'Aktualisieren Sie die Informationen der Unterkunft',
+  statusLabel: 'Status',
+  statusDescription: 'Betriebsstatus der Unterkunft — beeinflusst Matching und Platzierungen',
   submit: 'Änderungen speichern',
   cancel: 'Abbrechen',
 } as const
