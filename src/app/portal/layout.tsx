@@ -22,14 +22,14 @@ export default async function PortalLayout({
 
   if (!residentCode) {
     return (
-      <div className="min-h-screen bg-aoz-background">{children}</div>
+      <div className="min-h-screen bg-ui-canvas text-ui-text">{children}</div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-aoz-background flex flex-col">
+    <div className="min-h-screen bg-ui-canvas text-ui-text flex flex-col">
       {/* Header with responsive navigation */}
-      <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm sticky top-0 z-40">
+      <header className="bg-ui-surface/95 backdrop-blur-sm border-b border-ui-border sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
           <PortalNav hasStaffAccess={hasStaffAccess} />
         </div>
@@ -41,11 +41,11 @@ export default async function PortalLayout({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 bg-white/60 mt-auto">
+      <footer className="border-t border-ui-border bg-ui-surface mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ui-muted">
             <p className="text-center sm:text-left">{PORTAL_LABELS.emergency}</p>
-            <Link href="/portal/help" className="hover:text-aoz-primary min-h-[44px] flex items-center">
+            <Link href="/portal/help" className="hover:text-ui-text min-h-[44px] flex items-center">
               {PORTAL_LABELS.nav.help}
             </Link>
           </div>

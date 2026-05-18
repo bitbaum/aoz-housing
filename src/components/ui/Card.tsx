@@ -40,11 +40,11 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subtitle, trend = 'neutral', href }: StatCardProps) {
   // Apply trend color to value if no subtitle, otherwise to subtitle
-  const valueColor = !subtitle && trend !== 'neutral' ? getTrendColorClass(trend) : 'text-gray-900'
+  const valueColor = !subtitle && trend !== 'neutral' ? getTrendColorClass(trend) : 'text-ui-text'
 
   const content = (
     <>
-      <p className="text-sm text-gray-600">{label}</p>
+      <p className="text-sm text-ui-muted">{label}</p>
       <p className={`text-3xl font-bold mt-1 ${valueColor}`}>{value}</p>
       {subtitle && (
         <p className={`text-sm mt-2 ${getTrendColorClass(trend)}`}>{subtitle}</p>
@@ -75,8 +75,8 @@ interface DetailRowProps {
 export function DetailRow({ label, value }: DetailRowProps) {
   return (
     <div className="flex justify-between">
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="text-gray-900 font-medium">{value}</dd>
+      <dt className="text-ui-muted">{label}</dt>
+      <dd className="text-ui-text font-medium">{value}</dd>
     </div>
   )
 }

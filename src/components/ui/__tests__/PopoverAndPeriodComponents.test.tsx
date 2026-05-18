@@ -466,14 +466,14 @@ describe('PeriodSelector', () => {
     expect(mockRouterPush).toHaveBeenCalledWith('/incidents?days=90')
   })
 
-  it('active button has distinct class (bg-white) for currentDays=7', () => {
+  it('active button has distinct surface token for currentDays=7', () => {
     render(<PeriodSelector currentDays={7} />)
-    expect(screen.getByRole('button', { name: '7 Tage' }).className).toContain('bg-white')
+    expect(screen.getByRole('button', { name: '7 Tage' }).className).toContain('bg-ui-surface')
   })
 
-  it('inactive buttons do NOT have bg-white class', () => {
+  it('inactive buttons do NOT have active surface class', () => {
     render(<PeriodSelector currentDays={30} />)
-    expect(screen.getByRole('button', { name: '7 Tage' }).className).not.toContain('bg-white')
+    expect(screen.getByRole('button', { name: '7 Tage' }).className).not.toContain('bg-ui-surface')
   })
 })
 

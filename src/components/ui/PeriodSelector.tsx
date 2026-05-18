@@ -26,15 +26,15 @@ export function PeriodSelector({ currentDays }: { currentDays: number }) {
   }
 
   return (
-    <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+    <div className="flex gap-1 bg-ui-subtle rounded-lg p-1">
       {PERIOD_OPTIONS.map((opt) => (
         <button
           key={opt.value}
           onClick={() => handleChange(opt.value)}
           className={`px-3 py-1.5 text-sm rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1 ${
             String(currentDays) === opt.value
-              ? 'bg-white text-gray-900 shadow-sm font-medium'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-ui-surface text-ui-text shadow-sm font-medium'
+              : 'text-ui-muted hover:text-ui-muted'
           }`}
         >
           {opt.label}

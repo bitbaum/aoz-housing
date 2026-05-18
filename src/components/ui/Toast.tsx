@@ -49,7 +49,7 @@ export function ToastContainer() {
               ? 'bg-status-success text-white'
               : toast.type === 'error'
                 ? 'bg-status-error text-white'
-                : 'bg-gray-800 text-white'
+                : 'bg-ui-text text-ui-inverse'
           }`}
         >
           <span className="mr-2">

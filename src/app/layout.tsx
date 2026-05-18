@@ -38,9 +38,23 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const themeScript = `
+    (() => {
+      try {
+        const mode = window.localStorage.getItem('aoz-theme');
+        if (mode === 'light' || mode === 'dark') {
+          document.documentElement.dataset.theme = mode;
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      } catch {}
+    })();
+  `
+
   return (
     <html lang="de" className={inter.variable}>
-      <body className="min-h-screen bg-aoz-background font-sans">
+      <body className="min-h-screen bg-ui-canvas text-ui-text font-sans">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {children}
         <ToastContainer />
       </body>

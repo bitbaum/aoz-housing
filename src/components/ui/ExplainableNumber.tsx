@@ -80,7 +80,7 @@ export function ExplainableNumber({
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`${sizeClasses[size]} ${className} cursor-pointer hover:underline decoration-dotted underline-offset-4 decoration-gray-400 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2 rounded`}
+        className={`${sizeClasses[size]} ${className} cursor-pointer hover:underline decoration-dotted underline-offset-4 decoration-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2 rounded`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >
@@ -92,23 +92,23 @@ export function ExplainableNumber({
           ref={popoverRef}
           role="dialog"
           aria-label={`${EXPLAINABLE_NUMBER_LABELS.explanationFor} ${explanation.label}`}
-          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-lg shadow-card-hover border border-neutral-200 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-ui-elevated border-l border-t border-ui-border rotate-45" />
 
           {/* Header */}
           <div className="flex items-start justify-between mb-3 relative">
             <div>
-              <h3 className="font-semibold text-gray-900">{explanation.label}</h3>
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+              <h3 className="font-semibold text-ui-text">{explanation.label}</h3>
+              <div className="flex items-center gap-1 text-xs text-ui-muted mt-0.5">
                 <span>{sourceIcon}</span>
                 <span>{sourceLabel}</span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
+              className="text-ui-muted hover:text-ui-text -mt-1 -mr-1 p-1"
               aria-label={UI_LABELS.close}
             >
               ✕
@@ -117,26 +117,26 @@ export function ExplainableNumber({
 
           {/* Source description */}
           <div className="mb-3">
-            <p className="text-sm text-gray-600">{explanation.sourceDescription}</p>
+            <p className="text-sm text-ui-muted">{explanation.sourceDescription}</p>
           </div>
 
           {/* Formula (if calculation) */}
           {explanation.formula && (
-            <div className="mb-3 p-2 bg-gray-50 rounded border border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">{EXPLAINABLE_NUMBER_LABELS.formula}</p>
-              <code className="text-sm text-gray-800 font-mono">{explanation.formula}</code>
+            <div className="mb-3 p-2 bg-ui-subtle rounded border border-ui-border">
+              <p className="text-xs text-ui-muted mb-1">{EXPLAINABLE_NUMBER_LABELS.formula}</p>
+              <code className="text-sm text-ui-text font-mono">{explanation.formula}</code>
             </div>
           )}
 
           {/* Data points */}
           {explanation.dataPoints && explanation.dataPoints.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs text-gray-500 mb-2">{EXPLAINABLE_NUMBER_LABELS.dataPoints}</p>
+              <p className="text-xs text-ui-muted mb-2">{EXPLAINABLE_NUMBER_LABELS.dataPoints}</p>
               <div className="space-y-1">
                 {explanation.dataPoints.map((point, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{point.label}</span>
-                    <span className="font-medium text-gray-900">{point.value}</span>
+                    <span className="text-ui-muted">{point.label}</span>
+                    <span className="font-medium text-ui-text">{point.value}</span>
                   </div>
                 ))}
               </div>
@@ -145,9 +145,9 @@ export function ExplainableNumber({
 
           {/* Interpretation */}
           {explanation.interpretation && (
-            <div className="pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">{EXPLAINABLE_NUMBER_LABELS.interpretation}</p>
-              <p className="text-sm text-gray-700">{explanation.interpretation}</p>
+            <div className="pt-3 border-t border-ui-border">
+              <p className="text-xs text-ui-muted mb-1">{EXPLAINABLE_NUMBER_LABELS.interpretation}</p>
+              <p className="text-sm text-ui-muted">{explanation.interpretation}</p>
             </div>
           )}
         </div>
@@ -178,19 +178,19 @@ export function ExplainableMetric({
 }: ExplainableMetricProps) {
   const trendClasses = {
     good: 'text-status-success-text',
-    neutral: 'text-gray-500',
+    neutral: 'text-ui-muted',
     warning: 'text-status-warning-text',
   }
 
   const Content = (
     <div className="card-hover">
-      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-sm text-ui-muted">{title}</p>
       <div className="mt-1">
         <ExplainableNumber
           value={value}
           explanation={explanation}
           size="xl"
-          className="text-gray-900"
+          className="text-ui-text"
         />
       </div>
       <p className={`text-sm mt-2 ${trendClasses[trend]}`}>{subtitle}</p>

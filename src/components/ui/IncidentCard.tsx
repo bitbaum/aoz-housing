@@ -37,18 +37,18 @@ export function IncidentCard({
 
   if (compact) {
     return (
-      <div className={`p-3 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+      <div className={`p-3 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="font-medium text-gray-900 text-sm">{typeLabel}</p>
-            <p className="text-sm text-gray-500">
+            <p className="font-medium text-ui-text text-sm">{typeLabel}</p>
+            <p className="text-sm text-ui-muted">
               {showUnit && incident.housingUnit && `${incident.housingUnit.code}`}
               {showUnit && incident.housingUnit && showResident && incident.resident && ' • '}
               {showResident && incident.resident && incident.resident.code}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-500">{formatRelativeDate(incident.date)}</p>
+            <p className="text-xs text-ui-muted">{formatRelativeDate(incident.date)}</p>
             {!incident.resolvedAt && (
               <Badge variant="pending" className="text-xs">{UI_LABELS.open}</Badge>
             )}
@@ -59,22 +59,22 @@ export function IncidentCard({
   }
 
   return (
-    <div className={`p-4 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+    <div className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
           <span className="text-lg">{categoryIcon}</span>
           <div>
-            <p className="font-medium text-gray-900">{typeLabel}</p>
-            <p className="text-sm text-gray-600 mt-1">{incident.description}</p>
+            <p className="font-medium text-ui-text">{typeLabel}</p>
+            <p className="text-sm text-ui-muted mt-1">{incident.description}</p>
             {showResident && incident.resident && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-ui-muted mt-1">
                 Betrifft: {incident.resident.code}
               </p>
             )}
           </div>
         </div>
         <div className="text-right text-sm">
-          <p className="text-gray-500">{formatRelativeDate(incident.date)}</p>
+          <p className="text-ui-muted">{formatRelativeDate(incident.date)}</p>
           {incident.resolvedAt ? (
             <Badge variant="active">{UI_LABELS.resolved}</Badge>
           ) : (
@@ -83,8 +83,8 @@ export function IncidentCard({
         </div>
       </div>
       {incident.resolution && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="mt-3 pt-3 border-t border-ui-border">
+          <p className="text-sm text-ui-muted">
             <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>

@@ -3,6 +3,7 @@
  */
 
 export * from './Badge'
+export * from './Button'
 export * from './Card'
 export * from './ExplainableNumber'
 export * from './FilterBar'
@@ -16,3 +17,4 @@ export * from './ActionMenu'
 export * from './SuccessToast'
 export * from './ErrorBoundaryUI'
 export * from './SubmitButton'
+export * from './ThemeToggle'

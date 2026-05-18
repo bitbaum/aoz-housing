@@ -23,13 +23,13 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 rounded-lg"
+        className="w-full flex items-center justify-between min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 rounded-md"
         aria-expanded={isOpen}
         aria-controls={`section-${sectionId}`}
       >
-        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <h3 className="font-semibold text-ui-text">{title}</h3>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-ui-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

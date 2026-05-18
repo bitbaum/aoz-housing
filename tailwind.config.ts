@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
+  darkMode: ['selector', '[data-theme="dark"]'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -22,6 +23,17 @@ const config: Config = {
           'accent-dark':    'rgb(var(--color-aoz-accent-dark) / <alpha-value>)',
           'background':     'rgb(var(--color-aoz-background) / <alpha-value>)',
           'surface':        'rgb(var(--color-aoz-surface) / <alpha-value>)',
+        },
+        'ui': {
+          'canvas':        'rgb(var(--color-ui-canvas) / <alpha-value>)',
+          'surface':       'rgb(var(--color-ui-surface) / <alpha-value>)',
+          'elevated':      'rgb(var(--color-ui-elevated) / <alpha-value>)',
+          'subtle':        'rgb(var(--color-ui-subtle) / <alpha-value>)',
+          'border':        'rgb(var(--color-ui-border) / <alpha-value>)',
+          'border-strong': 'rgb(var(--color-ui-border-strong) / <alpha-value>)',
+          'text':          'rgb(var(--color-ui-text) / <alpha-value>)',
+          'muted':         'rgb(var(--color-ui-muted) / <alpha-value>)',
+          'inverse':       'rgb(var(--color-ui-inverse) / <alpha-value>)',
         },
         // Compatibility score colors (5-tier system)
         'score': {

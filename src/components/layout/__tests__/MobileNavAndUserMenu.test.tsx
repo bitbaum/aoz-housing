@@ -169,9 +169,9 @@ describe('MobileNav', () => {
     mockPathname = '/residents'
     render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
-    // The active link should have the neutral active class.
+    // The active link should use the semantic active surface token.
     const residentsLink = screen.getByRole('link', { name: /Bewohner/ })
-    expect(residentsLink.className).toContain('bg-neutral-100')
+    expect(residentsLink.className).toContain('bg-ui-subtle')
   })
 
   it('sets body overflow hidden when open', () => {

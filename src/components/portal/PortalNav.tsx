@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 interface PortalNavProps {
   hasStaffAccess?: boolean
@@ -30,7 +31,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           {hasStaffAccess && (
             <Link
               href="/"
-              className="min-h-[44px] px-3 py-2 rounded-lg transition-colors text-sm md:text-base flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm md:text-base flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
               {UI_LABELS.switchToAdmin}
             </Link>
@@ -38,17 +39,18 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           <form action="/api/portal/logout" method="POST" className="ml-2">
             <button
               type="submit"
-              className="min-h-[44px] px-3 py-2 text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              className="min-h-[44px] px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors"
             >
               {PORTAL_LABELS.nav.logout}
             </button>
           </form>
+          <ThemeToggle />
         </nav>
 
         {/* Mobile / tablet menu button — visible below lg (1024px) */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
+          className="lg:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-muted hover:text-ui-text focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-md"
           aria-label={menuOpen ? UI_LABELS.menuClose : UI_LABELS.menuOpen}
           aria-expanded={menuOpen}
           aria-controls="portal-mobile-nav"
@@ -67,7 +69,10 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
 
       {/* Mobile / tablet navigation dropdown */}
       {menuOpen && (
-        <nav id="portal-mobile-nav" className="lg:hidden pt-3 pb-1 border-t border-gray-100 mt-3 flex flex-col gap-1">
+        <nav id="portal-mobile-nav" className="lg:hidden pt-3 pb-1 border-t border-ui-border mt-3 flex flex-col gap-1">
+          <div className="mb-1 flex justify-end">
+            <ThemeToggle />
+          </div>
           <PortalNavLinkMobile href="/portal" active={pathname === '/portal'} onClick={() => setMenuOpen(false)}>
             {PORTAL_LABELS.nav.overview}
           </PortalNavLinkMobile>
@@ -99,7 +104,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
-              className="transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
               {UI_LABELS.switchToAdmin}
             </Link>
@@ -107,7 +112,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           <form action="/api/portal/logout" method="POST" className="mt-1">
             <button
               type="submit"
-              className="w-full text-left text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center"
+              className="w-full text-left text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center"
             >
               {PORTAL_LABELS.nav.logout}
             </button>
@@ -130,10 +135,10 @@ function PortalNavLink({
   return (
     <Link
       href={href}
-      className={`min-h-[44px] px-3 py-2 rounded-lg transition-colors text-sm md:text-base flex items-center ${
+      className={`min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm md:text-base flex items-center ${
         active
           ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
-          : 'text-gray-600 hover:text-aoz-primary hover:bg-gray-50'
+          : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
       }`}
     >
       {children}
@@ -156,10 +161,10 @@ function PortalNavLinkMobile({
     <Link
       href={href}
       onClick={onClick}
-      className={`transition-colors py-3 px-2 -mx-2 rounded-lg min-h-[44px] flex items-center ${
+      className={`transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center ${
         active
           ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
-          : 'text-gray-600 hover:text-aoz-primary hover:bg-gray-50'
+          : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
       }`}
     >
       {children}

@@ -119,15 +119,15 @@ export function ScoreExplanation({
           ref={popoverRef}
           role="dialog"
           aria-label={`${SCORE_TYPE_LABELS[type]} Erklärung`}
-          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-lg shadow-card-hover border border-neutral-200 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-ui-elevated border-l border-t border-ui-border rotate-45" />
 
           {/* Header */}
           <div className="flex items-start justify-between mb-3 relative">
             <div>
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-ui-text">
                 {SCORE_TYPE_LABELS[type]}: {score}%
               </h3>
               <span className={`text-sm font-medium ${colorClass}`}>
@@ -136,7 +136,7 @@ export function ScoreExplanation({
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-gray-500 hover:text-gray-700 -mt-1 -mr-1 p-1"
+              className="text-ui-muted hover:text-ui-text -mt-1 -mr-1 p-1"
               aria-label={UI_LABELS.close}
             >
               ×
@@ -144,20 +144,20 @@ export function ScoreExplanation({
           </div>
 
           {/* Description */}
-          <p className="text-sm text-gray-600 mb-3">{explanation.description}</p>
+          <p className="text-sm text-ui-muted mb-3">{explanation.description}</p>
 
           {/* Positive factors */}
           {positiveFactors.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.strengths}</p>
+              <p className="text-xs font-medium text-ui-muted mb-1">{MATCHING_LABELS.strengths}</p>
               <div className="space-y-1">
                 {positiveFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
                     <span className="text-status-success-text flex-shrink-0">+</span>
-                    <span className="text-gray-700">
+                    <span className="text-ui-muted">
                       {factor.label}
                       {factor.detail && (
-                        <span className="text-gray-500 ml-1">({factor.detail})</span>
+                        <span className="text-ui-muted ml-1">({factor.detail})</span>
                       )}
                     </span>
                   </div>
@@ -169,15 +169,15 @@ export function ScoreExplanation({
           {/* Negative factors */}
           {negativeFactors.length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.challenges}</p>
+              <p className="text-xs font-medium text-ui-muted mb-1">{MATCHING_LABELS.challenges}</p>
               <div className="space-y-1">
                 {negativeFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
                     <span className="text-status-error-text flex-shrink-0">-</span>
-                    <span className="text-gray-700">
+                    <span className="text-ui-muted">
                       {factor.label}
                       {factor.detail && (
-                        <span className="text-gray-500 ml-1">({factor.detail})</span>
+                        <span className="text-ui-muted ml-1">({factor.detail})</span>
                       )}
                     </span>
                   </div>
@@ -187,14 +187,14 @@ export function ScoreExplanation({
           )}
 
           {/* Recommendation */}
-          <div className="pt-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">{SCORE_EXPLANATION_LABELS.recommendation}</p>
-            <p className="text-sm text-gray-700">{explanation.recommendation}</p>
+          <div className="pt-3 border-t border-ui-border">
+            <p className="text-xs text-ui-muted mb-1">{SCORE_EXPLANATION_LABELS.recommendation}</p>
+            <p className="text-sm text-ui-muted">{explanation.recommendation}</p>
           </div>
 
           {/* Threshold reference */}
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500">
+          <div className="mt-3 pt-3 border-t border-ui-border">
+            <p className="text-xs text-ui-muted">
               {SCORE_EXPLANATION_LABELS.scale} {'>='}{SCORE_THRESHOLDS.excellent} {COMPATIBILITY_SCORE_LABELS.excellent.toLowerCase()},{' '}
               {'>='}{SCORE_THRESHOLDS.good} {COMPATIBILITY_SCORE_LABELS.good.toLowerCase()}, {'>='}{SCORE_THRESHOLDS.moderate} {COMPATIBILITY_SCORE_LABELS.moderate.toLowerCase()}
             </p>

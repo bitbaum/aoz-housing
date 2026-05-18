@@ -73,7 +73,7 @@ export function ActionMenu({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`${sizeClasses} flex items-center justify-center rounded-md text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100 transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-1`}
+        className={`${sizeClasses} flex items-center justify-center rounded-md text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-1`}
         aria-label={UI_LABELS.actions}
         aria-expanded={isOpen}
         aria-haspopup="menu"
@@ -84,7 +84,7 @@ export function ActionMenu({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-card-hover border border-neutral-200 py-1 z-50 animate-in"
+          className="absolute right-0 mt-1 w-40 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50 animate-in"
           role="menu"
         >
           {onEdit && (
@@ -95,7 +95,7 @@ export function ActionMenu({
                 setIsOpen(false)
                 onEdit()
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors"
               role="menuitem"
             >
               <ActionIcon name="pencil" className="w-4 h-4" />
@@ -111,7 +111,7 @@ export function ActionMenu({
                 setIsOpen(false)
                 onDuplicate()
               }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors"
               role="menuitem"
             >
               <ActionIcon name="copy" className="w-4 h-4" />
@@ -120,7 +120,7 @@ export function ActionMenu({
           )}
 
           {(onEdit || onDuplicate) && onDelete && (
-            <div className="my-1 border-t border-neutral-100" />
+            <div className="my-1 border-t border-ui-border" />
           )}
 
           {onDelete && (

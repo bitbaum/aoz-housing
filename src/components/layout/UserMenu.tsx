@@ -55,31 +55,31 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-neutral-100 transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-2"
+        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-ui-subtle transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-2"
         aria-label={UI_LABELS.userMenu}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         {/* Avatar circle */}
-        <div className="w-8 h-8 rounded-md bg-neutral-950 flex items-center justify-center text-white text-sm font-medium">
+        <div className="w-8 h-8 rounded-md bg-ui-text flex items-center justify-center text-ui-inverse text-sm font-medium">
           {initials}
         </div>
         {/* Name - hidden on small screens */}
-        <span className="hidden lg:block text-sm text-neutral-700">{user.name}</span>
+        <span className="hidden lg:block text-sm text-ui-muted">{user.name}</span>
         {/* Dropdown arrow */}
-        <svg className="w-4 h-4 text-neutral-500" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-ui-muted" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-card-hover border border-neutral-200 py-1 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50">
           {/* User info */}
-          <div className="px-4 py-3 border-b border-neutral-100">
-            <p className="text-sm font-medium text-neutral-950">{user.name}</p>
+          <div className="px-4 py-3 border-b border-ui-border">
+            <p className="text-sm font-medium text-ui-text">{user.name}</p>
             {user.email && (
-              <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+              <p className="text-xs text-ui-muted truncate">{user.email}</p>
             )}
             <p className="text-xs text-aoz-primary mt-1">
               {ROLE_LABELS[user.role] || user.role}
@@ -91,7 +91,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
             <Link
               href="/portal"
               onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-3 text-left text-sm text-neutral-700 hover:bg-neutral-50
+              className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle
                        flex items-center gap-2 min-h-[44px]"
             >
               <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="w-full px-4 py-3 text-left text-sm text-neutral-700 hover:bg-neutral-50
+            className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle
                      disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-h-[44px]"
           >
             <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">

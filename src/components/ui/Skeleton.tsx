@@ -4,11 +4,11 @@
  */
 
 function Box({ className = '' }: { className?: string }) {
-  return <div className={`bg-gray-200 rounded ${className}`} />
+  return <div className={`bg-ui-border rounded ${className}`} />
 }
 
 function Circle({ className = '' }: { className?: string }) {
-  return <div className={`bg-gray-200 rounded-full ${className}`} />
+  return <div className={`bg-ui-border rounded-full ${className}`} />
 }
 
 /** Skeleton for a StatCard (used in all list page headers) */
@@ -46,7 +46,7 @@ export function SkeletonPageHeader() {
 export function SkeletonTabs({ count = 3 }: { count?: number }) {
   return (
     <div className="mb-6">
-      <div className="flex gap-2 border-b border-gray-200 pb-2">
+      <div className="flex gap-2 border-b border-ui-border pb-2">
         {Array.from({ length: count }, (_, i) => (
           <Box key={i} className="h-8 w-20" />
         ))}
@@ -68,7 +68,7 @@ export function SkeletonCard() {
         <Box className="h-6 w-16 rounded-full" />
       </div>
       <Box className="h-4 w-48" />
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-3 border-t border-ui-border">
         <Box className="h-3 w-28" />
         <Box className="h-3 w-16" />
       </div>
@@ -146,7 +146,7 @@ export function SkeletonPlacementRow() {
           <Box className="h-6 w-16 rounded-full" />
         </div>
       </div>
-      <div className="flex gap-4 mt-3 pt-3 border-t border-gray-100">
+      <div className="flex gap-4 mt-3 pt-3 border-t border-ui-border">
         <Box className="h-3 w-28" />
         <Box className="h-3 w-28" />
       </div>

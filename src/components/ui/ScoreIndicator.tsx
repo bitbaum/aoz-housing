@@ -72,14 +72,14 @@ export function HealthIndicator({ label, score, description, tooltip }: HealthIn
   return (
     <div className="text-center group relative">
       <div
-        className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${colorClass} mb-2 cursor-help`}
+        className={`inline-flex items-center justify-center w-16 h-16 rounded-lg ${colorClass} mb-2 cursor-help`}
         title={tooltip}
       >
         <span className="text-xl font-bold">{score}</span>
       </div>
-      <p className="font-medium text-gray-900">{label}</p>
+      <p className="font-medium text-ui-text">{label}</p>
       {description && (
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-xs text-ui-muted">{description}</p>
       )}
       <p className={`text-xs mt-1 ${colorClass.split(' ')[0]}`}>
         {statusLabel}

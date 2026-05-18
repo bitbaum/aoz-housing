@@ -40,19 +40,19 @@ export function ConfirmDialog({
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-lg shadow-card-hover border border-neutral-200 max-w-md w-full mx-4">
+          <div className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border max-w-md w-full mx-4">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <div className="px-6 py-4 border-b border-ui-border">
+              <h3 className="text-lg font-semibold text-ui-text">{title}</h3>
             </div>
 
             {/* Content */}
             <div className="px-6 py-4">
-              <p className="text-gray-600">{message}</p>
+              <p className="text-ui-muted">{message}</p>
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-ui-border flex justify-end gap-3">
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={isPending}

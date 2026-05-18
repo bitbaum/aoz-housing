@@ -22,7 +22,7 @@ export function ProgressBar({ value, max, colorClass, height = 'sm' }: ProgressB
   }
 
   return (
-    <div className={`${heightClasses[height]} bg-gray-200 rounded-full overflow-hidden`}>
+    <div className={`${heightClasses[height]} bg-ui-subtle rounded-full overflow-hidden ring-1 ring-ui-border`}>
       <div
         className={`h-full ${color} transition-all duration-300`}
         style={{ width: `${percent}%` }}
@@ -44,7 +44,7 @@ export function OccupancyBar({ current, total, showLabel = true }: OccupancyBarP
     <div>
       {showLabel && (
         <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-500">Belegung</span>
+          <span className="text-ui-muted">Belegung</span>
           <span className="font-medium">{current}/{total}</span>
         </div>
       )}
