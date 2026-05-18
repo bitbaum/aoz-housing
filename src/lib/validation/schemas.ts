@@ -55,6 +55,14 @@ import {
   COMPATIBILITY_GAP_LABELS,
 } from '@/lib/constants/labels'
 import {
+  ACTIVITY_CATEGORY_LABELS,
+  ACTIVITY_COST_LABELS,
+  ACTIVITY_STATUS_LABELS,
+  type ActivityCategory,
+  type ActivityCost,
+  type ActivityStatus,
+} from '@/lib/config/activities'
+import {
   SPOT_TYPE_LABELS,
   SPOT_STATUS_LABELS,
   MEDICAL_DOC_TYPE_LABELS,
@@ -125,6 +133,11 @@ export const MaintenanceStatusSchema = enumFromKeys<MaintenanceStatus>(MAINTENAN
 
 // Check-in - derived from labels
 export const CheckInTypeSchema = enumFromKeys<CheckInType>(CHECK_IN_TYPE_LABELS)
+
+// Activities - derived from activity config
+export const ActivityCategorySchema = enumFromKeys<ActivityCategory>(ACTIVITY_CATEGORY_LABELS)
+export const ActivityCostSchema = enumFromKeys<ActivityCost>(ACTIVITY_COST_LABELS)
+export const ActivityStatusSchema = enumFromKeys<ActivityStatus>(ACTIVITY_STATUS_LABELS)
 
 // Compatibility gap - for conflict analysis
 export const CompatibilityGapSchema = enumFromKeys<string>(COMPATIBILITY_GAP_LABELS)
@@ -348,6 +361,34 @@ export const MaintenanceStatusUpdateSchema = z.object({
 export const AssignMaintenanceSchema = z.object({
   requestId: z.string().cuid(),
   assignedTo: z.string().min(1, 'Zuweisungsname ist erforderlich'),
+})
+
+// =============================================================================
+// ACTIVITY SCHEMAS
+// =============================================================================
+
+const optionalDateSchema = z.string().optional().nullable()
+  .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
+  .transform((val) => val ? new Date(val) : null)
+
+export const ActivityInputSchema = z.object({
+  title: z.string().min(1, 'Titel ist erforderlich').max(160),
+  description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
+  category: ActivityCategorySchema,
+  cost: ActivityCostSchema.default('FREE' as ActivityCost),
+  costNote: z.string().max(300).optional().nullable(),
+  location: z.string().max(300).optional().nullable(),
+  website: z.string().url('Bitte eine gültige URL angeben').max(500).optional().nullable(),
+  phone: z.string().max(80).optional().nullable(),
+  schedule: z.string().max(300).optional().nullable(),
+  startsAt: optionalDateSchema,
+  endsAt: optionalDateSchema,
+  status: ActivityStatusSchema.default('DRAFT' as ActivityStatus),
+  highlight: z.coerce.boolean().default(false),
+})
+
+export const ActivityUpdateSchema = ActivityInputSchema.extend({
+  id: z.string().cuid(),
 })
 
 // =============================================================================

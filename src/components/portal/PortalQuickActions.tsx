@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import type { ComponentType } from 'react'
+import { ClipboardCheck, MessageSquareWarning, Settings2, Users } from 'lucide-react'
 import { PORTAL_LABELS } from '@/lib/constants'
 
 interface PortalQuickActionsProps {
@@ -7,93 +9,71 @@ interface PortalQuickActionsProps {
 
 export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
   const L = PORTAL_LABELS.dashboard
+  const primary = pendingChoresCount > 0
+    ? {
+        href: '/portal/chores',
+        title: L.quickActions.chores.title,
+        description: `${pendingChoresCount} ${pendingChoresCount === 1 ? L.prioritySections.now.taskSingular : L.prioritySections.now.taskPlural}`,
+        icon: ClipboardCheck,
+      }
+    : {
+        href: '/portal/preferences',
+        title: L.quickActions.preferences.title,
+        description: L.prioritySections.next.desc,
+        icon: Settings2,
+      }
 
-  const nowDesc = pendingChoresCount > 0
-    ? `${pendingChoresCount} ${pendingChoresCount === 1 ? L.prioritySections.now.taskSingular : L.prioritySections.now.taskPlural}`
-    : L.prioritySections.now.noTasks
+  const PrimaryIcon = primary.icon
+  const secondaryActions = [
+    { href: '/portal/report', label: L.quickActions.report.title, icon: MessageSquareWarning },
+    { href: '/portal/roommates', label: L.quickActions.roommates.title, icon: Users },
+    { href: '/portal/preferences', label: L.quickActions.preferences.title, icon: Settings2 },
+  ].filter((action) => action.href !== primary.href)
 
   return (
-    <>
-      {/* Prioritized resident actions */}
-      <div className="mb-8 space-y-3">
-        <div className="p-3 rounded-lg border border-status-warning/30 bg-status-warning/10">
-          <h2 className="text-sm font-semibold text-status-warning-text uppercase tracking-wide">{L.prioritySections.now.heading}</h2>
-          <p className="text-xs text-status-warning-text">{nowDesc}</p>
-        </div>
+    <section className="mb-8 rounded-lg border border-ui-border bg-ui-surface p-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <Link href={primary.href} className="group flex min-w-0 items-start gap-3">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-aoz-primary text-ui-on-accent">
+            <PrimaryIcon className="h-5 w-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-ui-muted">
+              {L.prioritySections.now.heading}
+            </span>
+            <span className="mt-0.5 block font-semibold text-ui-text group-hover:text-aoz-primary">
+              {primary.title}
+            </span>
+            <span className="mt-0.5 block text-sm text-ui-muted">{primary.description}</span>
+          </span>
+        </Link>
 
-        <div className="p-3 rounded-lg border border-status-info/30 bg-status-info/8">
-          <h2 className="text-sm font-semibold text-status-info-text uppercase tracking-wide">{L.prioritySections.next.heading}</h2>
-          <p className="text-xs text-status-info-text">{L.prioritySections.next.desc}</p>
-        </div>
-
-        <div className="p-3 rounded-lg border border-ui-border bg-ui-subtle">
-          <h2 className="text-sm font-semibold text-ui-text uppercase tracking-wide">{L.prioritySections.info.heading}</h2>
-          <p className="text-xs text-ui-muted">{L.prioritySections.info.desc}</p>
+        <div className="grid grid-cols-2 gap-2 md:w-auto">
+          {secondaryActions.map((action) => (
+            <SecondaryAction key={action.href} {...action} />
+          ))}
         </div>
       </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <QuickActionCard
-          href="/portal/chores"
-          icon={L.quickActions.chores.icon}
-          title={L.quickActions.chores.title}
-          description={L.quickActions.chores.desc}
-          priority={pendingChoresCount > 0 ? 'now' : 'next'}
-        />
-        <QuickActionCard
-          href="/portal/report"
-          icon={L.quickActions.report.icon}
-          title={L.quickActions.report.title}
-          description={L.quickActions.report.desc}
-          priority="next"
-        />
-        <QuickActionCard
-          href="/portal/roommates"
-          icon={L.quickActions.roommates.icon}
-          title={L.quickActions.roommates.title}
-          description={L.quickActions.roommates.desc}
-          priority="info"
-        />
-        <QuickActionCard
-          href="/portal/preferences"
-          icon={L.quickActions.preferences.icon}
-          title={L.quickActions.preferences.title}
-          description={L.quickActions.preferences.desc}
-          priority="next"
-        />
-      </div>
-    </>
+    </section>
   )
 }
 
-function QuickActionCard({
+function SecondaryAction({
   href,
-  icon,
-  title,
-  description,
-  priority = 'info',
+  label,
+  icon: Icon,
 }: {
   href: string
-  icon: string
-  title: string
-  description: string
-  priority?: 'now' | 'next' | 'info'
+  label: string
+  icon: ComponentType<{ className?: string }>
 }) {
-  const priorityStyles = {
-    now: 'border-2 border-status-warning/40 bg-status-warning/8',
-    next: 'border-2 border-status-info/30 bg-status-info/6',
-    info: 'border border-ui-border',
-  }
-
   return (
     <Link
       href={href}
-      className={`card-hover text-center ${priorityStyles[priority]}`}
+      className="inline-flex min-h-[44px] min-w-0 items-center justify-center gap-2 rounded-md bg-ui-subtle px-3 py-2 text-sm font-medium text-ui-muted transition-colors hover:bg-ui-border hover:text-ui-text"
     >
-      <span className="text-4xl mb-3 block">{icon}</span>
-      <h3 className="font-semibold text-ui-text">{title}</h3>
-      <p className="text-sm text-ui-muted">{description}</p>
+      <Icon className="h-4 w-4 flex-shrink-0" />
+      <span className="truncate">{label}</span>
     </Link>
   )
 }

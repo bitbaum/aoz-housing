@@ -138,17 +138,17 @@ describe('ActionDashboard', () => {
     expect(screen.getByText(/2 Aufgaben warten auf Sie/)).toBeInTheDocument()
   })
 
-  // ── QuickActionsBar ───────────────────────────────────────────────────────
+  // ── CTA hierarchy ─────────────────────────────────────────────────────────
 
-  it('always renders QuickActionsBar with correct freeBeds', () => {
+  it('does not render the legacy quick-action bar above the primary action', () => {
     render(<ActionDashboard {...BASE_PROPS} occupiedBeds={10} totalBeds={20} />)
-    const bar = screen.getByTestId('quick-actions-bar')
-    expect(bar).toHaveAttribute('data-free', '10')
+    expect(screen.queryByTestId('quick-actions-bar')).not.toBeInTheDocument()
   })
 
-  it('passes unplacedCount to QuickActionsBar', () => {
+  it('routes unplaced residents into the open task list instead of another CTA bar', () => {
     render(<ActionDashboard {...BASE_PROPS} unplacedResidents={[makeResident('r1'), makeResident('r2')]} />)
-    expect(screen.getByTestId('quick-actions-bar')).toHaveAttribute('data-unplaced', '2')
+    expect(screen.queryByTestId('quick-actions-bar')).not.toBeInTheDocument()
+    expect(screen.getByText('Bewohner platzieren (2)')).toBeInTheDocument()
   })
 
   // ── Critical alert banner ─────────────────────────────────────────────────

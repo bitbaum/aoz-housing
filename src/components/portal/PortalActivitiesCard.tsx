@@ -1,17 +1,18 @@
 import Link from 'next/link'
+import { Globe2 } from 'lucide-react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
-import { ACTIVITIES, ACTIVITY_CATEGORIES } from '@/lib/config/activities'
-import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import {
+  ACTIVITY_CATEGORY_ICONS,
+  ACTIVITY_COST_BADGES,
+  ACTIVITY_COST_LABELS,
+  type ActivityRecord,
+} from '@/lib/config/activities'
 
-const COST_BADGE: Record<string, { label: string; class: string }> = {
-  free:    { label: PORTAL_LABELS.activities.costFree,    class: 'badge-active' },
-  reduced: { label: PORTAL_LABELS.activities.costReduced, class: 'badge-pending' },
-  paid:    { label: PORTAL_LABELS.activities.costPaid,    class: 'badge-info' },
+type PortalActivitiesCardProps = {
+  activities: ActivityRecord[]
 }
 
-const highlighted = ACTIVITIES.filter(a => a.highlight).slice(0, DISPLAY_LIMITS.dashboardItems)
-
-export function PortalActivitiesCard() {
+export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
@@ -19,25 +20,32 @@ export function PortalActivitiesCard() {
           <h2 className="font-semibold text-ui-text">{PORTAL_LABELS.activities.dashboardTitle}</h2>
           <p className="text-xs text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
         </div>
-        <span className="text-2xl" aria-hidden="true">🌍</span>
+        <Globe2 className="h-5 w-5 text-aoz-primary" />
       </div>
 
-      <div className="space-y-3">
-        {highlighted.map(activity => (
-          <div key={activity.id} className="flex items-start gap-3">
-            <span className="text-base mt-0.5 flex-shrink-0" aria-hidden="true">
-              {ACTIVITY_CATEGORIES[activity.category].icon}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
-              <p className="text-xs text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
-            </div>
-            <span className={`badge ${COST_BADGE[activity.cost].class} flex-shrink-0`}>
-              {COST_BADGE[activity.cost].label}
-            </span>
-          </div>
-        ))}
-      </div>
+      {activities.length === 0 ? (
+        <p className="rounded-md bg-ui-subtle px-3 py-4 text-sm text-ui-muted">
+          {PORTAL_LABELS.activities.noResults}
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {activities.map((activity) => {
+            const Icon = ACTIVITY_CATEGORY_ICONS[activity.category]
+            return (
+              <div key={activity.id} className="flex items-start gap-3">
+                <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-aoz-primary" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
+                  <p className="text-xs text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
+                </div>
+                <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
+                  {ACTIVITY_COST_LABELS[activity.cost]}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <Link
         href="/portal/activities"

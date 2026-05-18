@@ -16,6 +16,7 @@ import {
   ArrowRightLeft,
   UserCog,
   Bot,
+  CalendarDays,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -33,6 +34,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   transfer: ArrowRightLeft,
   settings: UserCog,
   bot: Bot,
+  calendar: CalendarDays,
 }
 
 export interface NavItem {
@@ -50,6 +52,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/incidents', icon: 'alert', label: 'Vorfälle' },
   { href: '/maintenance', icon: 'wrench', label: 'Wartung' },
   { href: '/chores', icon: 'clipboard', label: 'Aufgaben' },
+  { href: '/activities', icon: 'calendar', label: 'Aktivitäten' },
   { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungen' },
   { href: '/analytics', icon: 'chart', label: 'Auswertung' },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
@@ -84,6 +87,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
       { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
       { href: '/chores', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln' },
+      { href: '/activities', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten' },
     ],
   },
   {

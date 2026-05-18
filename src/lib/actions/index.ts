@@ -30,3 +30,9 @@ export {
   getMaintenanceStats,
   getHousingUnitMaintenance,
 } from './maintenance'
+export {
+  createActivity,
+  updateActivity,
+  publishActivity,
+  archiveActivity,
+} from './activities'

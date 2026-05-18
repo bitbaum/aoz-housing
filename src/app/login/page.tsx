@@ -13,9 +13,6 @@ type LoginState =
   | { status: 'success'; type: 'staff' | 'resident'; message: string }
   | { status: 'error'; message: string }
 
-const DEMO_ADMIN_CODE = 'AOZ-ADMIN1'
-const DEMO_RESIDENT_CODE = 'RES-001'
-
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -67,16 +64,6 @@ function LoginForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     await submitCode(code)
-  }
-
-  async function handleDemoAdmin() {
-    setCode(DEMO_ADMIN_CODE)
-    await submitCode(DEMO_ADMIN_CODE)
-  }
-
-  async function handleDemoResident() {
-    setCode(DEMO_RESIDENT_CODE)
-    await submitCode(DEMO_RESIDENT_CODE)
   }
 
   return (
@@ -153,37 +140,6 @@ function LoginForm() {
           {LOGIN_LABELS.help}
         </p>
       </div>
-
-      {/* Demo access */}
-      {state.status !== 'success' && (
-        <div className="mt-4 bg-ui-surface border border-ui-border rounded-lg p-4 shadow-card">
-          <div className="flex items-start gap-3">
-            <span className="text-status-warning-text text-lg leading-none mt-0.5" aria-hidden="true">⚡</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-status-warning-text">{LOGIN_LABELS.demo.title}</p>
-              <p className="text-xs text-ui-muted mt-0.5">Erkunden Sie die Anwendung aus beiden Perspektiven.</p>
-            </div>
-          </div>
-          <div className="mt-3 flex gap-2">
-            <Button
-              onClick={handleDemoAdmin}
-              disabled={state.status === 'loading'}
-              variant="secondary"
-              className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              🏢 AOZ-Verwaltung
-            </Button>
-            <Button
-              onClick={handleDemoResident}
-              disabled={state.status === 'loading'}
-              variant="outline"
-              className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              👤 Bewohner-Portal
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

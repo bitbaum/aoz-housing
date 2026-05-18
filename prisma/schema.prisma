@@ -642,7 +642,9 @@ model User {
   lastLoginAt DateTime?
 
   // Relations
-  auditLogs AuditLog[]
+  auditLogs         AuditLog[]
+  activitiesCreated Activity[] @relation("ActivityCreatedBy")
+  activitiesUpdated Activity[] @relation("ActivityUpdatedBy")
 
   @@index([code])
   @@index([role])
@@ -672,6 +674,66 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([createdAt])
   @@index([userId])
+}
+
+// =============================================================================
+// RESIDENT ACTIVITIES
+// =============================================================================
+
+model Activity {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Content
+  title       String
+  description String
+  category    ActivityCategory
+  cost        ActivityCost     @default(FREE)
+  costNote    String?
+
+  // Practical details
+  location String?
+  website  String?
+  phone    String?
+  schedule String?
+  startsAt DateTime?
+  endsAt   DateTime?
+
+  // Publishing
+  status    ActivityStatus @default(DRAFT)
+  highlight Boolean        @default(false)
+
+  // Ownership
+  createdBy       User?   @relation("ActivityCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  createdByUserId String?
+  updatedBy       User?   @relation("ActivityUpdatedBy", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+  updatedByUserId String?
+
+  @@index([status, category])
+  @@index([status, highlight])
+  @@index([endsAt])
+}
+
+enum ActivityCategory {
+  SPORT
+  LANGUAGE
+  CULTURE
+  COMMUNITY
+  FAMILY
+  SUPPORT
+}
+
+enum ActivityCost {
+  FREE
+  REDUCED
+  PAID
+}
+
+enum ActivityStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 // =============================================================================

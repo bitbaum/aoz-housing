@@ -60,9 +60,9 @@ describe('AllClearState', () => {
     expect(screen.getByRole('link', { name: 'Neuen Bewohner erfassen' })).toHaveAttribute('href', '/residents/new')
   })
 
-  it('links "Statistiken ansehen" to /analytics', () => {
+  it('does not render a secondary analytics CTA in the all-clear state', () => {
     render(<AllClearState freeBeds={2} conflictFreeDays={3} />)
-    expect(screen.getByRole('link', { name: 'Statistiken ansehen' })).toHaveAttribute('href', '/analytics')
+    expect(screen.queryByRole('link', { name: 'Statistiken ansehen' })).not.toBeInTheDocument()
   })
 })
 

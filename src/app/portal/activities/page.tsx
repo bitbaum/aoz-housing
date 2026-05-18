@@ -1,22 +1,33 @@
-'use client'
-
 import Link from 'next/link'
-import { useState } from 'react'
+import { Globe2, MapPin, Phone, Clock, ExternalLink } from 'lucide-react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
-import { ACTIVITIES, ACTIVITY_CATEGORIES, type ActivityCategory } from '@/lib/config/activities'
+import {
+  ACTIVITY_CATEGORY_ICONS,
+  ACTIVITY_CATEGORY_LABELS,
+  ACTIVITY_COST_BADGES,
+  ACTIVITY_COST_LABELS,
+  type ActivityCategory,
+} from '@/lib/config/activities'
+import { listActivities } from '@/lib/data/activities'
 
-const COST_BADGE: Record<string, { label: string; class: string }> = {
-  free:    { label: PORTAL_LABELS.activities.costFree,    class: 'badge-active' },
-  reduced: { label: PORTAL_LABELS.activities.costReduced, class: 'badge-pending' },
-  paid:    { label: PORTAL_LABELS.activities.costPaid,    class: 'badge-info' },
+export const dynamic = 'force-dynamic'
+
+type Props = {
+  searchParams: Promise<{ category?: string }>
 }
 
-export default function ActivitiesPage() {
-  const [activeCategory, setActiveCategory] = useState<ActivityCategory | 'all'>('all')
+export default async function ActivitiesPage({ searchParams }: Props) {
+  const { category } = await searchParams
+  const selectedCategory = category && category in ACTIVITY_CATEGORY_LABELS
+    ? category as ActivityCategory
+    : undefined
+  const now = new Date()
 
-  const filtered = activeCategory === 'all'
-    ? ACTIVITIES
-    : ACTIVITIES.filter(a => a.category === activeCategory)
+  const activities = await listActivities({
+    publishedOnly: true,
+    category: selectedCategory,
+    activeOn: now,
+  })
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -30,112 +41,117 @@ export default function ActivitiesPage() {
         <p className="text-ui-muted">{PORTAL_LABELS.pages.activitiesSubtitle}</p>
       </div>
 
-      {/* Category filter */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        <CategoryChip
-          active={activeCategory === 'all'}
-          onClick={() => setActiveCategory('all')}
-        >
+      <div className="mb-6 flex flex-wrap gap-2">
+        <CategoryLink href="/portal/activities" active={!selectedCategory}>
           {PORTAL_LABELS.activities.allCategories}
-        </CategoryChip>
-        {(Object.keys(ACTIVITY_CATEGORIES) as ActivityCategory[]).map(cat => (
-          <CategoryChip
-            key={cat}
-            active={activeCategory === cat}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {ACTIVITY_CATEGORIES[cat].icon} {ACTIVITY_CATEGORIES[cat].label}
-          </CategoryChip>
-        ))}
+        </CategoryLink>
+        {Object.entries(ACTIVITY_CATEGORY_LABELS).map(([value, label]) => {
+          const Icon = ACTIVITY_CATEGORY_ICONS[value as ActivityCategory]
+          return (
+            <CategoryLink
+              key={value}
+              href={`/portal/activities?category=${value}`}
+              active={selectedCategory === value}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </CategoryLink>
+          )
+        })}
       </div>
 
-      {/* Activities list */}
-      {filtered.length === 0 ? (
-        <p className="text-ui-muted text-center py-12">{PORTAL_LABELS.activities.noResults}</p>
+      {activities.length === 0 ? (
+        <div className="card py-12 text-center">
+          <Globe2 className="mx-auto h-8 w-8 text-ui-muted" />
+          <p className="mt-3 text-ui-muted">{PORTAL_LABELS.activities.noResults}</p>
+        </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map(activity => (
-            <div key={activity.id} className="card">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-lg">{ACTIVITY_CATEGORIES[activity.category].icon}</span>
-                  <h2 className="font-semibold text-ui-text">{activity.title}</h2>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className={`badge ${COST_BADGE[activity.cost].class}`}>
-                    {COST_BADGE[activity.cost].label}
+          {activities.map((activity) => {
+            const Icon = ACTIVITY_CATEGORY_ICONS[activity.category]
+            return (
+              <article key={activity.id} className="card">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Icon className="h-5 w-5 text-aoz-primary" />
+                    <h2 className="font-semibold text-ui-text">{activity.title}</h2>
+                  </div>
+                  <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]}`}>
+                    {ACTIVITY_COST_LABELS[activity.cost]}
                   </span>
                 </div>
-              </div>
 
-              <p className="text-sm text-ui-muted mt-2">{activity.description}</p>
+                <p className="text-sm text-ui-muted mt-2">{activity.description}</p>
 
-              {activity.costNote && (
-                <p className="text-xs text-ui-muted mt-1 italic">{activity.costNote}</p>
-              )}
+                {activity.costNote ? (
+                  <p className="text-xs text-ui-muted mt-1 italic">{activity.costNote}</p>
+                ) : null}
 
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ui-muted">
-                {activity.location && (
-                  <span className="flex items-center gap-1">
-                    <span aria-hidden="true">📍</span> {activity.location}
-                  </span>
-                )}
-                {activity.schedule && (
-                  <span className="flex items-center gap-1">
-                    <span aria-hidden="true">🕐</span> {activity.schedule}
-                  </span>
-                )}
-              </div>
-
-              {(activity.website || activity.phone) && (
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {activity.website && (
-                    <a
-                      href={activity.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-aoz-primary hover:underline flex items-center gap-1"
-                    >
-                      <span aria-hidden="true">🌐</span> {PORTAL_LABELS.activities.website}
-                    </a>
-                  )}
-                  {activity.phone && (
-                    <a
-                      href={`tel:${activity.phone.replace(/\s/g, '')}`}
-                      className="text-sm text-aoz-primary hover:underline flex items-center gap-1"
-                    >
-                      <span aria-hidden="true">📞</span> {activity.phone}
-                    </a>
-                  )}
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-ui-muted">
+                  {activity.location ? (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" /> {activity.location}
+                    </span>
+                  ) : null}
+                  {activity.schedule ? (
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" /> {activity.schedule}
+                    </span>
+                  ) : null}
                 </div>
-              )}
-            </div>
-          ))}
+
+                {(activity.website || activity.phone) ? (
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {activity.website ? (
+                      <a
+                        href={activity.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-outline text-sm inline-flex items-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        {PORTAL_LABELS.activities.website}
+                      </a>
+                    ) : null}
+                    {activity.phone ? (
+                      <a
+                        href={`tel:${activity.phone.replace(/\s/g, '')}`}
+                        className="btn btn-outline text-sm inline-flex items-center gap-2"
+                      >
+                        <Phone className="h-4 w-4" />
+                        {activity.phone}
+                      </a>
+                    ) : null}
+                  </div>
+                ) : null}
+              </article>
+            )
+          })}
         </div>
       )}
     </div>
   )
 }
 
-function CategoryChip({
-  children,
+function CategoryLink({
+  href,
   active,
-  onClick,
+  children,
 }: {
-  children: React.ReactNode
+  href: string
   active: boolean
-  onClick: () => void
+  children: React.ReactNode
 }) {
   return (
-    <button
-      onClick={onClick}
-      className={`min-h-[44px] px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+    <Link
+      href={href}
+      className={`min-h-[44px] inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
         active
           ? 'bg-aoz-primary text-ui-on-accent'
           : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
       }`}
     >
       {children}
-    </button>
+    </Link>
   )
 }

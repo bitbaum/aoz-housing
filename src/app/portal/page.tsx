@@ -14,6 +14,7 @@ import { PortalRoommatesCard } from '@/components/portal/PortalRoommatesCard'
 import { PortalReportsCard } from '@/components/portal/PortalReportsCard'
 import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard'
 import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
+import { listActivities } from '@/lib/data/activities'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,7 +78,8 @@ export default async function ResidentPortal() {
     .map(p => p.resident) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
 
-  const [pendingChores, compatibilityScores] = await Promise.all([
+  const now = new Date()
+  const [pendingChores, compatibilityScores, highlightedActivities] = await Promise.all([
     currentPlacement
       ? prisma.householdTask.findMany({
           where: {
@@ -105,6 +107,12 @@ export default async function ResidentPortal() {
           },
         })
       : Promise.resolve([]),
+    listActivities({
+      publishedOnly: true,
+      highlightedOnly: true,
+      activeOn: now,
+      take: DISPLAY_LIMITS.dashboardItems,
+    }),
   ])
 
   return (
@@ -167,7 +175,7 @@ export default async function ResidentPortal() {
         )}
 
         {/* Activities */}
-        <PortalActivitiesCard />
+        <PortalActivitiesCard activities={highlightedActivities} />
       </div>
     </div>
   )

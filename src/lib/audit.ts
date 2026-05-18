@@ -31,6 +31,7 @@ export type AuditEntity =
   | 'CHECK_IN'
   | 'HOUSEHOLD_TASK'
   | 'TRANSFER_REQUEST'
+  | 'ACTIVITY'
 
 interface AuditLogEntry {
   action: AuditAction

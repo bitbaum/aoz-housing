@@ -18,9 +18,6 @@ export function AllClearState({ freeBeds, conflictFreeDays }: { freeBeds: number
         <Link href="/residents/new" className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
           {DASHBOARD_LABELS.actionCreateResident}
         </Link>
-        <Link href="/analytics" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
-          {DASHBOARD_LABELS.actionViewStats}
-        </Link>
       </div>
     </div>
   )

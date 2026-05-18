@@ -5,7 +5,7 @@ import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/la
 import { HeroAction, CriticalAlertBanner, determinePrimaryAction } from './PrimaryActionHero'
 import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
-import { AllClearState, QuickActionsBar } from './AllClearState'
+import { AllClearState } from './AllClearState'
 import type { OverdueCheckIn, DueSoonCheckIn, UnplacedResident, CriticalIncident, ProblemUnit } from './types'
 
 // =============================================================================
@@ -96,9 +96,6 @@ export function ActionDashboard({
           {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
         </div>
       </div>
-
-      {/* Schnellaktionen - Prominent at top */}
-      <QuickActionsBar unplacedCount={unplacedResidents.length} freeBeds={freeBeds} />
 
       {/* Critical Alert Banner - Only shows when there are critical incidents */}
       {criticalIncidents.length > 0 && (
