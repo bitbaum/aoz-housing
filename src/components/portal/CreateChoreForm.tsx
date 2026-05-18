@@ -65,17 +65,17 @@ export function CreateChoreForm() {
     <div>
       {/* Template picker */}
       <div className="mb-6">
-        <h3 className="font-medium text-gray-900 mb-3">{CHORE_LABELS.actions.useTemplate}</h3>
+        <h3 className="font-medium text-ui-text mb-3">{CHORE_LABELS.actions.useTemplate}</h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {TASK_TEMPLATES.map((template) => (
             <button
               key={template.title}
               type="button"
               onClick={() => applyTemplate(template)}
-              className="min-h-[44px] p-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-left transition-colors"
+              className="min-h-[44px] p-3 bg-ui-subtle hover:bg-ui-subtle rounded-lg text-left transition-colors"
             >
               <span className="text-lg">{TASK_CATEGORY_ICONS[template.category]}</span>
-              <p className="text-sm font-medium text-gray-900 mt-1">{template.title}</p>
+              <p className="text-sm font-medium text-ui-text mt-1">{template.title}</p>
             </button>
           ))}
         </div>
@@ -89,7 +89,7 @@ export function CreateChoreForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="title" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.title} *
           </label>
           <input
@@ -99,13 +99,13 @@ export function CreateChoreForm() {
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder={CHORE_LABELS.form.titlePlaceholder}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
 
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="category" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.category}
           </label>
           <select
@@ -113,7 +113,7 @@ export function CreateChoreForm() {
             name="category"
             value={category}
             onChange={e => setCategory(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm min-h-[44px]"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
           >
             {Object.entries(TASK_CATEGORY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
@@ -125,7 +125,7 @@ export function CreateChoreForm() {
 
         {/* Task type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-ui-muted mb-2">
             {CHORE_LABELS.form.taskType}
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -137,7 +137,7 @@ export function CreateChoreForm() {
                 className={`min-h-[44px] p-3 rounded-lg text-left text-sm transition-colors ${
                   taskType === key
                     ? 'bg-aoz-primary/10 text-aoz-primary border-2 border-aoz-primary'
-                    : 'bg-gray-50 text-gray-700 border-2 border-transparent hover:bg-gray-100'
+                    : 'bg-ui-subtle text-ui-muted border-2 border-transparent hover:bg-ui-subtle'
                 }`}
               >
                 <p className="font-medium">{label}</p>
@@ -151,7 +151,7 @@ export function CreateChoreForm() {
         {/* Schedule (for recurring) */}
         {taskType.startsWith('RECURRING') && (
           <div>
-            <label htmlFor="scheduleHuman" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="scheduleHuman" className="block text-sm font-medium text-ui-muted mb-1">
               {CHORE_LABELS.form.schedule}
             </label>
             <input
@@ -160,21 +160,21 @@ export function CreateChoreForm() {
               value={scheduleHuman}
               onChange={e => setScheduleHuman(e.target.value)}
               placeholder={CHORE_LABELS.form.schedulePlaceholder}
-              className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+              className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
             />
           </div>
         )}
 
         {/* Priority */}
         <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="priority" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.priority}
           </label>
           <select
             id="priority"
             name="priority"
             defaultValue="NORMAL"
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm min-h-[44px]"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
           >
             {Object.entries(TASK_PRIORITY_LABELS).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
@@ -184,7 +184,7 @@ export function CreateChoreForm() {
 
         {/* Estimated minutes */}
         <div>
-          <label htmlFor="estimatedMinutes" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="estimatedMinutes" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.estimatedMinutes}
           </label>
           <input
@@ -195,13 +195,13 @@ export function CreateChoreForm() {
             max="480"
             value={estimatedMinutes}
             onChange={e => setEstimatedMinutes(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="description" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.description}
           </label>
           <textarea
@@ -209,13 +209,13 @@ export function CreateChoreForm() {
             name="description"
             rows={2}
             placeholder={CHORE_LABELS.form.descriptionPlaceholder}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
 
         {/* Instructions */}
         <div>
-          <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="instructions" className="block text-sm font-medium text-ui-muted mb-1">
             {CHORE_LABELS.form.instructions}
           </label>
           <textarea
@@ -225,7 +225,7 @@ export function CreateChoreForm() {
             value={instructions}
             onChange={e => setInstructions(e.target.value)}
             placeholder={CHORE_LABELS.form.instructionsPlaceholder}
-            className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
 

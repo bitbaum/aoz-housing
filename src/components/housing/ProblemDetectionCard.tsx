@@ -163,9 +163,9 @@ export function ProblemDetectionCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">⚠️</span>
-          <h2 className="text-lg font-semibold text-gray-900">{PROBLEM_DETECTION_LABELS.problemsDetected}</h2>
+          <h2 className="text-lg font-semibold text-ui-text">{PROBLEM_DETECTION_LABELS.problemsDetected}</h2>
         </div>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-ui-muted">
           {problems.length} {problems.length === 1 ? 'Bewohner' : 'Bewohner'} {PROBLEM_DETECTION_LABELS.adaptationIssues}
         </span>
       </div>
@@ -180,8 +180,8 @@ export function ProblemDetectionCard({
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <p className="text-sm text-gray-500">
+      <div className="mt-4 pt-4 border-t border-ui-border">
+        <p className="text-sm text-ui-muted">
           💡 <strong>{PROBLEM_DETECTION_LABELS.tip}</strong> {PROBLEM_DETECTION_LABELS.tipMessage}
         </p>
       </div>
@@ -206,14 +206,14 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">
+          <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-bold flex-shrink-0">
             {resident.code.slice(-3)}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <Link
                 href={`/residents/${resident.id}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
               >
                 {resident.code}
               </Link>
@@ -221,7 +221,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
                 Ø {avgCompatibility}%
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ui-muted">
               {resident.ageRange && getLabel(AGE_RANGE_LABELS, resident.ageRange)}
               {resident.languages && resident.languages.length > 0 && (
                 <> · {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
@@ -252,7 +252,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
           </Link>
           <Link
             href={`/residents/${resident.id}`}
-            className="inline-flex items-center justify-center min-h-[44px] px-3 text-sm text-gray-500 hover:text-gray-700"
+            className="inline-flex items-center justify-center min-h-[44px] px-3 text-sm text-ui-muted hover:text-ui-muted"
           >
             Profil
           </Link>

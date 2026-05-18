@@ -16,8 +16,8 @@ export function PortalActivitiesCard() {
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-semibold text-gray-900">{PORTAL_LABELS.activities.dashboardTitle}</h2>
-          <p className="text-xs text-gray-500">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
+          <h2 className="font-semibold text-ui-text">{PORTAL_LABELS.activities.dashboardTitle}</h2>
+          <p className="text-xs text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
         </div>
         <span className="text-2xl" aria-hidden="true">🌍</span>
       </div>
@@ -29,8 +29,8 @@ export function PortalActivitiesCard() {
               {ACTIVITY_CATEGORIES[activity.category].icon}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-gray-900 leading-tight">{activity.title}</p>
-              <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{activity.description}</p>
+              <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
+              <p className="text-xs text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
             </div>
             <span className={`badge ${COST_BADGE[activity.cost].class} flex-shrink-0`}>
               {COST_BADGE[activity.cost].label}

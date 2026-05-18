@@ -45,7 +45,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
         <span className="text-2xl flex-shrink-0" aria-hidden="true">{icon}</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-gray-900 truncate">{task.title}</h3>
+            <h3 className="font-semibold text-ui-text truncate">{task.title}</h3>
             {task.currentStatus !== 'IDLE' && (
               <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor}`}>
                 {statusLabel}
@@ -57,7 +57,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
               </span>
             ) : null}
           </div>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-ui-muted mt-0.5">
             {CHORE_LABELS.card.lastCompleted}:{' '}
             {lastCompletion
               ? `${formatDate(lastCompletion.completedAt)} ${CHORE_LABELS.card.by} ${lastCompletion.completedBy.code}`

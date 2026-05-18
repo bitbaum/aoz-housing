@@ -30,7 +30,7 @@ function getBedColorClasses(status: BedStatus, isClickable: boolean): string {
     case 'available':
       return 'bg-status-success/15 border-status-success/40 text-status-success-text hover:bg-status-success/20 cursor-pointer'
     case 'unavailable':
-      return 'bg-gray-100 border-gray-300 text-gray-400'
+      return 'bg-ui-subtle border-ui-border-strong text-ui-muted'
   }
 }
 
@@ -64,7 +64,7 @@ export function BedGrid({
 
   if (spots.length === 0) {
     return (
-      <div className="text-sm text-gray-500 text-center py-2">
+      <div className="text-sm text-ui-muted text-center py-2">
         {BED_GRID_LABELS.noSpots}
       </div>
     )
@@ -209,16 +209,16 @@ export function BedGridSummary({
                   ? 'bg-aoz-primary'
                   : status === 'available'
                     ? 'bg-status-success'
-                    : 'bg-gray-300'
+                    : 'bg-ui-border-strong'
               }`}
             />
           )
         })}
         {total > 8 && (
-          <span className={`${fontSize} text-gray-500 ml-1`}>+{total - 8}</span>
+          <span className={`${fontSize} text-ui-muted ml-1`}>+{total - 8}</span>
         )}
       </div>
-      <span className={`${fontSize} text-gray-600`}>
+      <span className={`${fontSize} text-ui-muted`}>
         {available} {BED_GRID_LABELS.freeSuffix}
       </span>
     </div>

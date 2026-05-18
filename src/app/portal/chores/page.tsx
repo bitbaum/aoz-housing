@@ -36,8 +36,8 @@ export default async function ChoresPage() {
   if (!placement) {
     return (
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{CHORE_LABELS.pages.list}</h1>
-        <p className="text-gray-500">{CHORE_LABELS.errors.noPlacement}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-2">{CHORE_LABELS.pages.list}</h1>
+        <p className="text-ui-muted">{CHORE_LABELS.errors.noPlacement}</p>
       </div>
     )
   }
@@ -97,8 +97,8 @@ export default async function ChoresPage() {
     <div>
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{CHORE_LABELS.pages.list}</h1>
-          <p className="text-gray-500 mt-1">{CHORE_LABELS.pages.listSubtitle}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{CHORE_LABELS.pages.list}</h1>
+          <p className="text-ui-muted mt-1">{CHORE_LABELS.pages.listSubtitle}</p>
         </div>
         <Link
           href="/portal/chores/new"

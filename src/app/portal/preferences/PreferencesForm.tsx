@@ -53,13 +53,13 @@ function RatingScale({
               defaultChecked={defaultValue === level}
               className="sr-only peer"
             />
-            <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors">
+            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
               {level}
             </div>
           </label>
         ))}
       </div>
-      <div className="flex justify-between text-xs text-gray-500 mt-1">
+      <div className="flex justify-between text-xs text-ui-muted mt-1">
         <span>{lowLabel}</span>
         <span>{highLabel}</span>
       </div>
@@ -114,7 +114,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
   if (submitted) {
     return (
-      <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-status-success/25">
+      <div className="card border-status-success/25 bg-status-success/8">
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
           <h2 className="text-xl font-semibold text-status-success-text mb-2">
@@ -136,9 +136,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       {/* Discard confirmation overlay */}
       {showDiscardConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6 space-y-4">
-            <h3 className="font-semibold text-gray-900">{P.confirmDiscard}</h3>
-            <p className="text-sm text-gray-500">{P.confirmDiscardBody}</p>
+          <div className="bg-ui-surface rounded-lg w-full max-w-sm p-6 space-y-4">
+            <h3 className="font-semibold text-ui-text">{P.confirmDiscard}</h3>
+            <p className="text-sm text-ui-muted">{P.confirmDiscardBody}</p>
             <div className="flex gap-3 justify-end">
               <button
                 type="button"
@@ -175,7 +175,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Lifestyle Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.lifestyle}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{P.sections.lifestyle}</h2>
 
           <div className="space-y-4">
             <div>
@@ -195,7 +195,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
             <div>
               <label className="label">{P.fields.noiseTolerance}</label>
-              <p className="text-xs text-gray-500 mb-2">{P.hints.noiseTolerance}</p>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.noiseTolerance}</p>
               <RatingScale
                 name="noiseTolerance"
                 defaultValue={resident.noiseTolerance}
@@ -206,7 +206,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
             <div>
               <label className="label">{P.fields.cleanlinessLevel}</label>
-              <p className="text-xs text-gray-500 mb-2">{P.hints.cleanlinessLevel}</p>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.cleanlinessLevel}</p>
               <RatingScale
                 name="cleanlinessLevel"
                 defaultValue={resident.cleanlinessLevel}
@@ -219,7 +219,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Social Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.social}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{P.sections.social}</h2>
 
           <div className="space-y-4">
             <div>
@@ -239,7 +239,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
             <div>
               <label className="label">{P.fields.privacyNeed}</label>
-              <p className="text-xs text-gray-500 mb-2">{P.hints.privacyNeed}</p>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.privacyNeed}</p>
               <RatingScale
                 name="privacyNeed"
                 defaultValue={resident.privacyNeed}
@@ -250,7 +250,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
             <div>
               <label className="label">{P.fields.languages}</label>
-              <p className="text-xs text-gray-500 mb-2">{P.hints.languages}</p>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.languages}</p>
               <div className="flex flex-wrap gap-2">
                 {languageOptions.map((code) => {
                   const lowerCode = code.toLowerCase()
@@ -263,7 +263,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.languages.includes(lowerCode) || resident.languages.includes(code)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {LANGUAGE_LABELS[code] || LANGUAGE_LABELS[lowerCode] || code}
                       </div>
                     </label>
@@ -276,7 +276,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Practical Section */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.practical}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{P.sections.practical}</h2>
 
           <div className="space-y-4">
             <div>
@@ -300,9 +300,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="petTolerance"
                   defaultChecked={resident.petTolerance}
-                  className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">{P.fields.petTolerance}</span>
+                <span className="text-sm text-ui-muted">{P.fields.petTolerance}</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -310,9 +310,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="sharedBathroom"
                   defaultChecked={resident.sharedBathroom}
-                  className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">{P.fields.sharedBathroom}</span>
+                <span className="text-sm text-ui-muted">{P.fields.sharedBathroom}</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -320,9 +320,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="sharedKitchen"
                   defaultChecked={resident.sharedKitchen}
-                  className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">{P.fields.sharedKitchen}</span>
+                <span className="text-sm text-ui-muted">{P.fields.sharedKitchen}</span>
               </label>
             </div>
 
@@ -340,7 +340,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.dietaryNeeds.includes(lowerOpt) || resident.dietaryNeeds.includes(opt)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {DIET_LABELS[opt] || DIET_LABELS[lowerOpt] || opt}
                       </div>
                     </label>
@@ -353,8 +353,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
         {/* Roommate Preferences */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{P.sections.roommatePrefs}</h2>
-          <p className="text-sm text-gray-500 mb-4">{P.hints.roommatePrefs}</p>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{P.sections.roommatePrefs}</h2>
+          <p className="text-sm text-ui-muted mb-4">{P.hints.roommatePrefs}</p>
 
           <div className="space-y-4">
             <div>
@@ -377,7 +377,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 <option value="SAME_REGION">{P.fields.sameRegion}</option>
                 <option value="DIFFERENT_REGION">{P.fields.differentRegion}</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">{P.hints.culturalPref}</p>
+              <p className="text-xs text-ui-muted mt-1">{P.hints.culturalPref}</p>
             </div>
 
             <div>
@@ -394,7 +394,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
 
         {/* Submit */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <button
             type="submit"
             disabled={isSubmitting}
@@ -409,9 +409,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       </form>
 
       {/* Privacy Notice */}
-      <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-        <h3 className="font-medium text-gray-900 mb-2">{P.privacyTitle}</h3>
-        <p className="text-sm text-gray-600">{P.privacyMessage}</p>
+      <div className="mt-8 p-4 bg-ui-subtle rounded-lg">
+        <h3 className="font-medium text-ui-text mb-2">{P.privacyTitle}</h3>
+        <p className="text-sm text-ui-muted">{P.privacyMessage}</p>
       </div>
     </>
   )

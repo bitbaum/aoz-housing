@@ -12,10 +12,10 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
   if (checkIns.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {SATISFACTION_HISTORY_LABELS.titleEmpty}
         </h2>
-        <p className="text-gray-500 text-sm">
+        <p className="text-ui-muted text-sm">
           {SATISFACTION_HISTORY_LABELS.empty}
         </p>
       </div>
@@ -24,14 +24,14 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         {SATISFACTION_HISTORY_LABELS.title(checkIns.length)}
       </h2>
       <div className="space-y-3">
         {checkIns.map((checkIn) => (
           <div
             key={checkIn.id}
-            className={`p-3 bg-gray-50 rounded-lg border-l-4 ${
+            className={`p-3 bg-ui-subtle rounded-lg border-l-4 ${
               checkIn.overallSatisfaction >= 4
                 ? 'border-l-status-success'
                 : checkIn.overallSatisfaction >= 3
@@ -53,24 +53,24 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
                     : '\u{1F60A}'}
                 </span>
                 <div>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-ui-text">
                     {CHECK_IN_TYPE_LABELS[checkIn.checkInType] || checkIn.checkInType}
                   </span>
                   {checkIn.weekNumber && (
-                    <span className="text-gray-500 text-sm ml-2">
+                    <span className="text-ui-muted text-sm ml-2">
                       {SATISFACTION_HISTORY_LABELS.weekPrefix} {checkIn.weekNumber}
                     </span>
                   )}
                 </div>
               </div>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-ui-muted">
                 {formatDate(checkIn.createdAt)}
               </span>
             </div>
 
             {/* Detailed scores if available */}
             {(checkIn.roommateRelations || checkIn.facilitySatisfaction || checkIn.safetyFeeling) && (
-              <div className="flex gap-4 text-xs text-gray-600 mb-2">
+              <div className="flex gap-4 text-xs text-ui-muted mb-2">
                 {checkIn.roommateRelations && (
                   <span>{SATISFACTION_HISTORY_LABELS.roommateRelations} {checkIn.roommateRelations}/5</span>
                 )}
@@ -106,7 +106,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
 
             {/* Collector info */}
             {checkIn.collectedBy && !checkIn.isAnonymous && (
-              <div className="text-xs text-gray-500 mt-2">
+              <div className="text-xs text-ui-muted mt-2">
                 {SATISFACTION_HISTORY_LABELS.collectedBy(checkIn.collectedBy)}
               </div>
             )}

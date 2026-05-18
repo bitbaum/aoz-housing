@@ -27,7 +27,7 @@ export function SystemHealth({
 }: SystemStatusProps) {
   return (
     <div className="lg:col-span-2 card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{SYSTEM_HEALTH_LABELS.title}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{SYSTEM_HEALTH_LABELS.title}</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {/* Conflicts - actual number */}
@@ -35,7 +35,7 @@ export function SystemHealth({
           <div className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-status-success' : totalConflicts <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
             {totalConflicts}
           </div>
-          <p className="text-sm text-gray-600 mt-1">{SYSTEM_HEALTH_LABELS.conflictsThirtyDays}</p>
+          <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.conflictsThirtyDays}</p>
           {worstUnit && worstUnit.conflicts > 0 ? (
             <Link
               href={`/housing/${worstUnit.id}`}
@@ -53,8 +53,8 @@ export function SystemHealth({
           <div className={`text-3xl font-bold ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}>
             {freeBeds}
           </div>
-          <p className="text-sm text-gray-600 mt-1">{SYSTEM_HEALTH_LABELS.bedsFree}</p>
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.bedsFree}</p>
+          <p className="text-xs text-ui-muted mt-2">
             {SYSTEM_HEALTH_LABELS.ofTotal(totalBeds)}
           </p>
         </div>
@@ -64,7 +64,7 @@ export function SystemHealth({
           <div className={`text-3xl font-bold ${openMaintenanceCount === 0 ? 'text-status-success' : openMaintenanceCount <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
             {openMaintenanceCount}
           </div>
-          <p className="text-sm text-gray-600 mt-1">{SYSTEM_HEALTH_LABELS.maintenanceOpen}</p>
+          <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.maintenanceOpen}</p>
           {openMaintenanceCount > 0 && oldestTicketDays !== undefined ? (
             <Link
               href="/maintenance"

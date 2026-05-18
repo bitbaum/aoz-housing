@@ -97,15 +97,15 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       : `vor ${daysSinceLastCheckIn} ${daysSinceLastCheckIn === 1 ? SATISFACTION_SURVEY_LABELS.day : SATISFACTION_SURVEY_LABELS.days}`
 
     return (
-      <div className="card bg-gray-50">
+      <div className="card bg-ui-subtle">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-500">{PORTAL_LABELS.satisfaction.lastFeedback}</p>
+            <p className="text-sm text-ui-muted">{PORTAL_LABELS.satisfaction.lastFeedback}</p>
             <div className="flex items-center gap-2 mt-1">
               {currentRating && (
                 <span className="text-2xl">{SATISFACTION_EMOJIS[currentRating - 1]}</span>
               )}
-              <span className="text-gray-600">
+              <span className="text-ui-muted">
                 {daysDisplay}
               </span>
             </div>
@@ -122,12 +122,12 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   }
 
   return (
-    <div className="card bg-gradient-to-br from-aoz-primary/5 to-aoz-secondary/5 border-aoz-primary/20">
+    <div className="card border-aoz-primary/20 bg-ui-surface">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">
+        <h2 className="text-xl font-semibold text-ui-text mb-2">
           {PORTAL_LABELS.satisfaction.title}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-ui-muted">
           {PORTAL_LABELS.satisfaction.subtitle}
         </p>
       </div>
@@ -145,10 +145,10 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             key={value}
             onClick={() => handleRatingSelect(value)}
             disabled={isSubmitting}
-            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl transition-all text-2xl sm:text-3xl flex items-center justify-center ${
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg transition-all text-2xl sm:text-3xl flex items-center justify-center ${
               rating === value
-                ? 'bg-aoz-primary text-white ring-2 ring-aoz-primary ring-offset-2 scale-110'
-                : 'bg-white hover:bg-aoz-primary/10 hover:scale-105 shadow-sm'
+                ? 'bg-aoz-primary text-ui-on-accent ring-2 ring-aoz-primary ring-offset-2 scale-110'
+                : 'bg-ui-surface hover:bg-aoz-primary/10 hover:scale-105 shadow-sm'
             } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={SATISFACTION_LABELS[value - 1]}
             aria-label={SATISFACTION_LABELS[value - 1]}
@@ -160,24 +160,24 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
 
       {/* Labels under buttons */}
       <div className="flex justify-center gap-3 sm:gap-4 mb-4">
-        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.bad}</span>
-        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.okay}</span>
-        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-gray-500 w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.great}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.bad}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center"></span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.okay}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center"></span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.great}</span>
       </div>
 
       {/* Concerns field for low ratings */}
       {showConcernsField && rating && rating <= 2 && (
-        <div className="mt-6 p-4 bg-white rounded-lg border border-orange-200">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            {SATISFACTION_SURVEY_LABELS.commentPrompt} <span className="text-gray-500">{SATISFACTION_SURVEY_LABELS.optional}</span>
+        <div className="mt-6 p-4 bg-ui-surface rounded-lg border border-orange-200">
+          <label className="block text-sm font-medium text-ui-muted mb-2">
+            {SATISFACTION_SURVEY_LABELS.commentPrompt} <span className="text-ui-muted">{SATISFACTION_SURVEY_LABELS.optional}</span>
           </label>
           <textarea
             value={concerns}
             onChange={(e) => setConcerns(e.target.value)}
             placeholder={SATISFACTION_SURVEY_LABELS.commentPlaceholder}
-            className="w-full p-3 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary"
+            className="w-full p-3 border border-ui-border rounded-lg text-sm resize-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary"
             rows={3}
             disabled={isSubmitting}
             maxLength={2000}
@@ -193,7 +193,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             <button
               onClick={() => submitCheckIn(rating, '')}
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 min-h-[44px]"
+              className="px-4 py-2 text-sm text-ui-muted hover:text-ui-text min-h-[44px]"
             >
               {SATISFACTION_SURVEY_LABELS.submitWithoutComment}
             </button>
@@ -214,7 +214,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
         </div>
       )}
 
-      <p className="text-xs text-gray-500 mt-4 text-center">
+      <p className="text-xs text-ui-muted mt-4 text-center">
         {PORTAL_LABELS.satisfaction.privacyNote}
       </p>
     </div>

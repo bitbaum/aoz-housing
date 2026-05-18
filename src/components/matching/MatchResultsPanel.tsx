@@ -33,13 +33,13 @@ export function MatchResultsPanel({
   return (
     <>
       <div className="flex items-center justify-between mb-4 gap-3">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-ui-text">
           {MATCH_RESULTS_LABELS.heading(selectedResident.code)}
         </h2>
         <div className="flex items-center gap-2">
           <Link
             href={`/matching?resident=${selectedResident.id}${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
-            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${!fastMode ? 'bg-gray-100' : ''}`}
+            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${!fastMode ? 'bg-ui-subtle' : ''}`}
           >
             {MATCH_RESULTS_LABELS.modeStandard}
           </Link>
@@ -51,7 +51,7 @@ export function MatchResultsPanel({
           </Link>
           <Link
             href="/matching"
-            className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700"
+            className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted"
           >
             {MATCH_RESULTS_LABELS.cancel}
           </Link>
@@ -60,7 +60,7 @@ export function MatchResultsPanel({
 
       {matches.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">{EMPTY_STATE_LABELS.noAvailableUnits}</p>
+          <p className="text-ui-muted">{EMPTY_STATE_LABELS.noAvailableUnits}</p>
           <Link href="/housing/new" className="btn-outline mt-4 inline-block">
             {EMPTY_STATE_LABELS.createHousing}
           </Link>
@@ -68,7 +68,7 @@ export function MatchResultsPanel({
       ) : (
         <div className="space-y-4">
           {bestQuickMatch && (
-            <form action={placeResident} className="p-3 bg-score-excellent/10 border border-score-excellent/25 rounded-xl">
+            <form action={placeResident} className="p-3 bg-score-excellent/10 border border-score-excellent/25 rounded-lg">
               <input type="hidden" name="residentId" value={selectedResident.id} />
               <input type="hidden" name="housingUnitId" value={bestQuickMatch.unit.id} />
               <input
@@ -90,19 +90,19 @@ export function MatchResultsPanel({
           {fastMode ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.fastModeTitle}</h3>
-                <span className="text-xs text-gray-500">{MATCH_RESULTS_LABELS.fastModeSubtitle}</span>
+                <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.fastModeTitle}</h3>
+                <span className="text-xs text-ui-muted">{MATCH_RESULTS_LABELS.fastModeSubtitle}</span>
               </div>
               {matches.slice(0, DISPLAY_LIMITS.topUnits).map((match, idx) => {
                 const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
                 const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (
-                  <div key={match.unit.id} className={`p-3 rounded-xl border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-gray-100'}`}>
+                  <div key={match.unit.id} className={`p-3 rounded-lg border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-ui-border'}`}>
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-gray-900">#{idx + 1} · {match.unit.code}</p>
-                        <p className="text-sm text-gray-500">{match.unit.address}</p>
-                        <p className="text-xs text-gray-600 mt-1">
+                        <p className="font-semibold text-ui-text">#{idx + 1} · {match.unit.code}</p>
+                        <p className="text-sm text-ui-muted">{match.unit.address}</p>
+                        <p className="text-xs text-ui-muted mt-1">
                           {MATCH_RESULTS_LABELS.fitInfo(match.apartmentFit.fitScore, match.unit.placements.length, match.unit.totalBeds)}
                         </p>
                       </div>
@@ -126,8 +126,8 @@ export function MatchResultsPanel({
               {topMatches.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.topMatchesTitle}</h3>
-                    <span className="text-xs text-gray-500">{MATCH_RESULTS_LABELS.topMatchesSubtitle}</span>
+                    <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.topMatchesTitle}</h3>
+                    <span className="text-xs text-ui-muted">{MATCH_RESULTS_LABELS.topMatchesSubtitle}</span>
                   </div>
                   {topMatches.map((match, idx) => (
                     <MatchCard
@@ -142,7 +142,7 @@ export function MatchResultsPanel({
 
               {otherMatches.length > 0 && (
                 <div className="space-y-3 pt-2">
-                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">{MATCH_RESULTS_LABELS.otherMatchesTitle}</h3>
+                  <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.otherMatchesTitle}</h3>
                   {otherMatches.map((match) => (
                     <MatchCard
                       key={match.unit.id}

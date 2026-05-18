@@ -125,11 +125,11 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PLACEMENT_LIST_LABELS.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PLACEMENT_LIST_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/placements"
-            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
           >
             {PLACEMENT_LIST_LABELS.export}
           </a>
@@ -140,7 +140,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       </div>
 
       {/* Search & Quick Filters */}
-      <form className="mb-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <form className="mb-4 p-3 sm:p-4 bg-ui-subtle rounded-lg border border-ui-border">
         <input type="hidden" name="status" value={statusFilter} />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <input
@@ -150,18 +150,18 @@ export default async function PlacementsListPage({ searchParams }: Props) {
             placeholder={PLACEMENT_LIST_LABELS.searchPlaceholder}
             className="input md:col-span-2"
           />
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label className="flex items-center gap-2 text-sm text-ui-muted">
             <input type="checkbox" name="overdue" value="1" defaultChecked={overdueOnly} />
             {PLACEMENT_LIST_LABELS.filterOverdue}
           </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
+          <label className="flex items-center gap-2 text-sm text-ui-muted">
             <input type="checkbox" name="conflicts" value="1" defaultChecked={conflictsOnly} />
             {PLACEMENT_LIST_LABELS.filterConflicts}
           </label>
         </div>
         <div className="mt-3 flex items-center gap-2">
           <button type="submit" className="btn-outline text-sm">{PLACEMENT_LIST_LABELS.filterApply}</button>
-          <Link href={`/placements?status=${statusFilter}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
+          <Link href={`/placements?status=${statusFilter}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
             {PLACEMENT_LIST_LABELS.filterReset}
           </Link>
         </div>
@@ -188,7 +188,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
       {/* Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-gray-200" role="tablist">
+        <div className="flex gap-2 border-b border-ui-border" role="tablist">
           <TabLink
             href="/placements?status=active"
             label={UI_LABELS.active}
@@ -213,7 +213,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       {/* Placements List */}
       {filteredPlacements.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-ui-muted mb-4">
             {statusFilter === 'active'
               ? PLACEMENT_LIST_LABELS.emptyActive
               : statusFilter === 'ended'
@@ -287,13 +287,13 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
         <div className="flex items-center gap-4">
           {/* Resident */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+            <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
               {placement.resident.code.slice(-3)}
             </div>
             <div>
               <Link
                 href={`/residents/${placement.residentId}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
               >
                 {placement.resident.code}
               </Link>
@@ -305,17 +305,17 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
             </div>
           </div>
 
-          <span className="text-gray-400">→</span>
+          <span className="text-ui-muted">→</span>
 
           {/* Housing */}
           <div>
             <Link
               href={`/housing/${placement.housingUnitId}`}
-              className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
             >
               {placement.housingUnit.code}
             </Link>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ui-muted">
               {placement.housingUnit.address}
             </p>
           </div>
@@ -324,10 +324,10 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
         <div className="flex items-center gap-6">
           {/* Duration */}
           <div className="text-right">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ui-muted">
               {placement.status === 'ACTIVE' ? PLACEMENT_LIST_LABELS.since : PLACEMENT_LIST_LABELS.duration}
             </p>
-            <p className="font-medium text-gray-900">
+            <p className="font-medium text-ui-text">
               {totalDuration} {totalDuration === 1 ? PLACEMENT_LIST_LABELS.day : PLACEMENT_LIST_LABELS.days}
             </p>
           </div>
@@ -347,7 +347,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           {/* Last satisfaction for ended placements */}
           {placement.status !== 'ACTIVE' && placement.satisfactionRating && (
             <div className="text-right">
-              <p className="text-xs text-gray-500">{SATISFACTION_SURVEY_LABELS.groupLabel}</p>
+              <p className="text-xs text-ui-muted">{SATISFACTION_SURVEY_LABELS.groupLabel}</p>
               <p className="text-lg">{SATISFACTION_EMOJIS[placement.satisfactionRating - 1]}</p>
             </div>
           )}
@@ -364,7 +364,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
                   {getLabel(PLACEMENT_STATUS_LABELS, placement.status)}
                 </span>
                 {placement.endReason && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-ui-muted mt-1">
                     {getLabel(END_REASON_LABELS, placement.endReason)}
                   </p>
                 )}
@@ -382,7 +382,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
       )}
 
       {/* Dates */}
-      <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 border-t border-gray-100 pt-3">
+      <div className="flex items-center gap-4 mt-3 text-sm text-ui-muted border-t border-ui-border pt-3">
         <span>{PLACEMENT_LIST_LABELS.dateStart} {formatDate(placement.startDate)}</span>
         {placement.endDate && <span>{PLACEMENT_LIST_LABELS.dateEnd} {formatDate(placement.endDate)}</span>}
       </div>

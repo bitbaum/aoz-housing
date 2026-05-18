@@ -20,22 +20,22 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         {TOP_COMPATIBILITIES_LABELS.title}
       </h2>
       <div className="space-y-3">
         {assessments.map((assessment) => (
           <div
             key={assessment.id}
-            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+            className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
+              <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm font-medium">
                 {assessment.comparedWith.code.slice(-3)}
               </div>
               <Link
                 href={`/residents/${assessment.comparedWithId}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
               >
                 {assessment.comparedWith.code}
               </Link>

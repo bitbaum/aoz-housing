@@ -85,10 +85,10 @@ export const FOLLOW_UP_PRIORITY_LABELS: Record<string, string> = {
 }
 
 export const FOLLOW_UP_PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'bg-gray-100 text-gray-700',
-  NORMAL: 'bg-blue-100 text-blue-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
+  LOW: 'bg-ui-subtle text-ui-muted',
+  NORMAL: 'bg-status-info/15 text-status-info-text',
+  HIGH: 'bg-status-warning/15 text-status-warning-text',
+  URGENT: 'bg-status-error/15 text-status-error-text',
 }
 
 export const INCIDENT_RESOLVED_LABELS = {

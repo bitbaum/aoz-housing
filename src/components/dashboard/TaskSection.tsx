@@ -58,7 +58,7 @@ export function TaskSection({
   return (
     <div className="card mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{DASHBOARD_LABELS.sectionTasks}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{DASHBOARD_LABELS.sectionTasks}</h2>
         {allClear && (
           <span className="text-sm text-status-success font-medium">{DASHBOARD_LABELS.allClearAllDone}</span>
         )}
@@ -229,13 +229,13 @@ function TaskItem({ href, primary, secondary }: TaskItemProps) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between py-2 px-3 bg-white/60 rounded hover:bg-white/80 transition-colors"
+      className="flex items-center justify-between py-2 px-3 bg-ui-surface/60 rounded hover:bg-ui-surface/80 transition-colors"
     >
       <div>
-        <span className="font-medium text-gray-900 text-sm">{primary}</span>
-        <span className="text-gray-500 text-sm ml-2">{secondary}</span>
+        <span className="font-medium text-ui-text text-sm">{primary}</span>
+        <span className="text-ui-muted text-sm ml-2">{secondary}</span>
       </div>
-      <span className="text-gray-400">→</span>
+      <span className="text-ui-muted">→</span>
     </Link>
   )
 }
@@ -244,7 +244,7 @@ function MoreItems({ count, href }: { count: number; href: string }) {
   return (
     <Link
       href={href}
-      className="block text-center py-2 text-sm text-gray-600 hover:text-gray-900"
+      className="block text-center py-2 text-sm text-ui-muted hover:text-ui-text"
     >
       + {count} {DASHBOARD_LABELS.showMoreSuffix}
     </Link>

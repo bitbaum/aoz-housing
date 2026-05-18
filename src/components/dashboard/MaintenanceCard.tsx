@@ -26,7 +26,7 @@ export function MaintenanceCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{MAINTENANCE_CARD_LABELS.title}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{MAINTENANCE_CARD_LABELS.title}</h2>
 
       {hasOpenTickets ? (
         <>
@@ -36,10 +36,10 @@ export function MaintenanceCard({
               <span className={`text-3xl font-bold ${getTicketColor(openTickets)}`}>
                 {openTickets}
               </span>
-              <span className="text-gray-500 text-sm">{MAINTENANCE_CARD_LABELS.openSuffix}</span>
+              <span className="text-ui-muted text-sm">{MAINTENANCE_CARD_LABELS.openSuffix}</span>
             </div>
             {oldestTicketDays !== undefined && (
-              <p className="text-sm text-gray-500 mt-1 group-hover:text-gray-700">
+              <p className="text-sm text-ui-muted mt-1 group-hover:text-ui-muted">
                 {MAINTENANCE_CARD_LABELS.oldestTicket(oldestTicketDays)}
               </p>
             )}
@@ -71,7 +71,7 @@ export function MaintenanceCard({
       {/* Quick action */}
       <Link
         href="/maintenance/new"
-        className="flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-gray-200 transition-colors"
+        className="flex items-center justify-center gap-2 py-2.5 px-4 bg-ui-subtle rounded-lg text-sm text-ui-muted hover:bg-ui-border transition-colors"
       >
         <span>+</span>
         <span>{MAINTENANCE_CARD_LABELS.newTicket}</span>
@@ -80,7 +80,7 @@ export function MaintenanceCard({
       {hasOpenTickets && (
         <Link
           href="/maintenance"
-          className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
+          className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-aoz-primary hover:underline"
         >
           {MAINTENANCE_CARD_LABELS.viewAll}
         </Link>

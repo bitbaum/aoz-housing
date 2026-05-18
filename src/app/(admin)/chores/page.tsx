@@ -63,7 +63,7 @@ export default async function AdminChoresPage() {
 
   return (
     <div>
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">{C.pageTitle}</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-6">{C.pageTitle}</h1>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -75,10 +75,10 @@ export default async function AdminChoresPage() {
 
       {/* Unit table */}
       <div className="card">
-        <h2 className="font-semibold text-gray-900 mb-4">{C.perUnitTitle}</h2>
+        <h2 className="font-semibold text-ui-text mb-4">{C.perUnitTitle}</h2>
 
         {unitSummaries.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-ui-muted text-center py-8">
             {C.noUnits}
           </p>
         ) : (
@@ -86,13 +86,13 @@ export default async function AdminChoresPage() {
             {/* Mobile cards */}
             <div className="md:hidden space-y-3">
               {unitSummaries.map((unit) => (
-                <div key={unit.id} className="border border-gray-200 rounded-lg p-3">
+                <div key={unit.id} className="border border-ui-border rounded-lg p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline font-medium">
                         {unit.code}
                       </Link>
-                      <p className="text-sm text-gray-600 mt-1">{unit.address}</p>
+                      <p className="text-sm text-ui-muted mt-1">{unit.address}</p>
                     </div>
                     {unit.attentionTasks > 0 ? (
                       <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded-full text-xs">
@@ -101,17 +101,17 @@ export default async function AdminChoresPage() {
                     ) : null}
                   </div>
                   <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
-                    <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">{C.colResidents}</p>
-                      <p className="font-semibold text-gray-900">{unit.residents}</p>
+                    <div className="bg-ui-subtle rounded p-2 text-center">
+                      <p className="text-ui-muted">{C.colResidents}</p>
+                      <p className="font-semibold text-ui-text">{unit.residents}</p>
                     </div>
-                    <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">{C.colTasks}</p>
-                      <p className="font-semibold text-gray-900">{unit.totalTasks}</p>
+                    <div className="bg-ui-subtle rounded p-2 text-center">
+                      <p className="text-ui-muted">{C.colTasks}</p>
+                      <p className="font-semibold text-ui-text">{unit.totalTasks}</p>
                     </div>
-                    <div className="bg-gray-50 rounded p-2 text-center">
-                      <p className="text-gray-500">{C.colActive}</p>
-                      <p className="font-semibold text-gray-900">{unit.activeTasks}</p>
+                    <div className="bg-ui-subtle rounded p-2 text-center">
+                      <p className="text-ui-muted">{C.colActive}</p>
+                      <p className="font-semibold text-ui-text">{unit.activeTasks}</p>
                     </div>
                   </div>
                 </div>
@@ -122,24 +122,24 @@ export default async function AdminChoresPage() {
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">{C.colUnit}</th>
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-gray-600">{C.colAddress}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colResidents}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colTasks}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.colActive}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-gray-600">{C.attention}</th>
+                  <tr className="border-b border-ui-border">
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">{C.colUnit}</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">{C.colAddress}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colResidents}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colTasks}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colActive}</th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.attention}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {unitSummaries.map(unit => (
-                    <tr key={unit.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <tr key={unit.id} className="border-b border-ui-border hover:bg-ui-subtle">
                       <td className="py-3 px-2 font-medium">
                         <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline">
                           {unit.code}
                         </Link>
                       </td>
-                      <td className="py-3 px-2 text-gray-600">{unit.address}</td>
+                      <td className="py-3 px-2 text-ui-muted">{unit.address}</td>
                       <td className="py-3 px-2 text-center">{unit.residents}</td>
                       <td className="py-3 px-2 text-center">{unit.totalTasks}</td>
                       <td className="py-3 px-2 text-center">{unit.activeTasks}</td>
@@ -149,7 +149,7 @@ export default async function AdminChoresPage() {
                             {unit.attentionTasks}
                           </span>
                         ) : (
-                          <span className="text-gray-500">0</span>
+                          <span className="text-ui-muted">0</span>
                         )}
                       </td>
                     </tr>

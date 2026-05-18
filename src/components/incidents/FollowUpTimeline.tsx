@@ -10,13 +10,13 @@ export function FollowUpTimeline({ followUps }: Props) {
   return (
     <>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-ui-text">
           Follow-ups ({followUps.length})
         </h2>
       </div>
 
       {followUps.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-ui-muted text-center py-8">
           Noch keine Follow-ups dokumentiert
         </p>
       ) : (
@@ -26,25 +26,25 @@ export function FollowUpTimeline({ followUps }: Props) {
               key={followUp.id}
               className={`relative pl-6 pb-4 ${
                 index < followUps.length - 1
-                  ? 'border-l-2 border-gray-200'
+                  ? 'border-l-2 border-ui-border'
                   : ''
               }`}
             >
               {/* Timeline dot */}
-              <div className="absolute -left-2 top-0 w-4 h-4 bg-aoz-primary rounded-full border-2 border-white" />
+              <div className="absolute -left-2 top-0 w-4 h-4 bg-aoz-primary rounded-full border-2 border-ui-surface" />
 
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-ui-subtle rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-ui-text">
                     {followUp.action}
                   </p>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-ui-muted">
                     {formatRelativeDate(followUp.createdAt)}
                   </span>
                 </div>
 
                 {followUp.notes && (
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-ui-muted mb-2">
                     {followUp.notes}
                   </p>
                 )}
@@ -55,7 +55,7 @@ export function FollowUpTimeline({ followUps }: Props) {
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                <div className="flex items-center gap-4 mt-2 text-xs text-ui-muted">
                   {followUp.staffName && (
                     <span>👤 {followUp.staffName}</span>
                   )}

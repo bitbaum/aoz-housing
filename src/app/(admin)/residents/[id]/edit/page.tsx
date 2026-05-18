@@ -36,10 +36,10 @@ export default async function EditResidentPage({ params }: Props) {
         >
           {RESIDENT_EDIT_LABELS.backLink}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {RESIDENT_EDIT_LABELS.title(resident.code)}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-ui-muted">
           {RESIDENT_EDIT_LABELS.subtitle}
         </p>
       </div>
@@ -90,7 +90,7 @@ export default async function EditResidentPage({ params }: Props) {
         />
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {RESIDENT_EDIT_LABELS.submit}
           </SubmitButton>

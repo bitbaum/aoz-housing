@@ -38,9 +38,9 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
 
         return (
           <div key={section.id} className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{section.label}</h2>
+            <h2 className="text-lg font-semibold text-ui-text mb-4">{section.label}</h2>
             {section.description && (
-              <p className="text-sm text-gray-500 mb-4">{section.description}</p>
+              <p className="text-sm text-ui-muted mb-4">{section.description}</p>
             )}
 
             {hasOnlyBooleans ? (

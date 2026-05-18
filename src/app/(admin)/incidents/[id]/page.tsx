@@ -108,10 +108,10 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
               {INCIDENT_CATEGORY_ICONS[incident.category] || '💬'}
             </span>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </h1>
-              <p className="text-gray-500">
+              <p className="text-ui-muted">
                 {getLabel(INCIDENT_CATEGORY_LABELS, incident.category)} ·{' '}
                 {getLabel(INCIDENT_SEVERITY_LABELS, incident.severity)} ·{' '}
                 {formatDate(incident.date)}
@@ -178,18 +178,18 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
         <div className="lg:col-span-2 space-y-6">
           {/* Incident Details */}
           <div className={`card border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {INCIDENT_DETAIL_LABELS.descriptionTitle}
             </h2>
-            <p className="text-gray-600 whitespace-pre-wrap">
+            <p className="text-ui-muted whitespace-pre-wrap">
               {incident.description}
             </p>
 
             {incident.resolution && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <h3 className="font-medium text-gray-900 mb-2">{INCIDENT_DETAIL_LABELS.resolutionTitle}</h3>
-                <p className="text-gray-600">{incident.resolution}</p>
-                <p className="text-sm text-gray-500 mt-1">
+              <div className="mt-4 pt-4 border-t border-ui-border">
+                <h3 className="font-medium text-ui-text mb-2">{INCIDENT_DETAIL_LABELS.resolutionTitle}</h3>
+                <p className="text-ui-muted">{incident.resolution}</p>
+                <p className="text-sm text-ui-muted mt-1">
                   {INCIDENT_DETAIL_LABELS.resolvedAt(formatDate(incident.resolvedAt!))}
                 </p>
               </div>

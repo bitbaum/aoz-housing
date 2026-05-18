@@ -22,7 +22,7 @@ export function TextField({
           {factor.required && ' *'}
         </label>
         {factor.description && (
-          <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
+          <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
         )}
         <textarea
           id={factor.id}
@@ -46,7 +46,7 @@ export function TextField({
         {factor.required && ' *'}
       </label>
       {factor.description && (
-        <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
       )}
       <input
         id={factor.id}
@@ -54,14 +54,14 @@ export function TextField({
         name={factor.id}
         defaultValue={value || factor.default || ''}
         placeholder={factor.placeholder}
-        className={`input ${disabled ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+        className={`input ${disabled ? 'bg-ui-subtle cursor-not-allowed' : ''}`}
         disabled={disabled}
         required={factor.required}
         readOnly={disabled}
         aria-describedby={factor.description ? `${factor.id}-desc` : undefined}
       />
       {disabled && (
-        <p className="text-xs text-gray-500 mt-1">{FORM_VALIDATION_UX_LABELS.readOnly}</p>
+        <p className="text-xs text-ui-muted mt-1">{FORM_VALIDATION_UX_LABELS.readOnly}</p>
       )}
     </div>
   )
@@ -83,7 +83,7 @@ export function EnumField({
         {factor.required && ' *'}
       </label>
       {factor.description && (
-        <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
       )}
       <select
         id={factor.id}
@@ -125,7 +125,7 @@ export function ScaleField({
           {factor.required && ' *'}
         </label>
         {factor.description && (
-          <p id={`${factor.id}-desc`} className="text-xs text-gray-500 mb-2">{factor.description}</p>
+          <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
         )}
         <input
           id={factor.id}
@@ -155,7 +155,7 @@ export function ScaleField({
         {factor.required && ' *'}
       </legend>
       {factor.description && (
-        <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p className="text-xs text-ui-muted mb-2">{factor.description}</p>
       )}
       <div className="flex gap-2">
         {range.map((level) => {
@@ -175,7 +175,7 @@ export function ScaleField({
                 disabled={disabled}
                 aria-label={ariaLabel}
               />
-              <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors">
+              <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
                 {level}
               </div>
             </label>
@@ -183,7 +183,7 @@ export function ScaleField({
         })}
       </div>
       {(factor.lowLabel || factor.highLabel) && (
-        <div className="flex justify-between text-xs text-gray-500 mt-1" aria-hidden="true">
+        <div className="flex justify-between text-xs text-ui-muted mt-1" aria-hidden="true">
           <span>{factor.lowLabel}</span>
           <span>{factor.highLabel}</span>
         </div>
@@ -210,12 +210,12 @@ export function BooleanField({
         name={factor.id}
         value="true"
         defaultChecked={currentValue}
-        className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+        className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
         disabled={disabled}
       />
-      <span className="text-sm text-gray-700">{factor.label}</span>
+      <span className="text-sm text-ui-muted">{factor.label}</span>
       {factor.description && (
-        <span className="text-xs text-gray-500">({factor.description})</span>
+        <span className="text-xs text-ui-muted">({factor.description})</span>
       )}
     </label>
   )
@@ -239,7 +239,7 @@ export function MultiField({
         {factor.required && ' *'}
       </legend>
       {factor.description && (
-        <p className="text-xs text-gray-500 mb-2">{factor.description}</p>
+        <p className="text-xs text-ui-muted mb-2">{factor.description}</p>
       )}
       <div className="flex flex-wrap gap-2">
         {factor.options.map((opt) => (
@@ -253,7 +253,7 @@ export function MultiField({
               disabled={disabled}
               aria-label={factor.optionLabels[opt]}
             />
-            <div className="px-4 py-2 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm">
+            <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
               {factor.optionLabels[opt]}
             </div>
           </label>

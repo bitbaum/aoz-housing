@@ -55,7 +55,7 @@ export const TASK_PRIORITY_LABELS: Record<string, string> = {
 }
 
 export const TASK_PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'bg-gray-100 text-gray-700',
+  LOW: 'bg-ui-subtle text-ui-muted',
   NORMAL: 'bg-status-info/15 text-status-info-text',
   HIGH: 'bg-status-warning/15 text-status-warning-text',
   URGENT: 'bg-status-error/15 text-status-error-text',
@@ -73,10 +73,10 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
 }
 
 export const TASK_STATUS_COLORS: Record<string, string> = {
-  IDLE: 'bg-gray-100 text-gray-700',
-  NEEDS_ATTENTION: 'bg-yellow-100 text-yellow-700',
-  REQUESTED: 'bg-purple-100 text-purple-700',
-  IN_PROGRESS: 'bg-blue-100 text-blue-700',
+  IDLE: 'bg-ui-subtle text-ui-muted',
+  NEEDS_ATTENTION: 'bg-status-warning/15 text-status-warning-text',
+  REQUESTED: 'bg-aoz-primary/10 text-aoz-primary',
+  IN_PROGRESS: 'bg-status-info/15 text-status-info-text',
 }
 
 // =============================================================================

@@ -27,7 +27,7 @@ export function UnitSidebar({ unit }: Props) {
     <div className="space-y-6">
       {/* Facilities */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {UNIT_SIDEBAR_LABELS.facilitiesTitle}
         </h2>
         <dl className="space-y-3 text-sm">
@@ -52,14 +52,14 @@ export function UnitSidebar({ unit }: Props) {
 
       {/* Rules */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {UNIT_SIDEBAR_LABELS.rulesTitle}
         </h2>
         <div className="space-y-2 text-sm">
           <RuleItem label={UNIT_SIDEBAR_LABELS.smokingLabel} allowed={unit.smokingAllowed} />
           <RuleItem label={UNIT_SIDEBAR_LABELS.petsLabel} allowed={unit.petsAllowed} />
           {unit.quietHours && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-ui-muted">
               <span className="text-status-info-text" aria-hidden="true">🌙</span>
               {UNIT_SIDEBAR_LABELS.quietHoursPrefix}{unit.quietHours}
             </div>
@@ -69,7 +69,7 @@ export function UnitSidebar({ unit }: Props) {
 
       {/* Location */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {UNIT_SIDEBAR_LABELS.locationTitle}
         </h2>
         <div className="space-y-2 text-sm">
@@ -82,10 +82,10 @@ export function UnitSidebar({ unit }: Props) {
       {/* Notes */}
       {unit.notes && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {UNIT_SIDEBAR_LABELS.notesTitle}
           </h2>
-          <p className="text-sm text-gray-600 whitespace-pre-wrap">
+          <p className="text-sm text-ui-muted whitespace-pre-wrap">
             {unit.notes}
           </p>
         </div>
@@ -96,7 +96,7 @@ export function UnitSidebar({ unit }: Props) {
 
 function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
   return (
-    <div className="flex items-center gap-2 text-gray-600">
+    <div className="flex items-center gap-2 text-ui-muted">
       <span className={allowed ? 'text-status-success-text' : 'text-status-error-text'}>
         {allowed ? '✓' : '✗'}
       </span>
@@ -107,8 +107,8 @@ function RuleItem({ label, allowed }: { label: string; allowed: boolean }) {
 
 function LocationItem({ label, available }: { label: string; available: boolean }) {
   return (
-    <div className={`flex items-center gap-2 ${available ? 'text-gray-700' : 'text-gray-400'}`}>
-      <span className={available ? 'text-status-success-text' : 'text-gray-400'}>
+    <div className={`flex items-center gap-2 ${available ? 'text-ui-muted' : 'text-ui-muted'}`}>
+      <span className={available ? 'text-status-success-text' : 'text-ui-muted'}>
         {available ? '✓' : '○'}
       </span>
       {label} {available ? UNIT_SIDEBAR_LABELS.locationNearby : UNIT_SIDEBAR_LABELS.locationNotNearby}

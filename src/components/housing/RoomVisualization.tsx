@@ -47,7 +47,7 @@ export function RoomVisualization({
   if (spots.length === 0) {
     return (
       <div className="card text-center py-8">
-        <p className="text-gray-500 mb-4">
+        <p className="text-ui-muted mb-4">
           {HOUSING_SPOTS_LABELS.emptyRoomView}
         </p>
         <Link
@@ -118,16 +118,16 @@ function RoomContainer({
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-ui-border rounded-lg overflow-hidden">
       {/* Room header */}
-      <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+      <div className="bg-ui-subtle px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-xl">{SPOT_TYPE_ICONS.ROOM}</span>
           <div>
-            <h4 className="font-medium text-gray-900">
+            <h4 className="font-medium text-ui-text">
               {room.label || room.code}
             </h4>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ui-muted">
               {room.squareMeters && `${room.squareMeters}m² · `}
               {occupiedCount}/{childSpots.length} belegt
             </p>
@@ -147,7 +147,7 @@ function RoomContainer({
       {/* Beds in this room */}
       <div className="p-4">
         {childSpots.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-2">
+          <p className="text-sm text-ui-muted text-center py-2">
             Keine Betten definiert
           </p>
         ) : useBedGrid ? (
@@ -195,7 +195,7 @@ function SpotCard({
           ? 'bg-status-info/8 border-status-info/25'
           : isAvailable
             ? 'bg-status-success/10 border-status-success/25'
-            : 'bg-gray-50 border-gray-200'
+            : 'bg-ui-subtle border-ui-border'
       } ${compact ? 'py-2' : ''}`}
     >
       <div className="flex items-center gap-3">
@@ -203,7 +203,7 @@ function SpotCard({
         <div>
           <div className="flex items-center gap-2">
             <span
-              className={`font-medium ${compact ? 'text-sm' : ''} text-gray-900`}
+              className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}
             >
               {spot.label || spot.code}
             </span>
@@ -224,7 +224,7 @@ function SpotCard({
               {activePlacement.resident.code}
             </Link>
           ) : (
-            <span className="text-sm text-gray-500">{statusLabel}</span>
+            <span className="text-sm text-ui-muted">{statusLabel}</span>
           )}
         </div>
       </div>
@@ -263,19 +263,19 @@ function OccupancyIndicator({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="w-16 h-2 bg-ui-border rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full ${
             percentage === 100
               ? 'bg-aoz-primary'
               : percentage > 0
                 ? 'bg-status-success'
-                : 'bg-gray-300'
+                : 'bg-ui-border-strong'
           }`}
           style={{ width: `${percentage}%` }}
         />
       </div>
-      <span className="text-sm text-gray-600">{Math.round(percentage)}%</span>
+      <span className="text-sm text-ui-muted">{Math.round(percentage)}%</span>
     </div>
   )
 }

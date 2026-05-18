@@ -17,19 +17,19 @@ export function FairnessSummary({ fairness }: FairnessSummaryProps) {
 
   return (
     <div className="card">
-      <h3 className="font-semibold text-gray-900 mb-4">{CHORE_LABELS.fairness.title}</h3>
+      <h3 className="font-semibold text-ui-text mb-4">{CHORE_LABELS.fairness.title}</h3>
       <div className="space-y-3">
         {fairness.map(entry => {
           const percentage = Math.round((entry.completions / maxCompletions) * 100)
           return (
             <div key={entry.residentId}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">{entry.code}</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm font-medium text-ui-muted">{entry.code}</span>
+                <span className="text-sm text-ui-muted">
                   {entry.completions} {CHORE_LABELS.fairness.completions}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2.5">
+              <div className="w-full bg-ui-subtle rounded-full h-2.5">
                 <div
                   className="bg-aoz-primary h-2.5 rounded-full transition-all"
                   style={{ width: `${percentage}%` }}

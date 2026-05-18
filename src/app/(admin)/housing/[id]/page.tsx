@@ -208,14 +208,14 @@ export default async function HousingDetailPage({ params }: Props) {
           <div className="flex items-center gap-3">
             <Link
               href="/housing"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-ui-muted hover:text-ui-muted"
             >
               {PAGE_TITLES.housing}
             </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{unit.code}</span>
+            <span className="text-ui-muted">/</span>
+            <span className="text-ui-text">{unit.code}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{unit.address}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{unit.address}</h1>
         </div>
         <div className="flex items-center gap-3">
           <HarmonyBadge status={harmonyStatus} />
@@ -244,7 +244,7 @@ export default async function HousingDetailPage({ params }: Props) {
           {unit.spots && unit.spots.length > 0 && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-ui-text">
                   {HOUSING_DETAIL_LABELS.spotsHeading}
                 </h2>
                 <Link href={`/housing/${unit.id}/spots`} className="btn-outline text-sm">
@@ -263,7 +263,7 @@ export default async function HousingDetailPage({ params }: Props) {
           {(!unit.spots || unit.spots.length === 0) && (
             <div className="card">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-ui-text">
                   {HOUSING_DETAIL_LABELS.residentsHeading}
                 </h2>
                 <div className="flex gap-2">
@@ -277,7 +277,7 @@ export default async function HousingDetailPage({ params }: Props) {
               </div>
 
               {unit.placements.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-ui-muted text-center py-8">
                   {HOUSING_DETAIL_LABELS.noActiveResidents}
                 </p>
               ) : (
@@ -323,7 +323,7 @@ export default async function HousingDetailPage({ params }: Props) {
           {/* Compatibility Matrix */}
           {unit.placements.length > 1 && (
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {COMPATIBILITY_MATRIX_LABELS.heading}
               </h2>
               <CompatibilityMatrixInteractive
@@ -403,14 +403,14 @@ function ResidentCard({
     : null
 
   return (
-    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+    <div className="flex items-center justify-between p-4 bg-ui-subtle rounded-lg">
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+        <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
           {placement.resident.code.slice(-3)}
         </div>
         <div>
-          <p className="font-medium text-gray-900">{placement.resident.code}</p>
-          <p className="text-sm text-gray-500">
+          <p className="font-medium text-ui-text">{placement.resident.code}</p>
+          <p className="text-sm text-ui-muted">
             {HOUSING_DETAIL_LABELS.residentSince} {formatDate(placement.startDate)}
           </p>
         </div>
@@ -418,7 +418,7 @@ function ResidentCard({
       <div className="flex items-center gap-4">
         {avgScore !== null && (
           <div className="text-right">
-            <p className="text-sm text-gray-500">{HOUSING_DETAIL_LABELS.avgCompatibility}</p>
+            <p className="text-sm text-ui-muted">{HOUSING_DETAIL_LABELS.avgCompatibility}</p>
             <p className={`font-medium ${getScoreColorClass(avgScore)}`}>
               {avgScore}% - {getScoreLabel(avgScore)}
             </p>

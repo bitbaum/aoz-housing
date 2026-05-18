@@ -33,8 +33,8 @@ export interface ResidentProfileSidebarProps {
 
 function PreferenceItem({ label, value }: { label: string; value: boolean }) {
   return (
-    <div className="flex items-center gap-2 text-gray-600">
-      <span className={value ? 'text-status-success-text' : 'text-gray-500'}>
+    <div className="flex items-center gap-2 text-ui-muted">
+      <span className={value ? 'text-status-success-text' : 'text-ui-muted'}>
         {value ? '✓' : '○'}
       </span>
       {label}
@@ -47,11 +47,11 @@ function ScaleRow({ label, value, factorKey }: { label: string; value: number; f
   const scaleFactor = factor?.type === 'scale' ? factor : null
   return (
     <div className="flex justify-between items-start">
-      <dt className="text-gray-500">{label}</dt>
+      <dt className="text-ui-muted">{label}</dt>
       <dd className="text-right">
-        <span className="text-gray-900 font-medium">{value}/5</span>
+        <span className="text-ui-text font-medium">{value}/5</span>
         {scaleFactor && (
-          <span className="block text-xs text-gray-400 mt-0.5">
+          <span className="block text-xs text-ui-muted mt-0.5">
             {scaleFactor.lowLabel} – {scaleFactor.highLabel}
           </span>
         )}
@@ -64,39 +64,39 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
   return (
     <div className="space-y-6">
       {/* CRITICAL: Housing Authorization - Most important info at top */}
-      <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-status-info/40 bg-status-info/8' : 'border-gray-200'}`}>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+      <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-status-info/40 bg-status-info/8' : 'border-ui-border'}`}>
+        <h2 className="text-lg font-semibold text-ui-text mb-4 flex items-center gap-2">
           {'\u{1F3E0}'} {RESIDENT_PROFILE_SIDEBAR_LABELS.authCardTitle}
         </h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between items-center">
-            <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authDocLabel}</dt>
-            <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-status-info-text' : 'text-gray-500'}`}>
+            <dt className="text-ui-muted">{RESIDENT_PROFILE_SIDEBAR_LABELS.authDocLabel}</dt>
+            <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-status-info-text' : 'text-ui-muted'}`}>
               {resident.hasMedicalDocumentation ? RESIDENT_PROFILE_SIDEBAR_LABELS.authDocPresent : RESIDENT_PROFILE_SIDEBAR_LABELS.authDocAbsent}
             </dd>
           </div>
           {resident.hasMedicalDocumentation && resident.medicalDocType && (
             <div className="flex justify-between items-center">
-              <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.authForLabel}</dt>
+              <dt className="text-ui-muted">{RESIDENT_PROFILE_SIDEBAR_LABELS.authForLabel}</dt>
               <dd className="font-semibold text-status-info-text">
                 {getLabel(MEDICAL_DOC_TYPE_LABELS, resident.medicalDocType)}
               </dd>
             </div>
           )}
           <div className="flex justify-between items-center">
-            <dt className="text-gray-600">{RESIDENT_PROFILE_SIDEBAR_LABELS.roomSharingLabel}</dt>
-            <dd className="font-medium text-gray-900">
+            <dt className="text-ui-muted">{RESIDENT_PROFILE_SIDEBAR_LABELS.roomSharingLabel}</dt>
+            <dd className="font-medium text-ui-text">
               {getLabel(ROOM_SHARING_STATUS_LABELS, resident.roomSharingStatus)}
             </dd>
           </div>
-          <div className="pt-2 border-t border-gray-200">
-            <dt className="text-gray-500 text-xs mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.eligibleTypesLabel}</dt>
+          <div className="pt-2 border-t border-ui-border">
+            <dt className="text-ui-muted text-xs mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.eligibleTypesLabel}</dt>
             <dd className="flex flex-wrap gap-1">
               {getEligibleSpotTypes(resident.hasMedicalDocumentation, resident.medicalDocType).map((type) => (
                 <span
                   key={type}
                   className={`px-2 py-1 rounded text-xs font-medium ${
-                    type === 'BED' ? 'bg-gray-100 text-gray-700' : 'bg-status-info/15 text-status-info-text'
+                    type === 'BED' ? 'bg-ui-subtle text-ui-muted' : 'bg-status-info/15 text-status-info-text'
                   }`}
                 >
                   {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}
@@ -145,7 +145,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionLanguages}>
         <dl className="space-y-3 text-sm">
           <div>
-            <dt className="text-gray-500 mb-2">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldLanguages}</dt>
+            <dt className="text-ui-muted mb-2">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldLanguages}</dt>
             <dd className="flex flex-wrap gap-1">
               {resident.languages.map((lang) => (
                 <span
@@ -207,12 +207,12 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
           />
           {resident.dietaryNeeds.length > 0 && (
             <div className="pt-2">
-              <dt className="text-gray-500 mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldDiet}</dt>
+              <dt className="text-ui-muted mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldDiet}</dt>
               <dd className="flex flex-wrap gap-1">
                 {resident.dietaryNeeds.map((diet) => (
                   <span
                     key={diet}
-                    className="px-2 py-0.5 bg-gray-100 rounded text-xs"
+                    className="px-2 py-0.5 bg-ui-subtle rounded text-xs"
                   >
                     {getLabel(DIET_LABELS, diet)}
                   </span>
@@ -244,10 +244,10 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       {/* Notes */}
       {resident.notes && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {RESIDENT_PROFILE_SIDEBAR_LABELS.notesTitle}
           </h2>
-          <p className="text-sm text-gray-600 whitespace-pre-wrap">
+          <p className="text-sm text-ui-muted whitespace-pre-wrap">
             {resident.notes}
           </p>
         </div>

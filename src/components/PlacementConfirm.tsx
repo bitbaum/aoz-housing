@@ -41,9 +41,9 @@ export function PlacementConfirm({
   }
 
   const buttonClass = hasConflicts
-    ? 'opacity-50 cursor-not-allowed bg-gray-400 text-white px-3 py-1 rounded text-sm'
+    ? 'opacity-50 cursor-not-allowed bg-ui-muted text-ui-on-accent px-3 py-1 rounded text-sm'
     : fitScore < 50
-    ? 'bg-status-warning text-white px-3 py-1 rounded text-sm hover:bg-status-warning/90'
+    ? 'bg-status-warning text-ui-on-accent px-3 py-1 rounded text-sm hover:bg-status-warning/90'
     : 'btn-primary text-sm px-3 py-1'
 
   const buttonLabel = hasConflicts
@@ -67,10 +67,10 @@ export function PlacementConfirm({
       {/* Confirmation Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-xl shadow-card-hover max-w-lg w-full mx-4">
+          <div className="bg-ui-surface rounded-lg shadow-card-hover max-w-lg w-full mx-4">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-ui-border">
+              <h3 className="text-lg font-semibold text-ui-text">
                 {PLACEMENT_CONFIRM_LABELS.title}
               </h3>
             </div>
@@ -78,24 +78,24 @@ export function PlacementConfirm({
             {/* Content */}
             <div className="px-6 py-4 space-y-4">
               <div>
-                <p className="text-sm text-gray-500 mb-2">{PLACEMENT_CONFIRM_LABELS.prompt}</p>
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <p className="text-sm text-ui-muted mb-2">{PLACEMENT_CONFIRM_LABELS.prompt}</p>
+                <div className="bg-ui-subtle rounded-lg p-4 space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.resident}</span>
-                    <span className="text-sm text-gray-900">{residentCode}</span>
+                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.resident}</span>
+                    <span className="text-sm text-ui-text">{residentCode}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.unit}</span>
-                    <span className="text-sm text-gray-900">{unitCode}</span>
+                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.unit}</span>
+                    <span className="text-sm text-ui-text">{unitCode}</span>
                   </div>
                   {spotLabel && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.spot}</span>
-                      <span className="text-sm text-gray-900">{spotLabel}</span>
+                      <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.spot}</span>
+                      <span className="text-sm text-ui-text">{spotLabel}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">{PLACEMENT_CONFIRM_LABELS.compatibility}</span>
+                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.compatibility}</span>
                     <span
                       className={`text-sm font-bold ${
                         fitScore >= 70
@@ -137,13 +137,13 @@ export function PlacementConfirm({
                 </div>
               )}
 
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-ui-muted">
                 {PLACEMENT_CONFIRM_LABELS.confirmMessage}
               </p>
             </div>
 
             {/* Actions */}
-            <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+            <div className="px-6 py-4 border-t border-ui-border flex justify-end gap-3">
               <button
                 onClick={() => setIsOpen(false)}
                 disabled={isPending}
@@ -156,7 +156,7 @@ export function PlacementConfirm({
                 disabled={isPending}
                 className={
                   fitScore < 50
-                    ? 'bg-status-warning text-white px-4 py-2 rounded-lg hover:bg-status-warning/90 disabled:opacity-50'
+                    ? 'bg-status-warning text-ui-on-accent px-4 py-2 rounded-lg hover:bg-status-warning/90 disabled:opacity-50'
                     : 'btn-primary disabled:opacity-50'
                 }
               >

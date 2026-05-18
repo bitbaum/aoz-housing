@@ -92,7 +92,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{MAINTENANCE_PAGE_LABELS.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{MAINTENANCE_PAGE_LABELS.title}</h1>
         <Link href="/maintenance/new" className="btn-primary">
           {MAINTENANCE_PAGE_LABELS.newRequest}
         </Link>
@@ -122,7 +122,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-ui-border">
           <TabLink
             href="/maintenance?status=active"
             label={UI_LABELS.active}
@@ -159,7 +159,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
       {/* Request List */}
       {requests.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-ui-muted mb-4">
             {MAINTENANCE_PAGE_LABELS.noRequests}
           </p>
           <Link href="/maintenance/new" className="btn-primary">
@@ -208,7 +208,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 href={`/maintenance/${request.id}`}
-                className="inline-flex items-center py-2 -my-2 font-semibold text-gray-900 hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-semibold text-ui-text hover:text-aoz-primary"
               >
                 {request.title}
               </Link>
@@ -216,10 +216,10 @@ function RequestRow({ request }: { request: RequestRowData }) {
                 {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
               </span>
             </div>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+            <p className="text-sm text-ui-muted mt-1 line-clamp-2">
               {request.description}
             </p>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
               <Link
                 href={`/housing/${request.housingUnitId}`}
                 className="inline-flex items-center py-2 -my-2 hover:text-aoz-primary"

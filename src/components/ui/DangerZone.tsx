@@ -133,7 +133,7 @@ export function DangerZone({
 
       <button
         type="button"
-        className="mt-3 w-full sm:w-auto bg-status-error text-white px-4 py-3 rounded-lg text-sm min-h-[44px] hover:bg-status-error/90 disabled:opacity-50"
+        className="mt-3 w-full sm:w-auto bg-status-error text-ui-on-accent px-4 py-3 rounded-lg text-sm min-h-[44px] hover:bg-status-error/90 disabled:opacity-50"
         disabled={!isEligibleCode || isPending || confirmation !== 'DELETE' || reason.trim().length < 10}
         onClick={() => {
           setFeedback(null)

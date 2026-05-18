@@ -16,7 +16,7 @@ export function PortalPendingChores({ chores }: PortalPendingChoresProps) {
   return (
     <div className="card mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.pendingChores.title}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.pendingChores.title}</h2>
         <Link href="/portal/chores" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.dashboard.showAll}
         </Link>
@@ -30,8 +30,8 @@ export function PortalPendingChores({ chores }: PortalPendingChoresProps) {
           >
             <span className="text-xl">⚠️</span>
             <div>
-              <p className="font-medium text-gray-900 text-sm">{task.title}</p>
-              <p className="text-xs text-gray-500">
+              <p className="font-medium text-ui-text text-sm">{task.title}</p>
+              <p className="text-xs text-ui-muted">
                 {task.currentStatus === 'NEEDS_ATTENTION' ? CHORE_LABELS.statNeedsAttention : PORTAL_LABELS.pendingChores.requestOpen}
               </p>
             </div>

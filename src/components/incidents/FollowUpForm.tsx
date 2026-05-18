@@ -43,15 +43,15 @@ export function FollowUpForm({
   defaultStaffName = '',
 }: Props) {
   return (
-    <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
-      <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
+    <div className="mt-6 pt-6 border-t border-ui-border space-y-4">
+      <div className="p-3 rounded-lg border border-ui-border bg-ui-subtle">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-medium text-gray-900">{FOLLOW_UP_FORM_LABELS.quickTemplates}</h3>
-            <p className="text-xs text-gray-500">{FOLLOW_UP_FORM_LABELS.quickTemplatesHint}</p>
+            <h3 className="font-medium text-ui-text">{FOLLOW_UP_FORM_LABELS.quickTemplates}</h3>
+            <p className="text-xs text-ui-muted">{FOLLOW_UP_FORM_LABELS.quickTemplatesHint}</p>
           </div>
           {activeTemplate && (
-            <Link href={`/incidents/${incidentId}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
+            <Link href={`/incidents/${incidentId}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
               {FOLLOW_UP_FORM_LABELS.resetTemplate}
             </Link>
           )}
@@ -96,7 +96,7 @@ export function FollowUpForm({
         </div>
       </div>
 
-      <h3 className="font-medium text-gray-900 mb-2">
+      <h3 className="font-medium text-ui-text mb-2">
         {FOLLOW_UP_FORM_LABELS.title}
       </h3>
       <form id="incident-followup-form" action={addFollowUp} className="space-y-4">

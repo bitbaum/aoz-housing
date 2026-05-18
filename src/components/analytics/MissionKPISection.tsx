@@ -38,8 +38,8 @@ export function MissionKPISection({ kpis, baseline }: Props) {
     <div className="card">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{MISSION_KPI_LABELS.sectionTitle}</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-lg font-semibold text-ui-text">{MISSION_KPI_LABELS.sectionTitle}</h2>
+          <p className="text-sm text-ui-muted">
             {MISSION_KPI_LABELS.sectionDesc(kpis.monthsTracked)}
             {hasBaseline && baseline?.pilotStartDate && (
               <span className="ml-2 text-status-success-text font-medium">
@@ -108,9 +108,9 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           baselineValue={null}
         />
         <div className={`rounded-lg border p-4 sm:col-span-2 lg:col-span-1 ${trendStyle.bg}`}>
-          <p className="text-sm text-gray-600 mb-1">{MISSION_KPI_LABELS.conflictTrend}</p>
+          <p className="text-sm text-ui-muted mb-1">{MISSION_KPI_LABELS.conflictTrend}</p>
           <p className={`text-2xl font-bold ${trendStyle.text}`}>{trendStyle.label}</p>
-          <p className="text-xs text-gray-500 mt-2">{kpis.trendDetail}</p>
+          <p className="text-xs text-ui-muted mt-2">{kpis.trendDetail}</p>
         </div>
       </div>
 
@@ -178,11 +178,11 @@ function KPICard({
   const isAchieved = progressPct !== null && progressPct >= 100
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-gray-900">
+    <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
+      <p className="text-sm text-ui-muted mb-1">{label}</p>
+      <p className="text-2xl font-bold text-ui-text">
         {value !== null ? value : '—'}
-        {value !== null && unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
+        {value !== null && unit && <span className="text-sm font-normal text-ui-muted ml-1">{unit}</span>}
       </p>
       {value === null && nudgeHref && (
         <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-aoz-primary hover:underline">
@@ -191,8 +191,8 @@ function KPICard({
       )}
 
       {current !== null && (
-        <p className="text-xs text-gray-500 mt-1">
-          {currentLabel}: <span className="font-medium text-gray-700">{current}{unit ? ` ${unit}` : ''}</span>
+        <p className="text-xs text-ui-muted mt-1">
+          {currentLabel}: <span className="font-medium text-ui-muted">{current}{unit ? ` ${unit}` : ''}</span>
         </p>
       )}
 
@@ -200,14 +200,14 @@ function KPICard({
         <div className="mt-2 space-y-1.5">
           {/* Baseline reference */}
           <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-400">{PILOT_BASELINE_LABELS.baselineLabel}: {baselineValue}</span>
+            <span className="text-ui-muted">{PILOT_BASELINE_LABELS.baselineLabel}: {baselineValue}</span>
             {targetValue !== null && (
-              <span className="text-gray-400">{PILOT_BASELINE_LABELS.targetLabel}: {Math.round(targetValue * 10) / 10}</span>
+              <span className="text-ui-muted">{PILOT_BASELINE_LABELS.targetLabel}: {Math.round(targetValue * 10) / 10}</span>
             )}
           </div>
           {/* Progress bar */}
           {progressPct !== null && (
-            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-ui-subtle rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${isAchieved ? 'bg-status-success' : 'bg-aoz-primary'}`}
                 style={{ width: `${progressPct}%` }}
@@ -216,17 +216,17 @@ function KPICard({
           )}
           {/* Reduction label */}
           {reductionPct !== null && (
-            <p className={`text-xs font-medium ${reductionPct > 0 ? 'text-status-success-text' : reductionPct < 0 ? 'text-status-error-text' : 'text-gray-500'}`}>
+            <p className={`text-xs font-medium ${reductionPct > 0 ? 'text-status-success-text' : reductionPct < 0 ? 'text-status-error-text' : 'text-ui-muted'}`}>
               {reductionPct > 0 ? `↓ ${reductionPct}%` : reductionPct < 0 ? `↑ ${Math.abs(reductionPct)}%` : '→ 0%'}{' '}
               {PILOT_BASELINE_LABELS.baselineLabel.toLowerCase()}
               {targetPct && (
-                <span className="text-gray-400 font-normal"> · Ziel: -{targetPct}%</span>
+                <span className="text-ui-muted font-normal"> · Ziel: -{targetPct}%</span>
               )}
             </p>
           )}
         </div>
       ) : (
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-ui-muted mt-1">
           {targetLabel ? `Ziel: ${targetLabel}` : targetPct ? `Ziel: -${targetPct}%` : ''}
         </p>
       )}
@@ -250,13 +250,13 @@ function MiniChart({
   const maxValue = Math.max(...data.map(d => d.value), baseline ?? 0, 1)
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4">
+    <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
       <p className={`text-sm font-medium ${color} mb-3`}>{label}</p>
       <div className="relative flex items-end gap-1 h-16">
         {/* Baseline reference line */}
         {baseline !== null && baseline > 0 && (
           <div
-            className="absolute inset-x-0 border-t-2 border-dashed border-gray-300 pointer-events-none"
+            className="absolute inset-x-0 border-t-2 border-dashed border-ui-border-strong pointer-events-none"
             style={{ bottom: `${(baseline / maxValue) * 100}%` }}
             title={`${PILOT_BASELINE_LABELS.baselineLabel}: ${baseline}`}
           />
@@ -272,11 +272,11 @@ function MiniChart({
         ))}
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-[11px] text-gray-400">{data[0]?.label}</span>
+        <span className="text-[11px] text-ui-muted">{data[0]?.label}</span>
         {baseline !== null && (
-          <span className="text-[11px] text-gray-400">— {PILOT_BASELINE_LABELS.baselineLabel} {baseline}</span>
+          <span className="text-[11px] text-ui-muted">— {PILOT_BASELINE_LABELS.baselineLabel} {baseline}</span>
         )}
-        <span className="text-[11px] text-gray-400">{data[data.length - 1]?.label}</span>
+        <span className="text-[11px] text-ui-muted">{data[data.length - 1]?.label}</span>
       </div>
     </div>
   )

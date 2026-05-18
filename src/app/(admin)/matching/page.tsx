@@ -308,7 +308,7 @@ export default async function MatchingPage({ searchParams }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
           {isUnitMode
             ? MATCHING_LABELS.whoFitsIn(selectedUnit?.code ?? '')
             : isNewResident
@@ -316,7 +316,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             : MATCHING_LABELS.title}
         </h1>
         <div className="flex items-center justify-between">
-          <p className="text-gray-500">
+          <p className="text-ui-muted">
             {isUnitMode
               ? MATCHING_LABELS.findMatchingResidents(selectedUnit?.address ?? '')
               : isNewResident
@@ -337,17 +337,17 @@ export default async function MatchingPage({ searchParams }: Props) {
       {isNewResident && (
         <div className="mb-6 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-status-success text-white flex items-center justify-center text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-status-success text-ui-on-accent flex items-center justify-center text-sm font-medium">
               ✓
             </div>
-            <span className="text-sm text-gray-500">{MATCHING_LABELS.profileCaptured}</span>
+            <span className="text-sm text-ui-muted">{MATCHING_LABELS.profileCaptured}</span>
           </div>
           <div className="flex-1 h-0.5 bg-status-success" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-aoz-primary text-white flex items-center justify-center text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-aoz-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
               2
             </div>
-            <span className="text-sm font-medium text-gray-900">{MATCHING_LABELS.findUnit}</span>
+            <span className="text-sm font-medium text-ui-text">{MATCHING_LABELS.findUnit}</span>
           </div>
         </div>
       )}
@@ -417,10 +417,10 @@ export default async function MatchingPage({ searchParams }: Props) {
             />
           ) : (
             <>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              <h2 className="text-lg font-semibold text-ui-text mb-2">
                 {MATCHING_LABELS.availableUnitsTitle(availableUnits.filter(u => u.placements.length < u.totalBeds).length)}
               </h2>
-              <p className="text-sm text-gray-500 mb-4">{MATCHING_LABELS.orSelectUnit}</p>
+              <p className="text-sm text-ui-muted mb-4">{MATCHING_LABELS.orSelectUnit}</p>
               <div className="space-y-2">
                 {availableUnits
                   .filter(u => u.placements.length < u.totalBeds)
@@ -430,23 +430,23 @@ export default async function MatchingPage({ searchParams }: Props) {
                       <Link
                         key={u.id}
                         href={`/matching?unit=${u.id}`}
-                        className="flex items-center justify-between p-3 rounded-lg border border-gray-200 hover:border-aoz-primary hover:bg-aoz-accent transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-ui-border hover:border-aoz-primary hover:bg-aoz-accent transition-colors"
                       >
                         <div>
-                          <p className="font-medium text-gray-900">{u.code}</p>
-                          <p className="text-xs text-gray-500">{u.address}</p>
+                          <p className="font-medium text-ui-text">{u.code}</p>
+                          <p className="text-xs text-ui-muted">{u.address}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm font-medium text-aoz-secondary">
                             {MATCHING_LABELS.freeBeds(freeBeds, u.totalBeds)}
                           </p>
-                          {u.wheelchairAccess && <span className="text-xs text-gray-400">♿</span>}
+                          {u.wheelchairAccess && <span className="text-xs text-ui-muted">♿</span>}
                         </div>
                       </Link>
                     )
                   })}
               </div>
-              <p className="text-xs text-gray-400 mt-4 text-center">{MATCHING_LABELS.selectResidentForMatches}</p>
+              <p className="text-xs text-ui-muted mt-4 text-center">{MATCHING_LABELS.selectResidentForMatches}</p>
             </>
           )}
         </div>

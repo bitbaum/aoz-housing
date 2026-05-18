@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import Script from 'next/script'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { ToastContainer } from '@/components/ui/Toast'
 import './globals.css'
@@ -54,9 +53,9 @@ export default function RootLayout({
 
   return (
     <html lang="de" className={inter.variable}>
-      <Script id="theme-init" strategy="beforeInteractive">
-        {themeScript}
-      </Script>
+      <head>
+        <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="min-h-screen bg-ui-canvas text-ui-text font-sans">
         {children}
         <ToastContainer />

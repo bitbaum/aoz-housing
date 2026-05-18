@@ -63,14 +63,14 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
         <div className="card text-center py-12">
           {units.length === 0 ? (
             <>
-              <p className="text-gray-500 mb-3">{HOUSING_LIST_LABELS.emptyDefault}</p>
+              <p className="text-ui-muted mb-3">{HOUSING_LIST_LABELS.emptyDefault}</p>
               <a href="/housing/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
                 {HOUSING_LIST_LABELS.createHousingFirst}
               </a>
             </>
           ) : (
             <>
-              <p className="text-gray-500 mb-3">{HOUSING_LIST_LABELS.emptyFiltered}</p>
+              <p className="text-ui-muted mb-3">{HOUSING_LIST_LABELS.emptyFiltered}</p>
               <button
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
@@ -118,8 +118,8 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
       <Link href={`/housing/${unit.id}`} className="block">
         <div className="flex items-start justify-between mb-3 pr-8">
           <div>
-            <h3 className="font-semibold text-gray-900">{unit.code}</h3>
-            <p className="text-sm text-gray-500">{unit.address}</p>
+            <h3 className="font-semibold text-ui-text">{unit.code}</h3>
+            <p className="text-sm text-ui-muted">{unit.address}</p>
           </div>
           <span className={`badge ${statusInfo.class}`}>{statusInfo.label}</span>
         </div>
@@ -127,10 +127,10 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
         <div className="flex items-center gap-4 mb-3">
           <div className="flex-1">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500">{HOUSING_LIST_LABELS.occupancy}</span>
+              <span className="text-ui-muted">{HOUSING_LIST_LABELS.occupancy}</span>
               <span className="font-medium">{occupancy}/{totalBeds}</span>
             </div>
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-ui-border rounded-full overflow-hidden">
               <div
                 className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
                 style={{ width: `${occupancyPercent}%` }}
@@ -139,15 +139,15 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+        <div className="flex items-center justify-between pt-3 border-t border-ui-border">
+          <div className="flex items-center gap-2 text-sm text-ui-muted">
             <span>{unit.totalRooms} Zimmer</span>
             {unit.wheelchairAccess && <span title={HOUSING_LIST_LABELS.wheelchairTitle}>♿</span>}
           </div>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${harmonyColor}`} role="img" aria-label={`Harmonie: ${harmonyColor.includes('green') ? 'Gut' : harmonyColor.includes('yellow') ? 'Mittel' : harmonyColor.includes('red') ? 'Schlecht' : 'Unbekannt'}`} />
             {recentConflicts > 0 && (
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-ui-muted">
                 {recentConflicts} Konflikte
               </span>
             )}

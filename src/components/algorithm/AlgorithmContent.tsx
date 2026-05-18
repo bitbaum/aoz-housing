@@ -40,23 +40,20 @@ export function AlgorithmContent() {
   return (
     <div className="max-w-5xl mx-auto">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-xl bg-aoz-primary text-white p-8 md:p-12 mb-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-
-        <div className="relative z-10">
+      <section className="relative overflow-hidden rounded-lg bg-ui-text text-ui-inverse p-8 md:p-12 mb-8">
+        <div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
+            <div className="p-2 bg-ui-inverse/10 rounded-lg">
               <Brain className="w-8 h-8" />
             </div>
-            <span className="text-white/80 text-sm font-medium">{ALGORITHM_OVERVIEW_LABELS.heroSubtitle}</span>
+            <span className="text-ui-inverse/80 text-sm font-medium">{ALGORITHM_OVERVIEW_LABELS.heroSubtitle}</span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
             {ALGORITHM_OVERVIEW_LABELS.heroTitle}
           </h1>
 
-          <p className="text-lg text-white/90 mb-8 max-w-2xl">
+          <p className="text-lg text-ui-inverse/90 mb-8 max-w-2xl">
             {ALGORITHM_OVERVIEW_LABELS.heroDesc(FACTOR_COUNT, DIMENSION_COUNT)}
           </p>
 
@@ -103,17 +100,17 @@ export function AlgorithmContent() {
       {activeTab === 'technical' && <TechnicalTab />}
 
       {/* CTA Section */}
-      <section className="mt-12 text-center py-12 px-6 bg-gray-100 rounded-xl">
+      <section className="mt-12 text-center py-12 px-6 bg-ui-subtle rounded-lg">
         <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+        <h2 className="text-xl sm:text-2xl font-bold text-ui-text mb-3">
           {ALGORITHM_OVERVIEW_LABELS.ctaTitle}
         </h2>
-        <p className="text-gray-600 mb-6 max-w-lg mx-auto">
+        <p className="text-ui-muted mb-6 max-w-lg mx-auto">
           {ALGORITHM_OVERVIEW_LABELS.ctaDesc}
         </p>
         <Link
           href="/matching"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-aoz-primary text-white rounded-lg font-medium hover:bg-aoz-primary/90 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-aoz-primary text-ui-on-accent rounded-lg font-medium hover:bg-aoz-primary/90 transition-colors"
         >
           {ALGORITHM_OVERVIEW_LABELS.ctaBtn}
           <ArrowRight className="w-4 h-4" />

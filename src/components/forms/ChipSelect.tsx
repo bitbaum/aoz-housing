@@ -65,7 +65,7 @@ export function ChipSelect({
               }
               className="sr-only peer"
             />
-            <div className="px-4 py-2.5 rounded-full border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors text-sm min-h-[44px] flex items-center">
+            <div className="px-4 py-2.5 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm min-h-[44px] flex items-center">
               {option.label}
             </div>
           </label>

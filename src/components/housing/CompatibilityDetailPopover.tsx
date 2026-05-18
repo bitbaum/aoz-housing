@@ -56,27 +56,27 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
       ref={ref}
       role="dialog"
       aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-white rounded-xl shadow-card-hover border border-gray-100"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-ui-surface rounded-lg shadow-card-hover border border-ui-border"
       style={{
         left: Math.max(8, position.x - 160),
         top: position.y,
       }}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+      <div className="px-4 py-3 border-b border-ui-border bg-ui-subtle rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+            <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm font-bold">
               {resident1.code.slice(-3)}
             </div>
-            <span className="text-gray-400">↔</span>
-            <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+            <span className="text-ui-muted">↔</span>
+            <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm font-bold">
               {resident2.code.slice(-3)}
             </div>
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
             aria-label={UI_LABELS.close}
           >
             ✕
@@ -95,7 +95,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
               >
                 {score.overallScore}%
               </span>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-ui-muted mt-1">
                 {getScoreLabel(score.overallScore)} {COMPATIBILITY_MATRIX_LABELS.compatibilitySuffix}
               </p>
             </div>
@@ -135,7 +135,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
             {/* Strengths */}
             {score.strengths && score.strengths.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.strengths}</p>
+                <p className="text-xs font-medium text-ui-muted mb-1">{MATCHING_LABELS.strengths}</p>
                 <ul className="space-y-1">
                   {score.strengths.slice(0, 2).map((s, i) => (
                     <li key={i} className="text-sm text-status-success-text flex items-start gap-1">
@@ -150,7 +150,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
             {/* Conflicts */}
             {score.conflicts && score.conflicts.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-gray-500 mb-1">{MATCHING_LABELS.concerns}</p>
+                <p className="text-xs font-medium text-ui-muted mb-1">{MATCHING_LABELS.concerns}</p>
                 <ul className="space-y-1">
                   {score.conflicts.slice(0, 2).map((c, i) => (
                     <li
@@ -173,8 +173,8 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
           </>
         ) : (
           <div className="text-center py-4">
-            <p className="text-gray-500 mb-2">{COMPATIBILITY_MATRIX_LABELS.noScore}</p>
-            <p className="text-xs text-gray-500">
+            <p className="text-ui-muted mb-2">{COMPATIBILITY_MATRIX_LABELS.noScore}</p>
+            <p className="text-xs text-ui-muted">
               {COMPATIBILITY_MATRIX_LABELS.noScoreDesc}
             </p>
           </div>
@@ -182,14 +182,14 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 rounded-b-lg flex gap-2">
+      <div className="px-4 py-3 border-t border-ui-border bg-ui-subtle rounded-b-lg flex gap-2">
         <Link
           href={`/residents/${resident1.id}`}
           className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-aoz-primary hover:underline"
         >
           {resident1.code}
         </Link>
-        <span className="text-gray-400">|</span>
+        <span className="text-ui-muted">|</span>
         <Link
           href={`/residents/${resident2.id}`}
           className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-aoz-primary hover:underline"
@@ -213,10 +213,10 @@ function ScoreDimension({
   return (
     <div className="flex items-center gap-2">
       <div className="w-20">
-        <p className="text-xs font-medium text-gray-700">{label}</p>
-        <p className="text-xs text-gray-500">{description}</p>
+        <p className="text-xs font-medium text-ui-muted">{label}</p>
+        <p className="text-xs text-ui-muted">{description}</p>
       </div>
-      <div className="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+      <div className="flex-1 bg-ui-subtle rounded-full h-2 overflow-hidden">
         <div
           className={`h-full transition-all ${SCORE_BG_COLORS[getScoreLevel(score)]}`}
           style={{ width: `${score}%` }}

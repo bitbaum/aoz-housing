@@ -97,11 +97,11 @@ export function getScoreBgClass(score: number): string {
 
 export function getScoreBadgeClass(score: number): string {
   const classes: Record<ScoreLevel, string> = {
-    excellent: 'bg-score-excellent text-white',
-    good: 'bg-score-good text-white',
-    moderate: 'bg-score-medium text-gray-900',
-    low: 'bg-score-low text-white',
-    critical: 'bg-score-critical text-white',
+    excellent: 'bg-score-excellent text-ui-on-accent',
+    good: 'bg-score-good text-ui-on-accent',
+    moderate: 'bg-score-medium text-score-contrast',
+    low: 'bg-score-low text-ui-on-accent',
+    critical: 'bg-score-critical text-ui-on-accent',
   }
   return classes[getScoreLevel(score)]
 }
@@ -145,10 +145,10 @@ export function getSeverityDotClass(severity: string): string {
 
 export function getSeverityBgClass(severity: string): string {
   const classes: Record<string, string> = {
-    LOW: 'bg-gray-100 text-gray-800',
-    MEDIUM: 'bg-amber-100 text-amber-800',
-    HIGH: 'bg-orange-100 text-orange-800',
-    CRITICAL: 'bg-red-100 text-red-800',
+    LOW: 'bg-ui-subtle text-ui-muted',
+    MEDIUM: 'bg-status-warning/15 text-status-warning-text',
+    HIGH: 'bg-score-low/15 text-score-low-text',
+    CRITICAL: 'bg-status-error/15 text-status-error-text',
   }
   return classes[severity] || classes.LOW
 }
@@ -156,10 +156,10 @@ export function getSeverityBgClass(severity: string): string {
 // Severity radio button styles (for forms)
 export function getSeverityRadioClass(severity: string): string {
   const classes: Record<string, string> = {
-    LOW: 'peer-checked:border-gray-500 peer-checked:bg-gray-50',
-    MEDIUM: 'peer-checked:border-yellow-500 peer-checked:bg-yellow-50',
-    HIGH: 'peer-checked:border-orange-500 peer-checked:bg-orange-50',
-    CRITICAL: 'peer-checked:border-red-500 peer-checked:bg-red-50',
+    LOW: 'peer-checked:border-ui-border-strong peer-checked:bg-ui-subtle',
+    MEDIUM: 'peer-checked:border-status-warning peer-checked:bg-status-warning/8',
+    HIGH: 'peer-checked:border-score-low peer-checked:bg-score-low/8',
+    CRITICAL: 'peer-checked:border-status-error peer-checked:bg-status-error/8',
   }
   return classes[severity] || classes.LOW
 }
@@ -214,7 +214,7 @@ export function getTrendColorClass(trend: TrendType): string {
   const classes: Record<TrendType, string> = {
     good:    'text-status-success-text',
     warning: 'text-status-warning-text',
-    neutral: 'text-gray-500',
+    neutral: 'text-ui-muted',
   }
   return classes[trend]
 }

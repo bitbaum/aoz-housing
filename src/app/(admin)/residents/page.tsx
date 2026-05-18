@@ -81,11 +81,11 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{RESIDENT_LIST_LABELS.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{RESIDENT_LIST_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/residents"
-            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
           >
             {RESIDENT_LIST_LABELS.export}
           </a>
@@ -104,7 +104,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       <form method="GET" action="/residents" className="mb-4">
         <input type="hidden" name="view" value={view} />
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ui-muted pointer-events-none" aria-hidden="true">🔍</span>
           <input
             type="search"
             name="q"
@@ -117,7 +117,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       </form>
 
       <div className="mb-4">
-        <div className="flex gap-2 border-b border-gray-200" role="tablist">
+        <div className="flex gap-2 border-b border-ui-border" role="tablist">
           <TabLink href={`/residents?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
           <TabLink href={`/residents?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
           <TabLink href={`/residents?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
@@ -156,7 +156,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       {/* Resident List */}
       {residents.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-ui-muted mb-4">
             {q
               ? `${RESIDENT_LIST_LABELS.emptyFiltered} («${q}»)`
               : view === 'archived'

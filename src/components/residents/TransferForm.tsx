@@ -93,7 +93,7 @@ export function TransferForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-ui-muted mt-1">
           {hasMedicalDocumentation
             ? PLACEMENT_ACTIONS_LABELS.medDocsSpotHint
             : PLACEMENT_ACTIONS_LABELS.noMedDocsSpotHint}
@@ -110,7 +110,7 @@ export function TransferForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-ui-muted mt-1">
           {PLACEMENT_ACTIONS_LABELS.transferReasonHint}
         </p>
       </div>
@@ -125,7 +125,7 @@ export function TransferForm({
         />
       </div>
 
-      <div className="p-3 bg-white border border-blue-200 rounded text-sm text-status-info-text">
+      <div className="p-3 bg-ui-surface border border-blue-200 rounded text-sm text-status-info-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {transferSummary}
       </div>
 

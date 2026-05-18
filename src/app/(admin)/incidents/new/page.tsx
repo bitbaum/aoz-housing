@@ -85,18 +85,18 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         >
           {INCIDENT_PAGE_LABELS.backToList}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{INCIDENT_PAGE_LABELS.newIncident}</h1>
-        <p className="text-gray-500">{INCIDENT_PAGE_LABELS.newSubtitle}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{INCIDENT_PAGE_LABELS.newIncident}</h1>
+        <p className="text-ui-muted">{INCIDENT_PAGE_LABELS.newSubtitle}</p>
       </div>
 
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">{INCIDENT_PAGE_LABELS.quickCapture}</h2>
-            <p className="text-sm text-gray-500">{INCIDENT_PAGE_LABELS.quickSubtitle}</p>
+            <h2 className="text-base font-semibold text-ui-text">{INCIDENT_PAGE_LABELS.quickCapture}</h2>
+            <p className="text-sm text-ui-muted">{INCIDENT_PAGE_LABELS.quickSubtitle}</p>
           </div>
           {params.quick && (
-            <Link href={`/incidents/new?${queryBase.toString()}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700">
+            <Link href={`/incidents/new?${queryBase.toString()}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
               {INCIDENT_PAGE_LABELS.resetPreset}
             </Link>
           )}
@@ -144,7 +144,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       <form action={createIncident} className="space-y-6">
         {/* Location & Attribution */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{INCIDENT_PAGE_LABELS.sectionLocation}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{INCIDENT_PAGE_LABELS.sectionLocation}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldUnit}</label>
@@ -176,7 +176,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldReporterHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{INCIDENT_PAGE_LABELS.fieldReporterHint}</p>
             </div>
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldSubject}</label>
@@ -192,14 +192,14 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldSubjectHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{INCIDENT_PAGE_LABELS.fieldSubjectHint}</p>
             </div>
           </div>
         </div>
 
         {/* Category & Type */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {INCIDENT_PAGE_LABELS.sectionCategory}
           </h2>
           <div className="space-y-4">
@@ -217,18 +217,18 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                       defaultChecked={selectedCategory === key}
                       className="sr-only peer"
                     />
-                    <div className="p-4 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
+                    <div className="p-4 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
                       <span className="text-2xl">
                         {INCIDENT_CATEGORY_ICONS[key] || '💬'}
                       </span>
-                      <p className="font-medium text-gray-900 mt-2">
+                      <p className="font-medium text-ui-text mt-2">
                         {INCIDENT_CATEGORY_LABELS[key]}
                       </p>
                     </div>
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-2">
+              <p className="text-xs text-ui-muted mt-2">
                 {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
                 <a href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</a>
               </p>
@@ -256,7 +256,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
         {/* Severity */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {INCIDENT_PAGE_LABELS.sectionSeverity}
           </h2>
           <div className="flex gap-3">
@@ -271,12 +271,12 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                   className="sr-only peer"
                 />
                 <div
-                  className={`p-4 text-center rounded-lg border-2 border-gray-200 transition-colors ${getSeverityRadioClass(key)}`}
+                  className={`p-4 text-center rounded-lg border-2 border-ui-border transition-colors ${getSeverityRadioClass(key)}`}
                 >
                   <div
                     className={`w-4 h-4 rounded-full mx-auto ${getSeverityDotClass(key)}`}
                   />
-                  <p className="font-medium text-gray-900 mt-2">{label}</p>
+                  <p className="font-medium text-ui-text mt-2">{label}</p>
                 </div>
               </label>
             ))}
@@ -285,7 +285,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
         {/* Details */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">{INCIDENT_PAGE_LABELS.sectionDetails}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">{INCIDENT_PAGE_LABELS.sectionDetails}</h2>
           <div className="space-y-4">
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldDate}</label>
@@ -318,13 +318,13 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 placeholder="0"
                 className="input"
               />
-              <p className="text-xs text-gray-500 mt-1">{INCIDENT_PAGE_LABELS.fieldMediationMinutesHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{INCIDENT_PAGE_LABELS.fieldMediationMinutesHint}</p>
             </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_PAGE_LABELS.submit}
           </SubmitButton>

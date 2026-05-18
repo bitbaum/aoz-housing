@@ -30,12 +30,12 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.transferRequests}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.transferRequests}</h1>
       </div>
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-ui-border">
           <TabLink
             href="/transfer-requests?status=PENDING"
             label={TRANSFER_REQUEST_STATUS_LABELS.PENDING}
@@ -66,7 +66,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
       {/* Request List */}
       {requests.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500">
+          <p className="text-ui-muted">
             {statusFilter === 'PENDING'
               ? TRANSFER_ACTION_LABELS.emptyPending
               : TRANSFER_ACTION_LABELS.emptyOther}
@@ -114,14 +114,14 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-ui-text">
               {request.resident.code}
             </h3>
             <span className={STATUS_BADGE[request.status] || 'badge'}>
               {STATUS_LABEL[request.status] || request.status}
             </span>
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ui-muted">
             {formatRelativeDate(request.createdAt)}
             {request.currentPlacement?.housingUnit && (
               <> · {TRANSFER_ACTION_LABELS.fromUnit} {request.currentPlacement.housingUnit.code}</>
@@ -133,10 +133,10 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
         </div>
       </div>
 
-      <p className="text-sm text-gray-700 mb-3">{request.reason}</p>
+      <p className="text-sm text-ui-muted mb-3">{request.reason}</p>
 
       {request.staffNotes && (
-        <div className="p-2 bg-gray-50 rounded text-sm text-gray-600 mb-3">
+        <div className="p-2 bg-ui-subtle rounded text-sm text-ui-muted mb-3">
           <span className="font-medium">{TRANSFER_ACTION_LABELS.noteLabel}</span> {request.staffNotes}
         </div>
       )}

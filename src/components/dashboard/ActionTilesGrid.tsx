@@ -35,8 +35,8 @@ export function ActionTile({ title, count, description, href, color, items, allH
     <div className={`card border-2 ${colorStyles[color]} transition-colors`}>
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="font-semibold text-gray-900">{title}</h3>
-          <p className="text-sm text-gray-500">{description}</p>
+          <h3 className="font-semibold text-ui-text">{title}</h3>
+          <p className="text-sm text-ui-muted">{description}</p>
         </div>
         <span className={`px-2 py-1 rounded-full text-sm font-bold ${badgeStyles[color]}`}>
           {count}
@@ -48,13 +48,13 @@ export function ActionTile({ title, count, description, href, color, items, allH
           <Link
             key={i}
             href={item.href}
-            className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-between py-2 px-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors"
           >
             <div>
-              <span className="font-medium text-gray-900 text-sm">{item.label}</span>
-              <span className="text-gray-500 text-sm ml-2">{item.sublabel}</span>
+              <span className="font-medium text-ui-text text-sm">{item.label}</span>
+              <span className="text-ui-muted text-sm ml-2">{item.sublabel}</span>
             </div>
-            <span className="text-gray-400">→</span>
+            <span className="text-ui-muted">→</span>
           </Link>
         ))}
       </div>
@@ -62,7 +62,7 @@ export function ActionTile({ title, count, description, href, color, items, allH
       {count > DISPLAY_LIMITS.dashboardItems && (
         <Link
           href={allHref}
-          className="block text-center mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600 hover:text-gray-900"
+          className="block text-center mt-3 pt-3 border-t border-ui-border text-sm text-ui-muted hover:text-ui-text"
         >
           {DASHBOARD_LABELS.showAllPrefix} {count} {DASHBOARD_LABELS.showAllSuffix} →
         </Link>

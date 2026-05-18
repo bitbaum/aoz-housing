@@ -67,7 +67,7 @@ export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength
   const colorClasses: Record<string, string> = {
     green: 'bg-status-success/15 text-status-success-text',
     yellow: 'bg-status-warning/15 text-status-warning-text',
-    gray: 'bg-gray-100 text-gray-600',
+    gray: 'bg-ui-subtle text-ui-muted',
   }
   return (
     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colorClasses[config.color]}`}>
@@ -85,10 +85,10 @@ export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }
   const barColors: Record<EvidenceStrength, string> = {
     strong: 'bg-status-success',
     moderate: 'bg-status-warning',
-    preliminary: 'bg-gray-400',
+    preliminary: 'bg-ui-muted',
   }
   return (
-    <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+    <div className="w-full h-1.5 bg-ui-border rounded-full overflow-hidden">
       <div className={`h-full rounded-full ${barColors[strength]} ${barWidths[strength]}`} />
     </div>
   )
@@ -96,10 +96,10 @@ export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }
 
 export function FactStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="bg-white/10 backdrop-blur rounded-lg p-4">
-      <div className="flex items-center gap-2 text-white/70 mb-1">{icon}</div>
+    <div className="bg-ui-inverse/10 rounded-lg p-4">
+      <div className="flex items-center gap-2 text-ui-inverse/70 mb-1">{icon}</div>
       <div className="text-2xl md:text-3xl font-bold">{value}</div>
-      <div className="text-sm text-white/80">{label}</div>
+      <div className="text-sm text-ui-inverse/80">{label}</div>
     </div>
   )
 }
@@ -121,12 +121,12 @@ export function ProcessStep({
         {icon}
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
-        <span className="w-6 h-6 rounded-full bg-aoz-primary text-white text-sm flex items-center justify-center font-medium">
+        <span className="w-6 h-6 rounded-full bg-aoz-primary text-ui-on-accent text-sm flex items-center justify-center font-medium">
           {number}
         </span>
-        <h3 className="font-semibold text-gray-900">{title}</h3>
+        <h3 className="font-semibold text-ui-text">{title}</h3>
       </div>
-      <p className="text-sm text-gray-600">{description}</p>
+      <p className="text-sm text-ui-muted">{description}</p>
     </div>
   )
 }
@@ -152,7 +152,7 @@ export function DimensionCard({
   }
 
   return (
-    <div className={`rounded-xl border p-4 ${colorClasses[color]}`}>
+    <div className={`rounded-lg border p-4 ${colorClasses[color]}`}>
       <div className="flex items-center justify-between mb-3">
         <span className="text-2xl font-bold">{weight}%</span>
         <span className="text-xs opacity-70">{factorCount} Faktoren</span>
@@ -193,9 +193,9 @@ export function ScoreLevel({
   return (
     <div className={`rounded-lg border p-3 text-center ${bgClasses[color]}`}>
       <div className={`w-full h-2 rounded-full ${colorClasses[color]} mb-2`} />
-      <div className="font-bold text-gray-900">{score}</div>
-      <div className="text-sm font-medium text-gray-700">{label}</div>
-      <div className="text-xs text-gray-500 mt-1">{action}</div>
+      <div className="font-bold text-ui-text">{score}</div>
+      <div className="text-sm font-medium text-ui-muted">{label}</div>
+      <div className="text-xs text-ui-muted mt-1">{action}</div>
     </div>
   )
 }

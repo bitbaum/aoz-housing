@@ -84,9 +84,9 @@ export function CompatibilityMatrixInteractive({
   return (
     <div className="relative">
       {/* Desktop: click-to-detail hint */}
-      <p className="hidden sm:block text-sm text-gray-500 mb-4">{COMPATIBILITY_MATRIX_LABELS.clickHint}</p>
+      <p className="hidden sm:block text-sm text-ui-muted mb-4">{COMPATIBILITY_MATRIX_LABELS.clickHint}</p>
       {/* Mobile: scroll hint */}
-      <div className="sm:hidden text-xs text-gray-500 mb-2 flex items-center gap-1" aria-hidden="true">
+      <div className="sm:hidden text-xs text-ui-muted mb-2 flex items-center gap-1" aria-hidden="true">
         <span>←</span>
         <span>{COMPATIBILITY_MATRIX_LABELS.swipeHint}</span>
         <span>→</span>
@@ -97,7 +97,7 @@ export function CompatibilityMatrixInteractive({
           <tr>
             <th scope="col" className="p-2"></th>
             {residents.map((r) => (
-              <th scope="col" key={r.id} className="p-2 text-center font-medium text-gray-700">
+              <th scope="col" key={r.id} className="p-2 text-center font-medium text-ui-muted">
                 <Link
                   href={`/residents/${r.id}`}
                   className="hover:text-aoz-primary transition-colors"
@@ -111,7 +111,7 @@ export function CompatibilityMatrixInteractive({
         <tbody>
           {residents.map((r1) => (
             <tr key={r1.id}>
-              <th scope="row" className="p-2 font-medium text-gray-700 text-left">
+              <th scope="row" className="p-2 font-medium text-ui-muted text-left">
                 <Link
                   href={`/residents/${r1.id}`}
                   className="hover:text-aoz-primary transition-colors"
@@ -129,11 +129,11 @@ export function CompatibilityMatrixInteractive({
                 return (
                   <td key={r2.id} className="p-2 text-center">
                     {r1.id === r2.id ? (
-                      <span className="text-gray-400" aria-hidden="true">-</span>
+                      <span className="text-ui-muted" aria-hidden="true">-</span>
                     ) : score === null ? (
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
-                        className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-gray-100 text-gray-500 text-xs hover:bg-gray-200 transition-colors cursor-pointer"
+                        className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-ui-subtle text-ui-muted text-xs hover:bg-ui-border transition-colors cursor-pointer"
                         aria-label={`Keine Bewertung: ${r1.code} und ${r2.code}`}
                       >
                         ?
@@ -174,7 +174,7 @@ export function CompatibilityMatrixInteractive({
       )}
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-500">
+      <div className="mt-4 flex flex-wrap gap-3 text-xs text-ui-muted">
         <span className="font-medium">{COMPATIBILITY_MATRIX_LABELS.legend}</span>
         <div className="flex items-center gap-1">
           <span className="w-4 h-4 rounded bg-score-excellent/15"></span>

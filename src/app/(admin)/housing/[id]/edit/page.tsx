@@ -37,10 +37,10 @@ export default async function EditHousingPage({ params }: Props) {
         >
           {HOUSING_EDIT_LABELS.backLink}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {HOUSING_EDIT_LABELS.title(unit.code)}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-ui-muted">
           {HOUSING_EDIT_LABELS.subtitle}
         </p>
       </div>
@@ -53,8 +53,8 @@ export default async function EditHousingPage({ params }: Props) {
 
         {/* Status — edit-only field: controls matching eligibility */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-1">{HOUSING_EDIT_LABELS.statusLabel}</h2>
-          <p className="text-sm text-gray-500 mb-4">{HOUSING_EDIT_LABELS.statusDescription}</p>
+          <h2 className="text-lg font-semibold text-ui-text mb-1">{HOUSING_EDIT_LABELS.statusLabel}</h2>
+          <p className="text-sm text-ui-muted mb-4">{HOUSING_EDIT_LABELS.statusDescription}</p>
           <select
             name="status"
             defaultValue={unit.status}
@@ -93,7 +93,7 @@ export default async function EditHousingPage({ params }: Props) {
         />
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {HOUSING_EDIT_LABELS.submit}
           </SubmitButton>

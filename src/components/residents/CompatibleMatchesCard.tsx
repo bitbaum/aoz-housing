@@ -31,24 +31,24 @@ export function CompatibleMatchesCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         Passende Optionen
       </h2>
 
       {/* Compatible Units */}
       {compatibleUnits.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">{COMPATIBLE_MATCHES_LABELS.unitsTitle}</h3>
+          <h3 className="text-sm font-medium text-ui-muted mb-3">{COMPATIBLE_MATCHES_LABELS.unitsTitle}</h3>
           <div className="space-y-2">
             {compatibleUnits.map(({ unit, fitScore, residents }) => (
               <Link
                 key={unit.id}
                 href={`/matching?resident=${residentId}`}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
               >
                 <div>
-                  <p className="font-medium text-gray-900">{unit.code}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="font-medium text-ui-text">{unit.code}</p>
+                  <p className="text-xs text-ui-muted">
                     {residents === 0 ? COMPATIBLE_MATCHES_LABELS.emptyUnit : COMPATIBLE_MATCHES_LABELS.residentCount(residents)}
                   </p>
                 </div>
@@ -64,21 +64,21 @@ export function CompatibleMatchesCard({
       {/* Compatible Unplaced Residents */}
       {compatibleResidents.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-3">{COMPATIBLE_MATCHES_LABELS.residentsTitle}</h3>
+          <h3 className="text-sm font-medium text-ui-muted mb-3">{COMPATIBLE_MATCHES_LABELS.residentsTitle}</h3>
           <div className="space-y-2">
             {compatibleResidents.map(({ resident: other, score }) => (
               <Link
                 key={other.id}
                 href={`/residents/${other.id}`}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm">
+                  <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm">
                     {other.code.slice(-3)}
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{other.code}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-ui-text">{other.code}</p>
+                    <p className="text-xs text-ui-muted">
                       {other.languages?.slice(0, DISPLAY_LIMITS.languagePreview).join(', ')}
                     </p>
                   </div>
@@ -89,7 +89,7 @@ export function CompatibleMatchesCard({
               </Link>
             ))}
           </div>
-          <p className="text-xs text-gray-500 mt-3">
+          <p className="text-xs text-ui-muted mt-3">
             {COMPATIBLE_MATCHES_LABELS.desc}
           </p>
         </div>

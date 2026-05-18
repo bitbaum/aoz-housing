@@ -42,9 +42,9 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
 
         return (
           <div key={section.id} className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{section.label}</h2>
+            <h2 className="text-lg font-semibold text-ui-text mb-4">{section.label}</h2>
             {section.description && (
-              <p className="text-sm text-gray-500 mb-4">{section.description}</p>
+              <p className="text-sm text-ui-muted mb-4">{section.description}</p>
             )}
 
             {isGridSection ? (
@@ -122,8 +122,8 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{RESIDENT_FORM_LABELS.medDocTitle}</h2>
-      <p className="text-sm text-gray-500 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{RESIDENT_FORM_LABELS.medDocTitle}</h2>
+      <p className="text-sm text-ui-muted mb-4">
         {RESIDENT_FORM_LABELS.medDocDesc}
       </p>
       <div className="space-y-4">
@@ -134,20 +134,20 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             value="true"
             checked={hasDoc}
             onChange={(e) => setHasDoc(e.target.checked)}
-            className="w-5 h-5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+            className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
           />
           <div>
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-ui-muted">
               {RESIDENT_FORM_LABELS.medDocCheckboxLabel}
             </span>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ui-muted">
               {RESIDENT_FORM_LABELS.medDocCheckboxDesc}
             </p>
           </div>
         </label>
 
         {hasDoc && (
-          <div className="pl-8 space-y-4 border-l-2 border-gray-200 ml-2">
+          <div className="pl-8 space-y-4 border-l-2 border-ui-border ml-2">
             <div>
               <label className="label">{RESIDENT_FORM_LABELS.medDocTypeLabel}</label>
               <div className="space-y-2">
@@ -158,9 +158,9 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
                       name="medicalDocType"
                       value={key}
                       defaultChecked={defaultValues.medicalDocType === key}
-                      className="w-4 h-4 border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                      className="w-4 h-4 border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                     />
-                    <span className="text-sm text-gray-700">{label}</span>
+                    <span className="text-sm text-ui-muted">{label}</span>
                   </label>
                 ))}
               </div>
@@ -189,7 +189,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
                 placeholder="z.B. Referenznummer, ausstellende Stelle..."
                 className="input"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-ui-muted mt-1">
                 Nur Verwaltungsnotizen, keine medizinischen Details
               </p>
             </div>

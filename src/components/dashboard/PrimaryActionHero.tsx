@@ -127,11 +127,11 @@ export function determinePrimaryAction({
 
 export function HeroAction({ action }: { action: PrimaryActionType }) {
   const colorStyles = {
-    critical: 'bg-status-error text-white',
-    checkin: 'bg-status-warning text-white',
-    place: 'bg-aoz-secondary text-white',
-    problem: 'bg-status-warning text-white',
-    allclear: 'bg-status-success text-white',
+    critical: 'bg-status-error text-ui-on-accent',
+    checkin: 'bg-status-warning text-ui-on-accent',
+    place: 'bg-aoz-secondary text-ui-on-accent',
+    problem: 'bg-status-warning text-ui-on-accent',
+    allclear: 'bg-status-success text-ui-on-accent',
   }
 
   const icons = {
@@ -145,24 +145,24 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   return (
     <Link
       href={action.href}
-      className={`block rounded-xl p-6 md:p-8 ${colorStyles[action.type]} shadow-sm hover:shadow-md transition-shadow`}
+      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} shadow-sm hover:shadow-md transition-shadow`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="text-4xl">{icons[action.type]}</span>
           <div>
             <h2 className="text-xl md:text-2xl font-bold">{action.title}</h2>
-            <p className="text-white/80 mt-1">{action.description}</p>
+            <p className="text-ui-on-accent/80 mt-1">{action.description}</p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-3">
-          <span className="px-4 py-2 bg-white/20 rounded-md font-semibold">
+          <span className="px-4 py-2 bg-ui-surface/20 rounded-md font-semibold">
             {action.buttonText} →
           </span>
         </div>
       </div>
       <div className="md:hidden mt-4">
-        <span className="inline-block px-4 py-2 bg-white/20 rounded-md font-semibold">
+        <span className="inline-block px-4 py-2 bg-ui-surface/20 rounded-md font-semibold">
           {action.buttonText} →
         </span>
       </div>
@@ -182,7 +182,7 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
   const incidentLabel = INCIDENT_TYPE_LABELS_SHORT[incidents[0].type] || incidents[0].type
 
   return (
-    <div className="bg-status-error text-white px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
+    <div className="bg-status-error text-ui-on-accent px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
       <div className="flex items-center gap-3">
         <span className="text-2xl">🚨</span>
         <div>
@@ -193,7 +193,7 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
       <div className="flex items-center gap-2 self-end sm:self-auto">
         <Link
           href={`/incidents/${incidents[0].id}`}
-          className="px-3 py-1 bg-white text-status-error rounded font-medium hover:bg-status-error/8"
+          className="px-3 py-1 bg-ui-surface text-status-error rounded font-medium hover:bg-status-error/8"
         >
           {DASHBOARD_LABELS.alertEdit}
         </Link>

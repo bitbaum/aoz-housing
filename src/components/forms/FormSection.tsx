@@ -18,9 +18,9 @@ export function FormSection({
   return (
     <div className={`card ${className}`}>
       <div className="mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{title}</h2>
         {description && (
-          <p className="text-sm text-gray-500 mt-1">{description}</p>
+          <p className="text-sm text-ui-muted mt-1">{description}</p>
         )}
       </div>
       <div className="space-y-4">{children}</div>
@@ -50,7 +50,7 @@ export function FormField({
         {required && <span className="text-status-error-text ml-1">*</span>}
       </label>
       {description && (
-        <p className="text-xs text-gray-500 mb-2">{description}</p>
+        <p className="text-xs text-ui-muted mb-2">{description}</p>
       )}
       {children}
       {error && <p role="alert" className="text-xs text-status-error-text mt-1">{error}</p>}

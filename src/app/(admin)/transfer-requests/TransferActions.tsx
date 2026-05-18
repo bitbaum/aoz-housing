@@ -36,13 +36,13 @@ export function TransferActions({ requestId }: TransferActionsProps) {
   }
 
   return (
-    <div className="space-y-3 pt-3 border-t border-gray-100">
+    <div className="space-y-3 pt-3 border-t border-ui-border">
       <textarea
         value={staffNotes}
         onChange={(e) => setStaffNotes(e.target.value)}
         placeholder={L.notesPlaceholder}
         rows={2}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
+        className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
       />
 
       {result?.error && (
@@ -60,7 +60,7 @@ export function TransferActions({ requestId }: TransferActionsProps) {
         <button
           onClick={() => handleAction('deny')}
           disabled={loading}
-          className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+          className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle disabled:opacity-50"
         >
           {loading ? L.processing : L.deny}
         </button>

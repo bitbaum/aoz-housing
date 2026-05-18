@@ -28,7 +28,7 @@ export function OverviewTab() {
     <div className="space-y-8">
       {/* How it Works */}
       <section className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
           <Target className="w-5 h-5 text-aoz-primary" />
           {ALGORITHM_OVERVIEW_LABELS.howItWorksTitle}
         </h2>
@@ -57,11 +57,11 @@ export function OverviewTab() {
 
       {/* Scientific Methodology Summary */}
       <section className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
           <Beaker className="w-5 h-5 text-aoz-primary" />
           {ALGORITHM_OVERVIEW_LABELS.scienceMethodTitle}
         </h2>
-        <div className="text-gray-600 space-y-2">
+        <div className="text-ui-muted space-y-2">
           <p>{ALGORITHM_OVERVIEW_LABELS.scienceMethodP1}</p>
           <p>{ALGORITHM_OVERVIEW_LABELS.scienceMethodP2}</p>
         </div>
@@ -69,7 +69,7 @@ export function OverviewTab() {
 
       {/* Dimensions with Visual Weight Bars */}
       <section className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
           <Layers className="w-5 h-5 text-aoz-primary" />
           {ALGORITHM_OVERVIEW_LABELS.dimensionsSectionTitle(DIMENSION_COUNT)}
         </h2>
@@ -92,7 +92,7 @@ export function OverviewTab() {
 
         {/* CSS-only weight visualization bars */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+          <h3 className="text-sm font-medium text-ui-muted uppercase tracking-wide">
             {ALGORITHM_OVERVIEW_LABELS.weightDistribution}
           </h3>
           {RESIDENT_DIMENSIONS.map((dim, i) => {
@@ -105,14 +105,14 @@ export function OverviewTab() {
             ]
             return (
               <div key={dim.id} className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 w-28 flex-shrink-0">{dim.label}</span>
-                <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
+                <span className="text-sm text-ui-muted w-28 flex-shrink-0">{dim.label}</span>
+                <div className="flex-1 h-5 bg-ui-subtle rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full ${barColors[i % barColors.length]}`}
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="text-sm font-semibold text-gray-700 w-10 text-right">{pct}%</span>
+                <span className="text-sm font-semibold text-ui-muted w-10 text-right">{pct}%</span>
               </div>
             )
           })}
@@ -121,12 +121,12 @@ export function OverviewTab() {
 
       {/* Score Scale */}
       <section className="card">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
           <Scale className="w-5 h-5 text-aoz-primary" />
           {ALGORITHM_OVERVIEW_LABELS.scoreInterpTitle}
         </h2>
 
-        <p className="text-gray-600 mb-6">
+        <p className="text-ui-muted mb-6">
           {ALGORITHM_OVERVIEW_LABELS.scoreInterpDesc}
         </p>
 
@@ -140,7 +140,7 @@ export function OverviewTab() {
       </section>
 
       {/* Version Footer */}
-      <div className="text-center text-sm text-gray-500 pt-4">
+      <div className="text-center text-sm text-ui-muted pt-4">
         {ALGORITHM_OVERVIEW_LABELS.lastUpdated}
       </div>
     </div>

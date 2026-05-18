@@ -196,15 +196,15 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.analytics}</h1>
-          <p className="text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.analytics}</h1>
+          <p className="text-ui-muted">
             {DASHBOARD_LABELS.analyticsPageSubtitle}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/satisfaction"
-            className="min-h-[44px] rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+            className="min-h-[44px] rounded-lg border border-ui-border bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
           >
             {FORM_LABELS.export}
           </a>
@@ -258,13 +258,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Conflict Hotspots */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {DASHBOARD_LABELS.analyticsHotspotTitle(days)}
           </h2>
           {hotspotUnits.length === 0 ? (
             <div className="text-center py-8">
               <span className="text-3xl mb-2 block" aria-hidden="true">✓</span>
-              <p className="text-gray-500">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
+              <p className="text-ui-muted">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -272,15 +272,15 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                 <Link
                   key={unit.id}
                   href={`/housing/${unit.id}`}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">{unit.code}</p>
-                    <p className="text-sm text-gray-500">{unit.address}</p>
+                    <p className="font-medium text-ui-text">{unit.code}</p>
+                    <p className="text-sm text-ui-muted">{unit.address}</p>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-status-warning-text">{count}</p>
-                    <p className="text-xs text-gray-500">{DASHBOARD_LABELS.analyticsConflictCountLabel}</p>
+                    <p className="text-xs text-ui-muted">{DASHBOARD_LABELS.analyticsConflictCountLabel}</p>
                   </div>
                 </Link>
               ))}
@@ -290,11 +290,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Conflict Types */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {DASHBOARD_LABELS.analyticsConflictTypesTitle(days)}
           </h2>
           {topIncidentTypes.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-ui-muted text-center py-8">
               {DASHBOARD_LABELS.analyticsNoConflictTypes}
             </p>
           ) : (
@@ -303,12 +303,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                 <div key={type} className="flex items-center gap-4">
                   <div className="flex-1">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-ui-text">
                         {getLabel(INCIDENT_TYPE_LABELS, type)}
                       </span>
-                      <span className="text-gray-500">{count}</span>
+                      <span className="text-ui-muted">{count}</span>
                     </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-2 bg-ui-border rounded-full overflow-hidden">
                       <div
                         className="h-full bg-aoz-primary"
                         style={{
@@ -325,11 +325,11 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
         {/* Placement End Reasons */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {DASHBOARD_LABELS.analyticsEndReasonsTitle}
           </h2>
           {endedPlacements.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="text-ui-muted text-center py-8">
               {DASHBOARD_LABELS.analyticsNoEndedPlacements}
             </p>
           ) : (
@@ -340,14 +340,14 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   <div key={reason} className="flex items-center gap-4">
                     <div className="flex-1">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-ui-text">
                           {getLabel(END_REASON_LABELS, reason)}
                         </span>
-                        <span className="text-gray-500">
+                        <span className="text-ui-muted">
                           {count} ({Math.round((count / endedPlacements.length) * 100)}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-2 bg-ui-border rounded-full overflow-hidden">
                         <div
                           className={`h-full ${
                             reason === 'CONFLICT'
@@ -406,12 +406,12 @@ function MetricCard({
 }) {
   const content = (
     <div className={`card ${href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-gray-900'}`}>
+      <p className="text-sm text-ui-muted">{label}</p>
+      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-ui-text'}`}>
         {value}
       </p>
       {subtitle && (
-        <p className={`text-sm mt-2 ${highlight ? 'text-status-warning-text' : 'text-gray-500'}`}>
+        <p className={`text-sm mt-2 ${highlight ? 'text-status-warning-text' : 'text-ui-muted'}`}>
           {subtitle}
         </p>
       )}

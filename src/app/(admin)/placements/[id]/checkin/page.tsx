@@ -54,10 +54,10 @@ export default async function NewCheckInPage({ params }: Props) {
         >
           {CHECKIN_FORM_LABELS.backLink(placement.resident.code)}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {CHECKIN_FORM_LABELS.title}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-ui-muted">
           {placement.resident.code} in {placement.housingUnit.code}
           {placement.spot && ` (${placement.spot.label || placement.spot.code})`}
           {' • '}{CHECKIN_FORM_LABELS.week(weeksSinceStart)}
@@ -67,13 +67,13 @@ export default async function NewCheckInPage({ params }: Props) {
       {/* Previous Check-ins Summary */}
       {checkInCount > 0 && (
         <div className="card mb-6 bg-status-info/8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
+          <h2 className="text-lg font-semibold text-ui-text mb-3">
             {CHECKIN_FORM_LABELS.previousTitle}
           </h2>
           <div className="space-y-2">
             {placement.checkIns.slice(0, 3).map((checkIn) => (
               <div key={checkIn.id} className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">
+                <span className="text-ui-muted">
                   {CHECK_IN_TYPE_LABELS[checkIn.checkInType] || checkIn.checkInType}
                   {' • '}{CHECKIN_FORM_LABELS.week(checkIn.weekNumber ?? 0)}
                 </span>
@@ -135,7 +135,7 @@ export default async function NewCheckInPage({ params }: Props) {
                     required
                     className="sr-only peer"
                   />
-                  <div className="text-center p-3 rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/10 hover:bg-gray-50 transition-colors">
+                  <div className="text-center p-3 rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/10 hover:bg-ui-subtle transition-colors">
                     <div className="text-2xl mb-1">
                       {score === 1 ? '😢' : score === 2 ? '😕' : score === 3 ? '😐' : score === 4 ? '🙂' : '😊'}
                     </div>
@@ -144,7 +144,7 @@ export default async function NewCheckInPage({ params }: Props) {
                 </label>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ui-muted mt-1">
               {CHECKIN_FORM_LABELS.scaleHint}
             </p>
           </div>
@@ -234,9 +234,9 @@ export default async function NewCheckInPage({ params }: Props) {
                   type="checkbox"
                   name="isAnonymous"
                   value="true"
-                  className="rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                  className="rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-ui-muted">
                   {CHECKIN_FORM_LABELS.anonymousLabel}
                 </span>
               </label>
@@ -244,7 +244,7 @@ export default async function NewCheckInPage({ params }: Props) {
           </div>
 
           {/* Submit */}
-          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link
               href={`/residents/${placement.residentId}`}
               className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"

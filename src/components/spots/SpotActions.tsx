@@ -39,7 +39,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           <input type="hidden" name="status" value="MAINTENANCE" />
           <button
             type="submit"
-            className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-status-warning hover:bg-status-warning/10 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
+            className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-ui-muted hover:text-status-warning hover:bg-status-warning/10 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-warning"
             title={SPOT_ACTIONS_LABELS.setMaintenance}
             aria-label={SPOT_ACTIONS_LABELS.setMaintenance}
           >
@@ -55,7 +55,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           <input type="hidden" name="status" value="AVAILABLE" />
           <button
             type="submit"
-            className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-status-success hover:bg-status-success/10 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-success"
+            className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-ui-muted hover:text-status-success hover:bg-status-success/10 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-success"
             title={SPOT_ACTIONS_LABELS.setAvailable}
             aria-label={SPOT_ACTIONS_LABELS.setAvailable}
           >
@@ -81,7 +81,7 @@ export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
           >
             <button
               type="button"
-              className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-gray-500 hover:text-status-error hover:bg-status-error/8 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error"
+              className="p-2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center text-ui-muted hover:text-status-error hover:bg-status-error/8 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error"
               title={UI_LABELS.delete}
               aria-label={UI_LABELS.delete}
             >

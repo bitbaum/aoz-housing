@@ -90,11 +90,11 @@ export default async function PortalHousingPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="text-sm text-gray-500 hover:text-aoz-primary min-h-[44px] inline-flex items-center">
+        <Link href="/portal" className="text-sm text-ui-muted hover:text-aoz-primary min-h-[44px] inline-flex items-center">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.housing}</h1>
-        <p className="text-gray-500 mt-1">{PORTAL_LABELS.pages.housingSubtitle}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.housing}</h1>
+        <p className="text-ui-muted mt-1">{PORTAL_LABELS.pages.housingSubtitle}</p>
       </div>
 
       <PortalHousingBrowse results={results} />

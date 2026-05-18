@@ -26,8 +26,8 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
     <div className="card mb-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.dashboard.housing}</h2>
-          <p className="text-gray-500">{housingUnit?.address}</p>
+          <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.housing}</h2>
+          <p className="text-ui-muted">{housingUnit?.address}</p>
         </div>
         <span className="badge badge-active">{PORTAL_LABELS.dashboard.active}</span>
       </div>
@@ -54,8 +54,8 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
       </div>
 
       {/* House Rules Summary */}
-      <div className="pt-4 border-t border-gray-100">
-        <h3 className="font-medium text-gray-900 mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
+      <div className="pt-4 border-t border-ui-border">
+        <h3 className="font-medium text-ui-text mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
         <div className="flex flex-wrap gap-3 text-sm">
           {housingUnit?.quietHours && (
             <span className="px-3 py-1 bg-aoz-secondary/10 text-aoz-secondary rounded-full">
@@ -72,7 +72,7 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
           <span className={`px-3 py-1 rounded-full ${
             housingUnit?.petsAllowed
               ? 'bg-status-success/10 text-status-success-text'
-              : 'bg-gray-50 text-gray-600'
+              : 'bg-ui-subtle text-ui-muted'
           }`}>
             {housingUnit?.petsAllowed ? PORTAL_LABELS.dashboard.petsAllowed : PORTAL_LABELS.dashboard.noPets}
           </span>
@@ -93,10 +93,10 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
 
   return (
     <div className="card mb-6 py-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-1">
+      <h2 className="text-lg font-semibold text-ui-text mb-1">
         {PORTAL_LABELS.dashboard.onboarding.title}
       </h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-ui-muted text-sm mb-6">
         {PORTAL_LABELS.dashboard.onboarding.subtitle}
       </p>
 
@@ -114,7 +114,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
                     ? 'bg-status-success/15 text-status-success-text'
                     : isActive
                       ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
-                      : 'bg-gray-100 text-gray-400'
+                      : 'bg-ui-subtle text-ui-muted'
                 }`}>
                   {done ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,12 +125,12 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
                   )}
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-status-success/30' : 'bg-gray-200'}`} />
+                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-status-success/30' : 'bg-ui-border'}`} />
                 )}
               </div>
               <div className="pt-1">
                 <p className={`text-sm font-medium ${
-                  done ? 'text-status-success-text' : isActive ? 'text-aoz-primary' : 'text-gray-500'
+                  done ? 'text-status-success-text' : isActive ? 'text-aoz-primary' : 'text-ui-muted'
                 }`}>
                   {label}
                 </p>
@@ -142,7 +142,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
 
       {/* CTA */}
       <div className="bg-aoz-primary/5 rounded-lg p-4">
-        <p className="text-sm text-gray-600 mb-3">
+        <p className="text-sm text-ui-muted mb-3">
           {preferencesCompleted
             ? PORTAL_LABELS.dashboard.onboarding.browseHousingHint
             : PORTAL_LABELS.dashboard.onboarding.completePreferencesHint}
@@ -158,7 +158,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
       </div>
 
       {/* Contact info */}
-      <p className="text-sm text-gray-500 mt-4">
+      <p className="text-sm text-ui-muted mt-4">
         {PORTAL_LABELS.dashboard.noHousingContact}
       </p>
     </div>
@@ -167,9 +167,9 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
 
 function InfoBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-center p-3 bg-gray-50 rounded-lg">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-semibold text-gray-900">{value}</p>
+    <div className="text-center p-3 bg-ui-subtle rounded-lg">
+      <p className="text-sm text-ui-muted">{label}</p>
+      <p className="font-semibold text-ui-text">{value}</p>
     </div>
   )
 }

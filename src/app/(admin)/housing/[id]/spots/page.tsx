@@ -73,10 +73,10 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             >
               {HOUSING_SPOTS_LABELS.backLink}
             </Link>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
               {isNewUnit ? HOUSING_SPOTS_LABELS.titleNew : HOUSING_SPOTS_LABELS.titleManage}: {unit.code}
             </h1>
-            <p className="text-gray-500">{unit.address}</p>
+            <p className="text-ui-muted">{unit.address}</p>
           </div>
           {isNewUnit && unit.spots.length > 0 && (
             <Link href={`/housing/${id}`} className="btn-primary min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto">
@@ -100,16 +100,16 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               </p>
 
               {/* Hierarchy Explanation */}
-              <div className="bg-white p-4 rounded-lg border border-status-info/25 mb-4">
-                <p className="text-sm font-semibold text-gray-700 mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="bg-ui-surface p-4 rounded-lg border border-status-info/25 mb-4">
+                <p className="text-sm font-semibold text-ui-muted mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
+                <div className="flex items-center gap-2 text-sm text-ui-muted">
                   <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBuilding}</span>
                   <span>→</span>
                   <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyRoom}</span>
                   <span>→</span>
                   <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBeds}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-ui-muted mt-2">
                   {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}<br/>
                   {HOUSING_SPOTS_LABELS.hierarchyBedDesc}
                 </p>
@@ -118,17 +118,17 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               {/* Quick Start Steps */}
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">1</span>
                   <span className="text-status-info-text">
-                    {HOUSING_SPOTS_LABELS.step1}<code className="bg-white px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
+                    {HOUSING_SPOTS_LABELS.step1}<code className="bg-ui-surface px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
                   <span className="text-status-info-text">{HOUSING_SPOTS_LABELS.step2}</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">3</span>
                   <span className="text-status-info-text">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
                 </div>
               </div>
@@ -141,7 +141,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
       <div className="card mb-6">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">➕</span>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-ui-text">
             {isNewUnit && unit.spots.length === 0 ? HOUSING_SPOTS_LABELS.addTitleNew : HOUSING_SPOTS_LABELS.addTitle}
           </h2>
         </div>
@@ -285,9 +285,9 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   type="checkbox"
                   name="requiresMedicalDocs"
                   value="true"
-                  className="w-4 h-4 rounded border-gray-300 text-aoz-primary"
+                  className="w-4 h-4 rounded border-ui-border-strong text-aoz-primary"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-ui-muted">
                   {HOUSING_SPOTS_LABELS.requiresMedDocs}
                 </span>
               </label>
@@ -301,12 +301,12 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
       {/* Existing Spots */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {HOUSING_SPOTS_LABELS.existingTitle} ({unit.spots.length})
         </h2>
 
         {unit.spots.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-ui-muted">
             <span className="text-3xl mb-2 block">📦</span>
             {HOUSING_SPOTS_LABELS.emptySpots}
           </div>
@@ -316,16 +316,16 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             {rooms.map((room) => (
               <div
                 key={room.id}
-                className="border border-gray-200 rounded-lg overflow-hidden"
+                className="border border-ui-border rounded-lg overflow-hidden"
               >
-                <div className="bg-gray-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="bg-ui-subtle px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{SPOT_TYPE_ICONS.ROOM}</span>
                     <div>
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className="font-medium text-ui-text">
                         {room.label || room.code}
                       </h4>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-ui-muted">
                         {room.squareMeters && `${room.squareMeters}m² · `}
                         {room.childSpots?.length || 0} Betten
                         {room.floor !== null && ` · ${room.floor}. Stock`}
@@ -350,7 +350,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
             {/* Standalone spots */}
             {standaloneSpots.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                <h3 className="text-sm font-medium text-ui-muted uppercase tracking-wide">
                   {HOUSING_SPOTS_LABELS.standaloneSection}
                 </h3>
                 {standaloneSpots.map((spot) => (
@@ -395,7 +395,7 @@ function SpotRow({
           ? 'bg-status-info/8 border-status-info/25'
           : spot.status === 'AVAILABLE'
             ? 'bg-status-success/10 border-status-success/25'
-            : 'bg-gray-50 border-gray-200'
+            : 'bg-ui-subtle border-ui-border'
       } ${compact ? 'py-2' : ''}`}
     >
       <div className="flex items-center gap-3">
@@ -403,12 +403,12 @@ function SpotRow({
         <div>
           <div className="flex items-center gap-2">
             <span
-              className={`font-medium ${compact ? 'text-sm' : ''} text-gray-900`}
+              className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}
             >
               {spot.label || spot.code}
             </span>
             {spot.requiresMedicalDocs && (
-              <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded">
+              <span className="text-xs px-1.5 py-0.5 bg-aoz-primary/10 text-aoz-primary rounded">
                 Med.
               </span>
             )}
@@ -421,7 +421,7 @@ function SpotRow({
               {activePlacement.resident.code}
             </Link>
           ) : (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-ui-muted">
               {SPOT_STATUS_LABELS[spot.status as keyof typeof SPOT_STATUS_LABELS]}
             </span>
           )}

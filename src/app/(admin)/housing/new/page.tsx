@@ -19,10 +19,10 @@ export default function NewHousingPage() {
         >
           {HOUSING_NEW_LABELS.backLink}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {HOUSING_NEW_LABELS.title}
         </h1>
-        <p className="text-gray-500">
+        <p className="text-ui-muted">
           {HOUSING_NEW_LABELS.subtitle}
         </p>
       </div>
@@ -30,17 +30,17 @@ export default function NewHousingPage() {
       {/* Process Indicator */}
       <div className="mb-6 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-aoz-primary text-white flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 rounded-full bg-aoz-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
             1
           </div>
-          <span className="text-sm font-medium text-gray-900">{HOUSING_NEW_LABELS.step1Label}</span>
+          <span className="text-sm font-medium text-ui-text">{HOUSING_NEW_LABELS.step1Label}</span>
         </div>
-        <div className="flex-1 h-0.5 bg-gray-200" />
+        <div className="flex-1 h-0.5 bg-ui-border" />
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-sm font-medium">
+          <div className="w-8 h-8 rounded-full bg-ui-border text-ui-muted flex items-center justify-center text-sm font-medium">
             2
           </div>
-          <span className="text-sm text-gray-500">{HOUSING_NEW_LABELS.step2Label}</span>
+          <span className="text-sm text-ui-muted">{HOUSING_NEW_LABELS.step2Label}</span>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ export default function NewHousingPage() {
         <HousingFormFields />
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {HOUSING_NEW_LABELS.submit}
           </SubmitButton>

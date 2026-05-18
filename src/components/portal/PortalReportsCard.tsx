@@ -17,14 +17,14 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.dashboard.myReports}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.myReports}</h2>
         <Link href="/portal/report" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.dashboard.newReport}
         </Link>
       </div>
 
       {incidents.length === 0 ? (
-        <p className="text-gray-500 text-center py-6">
+        <p className="text-ui-muted text-center py-6">
           {PORTAL_LABELS.dashboard.noReports}
         </p>
       ) : (
@@ -32,18 +32,18 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
           {incidents.map((incident) => (
             <div
               key={incident.id}
-              className="p-3 bg-gray-50 rounded-lg"
+              className="p-3 bg-ui-subtle rounded-lg"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="font-medium text-gray-900 text-sm">
+                  <p className="font-medium text-ui-text text-sm">
                     {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-ui-muted mt-1">
                     {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}
                     {incident.description.length > 50 && '...'}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-ui-muted mt-1">
                     {incident.resolvedAt ? PORTAL_LABELS.dashboard.reportResolved : PORTAL_LABELS.dashboard.reportPending}
                   </p>
                 </div>

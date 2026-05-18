@@ -52,7 +52,7 @@ export function PlacementCheckIn({
   if (saved !== null) {
     return (
       <div className="text-right">
-        <p className="text-xs text-gray-500">Check-in</p>
+        <p className="text-xs text-ui-muted">Check-in</p>
         <span className="text-lg">{EMOJIS[saved - 1]}</span>
         <p className="text-xs text-status-success-text">{PLACEMENT_LIST_LABELS.checkInSaved}</p>
       </div>
@@ -64,10 +64,10 @@ export function PlacementCheckIn({
     return (
       <button
         onClick={() => setShowTapper(true)}
-        className="text-right hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
+        className="text-right hover:bg-ui-subtle px-3 py-2 rounded-lg transition-colors"
         title={PLACEMENT_LIST_LABELS.checkInStart}
       >
-        <p className="text-xs text-gray-400">{PLACEMENT_LIST_LABELS.checkInNone}</p>
+        <p className="text-xs text-ui-muted">{PLACEMENT_LIST_LABELS.checkInNone}</p>
         <p className="text-xs text-aoz-primary mt-0.5">{PLACEMENT_LIST_LABELS.checkInCapture}</p>
       </button>
     )
@@ -78,13 +78,13 @@ export function PlacementCheckIn({
     return (
       <button
         onClick={() => setShowTapper(true)}
-        className="text-right hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors"
+        className="text-right hover:bg-ui-subtle px-3 py-2 rounded-lg transition-colors"
         title={PLACEMENT_LIST_LABELS.checkInUpdate}
       >
-        <p className="text-xs text-gray-500">Check-in</p>
+        <p className="text-xs text-ui-muted">Check-in</p>
         <div className="flex items-center gap-2 justify-end">
           <span className="text-lg">{EMOJIS[lastSatisfaction - 1]}</span>
-          <span className="text-xs text-gray-500">vor {daysSinceCheckIn}d</span>
+          <span className="text-xs text-ui-muted">vor {daysSinceCheckIn}d</span>
         </div>
       </button>
     )
@@ -93,7 +93,7 @@ export function PlacementCheckIn({
   // Overdue or no check-in — show emoji tapper
   return (
     <div className={`px-3 py-2 rounded-lg ${isOverdue ? 'bg-status-warning/10' : ''}`}>
-      <p className={`text-xs mb-1 ${isOverdue ? 'text-status-warning font-medium' : 'text-gray-500'}`}>
+      <p className={`text-xs mb-1 ${isOverdue ? 'text-status-warning font-medium' : 'text-ui-muted'}`}>
         {isOverdue ? PLACEMENT_LIST_LABELS.checkInOverdue : 'Check-in'}
       </p>
       <div className={`flex gap-1 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -110,7 +110,7 @@ export function PlacementCheckIn({
         ))}
       </div>
       {lastSatisfaction && (
-        <p className="text-xs text-gray-400 mt-0.5">
+        <p className="text-xs text-ui-muted mt-0.5">
           Letzter: {EMOJIS[lastSatisfaction - 1]} vor {daysSinceCheckIn}d
         </p>
       )}

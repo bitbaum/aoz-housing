@@ -75,8 +75,8 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
           const newVal = (newResident as Record<string, unknown>)[attr.key]
 
           return (
-            <div key={attr.key} className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-xs font-medium text-gray-600">{attr.label}</span>
+            <div key={attr.key} className="flex items-center justify-between py-2 border-b border-ui-border">
+              <span className="text-xs font-medium text-ui-muted">{attr.label}</span>
               <div className="flex items-center gap-3 text-xs">
                 <span className="text-aoz-secondary bg-aoz-secondary/10 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
                   Ø {attr.type === 'numeric'
@@ -101,15 +101,15 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
       <div className="hidden sm:block overflow-x-auto -mx-2 px-2">
         <table className="w-full text-xs border-collapse">
           <thead>
-            <tr className="bg-gray-100">
-              <th scope="col" className="p-1.5 text-left font-semibold text-gray-600 border-b w-20">Attribut</th>
+            <tr className="bg-ui-subtle">
+              <th scope="col" className="p-1.5 text-left font-semibold text-ui-muted border-b w-20">Attribut</th>
               {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => (
-                <th scope="col" key={r.id} className="p-1.5 text-center font-medium text-gray-500 border-b" style={{ minWidth: '50px' }}>
+                <th scope="col" key={r.id} className="p-1.5 text-center font-medium text-ui-muted border-b" style={{ minWidth: '50px' }}>
                   {r.code.slice(-3)}
                 </th>
               ))}
               {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (
-                <th scope="col" className="p-1.5 text-center text-gray-500 border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
+                <th scope="col" className="p-1.5 text-center text-ui-muted border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
               )}
               <th scope="col" className="p-1.5 text-center font-semibold text-aoz-secondary border-b bg-aoz-secondary/10">Ø</th>
               <th scope="col" className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
@@ -123,17 +123,17 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                 : profile[attr.dominantKey as string]
 
               return (
-                <tr key={attr.key} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="p-1.5 font-medium text-gray-600">{attr.label}</td>
+                <tr key={attr.key} className="border-b border-ui-border hover:bg-ui-subtle/50">
+                  <td className="p-1.5 font-medium text-ui-muted">{attr.label}</td>
                   {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => {
                     const val = (r as Record<string, unknown>)[attr.key] as string | number | null
                     return (
-                      <td key={r.id} className="p-1.5 text-center text-gray-500">
+                      <td key={r.id} className="p-1.5 text-center text-ui-muted">
                         {getFormattedValue(val, attr)}
                       </td>
                     )
                   })}
-                  {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && <td className="p-1.5 text-center text-gray-400">…</td>}
+                  {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && <td className="p-1.5 text-center text-ui-muted">…</td>}
                   <td className="p-1.5 text-center font-medium bg-aoz-secondary/10 text-aoz-secondary">
                     {attr.type === 'numeric'
                       ? (avgValue as number | null)?.toFixed(1) || '–'

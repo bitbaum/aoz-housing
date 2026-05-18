@@ -87,7 +87,7 @@ export function ReportForm({ roommates }: Props) {
     const R = PORTAL_LABELS.report
     return (
       <div className="space-y-4">
-        <div className="card bg-gradient-to-br from-green-50 to-emerald-50 border-status-success/25">
+        <div className="card border-status-success/25 bg-status-success/8">
           <div className="text-center py-6">
             <span className="text-5xl mb-4 block">✓</span>
             <h2 className="text-xl font-semibold text-status-success-text mb-2">
@@ -118,14 +118,14 @@ export function ReportForm({ roommates }: Props) {
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.quickTitle}</h3>
-            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.quickSubtitle}</p>
+            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.quickTitle}</h3>
+            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.quickSubtitle}</p>
           </div>
           {activeTemplate && (
             <button
               type="button"
               onClick={() => { setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1) }}
-              className="text-sm text-gray-500 hover:text-gray-700 min-h-[44px]"
+              className="text-sm text-ui-muted hover:text-ui-muted min-h-[44px]"
             >
               {PORTAL_LABELS.report.resetTemplate}
             </button>
@@ -175,9 +175,9 @@ export function ReportForm({ roommates }: Props) {
         </div>
       </div>
 
-      <div className="mb-6 p-3 rounded-lg border border-gray-200 bg-gray-50">
-        <h3 className="text-sm font-semibold text-gray-900 mb-1">{PORTAL_LABELS.report.transparency.title}</h3>
-        <p className="text-xs text-gray-600">
+      <div className="mb-6 p-3 rounded-lg border border-ui-border bg-ui-subtle">
+        <h3 className="text-sm font-semibold text-ui-text mb-1">{PORTAL_LABELS.report.transparency.title}</h3>
+        <p className="text-xs text-ui-muted">
           {PORTAL_LABELS.report.transparency.before}{' '}
           <strong>{PORTAL_LABELS.report.transparency.open}</strong>{' '}
           {PORTAL_LABELS.report.transparency.middle}{' '}
@@ -197,8 +197,8 @@ export function ReportForm({ roommates }: Props) {
         >
           <span className="text-4xl">🔧</span>
           <div>
-            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.categoryMaintenance}</h3>
-            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.categoryMaintenanceDesc}</p>
+            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.categoryMaintenance}</h3>
+            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.categoryMaintenanceDesc}</p>
           </div>
         </button>
         <button
@@ -210,8 +210,8 @@ export function ReportForm({ roommates }: Props) {
         >
           <span className="text-4xl">💬</span>
           <div>
-            <h3 className="font-semibold text-gray-900">{PORTAL_LABELS.report.categoryConflict}</h3>
-            <p className="text-sm text-gray-500">{PORTAL_LABELS.report.categoryConflictDesc}</p>
+            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.categoryConflict}</h3>
+            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.categoryConflictDesc}</p>
           </div>
         </button>
       </div>
@@ -219,11 +219,11 @@ export function ReportForm({ roommates }: Props) {
       {/* Dynamic Form */}
       {category && (
         <div ref={formRef} className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {category === 'MAINTENANCE' ? PORTAL_LABELS.report.titleMaintenance : PORTAL_LABELS.report.titleConflict}
           </h2>
           {category === 'INTERPERSONAL' && (
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-ui-muted mb-4">
               {PORTAL_LABELS.report.conflictSubtitle}
             </p>
           )}
@@ -273,7 +273,7 @@ export function ReportForm({ roommates }: Props) {
                   ))}
                   <option value="external">{PORTAL_LABELS.report.involvedExternal}</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-ui-muted mt-1">
                   {PORTAL_LABELS.report.confidentialNote}
                 </p>
               </div>
@@ -327,13 +327,13 @@ export function ReportForm({ roommates }: Props) {
                       defaultChecked={defaults.severity ? sev.value === defaults.severity : sev.value === 'MEDIUM'}
                       className="sr-only peer"
                     />
-                    <div className="py-3 px-2 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
+                    <div className="py-3 px-2 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                       {'icon' in sev && <span className="text-xl block mb-1">{sev.icon}</span>}
                       <span className={`block ${'desc' in sev ? 'text-sm font-medium' : 'text-xs'}`}>
                         {sev.label}
                       </span>
                       {'desc' in sev && (
-                        <span className="text-xs text-gray-500">{sev.desc}</span>
+                        <span className="text-xs text-ui-muted">{sev.desc}</span>
                       )}
                     </div>
                   </label>
@@ -348,9 +348,9 @@ export function ReportForm({ roommates }: Props) {
                   <input
                     type="checkbox"
                     name="requestMediation"
-                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-aoz-primary focus:ring-aoz-primary"
+                    className="w-5 h-5 mt-0.5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
                   />
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-ui-muted">
                     {PORTAL_LABELS.report.mediationLabel}
                   </span>
                 </label>

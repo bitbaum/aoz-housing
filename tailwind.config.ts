@@ -34,6 +34,7 @@ const config: Config = {
           'text':          'rgb(var(--color-ui-text) / <alpha-value>)',
           'muted':         'rgb(var(--color-ui-muted) / <alpha-value>)',
           'inverse':       'rgb(var(--color-ui-inverse) / <alpha-value>)',
+          'on-accent':     'rgb(var(--color-ui-on-accent) / <alpha-value>)',
         },
         // Compatibility score colors (5-tier system)
         'score': {
@@ -47,6 +48,7 @@ const config: Config = {
           'low-text':       'rgb(var(--color-score-low-text) / <alpha-value>)',
           'critical':       'rgb(var(--color-score-critical) / <alpha-value>)',
           'critical-text':  'rgb(var(--color-score-critical-text) / <alpha-value>)',
+          'contrast':       'rgb(var(--color-score-contrast) / <alpha-value>)',
         },
         // Incident severity colors
         'severity': {

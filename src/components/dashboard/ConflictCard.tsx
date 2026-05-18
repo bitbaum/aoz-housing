@@ -36,7 +36,7 @@ export function ConflictCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{ALGORITHM_ACCURACY_LABELS.conflictCardTitle}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{ALGORITHM_ACCURACY_LABELS.conflictCardTitle}</h2>
 
       {/* Main stat */}
       <Link href="/incidents?category=INTERPERSONAL" className="block mb-4 group">
@@ -44,10 +44,10 @@ export function ConflictCard({
           <span className={`text-3xl font-bold ${getConflictColor(activeConflicts)}`}>
             {activeConflicts}
           </span>
-          <span className="text-gray-500 text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardActiveSuffix}</span>
+          <span className="text-ui-muted text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardActiveSuffix}</span>
         </div>
         {oldestConflictDays !== undefined && activeConflicts > 0 && (
-          <p className="text-sm text-gray-500 mt-1 group-hover:text-gray-700">
+          <p className="text-sm text-ui-muted mt-1 group-hover:text-ui-muted">
             {ALGORITHM_ACCURACY_LABELS.conflictCardOldest(oldestConflictDays)}
           </p>
         )}
@@ -55,18 +55,18 @@ export function ConflictCard({
 
       {/* Hotspot units */}
       {hasHotspots && (
-        <div className="border-t border-gray-100 pt-4 mt-4">
-          <p className="text-sm font-medium text-gray-700 mb-3">{ALGORITHM_ACCURACY_LABELS.conflictCardHotspots}</p>
+        <div className="border-t border-ui-border pt-4 mt-4">
+          <p className="text-sm font-medium text-ui-muted mb-3">{ALGORITHM_ACCURACY_LABELS.conflictCardHotspots}</p>
           <div className="space-y-2">
             {hotspotUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map((unit) => (
               <Link
                 key={unit.id}
                 href={`/housing/${unit.id}`}
-                className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between py-2 px-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors"
               >
                 <div>
-                  <span className="font-medium text-gray-900 text-sm">{unit.code}</span>
-                  <span className="text-gray-500 text-sm ml-2">{unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}</span>
+                  <span className="font-medium text-ui-text text-sm">{unit.code}</span>
+                  <span className="text-ui-muted text-sm ml-2">{unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}</span>
                 </div>
                 <span className="text-sm text-status-warning font-medium">
                   {ALGORITHM_ACCURACY_LABELS.conflictCardConflictCount(unit.conflicts)}
@@ -78,10 +78,10 @@ export function ConflictCard({
       )}
 
       {/* Recent trend */}
-      <div className="border-t border-gray-100 pt-4 mt-4">
+      <div className="border-t border-ui-border pt-4 mt-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">{ALGORITHM_ACCURACY_LABELS.conflictCardLast7Days}</span>
-          <span className={recentConflicts === 0 ? 'text-status-success' : 'text-gray-900'}>
+          <span className="text-ui-muted">{ALGORITHM_ACCURACY_LABELS.conflictCardLast7Days}</span>
+          <span className={recentConflicts === 0 ? 'text-status-success' : 'text-ui-text'}>
             {recentConflicts === 0 ? ALGORITHM_ACCURACY_LABELS.conflictCardNoneNew : ALGORITHM_ACCURACY_LABELS.conflictCardNewCount(recentConflicts)}
           </span>
         </div>
@@ -97,7 +97,7 @@ export function ConflictCard({
 
       <Link
         href="/incidents"
-        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
+        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-aoz-primary hover:underline"
       >
         {ALGORITHM_ACCURACY_LABELS.conflictCardViewAll}
       </Link>

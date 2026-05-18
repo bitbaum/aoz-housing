@@ -71,14 +71,14 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
         <div className="card text-center py-12">
           {residents.length === 0 ? (
             <>
-              <p className="text-gray-500 mb-3">{RESIDENT_LIST_LABELS.emptyDefault}</p>
+              <p className="text-ui-muted mb-3">{RESIDENT_LIST_LABELS.emptyDefault}</p>
               <a href="/residents/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
                 Ersten Bewohner erfassen
               </a>
             </>
           ) : (
             <>
-              <p className="text-gray-500 mb-3">{RESIDENT_LIST_LABELS.emptyFiltered}</p>
+              <p className="text-ui-muted mb-3">{RESIDENT_LIST_LABELS.emptyFiltered}</p>
               <button
                 onClick={() => { setSearch(''); setStatusFilter('') }}
                 className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
@@ -116,12 +116,12 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
       <Link href={`/residents/${resident.id}`} className="block">
         <div className="flex items-start justify-between mb-3 pr-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+            <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
               {resident.code.slice(-3)}
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">{resident.code}</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="font-semibold text-ui-text">{resident.code}</h3>
+              <p className="text-sm text-ui-muted">
                 {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
                 {getLabel(GENDER_LABELS_SHORT, resident.gender)}
               </p>
@@ -134,7 +134,7 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
 
         <div className="space-y-2 text-sm">
           {currentPlacement ? (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-ui-muted">
               <span>🏠</span>
               <span>{currentPlacement.housingUnit.code}</span>
             </div>
@@ -146,15 +146,15 @@ function ResidentCard({ resident }: { resident: ResidentListItem }) {
           )}
 
           {languages && (
-            <div className="flex items-center gap-2 text-gray-600">
+            <div className="flex items-center gap-2 text-ui-muted">
               <span>🗣️</span>
               <span>{languages}</span>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-500">
+        <div className="flex items-center justify-between pt-3 mt-3 border-t border-ui-border">
+          <span className="text-xs text-ui-muted">
             Erfasst: {formatDate(resident.createdAt)}
           </span>
           {recentIncidents > 0 && (

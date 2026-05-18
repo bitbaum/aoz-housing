@@ -135,10 +135,10 @@ export const OCCUPANCY_COLORS = {
 } as const
 
 export const INCIDENT_BG_COLORS = {
-  severe: 'bg-red-50',
-  moderate: 'bg-amber-50',
-  mild: 'bg-yellow-50',
-  none: 'bg-gray-50',
+  severe: 'bg-status-error/8',
+  moderate: 'bg-status-warning/8',
+  mild: 'bg-status-warning/8',
+  none: 'bg-ui-subtle',
 } as const
 
 export const HARMONY_LABELS: Record<HarmonyLevel, string> = {

@@ -107,15 +107,15 @@ export function AIChatInterface() {
               <Bot className="w-6 h-6 text-aoz-primary" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{AI_ASSISTANT_LABELS.componentTitle}</p>
-              <p className="text-sm text-gray-500 mt-1">{AI_ASSISTANT_LABELS.componentSubtitle}</p>
+              <p className="font-semibold text-ui-text">{AI_ASSISTANT_LABELS.componentTitle}</p>
+              <p className="text-sm text-ui-muted mt-1">{AI_ASSISTANT_LABELS.componentSubtitle}</p>
             </div>
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">
               {AI_SUGGESTED_QUESTIONS.map(q => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="text-sm px-3 py-2 rounded-lg border border-gray-200 hover:border-aoz-primary hover:text-aoz-primary hover:bg-aoz-accent transition-colors text-gray-600 text-left"
+                  className="text-sm px-3 py-2 rounded-lg border border-ui-border hover:border-aoz-primary hover:text-aoz-primary hover:bg-aoz-accent transition-colors text-ui-muted text-left"
                 >
                   {q}
                 </button>
@@ -135,12 +135,12 @@ export function AIChatInterface() {
             </div>
             <div className="flex-1 min-w-0">
               {streamingText ? (
-                <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
+                <div className="prose prose-sm max-w-none text-ui-text whitespace-pre-wrap">
                   {streamingText}
                   <span className="inline-block w-1 h-4 bg-aoz-primary ml-0.5 animate-pulse align-middle" />
                 </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-ui-muted">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Daten werden abgerufen…
                 </div>
@@ -153,7 +153,7 @@ export function AIChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="mt-4 flex gap-2 items-end border-t border-gray-100 pt-4">
+      <div className="mt-4 flex gap-2 items-end border-t border-ui-border pt-4">
         <textarea
           ref={textareaRef}
           value={input}
@@ -198,8 +198,8 @@ function MessageBubble({ message }: { message: Message }) {
       <div
         className={`flex-1 min-w-0 rounded-lg px-4 py-3 text-sm ${
           isUser
-            ? 'bg-aoz-secondary text-white max-w-[80%] ml-auto'
-            : 'bg-gray-50 text-gray-800 border border-gray-100'
+            ? 'bg-aoz-secondary text-ui-on-accent max-w-[80%] ml-auto'
+            : 'bg-ui-subtle text-ui-text border border-ui-border'
         }`}
       >
         <p className="whitespace-pre-wrap">{message.content}</p>

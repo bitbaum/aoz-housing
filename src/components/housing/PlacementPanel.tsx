@@ -54,20 +54,20 @@ export function PlacementPanel({
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-card-hover z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-ui-surface shadow-card-hover z-50 flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-ui-border flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-ui-text">
               {PLACEMENT_PANEL_LABELS.title}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ui-muted">
               {spot.label || spot.code}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
             aria-label={UI_LABELS.close}
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -80,7 +80,7 @@ export function PlacementPanel({
         <div className="flex-1 overflow-y-auto p-6">
           {compatibleResidents.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 mb-4">
+              <p className="text-ui-muted mb-4">
                 {PLACEMENT_PANEL_LABELS.noResidents}
               </p>
               <Link href="/residents/new" className="btn-primary text-sm">
@@ -89,7 +89,7 @@ export function PlacementPanel({
             </div>
           ) : (
             <div className="space-y-3">
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-ui-muted mb-4">
                 {compatibleResidents.length} {PLACEMENT_PANEL_LABELS.foundSuffix}
               </p>
               {compatibleResidents.map((match) => (
@@ -106,7 +106,7 @@ export function PlacementPanel({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100">
+        <div className="px-6 py-4 border-t border-ui-border">
           <Link
             href={`/matching?unit=${housingUnitId}`}
             className="btn-outline w-full text-center"
@@ -136,37 +136,37 @@ function ResidentRow({
   )
 
   const borderColor = hasBlockingConcerns
-    ? 'border-gray-200'
+    ? 'border-ui-border'
     : concerns.length > 0
       ? 'border-orange-200'
       : fitScore >= 70
         ? 'border-green-200'
-        : 'border-gray-200'
+        : 'border-ui-border'
 
   const bgColor = hasBlockingConcerns
-    ? 'bg-gray-50'
+    ? 'bg-ui-subtle'
     : concerns.length > 0
       ? 'bg-status-warning/10'
       : fitScore >= 70
         ? 'bg-status-success/8'
-        : 'bg-gray-50'
+        : 'bg-ui-subtle'
 
   return (
     <div className={`p-4 rounded-lg border ${borderColor} ${bgColor}`}>
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium flex-shrink-0">
+          <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium flex-shrink-0">
             {resident.code.slice(-3)}
           </div>
           <div className="min-w-0">
             <Link
               href={`/residents/${resident.id}`}
-              className="font-medium text-gray-900 hover:text-aoz-primary truncate block"
+              className="font-medium text-ui-text hover:text-aoz-primary truncate block"
             >
               {resident.code}
             </Link>
-            <p className="text-sm text-gray-500 truncate">
+            <p className="text-sm text-ui-muted truncate">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
               {resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
             </p>
@@ -182,7 +182,7 @@ function ResidentRow({
             {fitScore}%
           </span>
           {hasBlockingConcerns ? (
-            <span className="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">
+            <span className="text-xs text-ui-muted px-2 py-1 bg-ui-border rounded">
               {PLACEMENT_PANEL_LABELS.blocked}
             </span>
           ) : (
@@ -194,7 +194,7 @@ function ResidentRow({
                   ? ''
                   : fitScore >= 50
                     ? 'bg-status-warning hover:bg-status-warning/90'
-                    : 'bg-gray-500 hover:bg-gray-600'
+                    : 'bg-ui-muted hover:bg-ui-muted/90'
               } disabled:opacity-50`}
             >
               {isPlacing ? PLACEMENT_PANEL_LABELS.placing : PLACEMENT_PANEL_LABELS.place}

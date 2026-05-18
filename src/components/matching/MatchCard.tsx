@@ -45,7 +45,7 @@ export function MatchCard({ match, resident, rank }: Props) {
   )
 
   return (
-    <div className={`p-4 border rounded-xl ${hasBlockingIssues ? 'border-status-error/25 bg-status-error/8' : rank === 1 ? 'border-score-excellent/30 bg-score-excellent/8' : rank && rank <= 3 ? 'border-status-info/20 bg-status-info/8' : 'border-gray-100'}`}>
+    <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-status-error/25 bg-status-error/8' : rank === 1 ? 'border-score-excellent/30 bg-score-excellent/8' : rank && rank <= 3 ? 'border-status-info/20 bg-status-info/8' : 'border-ui-border'}`}>
       <div className="flex items-start justify-between mb-3 gap-2">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -56,12 +56,12 @@ export function MatchCard({ match, resident, rank }: Props) {
             )}
             <Link
               href={`/housing/${match.unit.id}`}
-              className="inline-flex items-center py-2 -my-2 font-semibold text-gray-900 hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-semibold text-ui-text hover:text-aoz-primary"
             >
               {match.unit.code}
             </Link>
           </div>
-          <p className="text-sm text-gray-500">{match.unit.address}</p>
+          <p className="text-sm text-ui-muted">{match.unit.address}</p>
         </div>
         <div className="text-right">
           <p className="text-sm font-medium">
@@ -82,7 +82,7 @@ export function MatchCard({ match, resident, rank }: Props) {
         }`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-700">
+              <span className="text-xs font-semibold text-ui-muted">
                 {MATCHING_LABELS.history} {match.unitMetrics.label}
               </span>
               {match.unitMetrics.incidentFreeMonths > 0 && (
@@ -91,7 +91,7 @@ export function MatchCard({ match, resident, rank }: Props) {
                 </span>
               )}
             </div>
-            <span className="text-xs text-gray-600">
+            <span className="text-xs text-ui-muted">
               {match.unitMetrics.conflictRate.toFixed(1)}/Monat Ø
             </span>
           </div>
@@ -156,7 +156,7 @@ export function MatchCard({ match, resident, rank }: Props) {
 
       {match.unit.placements.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">{MATCHING_LABELS.currentResidents}</p>
+          <p className="text-xs text-ui-muted mb-1">{MATCHING_LABELS.currentResidents}</p>
           <div className="space-y-1">
             {match.unit.placements.map((p) => {
               const detail = match.compatibilityDetails.find(
@@ -200,13 +200,13 @@ export function MatchCard({ match, resident, rank }: Props) {
             <p key={i} className="text-xs text-status-warning-text">⚠️ {concern}</p>
           ))}
           {allConcerns.length > DISPLAY_LIMITS.matchConcerns && (
-            <p className="text-xs text-gray-500">{MATCHING_LABELS.moreConcerns(allConcerns.length - DISPLAY_LIMITS.matchConcerns)}</p>
+            <p className="text-xs text-ui-muted">{MATCHING_LABELS.moreConcerns(allConcerns.length - DISPLAY_LIMITS.matchConcerns)}</p>
           )}
         </div>
       )}
 
       {match.safeguardWarnings.length > 0 && (
-        <div className="mb-3 p-3 bg-status-warning/10 border border-status-warning/30 rounded-xl">
+        <div className="mb-3 p-3 bg-status-warning/10 border border-status-warning/30 rounded-lg">
           <p className="text-xs font-semibold text-status-warning-text uppercase mb-1">
             Hinweis zur Bewertung
           </p>
@@ -240,7 +240,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             <input type="hidden" name="hasBlockingConflicts" value={String(hasBlockingConflicts)} />
             <button
               type="submit"
-              className={`btn-primary w-full ${hasBlockingConflicts ? 'opacity-50 cursor-not-allowed bg-gray-400' : ''}`}
+              className={`btn-primary w-full ${hasBlockingConflicts ? 'opacity-50 cursor-not-allowed bg-ui-muted' : ''}`}
               disabled={hasBlockingConflicts}
             >
               {hasBlockingConflicts

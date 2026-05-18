@@ -36,10 +36,10 @@ export const MAINTENANCE_PRIORITY_LABELS: Record<string, string> = {
 }
 
 export const MAINTENANCE_PRIORITY_COLORS: Record<string, string> = {
-  LOW: 'bg-gray-100 text-gray-700',
-  NORMAL: 'bg-blue-100 text-blue-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
+  LOW: 'bg-ui-subtle text-ui-muted',
+  NORMAL: 'bg-status-info/15 text-status-info-text',
+  HIGH: 'bg-status-warning/15 text-status-warning-text',
+  URGENT: 'bg-status-error/15 text-status-error-text',
 }
 
 export const MAINTENANCE_STATUS_LABELS: Record<string, string> = {
@@ -53,11 +53,11 @@ export const MAINTENANCE_STATUS_LABELS: Record<string, string> = {
 
 export const MAINTENANCE_STATUS_COLORS: Record<string, string> = {
   OPEN: 'badge-pending',
-  ASSIGNED: 'bg-blue-100 text-blue-700',
-  IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
-  ON_HOLD: 'bg-gray-100 text-gray-700',
+  ASSIGNED: 'bg-status-info/15 text-status-info-text',
+  IN_PROGRESS: 'bg-status-warning/15 text-status-warning-text',
+  ON_HOLD: 'bg-ui-subtle text-ui-muted',
   COMPLETED: 'badge-active',
-  CANCELLED: 'bg-gray-200 text-gray-500',
+  CANCELLED: 'bg-ui-border text-ui-muted',
 }
 
 export const MAINTENANCE_STAT_LABELS = {

@@ -118,12 +118,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         <div className="flex items-start gap-3 mb-4">
           <span className="text-3xl" aria-hidden="true">{icon}</span>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">{task.title}</h1>
+            <h1 className="text-xl font-bold text-ui-text">{task.title}</h1>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+              <span className="text-xs px-2 py-1 bg-ui-subtle text-ui-muted rounded-full">
                 {categoryLabel}
               </span>
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full">
+              <span className="text-xs px-2 py-1 bg-ui-subtle text-ui-muted rounded-full">
                 {typeLabel}
               </span>
               <span className={`text-xs px-2 py-1 rounded-full ${statusColor}`}>
@@ -138,19 +138,19 @@ export default async function ChoreDetailPage({ params }: PageProps) {
 
         {task.description && (
           <div className="mb-3">
-            <h3 className="text-sm font-medium text-gray-700">{CHORE_LABELS.detail.description}</h3>
-            <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+            <h3 className="text-sm font-medium text-ui-muted">{CHORE_LABELS.detail.description}</h3>
+            <p className="text-sm text-ui-muted mt-1">{task.description}</p>
           </div>
         )}
 
         {task.instructions && (
           <div className="mb-3">
-            <h3 className="text-sm font-medium text-gray-700">{CHORE_LABELS.detail.instructions}</h3>
-            <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{task.instructions}</p>
+            <h3 className="text-sm font-medium text-ui-muted">{CHORE_LABELS.detail.instructions}</h3>
+            <p className="text-sm text-ui-muted mt-1 whitespace-pre-line">{task.instructions}</p>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+        <div className="flex flex-wrap gap-4 text-sm text-ui-muted">
           {task.scheduleHuman && (
             <span>📅 {CHORE_LABELS.detail.schedule}: {task.scheduleHuman}</span>
           )}
@@ -175,21 +175,21 @@ export default async function ChoreDetailPage({ params }: PageProps) {
 
       {/* Completion history */}
       <div className="card mb-6">
-        <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.history}</h2>
+        <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.history}</h2>
         {task.completions.length === 0 ? (
-          <p className="text-sm text-gray-500">{CHORE_LABELS.detail.noHistory}</p>
+          <p className="text-sm text-ui-muted">{CHORE_LABELS.detail.noHistory}</p>
         ) : (
           <div className="space-y-3">
             {task.completions.map(c => (
               <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{c.completedBy.code}</p>
-                  {c.notes && <p className="text-xs text-gray-600 mt-0.5">{c.notes}</p>}
+                  <p className="text-sm font-medium text-ui-text">{c.completedBy.code}</p>
+                  {c.notes && <p className="text-xs text-ui-muted mt-0.5">{c.notes}</p>}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">{formatDate(c.completedAt)}</p>
+                  <p className="text-xs text-ui-muted">{formatDate(c.completedAt)}</p>
                   {c.durationMinutes && (
-                    <p className="text-xs text-gray-500">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
+                    <p className="text-xs text-ui-muted">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
                   )}
                 </div>
               </div>
@@ -201,19 +201,19 @@ export default async function ChoreDetailPage({ params }: PageProps) {
       {/* Active requests */}
       {activeRequests.length > 0 && (
         <div className="card mb-6">
-          <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.activeRequests}</h2>
+          <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.activeRequests}</h2>
           <div className="space-y-3">
             {activeRequests.map(r => (
-              <div key={r.id} className="p-3 bg-purple-50 rounded-lg">
+              <div key={r.id} className="p-3 bg-aoz-primary/8 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-ui-text">
                     {r.requestedBy.code} → {r.requestedResident?.code || CHORE_LABELS.request.broadcast}
                   </p>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-aoz-primary/10 text-aoz-primary">
                     {REQUEST_STATUS_LABELS[r.status]}
                   </span>
                 </div>
-                {r.message && <p className="text-xs text-gray-600 mt-1">{r.message}</p>}
+                {r.message && <p className="text-xs text-ui-muted mt-1">{r.message}</p>}
               </div>
             ))}
           </div>
@@ -223,15 +223,15 @@ export default async function ChoreDetailPage({ params }: PageProps) {
       {/* Attention flags */}
       {activeFlags.length > 0 && (
         <div className="card mb-6">
-          <h2 className="font-semibold text-gray-900 mb-3">{CHORE_LABELS.detail.attentionFlags}</h2>
+          <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.attentionFlags}</h2>
           <div className="space-y-3">
             {activeFlags.map(f => (
               <div key={f.id} className="p-3 bg-status-warning/10 rounded-lg">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-ui-text">
                   ⚠️ {f.flaggedBy.code}
                 </p>
-                {f.message && <p className="text-xs text-gray-600 mt-1">{f.message}</p>}
-                <p className="text-xs text-gray-500 mt-1">{formatDate(f.createdAt)}</p>
+                {f.message && <p className="text-xs text-ui-muted mt-1">{f.message}</p>}
+                <p className="text-xs text-ui-muted mt-1">{formatDate(f.createdAt)}</p>
               </div>
             ))}
           </div>

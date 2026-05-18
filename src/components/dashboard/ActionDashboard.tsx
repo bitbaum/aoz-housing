@@ -83,8 +83,8 @@ export function ActionDashboard({
       {/* Header with greeting */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{greeting}!</h1>
-          <p className="text-gray-500">
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{greeting}!</h1>
+          <p className="text-ui-muted">
             {totalIssues === 0
               ? DASHBOARD_LABELS.allClearSummary
               : totalIssues === 1
@@ -92,7 +92,7 @@ export function ActionDashboard({
                 : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
           </p>
         </div>
-        <div className="text-right text-sm text-gray-500">
+        <div className="text-right text-sm text-ui-muted">
           {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
         </div>
       </div>
@@ -156,7 +156,7 @@ export function ActionDashboard({
       {/* Action Tiles - Only show what needs action */}
       {(totalIssues > 0 || problemUnits.length > 0) && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionOpenTasks}</h2>
+          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionOpenTasks}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {overdueCheckIns.length > 0 && (
             <ActionTile
@@ -212,7 +212,7 @@ export function ActionDashboard({
       {/* Bald fällig - Proactive section */}
       {dueSoonCheckIns.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionDueSoon}</h2>
+          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionDueSoon}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionTile
               title={DASHBOARD_LABELS.tileCheckInsThisWeek}

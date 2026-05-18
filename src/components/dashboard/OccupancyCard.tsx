@@ -33,7 +33,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{DASHBOARD_LABELS.sectionOccupancy}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{DASHBOARD_LABELS.sectionOccupancy}</h2>
 
       {/* Progress bar visualization */}
       <Link href="/housing" className="block mb-4 group">
@@ -41,22 +41,22 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           <span className={`text-3xl font-bold ${occupancyTextColor}`}>
             {occupancyPercent}%
           </span>
-          <span className="text-gray-500 text-sm">{DASHBOARD_LABELS.occupancyOccupied}</span>
+          <span className="text-ui-muted text-sm">{DASHBOARD_LABELS.occupancyOccupied}</span>
         </div>
-        <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-3 bg-ui-border rounded-full overflow-hidden">
           <div
             className={`h-full ${occupancyColor} transition-all duration-300`}
             style={{ width: `${occupancyPercent}%` }}
           />
         </div>
-        <p className="text-sm text-gray-500 mt-2 group-hover:text-gray-700">
+        <p className="text-sm text-ui-muted mt-2 group-hover:text-ui-muted">
           {occupiedBeds} {DASHBOARD_LABELS.occupancyOf} {totalBeds} {DASHBOARD_LABELS.occupancyPlaces} • <span className="font-medium">{freeBeds} {DASHBOARD_LABELS.occupancyFree}</span>
         </p>
       </Link>
 
       {/* Unit status breakdown */}
-      <div className="border-t border-gray-100 pt-4 mt-4">
-        <p className="text-sm font-medium text-gray-700 mb-3">{DASHBOARD_LABELS.sectionHousing}</p>
+      <div className="border-t border-ui-border pt-4 mt-4">
+        <p className="text-sm font-medium text-ui-muted mb-3">{DASHBOARD_LABELS.sectionHousing}</p>
         <div className="space-y-2">
           <StatusRow
             label={DASHBOARD_LABELS.occupancyAvailable}
@@ -80,7 +80,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
             <StatusRow
               label={DASHBOARD_LABELS.occupancyClosed}
               count={unitStatus.closed}
-              color="bg-gray-400"
+              color="bg-ui-muted"
               href="/housing?status=CLOSED"
             />
           )}
@@ -89,7 +89,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
 
       <Link
         href="/housing"
-        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-gray-100 text-sm text-aoz-primary hover:underline"
+        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-aoz-primary hover:underline"
       >
         {DASHBOARD_LABELS.occupancyViewAll} →
       </Link>
@@ -111,13 +111,13 @@ function StatusRow({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-gray-50 transition-colors -mx-2"
+      className="flex items-center justify-between py-1.5 px-2 rounded hover:bg-ui-subtle transition-colors -mx-2"
     >
       <div className="flex items-center gap-2">
         <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
-        <span className="text-sm text-gray-600">{label}</span>
+        <span className="text-sm text-ui-muted">{label}</span>
       </div>
-      <span className="text-sm font-medium text-gray-900">{count}</span>
+      <span className="text-sm font-medium text-ui-text">{count}</span>
     </Link>
   )
 }

@@ -45,7 +45,7 @@ export function UnitIncidentSection({
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-ui-text">
           {UNIT_INCIDENT_LABELS.title}
         </h2>
         <Link href={`/incidents/new?unit=${unitId}`} className="btn-outline text-sm">
@@ -80,7 +80,7 @@ export function UnitIncidentSection({
       )}
 
       <div className="mb-4">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-ui-border">
           <TabButton active>{UNIT_INCIDENT_LABELS.tabs.all} ({incidents.length})</TabButton>
           <TabButton>{UNIT_INCIDENT_LABELS.tabs.conflicts} ({interpersonalCount})</TabButton>
           <TabButton>{UNIT_INCIDENT_LABELS.tabs.maintenance} ({maintenanceCount})</TabButton>
@@ -88,7 +88,7 @@ export function UnitIncidentSection({
       </div>
 
       {incidents.length === 0 ? (
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-ui-muted text-center py-8">
           {UNIT_INCIDENT_LABELS.noIncidents}
         </p>
       ) : (
@@ -106,24 +106,24 @@ function IncidentCard({ incident }: { incident: Incident }) {
   const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
 
   return (
-    <div className={`p-4 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+    <div className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
           <span className="text-lg" aria-hidden="true">{categoryIcon}</span>
           <div>
-            <p className="font-medium text-gray-900">
+            <p className="font-medium text-ui-text">
               {INCIDENT_TYPE_LABELS[incident.type] || incident.type}
             </p>
-            <p className="text-sm text-gray-600 mt-1">{incident.description}</p>
+            <p className="text-sm text-ui-muted mt-1">{incident.description}</p>
             {incident.subject && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-ui-muted mt-1">
                 Betrifft: {incident.subject.code}
               </p>
             )}
           </div>
         </div>
         <div className="text-right text-sm">
-          <p className="text-gray-500">
+          <p className="text-ui-muted">
             {formatRelativeDate(incident.date)}
           </p>
           {incident.resolvedAt ? (
@@ -134,8 +134,8 @@ function IncidentCard({ incident }: { incident: Incident }) {
         </div>
       </div>
       {incident.resolution && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="mt-3 pt-3 border-t border-ui-border">
+          <p className="text-sm text-ui-muted">
             <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>
@@ -150,7 +150,7 @@ function TabButton({ children, active = false }: { children: React.ReactNode; ac
       className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
         active
           ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-gray-500 hover:text-gray-700'
+          : 'border-transparent text-ui-muted hover:text-ui-muted'
       }`}
     >
       {children}

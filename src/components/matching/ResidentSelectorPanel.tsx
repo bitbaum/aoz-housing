@@ -23,7 +23,7 @@ export function ResidentSelectorPanel({
 }: Props) {
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         {MATCHING_LABELS.unplacedResidents} ({filteredUnplacedResidents.length}/{totalUnplaced})
       </h2>
 
@@ -45,7 +45,7 @@ export function ResidentSelectorPanel({
 
       {filteredUnplacedResidents.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">
+          <p className="text-ui-muted">
             {totalResidentCount === 0
               ? EMPTY_STATE_LABELS.noResidentsAtAll
               : residentQuery
@@ -66,21 +66,21 @@ export function ResidentSelectorPanel({
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                 params.resident === resident.id
                   ? 'border-aoz-primary bg-aoz-primary/5'
-                  : 'border-gray-100'
+                  : 'border-ui-border'
               }`}
             >
               <Link
                 href={`/residents/${resident.id}`}
                 className="flex items-center gap-3 flex-1 hover:opacity-80"
               >
-                <div className="w-8 h-8 bg-aoz-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm font-medium">
                   {resident.code.slice(-3)}
                 </div>
                 <div>
-                  <p className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary">
+                  <p className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary">
                     {resident.code}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-ui-muted">
                     {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
                     {resident.languages
                       .slice(0, DISPLAY_LIMITS.languagePreview)
@@ -93,8 +93,8 @@ export function ResidentSelectorPanel({
                 href={`/matching?resident=${resident.id}`}
                 className={`px-3 py-2 min-h-[44px] flex items-center justify-center rounded text-sm font-medium transition-colors ${
                   params.resident === resident.id
-                    ? 'bg-aoz-primary text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-aoz-primary hover:text-white'
+                    ? 'bg-aoz-primary text-ui-on-accent'
+                    : 'bg-ui-subtle text-ui-muted hover:bg-aoz-primary hover:text-ui-on-accent'
                 }`}
               >
                 {params.resident === resident.id ? MATCHING_LABELS.selected : MATCHING_LABELS.matching}
@@ -106,11 +106,11 @@ export function ResidentSelectorPanel({
 
       {/* Placed residents section */}
       {placedResidents.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-gray-100">
-          <h3 className="text-md font-semibold text-gray-700 mb-3">
+        <div className="mt-6 pt-6 border-t border-ui-border">
+          <h3 className="text-md font-semibold text-ui-muted mb-3">
             {MATCHING_LABELS.placedResidents} ({placedResidents.length})
           </h3>
-          <p className="text-xs text-gray-500 mb-3">
+          <p className="text-xs text-ui-muted mb-3">
             {MATCHING_LABELS.selectForAnalysis}
           </p>
           <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -120,21 +120,21 @@ export function ResidentSelectorPanel({
                 className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
                   params.resident === resident.id
                     ? 'border-aoz-primary bg-aoz-primary/5'
-                    : 'border-gray-200 bg-gray-50'
+                    : 'border-ui-border bg-ui-subtle'
                 }`}
               >
                 <Link
                   href={`/residents/${resident.id}`}
                   className="flex items-center gap-2 flex-1 hover:opacity-80"
                 >
-                  <div className="w-7 h-7 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                  <div className="w-7 h-7 bg-ui-muted text-ui-on-accent rounded-full flex items-center justify-center text-xs font-medium">
                     {resident.code.slice(-3)}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-700">
+                    <p className="text-sm font-medium text-ui-muted">
                       {resident.code}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-ui-muted">
                       {resident.placements[0]?.housingUnit?.code || MATCHING_LABELS.placed}
                     </p>
                   </div>
@@ -143,8 +143,8 @@ export function ResidentSelectorPanel({
                   href={`/matching?resident=${resident.id}`}
                   className={`min-h-[44px] px-3 py-2 rounded text-xs font-medium transition-colors flex items-center ${
                     params.resident === resident.id
-                      ? 'bg-aoz-primary text-white'
-                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                      ? 'bg-aoz-primary text-ui-on-accent'
+                      : 'bg-ui-border text-ui-muted hover:bg-ui-border-strong'
                   }`}
                 >
                   {MATCHING_LABELS.compare}

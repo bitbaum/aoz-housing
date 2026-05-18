@@ -103,11 +103,11 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{INCIDENT_PAGE_LABELS.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{INCIDENT_PAGE_LABELS.title}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <a
             href="/api/export/incidents"
-            className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 inline-flex items-center"
+            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
           >
             {INCIDENT_PAGE_LABELS.export}
           </a>
@@ -150,7 +150,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {/* Active filter indicator */}
       {statusFilter === 'open' && (
         <div className="mb-4 flex items-center gap-2">
-          <span className="text-sm text-gray-600">{INCIDENT_PAGE_LABELS.filterOpen}:</span>
+          <span className="text-sm text-ui-muted">{INCIDENT_PAGE_LABELS.filterOpen}:</span>
           <a
             href={`/incidents${categoryFilter !== 'all' ? `?category=${categoryFilter}` : ''}`}
             className="inline-flex items-center gap-1 px-2 py-1 bg-aoz-accent text-aoz-secondary text-xs font-medium rounded-full hover:bg-aoz-accent-dark transition-colors"
@@ -162,7 +162,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-gray-200">
+        <div className="flex gap-2 border-b border-ui-border">
           <TabLink
             href={`/incidents${statusQS ? `?${statusQS.slice(1)}` : ''}`}
             label={UI_LABELS.all}
@@ -187,7 +187,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {/* Incidents List */}
       {incidents.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-ui-muted mb-4">
             {statusFilter === 'open' && categoryFilter === 'all'
               ? INCIDENT_PAGE_LABELS.noIncidentsOpen
               : categoryFilter !== 'all'
@@ -248,7 +248,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
           <span className="text-2xl" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-ui-text">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </h3>
               <span
@@ -263,7 +263,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                 </span>
               )}
               {incident._count?.followUps > 0 && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-ui-muted">
                   {incident._count.followUps} Follow-ups
                 </span>
               )}
@@ -273,10 +273,10 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+            <p className="text-sm text-ui-muted mt-1 line-clamp-2">
               {incident.description}
             </p>
-            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
               <span className="hover:text-aoz-primary">
                 <span aria-hidden="true">🏠</span> {incident.housingUnit.code}
               </span>
@@ -309,8 +309,8 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
         </div>
       </div>
       {incident.resolution && (
-        <div className="mt-3 pt-3 border-t border-gray-100 ml-12">
-          <p className="text-sm text-gray-600">
+        <div className="mt-3 pt-3 border-t border-ui-border ml-12">
+          <p className="text-sm text-ui-muted">
             <span className="font-medium">{UI_LABELS.solution}</span> {incident.resolution}
           </p>
         </div>

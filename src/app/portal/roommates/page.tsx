@@ -73,12 +73,12 @@ export default async function RoommatesPage() {
           <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
             {PORTAL_LABELS.form.back}
           </Link>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
         </div>
         <div className="card text-center py-12">
           <span className="text-5xl mb-4 block">🏠</span>
-          <p className="text-gray-500 mb-3">{PORTAL_LABELS.roommates.noPlacement}</p>
-          <p className="text-sm text-gray-500 font-medium">{PORTAL_LABELS.roommates.noPlacementContact}</p>
+          <p className="text-ui-muted mb-3">{PORTAL_LABELS.roommates.noPlacement}</p>
+          <p className="text-sm text-ui-muted font-medium">{PORTAL_LABELS.roommates.noPlacementContact}</p>
         </div>
       </div>
     )
@@ -114,8 +114,8 @@ export default async function RoommatesPage() {
         <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.roommates}</h1>
-        <p className="text-gray-500">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
+        <p className="text-ui-muted">
           {roommates.length === 0
             ? PORTAL_LABELS.roommates.noRoommates
             : PORTAL_LABELS.roommates.roommateCount(roommates.length)
@@ -126,7 +126,7 @@ export default async function RoommatesPage() {
       {roommates.length === 0 ? (
         <div className="card text-center py-12">
           <span className="text-5xl mb-4 block">🏠</span>
-          <p className="text-gray-500">{PORTAL_LABELS.roommates.aloneMessage}</p>
+          <p className="text-ui-muted">{PORTAL_LABELS.roommates.aloneMessage}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -147,7 +147,7 @@ export default async function RoommatesPage() {
 
       {/* Tips for Living Together */}
       <div className="card mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {PORTAL_LABELS.roommates.tipsTitle}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -159,10 +159,10 @@ export default async function RoommatesPage() {
 
       {/* Conflict Resolution */}
       <div className="card mt-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {PORTAL_LABELS.roommates.conflictTitle}
         </h2>
-        <div className="space-y-3 text-sm text-gray-600">
+        <div className="space-y-3 text-sm text-ui-muted">
           {PORTAL_LABELS.roommates.conflictSteps.map((step, i) => (
             <p key={i}>
               <strong>{i + 1}. </strong>{step}
@@ -190,14 +190,14 @@ function RoommateCard({
   return (
     <div className="card">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-aoz-secondary text-white rounded-full flex items-center justify-center text-xl font-bold">
+        <div className="w-16 h-16 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xl font-bold">
           {roommate.code.slice(-3)}
         </div>
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="font-semibold text-gray-900">{roommate.code}</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="font-semibold text-ui-text">{roommate.code}</h3>
+              <p className="text-sm text-ui-muted">
                 {getLabel(AGE_RANGE_LABELS, roommate.ageRange)} {PORTAL_LABELS.roommates.ageYears}
               </p>
             </div>
@@ -229,11 +229,11 @@ function RoommateCard({
 
           {/* Compatibility Insights — only render sections that have content */}
           {assessment && (assessment.strengths.length > 0 || assessment.concerns.length > 0) && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="mt-4 pt-4 border-t border-ui-border">
               <div className={`grid gap-4 text-sm ${assessment.concerns.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
                 {assessment.strengths.length > 0 && (
                   <div>
-                    <p className="text-gray-500">{PORTAL_LABELS.roommates.strengths}</p>
+                    <p className="text-ui-muted">{PORTAL_LABELS.roommates.strengths}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.strengths.slice(0, 2).map((s: string, i: number) => (
                         <li key={i} className="text-status-success-text">✓ {s}</li>
@@ -243,7 +243,7 @@ function RoommateCard({
                 )}
                 {assessment.concerns.length > 0 && (
                   <div>
-                    <p className="text-gray-500">{PORTAL_LABELS.roommates.concerns}</p>
+                    <p className="text-ui-muted">{PORTAL_LABELS.roommates.concerns}</p>
                     <ul className="mt-1 space-y-1">
                       {assessment.concerns.slice(0, 2).map((c: string, i: number) => (
                         <li key={i} className="text-status-warning-text">! {c}</li>
@@ -270,14 +270,14 @@ function CompatibilityIndicator({ score }: { score: number }) {
         <div className={`w-3 h-3 rounded-full ${tokens.bg}`} />
         <span className={`font-medium ${tokens.text}`}>{PORTAL_LABELS.roommates.scoreLevels[level]}</span>
       </div>
-      <p className="text-xs text-gray-500 mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
+      <p className="text-xs text-ui-muted mt-1">{score}% {PORTAL_LABELS.roommates.compatible}</p>
     </div>
   )
 }
 
 function LifestyleTag({ icon, label }: { icon: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-600">
+    <span className="inline-flex items-center gap-1 px-2 py-1 bg-ui-subtle rounded-full text-xs text-ui-muted">
       {icon} {label}
     </span>
   )
@@ -293,11 +293,11 @@ function TipCard({
   description: string
 }) {
   return (
-    <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+    <div className="flex items-start gap-3 p-3 bg-ui-subtle rounded-lg">
       <span className="text-2xl">{icon}</span>
       <div>
-        <h3 className="font-medium text-gray-900">{title}</h3>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h3 className="font-medium text-ui-text">{title}</h3>
+        <p className="text-sm text-ui-muted">{description}</p>
       </div>
     </div>
   )

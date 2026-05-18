@@ -33,7 +33,7 @@ export function ResidentIncidents({
     <>
       {/* Incident Stats - Troublemaker Detection */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {RESIDENT_INCIDENTS_LABELS.sectionTitle}
         </h2>
         {/* Warning banner for frequent subjects */}
@@ -49,27 +49,27 @@ export function ResidentIncidents({
           </div>
         )}
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">{RESIDENT_INCIDENTS_LABELS.reportedLabel}</p>
-            <p className="text-xl sm:text-2xl font-bold text-gray-900">
+          <div className="p-4 bg-ui-subtle rounded-lg">
+            <p className="text-sm text-ui-muted">{RESIDENT_INCIDENTS_LABELS.reportedLabel}</p>
+            <p className="text-xl sm:text-2xl font-bold text-ui-text">
               {incidentsReportedCount}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ui-muted mt-1">
               {RESIDENT_INCIDENTS_LABELS.reportedDesc}
             </p>
           </div>
           <div className={`p-4 rounded-lg ${INCIDENT_BG_COLORS[subjectLevel]}`}>
-            <p className="text-sm text-gray-500">{RESIDENT_INCIDENTS_LABELS.subjectLabel}</p>
+            <p className="text-sm text-ui-muted">{RESIDENT_INCIDENTS_LABELS.subjectLabel}</p>
             <p className={`text-2xl font-bold ${
               subjectLevel === 'severe'
                 ? 'text-status-error-text'
                 : subjectLevel !== 'none'
                   ? 'text-status-warning-text'
-                  : 'text-gray-900'
+                  : 'text-ui-text'
             }`}>
               {incidentsAsSubject.length}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ui-muted mt-1">
               {RESIDENT_INCIDENTS_LABELS.subjectDesc}
             </p>
           </div>
@@ -79,7 +79,7 @@ export function ResidentIncidents({
       {/* Recent Incidents List */}
       <div className="card">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-ui-text">
             {RESIDENT_INCIDENTS_LABELS.subjectTitle(incidentsAsSubject.length)}
           </h2>
           {currentPlacement && (
@@ -92,7 +92,7 @@ export function ResidentIncidents({
           )}
         </div>
         {incidentsAsSubject.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">
+          <p className="text-ui-muted text-center py-8">
             {RESIDENT_INCIDENTS_LABELS.noIncidents}
           </p>
         ) : (
@@ -100,19 +100,19 @@ export function ResidentIncidents({
             {incidentsAsSubject.map((incident) => (
               <div
                 key={incident.id}
-                className={`p-4 bg-gray-50 rounded-lg border-l-4 ${getSeverityBorderClass(
+                className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(
                   incident.severity
                 )}`}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-ui-text">
                       {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                     </p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-ui-muted mt-1">
                       {incident.description}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-ui-muted mt-1">
                       {incident.housingUnit.code} ·{' '}
                       {formatRelativeDate(incident.date)}
                     </p>

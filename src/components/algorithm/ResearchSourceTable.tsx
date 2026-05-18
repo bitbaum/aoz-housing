@@ -5,28 +5,28 @@ import { EvidenceStrengthBadge } from './shared'
 export function ResearchSourceTable({ count }: { count: number }) {
   return (
     <section className="card">
-      <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <ExternalLink className="w-5 h-5 text-gray-500" />
+      <h3 className="font-semibold text-ui-text mb-4 flex items-center gap-2">
+        <ExternalLink className="w-5 h-5 text-ui-muted" />
         Quellenverzeichnis ({count} Quellen)
       </h3>
 
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Titel</th>
-              <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Region</th>
-              <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Jahr</th>
-              <th scope="col" className="text-left py-2 pr-3 font-medium text-gray-500">Publikation</th>
-              <th scope="col" className="text-left py-2 font-medium text-gray-500">Evidenz</th>
+            <tr className="border-b border-ui-border">
+              <th scope="col" className="text-left py-2 pr-3 font-medium text-ui-muted">Titel</th>
+              <th scope="col" className="text-left py-2 pr-3 font-medium text-ui-muted">Region</th>
+              <th scope="col" className="text-left py-2 pr-3 font-medium text-ui-muted">Jahr</th>
+              <th scope="col" className="text-left py-2 pr-3 font-medium text-ui-muted">Publikation</th>
+              <th scope="col" className="text-left py-2 font-medium text-ui-muted">Evidenz</th>
             </tr>
           </thead>
           <tbody>
             {RESEARCH_SOURCES.map(source => (
-              <tr key={source.id} className="border-b border-gray-100">
+              <tr key={source.id} className="border-b border-ui-border">
                 <td className="py-2 pr-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-900">{source.title}</span>
+                    <span className="text-ui-text">{source.title}</span>
                     {source.url && (
                       <a
                         href={source.url}
@@ -44,10 +44,10 @@ export function ResearchSourceTable({ count }: { count: number }) {
                   {source.region === 'DE' && '🇩🇪 Deutschland'}
                   {source.region === 'INT' && '🌍 International'}
                 </td>
-                <td className="py-2 pr-3 text-gray-500">
+                <td className="py-2 pr-3 text-ui-muted">
                   {source.year || '-'}
                 </td>
-                <td className="py-2 pr-3 text-gray-500 max-w-[200px] truncate">
+                <td className="py-2 pr-3 text-ui-muted max-w-[200px] truncate">
                   {source.publication || '-'}
                 </td>
                 <td className="py-2">
@@ -61,9 +61,9 @@ export function ResearchSourceTable({ count }: { count: number }) {
 
       <div className="md:hidden space-y-3">
         {RESEARCH_SOURCES.map(source => (
-          <div key={source.id} className="border border-gray-200 rounded-lg p-3">
+          <div key={source.id} className="border border-ui-border rounded-lg p-3">
             <div className="flex items-start justify-between gap-2 mb-2">
-              <h4 className="text-sm font-medium text-gray-900">{source.title}</h4>
+              <h4 className="text-sm font-medium text-ui-text">{source.title}</h4>
               {source.url && (
                 <a
                   href={source.url}
@@ -75,7 +75,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
                 </a>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-ui-muted">
               <span>
                 {source.region === 'CH' && '🇨🇭 Schweiz'}
                 {source.region === 'DE' && '🇩🇪 Deutschland'}
@@ -85,7 +85,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
               <EvidenceStrengthBadge strength={source.evidenceStrength} />
             </div>
             {source.publication && (
-              <p className="text-xs text-gray-500 mt-1">{source.publication}</p>
+              <p className="text-xs text-ui-muted mt-1">{source.publication}</p>
             )}
           </div>
         ))}

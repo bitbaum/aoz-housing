@@ -52,8 +52,8 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
       <div className="card">
         <div className="text-center py-8">
           <div className="text-4xl mb-4">✅</div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">{L.successTitle}</h2>
-          <p className="text-gray-500 max-w-md mx-auto">{L.successMessage}</p>
+          <h2 className="text-lg font-semibold text-ui-text mb-2">{L.successTitle}</h2>
+          <p className="text-ui-muted max-w-md mx-auto">{L.successMessage}</p>
         </div>
       </div>
     )
@@ -63,15 +63,15 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
     <form onSubmit={handleSubmit} className="card space-y-6">
       {/* Current unit info */}
       {currentUnit && (
-        <div className="p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-500">{L.currentUnit}</p>
-          <p className="font-medium text-gray-900">{currentUnit.code} — {currentUnit.address}</p>
+        <div className="p-3 bg-ui-subtle rounded-lg">
+          <p className="text-sm text-ui-muted">{L.currentUnit}</p>
+          <p className="font-medium text-ui-text">{currentUnit.code} — {currentUnit.address}</p>
         </div>
       )}
 
       {/* Reason */}
       <div>
-        <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="reason" className="block text-sm font-medium text-ui-muted mb-1">
           {L.reasonLabel}
         </label>
         <textarea
@@ -82,21 +82,21 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
           rows={4}
           required
           minLength={10}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
+          className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
         />
       </div>
 
       {/* Optional target unit */}
       {availableUnits.length > 0 && (
         <div>
-          <label htmlFor="targetUnit" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="targetUnit" className="block text-sm font-medium text-ui-muted mb-1">
             {L.targetUnitLabel}
           </label>
           <select
             id="targetUnit"
             value={targetUnitId}
             onChange={(e) => setTargetUnitId(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary min-h-[44px]"
+            className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary min-h-[44px]"
           >
             <option value="">{L.targetUnitPlaceholder}</option>
             {availableUnits.map((unit) => (

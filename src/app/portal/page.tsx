@@ -112,10 +112,10 @@ export default async function ResidentPortal() {
       {/* Welcome */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
             {PORTAL_LABELS.pages.dashboard}, {resident.code}
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-ui-muted mt-1">
             {PORTAL_LABELS.pages.dashboardSubtitle}
           </p>
         </div>

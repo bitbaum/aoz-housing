@@ -130,11 +130,11 @@ export function QuickCheckIn({
       {/* Quick satisfaction selection */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-ui-muted">
             {QUICK_CHECKIN_LABELS.mainLabel}
           </label>
           {lastSatisfaction && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-ui-muted">
               {QUICK_CHECKIN_LABELS.lastPrefix}{SATISFACTION_OPTIONS.find(o => o.value === lastSatisfaction)?.emoji}
             </span>
           )}
@@ -169,16 +169,16 @@ export function QuickCheckIn({
         </div>
 
         {isPending && selectedSatisfaction && selectedSatisfaction >= 4 && (
-          <p className="text-xs text-gray-500 mt-1 animate-pulse">{QUICK_CHECKIN_LABELS.savingState}</p>
+          <p className="text-xs text-ui-muted mt-1 animate-pulse">{QUICK_CHECKIN_LABELS.savingState}</p>
         )}
       </div>
 
       {/* Expanded form for low satisfaction */}
       {showExpanded && selectedSatisfaction !== null && selectedSatisfaction < 4 && (
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-3" aria-live="polite">
+        <div className="p-3 bg-ui-subtle rounded-lg border border-ui-border space-y-3" aria-live="polite">
           {/* Roommate relations - KEY for matching algorithm */}
           <div>
-            <label id="roommate-label" className="text-sm font-medium text-gray-700 block mb-1">
+            <label id="roommate-label" className="text-sm font-medium text-ui-muted block mb-1">
               {QUICK_CHECKIN_LABELS.roommateLabel}
               {needsExplanation && !concerns.trim() && (
                 <span className="text-status-error-text ml-1" aria-label={UI_LABELS.required}>*</span>
@@ -198,7 +198,7 @@ export function QuickCheckIn({
                     flex-1 py-2 px-1 text-xs rounded border transition-all
                     ${roommateRelations === option.value
                       ? 'border-aoz-secondary bg-aoz-secondary/8 text-aoz-secondary font-medium'
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
+                      : 'border-ui-border hover:border-ui-border-strong text-ui-muted'
                     }
                     ${isPending ? 'opacity-50' : ''}
                   `}
@@ -207,14 +207,14 @@ export function QuickCheckIn({
                 </button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ui-muted mt-1">
               {QUICK_CHECKIN_LABELS.roommateScaleHint}
             </p>
           </div>
 
           {/* Concerns text - required if very unhappy and no roommate rating */}
           <div>
-            <label htmlFor="concerns-input" className="text-sm font-medium text-gray-700 block mb-1">
+            <label htmlFor="concerns-input" className="text-sm font-medium text-ui-muted block mb-1">
               {QUICK_CHECKIN_LABELS.concernsLabel}
               {needsExplanation && !roommateRelations && (
                 <span className="text-status-error-text ml-1" aria-label={UI_LABELS.required}>*</span>
@@ -241,7 +241,7 @@ export function QuickCheckIn({
           <div className="flex items-center justify-between pt-2">
             <Link
               href={`/placements/${placementId}/checkin`}
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-ui-muted hover:text-ui-muted"
             >
               {QUICK_CHECKIN_LABELS.fullFormLink}
             </Link>
@@ -276,7 +276,7 @@ export function QuickCheckIn({
       {/* Link to full form */}
       {!showExpanded && (
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-500">
+          <span className="text-ui-muted">
             {QUICK_CHECKIN_LABELS.statsLine(weeksSinceStart, checkInCount)}
           </span>
           <Link

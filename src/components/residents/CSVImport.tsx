@@ -74,7 +74,7 @@ export function CSVImport() {
         />
         <button
           onClick={() => fileRef.current?.click()}
-          className="min-h-[44px] rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle"
         >
           {EXPORT_LABELS.selectFile}
         </button>
@@ -94,18 +94,18 @@ export function CSVImport() {
 
       {preview && preview.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700">
+          <h3 className="text-sm font-medium text-ui-muted">
             {EXPORT_LABELS.preview} (erste {preview.length} Zeilen)
           </h3>
           <div className="overflow-x-auto rounded border">
             <table className="min-w-full text-xs">
-              <thead className="bg-gray-50">
+              <thead className="bg-ui-subtle">
                 <tr>
                   {Object.keys(preview[0]).map((key) => (
                     <th
                       scope="col"
                       key={key}
-                      className="px-3 py-2 text-left font-medium text-gray-500"
+                      className="px-3 py-2 text-left font-medium text-ui-muted"
                     >
                       {key}
                     </th>
@@ -118,7 +118,7 @@ export function CSVImport() {
                     {Object.values(row).map((val, j) => (
                       <td
                         key={j}
-                        className="whitespace-nowrap px-3 py-2 text-gray-700"
+                        className="whitespace-nowrap px-3 py-2 text-ui-muted"
                       >
                         {val}
                       </td>
@@ -131,7 +131,7 @@ export function CSVImport() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="min-h-[44px] rounded-md bg-aoz-primary px-4 py-2 text-sm font-medium text-white hover:bg-aoz-primary-dark disabled:opacity-50"
+            className="min-h-[44px] rounded-md bg-aoz-primary px-4 py-2 text-sm font-medium text-ui-on-accent hover:bg-aoz-primary-dark disabled:opacity-50"
           >
             {loading ? EXPORT_LABELS.importing : EXPORT_LABELS.importButton}
           </button>
@@ -139,7 +139,7 @@ export function CSVImport() {
       )}
 
       {result && (
-        <div className="rounded-md bg-gray-50 p-4 space-y-2">
+        <div className="rounded-md bg-ui-subtle p-4 space-y-2">
           <p className="text-sm font-medium">
             {EXPORT_LABELS.result}: {result.created} {EXPORT_LABELS.created},{' '}
             {result.skipped} {EXPORT_LABELS.skipped}
@@ -155,7 +155,7 @@ export function CSVImport() {
                 </p>
               ))}
               {result.errors.length > 10 && (
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-ui-muted">
                   ...und {result.errors.length - 10} weitere Fehler
                 </p>
               )}

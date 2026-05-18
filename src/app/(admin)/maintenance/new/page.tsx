@@ -52,7 +52,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
         >
           {MAINTENANCE_PAGE_LABELS.backToList}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {MAINTENANCE_PAGE_LABELS.newTitle}
         </h1>
       </div>
@@ -64,7 +64,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Location Section */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionLocation}</h2>
+            <h2 className="font-semibold text-ui-text">{MAINTENANCE_PAGE_LABELS.sectionLocation}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">{MAINTENANCE_PAGE_LABELS.fieldUnit}</label>
@@ -113,7 +113,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Request Details */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionRequest}</h2>
+            <h2 className="font-semibold text-ui-text">{MAINTENANCE_PAGE_LABELS.sectionRequest}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">{MAINTENANCE_PAGE_LABELS.fieldCategory}</label>
@@ -161,7 +161,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
 
           {/* Reporter */}
           <div className="space-y-4">
-            <h2 className="font-semibold text-gray-900">{MAINTENANCE_PAGE_LABELS.sectionReporter}</h2>
+            <h2 className="font-semibold text-ui-text">{MAINTENANCE_PAGE_LABELS.sectionReporter}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">{MAINTENANCE_PAGE_LABELS.fieldResident}</label>
@@ -187,7 +187,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           </div>
 
           {/* Submit */}
-          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-white/95 backdrop-blur border-t border-gray-200 sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link href="/maintenance" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
               {UI_LABELS.cancel}
             </Link>

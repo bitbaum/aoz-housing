@@ -17,12 +17,12 @@ export default function GlobalError({
   return (
     <html lang="de">
       <body>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="max-w-md p-8 bg-white rounded-xl shadow-card text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="min-h-screen flex items-center justify-center bg-ui-subtle">
+          <div className="max-w-md p-8 bg-ui-surface rounded-lg shadow-card text-center">
+            <h2 className="text-xl font-semibold text-ui-text mb-4">
               Ein Fehler ist aufgetreten
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-ui-muted mb-6">
               Bitte versuchen Sie es erneut. Falls das Problem bestehen bleibt,
               kontaktieren Sie den Support.
             </p>

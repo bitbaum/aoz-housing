@@ -63,9 +63,9 @@ export function InviteForm() {
               {INVITE_FORM_LABELS.emailSent}
             </p>
           ) : (
-            <div className="mt-3 p-3 bg-white border border-status-success/25 rounded">
-              <p className="text-xs text-gray-500 mb-1">{INVITE_FORM_LABELS.emailNotSent}</p>
-              <p className="font-mono text-lg font-bold text-gray-900 tracking-wider">{user.code}</p>
+            <div className="mt-3 p-3 bg-ui-surface border border-status-success/25 rounded">
+              <p className="text-xs text-ui-muted mb-1">{INVITE_FORM_LABELS.emailNotSent}</p>
+              <p className="font-mono text-lg font-bold text-ui-text tracking-wider">{user.code}</p>
             </div>
           )}
         </div>

@@ -65,7 +65,7 @@ export function ConfirmDialog({
                 disabled={isPending}
                 className={
                   variant === 'danger'
-                    ? 'bg-status-error text-white px-4 py-2.5 rounded-md font-medium hover:bg-status-error/90 disabled:opacity-50 min-h-[44px]'
+                    ? 'bg-status-error text-ui-on-accent px-4 py-2.5 rounded-md font-medium hover:bg-status-error/90 disabled:opacity-50 min-h-[44px]'
                     : 'btn-primary'
                 }
               >

@@ -26,10 +26,10 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-ui-text">
             {WHO_FITS_HERE_LABELS.heading}
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ui-muted">
             {availableSpaces} {availableSpaces === 1 ? WHO_FITS_HERE_LABELS.spaceCountSingular : WHO_FITS_HERE_LABELS.spaceCountPlural}
           </p>
         </div>
@@ -43,7 +43,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
 
       {compatibleResidents.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-gray-500 mb-3">{WHO_FITS_HERE_LABELS.emptyState}</p>
+          <p className="text-ui-muted mb-3">{WHO_FITS_HERE_LABELS.emptyState}</p>
           <Link href="/residents/new" className="btn-primary text-sm">
             {WHO_FITS_HERE_LABELS.addResident}
           </Link>
@@ -61,21 +61,21 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                     ? 'border-status-warning/25 bg-status-warning/10'
                     : isGoodFit
                     ? 'border-status-success/25 bg-status-success/10'
-                    : 'border-gray-200 bg-gray-50'
+                    : 'border-ui-border bg-ui-subtle'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+                  <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
                     {match.resident.code.slice(-3)}
                   </div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
-                      className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                      className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
                     >
                       {match.resident.code}
                     </Link>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
                       {match.resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
                     </p>

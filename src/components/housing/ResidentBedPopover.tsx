@@ -46,29 +46,29 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
   return (
     <div
       ref={ref}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-white rounded-xl shadow-card-hover border border-gray-100"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-ui-surface rounded-lg shadow-card-hover border border-ui-border"
       style={{
         left: Math.max(8, position.x - 128),
         top: position.y,
       }}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-100 bg-aoz-primary/8 rounded-t-lg">
+      <div className="px-4 py-3 border-b border-ui-border bg-aoz-primary/8 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-bold">
+            <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-bold">
               {resident.code.slice(-3)}
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{resident.code}</p>
-              <p className="text-xs text-gray-500">
+              <p className="font-semibold text-ui-text">{resident.code}</p>
+              <p className="text-xs text-ui-muted">
                 {spot.label || spot.code}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
             aria-label={UI_LABELS.close}
           >
             ✕
@@ -80,14 +80,14 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
       <div className="px-4 py-3 space-y-2">
         {resident.ageRange && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">{BED_GRID_LABELS.age}</span>
-            <span className="text-gray-900">{getLabel(AGE_RANGE_LABELS, resident.ageRange)}</span>
+            <span className="text-ui-muted">{BED_GRID_LABELS.age}</span>
+            <span className="text-ui-text">{getLabel(AGE_RANGE_LABELS, resident.ageRange)}</span>
           </div>
         )}
         {resident.languages && resident.languages.length > 0 && (
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">{BED_GRID_LABELS.languages}</span>
-            <span className="text-gray-900">
+            <span className="text-ui-muted">{BED_GRID_LABELS.languages}</span>
+            <span className="text-ui-text">
               {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
             </span>
           </div>
@@ -95,7 +95,7 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-3 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+      <div className="px-4 py-3 border-t border-ui-border bg-ui-subtle rounded-b-lg">
         <Link
           href={`/residents/${resident.id}`}
           className="block w-full text-center text-sm text-aoz-primary hover:text-aoz-primary-dark font-medium"

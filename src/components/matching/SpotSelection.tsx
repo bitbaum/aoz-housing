@@ -39,7 +39,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
 
   if (availableSpots.length === 0) {
     return (
-      <p className="text-sm text-gray-500 text-center py-2">
+      <p className="text-sm text-ui-muted text-center py-2">
         {MATCHING_LABELS.noSpotsAvailable}
       </p>
     )
@@ -47,7 +47,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
 
   return (
     <fieldset className="space-y-2">
-      <legend className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+      <legend className="text-xs font-medium text-ui-muted uppercase tracking-wide">
         {MATCHING_LABELS.selectSpot}
       </legend>
 
@@ -80,13 +80,13 @@ export function SpotSelection({ spots, resident, match }: Props) {
               name="hasBlockingConflicts"
               value={String(hasBlockingConflicts)}
             />
-            <div className="flex-1 flex items-center gap-2 p-2 border border-score-excellent/20 rounded-xl bg-score-excellent/8">
+            <div className="flex-1 flex items-center gap-2 p-2 border border-score-excellent/20 rounded-lg bg-score-excellent/8">
               <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-ui-text">
                   {spotName}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-ui-muted">
                   {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
                 </p>
               </div>
@@ -95,7 +95,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
               type="submit"
               className={`btn-primary text-sm px-3 ${
                 hasBlockingConflicts
-                  ? 'opacity-50 cursor-not-allowed bg-gray-400'
+                  ? 'opacity-50 cursor-not-allowed bg-ui-muted'
                   : ''
               }`}
               disabled={hasBlockingConflicts}
@@ -114,8 +114,8 @@ export function SpotSelection({ spots, resident, match }: Props) {
       })}
 
       {ineligibleSpots.length > 0 && (
-        <details className="text-xs text-gray-500">
-          <summary className="cursor-pointer hover:text-gray-700">
+        <details className="text-xs text-ui-muted">
+          <summary className="cursor-pointer hover:text-ui-muted">
             {MATCHING_LABELS.moreUnsuitableSpots(ineligibleSpots.length)}
           </summary>
           <div className="mt-2 space-y-1 pl-2">

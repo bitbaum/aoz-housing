@@ -71,8 +71,8 @@ export function EndPlacementForm({
                 onChange={() => onReasonChange(key)}
               />
               <div>
-                <span className="font-medium text-gray-900">{label}</span>
-                <p className="text-xs text-gray-500">
+                <span className="font-medium text-ui-text">{label}</span>
+                <p className="text-xs text-ui-muted">
                   {END_REASON_DESCRIPTIONS[key]}
                 </p>
               </div>
@@ -113,7 +113,7 @@ export function EndPlacementForm({
                   value="true"
                   className="accent-status-warning"
                 />
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-ui-muted">
                   {PLACEMENT_ACTIONS_LABELS.conflictPredictableYes}
                   {initialCompatibilityScore !== null && initialCompatibilityScore !== undefined && initialCompatibilityScore < 60 && (
                     <span className="text-status-warning ml-1">{PLACEMENT_ACTIONS_LABELS.conflictScoreHint(Math.round(initialCompatibilityScore))}</span>
@@ -127,10 +127,10 @@ export function EndPlacementForm({
                   value="false"
                   className="accent-status-warning"
                 />
-                <span className="text-sm text-gray-700">{PLACEMENT_ACTIONS_LABELS.conflictNoPredictable}</span>
+                <span className="text-sm text-ui-muted">{PLACEMENT_ACTIONS_LABELS.conflictNoPredictable}</span>
               </label>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-ui-muted mt-1">
               {PLACEMENT_ACTIONS_LABELS.conflictAlgorithmLabel}
             </p>
           </div>
@@ -146,7 +146,7 @@ export function EndPlacementForm({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-ui-muted mt-1">
                 {PLACEMENT_ACTIONS_LABELS.incidentOptionalHint}
               </p>
             </div>
@@ -164,13 +164,13 @@ export function EndPlacementForm({
         />
       </div>
 
-      <div className="p-3 bg-white border border-status-error/30 rounded text-sm text-status-error-text">
+      <div className="p-3 bg-ui-surface border border-status-error/30 rounded text-sm text-status-error-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {endSummary}
       </div>
 
       <SubmitButton
         pendingText={PLACEMENT_ACTIONS_LABELS.endBtnPending}
-        className="bg-status-error text-white px-4 py-2.5 rounded-lg text-sm hover:bg-status-error/90 min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
+        className="bg-status-error text-ui-on-accent px-4 py-2.5 rounded-lg text-sm hover:bg-status-error/90 min-h-[44px] disabled:opacity-60 disabled:cursor-wait"
       >
         {PLACEMENT_ACTIONS_LABELS.endBtn}
       </SubmitButton>

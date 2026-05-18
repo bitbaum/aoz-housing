@@ -32,14 +32,14 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{SETTINGS_LABELS.title}</h1>
-        <p className="text-sm text-gray-500 mt-1">{SETTINGS_LABELS.subtitle}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{SETTINGS_LABELS.title}</h1>
+        <p className="text-sm text-ui-muted mt-1">{SETTINGS_LABELS.subtitle}</p>
       </div>
 
       {/* Invite new staff */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">{SETTINGS_LABELS.inviteTitle}</h2>
-        <p className="text-sm text-gray-500 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-1">{SETTINGS_LABELS.inviteTitle}</h2>
+        <p className="text-sm text-ui-muted mb-4">
           {SETTINGS_LABELS.inviteSubtitle}
         </p>
 
@@ -54,7 +54,7 @@ export default async function SettingsPage() {
 
       {/* Current team */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {SETTINGS_LABELS.teamTitle} ({staffUsers.length})
         </h2>
 
@@ -62,21 +62,21 @@ export default async function SettingsPage() {
           {staffUsers.map((user) => (
             <div
               key={user.id}
-              className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center justify-between py-3 border-b border-ui-border last:border-0"
             >
               <div>
-                <p className="font-medium text-gray-900 text-sm">{user.name}</p>
-                <p className="text-xs text-gray-500">
+                <p className="font-medium text-ui-text text-sm">{user.name}</p>
+                <p className="text-xs text-ui-muted">
                   {user.email || '—'} · <span className="font-mono">{user.code}</span>
                 </p>
               </div>
               <div className="text-right">
                 {user.lastLoginAt ? (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-ui-muted">
                     {SETTINGS_LABELS.lastSeen} {new Date(user.lastLoginAt).toLocaleDateString('de-CH')}
                   </p>
                 ) : (
-                  <p className="text-xs text-gray-500">{SETTINGS_LABELS.neverLoggedIn}</p>
+                  <p className="text-xs text-ui-muted">{SETTINGS_LABELS.neverLoggedIn}</p>
                 )}
               </div>
             </div>
@@ -86,8 +86,8 @@ export default async function SettingsPage() {
 
       {/* Pilot Baseline */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">{PILOT_BASELINE_LABELS.sectionTitle}</h2>
-        <p className="text-sm text-gray-500 mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
+        <h2 className="text-lg font-semibold text-ui-text mb-1">{PILOT_BASELINE_LABELS.sectionTitle}</h2>
+        <p className="text-sm text-ui-muted mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
 
         <form action={saveSystemConfig} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -99,7 +99,7 @@ export default async function SettingsPage() {
                 defaultValue={pilotStartValue}
                 className="input"
               />
-              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
             </div>
             <div>
               <label className="label">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
@@ -112,7 +112,7 @@ export default async function SettingsPage() {
                 placeholder="z.B. 15"
                 className="input"
               />
-              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
             </div>
             <div>
               <label className="label">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
@@ -125,7 +125,7 @@ export default async function SettingsPage() {
                 placeholder="z.B. 4"
                 className="input"
               />
-              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
             </div>
             <div>
               <label className="label">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
@@ -138,7 +138,7 @@ export default async function SettingsPage() {
                 placeholder="z.B. 12"
                 className="input"
               />
-              <p className="text-xs text-gray-400 mt-1">{PILOT_BASELINE_LABELS.mediationHoursHint}</p>
+              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.mediationHoursHint}</p>
             </div>
           </div>
           <div>
@@ -151,25 +151,25 @@ export default async function SettingsPage() {
 
       {/* Email config status */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{SETTINGS_LABELS.emailConfigTitle}</h2>
+        <h2 className="text-lg font-semibold text-ui-text mb-4">{SETTINGS_LABELS.emailConfigTitle}</h2>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-status-success' : 'bg-gray-300'}`} />
-            <span className="text-gray-700">
+            <span className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-status-success' : 'bg-ui-border-strong'}`} />
+            <span className="text-ui-muted">
               {emailEnabled ? SETTINGS_LABELS.brevoConnected : SETTINGS_LABELS.brevoNotConfigured}
             </span>
           </div>
           {emailEnabled && (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-status-success" />
-              <span className="text-gray-700">
+              <span className="text-ui-muted">
                 {SETTINGS_LABELS.senderPrefix} {EMAIL_CONFIG.fromName} &lt;{EMAIL_CONFIG.fromAddress}&gt;
               </span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-status-success' : 'bg-gray-300'}`} />
-            <span className="text-gray-700">
+            <span className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-status-success' : 'bg-ui-border-strong'}`} />
+            <span className="text-ui-muted">
               {SETTINGS_LABELS.notificationsPrefix}{' '}
               {EMAIL_CONFIG.staffRecipients.length > 0
                 ? EMAIL_CONFIG.staffRecipients.join(', ')
@@ -177,7 +177,7 @@ export default async function SettingsPage() {
             </span>
           </div>
           {!emailEnabled && (
-            <p className="text-gray-500 text-xs mt-2">
+            <p className="text-ui-muted text-xs mt-2">
               {SETTINGS_LABELS.addBrevoHint}
             </p>
           )}

@@ -32,11 +32,11 @@ export function DynamicFormSection({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         {section.label}
       </h2>
       {section.description && (
-        <p className="text-sm text-gray-500 mb-4">{section.description}</p>
+        <p className="text-sm text-ui-muted mb-4">{section.description}</p>
       )}
 
       {/* Non-boolean fields */}

@@ -82,8 +82,8 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
             onClick={() => setActiveCategory(null)}
             className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               !activeCategory
-                ? 'bg-aoz-primary text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-aoz-primary text-ui-on-accent'
+                : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
             }`}
           >
             {CHORE_LABELS.filter.all}
@@ -94,8 +94,8 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
               onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
               className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 activeCategory === cat
-                  ? 'bg-aoz-primary text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-aoz-primary text-ui-on-accent'
+                  : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
               }`}
             >
               {TASK_CATEGORY_ICONS[cat]} {TASK_CATEGORY_LABELS[cat]}
@@ -108,8 +108,8 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
       {activeTasks.length === 0 && completedTasks.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-xl mb-2">📋</p>
-          <p className="font-medium text-gray-900">{CHORE_LABELS.empty.title}</p>
-          <p className="text-sm text-gray-500 mt-1">{CHORE_LABELS.empty.message}</p>
+          <p className="font-medium text-ui-text">{CHORE_LABELS.empty.title}</p>
+          <p className="text-sm text-ui-muted mt-1">{CHORE_LABELS.empty.message}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -130,7 +130,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
           ))}
 
           {urgentActionTasks.length > 0 && routineTasks.length > 0 && (
-            <p className="text-sm text-gray-500 pt-2">{CHORE_LABELS.sections.after}</p>
+            <p className="text-sm text-ui-muted pt-2">{CHORE_LABELS.sections.after}</p>
           )}
           {routineTasks.map(task => (
             <ChoreCard
@@ -143,7 +143,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
 
           {completedTasks.length > 0 && (
             <>
-              <p className="text-sm text-gray-500 pt-4">{CHORE_LABELS.card.completed}</p>
+              <p className="text-sm text-ui-muted pt-4">{CHORE_LABELS.card.completed}</p>
               {completedTasks.map(task => (
                 <ChoreCard
                   key={task.id}

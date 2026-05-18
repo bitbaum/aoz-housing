@@ -85,7 +85,7 @@ export default async function HousingListPage({ searchParams }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{PAGE_TITLES.housing}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.housing}</h1>
         <Link href="/housing/new" className="btn-primary">
           {PAGE_TITLES.newHousing}
         </Link>
@@ -95,7 +95,7 @@ export default async function HousingListPage({ searchParams }: Props) {
       <form method="GET" action="/housing" className="mb-4">
         <input type="hidden" name="view" value={view} />
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ui-muted pointer-events-none" aria-hidden="true">🔍</span>
           <input
             type="search"
             name="q"
@@ -108,7 +108,7 @@ export default async function HousingListPage({ searchParams }: Props) {
       </form>
 
       <div className="mb-4">
-        <div className="flex gap-2 border-b border-gray-200" role="tablist">
+        <div className="flex gap-2 border-b border-ui-border" role="tablist">
           <TabLink href={`/housing?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
           <TabLink href={`/housing?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
           <TabLink href={`/housing?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
@@ -130,7 +130,7 @@ export default async function HousingListPage({ searchParams }: Props) {
       {/* Unit List */}
       {units.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-4">
+          <p className="text-ui-muted mb-4">
             {q
               ? `${HOUSING_LIST_LABELS.emptyFiltered} («${q}»)`
               : view === 'archived'

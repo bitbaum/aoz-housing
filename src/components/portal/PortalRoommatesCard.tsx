@@ -24,7 +24,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{PORTAL_LABELS.dashboard.roommates}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.roommates}</h2>
         <Link href="/portal/roommates" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.dashboard.showAll}
         </Link>
@@ -37,15 +37,15 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
           return (
             <div
               key={roommate.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-aoz-secondary text-white rounded-full flex items-center justify-center font-medium">
+                <div className="w-10 h-10 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
                   {roommate.code.slice(-3)}
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{roommate.code}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-ui-text">{roommate.code}</p>
+                  <p className="text-sm text-ui-muted">
                     {roommate.socialStyle ? getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle) : '–'}
                   </p>
                 </div>

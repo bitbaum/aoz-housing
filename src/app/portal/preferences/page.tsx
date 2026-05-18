@@ -36,8 +36,8 @@ export default async function PreferencesPage() {
         <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.preferences}</h1>
-        <p className="text-gray-500">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.preferences}</h1>
+        <p className="text-ui-muted">
           {PORTAL_LABELS.pages.preferencesSubtitle}
         </p>
       </div>

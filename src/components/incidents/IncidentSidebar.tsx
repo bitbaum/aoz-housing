@@ -34,19 +34,19 @@ export function IncidentSidebar({ incident }: Props) {
     <div className="space-y-6">
       {/* Location */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {INCIDENT_SIDEBAR_LABELS.location}
         </h2>
         <Link
           href={`/housing/${incident.housingUnitId}`}
-          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+          className="flex items-center gap-3 p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
         >
           <span className="text-xl">🏠</span>
           <div>
-            <p className="font-medium text-gray-900">
+            <p className="font-medium text-ui-text">
               {incident.housingUnit.code}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-ui-muted">
               {incident.housingUnit.address}
             </p>
           </div>
@@ -55,19 +55,19 @@ export function IncidentSidebar({ incident }: Props) {
 
       {/* People Involved */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {INCIDENT_SIDEBAR_LABELS.involved}
         </h2>
         <div className="space-y-3">
           {incident.reportedBy && (
             <Link
               href={`/residents/${incident.reportedById}`}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+              className="flex items-center gap-3 p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
             >
               <span className="text-lg">📢</span>
               <div>
-                <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.reportedBy}</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.reportedBy}</p>
+                <p className="font-medium text-ui-text">
                   {incident.reportedBy.code}
                 </p>
               </div>
@@ -81,7 +81,7 @@ export function IncidentSidebar({ incident }: Props) {
             >
               <span className="text-lg">👤</span>
               <div>
-                <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.subject}</p>
+                <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.subject}</p>
                 <p className="font-medium text-status-warning-text">
                   {incident.subject.code}
                 </p>
@@ -91,17 +91,17 @@ export function IncidentSidebar({ incident }: Props) {
 
           {incident.involvedResidents.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm text-gray-500">{INCIDENT_SIDEBAR_LABELS.otherInvolved}</p>
+              <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.otherInvolved}</p>
               {incident.involvedResidents.map((inv) => (
                 <Link
                   key={inv.id}
                   href={`/residents/${inv.residentId}`}
-                  className="flex items-center gap-3 p-2 bg-gray-50 rounded hover:bg-gray-100"
+                  className="flex items-center gap-3 p-2 bg-ui-subtle rounded hover:bg-ui-subtle"
                 >
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-ui-text">
                     {inv.resident.code}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-ui-muted">
                     ({inv.role})
                   </span>
                 </Link>
@@ -110,7 +110,7 @@ export function IncidentSidebar({ incident }: Props) {
           )}
 
           {!incident.reportedBy && !incident.subject && incident.involvedResidents.length === 0 && (
-            <p className="text-gray-500 text-sm">
+            <p className="text-ui-muted text-sm">
               {INCIDENT_SIDEBAR_LABELS.noResidentsAssigned}
             </p>
           )}
@@ -120,7 +120,7 @@ export function IncidentSidebar({ incident }: Props) {
       {/* Actions */}
       {!incident.resolvedAt && (
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
             {INCIDENT_SIDEBAR_LABELS.actions}
           </h2>
           <form id="incident-resolve-form" action={resolveIncident} className="space-y-4">
@@ -145,7 +145,7 @@ export function IncidentSidebar({ incident }: Props) {
 
       {/* Mediation Time */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3">
+        <h2 className="text-lg font-semibold text-ui-text mb-3">
           {INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
         </h2>
         <form action={updateMediationTime} className="flex items-center gap-2">
@@ -161,7 +161,7 @@ export function IncidentSidebar({ incident }: Props) {
             className="input flex-1"
             aria-label={INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
           />
-          <span className="text-sm text-gray-500 whitespace-nowrap">{INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}</span>
+          <span className="text-sm text-ui-muted whitespace-nowrap">{INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}</span>
           <SubmitButton className="btn-outline min-h-[44px] px-3 text-sm whitespace-nowrap disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_SIDEBAR_LABELS.mediationTimeSave}
           </SubmitButton>
@@ -170,28 +170,28 @@ export function IncidentSidebar({ incident }: Props) {
 
       {/* Meta Info */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
           {INCIDENT_SIDEBAR_LABELS.details}
         </h2>
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.created}</dt>
-            <dd className="text-gray-900">
+            <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.created}</dt>
+            <dd className="text-ui-text">
               {formatDate(incident.createdAt)}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.incidentDate}</dt>
-            <dd className="text-gray-900">{formatDate(incident.date)}</dd>
+            <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.incidentDate}</dt>
+            <dd className="text-ui-text">{formatDate(incident.date)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.followUps}</dt>
-            <dd className="text-gray-900">{incident.followUpCount}</dd>
+            <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.followUps}</dt>
+            <dd className="text-ui-text">{incident.followUpCount}</dd>
           </div>
           {incident.mediationMinutes !== null && incident.mediationMinutes > 0 && (
             <div className="flex justify-between">
-              <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.mediationTime}</dt>
-              <dd className="text-gray-900 font-medium">
+              <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.mediationTime}</dt>
+              <dd className="text-ui-text font-medium">
                 {incident.mediationMinutes >= 60
                   ? `${Math.floor(incident.mediationMinutes / 60)}h ${incident.mediationMinutes % 60 > 0 ? `${incident.mediationMinutes % 60}min` : ''}`
                   : `${incident.mediationMinutes} min`}
@@ -200,8 +200,8 @@ export function IncidentSidebar({ incident }: Props) {
           )}
           {incident.resolvedAt && (
             <div className="flex justify-between">
-              <dt className="text-gray-500">{INCIDENT_SIDEBAR_LABELS.resolvedAt}</dt>
-              <dd className="text-gray-900">
+              <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.resolvedAt}</dt>
+              <dd className="text-ui-text">
                 {formatDate(incident.resolvedAt)}
               </dd>
             </div>

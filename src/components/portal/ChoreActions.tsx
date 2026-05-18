@@ -122,9 +122,9 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
       {/* Modal forms */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-t-xl sm:rounded-xl w-full max-w-md max-h-[80vh] overflow-y-auto p-6">
+          <div className="bg-ui-surface rounded-t-xl sm:rounded-lg w-full max-w-md max-h-[80vh] overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">
+              <h3 className="font-semibold text-ui-text">
                 {activeModal === 'complete' && CHORE_LABELS.complete.title}
                 {activeModal === 'request' && CHORE_LABELS.request.title}
                 {activeModal === 'attention' && CHORE_LABELS.attention.title}
@@ -132,7 +132,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
               </h3>
               <button
                 onClick={() => setActiveModal(null)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-700"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-muted hover:text-ui-muted"
                 aria-label={UI_LABELS.close}
               >
                 ✕
@@ -142,18 +142,18 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
             {activeModal === 'complete' && (
               <form onSubmit={handleComplete} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.complete.notes}
                   </label>
                   <textarea
                     name="notes"
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                     rows={3}
                     placeholder={CHORE_LABELS.complete.notesPlaceholder}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.complete.duration}
                   </label>
                   <input
@@ -161,7 +161,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
                     type="number"
                     min="1"
                     max="480"
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                   />
                 </div>
                 <button
@@ -177,27 +177,27 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
             {activeModal === 'request' && (
               <form onSubmit={handleRequest} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.request.selectRoommate}
                   </label>
                   <select
                     name="requestedResidentId"
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm min-h-[44px]"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
                   >
                     <option value="">{CHORE_LABELS.request.broadcast}</option>
                     {roommates.map(r => (
                       <option key={r.id} value={r.id}>{r.code}</option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">{CHORE_LABELS.request.broadcastDesc}</p>
+                  <p className="text-xs text-ui-muted mt-1">{CHORE_LABELS.request.broadcastDesc}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.request.message}
                   </label>
                   <textarea
                     name="message"
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                     rows={2}
                     placeholder={CHORE_LABELS.request.messagePlaceholder}
                   />
@@ -215,12 +215,12 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
             {activeModal === 'attention' && (
               <form onSubmit={handleAttention} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.attention.message}
                   </label>
                   <textarea
                     name="message"
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                     rows={3}
                     placeholder={CHORE_LABELS.attention.messagePlaceholder}
                   />
@@ -237,15 +237,15 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
 
             {activeModal === 'complaint' && (
               <form onSubmit={handleComplaint} className="space-y-4">
-                <p className="text-sm text-gray-500">{CHORE_LABELS.complaint.note}</p>
+                <p className="text-sm text-ui-muted">{CHORE_LABELS.complaint.note}</p>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.complaint.description}
                   </label>
                   <textarea
                     name="description"
                     required
-                    className="w-full rounded-lg border border-gray-300 p-3 text-sm"
+                    className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                     rows={4}
                     placeholder={CHORE_LABELS.complaint.descriptionPlaceholder}
                   />

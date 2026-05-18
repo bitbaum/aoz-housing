@@ -32,7 +32,7 @@ export function FormValidationUX({ formId, summaryId }: Props) {
 
       // Add inline error styling
       if (target) {
-        target.classList.add('border-red-500', 'ring-1', 'ring-red-500')
+        target.classList.add('border-status-error', 'ring-1', 'ring-status-error')
 
         // Add error message below the field if not already present
         const fieldContainer = target.closest('.field-group') || target.parentElement
@@ -55,7 +55,7 @@ export function FormValidationUX({ formId, summaryId }: Props) {
 
       // Remove inline error from the changed field
       if (target) {
-        target.classList.remove('border-red-500', 'ring-1', 'ring-red-500')
+        target.classList.remove('border-status-error', 'ring-1', 'ring-status-error')
         const fieldContainer = target.closest('.field-group') || target.parentElement
         const errorMsg = fieldContainer?.querySelector('.field-error')
         if (errorMsg) errorMsg.remove()

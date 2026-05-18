@@ -64,10 +64,10 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           <div className="flex items-center gap-4">
             <span className="text-3xl">{categoryIcon}</span>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
                 {request.title}
               </h1>
-              <p className="text-gray-500">
+              <p className="text-ui-muted">
                 {getLabel(MAINTENANCE_CATEGORY_LABELS, request.category)} ·{' '}
                 {request.housingUnit.code}
                 {request.location && ` · ${request.location}`}
@@ -90,10 +90,10 @@ export default async function MaintenanceDetailPage({ params }: Props) {
         <div className="lg:col-span-2 space-y-6">
           {/* Description */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {MAINTENANCE_PAGE_LABELS.descriptionTitle}
             </h2>
-            <p className="text-gray-600 whitespace-pre-wrap">
+            <p className="text-ui-muted whitespace-pre-wrap">
               {request.description}
             </p>
           </div>
@@ -101,7 +101,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Status Update Form */}
           {isActive && (
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.updateStatusTitle}
               </h2>
               <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
@@ -175,14 +175,14 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Resolution */}
           {request.resolution && (
             <div className="card bg-status-success/10">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.resolutionTitle}
               </h2>
-              <p className="text-gray-600 whitespace-pre-wrap">
+              <p className="text-ui-muted whitespace-pre-wrap">
                 {request.resolution}
               </p>
               {request.cost && (
-                <p className="text-sm text-gray-500 mt-2">
+                <p className="text-sm text-ui-muted mt-2">
                   {MAINTENANCE_PAGE_LABELS.costPrefix}{request.cost.toFixed(2)}
                 </p>
               )}
@@ -194,80 +194,80 @@ export default async function MaintenanceDetailPage({ params }: Props) {
         <div className="space-y-6">
           {/* Location */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {MAINTENANCE_PAGE_LABELS.locationTitle}
             </h2>
             <Link
               href={`/housing/${request.housingUnitId}`}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+              className="flex items-center gap-3 p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
             >
               <span className="text-xl">🏠</span>
               <div>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-ui-text">
                   {request.housingUnit.code}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-ui-muted">
                   {request.housingUnit.address}
                 </p>
               </div>
             </Link>
             {request.spot && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">{MAINTENANCE_PAGE_LABELS.spotLabel}</p>
-                <p className="font-medium text-gray-900">
+              <div className="mt-3 p-3 bg-ui-subtle rounded-lg">
+                <p className="text-sm text-ui-muted">{MAINTENANCE_PAGE_LABELS.spotLabel}</p>
+                <p className="font-medium text-ui-text">
                   {request.spot.label || request.spot.code}
                 </p>
               </div>
             )}
             {request.location && (
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-500">{MAINTENANCE_PAGE_LABELS.locationLabel}</p>
-                <p className="font-medium text-gray-900">{request.location}</p>
+              <div className="mt-3 p-3 bg-ui-subtle rounded-lg">
+                <p className="text-sm text-ui-muted">{MAINTENANCE_PAGE_LABELS.locationLabel}</p>
+                <p className="font-medium text-ui-text">{request.location}</p>
               </div>
             )}
           </div>
 
           {/* Reporter */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {MAINTENANCE_PAGE_LABELS.reporterTitle}
             </h2>
             {request.reportedBy ? (
               <Link
                 href={`/residents/${request.reportedById}`}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100"
+                className="flex items-center gap-3 p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
               >
                 <span className="text-xl">👤</span>
-                <p className="font-medium text-gray-900">
+                <p className="font-medium text-ui-text">
                   {request.reportedBy.code}
                 </p>
               </Link>
             ) : request.reporterName ? (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="font-medium text-gray-900">
+              <div className="p-3 bg-ui-subtle rounded-lg">
+                <p className="font-medium text-ui-text">
                   {request.reporterName}
                 </p>
               </div>
             ) : (
-              <p className="text-gray-500">{MAINTENANCE_PAGE_LABELS.notAngegeben}</p>
+              <p className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.notAngegeben}</p>
             )}
           </div>
 
           {/* Assignment */}
           {request.assignedTo && (
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.assignedTitle}
               </h2>
               <div className="p-3 bg-status-info/8 rounded-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🔧</span>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-ui-text">
                     {request.assignedTo}
                   </p>
                 </div>
                 {request.assignedAt && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-ui-muted mt-1">
                     {MAINTENANCE_PAGE_LABELS.assignedSince(formatDate(request.assignedAt))}
                   </p>
                 )}
@@ -277,30 +277,30 @@ export default async function MaintenanceDetailPage({ params }: Props) {
 
           {/* Timeline */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {MAINTENANCE_PAGE_LABELS.timelineTitle}
             </h2>
             <dl className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineCreated}</dt>
-                <dd className="text-gray-900">{formatDate(request.createdAt)}</dd>
+                <dt className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.timelineCreated}</dt>
+                <dd className="text-ui-text">{formatDate(request.createdAt)}</dd>
               </div>
               {request.assignedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineAssigned}</dt>
-                  <dd className="text-gray-900">{formatDate(request.assignedAt)}</dd>
+                  <dt className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.timelineAssigned}</dt>
+                  <dd className="text-ui-text">{formatDate(request.assignedAt)}</dd>
                 </div>
               )}
               {request.startedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineStarted}</dt>
-                  <dd className="text-gray-900">{formatDate(request.startedAt)}</dd>
+                  <dt className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.timelineStarted}</dt>
+                  <dd className="text-ui-text">{formatDate(request.startedAt)}</dd>
                 </div>
               )}
               {request.completedAt && (
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">{MAINTENANCE_PAGE_LABELS.timelineCompleted}</dt>
-                  <dd className="text-gray-900">{formatDate(request.completedAt)}</dd>
+                  <dt className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.timelineCompleted}</dt>
+                  <dd className="text-ui-text">{formatDate(request.completedAt)}</dd>
                 </div>
               )}
             </dl>
@@ -309,10 +309,10 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           {/* Notes */}
           {request.notes && (
             <div className="card">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.notesTitle}
               </h2>
-              <p className="text-sm text-gray-600">{request.notes}</p>
+              <p className="text-sm text-ui-muted">{request.notes}</p>
             </div>
           )}
         </div>

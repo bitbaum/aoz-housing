@@ -253,22 +253,22 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           <div className="flex items-center gap-3">
             <Link
               href="/residents"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-ui-muted hover:text-ui-muted"
             >
               {RESIDENT_DETAIL_LABELS.breadcrumb}
             </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">{resident.code}</span>
+            <span className="text-ui-muted">/</span>
+            <span className="text-ui-text">{resident.code}</span>
           </div>
           <div className="flex items-center gap-4 mt-2">
-            <div className="w-12 h-12 bg-aoz-primary text-white rounded-full flex items-center justify-center font-semibold text-lg">
+            <div className="w-12 h-12 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-semibold text-lg">
               {resident.code.slice(-3)}
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
                 {resident.code}
               </h1>
-              <p className="text-gray-500">
+              <p className="text-ui-muted">
                 {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
                 {getLabel(GENDER_LABELS, resident.gender)} ·{' '}
                 {getLabel(FAMILY_STATUS_LABELS, resident.familyStatus)}
@@ -301,40 +301,40 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
         <div className="lg:col-span-2 space-y-6">
           {/* Current Placement */}
           <div className="card">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-ui-text mb-4">
               {RESIDENT_DETAIL_LABELS.currentPlacementTitle}
             </h2>
             {currentPlacement ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-status-success/10 rounded-lg">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-status-success text-white rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-status-success text-ui-on-accent rounded-lg flex items-center justify-center">
                       {'\u{1F3E0}'}
                     </div>
                     <div>
                       <Link
                         href={`/housing/${currentPlacement.housingUnitId}`}
-                        className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                        className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
                       >
                         {currentPlacement.housingUnit.code}
                       </Link>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-ui-muted">
                         {currentPlacement.housingUnit.address}
                       </p>
                       {currentPlacement.spot && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-ui-muted">
                           {SPOT_TYPE_ICONS[currentPlacement.spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
                           {currentPlacement.spot.label || currentPlacement.spot.code}
                         </p>
                       )}
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-ui-muted">
                         {RESIDENT_DETAIL_LABELS.since}{formatDate(currentPlacement.startDate)}
                       </p>
                     </div>
                   </div>
                   {currentPlacement.compatibilityScore && (
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">{RESIDENT_DETAIL_LABELS.compatibility}</p>
+                      <p className="text-sm text-ui-muted">{RESIDENT_DETAIL_LABELS.compatibility}</p>
                       <p
                         className={`text-lg font-semibold ${getScoreColorClass(
                           currentPlacement.compatibilityScore
@@ -348,8 +348,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                 </div>
 
                 {/* Quick Check-in - Primary action for case workers */}
-                <div className="pt-4 border-t border-gray-100">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">
+                <div className="pt-4 border-t border-ui-border">
+                  <h3 className="text-sm font-medium text-ui-muted mb-3">
                     {RESIDENT_DETAIL_LABELS.quickCheckin}
                   </h3>
                   <QuickCheckIn
@@ -395,7 +395,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               </div>
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">{RESIDENT_DETAIL_LABELS.notPlaced}</p>
+                <p className="text-ui-muted mb-4">{RESIDENT_DETAIL_LABELS.notPlaced}</p>
                 <Link
                   href={`/matching?resident=${resident.id}`}
                   className="btn-primary"

@@ -57,16 +57,16 @@ export default async function ReportPage() {
         <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{PORTAL_LABELS.pages.report}</h1>
-        <p className="text-gray-500">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.report}</h1>
+        <p className="text-ui-muted">
           {PORTAL_LABELS.pages.reportSubtitle}
         </p>
       </div>
 
       {!currentPlacement ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500 mb-3">{PORTAL_LABELS.report.noPlacement}</p>
-          <p className="text-sm text-gray-500 font-medium">{PORTAL_LABELS.report.noPlacementContact}</p>
+          <p className="text-ui-muted mb-3">{PORTAL_LABELS.report.noPlacement}</p>
+          <p className="text-sm text-ui-muted font-medium">{PORTAL_LABELS.report.noPlacementContact}</p>
         </div>
       ) : (
         <ReportForm roommates={roommates} />

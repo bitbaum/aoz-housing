@@ -70,8 +70,8 @@ export function PlacementActions({
 
   return (
     <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
-      <h3 className="text-sm font-medium text-gray-700 mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
-      <p className="text-xs text-gray-500 mb-3">
+      <h3 className="text-sm font-medium text-ui-muted mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
+      <p className="text-xs text-ui-muted mb-3">
         {PLACEMENT_ACTIONS_LABELS.shortcutHint}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ export function PlacementActions({
           className={`btn-outline inline-flex items-center gap-2 ${
             showEnd
               ? 'ring-2 ring-status-error/40 bg-status-error/8 text-status-error'
-              : 'text-gray-500 hover:text-status-error hover:border-status-error/40'
+              : 'text-ui-muted hover:text-status-error hover:border-status-error/40'
           }`}
           onClick={() => {
             setShowEnd(!showEnd)

@@ -24,10 +24,10 @@ export default function ActivitiesPage() {
         <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {PORTAL_LABELS.pages.activities}
         </h1>
-        <p className="text-gray-500">{PORTAL_LABELS.pages.activitiesSubtitle}</p>
+        <p className="text-ui-muted">{PORTAL_LABELS.pages.activitiesSubtitle}</p>
       </div>
 
       {/* Category filter */}
@@ -51,7 +51,7 @@ export default function ActivitiesPage() {
 
       {/* Activities list */}
       {filtered.length === 0 ? (
-        <p className="text-gray-500 text-center py-12">{PORTAL_LABELS.activities.noResults}</p>
+        <p className="text-ui-muted text-center py-12">{PORTAL_LABELS.activities.noResults}</p>
       ) : (
         <div className="space-y-4">
           {filtered.map(activity => (
@@ -59,7 +59,7 @@ export default function ActivitiesPage() {
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-lg">{ACTIVITY_CATEGORIES[activity.category].icon}</span>
-                  <h2 className="font-semibold text-gray-900">{activity.title}</h2>
+                  <h2 className="font-semibold text-ui-text">{activity.title}</h2>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className={`badge ${COST_BADGE[activity.cost].class}`}>
@@ -68,13 +68,13 @@ export default function ActivitiesPage() {
                 </div>
               </div>
 
-              <p className="text-sm text-gray-600 mt-2">{activity.description}</p>
+              <p className="text-sm text-ui-muted mt-2">{activity.description}</p>
 
               {activity.costNote && (
-                <p className="text-xs text-gray-500 mt-1 italic">{activity.costNote}</p>
+                <p className="text-xs text-ui-muted mt-1 italic">{activity.costNote}</p>
               )}
 
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ui-muted">
                 {activity.location && (
                   <span className="flex items-center gap-1">
                     <span aria-hidden="true">📍</span> {activity.location}
@@ -131,8 +131,8 @@ function CategoryChip({
       onClick={onClick}
       className={`min-h-[44px] px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
         active
-          ? 'bg-aoz-primary text-white'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ? 'bg-aoz-primary text-ui-on-accent'
+          : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
       }`}
     >
       {children}

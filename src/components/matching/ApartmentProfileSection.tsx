@@ -43,7 +43,7 @@ export function ApartmentProfileSection({
   if (apartmentProfile.isEmpty) return null
 
   return (
-    <div className="mb-3 p-3 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded-xl">
+    <div className="mb-3 p-3 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded-lg">
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs font-semibold text-aoz-secondary uppercase">
           {MATCHING_LABELS.apartmentProfile} ({apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
@@ -86,9 +86,9 @@ export function ApartmentProfileSection({
         <summary className="cursor-pointer text-aoz-secondary hover:text-aoz-secondary-dark font-medium">
           📊 {MATCHING_LABELS.scoreDerivation}
         </summary>
-        <div className="mt-2 p-2 bg-white border border-aoz-secondary/15 rounded text-gray-700">
+        <div className="mt-2 p-2 bg-ui-surface border border-aoz-secondary/15 rounded text-ui-muted">
           <p className="font-semibold mb-1">Fit Score: {apartmentFit.fitScore}%</p>
-          <p className="text-gray-500 mb-2">{MATCHING_LABELS.basePenalty}</p>
+          <p className="text-ui-muted mb-2">{MATCHING_LABELS.basePenalty}</p>
 
           {apartmentFit.conflicts.length > 0 && (
             <div className="mb-2">
@@ -96,7 +96,7 @@ export function ApartmentProfileSection({
               {apartmentFit.conflicts.map((c: ApartmentConflict, i: number) => (
                 <p key={i} className="ml-2">
                   • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
-                  <span className="text-gray-500 ml-1">
+                  <span className="text-ui-muted ml-1">
                     ({formatConflictValue(c.attribute, c.residentValue)} vs {formatConflictValue(c.attribute, c.apartmentAverage)})
                   </span>
                 </p>
@@ -117,7 +117,7 @@ export function ApartmentProfileSection({
             <p className="text-status-success-text">{MATCHING_LABELS.smallGroupBonus} +5</p>
           )}
 
-          <p className="mt-2 pt-2 border-t border-gray-100 font-semibold">
+          <p className="mt-2 pt-2 border-t border-ui-border font-semibold">
             = {apartmentFit.fitScore}% {MATCHING_LABELS.totalFit}
           </p>
         </div>

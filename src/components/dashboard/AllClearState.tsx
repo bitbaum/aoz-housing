@@ -34,11 +34,11 @@ export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: nu
   const showMatchingHighlight = unplacedCount > 0 && freeBeds > 0
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="bg-ui-surface border border-ui-border rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">{DASHBOARD_LABELS.sectionQuickActions}</h2>
+        <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{DASHBOARD_LABELS.sectionQuickActions}</h2>
         {freeBeds > 0 && (
-          <span className="text-xs text-gray-500">{freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}</span>
+          <span className="text-xs text-ui-muted">{freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}</span>
         )}
       </div>
       <div className="flex flex-wrap gap-2">
@@ -76,9 +76,9 @@ function QuickActionButton({
   badge?: number
 }) {
   const variantStyles = {
-    primary: 'bg-aoz-primary text-white hover:bg-aoz-primary-dark',
-    secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-    highlight: 'bg-aoz-secondary text-white hover:bg-aoz-secondary-dark',
+    primary: 'bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark',
+    secondary: 'bg-ui-subtle text-ui-muted hover:bg-ui-border',
+    highlight: 'bg-aoz-secondary text-ui-on-accent hover:bg-aoz-secondary-dark',
   }
 
   return (
@@ -89,7 +89,7 @@ function QuickActionButton({
       <span>{icon}</span>
       <span>{label}</span>
       {badge !== undefined && badge > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-status-error text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute -top-1.5 -right-1.5 bg-status-error text-ui-on-accent text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
           {badge}
         </span>
       )}

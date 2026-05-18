@@ -15,17 +15,17 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
     <>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-ui-text">
             {MATCHING_LABELS.matchingResidents}
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-ui-muted">
             {selectedUnit.placements.length}/{selectedUnit.totalBeds} {MATCHING_LABELS.occupied} ·{' '}
             {freeSpots} {MATCHING_LABELS.freeSpots(freeSpots)}
           </p>
         </div>
         <Link
           href="/matching"
-          className="inline-flex items-center min-h-[44px] px-1 text-sm text-gray-500 hover:text-gray-700"
+          className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted"
         >
           {MATCHING_LABELS.back}
         </Link>
@@ -33,8 +33,8 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
 
       {/* Current residents in unit */}
       {selectedUnit.placements.length > 0 && (
-        <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-          <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+        <div className="mb-4 p-3 bg-ui-subtle rounded-lg">
+          <p className="text-xs font-semibold text-ui-muted uppercase mb-2">
             {MATCHING_LABELS.currentResidents}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -42,9 +42,9 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               <Link
                 key={p.id}
                 href={`/residents/${p.residentId}`}
-                className="inline-flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-gray-100 text-sm hover:border-aoz-primary"
+                className="inline-flex items-center gap-1.5 px-2 py-1 bg-ui-surface rounded-lg border border-ui-border text-sm hover:border-aoz-primary"
               >
-                <span className="w-5 h-5 bg-aoz-primary text-white rounded-full flex items-center justify-center text-xs">
+                <span className="w-5 h-5 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-xs">
                   {p.resident.code.slice(0, 1)}
                 </span>
                 {p.resident.code}
@@ -56,7 +56,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
 
       {unitMatches.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">{MATCHING_LABELS.noMatchingResidents}</p>
+          <p className="text-ui-muted">{MATCHING_LABELS.noMatchingResidents}</p>
           <Link href="/residents/new" className="btn-outline mt-4 inline-block">
             {MATCHING_LABELS.createNewResident}
           </Link>
@@ -66,23 +66,23 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
           {unitMatches.slice(0, DISPLAY_LIMITS.unitMatches).map((match) => (
             <div
               key={match.resident.id}
-              className={`p-3 border rounded-xl ${
-                match.concerns.length > 0 ? 'border-score-low/25 bg-score-low/8' : 'border-gray-100'
+              className={`p-3 border rounded-lg ${
+                match.concerns.length > 0 ? 'border-score-low/25 bg-score-low/8' : 'border-ui-border'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-aoz-primary text-white rounded-full flex items-center justify-center font-medium">
+                  <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
                     {match.resident.code.slice(-3)}
                   </div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
-                      className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                      className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
                     >
                       {match.resident.code}
                     </Link>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
                       {match.resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
                     </p>
@@ -108,7 +108,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                 </div>
               )}
               {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
-                <div className="mt-2 pt-2 border-t border-gray-100">
+                <div className="mt-2 pt-2 border-t border-ui-border">
                   {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((s: string, i: number) => (
                     <p key={i} className="text-xs text-status-success-text">✓ {s}</p>
                   ))}

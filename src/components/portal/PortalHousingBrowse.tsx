@@ -33,7 +33,7 @@ export function PortalHousingBrowse({ results }: PortalHousingBrowseProps) {
   if (results.length === 0) {
     return (
       <div className="card text-center py-12">
-        <p className="text-gray-500">{L.noMatches}</p>
+        <p className="text-ui-muted">{L.noMatches}</p>
       </div>
     )
   }
@@ -44,7 +44,7 @@ export function PortalHousingBrowse({ results }: PortalHousingBrowseProps) {
         <HousingCard key={result.unitId} result={result} />
       ))}
 
-      <p className="text-sm text-gray-500 text-center pt-4">
+      <p className="text-sm text-ui-muted text-center pt-4">
         {L.contactHint}
       </p>
     </div>
@@ -60,8 +60,8 @@ function HousingCard({ result }: { result: HousingResult }) {
       {/* Header: Address + Score */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
-          <h3 className="font-semibold text-gray-900 truncate">{result.address}</h3>
-          <p className="text-sm text-gray-500">
+          <h3 className="font-semibold text-ui-text truncate">{result.address}</h3>
+          <p className="text-sm text-ui-muted">
             {result.isEmpty
               ? L.emptyUnit
               : `${result.currentResidentCount} ${L.currentRoommates}`}
@@ -89,7 +89,7 @@ function HousingCard({ result }: { result: HousingResult }) {
       {/* Strengths */}
       {result.strengths.length > 0 && (
         <div className="mb-3">
-          <p className="text-xs font-medium text-gray-500 mb-1">{L.strengths}</p>
+          <p className="text-xs font-medium text-ui-muted mb-1">{L.strengths}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.strengths.map(s => (
               <span key={s} className="px-2 py-0.5 bg-score-excellent/10 text-status-success-text rounded text-xs">
@@ -103,7 +103,7 @@ function HousingCard({ result }: { result: HousingResult }) {
       {/* Concerns (non-blocking conflicts + warnings) */}
       {(result.concerns.length > 0 || result.conflicts.length > 0) && (
         <div>
-          <p className="text-xs font-medium text-gray-500 mb-1">{L.concerns}</p>
+          <p className="text-xs font-medium text-ui-muted mb-1">{L.concerns}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.conflicts.map(c => (
               <span key={c.message} className="px-2 py-0.5 bg-score-medium/10 text-status-warning-text rounded text-xs">
@@ -124,7 +124,7 @@ function HousingCard({ result }: { result: HousingResult }) {
 
 function FeaturePill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+    <span className="px-2 py-0.5 bg-ui-subtle text-ui-muted rounded text-xs">
       {children}
     </span>
   )

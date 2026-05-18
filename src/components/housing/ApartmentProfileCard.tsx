@@ -114,8 +114,8 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
   if (residents.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{APARTMENT_PROFILE_LABELS.title}</h2>
-        <p className="text-gray-500 text-center py-4">{APARTMENT_PROFILE_LABELS.emptyState}</p>
+        <h2 className="text-lg font-semibold text-ui-text mb-4">{APARTMENT_PROFILE_LABELS.title}</h2>
+        <p className="text-ui-muted text-center py-4">{APARTMENT_PROFILE_LABELS.emptyState}</p>
       </div>
     )
   }
@@ -129,9 +129,9 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">{APARTMENT_PROFILE_LABELS.title}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{APARTMENT_PROFILE_LABELS.title}</h2>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">{APARTMENT_PROFILE_LABELS.harmonyLabel}</span>
+          <span className="text-sm text-ui-muted">{APARTMENT_PROFILE_LABELS.harmonyLabel}</span>
           <span className={`text-lg font-bold ${getScoreColorClass(metrics.harmonyScore)}`}>
             {metrics.harmonyScore}%
           </span>
@@ -139,8 +139,8 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
       </div>
 
       {/* Quick Summary */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <p className="text-sm text-gray-700">
+      <div className="mb-4 p-3 bg-ui-subtle rounded-lg">
+        <p className="text-sm text-ui-muted">
           <span className="font-medium">{residents.length}{APARTMENT_PROFILE_LABELS.residentsSuffix}</span>
           {' · '}
           {dominantSleepSchedule && getLabel(SLEEP_SCHEDULE_LABELS, dominantSleepSchedule)}
@@ -183,23 +183,23 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           {/* Categorical Distributions */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2">{APARTMENT_PROFILE_LABELS.sleepSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.sleepSection}</p>
               <div className="space-y-1">
                 {Object.entries(metrics.sleepSchedules).map(([schedule, count]) => (
                   <div key={schedule} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{getLabel(SLEEP_SCHEDULE_LABELS, schedule)}</span>
-                    <span className="font-medium text-gray-900">{count}</span>
+                    <span className="text-ui-muted">{getLabel(SLEEP_SCHEDULE_LABELS, schedule)}</span>
+                    <span className="font-medium text-ui-text">{count}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2">{APARTMENT_PROFILE_LABELS.socialSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.socialSection}</p>
               <div className="space-y-1">
                 {Object.entries(metrics.socialStyles).map(([style, count]) => (
                   <div key={style} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">{getLabel(SOCIAL_STYLE_LABELS, style)}</span>
-                    <span className="font-medium text-gray-900">{count}</span>
+                    <span className="text-ui-muted">{getLabel(SOCIAL_STYLE_LABELS, style)}</span>
+                    <span className="font-medium text-ui-text">{count}</span>
                   </div>
                 ))}
               </div>
@@ -209,7 +209,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           {/* Languages */}
           {metrics.languages.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-gray-500 mb-2">{APARTMENT_PROFILE_LABELS.languagesSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.languagesSection}</p>
               <div className="flex flex-wrap gap-1">
                 {metrics.languages.map(({ code, count }) => (
                   <span
@@ -257,9 +257,9 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm text-gray-600">{label}</span>
+        <span className="text-sm text-ui-muted">{label}</span>
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-900">{roundedValue.toFixed(1)}</span>
+          <span className="text-sm font-medium text-ui-text">{roundedValue.toFixed(1)}</span>
           {outliers.length > 0 && (
             <span className="text-xs text-status-warning-text" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.code).join(', ')}`}>
               ⚠️ {outliers.map(o => o.code).join(', ')}
@@ -267,7 +267,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
           )}
         </div>
       </div>
-      <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="relative h-2 bg-ui-subtle rounded-full overflow-hidden">
         {/* Average indicator */}
         <div
           className="absolute h-full bg-aoz-primary rounded-full transition-all"
@@ -287,7 +287,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
           )
         })}
       </div>
-      <div className="flex justify-between text-xs text-gray-500 mt-0.5">
+      <div className="flex justify-between text-xs text-ui-muted mt-0.5">
         <span>{scaleFactor ? scaleFactor.lowLabel : '1'}</span>
         <span>{scaleFactor ? scaleFactor.highLabel : '5'}</span>
       </div>

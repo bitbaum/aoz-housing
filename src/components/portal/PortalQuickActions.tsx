@@ -26,9 +26,9 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
           <p className="text-xs text-status-info-text">{L.prioritySections.next.desc}</p>
         </div>
 
-        <div className="p-3 rounded-lg border border-gray-200 bg-gray-50">
-          <h2 className="text-sm font-semibold text-gray-800 uppercase tracking-wide">{L.prioritySections.info.heading}</h2>
-          <p className="text-xs text-gray-600">{L.prioritySections.info.desc}</p>
+        <div className="p-3 rounded-lg border border-ui-border bg-ui-subtle">
+          <h2 className="text-sm font-semibold text-ui-text uppercase tracking-wide">{L.prioritySections.info.heading}</h2>
+          <p className="text-xs text-ui-muted">{L.prioritySections.info.desc}</p>
         </div>
       </div>
 
@@ -83,7 +83,7 @@ function QuickActionCard({
   const priorityStyles = {
     now: 'border-2 border-status-warning/40 bg-status-warning/8',
     next: 'border-2 border-status-info/30 bg-status-info/6',
-    info: 'border border-gray-200',
+    info: 'border border-ui-border',
   }
 
   return (
@@ -92,8 +92,8 @@ function QuickActionCard({
       className={`card-hover text-center ${priorityStyles[priority]}`}
     >
       <span className="text-4xl mb-3 block">{icon}</span>
-      <h3 className="font-semibold text-gray-900">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
+      <h3 className="font-semibold text-ui-text">{title}</h3>
+      <p className="text-sm text-ui-muted">{description}</p>
     </Link>
   )
 }

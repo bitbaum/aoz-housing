@@ -31,7 +31,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
         {PLACEMENT_HISTORY_LABELS.title} ({placements.length})
       </h2>
       <div className="space-y-3">
@@ -41,14 +41,14 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
             className={`flex items-center justify-between p-3 rounded-lg ${
               placement.status === 'TRANSFERRED'
                 ? 'bg-status-info/8 border-l-4 border-status-info'
-                : 'bg-gray-50'
+                : 'bg-ui-subtle'
             }`}
           >
             <div>
               <div className="flex items-center gap-2">
                 <Link
                   href={`/housing/${placement.housingUnitId}`}
-                  className="inline-flex items-center py-2 -my-2 font-medium text-gray-900 hover:text-aoz-primary"
+                  className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
                 >
                   {placement.housingUnit.code}
                 </Link>
@@ -57,12 +57,12 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
                 )}
               </div>
               {placement.spot && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-ui-muted">
                   {SPOT_TYPE_ICONS[placement.spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
                   {placement.spot.label || placement.spot.code}
                 </p>
               )}
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-ui-muted">
                 {formatDate(placement.startDate)} -{' '}
                 {placement.endDate
                   ? formatDate(placement.endDate)

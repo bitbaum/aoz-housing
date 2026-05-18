@@ -48,14 +48,14 @@ export function ScaleInput({
               className="sr-only peer"
               aria-label={`${level} von ${max}`}
             />
-            <div className="py-3 text-center rounded-lg border-2 border-gray-200 peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-white transition-colors font-medium min-h-[44px] flex items-center justify-center">
+            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors font-medium min-h-[44px] flex items-center justify-center">
               {level}
             </div>
           </label>
         ))}
       </div>
       {(minLabel || maxLabel) && (
-        <div id={descriptionId} className="flex justify-between text-xs text-gray-500 mt-1">
+        <div id={descriptionId} className="flex justify-between text-xs text-ui-muted mt-1">
           <span>{minLabel}</span>
           <span>{maxLabel}</span>
         </div>

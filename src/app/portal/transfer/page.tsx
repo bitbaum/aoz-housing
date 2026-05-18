@@ -62,20 +62,20 @@ export default async function TransferPage() {
         <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mt-2">{L.title}</h1>
-        <p className="text-gray-500">{L.subtitle}</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{L.title}</h1>
+        <p className="text-ui-muted">{L.subtitle}</p>
       </div>
 
       {!placement ? (
         <div className="card text-center py-12">
-          <p className="text-gray-500">{L.noPlacement}</p>
+          <p className="text-ui-muted">{L.noPlacement}</p>
         </div>
       ) : pendingRequest ? (
         <div className="card">
           <div className="text-center py-8">
             <div className="text-4xl mb-4">📋</div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">{L.pendingTitle}</h2>
-            <p className="text-gray-500 max-w-md mx-auto">{L.pendingMessage}</p>
+            <h2 className="text-lg font-semibold text-ui-text mb-2">{L.pendingTitle}</h2>
+            <p className="text-ui-muted max-w-md mx-auto">{L.pendingMessage}</p>
           </div>
         </div>
       ) : (
