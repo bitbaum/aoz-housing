@@ -22,9 +22,9 @@ function LogoMark({ size = 'md', showTagline = false, className = '' }: Omit<Log
   return (
     <div className={`flex items-center gap-1.5 ${className}`}>
       <span className={`text-aoz-primary font-bold ${s.aoz} tracking-tight`}>AOZ</span>
-      <span className={`text-aoz-secondary font-semibold ${s.label}`}>Wohnen</span>
+      <span className={`text-neutral-950 font-semibold ${s.label}`}>Wohnen</span>
       {showTagline && (
-        <span className={`hidden lg:inline text-gray-500 ml-1.5 ${s.tagline}`}>
+        <span className={`hidden lg:inline text-neutral-500 ml-1.5 ${s.tagline}`}>
           {APP_LABELS.tagline}
         </span>
       )}

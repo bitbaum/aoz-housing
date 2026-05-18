@@ -44,7 +44,7 @@ export function ToastContainer() {
       {toasts.map(toast => (
         <div
           key={toast.id}
-          className={`px-4 py-3 rounded-xl shadow-card text-sm font-medium animate-slide-up max-w-sm ${
+          className={`px-4 py-3 rounded-lg shadow-card-hover border text-sm font-medium animate-slide-up max-w-sm ${
             toast.type === 'success'
               ? 'bg-status-success text-white'
               : toast.type === 'error'

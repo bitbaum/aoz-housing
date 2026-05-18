@@ -40,7 +40,7 @@ export function ConfirmDialog({
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-white rounded-xl shadow-card-hover max-w-md w-full mx-4">
+          <div className="bg-white rounded-lg shadow-card-hover border border-neutral-200 max-w-md w-full mx-4">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-100">
               <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

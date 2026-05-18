@@ -50,13 +50,13 @@ export function MobileNav() {
   return (
     <>
       {/* Mobile header */}
-      <header className="md:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm z-40">
+      <header className="md:hidden fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-neutral-200 z-40">
         <div className="flex items-center justify-between px-4 py-3">
           <Logo size="md" />
           <button
             ref={openButtonRef}
             onClick={() => setIsOpen(true)}
-            className="p-2 text-gray-600 hover:text-aoz-secondary min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
+            className="p-2 text-neutral-600 hover:text-neutral-950 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary/30 rounded-md"
             aria-label={UI_LABELS.menuOpen}
             aria-expanded={isOpen}
             aria-controls="mobile-nav-drawer"
@@ -71,7 +71,7 @@ export function MobileNav() {
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/45 z-40 md:hidden"
           onClick={handleClose}
           aria-hidden="true"
         />
@@ -80,23 +80,23 @@ export function MobileNav() {
       {/* Slide-out drawer */}
       <div
         id="mobile-nav-drawer"
-        className={`fixed top-0 left-0 h-full w-[85vw] max-w-[256px] bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden ${
+        className={`fixed top-0 left-0 h-full w-[85vw] max-w-[256px] bg-white z-50 transform transition-transform duration-200 ease-in-out md:hidden border-r border-neutral-200 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         role="dialog"
         aria-modal="true"
         aria-label={UI_LABELS.navigation}
       >
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-neutral-100">
           <div className="flex items-center justify-between">
             <div>
               <Logo size="lg" />
-              <p className="text-sm text-gray-500 mt-1">{APP_LABELS.tagline}</p>
+              <p className="text-sm text-neutral-500 mt-1">{APP_LABELS.tagline}</p>
             </div>
             <button
               ref={closeButtonRef}
               onClick={handleClose}
-              className="p-2 text-gray-500 hover:text-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-lg"
+              className="p-2 text-neutral-500 hover:text-neutral-950 min-h-[44px] min-w-[44px] flex items-center justify-center focus-visible:ring-2 focus-visible:ring-aoz-primary/30 rounded-md"
               aria-label={UI_LABELS.menuClose}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -126,13 +126,13 @@ function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boole
     <Link
       href={item.href}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-md transition-colors ${
         active
-          ? 'text-aoz-secondary bg-aoz-accent font-medium'
-          : 'text-gray-700 hover:text-aoz-secondary hover:bg-aoz-accent'
+          ? 'text-neutral-950 bg-neutral-100 font-medium'
+          : 'text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50'
       }`}
     >
-      <span className="w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center text-aoz-secondary">
+      <span className={`w-8 h-8 rounded-md flex items-center justify-center ${active ? 'bg-white text-aoz-primary ring-1 ring-neutral-200' : 'bg-neutral-100 text-neutral-500'}`}>
         <Icon className="w-5 h-5" />
       </span>
       <span>{item.label}</span>

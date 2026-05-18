@@ -4,25 +4,31 @@
 
 @layer base {
   h1, h2, h3, h4 {
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 }
 
 :root {
-  --foreground: #0f172a;
-  --background: #F5F5F7;
+  --foreground: #111111;
+  --muted-foreground: #666666;
+  --background: #f7f7f8;
+  --surface: #ffffff;
+  --surface-subtle: #fafafa;
+  --border: #e5e5e5;
+  --border-strong: #d4d4d4;
+  --focus-ring: 230 57 70;
 
   /* AOZ brand — RGB channels for Tailwind opacity modifier support */
   --color-aoz-primary:        230 57 70;
-  --color-aoz-primary-light:  239 90 103;
-  --color-aoz-primary-dark:   198 45 58;
-  --color-aoz-secondary:      45 90 90;
-  --color-aoz-secondary-light:61 122 122;
-  --color-aoz-secondary-dark: 29 74 74;
-  --color-aoz-accent:         212 237 218;
-  --color-aoz-accent-light:   232 245 233;
-  --color-aoz-accent-dark:    184 223 194;
-  --color-aoz-background:     248 250 252;
+  --color-aoz-primary-light:  236 80 92;
+  --color-aoz-primary-dark:   186 34 46;
+  --color-aoz-secondary:      25 82 82;
+  --color-aoz-secondary-light:45 112 112;
+  --color-aoz-secondary-dark: 17 55 55;
+  --color-aoz-accent:         235 244 243;
+  --color-aoz-accent-light:   245 249 249;
+  --color-aoz-accent-dark:    198 222 220;
+  --color-aoz-background:     247 247 248;
   --color-aoz-surface:        255 255 255;
 
   /* Compatibility score colors */
@@ -58,13 +64,32 @@
   --color-status-info-text:    29 78 216;    /* blue-700   */
 
   /* Shadows */
-  --shadow-card:      0 1px 2px rgb(0 0 0 / 0.04);
-  --shadow-card-hover:0 2px 8px rgb(0 0 0 / 0.08);
+  --shadow-card:      0 0 0 1px rgb(0 0 0 / 0.02);
+  --shadow-card-hover:0 1px 3px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.03);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgb(var(--color-aoz-primary) / 0.16);
+}
+
+.tracking-tighter,
+.tracking-tight,
+.tracking-wide,
+.tracking-wider,
+.tracking-widest {
+  letter-spacing: 0;
+}
+
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 0.5rem;
 }
 
 /* Score indicator styles (5-tier: 80+, 60+, 40+, 20+, 0+) */
@@ -77,56 +102,56 @@ body {
 .score-moderate { @apply bg-score-medium text-gray-900; }
 .score-poor { @apply bg-score-critical text-white; }
 
-/* Card styles — refined for elevated surfaces */
+/* Surface styles */
 .card {
-  @apply bg-white rounded-xl shadow-card border border-gray-200 p-4 sm:p-6;
+  @apply bg-white rounded-lg shadow-card border border-neutral-200 p-4 sm:p-6;
 }
 
 .card-hover {
-  @apply card hover:shadow-card-hover hover:border-gray-300 transition-all duration-150 cursor-pointer;
+  @apply card hover:shadow-card-hover hover:border-neutral-300 transition-all duration-150 cursor-pointer;
 }
 
 /* Icon container */
 .icon-container {
-  @apply w-10 h-10 rounded-full bg-aoz-accent flex items-center justify-center;
+  @apply w-10 h-10 rounded-md bg-neutral-100 text-neutral-700 ring-1 ring-neutral-200 flex items-center justify-center;
 }
 
 .icon-container-sm {
-  @apply w-8 h-8 rounded-full bg-aoz-accent flex items-center justify-center;
+  @apply w-8 h-8 rounded-md bg-neutral-100 text-neutral-700 ring-1 ring-neutral-200 flex items-center justify-center;
 }
 
 .icon-container-lg {
-  @apply w-12 h-12 rounded-full bg-aoz-accent flex items-center justify-center;
+  @apply w-12 h-12 rounded-md bg-neutral-100 text-neutral-700 ring-1 ring-neutral-200 flex items-center justify-center;
 }
 
 /* Button styles */
 .btn {
-  @apply px-4 py-2.5 rounded-md font-semibold tracking-tight transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] inline-flex items-center justify-center;
+  @apply px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] inline-flex items-center justify-center;
 }
 
 .btn-primary {
-  @apply btn bg-aoz-primary text-white hover:bg-aoz-primary-dark active:scale-[.98] focus:ring-aoz-primary/40;
+  @apply btn bg-aoz-primary text-white hover:bg-aoz-primary-dark focus:ring-aoz-primary/35;
 }
 
 .btn-secondary {
-  @apply btn bg-aoz-secondary text-white hover:bg-aoz-secondary-dark active:scale-[.98] focus:ring-aoz-secondary/40;
+  @apply btn bg-neutral-900 text-white hover:bg-neutral-700 focus:ring-neutral-900/30;
 }
 
 .btn-outline {
-  @apply btn border border-aoz-primary/60 text-aoz-primary hover:bg-aoz-accent hover:border-aoz-primary focus:ring-aoz-primary/30;
+  @apply btn border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-50 hover:border-neutral-400 focus:ring-aoz-primary/25;
 }
 
 .btn-ghost {
-  @apply btn text-aoz-primary hover:bg-aoz-accent focus:ring-aoz-primary/30;
+  @apply btn text-neutral-700 hover:bg-neutral-100 hover:text-neutral-950 focus:ring-aoz-primary/25;
 }
 
 /* Form styles */
 .input {
-  @apply w-full px-3 py-2.5 border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-aoz-primary/25 focus:border-aoz-primary min-h-[44px] transition-shadow duration-150;
+  @apply w-full px-3 py-2.5 border border-neutral-300 rounded-md bg-white text-neutral-950 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-aoz-primary/20 focus:border-neutral-950 min-h-[44px] transition-shadow duration-150;
 }
 
 .label {
-  @apply block text-sm font-medium text-gray-700 mb-1.5;
+  @apply block text-sm font-medium text-neutral-700 mb-1.5;
 }
 
 /* Table styles */
@@ -135,24 +160,24 @@ body {
 }
 
 .table th {
-  @apply px-6 py-3 bg-gray-50/80 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider;
+  @apply px-6 py-3 bg-neutral-50 text-left text-xs font-semibold text-neutral-500 uppercase;
 }
 
 .table td {
-  @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+  @apply px-6 py-4 whitespace-nowrap text-sm text-neutral-900;
 }
 
 /* Status badges */
 .badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1;
 }
 
-.badge-active  { @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60; }
-.badge-success { @apply bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/60; }
-.badge-pending { @apply bg-amber-50  text-amber-700   ring-1 ring-amber-200/60; }
-.badge-info    { @apply bg-blue-50   text-blue-700    ring-1 ring-blue-200/60; }
-.badge-ended   { @apply bg-gray-50   text-gray-600    ring-1 ring-gray-200/60; }
-.badge-alert   { @apply bg-red-50    text-red-700     ring-1 ring-red-200/60; }
+.badge-active  { @apply bg-white text-emerald-700 ring-emerald-200; }
+.badge-success { @apply bg-white text-emerald-700 ring-emerald-200; }
+.badge-pending { @apply bg-white text-amber-700 ring-amber-200; }
+.badge-info    { @apply bg-white text-blue-700 ring-blue-200; }
+.badge-ended   { @apply bg-white text-neutral-600 ring-neutral-200; }
+.badge-alert   { @apply bg-white text-red-700 ring-red-200; }
 
 /* Popover animations */
 @keyframes fade-in {

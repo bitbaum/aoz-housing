@@ -26,8 +26,8 @@ export default async function AdminLayout({
 
   return (
     <>
-      {/* Top Header Bar - AOZ Branding */}
-      <header className="hidden md:flex items-center bg-aoz-secondary text-white border-b border-aoz-secondary-dark/30 z-50">
+      {/* Top Header Bar */}
+      <header className="hidden md:flex items-center bg-white text-neutral-950 border-b border-neutral-200 z-50">
         <div className="max-w-screen-2xl mx-auto px-6 py-2.5 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -55,7 +55,7 @@ export default async function AdminLayout({
       </header>
 
       {/* Megamenu Navigation */}
-      <nav className="hidden md:block bg-white border-b border-gray-200 sticky top-0 z-40">
+      <nav className="hidden md:block bg-white/95 backdrop-blur border-b border-neutral-200 sticky top-0 z-40">
         <div className="max-w-screen-2xl mx-auto px-6">
           <div className="flex items-center gap-0.5">
             {MEGAMENU_GROUPS.map((group) =>
@@ -80,18 +80,18 @@ export default async function AdminLayout({
           </div>
 
           {/* Footer */}
-          <footer className="bg-white/60 border-t border-gray-100 px-6 py-4 mt-auto">
+          <footer className="bg-white border-t border-neutral-200 px-6 py-4 mt-auto">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
-              <div className="flex items-center gap-3 text-gray-400">
+              <div className="flex items-center gap-3 text-neutral-500">
                 <Logo size="sm" />
-                <span className="text-gray-300">|</span>
+                <span className="text-neutral-300">|</span>
                 <span>{APP_LABELS.metaDescription}</span>
               </div>
-              <div className="flex items-center gap-4 text-gray-400">
-                <Link href="/algorithm" className="hover:text-aoz-primary transition-colors">
+              <div className="flex items-center gap-4 text-neutral-500">
+                <Link href="/algorithm" className="hover:text-neutral-950 transition-colors">
                   {APP_LABELS.algorithm}
                 </Link>
-                <Link href="/portal/help" className="hover:text-aoz-primary transition-colors">
+                <Link href="/portal/help" className="hover:text-neutral-950 transition-colors">
                   {APP_LABELS.help}
                 </Link>
               </div>
@@ -107,7 +107,7 @@ function HeaderLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="px-3 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 rounded transition-colors min-h-[44px] inline-flex items-center"
+      className="px-3 py-2 text-sm text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-md transition-colors min-h-[44px] inline-flex items-center"
     >
       {children}
     </Link>
@@ -119,7 +119,7 @@ function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-lg transition-all duration-150"
+      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-md transition-colors duration-150"
     >
       <Icon className="w-4 h-4" />
       {label}
@@ -137,7 +137,7 @@ function MegaMenuDropdown({
   return (
     <div className="relative group">
       <button
-        className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium text-gray-600 hover:text-aoz-primary hover:bg-aoz-primary/5 rounded-lg transition-all duration-150"
+        className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 rounded-md transition-colors duration-150"
         aria-haspopup="true"
       >
         {label}
@@ -146,15 +146,15 @@ function MegaMenuDropdown({
         </svg>
       </button>
       <div className="absolute left-0 top-full pt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
-        <div className="bg-white rounded-xl shadow-card-hover border border-gray-200 py-2 min-w-[230px]">
+        <div className="bg-white rounded-lg shadow-card-hover border border-neutral-200 py-2 min-w-[230px]">
           {items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-4 py-2.5 hover:bg-gray-50 transition-colors min-h-[44px] flex flex-col justify-center"
+              className="block px-4 py-2.5 hover:bg-neutral-50 transition-colors min-h-[44px] flex flex-col justify-center"
             >
-              <div className="font-semibold text-gray-900 text-sm leading-tight">{item.label}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
+              <div className="font-medium text-neutral-950 text-sm leading-tight">{item.label}</div>
+              <div className="text-xs text-neutral-500 mt-0.5">{item.desc}</div>
             </Link>
           ))}
         </div>
@@ -162,4 +162,3 @@ function MegaMenuDropdown({
     </div>
   )
 }
-

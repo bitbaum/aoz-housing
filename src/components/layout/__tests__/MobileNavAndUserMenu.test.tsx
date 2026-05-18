@@ -169,9 +169,9 @@ describe('MobileNav', () => {
     mockPathname = '/residents'
     render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
-    // The active link should have the active class (bg-aoz-accent)
+    // The active link should have the neutral active class.
     const residentsLink = screen.getByRole('link', { name: /Bewohner/ })
-    expect(residentsLink.className).toContain('bg-aoz-accent')
+    expect(residentsLink.className).toContain('bg-neutral-100')
   })
 
   it('sets body overflow hidden when open', () => {

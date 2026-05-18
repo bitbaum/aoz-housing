@@ -119,7 +119,7 @@ export function ScoreExplanation({
           ref={popoverRef}
           role="dialog"
           aria-label={`${SCORE_TYPE_LABELS[type]} Erklärung`}
-          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-xl shadow-card-hover border border-gray-100 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
+          className="absolute z-50 left-1/2 -translate-x-1/2 mt-2 w-80 bg-white rounded-lg shadow-card-hover border border-neutral-200 p-4 animate-in fade-in slide-in-from-top-2 duration-200"
         >
           {/* Arrow */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45" />
@@ -231,7 +231,7 @@ export function ScoreExplanationBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${SCORE_TOKENS[level].soft} ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium ${SCORE_TOKENS[level].soft} ${className}`}
       title={tooltipContent}
     >
       {score}%
