@@ -78,20 +78,6 @@ body {
   background: rgb(var(--color-aoz-primary) / 0.16);
 }
 
-.tracking-tighter,
-.tracking-tight,
-.tracking-wide,
-.tracking-wider,
-.tracking-widest {
-  letter-spacing: 0;
-}
-
-.rounded-xl,
-.rounded-2xl,
-.rounded-3xl {
-  border-radius: 0.5rem;
-}
-
 /* Score indicator styles (5-tier: 80+, 60+, 40+, 20+, 0+) */
 .score-excellent { @apply bg-score-excellent text-white; }
 .score-good { @apply bg-score-good text-white; }

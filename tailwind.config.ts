@@ -58,6 +58,19 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
+      borderRadius: {
+        xl: '0.5rem',
+        '2xl': '0.5rem',
+        '3xl': '0.5rem',
+      },
+      letterSpacing: {
+        tighter: '0',
+        tight: '0',
+        normal: '0',
+        wide: '0',
+        wider: '0',
+        widest: '0',
+      },
       boxShadow: {
         'card':      'var(--shadow-card)',
         'card-hover':'var(--shadow-card-hover)',
