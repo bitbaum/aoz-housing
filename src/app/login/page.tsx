@@ -18,6 +18,7 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const [code, setCode] = useState('')
   const [state, setState] = useState<LoginState>({ status: 'idle' })
+  const demoAccessEnabled = process.env.NEXT_PUBLIC_DEMO_ACCESS_ENABLED === 'true'
 
   // Pre-fill code from URL param (used by email invite links)
   useEffect(() => {
@@ -64,6 +65,37 @@ function LoginForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     await submitCode(code)
+  }
+
+  async function submitDemo(role: 'staff' | 'resident') {
+    setState({ status: 'loading' })
+
+    try {
+      const response = await fetch('/api/auth/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      })
+      const data = await response.json()
+
+      if (!data.success) {
+        setState({ status: 'error', message: data.error || LOGIN_LABELS.error.generic })
+        return
+      }
+
+      const successMessage = data.type === 'staff'
+        ? LOGIN_LABELS.success.staff
+        : LOGIN_LABELS.success.resident
+
+      setState({ status: 'success', type: data.type, message: successMessage })
+
+      setTimeout(() => {
+        router.push(data.type === 'staff' ? '/' : '/portal')
+        router.refresh()
+      }, 1000)
+    } catch {
+      setState({ status: 'error', message: LOGIN_LABELS.error.generic })
+    }
   }
 
   return (
@@ -140,6 +172,33 @@ function LoginForm() {
           {LOGIN_LABELS.help}
         </p>
       </div>
+
+      {demoAccessEnabled && state.status !== 'success' ? (
+        <div className="mt-4 rounded-lg border border-ui-border bg-ui-surface p-4 shadow-card">
+          <div className="mb-3">
+            <p className="text-sm font-medium text-ui-text">{LOGIN_LABELS.demo.title}</p>
+            <p className="mt-0.5 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>
+          </div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <Button
+              onClick={() => submitDemo('staff')}
+              disabled={state.status === 'loading'}
+              variant="secondary"
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {LOGIN_LABELS.demo.staff}
+            </Button>
+            <Button
+              onClick={() => submitDemo('resident')}
+              disabled={state.status === 'loading'}
+              variant="outline"
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {LOGIN_LABELS.demo.resident}
+            </Button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

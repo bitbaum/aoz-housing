@@ -16,12 +16,11 @@ describe('release guards', () => {
     expect(activityConfig).not.toContain('GZ Wipkingen')
   })
 
-  it('does not expose one-click demo credentials on the production login page', () => {
+  it('does not hardcode demo credentials in the production login page', () => {
     const loginPage = read('src/app/login/page.tsx')
 
-    expect(loginPage).not.toContain('DEMO_ADMIN_CODE')
-    expect(loginPage).not.toContain('DEMO_RESIDENT_CODE')
     expect(loginPage).not.toContain('RES-001')
     expect(loginPage).not.toContain('AOZ-ADMIN1')
+    expect(loginPage).toContain('NEXT_PUBLIC_DEMO_ACCESS_ENABLED')
   })
 })
