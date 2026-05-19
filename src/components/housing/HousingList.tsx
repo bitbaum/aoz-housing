@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { SearchInput, SelectFilter, FilterBar } from '@/components/ui/FilterBar'
+import { Accessibility, BedDouble, Home, ShieldAlert } from 'lucide-react'
 import { getOccupancyColorClass } from '@/lib/utils'
 import { HousingCardActions } from '@/components/housing/HousingCardActions'
 import { HOUSING_STATUS_LABELS } from '@/lib/constants/labels/housing'
 import { HOUSING_LIST_LABELS } from '@/lib/constants/labels'
+import { EmptyState, ListShell } from '@/components/ui/Page'
 
 export interface HousingListItem {
   id: string
@@ -20,78 +20,28 @@ export interface HousingListItem {
   incidentCount: number
 }
 
-const STATUS_OPTIONS = [
-  { value: '', label: HOUSING_LIST_LABELS.allStatus },
-  { value: 'AVAILABLE', label: HOUSING_STATUS_LABELS.AVAILABLE },
-  { value: 'FULL', label: HOUSING_STATUS_LABELS.FULL },
-  { value: 'MAINTENANCE', label: HOUSING_STATUS_LABELS.MAINTENANCE },
-  { value: 'CLOSED', label: HOUSING_STATUS_LABELS.CLOSED },
-]
-
 export function HousingList({ units }: { units: HousingListItem[] }) {
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-
-  const filtered = useMemo(() => {
-    return units.filter((u) => {
-      const matchesSearch = !search ||
-        u.code.toLowerCase().includes(search.toLowerCase()) ||
-        u.address.toLowerCase().includes(search.toLowerCase())
-      const matchesStatus = !statusFilter || u.status === statusFilter
-      return matchesSearch && matchesStatus
-    })
-  }, [units, search, statusFilter])
+  if (units.length === 0) {
+    return (
+      <EmptyState
+        title={HOUSING_LIST_LABELS.emptyDefault}
+        description="Unterkünfte werden über den Erfassungsprozess angelegt und erscheinen danach hier."
+      />
+    )
+  }
 
   return (
-    <div>
-      <FilterBar className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={HOUSING_LIST_LABELS.searchPlaceholder}
-          className="w-full sm:w-64"
-        />
-        <SelectFilter
-          label={HOUSING_LIST_LABELS.statusFilter}
-          value={statusFilter}
-          options={STATUS_OPTIONS}
-          onChange={setStatusFilter}
-        />
-      </FilterBar>
-
-      {filtered.length === 0 ? (
-        <div className="card text-center py-12">
-          {units.length === 0 ? (
-            <>
-              <p className="text-ui-muted mb-3">{HOUSING_LIST_LABELS.emptyDefault}</p>
-              <a href="/housing/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
-                {HOUSING_LIST_LABELS.createHousingFirst}
-              </a>
-            </>
-          ) : (
-            <>
-              <p className="text-ui-muted mb-3">{HOUSING_LIST_LABELS.emptyFiltered}</p>
-              <button
-                onClick={() => { setSearch(''); setStatusFilter('') }}
-                className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
-              >
-                {HOUSING_LIST_LABELS.filterReset}
-              </button>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((unit) => (
-            <UnitCard key={unit.id} unit={unit} />
-          ))}
-        </div>
-      )}
-    </div>
+    <ListShell>
+      <div className="divide-y divide-ui-border">
+        {units.map((unit) => (
+          <UnitRow key={unit.id} unit={unit} />
+        ))}
+      </div>
+    </ListShell>
   )
 }
 
-function UnitCard({ unit }: { unit: HousingListItem }) {
+function UnitRow({ unit }: { unit: HousingListItem }) {
   const occupancy = unit.placementCount
   const totalBeds = Math.max(unit.totalBeds, 0)
   const occupancyPercent = totalBeds > 0
@@ -107,53 +57,58 @@ function UnitCard({ unit }: { unit: HousingListItem }) {
   }
   const statusInfo = statusConfig[unit.status] || statusConfig.AVAILABLE
 
-  const harmonyColor = recentConflicts === 0 ? 'bg-status-success' :
-                       recentConflicts <= 2 ? 'bg-status-warning' : 'bg-status-error'
-
   return (
-    <div className="card-hover relative">
-      <div className="absolute top-3 right-3 z-10">
-        <HousingCardActions housingId={unit.id} status={unit.status} />
-      </div>
-      <Link href={`/housing/${unit.id}`} className="block">
-        <div className="flex items-start justify-between mb-3 pr-8">
-          <div>
-            <h3 className="font-semibold text-ui-text">{unit.code}</h3>
-            <p className="text-sm text-ui-muted">{unit.address}</p>
-          </div>
-          <span className={`badge ${statusInfo.class}`}>{statusInfo.label}</span>
-        </div>
-
-        <div className="flex items-center gap-4 mb-3">
-          <div className="flex-1">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-ui-muted">{HOUSING_LIST_LABELS.occupancy}</span>
-              <span className="font-medium">{occupancy}/{totalBeds}</span>
-            </div>
-            <div className="h-2 bg-ui-border rounded-full overflow-hidden">
-              <div
-                className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
-                style={{ width: `${occupancyPercent}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-3 border-t border-ui-border">
-          <div className="flex items-center gap-2 text-sm text-ui-muted">
-            <span>{unit.totalRooms} Zimmer</span>
-            {unit.wheelchairAccess && <span title={HOUSING_LIST_LABELS.wheelchairTitle}>♿</span>}
-          </div>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${harmonyColor}`} role="img" aria-label={`Harmonie: ${harmonyColor.includes('green') ? 'Gut' : harmonyColor.includes('yellow') ? 'Mittel' : harmonyColor.includes('red') ? 'Schlecht' : 'Unbekannt'}`} />
-            {recentConflicts > 0 && (
-              <span className="text-sm text-ui-muted">
-                {recentConflicts} Konflikte
-              </span>
-            )}
-          </div>
+    <div className="group grid gap-4 px-4 py-4 transition-colors hover:bg-ui-subtle/70 md:grid-cols-[minmax(260px,1.4fr)_minmax(180px,1fr)_minmax(160px,0.8fr)_auto] md:items-center">
+      <Link href={`/housing/${unit.id}`} className="min-w-0">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ui-border bg-ui-subtle text-ui-muted">
+            <Home className="h-4 w-4" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-semibold text-ui-text group-hover:text-aoz-primary">
+              {unit.code}
+            </span>
+            <span className="block truncate text-sm text-ui-muted">{unit.address}</span>
+          </span>
         </div>
       </Link>
+
+      <div className="min-w-0">
+        <div className="mb-1 flex justify-between gap-3 text-sm">
+          <span className="inline-flex items-center gap-2 text-ui-muted">
+            <BedDouble className="h-4 w-4" />
+            {HOUSING_LIST_LABELS.occupancy}
+          </span>
+          <span className="font-medium text-ui-text">{occupancy}/{totalBeds}</span>
+        </div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-ui-border">
+          <div
+            className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
+            style={{ width: `${occupancyPercent}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3 text-sm text-ui-muted">
+        <span>{unit.totalRooms} Zimmer</span>
+        {unit.wheelchairAccess ? (
+          <span className="inline-flex items-center gap-1" title={HOUSING_LIST_LABELS.wheelchairTitle}>
+            <Accessibility className="h-4 w-4" />
+            Barrierefrei
+          </span>
+        ) : null}
+        {recentConflicts > 0 ? (
+          <span className="inline-flex items-center gap-1 text-status-warning-text">
+            <ShieldAlert className="h-4 w-4" />
+            {recentConflicts} Konflikte
+          </span>
+        ) : null}
+      </div>
+
+      <div className="flex items-center justify-between gap-3 md:justify-end">
+        <span className={`badge ${statusInfo.class}`}>{statusInfo.label}</span>
+        <HousingCardActions housingId={unit.id} status={unit.status} />
+      </div>
     </div>
   )
 }

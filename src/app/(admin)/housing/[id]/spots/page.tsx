@@ -139,22 +139,20 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
       {/* Quick Add Section */}
       <div className="card mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xl">➕</span>
+        <div className="mb-4">
           <h2 className="text-lg font-semibold text-ui-text">
             {isNewUnit && unit.spots.length === 0 ? HOUSING_SPOTS_LABELS.addTitleNew : HOUSING_SPOTS_LABELS.addTitle}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Add Room with Beds */}
-          <div className="border-2 border-status-success/40 bg-status-success/10 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🚪</span>
+          <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
+            <div className="mb-3">
               <h3 className="font-semibold text-status-success-text">
                 {HOUSING_SPOTS_LABELS.roomGroupTitle}
               </h3>
             </div>
-            <p className="text-xs text-status-success-text mb-4">
+            <p className="text-xs text-ui-muted mb-4">
               {HOUSING_SPOTS_LABELS.roomGroupDesc}
             </p>
             <form action={createMultipleSpots} className="space-y-3">
@@ -222,14 +220,13 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           </div>
 
           {/* Add Single Spot */}
-          <div className="border-2 border-purple-300 bg-purple-50 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">🏠</span>
-              <h3 className="font-semibold text-purple-900">
+          <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
+            <div className="mb-3">
+              <h3 className="font-semibold text-ui-text">
                 {HOUSING_SPOTS_LABELS.singleTitle}
               </h3>
             </div>
-            <p className="text-xs text-purple-700 mb-4">
+            <p className="text-xs text-ui-muted mb-4">
               {HOUSING_SPOTS_LABELS.singleDesc}
             </p>
             <form action={createSpot} className="space-y-3">

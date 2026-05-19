@@ -11,7 +11,7 @@
 :root {
   --foreground: #111111;
   --muted-foreground: #666666;
-  --background: #f7f7f8;
+  --background: #fafafa;
   --surface: #ffffff;
   --surface-subtle: #fafafa;
   --border: #e5e5e5;
@@ -20,7 +20,7 @@
   color-scheme: light;
 
   /* UI system tokens — RGB channels for Tailwind opacity modifier support */
-  --color-ui-canvas:        247 247 248;
+  --color-ui-canvas:        250 250 250;
   --color-ui-surface:       255 255 255;
   --color-ui-elevated:      255 255 255;
   --color-ui-subtle:        250 250 250;
@@ -78,8 +78,8 @@
   --color-status-info-text:    29 78 216;    /* blue-700   */
 
   /* Shadows */
-  --shadow-card:      0 0 0 1px rgb(0 0 0 / 0.02);
-  --shadow-card-hover:0 1px 3px rgb(0 0 0 / 0.06), 0 0 0 1px rgb(0 0 0 / 0.03);
+  --shadow-card:      none;
+  --shadow-card-hover:0 0 0 1px rgb(0 0 0 / 0.06);
 }
 
 [data-theme='dark'] {
@@ -188,11 +188,11 @@ body {
 
 /* Surface styles */
 .card {
-  @apply bg-ui-surface text-ui-text rounded-lg shadow-card border border-ui-border p-4 sm:p-6;
+  @apply bg-ui-surface text-ui-text rounded-lg shadow-card border border-ui-border p-4 sm:p-5;
 }
 
 .card-hover {
-  @apply card hover:shadow-card-hover hover:border-ui-border-strong transition-all duration-150 cursor-pointer;
+  @apply card hover:shadow-card-hover hover:border-ui-border-strong transition-colors duration-150 cursor-pointer;
 }
 
 /* Icon container */
@@ -210,15 +210,15 @@ body {
 
 /* Button styles */
 .btn {
-  @apply px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px] inline-flex items-center justify-center;
+  @apply px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ui-canvas min-h-[44px] inline-flex items-center justify-center;
 }
 
 .btn-primary {
-  @apply btn bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark focus:ring-aoz-primary/35;
+  @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/25;
 }
 
 .btn-secondary {
-  @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/80 focus:ring-ui-text/30;
+  @apply btn bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark focus:ring-aoz-primary/30;
 }
 
 .btn-outline {
@@ -231,7 +231,7 @@ body {
 
 /* Form styles */
 .input {
-  @apply w-full px-3 py-2.5 border border-ui-border rounded-md bg-ui-surface text-ui-text placeholder:text-ui-muted/70 focus:outline-none focus:ring-2 focus:ring-aoz-primary/20 focus:border-ui-border-strong min-h-[44px] transition-shadow duration-150;
+  @apply w-full px-3 py-2.5 border border-ui-border rounded-md bg-ui-surface text-ui-text placeholder:text-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-ui-text/10 focus:border-ui-border-strong min-h-[44px] transition-shadow duration-150;
 }
 
 .label {
@@ -244,11 +244,11 @@ body {
 }
 
 .table th {
-  @apply px-6 py-3 bg-ui-subtle text-left text-xs font-semibold text-ui-muted uppercase;
+  @apply px-4 py-3 bg-ui-subtle text-left text-xs font-semibold text-ui-muted uppercase;
 }
 
 .table td {
-  @apply px-6 py-4 whitespace-nowrap text-sm text-ui-text;
+  @apply px-4 py-4 whitespace-nowrap text-sm text-ui-text;
 }
 
 /* Status badges */

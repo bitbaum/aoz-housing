@@ -21,7 +21,7 @@ interface TabsProps {
 
 export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
   return (
-    <div className="flex gap-1 border-b border-ui-border" role="tablist">
+    <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -30,10 +30,10 @@ export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
           aria-selected={activeTab === tab.id}
           id={`tab-${tab.id}`}
           aria-controls={`tabpanel-${tab.id}`}
-          className={`px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 -mb-px transition-colors min-h-[44px] inline-flex items-center ${
+          className={`rounded-md px-3 py-2 text-xs sm:text-sm font-medium transition-colors min-h-[40px] inline-flex items-center whitespace-nowrap ${
             activeTab === tab.id
-              ? 'border-aoz-primary text-aoz-primary'
-              : 'border-transparent text-ui-muted hover:text-ui-text hover:border-ui-border-strong'
+              ? 'bg-ui-text text-ui-inverse'
+              : 'text-ui-muted hover:bg-ui-subtle hover:text-ui-text'
           }`}
         >
           {tab.label}
@@ -60,10 +60,10 @@ export function TabButton({ children, active = false, onClick }: TabButtonProps)
       onClick={onClick}
       role="tab"
       aria-selected={active}
-      className={`px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 -mb-px transition-colors min-h-[44px] inline-flex items-center ${
+      className={`rounded-md px-3 py-2 text-xs sm:text-sm font-medium transition-colors min-h-[40px] inline-flex items-center whitespace-nowrap ${
         active
-          ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-ui-muted hover:text-ui-text hover:border-ui-border-strong'
+          ? 'bg-ui-text text-ui-inverse'
+          : 'text-ui-muted hover:bg-ui-subtle hover:text-ui-text'
       }`}
     >
       {children}
@@ -77,7 +77,7 @@ interface StaticTabsProps {
 
 export function StaticTabs({ children }: StaticTabsProps) {
   return (
-    <div className="flex gap-1 border-b border-ui-border" role="tablist">
+    <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
       {children}
     </div>
   )
@@ -100,15 +100,15 @@ export function TabLink({ href, label, count, active = false }: TabLinkProps) {
       href={href}
       role="tab"
       aria-selected={active}
-      className={`px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 -mb-px transition-colors min-h-[44px] inline-flex items-center ${
+      className={`rounded-md px-3 py-2 text-xs sm:text-sm font-medium transition-colors min-h-[40px] inline-flex items-center whitespace-nowrap ${
         active
-          ? 'border-aoz-primary text-aoz-primary'
-          : 'border-transparent text-ui-muted hover:text-ui-text'
+          ? 'bg-ui-text text-ui-inverse'
+          : 'text-ui-muted hover:bg-ui-subtle hover:text-ui-text'
       }`}
     >
       {label}
       {count !== undefined && (
-        <span className="ml-2 text-xs bg-ui-subtle px-2 py-0.5 rounded-md">
+        <span className={`ml-2 rounded-md px-2 py-0.5 text-xs ${active ? 'bg-ui-inverse/10' : 'bg-ui-subtle'}`}>
           {count}
         </span>
       )}

@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
 import { StatCard } from '@/components/ui/Card'
+import { ButtonLink } from '@/components/ui/Button'
+import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
 import {
   ACTIVITY_CATEGORY_ICONS,
   ACTIVITY_CATEGORY_LABELS,
@@ -33,28 +34,25 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
   ])
 
   return (
-    <div>
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-ui-text">Aktivitäten</h1>
-          <p className="mt-1 text-sm text-ui-muted">
-            Admin-gepflegte Angebote für das Bewohnerportal.
-          </p>
-        </div>
-        <Link href="/activities/new" className="btn btn-primary inline-flex items-center gap-2 self-start">
-          <Plus className="h-4 w-4" />
+    <PageShell>
+      <PageHeader
+        title="Aktivitäten"
+        description="Admin-gepflegte Angebote für das Bewohnerportal."
+        actions={
+          <ButtonLink href="/activities/new">
           Aktivität
-        </Link>
-      </div>
+          </ButtonLink>
+        }
+      />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Gesamt" value={total} />
         <StatCard label="Live" value={published} trend={published > 0 ? 'good' : undefined} />
         <StatCard label="Entwürfe" value={drafts} />
         <StatCard label="Hervorgehoben" value={highlighted} />
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         <FilterLink href="/activities" active={!statusFilter}>Alle</FilterLink>
         {Object.entries(ACTIVITY_STATUS_LABELS).map(([value, label]) => (
           <FilterLink key={value} href={`/activities?status=${value}`} active={statusFilter === value}>
@@ -63,20 +61,22 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
         ))}
       </div>
 
-      <div className="card">
-        {activities.length === 0 ? (
-          <div className="py-10 text-center">
-            <p className="text-ui-muted">Keine Aktivitäten vorhanden.</p>
-            <Link href="/activities/new" className="mt-4 inline-flex btn btn-outline">
+      {activities.length === 0 ? (
+        <EmptyState
+          title="Keine Aktivitäten vorhanden."
+          action={
+            <ButtonLink href="/activities/new" variant="outline">
               Erste Aktivität erstellen
-            </Link>
-          </div>
-        ) : (
+            </ButtonLink>
+          }
+        />
+      ) : (
+        <ListShell>
           <div className="divide-y divide-ui-border">
             {activities.map((activity) => {
               const Icon = ACTIVITY_CATEGORY_ICONS[activity.category]
               return (
-                <div key={activity.id} className="py-4 first:pt-0 last:pb-0">
+                <div key={activity.id} className="px-4 py-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
@@ -99,17 +99,17 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
                         {activity.schedule ? <span>{activity.schedule}</span> : null}
                       </div>
                     </div>
-                    <Link href={`/activities/${activity.id}/edit`} className="btn btn-outline text-sm self-start">
+                    <ButtonLink href={`/activities/${activity.id}/edit`} variant="outline">
                       Bearbeiten
-                    </Link>
+                    </ButtonLink>
                   </div>
                 </div>
               )
             })}
           </div>
-        )}
-      </div>
-    </div>
+        </ListShell>
+      )}
+    </PageShell>
   )
 }
 
@@ -125,9 +125,9 @@ function FilterLink({
   return (
     <Link
       href={href}
-      className={`min-h-[40px] rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+      className={`min-h-[40px] rounded-md px-3 py-2 text-sm font-medium transition-colors ${
         active
-          ? 'bg-aoz-primary text-ui-on-accent'
+          ? 'bg-ui-text text-ui-inverse'
           : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
       }`}
     >

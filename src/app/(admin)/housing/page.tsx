@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 
@@ -8,6 +7,8 @@ export const metadata: Metadata = { title: 'Unterkünfte' }
 import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
+import { ButtonLink } from '@/components/ui/Button'
+import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,40 +84,37 @@ export default async function HousingListPage({ searchParams }: Props) {
     : 0
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.housing}</h1>
-        <Link href="/housing/new" className="btn-primary">
-          {PAGE_TITLES.newHousing}
-        </Link>
-      </div>
+    <PageShell>
+      <PageHeader
+        title={PAGE_TITLES.housing}
+        description={`${stats.visible} sichtbar · ${stats.occupiedBeds}/${stats.totalBeds} Betten belegt`}
+        actions={
+          <ButtonLink href="/housing/new">
+            {PAGE_TITLES.newHousing}
+          </ButtonLink>
+        }
+      />
 
-      {/* Search */}
-      <form method="GET" action="/housing" className="mb-4">
-        <input type="hidden" name="view" value={view} />
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ui-muted pointer-events-none" aria-hidden="true">🔍</span>
+      <Toolbar>
+        <form method="GET" action="/housing" className="flex-1">
+          <input type="hidden" name="view" value={view} />
           <input
             type="search"
             name="q"
             defaultValue={q}
             placeholder={HOUSING_LIST_LABELS.searchPlaceholder}
-            className="input pl-9 w-full sm:max-w-xs"
+            className="input w-full md:max-w-sm"
             autoComplete="off"
           />
-        </div>
-      </form>
-
-      <div className="mb-4">
-        <div className="flex gap-2 border-b border-ui-border" role="tablist">
+        </form>
+        <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
           <TabLink href={`/housing?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
           <TabLink href={`/housing?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
           <TabLink href={`/housing?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
-      </div>
+      </Toolbar>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard label={HOUSING_STAT_LABELS.total} value={stats.total} />
         <StatCard label={HOUSING_STATUS_LABELS.AVAILABLE} value={stats.available} />
         <StatCard label={HOUSING_STATUS_LABELS.FULL} value={stats.full} />
@@ -127,26 +125,27 @@ export default async function HousingListPage({ searchParams }: Props) {
         />
       </div>
 
-      {/* Unit List */}
       {units.length === 0 ? (
-        <div className="card text-center py-12">
-          <p className="text-ui-muted mb-4">
-            {q
+        <EmptyState
+          title={
+            q
               ? `${HOUSING_LIST_LABELS.emptyFiltered} («${q}»)`
               : view === 'archived'
-              ? EMPTY_STATE_LABELS.noHousingArchived
-              : EMPTY_STATE_LABELS.noHousing}
-          </p>
-          {q ? (
-            <a href={`/housing?view=${view}`} className="btn-outline">
+                ? EMPTY_STATE_LABELS.noHousingArchived
+                : EMPTY_STATE_LABELS.noHousing
+          }
+          action={
+            q ? (
+              <ButtonLink href={`/housing?view=${view}`} variant="outline">
               {HOUSING_LIST_LABELS.filterReset}
-            </a>
+              </ButtonLink>
           ) : view !== 'archived' ? (
-            <Link href="/housing/new" className="btn-primary">
+              <ButtonLink href="/housing/new">
               {EMPTY_STATE_LABELS.createHousingFirst}
-            </Link>
-          ) : null}
-        </div>
+              </ButtonLink>
+            ) : null
+          }
+        />
       ) : (
         <HousingList units={units.map(u => ({
           ...u,
@@ -154,6 +153,6 @@ export default async function HousingListPage({ searchParams }: Props) {
           incidentCount: u._count.incidents,
         }))} />
       )}
-    </div>
+    </PageShell>
   )
 }

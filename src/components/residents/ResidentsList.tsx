@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { SearchInput, SelectFilter, FilterBar } from '@/components/ui/FilterBar'
+import { Home, Languages, TriangleAlert } from 'lucide-react'
 import {
   AGE_RANGE_LABELS,
   GENDER_LABELS_SHORT,
@@ -13,6 +12,7 @@ import {
 } from '@/lib/constants'
 import { getStatusBadgeClass, formatDate } from '@/lib/utils'
 import { ResidentCardActions } from '@/components/residents/ResidentCardActions'
+import { EmptyState, ListShell } from '@/components/ui/Page'
 
 export interface ResidentListItem {
   id: string
@@ -30,140 +30,90 @@ export interface ResidentListItem {
   incidentCount: number
 }
 
-const STATUS_OPTIONS = [
-  { value: '', label: RESIDENT_LIST_LABELS.allStatus },
-  { value: 'ACTIVE', label: RESIDENT_STATUS_LABELS.ACTIVE },
-  { value: 'PLACED', label: RESIDENT_STATUS_LABELS.PLACED },
-  { value: 'EXITED', label: RESIDENT_STATUS_LABELS.EXITED },
-]
-
 export function ResidentsList({ residents }: { residents: ResidentListItem[] }) {
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-
-  const filtered = useMemo(() => {
-    return residents.filter((r) => {
-      const matchesSearch = !search ||
-        r.code.toLowerCase().includes(search.toLowerCase())
-      const matchesStatus = !statusFilter || r.status === statusFilter
-      return matchesSearch && matchesStatus
-    })
-  }, [residents, search, statusFilter])
+  if (residents.length === 0) {
+    return (
+      <EmptyState
+        title={RESIDENT_LIST_LABELS.emptyDefault}
+        description="Neue Bewohner werden über den Erfassungsprozess angelegt und erscheinen danach hier."
+      />
+    )
+  }
 
   return (
-    <div>
-      <FilterBar className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder={RESIDENT_LIST_LABELS.searchPlaceholder}
-          className="w-full sm:w-64"
-        />
-        <SelectFilter
-          label={RESIDENT_LIST_LABELS.statusFilter}
-          value={statusFilter}
-          options={STATUS_OPTIONS}
-          onChange={setStatusFilter}
-        />
-      </FilterBar>
-
-      {filtered.length === 0 ? (
-        <div className="card text-center py-12">
-          {residents.length === 0 ? (
-            <>
-              <p className="text-ui-muted mb-3">{RESIDENT_LIST_LABELS.emptyDefault}</p>
-              <a href="/residents/new" className="btn-primary inline-flex items-center min-h-[44px] px-4">
-                Ersten Bewohner erfassen
-              </a>
-            </>
-          ) : (
-            <>
-              <p className="text-ui-muted mb-3">{RESIDENT_LIST_LABELS.emptyFiltered}</p>
-              <button
-                onClick={() => { setSearch(''); setStatusFilter('') }}
-                className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
-              >
-                {RESIDENT_LIST_LABELS.filterReset}
-              </button>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((resident) => (
-            <ResidentCard key={resident.id} resident={resident} />
-          ))}
-        </div>
-      )}
-    </div>
+    <ListShell>
+      <div className="divide-y divide-ui-border">
+        {residents.map((resident) => (
+          <ResidentRow key={resident.id} resident={resident} />
+        ))}
+      </div>
+    </ListShell>
   )
 }
 
-function ResidentCard({ resident }: { resident: ResidentListItem }) {
+function ResidentRow({ resident }: { resident: ResidentListItem }) {
   const currentPlacement = resident.placements[0]
-  const recentIncidents = resident.incidentCount
-
   const languages = resident.languages
     .slice(0, 3)
     .map((lang) => getLabel(LANGUAGE_LABELS, lang, lang))
     .join(', ')
 
   return (
-    <div className="card-hover relative">
-      <div className="absolute top-3 right-3 z-10">
-        <ResidentCardActions residentId={resident.id} status={resident.status} />
+    <div className="group grid gap-3 px-4 py-4 transition-colors hover:bg-ui-subtle/70 md:grid-cols-[minmax(220px,1.2fr)_minmax(180px,1fr)_minmax(160px,0.8fr)_auto] md:items-center">
+      <Link href={`/residents/${resident.id}`} className="min-w-0">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ui-border bg-ui-subtle font-mono text-xs font-semibold text-ui-text">
+            {resident.code.slice(-3)}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-semibold text-ui-text group-hover:text-aoz-primary">
+              {resident.code}
+            </span>
+            <span className="block truncate text-sm text-ui-muted">
+              {getLabel(AGE_RANGE_LABELS, resident.ageRange)} · {getLabel(GENDER_LABELS_SHORT, resident.gender)}
+            </span>
+          </span>
+        </div>
+      </Link>
+
+      <div className="min-w-0 text-sm">
+        {currentPlacement ? (
+          <span className="inline-flex items-center gap-2 text-ui-muted">
+            <Home className="h-4 w-4" />
+            {currentPlacement.housingUnit.code}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-2 text-status-warning-text">
+            <TriangleAlert className="h-4 w-4" />
+            {RESIDENT_LIST_LABELS.notPlaced}
+          </span>
+        )}
       </div>
-      <Link href={`/residents/${resident.id}`} className="block">
-        <div className="flex items-start justify-between mb-3 pr-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
-              {resident.code.slice(-3)}
-            </div>
-            <div>
-              <h3 className="font-semibold text-ui-text">{resident.code}</h3>
-              <p className="text-sm text-ui-muted">
-                {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-                {getLabel(GENDER_LABELS_SHORT, resident.gender)}
-              </p>
-            </div>
-          </div>
+
+      <div className="min-w-0 text-sm text-ui-muted">
+        {languages ? (
+          <span className="inline-flex max-w-full items-center gap-2">
+            <Languages className="h-4 w-4 shrink-0" />
+            <span className="truncate">{languages}</span>
+          </span>
+        ) : (
+          <span>Erfasst: {formatDate(resident.createdAt)}</span>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between gap-3 md:justify-end">
+        <div className="flex flex-wrap items-center gap-2">
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
             {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
-        </div>
-
-        <div className="space-y-2 text-sm">
-          {currentPlacement ? (
-            <div className="flex items-center gap-2 text-ui-muted">
-              <span>🏠</span>
-              <span>{currentPlacement.housingUnit.code}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-status-warning-text">
-              <span>⚠️</span>
-              <span>{RESIDENT_LIST_LABELS.notPlaced}</span>
-            </div>
-          )}
-
-          {languages && (
-            <div className="flex items-center gap-2 text-ui-muted">
-              <span>🗣️</span>
-              <span>{languages}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between pt-3 mt-3 border-t border-ui-border">
-          <span className="text-xs text-ui-muted">
-            Erfasst: {formatDate(resident.createdAt)}
-          </span>
-          {recentIncidents > 0 && (
+          {resident.incidentCount > 0 ? (
             <span className="text-xs text-status-warning-text">
-              {recentIncidents} {RESIDENT_LIST_LABELS.recentIncidentsSuffix}
+              {resident.incidentCount} {RESIDENT_LIST_LABELS.recentIncidentsSuffix}
             </span>
-          )}
+          ) : null}
         </div>
-      </Link>
+        <ResidentCardActions residentId={resident.id} status={resident.status} />
+      </div>
     </div>
   )
 }

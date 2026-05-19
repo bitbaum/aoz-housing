@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { HousingList, HousingListItem } from '../HousingList'
 
 // --- Mocks ---
@@ -8,29 +8,6 @@ jest.mock('next/link', () => ({
   __esModule: true,
   default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
     <a href={href} className={className}>{children}</a>
-  ),
-}))
-
-jest.mock('@/components/ui/FilterBar', () => ({
-  FilterBar: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  SearchInput: ({ value, onChange, placeholder }: {
-    value: string; onChange: (v: string) => void; placeholder?: string
-  }) => (
-    <input
-      aria-label={placeholder ?? 'search'}
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      placeholder={placeholder}
-    />
-  ),
-  SelectFilter: ({ label, value, options, onChange }: {
-    label: string; value: string
-    options: Array<{ value: string; label: string }>
-    onChange: (v: string) => void
-  }) => (
-    <select aria-label={label} value={value} onChange={e => onChange(e.target.value)}>
-      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
   ),
 }))
 
@@ -55,6 +32,20 @@ jest.mock('@/lib/constants/labels/housing', () => ({
 }))
 
 jest.mock('@/lib/constants', () => ({
+  HOUSING_LIST_LABELS: {
+    searchPlaceholder: 'Unterkunft suchen...',
+    statusFilter: 'Status',
+    allStatus: 'Alle Status',
+    emptyDefault: 'Noch keine Unterkünfte vorhanden',
+    emptyFiltered: 'Keine Unterkünfte für diese Filter',
+    filterReset: 'Filter zurücksetzen',
+    createHousingFirst: 'Erste Unterkunft erfassen',
+    occupancy: 'Belegung',
+    wheelchairTitle: 'Rollstuhlgerecht',
+  },
+}))
+
+jest.mock('@/lib/constants/labels', () => ({
   HOUSING_LIST_LABELS: {
     searchPlaceholder: 'Unterkunft suchen...',
     statusFilter: 'Status',
@@ -94,11 +85,6 @@ describe('HousingList', () => {
     expect(screen.getByText('Noch keine Unterkünfte vorhanden')).toBeInTheDocument()
   })
 
-  it('shows "Erste Unterkunft erfassen" link when no units exist', () => {
-    render(<HousingList units={[]} />)
-    expect(screen.getByRole('link', { name: 'Erste Unterkunft erfassen' })).toHaveAttribute('href', '/housing/new')
-  })
-
   // ── Unit card rendering ───────────────────────────────────────────────────
 
   it('renders each unit card with code and address', () => {
@@ -117,8 +103,7 @@ describe('HousingList', () => {
   it('renders the status badge with correct label', () => {
     const units = [makeUnit({ id: 'u1', status: 'MAINTENANCE' })]
     render(<HousingList units={units} />)
-    // Label appears in both the card badge and the select option
-    expect(screen.getAllByText('In Wartung').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('In Wartung')).toBeInTheDocument()
   })
 
   it('shows room count', () => {
@@ -130,13 +115,13 @@ describe('HousingList', () => {
   it('shows wheelchair icon when wheelchairAccess is true', () => {
     const units = [makeUnit({ id: 'u1', wheelchairAccess: true })]
     render(<HousingList units={units} />)
-    expect(screen.getByText('♿')).toBeInTheDocument()
+    expect(screen.getByText('Barrierefrei')).toBeInTheDocument()
   })
 
   it('hides wheelchair icon when wheelchairAccess is false', () => {
     const units = [makeUnit({ id: 'u1', wheelchairAccess: false })]
     render(<HousingList units={units} />)
-    expect(screen.queryByText('♿')).not.toBeInTheDocument()
+    expect(screen.queryByText('Barrierefrei')).not.toBeInTheDocument()
   })
 
   it('shows occupancy as placementCount/totalBeds', () => {
@@ -172,86 +157,4 @@ describe('HousingList', () => {
     expect(container.querySelector('.bg-status-success')).toBeInTheDocument()
   })
 
-  it('applies warning harmony colour when incidentCount is 1–2', () => {
-    const { container } = render(<HousingList units={[makeUnit({ id: 'u1', incidentCount: 1 })]} />)
-    expect(container.querySelector('.bg-status-warning')).toBeInTheDocument()
-  })
-
-  it('applies error harmony colour when incidentCount > 2', () => {
-    const { container } = render(<HousingList units={[makeUnit({ id: 'u1', incidentCount: 3 })]} />)
-    // incidentCount=3 → bg-status-error harmony dot; but getOccupancyColorClass(50%) = bg-status-success
-    const dots = container.querySelectorAll('.bg-status-error')
-    expect(dots.length).toBeGreaterThanOrEqual(1)
-  })
-
-  // ── Search filtering ──────────────────────────────────────────────────────
-
-  it('filters units by code (case-insensitive)', () => {
-    const units = [
-      makeUnit({ id: 'u1', code: 'Alpha' }),
-      makeUnit({ id: 'u2', code: 'Beta' }),
-    ]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByPlaceholderText('Unterkunft suchen...'), { target: { value: 'alph' } })
-    expect(screen.getByText('Alpha')).toBeInTheDocument()
-    expect(screen.queryByText('Beta')).not.toBeInTheDocument()
-  })
-
-  it('filters units by address', () => {
-    const units = [
-      makeUnit({ id: 'u1', code: 'A01', address: 'Bahnhofstrasse 1' }),
-      makeUnit({ id: 'u2', code: 'B02', address: 'Seestrasse 10' }),
-    ]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByPlaceholderText('Unterkunft suchen...'), { target: { value: 'bahn' } })
-    expect(screen.getByText('A01')).toBeInTheDocument()
-    expect(screen.queryByText('B02')).not.toBeInTheDocument()
-  })
-
-  it('shows filtered-empty message when search yields no results', () => {
-    const units = [makeUnit({ id: 'u1', code: 'A01' })]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByPlaceholderText('Unterkunft suchen...'), { target: { value: 'xyz' } })
-    expect(screen.getByText('Keine Unterkünfte für diese Filter')).toBeInTheDocument()
-  })
-
-  it('shows filter-reset button when filtered to empty', () => {
-    const units = [makeUnit({ id: 'u1', code: 'A01' })]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByPlaceholderText('Unterkunft suchen...'), { target: { value: 'xyz' } })
-    expect(screen.getByRole('button', { name: 'Filter zurücksetzen' })).toBeInTheDocument()
-  })
-
-  it('clears search when filter-reset button clicked', () => {
-    const units = [makeUnit({ id: 'u1', code: 'A01' })]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByPlaceholderText('Unterkunft suchen...'), { target: { value: 'xyz' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Filter zurücksetzen' }))
-    expect(screen.getByText('A01')).toBeInTheDocument()
-  })
-
-  // ── Status filtering ──────────────────────────────────────────────────────
-
-  it('filters units by status', () => {
-    const units = [
-      makeUnit({ id: 'u1', status: 'AVAILABLE' }),
-      makeUnit({ id: 'u2', code: 'CLOSED-UNIT', status: 'CLOSED' }),
-    ]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'AVAILABLE' } })
-    expect(screen.getByText(/UNIT-u1/)).toBeInTheDocument()
-    expect(screen.queryByText('CLOSED-UNIT')).not.toBeInTheDocument()
-  })
-
-  it('shows all units when status filter is cleared', () => {
-    const units = [
-      makeUnit({ id: 'u1', status: 'AVAILABLE' }),
-      makeUnit({ id: 'u2', status: 'CLOSED' }),
-    ]
-    render(<HousingList units={units} />)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'CLOSED' } })
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: '' } })
-    expect(screen.getByText('UNIT-u1')).toBeInTheDocument()
-    expect(screen.getByText('UNIT-u2')).toBeInTheDocument()
-  })
 })

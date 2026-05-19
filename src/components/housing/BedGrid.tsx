@@ -122,7 +122,7 @@ export function BedGrid({
                 flex flex-col items-center justify-center
                 transition-all
                 ${getBedColorClasses(status, isOccupiedClickable)}
-                ${isAvailableClickable || isOccupiedClickable ? 'hover:shadow-md focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1' : ''}
+                ${isAvailableClickable || isOccupiedClickable ? 'hover:border-ui-border-strong focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1' : ''}
                 ${isSelected ? 'ring-2 ring-aoz-primary ring-offset-1' : ''}
               `}
               aria-label={

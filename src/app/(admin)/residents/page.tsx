@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import Link from 'next/link'
 import { EMPTY_STATE_LABELS, RESIDENT_LIST_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Bewohner' }
@@ -9,6 +8,8 @@ import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
 import { TabLink } from '@/components/ui/Tabs'
 import { CSVImport } from '@/components/residents/CSVImport'
+import { ButtonLink } from '@/components/ui/Button'
+import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,70 +80,58 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   }
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{RESIDENT_LIST_LABELS.title}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <a
-            href="/api/export/residents"
-            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
-          >
-            {RESIDENT_LIST_LABELS.export}
-          </a>
-          <Link href="/residents/new" className="btn-ghost">
-            {RESIDENT_LIST_LABELS.addResident}
-          </Link>
-        </div>
-      </div>
+    <PageShell>
+      <PageHeader
+        title={RESIDENT_LIST_LABELS.title}
+        description={`${stats.visible} sichtbar · ${stats.unplaced} ohne Platzierung`}
+        actions={
+          <>
+            <ButtonLink href="/api/export/residents" variant="outline">
+              {RESIDENT_LIST_LABELS.export}
+            </ButtonLink>
+            <ButtonLink href="/residents/new">
+              {RESIDENT_LIST_LABELS.addResident}
+            </ButtonLink>
+          </>
+        }
+      />
 
-      {/* CSV Import */}
-      <div className="mb-6">
-        <CSVImport />
-      </div>
-
-      {/* Search */}
-      <form method="GET" action="/residents" className="mb-4">
-        <input type="hidden" name="view" value={view} />
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ui-muted pointer-events-none" aria-hidden="true">🔍</span>
+      <Toolbar>
+        <form method="GET" action="/residents" className="flex-1">
+          <input type="hidden" name="view" value={view} />
           <input
             type="search"
             name="q"
             defaultValue={q}
             placeholder={RESIDENT_LIST_LABELS.searchPlaceholder}
-            className="input pl-9 w-full sm:max-w-xs"
+            className="input w-full md:max-w-sm"
             autoComplete="off"
           />
-        </div>
-      </form>
-
-      <div className="mb-4">
-        <div className="flex gap-2 border-b border-ui-border" role="tablist">
+        </form>
+        <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
           <TabLink href={`/residents?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
           <TabLink href={`/residents?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
           <TabLink href={`/residents?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </div>
-      </div>
+      </Toolbar>
 
-      {/* Contextual Action Banner */}
       {view !== 'archived' && stats.unplaced > 0 && (
-        <div className="mb-4 sm:mb-6 p-4 bg-status-info/8 border border-status-info/25 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="rounded-lg border border-ui-border bg-ui-surface p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <p className="font-medium text-status-info-text">
+            <p className="font-medium text-ui-text">
               {stats.unplaced} {RESIDENT_LIST_LABELS.unplacedBannerSuffix}
             </p>
-            <p className="text-sm text-status-info-text">
+            <p className="text-sm text-ui-muted">
               {RESIDENT_LIST_LABELS.unplacedBannerDesc}
             </p>
           </div>
-          <Link href="/matching" className="btn-primary text-center min-h-[44px] flex items-center justify-center">
+          <ButtonLink href="/matching" variant="secondary">
             {RESIDENT_LIST_LABELS.startMatching}
-          </Link>
+          </ButtonLink>
         </div>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard label={UI_LABELS.total} value={stats.total} />
         <StatCard label={UI_LABELS.active} value={stats.active} />
         <StatCard label={RESIDENT_STATUS_LABELS.PLACED} value={stats.placed} />
@@ -153,32 +142,35 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         />
       </div>
 
-      {/* Resident List */}
+      <CSVImport />
+
       {residents.length === 0 ? (
-        <div className="card text-center py-12">
-          <p className="text-ui-muted mb-4">
-            {q
+        <EmptyState
+          title={
+            q
               ? `${RESIDENT_LIST_LABELS.emptyFiltered} («${q}»)`
               : view === 'archived'
-              ? RESIDENT_LIST_LABELS.emptyArchived
-              : EMPTY_STATE_LABELS.noResidents}
-          </p>
-          {q ? (
-            <a href={`/residents?view=${view}`} className="btn-outline">
+                ? RESIDENT_LIST_LABELS.emptyArchived
+                : EMPTY_STATE_LABELS.noResidents
+          }
+          action={
+            q ? (
+              <ButtonLink href={`/residents?view=${view}`} variant="outline">
               {RESIDENT_LIST_LABELS.filterReset}
-            </a>
+              </ButtonLink>
           ) : view !== 'archived' ? (
-            <Link href="/residents/new" className="btn-primary">
+              <ButtonLink href="/residents/new">
               {RESIDENT_LIST_LABELS.emptyFirst}
-            </Link>
-          ) : null}
-        </div>
+              </ButtonLink>
+            ) : null
+          }
+        />
       ) : (
         <ResidentsList residents={residents.map(r => ({
           ...r,
           incidentCount: r._count.incidentsAsSubject,
         }))} />
       )}
-    </div>
+    </PageShell>
   )
 }

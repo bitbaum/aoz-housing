@@ -28,8 +28,8 @@ export default async function AdminLayout({
   return (
     <>
       {/* Top Header Bar */}
-      <header className="hidden md:flex items-center bg-ui-surface text-ui-text border-b border-ui-border z-50">
-        <div className="max-w-screen-2xl mx-auto px-6 py-2.5 w-full">
+      <header className="hidden md:flex items-center bg-ui-canvas text-ui-text border-b border-ui-border z-50">
+        <div className="max-w-screen-2xl mx-auto px-6 py-3 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Logo href="/" size="lg" showTagline />
@@ -57,7 +57,7 @@ export default async function AdminLayout({
       </header>
 
       {/* Megamenu Navigation */}
-      <nav className="hidden md:block bg-ui-surface/95 backdrop-blur border-b border-ui-border sticky top-0 z-40">
+      <nav className="hidden md:block bg-ui-canvas/95 backdrop-blur border-b border-ui-border sticky top-0 z-40">
         <div className="max-w-screen-2xl mx-auto px-6">
           <div className="flex items-center gap-0.5">
             {MEGAMENU_GROUPS.map((group) =>
@@ -80,25 +80,6 @@ export default async function AdminLayout({
           <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
             {children}
           </div>
-
-          {/* Footer */}
-          <footer className="bg-ui-surface border-t border-ui-border px-6 py-4 mt-auto">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm">
-              <div className="flex items-center gap-3 text-ui-muted">
-                <Logo size="sm" />
-                <span className="text-ui-border-strong">|</span>
-                <span>{APP_LABELS.metaDescription}</span>
-              </div>
-              <div className="flex items-center gap-4 text-ui-muted">
-                <Link href="/algorithm" className="hover:text-ui-text transition-colors">
-                  {APP_LABELS.algorithm}
-                </Link>
-                <Link href="/portal/help" className="hover:text-ui-text transition-colors">
-                  {APP_LABELS.help}
-                </Link>
-              </div>
-            </div>
-          </footer>
         </main>
       </div>
     </>
@@ -109,7 +90,7 @@ function HeaderLink({ href, children }: { href: string; children: React.ReactNod
   return (
     <Link
       href={href}
-      className="px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors min-h-[44px] inline-flex items-center"
+      className="px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors min-h-[40px] inline-flex items-center"
     >
       {children}
     </Link>
@@ -121,7 +102,7 @@ function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-4 py-3.5 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
+      className="flex items-center gap-2 px-3 py-3 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
     >
       <Icon className="w-4 h-4" />
       {label}
@@ -139,7 +120,7 @@ function MegaMenuDropdown({
   return (
     <div className="relative group">
       <button
-        className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
+        className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
         aria-haspopup="true"
       >
         {label}
@@ -148,12 +129,12 @@ function MegaMenuDropdown({
         </svg>
       </button>
       <div className="absolute left-0 top-full pt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
-        <div className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-2 min-w-[230px]">
+        <div className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 min-w-[220px]">
           {items.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="block px-4 py-2.5 hover:bg-ui-subtle transition-colors min-h-[44px] flex flex-col justify-center"
+              className="block px-3 py-2.5 hover:bg-ui-subtle transition-colors min-h-[42px] flex flex-col justify-center"
             >
               <div className="font-medium text-ui-text text-sm leading-tight">{item.label}</div>
               <div className="text-xs text-ui-muted mt-0.5">{item.desc}</div>

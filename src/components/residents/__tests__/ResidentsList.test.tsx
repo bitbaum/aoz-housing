@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { ResidentsList, type ResidentListItem } from '../ResidentsList'
 
 // --- Mocks ---
@@ -9,21 +9,6 @@ jest.mock('next/link', () => ({
   default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
     <a href={href} className={className}>{children}</a>
   ),
-}))
-
-jest.mock('@/components/ui/FilterBar', () => ({
-  SearchInput: ({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) => (
-    <input aria-label={placeholder ?? 'Suchen...'} value={value} onChange={e => onChange(e.target.value)} />
-  ),
-  SelectFilter: ({ label, value, options, onChange }: {
-    label: string; value: string
-    options: { value: string; label: string }[]; onChange: (v: string) => void
-  }) => (
-    <select aria-label={label} value={value} onChange={e => onChange(e.target.value)}>
-      {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-    </select>
-  ),
-  FilterBar: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 jest.mock('@/components/residents/ResidentCardActions', () => ({
@@ -81,27 +66,6 @@ describe('ResidentsList', () => {
     expect(screen.getByText('Noch keine Bewohner vorhanden')).toBeInTheDocument()
   })
 
-  it('shows empty-filtered message when filter yields no results', () => {
-    render(<ResidentsList residents={[makeResident({ id: 'r1', code: 'RES-AAA' })]} />)
-    fireEvent.change(screen.getByRole('textbox', { name: 'Bewohner suchen...' }), {
-      target: { value: 'ZZZ' },
-    })
-    expect(screen.getByText('Keine Bewohner für diese Filter')).toBeInTheDocument()
-  })
-
-  it('shows "Filter zurücksetzen" button when filtered empty', () => {
-    render(<ResidentsList residents={[makeResident({ id: 'r1', code: 'RES-AAA' })]} />)
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'NOMATCH' } })
-    expect(screen.getByRole('button', { name: 'Filter zurücksetzen' })).toBeInTheDocument()
-  })
-
-  it('reset button clears filters and shows residents again', () => {
-    render(<ResidentsList residents={[makeResident({ id: 'r1', code: 'RES-AAA' })]} />)
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'NOMATCH' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Filter zurücksetzen' }))
-    expect(screen.getByText('RES-AAA')).toBeInTheDocument()
-  })
-
   // ── Card rendering ────────────────────────────────────────────────────────
 
   it('renders resident code', () => {
@@ -122,8 +86,7 @@ describe('ResidentsList', () => {
 
   it('shows status badge', () => {
     render(<ResidentsList residents={[makeResident({ id: 'r1', status: 'PLACED' })]} />)
-    // 'Platziert' also appears in the status select options
-    expect(screen.getAllByText('Platziert').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText('Platziert')).toBeInTheDocument()
   })
 
   it('shows housing unit code when placed', () => {
@@ -166,43 +129,6 @@ describe('ResidentsList', () => {
       makeResident({ id: 'r1', code: 'RES-001' }),
       makeResident({ id: 'r2', code: 'RES-002' }),
     ]} />)
-    expect(screen.getByText('RES-001')).toBeInTheDocument()
-    expect(screen.getByText('RES-002')).toBeInTheDocument()
-  })
-
-  // ── Search filter ─────────────────────────────────────────────────────────
-
-  it('filters residents by code (case-insensitive)', () => {
-    render(<ResidentsList residents={[
-      makeResident({ id: 'r1', code: 'RES-AAA' }),
-      makeResident({ id: 'r2', code: 'RES-BBB' }),
-    ]} />)
-    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'aaa' } })
-    expect(screen.getByText('RES-AAA')).toBeInTheDocument()
-    expect(screen.queryByText('RES-BBB')).not.toBeInTheDocument()
-  })
-
-  // ── Status filter ─────────────────────────────────────────────────────────
-
-  it('filters residents by status', () => {
-    render(<ResidentsList residents={[
-      makeResident({ id: 'r1', code: 'RES-001', status: 'ACTIVE' }),
-      makeResident({ id: 'r2', code: 'RES-002', status: 'EXITED' }),
-    ]} />)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), {
-      target: { value: 'EXITED' },
-    })
-    expect(screen.getByText('RES-002')).toBeInTheDocument()
-    expect(screen.queryByText('RES-001')).not.toBeInTheDocument()
-  })
-
-  it('shows all residents when status filter cleared', () => {
-    render(<ResidentsList residents={[
-      makeResident({ id: 'r1', code: 'RES-001', status: 'ACTIVE' }),
-      makeResident({ id: 'r2', code: 'RES-002', status: 'EXITED' }),
-    ]} />)
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'EXITED' } })
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } })
     expect(screen.getByText('RES-001')).toBeInTheDocument()
     expect(screen.getByText('RES-002')).toBeInTheDocument()
   })
