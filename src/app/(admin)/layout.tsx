@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { Logo } from '@/components/ui/Logo'
@@ -24,6 +25,10 @@ export default async function AdminLayout({
   const user = await getCurrentUser()
   const cookieStore = await cookies()
   const hasPortalAccess = !!cookieStore.get('resident_code')?.value
+
+  if (!user) {
+    redirect('/login')
+  }
 
   return (
     <>

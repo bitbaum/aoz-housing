@@ -61,6 +61,13 @@ export async function middleware(request: NextRequest) {
     const { valid, payload } = await verifyStaffToken(token)
 
     if (!valid) {
+      if (!pathname.startsWith('/api/')) {
+        // UI routes are verified again in the server admin layout. This keeps
+        // Edge middleware as a fast coarse gate without blocking valid Node
+        // sessions when Edge env/JWT verification drifts in production.
+        return NextResponse.next()
+      }
+
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('from', pathname)
       const response = NextResponse.redirect(loginUrl)
