@@ -6,6 +6,7 @@ import { EMAIL_CONFIG } from '@/lib/email/config'
 import { SETTINGS_LABELS, PILOT_BASELINE_LABELS } from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
 import { SubmitButton } from '@/components/ui'
+import { formatDate, formatDateISO } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Einstellungen' }
 
@@ -26,7 +27,7 @@ export default async function SettingsPage() {
   const emailEnabled = EMAIL_CONFIG.enabled
 
   const pilotStartValue = systemConfig.pilotStartDate
-    ? new Date(systemConfig.pilotStartDate).toISOString().split('T')[0]
+    ? formatDateISO(systemConfig.pilotStartDate)
     : ''
 
   return (
@@ -73,7 +74,7 @@ export default async function SettingsPage() {
               <div className="text-right">
                 {user.lastLoginAt ? (
                   <p className="text-xs text-ui-muted">
-                    {SETTINGS_LABELS.lastSeen} {new Date(user.lastLoginAt).toLocaleDateString('de-CH')}
+                    {SETTINGS_LABELS.lastSeen} {formatDate(user.lastLoginAt)}
                   </p>
                 ) : (
                   <p className="text-xs text-ui-muted">{SETTINGS_LABELS.neverLoggedIn}</p>

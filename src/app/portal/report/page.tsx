@@ -1,22 +1,17 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Problem melden' }
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ReportForm } from './ReportForm'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ReportPage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

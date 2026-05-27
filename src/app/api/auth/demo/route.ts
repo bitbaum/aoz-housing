@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { logger } from '@/lib/logger'
+import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 
 type DemoRole = 'staff' | 'resident'
 
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     const { cookies } = await import('next/headers')
     const cookieStore = await cookies()
-    cookieStore.set('resident_code', result.code, {
+    cookieStore.set(RESIDENT_COOKIE, result.code, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

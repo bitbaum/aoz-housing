@@ -7,15 +7,11 @@
 
 import { COMPATIBILITY_SCORE_LABELS } from '@/lib/constants/labels'
 import {
-  SCORE_THRESHOLDS,
-  OCCUPANCY_THRESHOLDS,
-  HARMONY_THRESHOLDS,
   getScoreLevel as getScoreLevelFromConfig,
   getOccupancyLevel,
   getHarmonyLevel,
   getHealthLevel as getHealthLevelFromConfig,
   type ScoreLevel,
-  type OccupancyLevel,
   type HarmonyLevel,
   type HealthLevel,
   OCCUPANCY_COLORS,
@@ -34,6 +30,25 @@ export function formatDate(date: Date | string): string {
 
 export function formatDateTime(date: Date | string): string {
   return new Date(date).toLocaleString(DATE_LOCALE)
+}
+
+/** Short day + short month, e.g. "27. Mai" */
+export function formatDateShort(date: Date | string): string {
+  return new Date(date).toLocaleDateString(DATE_LOCALE, { day: 'numeric', month: 'short' })
+}
+
+/** Long form, e.g. "27. Mai 2026" */
+export function formatDateLong(date: Date | string): string {
+  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
+/** ISO date for CSV export, e.g. "2026-05-27" */
+export function formatDateISO(date: Date | string): string {
+  return new Date(date).toISOString().split('T')[0]
 }
 
 export function formatRelativeDate(date: Date | string): string {
@@ -56,15 +71,6 @@ export function formatRelativeDate(date: Date | string): string {
 export function getDateDaysAgo(days: number): Date {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000)
 }
-
-/**
- * Common date ranges used throughout the app
- */
-export const DATE_RANGES = {
-  LAST_7_DAYS: () => getDateDaysAgo(7),
-  LAST_30_DAYS: () => getDateDaysAgo(30),
-  LAST_90_DAYS: () => getDateDaysAgo(90),
-} as const
 
 // =============================================================================
 // SCORE FORMATTING (thresholds from config/thresholds.ts)

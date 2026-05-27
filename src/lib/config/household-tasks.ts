@@ -278,4 +278,25 @@ export const CHORE_LABELS = {
     urgentDesc: 'Diese Aufgaben brauchen zuerst eine Entscheidung.',
     after: 'Danach',
   },
+  // Card-level action hints (previously in lib/constants/labels/ui.ts)
+  openTaskHint: 'Empfohlen: Aufgabe öffnen und zuerst Entscheidung treffen.',
+  openTaskAction: 'Aufgabe öffnen und Entscheidung treffen',
+  markDoneDirectly: 'Direkt als erledigt markieren',
+  done: 'Erledigt',
+  // Admin chores page stats
+  statTotal: 'Total Aufgaben',
+  statActive: 'Aktive Aufgaben',
+  statNeedsAttention: 'Braucht Aufmerksamkeit',
+  statCompletions: 'Erledigungen',
+  admin: {
+    pageTitle: 'Haushaltsaufgaben',
+    perUnitTitle: 'Aufgaben pro Unterkunft',
+    noUnits: 'Keine Unterkünfte mit Aufgaben gefunden',
+    attention: 'Achtung',
+    colUnit: 'Unterkunft',
+    colAddress: 'Adresse',
+    colResidents: 'Bewohner',
+    colTasks: 'Aufgaben',
+    colActive: 'Aktiv',
+  },
 } as const

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { ChoreCard } from './ChoreCard'
 import { FairnessSummary } from './FairnessSummary'
 import {
@@ -37,6 +38,7 @@ interface ChoreListProps {
 }
 
 export function ChoreList({ tasks, fairness }: ChoreListProps) {
+  const router = useRouter()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [completingId, setCompletingId] = useState<string | null>(null)
 
@@ -61,7 +63,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
         method: 'POST',
       })
       if (res.ok) {
-        window.location.reload()
+        router.refresh()
       }
     } finally {
       setCompletingId(null)

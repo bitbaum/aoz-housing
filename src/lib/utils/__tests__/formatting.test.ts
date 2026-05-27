@@ -205,15 +205,15 @@ describe('getSeverityDotClass', () => {
 
 describe('getSeverityBgClass', () => {
   it('maps severity levels to bg classes', () => {
-    expect(getSeverityBgClass('CRITICAL')).toContain('bg-red')
-    expect(getSeverityBgClass('LOW')).toContain('bg-gray')
+    expect(getSeverityBgClass('CRITICAL')).toContain('status-error')
+    expect(getSeverityBgClass('LOW')).toContain('ui-subtle')
   })
 })
 
 describe('getSeverityRadioClass', () => {
   it('maps severity levels to radio styles', () => {
-    expect(getSeverityRadioClass('HIGH')).toContain('orange')
-    expect(getSeverityRadioClass('CRITICAL')).toContain('red')
+    expect(getSeverityRadioClass('HIGH')).toContain('score-low')
+    expect(getSeverityRadioClass('CRITICAL')).toContain('status-error')
   })
 })
 
@@ -300,8 +300,8 @@ describe('getTrendColorClass', () => {
     expect(getTrendColorClass('warning')).toContain('status-warning-text')
   })
 
-  it('returns gray for neutral', () => {
-    expect(getTrendColorClass('neutral')).toContain('gray')
+  it('returns muted color for neutral', () => {
+    expect(getTrendColorClass('neutral')).toContain('ui-muted')
   })
 })
 

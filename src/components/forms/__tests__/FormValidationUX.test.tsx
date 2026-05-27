@@ -90,9 +90,9 @@ describe('FormValidationUX', () => {
         input.dispatchEvent(new Event('invalid', { bubbles: false, cancelable: true }))
       })
 
-      expect(input.classList.contains('border-red-500')).toBe(true)
+      expect(input.classList.contains('border-status-error')).toBe(true)
       expect(input.classList.contains('ring-1')).toBe(true)
-      expect(input.classList.contains('ring-red-500')).toBe(true)
+      expect(input.classList.contains('ring-status-error')).toBe(true)
     })
 
     it('appends a .field-error p with role="alert" below the field', () => {
@@ -152,16 +152,16 @@ describe('FormValidationUX', () => {
       act(() => {
         input.dispatchEvent(new Event('invalid', { bubbles: false, cancelable: true }))
       })
-      expect(input.classList.contains('border-red-500')).toBe(true)
+      expect(input.classList.contains('border-status-error')).toBe(true)
 
       act(() => {
         input.value = 'some value'
         input.dispatchEvent(new Event('input', { bubbles: true }))
       })
 
-      expect(input.classList.contains('border-red-500')).toBe(false)
+      expect(input.classList.contains('border-status-error')).toBe(false)
       expect(input.classList.contains('ring-1')).toBe(false)
-      expect(input.classList.contains('ring-red-500')).toBe(false)
+      expect(input.classList.contains('ring-status-error')).toBe(false)
     })
 
     it('removes .field-error element from corrected field', () => {

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
-import { portalCompleteTaskSchema, ValidationError } from '@/lib/validation/schemas'
+import { portalCompleteTaskSchema } from '@/lib/validation/schemas'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -34,22 +34,26 @@ export async function POST(
     // Empty body is fine for quick-complete
   }
 
+  // Security check: verify task belongs to this housing unit
+  const task = await prisma.householdTask.findFirst({
+    where: { id, housingUnitId: auth.placement.housingUnitId },
+  })
+
+  if (!task) {
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
+  }
+
+  if (task.isCompleted) {
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
+  }
+
   try {
-    // Verify task belongs to this housing unit
-    const task = await prisma.householdTask.findFirst({
-      where: { id, housingUnitId: auth.placement.housingUnitId },
-    })
-
-    if (!task) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
-    }
-
-    if (task.isCompleted) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
-    }
-
-    // Transaction: create completion + update task + resolve flags + complete requests
+    // Transaction: create completion + update task + resolve flags + complete requests.
+    // For ONE_TIME tasks we use a conditional update with `isCompleted: false` guard
+    // to prevent two concurrent completions from racing past the outer check.
     const result = await prisma.$transaction(async (tx) => {
+      const isOneTime = task.taskType === 'ONE_TIME'
+
       // 1. Create completion
       const completion = await tx.taskCompletion.create({
         data: {
@@ -61,7 +65,6 @@ export async function POST(
       })
 
       // 2. Update task status
-      const isOneTime = task.taskType === 'ONE_TIME'
       await tx.householdTask.update({
         where: { id },
         data: {

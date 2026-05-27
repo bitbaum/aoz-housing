@@ -11,8 +11,6 @@ import type {
   ApartmentCompatibility,
   ApartmentConflict,
   SleepSchedule,
-  SocialStyle,
-  SmokingStatus,
 } from './types'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
 import { FIT_SCORE_CONFIG } from '@/lib/config/thresholds'

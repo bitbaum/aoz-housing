@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react'
 import {
   getScoreLevel,
   SCORE_THRESHOLDS,
-  type ScoreLevel,
 } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'

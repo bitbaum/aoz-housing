@@ -28,90 +28,60 @@ export async function getTransferRequests(status?: string) {
   })
 }
 
-export async function approveTransferRequest(
-  input: ReviewTransferRequestInput
+async function reviewTransferRequest(
+  input: ReviewTransferRequestInput,
+  decision: 'APPROVED' | 'DENIED'
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requireStaffAuth()
 
   try {
-    const request = await prisma.transferRequest.findUnique({
-      where: { id: input.requestId },
-    })
-
-    if (!request) {
-      return { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_NOT_FOUND }
-    }
-
-    if (request.status !== 'PENDING') {
-      return { success: false, error: 'Anfrage wurde bereits bearbeitet' }
-    }
-
-    await prisma.transferRequest.update({
-      where: { id: input.requestId },
+    // Atomic guard: only PENDING rows are eligible. Prevents two staff members
+    // concurrently approving + denying (or both approving) the same request.
+    const result = await prisma.transferRequest.updateMany({
+      where: { id: input.requestId, status: 'PENDING' },
       data: {
-        status: 'APPROVED',
+        status: decision,
         staffNotes: input.staffNotes,
         reviewedBy: user.id,
         reviewedAt: new Date(),
       },
     })
 
+    if (result.count === 0) {
+      const exists = await prisma.transferRequest.findUnique({
+        where: { id: input.requestId },
+        select: { id: true },
+      })
+      return {
+        success: false,
+        error: exists
+          ? 'Anfrage wurde bereits bearbeitet'
+          : ERROR_MESSAGES.TRANSFER_REQUEST_NOT_FOUND,
+      }
+    }
+
     await logAudit({
       action: 'UPDATE',
       entity: 'TRANSFER_REQUEST',
       entityId: input.requestId,
       userId: user.id,
-      changes: { status: 'APPROVED', staffNotes: input.staffNotes },
+      changes: { status: decision, staffNotes: input.staffNotes },
     })
 
     revalidatePath('/transfer-requests')
     return { success: true }
   } catch (error) {
-    logger.errorWithCause('Failed to approve transfer request', error, { requestId: input.requestId })
+    logger.errorWithCause(`Failed to ${decision.toLowerCase()} transfer request`, error, {
+      requestId: input.requestId,
+    })
     return { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_REVIEW_ERROR }
   }
 }
 
-export async function denyTransferRequest(
-  input: ReviewTransferRequestInput
-): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+export async function approveTransferRequest(input: ReviewTransferRequestInput) {
+  return reviewTransferRequest(input, 'APPROVED')
+}
 
-  try {
-    const request = await prisma.transferRequest.findUnique({
-      where: { id: input.requestId },
-    })
-
-    if (!request) {
-      return { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_NOT_FOUND }
-    }
-
-    if (request.status !== 'PENDING') {
-      return { success: false, error: 'Anfrage wurde bereits bearbeitet' }
-    }
-
-    await prisma.transferRequest.update({
-      where: { id: input.requestId },
-      data: {
-        status: 'DENIED',
-        staffNotes: input.staffNotes,
-        reviewedBy: user.id,
-        reviewedAt: new Date(),
-      },
-    })
-
-    await logAudit({
-      action: 'UPDATE',
-      entity: 'TRANSFER_REQUEST',
-      entityId: input.requestId,
-      userId: user.id,
-      changes: { status: 'DENIED', staffNotes: input.staffNotes },
-    })
-
-    revalidatePath('/transfer-requests')
-    return { success: true }
-  } catch (error) {
-    logger.errorWithCause('Failed to deny transfer request', error, { requestId: input.requestId })
-    return { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_REVIEW_ERROR }
-  }
+export async function denyTransferRequest(input: ReviewTransferRequestInput) {
+  return reviewTransferRequest(input, 'DENIED')
 }

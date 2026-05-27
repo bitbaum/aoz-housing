@@ -17,10 +17,18 @@ export function AIChatInterface() {
   const [streamingText, setStreamingText] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, streamingText])
+
+  // Abort any in-flight stream on unmount to prevent setState-on-unmounted leaks
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort()
+    }
+  }, [])
 
   async function sendMessage(text: string) {
     if (!text.trim() || streaming) return
@@ -32,11 +40,15 @@ export function AIChatInterface() {
     setStreaming(true)
     setStreamingText('')
 
+    const controller = new AbortController()
+    abortRef.current = controller
+
     try {
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: nextMessages }),
+        signal: controller.signal,
       })
 
       if (!response.ok) {
@@ -77,12 +89,14 @@ export function AIChatInterface() {
       }
 
       setMessages(prev => [...prev, { role: 'assistant', content: accumulated }])
-    } catch {
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') return
       setMessages(prev => [
         ...prev,
         { role: 'assistant', content: 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.' },
       ])
     } finally {
+      if (abortRef.current === controller) abortRef.current = null
       setStreaming(false)
       setStreamingText('')
     }

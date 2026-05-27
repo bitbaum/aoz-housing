@@ -5,6 +5,7 @@ import { ResidentImportSchema } from '@/lib/validation/import'
 import Papa from 'papaparse'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
+import { Prisma } from '@prisma/client'
 
 export async function POST(request: Request) {
   const user = await getCurrentUser()
@@ -56,21 +57,6 @@ export async function POST(request: Request) {
       continue
     }
 
-    // Check for duplicate code
-    const existing = await prisma.resident.findUnique({
-      where: { code: validation.data.code },
-      select: { id: true },
-    })
-
-    if (existing) {
-      results.errors.push({
-        row: i + 2,
-        error: `Code "${validation.data.code}" existiert bereits`,
-      })
-      results.skipped++
-      continue
-    }
-
     try {
       const resident = await prisma.resident.create({
         data: {
@@ -91,10 +77,16 @@ export async function POST(request: Request) {
 
       results.created++
     } catch (error) {
-      logger.errorWithCause('Failed to import resident row', error, {
-        row: i + 2,
-      })
-      results.errors.push({ row: i + 2, error: 'Erstellung fehlgeschlagen' })
+      // P2002 = unique constraint violation (code already exists)
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        results.errors.push({
+          row: i + 2,
+          error: `Code "${validation.data.code}" existiert bereits`,
+        })
+      } else {
+        logger.errorWithCause('Failed to import resident row', error, { row: i + 2 })
+        results.errors.push({ row: i + 2, error: 'Erstellung fehlgeschlagen' })
+      }
       results.skipped++
     }
   }

@@ -4,6 +4,7 @@ import { endPlacement } from '@/lib/actions'
 import { SubmitButton } from '@/components/ui'
 import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { formatDate } from '@/lib/utils'
 
 export interface RecentIncident {
   id: string
@@ -142,7 +143,7 @@ export function EndPlacementForm({
                 <option value="">{PLACEMENT_ACTIONS_LABELS.noLinkedIncident}</option>
                 {recentIncidents.map((incident) => (
                   <option key={incident.id} value={incident.id}>
-                    {new Date(incident.date).toLocaleDateString('de-CH')} - {incident.type}: {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
+                    {formatDate(incident.date)} - {incident.type}: {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
                   </option>
                 ))}
               </select>

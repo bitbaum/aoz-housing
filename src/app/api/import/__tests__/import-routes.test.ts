@@ -168,7 +168,16 @@ describe('POST /api/import/residents', () => {
 
   it('skips duplicate codes', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockResidentFindUnique.mockResolvedValue({ id: 'existing-res' })
+    // Simulate Prisma unique-constraint violation (P2002).
+    // We avoid importing PrismaClientKnownRequestError directly because the
+    // route uses instanceof — instead, construct an object that satisfies the
+    // check by setting the prototype chain.
+    const { Prisma } = require('@prisma/client')
+    const duplicateError = new Prisma.PrismaClientKnownRequestError(
+      'Unique constraint failed',
+      { code: 'P2002', clientVersion: '5.0.0' }
+    )
+    mockResidentCreate.mockRejectedValue(duplicateError)
 
     const csv = `${CSV_HEADER}\n${VALID_CSV_ROW}`
     const file = createCSVFile(csv)

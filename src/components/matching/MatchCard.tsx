@@ -7,7 +7,6 @@ import { MATCHING_LABELS } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
-import { getScoreLevel } from '@/lib/config/thresholds'
 import { SpotSelection } from './SpotSelection'
 import { ApartmentProfileSection } from './ApartmentProfileSection'
 

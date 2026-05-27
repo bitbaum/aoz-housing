@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = { title: 'Mein Bereich' }
@@ -15,16 +14,12 @@ import { PortalReportsCard } from '@/components/portal/PortalReportsCard'
 import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard'
 import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
 import { listActivities } from '@/lib/data/activities'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ResidentPortal() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/login')
-  }
+  const residentCode = await requireResidentCookie('/login')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

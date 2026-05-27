@@ -25,6 +25,11 @@ jest.mock('../FairnessSummary', () => ({
   ),
 }))
 
+const mockRefresh = jest.fn()
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mockRefresh, push: jest.fn(), replace: jest.fn() }),
+}))
+
 jest.mock('@/lib/config/household-tasks', () => ({
   TASK_CATEGORY_LABELS: { CLEANING: 'Reinigung', COOKING: 'Kochen' },
   TASK_CATEGORY_ICONS: { CLEANING: '🧹', COOKING: '🍳' },
@@ -67,19 +72,9 @@ function makeTask(overrides: {
 // --- Tests ---
 
 describe('ChoreList', () => {
-  const reloadMock = jest.fn()
-
-  beforeAll(() => {
-    // jsdom: delete the non-configurable property, then replace with a plain mock.
-    // @ts-expect-error — window.location is non-optional; deletion is intentional for testing
-    delete window.location
-    // @ts-expect-error — assigning a partial Location object is intentional for testing
-    window.location = { reload: reloadMock }
-  })
-
   beforeEach(() => {
     global.fetch = jest.fn()
-    reloadMock.mockClear()
+    mockRefresh.mockClear()
   })
 
   afterEach(() => {
@@ -226,14 +221,24 @@ describe('ChoreList', () => {
     await act(async () => { resolveRequest({ ok: false }) })
   })
 
-  it('does not reload when fetch returns non-ok response', async () => {
+  it('does not refresh when fetch returns non-ok response', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
     render(<ChoreList tasks={tasks} fairness={[]} />)
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     })
-    expect(reloadMock).not.toHaveBeenCalled()
+    expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  it('refreshes router when fetch returns ok', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true })
+    const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
+    render(<ChoreList tasks={tasks} fairness={[]} />)
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'complete' }))
+    })
+    expect(mockRefresh).toHaveBeenCalled()
   })
 
   // ── Fairness summary ──────────────────────────────────────────────────────

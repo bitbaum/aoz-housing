@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -286,7 +287,7 @@ export async function POST(request: Request) {
 
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`))
       } catch (err) {
-        console.error('[AI chat]', err)
+        logger.errorWithCause('AI chat stream failed', err)
         controller.enqueue(encoder.encode(
           `data: ${JSON.stringify({ type: 'error', message: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.' })}\n\n`
         ))

@@ -185,29 +185,6 @@ export const SATISFACTION_SURVEY_LABELS = {
   submitFeedback: 'Feedback absenden',
 } as const
 
-export const CHORE_LABELS = {
-  openTaskHint: 'Empfohlen: Aufgabe öffnen und zuerst Entscheidung treffen.',
-  openTaskAction: 'Aufgabe öffnen und Entscheidung treffen',
-  markDoneDirectly: 'Direkt als erledigt markieren',
-  done: 'Erledigt',
-  // Stat card labels (admin chores page)
-  statTotal: 'Total Aufgaben',
-  statActive: 'Aktive Aufgaben',
-  statNeedsAttention: 'Braucht Aufmerksamkeit',
-  statCompletions: 'Erledigungen',
-  admin: {
-    pageTitle: 'Haushaltsaufgaben',
-    perUnitTitle: 'Aufgaben pro Unterkunft',
-    noUnits: 'Keine Unterkünfte mit Aufgaben gefunden',
-    attention: 'Achtung',
-    colUnit: 'Unterkunft',
-    colAddress: 'Adresse',
-    colResidents: 'Bewohner',
-    colTasks: 'Aufgaben',
-    colActive: 'Aktiv',
-  },
-} as const
-
 export const TRANSFER_ACTION_LABELS = {
   notesPlaceholder: 'Notiz (optional)',
   approve: 'Genehmigen',

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
+import { updateMaintenanceStatus } from '@/lib/actions'
 import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import {
@@ -15,7 +15,7 @@ import {
   MAINTENANCE_PAGE_LABELS,
   getLabel,
 } from '@/lib/constants'
-import { formatDate, formatRelativeDate } from '@/lib/utils'
+import { formatDate } from '@/lib/utils'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params

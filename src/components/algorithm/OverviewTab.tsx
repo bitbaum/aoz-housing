@@ -5,7 +5,6 @@ import {
   Users,
   Target,
   Scale,
-  BookOpen,
   Layers,
   Beaker,
 } from 'lucide-react'

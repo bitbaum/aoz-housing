@@ -2,14 +2,10 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import {
-  SPOT_TYPE_LABELS,
-  SPOT_TYPE_ICONS,
-} from '@/lib/config/placement-spots'
 import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
-import type { SpotInfo, UnitWithSpots } from '@/lib/types'
+import type { UnitWithSpots } from '@/lib/types'
 import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
 
 // =============================================================================

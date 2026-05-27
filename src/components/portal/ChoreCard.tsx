@@ -8,7 +8,7 @@ import {
   TASK_PRIORITY_COLORS,
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
-import { CHORE_LABELS as CHORE_UI_LABELS, UI_LABELS } from '@/lib/constants'
+import { UI_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
 
 interface ChoreCardProps {
@@ -64,7 +64,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
               : CHORE_LABELS.card.never}
           </p>
           {needsDecision && (
-            <p className="text-xs text-status-warning-text mt-1">{CHORE_UI_LABELS.openTaskHint}</p>
+            <p className="text-xs text-status-warning-text mt-1">{CHORE_LABELS.openTaskHint}</p>
           )}
         </div>
       </Link>
@@ -75,7 +75,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           <Link
             href={`/portal/chores/${task.id}`}
             className="min-h-[44px] px-3 py-2 bg-status-warning/10 text-status-warning-text hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors flex items-center"
-            title={CHORE_UI_LABELS.openTaskAction}
+            title={CHORE_LABELS.openTaskAction}
           >
             {UI_LABELS.details}
           </Link>
@@ -84,9 +84,9 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
             onClick={() => onQuickComplete(task.id)}
             disabled={isCompleting}
             className="min-h-[44px] px-3 py-2 bg-status-success/10 text-status-success-text hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex-shrink-0"
-            title={CHORE_UI_LABELS.markDoneDirectly}
+            title={CHORE_LABELS.markDoneDirectly}
           >
-            {isCompleting ? '...' : CHORE_UI_LABELS.done}
+            {isCompleting ? '...' : CHORE_LABELS.done}
           </button>
         )
       )}

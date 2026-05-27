@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChoreActions } from '@/components/portal/ChoreActions'
@@ -16,6 +15,7 @@ import {
 } from '@/lib/config/household-tasks'
 import { formatDate } from '@/lib/utils'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,12 +25,7 @@ interface PageProps {
 
 export default async function ChoreDetailPage({ params }: PageProps) {
   const { id } = await params
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

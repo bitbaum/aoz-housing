@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
-import { PORTAL_LABELS, CHORE_LABELS } from '@/lib/constants'
+import { PORTAL_LABELS } from '@/lib/constants'
+import { CHORE_LABELS } from '@/lib/config/household-tasks'
 
 interface PendingChore {
   id: string

@@ -4,13 +4,7 @@ import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 
 export const metadata: Metadata = { title: 'Haushaltsaufgaben' }
-import {
-  TASK_CATEGORY_LABELS,
-  TASK_CATEGORY_ICONS,
-  TASK_STATUS_LABELS,
-  TASK_STATUS_COLORS,
-} from '@/lib/config/household-tasks'
-import { CHORE_LABELS } from '@/lib/constants'
+import { CHORE_LABELS } from '@/lib/config/household-tasks'
 
 const C = CHORE_LABELS.admin
 

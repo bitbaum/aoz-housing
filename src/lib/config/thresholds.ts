@@ -141,14 +141,6 @@ export const INCIDENT_BG_COLORS = {
   none: 'bg-ui-subtle',
 } as const
 
-export const HARMONY_LABELS: Record<HarmonyLevel, string> = {
-  excellent: 'Sehr harmonisch',
-  good: 'Harmonisch',
-  moderate: 'Stabil',
-  concerning: 'Spannungen',
-  critical: 'Kritisch',
-}
-
 // =============================================================================
 // FIT SCORE CALCULATION CONFIG
 // =============================================================================

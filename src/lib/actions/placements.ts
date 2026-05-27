@@ -16,7 +16,6 @@ import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
-import type { Resident, Placement } from '@prisma/client'
 
 interface CreatePlacementInput {
   residentId: string

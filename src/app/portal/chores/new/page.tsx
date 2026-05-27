@@ -1,19 +1,14 @@
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { CreateChoreForm } from '@/components/portal/CreateChoreForm'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const dynamic = 'force-dynamic'
 
 export default async function NewChorePage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

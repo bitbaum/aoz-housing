@@ -33,16 +33,14 @@ jest.mock('@/lib/config/household-tasks', () => ({
       never: 'Noch nie',
       by: 'von',
     },
-  },
-}))
-
-jest.mock('@/lib/constants', () => ({
-  CHORE_LABELS: {
     openTaskHint: 'Empfohlen: Aufgabe öffnen und zuerst Entscheidung treffen.',
     openTaskAction: 'Aufgabe öffnen und Entscheidung treffen',
     markDoneDirectly: 'Direkt als erledigt markieren',
     done: 'Erledigt',
   },
+}))
+
+jest.mock('@/lib/constants', () => ({
   UI_LABELS: { details: 'Details' },
 }))
 

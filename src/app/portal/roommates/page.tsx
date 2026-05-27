@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
@@ -14,6 +13,7 @@ import {
   PORTAL_LABELS,
   getLabel,
 } from '@/lib/constants/labels'
+import { requireResidentCookie } from '@/lib/portal-auth'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 
 type RoommateResident = Pick<Resident, 'id' | 'code' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages'>
@@ -21,12 +21,7 @@ type RoommateResident = Pick<Resident, 'id' | 'code' | 'ageRange' | 'sleepSchedu
 export const dynamic = 'force-dynamic'
 
 export default async function RoommatesPage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

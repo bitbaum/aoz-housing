@@ -1,14 +1,21 @@
 /**
- * Shared portal authentication helper
+ * Shared portal authentication helpers
  *
- * Extracts the repeated pattern of reading resident_code cookie,
+ * Extracts the repeated patterns of reading the `resident_code` cookie,
  * finding the resident, and getting their active placement.
  *
  * DRY: Used by all portal API routes and server components.
  */
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
+
+/**
+ * Canonical cookie name carrying the resident login code.
+ * SSOT — never reference the literal string elsewhere.
+ */
+export const RESIDENT_COOKIE = 'resident_code'
 
 export interface PortalAuthResult {
   resident: {
@@ -19,6 +26,26 @@ export interface PortalAuthResult {
     id: string
     housingUnitId: string
   }
+}
+
+/**
+ * Read the resident_code cookie, or redirect to the given path if missing.
+ * Use from server components when you need to perform a custom Prisma query.
+ */
+export async function requireResidentCookie(redirectTo = '/login'): Promise<string> {
+  const cookieStore = await cookies()
+  const code = cookieStore.get(RESIDENT_COOKIE)?.value
+  if (!code) redirect(redirectTo)
+  return code
+}
+
+/**
+ * Read the resident_code cookie without redirecting.
+ * Use from API routes that should return JSON 401 instead of redirecting.
+ */
+export async function getResidentCookie(): Promise<string | null> {
+  const cookieStore = await cookies()
+  return cookieStore.get(RESIDENT_COOKIE)?.value ?? null
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
+import { formatDateShort } from '@/lib/utils'
 
 interface OverdueCheckIn {
   id: string
@@ -251,9 +252,3 @@ function MoreItems({ count, href }: { count: number; href: string }) {
   )
 }
 
-function formatDateShort(date: Date): string {
-  return new Date(date).toLocaleDateString('de-CH', {
-    day: 'numeric',
-    month: 'short',
-  })
-}

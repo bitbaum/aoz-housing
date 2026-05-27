@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
-import { portalTaskRequestSchema, ValidationError } from '@/lib/validation/schemas'
+import { portalTaskRequestSchema } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 

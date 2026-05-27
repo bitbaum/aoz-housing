@@ -1,21 +1,25 @@
 import { z } from 'zod'
+import {
+  AgeRangeSchema,
+  GenderSchema,
+  FamilyStatusSchema,
+  SleepScheduleSchema,
+  SocialStyleSchema,
+  SmokingStatusSchema,
+  MobilityNeedSchema,
+} from './schemas'
 
 export const ResidentImportSchema = z.object({
   code: z.string().min(1, 'Code ist erforderlich'),
-  ageRange: z.enum(['YOUNG_ADULT', 'ADULT', 'MIDDLE_AGED', 'SENIOR']),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_SAY']),
-  familyStatus: z.enum([
-    'SINGLE',
-    'COUPLE',
-    'FAMILY_WITH_CHILDREN',
-    'SINGLE_PARENT',
-  ]),
-  sleepSchedule: z.enum(['EARLY_BIRD', 'STANDARD', 'NIGHT_OWL', 'IRREGULAR']),
+  ageRange: AgeRangeSchema,
+  gender: GenderSchema,
+  familyStatus: FamilyStatusSchema,
+  sleepSchedule: SleepScheduleSchema,
   noiseTolerance: z.coerce.number().int().min(1).max(5),
   cleanlinessLevel: z.coerce.number().int().min(1).max(5),
-  socialStyle: z.enum(['INTROVERTED', 'MODERATE', 'EXTROVERTED']),
-  smokingStatus: z.enum(['NON_SMOKER', 'OUTDOOR_SMOKER', 'INDOOR_SMOKER']),
-  mobilityNeeds: z.enum(['NONE', 'GROUND_FLOOR', 'WHEELCHAIR']),
+  socialStyle: SocialStyleSchema,
+  smokingStatus: SmokingStatusSchema,
+  mobilityNeeds: MobilityNeedSchema,
   languages: z
     .string()
     .transform((s) =>
@@ -25,5 +29,3 @@ export const ResidentImportSchema = z.object({
         .filter(Boolean)
     ),
 })
-
-export type ResidentImportRow = z.infer<typeof ResidentImportSchema>

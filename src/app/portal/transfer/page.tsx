@@ -1,21 +1,16 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { TransferRequestForm } from '@/components/portal/TransferRequestForm'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const metadata: Metadata = { title: 'Verlegung anfragen' }
 export const dynamic = 'force-dynamic'
 
 export default async function TransferPage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

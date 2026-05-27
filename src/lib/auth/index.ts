@@ -8,8 +8,9 @@
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import { AUTH_CONFIG } from './config'
+import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
-import { checkRateLimit, recordLoginAttempt, clearLoginAttempts } from './rate-limit'
+import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
@@ -82,7 +83,7 @@ export async function maybeRefreshToken(token: string): Promise<string | null> {
  */
 export async function getCurrentResident(): Promise<AuthResident | null> {
   const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
+  const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
 
   if (!residentCode) return null
 
@@ -246,6 +247,6 @@ export async function clearSessionCookie(clearAll = false): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete(AUTH_CONFIG.cookie.name)
   if (clearAll) {
-    cookieStore.delete('resident_code')
+    cookieStore.delete(RESIDENT_COOKIE)
   }
 }

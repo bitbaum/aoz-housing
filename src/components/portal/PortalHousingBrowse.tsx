@@ -1,5 +1,5 @@
 import { PORTAL_LABELS } from '@/lib/constants'
-import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
+import { getScoreLevel } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 
 interface HousingResult {

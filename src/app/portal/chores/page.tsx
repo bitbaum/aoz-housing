@@ -1,22 +1,17 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Aufgaben' }
 import { ChoreList } from '@/components/portal/ChoreList'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
+import { requireResidentCookie } from '@/lib/portal-auth'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ChoresPage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

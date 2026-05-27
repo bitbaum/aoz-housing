@@ -9,7 +9,6 @@ import {
   SpotUpdateSchema,
   MultipleSpotInputSchema,
 } from '@/lib/validation'
-import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'

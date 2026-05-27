@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, FormEvent, useEffect, Suspense } from 'react'
+import { useState, FormEvent, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
@@ -19,12 +19,28 @@ function LoginForm() {
   const [code, setCode] = useState('')
   const [state, setState] = useState<LoginState>({ status: 'idle' })
   const demoAccessEnabled = process.env.NEXT_PUBLIC_DEMO_ACCESS_ENABLED === 'true'
+  const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Pre-fill code from URL param (used by email invite links)
   useEffect(() => {
     const urlCode = searchParams.get('code')
     if (urlCode) setCode(urlCode.toUpperCase())
   }, [searchParams])
+
+  // Clear any pending redirect timer on unmount
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
+    }
+  }, [])
+
+  function scheduleRedirect(role: 'staff' | 'resident') {
+    if (redirectTimerRef.current) clearTimeout(redirectTimerRef.current)
+    redirectTimerRef.current = setTimeout(() => {
+      router.push(role === 'staff' ? '/' : '/portal')
+      router.refresh()
+    }, 1000)
+  }
 
   async function submitCode(codeToSubmit: string) {
     setState({ status: 'loading' })
@@ -48,15 +64,7 @@ function LoginForm() {
         : LOGIN_LABELS.success.resident
 
       setState({ status: 'success', type: data.type, message: successMessage })
-
-      setTimeout(() => {
-        if (data.type === 'staff') {
-          router.push('/')
-        } else {
-          router.push('/portal')
-        }
-        router.refresh()
-      }, 1000)
+      scheduleRedirect(data.type)
     } catch {
       setState({ status: 'error', message: LOGIN_LABELS.error.generic })
     }
@@ -88,11 +96,7 @@ function LoginForm() {
         : LOGIN_LABELS.success.resident
 
       setState({ status: 'success', type: data.type, message: successMessage })
-
-      setTimeout(() => {
-        router.push(data.type === 'staff' ? '/' : '/portal')
-        router.refresh()
-      }, 1000)
+      scheduleRedirect(data.type)
     } catch {
       setState({ status: 'error', message: LOGIN_LABELS.error.generic })
     }

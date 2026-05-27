@@ -1,14 +1,13 @@
 import { prisma } from '@/lib/db'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { portalSatisfactionSchema } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { notifyStaff, lowSatisfactionAlert } from '@/lib/email'
+import { getResidentCookie } from '@/lib/portal-auth'
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
+  const residentCode = await getResidentCookie()
 
   if (!residentCode) {
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
@@ -115,8 +114,7 @@ export async function POST(request: NextRequest) {
 
 // GET - Get the last check-in date for the resident
 export async function GET() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
+  const residentCode = await getResidentCookie()
 
   if (!residentCode) {
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })

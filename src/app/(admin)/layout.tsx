@@ -9,6 +9,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { NAV_ICONS, MEGAMENU_GROUPS } from '@/lib/config/navigation'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
+import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 
 export const metadata: Metadata = {
   title: {
@@ -24,7 +25,7 @@ export default async function AdminLayout({
 }) {
   const user = await getCurrentUser()
   const cookieStore = await cookies()
-  const hasPortalAccess = !!cookieStore.get('resident_code')?.value
+  const hasPortalAccess = !!cookieStore.get(RESIDENT_COOKIE)?.value
 
   if (!user) {
     redirect('/login')

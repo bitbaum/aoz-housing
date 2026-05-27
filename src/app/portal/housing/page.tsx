@@ -1,23 +1,18 @@
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { PORTAL_LABELS } from '@/lib/constants'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { PortalHousingBrowse } from '@/components/portal/PortalHousingBrowse'
+import { requireResidentCookie } from '@/lib/portal-auth'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Verfügbare Unterkünfte' }
 export const dynamic = 'force-dynamic'
 
 export default async function PortalHousingPage() {
-  const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
-
-  if (!residentCode) {
-    redirect('/portal')
-  }
+  const residentCode = await requireResidentCookie('/portal')
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

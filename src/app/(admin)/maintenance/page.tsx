@@ -5,7 +5,6 @@ import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions
 
 export const metadata: Metadata = { title: 'Wartungsanfragen' }
 import {
-  MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
   MAINTENANCE_PRIORITY_LABELS,
   MAINTENANCE_PRIORITY_COLORS,

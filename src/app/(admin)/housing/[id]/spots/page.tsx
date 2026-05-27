@@ -4,12 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Plätze verwalten' }
-import {
-  createSpot,
-  updateSpot,
-  deleteSpot,
-  createMultipleSpots,
-} from '@/lib/actions'
+import { createSpot, createMultipleSpots } from '@/lib/actions'
 import {
   SPOT_TYPE_LABELS,
   SPOT_TYPE_ICONS,

@@ -10,7 +10,6 @@ import { RESIDENT_DIMENSIONS } from '@/lib/config/resident-factors'
 import {
   FACTOR_SCIENCE,
   RESEARCH_METHODOLOGY,
-  getSourcesByRegion,
   getSourceById,
   type ResearchSource,
 } from '@/lib/config/algorithm-docs'
@@ -24,10 +23,6 @@ import { ResearchSourceTable } from './ResearchSourceTable'
 import { SCIENCE_TAB_LABELS } from '@/lib/constants'
 
 export function ScienceTab() {
-  const swissSources = getSourcesByRegion('CH')
-  const germanSources = getSourcesByRegion('DE')
-  const intlSources = getSourcesByRegion('INT')
-
   return (
     <div className="space-y-6">
       {/* Introduction */}
