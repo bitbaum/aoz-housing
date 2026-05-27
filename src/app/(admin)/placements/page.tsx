@@ -19,6 +19,7 @@ import { PlacementCheckIn } from '@/components/placements/PlacementCheckIn'
 
 export const metadata: Metadata = { title: 'Platzierungen' }
 import {
+  daysSinceCeil,
   getStatusBadgeClass,
   formatDate,
 } from '@/lib/utils'
@@ -107,13 +108,13 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
     const lastCheckIn = placement.checkIns?.[0]
     const daysSinceCheckIn = lastCheckIn
-      ? Math.ceil((Date.now() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+      ? daysSinceCeil(lastCheckIn.createdAt)
       : null
     const supportLevel = placement.resident.supportLevel || 'STANDARD'
     const checkInIntervalDays = getCheckInInterval(supportLevel)
     const isOverdue = placement.status === 'ACTIVE' &&
       (daysSinceCheckIn === null
-        ? Math.ceil((Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)) > checkInIntervalDays
+        ? daysSinceCeil(placement.startDate) > checkInIntervalDays
         : daysSinceCheckIn > checkInIntervalDays)
 
     const matchesOverdue = !overdueOnly || isOverdue
@@ -254,21 +255,15 @@ interface PlacementRowData {
 }
 
 function PlacementRow({ placement }: { placement: PlacementRowData }) {
-  const daysSinceStart = Math.ceil(
-    (Date.now() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysSinceStart = daysSinceCeil(placement.startDate)
   const totalDuration = placement.endDate
-    ? Math.ceil(
-        (new Date(placement.endDate).getTime() -
-          new Date(placement.startDate).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
+    ? daysSinceCeil(placement.startDate, placement.endDate)
     : daysSinceStart
 
   // Check-in status for active placements
   const lastCheckIn = placement.checkIns?.[0]
   const daysSinceCheckIn = lastCheckIn
-    ? Math.ceil((Date.now() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? daysSinceCeil(lastCheckIn.createdAt)
     : null
 
   // Check-in frequency based on support level (from resident)

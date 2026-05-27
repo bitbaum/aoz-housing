@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { getDateDaysAgo } from '@/lib/utils'
+import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
@@ -93,8 +93,8 @@ export default async function AdminDashboard() {
     const intervalDays = getCheckInInterval(supportLevel)
     const lastCheckIn = p.checkIns?.[0]
     const daysSinceCheckIn = lastCheckIn
-      ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-      : Math.ceil((now.getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24))
+      ? daysSinceCeil(lastCheckIn.createdAt, now)
+      : daysSinceCeil(p.startDate, now)
 
     const daysUntilDue = intervalDays - daysSinceCheckIn
     const isOverdue = daysSinceCheckIn > intervalDays
@@ -149,7 +149,7 @@ export default async function AdminDashboard() {
       type: i.type,
       unitCode: i.housingUnit?.code || 'Unbekannt',
       unitId: i.housingUnitId,
-      daysSinceCreated: Math.ceil((now.getTime() - new Date(i.date).getTime()) / (1000 * 60 * 60 * 24)),
+      daysSinceCreated: daysSinceCeil(i.date, now),
     }))
 
   // =============================================================================
@@ -161,7 +161,7 @@ export default async function AdminDashboard() {
 
   if (interpersonalIncidents.length > 0) {
     const mostRecent = interpersonalIncidents[0] // already sorted by date desc
-    conflictFreeDays = Math.ceil((now.getTime() - new Date(mostRecent.date).getTime()) / (1000 * 60 * 60 * 24))
+    conflictFreeDays = daysSinceCeil(mostRecent.date, now)
   }
 
   // =============================================================================

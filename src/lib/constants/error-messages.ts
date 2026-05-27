@@ -51,6 +51,7 @@ export const ERROR_MESSAGES = {
   UNIT_UPDATE_ERROR: 'Fehler beim Aktualisieren der Unterkunft',
   UNIT_ARCHIVE_BLOCKED: 'Archivieren nicht möglich: aktive Belegung vorhanden',
   UNIT_CODE_EXISTS: 'Code ist bereits vergeben',
+  SPOT_CODE_EXISTS: 'Platz-Code ist in dieser Unterkunft bereits vergeben',
 
   // ─── Placement ─────────────────────────────────────────────────
   PLACEMENT_NOT_FOUND: 'Platzierung nicht gefunden',

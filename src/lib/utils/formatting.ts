@@ -82,6 +82,16 @@ export function daysBetween(from: Date | string, to: Date | string | number = Da
   return Math.floor((t - f) / MS_PER_DAY)
 }
 
+/**
+ * Days since `from` rounded up (today = 1, yesterday = 1, 24h+1s ago = 2).
+ * Use for "Tag X seit Beginn" / age-of-record style displays.
+ */
+export function daysSinceCeil(from: Date | string, to: Date | string | number = Date.now()): number {
+  const f = new Date(from).getTime()
+  const t = typeof to === 'number' ? to : new Date(to).getTime()
+  return Math.ceil((t - f) / MS_PER_DAY)
+}
+
 /** Days remaining until `until` from `from` (defaults to now); ceil so "tomorrow" reads as "1 day". */
 export function daysUntil(until: Date | string, from: Date | string | number = Date.now()): number {
   const f = typeof from === 'number' ? from : new Date(from).getTime()

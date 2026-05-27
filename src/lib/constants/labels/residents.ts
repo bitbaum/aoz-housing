@@ -5,13 +5,9 @@
 import { getLabelsFromFactor } from './helpers'
 
 // Full labels derived from config
-export const AGE_RANGE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('ageRange')
 export const GENDER_LABELS: Record<string, string> = getLabelsFromFactor('gender')
 export const FAMILY_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('familyStatus')
-export const SLEEP_SCHEDULE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('sleepSchedule')
-export const SOCIAL_STYLE_LABELS_LONG: Record<string, string> = getLabelsFromFactor('socialStyle')
 export const SMOKING_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('smokingStatus')
-export const MOBILITY_NEED_LABELS_LONG: Record<string, string> = getLabelsFromFactor('mobilityNeeds')
 
 // Short display variants (for compact UI like tables, badges)
 export const AGE_RANGE_LABELS: Record<string, string> = {
@@ -75,7 +71,6 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
 
 // Health / Support labels (derived from config SSOT)
 export const ROOM_SHARING_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('roomSharingStatus')
-export const SUPPORT_LEVEL_LABELS_LONG: Record<string, string> = getLabelsFromFactor('supportLevel')
 export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> = getLabelsFromFactor('recyclingKnowledge')
 
 export const SUPPORT_LEVEL_LABELS: Record<string, string> = {

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { SATISFACTION_EMOJIS, SUPPORT_LEVEL_LABELS, getLabel } from '@/lib/constants'
 import { PLACEMENT_STATUS_LABELS } from '@/lib/constants/labels/housing'
 import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
-import { formatDate } from '@/lib/utils'
+import { daysSinceCeil, formatDate } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
@@ -150,9 +150,9 @@ function getCheckInStatus(placement: PlacementRow, now: Date) {
   const supportLevel = placement.resident.supportLevel || 'STANDARD'
   const intervalDays = getCheckInInterval(supportLevel)
   const daysSinceCheckIn = lastCheckIn
-    ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? daysSinceCeil(lastCheckIn.createdAt, now)
     : null
-  const daysSinceStart = Math.ceil((now.getTime() - new Date(placement.startDate).getTime()) / (1000 * 60 * 60 * 24))
+  const daysSinceStart = daysSinceCeil(placement.startDate, now)
   const isOverdue = placement.status === 'ACTIVE' &&
     (daysSinceCheckIn === null ? daysSinceStart > intervalDays : daysSinceCheckIn > intervalDays)
 

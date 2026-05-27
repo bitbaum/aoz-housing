@@ -13,6 +13,7 @@ import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
 
 // Simple schema for delete operation
 const DeleteSpotSchema = z.object({
@@ -40,6 +41,9 @@ export async function createSpot(formData: FormData): Promise<void> {
       },
     })
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new Error(ERROR_MESSAGES.SPOT_CODE_EXISTS)
+    }
     logger.errorWithCause('Failed to create spot', error, { housingUnitId: data.housingUnitId })
     throw new Error(ERROR_MESSAGES.SPOT_CREATE_ERROR)
   }
@@ -136,6 +140,9 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
       })
     }
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new Error(ERROR_MESSAGES.SPOT_CODE_EXISTS)
+    }
     logger.errorWithCause('Failed to create multiple spots', error, { housingUnitId: data.housingUnitId })
     throw new Error(ERROR_MESSAGES.SPOTS_BATCH_CREATE_ERROR)
   }

@@ -2,6 +2,7 @@
 
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
+import { daysSinceCeil } from '@/lib/utils'
 import { HeroAction, CriticalAlertBanner, determinePrimaryAction } from './PrimaryActionHero'
 import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
@@ -36,7 +37,7 @@ interface ActionDashboardProps {
 // =============================================================================
 
 function formatDaysAgo(date: Date): string {
-  const days = Math.ceil((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24))
+  const days = daysSinceCeil(date)
   if (days === 0) return DASHBOARD_LABELS.today
   if (days === 1) return DASHBOARD_LABELS.yesterday
   return `${days} ${DASHBOARD_LABELS.daysAgo}`

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
+import { logger } from '@/lib/logger'
+import { Prisma } from '@prisma/client'
 
 /**
  * Staff user provisioning (admin-only).
@@ -93,7 +95,15 @@ export async function POST(request: NextRequest) {
       success: true,
       user,
     })
-  } catch {
+  } catch (error) {
+    // Race between unique pre-check and create: report friendly conflict.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return NextResponse.json(
+        { success: false, error: 'Dieser Code ist bereits vergeben' },
+        { status: 409 }
+      )
+    }
+    logger.errorWithCause('Failed to create staff user', error, { code })
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
       { status: 500 }

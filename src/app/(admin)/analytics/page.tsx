@@ -11,7 +11,7 @@ import {
   FORM_LABELS,
   getLabel,
 } from '@/lib/constants'
-import { getDateDaysAgo } from '@/lib/utils'
+import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { PeriodSelector } from '@/components/ui/PeriodSelector'
@@ -119,8 +119,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     const intervalDays = getCheckInInterval(supportLevel)
     const lastCheckIn = p.checkIns[0]
     const daysSinceCheckIn = lastCheckIn
-      ? Math.ceil((now.getTime() - new Date(lastCheckIn.createdAt).getTime()) / (1000 * 60 * 60 * 24))
-      : Math.ceil((now.getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24))
+      ? daysSinceCeil(lastCheckIn.createdAt, now)
+      : daysSinceCeil(p.startDate, now)
     return daysSinceCheckIn > intervalDays
   })
 

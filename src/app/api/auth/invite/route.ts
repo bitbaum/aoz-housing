@@ -6,6 +6,8 @@ import { staffInviteEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
 import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
+import { logger } from '@/lib/logger'
+import { Prisma } from '@prisma/client'
 
 /**
  * POST /api/auth/invite
@@ -94,16 +96,33 @@ export async function POST(request: NextRequest) {
   }
 
   // Create user
-  const user = await prisma.user.create({
-    data: {
-      code,
-      email: email.toLowerCase(),
-      name: name.trim(),
-      role: 'ADMIN',
-      active: true,
-    },
-    select: { id: true, code: true, name: true, email: true },
-  })
+  let user
+  try {
+    user = await prisma.user.create({
+      data: {
+        code,
+        email: email.toLowerCase(),
+        name: name.trim(),
+        role: 'ADMIN',
+        active: true,
+      },
+      select: { id: true, code: true, name: true, email: true },
+    })
+  } catch (error) {
+    // Race between pre-check and insert: surface conflict explicitly.
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = (error.meta as { target?: string[] } | undefined)?.target?.[0]
+      const message = target === 'email'
+        ? 'Diese E-Mail-Adresse ist bereits registriert'
+        : 'Dieser Code ist bereits vergeben'
+      return NextResponse.json({ success: false, error: message }, { status: 409 })
+    }
+    logger.errorWithCause('Failed to invite staff user', error, { email })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
+      { status: 500 }
+    )
+  }
 
   // Send invite email
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
