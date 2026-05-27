@@ -6,6 +6,13 @@ import {
   requiresResidentAuth,
   requiresStaffAuth,
 } from '@/lib/auth/route-boundaries'
+import {
+  STAFF_COOKIE,
+  RESIDENT_COOKIE,
+  JWT_ISSUER,
+  SESSION_SECRET,
+  SESSION_REFRESH_THRESHOLD_SECONDS,
+} from '@/lib/auth/constants'
 
 /**
  * Middleware for authentication
@@ -16,25 +23,16 @@ import {
  * - Implements sliding session refresh
  */
 
-// Auth config (must match lib/auth/config.ts)
-const AUTH_CONFIG = {
-  cookieName: 'staff_session',
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
-  issuer: 'aoz-housing',
-  refreshThreshold: 60 * 60, // 1 hour before expiry
-  expiresIn: parseInt(process.env.SESSION_DURATION || '28800', 10),
-}
-
 async function verifyStaffToken(token: string): Promise<{ valid: boolean; shouldRefresh: boolean; payload?: Record<string, unknown> }> {
   try {
-    const secret = new TextEncoder().encode(AUTH_CONFIG.secret)
+    const secret = new TextEncoder().encode(SESSION_SECRET)
     const { payload } = await jwtVerify(token, secret, {
-      issuer: AUTH_CONFIG.issuer,
+      issuer: JWT_ISSUER,
     })
 
     const now = Math.floor(Date.now() / 1000)
     const exp = payload.exp as number
-    const shouldRefresh = exp - now < AUTH_CONFIG.refreshThreshold
+    const shouldRefresh = exp - now < SESSION_REFRESH_THRESHOLD_SECONDS
 
     return { valid: true, shouldRefresh, payload }
   } catch {
@@ -50,7 +48,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (requiresStaffAuth(pathname)) {
-    const token = request.cookies.get(AUTH_CONFIG.cookieName)?.value
+    const token = request.cookies.get(STAFF_COOKIE)?.value
 
     if (!token) {
       const loginUrl = new URL('/login', request.url)
@@ -71,7 +69,7 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('from', pathname)
       const response = NextResponse.redirect(loginUrl)
-      response.cookies.delete(AUTH_CONFIG.cookieName)
+      response.cookies.delete(STAFF_COOKIE)
       return response
     }
 
@@ -85,7 +83,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (requiresResidentAuth(pathname)) {
-    const residentCode = request.cookies.get('resident_code')?.value
+    const residentCode = request.cookies.get(RESIDENT_COOKIE)?.value
 
     if (!residentCode) {
       if (pathname.startsWith('/api/')) {

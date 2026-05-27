@@ -13,6 +13,7 @@ import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/em
 import { logger } from '@/lib/logger'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
+import { daysBetween } from '@/lib/utils'
 
 export async function GET(request: Request) {
   // Auth: verify Bearer token matches CRON_SECRET
@@ -53,7 +54,6 @@ export async function GET(request: Request) {
     }
 
     // 2. Overdue resident check-ins
-    const now = new Date()
     const activePlacements = await prisma.placement.findMany({
       where: { status: 'ACTIVE' },
       include: {
@@ -65,9 +65,7 @@ export async function GET(request: Request) {
     const overdueResidents = activePlacements
       .map(p => {
         const lastCheckIn = p.checkIns[0]?.createdAt || p.startDate
-        const daysSince = Math.floor(
-          (now.getTime() - new Date(lastCheckIn).getTime()) / (1000 * 60 * 60 * 24)
-        )
+        const daysSince = daysBetween(lastCheckIn)
         const threshold = getCheckInInterval(p.resident.supportLevel)
         return {
           code: p.resident.code,

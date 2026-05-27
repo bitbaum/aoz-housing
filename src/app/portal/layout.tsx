@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PortalNav } from '@/components/portal/PortalNav'
-import { RESIDENT_COOKIE } from '@/lib/portal-auth'
+import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
 
 export const metadata: Metadata = {
   title: {
@@ -19,7 +19,7 @@ export default async function PortalLayout({
 }) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
-  const hasStaffAccess = !!cookieStore.get('staff_session')?.value
+  const hasStaffAccess = !!cookieStore.get(STAFF_COOKIE)?.value
 
   if (!residentCode) {
     return (

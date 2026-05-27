@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { logAudit } from '@/lib/audit'
-import { calculateCompatibility } from '@/lib/compatibility'
+import { calculateCompatibility, saveBidirectionalAssessment } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
@@ -168,65 +168,7 @@ export async function placeResident(formData: FormData) {
           if (!allConcerns.includes(c)) allConcerns.push(c)
         })
 
-        // Create bidirectional CompatibilityAssessment records
-        await tx.compatibilityAssessment.upsert({
-          where: {
-            residentId_comparedWithId: {
-              residentId: residentId,
-              comparedWithId: existingPlacement.residentId,
-            },
-          },
-          update: {
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-          create: {
-            residentId: residentId,
-            comparedWithId: existingPlacement.residentId,
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-        })
-
-        // Reverse assessment for matrix symmetry
-        await tx.compatibilityAssessment.upsert({
-          where: {
-            residentId_comparedWithId: {
-              residentId: existingPlacement.residentId,
-              comparedWithId: residentId,
-            },
-          },
-          update: {
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-          create: {
-            residentId: existingPlacement.residentId,
-            comparedWithId: residentId,
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-        })
+        await saveBidirectionalAssessment(tx, residentId, existingPlacement.residentId, score)
       }
     }
 

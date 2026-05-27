@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { SATISFACTION_EMOJIS, SATISFACTION_LABELS, SATISFACTION_SURVEY_LABELS, PORTAL_LABELS } from '@/lib/constants'
+import { daysBetween } from '@/lib/utils'
 
 interface SatisfactionRatingProps {
   currentRating?: number | null
@@ -20,7 +21,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
 
   // Determine if we should prompt (no check-in in the last 7 days)
   const daysSinceLastCheckIn = lastCheckInDate
-    ? Math.floor((Date.now() - new Date(lastCheckInDate).getTime()) / (24 * 60 * 60 * 1000))
+    ? daysBetween(lastCheckInDate)
     : null
   const shouldPrompt = daysSinceLastCheckIn === null || daysSinceLastCheckIn >= 7
 

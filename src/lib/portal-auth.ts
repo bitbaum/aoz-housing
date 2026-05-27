@@ -10,12 +10,10 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
+import { RESIDENT_COOKIE, RESIDENT_COOKIE_MAX_AGE_SECONDS } from '@/lib/auth/constants'
 
-/**
- * Canonical cookie name carrying the resident login code.
- * SSOT — never reference the literal string elsewhere.
- */
-export const RESIDENT_COOKIE = 'resident_code'
+// Re-export so existing call sites continue to import from '@/lib/portal-auth'.
+export { RESIDENT_COOKIE }
 
 export interface PortalAuthResult {
   resident: {
@@ -48,13 +46,25 @@ export async function getResidentCookie(): Promise<string | null> {
   return cookieStore.get(RESIDENT_COOKIE)?.value ?? null
 }
 
+/** Set the resident_code cookie after successful login. SSOT for cookie options. */
+export async function setResidentCookie(code: string): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.set(RESIDENT_COOKIE, code, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: RESIDENT_COOKIE_MAX_AGE_SECONDS,
+    path: '/',
+  })
+}
+
 /**
  * Authenticate portal request and return resident + active placement.
  * Returns null if not authenticated or no active placement.
  */
 export async function getPortalAuth(): Promise<PortalAuthResult | null> {
   const cookieStore = await cookies()
-  const residentCode = cookieStore.get('resident_code')?.value
+  const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
 
   if (!residentCode) return null
 

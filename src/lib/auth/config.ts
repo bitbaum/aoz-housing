@@ -3,7 +3,18 @@
  *
  * All auth-related settings in one place.
  * Environment variables with sensible defaults.
+ *
+ * Edge-safe constants (cookie names, secrets, durations) live in ./constants
+ * so middleware can share them without bundling Node-only modules.
  */
+
+import {
+  STAFF_COOKIE,
+  JWT_ISSUER,
+  SESSION_SECRET,
+  SESSION_DURATION_SECONDS,
+  SESSION_REFRESH_THRESHOLD_SECONDS,
+} from './constants'
 
 // Fail fast if production is missing the signing secret
 if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
@@ -14,19 +25,19 @@ export const AUTH_CONFIG = {
   // JWT Settings
   jwt: {
     /** Secret for signing tokens - MUST be set in production */
-    secret: process.env.SESSION_SECRET || 'dev-secret-change-in-production',
+    secret: SESSION_SECRET,
     /** Token expiry in seconds (default: 8 hours) */
-    expiresIn: parseInt(process.env.SESSION_DURATION || '28800', 10),
+    expiresIn: SESSION_DURATION_SECONDS,
     /** Algorithm for JWT signing */
     algorithm: 'HS256' as const,
     /** Issuer claim */
-    issuer: 'aoz-housing',
+    issuer: JWT_ISSUER,
   },
 
   // Cookie Settings
   cookie: {
     /** Cookie name for staff sessions */
-    name: 'staff_session',
+    name: STAFF_COOKIE,
     /** Cookie options */
     options: {
       httpOnly: true,
@@ -47,7 +58,7 @@ export const AUTH_CONFIG = {
   // Session Refresh
   session: {
     /** Refresh token if less than this many seconds remain (default: 1 hour) */
-    refreshThreshold: 60 * 60,
+    refreshThreshold: SESSION_REFRESH_THRESHOLD_SECONDS,
   },
 } as const
 

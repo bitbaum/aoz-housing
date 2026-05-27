@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger'
 export const metadata: Metadata = { title: 'Matching' }
 import Link from 'next/link'
 import { EMPTY_STATE_LABELS, PLACEMENT_CONCERN_LABELS, MATCHING_LABELS } from '@/lib/constants'
-import { calculateCompatibility } from '@/lib/compatibility'
+import { calculateCompatibility, getUnitFitConcerns } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { validateScoreForDiscrimination } from '@/lib/compatibility/safeguards'
@@ -117,16 +117,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           const residentProfile = toResidentProfile(resident)
           const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
 
-          const concerns: string[] = []
-          if (resident.mobilityNeeds === 'WHEELCHAIR' && !selectedUnit!.wheelchairAccess) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
-          }
-          if (resident.mobilityNeeds === 'GROUND_FLOOR' && !selectedUnit!.groundFloor && !selectedUnit!.elevator) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
-          }
-          if (resident.smokingStatus !== 'NON_SMOKER' && !selectedUnit!.smokingAllowed) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
-          }
+          const { concerns } = getUnitFitConcerns(resident, selectedUnit!)
 
           return {
             resident,
@@ -205,36 +196,11 @@ export default async function MatchingPage({ searchParams }: Props) {
           }
 
           // Check unit fit - collect real concerns
-          const unitConcerns: string[] = []
-          let hasBlockingIssue = false
-
-          if (
-            foundResident.mobilityNeeds === 'WHEELCHAIR' &&
-            !unit.wheelchairAccess
-          ) {
-            unitConcerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
-            hasBlockingIssue = true
-          }
-          if (
-            foundResident.mobilityNeeds === 'GROUND_FLOOR' &&
-            !unit.groundFloor &&
-            !unit.elevator
-          ) {
-            unitConcerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
-            hasBlockingIssue = true
-          }
-          if (
-            foundResident.smokingStatus !== 'NON_SMOKER' &&
-            !unit.smokingAllowed
-          ) {
-            unitConcerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
-          }
-          if (!foundResident.sharedKitchen && unit.sharedKitchen) {
-            unitConcerns.push(PLACEMENT_CONCERN_LABELS.sharedKitchenOnly)
-          }
-          if (!foundResident.sharedBathroom && unit.sharedBathrooms > 0) {
-            unitConcerns.push(PLACEMENT_CONCERN_LABELS.sharedBathroomOnly)
-          }
+          const { concerns: unitConcerns, hasBlockingIssue } = getUnitFitConcerns(
+            foundResident,
+            unit,
+            { includeSharedFacilities: true },
+          )
 
           // Count shared languages with current residents
           const roommateLanguages = currentResidents.flatMap((r: Resident) => r.languages || [])

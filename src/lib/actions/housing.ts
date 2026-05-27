@@ -13,6 +13,7 @@ import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
+import { Prisma } from '@prisma/client'
 
 export async function createHousingUnit(formData: FormData): Promise<void> {
   const user = await requireStaffAuth()
@@ -35,6 +36,9 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
       changes: { code: data.code, address: data.address },
     })
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new Error(ERROR_MESSAGES.UNIT_CODE_EXISTS)
+    }
     logger.errorWithCause('Failed to create housing unit', error, { code: data.code })
     throw new Error(ERROR_MESSAGES.UNIT_CREATE_ERROR)
   }

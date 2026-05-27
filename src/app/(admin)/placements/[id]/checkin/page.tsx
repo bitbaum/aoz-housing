@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
 import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
+import { weeksBetween } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Check-in' }
 
@@ -36,9 +37,7 @@ export default async function NewCheckInPage({ params }: Props) {
   }
 
   // Calculate weeks since placement
-  const weeksSinceStart = Math.floor(
-    (Date.now() - new Date(placement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
-  )
+  const weeksSinceStart = weeksBetween(placement.startDate)
 
   // Determine suggested check-in type
   const checkInCount = placement.checkIns.length

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import { checkRateLimit, clearLoginAttempts } from '@/lib/auth/rate-limit'
-import { RESIDENT_COOKIE } from '@/lib/portal-auth'
+import { setResidentCookie } from '@/lib/portal-auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,15 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Resident login — set resident_code cookie
-    const { cookies } = await import('next/headers')
-    const cookieStore = await cookies()
-    cookieStore.set(RESIDENT_COOKIE, trimmedCode, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/',
-    })
+    await setResidentCookie(trimmedCode)
 
     return NextResponse.json({
       success: true,

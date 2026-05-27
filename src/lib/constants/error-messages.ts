@@ -43,12 +43,14 @@ export const ERROR_MESSAGES = {
   RESIDENT_HAS_ACTIVE_PLACEMENTS: 'Bewohner hat noch aktive Platzierungen. Bitte zuerst beenden.',
   RESIDENT_ALREADY_PLACED: 'Bewohner ist bereits platziert.',
   RESIDENT_ARCHIVE_BLOCKED: 'Archivieren nicht möglich: aktive Platzierung vorhanden',
+  RESIDENT_CODE_EXISTS: 'Code ist bereits vergeben',
 
   // ─── Housing unit ──────────────────────────────────────────────
   UNIT_NOT_FOUND: 'Unterkunft nicht gefunden',
   UNIT_CREATE_ERROR: 'Fehler beim Erstellen der Unterkunft',
   UNIT_UPDATE_ERROR: 'Fehler beim Aktualisieren der Unterkunft',
   UNIT_ARCHIVE_BLOCKED: 'Archivieren nicht möglich: aktive Belegung vorhanden',
+  UNIT_CODE_EXISTS: 'Code ist bereits vergeben',
 
   // ─── Placement ─────────────────────────────────────────────────
   PLACEMENT_NOT_FOUND: 'Platzierung nicht gefunden',

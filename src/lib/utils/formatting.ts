@@ -64,12 +64,36 @@ export function formatRelativeDate(date: Date | string): string {
   return formatDate(date)
 }
 
+const MS_PER_DAY = 24 * 60 * 60 * 1000
+const MS_PER_WEEK = 7 * MS_PER_DAY
+
 /**
  * Get a date N days ago from now
  * @example getDateDaysAgo(30) // Date 30 days ago
  */
 export function getDateDaysAgo(days: number): Date {
-  return new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+  return new Date(Date.now() - days * MS_PER_DAY)
+}
+
+/** Whole days between `from` and `to` (defaults to now). Positive when `to` is later. */
+export function daysBetween(from: Date | string, to: Date | string | number = Date.now()): number {
+  const f = new Date(from).getTime()
+  const t = typeof to === 'number' ? to : new Date(to).getTime()
+  return Math.floor((t - f) / MS_PER_DAY)
+}
+
+/** Days remaining until `until` from `from` (defaults to now); ceil so "tomorrow" reads as "1 day". */
+export function daysUntil(until: Date | string, from: Date | string | number = Date.now()): number {
+  const f = typeof from === 'number' ? from : new Date(from).getTime()
+  const u = new Date(until).getTime()
+  return Math.ceil((u - f) / MS_PER_DAY)
+}
+
+/** Whole weeks between `from` and `to` (defaults to now). Positive when `to` is later. */
+export function weeksBetween(from: Date | string, to: Date | string | number = Date.now()): number {
+  const f = new Date(from).getTime()
+  const t = typeof to === 'number' ? to : new Date(to).getTime()
+  return Math.floor((t - f) / MS_PER_WEEK)
 }
 
 // =============================================================================

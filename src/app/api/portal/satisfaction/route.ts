@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { notifyStaff, lowSatisfactionAlert } from '@/lib/email'
 import { getResidentCookie } from '@/lib/portal-auth'
+import { weeksBetween } from '@/lib/utils'
 
 export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
@@ -44,9 +45,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const weeksSinceStart = Math.floor(
-      (Date.now() - new Date(placement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
-    )
+    const weeksSinceStart = weeksBetween(placement.startDate)
 
     // Wrap all DB writes in a transaction
     await prisma.$transaction(async (tx) => {

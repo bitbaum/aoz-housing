@@ -32,6 +32,7 @@ import { UnitIncidentSection } from '@/components/housing/UnitIncidentSection'
 import { WhoFitsHereCard } from '@/components/housing/WhoFitsHereCard'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { getUnitFitConcerns } from '@/lib/compatibility'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
@@ -168,16 +169,7 @@ export default async function HousingDetailPage({ params }: Props) {
           const fit = calculateApartmentFit(residentProfile, apartmentProfile)
 
           // Check for blocking concerns based on unit requirements
-          const concerns: string[] = []
-          if (resident.mobilityNeeds === 'WHEELCHAIR' && !unit.wheelchairAccess) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.wheelchairRequired)
-          }
-          if (resident.mobilityNeeds === 'GROUND_FLOOR' && !unit.groundFloor && !unit.elevator) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.groundFloorRequired)
-          }
-          if (resident.smokingStatus !== 'NON_SMOKER' && !unit.smokingAllowed) {
-            concerns.push(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit)
-          }
+          const { concerns } = getUnitFitConcerns(resident, unit)
 
           // Add apartment-level blocking conflicts to concerns
           fit.conflicts

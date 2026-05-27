@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { logger } from '@/lib/logger'
-import { RESIDENT_COOKIE } from '@/lib/portal-auth'
+import { setResidentCookie } from '@/lib/portal-auth'
 
 type DemoRole = 'staff' | 'resident'
 
@@ -49,15 +49,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, type: 'staff' })
     }
 
-    const { cookies } = await import('next/headers')
-    const cookieStore = await cookies()
-    cookieStore.set(RESIDENT_COOKIE, result.code, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30,
-      path: '/',
-    })
+    await setResidentCookie(result.code)
 
     return NextResponse.json({ success: true, type: 'resident' })
   } catch (error) {

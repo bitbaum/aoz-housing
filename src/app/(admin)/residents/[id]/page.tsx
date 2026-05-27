@@ -35,6 +35,7 @@ import {
   getScoreLabel,
   getScoreColorClass,
   formatDate,
+  weeksBetween,
 } from '@/lib/utils'
 import { SuccessToast } from '@/components/ui/SuccessToast'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
@@ -131,9 +132,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     if (checkIns.length > 0) {
       lastSatisfaction = checkIns[0].overallSatisfaction
     }
-    weeksSinceStart = Math.floor(
-      (Date.now() - new Date(currentPlacement.startDate).getTime()) / (7 * 24 * 60 * 60 * 1000)
-    )
+    weeksSinceStart = weeksBetween(currentPlacement.startDate)
   }
 
   // For unplaced residents: calculate compatible matches

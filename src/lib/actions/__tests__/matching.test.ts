@@ -84,6 +84,27 @@ jest.mock('@/lib/compatibility', () => ({
     strengths: ['Shared language'],
     concerns: [],
   }),
+  saveBidirectionalAssessment: jest.fn(async (tx, aId, bId, score) => {
+    const data = {
+      overallScore: score.overall,
+      lifestyleScore: score.lifestyle,
+      socialScore: score.social,
+      practicalScore: score.practical,
+      riskScore: score.risk,
+      strengths: score.strengths || [],
+      concerns: score.concerns || [],
+    }
+    await tx.compatibilityAssessment.upsert({
+      where: { residentId_comparedWithId: { residentId: aId, comparedWithId: bId } },
+      update: data,
+      create: { residentId: aId, comparedWithId: bId, ...data },
+    })
+    await tx.compatibilityAssessment.upsert({
+      where: { residentId_comparedWithId: { residentId: bId, comparedWithId: aId } },
+      update: data,
+      create: { residentId: bId, comparedWithId: aId, ...data },
+    })
+  }),
 }))
 
 jest.mock('@/lib/compatibility/convert', () => ({
