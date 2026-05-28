@@ -83,7 +83,7 @@ export function CreateChoreForm() {
 
       {/* Form */}
       {error && (
-        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm" role="alert" aria-live="polite">{error}</div>
+        <div className="mb-4 alert-error" role="alert" aria-live="polite">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -191,6 +191,7 @@ export function CreateChoreForm() {
             id="estimatedMinutes"
             name="estimatedMinutes"
             type="number"
+            inputMode="numeric"
             min="1"
             max="480"
             value={estimatedMinutes}

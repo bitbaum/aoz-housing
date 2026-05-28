@@ -9,6 +9,7 @@ import {
   type ActivityCategory,
 } from '@/lib/config/activities'
 import { listActivities } from '@/lib/data/activities'
+import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,13 +33,12 @@ export default async function ActivitiesPage({ searchParams }: Props) {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.form.back}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-          {PORTAL_LABELS.pages.activities}
-        </h1>
-        <p className="text-ui-muted">{PORTAL_LABELS.pages.activitiesSubtitle}</p>
+        <PageHeader
+          title={PORTAL_LABELS.pages.activities}
+          description={PORTAL_LABELS.pages.activitiesSubtitle}
+          backHref="/portal"
+          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+        />
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">

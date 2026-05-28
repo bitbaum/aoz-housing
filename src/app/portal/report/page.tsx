@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Problem melden' }
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ReportForm } from './ReportForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,13 +49,12 @@ export default async function ReportPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.form.back}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.report}</h1>
-        <p className="text-ui-muted">
-          {PORTAL_LABELS.pages.reportSubtitle}
-        </p>
+        <PageHeader
+          title={PORTAL_LABELS.pages.report}
+          description={PORTAL_LABELS.pages.reportSubtitle}
+          backHref="/portal"
+          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+        />
       </div>
 
       {!currentPlacement ? (

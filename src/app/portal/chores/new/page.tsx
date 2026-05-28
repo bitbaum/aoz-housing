@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { CreateChoreForm } from '@/components/portal/CreateChoreForm'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,15 +26,14 @@ export default async function NewChorePage() {
 
   return (
     <div>
-      <Link
-        href="/portal/chores"
-        className="inline-flex items-center min-h-[44px] px-1 -ml-1 mb-2 text-sm text-aoz-primary hover:underline"
-      >
-        ← {CHORE_LABELS.pages.list}
-      </Link>
-
-      <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-1">{CHORE_LABELS.pages.create}</h1>
-      <p className="text-ui-muted mb-6">{CHORE_LABELS.pages.createSubtitle}</p>
+      <div className="mb-6">
+        <PageHeader
+          title={CHORE_LABELS.pages.create}
+          description={CHORE_LABELS.pages.createSubtitle}
+          backHref="/portal/chores"
+          backLabel={CHORE_LABELS.pages.list}
+        />
+      </div>
 
       <CreateChoreForm />
     </div>

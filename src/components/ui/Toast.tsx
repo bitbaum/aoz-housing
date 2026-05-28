@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Check, X, Info } from 'lucide-react'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -52,8 +53,14 @@ export function ToastContainer() {
                 : 'bg-ui-text text-ui-inverse'
           }`}
         >
-          <span className="mr-2">
-            {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'}
+          <span className="inline-flex items-center mr-2 align-middle">
+            {toast.type === 'success' ? (
+              <Check className="w-4 h-4" aria-hidden="true" />
+            ) : toast.type === 'error' ? (
+              <X className="w-4 h-4" aria-hidden="true" />
+            ) : (
+              <Info className="w-4 h-4" aria-hidden="true" />
+            )}
           </span>
           {toast.message}
         </div>

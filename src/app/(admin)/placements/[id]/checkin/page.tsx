@@ -243,7 +243,7 @@ export default async function NewCheckInPage({ params }: Props) {
           </div>
 
           {/* Submit */}
-          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link
               href={`/residents/${placement.residentId}`}
               className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"

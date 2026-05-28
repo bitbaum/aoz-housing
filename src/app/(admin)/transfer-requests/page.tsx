@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
+import { PageHeader } from '@/components/ui/Page'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
 import { TRANSFER_REQUEST_STATUS_LABELS, TRANSFER_ACTION_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
@@ -29,8 +30,8 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.transferRequests}</h1>
+      <div className="mb-6">
+        <PageHeader title={PAGE_TITLES.transferRequests} />
       </div>
 
       {/* Status Tabs */}

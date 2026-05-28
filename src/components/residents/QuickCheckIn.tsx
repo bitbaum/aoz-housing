@@ -256,7 +256,7 @@ export function QuickCheckIn({
                   setError(null)
                 }}
                 disabled={isPending}
-                className="btn-outline text-sm py-1 px-3"
+                className="btn-outline text-sm"
               >
                 {UI_LABELS.cancel}
               </button>
@@ -264,7 +264,7 @@ export function QuickCheckIn({
                 type="button"
                 onClick={handleExpandedSubmit}
                 disabled={isPending || !canSubmit}
-                className="btn-primary text-sm py-1 px-3"
+                className="btn-primary text-sm"
               >
                 {isPending ? QUICK_CHECKIN_LABELS.savingState : QUICK_CHECKIN_LABELS.saveBtn}
               </button>

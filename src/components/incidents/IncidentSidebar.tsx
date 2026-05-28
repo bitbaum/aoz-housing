@@ -125,7 +125,7 @@ export function IncidentSidebar({ incident }: Props) {
           </h2>
           <form id="incident-resolve-form" action={resolveIncident} className="space-y-4">
             <input type="hidden" name="incidentId" value={incident.id} />
-            <div id="incident-resolve-validation-summary" className="hidden p-3 rounded border border-status-error/30 bg-status-error/8 text-status-error-text text-sm" role="alert" />
+            <div id="incident-resolve-validation-summary" className="hidden alert-error" role="alert" />
             <FormValidationUX formId="incident-resolve-form" summaryId="incident-resolve-validation-summary" />
             <div>
               <label className="label">{INCIDENT_SIDEBAR_LABELS.resolution}</label>
@@ -152,6 +152,7 @@ export function IncidentSidebar({ incident }: Props) {
           <input type="hidden" name="incidentId" value={incident.id} />
           <input
             type="number"
+            inputMode="numeric"
             name="mediationMinutes"
             min="0"
             max="9999"

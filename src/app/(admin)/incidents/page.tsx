@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
+import { X } from 'lucide-react'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
@@ -20,6 +21,7 @@ import {
 } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
+import { PageHeader } from '@/components/ui/Page'
 import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
@@ -102,19 +104,23 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{INCIDENT_PAGE_LABELS.title}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <a
-            href="/api/export/incidents"
-            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
-          >
-            {INCIDENT_PAGE_LABELS.export}
-          </a>
-          <Link href="/incidents/new" className="btn-primary">
-            {INCIDENT_PAGE_LABELS.newIncident}
-          </Link>
-        </div>
+      <div className="mb-6">
+        <PageHeader
+          title={INCIDENT_PAGE_LABELS.title}
+          actions={
+            <>
+              <a
+                href="/api/export/incidents"
+                className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
+              >
+                {INCIDENT_PAGE_LABELS.export}
+              </a>
+              <Link href="/incidents/new" className="btn-primary">
+                {INCIDENT_PAGE_LABELS.newIncident}
+              </Link>
+            </>
+          }
+        />
       </div>
 
       {/* Critical Incidents Alert */}
@@ -154,8 +160,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           <a
             href={`/incidents${categoryFilter !== 'all' ? `?category=${categoryFilter}` : ''}`}
             className="inline-flex items-center gap-1 px-2 py-1 bg-aoz-accent text-aoz-secondary text-xs font-medium rounded-full hover:bg-aoz-accent-dark transition-colors"
+            aria-label="Filter entfernen"
           >
-            {UI_LABELS.open} ×
+            {UI_LABELS.open}
+            <X className="w-3 h-3" aria-hidden="true" />
           </a>
         </div>
       )}

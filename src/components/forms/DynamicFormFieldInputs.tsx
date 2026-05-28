@@ -130,6 +130,7 @@ export function ScaleField({
         <input
           id={factor.id}
           type="number"
+          inputMode="numeric"
           name={factor.id}
           min={factor.min}
           max={factor.max}

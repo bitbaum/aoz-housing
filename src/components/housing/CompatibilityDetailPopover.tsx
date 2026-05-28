@@ -2,8 +2,9 @@
 
 import { useEffect, forwardRef } from 'react'
 import Link from 'next/link'
+import { X } from 'lucide-react'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS, UI_LABELS } from '@/lib/constants'
+import { COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 
@@ -76,10 +77,10 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
-            aria-label={UI_LABELS.close}
+            className="btn-icon"
+            aria-label="Schliessen"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>

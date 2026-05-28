@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { X } from 'lucide-react'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
-import { UI_LABELS } from '@/lib/constants/labels'
 
 interface Roommate {
   id: string
@@ -81,12 +81,12 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     <div>
       {/* Success / Error messages */}
       {success && (
-        <div className="mb-4 p-3 bg-status-success/10 text-status-success-text rounded-lg text-sm" role="status" aria-live="polite">
+        <div className="mb-4 alert-success" role="status" aria-live="polite">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm" role="alert" aria-live="polite">
+        <div className="mb-4 alert-error" role="alert" aria-live="polite">
           {error}
         </div>
       )}
@@ -132,10 +132,10 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
               </h3>
               <button
                 onClick={() => setActiveModal(null)}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-muted hover:text-ui-muted"
-                aria-label={UI_LABELS.close}
+                className="btn-icon"
+                aria-label="Schliessen"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -159,6 +159,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
                   <input
                     name="durationMinutes"
                     type="number"
+                    inputMode="numeric"
                     min="1"
                     max="480"
                     className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"

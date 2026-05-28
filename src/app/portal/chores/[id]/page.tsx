@@ -179,12 +179,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
               <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-ui-text">{c.completedBy.code}</p>
-                  {c.notes && <p className="text-xs text-ui-muted mt-0.5">{c.notes}</p>}
+                  {c.notes && <p className="text-sm text-ui-muted mt-0.5">{c.notes}</p>}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-ui-muted">{formatDate(c.completedAt)}</p>
+                  <p className="text-sm text-ui-muted">{formatDate(c.completedAt)}</p>
                   {c.durationMinutes && (
-                    <p className="text-xs text-ui-muted">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
+                    <p className="text-sm text-ui-muted">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
                   )}
                 </div>
               </div>
@@ -208,7 +208,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                     {REQUEST_STATUS_LABELS[r.status]}
                   </span>
                 </div>
-                {r.message && <p className="text-xs text-ui-muted mt-1">{r.message}</p>}
+                {r.message && <p className="text-sm text-ui-muted mt-1">{r.message}</p>}
               </div>
             ))}
           </div>
@@ -225,8 +225,8 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                 <p className="text-sm font-medium text-ui-text">
                   ⚠️ {f.flaggedBy.code}
                 </p>
-                {f.message && <p className="text-xs text-ui-muted mt-1">{f.message}</p>}
-                <p className="text-xs text-ui-muted mt-1">{formatDate(f.createdAt)}</p>
+                {f.message && <p className="text-sm text-ui-muted mt-1">{f.message}</p>}
+                <p className="text-sm text-ui-muted mt-1">{formatDate(f.createdAt)}</p>
               </div>
             ))}
           </div>

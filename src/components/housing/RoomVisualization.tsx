@@ -238,7 +238,7 @@ function SpotCard({
             {onPlaceResident && (
               <button
                 onClick={() => onPlaceResident(spot.id)}
-                className="btn-primary text-xs px-2 py-1"
+                className="btn-primary text-xs"
               >
                 {PLACEMENT_PANEL_LABELS.place}
               </button>

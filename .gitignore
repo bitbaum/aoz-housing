@@ -6,8 +6,11 @@
 # testing
 /coverage
 /playwright-report/
+/.playwright-mcp/
 /test-results/
 tests/.auth/
+/before-*.png
+/after-*.png
 
 # next.js
 /.next/

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ResidentFormFields, FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import { updateResident } from '@/lib/actions'
 import { ResidentDangerZone } from '@/components/residents/ResidentDangerZone'
 import { RESIDENT_EDIT_LABELS } from '@/lib/constants'
@@ -30,24 +31,18 @@ export default async function EditResidentPage({ params }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <Link
-          href={`/residents/${id}`}
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {RESIDENT_EDIT_LABELS.backLink}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-          {RESIDENT_EDIT_LABELS.title(resident.code)}
-        </h1>
-        <p className="text-ui-muted">
-          {RESIDENT_EDIT_LABELS.subtitle}
-        </p>
+        <PageHeader
+          title={RESIDENT_EDIT_LABELS.title(resident.code)}
+          description={RESIDENT_EDIT_LABELS.subtitle}
+          backHref={`/residents/${id}`}
+          backLabel={RESIDENT_EDIT_LABELS.backLink.replace(/^← /, '')}
+        />
       </div>
 
       <form id="resident-edit-form" action={updateResident} className="space-y-6">
         <input type="hidden" name="id" value={id} />
 
-        <div id="resident-edit-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
+        <div id="resident-edit-validation-summary" className="hidden alert-error" role="alert" />
         <FormValidationUX formId="resident-edit-form" summaryId="resident-edit-validation-summary" />
 
         <ResidentFormFields
@@ -90,7 +85,7 @@ export default async function EditResidentPage({ params }: Props) {
         />
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {RESIDENT_EDIT_LABELS.submit}
           </SubmitButton>

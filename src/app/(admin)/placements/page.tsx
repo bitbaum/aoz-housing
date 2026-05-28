@@ -25,6 +25,7 @@ import {
 } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
+import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,19 +126,23 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PLACEMENT_LIST_LABELS.title}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          <a
-            href="/api/export/placements"
-            className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
-          >
-            {PLACEMENT_LIST_LABELS.export}
-          </a>
-          <Link href="/matching" className="btn-primary">
-            {PLACEMENT_LIST_LABELS.newPlacement}
-          </Link>
-        </div>
+      <div className="mb-6">
+        <PageHeader
+          title={PLACEMENT_LIST_LABELS.title}
+          actions={
+            <>
+              <a
+                href="/api/export/placements"
+                className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
+              >
+                {PLACEMENT_LIST_LABELS.export}
+              </a>
+              <Link href="/matching" className="btn-primary">
+                {PLACEMENT_LIST_LABELS.newPlacement}
+              </Link>
+            </>
+          }
+        />
       </div>
 
       {/* Search & Quick Filters */}

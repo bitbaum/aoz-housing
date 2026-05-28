@@ -14,6 +14,7 @@ import {
   UI_LABELS,
 } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -79,14 +80,12 @@ export default async function NewIncidentPage({ searchParams }: Props) {
   return (
     <div>
       <div className="mb-6">
-        <Link
-          href="/incidents"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {INCIDENT_PAGE_LABELS.backToList}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{INCIDENT_PAGE_LABELS.newIncident}</h1>
-        <p className="text-ui-muted">{INCIDENT_PAGE_LABELS.newSubtitle}</p>
+        <PageHeader
+          title={INCIDENT_PAGE_LABELS.newIncident}
+          description={INCIDENT_PAGE_LABELS.newSubtitle}
+          backHref="/incidents"
+          backLabel={INCIDENT_PAGE_LABELS.backToList.replace(/^← /, '')}
+        />
       </div>
 
       <div className="card mb-6">
@@ -312,6 +311,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               <label className="label">{INCIDENT_PAGE_LABELS.fieldMediationMinutes}</label>
               <input
                 type="number"
+                inputMode="numeric"
                 name="mediationMinutes"
                 min="0"
                 step="5"
@@ -324,7 +324,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_PAGE_LABELS.submit}
           </SubmitButton>

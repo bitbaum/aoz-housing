@@ -189,7 +189,7 @@ function ResidentRow({
             <button
               onClick={onPlace}
               disabled={disabled}
-              className={`btn-primary text-sm px-3 py-1.5 ${
+              className={`btn-primary text-sm ${
                 fitScore >= 70
                   ? ''
                   : fitScore >= 50

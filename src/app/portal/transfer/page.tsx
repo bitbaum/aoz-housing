@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { TransferRequestForm } from '@/components/portal/TransferRequestForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { PageHeader } from '@/components/ui/Page'
 
 export const metadata: Metadata = { title: 'Verlegung anfragen' }
 export const dynamic = 'force-dynamic'
@@ -54,11 +54,12 @@ export default async function TransferPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.form.back}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{L.title}</h1>
-        <p className="text-ui-muted">{L.subtitle}</p>
+        <PageHeader
+          title={L.title}
+          description={L.subtitle}
+          backHref="/portal"
+          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+        />
       </div>
 
       {!placement ? (

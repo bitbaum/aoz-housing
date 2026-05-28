@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { UI_LABELS, EXPLAINABLE_NUMBER_LABELS } from '@/lib/constants/labels'
+import { X } from 'lucide-react'
+import { EXPLAINABLE_NUMBER_LABELS } from '@/lib/constants/labels'
 
 export interface NumberExplanation {
   label: string
@@ -108,10 +109,10 @@ export function ExplainableNumber({
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-ui-muted hover:text-ui-text -mt-1 -mr-1 p-1"
-              aria-label={UI_LABELS.close}
+              className="btn-icon"
+              aria-label="Schliessen"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
 

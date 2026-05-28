@@ -82,7 +82,7 @@ export function InviteForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {state.status === 'error' && (
-        <p role="alert" className="text-sm text-status-error-text p-3 bg-status-error/8 border border-status-error/25 rounded">
+        <p role="alert" className="alert-error">
           {state.message}
         </p>
       )}

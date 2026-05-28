@@ -160,7 +160,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       )}
 
       {error && (
-        <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm">
+        <div className="mb-4 alert-error">
           {error}
         </div>
       )}
@@ -295,7 +295,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   name="petTolerance"
@@ -305,7 +305,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 <span className="text-sm text-ui-muted">{P.fields.petTolerance}</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   name="sharedBathroom"
@@ -315,7 +315,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 <span className="text-sm text-ui-muted">{P.fields.sharedBathroom}</span>
               </label>
 
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   name="sharedKitchen"
@@ -394,7 +394,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
 
         {/* Submit */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
+        <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
           <button
             type="submit"
             disabled={isSubmitting}

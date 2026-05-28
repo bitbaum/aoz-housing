@@ -32,7 +32,7 @@ export function PortalPendingChores({ chores }: PortalPendingChoresProps) {
             <span className="text-xl">⚠️</span>
             <div>
               <p className="font-medium text-ui-text text-sm">{task.title}</p>
-              <p className="text-xs text-ui-muted">
+              <p className="text-sm text-ui-muted">
                 {task.currentStatus === 'NEEDS_ATTENTION' ? CHORE_LABELS.statNeedsAttention : PORTAL_LABELS.pendingChores.requestOpen}
               </p>
             </div>

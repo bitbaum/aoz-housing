@@ -229,6 +229,19 @@ body {
   @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-aoz-primary/25;
 }
 
+.btn-danger {
+  @apply btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/30;
+}
+
+.btn-warning {
+  @apply btn bg-status-warning text-ui-on-accent hover:bg-status-warning/90 focus:ring-status-warning/30;
+}
+
+/* Icon-only square button — keeps 44px target without text-sized padding */
+.btn-icon {
+  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:outline-none focus:ring-2 focus:ring-aoz-primary/25 transition-colors;
+}
+
 /* Form styles */
 .input {
   @apply w-full px-3 py-2.5 border border-ui-border rounded-md bg-ui-surface text-ui-text placeholder:text-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-ui-text/10 focus:border-ui-border-strong min-h-[44px] transition-shadow duration-150;
@@ -262,6 +275,40 @@ body {
 .badge-info    { @apply bg-ui-surface text-blue-700 ring-blue-200 dark:text-blue-300 dark:ring-blue-900/80; }
 .badge-ended   { @apply bg-ui-surface text-ui-muted ring-ui-border; }
 .badge-alert   { @apply bg-ui-surface text-red-700 ring-red-200 dark:text-red-300 dark:ring-red-900/80; }
+
+/* Tinted "chip" variants — rounded-full, slightly bolder fill for emphasis */
+.chip {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+}
+.chip-success { @apply chip bg-status-success/15 text-status-success-text; }
+.chip-warning { @apply chip bg-status-warning/15 text-status-warning-text; }
+.chip-error   { @apply chip bg-status-error/15 text-status-error-text; }
+.chip-info    { @apply chip bg-status-info/15 text-status-info-text; }
+.chip-neutral { @apply chip bg-ui-subtle text-ui-muted ring-1 ring-ui-border; }
+
+/* Alert banners — unified surface for inline error/success/warning/info messages */
+.alert {
+  @apply p-3 rounded-lg text-sm flex items-start gap-2 ring-1;
+}
+.alert-error   { @apply alert bg-status-error/10 text-status-error-text ring-status-error/25; }
+.alert-success { @apply alert bg-status-success/10 text-status-success-text ring-status-success/25; }
+.alert-warning { @apply alert bg-status-warning/10 text-status-warning-text ring-status-warning/25; }
+.alert-info    { @apply alert bg-status-info/10 text-status-info-text ring-status-info/25; }
+
+/* Initial / number avatar — circle with brand fill */
+.avatar {
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-full bg-aoz-primary text-ui-on-accent font-medium select-none;
+}
+.avatar-sm { @apply avatar w-8 h-8 text-sm; }
+.avatar-lg { @apply avatar w-12 h-12 text-lg; }
+
+/* Safe-area utilities for iOS Home-indicator overlap on sticky/fixed bottom bars */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.mb-safe {
+  margin-bottom: max(0px, env(safe-area-inset-bottom));
+}
 
 /* Popover animations */
 @keyframes fade-in {

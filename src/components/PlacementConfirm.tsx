@@ -44,7 +44,7 @@ export function PlacementConfirm({
     ? 'opacity-50 cursor-not-allowed bg-ui-muted text-ui-on-accent px-3 py-1 rounded text-sm'
     : fitScore < 50
     ? 'bg-status-warning text-ui-on-accent px-3 py-1 rounded text-sm hover:bg-status-warning/90'
-    : 'btn-primary text-sm px-3 py-1'
+    : 'btn-primary text-sm'
 
   const buttonLabel = hasConflicts
     ? MATCHING_LABELS.blocked

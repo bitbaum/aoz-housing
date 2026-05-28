@@ -229,7 +229,7 @@ export function ReportForm({ roommates }: Props) {
           )}
 
           {error && (
-            <div className="mb-4 p-3 bg-status-error/8 text-status-error-text rounded-lg text-sm">
+            <div className="mb-4 alert-error">
               {error}
             </div>
           )}
@@ -344,7 +344,7 @@ export function ReportForm({ roommates }: Props) {
             {/* Mediation request (conflict only) */}
             {category === 'INTERPERSONAL' && (
               <div>
-                <label className="flex items-start gap-2 cursor-pointer">
+                <label className="flex items-start gap-2 cursor-pointer min-h-[44px] py-2">
                   <input
                     type="checkbox"
                     name="requestMediation"

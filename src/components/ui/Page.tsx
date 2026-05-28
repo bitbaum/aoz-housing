@@ -1,4 +1,6 @@
 import clsx from 'clsx'
+import Link from 'next/link'
+import { ChevronLeft } from 'lucide-react'
 
 type PageShellProps = {
   children: React.ReactNode
@@ -18,12 +20,31 @@ type PageHeaderProps = {
   description?: string
   eyebrow?: string
   actions?: React.ReactNode
+  /** Optional back-link rendered above the title (use for nested detail/edit/new pages). */
+  backHref?: string
+  backLabel?: string
 }
 
-export function PageHeader({ title, description, eyebrow, actions }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  description,
+  eyebrow,
+  actions,
+  backHref,
+  backLabel,
+}: PageHeaderProps) {
   return (
     <header className="flex flex-col gap-4 border-b border-ui-border pb-5 md:flex-row md:items-end md:justify-between">
       <div className="max-w-3xl">
+        {backHref ? (
+          <Link
+            href={backHref}
+            className="mb-2 inline-flex items-center gap-1 text-sm text-ui-muted hover:text-aoz-primary min-h-[44px] -ml-1 pl-1 pr-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            {backLabel ?? 'Zurück'}
+          </Link>
+        ) : null}
         {eyebrow ? (
           <p className="mb-2 text-xs font-semibold uppercase tracking-normal text-ui-muted">
             {eyebrow}

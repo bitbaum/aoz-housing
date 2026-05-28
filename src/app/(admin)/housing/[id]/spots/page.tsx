@@ -167,6 +167,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <label className="label">{HOUSING_SPOTS_LABELS.bedCountLabel}</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     name="bedCount"
                     required
                     min="1"
@@ -181,6 +182,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <label className="label">{HOUSING_SPOTS_LABELS.squareMetersLabel}</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     name="squareMeters"
                     step="0.1"
                     placeholder={HOUSING_SPOTS_LABELS.squareMetersPlaceholder}
@@ -191,6 +193,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <label className="label">{HOUSING_SPOTS_LABELS.floorLabel}</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     name="floor"
                     min="-1"
                     max="20"
@@ -262,6 +265,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <label className="label">{HOUSING_SPOTS_LABELS.squareMetersLabel}</label>
                   <input
                     type="number"
+                    inputMode="numeric"
                     name="squareMeters"
                     step="0.1"
                     className="input"
@@ -269,7 +273,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 </div>
                 <div>
                   <label className="label">{HOUSING_SPOTS_LABELS.floorLabel}</label>
-                  <input type="number" name="floor" className="input" />
+                  <input type="number" inputMode="numeric" name="floor" className="input" />
                 </div>
               </div>
               <label className="flex items-center gap-2 cursor-pointer">

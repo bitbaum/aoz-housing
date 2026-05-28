@@ -6,6 +6,7 @@ import { EMAIL_CONFIG } from '@/lib/email/config'
 import { SETTINGS_LABELS, PILOT_BASELINE_LABELS } from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import { formatDate, formatDateISO } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Einstellungen' }
@@ -32,10 +33,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{SETTINGS_LABELS.title}</h1>
-        <p className="text-sm text-ui-muted mt-1">{SETTINGS_LABELS.subtitle}</p>
-      </div>
+      <PageHeader title={SETTINGS_LABELS.title} description={SETTINGS_LABELS.subtitle} />
 
       {/* Invite new staff */}
       <div className="card">
@@ -45,7 +43,7 @@ export default async function SettingsPage() {
         </p>
 
         {!emailEnabled && (
-          <div className="mb-4 p-3 bg-status-warning/10 border border-status-warning/25 rounded-lg text-sm text-status-warning-text">
+          <div className="mb-4 alert-warning">
             {SETTINGS_LABELS.emailWarning}
           </div>
         )}
@@ -106,6 +104,7 @@ export default async function SettingsPage() {
               <label className="label">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
               <input
                 type="number"
+                inputMode="numeric"
                 name="pilotBaselineIncidentsPerMonth"
                 min="0"
                 step="0.1"
@@ -119,6 +118,7 @@ export default async function SettingsPage() {
               <label className="label">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
               <input
                 type="number"
+                inputMode="numeric"
                 name="pilotBaselineRelocationsPerMonth"
                 min="0"
                 step="0.1"
@@ -132,6 +132,7 @@ export default async function SettingsPage() {
               <label className="label">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
               <input
                 type="number"
+                inputMode="numeric"
                 name="pilotBaselineMediationHoursPerWeek"
                 min="0"
                 step="0.5"

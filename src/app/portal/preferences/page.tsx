@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Präferenzen' }
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PreferencesForm } from './PreferencesForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { PageHeader } from '@/components/ui/Page'
 
 const LANGUAGE_OPTIONS = (RESIDENT_FACTORS.languages as { options: readonly string[] }).options.filter(c => c !== 'OTHER')
 const DIET_OPTIONS = (RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }).options.filter(c => c !== 'NONE')
@@ -28,13 +28,12 @@ export default async function PreferencesPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.form.back}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.preferences}</h1>
-        <p className="text-ui-muted">
-          {PORTAL_LABELS.pages.preferencesSubtitle}
-        </p>
+        <PageHeader
+          title={PORTAL_LABELS.pages.preferences}
+          description={PORTAL_LABELS.pages.preferencesSubtitle}
+          backHref="/portal"
+          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+        />
       </div>
 
       <PreferencesForm

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { PageHeader } from '@/components/ui/Page'
 
 export const metadata: Metadata = { title: 'Hilfe' }
 
@@ -10,11 +11,12 @@ export default function PortalHelpPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
-          {PORTAL_LABELS.form.back}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.help}</h1>
-        <p className="text-ui-muted">{PORTAL_LABELS.pages.helpSubtitle}</p>
+        <PageHeader
+          title={PORTAL_LABELS.pages.help}
+          description={PORTAL_LABELS.pages.helpSubtitle}
+          backHref="/portal"
+          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+        />
       </div>
 
       {/* FAQ Accordion */}

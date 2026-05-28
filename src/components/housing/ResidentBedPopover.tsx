@@ -2,7 +2,8 @@
 
 import { useEffect, forwardRef } from 'react'
 import Link from 'next/link'
-import { AGE_RANGE_LABELS, LANGUAGE_LABELS, BED_GRID_LABELS, UI_LABELS, getLabel } from '@/lib/constants'
+import { X } from 'lucide-react'
+import { AGE_RANGE_LABELS, LANGUAGE_LABELS, BED_GRID_LABELS, getLabel } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { HousingSpot } from './types'
 
@@ -68,10 +69,10 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
           </div>
           <button
             onClick={onClose}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
-            aria-label={UI_LABELS.close}
+            className="btn-icon"
+            aria-label="Schliessen"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>

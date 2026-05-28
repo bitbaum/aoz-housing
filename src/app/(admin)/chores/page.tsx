@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
+import { PageHeader } from '@/components/ui/Page'
 
 export const metadata: Metadata = { title: 'Haushaltsaufgaben' }
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
@@ -57,7 +58,9 @@ export default async function AdminChoresPage() {
 
   return (
     <div>
-      <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-6">{C.pageTitle}</h1>
+      <div className="mb-6">
+        <PageHeader title={C.pageTitle} />
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">

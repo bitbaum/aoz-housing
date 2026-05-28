@@ -28,7 +28,7 @@ export function PortalMaintenanceCard({ incidents }: PortalMaintenanceCardProps)
               <p className="font-medium text-ui-text text-sm">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </p>
-              <p className="text-xs text-ui-muted">
+              <p className="text-sm text-ui-muted">
                 {PORTAL_LABELS.dashboard.reported}: {formatDate(incident.date)}
               </p>
             </div>

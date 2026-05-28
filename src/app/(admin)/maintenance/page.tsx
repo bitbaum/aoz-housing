@@ -18,6 +18,7 @@ import {
 import { formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink } from '@/components/ui/Tabs'
+import { PageHeader } from '@/components/ui/Page'
 import type { MaintenanceStatus, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
@@ -90,11 +91,15 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{MAINTENANCE_PAGE_LABELS.title}</h1>
-        <Link href="/maintenance/new" className="btn-primary">
-          {MAINTENANCE_PAGE_LABELS.newRequest}
-        </Link>
+      <div className="mb-6">
+        <PageHeader
+          title={MAINTENANCE_PAGE_LABELS.title}
+          actions={
+            <Link href="/maintenance/new" className="btn-primary">
+              {MAINTENANCE_PAGE_LABELS.newRequest}
+            </Link>
+          }
+        />
       </div>
 
       {/* Urgent Alert */}

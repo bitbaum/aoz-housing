@@ -43,7 +43,7 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
                     {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}
                     {incident.description.length > 50 && '...'}
                   </p>
-                  <p className="text-xs text-ui-muted mt-1">
+                  <p className="text-sm text-ui-muted mt-1">
                     {incident.resolvedAt ? PORTAL_LABELS.dashboard.reportResolved : PORTAL_LABELS.dashboard.reportPending}
                   </p>
                 </div>

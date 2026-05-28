@@ -13,6 +13,7 @@ import {
 } from '@/lib/constants'
 import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,20 +47,16 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <Link
-          href="/maintenance"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {MAINTENANCE_PAGE_LABELS.backToList}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-          {MAINTENANCE_PAGE_LABELS.newTitle}
-        </h1>
+        <PageHeader
+          title={MAINTENANCE_PAGE_LABELS.newTitle}
+          backHref="/maintenance"
+          backLabel={MAINTENANCE_PAGE_LABELS.backToList.replace(/^← /, '')}
+        />
       </div>
 
       <div className="card">
         <form id="maintenance-new-form" action={createMaintenanceRequest} className="space-y-6">
-          <div id="maintenance-new-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
+          <div id="maintenance-new-validation-summary" className="hidden alert-error" role="alert" />
           <FormValidationUX formId="maintenance-new-form" summaryId="maintenance-new-validation-summary" />
 
           {/* Location Section */}
@@ -187,7 +184,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
           </div>
 
           {/* Submit */}
-          <div className="sticky bottom-0 -mx-4 px-4 py-3 sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
+          <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 z-20">
             <Link href="/maintenance" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
               {UI_LABELS.cancel}
             </Link>

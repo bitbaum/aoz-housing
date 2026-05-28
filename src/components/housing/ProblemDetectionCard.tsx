@@ -244,7 +244,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
         <div className="flex flex-col gap-2 flex-shrink-0">
           <Link
             href={`/matching?resident=${resident.id}&transfer=1`}
-            className={`btn-primary text-sm px-3 py-1.5 whitespace-nowrap ${
+            className={`btn-primary text-sm whitespace-nowrap ${
               severity === 'critical' ? 'bg-status-error hover:bg-status-error/90' : 'bg-status-warning hover:bg-status-warning/90'
             }`}
           >

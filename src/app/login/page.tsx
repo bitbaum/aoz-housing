@@ -138,7 +138,7 @@ function LoginForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             {state.status === 'error' && (
-              <div className="p-3 bg-status-error/8 border border-status-error/25 rounded-lg text-status-error-text text-sm" role="alert" aria-live="polite">
+              <div className="alert-error" role="alert" aria-live="polite">
                 {state.message}
               </div>
             )}
@@ -156,6 +156,10 @@ function LoginForm() {
                 placeholder={LOGIN_LABELS.codePlaceholder}
                 required
                 autoComplete="off"
+                autoCapitalize="characters"
+                autoCorrect="off"
+                spellCheck={false}
+                inputMode="text"
                 autoFocus={!searchParams.get('code')}
                 className="input font-mono text-center text-lg tracking-wider"
               />

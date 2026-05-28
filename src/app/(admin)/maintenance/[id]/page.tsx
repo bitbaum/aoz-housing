@@ -106,7 +106,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               </h2>
               <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
                 <input type="hidden" name="requestId" value={request.id} />
-                <div id="maintenance-status-validation-summary" className="hidden p-3 rounded border border-status-error/40 bg-status-error/8 text-status-error-text text-sm" role="alert" />
+                <div id="maintenance-status-validation-summary" className="hidden alert-error" role="alert" />
                 <FormValidationUX formId="maintenance-status-form" summaryId="maintenance-status-validation-summary" />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -146,6 +146,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                     <label className="label">{MAINTENANCE_PAGE_LABELS.fieldCost}</label>
                     <input
                       type="number"
+                      inputMode="numeric"
                       name="cost"
                       step="0.01"
                       defaultValue={request.cost || ''}

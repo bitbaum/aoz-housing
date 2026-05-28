@@ -18,7 +18,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="font-semibold text-ui-text">{PORTAL_LABELS.activities.dashboardTitle}</h2>
-          <p className="text-xs text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
+          <p className="text-sm text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
         </div>
         <Globe2 className="h-5 w-5 text-aoz-primary" />
       </div>
@@ -36,7 +36,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
                 <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-aoz-primary" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
-                  <p className="text-xs text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
+                  <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
                 </div>
                 <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
                   {ACTIVITY_COST_LABELS[activity.cost]}

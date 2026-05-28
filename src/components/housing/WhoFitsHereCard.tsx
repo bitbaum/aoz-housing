@@ -97,7 +97,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                   </span>
                   <Link
                     href={`/matching?resident=${match.resident.id}`}
-                    className="btn-primary text-sm px-3 py-1"
+                    className="btn-primary text-sm"
                   >
                     {WHO_FITS_HERE_LABELS.place}
                   </Link>

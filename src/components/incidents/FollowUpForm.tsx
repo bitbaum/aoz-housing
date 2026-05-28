@@ -101,7 +101,7 @@ export function FollowUpForm({
       </h3>
       <form id="incident-followup-form" action={addFollowUp} className="space-y-4">
         <input type="hidden" name="incidentId" value={incidentId} />
-        <div id="incident-followup-validation-summary" className="hidden p-3 rounded border border-status-error/30 bg-status-error/8 text-status-error-text text-sm" role="alert" />
+        <div id="incident-followup-validation-summary" className="hidden alert-error" role="alert" />
         <FormValidationUX formId="incident-followup-form" summaryId="incident-followup-validation-summary" />
 
         <div>
