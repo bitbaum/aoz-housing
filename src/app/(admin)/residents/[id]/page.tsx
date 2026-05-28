@@ -260,7 +260,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             <span className="text-ui-text">{resident.code}</span>
           </div>
           <div className="flex items-center gap-4 mt-2">
-            <div className="w-12 h-12 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-semibold text-lg">
+            <div className="avatar-lg font-semibold">
               {resident.code.slice(-3)}
             </div>
             <div>

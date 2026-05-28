@@ -30,7 +30,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
             className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center text-sm font-medium">
+              <div className="avatar-sm">
                 {assessment.comparedWith.code.slice(-3)}
               </div>
               <Link

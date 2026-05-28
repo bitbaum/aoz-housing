@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 // =============================================================================
 // QuickStat
@@ -12,7 +13,7 @@ export interface QuickStatProps {
   subtext?: string
   href: string
   color: 'green' | 'yellow' | 'red' | 'blue' | 'gray'
-  icon: string
+  icon: ReactNode
 }
 
 export function QuickStat({ label, value, total, suffix, subtext, href, color, icon }: QuickStatProps) {
@@ -35,10 +36,10 @@ export function QuickStat({ label, value, total, suffix, subtext, href, color, i
   return (
     <Link
       href={href}
-      className={`block p-4 rounded-lg border-2 ${colorStyles[color]} hover:shadow-md transition-all`}
+      className={`block p-4 rounded-lg border-2 ${colorStyles[color]} hover:shadow-card-hover transition-all`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xl">{icon}</span>
+        <span className="text-xl inline-flex items-center">{icon}</span>
         <span className={`text-2xl font-bold ${valueColorStyles[color]}`}>
           {value}{suffix}
         </span>

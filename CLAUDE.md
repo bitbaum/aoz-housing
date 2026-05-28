@@ -153,137 +153,171 @@ src/
 
 ## Design System
 
-**Tailwind v3** — config at `tailwind.config.ts`. All CSS custom properties live in `src/app/globals.css`.
+**Tailwind v3** — config at `tailwind.config.ts`. All design tokens live in `src/app/globals.css` as CSS custom properties; `tailwind.config.ts` only references them (zero literal hex). Both light and dark themes share the same Tailwind class surface — only the CSS-var values flip.
 
-### CSS Custom Properties (SSOT — from `src/app/globals.css`)
+### CSS Custom Properties (SSOT — `src/app/globals.css`)
+
+Colors are stored as **space-separated RGB channels** (e.g. `230 57 70`) so Tailwind's opacity modifier (`bg-aoz-primary/15`) works.
 
 ```css
 :root {
-  --foreground: #1e293b;
-  --background: #f8fafc;
+  /* UI surface tokens */
+  --color-ui-canvas:        250 250 250;
+  --color-ui-surface:       255 255 255;
+  --color-ui-elevated:      255 255 255;
+  --color-ui-subtle:        250 250 250;
+  --color-ui-border:        229 229 229;
+  --color-ui-border-strong: 212 212 212;
+  --color-ui-text:          17 17 17;
+  --color-ui-muted:         102 102 102;
+  --color-ui-on-accent:     255 255 255;
+
+  /* AOZ brand */
+  --color-aoz-primary:       230 57 70;   /* red/coral — AOZ logo, CTAs */
+  --color-aoz-secondary:     25 82 82;    /* dark teal — secondary brand */
+  --color-aoz-accent:        235 244 243; /* mint — backgrounds */
+
+  /* Compatibility score (5-tier) */
+  --color-score-excellent: 34 197 94;     /* 80-100 Sehr gut */
+  --color-score-good:      132 204 22;    /* 60-79  Gut */
+  --color-score-medium:    245 158 11;    /* 40-59  Mittel */
+  --color-score-low:       249 115 22;    /* 20-39  Niedrig */
+  --color-score-critical:  239 68 68;     /* 0-19   Kritisch */
+  /* Paired *-text variants ship dark readable shades for use on tinted backgrounds */
+
+  /* Status */
+  --color-status-success: 34 197 94;
+  --color-status-warning: 245 158 11;
+  --color-status-error:   239 68 68;
+  --color-status-info:    59 130 246;
+
+  /* Severity */
+  --color-severity-low: 156 163 175;
+  --color-severity-medium: 251 191 36;
+  --color-severity-high: 249 115 22;
+  --color-severity-critical: 239 68 68;
+
+  /* Shadows — `none` in light keeps modern flat look; dark uses ring */
+  --shadow-card:       none;
+  --shadow-card-hover: 0 0 0 1px rgb(0 0 0 / 0.06);
 }
 ```
 
-These two base tokens are defined in globals.css. All other brand and semantic values are defined as **literal hex values** directly in `tailwind.config.ts` (see below — this is a SSOT violation to fix when retheme work is needed).
+Dark mode (`[data-theme='dark']` or `prefers-color-scheme: dark`) overrides the same tokens with darker values. **Never** branch on `dark:` in components except for color-bound utilities Tailwind can't auto-derive (rare).
 
-### Tailwind Config (`tailwind.config.ts`)
+### Component classes (SSOT in `src/app/globals.css`)
 
-**AOZ brand colors (literal values — current state):**
-
+**Cards** — always prefer these over hand-built equivalents.
 ```
-aoz-primary:          #E63946   ← Red/coral, AOZ logo color, CTAs
-aoz-primary-light:    #EF5A67
-aoz-primary-dark:     #C62D3A
-aoz-secondary:        #2D5A5A   ← Dark teal, navigation, secondary actions
-aoz-secondary-light:  #3D7A7A
-aoz-secondary-dark:   #1D4A4A
-aoz-accent:           #D4EDDA   ← Mint green, backgrounds, icon containers
-aoz-accent-light:     #E8F5E9
-aoz-accent-dark:      #B8DFC2
-aoz-background:       #f8fafc
-aoz-surface:          #ffffff
+.card        → bg-ui-surface text-ui-text rounded-lg shadow-card border border-ui-border p-4 sm:p-5
+.card-hover  → card + hover:shadow-card-hover hover:border-ui-border-strong cursor-pointer
 ```
 
-**Compatibility score colors (5-tier system):**
-
+**Buttons** — all variants enforce `min-h-[44px]` touch target.
 ```
-score-excellent:  #22C55E   ← 80-100: Sehr gut
-score-good:       #84CC16   ← 60-79: Gut
-score-medium:     #F59E0B   ← 40-59: Mittel
-score-low:        #F97316   ← 20-39: Niedrig
-score-critical:   #EF4444   ← 0-19: Kritisch
-```
-
-**Severity colors:**
-
-```
-severity-low:      #9CA3AF   ← Gray
-severity-medium:   #FBBF24   ← Amber
-severity-high:     #F97316   ← Orange
-severity-critical: #EF4444   ← Red
+.btn           → px-4 py-2.5 rounded-md text-sm font-medium focus-ring min-h-[44px] inline-flex
+.btn-primary   → btn + bg-ui-text text-ui-inverse hover:bg-ui-text/85          (neutral CTA)
+.btn-secondary → btn + bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark (brand CTA)
+.btn-outline   → btn + border bg-ui-surface hover:bg-ui-subtle
+.btn-ghost     → btn + text-ui-muted hover:bg-ui-subtle hover:text-ui-text
+.btn-danger    → btn + bg-status-error text-ui-on-accent
+.btn-warning   → btn + bg-status-warning text-ui-on-accent
+.btn-icon      → 44x44 icon-only square — use for close (X) etc.
 ```
 
-**Status colors:**
+Note: `.btn-primary` is the NEUTRAL dark button (used everywhere as the default action); `.btn-secondary` is the BRAND-COLORED red button (used for emphasis). The naming is historical; do not assume "primary = brand color."
 
+**Form elements**
 ```
-status-success:  #22C55E
-status-warning:  #F59E0B
-status-error:    #EF4444
-status-info:     #3B82F6
-```
-
-**Typography & shadows:**
-
-```
-font-sans:   ['var(--font-inter)', 'system-ui', 'sans-serif']
-shadow-card: '0 1px 3px 0 rgb(0 0 0 / 0.08)'
+.input → w-full px-3 py-2.5 border rounded-md min-h-[44px] focus-ring
+.label → block text-sm font-medium text-ui-muted mb-1.5
 ```
 
-### Component Classes (from `src/app/globals.css`)
-
-**Score indicators:**
+**Badges** (rounded-md, subtle ring background)
 ```
-.score-excellent  → bg-score-excellent text-white
-.score-good       → bg-score-good text-white
-.score-medium     → bg-score-medium text-gray-900
-.score-low        → bg-score-low text-white
-.score-critical   → bg-score-critical text-white
+.badge        → inline-flex px-2 py-0.5 rounded-md text-xs font-medium ring-1
+.badge-active / .badge-success / .badge-pending / .badge-info / .badge-ended / .badge-alert
 ```
 
-**Cards:**
+**Chips** (rounded-full pills, tinted fill)
 ```
-.card       → bg-white rounded-lg shadow-card border border-gray-200 p-4 sm:p-6
-.card-hover → card + hover:shadow-md hover:border-gray-300 transition-all cursor-pointer
-```
-
-**Icon containers (circular, mint background):**
-```
-.icon-container    → w-10 h-10 rounded-full bg-aoz-accent flex items-center justify-center
-.icon-container-sm → w-8 h-8 ...
-.icon-container-lg → w-12 h-12 ...
+.chip         → inline-flex px-2 py-0.5 rounded-full text-xs font-medium
+.chip-success / .chip-warning / .chip-error / .chip-info / .chip-neutral
 ```
 
-**Buttons (all min-h-[44px] for touch targets):**
+**Alerts** (inline banner surface for forms, error messages)
 ```
-.btn           → base (px-4 py-2.5 rounded-md font-medium transition-colors focus:ring-2)
-.btn-primary   → bg-aoz-primary text-white hover:bg-aoz-primary-dark
-.btn-secondary → bg-aoz-secondary text-white hover:bg-aoz-secondary-dark
-.btn-outline   → border border-aoz-primary text-aoz-primary hover:bg-aoz-accent
-.btn-ghost     → text-aoz-primary hover:bg-aoz-accent
+.alert         → p-3 rounded-lg text-sm flex items-start gap-2 ring-1
+.alert-error / .alert-success / .alert-warning / .alert-info
 ```
 
-**Form elements:**
+**Avatars** (circle with brand fill for initials/numbers)
 ```
-.input → w-full px-3 py-2.5 border border-gray-300 rounded-md focus:ring-aoz-primary min-h-[44px]
-.label → block text-sm font-medium text-gray-700 mb-1
-```
-
-**Status badges:**
-```
-.badge         → inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-.badge-active  → bg-green-100 text-green-800
-.badge-success → bg-green-100 text-green-800
-.badge-pending → bg-amber-100 text-amber-900
-.badge-info    → bg-blue-100 text-blue-800
-.badge-ended   → bg-gray-100 text-gray-800
-.badge-alert   → bg-red-100 text-red-800
+.avatar     → w-10 h-10 rounded-full bg-aoz-primary text-ui-on-accent font-medium
+.avatar-sm  → w-8 h-8 text-sm
+.avatar-lg  → w-12 h-12 text-lg
 ```
 
-**Other:**
+**Score indicators**
 ```
-.explainable-number → cursor-pointer underline decoration-dotted decoration-gray-400 hover:decoration-aoz-primary
+.score-excellent  → bg-score-excellent text-ui-on-accent
+.score-good       → bg-score-good text-ui-on-accent
+.score-medium     → bg-score-medium text-score-contrast
+.score-low        → bg-score-low text-ui-on-accent
+.score-critical   → bg-score-critical text-ui-on-accent
 ```
 
-### SSOT Rule
-All design tokens live in `app/globals.css` only. Tailwind config MUST reference CSS vars (`'var(--name)'`), never literal values. Components MUST use semantic Tailwind classes, never arbitrary values like `bg-[#hex]`.
+**Icon containers** (square, subtle background — for category icons inside cards)
+```
+.icon-container     → w-10 h-10 rounded-md bg-ui-subtle text-ui-muted ring-1 ring-ui-border
+.icon-container-sm  → w-8 h-8
+.icon-container-lg  → w-12 h-12
+```
 
-**Violations to fix when touching UI:**
-- `bg-[#hex]` / `text-[#hex]` in className → CSS var + semantic class
-- `style={{ color: '#hex' }}` → CSS var + className
-- Literal hex in tailwind.config → `'var(--color-name)'`
-- Same token defined in 2+ files → consolidate to globals.css
+**iOS safe-area utilities** (for sticky/fixed bottom CTAs)
+```
+.pb-safe  → padding-bottom: max(1rem, env(safe-area-inset-bottom))
+.mb-safe  → margin-bottom: max(0px, env(safe-area-inset-bottom))
+```
 
-**Audit:** `grep -r '\[#' src/` — every result is a violation.
+**Other**
+```
+.explainable-number → cursor-pointer underline decoration-dotted hover:decoration-aoz-primary
+```
+
+### Layout primitives (`src/components/ui/Page.tsx`)
+
+```tsx
+<PageShell>     → max-width container with vertical rhythm
+<PageHeader     → page title + optional description, eyebrow, actions, backHref/backLabel
+  title="..."
+  description="..."
+  backHref="/path"
+  backLabel="Zurück"
+  actions={<Button>...</Button>}
+/>
+<Toolbar>       → filter/action toolbar row
+<EmptyState>    → dashed-border empty state with title/description/action
+<ListShell>     → rounded list container with overflow-hidden
+```
+
+`<PageHeader>` is the SSOT for h1 — use it on every page. The `backHref` prop renders a `lucide-react` ChevronLeft + label above the title.
+
+### SSOT rules — never violate
+
+1. **All design tokens live in `globals.css` only.** `tailwind.config.ts` references CSS vars (`'rgb(var(--color-x) / <alpha-value>)'`), never literal values.
+2. **Components use semantic Tailwind classes.** Never `bg-[#hex]`, `text-[#hex]`, `style={{ color: '#hex' }}`.
+3. **Use existing component classes.** Don't rebuild `.card`, `.btn`, `.input`, `.badge`, `.chip`, `.alert`, `.avatar` patterns from primitives.
+4. **Touch targets ≥ 44px on mobile.** Don't override `.btn-*` padding with `py-1` etc. Use `.btn-icon` for icon-only buttons.
+5. **Use `shadow-card-hover` not raw `hover:shadow-md`** — raw Tailwind shadows don't compose with the dark-mode ring strategy.
+
+**Audit commands:**
+```
+grep -rn '\[#' src/                              # hex in className violations
+grep -rn 'rounded-full.*text-xs.*bg-status' src/ # missed chip migrations
+grep -rn 'hover:shadow-md\|hover:shadow-sm' src/ # missed shadow migrations
+grep -rn 'w-10 h-10.*bg-aoz-primary.*rounded-full' src/ # missed avatar migrations
+```
 
 ---
 

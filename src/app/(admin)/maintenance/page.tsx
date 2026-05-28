@@ -216,7 +216,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
               >
                 {request.title}
               </Link>
-              <span className={`text-xs px-2 py-0.5 rounded ${priorityClass}`}>
+              <span className={`chip ${priorityClass}`}>
                 {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
               </span>
             </div>

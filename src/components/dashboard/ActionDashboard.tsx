@@ -1,5 +1,6 @@
 'use client'
 
+import { Bed, Clock, Check, Wrench } from 'lucide-react'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
@@ -114,7 +115,7 @@ export function ActionDashboard({
           total={totalBeds}
           href="/housing?status=AVAILABLE"
           color={freeBeds > 0 ? 'blue' : 'gray'}
-          icon="🛏️"
+          icon={<Bed className="w-5 h-5" />}
           subtext={`${occupiedBeds}/${totalBeds} ${DASHBOARD_LABELS.occupancyOccupied}`}
         />
         <QuickStat
@@ -123,7 +124,7 @@ export function ActionDashboard({
           suffix={` ${DASHBOARD_LABELS.statOverdueSuffix}`}
           href="/placements?status=active&overdue=1"
           color={overdueCheckIns.length === 0 ? 'green' : overdueCheckIns.length <= 3 ? 'yellow' : 'red'}
-          icon={overdueCheckIns.length === 0 ? '✓' : '⏰'}
+          icon={overdueCheckIns.length === 0 ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
           subtext={
             onTimeCheckIns === 0
               ? DASHBOARD_LABELS.statNoneCurrent
@@ -147,7 +148,7 @@ export function ActionDashboard({
           suffix={` ${DASHBOARD_LABELS.statOpenSuffix}`}
           href="/maintenance"
           color={openMaintenanceCount === 0 ? 'green' : openMaintenanceCount <= 3 ? 'yellow' : 'red'}
-          icon={openMaintenanceCount === 0 ? '✓' : '🔧'}
+          icon={openMaintenanceCount === 0 ? <Check className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
         />
       </div>
 

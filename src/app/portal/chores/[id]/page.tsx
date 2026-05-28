@@ -115,16 +115,16 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           <div className="flex-1">
             <h1 className="text-xl font-bold text-ui-text">{task.title}</h1>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="text-xs px-2 py-1 bg-ui-subtle text-ui-muted rounded-full">
+              <span className="chip-neutral">
                 {categoryLabel}
               </span>
-              <span className="text-xs px-2 py-1 bg-ui-subtle text-ui-muted rounded-full">
+              <span className="chip-neutral">
                 {typeLabel}
               </span>
-              <span className={`text-xs px-2 py-1 rounded-full ${statusColor}`}>
+              <span className={`chip ${statusColor}`}>
                 {statusLabel}
               </span>
-              <span className={`text-xs px-2 py-1 rounded-full ${priorityColor}`}>
+              <span className={`chip ${priorityColor}`}>
                 {priorityLabel}
               </span>
             </div>
@@ -204,7 +204,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                   <p className="text-sm font-medium text-ui-text">
                     {r.requestedBy.code} → {r.requestedResident?.code || CHORE_LABELS.request.broadcast}
                   </p>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-aoz-primary/10 text-aoz-primary">
+                  <span className="chip bg-aoz-primary/10 text-aoz-primary">
                     {REQUEST_STATUS_LABELS[r.status]}
                   </span>
                 </div>

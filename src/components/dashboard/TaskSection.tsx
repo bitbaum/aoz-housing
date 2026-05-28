@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import type { ReactNode } from 'react'
+import { AlertTriangle, AlertCircle, Home, Wrench } from 'lucide-react'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { formatDateShort } from '@/lib/utils'
 
@@ -69,7 +71,7 @@ export function TaskSection({
         {/* Critical Incidents - Highest Priority */}
         {hasCritical ? (
           <TaskCategory
-            icon="🚨"
+            icon={<AlertTriangle className="w-5 h-5" />}
             title={`${criticalIncidents.length} ${DASHBOARD_LABELS.taskCriticalOpenSuffix}`}
             href="/incidents?severity=CRITICAL&resolved=false"
             variant="critical"
@@ -87,13 +89,13 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🚨" title={DASHBOARD_LABELS.taskNoCritical} />
+          <CompletedCategory icon={<AlertTriangle className="w-5 h-5" />} title={DASHBOARD_LABELS.taskNoCritical} />
         )}
 
         {/* Overdue Check-ins */}
         {hasOverdueCheckIns ? (
           <TaskCategory
-            icon="⚠️"
+            icon={<AlertCircle className="w-5 h-5" />}
             title={`${overdueCheckIns.length} ${DASHBOARD_LABELS.taskCheckInsOverdueSuffix}`}
             href="/placements?status=active&overdue=1"
             variant="warning"
@@ -111,13 +113,13 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="⚠️" title={DASHBOARD_LABELS.taskAllCheckInsCurrent} />
+          <CompletedCategory icon={<AlertCircle className="w-5 h-5" />} title={DASHBOARD_LABELS.taskAllCheckInsCurrent} />
         )}
 
         {/* Unplaced Residents */}
         {hasUnplaced ? (
           <TaskCategory
-            icon="🏠"
+            icon={<Home className="w-5 h-5" />}
             title={`${unplacedResidents.length} ${DASHBOARD_LABELS.taskWaitingPlacementSuffix}`}
             href="/matching"
             variant="warning"
@@ -135,13 +137,13 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🏠" title={DASHBOARD_LABELS.taskAllPlaced} />
+          <CompletedCategory icon={<Home className="w-5 h-5" />} title={DASHBOARD_LABELS.taskAllPlaced} />
         )}
 
         {/* Overdue Maintenance */}
         {hasOverdueMaintenance ? (
           <TaskCategory
-            icon="🔧"
+            icon={<Wrench className="w-5 h-5" />}
             title={`${overdueMaintenance.length} ${DASHBOARD_LABELS.taskMaintenanceOverdueSuffix}`}
             href="/maintenance"
             variant="info"
@@ -159,7 +161,7 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon="🔧" title={DASHBOARD_LABELS.taskMaintenanceCurrent} />
+          <CompletedCategory icon={<Wrench className="w-5 h-5" />} title={DASHBOARD_LABELS.taskMaintenanceCurrent} />
         )}
       </div>
     </div>
@@ -169,7 +171,7 @@ export function TaskSection({
 // Sub-components
 
 interface TaskCategoryProps {
-  icon: string
+  icon: ReactNode
   title: string
   href: string
   variant: 'critical' | 'warning' | 'info'
@@ -193,7 +195,7 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
     <div className={`rounded-lg border p-4 ${variantStyles[variant]}`}>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-lg">{icon}</span>
+          <span className={`inline-flex items-center ${textStyles[variant]}`}>{icon}</span>
           <span className={`font-medium ${textStyles[variant]}`}>{title}</span>
         </div>
         <Link
@@ -210,11 +212,11 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
   )
 }
 
-function CompletedCategory({ icon, title }: { icon: string; title: string }) {
+function CompletedCategory({ icon, title }: { icon: ReactNode; title: string }) {
   return (
     <div className="flex items-center gap-2 py-2 px-3 rounded-lg bg-status-success/10 border border-status-success/25">
       <span className="text-status-success">✓</span>
-      <span className="text-lg opacity-50">{icon}</span>
+      <span className="opacity-50 inline-flex items-center">{icon}</span>
       <span className="text-status-success-text">{title}</span>
     </div>
   )

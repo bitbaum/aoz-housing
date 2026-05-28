@@ -225,7 +225,7 @@ function RoommateCard({
           {/* Compatibility Insights — only render sections that have content */}
           {assessment && (assessment.strengths.length > 0 || assessment.concerns.length > 0) && (
             <div className="mt-4 pt-4 border-t border-ui-border">
-              <div className={`grid gap-4 text-sm ${assessment.concerns.length > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              <div className={`grid gap-4 text-sm ${assessment.concerns.length > 0 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
                 {assessment.strengths.length > 0 && (
                   <div>
                     <p className="text-ui-muted">{PORTAL_LABELS.roommates.strengths}</p>

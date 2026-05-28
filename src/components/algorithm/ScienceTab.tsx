@@ -198,7 +198,7 @@ export function ScienceTab() {
                               {sources.map(source => (
                                 <span
                                   key={source.id}
-                                  className="text-xs bg-ui-subtle border border-ui-border px-2 py-0.5 rounded"
+                                  className="chip-neutral"
                                   title={source.title}
                                 >
                                   {source.publication?.split('/')[0]?.trim() || source.title}

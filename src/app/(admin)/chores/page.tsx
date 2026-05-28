@@ -92,7 +92,7 @@ export default async function AdminChoresPage() {
                       <p className="text-sm text-ui-muted mt-1">{unit.address}</p>
                     </div>
                     {unit.attentionTasks > 0 ? (
-                      <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded-full text-xs">
+                      <span className="chip-warning">
                         {unit.attentionTasks} {C.attention}
                       </span>
                     ) : null}
@@ -142,7 +142,7 @@ export default async function AdminChoresPage() {
                       <td className="py-3 px-2 text-center">{unit.activeTasks}</td>
                       <td className="py-3 px-2 text-center">
                         {unit.attentionTasks > 0 ? (
-                          <span className="px-2 py-0.5 bg-status-warning/15 text-status-warning-text rounded-full text-xs">
+                          <span className="chip-warning">
                             {unit.attentionTasks}
                           </span>
                         ) : (

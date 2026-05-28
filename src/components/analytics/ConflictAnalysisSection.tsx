@@ -83,7 +83,7 @@ export function ConflictAnalysisSection({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-3 bg-status-success/10 rounded-lg text-center">
                 <p className="text-2xl font-bold text-status-success">
                   {predictableCount}

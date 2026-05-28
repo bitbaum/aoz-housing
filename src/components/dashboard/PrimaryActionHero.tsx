@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { AlertTriangle, Hand, Home, AlertCircle, Sparkles } from 'lucide-react'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit } from './types'
@@ -135,21 +136,23 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   }
 
   const icons = {
-    critical: '🚨',
-    checkin: '👋',
-    place: '🏠',
-    problem: '⚠️',
-    allclear: '✨',
+    critical: AlertTriangle,
+    checkin: Hand,
+    place: Home,
+    problem: AlertCircle,
+    allclear: Sparkles,
   }
+
+  const IconComponent = icons[action.type]
 
   return (
     <Link
       href={action.href}
-      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} shadow-sm hover:shadow-md transition-shadow`}
+      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} shadow-card hover:shadow-card-hover transition-shadow`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <span className="text-4xl">{icons[action.type]}</span>
+          <IconComponent className="w-10 h-10 shrink-0" />
           <div>
             <h2 className="text-xl md:text-2xl font-bold">{action.title}</h2>
             <p className="text-ui-on-accent/80 mt-1">{action.description}</p>
@@ -184,7 +187,7 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
   return (
     <div className="bg-status-error text-ui-on-accent px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
       <div className="flex items-center gap-3">
-        <span className="text-2xl">🚨</span>
+        <AlertTriangle className="w-6 h-6 shrink-0" />
         <div>
           <span className="font-bold">{incidents.length} {DASHBOARD_LABELS.alertCriticalAttentionSuffix}</span>
           <span className="ml-2 opacity-80">• {incidentLabel} in {incidents[0].unitCode}</span>

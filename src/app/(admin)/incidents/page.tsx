@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { X } from 'lucide-react'
+import { X, AlertTriangle, Home, Megaphone, User, Clock, Timer } from 'lucide-react'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
@@ -127,7 +127,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {stats.critical > 0 && (
         <div className="mb-6 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" role="img" aria-label={UI_LABELS.warning}>🚨</span>
+            <AlertTriangle className="w-6 h-6 text-status-error shrink-0" aria-label={UI_LABELS.warning} />
             <div>
               <p className="font-semibold text-status-error-text">
                 {stats.critical} {INCIDENT_PAGE_LABELS.criticalAlertSuffix}
@@ -159,7 +159,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           <span className="text-sm text-ui-muted">{INCIDENT_PAGE_LABELS.filterOpen}:</span>
           <a
             href={`/incidents${categoryFilter !== 'all' ? `?category=${categoryFilter}` : ''}`}
-            className="inline-flex items-center gap-1 px-2 py-1 bg-aoz-accent text-aoz-secondary text-xs font-medium rounded-full hover:bg-aoz-accent-dark transition-colors"
+            className="chip-info gap-1 hover:bg-status-info/25 transition-colors"
             aria-label="Filter entfernen"
           >
             {UI_LABELS.open}
@@ -249,7 +249,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
       href={`/incidents/${incident.id}`}
       className={`card p-4 border-l-4 ${getSeverityBorderClass(
         incident.severity
-      )} block hover:shadow-md transition-shadow`}
+      )} block hover:shadow-card-hover transition-shadow`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
@@ -266,8 +266,8 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                 title={getLabel(INCIDENT_SEVERITY_LABELS, incident.severity)}
               />
               {isOverdue && (
-                <span className="text-xs px-2 py-0.5 bg-status-error/15 text-status-error-text rounded">
-                  ⏰ {INCIDENT_PAGE_LABELS.overdue}
+                <span className="chip-error inline-flex items-center gap-1">
+                  <Clock className="w-3 h-3" aria-hidden="true" /> {INCIDENT_PAGE_LABELS.overdue}
                 </span>
               )}
               {incident._count?.followUps > 0 && (
@@ -276,8 +276,8 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                 </span>
               )}
               {incident.category === 'INTERPERSONAL' && !incident.resolvedAt && !incident.mediationMinutes && (
-                <span className="text-xs px-2 py-0.5 bg-purple-50 text-purple-600 rounded border border-purple-200">
-                  ⏱ Mediationszeit fehlt
+                <span className="chip-info inline-flex items-center gap-1">
+                  <Timer className="w-3 h-3" aria-hidden="true" /> Mediationszeit fehlt
                 </span>
               )}
             </div>
@@ -285,23 +285,23 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident.description}
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
-              <span className="hover:text-aoz-primary">
-                <span aria-hidden="true">🏠</span> {incident.housingUnit.code}
+              <span className="hover:text-aoz-primary inline-flex items-center gap-1">
+                <Home className="w-3.5 h-3.5" aria-hidden="true" /> {incident.housingUnit.code}
               </span>
               {incident.reportedBy && (
                 <span
-                  className="hover:text-aoz-primary"
+                  className="hover:text-aoz-primary inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
-                  <span aria-hidden="true">📢</span> {incident.reportedBy.code}
+                  <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {incident.reportedBy.code}
                 </span>
               )}
               {incident.subject && (
                 <span
-                  className="hover:text-aoz-primary font-medium"
+                  className="hover:text-aoz-primary font-medium inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
-                  <span aria-hidden="true">👤</span> {incident.subject.code}
+                  <User className="w-3.5 h-3.5" aria-hidden="true" /> {incident.subject.code}
                 </span>
               )}
               <span>{formatRelativeDate(incident.date)}</span>

@@ -182,7 +182,7 @@ export function TransferRecommendations({
                     <span className={`text-xl font-bold ${getScoreColorClass(unit.fitScore)}`}>
                       {unit.fitScore}%
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${SCORE_TOKENS[level].soft}`}>
+                    <span className={`chip ${SCORE_TOKENS[level].soft}`}>
                       {COMPATIBILITY_SCORE_LABELS[level]}
                     </span>
                   </div>

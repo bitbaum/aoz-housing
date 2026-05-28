@@ -405,7 +405,7 @@ function MetricCard({
   highlight?: boolean
 }) {
   const content = (
-    <div className={`card ${href ? 'hover:shadow-md transition-shadow cursor-pointer' : ''}`}>
+    <div className={href ? 'card-hover' : 'card'}>
       <p className="text-sm text-ui-muted">{label}</p>
       <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-ui-text'}`}>
         {value}

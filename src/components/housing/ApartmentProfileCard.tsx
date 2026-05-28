@@ -181,7 +181,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           </div>
 
           {/* Categorical Distributions */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
               <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.sleepSection}</p>
               <div className="space-y-1">
@@ -214,7 +214,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
                 {metrics.languages.map(({ code, count }) => (
                   <span
                     key={code}
-                    className="px-2 py-0.5 bg-status-info/15 text-status-info-text text-xs rounded"
+                    className="chip-info"
                   >
                     {getLabel(LANGUAGE_LABELS, code)} ({count})
                   </span>

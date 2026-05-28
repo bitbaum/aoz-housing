@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import type { ReactNode } from 'react'
+import { Plus, RefreshCw, FileText, Wrench } from 'lucide-react'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 // =============================================================================
@@ -31,7 +33,7 @@ export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: nu
   const showMatchingHighlight = unplacedCount > 0 && freeBeds > 0
 
   return (
-    <div className="bg-ui-surface border border-ui-border rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
+    <div className="card">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
         <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{DASHBOARD_LABELS.sectionQuickActions}</h2>
         {freeBeds > 0 && (
@@ -39,17 +41,17 @@ export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: nu
         )}
       </div>
       <div className="flex flex-wrap gap-2">
-        <QuickActionButton href="/residents/new" icon="+" label={DASHBOARD_LABELS.actionNewResident} variant="primary" />
-        <QuickActionButton href="/housing/new" icon="+" label={DASHBOARD_LABELS.actionNewUnit} variant="primary" />
+        <QuickActionButton href="/residents/new" icon={<Plus className="w-4 h-4" />} label={DASHBOARD_LABELS.actionNewResident} variant="primary" />
+        <QuickActionButton href="/housing/new" icon={<Plus className="w-4 h-4" />} label={DASHBOARD_LABELS.actionNewUnit} variant="primary" />
         <QuickActionButton
           href="/matching"
-          icon="🔄"
+          icon={<RefreshCw className="w-4 h-4" />}
           label={DASHBOARD_LABELS.actionStartMatching}
           variant={showMatchingHighlight ? 'highlight' : 'secondary'}
           badge={showMatchingHighlight ? unplacedCount : undefined}
         />
-        <QuickActionButton href="/incidents/new" icon="📝" label={DASHBOARD_LABELS.actionReportIncident} variant="secondary" />
-        <QuickActionButton href="/maintenance/new" icon="🔧" label={DASHBOARD_LABELS.actionMaintenanceTicket} variant="secondary" />
+        <QuickActionButton href="/incidents/new" icon={<FileText className="w-4 h-4" />} label={DASHBOARD_LABELS.actionReportIncident} variant="secondary" />
+        <QuickActionButton href="/maintenance/new" icon={<Wrench className="w-4 h-4" />} label={DASHBOARD_LABELS.actionMaintenanceTicket} variant="secondary" />
       </div>
     </div>
   )
@@ -67,7 +69,7 @@ function QuickActionButton({
   badge,
 }: {
   href: string
-  icon: string
+  icon: ReactNode
   label: string
   variant?: 'primary' | 'secondary' | 'highlight'
   badge?: number

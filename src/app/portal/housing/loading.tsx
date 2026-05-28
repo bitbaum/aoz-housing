@@ -1,8 +1,10 @@
+import { SkeletonText } from '@/components/ui/Skeleton'
+
 export default function PortalHousingLoading() {
   return (
     <div className="animate-pulse space-y-6">
-      <div className="h-7 bg-ui-border rounded w-52" />
-      <div className="h-4 bg-ui-border rounded w-64" />
+      <SkeletonText className="h-7 w-52" />
+      <SkeletonText className="h-4 w-64" />
 
       {/* Housing unit cards */}
       <div className="space-y-4">
@@ -10,16 +12,16 @@ export default function PortalHousingLoading() {
           <div key={i} className="card p-5 space-y-3">
             <div className="flex items-start justify-between">
               <div className="space-y-1">
-                <div className="h-5 bg-ui-border rounded w-36" />
-                <div className="h-4 bg-ui-border rounded w-48" />
+                <SkeletonText className="h-5 w-36" />
+                <SkeletonText className="h-4 w-48" />
               </div>
-              <div className="h-6 bg-ui-border rounded-full w-20" />
+              <SkeletonText className="h-6 w-20 rounded-full" />
             </div>
             <div className="flex gap-4">
-              <div className="h-4 bg-ui-border rounded w-24" />
-              <div className="h-4 bg-ui-border rounded w-24" />
+              <SkeletonText className="h-4 w-24" />
+              <SkeletonText className="h-4 w-24" />
             </div>
-            <div className="h-11 bg-ui-border rounded w-32" />
+            <SkeletonText className="h-11 w-32" />
           </div>
         ))}
       </div>

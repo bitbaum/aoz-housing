@@ -1,14 +1,18 @@
+import { SkeletonText, SkeletonBox } from '@/components/ui/Skeleton'
+
 export default function PortalLoading() {
   return (
     <div className="animate-pulse space-y-6">
-      <div className="h-8 bg-ui-border rounded w-48" />
-      <div className="h-4 bg-ui-border rounded w-64" />
+      <SkeletonText className="h-8 w-48" />
+      <SkeletonText className="h-4 w-64" />
       <div className="card">
-        <div className="h-32 bg-ui-border rounded" />
+        <SkeletonBox className="h-32" />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {[1, 2, 3].map(i => (
-          <div key={i} className="card h-28 bg-ui-border rounded" />
+          <div key={i} className="card">
+            <SkeletonBox className="h-28" />
+          </div>
         ))}
       </div>
     </div>

@@ -287,7 +287,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
         <div className="flex items-center gap-4">
           {/* Resident */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
+            <div className="avatar">
               {placement.resident.code.slice(-3)}
             </div>
             <div>

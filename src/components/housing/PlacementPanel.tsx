@@ -156,7 +156,7 @@ function ResidentRow({
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium flex-shrink-0">
+          <div className="avatar flex-shrink-0">
             {resident.code.slice(-3)}
           </div>
           <div className="min-w-0">

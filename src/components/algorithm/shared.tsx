@@ -70,7 +70,7 @@ export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength
     gray: 'bg-ui-subtle text-ui-muted',
   }
   return (
-    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${colorClasses[config.color]}`}>
+    <span className={`chip ${colorClasses[config.color]}`}>
       {config.label}
     </span>
   )

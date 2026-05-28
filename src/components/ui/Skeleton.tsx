@@ -11,6 +11,21 @@ function Circle({ className = '' }: { className?: string }) {
   return <div className={`bg-ui-border rounded-full ${className}`} />
 }
 
+/** Generic skeleton box — for one-off shapes. Tailwind classes set size/shape. */
+export function SkeletonBox({ className = '' }: { className?: string }) {
+  return <Box className={className} />
+}
+
+/** Generic skeleton circle — for avatars/dots. */
+export function SkeletonCircle({ className = '' }: { className?: string }) {
+  return <Circle className={className} />
+}
+
+/** Single-line skeleton text bar — width defaults to full. */
+export function SkeletonText({ className = 'h-4 w-full' }: { className?: string }) {
+  return <Box className={className} />
+}
+
 /** Skeleton for a StatCard (used in all list page headers) */
 export function SkeletonStatCard() {
   return (

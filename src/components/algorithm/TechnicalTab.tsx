@@ -238,7 +238,7 @@ export function TechnicalTab() {
                     <h4 className="font-semibold text-ui-text">{TECHNICAL_TAB_LABELS.versionPrefix} {version.version}</h4>
                     <span className="text-xs text-ui-muted">{formatDate(version.date)}</span>
                     {versionIndex === 0 && (
-                      <span className="text-xs bg-aoz-primary/10 text-aoz-primary px-2 py-0.5 rounded-full font-medium">
+                      <span className="chip bg-aoz-primary/10 text-aoz-primary">
                         {TECHNICAL_TAB_LABELS.currentBadge}
                       </span>
                     )}

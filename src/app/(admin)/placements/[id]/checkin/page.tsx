@@ -217,7 +217,7 @@ export default async function NewCheckInPage({ params }: Props) {
           </div>
 
           {/* Staff Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">{CHECKIN_FORM_LABELS.collectedByLabel}</label>
               <input

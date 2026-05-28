@@ -164,7 +164,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
                 {INCIDENT_DETAIL_LABELS.scheduledTitle(formatDate(incident.nextFollowUpDate))}
               </p>
               {incident.followUpPriority && (
-                <span className={`text-xs px-2 py-0.5 rounded ${FOLLOW_UP_PRIORITY_COLORS[incident.followUpPriority]}`}>
+                <span className={`chip ${FOLLOW_UP_PRIORITY_COLORS[incident.followUpPriority]}`}>
                   {getLabel(FOLLOW_UP_PRIORITY_LABELS, incident.followUpPriority)}
                 </span>
               )}

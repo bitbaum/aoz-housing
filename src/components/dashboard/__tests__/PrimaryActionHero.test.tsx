@@ -216,24 +216,24 @@ describe('HeroAction', () => {
     expect(screen.getAllByText(/Sofort bearbeiten/).length).toBeGreaterThanOrEqual(1)
   })
 
-  it('renders the correct icon for type=critical (🚨)', () => {
-    render(<HeroAction action={makeAction({ type: 'critical' })} />)
-    expect(screen.getByText('🚨')).toBeInTheDocument()
+  it('renders the correct icon for type=critical (AlertTriangle)', () => {
+    const { container } = render(<HeroAction action={makeAction({ type: 'critical' })} />)
+    expect(container.querySelector('.lucide-triangle-alert')).toBeInTheDocument()
   })
 
-  it('renders the correct icon for type=checkin (👋)', () => {
-    render(<HeroAction action={makeAction({ type: 'checkin' })} />)
-    expect(screen.getByText('👋')).toBeInTheDocument()
+  it('renders the correct icon for type=checkin (Hand)', () => {
+    const { container } = render(<HeroAction action={makeAction({ type: 'checkin' })} />)
+    expect(container.querySelector('.lucide-hand')).toBeInTheDocument()
   })
 
-  it('renders the correct icon for type=place (🏠)', () => {
-    render(<HeroAction action={makeAction({ type: 'place' })} />)
-    expect(screen.getByText('🏠')).toBeInTheDocument()
+  it('renders the correct icon for type=place (Home)', () => {
+    const { container } = render(<HeroAction action={makeAction({ type: 'place' })} />)
+    expect(container.querySelector('.lucide-house')).toBeInTheDocument()
   })
 
-  it('renders the correct icon for type=allclear (✨)', () => {
-    render(<HeroAction action={makeAction({ type: 'allclear' })} />)
-    expect(screen.getByText('✨')).toBeInTheDocument()
+  it('renders the correct icon for type=allclear (Sparkles)', () => {
+    const { container } = render(<HeroAction action={makeAction({ type: 'allclear' })} />)
+    expect(container.querySelector('.lucide-sparkles')).toBeInTheDocument()
   })
 })
 

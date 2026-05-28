@@ -397,7 +397,7 @@ function ResidentCard({
   return (
     <div className="flex items-center justify-between p-4 bg-ui-subtle rounded-lg">
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 bg-aoz-primary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
+        <div className="avatar">
           {placement.resident.code.slice(-3)}
         </div>
         <div>

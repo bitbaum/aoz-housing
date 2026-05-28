@@ -47,12 +47,12 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-ui-text truncate">{task.title}</h3>
             {task.currentStatus !== 'IDLE' && (
-              <span className={`text-xs px-2 py-0.5 rounded-full ${statusColor}`}>
+              <span className={`chip ${statusColor}`}>
                 {statusLabel}
               </span>
             )}
             {task.priority === 'HIGH' || task.priority === 'URGENT' ? (
-              <span className={`text-xs px-2 py-0.5 rounded-full ${TASK_PRIORITY_COLORS[task.priority]}`}>
+              <span className={`chip ${TASK_PRIORITY_COLORS[task.priority]}`}>
                 {task.priority === 'URGENT' ? '!' : '↑'}
               </span>
             ) : null}

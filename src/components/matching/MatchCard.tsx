@@ -49,7 +49,7 @@ export function MatchCard({ match, resident, rank }: Props) {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             {rank && rank <= 3 && (
-              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${rank === 1 ? SCORE_TOKENS.excellent.soft : SCORE_TOKENS.good.soft}`}>
+              <span className={`chip font-semibold ${rank === 1 ? SCORE_TOKENS.excellent.soft : SCORE_TOKENS.good.soft}`}>
                 {rank === 1 ? MATCHING_LABELS.topRecommendation : MATCHING_LABELS.topRank(rank)}
               </span>
             )}

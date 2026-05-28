@@ -92,7 +92,7 @@ function HousingCard({ result }: { result: HousingResult }) {
           <p className="text-xs font-medium text-ui-muted mb-1">{L.strengths}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.strengths.map(s => (
-              <span key={s} className="px-2 py-0.5 bg-score-excellent/10 text-status-success-text rounded text-xs">
+              <span key={s} className="chip-success">
                 {s}
               </span>
             ))}
@@ -106,12 +106,12 @@ function HousingCard({ result }: { result: HousingResult }) {
           <p className="text-xs font-medium text-ui-muted mb-1">{L.concerns}</p>
           <div className="flex flex-wrap gap-1.5">
             {result.conflicts.map(c => (
-              <span key={c.message} className="px-2 py-0.5 bg-score-medium/10 text-status-warning-text rounded text-xs">
+              <span key={c.message} className="chip-warning">
                 {c.message}
               </span>
             ))}
             {result.concerns.map(c => (
-              <span key={c} className="px-2 py-0.5 bg-score-medium/10 text-status-warning-text rounded text-xs">
+              <span key={c} className="chip-warning">
                 {c}
               </span>
             ))}
@@ -124,7 +124,7 @@ function HousingCard({ result }: { result: HousingResult }) {
 
 function FeaturePill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="px-2 py-0.5 bg-ui-subtle text-ui-muted rounded text-xs">
+    <span className="chip-neutral">
       {children}
     </span>
   )
