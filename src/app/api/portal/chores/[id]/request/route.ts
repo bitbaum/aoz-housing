@@ -43,6 +43,25 @@ export async function POST(
       return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
     }
 
+    // Validate requestedResidentId is a roommate (same housing unit) — prevents
+    // targeting arbitrary residents elsewhere in the system.
+    if (requestedResidentId) {
+      const roommate = await prisma.placement.findFirst({
+        where: {
+          residentId: requestedResidentId,
+          housingUnitId: auth.placement.housingUnitId,
+          status: 'ACTIVE',
+        },
+        select: { residentId: true },
+      })
+      if (!roommate) {
+        return NextResponse.json(
+          { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+          { status: 400 }
+        )
+      }
+    }
+
     const isBroadcast = !requestedResidentId
 
     const taskRequest = await prisma.taskRequest.create({

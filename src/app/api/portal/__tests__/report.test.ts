@@ -19,6 +19,7 @@ jest.mock('next/headers', () => ({
 
 const mockFindUnique = jest.fn()
 const mockIncidentCreate = jest.fn()
+const mockPlacementFindFirst = jest.fn()
 jest.mock('@/lib/db', () => ({
   prisma: {
     resident: {
@@ -26,6 +27,9 @@ jest.mock('@/lib/db', () => ({
     },
     incident: {
       create: (...args: unknown[]) => mockIncidentCreate(...args),
+    },
+    placement: {
+      findFirst: (...args: unknown[]) => mockPlacementFindFirst(...args),
     },
   },
 }))
@@ -257,9 +261,11 @@ describe('POST /api/portal/report', () => {
     expect(createCall.data.subjectId).toBeNull()
   })
 
-  test('sets subjectId when involvedResident is a real resident ID', async () => {
+  test('sets subjectId when involvedResident is a roommate in the same unit', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    // Validation lookup: res-99 IS in the same unit, so insert proceeds.
+    mockPlacementFindFirst.mockResolvedValue({ residentId: 'res-99' })
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
@@ -276,6 +282,28 @@ describe('POST /api/portal/report', () => {
 
     const createCall = mockIncidentCreate.mock.calls[0][0]
     expect(createCall.data.subjectId).toBe('res-99')
+  })
+
+  test('rejects involvedResident that does not live in the same unit', async () => {
+    mockCookieGet.mockReturnValue({ value: 'RES-001' })
+    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    // Validation lookup: stranger NOT in this unit → null.
+    mockPlacementFindFirst.mockResolvedValue(null)
+    mockValidateFormData.mockReturnValue({
+      category: 'INTERPERSONAL',
+      type: 'PERSONAL_CONFLICT',
+      severity: 'MEDIUM',
+      description: 'Streit',
+      involvedResident: 'res-strange',
+      requestMediation: false,
+      incidentDate: null,
+    })
+
+    const req = createFormDataRequest({ description: 'Streit' })
+    const res = await POST(req)
+
+    expect(res.status).toBe(400)
+    expect(mockIncidentCreate).not.toHaveBeenCalled()
   })
 
   test('uses provided incidentDate when present', async () => {

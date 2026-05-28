@@ -2,16 +2,43 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// Lazy-init so a missing ANTHROPIC_API_KEY in dev doesn't crash module-load.
+let _client: Anthropic | null = null
+function getAnthropic(): Anthropic {
+  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  return _client
+}
+
+/** Server-side cap on per-tool result size, regardless of what the LLM asks for. */
+const MAX_TOOL_LIMIT = 25
 
 const requestSchema = z.object({
   messages: z.array(z.object({
     role: z.enum(['user', 'assistant']),
-    content: z.string(),
-  })),
+    content: z.string().max(8000),
+  })).max(40),
+})
+
+// Per-tool input schemas. The LLM can produce any JSON; we validate at the
+// boundary before touching Prisma, preventing prompt-injection from steering
+// queries with unbounded strings or invalid enum values.
+const searchResidentsInputSchema = z.object({
+  code: z.string().max(50).optional(),
+  status: z.enum(['ACTIVE', 'PLACED', 'TRANSFERRED', 'EXITED']).optional(),
+  limit: z.number().int().positive().max(MAX_TOOL_LIMIT).optional(),
+})
+const housingUnitsInputSchema = z.object({
+  hasCapacity: z.boolean().optional(),
+  limit: z.number().int().positive().max(MAX_TOOL_LIMIT).optional(),
+})
+const recentIncidentsInputSchema = z.object({
+  category: z.enum(['INTERPERSONAL', 'MAINTENANCE', 'SAFETY', 'WELLBEING']).optional(),
+  unresolved: z.boolean().optional(),
+  limit: z.number().int().positive().max(MAX_TOOL_LIMIT).optional(),
 })
 
 const SYSTEM_PROMPT = `Du bist ein KI-Assistent für das AOZ (Asylorganisation Zürich) Wohnungsmanagementsystem.
@@ -87,16 +114,7 @@ const tools: Anthropic.Tool[] = [
   },
 ]
 
-type ToolInput = {
-  code?: string
-  status?: string
-  limit?: number
-  hasCapacity?: boolean
-  category?: string
-  unresolved?: boolean
-}
-
-async function executeTool(name: string, input: ToolInput): Promise<unknown> {
+async function executeTool(name: string, rawInput: unknown): Promise<unknown> {
   switch (name) {
     case 'get_dashboard_stats': {
       const [totalResidents, activePlacements, totalUnits, openIncidents, pendingTransfers] = await Promise.all([
@@ -117,6 +135,10 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
     }
 
     case 'search_residents': {
+      const parsed = searchResidentsInputSchema.safeParse(rawInput)
+      if (!parsed.success) return { error: 'Ungültige Eingabe' }
+      const input = parsed.data
+
       const where: Record<string, unknown> = {}
       if (input.code) where.code = { contains: input.code.toUpperCase() }
       if (input.status) where.status = input.status
@@ -133,7 +155,7 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
             take: 1,
           },
         },
-        take: input.limit ?? 10,
+        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
         orderBy: { createdAt: 'desc' },
       })
       return residents.map(r => ({
@@ -146,6 +168,10 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
     }
 
     case 'get_housing_units': {
+      const parsed = housingUnitsInputSchema.safeParse(rawInput)
+      if (!parsed.success) return { error: 'Ungültige Eingabe' }
+      const input = parsed.data
+
       const units = await prisma.housingUnit.findMany({
         select: {
           code: true,
@@ -155,7 +181,7 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
           incidents: { where: { resolvedAt: null }, select: { id: true } },
           maintenanceRequests: { where: { status: { in: ['OPEN', 'IN_PROGRESS'] } }, select: { id: true } },
         },
-        take: input.limit ?? 10,
+        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
         orderBy: { code: 'asc' },
       })
       const result = units.map(u => ({
@@ -171,6 +197,10 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
     }
 
     case 'get_recent_incidents': {
+      const parsed = recentIncidentsInputSchema.safeParse(rawInput)
+      if (!parsed.success) return { error: 'Ungültige Eingabe' }
+      const input = parsed.data
+
       const where: Record<string, unknown> = {}
       if (input.category) where.category = input.category
       if (input.unresolved) where.resolvedAt = null
@@ -181,19 +211,20 @@ async function executeTool(name: string, input: ToolInput): Promise<unknown> {
           type: true,
           category: true,
           severity: true,
-          description: true,
           date: true,
           resolvedAt: true,
-          housingUnit: { select: { code: true, address: true } },
+          housingUnit: { select: { code: true } },
         },
         orderBy: { date: 'desc' },
-        take: input.limit ?? 10,
+        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
       })
+      // NOTE: we deliberately drop `description` and the unit `address` from the
+      // response so the LLM can't be coaxed into reading free-text PII or
+      // exposing exact resident locations.
       return incidents.map(i => ({
         type: i.type,
         category: i.category,
         severity: i.severity,
-        description: i.description.slice(0, 150),
         date: i.date.toISOString().split('T')[0],
         resolved: !!i.resolvedAt,
         unit: i.housingUnit?.code ?? null,
@@ -213,6 +244,16 @@ export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
+  }
+
+  // Throttle per user: the endpoint streams to Anthropic with up to 5 tool
+  // iterations × 8192 tokens. Unbounded calls are an abuse / billing risk.
+  const rateCheck = checkRateLimit(`ai-chat:${user.id}`)
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: `Zu viele Anfragen. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.` },
+      { status: 429 }
+    )
   }
 
   let body: unknown
@@ -244,7 +285,7 @@ export async function POST(request: Request) {
         while (iterations < MAX_ITERATIONS) {
           iterations++
 
-          const sdkStream = client.messages.stream({
+          const sdkStream = getAnthropic().messages.stream({
             model: 'claude-opus-4-7',
             max_tokens: 8192,
             thinking: { type: 'adaptive' },
@@ -272,7 +313,7 @@ export async function POST(request: Request) {
           const toolResults: Anthropic.ToolResultBlockParam[] = []
           for (const block of finalMessage.content) {
             if (block.type === 'tool_use') {
-              const result = await executeTool(block.name, block.input as ToolInput)
+              const result = await executeTool(block.name, block.input)
               toolResults.push({
                 type: 'tool_result',
                 tool_use_id: block.id,

@@ -29,6 +29,8 @@ export default async function PortalLayout({
 
   return (
     <div className="min-h-screen bg-ui-canvas text-ui-text flex flex-col">
+      <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
+
       {/* Header with responsive navigation */}
       <header className="bg-ui-surface/95 backdrop-blur-sm border-b border-ui-border sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
@@ -37,7 +39,7 @@ export default async function PortalLayout({
       </header>
 
       {/* Main content */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
+      <main id="portal-main" className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
         {children}
       </main>
 

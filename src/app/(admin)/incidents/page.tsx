@@ -42,7 +42,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
     ...(statusFilter === 'resolved' ? { resolvedAt: { not: null } } : {}),
   }
 
-  const [incidents, allIncidents] = await Promise.all([
+  const [incidents, categoryGroups, openCategoryGroups, criticalOpenCount] = await Promise.all([
     prisma.incident.findMany({
       where: Object.keys(where).length > 0 ? where : undefined,
       select: {
@@ -72,26 +72,41 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       orderBy: { date: 'desc' },
       take: QUERY_LIMITS.pageList,
     }),
-    // Unfiltered for tab counts
-    prisma.incident.findMany({
-      select: { category: true, severity: true, resolvedAt: true },
+    // Total counts per category (single query instead of fetching all rows)
+    prisma.incident.groupBy({
+      by: ['category'],
+      _count: { _all: true },
+    }),
+    // Open (resolvedAt = null) counts per category
+    prisma.incident.groupBy({
+      by: ['category'],
+      where: { resolvedAt: null },
+      _count: { _all: true },
+    }),
+    // Count of critical, still-open incidents
+    prisma.incident.count({
+      where: { severity: 'CRITICAL', resolvedAt: null },
     }),
   ])
 
-  const openOnly = (cat?: string) =>
-    allIncidents.filter((i) => !i.resolvedAt && (!cat || i.category === cat)).length
+  const categoryCounts = categoryGroups.reduce<Record<string, number>>((acc, g) => {
+    acc[g.category] = g._count._all
+    return acc
+  }, {})
+  const openCategoryCounts = openCategoryGroups.reduce<Record<string, number>>((acc, g) => {
+    acc[g.category] = g._count._all
+    return acc
+  }, {})
 
   const stats = {
-    total: allIncidents.length,
-    open: openOnly(),
-    interpersonal: allIncidents.filter((i) => i.category === 'INTERPERSONAL').length,
-    openInterpersonal: openOnly('INTERPERSONAL'),
-    maintenance: allIncidents.filter((i) => i.category === 'MAINTENANCE').length,
-    safety: allIncidents.filter((i) => i.category === 'SAFETY').length,
-    openSafety: openOnly('SAFETY'),
-    critical: allIncidents.filter(
-      (i) => i.severity === 'CRITICAL' && !i.resolvedAt
-    ).length,
+    total: categoryGroups.reduce((sum, g) => sum + g._count._all, 0),
+    open: openCategoryGroups.reduce((sum, g) => sum + g._count._all, 0),
+    interpersonal: categoryCounts.INTERPERSONAL ?? 0,
+    openInterpersonal: openCategoryCounts.INTERPERSONAL ?? 0,
+    maintenance: categoryCounts.MAINTENANCE ?? 0,
+    safety: categoryCounts.SAFETY ?? 0,
+    openSafety: openCategoryCounts.SAFETY ?? 0,
+    critical: criticalOpenCount,
   }
 
   // Tab counts reflect the active status filter

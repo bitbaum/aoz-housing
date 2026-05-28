@@ -22,7 +22,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
 
-  const [residents, allResidents] = await Promise.all([
+  const [residents, statusGroups, unplacedCount] = await Promise.all([
     prisma.resident.findMany({
       where: {
         ...(view === 'active' ? { status: { in: ['ACTIVE', 'PLACED'] } } : view === 'archived' ? { status: 'EXITED' } : {}),
@@ -57,25 +57,31 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       },
       orderBy: { createdAt: 'desc' },
     }),
-    prisma.resident.findMany({
-      select: {
-        status: true,
-        placements: {
-          where: { status: 'ACTIVE' },
-          select: { id: true },
-        },
+    // Aggregate tab counts by status (single query instead of fetching all rows)
+    prisma.resident.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    }),
+    // Count of ACTIVE residents with no active placement (separate query — groupBy can't express this)
+    prisma.resident.count({
+      where: {
+        status: 'ACTIVE',
+        placements: { none: { status: 'ACTIVE' } },
       },
     }),
   ])
 
+  const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
+    acc[g.status] = g._count._all
+    return acc
+  }, {})
+
   const stats = {
-    total: allResidents.length,
-    active: allResidents.filter((r) => r.status === 'ACTIVE').length,
-    placed: allResidents.filter((r) => r.status === 'PLACED').length,
-    archived: allResidents.filter((r) => r.status === 'EXITED').length,
-    unplaced: allResidents.filter(
-      (r) => r.status === 'ACTIVE' && r.placements.length === 0
-    ).length,
+    total: statusGroups.reduce((sum, g) => sum + g._count._all, 0),
+    active: statusCounts.ACTIVE ?? 0,
+    placed: statusCounts.PLACED ?? 0,
+    archived: statusCounts.EXITED ?? 0,
+    unplaced: unplacedCount,
     visible: residents.length,
   }
 

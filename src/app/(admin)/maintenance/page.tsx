@@ -40,7 +40,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
     whereClause.status = statusFilter as MaintenanceStatus
   }
 
-  const [requests, allRequests] = await Promise.all([
+  const [requests, statusGroups, urgentActiveCount] = await Promise.all([
     prisma.maintenanceRequest.findMany({
       where: whereClause,
       select: {
@@ -68,25 +68,37 @@ export default async function MaintenancePage({ searchParams }: Props) {
       orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
       take: QUERY_LIMITS.pageList,
     }),
-    // Unfiltered for tab counts
-    prisma.maintenanceRequest.findMany({
-      select: { status: true, priority: true },
+    // Aggregate tab counts by status (single query instead of fetching all rows)
+    prisma.maintenanceRequest.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    }),
+    // Urgent + still-active requests (separate query — combines priority + status NOT IN)
+    prisma.maintenanceRequest.count({
+      where: {
+        priority: 'URGENT',
+        status: { notIn: ['COMPLETED', 'CANCELLED'] },
+      },
     }),
   ])
 
+  const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
+    acc[g.status] = g._count._all
+    return acc
+  }, {})
+  const totalRequests = statusGroups.reduce((sum, g) => sum + g._count._all, 0)
+  const activeCount =
+    totalRequests - (statusCounts.COMPLETED ?? 0) - (statusCounts.CANCELLED ?? 0)
+
   const stats = {
-    total: allRequests.length,
-    open: allRequests.filter((r) => r.status === 'OPEN').length,
-    assigned: allRequests.filter((r) => r.status === 'ASSIGNED').length,
-    inProgress: allRequests.filter((r) => r.status === 'IN_PROGRESS').length,
-    onHold: allRequests.filter((r) => r.status === 'ON_HOLD').length,
-    completed: allRequests.filter((r) => r.status === 'COMPLETED').length,
-    urgent: allRequests.filter(
-      (r) => r.priority === 'URGENT' && !['COMPLETED', 'CANCELLED'].includes(r.status)
-    ).length,
-    active: allRequests.filter(
-      (r) => !['COMPLETED', 'CANCELLED'].includes(r.status)
-    ).length,
+    total: totalRequests,
+    open: statusCounts.OPEN ?? 0,
+    assigned: statusCounts.ASSIGNED ?? 0,
+    inProgress: statusCounts.IN_PROGRESS ?? 0,
+    onHold: statusCounts.ON_HOLD ?? 0,
+    completed: statusCounts.COMPLETED ?? 0,
+    urgent: urgentActiveCount,
+    active: activeCount,
   }
 
   return (
@@ -126,7 +138,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border">
+        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
           <TabLink
             href="/maintenance?status=active"
             label={UI_LABELS.active}
@@ -205,7 +217,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
 
   return (
     <div className="card p-4">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex items-start gap-4">
           <span className="text-2xl">{categoryIcon}</span>
           <div>
@@ -268,16 +280,16 @@ function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'statu
   return (
     <div className="flex items-center gap-2">
       {request.status === 'OPEN' && (
-        <form action={assignMaintenanceRequest}>
+        <form action={assignMaintenanceRequest} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <input type="hidden" name="requestId" value={request.id} />
           <input
             type="text"
             name="assignedTo"
             placeholder={MAINTENANCE_PAGE_LABELS.assignPlaceholder}
-            className="input text-sm w-32"
+            className="input text-sm flex-1 sm:flex-initial sm:w-32"
             required
           />
-          <button type="submit" className="btn-outline text-sm ml-2">
+          <button type="submit" className="btn-outline text-sm">
             {MAINTENANCE_PAGE_LABELS.assignBtn}
           </button>
         </form>

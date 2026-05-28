@@ -229,7 +229,7 @@ export function ReportForm({ roommates }: Props) {
           )}
 
           {error && (
-            <div className="mb-4 alert-error">
+            <div className="mb-4 alert-error" role="alert" aria-live="polite">
               {error}
             </div>
           )}

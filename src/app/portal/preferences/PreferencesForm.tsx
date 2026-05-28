@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
@@ -74,7 +74,28 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
   const [isDirty, setIsDirty] = useState(false)
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
+  const discardPanelRef = useRef<HTMLDivElement>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    if (!showDiscardConfirm) return
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+    discardPanelRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setShowDiscardConfirm(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocusedRef.current?.focus?.()
+    }
+  }, [showDiscardConfirm])
 
   const handleCancel = () => {
     if (isDirty) {
@@ -136,8 +157,15 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       {/* Discard confirmation overlay */}
       {showDiscardConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-ui-surface rounded-lg w-full max-w-sm p-6 space-y-4">
-            <h3 className="font-semibold text-ui-text">{P.confirmDiscard}</h3>
+          <div
+            ref={discardPanelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="discard-title"
+            tabIndex={-1}
+            className="bg-ui-surface rounded-lg w-full max-w-sm p-6 space-y-4 focus:outline-none"
+          >
+            <h3 id="discard-title" className="font-semibold text-ui-text">{P.confirmDiscard}</h3>
             <p className="text-sm text-ui-muted">{P.confirmDiscardBody}</p>
             <div className="flex gap-3 justify-end">
               <button
@@ -160,7 +188,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       )}
 
       {error && (
-        <div className="mb-4 alert-error">
+        <div className="mb-4 alert-error" role="alert" aria-live="polite">
           {error}
         </div>
       )}

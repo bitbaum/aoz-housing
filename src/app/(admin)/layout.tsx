@@ -33,6 +33,8 @@ export default async function AdminLayout({
 
   return (
     <>
+      <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
+
       {/* Top Header Bar */}
       <header className="hidden md:flex items-center bg-ui-canvas text-ui-text border-b border-ui-border z-50">
         <div className="max-w-screen-2xl mx-auto px-6 py-3 w-full">
@@ -82,7 +84,7 @@ export default async function AdminLayout({
         <MobileNav />
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col">
+        <main id="admin-main" className="flex-1 flex flex-col">
           <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
             {children}
           </div>

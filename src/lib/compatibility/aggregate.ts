@@ -140,7 +140,7 @@ export function calculateApartmentFit(
       conflicts.push({
         attribute: 'cleanlinessLevel',
         severity: 'HIGH',
-        message: `Große Sauberkeitsdifferenz: Person ${newResident.cleanlinessLevel}/5, Wohnung Ø ${apartmentProfile.avgCleanlinessLevel.toFixed(1)}/5`,
+        message: `Grosse Sauberkeitsdifferenz: Person ${newResident.cleanlinessLevel}/5, Wohnung Ø ${apartmentProfile.avgCleanlinessLevel.toFixed(1)}/5`,
         residentValue: newResident.cleanlinessLevel,
         apartmentAverage: apartmentProfile.avgCleanlinessLevel,
       })
@@ -165,7 +165,7 @@ export function calculateApartmentFit(
       conflicts.push({
         attribute: 'noiseTolerance',
         severity: 'HIGH',
-        message: `Große Lärmtoleranz-Differenz: Person ${newResident.noiseTolerance}/5, Wohnung Ø ${apartmentProfile.avgNoiseTolerance.toFixed(1)}/5`,
+        message: `Grosse Lärmtoleranz-Differenz: Person ${newResident.noiseTolerance}/5, Wohnung Ø ${apartmentProfile.avgNoiseTolerance.toFixed(1)}/5`,
         residentValue: newResident.noiseTolerance,
         apartmentAverage: apartmentProfile.avgNoiseTolerance,
       })

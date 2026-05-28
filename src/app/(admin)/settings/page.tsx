@@ -43,7 +43,7 @@ export default async function SettingsPage() {
         </p>
 
         {!emailEnabled && (
-          <div className="mb-4 alert-warning">
+          <div className="mb-4 alert-warning" role="alert" aria-live="polite">
             {SETTINGS_LABELS.emailWarning}
           </div>
         )}

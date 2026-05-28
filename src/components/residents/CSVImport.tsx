@@ -87,7 +87,7 @@ export function CSVImport() {
       </div>
 
       {error && (
-        <div className="alert-error">
+        <div className="alert-error" role="alert" aria-live="polite">
           {error}
         </div>
       )}

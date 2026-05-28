@@ -109,7 +109,7 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
       )}
 
       {error && (
-        <div className="alert-error">
+        <div className="alert-error" role="alert" aria-live="polite">
           {error}
         </div>
       )}

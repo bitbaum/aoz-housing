@@ -103,7 +103,9 @@ export async function POST(request: NextRequest) {
         { status: 409 }
       )
     }
-    logger.errorWithCause('Failed to create staff user', error, { code })
+    // Don't log the freshly-minted login code — it would leak working
+    // credentials into Vercel/error-tracking dashboards.
+    logger.errorWithCause('Failed to create staff user', error)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
       { status: 500 }

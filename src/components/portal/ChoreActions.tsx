@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
@@ -23,6 +23,29 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const modalPanelRef = useRef<HTMLDivElement>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
+
+  const closeModal = () => setActiveModal(null)
+
+  useEffect(() => {
+    if (!activeModal) return
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+    modalPanelRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        closeModal()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previouslyFocusedRef.current?.focus?.()
+    }
+  }, [activeModal])
 
   async function submitChoreAction(
     endpoint: string,
@@ -122,16 +145,23 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
       {/* Modal forms */}
       {activeModal && (
         <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-ui-surface rounded-t-xl sm:rounded-lg w-full max-w-md max-h-[80vh] overflow-y-auto p-6">
+          <div
+            ref={modalPanelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chore-modal-title"
+            tabIndex={-1}
+            className="bg-ui-surface rounded-t-xl sm:rounded-lg w-full max-w-md max-h-[80vh] overflow-y-auto p-6 focus:outline-none"
+          >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-ui-text">
+              <h3 id="chore-modal-title" className="font-semibold text-ui-text">
                 {activeModal === 'complete' && CHORE_LABELS.complete.title}
                 {activeModal === 'request' && CHORE_LABELS.request.title}
                 {activeModal === 'attention' && CHORE_LABELS.attention.title}
                 {activeModal === 'complaint' && CHORE_LABELS.complaint.title}
               </h3>
               <button
-                onClick={() => setActiveModal(null)}
+                onClick={closeModal}
                 className="btn-icon"
                 aria-label="Schliessen"
               >

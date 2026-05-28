@@ -22,8 +22,12 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
-  prisma: {
+jest.mock('@/lib/db', () => {
+  const prismaMock: {
+    placement: { findUnique: jest.Mock; update: jest.Mock }
+    satisfactionCheckIn: { create: jest.Mock; findMany: jest.Mock }
+    $transaction: jest.Mock
+  } = {
     placement: {
       findUnique: jest.fn(),
       update: jest.fn(),
@@ -32,8 +36,12 @@ jest.mock('@/lib/db', () => ({
       create: jest.fn(),
       findMany: jest.fn(),
     },
-  },
-}))
+    // $transaction(callback) invokes the callback with the same mock client
+    // so individual model mocks (create, update) continue to be observed.
+    $transaction: jest.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+  }
+  return { prisma: prismaMock }
+})
 
 jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),

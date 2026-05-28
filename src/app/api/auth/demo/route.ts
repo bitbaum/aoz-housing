@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
+import { checkRateLimit } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { setResidentCookie } from '@/lib/portal-auth'
 
@@ -24,6 +25,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Production safety: never hand out a full-privilege ADMIN demo session
+    // in production, regardless of DEMO_ACCESS_ENABLED. Resident demo is fine
+    // (read-only data scoped to that resident).
+    if (process.env.NODE_ENV === 'production' && role === 'staff') {
+      return NextResponse.json(
+        { success: false, error: 'Demo-Zugang ist nicht konfiguriert' },
+        { status: 404 }
+      )
+    }
+
     const code = getDemoCode(role)
     if (!code) {
       return NextResponse.json(
@@ -35,6 +46,16 @@ export async function POST(request: NextRequest) {
     const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || request.headers.get('x-real-ip')
       || 'demo'
+
+    // Throttle: the demo endpoint issues real sessions; rate-limit per IP.
+    const rateCheck = checkRateLimit(clientIp)
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        { success: false, error: `Zu viele Versuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.` },
+        { status: 429 }
+      )
+    }
+
     const result = await loginByCode(code.trim().toUpperCase(), clientIp)
 
     if (!result.success) {

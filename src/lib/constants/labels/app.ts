@@ -53,7 +53,7 @@ export const EMPTY_STATE_LABELS = {
 export const FORM_LABELS: Record<string, string> = {
   save: 'Speichern',
   cancel: 'Abbrechen',
-  create: 'Anlegen',
+  create: 'Erstellen',
   edit: 'Bearbeiten',
   delete: 'Löschen',
   search: 'Suchen',

@@ -6,6 +6,44 @@
   h1, h2, h3, h4 {
     letter-spacing: 0;
   }
+
+  /* Global visible focus indicator — safety net for any interactive element
+     that isn't using the project's .btn-*/.input/.btn-icon focus rings. */
+  *:focus-visible {
+    outline: 2px solid rgb(var(--color-aoz-primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Respect prefers-reduced-motion across the entire app (WCAG 2.3.3). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip-to-content link — visible only when focused via keyboard. */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.5rem 0.75rem;
+  background: rgb(var(--color-aoz-primary));
+  color: rgb(var(--color-ui-on-accent));
+  border-radius: 0 0 6px 0;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.15s ease;
+  z-index: 100;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: none;
 }
 
 :root {

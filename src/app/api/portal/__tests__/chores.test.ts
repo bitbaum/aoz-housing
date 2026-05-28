@@ -57,6 +57,7 @@ jest.mock('@/lib/db', () => ({
     },
     placement: {
       findMany: (...args: unknown[]) => mockFindMany(...args),
+      findFirst: (...args: unknown[]) => mockFindFirst(...args),
     },
     incident: {
       create: (...args: unknown[]) => mockIncidentCreate(...args),

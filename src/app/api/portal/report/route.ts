@@ -59,12 +59,33 @@ export async function POST(request: NextRequest) {
     fullDescription += '\n\n[Bewohner wünscht Vermittlungsgespräch]'
   }
 
+  // Validate `involvedResident` belongs to the same housing unit — prevents
+  // residents from naming anyone in the system as an incident subject.
+  let validatedSubjectId: string | null = null
+  if (data.involvedResident && data.involvedResident !== 'external' && data.involvedResident !== 'anonymous') {
+    const candidate = await prisma.placement.findFirst({
+      where: {
+        residentId: data.involvedResident,
+        housingUnitId: placement.housingUnitId,
+        status: 'ACTIVE',
+      },
+      select: { residentId: true },
+    })
+    if (!candidate) {
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 }
+      )
+    }
+    validatedSubjectId = candidate.residentId
+  }
+
   try {
     const incident = await prisma.incident.create({
       data: {
         housingUnitId: placement.housingUnitId,
         reportedById: resident.id,
-        subjectId: data.involvedResident && data.involvedResident !== 'external' ? data.involvedResident : null,
+        subjectId: validatedSubjectId,
         category: data.category,
         type: data.type,
         severity: data.severity,
@@ -82,7 +103,7 @@ export async function POST(request: NextRequest) {
         type: data.type,
         severity: data.severity,
         reportedBy: residentCode,
-        subjectId: data.involvedResident && data.involvedResident !== 'external' ? data.involvedResident : null,
+        subjectId: validatedSubjectId,
         description: fullDescription.slice(0, 200),
         requestedMediation: data.requestMediation,
       },

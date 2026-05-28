@@ -28,6 +28,7 @@ async function verifyStaffToken(token: string): Promise<{ valid: boolean; should
     const secret = new TextEncoder().encode(SESSION_SECRET)
     const { payload } = await jwtVerify(token, secret, {
       issuer: JWT_ISSUER,
+      algorithms: ['HS256'],
     })
 
     const now = Math.floor(Date.now() / 1000)

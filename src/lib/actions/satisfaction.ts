@@ -30,29 +30,35 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
     // Calculate week number since placement start
     const weeksSinceStart = weeksBetween(placement.startDate)
 
-    const checkIn = await prisma.satisfactionCheckIn.create({
-      data: {
-        placementId: data.placementId,
-        checkInType: data.checkInType,
-        weekNumber: data.weekNumber ?? weeksSinceStart,
-        overallSatisfaction: data.overallSatisfaction,
-        roommateRelations: data.roommateRelations,
-        facilitySatisfaction: data.facilitySatisfaction,
-        safetyFeeling: data.safetyFeeling,
-        concerns: data.concerns || null,
-        improvements: data.improvements || null,
-        positives: data.positives || null,
-        collectedBy: data.collectedBy || null,
-        isAnonymous: data.isAnonymous ?? false,
-      },
-    })
+    // Wrap both writes in a transaction so a partial failure can't leave
+    // the placement's cached rating out of sync with its check-in history.
+    const checkIn = await prisma.$transaction(async (tx) => {
+      const created = await tx.satisfactionCheckIn.create({
+        data: {
+          placementId: data.placementId,
+          checkInType: data.checkInType,
+          weekNumber: data.weekNumber ?? weeksSinceStart,
+          overallSatisfaction: data.overallSatisfaction,
+          roommateRelations: data.roommateRelations,
+          facilitySatisfaction: data.facilitySatisfaction,
+          safetyFeeling: data.safetyFeeling,
+          concerns: data.concerns || null,
+          improvements: data.improvements || null,
+          positives: data.positives || null,
+          collectedBy: data.collectedBy || null,
+          isAnonymous: data.isAnonymous ?? false,
+        },
+      })
 
-    // Update placement satisfaction rating with latest overall
-    await prisma.placement.update({
-      where: { id: data.placementId },
-      data: {
-        satisfactionRating: data.overallSatisfaction,
-      },
+      // Update placement satisfaction rating with latest overall
+      await tx.placement.update({
+        where: { id: data.placementId },
+        data: {
+          satisfactionRating: data.overallSatisfaction,
+        },
+      })
+
+      return created
     })
 
     await logAudit({
@@ -113,30 +119,36 @@ export async function createQuickCheckIn(
       return { success: false, error: ERROR_MESSAGES.INVALID_SATISFACTION_VALUE }
     }
 
-    const checkIn = await prisma.satisfactionCheckIn.create({
-      data: {
-        placementId: input.placementId,
-        checkInType: input.checkInType,
-        weekNumber: input.weekNumber,
-        overallSatisfaction: input.overallSatisfaction,
-        roommateRelations: input.roommateRelations ?? null,
-        concerns: input.concerns || null,
-        // Quick check-ins don't collect these - use full form for detailed data
-        facilitySatisfaction: null,
-        safetyFeeling: null,
-        improvements: null,
-        positives: null,
-        collectedBy: null,
-        isAnonymous: false,
-      },
-    })
+    // Wrap both writes in a transaction so a partial failure can't leave
+    // the placement's cached rating out of sync with its check-in history.
+    const checkIn = await prisma.$transaction(async (tx) => {
+      const created = await tx.satisfactionCheckIn.create({
+        data: {
+          placementId: input.placementId,
+          checkInType: input.checkInType,
+          weekNumber: input.weekNumber,
+          overallSatisfaction: input.overallSatisfaction,
+          roommateRelations: input.roommateRelations ?? null,
+          concerns: input.concerns || null,
+          // Quick check-ins don't collect these - use full form for detailed data
+          facilitySatisfaction: null,
+          safetyFeeling: null,
+          improvements: null,
+          positives: null,
+          collectedBy: null,
+          isAnonymous: false,
+        },
+      })
 
-    // Update placement satisfaction rating with latest overall
-    await prisma.placement.update({
-      where: { id: input.placementId },
-      data: {
-        satisfactionRating: input.overallSatisfaction,
-      },
+      // Update placement satisfaction rating with latest overall
+      await tx.placement.update({
+        where: { id: input.placementId },
+        data: {
+          satisfactionRating: input.overallSatisfaction,
+        },
+      })
+
+      return created
     })
 
     await logAudit({

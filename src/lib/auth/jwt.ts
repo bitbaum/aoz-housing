@@ -41,6 +41,7 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
 
     const { payload } = await jwtVerify(token, secret, {
       issuer: AUTH_CONFIG.jwt.issuer,
+      algorithms: [AUTH_CONFIG.jwt.algorithm],
     })
 
     // Validate required fields (email may be empty string for code-only users)

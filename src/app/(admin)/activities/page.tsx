@@ -13,8 +13,9 @@ import {
   type ActivityStatus,
 } from '@/lib/config/activities'
 import { countActivities, listActivities } from '@/lib/data/activities'
+import { ACTIVITIES_ADMIN_LABELS } from '@/lib/constants'
 
-export const metadata: Metadata = { title: 'Aktivitäten' }
+export const metadata: Metadata = { title: ACTIVITIES_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
 
 type Props = {
@@ -36,24 +37,24 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
   return (
     <PageShell>
       <PageHeader
-        title="Aktivitäten"
-        description="Admin-gepflegte Angebote für das Bewohnerportal."
+        title={ACTIVITIES_ADMIN_LABELS.pageTitle}
+        description={ACTIVITIES_ADMIN_LABELS.pageDescription}
         actions={
           <ButtonLink href="/activities/new">
-          Aktivität
+          {ACTIVITIES_ADMIN_LABELS.newAction}
           </ButtonLink>
         }
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Gesamt" value={total} />
-        <StatCard label="Live" value={published} trend={published > 0 ? 'good' : undefined} />
-        <StatCard label="Entwürfe" value={drafts} />
-        <StatCard label="Hervorgehoben" value={highlighted} />
+        <StatCard label={ACTIVITIES_ADMIN_LABELS.statTotal} value={total} />
+        <StatCard label={ACTIVITIES_ADMIN_LABELS.statLive} value={published} trend={published > 0 ? 'good' : undefined} />
+        <StatCard label={ACTIVITIES_ADMIN_LABELS.statDrafts} value={drafts} />
+        <StatCard label={ACTIVITIES_ADMIN_LABELS.statHighlighted} value={highlighted} />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <FilterLink href="/activities" active={!statusFilter}>Alle</FilterLink>
+        <FilterLink href="/activities" active={!statusFilter}>{ACTIVITIES_ADMIN_LABELS.all}</FilterLink>
         {Object.entries(ACTIVITY_STATUS_LABELS).map(([value, label]) => (
           <FilterLink key={value} href={`/activities?status=${value}`} active={statusFilter === value}>
             {label}
@@ -63,10 +64,10 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
 
       {activities.length === 0 ? (
         <EmptyState
-          title="Keine Aktivitäten vorhanden."
+          title={ACTIVITIES_ADMIN_LABELS.emptyTitle}
           action={
             <ButtonLink href="/activities/new" variant="outline">
-              Erste Aktivität erstellen
+              {ACTIVITIES_ADMIN_LABELS.emptyAction}
             </ButtonLink>
           }
         />
@@ -87,7 +88,7 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
                         <span className={`badge ${ACTIVITY_STATUS_BADGES[activity.status]}`}>
                           {ACTIVITY_STATUS_LABELS[activity.status]}
                         </span>
-                        {activity.highlight ? <span className="badge badge-info">Portal</span> : null}
+                        {activity.highlight ? <span className="badge badge-info">{ACTIVITIES_ADMIN_LABELS.portalBadge}</span> : null}
                       </div>
                       <p className="mt-1 line-clamp-2 text-sm text-ui-muted">{activity.description}</p>
                       <div className="mt-2 flex flex-wrap gap-2 text-xs text-ui-muted">
@@ -100,7 +101,7 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
                       </div>
                     </div>
                     <ButtonLink href={`/activities/${activity.id}/edit`} variant="outline">
-                      Bearbeiten
+                      {ACTIVITIES_ADMIN_LABELS.edit}
                     </ButtonLink>
                   </div>
                 </div>

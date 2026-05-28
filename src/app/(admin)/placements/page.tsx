@@ -40,7 +40,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   const overdueOnly = params.overdue === '1'
   const conflictsOnly = params.conflicts === '1'
 
-  const [placements, allPlacements] = await Promise.all([
+  const [placements, statusGroups, avgSatisfactionAgg, conflictEndsCount] = await Promise.all([
     prisma.placement.findMany({
       where: statusFilter === 'active'
         ? { status: 'ACTIVE' }
@@ -75,30 +75,38 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       orderBy: { startDate: 'desc' },
       take: 200,
     }),
-    // Unfiltered for tab counts
-    prisma.placement.findMany({
-      select: { status: true, satisfactionRating: true, endReason: true },
+    // Aggregate tab counts by status (single query instead of fetching all rows)
+    prisma.placement.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    }),
+    // Average satisfaction across all placements with a rating set
+    prisma.placement.aggregate({
+      where: { satisfactionRating: { not: null } },
+      _avg: { satisfactionRating: true },
+    }),
+    // Count of placements that ended due to conflict
+    prisma.placement.count({
+      where: { endReason: 'CONFLICT' },
     }),
   ])
 
-  const activePlacements = allPlacements.filter((p) => p.status === 'ACTIVE')
-  const endedPlacements = allPlacements.filter((p) => p.status !== 'ACTIVE')
+  const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
+    acc[g.status] = g._count._all
+    return acc
+  }, {})
+  const totalPlacements = statusGroups.reduce((sum, g) => sum + g._count._all, 0)
+  const activeCount = statusCounts.ACTIVE ?? 0
 
   const stats = {
-    total: allPlacements.length,
-    active: activePlacements.length,
-    ended: endedPlacements.length,
+    total: totalPlacements,
+    active: activeCount,
+    ended: totalPlacements - activeCount,
     avgSatisfaction:
-      allPlacements.filter((p) => p.satisfactionRating).length > 0
-        ? Math.round(
-            allPlacements
-              .filter((p) => p.satisfactionRating)
-              .reduce((sum, p) => sum + (p.satisfactionRating || 0), 0) /
-              allPlacements.filter((p) => p.satisfactionRating).length
-          )
+      avgSatisfactionAgg._avg.satisfactionRating !== null
+        ? Math.round(avgSatisfactionAgg._avg.satisfactionRating)
         : null,
-    conflictEnds: endedPlacements.filter((p) => p.endReason === 'CONFLICT')
-      .length,
+    conflictEnds: conflictEndsCount,
   }
 
   const filteredPlacements = placements.filter((placement) => {
