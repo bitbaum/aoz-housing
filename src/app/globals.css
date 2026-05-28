@@ -8,7 +8,7 @@
   }
 
   /* Global visible focus indicator — safety net for any interactive element
-     that isn't using the project's .btn-*/.input/.btn-icon focus rings. */
+     that isn't using a project focus ring (btn variants, input, btn-icon). */
   *:focus-visible {
     outline: 2px solid rgb(var(--color-aoz-primary));
     outline-offset: 2px;
