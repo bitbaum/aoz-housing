@@ -24,6 +24,7 @@ jest.mock('@/lib/db', () => ({
     },
     incident: {
       count: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
     },
     placement: {
       count: jest.fn(),
@@ -556,40 +557,32 @@ describe('calculateUnitMetrics', () => {
 
     it('returns 0 when current month has incidents', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(5)  // totalConflicts
-        .mockResolvedValueOnce(2)  // current month (July 2025) has incidents
-        // Loop breaks, no more calls needed
+      // Refactor: incidentFreeMonths now derives from a single findMany over
+      // the last 12 months; the JS loop buckets dates by Zurich month.
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-07-10'), // July 2025: current month has an incident
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
-
       expect(result.incidentFreeMonths).toBe(0)
     })
 
     it('counts consecutive months backward until an incident is found', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(3)  // totalConflicts
-        .mockResolvedValueOnce(0)  // July 2025 (i=0): free
-        .mockResolvedValueOnce(0)  // June 2025 (i=1): free
-        .mockResolvedValueOnce(0)  // May 2025 (i=2): free
-        .mockResolvedValueOnce(1)  // April 2025 (i=3): has incident -> break
-
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-04-15'), // April: incident, break after counting 3 free
+      ])
       const result = await calculateUnitMetrics('unit-1')
-
-      expect(result.incidentFreeMonths).toBe(3)
+      expect(result.incidentFreeMonths).toBe(3) // July, June, May
     })
 
     it('stops counting at the first month with incidents', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(10)  // totalConflicts
-        .mockResolvedValueOnce(0)   // July: free
-        .mockResolvedValueOnce(1)   // June: has incident -> break
-        // Even if May were free, it should not be counted
-
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-06-15'), // June: incident -> only July counted
+        makeIncident('2025-05-10'), // (May also has incidents but we already broke)
+      ])
       const result = await calculateUnitMetrics('unit-1')
-
       expect(result.incidentFreeMonths).toBe(1)
     })
   })
@@ -696,14 +689,19 @@ describe('calculateUnitMetrics', () => {
       expect(result.label).toBe('Sehr stabil')
     })
 
+    /**
+     * The refactor replaced the incidentFreeMonths loop's per-month
+     * `incident.count` queries with a single `incident.findMany` whose
+     * result is bucketed by Zurich month in JS. Tests previously primed
+     * `count.mockResolvedValueOnce(...)` per month; they now prime
+     * `findMany.mockResolvedValueOnce(incidents)` once.
+     */
     it('returns "Stabil" when incidentFreeMonths is 3-5', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(5) // totalConflicts
-        .mockResolvedValueOnce(0) // July: free
-        .mockResolvedValueOnce(0) // June: free
-        .mockResolvedValueOnce(0) // May: free
-        .mockResolvedValueOnce(1) // April: incident -> break (3 free months)
+      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-04-15'), // April incident -> 3 free months (Jul, Jun, May)
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -727,10 +725,10 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-20'),    // 30-60 day window (before June 15, after May 16)
       ]
       setupDefaultMocks({ incidents })
-      // totalConflicts, then current month has incident -> incidentFreeMonths = 0
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(5)  // totalConflicts
-        .mockResolvedValueOnce(1)  // July: incident -> break
+      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -754,9 +752,10 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-25'),  // 30-60 day window
       ]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(10) // totalConflicts
-        .mockResolvedValueOnce(3)  // July: incident -> break
+      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(10) // totalConflicts
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -777,9 +776,10 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-02-10'),
       ]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(20) // totalConflicts
-        .mockResolvedValueOnce(1)  // July: incident -> break
+      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(20) // totalConflicts
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-07-10'),
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -794,9 +794,10 @@ describe('calculateUnitMetrics', () => {
       // incidentFreeMonths = 0 (because current month has incidents via count mock)
       const incidents = [makeIncident('2025-04-01')]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock)
-        .mockResolvedValueOnce(1)  // totalConflicts
-        .mockResolvedValueOnce(1)  // July: incident -> break
+      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(1) // totalConflicts
+      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+        makeIncident('2025-07-10'),
+      ])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -871,9 +872,10 @@ describe('calculateUnitMetrics', () => {
     ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(
       makeUnit({ placements, incidents, totalBeds: 3 })
     )
-    ;(mockPrisma.incident.count as jest.Mock)
-      .mockResolvedValueOnce(8) // totalConflicts
-      .mockResolvedValueOnce(1) // July: incident -> break
+    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(8) // totalConflicts
+    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      makeIncident('2025-07-10'), // July: incident -> incidentFreeMonths=0
+    ])
     ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(1) // 1 active
 
     const result = await calculateUnitMetrics('unit-1')

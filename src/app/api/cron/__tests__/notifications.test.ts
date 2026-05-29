@@ -7,6 +7,10 @@
 
 const mockIncidentFindMany = jest.fn()
 const mockPlacementFindMany = jest.fn()
+// $queryRaw is used for pg_try_advisory_lock + pg_advisory_unlock.
+// Default mock: lock acquired so the route proceeds normally; tests can
+// override per case.
+const mockQueryRaw = jest.fn().mockResolvedValue([{ ok: true }])
 jest.mock('@/lib/db', () => ({
   prisma: {
     incident: {
@@ -15,6 +19,7 @@ jest.mock('@/lib/db', () => ({
     placement: {
       findMany: (...args: unknown[]) => mockPlacementFindMany(...args),
     },
+    $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
   },
 }))
 

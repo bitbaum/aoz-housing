@@ -19,12 +19,30 @@ import { daysBetween } from '@/lib/utils'
 // batched query + email send don't get killed mid-flight at scale.
 export const maxDuration = 60
 
+/**
+ * Stable integer derived from the cron name; pg_advisory_lock uses a bigint
+ * key so two concurrent runs of this same cron name can't double-send.
+ * Distinct cron jobs should use distinct names.
+ */
+const CRON_LOCK_KEY = 7283419021 // hash of 'cron/notifications', see comment
+
 export async function GET(request: Request) {
   // Auth: verify Bearer token matches CRON_SECRET
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Postgres advisory lock — non-blocking, session-scoped. If another
+  // invocation of this same cron is already running on the same DB, this
+  // call returns false and we bail. Prevents Vercel-retry double-sends.
+  const lockResult = await prisma.$queryRaw<Array<{ ok: boolean }>>`
+    SELECT pg_try_advisory_lock(${CRON_LOCK_KEY}) AS ok
+  `
+  if (!lockResult[0]?.ok) {
+    logger.warn('cron/notifications skipped: another run already in progress')
+    return NextResponse.json({ skipped: true, reason: 'lock-held' })
   }
 
   const results = { incidents: 0, checkIns: 0, errors: [] as string[] }
@@ -92,6 +110,14 @@ export async function GET(request: Request) {
   } catch (error) {
     logger.errorWithCause('Cron notification error', error)
     results.errors.push(error instanceof Error ? error.message : 'Unknown error')
+  } finally {
+    // Release the advisory lock. Failure here is logged but never thrown,
+    // so it can't mask the original error.
+    try {
+      await prisma.$queryRaw`SELECT pg_advisory_unlock(${CRON_LOCK_KEY})`
+    } catch (unlockErr) {
+      logger.errorWithCause('Failed to release cron advisory lock', unlockErr)
+    }
   }
 
   return NextResponse.json({

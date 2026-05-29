@@ -5,6 +5,7 @@
  */
 
 import { prisma } from '@/lib/db'
+import { zurichMonthKey } from '@/lib/utils'
 
 export interface UnitMetrics {
   unitId: string
@@ -128,29 +129,26 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
     ? allCheckIns.reduce((sum, c) => sum + c.overallSatisfaction, 0) / allCheckIns.length
     : null
 
-  // Incident-free months
+  // Incident-free months — one query, bucketed in JS in Zurich timezone.
+  // Was 12 sequential counts per call (worst-case N+1 in matching page).
   const monthsToCheck = 12
+  const monthsWindowStart = new Date(now.getFullYear(), now.getMonth() - monthsToCheck, 1)
+  const interpersonalIncidents = await prisma.incident.findMany({
+    where: {
+      housingUnitId: unitId,
+      category: 'INTERPERSONAL',
+      date: { gte: monthsWindowStart },
+    },
+    select: { date: true },
+  })
+
+  const monthsWithIncidents = new Set(interpersonalIncidents.map(i => zurichMonthKey(i.date)))
   let incidentFreeMonths = 0
   for (let i = 0; i < monthsToCheck; i++) {
-    const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0)
-
-    const incidentsInMonth = await prisma.incident.count({
-      where: {
-        housingUnitId: unitId,
-        category: 'INTERPERSONAL',
-        date: {
-          gte: monthStart,
-          lte: monthEnd
-        }
-      }
-    })
-
-    if (incidentsInMonth === 0) {
-      incidentFreeMonths++
-    } else {
-      break // Stop at first month with incident
-    }
+    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    const key = zurichMonthKey(monthDate)
+    if (monthsWithIncidents.has(key)) break
+    incidentFreeMonths++
   }
 
   // Determine risk level

@@ -11,14 +11,24 @@ jest.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockResidentFindUnique = jest.fn()
-const mockResidentCreate = jest.fn()
+// Route now uses createMany + a transaction; pre-checks existing codes via
+// findMany, and writes AuditLog entries via auditLog.createMany.
+const mockResidentFindMany = jest.fn().mockResolvedValue([])
+const mockResidentCreateMany = jest.fn().mockResolvedValue({ count: 0 })
+const mockAuditLogCreateMany = jest.fn().mockResolvedValue({ count: 0 })
+const mockTx = {
+  resident: {
+    findMany: mockResidentFindMany,
+    createMany: mockResidentCreateMany,
+  },
+  auditLog: {
+    createMany: mockAuditLogCreateMany,
+  },
+}
+const mockTransaction = jest.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx))
 jest.mock('@/lib/db', () => ({
   prisma: {
-    resident: {
-      findUnique: (...args: unknown[]) => mockResidentFindUnique(...args),
-      create: (...args: unknown[]) => mockResidentCreate(...args),
-    },
+    $transaction: (...args: unknown[]) => mockTransaction(...args as [(tx: typeof mockTx) => Promise<unknown>]),
   },
 }))
 
@@ -123,11 +133,12 @@ describe('POST /api/import/residents', () => {
 
   it('creates valid residents and returns counts', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockResidentFindUnique.mockResolvedValue(null)
-    mockResidentCreate.mockResolvedValue({
-      id: 'new-res-1',
-      code: 'RES-TEST',
-    })
+    // No existing codes; createMany inserts 1; findMany after insert returns the new row
+    mockResidentFindMany
+      .mockResolvedValueOnce([]) // pre-check: no duplicates
+      .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-TEST' }]) // post-insert ID lookup
+    mockResidentCreateMany.mockResolvedValue({ count: 1 })
+    mockAuditLogCreateMany.mockResolvedValue({ count: 1 })
     mockLogAudit.mockResolvedValue(undefined)
 
     const csv = `${CSV_HEADER}\n${VALID_CSV_ROW}`
@@ -143,9 +154,9 @@ describe('POST /api/import/residents', () => {
     expect(body.skipped).toBe(0)
     expect(body.errors.length).toBe(0)
 
-    // Verify prisma create was called with correct data
-    expect(mockResidentCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    // Verify bulk insert was called with the validated row payload
+    expect(mockResidentCreateMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({
         code: 'RES-TEST',
         ageRange: 'ADULT',
         gender: 'MALE',
@@ -153,31 +164,36 @@ describe('POST /api/import/residents', () => {
         privacyNeed: 3,
         guestTolerance: 3,
         languages: ['de', 'en'],
-      }),
+      })],
+      skipDuplicates: true,
     })
 
-    // Verify audit log
-    expect(mockLogAudit).toHaveBeenCalledWith({
-      action: 'CREATE',
-      entity: 'RESIDENT',
-      entityId: 'new-res-1',
-      userId: 'user-1',
-      changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
+    // The route now also writes AuditLog rows inside the transaction plus a
+    // single summary logAudit() afterwards.
+    expect(mockAuditLogCreateMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({
+        action: 'CREATE',
+        entity: 'RESIDENT',
+        entityId: 'new-res-1',
+        userId: 'user-1',
+        changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
+      })],
     })
+    expect(mockLogAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CREATE',
+        entity: 'RESIDENT',
+        entityId: 'CSV_IMPORT_BATCH',
+        userId: 'user-1',
+        changes: { source: 'CSV_IMPORT', count: 1 },
+      })
+    )
   })
 
-  it('skips duplicate codes', async () => {
+  it('skips duplicate codes (pre-check detects existing)', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    // Simulate Prisma unique-constraint violation (P2002).
-    // We avoid importing PrismaClientKnownRequestError directly because the
-    // route uses instanceof — instead, construct an object that satisfies the
-    // check by setting the prototype chain.
-    const { Prisma } = require('@prisma/client')
-    const duplicateError = new Prisma.PrismaClientKnownRequestError(
-      'Unique constraint failed',
-      { code: 'P2002', clientVersion: '5.0.0' }
-    )
-    mockResidentCreate.mockRejectedValue(duplicateError)
+    // Pre-check reports the code already exists; createMany is not called.
+    mockResidentFindMany.mockResolvedValueOnce([{ code: 'RES-TEST' }])
 
     const csv = `${CSV_HEADER}\n${VALID_CSV_ROW}`
     const file = createCSVFile(csv)
@@ -190,15 +206,15 @@ describe('POST /api/import/residents', () => {
     expect(body.created).toBe(0)
     expect(body.skipped).toBe(1)
     expect(body.errors[0].error).toContain('existiert bereits')
+    expect(mockResidentCreateMany).not.toHaveBeenCalled()
   })
 
   it('handles mixed valid and invalid rows', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockResidentFindUnique.mockResolvedValue(null)
-    mockResidentCreate.mockResolvedValue({
-      id: 'new-res-1',
-      code: 'RES-TEST',
-    })
+    mockResidentFindMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-TEST' }])
+    mockResidentCreateMany.mockResolvedValue({ count: 1 })
     mockLogAudit.mockResolvedValue(undefined)
 
     // First row valid, second row invalid (missing code)
@@ -216,8 +232,8 @@ describe('POST /api/import/residents', () => {
 
   it('handles database errors gracefully', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockResidentFindUnique.mockResolvedValue(null)
-    mockResidentCreate.mockRejectedValue(new Error('DB connection failed'))
+    mockResidentFindMany.mockResolvedValueOnce([])
+    mockResidentCreateMany.mockRejectedValueOnce(new Error('DB connection failed'))
 
     const csv = `${CSV_HEADER}\n${VALID_CSV_ROW}`
     const file = createCSVFile(csv)
@@ -228,17 +244,17 @@ describe('POST /api/import/residents', () => {
 
     expect(body.success).toBe(true)
     expect(body.created).toBe(0)
+    // The whole batch rolled back — one row in, one skipped.
     expect(body.skipped).toBe(1)
-    expect(body.errors[0].error).toBe('Erstellung fehlgeschlagen')
+    expect(body.errors[0].error).toBe('Import abgebrochen')
   })
 
   it('coerces numeric fields from CSV strings', async () => {
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockResidentFindUnique.mockResolvedValue(null)
-    mockResidentCreate.mockResolvedValue({
-      id: 'new-res-1',
-      code: 'RES-COERCE',
-    })
+    mockResidentFindMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-COERCE' }])
+    mockResidentCreateMany.mockResolvedValue({ count: 1 })
     mockLogAudit.mockResolvedValue(undefined)
 
     // noiseTolerance and cleanlinessLevel come as strings from CSV
@@ -248,11 +264,12 @@ describe('POST /api/import/residents', () => {
 
     await POST(request)
 
-    expect(mockResidentCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockResidentCreateMany).toHaveBeenCalledWith({
+      data: [expect.objectContaining({
         noiseTolerance: 3,
         cleanlinessLevel: 4,
-      }),
+      })],
+      skipDuplicates: true,
     })
   })
 })
