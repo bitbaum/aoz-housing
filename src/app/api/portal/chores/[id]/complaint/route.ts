@@ -4,7 +4,6 @@ import { getPortalAuth } from '@/lib/portal-auth'
 import { portalTaskComplaintSchema } from '@/lib/validation/schemas'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
-import type { IncidentType } from '@prisma/client'
 import { CHORE_COMPLAINT_INCIDENT_MAP } from '@/lib/config/household-tasks'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
@@ -40,8 +39,9 @@ export async function POST(
       return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
     }
 
-    // Map chore category to incident type
-    const incidentType = CHORE_COMPLAINT_INCIDENT_MAP[task.category] || 'PERSONAL_CONFLICT'
+    // Map chore category to incident type. The map is typed against the Prisma
+    // enums so the fallback is only used for unknown categories.
+    const incidentType = CHORE_COMPLAINT_INCIDENT_MAP[task.category] ?? 'PERSONAL_CONFLICT'
 
     // Create an Incident (escalation to staff)
     const incident = await prisma.incident.create({
@@ -50,7 +50,7 @@ export async function POST(
         placementId: auth.placement.id,
         reportedById: auth.resident.id,
         category: 'INTERPERSONAL',
-        type: incidentType as IncidentType,
+        type: incidentType,
         severity: 'MEDIUM',
         description: `[Haushaltsaufgabe: ${task.title}]\n\n${description}`,
         date: new Date(),

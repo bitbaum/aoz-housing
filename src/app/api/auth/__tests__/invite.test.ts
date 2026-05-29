@@ -265,16 +265,18 @@ describe('POST /api/auth/invite', () => {
     )
   })
 
-  test('returns emailSent false when email service fails', async () => {
+  test('returns optimistically even when email service fails', async () => {
+    // The route fires the email asynchronously to avoid blocking on Brevo.
+    // The HTTP response now always reports `emailSent: true` regardless of
+    // delivery outcome; actual failures land in Sentry/logs.
     mockSendEmail.mockResolvedValue(false)
 
     const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
     const res = await POST(req)
     const body = await res.json()
 
-    // Still returns success — user was created, email just failed
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(body.emailSent).toBe(false)
+    expect(body.emailSent).toBe(true)
   })
 })

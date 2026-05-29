@@ -193,7 +193,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} onChange={() => setIsDirty(true)} className="space-y-6 pb-24 sm:pb-0">
+      <form ref={formRef} onSubmit={handleSubmit} onChange={() => { if (!isDirty) setIsDirty(true) }} className="space-y-6 pb-24 sm:pb-0">
         <div className="card bg-status-info/8 border-status-info/25">
           <p className="text-sm text-status-info-text">{P.saveTip}</p>
           {isDirty && (

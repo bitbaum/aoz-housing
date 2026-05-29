@@ -11,6 +11,7 @@
  */
 
 import { prisma } from '@/lib/db'
+import { zurichMonthKey, getZurichParts } from '@/lib/utils'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -56,11 +57,12 @@ export interface MissionKPIs {
 const MONTHS_DE = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
 
 function formatMonth(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  return zurichMonthKey(date)
 }
 
 function formatMonthLabel(date: Date): string {
-  return `${MONTHS_DE[date.getMonth()]} ${date.getFullYear()}`
+  const { year, month } = getZurichParts(date)
+  return `${MONTHS_DE[month - 1]} ${year}`
 }
 
 function getMonthStart(year: number, month: number): Date {

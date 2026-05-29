@@ -6,6 +6,11 @@ Sentry.init({
   // Only enable in production
   enabled: process.env.NODE_ENV === 'production',
 
+  // Tag every event with the deploy SHA + Vercel env so Sentry can group by
+  // release and distinguish preview vs production.
+  release: process.env.NEXT_PUBLIC_SENTRY_RELEASE || process.env.VERCEL_GIT_COMMIT_SHA,
+  environment: process.env.NEXT_PUBLIC_VERCEL_ENV || process.env.VERCEL_ENV || process.env.NODE_ENV,
+
   // Performance monitoring — sample 10% of transactions
   tracesSampleRate: 0.1,
 

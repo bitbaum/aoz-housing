@@ -43,14 +43,48 @@ function formatError(error: unknown): Record<string, unknown> {
   return { errorMessage: String(error) }
 }
 
+// Patterns that identify PII we never want in logs / log aggregators.
+// Mirrors the Sentry beforeSend redactor so both pipelines redact uniformly.
+const PII_REDACTORS: ReadonlyArray<[RegExp, string]> = [
+  [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
+  [/RES-[A-Z0-9]+/g, 'RES-[REDACTED]'],
+  [/AOZ-[A-Z0-9]+/g, 'AOZ-[REDACTED]'],
+]
+
+function redactString(value: string): string {
+  let out = value
+  for (const [pattern, replacement] of PII_REDACTORS) {
+    out = out.replace(pattern, replacement)
+  }
+  return out
+}
+
+function redactValue(value: unknown): unknown {
+  if (typeof value === 'string') return redactString(value)
+  if (Array.isArray(value)) return value.map(redactValue)
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      out[k] = redactValue(v)
+    }
+    return out
+  }
+  return value
+}
+
+function redactContext(ctx: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (!ctx) return ctx
+  return redactValue(ctx) as Record<string, unknown>
+}
+
 function log(level: LogLevel, message: string, context?: Record<string, unknown>): void {
   if (!shouldLog(level)) return
 
   const entry: LogEntry = {
     level,
-    message,
+    message: redactString(message),
     timestamp: new Date().toISOString(),
-    context,
+    context: redactContext(context),
   }
 
   if (process.env.NODE_ENV === 'production') {

@@ -6,6 +6,7 @@
  */
 
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
+import { z } from 'zod'
 import { AUTH_CONFIG } from './config'
 
 export interface TokenPayload extends JWTPayload {
@@ -14,6 +15,19 @@ export interface TokenPayload extends JWTPayload {
   name: string
   role: 'ADMIN'
 }
+
+// Runtime-validates the decoded JWT body before we trust it. Catches both
+// tampered tokens (after signature verification, in case fields were added/
+// removed by a future-version signer) and stale tokens issued before a
+// schema change. `passthrough` keeps `iat`/`exp`/`iss` claims for callers.
+const tokenPayloadSchema = z
+  .object({
+    sub: z.string().min(1),
+    email: z.string(),
+    name: z.string().min(1),
+    role: z.literal('ADMIN'),
+  })
+  .passthrough()
 
 /**
  * Create a signed JWT token
@@ -44,12 +58,9 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
       algorithms: [AUTH_CONFIG.jwt.algorithm],
     })
 
-    // Validate required fields (email may be empty string for code-only users)
-    if (!payload.sub || typeof payload.email !== 'string' || !payload.name || !payload.role) {
-      return null
-    }
-
-    return payload as TokenPayload
+    const parsed = tokenPayloadSchema.safeParse(payload)
+    if (!parsed.success) return null
+    return parsed.data as TokenPayload
   } catch {
     // Token invalid, expired, or tampered
     return null

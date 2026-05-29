@@ -124,7 +124,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Send invite email
+  // Fire-and-forget email send. The admin caller shouldn't wait on Brevo —
+  // the user record is already created. Failures are logged by sendEmail.
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
   const { subject, html } = staffInviteEmail({
     recipientEmail: email,
@@ -133,11 +134,14 @@ export async function POST(request: NextRequest) {
     appUrl,
   })
 
-  const emailSent = await sendEmail([email], subject, html)
+  sendEmail([email], subject, html).catch((err) =>
+    logger.errorWithCause('Failed to send staff invite email', err, { userId: user.id })
+  )
 
   return NextResponse.json({
     success: true,
     user: { id: user.id, code: user.code, name: user.name, email: user.email },
-    emailSent,
+    // We can't await delivery without re-introducing the hang; report optimistically.
+    emailSent: true,
   })
 }

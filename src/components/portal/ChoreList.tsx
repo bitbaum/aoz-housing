@@ -9,6 +9,7 @@ import {
   TASK_CATEGORY_ICONS,
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
+import { showToast } from '@/components/ui/Toast'
 
 interface Task {
   id: string
@@ -64,7 +65,13 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
       })
       if (res.ok) {
         router.refresh()
+      } else {
+        // Surface failures — previously the spinner just disappeared with no
+        // feedback, so users had no idea their action didn't take.
+        showToast('error', CHORE_LABELS.errors.generic)
       }
+    } catch {
+      showToast('error', CHORE_LABELS.errors.generic)
     } finally {
       setCompletingId(null)
     }

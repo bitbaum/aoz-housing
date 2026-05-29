@@ -106,6 +106,38 @@ export function weeksBetween(from: Date | string, to: Date | string | number = D
   return Math.floor((t - f) / MS_PER_WEEK)
 }
 
+/**
+ * Project-wide timezone (CH operations). Use these helpers for any
+ * day/month bucketing — never `date.getMonth()`/`getFullYear()` directly,
+ * since Vercel functions run in UTC and would mis-bucket at midnight.
+ */
+export const APP_TZ = 'Europe/Zurich'
+
+const ZURICH_PARTS_FMT = new Intl.DateTimeFormat('en-CA', {
+  timeZone: APP_TZ,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/** { year, month (1-12), day (1-31) } for the given instant in Europe/Zurich. */
+export function getZurichParts(date: Date | string): { year: number; month: number; day: number } {
+  const parts = ZURICH_PARTS_FMT.formatToParts(new Date(date))
+  let year = 0, month = 0, day = 0
+  for (const p of parts) {
+    if (p.type === 'year') year = parseInt(p.value, 10)
+    else if (p.type === 'month') month = parseInt(p.value, 10)
+    else if (p.type === 'day') day = parseInt(p.value, 10)
+  }
+  return { year, month, day }
+}
+
+/** Month key for grouping (`YYYY-MM`) in Europe/Zurich. */
+export function zurichMonthKey(date: Date | string): string {
+  const { year, month } = getZurichParts(date)
+  return `${year}-${String(month).padStart(2, '0')}`
+}
+
 // =============================================================================
 // SCORE FORMATTING (thresholds from config/thresholds.ts)
 // =============================================================================

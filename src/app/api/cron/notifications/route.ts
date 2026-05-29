@@ -15,6 +15,10 @@ import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { daysBetween } from '@/lib/utils'
 
+// Vercel function timeout for this cron run. Default is 10s; raise so the
+// batched query + email send don't get killed mid-flight at scale.
+export const maxDuration = 60
+
 export async function GET(request: Request) {
   // Auth: verify Bearer token matches CRON_SECRET
   const authHeader = request.headers.get('authorization')
@@ -53,13 +57,16 @@ export async function GET(request: Request) {
       if (sent) results.incidents = overdueIncidents.length
     }
 
-    // 2. Overdue resident check-ins
+    // 2. Overdue resident check-ins.
+    // Cap to a sane batch so a runaway dataset can't blow the function
+    // timeout. The cron runs daily so we'd catch any backlog the next day.
     const activePlacements = await prisma.placement.findMany({
       where: { status: 'ACTIVE' },
       include: {
         resident: { select: { code: true, supportLevel: true } },
         checkIns: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
+      take: 1000,
     })
 
     const overdueResidents = activePlacements

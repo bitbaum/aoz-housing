@@ -218,9 +218,9 @@ export default async function IncidentsListPage({ searchParams }: Props) {
               : INCIDENT_PAGE_LABELS.noIncidents}
           </p>
           {statusFilter === 'open' ? (
-            <a href="/incidents" className="btn-outline">
+            <Link href="/incidents" className="btn-outline">
               {INCIDENT_PAGE_LABELS.clearFilter}
-            </a>
+            </Link>
           ) : (
             <Link href="/incidents/new" className="btn-primary">
               {INCIDENT_PAGE_LABELS.createIncident}

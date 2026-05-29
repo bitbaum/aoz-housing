@@ -229,7 +229,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </div>
               <p className="text-xs text-ui-muted mt-2">
                 {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
-                <a href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</a>
+                <Link href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</Link>
               </p>
             </div>
 

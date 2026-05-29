@@ -37,6 +37,7 @@ jest.mock('@/lib/config/household-tasks', () => ({
     filter: { all: 'Alle' },
     card: { completed: 'Erledigt' },
     empty: { title: 'Noch keine Aufgaben', message: 'Erstelle die erste Aufgabe für eure Wohnung.' },
+    errors: { generic: 'Ein Fehler ist aufgetreten.' },
     sections: {
       urgentNow: 'Jetzt wichtig',
       urgentDesc: 'Diese Aufgaben brauchen zuerst eine Entscheidung.',

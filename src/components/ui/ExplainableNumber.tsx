@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { X } from 'lucide-react'
 import { EXPLAINABLE_NUMBER_LABELS } from '@/lib/constants/labels'
 
@@ -203,7 +204,7 @@ export function ExplainableMetric({
     return (
       <div className="relative">
         {Content}
-        <a
+        <Link
           href={href}
           className="absolute inset-0 z-0"
           aria-label={`${title} - Details anzeigen`}
