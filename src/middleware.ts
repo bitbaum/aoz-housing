@@ -41,6 +41,16 @@ async function verifyStaffToken(token: string): Promise<{ valid: boolean; should
   }
 }
 
+// Behind Caddy the standalone server sees its bind address (localhost:4008)
+// in request.url — build redirects from the forwarded headers instead so the
+// browser stays on the public domain.
+function publicOrigin(request: NextRequest): string {
+  const proto = request.headers.get('x-forwarded-proto') ?? 'https'
+  const host =
+    request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? request.nextUrl.host
+  return `${proto}://${host}`
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
@@ -52,7 +62,7 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get(STAFF_COOKIE)?.value
 
     if (!token) {
-      const loginUrl = new URL('/login', request.url)
+      const loginUrl = new URL('/login', publicOrigin(request))
       loginUrl.searchParams.set('from', pathname)
       return NextResponse.redirect(loginUrl)
     }
@@ -67,7 +77,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
       }
 
-      const loginUrl = new URL('/login', request.url)
+      const loginUrl = new URL('/login', publicOrigin(request))
       loginUrl.searchParams.set('from', pathname)
       const response = NextResponse.redirect(loginUrl)
       response.cookies.delete(STAFF_COOKIE)
@@ -91,7 +101,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Nicht angemeldet' }, { status: 401 })
       }
 
-      return NextResponse.redirect(new URL('/portal', request.url))
+      return NextResponse.redirect(new URL('/portal', publicOrigin(request)))
     }
   }
 

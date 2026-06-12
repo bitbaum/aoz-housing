@@ -101,3 +101,29 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
   { href: '/settings', icon: 'settings', label: 'Einstellungen' },
 ]
+
+// =============================================================================
+// PORTAL NAV (resident-facing)
+// =============================================================================
+
+export interface PortalNavItem {
+  href: string
+  /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
+   *  here, to keep the labels SSOT intact. The key indexes into that object. */
+  labelKey: 'overview' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'help' | 'transfer'
+  /** Items in the `primary` set show as top-level links on desktop. Others
+   *  only appear in the mobile drawer (avoiding desktop overflow). */
+  primary?: boolean
+}
+
+export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
+  { href: '/portal', labelKey: 'overview', primary: true },
+  { href: '/portal/roommates', labelKey: 'roommates', primary: true },
+  { href: '/portal/chores', labelKey: 'chores', primary: true },
+  { href: '/portal/report', labelKey: 'report', primary: true },
+  { href: '/portal/preferences', labelKey: 'preferences', primary: true },
+  { href: '/portal/housing', labelKey: 'housing' },
+  { href: '/portal/activities', labelKey: 'activities' },
+  { href: '/portal/transfer', labelKey: 'transfer' },
+  { href: '/portal/help', labelKey: 'help' },
+]

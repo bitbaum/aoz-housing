@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ChevronDown, LogOut, ArrowRightLeft } from 'lucide-react'
 import { ROLE_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { useDismissable } from '@/lib/hooks/useDismissable'
 
 interface UserMenuProps {
   user: {
@@ -18,19 +20,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const menuRef = useDismissable<HTMLDivElement>(isOpen, () => setIsOpen(false))
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -43,10 +33,9 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
     }
   }
 
-  // Get initials for avatar
   const initials = user.name
     .split(' ')
-    .map(n => n[0])
+    .map((n) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2)
@@ -55,27 +44,25 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-ui-subtle transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-2"
+        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-ui-subtle transition-colors min-h-[44px]"
         aria-label={UI_LABELS.userMenu}
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        {/* Avatar circle */}
-        <div className="w-8 h-8 rounded-md bg-ui-text flex items-center justify-center text-ui-inverse text-sm font-medium">
+        {/* Identity tile — not a brand avatar; uses neutral surface so it
+            doesn't compete with the brand-coloured nav links. */}
+        <span className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-ui-text text-ui-inverse text-sm font-medium select-none">
           {initials}
-        </div>
-        {/* Name - hidden on small screens */}
+        </span>
         <span className="hidden lg:block text-sm text-ui-muted">{user.name}</span>
-        {/* Dropdown arrow */}
-        <svg className="w-4 h-4 text-ui-muted" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+        <ChevronDown className="w-4 h-4 text-ui-muted" aria-hidden="true" />
       </button>
 
-      {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50">
-          {/* User info */}
+        <div
+          className="absolute right-0 mt-2 w-56 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50"
+        >
+          {/* User identity panel */}
           <div className="px-4 py-3 border-b border-ui-border">
             <p className="text-sm font-medium text-ui-text">{user.name}</p>
             {user.email && (
@@ -86,33 +73,23 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
             </p>
           </div>
 
-          {/* Role switcher — portal link */}
           {hasPortalAccess && (
             <Link
               href="/portal"
               onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle
-                       flex items-center gap-2 min-h-[44px]"
+    className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
             >
-              <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
+              <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToPortal}
             </Link>
           )}
 
-          {/* Logout button */}
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-            className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle
-                     disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-h-[44px]"
+className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-h-[44px]"
           >
-            <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut className="w-4 h-4" aria-hidden="true" />
             {isLoggingOut ? UI_LABELS.loggingOut : UI_LABELS.logout}
           </button>
         </div>

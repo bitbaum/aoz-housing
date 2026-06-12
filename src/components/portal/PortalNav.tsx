@@ -3,8 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { Menu, X, ArrowRightLeft, LogOut } from 'lucide-react'
 import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { PORTAL_NAV_ITEMS, type PortalNavItem } from '@/lib/config/navigation'
+import { useDismissable } from '@/lib/hooks/useDismissable'
 
 interface PortalNavProps {
   hasStaffAccess?: boolean
@@ -13,161 +16,144 @@ interface PortalNavProps {
 export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const pathname = usePathname()
+  const navRef = useDismissable<HTMLDivElement>(menuOpen, () => setMenuOpen(false))
+
+  const primary = PORTAL_NAV_ITEMS.filter((i) => i.primary)
 
   return (
-    <>
+    <div ref={navRef}>
       <div className="flex items-center justify-between">
         <Link href="/portal" className="text-lg sm:text-xl font-bold text-aoz-primary">
           {PORTAL_LABELS.title}
         </Link>
 
-        {/* Desktop navigation — 5 primary items only; full list in hamburger */}
+        {/* Desktop nav — primary items only */}
         <nav className="hidden lg:flex items-center gap-1">
-          <PortalNavLink href="/portal" active={pathname === '/portal'}>{PORTAL_LABELS.nav.overview}</PortalNavLink>
-          <PortalNavLink href="/portal/roommates" active={pathname === '/portal/roommates'}>{PORTAL_LABELS.nav.roommates}</PortalNavLink>
-          <PortalNavLink href="/portal/chores" active={pathname.startsWith('/portal/chores')}>{PORTAL_LABELS.nav.chores}</PortalNavLink>
-          <PortalNavLink href="/portal/report" active={pathname === '/portal/report'}>{PORTAL_LABELS.nav.report}</PortalNavLink>
-          <PortalNavLink href="/portal/preferences" active={pathname === '/portal/preferences'}>{PORTAL_LABELS.nav.preferences}</PortalNavLink>
+          {primary.map((item) => (
+            <PortalNavLink
+              key={item.href}
+              href={item.href}
+              active={isActive(pathname, item.href)}
+            >
+              {labelFor(item)}
+            </PortalNavLink>
+          ))}
           {hasStaffAccess && (
             <Link
               href="/"
-              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm md:text-base flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm flex items-center gap-1.5 text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
+              <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
             </Link>
           )}
-          <form action="/api/portal/logout" method="POST" className="ml-2">
-            <button
-              type="submit"
-              className="min-h-[44px] px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors"
-            >
-              {PORTAL_LABELS.nav.logout}
-            </button>
-          </form>
+          <LogoutButton variant="desktop" />
           <ThemeToggle />
         </nav>
 
-        {/* Mobile / tablet menu button — visible below lg (1024px) */}
+        {/* Mobile/tablet hamburger — < lg (1024px) */}
         <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-2 -mr-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-ui-muted hover:text-ui-text focus-visible:ring-2 focus-visible:ring-aoz-primary rounded-md"
+          onClick={() => setMenuOpen((v) => !v)}
+          className="btn-icon lg:hidden -mr-1"
           aria-label={menuOpen ? UI_LABELS.menuClose : UI_LABELS.menuOpen}
           aria-expanded={menuOpen}
           aria-controls="portal-mobile-nav"
         >
-          {menuOpen ? (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          )}
+          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
-      {/* Mobile / tablet navigation dropdown */}
+      {/* Mobile/tablet menu — every item (primary + secondary) */}
       {menuOpen && (
         <nav id="portal-mobile-nav" className="lg:hidden pt-3 pb-1 border-t border-ui-border mt-3 flex flex-col gap-1">
           <div className="mb-1 flex justify-end">
             <ThemeToggle />
           </div>
-          <PortalNavLinkMobile href="/portal" active={pathname === '/portal'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.overview}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/roommates" active={pathname === '/portal/roommates'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.roommates}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/chores" active={pathname.startsWith('/portal/chores')} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.chores}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/housing" active={pathname === '/portal/housing'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.housing}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/activities" active={pathname === '/portal/activities'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.activities}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/transfer" active={pathname === '/portal/transfer'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.transfer.navLabel}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/report" active={pathname === '/portal/report'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.report}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/preferences" active={pathname === '/portal/preferences'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.preferences}
-          </PortalNavLinkMobile>
-          <PortalNavLinkMobile href="/portal/help" active={pathname === '/portal/help'} onClick={() => setMenuOpen(false)}>
-            {PORTAL_LABELS.nav.help}
-          </PortalNavLinkMobile>
+          {PORTAL_NAV_ITEMS.map((item) => (
+            <PortalNavLink
+              key={item.href}
+              href={item.href}
+              active={isActive(pathname, item.href)}
+              onClick={() => setMenuOpen(false)}
+              variant="mobile"
+            >
+              {labelFor(item)}
+            </PortalNavLink>
+          ))}
           {hasStaffAccess && (
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
-              className="transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="flex items-center gap-2 transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] text-aoz-primary font-medium hover:bg-aoz-primary/10"
             >
+              <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
             </Link>
           )}
-          <form action="/api/portal/logout" method="POST" className="mt-1">
-            <button
-              type="submit"
-              className="w-full text-left text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center"
-            >
-              {PORTAL_LABELS.nav.logout}
-            </button>
-          </form>
+          <LogoutButton variant="mobile" />
         </nav>
       )}
-    </>
+    </div>
   )
 }
 
+// ---------- helpers ----------
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === '/portal') return pathname === '/portal'
+  return pathname === href || pathname.startsWith(`${href}/`)
+}
+
+function labelFor(item: PortalNavItem): string {
+  const nav = PORTAL_LABELS.nav as Record<string, string>
+  if (item.labelKey === 'transfer') return PORTAL_LABELS.transfer.navLabel
+  return nav[item.labelKey]
+}
+
+// Single link primitive — `variant` collapses the old PortalNavLink +
+// PortalNavLinkMobile pair into one component with a size flag.
 function PortalNavLink({
   href,
   children,
   active,
+  onClick,
+  variant = 'desktop',
 }: {
   href: string
   children: React.ReactNode
   active: boolean
+  onClick?: () => void
+  variant?: 'desktop' | 'mobile'
 }) {
+  const sizing =
+    variant === 'mobile'
+      ? 'py-3 px-2 -mx-2'
+      : 'px-3 py-2 text-sm'
+  const tone = active
+    ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
+    : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
   return (
     <Link
       href={href}
-      className={`min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm md:text-base flex items-center ${
-        active
-          ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
-          : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
-      }`}
+      onClick={onClick}
+      className={`flex items-center rounded-md transition-colors min-h-[44px] ${sizing} ${tone}`}
     >
       {children}
     </Link>
   )
 }
 
-function PortalNavLinkMobile({
-  href,
-  children,
-  active,
-  onClick,
-}: {
-  href: string
-  children: React.ReactNode
-  active: boolean
-  onClick: () => void
-}) {
+function LogoutButton({ variant }: { variant: 'desktop' | 'mobile' }) {
+  const className =
+    variant === 'mobile'
+      ? 'w-full text-left text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center gap-2'
+      : 'min-h-[44px] px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors flex items-center gap-1.5'
   return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center ${
-        active
-          ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
-          : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
-      }`}
-    >
-      {children}
-    </Link>
+    <form action="/api/portal/logout" method="POST" className={variant === 'mobile' ? 'mt-1' : 'ml-2'}>
+      <button type="submit" className={className}>
+        <LogOut className="w-4 h-4" aria-hidden="true" />
+        {PORTAL_LABELS.nav.logout}
+      </button>
+    </form>
   )
 }

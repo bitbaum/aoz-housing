@@ -4,12 +4,12 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
+import { AdminMegaMenu } from '@/components/layout/AdminHeader'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { NAV_ICONS, MEGAMENU_GROUPS } from '@/lib/config/navigation'
-import { APP_LABELS } from '@/lib/constants/labels'
+import { APP_LABELS, PAGE_TITLES } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
-import { RESIDENT_COOKIE } from '@/lib/portal-auth'
+import { RESIDENT_COOKIE } from '@/lib/auth/constants'
 
 export const metadata: Metadata = {
   title: {
@@ -35,121 +35,67 @@ export default async function AdminLayout({
     <>
       <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
 
-      {/* Top Header Bar */}
-      <header className="hidden md:flex items-center bg-ui-canvas text-ui-text border-b border-ui-border z-50">
-        <div className="max-w-screen-2xl mx-auto px-6 py-3 w-full">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Logo href="/" size="lg" showTagline />
+      {/* Single sticky bar — logo + megamenu + secondary links + actions.
+          x.ai-style: one row of chrome instead of stacking a brand bar on
+          top of a megamenu strip. Total chrome ≈ 56px on desktop. */}
+      <header className="hidden md:block bg-ui-canvas/90 backdrop-blur-md border-b border-ui-border sticky top-0 z-40">
+        <div className="max-w-screen-2xl mx-auto px-6">
+          <div className="flex items-center justify-between gap-6 h-14">
+            <div className="flex items-center gap-6 min-w-0">
+              <Logo href="/" size="md" />
+              <AdminMegaMenu />
             </div>
-            <div className="flex items-center gap-4">
-              <nav className="flex items-center gap-1">
-                <HeaderLink href="/algorithm">{APP_LABELS.algorithm}</HeaderLink>
-                <HeaderLink href="/analytics">{APP_LABELS.statistics}</HeaderLink>
-                <HeaderLink href="/portal/help">{APP_LABELS.help}</HeaderLink>
-              </nav>
+            <div className="flex items-center gap-1">
+              <SecondaryLink href="/algorithm">{APP_LABELS.algorithm}</SecondaryLink>
+              <SecondaryLink href="/portal/help">{APP_LABELS.help}</SecondaryLink>
+              <div className="hidden lg:block w-px h-5 bg-ui-border mx-2" aria-hidden="true" />
               <ThemeToggle />
-              {user && (
-                <UserMenu
-                  user={{
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                  }}
-                  hasPortalAccess={hasPortalAccess}
-                />
-              )}
+              <UserMenu
+                user={{ name: user.name, email: user.email, role: user.role }}
+                hasPortalAccess={hasPortalAccess}
+              />
             </div>
           </div>
         </div>
       </header>
 
-      {/* Megamenu Navigation */}
-      <nav className="hidden md:block bg-ui-canvas/95 backdrop-blur border-b border-ui-border sticky top-0 z-40">
-        <div className="max-w-screen-2xl mx-auto px-6">
-          <div className="flex items-center gap-0.5">
-            {MEGAMENU_GROUPS.map((group) =>
-              'items' in group ? (
-                <MegaMenuDropdown key={group.label} label={group.label} items={group.items} />
-              ) : (
-                <MegaMenuItem key={group.href} href={group.href} icon={group.icon} label={group.label} />
-              )
-            )}
-          </div>
-        </div>
-      </nav>
-
-      <div className="flex min-h-[calc(100vh-96px)]">
-        {/* Mobile Navigation */}
+      <div className="flex min-h-[calc(100vh-56px)]">
         <MobileNav />
-
-        {/* Main content */}
         <main id="admin-main" className="flex-1 flex flex-col">
           <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
             {children}
           </div>
         </main>
       </div>
+
+      <AdminFooter />
     </>
   )
 }
 
-function HeaderLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** Compact secondary link in the admin header. */
+function SecondaryLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors min-h-[40px] inline-flex items-center"
+      className="hidden lg:inline-flex items-center px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors min-h-[40px]"
     >
       {children}
     </Link>
   )
 }
 
-function MegaMenuItem({ href, icon, label }: { href: string; icon: string; label: string }) {
-  const Icon = NAV_ICONS[icon] || NAV_ICONS.home
+/** Single-line footer. Hidden on mobile (the drawer carries those links). */
+function AdminFooter() {
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 px-3 py-3 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
-    >
-      <Icon className="w-4 h-4" />
-      {label}
-    </Link>
-  )
-}
-
-function MegaMenuDropdown({
-  label,
-  items,
-}: {
-  label: string
-  items: { href: string; label: string; desc: string }[]
-}) {
-  return (
-    <div className="relative group">
-      <button
-        className="flex items-center gap-1.5 px-3 py-3 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150"
-        aria-haspopup="true"
-      >
-        {label}
-        <svg className="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      <div className="absolute left-0 top-full pt-1.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-150 z-50">
-        <div className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 min-w-[220px]">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-3 py-2.5 hover:bg-ui-subtle transition-colors min-h-[42px] flex flex-col justify-center"
-            >
-              <div className="font-medium text-ui-text text-sm leading-tight">{item.label}</div>
-              <div className="text-xs text-ui-muted mt-0.5">{item.desc}</div>
-            </Link>
-          ))}
-        </div>
+    <footer className="hidden md:block border-t border-ui-border bg-ui-canvas">
+      <div className="max-w-screen-2xl mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-2 text-xs text-ui-muted">
+        <p>{APP_LABELS.name} · {APP_LABELS.tagline}</p>
+        <nav className="flex items-center gap-4">
+          <Link href="/portal/help" className="hover:text-ui-text transition-colors">{APP_LABELS.help}</Link>
+          <Link href="/settings" className="hover:text-ui-text transition-colors">{PAGE_TITLES.settings}</Link>
+        </nav>
       </div>
-    </div>
+    </footer>
   )
 }

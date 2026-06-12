@@ -10,6 +10,7 @@ const scriptSrc = isDev
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   reactStrictMode: true,
   // Prevent webpack from bundling ws and @neondatabase/serverless.
   // ws must load as a native Node.js module so bufferUtil binaries resolve.
