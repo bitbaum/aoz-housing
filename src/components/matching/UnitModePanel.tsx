@@ -101,7 +101,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                 </div>
               </div>
               {match.concerns.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-orange-200">
+                <div className="mt-2 pt-2 border-t border-status-warning/30">
                   {match.concerns.map((c: string, i: number) => (
                     <p key={i} className="text-xs text-status-warning-text">⚠️ {c}</p>
                   ))}

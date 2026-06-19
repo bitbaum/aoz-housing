@@ -125,7 +125,7 @@ export function TransferForm({
         />
       </div>
 
-      <div className="p-3 bg-ui-surface border border-blue-200 rounded text-sm text-status-info-text">
+      <div className="p-3 bg-ui-surface border border-status-info/30 rounded text-sm text-status-info-text">
         <strong>{PLACEMENT_ACTIONS_LABELS.summaryLabel}</strong> {transferSummary}
       </div>
 

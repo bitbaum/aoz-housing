@@ -21,7 +21,7 @@ export function ConflictAnalysisSection({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 mt-4 sm:mt-6">
       {/* Conflict Gap Breakdown */}
-      <div className="card border-l-4 border-orange-400">
+      <div className="card border-l-4 border-status-warning">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-status-warning-text text-xl" aria-hidden="true">📊</span>
           <h2 className="text-lg font-semibold text-ui-text">
@@ -68,7 +68,7 @@ export function ConflictAnalysisSection({
       </div>
 
       {/* Predictability Insights */}
-      <div className="card border-l-4 border-blue-400">
+      <div className="card border-l-4 border-status-info">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-status-info-text text-xl" aria-hidden="true">🔮</span>
           <h2 className="text-lg font-semibold text-ui-text">
