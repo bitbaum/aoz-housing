@@ -156,4 +156,61 @@ describe('ConfirmDialog', () => {
     expect(btn).toBeInTheDocument()
     expect(btn).not.toBeDisabled()
   })
+
+  // ── Accessibility ────────────────────────────────────────────────────────
+
+  it('exposes the modal as an accessible dialog labelled by its title', () => {
+    renderDialog()
+    openDialog()
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    // Accessible name comes from the title via aria-labelledby
+    expect(dialog).toHaveAccessibleName('Aktion bestätigen')
+  })
+
+  it('moves focus to the cancel button when opened', () => {
+    renderDialog()
+    openDialog()
+    expect(screen.getByRole('button', { name: 'Abbrechen' })).toHaveFocus()
+  })
+
+  it('restores focus to the trigger after closing', () => {
+    renderDialog()
+    const trigger = screen.getByText('Auslösen')
+    trigger.focus()
+    openDialog()
+    fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
+    expect(trigger).toHaveFocus()
+  })
+
+  it('closes when Escape is pressed', () => {
+    renderDialog()
+    openDialog()
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('closes when the backdrop is clicked', () => {
+    renderDialog()
+    openDialog()
+    // The backdrop is the dialog's parent overlay element
+    const backdrop = screen.getByRole('dialog').parentElement as HTMLElement
+    fireEvent.click(backdrop)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('does NOT close when the dialog body itself is clicked', () => {
+    renderDialog()
+    openDialog()
+    fireEvent.click(screen.getByRole('dialog'))
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('locks body scroll while open and restores it on close', () => {
+    renderDialog()
+    openDialog()
+    expect(document.body.style.overflow).toBe('hidden')
+    fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
+    expect(document.body.style.overflow).not.toBe('hidden')
+  })
 })
