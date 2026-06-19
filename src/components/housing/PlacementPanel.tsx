@@ -138,9 +138,9 @@ function ResidentRow({
   const borderColor = hasBlockingConcerns
     ? 'border-ui-border'
     : concerns.length > 0
-      ? 'border-orange-200'
+      ? 'border-status-warning/30'
       : fitScore >= 70
-        ? 'border-green-200'
+        ? 'border-status-success/30'
         : 'border-ui-border'
 
   const bgColor = hasBlockingConcerns
