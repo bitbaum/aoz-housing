@@ -651,21 +651,23 @@ model User {
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 760 tests, 36 suites
+### Unit Tests (Jest) — 2025 tests, 105 suites
 
-| Area | Suites | Coverage |
-|------|--------|----------|
-| Server actions | 9 | All CRUD actions for residents, housing, placements, incidents, maintenance, matching, satisfaction, spots, transfers |
-| API routes | 9 | Auth (login, register, session, logout), portal (logout, chores, report, satisfaction, preferences, transfer), cron notifications, CSV export, CSV import |
-| Compatibility | 3 | Algorithm, conversion, aggregate scoring |
-| Auth utilities | 3 | JWT, rate limiting, role policy, route boundaries |
-| Email | 2 | Templates (German content, structure), cron notifications (auth, triggering) |
-| CSV export/import | 3 | CSV generation (papaparse), export routes (auth, content type), import routes (validation, duplicates) |
-| Analytics | 1 | Unit metrics calculation |
-| UI components | 2 | BedGrid, style utilities |
-| Config | 3 | Labels, formatting, factor config |
+Representative coverage by area (not an exhaustive suite list):
 
-### E2E Tests (Playwright) — 45 tests, 11 specs
+| Area | Coverage |
+|------|----------|
+| Server actions | All CRUD actions for residents, housing, placements, incidents, maintenance, matching, satisfaction, spots, transfers |
+| API routes | Auth (login, register, session, logout), portal (logout, chores, report, satisfaction, preferences, transfer), cron notifications, CSV export, CSV import |
+| Compatibility | Algorithm, conversion, aggregate scoring, unit fit-concerns / blocking logic |
+| Auth utilities | JWT (create/verify/refresh), rate limiting, role policy, route boundaries, code generation |
+| Email | Templates (German content, structure), Brevo send service (retry/no-op), cron notifications (auth, triggering) |
+| CSV export/import | CSV generation (papaparse), export routes (auth, content type), import routes (validation, duplicates) |
+| Analytics | Unit metrics calculation |
+| UI components | Dialogs (a11y), filters, BedGrid, style utilities |
+| Config | Labels, formatting, factor config |
+
+### E2E Tests (Playwright) — 168 tests, 18 specs
 
 - Auth flow (code-based login)
 - Resident creation
@@ -716,8 +718,8 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (760 tests)
-npm run test:e2e         # Run Playwright tests (45 tests)
+npm run test             # Run Jest tests (2025 tests)
+npm run test:e2e         # Run Playwright tests (168 tests)
 ```
 
 ### Key Files
