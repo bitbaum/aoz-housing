@@ -7,6 +7,9 @@ const config: Config = {
       displayName: 'server',
       preset: 'ts-jest',
       testEnvironment: 'node',
+      // Don't crawl the standalone build output — its package.json shares the
+      // app's name and triggers a Haste module naming collision warning.
+      modulePathIgnorePatterns: ['<rootDir>/.next/'],
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
       },
@@ -26,6 +29,7 @@ const config: Config = {
       displayName: 'components',
       preset: 'ts-jest',
       testEnvironment: 'jsdom',
+      modulePathIgnorePatterns: ['<rootDir>/.next/'],
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
       },
