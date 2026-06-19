@@ -171,10 +171,11 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
       {/* Concerns field for low ratings */}
       {showConcernsField && rating && rating <= 2 && (
         <div className="mt-6 p-4 bg-ui-surface rounded-lg border border-orange-200">
-          <label className="block text-sm font-medium text-ui-muted mb-2">
+          <label htmlFor="satisfaction-concerns" className="block text-sm font-medium text-ui-muted mb-2">
             {SATISFACTION_SURVEY_LABELS.commentPrompt} <span className="text-ui-muted">{SATISFACTION_SURVEY_LABELS.optional}</span>
           </label>
           <textarea
+            id="satisfaction-concerns"
             value={concerns}
             onChange={(e) => setConcerns(e.target.value)}
             placeholder={SATISFACTION_SURVEY_LABELS.commentPlaceholder}

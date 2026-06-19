@@ -4,6 +4,8 @@
 
 'use client'
 
+import { useId } from 'react'
+
 interface FilterOption {
   value: string
   label: string
@@ -24,14 +26,15 @@ export function SelectFilter({
   onChange,
   className = '',
 }: SelectFilterProps) {
+  const id = useId()
   return (
     <div className={className}>
-      <label className="sr-only">{label}</label>
+      <label htmlFor={id} className="sr-only">{label}</label>
       <select
+        id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="input text-sm"
-        aria-label={label}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
@@ -66,6 +69,7 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        aria-label={placeholder}
         className="input pl-10 text-sm"
       />
     </div>
