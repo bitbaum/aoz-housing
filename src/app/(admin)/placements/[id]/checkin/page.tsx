@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
 import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import { weeksBetween } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Check-in' }
@@ -47,20 +48,14 @@ export default async function NewCheckInPage({ params }: Props) {
     <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <Link
-          href={`/residents/${placement.residentId}`}
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {CHECKIN_FORM_LABELS.backLink(placement.resident.code)}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-          {CHECKIN_FORM_LABELS.title}
-        </h1>
-        <p className="text-ui-muted">
-          {placement.resident.code} in {placement.housingUnit.code}
-          {placement.spot && ` (${placement.spot.label || placement.spot.code})`}
-          {' • '}{CHECKIN_FORM_LABELS.week(weeksSinceStart)}
-        </p>
+        <PageHeader
+          backHref={`/residents/${placement.residentId}`}
+          backLabel={CHECKIN_FORM_LABELS.backLink(placement.resident.code).replace(/^← /, '')}
+          title={CHECKIN_FORM_LABELS.title}
+          description={`${placement.resident.code} in ${placement.housingUnit.code}${
+            placement.spot ? ` (${placement.spot.label || placement.spot.code})` : ''
+          } • ${CHECKIN_FORM_LABELS.week(weeksSinceStart)}`}
+        />
       </div>
 
       {/* Previous Check-ins Summary */}

@@ -73,6 +73,7 @@ export const MAINTENANCE_PAGE_LABELS = {
   createRequest: 'Anfrage erstellen',
   assignPlaceholder: 'Zuweisen an...',
   assignBtn: 'Zuweisen',
+  assignToMe: 'Mir zuweisen',
   startBtn: 'Starten',
   completeBtn: 'Abschliessen',
 

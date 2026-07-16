@@ -133,6 +133,23 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
   }
 }
 
+/**
+ * Distinct names of people maintenance requests have been assigned to.
+ * Used to populate the assignee datalist for quick-assign inputs.
+ */
+export async function getMaintenanceAssignees(): Promise<string[]> {
+  await requireStaffAuth()
+  const rows = await prisma.maintenanceRequest.findMany({
+    where: { assignedTo: { not: null } },
+    select: { assignedTo: true },
+    distinct: ['assignedTo'],
+    orderBy: { assignedTo: 'asc' },
+  })
+  return rows
+    .map((r) => r.assignedTo)
+    .filter((name): name is string => !!name && name.trim().length > 0)
+}
+
 export async function getMaintenanceStats() {
   await requireStaffAuth()
   const [open, assigned, inProgress, onHold, completedThisMonth] = await Promise.all([

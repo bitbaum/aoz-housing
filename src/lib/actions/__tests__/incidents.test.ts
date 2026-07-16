@@ -1,14 +1,16 @@
 /**
  * Unit tests for incident server actions
  *
- * Tests resolveIncident (uses redirect-free flow via revalidatePath),
- * getResidentIncidentStats, and getHousingUnitIncidentHistory.
- * createIncident/addFollowUp use redirect() or are form-data-dependent.
+ * Tests createIncident (redirects to the new incident detail page),
+ * getResidentIncidentStats, getHousingUnitIncidentHistory,
+ * getIncidentsNeedingFollowUp, and clearFollowUpReminder.
  */
 
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import {
+  createIncident,
   getResidentIncidentStats,
   getHousingUnitIncidentHistory,
   getIncidentsNeedingFollowUp,
@@ -42,8 +44,12 @@ jest.mock('next/cache', () => ({
   revalidatePath: jest.fn(),
 }))
 
+const mockRedirect = jest.fn()
 jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+  redirect: (...args: unknown[]) => {
+    mockRedirect(...args)
+    throw new Error('NEXT_REDIRECT')
+  },
 }))
 
 jest.mock('@/lib/audit', () => ({
@@ -71,6 +77,75 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 beforeEach(() => {
   jest.clearAllMocks()
+})
+
+// =============================================================================
+// createIncident
+// =============================================================================
+
+function makeIncidentFormData(overrides: Record<string, string> = {}): FormData {
+  const defaults: Record<string, string> = {
+    housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
+    category: 'INTERPERSONAL',
+    type: 'NOISE_COMPLAINT',
+    severity: 'MEDIUM',
+    description: 'Laute Musik nach 22 Uhr',
+    date: '2026-07-01',
+  }
+  const merged = { ...defaults, ...overrides }
+  const fd = new FormData()
+  for (const [key, value] of Object.entries(merged)) {
+    if (value !== '') {
+      fd.set(key, value)
+    }
+  }
+  return fd
+}
+
+describe('createIncident', () => {
+  it('creates the incident and redirects to its detail page with created flag', async () => {
+    ;(mockPrisma.incident.create as jest.Mock).mockResolvedValue({ id: 'inc-new' })
+
+    await expect(createIncident(makeIncidentFormData())).rejects.toThrow('NEXT_REDIRECT')
+
+    expect(mockPrisma.incident.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
+        category: 'INTERPERSONAL',
+        type: 'NOISE_COMPLAINT',
+        severity: 'MEDIUM',
+        description: 'Laute Musik nach 22 Uhr',
+      }),
+    })
+
+    expect(logAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'CREATE',
+        entity: 'INCIDENT',
+        entityId: 'inc-new',
+        userId: 'staff-1',
+      })
+    )
+
+    expect(mockRedirect).toHaveBeenCalledWith('/incidents/inc-new?created=true')
+  })
+
+  it('throws validation error when required fields are missing', async () => {
+    const fd = makeIncidentFormData({ description: '' })
+
+    await expect(createIncident(fd)).rejects.toThrow()
+    expect(mockPrisma.incident.create).not.toHaveBeenCalled()
+    expect(mockRedirect).not.toHaveBeenCalled()
+  })
+
+  it('throws user-facing error and does not redirect when prisma fails', async () => {
+    ;(mockPrisma.incident.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+
+    await expect(createIncident(makeIncidentFormData())).rejects.toThrow(
+      ERROR_MESSAGES.INCIDENT_CREATE_ERROR
+    )
+    expect(mockRedirect).not.toHaveBeenCalled()
+  })
 })
 
 // =============================================================================

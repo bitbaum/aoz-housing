@@ -554,6 +554,10 @@ export const RESIDENT_FORM_LABELS = {
   medDocCheckboxLabel: 'Medizinische Dokumentation vorhanden',
   medDocCheckboxDesc: 'Ärztliche Bestätigung für besondere Unterbringungsbedürfnisse',
   medDocTypeLabel: 'Art der Berechtigung',
+  medDocDateLabel: 'Datum der Dokumentation',
+  medDocNotesLabel: 'Notizen zur Dokumentation',
+  medDocNotesPlaceholder: 'z.B. Referenznummer, ausstellende Stelle...',
+  medDocNotesHint: 'Nur Verwaltungsnotizen, keine medizinischen Details',
 } as const
 
 export const RESIDENT_DETAIL_LABELS = {
@@ -632,6 +636,7 @@ export const INCIDENT_DETAIL_LABELS = {
   resolutionTitle: 'Lösung',
   resolvedAt: (date: string) => `Gelöst am ${date}`,
   markedResolved: 'Vorfall als gelöst markiert',
+  created: 'Vorfall erfolgreich erfasst',
   nextScheduledPrefix: 'Nächste:',
 } as const
 
@@ -640,7 +645,8 @@ export const RESIDENT_NEW_LABELS = {
   title: 'Neuen Bewohner erfassen',
   step1Subtitle: 'Schritt 1 von 2: Profil erfassen. Danach finden wir passende Unterkünfte.',
   step1Label: 'Profil erfassen',
-  step2Label: 'Unterkunft finden',
+  step2Label: 'Passende Unterkunft finden',
+  stepsHint: 'Schritt 2 startet nach dem Speichern: Das System schlägt automatisch passende Unterkünfte vor.',
   submit: 'Weiter zum Matching →',
   cancel: 'Abbrechen',
 } as const

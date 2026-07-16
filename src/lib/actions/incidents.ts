@@ -26,6 +26,8 @@ export async function createIncident(formData: FormData): Promise<void> {
   const user = await requireStaffAuth()
   const data = validateFormData(IncidentInputSchema, formData)
 
+  let incidentId: string
+
   try {
     const incident = await prisma.incident.create({
       data: {
@@ -40,6 +42,8 @@ export async function createIncident(formData: FormData): Promise<void> {
         mediationMinutes: data.mediationMinutes ?? undefined,
       },
     })
+
+    incidentId = incident.id
 
     await logAudit({
       action: 'CREATE',
@@ -58,7 +62,8 @@ export async function createIncident(formData: FormData): Promise<void> {
     throw new Error(ERROR_MESSAGES.INCIDENT_CREATE_ERROR)
   }
 
-  redirect('/incidents')
+  revalidatePath('/incidents')
+  redirect(`/incidents/${incidentId}?created=true`)
 }
 
 export async function resolveIncident(formData: FormData): Promise<void> {

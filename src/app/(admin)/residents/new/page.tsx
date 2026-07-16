@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ResidentFormFields } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import { createResident } from '@/lib/actions'
 import { RESIDENT_NEW_LABELS } from '@/lib/constants'
 
@@ -13,35 +14,32 @@ export default function NewResidentPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link
-          href="/residents"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {RESIDENT_NEW_LABELS.backLink}
-        </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-          {RESIDENT_NEW_LABELS.title}
-        </h1>
-        <p className="text-ui-muted">
-          {RESIDENT_NEW_LABELS.step1Subtitle}
-        </p>
+        <PageHeader
+          backHref="/residents"
+          backLabel={RESIDENT_NEW_LABELS.backLink.replace(/^← /, '')}
+          title={RESIDENT_NEW_LABELS.title}
+          description={RESIDENT_NEW_LABELS.step1Subtitle}
+        />
       </div>
 
-      {/* Process Indicator */}
-      <div className="mb-6 flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-aoz-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
-            1
+      {/* Journey Indicator */}
+      <div className="mb-6">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-aoz-primary text-ui-on-accent flex items-center justify-center text-sm font-medium" aria-hidden="true">
+              1
+            </div>
+            <span className="text-sm font-medium text-ui-text">{RESIDENT_NEW_LABELS.step1Label}</span>
           </div>
-          <span className="text-sm font-medium text-ui-text">{RESIDENT_NEW_LABELS.step1Label}</span>
-        </div>
-        <div className="flex-1 h-0.5 bg-ui-border" />
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-ui-border text-ui-muted flex items-center justify-center text-sm font-medium">
-            2
+          <div className="flex-1 h-0.5 bg-ui-border" />
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-ui-border text-ui-muted flex items-center justify-center text-sm font-medium" aria-hidden="true">
+              2
+            </div>
+            <span className="text-sm text-ui-muted">{RESIDENT_NEW_LABELS.step2Label}</span>
           </div>
-          <span className="text-sm text-ui-muted">{RESIDENT_NEW_LABELS.step2Label}</span>
         </div>
+        <p className="mt-2 text-xs text-ui-muted">{RESIDENT_NEW_LABELS.stepsHint}</p>
       </div>
 
       <form action={createResident} className="space-y-6">

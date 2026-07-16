@@ -27,6 +27,7 @@ export {
   createMaintenanceRequest,
   updateMaintenanceStatus,
   assignMaintenanceRequest,
+  getMaintenanceAssignees,
   getMaintenanceStats,
   getHousingUnitMaintenance,
 } from './maintenance'

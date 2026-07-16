@@ -23,6 +23,8 @@ type PageHeaderProps = {
   /** Optional back-link rendered above the title (use for nested detail/edit/new pages). */
   backHref?: string
   backLabel?: string
+  /** Optional visual (icon, avatar) rendered to the left of the title block. */
+  leading?: React.ReactNode
 }
 
 export function PageHeader({
@@ -32,7 +34,21 @@ export function PageHeader({
   actions,
   backHref,
   backLabel,
+  leading,
 }: PageHeaderProps) {
+  const titleBlock = (
+    <>
+      <h1 className="text-2xl font-semibold leading-tight text-ui-text md:text-3xl">
+        {title}
+      </h1>
+      {description ? (
+        <p className="mt-2 text-sm leading-6 text-ui-muted md:text-base">
+          {description}
+        </p>
+      ) : null}
+    </>
+  )
+
   return (
     <header className="flex flex-col gap-4 border-b border-ui-border pb-5 md:flex-row md:items-end md:justify-between">
       <div className="max-w-3xl">
@@ -50,14 +66,14 @@ export function PageHeader({
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="text-2xl font-semibold leading-tight text-ui-text md:text-3xl">
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-2 text-sm leading-6 text-ui-muted md:text-base">
-            {description}
-          </p>
-        ) : null}
+        {leading ? (
+          <div className="flex items-center gap-4">
+            <div className="shrink-0">{leading}</div>
+            <div>{titleBlock}</div>
+          </div>
+        ) : (
+          titleBlock
+        )}
       </div>
       {actions ? (
         <div className="flex flex-wrap items-center gap-2 md:justify-end">
