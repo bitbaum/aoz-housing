@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
 import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
@@ -57,6 +58,7 @@ export default async function HousingListPage({ searchParams }: Props) {
         },
       },
       orderBy: { code: 'asc' },
+      take: QUERY_LIMITS.pageList,
     }),
     // Unfiltered for tab counts and stats
     prisma.housingUnit.findMany({

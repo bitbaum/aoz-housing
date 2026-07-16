@@ -10,7 +10,12 @@ import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatib
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { validateScoreForDiscrimination } from '@/lib/compatibility/safeguards'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
-import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
+import {
+  calculateUnitMetricsBatch,
+  getSimilarPlacementSuccessRateBatch,
+  type UnitMetrics,
+  type PlacementSuccessRate,
+} from '@/lib/analytics/unit-metrics'
 import type { Resident } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type {
@@ -37,12 +42,12 @@ export default async function MatchingPage({ searchParams }: Props) {
   // All four queries are independent — fetch in parallel
   const [
     unplacedResidents,
-    placedResidents,
+    placedResidentRows,
     totalResidentCount,
     availableUnits,
   ]: [
     Resident[],
-    ResidentWithPlacement[],
+    { id: string; code: string; placements: { housingUnit: { id: string; code: string } }[] }[],
     number,
     MatchUnit[],
   ] = await Promise.all([
@@ -53,15 +58,19 @@ export default async function MatchingPage({ searchParams }: Props) {
       },
       orderBy: { createdAt: 'desc' },
     }),
+    // Narrow select: ResidentSelectorPanel only renders id, code and the
+    // current unit's code for placed residents
     prisma.resident.findMany({
       where: {
         status: 'PLACED',
         placements: { some: { status: 'ACTIVE' } },
       },
-      include: {
+      select: {
+        id: true,
+        code: true,
         placements: {
           where: { status: 'ACTIVE' },
-          include: { housingUnit: { select: { id: true, code: true } } },
+          select: { housingUnit: { select: { id: true, code: true } } },
           take: 1,
         },
       },
@@ -92,6 +101,11 @@ export default async function MatchingPage({ searchParams }: Props) {
       orderBy: { code: 'asc' },
     }),
   ])
+
+  // ResidentSelectorPanel's prop type expects ResidentWithPlacement; the
+  // narrow rows above cover every field it actually reads (id, code,
+  // placements[0].housingUnit.code)
+  const placedResidents = placedResidentRows as ResidentWithPlacement[]
 
   // If resident is selected, calculate matches
   let selectedResident: ResidentWithPlacement | null = null
@@ -147,8 +161,10 @@ export default async function MatchingPage({ searchParams }: Props) {
     if (foundResident) {
       const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)
 
-      // Calculate matches with unit metrics (async)
-      matches = await Promise.all(filteredUnits.map(async (unit) => {
+      // Compute apartment profiles/fits first (pure CPU) so the historical
+      // metrics and success rates can each be fetched in one batched
+      // round-trip instead of ~5 queries per unit
+      const unitFits = filteredUnits.map((unit) => {
         const currentResidents = unit.placements.map((p) => p.resident)
 
         // Calculate apartment aggregate profile
@@ -163,21 +179,30 @@ export default async function MatchingPage({ searchParams }: Props) {
           apartmentProfile
         )
 
-        // Get unit historical metrics
-        let unitMetrics = null
-        try {
-          unitMetrics = await calculateUnitMetrics(unit.id)
-        } catch (error) {
-          logger.warn(`Failed to calculate metrics for unit ${unit.id}`, { unitId: unit.id })
-        }
+        return { unit, currentResidents, apartmentProfile, apartmentFit }
+      })
 
-        // Get REAL success rate data from database
-        let realSuccessData = null
-        try {
-          realSuccessData = await getSimilarPlacementSuccessRate(apartmentFit.fitScore, 10)
-        } catch (error) {
+      // Unit historical metrics + REAL success rate data — constant number of
+      // queries for the whole set (units are passed pre-loaded, no re-fetch)
+      const [metricsByUnitId, successRateByScore] = await Promise.all([
+        calculateUnitMetricsBatch(
+          filteredUnits.map(u => ({ id: u.id, code: u.code, totalBeds: u.totalBeds }))
+        ).catch((): Map<string, UnitMetrics> => {
+          logger.warn('Failed to calculate unit metrics')
+          return new Map()
+        }),
+        getSimilarPlacementSuccessRateBatch(
+          unitFits.map(f => f.apartmentFit.fitScore),
+          10
+        ).catch((): Map<number, PlacementSuccessRate> => {
           logger.warn('Failed to get success rate data')
-        }
+          return new Map()
+        }),
+      ])
+
+      matches = unitFits.map(({ unit, currentResidents, apartmentProfile, apartmentFit }) => {
+        const unitMetrics = metricsByUnitId.get(unit.id) ?? null
+        const realSuccessData = successRateByScore.get(apartmentFit.fitScore) ?? null
 
           // Calculate compatibility details with current residents
           const compatibilityDetails: CompatibilityDetail[] = []
@@ -254,7 +279,7 @@ export default async function MatchingPage({ searchParams }: Props) {
               sharedLanguageCount * 5 -
               (currentResidents.length === 0 ? 20 : 0)
           }
-        }))
+        })
 
       // Sort matches by score
       matches = matches.sort((a, b) => a.sortScore - b.sortScore)

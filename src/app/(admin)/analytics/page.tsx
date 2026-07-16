@@ -37,38 +37,47 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const ninetyDaysAgo = getDateDaysAgo(90)
 
   const [
-    residents,
     units,
     placements,
     recentPlacements,
     recentIncidents,
     checkIns,
   ] = await Promise.all([
-    prisma.resident.findMany({
-      where: { status: { in: ['ACTIVE', 'PLACED'] } },
-    }),
+    // Only bed totals and active-placement counts are read
     prisma.housingUnit.findMany({
-      include: { placements: { where: { status: 'ACTIVE' } } },
+      select: {
+        totalBeds: true,
+        _count: { select: { placements: { where: { status: 'ACTIVE' } } } },
+      },
     }),
+    // Overdue check-in calculation needs start date, support level and last check-in only
     prisma.placement.findMany({
       where: { status: 'ACTIVE' },
-      include: {
-        resident: true,
-        housingUnit: true,
+      select: {
+        startDate: true,
+        resident: { select: { supportLevel: true } },
         checkIns: {
           orderBy: { createdAt: 'desc' },
           take: 1,
+          select: { createdAt: true },
         },
       },
     }),
+    // Exactly the fields RecentPlacementsTable renders
     prisma.placement.findMany({
       where: { startDate: { gte: ninetyDaysAgo } },
-      include: {
-        housingUnit: true,
-        resident: true,
+      select: {
+        id: true,
+        startDate: true,
+        status: true,
+        residentId: true,
+        housingUnitId: true,
+        resident: { select: { code: true, supportLevel: true } },
+        housingUnit: { select: { code: true } },
         checkIns: {
           orderBy: { createdAt: 'desc' },
           take: 1,
+          select: { createdAt: true, overallSatisfaction: true },
         },
       },
       orderBy: { startDate: 'desc' },
@@ -78,16 +87,17 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         date: { gte: periodStart },
         category: 'INTERPERSONAL', // Only conflicts, not maintenance
       },
-      include: { housingUnit: true },
+      select: {
+        type: true,
+        resolvedAt: true,
+        housingUnitId: true,
+        housingUnit: { select: { id: true, code: true, address: true } },
+      },
     }),
+    // Only satisfaction ratings are aggregated
     prisma.satisfactionCheckIn.findMany({
       where: { createdAt: { gte: periodStart } },
-      include: {
-        placement: {
-          include: { resident: true, housingUnit: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
+      select: { overallSatisfaction: true },
     }),
   ])
 
@@ -109,7 +119,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   // Calculate metrics
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
-  const occupiedBeds = units.reduce((sum, u) => sum + u.placements.length, 0)
+  const occupiedBeds = units.reduce((sum, u) => sum + u._count.placements, 0)
   const occupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0
 
   // Check-in status - find overdue

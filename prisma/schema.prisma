@@ -365,6 +365,7 @@ model Placement {
   @@index([startDate, endDate])
   @@index([residentId])
   @@index([housingUnitId])
+  @@index([compatibilityScore])
 }
 
 enum PlacementStatus {
@@ -410,6 +411,7 @@ model CompatibilityAssessment {
 
   @@unique([residentId, comparedWithId])
   @@index([overallScore])
+  @@index([comparedWithId])
 }
 
 // =============================================================================
@@ -465,6 +467,7 @@ model Incident {
   @@index([reportedById])
   @@index([subjectId])
   @@index([nextFollowUpDate])
+  @@index([housingUnitId, category, date])
 }
 
 model IncidentFollowUp {
