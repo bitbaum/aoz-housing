@@ -5,6 +5,7 @@ import { portalPreferencesSchema, validateFormData, ValidationError } from '@/li
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { getResidentCookie } from '@/lib/portal-auth'
+import { serializeRoommatePreferences } from '@/components/portal/roommate-preferences'
 
 export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
@@ -32,12 +33,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
-  // Build roommate preferences text (stored in dedicated column, NOT notes)
-  const roommatePrefsText = [
-    data.preferredAgeRange ? `Altersgruppe: ${data.preferredAgeRange}` : null,
-    data.culturalPreference ? `Kultur: ${data.culturalPreference}` : null,
-    data.additionalPreferences || null,
-  ].filter(Boolean).join('. ') || null
+  // Build roommate preferences text (stored in dedicated column, NOT notes).
+  // Serialized as labeled German lines so staff can read it and the portal
+  // form can parse it back into its fields (round-trip).
+  const roommatePrefsText = serializeRoommatePreferences({
+    preferredAgeRange: data.preferredAgeRange,
+    culturalPreference: data.culturalPreference,
+    additionalPreferences: data.additionalPreferences,
+  })
 
   try {
     await prisma.resident.update({

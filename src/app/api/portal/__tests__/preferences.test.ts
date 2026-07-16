@@ -43,6 +43,7 @@ jest.mock('@/lib/logger', () => ({
 
 // --- Import after mocks ---
 import { POST } from '../preferences/route'
+import { parseRoommatePreferences } from '@/components/portal/roommate-preferences'
 
 // --- Helpers ---
 
@@ -157,6 +158,53 @@ describe('POST /api/portal/preferences', () => {
     expect(updateCall.data.roommatePreferences).toContain('Altersgruppe: 25-35')
     expect(updateCall.data.roommatePreferences).toContain('Kultur: Arabisch')
     expect(updateCall.data.roommatePreferences).toContain('Ruhige Person')
+  })
+
+  test('serializes roommatePreferences in the parseable labeled-line format', async () => {
+    const resident = { id: 'res-3', code: 'RES-003' }
+    mockCookieGet.mockReturnValue({ value: 'RES-003' })
+    mockFindUnique.mockResolvedValue(resident)
+    mockUpdate.mockResolvedValue(resident)
+
+    const prefsWithRoommate = {
+      ...VALID_PREFS,
+      preferredAgeRange: 'SIMILAR',
+      culturalPreference: 'SAME_REGION',
+      additionalPreferences: 'Ich arbeite Nachtschicht',
+    }
+
+    const req = createPreferencesRequest(prefsWithRoommate)
+    const res = await POST(req)
+
+    expect(res.status).toBe(200)
+
+    const updateCall = mockUpdate.mock.calls[0][0]
+    // Human-readable German labels, one labeled line per part
+    expect(updateCall.data.roommatePreferences).toBe(
+      'Altersgruppe: Ähnliches Alter wie ich\n' +
+        'Kultur: Aus meiner Region\n' +
+        'Wünsche: Ich arbeite Nachtschicht'
+    )
+    // Stored text must parse back to the submitted form values (round-trip)
+    expect(parseRoommatePreferences(updateCall.data.roommatePreferences)).toEqual({
+      preferredAgeRange: 'SIMILAR',
+      culturalPreference: 'SAME_REGION',
+      additionalPreferences: 'Ich arbeite Nachtschicht',
+    })
+  })
+
+  test('stores null roommatePreferences when all optional fields are empty', async () => {
+    const resident = { id: 'res-4', code: 'RES-004' }
+    mockCookieGet.mockReturnValue({ value: 'RES-004' })
+    mockFindUnique.mockResolvedValue(resident)
+    mockUpdate.mockResolvedValue(resident)
+
+    const req = createPreferencesRequest(VALID_PREFS)
+    const res = await POST(req)
+
+    expect(res.status).toBe(200)
+    const updateCall = mockUpdate.mock.calls[0][0]
+    expect(updateCall.data.roommatePreferences).toBeNull()
   })
 
   test('returns 400 on validation error (invalid sleepSchedule)', async () => {

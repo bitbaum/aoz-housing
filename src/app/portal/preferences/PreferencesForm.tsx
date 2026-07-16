@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import type { ScaleFactorDef, EnumFactorDef } from '@/lib/config/types'
+import { parseRoommatePreferences } from '@/components/portal/roommate-preferences'
 
 const P = PORTAL_LABELS.preferences
 
@@ -30,17 +31,27 @@ interface Props {
   dietOptions: string[]
 }
 
+interface ScaleWordLabels {
+  lowEmoji: string
+  highEmoji: string
+  values: readonly string[]
+}
+
 function RatingScale({
   name,
   defaultValue,
   lowLabel,
   highLabel,
+  wordLabels,
 }: {
   name: string
   defaultValue: number
   lowLabel: string
   highLabel: string
+  wordLabels: ScaleWordLabels
 }) {
+  const [selected, setSelected] = useState(defaultValue)
+
   return (
     <>
       <div className="flex gap-2">
@@ -51,23 +62,30 @@ function RatingScale({
               name={name}
               value={level}
               defaultChecked={defaultValue === level}
+              onChange={() => setSelected(level)}
+              aria-label={`${level} ${PORTAL_LABELS.preferences.scale.selectedOf} – ${wordLabels.values[level - 1]}`}
               className="sr-only peer"
             />
-            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
+            <div className="min-h-[44px] py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
               {level}
             </div>
           </label>
         ))}
       </div>
       <div className="flex justify-between text-xs text-ui-muted mt-1">
-        <span>{lowLabel}</span>
-        <span>{highLabel}</span>
+        <span aria-hidden="true">{wordLabels.lowEmoji} {lowLabel}</span>
+        <span aria-hidden="true">{highLabel} {wordLabels.highEmoji}</span>
       </div>
+      <p className="text-sm font-medium text-ui-text text-center mt-1" aria-live="polite">
+        {selected} {PORTAL_LABELS.preferences.scale.selectedOf} – {wordLabels.values[selected - 1]}
+      </p>
     </>
   )
 }
 
 export function PreferencesForm({ resident, languageOptions, dietOptions }: Props) {
+  // Re-populate the three roommate-preference fields from the stored string
+  const roommatePrefs = parseRoommatePreferences(resident.roommatePreferences)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -229,6 +247,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.noiseTolerance}
                 lowLabel={(RESIDENT_FACTORS.noiseTolerance as ScaleFactorDef).lowLabel}
                 highLabel={(RESIDENT_FACTORS.noiseTolerance as ScaleFactorDef).highLabel}
+                wordLabels={P.scale.noiseTolerance}
               />
             </div>
 
@@ -240,6 +259,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.cleanlinessLevel}
                 lowLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).lowLabel}
                 highLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).highLabel}
+                wordLabels={P.scale.cleanlinessLevel}
               />
             </div>
           </div>
@@ -273,6 +293,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 defaultValue={resident.privacyNeed}
                 lowLabel={(RESIDENT_FACTORS.privacyNeed as ScaleFactorDef).lowLabel}
                 highLabel={(RESIDENT_FACTORS.privacyNeed as ScaleFactorDef).highLabel}
+                wordLabels={P.scale.privacyNeed}
               />
             </div>
 
@@ -387,7 +408,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
           <div className="space-y-4">
             <div>
               <label className="label">{P.fields.preferredAgeRange}</label>
-              <select name="preferredAgeRange" className="input">
+              <select name="preferredAgeRange" defaultValue={roommatePrefs.preferredAgeRange} className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SIMILAR">{P.fields.similarAge}</option>
                 {(RESIDENT_FACTORS.ageRange as EnumFactorDef).options.map((opt) => (
@@ -400,7 +421,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
             <div>
               <label className="label">{P.fields.culturalPref}</label>
-              <select name="culturalPreference" className="input">
+              <select name="culturalPreference" defaultValue={roommatePrefs.culturalPreference} className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SAME_REGION">{P.fields.sameRegion}</option>
                 <option value="DIFFERENT_REGION">{P.fields.differentRegion}</option>
@@ -412,6 +433,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               <label className="label">{P.fields.additionalPrefs}</label>
               <textarea
                 name="additionalPreferences"
+                defaultValue={roommatePrefs.additionalPreferences}
                 className="input"
                 rows={3}
                 placeholder={P.hints.additionalPrefsPlaceholder}

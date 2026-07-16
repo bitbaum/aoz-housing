@@ -11,6 +11,7 @@ import { PortalQuickActions } from '@/components/portal/PortalQuickActions'
 import { PortalPendingChores } from '@/components/portal/PortalPendingChores'
 import { PortalRoommatesCard } from '@/components/portal/PortalRoommatesCard'
 import { PortalReportsCard } from '@/components/portal/PortalReportsCard'
+import { PortalTransferStatusCard } from '@/components/portal/PortalTransferStatusCard'
 import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard'
 import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
 import { listActivities } from '@/lib/data/activities'
@@ -59,6 +60,17 @@ export default async function ResidentPortal() {
         take: DISPLAY_LIMITS.portalIncidentPreview,
         select: { id: true, type: true, description: true, resolvedAt: true },
       },
+      transferRequests: {
+        where: { status: { in: ['PENDING', 'APPROVED'] } },
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          targetUnit: { select: { code: true } },
+        },
+      },
     },
   })
 
@@ -67,6 +79,7 @@ export default async function ResidentPortal() {
   }
 
   const currentPlacement = resident.placements[0]
+  const latestTransferRequest = resident.transferRequests[0]
   const housingUnit = currentPlacement?.housingUnit
   const roommates = housingUnit?.placements
     .filter(p => p.residentId !== resident.id)
@@ -159,6 +172,11 @@ export default async function ResidentPortal() {
             roommates={roommates}
             compatibilityScores={compatibilityScores}
           />
+        )}
+
+        {/* Transfer Request Status */}
+        {latestTransferRequest && (
+          <PortalTransferStatusCard request={latestTransferRequest} />
         )}
 
         {/* Recent Reports */}
