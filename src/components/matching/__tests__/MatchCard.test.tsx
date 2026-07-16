@@ -79,6 +79,8 @@ jest.mock('@/lib/constants', () => ({
     blocked: 'Blockiert',
     place: 'Platzieren',
     placeLowCompat: 'Platzieren (niedrige Kompatibilität)',
+    showDetails: 'Details anzeigen',
+    scoreLegend: '80+ Sehr gut · 60–79 Gut · 40–59 Mittel · 20–39 Niedrig · 0–19 Kritisch',
   },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
@@ -90,6 +92,13 @@ jest.mock('@/lib/utils', () => ({
     if (score >= 40) return 'text-score-medium-text'
     if (score >= 20) return 'text-score-low-text'
     return 'text-score-critical-text'
+  },
+  getScoreLabel: (score: number) => {
+    if (score >= 80) return 'Sehr gut'
+    if (score >= 60) return 'Gut'
+    if (score >= 40) return 'Mittel'
+    if (score >= 20) return 'Niedrig'
+    return 'Kritisch'
   },
 }))
 
@@ -245,6 +254,29 @@ describe('MatchCard', () => {
 
       const link = screen.getByText('WG-101')
       expect(link.closest('a')).toHaveAttribute('href', '/housing/unit-1')
+    })
+  })
+
+  describe('headline score', () => {
+    it('shows the fit score with tier label in the headline', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      // fixture fitScore is 85 → excellent tier
+      expect(screen.getByText('85%')).toBeInTheDocument()
+      expect(screen.getByText('Sehr gut')).toBeInTheDocument()
+    })
+
+    it('exposes the score-tier legend as a tooltip on the score', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      const score = screen.getByText('85%').closest('[title]')
+      expect(score).toHaveAttribute('title', expect.stringContaining('Sehr gut'))
+    })
+
+    it('renders a details expander for secondary information', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      expect(screen.getByText(/Details anzeigen/)).toBeInTheDocument()
     })
   })
 

@@ -38,6 +38,8 @@ export const MATCHING_LABELS = {
   moreConcerns: (count: number) => `+${count} weitere Bedenken`,
   blocked: 'Blockiert',
   place: 'Platzieren',
+  showDetails: 'Details anzeigen',
+  scoreLegend: '80+ Sehr gut · 60–79 Gut · 40–59 Mittel · 20–39 Niedrig · 0–19 Kritisch',
   placeLowCompat: 'Platzieren (niedrige Kompatibilität)',
   // Spot selection
   noSpotsAvailable: 'Keine freien Plätze verfügbar',

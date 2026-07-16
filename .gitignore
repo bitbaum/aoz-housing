@@ -12,6 +12,7 @@ tests/.auth/
 /before-*.png
 /after-*.png
 /final-*.png
+/nav-*.png
 
 # next.js
 /.next/
