@@ -667,7 +667,7 @@ Representative coverage by area (not an exhaustive suite list):
 | UI components | Dialogs (a11y), filters, BedGrid, style utilities |
 | Config | Labels, formatting, factor config |
 
-### E2E Tests (Playwright) — 168 tests, 18 specs
+### E2E Tests (Playwright) — 192 tests, 18 specs
 
 - Auth flow (code-based login)
 - Resident creation
@@ -719,7 +719,7 @@ npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
 npm run test             # Run Jest tests (2069 tests)
-npm run test:e2e         # Run Playwright tests (168 tests)
+npm run test:e2e         # Run Playwright tests (192 tests)
 ```
 
 ### Key Files
