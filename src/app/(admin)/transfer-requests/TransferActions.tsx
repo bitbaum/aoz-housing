@@ -17,7 +17,7 @@ export function TransferActions({ requestId, residentId, hasTargetUnit }: Transf
   const router = useRouter()
   const [staffNotes, setStaffNotes] = useState('')
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<ReviewTransferResult | null>(null)
+  const [result, setResult] = useState<(ReviewTransferResult & { action: 'approve' | 'deny' }) | null>(null)
 
   async function handleAction(action: 'approve' | 'deny') {
     setLoading(true)
@@ -26,7 +26,7 @@ export function TransferActions({ requestId, residentId, hasTargetUnit }: Transf
     const fn = action === 'approve' ? approveTransferRequest : denyTransferRequest
     const res = await fn({ requestId, staffNotes: staffNotes || undefined })
 
-    setResult(res)
+    setResult({ ...res, action })
     setLoading(false)
     if (res.success) {
       router.refresh()
@@ -34,12 +34,13 @@ export function TransferActions({ requestId, residentId, hasTargetUnit }: Transf
   }
 
   if (result?.success) {
+    const approvedOnly = result.action === 'approve' && !result.executed
     return (
       <div role="status" className="space-y-2">
         <p className="text-sm text-status-success-text font-medium">
-          {result.executed ? L.successExecuted : L.success}
+          {result.executed ? L.successExecuted : approvedOnly ? L.successApprovedOnly : L.success}
         </p>
-        {!result.executed && (
+        {approvedOnly && (
           <p className="text-sm text-ui-muted">
             {L.completeTransferHint}{' '}
             <Link href={`/residents/${residentId}`} className="text-aoz-primary underline font-medium">

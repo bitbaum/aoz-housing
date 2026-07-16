@@ -82,6 +82,13 @@ jest.mock('@/lib/constants', () => ({
     showDetails: 'Details anzeigen',
     scoreLegend: '80+ Sehr gut · 60–79 Gut · 40–59 Mittel · 20–39 Niedrig · 0–19 Kritisch',
   },
+  PLACEMENT_CONCERN_LABELS: {
+    wheelchairRequired: 'Benötigt Rollstuhlzugang',
+    groundFloorRequired: 'Benötigt Erdgeschoss',
+    smokerInNonSmokingUnit: 'Raucher in Nichtraucher-Einheit',
+    sharedKitchenOnly: 'Nur geteilte Küche verfügbar',
+    sharedBathroomOnly: 'Nur geteiltes Bad verfügbar',
+  },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
 
@@ -482,7 +489,7 @@ describe('MatchCard', () => {
   describe('blocking issues', () => {
     it('applies red styling for blocking issues (Rollstuhl)', () => {
       const match = makeMatch({
-        unitConcerns: ['Rollstuhl-Zugang nicht vorhanden'],
+        unitConcerns: ['Benötigt Rollstuhlzugang'],
       })
 
       const { container } = render(
@@ -490,10 +497,39 @@ describe('MatchCard', () => {
       )
 
       // Check that the concern has red coloring
-      const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
+      const concern = screen.getByText(/Benötigt Rollstuhlzugang/)
       expect(concern.className).toContain('text-status-error-text')
       // Card should have error styling for blocking issues
       expect((container.firstChild as HTMLElement).className).toContain('border-status-error')
+    })
+
+    it('keeps apartment-level BLOCKING conflict reasons visible outside the details expander', () => {
+      const match = makeMatch({
+        apartmentProfile: {
+          ...makeMatch().apartmentProfile,
+          isEmpty: false,
+          currentResidentCount: 1,
+        },
+        apartmentFit: {
+          ...makeMatch().apartmentFit,
+          fitScore: 10,
+          conflicts: [
+            {
+              attribute: 'smokingStatus',
+              severity: 'BLOCKING',
+              message: 'Raucher in Nichtraucher-Einheit',
+              residentValue: 'INDOOR_SMOKER',
+              apartmentAverage: 'NON_SMOKER',
+            } as never,
+          ],
+        },
+      })
+
+      render(<MatchCard match={match} resident={mockResident} />)
+
+      const reasons = screen.getAllByText(/Raucher in Nichtraucher-Einheit/)
+      // At least one instance must NOT be inside the collapsed <details>
+      expect(reasons.some((el) => !el.closest('details'))).toBe(true)
     })
   })
 

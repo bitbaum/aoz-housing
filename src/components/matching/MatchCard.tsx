@@ -5,6 +5,7 @@ import type { MatchResult, CompatibilityDetail } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'
 import { MATCHING_LABELS } from '@/lib/constants'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils'
+import { isBlockingConcern } from '@/lib/compatibility/unit-concerns'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import { SpotSelection } from './SpotSelection'
@@ -45,19 +46,20 @@ export function MatchCard({ match, resident, rank }: Props) {
     (l: string) => roommateLanguages.includes(l)
   )
 
-  const isBlockingConcern = (c: string) =>
-    c.includes('Rollstuhl') || c.includes('Erdgeschoss')
   const blockingUnitConcerns = match.unitConcerns.filter(isBlockingConcern)
   const otherUnitConcerns = match.unitConcerns.filter((c) => !isBlockingConcern(c))
-  const hasBlockingIssues = blockingUnitConcerns.length > 0
+  // Apartment-level BLOCKING conflicts must stay visible on the card face —
+  // they justify why the place button is disabled.
+  const blockingFitConflicts = (match.apartmentFit?.conflicts ?? []).filter(
+    (c: ApartmentConflict) => c.severity === 'BLOCKING'
+  )
+  const hasBlockingIssues =
+    match.hasBlockingIssue || blockingUnitConcerns.length > 0 || blockingFitConflicts.length > 0
 
   const fitScore = match.apartmentFit?.fitScore ?? null
   const highRisk =
     match.unitMetrics &&
     (match.unitMetrics.riskLevel === 'HIGH' || match.unitMetrics.riskLevel === 'CRITICAL')
-
-  const detailCount =
-    allConcerns.length + otherUnitConcerns.length + match.unit.placements.length
 
   return (
     <div className={`p-4 border rounded-lg ${hasBlockingIssues ? 'border-status-error/25 bg-status-error/8' : rank === 1 ? 'border-score-excellent/30 bg-score-excellent/8' : rank && rank <= 3 ? 'border-status-info/20 bg-status-info/8' : 'border-ui-border'}`}>
@@ -121,11 +123,16 @@ export function MatchCard({ match, resident, rank }: Props) {
         </div>
       )}
 
-      {blockingUnitConcerns.length > 0 && (
+      {(blockingUnitConcerns.length > 0 || blockingFitConflicts.length > 0) && (
         <div className="mb-3">
           {blockingUnitConcerns.map((concern: string, i: number) => (
             <p key={i} className="text-xs text-status-error-text font-medium">
               ⚠️ {concern}
+            </p>
+          ))}
+          {blockingFitConflicts.map((conflict: ApartmentConflict, i: number) => (
+            <p key={`fit-${i}`} className="text-xs text-status-error-text font-medium">
+              🚫 {conflict.message}
             </p>
           ))}
         </div>
@@ -155,7 +162,6 @@ export function MatchCard({ match, resident, rank }: Props) {
       <details className="mb-3 group">
         <summary className="cursor-pointer text-xs font-medium text-ui-muted hover:text-ui-text py-2 -my-1 select-none">
           {MATCHING_LABELS.showDetails}
-          {detailCount > 0 ? ` (${detailCount})` : ''}
         </summary>
         <div className="mt-2 space-y-3">
           {match.unitMetrics && (
@@ -192,7 +198,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             />
           )}
 
-          {match.apartmentFit && !match.apartmentProfile.isEmpty && (
+          {match.apartmentFit && match.apartmentProfile && !match.apartmentProfile.isEmpty && (
             <div className="p-2 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded">
               {realSuccessData && realSuccessData.totalPlacements > 0 ? (
                 <>
@@ -278,7 +284,7 @@ export function MatchCard({ match, resident, rank }: Props) {
         const hasBlockingConflicts = match.apartmentFit?.conflicts.some(
           (c: ApartmentConflict) => c.severity === 'BLOCKING'
         ) || false
-        const actionFitScore = match.apartmentFit?.fitScore || 100
+        const actionFitScore = match.apartmentFit?.fitScore ?? 100
 
         return (
           <form action={placeResident}>

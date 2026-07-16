@@ -99,9 +99,52 @@ function resolveValue(
 }
 
 /**
+ * Decode the pre-labeled legacy format, which joined all parts with '. ' on a
+ * single line and stored raw enum codes:
+ *
+ *   Altersgruppe: SIMILAR. Kultur: SAME_REGION. free text
+ *
+ * Returns null when the line doesn't lead with a recognizable legacy segment.
+ */
+function parseLegacyLine(line: string): RoommatePreferenceParts | null {
+  const parts: RoommatePreferenceParts = {
+    preferredAgeRange: '',
+    culturalPreference: '',
+    additionalPreferences: '',
+  }
+  let rest = line
+
+  const ageMatch = rest.match(/^Altersgruppe: ([A-Z_]+)(?:\.\s+|\.?$)/)
+  if (ageMatch) {
+    const value = resolveValue(ageMatch[1], AGE_LABEL_TO_VALUE, AGE_VALUE_TO_LABEL)
+    if (value) {
+      parts.preferredAgeRange = value
+      rest = rest.slice(ageMatch[0].length)
+    }
+  }
+
+  const cultureMatch = rest.match(/^Kultur: ([A-Z_]+)(?:\.\s+|\.?$)/)
+  if (cultureMatch) {
+    const value = resolveValue(cultureMatch[1], CULTURE_LABEL_TO_VALUE, CULTURE_VALUE_TO_LABEL)
+    if (value) {
+      parts.culturalPreference = value
+      rest = rest.slice(cultureMatch[0].length)
+    }
+  }
+
+  if (!parts.preferredAgeRange && !parts.culturalPreference) return null
+
+  parts.additionalPreferences = rest.trim()
+  return parts
+}
+
+/**
  * Parse the stored string back into the three form inputs.
  * Unrecognized lines (legacy free-form values, unknown labels) are preserved
- * in `additionalPreferences` rather than dropped.
+ * in `additionalPreferences` rather than dropped. Once a line has been
+ * attributed to the free-text wishes, every following line is treated as its
+ * continuation — so wishes that happen to start with "Kultur: " etc. are
+ * never mis-promoted into a structured field.
  */
 export function parseRoommatePreferences(text: string | null | undefined): RoommatePreferenceParts {
   const result: RoommatePreferenceParts = {
@@ -112,32 +155,57 @@ export function parseRoommatePreferences(text: string | null | undefined): Roomm
   if (!text) return result
 
   const additionalLines: string[] = []
+  let inFreeText = false
 
   for (const rawLine of text.split('\n')) {
     const line = rawLine.replace(/\r$/, '')
 
-    if (!result.preferredAgeRange && line.startsWith(AGE_PREFIX)) {
-      const value = resolveValue(line.slice(AGE_PREFIX.length).trim(), AGE_LABEL_TO_VALUE, AGE_VALUE_TO_LABEL)
-      if (value) {
-        result.preferredAgeRange = value
-        continue
+    if (!inFreeText) {
+      if (!result.preferredAgeRange && line.startsWith(AGE_PREFIX)) {
+        const value = resolveValue(line.slice(AGE_PREFIX.length).trim(), AGE_LABEL_TO_VALUE, AGE_VALUE_TO_LABEL)
+        if (value) {
+          result.preferredAgeRange = value
+          continue
+        }
+        // Not a clean label/code — may be the legacy '. '-joined single line.
+        const legacy = parseLegacyLine(line)
+        if (legacy) {
+          result.preferredAgeRange = result.preferredAgeRange || legacy.preferredAgeRange
+          result.culturalPreference = result.culturalPreference || legacy.culturalPreference
+          if (legacy.additionalPreferences) {
+            additionalLines.push(legacy.additionalPreferences)
+            inFreeText = true
+          }
+          continue
+        }
+      }
+
+      if (!result.culturalPreference && line.startsWith(CULTURE_PREFIX)) {
+        const value = resolveValue(line.slice(CULTURE_PREFIX.length).trim(), CULTURE_LABEL_TO_VALUE, CULTURE_VALUE_TO_LABEL)
+        if (value) {
+          result.culturalPreference = value
+          continue
+        }
+        const legacy = parseLegacyLine(line)
+        if (legacy) {
+          result.culturalPreference = result.culturalPreference || legacy.culturalPreference
+          if (legacy.additionalPreferences) {
+            additionalLines.push(legacy.additionalPreferences)
+            inFreeText = true
+          }
+          continue
+        }
       }
     }
 
-    if (!result.culturalPreference && line.startsWith(CULTURE_PREFIX)) {
-      const value = resolveValue(line.slice(CULTURE_PREFIX.length).trim(), CULTURE_LABEL_TO_VALUE, CULTURE_VALUE_TO_LABEL)
-      if (value) {
-        result.culturalPreference = value
-        continue
-      }
-    }
-
-    if (line.startsWith(ADDITIONAL_PREFIX)) {
+    if (line.startsWith(ADDITIONAL_PREFIX) && !inFreeText) {
       additionalLines.push(line.slice(ADDITIONAL_PREFIX.length))
+      inFreeText = true
       continue
     }
 
     additionalLines.push(line)
+    if (line.trim()) inFreeText = true
   }
 
   result.additionalPreferences = additionalLines.join('\n').trim()

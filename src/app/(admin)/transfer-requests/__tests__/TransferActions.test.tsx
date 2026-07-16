@@ -103,14 +103,16 @@ describe('TransferActions', () => {
     })
   })
 
-  it('shows success message after successful approve', async () => {
+  it('shows approved-only message after approve without executed transfer', async () => {
     mockSuccess()
     renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
     await waitFor(() => {
-      expect(screen.getByRole('status')).toHaveTextContent('Erfolgreich bearbeitet')
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Genehmigt — Verlegung noch nicht durchgeführt'
+      )
     })
     // Form is replaced by success message
     expect(screen.queryByRole('button', { name: 'Genehmigen' })).not.toBeInTheDocument()
@@ -162,7 +164,7 @@ describe('TransferActions', () => {
     expect(mockDeny).toHaveBeenCalledWith({ requestId: 'req-xyz', staffNotes: undefined })
   })
 
-  it('shows success message after successful deny', async () => {
+  it('shows success message after successful deny without the complete-transfer link', async () => {
     mockSuccess()
     renderActions()
 
@@ -171,6 +173,8 @@ describe('TransferActions', () => {
     await waitFor(() => {
       expect(screen.getByRole('status')).toHaveTextContent('Erfolgreich bearbeitet')
     })
+    // A denial must never invite staff to execute the transfer
+    expect(screen.queryByRole('link', { name: 'Verlegung durchführen' })).not.toBeInTheDocument()
   })
 
   it('calls router.refresh() after successful deny', async () => {

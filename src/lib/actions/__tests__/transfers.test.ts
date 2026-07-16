@@ -390,10 +390,15 @@ describe('approveTransferRequest with target unit', () => {
 
     const result = await approveTransferRequest(validInput)
 
-    expect(result).toEqual({
-      success: false,
-      error: ERROR_MESSAGES.TRANSFER_REQUEST_NO_PLACEMENT,
-    })
+    // The APPROVED claim commits (request no longer stuck PENDING), no move happens
+    expect(result).toEqual({ success: true, executed: false })
+    expect(tx.placement.create).not.toHaveBeenCalled()
+    expect(logAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'UPDATE',
+        changes: expect.objectContaining({ status: 'APPROVED' }),
+      })
+    )
   })
 
   it('returns generic transfer error on unexpected failure', async () => {

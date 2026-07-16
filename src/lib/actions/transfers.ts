@@ -67,7 +67,7 @@ async function reviewTransferRequest(
       return {
         success: false,
         error: exists
-          ? 'Anfrage wurde bereits bearbeitet'
+          ? ERROR_MESSAGES.TRANSFER_ALREADY_PROCESSED
           : ERROR_MESSAGES.TRANSFER_REQUEST_NOT_FOUND,
       }
     }
@@ -116,7 +116,7 @@ export async function approveTransferRequest(input: ReviewTransferRequestInput):
     return { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_NOT_FOUND }
   }
   if (request.status !== 'PENDING') {
-    return { success: false, error: 'Anfrage wurde bereits bearbeitet' }
+    return { success: false, error: ERROR_MESSAGES.TRANSFER_ALREADY_PROCESSED }
   }
 
   // No target unit named, or no placement context → approve only.
@@ -126,8 +126,9 @@ export async function approveTransferRequest(input: ReviewTransferRequestInput):
 
   const targetUnitId = request.targetUnitId
   let fromHousingUnitId: string | null = null
+  let outcome: 'EXECUTED' | 'APPROVED_ONLY' = 'EXECUTED'
   try {
-    await prisma.$transaction(async (tx) => {
+    outcome = await prisma.$transaction(async (tx) => {
       // Atomic claim: flip PENDING → APPROVED inside the transaction so a
       // concurrent reviewer can't process the same request. Rolls back to
       // PENDING automatically if any later step fails.
@@ -141,19 +142,25 @@ export async function approveTransferRequest(input: ReviewTransferRequestInput):
         },
       })
       if (claimed.count === 0) {
-        throw new Error('Anfrage wurde bereits bearbeitet')
+        throw new Error(ERROR_MESSAGES.TRANSFER_ALREADY_PROCESSED)
       }
 
-      // Current active placement (from the request, with fallback lookup).
-      const currentPlacement = request.currentPlacementId
-        ? await tx.placement.findFirst({
-            where: { id: request.currentPlacementId, status: 'ACTIVE' },
-          })
-        : await tx.placement.findFirst({
-            where: { residentId: request.residentId, status: 'ACTIVE' },
-          })
+      // Current active placement: the one recorded on the request if it is
+      // still active, otherwise whatever active placement the resident has now
+      // (they may have been moved since filing).
+      const currentPlacement =
+        (request.currentPlacementId
+          ? await tx.placement.findFirst({
+              where: { id: request.currentPlacementId, status: 'ACTIVE' },
+            })
+          : null) ??
+        (await tx.placement.findFirst({
+          where: { residentId: request.residentId, status: 'ACTIVE' },
+        }))
       if (!currentPlacement) {
-        throw new Error(ERROR_MESSAGES.TRANSFER_REQUEST_NO_PLACEMENT)
+        // Resident is no longer placed — nothing to move. Keep the APPROVED
+        // claim (commit, don't roll back) so the request isn't stuck PENDING.
+        return 'APPROVED_ONLY' as const
       }
       fromHousingUnitId = currentPlacement.housingUnitId
 
@@ -256,11 +263,11 @@ export async function approveTransferRequest(input: ReviewTransferRequestInput):
         where: { id: request.id },
         data: { status: 'COMPLETED' },
       })
+      return 'EXECUTED' as const
     })
   } catch (error) {
     const knownMessages = [
-      'bereits bearbeitet',
-      ERROR_MESSAGES.TRANSFER_REQUEST_NO_PLACEMENT,
+      ERROR_MESSAGES.TRANSFER_ALREADY_PROCESSED,
       ERROR_MESSAGES.TRANSFER_SAME_UNIT,
       ERROR_MESSAGES.TRANSFER_TARGET_NO_SPOT,
       ERROR_MESSAGES.RESIDENT_NOT_FOUND,
@@ -274,6 +281,18 @@ export async function approveTransferRequest(input: ReviewTransferRequestInput):
       targetUnitId,
     })
     return { success: false, error: ERROR_MESSAGES.TRANSFER_ERROR }
+  }
+
+  if (outcome === 'APPROVED_ONLY') {
+    await logAudit({
+      action: 'UPDATE',
+      entity: 'TRANSFER_REQUEST',
+      entityId: request.id,
+      userId: user.id,
+      changes: { status: 'APPROVED', staffNotes: input.staffNotes },
+    })
+    revalidatePath('/transfer-requests')
+    return { success: true, executed: false }
   }
 
   await logAudit({

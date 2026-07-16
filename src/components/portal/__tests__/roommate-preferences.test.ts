@@ -124,3 +124,51 @@ describe('round-trip', () => {
     expect(parseRoommatePreferences(serializeRoommatePreferences(input))).toEqual(input)
   })
 })
+
+describe('legacy single-line format (pre-labeled, ". "-joined raw codes)', () => {
+  test('recovers structured fields and free text from a full legacy line', () => {
+    expect(
+      parseRoommatePreferences('Altersgruppe: SIMILAR. Kultur: SAME_REGION. Ich arbeite Nachtschicht')
+    ).toEqual({
+      preferredAgeRange: 'SIMILAR',
+      culturalPreference: 'SAME_REGION',
+      additionalPreferences: 'Ich arbeite Nachtschicht',
+    })
+  })
+
+  test('recovers a legacy line with only age and free text', () => {
+    expect(parseRoommatePreferences('Altersgruppe: YOUNG_ADULT. Bitte ruhig')).toEqual({
+      preferredAgeRange: 'YOUNG_ADULT',
+      culturalPreference: '',
+      additionalPreferences: 'Bitte ruhig',
+    })
+  })
+
+  test('recovers a legacy line with only structured fields', () => {
+    expect(parseRoommatePreferences('Altersgruppe: SIMILAR. Kultur: DIFFERENT_REGION')).toEqual({
+      preferredAgeRange: 'SIMILAR',
+      culturalPreference: 'DIFFERENT_REGION',
+      additionalPreferences: '',
+    })
+  })
+})
+
+describe('free-text continuation safety', () => {
+  test('wishes lines that look like structured lines are not promoted', () => {
+    const input = {
+      preferredAgeRange: '',
+      culturalPreference: '',
+      additionalPreferences: 'Meine Notizen:\nKultur: Aus meiner Region\nAltersgruppe: Ähnliches Alter wie ich',
+    }
+    expect(parseRoommatePreferences(serializeRoommatePreferences(input))).toEqual(input)
+  })
+
+  test('structured fields before wishes still parse, lookalikes after wishes stay free text', () => {
+    const input = {
+      preferredAgeRange: 'SIMILAR',
+      culturalPreference: '',
+      additionalPreferences: 'Erste Zeile\nKultur: Aus meiner Region',
+    }
+    expect(parseRoommatePreferences(serializeRoommatePreferences(input))).toEqual(input)
+  })
+})
