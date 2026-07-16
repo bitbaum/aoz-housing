@@ -20,17 +20,34 @@ jest.mock('@/lib/constants', () => ({
   TRANSFER_ACTION_LABELS: {
     notesPlaceholder: 'Notiz (optional)',
     approve: 'Genehmigen',
+    approveAndTransfer: 'Genehmigen & verlegen',
     deny: 'Ablehnen',
     processing: 'Wird bearbeitet...',
     success: 'Erfolgreich bearbeitet',
+    successExecuted: 'Genehmigt — Verlegung wurde durchgeführt',
+    successApprovedOnly: 'Genehmigt — Verlegung noch nicht durchgeführt',
+    completeTransferHint: 'Zieleinheit über die Bewohnerseite wählen und Verlegung abschliessen:',
+    completeTransferLink: 'Verlegung durchführen',
   },
 }))
 
 // --- Helpers ---
 
-function mockSuccess() {
-  mockApprove.mockResolvedValue({ success: true })
-  mockDeny.mockResolvedValue({ success: true })
+function renderActions(
+  props: Partial<{ requestId: string; residentId: string; hasTargetUnit: boolean }> = {}
+) {
+  return render(
+    <TransferActions
+      requestId={props.requestId ?? 'req-1'}
+      residentId={props.residentId ?? 'res-1'}
+      hasTargetUnit={props.hasTargetUnit ?? false}
+    />
+  )
+}
+
+function mockSuccess(executed = false) {
+  mockApprove.mockResolvedValue({ success: true, executed })
+  mockDeny.mockResolvedValue({ success: true, executed: false })
 }
 
 function mockError(message = 'Fehler aufgetreten') {
@@ -46,17 +63,23 @@ describe('TransferActions', () => {
   // ── Rendering ───────────────────────────────────────────────────────────
 
   it('renders the notes textarea, approve and deny buttons', () => {
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
     expect(screen.getByPlaceholderText('Notiz (optional)')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Genehmigen' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Ablehnen' })).toBeInTheDocument()
+  })
+
+  it('labels the approve button "Genehmigen & verlegen" when a target unit is set', () => {
+    renderActions({ hasTargetUnit: true })
+    expect(screen.getByRole('button', { name: 'Genehmigen & verlegen' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Genehmigen' })).not.toBeInTheDocument()
   })
 
   // ── Approve flow ────────────────────────────────────────────────────────
 
   it('calls approveTransferRequest with requestId when approve is clicked', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-abc" />)
+    renderActions({ requestId: 'req-abc' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
@@ -66,7 +89,7 @@ describe('TransferActions', () => {
 
   it('includes staffNotes in the approve call when typed', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-abc" />)
+    renderActions({ requestId: 'req-abc' })
 
     fireEvent.change(screen.getByPlaceholderText('Notiz (optional)'), {
       target: { value: 'Genehmigt nach Rücksprache' },
@@ -82,7 +105,7 @@ describe('TransferActions', () => {
 
   it('shows success message after successful approve', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
@@ -93,9 +116,34 @@ describe('TransferActions', () => {
     expect(screen.queryByRole('button', { name: 'Genehmigen' })).not.toBeInTheDocument()
   })
 
+  it('shows executed message and no follow-up link when the transfer was executed', async () => {
+    mockSuccess(true)
+    renderActions({ hasTargetUnit: true })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Genehmigen & verlegen' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent(
+        'Genehmigt — Verlegung wurde durchgeführt'
+      )
+    })
+    expect(screen.queryByRole('link', { name: 'Verlegung durchführen' })).not.toBeInTheDocument()
+  })
+
+  it('shows a link to complete the transfer when approval did not execute it', async () => {
+    mockSuccess(false)
+    renderActions({ residentId: 'res-42' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
+
+    await waitFor(() => screen.getByRole('status'))
+    const link = screen.getByRole('link', { name: 'Verlegung durchführen' })
+    expect(link).toHaveAttribute('href', '/residents/res-42')
+  })
+
   it('calls router.refresh() after successful approve', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
@@ -106,7 +154,7 @@ describe('TransferActions', () => {
 
   it('calls denyTransferRequest with requestId when deny is clicked', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-xyz" />)
+    renderActions({ requestId: 'req-xyz' })
 
     fireEvent.click(screen.getByRole('button', { name: 'Ablehnen' }))
 
@@ -116,7 +164,7 @@ describe('TransferActions', () => {
 
   it('shows success message after successful deny', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Ablehnen' }))
 
@@ -127,7 +175,7 @@ describe('TransferActions', () => {
 
   it('calls router.refresh() after successful deny', async () => {
     mockSuccess()
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Ablehnen' }))
 
@@ -140,7 +188,7 @@ describe('TransferActions', () => {
     let resolve: (v: { success: boolean }) => void
     mockApprove.mockReturnValue(new Promise((r) => { resolve = r }))
 
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
     await waitFor(() => {
@@ -156,7 +204,7 @@ describe('TransferActions', () => {
 
   it('shows error alert and keeps the form visible on failure', async () => {
     mockError('Anfrage bereits bearbeitet')
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
@@ -169,7 +217,7 @@ describe('TransferActions', () => {
 
   it('does NOT call router.refresh() on failure', async () => {
     mockError()
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
 
@@ -180,7 +228,7 @@ describe('TransferActions', () => {
   it('clears a previous error when a new action is started', async () => {
     // First attempt fails
     mockApprove.mockResolvedValueOnce({ success: false, error: 'Erster Fehler' })
-    render(<TransferActions requestId="req-1" />)
+    renderActions()
 
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
     await waitFor(() => screen.getByRole('alert'))
