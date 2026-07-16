@@ -1433,6 +1433,8 @@ async function main() {
         supportLevel: 'STANDARD',
         status: 'ACTIVE',
         notes: 'Vor kurzem angekommen, wartet auf Platzierung',
+        // Completed portal preferences — enables the housing browse page (/portal/housing)
+        preferencesCompletedAt: new Date(),
       },
     }),
     // RES-022: Success story in ZH-001

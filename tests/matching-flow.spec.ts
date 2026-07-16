@@ -194,7 +194,8 @@ test.describe('Full placement flow', () => {
 
     // Right panel shows matches for the new resident
     await expect(page.getByText(/Matches für/)).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText(code)).toBeVisible()
+    // The code appears in several places (toast, step indicator, heading) — any visible one is fine
+    await expect(page.getByText(code).first()).toBeVisible()
 
     // 3. Check for available placement
     const placeBtn = page.getByRole('button', { name: /Platzieren/i }).first()
@@ -208,12 +209,18 @@ test.describe('Full placement flow', () => {
 
     // placeResident action redirects to /residents/:id?placed=true
     await expect(page).toHaveURL(/\/residents\/.*\?placed=true/, { timeout: 30_000 })
+    const residentId = page.url().match(/\/residents\/([^/?]+)/)![1]
 
     // 5. Resident detail page shows a "placed" confirmation
     await expect(page.getByText(/Platziert|platziert|placed/i).first()).toBeVisible()
 
-    // 6. Resident no longer appears in unplaced list on matching page
+    // 6. Resident no longer appears in the UNPLACED list on the matching page.
+    // Placed residents intentionally still show in the "Platzierte Bewohner"
+    // what-if section — their action link reads "Vergleichen", while unplaced
+    // residents get a "Passend" link with the same href.
     await page.goto('/matching')
-    await expect(page.getByText(code)).not.toBeVisible({ timeout: 5_000 })
+    const actionLink = page.locator(`a[href="/matching?resident=${residentId}"]`)
+    await expect(actionLink).toBeVisible({ timeout: 15_000 })
+    await expect(actionLink).toHaveText(/Vergleichen/)
   })
 })

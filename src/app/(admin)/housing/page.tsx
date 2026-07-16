@@ -5,7 +5,7 @@ import { getDateDaysAgo } from '@/lib/utils'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
+import { ACTION_LABELS, EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink } from '@/components/ui/Tabs'
 import { ButtonLink } from '@/components/ui/Button'
@@ -92,7 +92,7 @@ export default async function HousingListPage({ searchParams }: Props) {
         description={`${stats.visible} sichtbar · ${stats.occupiedBeds}/${stats.totalBeds} Betten belegt`}
         actions={
           <ButtonLink href="/housing/new">
-            {PAGE_TITLES.newHousing}
+            {ACTION_LABELS.newHousing}
           </ButtonLink>
         }
       />

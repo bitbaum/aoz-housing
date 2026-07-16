@@ -143,7 +143,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <div className="flex gap-2 border-b border-ui-border overflow-x-auto" role="tablist">
           <TabLink
             href="/maintenance?status=active"
             label={UI_LABELS.active}

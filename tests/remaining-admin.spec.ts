@@ -51,10 +51,11 @@ test.describe('AI Assistant (/ai-assistant)', () => {
     await expect(sendBtn).toBeEnabled()
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from header navigation', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/ai-assistant"]').first()
+    // KI-Assistent is a top-level megamenu item in the header
+    const navLink = page.locator('header a[href="/ai-assistant"]').first()
     await expect(navLink).toBeVisible({ timeout: 15_000 })
 
     await navLink.click()
@@ -96,10 +97,11 @@ test.describe('Algorithm (/algorithm)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from header navigation', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/algorithm"]').first()
+    // Algorithm is a secondary link in the header (visible on lg+ viewports)
+    const navLink = page.locator('header a[href="/algorithm"]').first()
     await expect(navLink).toBeVisible({ timeout: 15_000 })
 
     await navLink.click()
@@ -115,19 +117,21 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
   test('page loads with heading', async ({ page }) => {
     await page.goto('/transfer-requests')
 
+    // PAGE_TITLES.transferRequests = 'Verlegungsanfragen'
     await expect(
-      page.getByRole('heading', { name: /Transferanfragen|Umzugsanfragen|Transfer/i })
+      page.getByRole('heading', { name: /Verlegungsanfragen/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('shows status tabs (Pending, Approved, Denied, All)', async ({ page }) => {
+  test('shows status tabs (Pending, Approved, Completed, Denied, All)', async ({ page }) => {
     await page.goto('/transfer-requests')
 
-    // TabLinks for PENDING, APPROVED, DENIED, ALL
-    await expect(page.getByRole('link', { name: /Ausstehend|Pending/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /Genehmigt|Approved/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /Abgelehnt|Denied/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /Alle|All/i })).toBeVisible()
+    // TabLinks for PENDING ('Offen'), APPROVED, COMPLETED, DENIED, ALL
+    await expect(page.getByRole('tab', { name: /Offen/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /Genehmigt/i })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /Abgeschlossen/i })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /Abgelehnt/i })).toBeVisible()
+    await expect(page.getByRole('tab', { name: /Alle/i })).toBeVisible()
   })
 
   test('pending tab shows the seeded PENDING request from RES-001', async ({ page }) => {
@@ -167,10 +171,12 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from header navigation', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/transfer-requests"]').first()
+    // Transfer requests live in the "Personen" megamenu dropdown (opens on hover)
+    await page.locator('header').getByRole('button', { name: 'Personen' }).hover()
+    const navLink = page.locator('header a[href="/transfer-requests"]').first()
     await expect(navLink).toBeVisible({ timeout: 15_000 })
 
     await navLink.click()

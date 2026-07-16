@@ -47,11 +47,12 @@ test.describe('Maintenance list (/maintenance)', () => {
   test('each request row links to its detail page', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    // Exclude the "new request" button which also starts with /maintenance/
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     await expect(link).toBeVisible({ timeout: 15_000 })
 
     const href = await link.getAttribute('href')
-    expect(href).toMatch(/^\/maintenance\/[a-z0-9]+$/)
+    expect(href).toMatch(/^\/maintenance\/(?!new$)[a-z0-9]+$/)
   })
 
   test('new-request link points to /maintenance/new', async ({ page }) => {
@@ -61,10 +62,12 @@ test.describe('Maintenance list (/maintenance)', () => {
     await expect(link).toHaveAttribute('href', '/maintenance/new')
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from header navigation', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/maintenance"]').first()
+    // Maintenance lives in the "Monitoring" megamenu dropdown (opens on hover)
+    await page.locator('header').getByRole('button', { name: 'Monitoring' }).hover()
+    const navLink = page.locator('header a[href="/maintenance"]').first()
     await expect(navLink).toBeVisible({ timeout: 15_000 })
 
     await navLink.click()
@@ -127,7 +130,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page loads from list link', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     await expect(link).toBeVisible({ timeout: 15_000 })
 
     const href = await link.getAttribute('href')
@@ -140,7 +143,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page shows status badge', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -153,7 +156,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page shows housing unit link', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -166,7 +169,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('back link returns to /maintenance', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -180,7 +183,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     // Navigate directly to the completed tab and pick the first completed request
     await page.goto('/maintenance?status=COMPLETED')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = page.locator('a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
     await expect(link).toBeVisible({ timeout: 15_000 })
     const href = await link.getAttribute('href')
     await page.goto(href!)
@@ -192,8 +195,9 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   })
 
   test('nonexistent id shows 404', async ({ page }) => {
-    const response = await page.goto('/maintenance/nonexistent-id-xyz')
-    // Next.js notFound() returns 404
-    expect(response?.status()).toBe(404)
+    await page.goto('/maintenance/nonexistent-id-xyz')
+    // The route streams (loading.tsx boundary), so the HTTP status is already
+    // sent when notFound() throws — assert the rendered not-found page instead.
+    await expect(page.getByText('Seite nicht gefunden')).toBeVisible({ timeout: 15_000 })
   })
 })

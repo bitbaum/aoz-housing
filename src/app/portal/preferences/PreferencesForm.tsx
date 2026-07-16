@@ -225,8 +225,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.sleepSchedule}</label>
+              <label htmlFor="pref-sleep-schedule" className="label">{P.fields.sleepSchedule}</label>
               <select
+                id="pref-sleep-schedule"
                 name="sleepSchedule"
                 defaultValue={resident.sleepSchedule}
                 className="input"
@@ -271,8 +272,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.socialStyle}</label>
+              <label htmlFor="pref-social-style" className="label">{P.fields.socialStyle}</label>
               <select
+                id="pref-social-style"
                 name="socialStyle"
                 defaultValue={resident.socialStyle}
                 className="input"
@@ -329,8 +331,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.smoking}</label>
+              <label htmlFor="pref-smoking-status" className="label">{P.fields.smoking}</label>
               <select
+                id="pref-smoking-status"
                 name="smokingStatus"
                 defaultValue={resident.smokingStatus}
                 className="input"
@@ -407,8 +410,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.preferredAgeRange}</label>
-              <select name="preferredAgeRange" defaultValue={roommatePrefs.preferredAgeRange} className="input">
+              <label htmlFor="pref-preferred-age-range" className="label">{P.fields.preferredAgeRange}</label>
+              <select id="pref-preferred-age-range" name="preferredAgeRange" defaultValue={roommatePrefs.preferredAgeRange} className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SIMILAR">{P.fields.similarAge}</option>
                 {(RESIDENT_FACTORS.ageRange as EnumFactorDef).options.map((opt) => (
@@ -420,8 +423,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">{P.fields.culturalPref}</label>
-              <select name="culturalPreference" defaultValue={roommatePrefs.culturalPreference} className="input">
+              <label htmlFor="pref-cultural-preference" className="label">{P.fields.culturalPref}</label>
+              <select id="pref-cultural-preference" name="culturalPreference" defaultValue={roommatePrefs.culturalPreference} className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SAME_REGION">{P.fields.sameRegion}</option>
                 <option value="DIFFERENT_REGION">{P.fields.differentRegion}</option>
@@ -430,8 +433,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">{P.fields.additionalPrefs}</label>
+              <label htmlFor="pref-additional-preferences" className="label">{P.fields.additionalPrefs}</label>
               <textarea
+                id="pref-additional-preferences"
                 name="additionalPreferences"
                 defaultValue={roommatePrefs.additionalPreferences}
                 className="input"

@@ -37,7 +37,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <div className="flex gap-2 border-b border-ui-border overflow-x-auto" role="tablist">
           <TabLink
             href="/transfer-requests?status=PENDING"
             label={TRANSFER_REQUEST_STATUS_LABELS.PENDING}

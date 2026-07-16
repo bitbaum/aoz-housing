@@ -71,13 +71,15 @@ test.describe('Accessibility — login', () => {
 // =============================================================================
 
 test.describe('Accessibility — portal pages', () => {
-  // Override storageState to start with staff session, then inject resident cookie
-  // RES-001 is PLACED so all portal sub-pages render full content
-  test.beforeEach(async ({ page }) => {
+  // Inject the resident cookie directly (staff session comes from storageState).
+  // RES-001 is PLACED so most portal sub-pages render full content.
+  // /portal/housing (browse) is only reachable for UNPLACED residents with
+  // completed preferences — the seed provides RES-021 for that.
+  async function setResidentCookie(page: import('@playwright/test').Page, code: string) {
     await page.context().addCookies([
       {
         name: 'resident_code',
-        value: 'RES-001',
+        value: code,
         domain: 'localhost',
         path: '/',
         httpOnly: true,
@@ -85,7 +87,7 @@ test.describe('Accessibility — portal pages', () => {
         sameSite: 'Lax',
       },
     ])
-  })
+  }
 
   const portalPages = [
     { name: 'Portal dashboard', url: '/portal' },
@@ -94,14 +96,17 @@ test.describe('Accessibility — portal pages', () => {
     { name: 'Portal chores new', url: '/portal/chores/new' },
     { name: 'Portal report', url: '/portal/report' },
     { name: 'Portal transfer', url: '/portal/transfer' },
-    { name: 'Portal housing', url: '/portal/housing' },
+    // Placed residents are redirected away from the housing browse page —
+    // scan it as the unplaced RES-021 (preferences completed in seed)
+    { name: 'Portal housing', url: '/portal/housing', code: 'RES-021' },
     { name: 'Portal roommates', url: '/portal/roommates' },
     { name: 'Portal activities', url: '/portal/activities' },
     { name: 'Portal help', url: '/portal/help' },
   ]
 
-  for (const { name, url } of portalPages) {
+  for (const { name, url, code } of portalPages) {
     test(`${name} has no critical a11y violations`, async ({ page }) => {
+      await setResidentCookie(page, code ?? 'RES-001')
       await page.goto(url)
       await assertNoViolations(page, name)
     })

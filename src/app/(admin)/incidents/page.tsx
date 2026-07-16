@@ -186,7 +186,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border">
+        <div className="flex gap-2 border-b border-ui-border" role="tablist">
           <TabLink
             href={`/incidents${statusQS ? `?${statusQS.slice(1)}` : ''}`}
             label={UI_LABELS.all}
