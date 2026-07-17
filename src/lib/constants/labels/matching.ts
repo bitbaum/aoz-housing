@@ -3,6 +3,8 @@
  * spot selection, unit mode, resident selector, and placement confirmation.
  */
 
+import { COMPATIBILITY_MATRIX_LABELS } from './ui'
+
 export const MATCHING_LABELS = {
   topRecommendation: 'Top Empfehlung',
   topRank: (rank: number) => `Top ${rank}`,
@@ -38,6 +40,12 @@ export const MATCHING_LABELS = {
   moreConcerns: (count: number) => `+${count} weitere Bedenken`,
   blocked: 'Blockiert',
   place: 'Platzieren',
+  showDetails: 'Details anzeigen',
+  // Composed from the matrix legend SSOT below so tier ranges/names never drift
+  get scoreLegend(): string {
+    const L = COMPATIBILITY_MATRIX_LABELS
+    return [L.legendExcellent, L.legendGood, L.legendMedium, L.legendLow, L.legendCritical].join(' · ')
+  },
   placeLowCompat: 'Platzieren (niedrige Kompatibilität)',
   // Spot selection
   noSpotsAvailable: 'Keine freien Plätze verfügbar',

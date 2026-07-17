@@ -32,7 +32,8 @@ test.describe('Resident list (/residents)', () => {
     await page.goto('/residents')
 
     await expect(page.getByRole('heading', { name: /Bewohner/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /Neuer Bewohner|Hinzufügen/i })).toBeVisible()
+    // RESIDENT_LIST_LABELS.addResident = '+ Bewohner'
+    await expect(page.getByRole('link', { name: '+ Bewohner' })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
@@ -51,7 +52,7 @@ test.describe('Resident list (/residents)', () => {
   test('new-resident button points to /residents/new', async ({ page }) => {
     await page.goto('/residents')
 
-    const link = page.getByRole('link', { name: /Neuer Bewohner|Hinzufügen/i }).first()
+    const link = page.getByRole('link', { name: '+ Bewohner' }).first()
     await expect(link).toHaveAttribute('href', '/residents/new')
   })
 })
@@ -101,8 +102,9 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     const href = await getResidentHrefByCode(page, 'RES-001')
     await page.goto(href)
 
+    // RESIDENT_DETAIL_LABELS.transferBtn = 'Verlegen'
     await expect(
-      page.getByRole('link', { name: /Transfer|Umzug/i }).first()
+      page.getByRole('link', { name: /Verlegen/i }).first()
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -117,12 +119,14 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
   })
 
   test('shows placement history section', async ({ page }) => {
-    const href = await getResidentHrefByCode(page, 'RES-001')
+    // The history card only renders for residents with ENDED placements.
+    // RES-024 is seeded as transferred (ZH-001 → ZH-006), so it has history.
+    const href = await getResidentHrefByCode(page, 'RES-024')
     await page.goto(href)
 
-    // PlacementHistoryCard renders a heading about Unterbringung/Verlauf
+    // PLACEMENT_HISTORY_LABELS.title = 'Platzierungshistorie'
     await expect(
-      page.getByText(/Unterkunftsverlauf|Unterbringungsverlauf|Verlauf|Placement/i).first()
+      page.getByRole('heading', { name: /Platzierungshistorie/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 })
@@ -164,9 +168,9 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
     const href = await getResidentHrefByCode(page, 'RES-021')
     await page.goto(href)
 
-    // CompatibleMatchesCard or TopCompatibilitiesCard is present
+    // CompatibleMatchesCard renders 'Beste Unterkünfte' / 'Passende Mitbewohner (unplatziert)'
     await expect(
-      page.getByText(/Passende Unterkünfte|Beste Übereinstimmungen|Kompatibel/i).first()
+      page.getByText(/Beste Unterkünfte|Passende Mitbewohner/i).first()
     ).toBeVisible({ timeout: 15_000 })
   })
 })
@@ -176,9 +180,11 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
 // =============================================================================
 
 test.describe('Resident detail — 404', () => {
-  test('nonexistent id returns 404', async ({ page }) => {
-    const response = await page.goto('/residents/nonexistent-id-xyz')
-    expect(response?.status()).toBe(404)
+  test('nonexistent id shows 404 page', async ({ page }) => {
+    await page.goto('/residents/nonexistent-id-xyz')
+    // The route streams (loading.tsx boundary), so the HTTP status is already
+    // sent when notFound() throws — assert the rendered not-found page instead.
+    await expect(page.getByText('Seite nicht gefunden')).toBeVisible({ timeout: 15_000 })
   })
 })
 
@@ -224,8 +230,9 @@ test.describe('Resident edit (/residents/[id]/edit)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('nonexistent id returns 404', async ({ page }) => {
-    const response = await page.goto('/residents/nonexistent-id-xyz/edit')
-    expect(response?.status()).toBe(404)
+  test('nonexistent id shows 404 page', async ({ page }) => {
+    await page.goto('/residents/nonexistent-id-xyz/edit')
+    // Streaming route — assert the rendered not-found page instead of the status code
+    await expect(page.getByText('Seite nicht gefunden')).toBeVisible({ timeout: 15_000 })
   })
 })

@@ -163,10 +163,14 @@ test.describe('Portal Transfer', () => {
   test('shows transfer form or pending state for placed resident', async ({ page }) => {
     await page.goto('/portal/transfer')
 
+    // Wait for the streamed page content before probing
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
+
     // Either the form textarea is shown or a "pending request" message
-    // The transfer form renders a reason textarea (id="reason")
+    // The transfer form renders a reason textarea (id="reason").
+    // Pending state: "Anfrage eingereicht" / "... wird vom Team bearbeitet ..."
     const hasReasonField = await page.locator('#reason').isVisible().catch(() => false)
-    const hasPending = await page.getByText(/ausstehend|pending|bearbeitung/i).isVisible().catch(() => false)
+    const hasPending = await page.getByText(/eingereicht|bearbeitet|ausstehend|pending/i).first().isVisible().catch(() => false)
 
     expect(hasReasonField || hasPending).toBe(true)
   })
@@ -185,8 +189,10 @@ test.describe('Portal Transfer', () => {
     await page.goto('/portal/transfer')
 
     // Only if a form is shown (not pending state)
-    // The reason textarea has id="reason" (no name attribute)
-    const hasPending = await page.getByText(/ausstehend|pending|bearbeitung/i).isVisible().catch(() => false)
+    // The reason textarea has id="reason" (no name attribute).
+    // RES-001 has a seeded PENDING transfer request, so the pending card shows.
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
+    const hasPending = await page.getByText(/eingereicht|bearbeitet|ausstehend|pending/i).first().isVisible().catch(() => false)
 
     if (!hasPending) {
       await expect(page.locator('#reason')).toBeVisible({ timeout: 10_000 })

@@ -141,6 +141,16 @@ pnpm dev
 | `JWT_SECRET` | Session signing key |
 | `NEXTAUTH_URL` | Application URL |
 
+### Scheduled Jobs (self-hosted)
+
+The daily staff-notification job (`GET /api/cron/notifications`, guarded by
+`CRON_SECRET`) is **not scheduled by the app** — the former Vercel cron was
+removed with the move to self-hosting. Schedule it on the host, e.g. crontab:
+
+```cron
+0 8 * * * curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://<your-domain>/api/cron/notifications
+```
+
 </details>
 
 ---

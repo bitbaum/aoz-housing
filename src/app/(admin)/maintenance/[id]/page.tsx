@@ -2,9 +2,11 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { updateMaintenanceStatus } from '@/lib/actions'
+import { updateMaintenanceStatus, assignMaintenanceRequest, getMaintenanceAssignees } from '@/lib/actions'
+import { getCurrentUser } from '@/lib/auth'
 import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
+import { PageHeader } from '@/components/ui/Page'
 import {
   MAINTENANCE_CATEGORY_LABELS,
   MAINTENANCE_CATEGORY_ICONS,
@@ -32,14 +34,18 @@ interface Props {
 export default async function MaintenanceDetailPage({ params }: Props) {
   const { id } = await params
 
-  const request = await prisma.maintenanceRequest.findUnique({
-    where: { id },
-    include: {
-      housingUnit: true,
-      spot: true,
-      reportedBy: { select: { id: true, code: true } },
-    },
-  })
+  const [request, assignees, currentUser] = await Promise.all([
+    prisma.maintenanceRequest.findUnique({
+      where: { id },
+      include: {
+        housingUnit: true,
+        spot: true,
+        reportedBy: { select: { id: true, code: true } },
+      },
+    }),
+    getMaintenanceAssignees(),
+    getCurrentUser(),
+  ])
 
   if (!request) {
     notFound()
@@ -54,35 +60,25 @@ export default async function MaintenanceDetailPage({ params }: Props) {
     <div>
       {/* Header */}
       <div className="mb-6">
-        <Link
-          href="/maintenance"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {MAINTENANCE_PAGE_LABELS.backToList}
-        </Link>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
-          <div className="flex items-center gap-4">
-            <span className="text-3xl">{categoryIcon}</span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-                {request.title}
-              </h1>
-              <p className="text-ui-muted">
-                {getLabel(MAINTENANCE_CATEGORY_LABELS, request.category)} ·{' '}
-                {request.housingUnit.code}
-                {request.location && ` · ${request.location}`}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className={`text-sm px-3 py-1 rounded-full ${priorityClass}`}>
-              {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
-            </span>
-            <span className={`badge ${statusClass}`}>
-              {getLabel(MAINTENANCE_STATUS_LABELS, request.status)}
-            </span>
-          </div>
-        </div>
+        <PageHeader
+          backHref="/maintenance"
+          backLabel={MAINTENANCE_PAGE_LABELS.backToList.replace(/^← /, '')}
+          leading={<span className="text-3xl">{categoryIcon}</span>}
+          title={request.title}
+          description={`${getLabel(MAINTENANCE_CATEGORY_LABELS, request.category)} · ${request.housingUnit.code}${
+            request.location ? ` · ${request.location}` : ''
+          }`}
+          actions={
+            <>
+              <span className={`chip ${priorityClass}`}>
+                {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
+              </span>
+              <span className={`badge ${statusClass}`}>
+                {getLabel(MAINTENANCE_STATUS_LABELS, request.status)}
+              </span>
+            </>
+          }
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -123,10 +119,25 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                     <input
                       type="text"
                       name="assignedTo"
+                      list="maintenance-assignees"
                       defaultValue={request.assignedTo || ''}
                       placeholder={MAINTENANCE_PAGE_LABELS.fieldAssignedPlaceholder}
                       className="input"
                     />
+                    <datalist id="maintenance-assignees">
+                      {assignees.map((name) => (
+                        <option key={name} value={name} />
+                      ))}
+                    </datalist>
+                    {currentUser && (
+                      <button
+                        type="submit"
+                        form="maintenance-assign-me-form"
+                        className="btn-ghost text-sm mt-1"
+                      >
+                        {MAINTENANCE_PAGE_LABELS.assignToMe}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -170,6 +181,14 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   {MAINTENANCE_PAGE_LABELS.updateStatusBtn}
                 </SubmitButton>
               </form>
+              {/* One-click self-assignment — separate form (forms cannot nest);
+                  triggered via the form attribute on the button above. */}
+              {currentUser && (
+                <form id="maintenance-assign-me-form" action={assignMaintenanceRequest} className="hidden">
+                  <input type="hidden" name="requestId" value={request.id} />
+                  <input type="hidden" name="assignedTo" value={currentUser.name} />
+                </form>
+              )}
             </div>
           )}
 

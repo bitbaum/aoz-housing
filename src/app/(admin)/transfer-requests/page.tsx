@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
@@ -17,15 +18,15 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   const params = await searchParams
   const statusFilter = params.status || 'PENDING'
 
-  const [requests, allRequests] = await Promise.all([
-    getTransferRequests(statusFilter === 'ALL' ? undefined : statusFilter),
-    getTransferRequests(),
-  ])
+  const allRequests = await getTransferRequests()
+  const requests =
+    statusFilter === 'ALL' ? allRequests : allRequests.filter((r) => r.status === statusFilter)
   const counts = {
     all: allRequests.length,
     pending: allRequests.filter(r => r.status === 'PENDING').length,
     approved: allRequests.filter(r => r.status === 'APPROVED').length,
     denied: allRequests.filter(r => r.status === 'DENIED').length,
+    completed: allRequests.filter(r => r.status === 'COMPLETED').length,
   }
 
   return (
@@ -36,7 +37,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <div className="flex gap-2 border-b border-ui-border overflow-x-auto" role="tablist">
           <TabLink
             href="/transfer-requests?status=PENDING"
             label={TRANSFER_REQUEST_STATUS_LABELS.PENDING}
@@ -48,6 +49,12 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
             label={TRANSFER_REQUEST_STATUS_LABELS.APPROVED}
             count={counts.approved}
             active={statusFilter === 'APPROVED'}
+          />
+          <TabLink
+            href="/transfer-requests?status=COMPLETED"
+            label={TRANSFER_REQUEST_STATUS_LABELS.COMPLETED}
+            count={counts.completed}
+            active={statusFilter === 'COMPLETED'}
           />
           <TabLink
             href="/transfer-requests?status=DENIED"
@@ -104,6 +111,7 @@ interface TransferRequestData {
   resident: { id: string; code: string; supportLevel: string | null }
   currentPlacement: {
     id: string
+    status: string
     housingUnit: { id: string; code: string; address: string } | null
   } | null
   targetUnit: { id: string; code: string; address: string } | null
@@ -116,7 +124,12 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-semibold text-ui-text">
-              {request.resident.code}
+              <Link
+                href={`/residents/${request.resident.id}`}
+                className="hover:text-aoz-primary hover:underline"
+              >
+                {request.resident.code}
+              </Link>
             </h3>
             <span className={STATUS_BADGE[request.status] || 'badge'}>
               {STATUS_LABEL[request.status] || request.status}
@@ -125,10 +138,26 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
           <p className="text-sm text-ui-muted">
             {formatRelativeDate(request.createdAt)}
             {request.currentPlacement?.housingUnit && (
-              <> · {TRANSFER_ACTION_LABELS.fromUnit} {request.currentPlacement.housingUnit.code}</>
+              <>
+                {' · '}{TRANSFER_ACTION_LABELS.fromUnit}{' '}
+                <Link
+                  href={`/housing/${request.currentPlacement.housingUnit.id}`}
+                  className="hover:text-aoz-primary hover:underline"
+                >
+                  {request.currentPlacement.housingUnit.code}
+                </Link>
+              </>
             )}
             {request.targetUnit && (
-              <> · {TRANSFER_ACTION_LABELS.toUnit} {request.targetUnit.code}</>
+              <>
+                {' · '}{TRANSFER_ACTION_LABELS.toUnit}{' '}
+                <Link
+                  href={`/housing/${request.targetUnit.id}`}
+                  className="hover:text-aoz-primary hover:underline"
+                >
+                  {request.targetUnit.code}
+                </Link>
+              </>
             )}
           </p>
         </div>
@@ -143,7 +172,25 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
       )}
 
       {request.status === 'PENDING' && (
-        <TransferActions requestId={request.id} />
+        <TransferActions
+          requestId={request.id}
+          residentId={request.resident.id}
+          hasTargetUnit={Boolean(request.targetUnit)}
+        />
+      )}
+
+      {request.status === 'APPROVED' && (
+        <div className="pt-3 border-t border-ui-border">
+          <p className="text-sm text-ui-muted">
+            {TRANSFER_ACTION_LABELS.completeTransferHint}{' '}
+            <Link
+              href={`/residents/${request.resident.id}`}
+              className="text-aoz-primary underline font-medium"
+            >
+              {TRANSFER_ACTION_LABELS.completeTransferLink}
+            </Link>
+          </p>
+        </div>
       )}
     </div>
   )

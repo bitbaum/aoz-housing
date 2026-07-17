@@ -38,6 +38,7 @@ import {
   weeksBetween,
 } from '@/lib/utils'
 import { SuccessToast } from '@/components/ui/SuccessToast'
+import { PageHeader } from '@/components/ui/Page'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -247,52 +248,41 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
         ]}
       />
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/residents"
-              className="text-ui-muted hover:text-ui-muted"
-            >
-              {RESIDENT_DETAIL_LABELS.breadcrumb}
-            </Link>
-            <span className="text-ui-muted">/</span>
-            <span className="text-ui-text">{resident.code}</span>
-          </div>
-          <div className="flex items-center gap-4 mt-2">
+      <div className="mb-6">
+        <PageHeader
+          backHref="/residents"
+          backLabel={RESIDENT_DETAIL_LABELS.breadcrumb}
+          leading={
             <div className="avatar-lg font-semibold">
               {resident.code.slice(-3)}
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-                {resident.code}
-              </h1>
-              <p className="text-ui-muted">
-                {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-                {getLabel(GENDER_LABELS, resident.gender)} ·{' '}
-                {getLabel(FAMILY_STATUS_LABELS, resident.familyStatus)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
-            {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
-          </span>
-          {currentPlacement && (
-            <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
-              {RESIDENT_DETAIL_LABELS.transferBtn}
-            </Link>
-          )}
-          <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
-            {RESIDENT_DETAIL_LABELS.editBtn}
-          </Link>
-          {!currentPlacement && (
-            <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
-              {RESIDENT_DETAIL_LABELS.placeBtn}
-            </Link>
-          )}
-        </div>
+          }
+          title={resident.code}
+          description={`${getLabel(AGE_RANGE_LABELS, resident.ageRange)} · ${getLabel(
+            GENDER_LABELS,
+            resident.gender
+          )} · ${getLabel(FAMILY_STATUS_LABELS, resident.familyStatus)}`}
+          actions={
+            <>
+              <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
+                {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
+              </span>
+              {currentPlacement && (
+                <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
+                  {RESIDENT_DETAIL_LABELS.transferBtn}
+                </Link>
+              )}
+              <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
+                {RESIDENT_DETAIL_LABELS.editBtn}
+              </Link>
+              {!currentPlacement && (
+                <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
+                  {RESIDENT_DETAIL_LABELS.placeBtn}
+                </Link>
+              )}
+            </>
+          }
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

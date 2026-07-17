@@ -165,7 +165,7 @@ export default async function RoommatesPage() {
           ))}
           <p>
             <strong>{PORTAL_LABELS.roommates.conflictSteps.length + 1}. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
-            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
+            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary underline hover:decoration-2">
               {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
           </p>

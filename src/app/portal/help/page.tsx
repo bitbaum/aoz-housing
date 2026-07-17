@@ -44,21 +44,18 @@ export default function PortalHelpPage() {
         <h2 className="text-lg font-semibold text-ui-text mb-2">{H.emergencyTitle}</h2>
         <p className="text-sm text-ui-muted mb-4">{H.emergencyDesc}</p>
         <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🚨</span>
-            <div>
-              <p className="font-semibold text-status-error-text">{H.emergency.police}</p>
-              <p className="text-lg font-bold text-status-error-text">{H.emergency.policeNumber}</p>
+          {H.emergency.numbers.map((entry) => (
+            <div key={entry.number} className="flex items-center gap-3">
+              <span className="text-2xl">{entry.icon}</span>
+              <div>
+                <p className="font-semibold text-status-error-text">{entry.label}</p>
+                <p className="text-lg font-bold text-status-error-text">{entry.number}</p>
+                {'note' in entry && entry.note && (
+                  <p className="text-sm text-ui-muted">{entry.note}</p>
+                )}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🆘</span>
-            <div>
-              <p className="font-semibold text-ui-text">{H.emergency.aoz}</p>
-              <p className="text-lg font-bold text-ui-text">{H.emergency.aozNumber}</p>
-              <p className="text-sm text-ui-muted">{H.emergency.aozHours}</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 

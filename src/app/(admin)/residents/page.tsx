@@ -4,6 +4,7 @@ import { EMPTY_STATE_LABELS, RESIDENT_LIST_LABELS, UI_LABELS, RESIDENT_STATUS_LA
 
 export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
 import { TabLink } from '@/components/ui/Tabs'
@@ -56,6 +57,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         },
       },
       orderBy: { createdAt: 'desc' },
+      take: QUERY_LIMITS.pageList,
     }),
     // Aggregate tab counts by status (single query instead of fetching all rows)
     prisma.resident.groupBy({

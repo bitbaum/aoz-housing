@@ -11,7 +11,7 @@ import {
   Activity,
   MapPin,
 } from 'lucide-react'
-import { Tabs } from '@/components/ui'
+import { Tabs, TabPanel } from '@/components/ui'
 import {
   FACTOR_COUNT,
   DIMENSION_COUNT,
@@ -88,16 +88,18 @@ export function AlgorithmContent() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'overview' && <OverviewTab />}
-      {activeTab === 'science' && <ScienceTab />}
-      {activeTab === 'dimensions' && (
-        <DimensionsTab
-          expandedDimension={expandedDimension}
-          setExpandedDimension={setExpandedDimension}
-        />
-      )}
-      {activeTab === 'collection' && <DataCollectionTab />}
-      {activeTab === 'technical' && <TechnicalTab />}
+      <TabPanel id={activeTab}>
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'science' && <ScienceTab />}
+        {activeTab === 'dimensions' && (
+          <DimensionsTab
+            expandedDimension={expandedDimension}
+            setExpandedDimension={setExpandedDimension}
+          />
+        )}
+        {activeTab === 'collection' && <DataCollectionTab />}
+        {activeTab === 'technical' && <TechnicalTab />}
+      </TabPanel>
 
       {/* CTA Section */}
       <section className="mt-12 text-center py-12 px-6 bg-ui-subtle rounded-lg">

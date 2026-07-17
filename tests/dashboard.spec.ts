@@ -8,8 +8,10 @@ test.describe('Dashboard', () => {
 
     await expect(page).toHaveTitle(/AOZ/)
 
-    const hasActions = await page.getByText(/Platzierung|Bewohner|Check-in|Vorfall/i).first().isVisible().catch(() => false)
-    const hasAllClear = await page.getByText(/Alles erledigt|Keine offenen/i).isVisible().catch(() => false)
+    // Scope to main — the (hidden) mobile nav drawer also contains these words
+    const main = page.locator('main')
+    const hasActions = await main.getByText(/Platzierung|Bewohner|Check-in|Vorfall/i).first().isVisible().catch(() => false)
+    const hasAllClear = await main.getByText(/Alles erledigt|Alles unter Kontrolle|Keine offenen/i).first().isVisible().catch(() => false)
 
     expect(hasActions || hasAllClear).toBe(true)
   })
@@ -25,8 +27,15 @@ test.describe('Dashboard', () => {
   test('dashboard contains core admin navigation links', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.locator('aside a[href="/residents"]').first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.locator('aside a[href="/housing"]').first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.locator('aside a[href="/matching"]').first()).toBeVisible({ timeout: 15_000 })
+    const header = page.locator('header')
+
+    // Residents + Matching live in the "Personen" megamenu dropdown (opens on hover)
+    await header.getByRole('button', { name: 'Personen' }).hover()
+    await expect(header.locator('a[href="/residents"]').first()).toBeVisible({ timeout: 15_000 })
+    await expect(header.locator('a[href="/matching"]').first()).toBeVisible({ timeout: 15_000 })
+
+    // Housing lives in the "Unterkünfte" megamenu dropdown
+    await header.getByRole('button', { name: 'Unterkünfte' }).hover()
+    await expect(header.locator('a[href="/housing"]').first()).toBeVisible({ timeout: 15_000 })
   })
 })

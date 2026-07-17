@@ -79,6 +79,15 @@ jest.mock('@/lib/constants', () => ({
     blocked: 'Blockiert',
     place: 'Platzieren',
     placeLowCompat: 'Platzieren (niedrige Kompatibilität)',
+    showDetails: 'Details anzeigen',
+    scoreLegend: '80+ Sehr gut · 60–79 Gut · 40–59 Mittel · 20–39 Niedrig · 0–19 Kritisch',
+  },
+  PLACEMENT_CONCERN_LABELS: {
+    wheelchairRequired: 'Benötigt Rollstuhlzugang',
+    groundFloorRequired: 'Benötigt Erdgeschoss',
+    smokerInNonSmokingUnit: 'Raucher in Nichtraucher-Einheit',
+    sharedKitchenOnly: 'Nur geteilte Küche verfügbar',
+    sharedBathroomOnly: 'Nur geteiltes Bad verfügbar',
   },
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
@@ -90,6 +99,13 @@ jest.mock('@/lib/utils', () => ({
     if (score >= 40) return 'text-score-medium-text'
     if (score >= 20) return 'text-score-low-text'
     return 'text-score-critical-text'
+  },
+  getScoreLabel: (score: number) => {
+    if (score >= 80) return 'Sehr gut'
+    if (score >= 60) return 'Gut'
+    if (score >= 40) return 'Mittel'
+    if (score >= 20) return 'Niedrig'
+    return 'Kritisch'
   },
 }))
 
@@ -245,6 +261,29 @@ describe('MatchCard', () => {
 
       const link = screen.getByText('WG-101')
       expect(link.closest('a')).toHaveAttribute('href', '/housing/unit-1')
+    })
+  })
+
+  describe('headline score', () => {
+    it('shows the fit score with tier label in the headline', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      // fixture fitScore is 85 → excellent tier
+      expect(screen.getByText('85%')).toBeInTheDocument()
+      expect(screen.getByText('Sehr gut')).toBeInTheDocument()
+    })
+
+    it('exposes the score-tier legend as a tooltip on the score', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      const score = screen.getByText('85%').closest('[title]')
+      expect(score).toHaveAttribute('title', expect.stringContaining('Sehr gut'))
+    })
+
+    it('renders a details expander for secondary information', () => {
+      render(<MatchCard match={makeMatch()} resident={mockResident} />)
+
+      expect(screen.getByText(/Details anzeigen/)).toBeInTheDocument()
     })
   })
 
@@ -450,7 +489,7 @@ describe('MatchCard', () => {
   describe('blocking issues', () => {
     it('applies red styling for blocking issues (Rollstuhl)', () => {
       const match = makeMatch({
-        unitConcerns: ['Rollstuhl-Zugang nicht vorhanden'],
+        unitConcerns: ['Benötigt Rollstuhlzugang'],
       })
 
       const { container } = render(
@@ -458,10 +497,39 @@ describe('MatchCard', () => {
       )
 
       // Check that the concern has red coloring
-      const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
+      const concern = screen.getByText(/Benötigt Rollstuhlzugang/)
       expect(concern.className).toContain('text-status-error-text')
       // Card should have error styling for blocking issues
       expect((container.firstChild as HTMLElement).className).toContain('border-status-error')
+    })
+
+    it('keeps apartment-level BLOCKING conflict reasons visible outside the details expander', () => {
+      const match = makeMatch({
+        apartmentProfile: {
+          ...makeMatch().apartmentProfile,
+          isEmpty: false,
+          currentResidentCount: 1,
+        },
+        apartmentFit: {
+          ...makeMatch().apartmentFit,
+          fitScore: 10,
+          conflicts: [
+            {
+              attribute: 'smokingStatus',
+              severity: 'BLOCKING',
+              message: 'Raucher in Nichtraucher-Einheit',
+              residentValue: 'INDOOR_SMOKER',
+              apartmentAverage: 'NON_SMOKER',
+            } as never,
+          ],
+        },
+      })
+
+      render(<MatchCard match={match} resident={mockResident} />)
+
+      const reasons = screen.getAllByText(/Raucher in Nichtraucher-Einheit/)
+      // At least one instance must NOT be inside the collapsed <details>
+      expect(reasons.some((el) => !el.closest('details'))).toBe(true)
     })
   })
 

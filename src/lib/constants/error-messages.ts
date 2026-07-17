@@ -104,6 +104,9 @@ export const ERROR_MESSAGES = {
   TRANSFER_REQUEST_NO_PLACEMENT: 'Keine aktive Platzierung vorhanden',
   TRANSFER_REQUEST_CREATE_ERROR: 'Fehler beim Erstellen der Verlegungsanfrage',
   TRANSFER_REQUEST_REVIEW_ERROR: 'Fehler beim Bearbeiten der Verlegungsanfrage',
+  TRANSFER_TARGET_NO_SPOT: 'Die Zieleinheit hat keinen freien Platz',
+  TRANSFER_SAME_UNIT: 'Bewohner wohnt bereits in der Zieleinheit',
+  TRANSFER_ALREADY_PROCESSED: 'Anfrage wurde bereits bearbeitet',
 
   // ─── Portal / Registration ─────────────────────────────────────
   PREFERENCES_SAVE_ERROR: 'Einstellungen konnten nicht gespeichert werden',

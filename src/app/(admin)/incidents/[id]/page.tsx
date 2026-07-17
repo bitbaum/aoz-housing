@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { clearFollowUpReminder } from '@/lib/actions'
 import {
   INCIDENT_TYPE_LABELS,
@@ -26,6 +25,7 @@ import {
   formatDate,
 } from '@/lib/utils'
 import { SuccessToast } from '@/components/ui/SuccessToast'
+import { PageHeader } from '@/components/ui/Page'
 import { FollowUpTimeline } from '@/components/incidents/FollowUpTimeline'
 import { FollowUpForm } from '@/components/incidents/FollowUpForm'
 import { IncidentSidebar } from '@/components/incidents/IncidentSidebar'
@@ -92,40 +92,32 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       <SuccessToast
         triggers={[
           { param: 'resolved', message: INCIDENT_DETAIL_LABELS.markedResolved },
+          { param: 'created', message: INCIDENT_DETAIL_LABELS.created },
         ]}
       />
       {/* Header */}
       <div className="mb-6">
-        <Link
-          href="/incidents"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
-        >
-          {INCIDENT_DETAIL_LABELS.backLink}
-        </Link>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mt-2">
-          <div className="flex items-center gap-4">
+        <PageHeader
+          backHref="/incidents"
+          backLabel={INCIDENT_DETAIL_LABELS.backLink.replace(/^← /, '')}
+          leading={
             <span className="text-3xl" role="img" aria-label={getLabel(INCIDENT_CATEGORY_LABELS, incident.category)}>
               {INCIDENT_CATEGORY_ICONS[incident.category] || '💬'}
             </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-                {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
-              </h1>
-              <p className="text-ui-muted">
-                {getLabel(INCIDENT_CATEGORY_LABELS, incident.category)} ·{' '}
-                {getLabel(INCIDENT_SEVERITY_LABELS, incident.severity)} ·{' '}
-                {formatDate(incident.date)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {incident.resolvedAt ? (
+          }
+          title={getLabel(INCIDENT_TYPE_LABELS, incident.type)}
+          description={`${getLabel(INCIDENT_CATEGORY_LABELS, incident.category)} · ${getLabel(
+            INCIDENT_SEVERITY_LABELS,
+            incident.severity
+          )} · ${formatDate(incident.date)}`}
+          actions={
+            incident.resolvedAt ? (
               <span className="badge badge-active">{INCIDENT_RESOLVED_LABELS.resolved}</span>
             ) : (
               <span className="badge badge-pending">{INCIDENT_RESOLVED_LABELS.open}</span>
-            )}
-          </div>
-        </div>
+            )
+          }
+        />
       </div>
 
       {/* Follow-up Reminder Banner */}

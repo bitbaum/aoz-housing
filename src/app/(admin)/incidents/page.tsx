@@ -56,14 +56,15 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         resolution: true,
         nextFollowUpDate: true,
         mediationMinutes: true,
+        housingUnitId: true,
         housingUnit: {
           select: { code: true },
         },
         reportedBy: {
-          select: { code: true },
+          select: { id: true, code: true },
         },
         subject: {
-          select: { code: true },
+          select: { id: true, code: true },
         },
         _count: {
           select: { followUps: true },
@@ -185,7 +186,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border">
+        <div className="flex gap-2 border-b border-ui-border" role="tablist">
           <TabLink
             href={`/incidents${statusQS ? `?${statusQS.slice(1)}` : ''}`}
             label={UI_LABELS.all}
@@ -249,9 +250,10 @@ interface IncidentRowData {
   resolution: string | null
   nextFollowUpDate: Date | string | null
   mediationMinutes: number | null
+  housingUnitId: string
   housingUnit: { code: string }
-  reportedBy: { code: string } | null
-  subject: { code: string } | null
+  reportedBy: { id: string; code: string } | null
+  subject: { id: string; code: string } | null
   _count: { followUps: number }
 }
 
@@ -260,19 +262,23 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
   const isOverdue = incident.nextFollowUpDate && new Date(incident.nextFollowUpDate) < new Date() && !incident.resolvedAt
 
   return (
-    <Link
-      href={`/incidents/${incident.id}`}
+    <div
       className={`card p-4 border-l-4 ${getSeverityBorderClass(
         incident.severity
-      )} block hover:shadow-card-hover transition-shadow`}
+      )} hover:shadow-card-hover transition-shadow`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <span className="text-2xl" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-ui-text">
-                {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
+              <h3 className="font-semibold">
+                <Link
+                  href={`/incidents/${incident.id}`}
+                  className="inline-flex items-center py-2 -my-2 text-ui-text hover:text-aoz-primary"
+                >
+                  {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
+                </Link>
               </h3>
               <span
                 className={`w-2 h-2 rounded-full ${getSeverityDotClass(
@@ -300,24 +306,29 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident.description}
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
-              <span className="hover:text-aoz-primary inline-flex items-center gap-1">
+              <Link
+                href={`/housing/${incident.housingUnitId}`}
+                className="hover:text-aoz-primary inline-flex items-center gap-1 py-2 -my-2"
+              >
                 <Home className="w-3.5 h-3.5" aria-hidden="true" /> {incident.housingUnit.code}
-              </span>
+              </Link>
               {incident.reportedBy && (
-                <span
-                  className="hover:text-aoz-primary inline-flex items-center gap-1"
+                <Link
+                  href={`/residents/${incident.reportedBy.id}`}
+                  className="hover:text-aoz-primary inline-flex items-center gap-1 py-2 -my-2"
                   title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
                   <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {incident.reportedBy.code}
-                </span>
+                </Link>
               )}
               {incident.subject && (
-                <span
-                  className="hover:text-aoz-primary font-medium inline-flex items-center gap-1"
+                <Link
+                  href={`/residents/${incident.subject.id}`}
+                  className="hover:text-aoz-primary font-medium inline-flex items-center gap-1 py-2 -my-2"
                   title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
                   <User className="w-3.5 h-3.5" aria-hidden="true" /> {incident.subject.code}
-                </span>
+                </Link>
               )}
               <span>{formatRelativeDate(incident.date)}</span>
             </div>
@@ -338,7 +349,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
           </p>
         </div>
       )}
-    </Link>
+    </div>
   )
 }
 

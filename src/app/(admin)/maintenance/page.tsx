@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
-import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
+import { updateMaintenanceStatus, assignMaintenanceRequest, getMaintenanceAssignees } from '@/lib/actions'
+import { getCurrentUser } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Wartungsanfragen' }
 import {
@@ -40,7 +41,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
     whereClause.status = statusFilter as MaintenanceStatus
   }
 
-  const [requests, statusGroups, urgentActiveCount] = await Promise.all([
+  const [requests, statusGroups, urgentActiveCount, assignees, currentUser] = await Promise.all([
     prisma.maintenanceRequest.findMany({
       where: whereClause,
       select: {
@@ -80,6 +81,10 @@ export default async function MaintenancePage({ searchParams }: Props) {
         status: { notIn: ['COMPLETED', 'CANCELLED'] },
       },
     }),
+    // Known assignee names for the quick-assign datalist
+    getMaintenanceAssignees(),
+    // Current staff user for the "Mir zuweisen" one-click assignment
+    getCurrentUser(),
   ])
 
   const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
@@ -138,7 +143,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <div className="flex gap-2 border-b border-ui-border overflow-x-auto" role="tablist">
           <TabLink
             href="/maintenance?status=active"
             label={UI_LABELS.active}
@@ -184,8 +189,13 @@ export default async function MaintenancePage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="space-y-3">
+          <datalist id="maintenance-assignees">
+            {assignees.map((name) => (
+              <option key={name} value={name} />
+            ))}
+          </datalist>
           {requests.map((request) => (
-            <RequestRow key={request.id} request={request} />
+            <RequestRow key={request.id} request={request} currentUserName={currentUser?.name ?? null} />
           ))}
         </div>
       )}
@@ -210,7 +220,7 @@ interface RequestRowData {
   reportedBy: { id: string; code: string } | null
 }
 
-function RequestRow({ request }: { request: RequestRowData }) {
+function RequestRow({ request, currentUserName }: { request: RequestRowData; currentUserName: string | null }) {
   const categoryIcon = MAINTENANCE_CATEGORY_ICONS[request.category] || '🔧'
   const priorityClass = MAINTENANCE_PRIORITY_COLORS[request.priority] || ''
   const statusClass = MAINTENANCE_STATUS_COLORS[request.status] || 'badge'
@@ -265,34 +275,52 @@ function RequestRow({ request }: { request: RequestRowData }) {
           <span className={`badge ${statusClass}`}>
             {getLabel(MAINTENANCE_STATUS_LABELS, request.status)}
           </span>
-          <QuickActions request={request} />
+          <QuickActions request={request} currentUserName={currentUserName} />
         </div>
       </div>
     </div>
   )
 }
 
-function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'status'> }) {
+function QuickActions({
+  request,
+  currentUserName,
+}: {
+  request: Pick<RequestRowData, 'id' | 'status'>
+  currentUserName: string | null
+}) {
   if (request.status === 'COMPLETED' || request.status === 'CANCELLED') {
     return null
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-wrap">
       {request.status === 'OPEN' && (
-        <form action={assignMaintenanceRequest} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <input type="hidden" name="requestId" value={request.id} />
-          <input
-            type="text"
-            name="assignedTo"
-            placeholder={MAINTENANCE_PAGE_LABELS.assignPlaceholder}
-            className="input text-sm flex-1 sm:flex-initial sm:w-32"
-            required
-          />
-          <button type="submit" className="btn-outline text-sm">
-            {MAINTENANCE_PAGE_LABELS.assignBtn}
-          </button>
-        </form>
+        <>
+          <form action={assignMaintenanceRequest} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <input type="hidden" name="requestId" value={request.id} />
+            <input
+              type="text"
+              name="assignedTo"
+              list="maintenance-assignees"
+              placeholder={MAINTENANCE_PAGE_LABELS.assignPlaceholder}
+              className="input text-sm flex-1 sm:flex-initial sm:w-32"
+              required
+            />
+            <button type="submit" className="btn-outline text-sm">
+              {MAINTENANCE_PAGE_LABELS.assignBtn}
+            </button>
+          </form>
+          {currentUserName && (
+            <form action={assignMaintenanceRequest}>
+              <input type="hidden" name="requestId" value={request.id} />
+              <input type="hidden" name="assignedTo" value={currentUserName} />
+              <button type="submit" className="btn-ghost text-sm">
+                {MAINTENANCE_PAGE_LABELS.assignToMe}
+              </button>
+            </form>
+          )}
+        </>
       )}
       {(request.status === 'ASSIGNED' || request.status === 'ON_HOLD') && (
         <form action={updateMaintenanceStatus}>

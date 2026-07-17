@@ -12,6 +12,7 @@ import {
 import { logAudit } from '@/lib/audit'
 import { calculateCompatibility, saveBidirectionalAssessment } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -307,6 +308,22 @@ export async function transferPlacement(formData: FormData): Promise<void> {
       include: { resident: true },
     })
 
+    // 5b. Blocking-conflict check — same hard constraints placeResident and
+    // approveTransferRequest enforce (wheelchair access, smoking, extreme
+    // mismatch). A manual staff transfer must not bypass them.
+    const transferResidentProfile = toResidentProfile(resident)
+    const targetProfiles = targetResidents.map((p) => toResidentProfile(p.resident))
+    const targetFit = calculateApartmentFit(
+      transferResidentProfile,
+      calculateApartmentProfile(targetProfiles)
+    )
+    const blockingConflicts = targetFit.conflicts.filter((c) => c.severity === 'BLOCKING')
+    if (blockingConflicts.length > 0) {
+      throw new Error(
+        `Verlegung blockiert: ${blockingConflicts.map((c) => c.message).join('; ')}`
+      )
+    }
+
     const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
       calculateAverageScores(resident, targetResidents)
 
@@ -391,7 +408,8 @@ export async function transferPlacement(formData: FormData): Promise<void> {
       error.message.includes('not found') ||
       error.message.includes('not active') ||
       error.message.includes('not available') ||
-      error.message.includes('cannot be transferred')
+      error.message.includes('cannot be transferred') ||
+      error.message.includes('blockiert')
     )) {
       throw error
     }

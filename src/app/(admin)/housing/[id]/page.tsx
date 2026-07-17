@@ -146,13 +146,45 @@ export default async function HousingDetailPage({ params }: Props) {
   const hasAvailableSpace = unit.placements.length < unit.totalBeds
 
   if (hasAvailableSpace) {
-    // Get unplaced residents
-    const unplacedResidents = await prisma.resident.findMany({
+    // Get unplaced residents — narrow select covering exactly the columns
+    // read downstream: toResidentProfile (see lib/compatibility/convert.ts),
+    // getUnitFitConcerns and the ResidentSummary card fields
+    const unplacedResidents = (await prisma.resident.findMany({
       where: {
         status: 'ACTIVE',
         placements: { none: { status: 'ACTIVE' } },
       },
-    })
+      select: {
+        id: true,
+        code: true,
+        ageRange: true,
+        gender: true,
+        familyStatus: true,
+        sleepSchedule: true,
+        noiseTolerance: true,
+        cleanlinessLevel: true,
+        guestTolerance: true,
+        socialStyle: true,
+        languages: true,
+        culturalRegion: true,
+        conflictStyle: true,
+        smokingStatus: true,
+        dietaryNeeds: true,
+        mobilityNeeds: true,
+        medicalEquipment: true,
+        petTolerance: true,
+        sharedBathroom: true,
+        sharedKitchen: true,
+        privacyNeed: true,
+        choresContribution: true,
+        recyclingKnowledge: true,
+        roomSharingStatus: true,
+        hasNightDisturbances: true,
+        needsQuietEnvironment: true,
+        hasSleepEquipment: true,
+        supportLevel: true,
+      },
+    })) as Resident[]
 
     if (unplacedResidents.length > 0) {
       // Calculate apartment profile from current residents

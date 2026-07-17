@@ -357,17 +357,20 @@ export function ReportForm({ roommates }: Props) {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting
-                ? PORTAL_LABELS.report.submitting
-                : category === 'MAINTENANCE'
-                  ? PORTAL_LABELS.report.submitMaintenance
-                  : PORTAL_LABELS.report.submitConflict}
-            </button>
+            {/* Sticky submit CTA — reachable without scrolling on long forms */}
+            <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 z-20">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary w-full min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting
+                  ? PORTAL_LABELS.report.submitting
+                  : category === 'MAINTENANCE'
+                    ? PORTAL_LABELS.report.submitMaintenance
+                    : PORTAL_LABELS.report.submitConflict}
+              </button>
+            </div>
           </form>
         </div>
       )}

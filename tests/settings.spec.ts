@@ -53,11 +53,11 @@ test.describe('Settings page', () => {
     expect(hasError).toBe(true)
   })
 
-  test('settings page is accessible from sidebar nav', async ({ page }) => {
+  test('settings page is accessible from header nav', async ({ page }) => {
     await page.goto('/')
 
-    // Settings link in sidebar
-    const settingsLink = page.locator('aside a[href="/settings"]').first()
+    // Settings is a top-level megamenu item in the header
+    const settingsLink = page.locator('header a[href="/settings"]').first()
     await expect(settingsLink).toBeVisible({ timeout: 15_000 })
 
     await settingsLink.click()

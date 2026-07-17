@@ -163,7 +163,8 @@ function LoginForm() {
                 autoFocus={!searchParams.get('code')}
                 className="input font-mono text-center text-lg tracking-wider"
               />
-              <p className="mt-1.5 text-xs text-ui-muted">{LOGIN_LABELS.codeHint}</p>
+              <p className="mt-1.5 text-xs text-ui-muted">{LOGIN_LABELS.residentHint}</p>
+              <p className="mt-1 text-xs text-ui-muted">{LOGIN_LABELS.staffHint}</p>
             </div>
 
             <Button

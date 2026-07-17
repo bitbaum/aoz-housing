@@ -288,7 +288,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
   return (
     <div
       className={`card p-4 ${placement.status !== 'ACTIVE' ? 'opacity-75' : ''} ${
-        isCheckInOverdue ? 'border-l-4 border-l-orange-400' : ''
+        isCheckInOverdue ? 'border-l-4 border-l-status-warning' : ''
       }`}
     >
       <div className="flex items-center justify-between">

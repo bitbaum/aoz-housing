@@ -13,6 +13,7 @@ import {
   createMaintenanceRequest,
   updateMaintenanceStatus,
   assignMaintenanceRequest,
+  getMaintenanceAssignees,
   getMaintenanceStats,
   getHousingUnitMaintenance,
 } from '../maintenance'
@@ -391,6 +392,49 @@ describe('assignMaintenanceRequest', () => {
     await expect(assignMaintenanceRequest(makeAssignFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_ASSIGN_ERROR,
     )
+  })
+})
+
+// =============================================================================
+// getMaintenanceAssignees
+// =============================================================================
+
+describe('getMaintenanceAssignees', () => {
+  it('returns distinct assignee names sorted by prisma query', async () => {
+    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue([
+      { assignedTo: 'Anna Keller' },
+      { assignedTo: 'Hans Mueller' },
+    ])
+
+    const result = await getMaintenanceAssignees()
+
+    expect(result).toEqual(['Anna Keller', 'Hans Mueller'])
+    expect(mockPrisma.maintenanceRequest.findMany).toHaveBeenCalledWith({
+      where: { assignedTo: { not: null } },
+      select: { assignedTo: true },
+      distinct: ['assignedTo'],
+      orderBy: { assignedTo: 'asc' },
+    })
+  })
+
+  it('filters out null and blank names', async () => {
+    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue([
+      { assignedTo: 'Anna Keller' },
+      { assignedTo: null },
+      { assignedTo: '   ' },
+    ])
+
+    const result = await getMaintenanceAssignees()
+
+    expect(result).toEqual(['Anna Keller'])
+  })
+
+  it('returns empty array when nothing has been assigned yet', async () => {
+    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue([])
+
+    const result = await getMaintenanceAssignees()
+
+    expect(result).toEqual([])
   })
 })
 

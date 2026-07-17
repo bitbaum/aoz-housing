@@ -167,7 +167,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             </div>
 
             <div>
-              <label className="label">Datum der Dokumentation</label>
+              <label className="label">{RESIDENT_FORM_LABELS.medDocDateLabel}</label>
               <input
                 type="date"
                 name="medicalDocDate"
@@ -181,16 +181,16 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             </div>
 
             <div>
-              <label className="label">Notizen zur Dokumentation</label>
+              <label className="label">{RESIDENT_FORM_LABELS.medDocNotesLabel}</label>
               <textarea
                 name="medicalDocNotes"
                 rows={2}
                 defaultValue={(defaultValues.medicalDocNotes as string) || ''}
-                placeholder="z.B. Referenznummer, ausstellende Stelle..."
+                placeholder={RESIDENT_FORM_LABELS.medDocNotesPlaceholder}
                 className="input"
               />
               <p className="text-xs text-ui-muted mt-1">
-                Nur Verwaltungsnotizen, keine medizinischen Details
+                {RESIDENT_FORM_LABELS.medDocNotesHint}
               </p>
             </div>
           </div>
