@@ -88,7 +88,7 @@ function log(level: LogLevel, message: string, context?: Record<string, unknown>
   }
 
   if (process.env.NODE_ENV === 'production') {
-    // JSON output for log aggregation (Vercel, Datadog, etc.)
+    // JSON output for log aggregation (journald, Datadog, etc.)
     const output = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log
     output(JSON.stringify(entry))
   } else {
