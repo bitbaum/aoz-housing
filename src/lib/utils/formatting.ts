@@ -109,7 +109,7 @@ export function weeksBetween(from: Date | string, to: Date | string | number = D
 /**
  * Project-wide timezone (CH operations). Use these helpers for any
  * day/month bucketing — never `date.getMonth()`/`getFullYear()` directly,
- * since Vercel functions run in UTC and would mis-bucket at midnight.
+ * since the server may run in UTC and would mis-bucket at midnight.
  */
 export const APP_TZ = 'Europe/Zurich'
 

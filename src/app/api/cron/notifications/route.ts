@@ -15,7 +15,7 @@ import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { daysBetween } from '@/lib/utils'
 
-// Vercel function timeout for this cron run. Default is 10s; raise so the
+// Route timeout for this cron run. Default is 10s; raise so the
 // batched query + email send don't get killed mid-flight at scale.
 export const maxDuration = 60
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 
   // Postgres advisory lock — non-blocking, session-scoped. If another
   // invocation of this same cron is already running on the same DB, this
-  // call returns false and we bail. Prevents Vercel-retry double-sends.
+  // call returns false and we bail. Prevents overlapping-run double-sends.
   const lockResult = await prisma.$queryRaw<Array<{ ok: boolean }>>`
     SELECT pg_try_advisory_lock(${CRON_LOCK_KEY}) AS ok
   `
