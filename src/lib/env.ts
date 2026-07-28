@@ -28,6 +28,7 @@ const envSchema = z.object({
 
   // Optional integrations
   ANTHROPIC_API_KEY: z.string().optional(),
+  ANTHROPIC_MODEL: z.string().default('claude-opus-5'),
   BREVO_API_KEY: z.string().optional(),
 
   // Sentry (build-time)

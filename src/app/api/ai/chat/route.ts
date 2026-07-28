@@ -4,6 +4,7 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
+import { env } from '@/lib/env'
 import { z } from 'zod'
 
 // Lazy-init so a missing ANTHROPIC_API_KEY in dev doesn't crash module-load.
@@ -286,7 +287,7 @@ export async function POST(request: Request) {
           iterations++
 
           const sdkStream = getAnthropic().messages.stream({
-            model: 'claude-opus-4-7',
+            model: env.ANTHROPIC_MODEL,
             max_tokens: 8192,
             thinking: { type: 'adaptive' },
             system: [{
