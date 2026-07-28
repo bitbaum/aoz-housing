@@ -4,7 +4,6 @@ import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
-import { env } from '@/lib/env'
 import { z } from 'zod'
 
 // Lazy-init so a missing ANTHROPIC_API_KEY in dev doesn't crash module-load.
@@ -238,6 +237,10 @@ async function executeTool(name: string, rawInput: unknown): Promise<unknown> {
 }
 
 export async function POST(request: Request) {
+  // Imported lazily: a module-scope import of '@/lib/env' runs its production
+  // env validation during `next build` page-data collection (no env in CI).
+  const { env } = await import('@/lib/env')
+  const anthropicModel = env.ANTHROPIC_MODEL
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt).' }, { status: 503 })
   }
@@ -287,7 +290,7 @@ export async function POST(request: Request) {
           iterations++
 
           const sdkStream = getAnthropic().messages.stream({
-            model: env.ANTHROPIC_MODEL,
+            model: anthropicModel,
             max_tokens: 8192,
             thinking: { type: 'adaptive' },
             system: [{
