@@ -78,6 +78,9 @@ jobs:
         env:
           DATABASE_URL: "postgresql://fake:fake@localhost:5432/fake"
           DIRECT_URL: "postgresql://fake:fake@localhost:5432/fake"
+          # Not a real secret: page-data collection imports auth/constants,
+          # whose production fail-fast requires this to be set (>=32 chars).
+          SESSION_SECRET: "ci-build-only-dummy-0123456789abcdef"
 
   e2e-tests:
     name: E2E Tests

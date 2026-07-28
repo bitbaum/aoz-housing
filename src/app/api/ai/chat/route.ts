@@ -237,6 +237,10 @@ async function executeTool(name: string, rawInput: unknown): Promise<unknown> {
 }
 
 export async function POST(request: Request) {
+  // Imported lazily: a module-scope import of '@/lib/env' runs its production
+  // env validation during `next build` page-data collection (no env in CI).
+  const { env } = await import('@/lib/env')
+  const anthropicModel = env.ANTHROPIC_MODEL
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json({ error: 'KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt).' }, { status: 503 })
   }
@@ -286,7 +290,7 @@ export async function POST(request: Request) {
           iterations++
 
           const sdkStream = getAnthropic().messages.stream({
-            model: 'claude-opus-4-7',
+            model: anthropicModel,
             max_tokens: 8192,
             thinking: { type: 'adaptive' },
             system: [{
