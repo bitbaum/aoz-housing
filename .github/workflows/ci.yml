@@ -121,6 +121,14 @@ jobs:
           DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
           DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
 
+      - name: Seed E2E data
+        run: |
+          npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
+          npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+        env:
+          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
