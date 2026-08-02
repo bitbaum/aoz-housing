@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
 // Seed data drives real DB assertions (placements, incidents, check-ins, algorithm accuracy)
@@ -7,7 +8,7 @@ test.describe('Analytics page (/analytics)', () => {
   test('loads with heading and subtitle', async ({ page }) => {
     await page.goto('/analytics')
 
-    await expect(page.getByRole('heading', { name: /Statistiken/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({ timeout: 15_000 })
   })
 
   test('shows Mission KPI section', async ({ page }) => {
@@ -15,7 +16,7 @@ test.describe('Analytics page (/analytics)', () => {
 
     // MissionKPISection renders a heading about mission/Kern-KPIs
     await expect(
-      page.getByText(/Kern-KPI|Mission KPI|Konfliktentwicklung|Monatliche Konflikte/i).first()
+      page.getByRole('heading', { name: /Missions-KPIs/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -47,9 +48,11 @@ test.describe('Analytics page (/analytics)', () => {
   test('shows algorithm accuracy section', async ({ page }) => {
     await page.goto('/analytics')
 
-    // AlgorithmAccuracySection renders a heading about algorithm/Genauigkeit
+    // AlgorithmAccuracySection renders a heading about algorithm/Genauigkeit.
+    // Scoped to <main>: unscoped this also matched the chrome's "Algorithmus"
+    // link, so it passed without the section being on the page at all.
     await expect(
-      page.getByText(/Algorithmus|Genauigkeit|Algorithm Accuracy/i).first()
+      page.locator('main').getByRole('heading', { name: /Algorithmus-Genauigkeit/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -58,7 +61,7 @@ test.describe('Analytics page (/analytics)', () => {
 
     // RecentPlacementsTable renders a table or section with placement data
     await expect(
-      page.getByText(/Letzte Platzierungen|Neue Unterbringungen|Recent Placements/i).first()
+      page.getByRole('heading', { name: /Neueste Platzierungen/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -75,7 +78,7 @@ test.describe('Analytics page (/analytics)', () => {
     await page.goto('/analytics?days=90')
 
     // Page loads successfully with 90-day period — heading still shows
-    await expect(page.getByRole('heading', { name: /Statistiken/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({ timeout: 15_000 })
 
     // The period selector reflects 90 days
     await expect(
@@ -91,16 +94,15 @@ test.describe('Analytics page (/analytics)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/analytics"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/analytics')
 
     await navLink.click()
     await page.waitForURL('**/analytics', { timeout: 10_000 })
 
-    await expect(page.getByRole('heading', { name: /Statistiken/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible()
   })
 })
 
@@ -114,7 +116,7 @@ test.describe('Admin chores (/chores)', () => {
 
     // CHORE_LABELS.admin.pageTitle
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText(/Haushaltsaufgaben|Aufgaben/i).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Haushaltsaufgaben/i })).toBeVisible()
   })
 
   test('shows 4 stat cards', async ({ page }) => {
@@ -130,24 +132,25 @@ test.describe('Admin chores (/chores)', () => {
 
     // Seed has tasks in ZH-001, ZH-002 etc — at least one ZH-xxx unit visible
     await expect(
-      page.locator('text=/ZH-\\d{3}/').first()
+      page.locator('main').locator('a[href^="/housing/"]:visible').filter({ hasText: /ZH-\d{3}/ }).first()
     ).toBeVisible({ timeout: 15_000 })
   })
 
   test('unit codes link to housing detail page', async ({ page }) => {
     await page.goto('/chores')
 
-    const unitLink = page.locator('a[href^="/housing/"]').first()
+    // :visible — the unit table is duplicated as a md:hidden card list, so an
+    // unfiltered .first() resolves to the hidden mobile copy.
+    const unitLink = page.locator('main a[href^="/housing/"]:visible').first()
     await expect(unitLink).toBeVisible({ timeout: 15_000 })
     const href = await unitLink.getAttribute('href')
     expect(href).toMatch(/^\/housing\/[a-z0-9]+$/)
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/chores"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/chores')
 
     await navLink.click()
     await page.waitForURL('**/chores', { timeout: 10_000 })

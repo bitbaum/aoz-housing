@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { findAdminNavLink, expectNotFoundPage } from './helpers'
 
 // storageState from playwright.config handles staff auth
 // Seed data (prisma/seed.ts) provides 4 maintenance requests:
@@ -6,6 +7,17 @@ import { test, expect } from '@playwright/test'
 //   - "Heizung Zimmer 2 defekt"    → ASSIGNED (ZH-002)
 //   - "Steckdose funktioniert nicht" → COMPLETED (ZH-003)
 //   - "Waschmaschine defekt"       → COMPLETED (ZH-004)
+
+/**
+ * First link to an actual maintenance *detail* page.
+ *
+ * `a[href^="/maintenance/"]` also matches the "Neue Anfrage" action in the page
+ * header, which sorts first in the DOM — the detail-page tests were silently
+ * asserting against /maintenance/new.
+ */
+function detailLink(page: import('@playwright/test').Page) {
+  return page.locator('main a[href^="/maintenance/"]:not([href="/maintenance/new"])').first()
+}
 
 test.describe('Maintenance list (/maintenance)', () => {
   test('page loads with heading and new-request button', async ({ page }) => {
@@ -47,7 +59,7 @@ test.describe('Maintenance list (/maintenance)', () => {
   test('each request row links to its detail page', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     await expect(link).toBeVisible({ timeout: 15_000 })
 
     const href = await link.getAttribute('href')
@@ -61,11 +73,10 @@ test.describe('Maintenance list (/maintenance)', () => {
     await expect(link).toHaveAttribute('href', '/maintenance/new')
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/maintenance"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/maintenance')
 
     await navLink.click()
     await page.waitForURL('**/maintenance', { timeout: 10_000 })
@@ -127,7 +138,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page loads from list link', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     await expect(link).toBeVisible({ timeout: 15_000 })
 
     const href = await link.getAttribute('href')
@@ -140,7 +151,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page shows status badge', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -153,7 +164,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('detail page shows housing unit link', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -166,7 +177,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
   test('back link returns to /maintenance', async ({ page }) => {
     await page.goto('/maintenance')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     const href = await link.getAttribute('href')
     await page.goto(href!)
 
@@ -180,7 +191,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     // Navigate directly to the completed tab and pick the first completed request
     await page.goto('/maintenance?status=COMPLETED')
 
-    const link = page.locator('a[href^="/maintenance/"]').first()
+    const link = detailLink(page)
     await expect(link).toBeVisible({ timeout: 15_000 })
     const href = await link.getAttribute('href')
     await page.goto(href!)
@@ -191,9 +202,8 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('nonexistent id shows 404', async ({ page }) => {
-    const response = await page.goto('/maintenance/nonexistent-id-xyz')
-    // Next.js notFound() returns 404
-    expect(response?.status()).toBe(404)
+  test('nonexistent id shows the 404 page', async ({ page }) => {
+    await page.goto('/maintenance/nonexistent-id-xyz')
+    await expectNotFoundPage(page)
   })
 })

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expectNotFoundPage } from './helpers'
 
 // storageState from playwright.config handles staff auth
 // Seed data (prisma/seed.ts):
@@ -32,7 +33,7 @@ test.describe('Resident list (/residents)', () => {
     await page.goto('/residents')
 
     await expect(page.getByRole('heading', { name: /Bewohner/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /Neuer Bewohner|Hinzufügen/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /^\+ Bewohner$/i })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
@@ -51,7 +52,7 @@ test.describe('Resident list (/residents)', () => {
   test('new-resident button points to /residents/new', async ({ page }) => {
     await page.goto('/residents')
 
-    const link = page.getByRole('link', { name: /Neuer Bewohner|Hinzufügen/i }).first()
+    const link = page.getByRole('link', { name: /^\+ Bewohner$/i }).first()
     await expect(link).toHaveAttribute('href', '/residents/new')
   })
 })
@@ -102,7 +103,7 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     await page.goto(href)
 
     await expect(
-      page.getByRole('link', { name: /Transfer|Umzug/i }).first()
+      page.getByRole('link', { name: /^Verlegen$/i }).first()
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -116,13 +117,15 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     await page.waitForURL('**/residents', { timeout: 10_000 })
   })
 
-  test('shows placement history section', async ({ page }) => {
-    const href = await getResidentHrefByCode(page, 'RES-001')
+  test('shows placement history for a resident with past placements', async ({ page }) => {
+    // PlacementHistoryCard renders nothing when there is no *past* placement,
+    // which is correct — RES-001 only has its current one. RES-004 is placed
+    // *and* has an earlier, ended placement in the seed.
+    const href = await getResidentHrefByCode(page, 'RES-004')
     await page.goto(href)
 
-    // PlacementHistoryCard renders a heading about Unterbringung/Verlauf
     await expect(
-      page.getByText(/Unterkunftsverlauf|Unterbringungsverlauf|Verlauf|Placement/i).first()
+      page.getByRole('heading', { name: /Platzierungshistorie/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 })
@@ -164,9 +167,9 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
     const href = await getResidentHrefByCode(page, 'RES-021')
     await page.goto(href)
 
-    // CompatibleMatchesCard or TopCompatibilitiesCard is present
+    // CompatibleMatchesCard heading
     await expect(
-      page.getByText(/Passende Unterkünfte|Beste Übereinstimmungen|Kompatibel/i).first()
+      page.getByRole('heading', { name: /Passende Optionen/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 })
@@ -176,9 +179,9 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
 // =============================================================================
 
 test.describe('Resident detail — 404', () => {
-  test('nonexistent id returns 404', async ({ page }) => {
-    const response = await page.goto('/residents/nonexistent-id-xyz')
-    expect(response?.status()).toBe(404)
+  test('nonexistent id shows the 404 page', async ({ page }) => {
+    await page.goto('/residents/nonexistent-id-xyz')
+    await expectNotFoundPage(page)
   })
 })
 
@@ -224,8 +227,8 @@ test.describe('Resident edit (/residents/[id]/edit)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('nonexistent id returns 404', async ({ page }) => {
-    const response = await page.goto('/residents/nonexistent-id-xyz/edit')
-    expect(response?.status()).toBe(404)
+  test('nonexistent id shows the 404 page', async ({ page }) => {
+    await page.goto('/residents/nonexistent-id-xyz/edit')
+    await expectNotFoundPage(page)
   })
 })

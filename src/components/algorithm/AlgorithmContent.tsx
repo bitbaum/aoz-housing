@@ -11,7 +11,7 @@ import {
   Activity,
   MapPin,
 } from 'lucide-react'
-import { Tabs } from '@/components/ui'
+import { Tabs, TabPanel } from '@/components/ui'
 import {
   FACTOR_COUNT,
   DIMENSION_COUNT,
@@ -87,17 +87,22 @@ export function AlgorithmContent() {
         <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'overview' && <OverviewTab />}
-      {activeTab === 'science' && <ScienceTab />}
-      {activeTab === 'dimensions' && (
-        <DimensionsTab
-          expandedDimension={expandedDimension}
-          setExpandedDimension={setExpandedDimension}
-        />
-      )}
-      {activeTab === 'collection' && <DataCollectionTab />}
-      {activeTab === 'technical' && <TechnicalTab />}
+      {/* Tab Content — each tab button points aria-controls at `tabpanel-<id>`,
+          so the visible panel must actually carry that id. Rendering the
+          content bare left every aria-controls dangling (axe
+          `aria-valid-attr-value`, critical). */}
+      <TabPanel id={activeTab}>
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'science' && <ScienceTab />}
+        {activeTab === 'dimensions' && (
+          <DimensionsTab
+            expandedDimension={expandedDimension}
+            setExpandedDimension={setExpandedDimension}
+          />
+        )}
+        {activeTab === 'collection' && <DataCollectionTab />}
+        {activeTab === 'technical' && <TechnicalTab />}
+      </TabPanel>
 
       {/* CTA Section */}
       <section className="mt-12 text-center py-12 px-6 bg-ui-subtle rounded-lg">

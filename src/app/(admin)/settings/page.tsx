@@ -91,9 +91,10 @@ export default async function SettingsPage() {
         <form action={saveSystemConfig} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="label">{PILOT_BASELINE_LABELS.startDateLabel}</label>
+              <label className="label" htmlFor="pilotStartDate">{PILOT_BASELINE_LABELS.startDateLabel}</label>
               <input
                 type="date"
+                id="pilotStartDate"
                 name="pilotStartDate"
                 defaultValue={pilotStartValue}
                 className="input"
@@ -101,10 +102,11 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
             </div>
             <div>
-              <label className="label">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
+              <label className="label" htmlFor="pilotBaselineIncidentsPerMonth">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
               <input
                 type="number"
                 inputMode="numeric"
+                id="pilotBaselineIncidentsPerMonth"
                 name="pilotBaselineIncidentsPerMonth"
                 min="0"
                 step="0.1"
@@ -115,10 +117,11 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
             </div>
             <div>
-              <label className="label">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
+              <label className="label" htmlFor="pilotBaselineRelocationsPerMonth">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
               <input
                 type="number"
                 inputMode="numeric"
+                id="pilotBaselineRelocationsPerMonth"
                 name="pilotBaselineRelocationsPerMonth"
                 min="0"
                 step="0.1"
@@ -129,10 +132,11 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
             </div>
             <div>
-              <label className="label">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
+              <label className="label" htmlFor="pilotBaselineMediationHoursPerWeek">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
               <input
                 type="number"
                 inputMode="numeric"
+                id="pilotBaselineMediationHoursPerWeek"
                 name="pilotBaselineMediationHoursPerWeek"
                 min="0"
                 step="0.5"

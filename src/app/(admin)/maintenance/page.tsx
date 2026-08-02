@@ -17,7 +17,7 @@ import {
 } from '@/lib/constants'
 import { formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
-import { TabLink } from '@/components/ui/Tabs'
+import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import type { MaintenanceStatus, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
@@ -138,7 +138,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <TabLinkGroup label={UI_LABELS.filterNav} variant="underline">
           <TabLink
             href="/maintenance?status=active"
             label={UI_LABELS.active}
@@ -169,7 +169,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
             count={stats.total}
             active={statusFilter === 'all'}
           />
-        </div>
+        </TabLinkGroup>
       </div>
 
       {/* Request List */}

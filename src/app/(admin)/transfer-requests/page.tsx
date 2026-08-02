@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getTransferRequests } from '@/lib/actions/transfers'
-import { TabLink } from '@/components/ui/Tabs'
+import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
@@ -36,7 +36,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
 
       {/* Status Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border overflow-x-auto">
+        <TabLinkGroup label={UI_LABELS.filterNav} variant="underline">
           <TabLink
             href="/transfer-requests?status=PENDING"
             label={TRANSFER_REQUEST_STATUS_LABELS.PENDING}
@@ -61,7 +61,7 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
             count={counts.all}
             active={statusFilter === 'ALL'}
           />
-        </div>
+        </TabLinkGroup>
       </div>
 
       {/* Request List */}

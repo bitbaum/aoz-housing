@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
-import { TabLink } from '@/components/ui/Tabs'
+import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { CSVImport } from '@/components/residents/CSVImport'
 import { ButtonLink } from '@/components/ui/Button'
 import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page'
@@ -114,11 +114,11 @@ export default async function ResidentsListPage({ searchParams }: Props) {
             autoComplete="off"
           />
         </form>
-        <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
+        <TabLinkGroup label={UI_LABELS.filterNav}>
           <TabLink href={`/residents?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
           <TabLink href={`/residents?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
           <TabLink href={`/residents?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
-        </div>
+        </TabLinkGroup>
       </Toolbar>
 
       {view !== 'archived' && stats.unplaced > 0 && (

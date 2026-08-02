@@ -165,7 +165,9 @@ export default async function RoommatesPage() {
           ))}
           <p>
             <strong>{PORTAL_LABELS.roommates.conflictSteps.length + 1}. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
-            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">
+            {/* Underlined at rest, not only on hover: inside a text block colour
+                alone is not a sufficient cue (WCAG 1.4.1 / axe link-in-text-block). */}
+            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary underline">
               {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
           </p>

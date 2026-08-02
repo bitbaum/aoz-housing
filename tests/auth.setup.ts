@@ -17,9 +17,16 @@ export default async function globalSetup(config: FullConfig) {
 
   const staffCode = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
 
-  // Login with staff code (assumes DB is seeded with this user)
+  // Login with staff code (assumes DB is seeded with this user).
+  //
+  // Explicit timeout: the suite runs against `next dev`, which compiles a route
+  // on its first request — /api/auth/login alone takes ~30s on a cold .next
+  // cache, right at Playwright's 30s API default. When it loses that race the
+  // client aborts mid-request and the server logs
+  // `SyntaxError: Unexpected end of JSON input` from the truncated body.
   const loginRes = await ctx.post('/api/auth/login', {
     data: { code: staffCode },
+    timeout: 120_000,
   })
 
   if (!loginRes.ok()) {

@@ -59,7 +59,10 @@ export function ResidentSelectorPanel({
           )}
         </div>
       ) : (
-        <div className="space-y-2">
+        /* Labelled region: the panel shows unplaced *and* placed residents, and
+           they mean different things — a screen-reader user (and a test) needs
+           to be able to tell which list a resident is in. */
+        <section aria-label={MATCHING_LABELS.unplacedResidents} className="space-y-2">
           {filteredUnplacedResidents.map((resident) => (
             <div
               key={resident.id}
@@ -101,7 +104,7 @@ export function ResidentSelectorPanel({
               </Link>
             </div>
           ))}
-        </div>
+        </section>
       )}
 
       {/* Placed residents section */}
@@ -113,7 +116,7 @@ export function ResidentSelectorPanel({
           <p className="text-xs text-ui-muted mb-3">
             {MATCHING_LABELS.selectForAnalysis}
           </p>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
+          <section aria-label={MATCHING_LABELS.placedResidents} className="space-y-2 max-h-64 overflow-y-auto">
             {placedResidents.map((resident) => (
               <div
                 key={resident.id}
@@ -151,7 +154,7 @@ export function ResidentSelectorPanel({
                 </Link>
               </div>
             ))}
-          </div>
+          </section>
         </div>
       )}
     </div>

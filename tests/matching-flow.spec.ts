@@ -194,7 +194,7 @@ test.describe('Full placement flow', () => {
 
     // Right panel shows matches for the new resident
     await expect(page.getByText(/Matches für/)).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByText(code)).toBeVisible()
+    await expect(page.getByText(code).first()).toBeVisible()
 
     // 3. Check for available placement
     const placeBtn = page.getByRole('button', { name: /Platzieren/i }).first()
@@ -212,8 +212,15 @@ test.describe('Full placement flow', () => {
     // 5. Resident detail page shows a "placed" confirmation
     await expect(page.getByText(/Platziert|platziert|placed/i).first()).toBeVisible()
 
-    // 6. Resident no longer appears in unplaced list on matching page
+    // 6. Resident has moved out of the unplaced list on the matching page.
+    //    It still appears under "Platzierte Bewohner" (the what-if comparison
+    //    list), so the assertion has to be scoped to the unplaced region.
     await page.goto('/matching')
-    await expect(page.getByText(code)).not.toBeVisible({ timeout: 5_000 })
+    await expect(
+      page.getByRole('region', { name: /Unplatzierte Bewohner/i }).getByText(code)
+    ).toHaveCount(0, { timeout: 10_000 })
+    await expect(
+      page.getByRole('region', { name: /Platzierte Bewohner/i }).getByText(code)
+    ).toBeVisible()
   })
 })
