@@ -20,7 +20,7 @@ import {
   formatRelativeDate,
 } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
-import { TabLink } from '@/components/ui/Tabs'
+import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
@@ -185,7 +185,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
       {/* Category Tabs - Note: Maintenance requests have their own page (/maintenance) */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border">
+        <TabLinkGroup label={UI_LABELS.filterNav} variant="underline">
           <TabLink
             href={`/incidents${statusQS ? `?${statusQS.slice(1)}` : ''}`}
             label={UI_LABELS.all}
@@ -204,7 +204,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
             count={tabSafety}
             active={categoryFilter === 'SAFETY'}
           />
-        </div>
+        </TabLinkGroup>
       </div>
 
       {/* Incidents List */}

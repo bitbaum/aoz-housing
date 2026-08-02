@@ -24,6 +24,8 @@ export const UI_LABELS = {
   blocked: 'Blockiert',
   active: 'Aktiv',
   // Common filter tab labels
+  /** Accessible name for the row of filter links above a list. */
+  filterNav: 'Filter',
   all: 'Alle',
   ended: 'Beendet',
   archived: 'Archiviert',

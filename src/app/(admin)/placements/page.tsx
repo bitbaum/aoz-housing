@@ -24,7 +24,7 @@ import {
   formatDate,
 } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
-import { TabLink } from '@/components/ui/Tabs'
+import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 
 export const dynamic = 'force-dynamic'
@@ -202,7 +202,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
       {/* Tabs */}
       <div className="mb-6">
-        <div className="flex gap-2 border-b border-ui-border" role="tablist">
+        <TabLinkGroup label={UI_LABELS.filterNav} variant="underline">
           <TabLink
             href="/placements?status=active"
             label={UI_LABELS.active}
@@ -221,7 +221,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
             count={stats.total}
             active={statusFilter === 'all'}
           />
-        </div>
+        </TabLinkGroup>
       </div>
 
       {/* Placements List */}

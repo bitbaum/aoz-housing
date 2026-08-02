@@ -83,8 +83,40 @@ export function StaticTabs({ children }: StaticTabsProps) {
 }
 
 // =============================================================================
-// TabLink - For URL-based tab navigation (server components)
+// TabLink / TabLinkGroup - URL-based filter navigation (server components)
 // =============================================================================
+
+/**
+ * Container for a row of `TabLink`s.
+ *
+ * These look like tabs but behave like navigation: every item is an `<a>` that
+ * loads a new URL, and there is no tabpanel in the document that the "tab"
+ * controls. Per the WAI-ARIA practices that makes them links inside a
+ * navigation landmark — NOT `role="tab"` inside `role="tablist"`. Using the tab
+ * roles here produced two real defects: axe `aria-required-parent` (critical,
+ * `role="tab"` with no tablist ancestor) and links that no longer expose the
+ * `link` role to assistive tech or `getByRole('link')`.
+ */
+const TAB_LINK_GROUP_STYLES = {
+  boxed: 'flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1',
+  underline: 'flex gap-2 overflow-x-auto border-b border-ui-border',
+} as const
+
+export function TabLinkGroup({
+  label,
+  variant = 'boxed',
+  children,
+}: {
+  label: string
+  variant?: keyof typeof TAB_LINK_GROUP_STYLES
+  children: React.ReactNode
+}) {
+  return (
+    <nav aria-label={label} className={TAB_LINK_GROUP_STYLES[variant]}>
+      {children}
+    </nav>
+  )
+}
 
 interface TabLinkProps {
   href: string
@@ -97,8 +129,7 @@ export function TabLink({ href, label, count, active = false }: TabLinkProps) {
   return (
     <Link
       href={href}
-      role="tab"
-      aria-selected={active}
+      aria-current={active ? 'page' : undefined}
       className={`rounded-md px-3 py-2 text-xs sm:text-sm font-medium transition-colors min-h-[40px] inline-flex items-center whitespace-nowrap ${
         active
           ? 'bg-ui-text text-ui-inverse'

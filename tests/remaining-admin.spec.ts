@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
 // Closes the last 3 uncovered admin routes: /ai-assistant, /algorithm, /transfer-requests
@@ -51,11 +52,10 @@ test.describe('AI Assistant (/ai-assistant)', () => {
     await expect(sendBtn).toBeEnabled()
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/ai-assistant"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/ai-assistant')
 
     await navLink.click()
     await page.waitForURL('**/ai-assistant', { timeout: 10_000 })
@@ -96,11 +96,10 @@ test.describe('Algorithm (/algorithm)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/algorithm"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/algorithm')
 
     await navLink.click()
     await page.waitForURL('**/algorithm', { timeout: 10_000 })
@@ -116,7 +115,7 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
     await page.goto('/transfer-requests')
 
     await expect(
-      page.getByRole('heading', { name: /Transferanfragen|Umzugsanfragen|Transfer/i })
+      page.getByRole('heading', { name: /Verlegungsanfragen/i })
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -124,7 +123,7 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
     await page.goto('/transfer-requests')
 
     // TabLinks for PENDING, APPROVED, DENIED, ALL
-    await expect(page.getByRole('link', { name: /Ausstehend|Pending/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /^Offen/i })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: /Genehmigt|Approved/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /Abgelehnt|Denied/i })).toBeVisible()
     await expect(page.getByRole('link', { name: /Alle|All/i })).toBeVisible()
@@ -167,11 +166,10 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
     ).toBeVisible({ timeout: 15_000 })
   })
 
-  test('accessible from sidebar navigation', async ({ page }) => {
+  test('accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    const navLink = page.locator('aside a[href="/transfer-requests"]').first()
-    await expect(navLink).toBeVisible({ timeout: 15_000 })
+    const navLink = await findAdminNavLink(page, '/transfer-requests')
 
     await navLink.click()
     await page.waitForURL('**/transfer-requests', { timeout: 10_000 })

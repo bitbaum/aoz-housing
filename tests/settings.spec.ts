@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
 
@@ -53,12 +54,10 @@ test.describe('Settings page', () => {
     expect(hasError).toBe(true)
   })
 
-  test('settings page is accessible from sidebar nav', async ({ page }) => {
+  test('settings page is accessible from the header nav', async ({ page }) => {
     await page.goto('/')
 
-    // Settings link in sidebar
-    const settingsLink = page.locator('aside a[href="/settings"]').first()
-    await expect(settingsLink).toBeVisible({ timeout: 15_000 })
+    const settingsLink = await findAdminNavLink(page, '/settings')
 
     await settingsLink.click()
     await page.waitForURL('**/settings', { timeout: 10_000 })

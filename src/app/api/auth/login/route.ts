@@ -6,8 +6,21 @@ import { setResidentCookie } from '@/lib/portal-auth'
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { code } = body
+    // A body that is absent, truncated (client disconnected mid-request) or not
+    // JSON is a *client* error. Letting request.json() throw into the catch
+    // below turned it into a 500 + ERROR-level log, which is both wrong for the
+    // caller and noise for alerting.
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Code erforderlich' },
+        { status: 400 }
+      )
+    }
+
+    const { code } = (body ?? {}) as { code?: unknown }
 
     if (!code || typeof code !== 'string') {
       return NextResponse.json(

@@ -9,9 +9,11 @@ test.describe('Placement list and management', () => {
     // Page heading
     await expect(page.locator('h1, h2').first()).toContainText(/Platzierung/i)
 
-    // Tab bar with "Aktiv" tab should be visible
-    await expect(page.locator('[role="tablist"]').first()).toBeVisible()
-    await expect(page.locator('[role="tab"]').first()).toBeVisible()
+    // Status filter bar: these are links that change the URL, not ARIA tabs,
+    // so they live in a labelled <nav> and expose the `link` role.
+    const filters = page.locator('main nav[aria-label]')
+    await expect(filters.first()).toBeVisible()
+    await expect(filters.first().getByRole('link', { name: /Aktiv/i })).toBeVisible()
 
     // "New placement" link should go to matching
     await expect(page.getByRole('link', { name: /Neue Platzierung|Matching/i }).first()).toBeVisible()
@@ -40,7 +42,7 @@ test.describe('Placement list and management', () => {
 
     // Check if there are any placement rows, tabs, or empty state
     const hasRows = await page.locator('a[href*="/residents/"]').first().isVisible({ timeout: 5000 }).catch(() => false)
-    const hasTabs = await page.locator('[role="tab"]').first().isVisible().catch(() => false)
+    const hasTabs = await page.locator('main nav[aria-label]').first().isVisible().catch(() => false)
     const hasEmptyState = await page.getByText(/Keine.*Platzierung/i).isVisible().catch(() => false)
 
     // Page should have some placement content

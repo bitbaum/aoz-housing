@@ -207,8 +207,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.sleepSchedule}</label>
+              <label className="label" htmlFor="sleepSchedule">{P.fields.sleepSchedule}</label>
               <select
+                id="sleepSchedule"
                 name="sleepSchedule"
                 defaultValue={resident.sleepSchedule}
                 className="input"
@@ -251,8 +252,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.socialStyle}</label>
+              <label className="label" htmlFor="socialStyle">{P.fields.socialStyle}</label>
               <select
+                id="socialStyle"
                 name="socialStyle"
                 defaultValue={resident.socialStyle}
                 className="input"
@@ -308,8 +310,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.smoking}</label>
+              <label className="label" htmlFor="smokingStatus">{P.fields.smoking}</label>
               <select
+                id="smokingStatus"
                 name="smokingStatus"
                 defaultValue={resident.smokingStatus}
                 className="input"
@@ -386,8 +389,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label">{P.fields.preferredAgeRange}</label>
-              <select name="preferredAgeRange" className="input">
+              <label className="label" htmlFor="preferredAgeRange">{P.fields.preferredAgeRange}</label>
+              <select id="preferredAgeRange" name="preferredAgeRange" className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SIMILAR">{P.fields.similarAge}</option>
                 {(RESIDENT_FACTORS.ageRange as EnumFactorDef).options.map((opt) => (
@@ -399,8 +402,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label">{P.fields.culturalPref}</label>
-              <select name="culturalPreference" className="input">
+              <label className="label" htmlFor="culturalPreference">{P.fields.culturalPref}</label>
+              <select id="culturalPreference" name="culturalPreference" className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SAME_REGION">{P.fields.sameRegion}</option>
                 <option value="DIFFERENT_REGION">{P.fields.differentRegion}</option>

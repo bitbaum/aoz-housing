@@ -11,10 +11,11 @@ import { render, screen, fireEvent, act } from '@testing-library/react'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, role, 'aria-selected': ariaSelected }: {
-    href: string; children: React.ReactNode; className?: string; role?: string; 'aria-selected'?: boolean
-  }) => (
-    <a href={href} className={className} role={role} aria-selected={ariaSelected}>{children}</a>
+  // Pass every prop through: a mock that cherry-picks attributes silently drops
+  // the a11y attributes under test (that is how the aria-current regression
+  // would have slipped past).
+  default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
+    <a href={href} {...rest}>{children}</a>
   ),
 }))
 
@@ -30,7 +31,7 @@ jest.mock('@/lib/constants', () => ({
 }))
 
 // --- Component imports (after mocks) ---
-import { Tabs, TabButton, StaticTabs, TabLink, TabPanel } from '../Tabs'
+import { Tabs, TabButton, StaticTabs, TabLink, TabLinkGroup, TabPanel } from '../Tabs'
 import { SelectFilter, SearchInput, FilterBar } from '../FilterBar'
 import { CollapsibleSection } from '../CollapsibleSection'
 import { ToastContainer, showToast } from '../Toast'
@@ -123,24 +124,48 @@ describe('TabButton', () => {
 // =============================================================================
 
 describe('TabLink', () => {
-  it('renders with role=tab', () => {
+  // TabLink navigates to a URL and controls no in-page tabpanel, so it must
+  // stay a plain link — role="tab" both lied to assistive tech and triggered
+  // axe aria-required-parent (no tablist ancestor).
+  it('renders as a link, not a tab', () => {
     render(<TabLink href="/path" label="Profile" />)
-    expect(screen.getByRole('tab')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Profile' })).toBeInTheDocument()
+    expect(screen.queryByRole('tab')).not.toBeInTheDocument()
   })
 
   it('links to the correct href', () => {
     render(<TabLink href="/residents" label="Bewohner" />)
-    expect(screen.getByRole('tab')).toHaveAttribute('href', '/residents')
+    expect(screen.getByRole('link')).toHaveAttribute('href', '/residents')
   })
 
-  it('aria-selected=true when active', () => {
+  it('marks the active link with aria-current=page', () => {
     render(<TabLink href="/path" label="Profile" active />)
-    expect(screen.getByRole('tab')).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByRole('link')).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('omits aria-current when not active', () => {
+    render(<TabLink href="/path" label="Profile" />)
+    expect(screen.getByRole('link')).not.toHaveAttribute('aria-current')
   })
 
   it('shows count badge when provided', () => {
     render(<TabLink href="/path" label="Items" count={7} />)
     expect(screen.getByText('7')).toBeInTheDocument()
+  })
+})
+
+// =============================================================================
+// TabLinkGroup
+// =============================================================================
+
+describe('TabLinkGroup', () => {
+  it('renders a navigation landmark with its label', () => {
+    render(
+      <TabLinkGroup label="Filter">
+        <TabLink href="/a" label="A" />
+      </TabLinkGroup>
+    )
+    expect(screen.getByRole('navigation', { name: 'Filter' })).toBeInTheDocument()
   })
 })
 

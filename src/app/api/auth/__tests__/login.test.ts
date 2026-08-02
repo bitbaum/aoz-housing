@@ -159,6 +159,22 @@ describe('POST /api/auth/login', () => {
     expect(body.error).toBe('Code erforderlich')
   })
 
+  test('returns 400 (not 500) when the body is not valid JSON', async () => {
+    // A truncated/aborted request body used to reach request.json() and throw,
+    // producing a 500 and an ERROR log for what is a client-side fault.
+    const req = new NextRequest('http://localhost:3001/api/auth/login', {
+      method: 'POST',
+      body: '{"code":',
+      headers: { 'content-type': 'application/json' },
+    })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(400)
+    expect(body.success).toBe(false)
+    expect(mockLoginByCode).not.toHaveBeenCalled()
+  })
+
   test('returns 429 when rate limited', async () => {
     mockCheckRateLimit.mockReturnValue({ allowed: false, retryAfter: 120 })
 

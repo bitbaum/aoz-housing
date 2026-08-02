@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
 
@@ -8,8 +9,12 @@ test.describe('Dashboard', () => {
 
     await expect(page).toHaveTitle(/AOZ/)
 
-    const hasActions = await page.getByText(/Platzierung|Bewohner|Check-in|Vorfall/i).first().isVisible().catch(() => false)
-    const hasAllClear = await page.getByText(/Alles erledigt|Keine offenen/i).isVisible().catch(() => false)
+    // Scoped to <main>: MobileNav renders the whole nav list into the DOM at
+    // every viewport and only hides it with CSS, so an unscoped `.first()`
+    // resolves to a hidden nav link and the visibility check always fails.
+    const main = page.locator('main')
+    const hasActions = await main.getByText(/Platzierung|Bewohner|Check-in|Vorfall/i).first().isVisible().catch(() => false)
+    const hasAllClear = await main.getByText(/Alles erledigt|Keine offenen/i).first().isVisible().catch(() => false)
 
     expect(hasActions || hasAllClear).toBe(true)
   })
@@ -25,8 +30,8 @@ test.describe('Dashboard', () => {
   test('dashboard contains core admin navigation links', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page.locator('aside a[href="/residents"]').first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.locator('aside a[href="/housing"]').first()).toBeVisible({ timeout: 15_000 })
-    await expect(page.locator('aside a[href="/matching"]').first()).toBeVisible({ timeout: 15_000 })
+    for (const href of ['/residents', '/housing', '/matching']) {
+      await findAdminNavLink(page, href)
+    }
   })
 })

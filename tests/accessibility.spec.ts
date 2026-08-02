@@ -5,14 +5,51 @@ import type { Result } from 'axe-core'
 // storageState from playwright.config handles staff auth
 test.setTimeout(90_000)
 
+/**
+ * Wait until the page has stopped navigating.
+ *
+ * Some portal URLs legitimately redirect (e.g. /portal/housing sends a resident
+ * who has not completed preferences to /portal/preferences). Because every
+ * segment has a `loading.tsx`, Next streams the shell first and the redirect
+ * lands afterwards as a client-side navigation — so `goto()` resolving does not
+ * mean the browser is done moving. axe injects a script into the page, and a
+ * navigation mid-scan destroys its execution context.
+ */
+async function waitForUrlToSettle(page: import('@playwright/test').Page) {
+  let url = page.url()
+  let stableTicks = 0
+  for (let tick = 0; tick < 20 && stableTicks < 5; tick++) {
+    await page.waitForTimeout(200)
+    if (page.url() === url) {
+      stableTicks++
+    } else {
+      url = page.url()
+      stableTicks = 0
+    }
+  }
+  await page.waitForLoadState('networkidle')
+}
+
 /** Run axe WCAG 2.1 A/AA scan and assert no critical/serious violations. */
 async function assertNoViolations(page: import('@playwright/test').Page, label: string) {
   await page.waitForLoadState('networkidle')
+  await waitForUrlToSettle(page)
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa'])
-    .disableRules(['color-contrast']) // Evaluated separately via design-system review
-    .analyze()
+  const scan = () =>
+    new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa'])
+      .disableRules(['color-contrast']) // Evaluated separately via design-system review
+      .analyze()
+
+  let results
+  try {
+    results = await scan()
+  } catch (error) {
+    // Only a late navigation is retried; any other axe failure is a real error.
+    if (!/Execution context was destroyed/.test(String(error))) throw error
+    await waitForUrlToSettle(page)
+    results = await scan()
+  }
 
   const critical = results.violations.filter(
     (v: Result) => v.impact === 'critical' || v.impact === 'serious'

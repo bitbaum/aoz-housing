@@ -17,10 +17,19 @@ export const APP_LABELS = {
   help: 'Hilfe',
 } as const
 
-export const PAGE_TITLES: Record<string, string> = {
+/**
+ * Page titles / page-level action labels.
+ *
+ * Deliberately NOT typed as `Record<string, string>`: that type makes every
+ * key lookup type-check, so a typo or a missing entry silently renders
+ * `undefined` (an empty button/link with no accessible name). `as const`
+ * makes the compiler reject unknown keys instead.
+ */
+export const PAGE_TITLES = {
   dashboard: 'Dashboard',
   residents: 'Bewohner',
   housing: 'Unterkünfte',
+  newHousing: 'Neue Unterkunft',
   incidents: 'Vorfälle',
   matching: 'Matching',
   placements: 'Platzierungen',
@@ -28,7 +37,7 @@ export const PAGE_TITLES: Record<string, string> = {
   settings: 'Einstellungen',
   chores: 'Haushaltsaufgaben',
   transferRequests: 'Verlegungsanfragen',
-}
+} as const
 
 export const EMPTY_STATE_LABELS = {
   noResidents: 'Keine Bewohner erfasst',
