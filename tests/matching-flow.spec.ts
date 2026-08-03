@@ -206,8 +206,12 @@ test.describe('Full placement flow', () => {
     // 4. Submit placement
     await placeBtn.click()
 
-    // placeResident action redirects to /residents/:id?placed=true
-    await expect(page).toHaveURL(/\/residents\/.*\?placed=true/, { timeout: 30_000 })
+    // placeResident redirects to /residents/:id?placed=true, but SuccessToast
+    // fires the toast and immediately router.replace()s the param away — so
+    // ?placed=true exists for a few milliseconds and asserting on it is a race
+    // the test loses on a slow runner. Assert the destination, then the
+    // confirmation the user actually sees.
+    await expect(page).toHaveURL(/\/residents\/[^/?]+/, { timeout: 30_000 })
 
     // 5. Resident detail page shows a "placed" confirmation
     await expect(page.getByText(/Platziert|platziert|placed/i).first()).toBeVisible()
