@@ -1,3 +1,7 @@
+# Each check is defined ONCE, in package.json (`lint`, `typecheck`, `test`);
+# this file only chooses how to group them into jobs. `npm run verify` runs the
+# same three locally, so green verify ⇒ green CI. The e2e suite is separate:
+# it needs a seeded DB and a running server.
 name: CI
 
 on:
@@ -28,7 +32,7 @@ jobs:
         run: npm run lint
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
   unit-tests:
     name: Unit Tests
