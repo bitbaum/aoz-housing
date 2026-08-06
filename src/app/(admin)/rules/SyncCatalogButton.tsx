@@ -1,5 +1,6 @@
-import { BRAND } from '@/lib/config/brand'
 'use client'
+
+import { BRAND } from '@/lib/config/brand'
 
 import { useState, useTransition } from 'react'
 import { RefreshCw } from 'lucide-react'
