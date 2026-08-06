@@ -5,6 +5,8 @@
  * Checks for:
  * 1. Overdue incident follow-ups (MEDIUM/HIGH/CRITICAL, past nextFollowUpDate)
  * 2. Overdue resident check-ins (based on support level thresholds)
+ * 3. House decisions whose discussion/voting window has elapsed, and conflict
+ *    agreements whose review date passed without anyone checking them
  */
 
 import { NextResponse } from 'next/server'
@@ -14,6 +16,8 @@ import { logger } from '@/lib/logger'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { daysBetween } from '@/lib/utils'
+import { advanceDueProposals, expireStaleAgreements } from '@/lib/governance/lifecycle'
+import { AGREEMENT_CONFIG } from '@/lib/config/conflict-resolution'
 
 // Route timeout for this cron run. Default is 10s; raise so the
 // batched query + email send don't get killed mid-flight at scale.
@@ -45,7 +49,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ skipped: true, reason: 'lock-held' })
   }
 
-  const results = { incidents: 0, checkIns: 0, errors: [] as string[] }
+  const results = {
+    incidents: 0,
+    checkIns: 0,
+    proposalsOpened: 0,
+    proposalsClosed: 0,
+    agreementsExpired: 0,
+    errors: [] as string[],
+  }
 
   try {
     // 1. Overdue incident follow-ups
@@ -107,6 +118,17 @@ export async function GET(request: Request) {
       const sent = await notifyStaff(template.subject, template.html)
       if (sent) results.checkIns = overdueResidents.length
     }
+    // 3. Move house decisions through their lifecycle and expire unreviewed
+    // agreements. Both also happen lazily when someone opens the relevant page,
+    // but a decision must reach its outcome even if nobody looks — and an
+    // agreement nobody reviewed must not silently pass for one that worked.
+    const lifecycle = await advanceDueProposals(new Date())
+    results.proposalsOpened = lifecycle.opened
+    results.proposalsClosed = lifecycle.closed
+    results.agreementsExpired = await expireStaleAgreements(
+      new Date(),
+      AGREEMENT_CONFIG.expiryGraceDays
+    )
   } catch (error) {
     logger.errorWithCause('Cron notification error', error)
     results.errors.push(error instanceof Error ? error.message : 'Unknown error')

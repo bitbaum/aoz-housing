@@ -6,6 +6,7 @@
 
 import { PrismaClient } from '@prisma/client'
 import { calculateScore } from './scoring-helper'
+import { syncOrgRules } from '../src/lib/governance/sync-org-rules'
 
 const prisma = new PrismaClient()
 
@@ -2684,6 +2685,94 @@ async function main() {
     },
   })
 
+  // ---------------------------------------------------------------------------
+  // GOVERNANCE — AOZ rule catalog + a house that has started using it
+  // ---------------------------------------------------------------------------
+
+  // The AOZ tier is reference data, not demo data: it must exist in production
+  // too. Idempotent, so re-seeding never duplicates or resets acknowledgements.
+  const ruleSync = await syncOrgRules(prisma)
+
+  const quietRule = await prisma.houseRule.findUnique({ where: { key: 'night_quiet' } })
+  const kitchenRule = await prisma.houseRule.findUnique({ where: { key: 'kitchen_use' } })
+  const cleaningRule = await prisma.houseRule.findUnique({ where: { key: 'shared_cleaning' } })
+
+  const demoUnit = units[0]
+  let houseRuleCount = 0
+  let proposalCount = 0
+
+  if (demoUnit && kitchenRule && quietRule && cleaningRule) {
+    // A house that has already decided one topic...
+    const existingHouseRule = await prisma.houseRule.findFirst({
+      where: { scope: 'UNIT', housingUnitId: demoUnit.id, parentRuleId: kitchenRule.id },
+    })
+
+    if (!existingHouseRule) {
+      await prisma.houseRule.create({
+        data: {
+          scope: 'UNIT',
+          housingUnitId: demoUnit.id,
+          parentRuleId: kitchenRule.id,
+          category: kitchenRule.category,
+          title: 'Küche: abwaschen am selben Abend',
+          body:
+            'Wer kocht, wäscht am selben Abend ab. Geschirr, das über Nacht stehen bleibt, wird in eine Kiste neben der Spüle geräumt. Am Sonntag räumt die Person auf, die in der Woche dran war.',
+          delegation: kitchenRule.delegation,
+          status: 'ACTIVE',
+          version: 1,
+        },
+      })
+      houseRuleCount++
+    }
+
+    // ...and one still being decided, so the voting UI has something to show.
+    const demoUnitResidents = await prisma.placement.findMany({
+      where: { housingUnitId: demoUnit.id, status: 'ACTIVE' },
+      select: { residentId: true },
+    })
+    const voterIds = Array.from(new Set(demoUnitResidents.map(p => p.residentId)))
+
+    const existingProposal = await prisma.proposal.findFirst({
+      where: { housingUnitId: demoUnit.id },
+    })
+
+    if (!existingProposal && voterIds.length >= 3) {
+      const votingEndsAt = new Date()
+      votingEndsAt.setDate(votingEndsAt.getDate() + 4)
+
+      const proposal = await prisma.proposal.create({
+        data: {
+          housingUnitId: demoUnit.id,
+          type: 'ADD_RULE',
+          category: cleaningRule.category,
+          title: 'Putzplan mit fixem Wochentag',
+          body:
+            'Vorschlag: Jede Person übernimmt eine Woche lang Küche und Bad. Der Wechsel ist immer am Sonntagabend. Wer in seiner Woche verhindert ist, tauscht vorher mit jemandem.',
+          parentOrgRuleId: cleaningRule.id,
+          proposedByResidentId: voterIds[0],
+          status: 'VOTING',
+          decisionMode: 'RESIDENT_BINDING',
+          threshold: 'SIMPLE_MAJORITY',
+          quorumPercent: 50,
+          approvalPercent: 51,
+          eligibleVoterCount: voterIds.length,
+          votingOpenedAt: new Date(),
+          votingEndsAt,
+        },
+      })
+      proposalCount++
+
+      // Enough votes to be interesting but not yet decided.
+      await prisma.vote.createMany({
+        data: [
+          { proposalId: proposal.id, residentId: voterIds[0], choice: 'YES' },
+          { proposalId: proposal.id, residentId: voterIds[1], choice: 'YES' },
+        ],
+        skipDuplicates: true,
+      })
+    }
+  }
+
   console.log('✅ Database seeded successfully!')
   console.log('')
   console.log('📊 Summary:')
@@ -2699,6 +2788,10 @@ async function main() {
   console.log(`   - ${maintenanceRequests.length} maintenance requests`)
   console.log(`   - ${transferRequests.length} transfer requests (1 pending, 1 approved, 1 denied)`)
   console.log(`   - ${householdTasks.length} household tasks`)
+  console.log(
+    `   - ${ruleSync.created + ruleSync.unchanged + ruleSync.amended} AOZ rules ` +
+    `(${ruleSync.created} new), ${houseRuleCount} house rule(s), ${proposalCount} open decision(s)`
+  )
   console.log('')
   console.log('🚀 Ready to run: npm run dev')
 }

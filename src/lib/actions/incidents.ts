@@ -13,6 +13,7 @@ import {
 } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
+import { determineEntryStage } from '@/lib/governance/escalation'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
@@ -38,6 +39,15 @@ export async function createIncident(formData: FormData): Promise<void> {
         description: data.description,
         date: data.date,
         mediationMinutes: data.mediationMinutes ?? undefined,
+        // Where this conflict enters the resolution ladder. Safety reports and
+        // severe incidents skip the resident-to-resident rungs entirely — nobody
+        // is asked to go and negotiate with someone who threatened them.
+        resolutionStage: determineEntryStage({
+          category: data.category,
+          severity: data.severity,
+          type: data.type,
+        }).stage,
+        stageEnteredAt: new Date(),
       },
     })
 

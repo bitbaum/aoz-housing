@@ -12,7 +12,9 @@
  */
 
 import type { PrismaClient } from '@prisma/client'
-import { ORG_RULE_CATALOG } from '@/lib/config/house-rules'
+// Relative rather than the usual '@/' alias: prisma/seed.ts imports this module
+// through ts-node, which does not resolve tsconfig path aliases.
+import { ORG_RULE_CATALOG } from '../config/house-rules'
 
 export interface SyncResult {
   created: number

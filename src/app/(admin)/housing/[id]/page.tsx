@@ -28,6 +28,8 @@ import { ApartmentProfileCard } from '@/components/housing/ApartmentProfileCard'
 import { ProblemDetectionCard } from '@/components/housing/ProblemDetectionCard'
 import { UnitOverviewCards } from '@/components/housing/UnitOverviewCards'
 import { UnitSidebar } from '@/components/housing/UnitSidebar'
+import { UnitRulesSection } from '@/components/governance/UnitRulesSection'
+import { getRuleBook, getUnitAcknowledgementCoverage } from '@/lib/governance/queries'
 import { UnitIncidentSection } from '@/components/housing/UnitIncidentSection'
 import { WhoFitsHereCard } from '@/components/housing/WhoFitsHereCard'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
@@ -192,6 +194,11 @@ export default async function HousingDetailPage({ params }: Props) {
     }
   }
 
+  const [ruleBook, ruleCoverage] = await Promise.all([
+    getRuleBook(unit.id),
+    getUnitAcknowledgementCoverage(unit.id),
+  ])
+
   return (
     <div>
       {/* Header */}
@@ -324,6 +331,14 @@ export default async function HousingDetailPage({ params }: Props) {
               />
             </div>
           )}
+
+          {/* House rules — this unit's own rules, under the AOZ rules they
+              specialise, plus how much of the book the residents have read. */}
+          <UnitRulesSection
+            ruleBook={ruleBook}
+            coverage={ruleCoverage}
+            unitCode={unit.code}
+          />
 
           {/* Incidents */}
           <UnitIncidentSection
