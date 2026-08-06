@@ -113,6 +113,34 @@ export const ERROR_MESSAGES = {
   RATE_LIMITED: 'Zu viele Versuche. Bitte warte eine Minute.',
   REGISTRATION_FIELDS_REQUIRED: 'Bitte alle Pflichtfelder ausfüllen.',
   REGISTRATION_FIELDS_REQUIRED_CORRECT: 'Bitte alle Pflichtfelder korrekt ausfüllen.',
+
+  // ─── House rules ───────────────────────────────────────────────
+  RULE_NOT_FOUND: 'Regel nicht gefunden',
+  RULE_SAVE_ERROR: 'Regel konnte nicht gespeichert werden',
+  RULE_ACKNOWLEDGE_ERROR: 'Bestätigung konnte nicht gespeichert werden',
+  RULE_SYNC_ERROR: 'AOZ-Regeln konnten nicht abgeglichen werden',
+  ORG_RULE_IMMUTABLE:
+    'Diese AOZ-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden',
+
+  // ─── Proposals / voting ────────────────────────────────────────
+  PROPOSAL_NOT_FOUND: 'Vorschlag nicht gefunden',
+  PROPOSAL_CREATE_ERROR: 'Vorschlag konnte nicht erstellt werden',
+  PROPOSAL_NOT_OPEN: 'Über diesen Vorschlag kann nicht mehr abgestimmt werden',
+  PROPOSAL_NOT_VOTING: 'Die Abstimmung hat noch nicht begonnen',
+  PROPOSAL_ALREADY_DECIDED: 'Dieser Vorschlag wurde bereits entschieden',
+  PROPOSAL_STAFF_ONLY:
+    'Über dieses Thema wird nicht abgestimmt — es schützt Einzelne. Die Betreuung nimmt dein Anliegen entgegen.',
+  VOTE_SAVE_ERROR: 'Stimme konnte nicht gespeichert werden',
+  VOTE_REASON_REQUIRED: 'Bitte begründe dein Veto, damit darüber gesprochen werden kann',
+  VOTE_NOT_ELIGIBLE: 'Nur Bewohnende dieses Hauses können abstimmen',
+  UNIT_TOO_SMALL_FOR_VOTE:
+    'In diesem Haus wohnen zu wenige Personen für eine Abstimmung. Die Betreuung legt die Hausregeln gemeinsam mit euch fest.',
+
+  // ─── Conflict resolution ───────────────────────────────────────
+  AGREEMENT_NOT_FOUND: 'Abmachung nicht gefunden',
+  AGREEMENT_SAVE_ERROR: 'Abmachung konnte nicht gespeichert werden',
+  AGREEMENT_PARTIES_REQUIRED: 'Eine Abmachung braucht mindestens zwei Beteiligte',
+  RESOLUTION_STAGE_ERROR: 'Der Bearbeitungsschritt konnte nicht geändert werden',
 } as const
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES
