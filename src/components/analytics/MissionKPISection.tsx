@@ -133,8 +133,8 @@ export function MissionKPISection({ kpis, baseline }: Props) {
         <MiniChart
           label={MISSION_KPI_LABELS.mediationMonthlyChart}
           data={kpis.mediationMinutesPerMonth}
-          color="text-aoz-secondary"
-          barColor="bg-aoz-secondary"
+          color="text-brand-secondary"
+          barColor="bg-brand-secondary"
           baseline={baseline?.pilotBaselineMediationHoursPerWeek !== null && baseline?.pilotBaselineMediationHoursPerWeek !== undefined
             ? Math.round(baseline.pilotBaselineMediationHoursPerWeek * 4.33 * 10) / 10
             : null}
@@ -185,7 +185,7 @@ function KPICard({
         {value !== null && unit && <span className="text-sm font-normal text-ui-muted ml-1">{unit}</span>}
       </p>
       {value === null && nudgeHref && (
-        <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-aoz-primary hover:underline">
+        <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-brand-primary hover:underline">
           {MISSION_KPI_LABELS.nudgeToLog}
         </Link>
       )}
@@ -209,7 +209,7 @@ function KPICard({
           {progressPct !== null && (
             <div className="h-1.5 bg-ui-subtle rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all ${isAchieved ? 'bg-status-success' : 'bg-aoz-primary'}`}
+                className={`h-full rounded-full transition-all ${isAchieved ? 'bg-status-success' : 'bg-brand-primary'}`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>

@@ -58,7 +58,7 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
         <h3 className="font-medium text-ui-text mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
         <div className="flex flex-wrap gap-3 text-sm">
           {housingUnit?.quietHours && (
-            <span className="px-3 py-1 bg-aoz-secondary/10 text-aoz-secondary rounded-full">
+            <span className="px-3 py-1 bg-brand-secondary/10 text-brand-secondary rounded-full">
               {PORTAL_LABELS.dashboard.quietHours}: {housingUnit.quietHours}
             </span>
           )}
@@ -113,7 +113,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
                   done
                     ? 'bg-status-success/15 text-status-success-text'
                     : isActive
-                      ? 'bg-aoz-primary/10 text-aoz-primary ring-2 ring-aoz-primary'
+                      ? 'bg-brand-primary/10 text-brand-primary ring-2 ring-brand-primary'
                       : 'bg-ui-subtle text-ui-muted'
                 }`}>
                   {done ? (
@@ -130,7 +130,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
               </div>
               <div className="pt-1">
                 <p className={`text-sm font-medium ${
-                  done ? 'text-status-success-text' : isActive ? 'text-aoz-primary' : 'text-ui-muted'
+                  done ? 'text-status-success-text' : isActive ? 'text-brand-primary' : 'text-ui-muted'
                 }`}>
                   {label}
                 </p>
@@ -141,7 +141,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
       </div>
 
       {/* CTA */}
-      <div className="bg-aoz-primary/5 rounded-lg p-4">
+      <div className="bg-brand-primary/5 rounded-lg p-4">
         <p className="text-sm text-ui-muted mb-3">
           {preferencesCompleted
             ? PORTAL_LABELS.dashboard.onboarding.browseHousingHint

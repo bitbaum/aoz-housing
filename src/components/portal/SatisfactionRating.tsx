@@ -113,7 +113,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
           </div>
           <button
             onClick={() => setForceShowForm(true)}
-            className="text-sm text-aoz-primary hover:underline min-h-[44px] flex items-center"
+            className="text-sm text-brand-primary hover:underline min-h-[44px] flex items-center"
           >
             {PORTAL_LABELS.satisfaction.newFeedback}
           </button>
@@ -123,7 +123,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   }
 
   return (
-    <div className="card border-aoz-primary/20 bg-ui-surface">
+    <div className="card border-brand-primary/20 bg-ui-surface">
       <div className="text-center mb-6">
         <h2 className="text-xl font-semibold text-ui-text mb-2">
           {PORTAL_LABELS.satisfaction.title}
@@ -148,8 +148,8 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             disabled={isSubmitting}
             className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg transition-all text-2xl sm:text-3xl flex items-center justify-center ${
               rating === value
-                ? 'bg-aoz-primary text-ui-on-accent ring-2 ring-aoz-primary ring-offset-2 scale-110'
-                : 'bg-ui-surface hover:bg-aoz-primary/10 hover:scale-105 shadow-card'
+                ? 'bg-brand-primary text-ui-on-accent ring-2 ring-brand-primary ring-offset-2 scale-110'
+                : 'bg-ui-surface hover:bg-brand-primary/10 hover:scale-105 shadow-card'
             } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={SATISFACTION_LABELS[value - 1]}
             aria-label={SATISFACTION_LABELS[value - 1]}
@@ -179,7 +179,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             value={concerns}
             onChange={(e) => setConcerns(e.target.value)}
             placeholder={SATISFACTION_SURVEY_LABELS.commentPlaceholder}
-            className="w-full p-3 border border-ui-border rounded-lg text-sm resize-none focus:ring-2 focus:ring-aoz-primary focus:border-aoz-primary"
+            className="w-full p-3 border border-ui-border rounded-lg text-sm resize-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
             rows={3}
             disabled={isSubmitting}
             maxLength={2000}

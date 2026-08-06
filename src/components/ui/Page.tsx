@@ -39,7 +39,7 @@ export function PageHeader({
         {backHref ? (
           <Link
             href={backHref}
-            className="mb-2 inline-flex items-center gap-1 text-sm text-ui-muted hover:text-aoz-primary min-h-[44px] -ml-1 pl-1 pr-2"
+            className="mb-2 inline-flex items-center gap-1 text-sm text-ui-muted hover:text-brand-primary min-h-[44px] -ml-1 pl-1 pr-2"
           >
             <ChevronLeft className="w-4 h-4" />
             {backLabel ?? 'Zurück'}

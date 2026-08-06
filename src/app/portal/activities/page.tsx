@@ -73,7 +73,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
               <article key={activity.id} className="card">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <Icon className="h-5 w-5 text-aoz-primary" />
+                    <Icon className="h-5 w-5 text-brand-primary" />
                     <h2 className="font-semibold text-ui-text">{activity.title}</h2>
                   </div>
                   <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]}`}>
@@ -147,7 +147,7 @@ function CategoryLink({
       href={href}
       className={`min-h-[44px] inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
         active
-          ? 'bg-aoz-primary text-ui-on-accent'
+          ? 'bg-brand-primary text-ui-on-accent'
           : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
       }`}
     >

@@ -34,7 +34,7 @@ export function TechnicalTab() {
       {/* Scoring Rules */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <Scale className="w-5 h-5 text-aoz-primary" />
+          <Scale className="w-5 h-5 text-brand-primary" />
           {TECHNICAL_TAB_LABELS.scoringRulesTitle}
         </h2>
 
@@ -56,7 +56,7 @@ export function TechnicalTab() {
       {/* Weight Derivation */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <Layers className="w-5 h-5 text-aoz-primary" />
+          <Layers className="w-5 h-5 text-brand-primary" />
           {TECHNICAL_TAB_LABELS.weightDerivationTitle}
         </h2>
 
@@ -167,7 +167,7 @@ export function TechnicalTab() {
       {/* Confidence Matrix */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <Grid3X3 className="w-5 h-5 text-aoz-primary" />
+          <Grid3X3 className="w-5 h-5 text-brand-primary" />
           {TECHNICAL_TAB_LABELS.confidenceMatrixTitle}
         </h2>
 
@@ -211,7 +211,7 @@ export function TechnicalTab() {
       {/* Algorithm Version History */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <History className="w-5 h-5 text-aoz-primary" />
+          <History className="w-5 h-5 text-brand-primary" />
           {TECHNICAL_TAB_LABELS.versionHistoryTitle}
         </h2>
 
@@ -227,7 +227,7 @@ export function TechnicalTab() {
                 {/* Version badge */}
                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                   versionIndex === 0
-                    ? 'bg-aoz-primary text-ui-on-accent'
+                    ? 'bg-brand-primary text-ui-on-accent'
                     : 'bg-ui-border text-ui-muted'
                 }`}>
                   {version.version}
@@ -238,7 +238,7 @@ export function TechnicalTab() {
                     <h4 className="font-semibold text-ui-text">{TECHNICAL_TAB_LABELS.versionPrefix} {version.version}</h4>
                     <span className="text-xs text-ui-muted">{formatDate(version.date)}</span>
                     {versionIndex === 0 && (
-                      <span className="chip bg-aoz-primary/10 text-aoz-primary">
+                      <span className="chip bg-brand-primary/10 text-brand-primary">
                         {TECHNICAL_TAB_LABELS.currentBadge}
                       </span>
                     )}

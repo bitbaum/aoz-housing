@@ -56,7 +56,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
       <div className="mb-6">
         <Link
           href="/maintenance"
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline"
         >
           {MAINTENANCE_PAGE_LABELS.backToList}
         </Link>
@@ -166,7 +166,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
+                <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
                   {MAINTENANCE_PAGE_LABELS.updateStatusBtn}
                 </SubmitButton>
               </form>

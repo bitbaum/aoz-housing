@@ -91,7 +91,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
             onClick={() => setActiveCategory(null)}
             className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               !activeCategory
-                ? 'bg-aoz-primary text-ui-on-accent'
+                ? 'bg-brand-primary text-ui-on-accent'
                 : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
             }`}
           >
@@ -103,7 +103,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
               onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
               className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                 activeCategory === cat
-                  ? 'bg-aoz-primary text-ui-on-accent'
+                  ? 'bg-brand-primary text-ui-on-accent'
                   : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
               }`}
             >

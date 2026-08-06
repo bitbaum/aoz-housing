@@ -301,7 +301,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
             <div>
               <Link
                 href={`/residents/${placement.residentId}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
                 {placement.resident.code}
               </Link>
@@ -319,7 +319,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           <div>
             <Link
               href={`/housing/${placement.housingUnitId}`}
-              className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
             >
               {placement.housingUnit.code}
             </Link>

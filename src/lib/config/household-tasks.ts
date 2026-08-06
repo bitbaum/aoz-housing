@@ -75,7 +75,7 @@ export const TASK_STATUS_LABELS: Record<string, string> = {
 export const TASK_STATUS_COLORS: Record<string, string> = {
   IDLE: 'bg-ui-subtle text-ui-muted',
   NEEDS_ATTENTION: 'bg-status-warning/15 text-status-warning-text',
-  REQUESTED: 'bg-aoz-primary/10 text-aoz-primary',
+  REQUESTED: 'bg-brand-primary/10 text-brand-primary',
   IN_PROGRESS: 'bg-status-info/15 text-status-info-text',
 }
 

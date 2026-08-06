@@ -65,7 +65,7 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
             <Home className="h-4 w-4" />
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-semibold text-ui-text group-hover:text-aoz-primary">
+            <span className="block truncate font-semibold text-ui-text group-hover:text-brand-primary">
               {unit.code}
             </span>
             <span className="block truncate text-sm text-ui-muted">{unit.address}</span>

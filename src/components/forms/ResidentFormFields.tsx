@@ -134,7 +134,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             value="true"
             checked={hasDoc}
             onChange={(e) => setHasDoc(e.target.checked)}
-            className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+            className="w-5 h-5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
           />
           <div>
             <span className="text-sm font-medium text-ui-muted">
@@ -158,7 +158,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
                       name="medicalDocType"
                       value={key}
                       defaultChecked={defaultValues.medicalDocType === key}
-                      className="w-4 h-4 border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                      className="w-4 h-4 border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                     />
                     <span className="text-sm text-ui-muted">{label}</span>
                   </label>

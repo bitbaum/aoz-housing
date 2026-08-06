@@ -2,6 +2,7 @@
  * Shared UI labels: reusable strings across multiple components.
  * Covers common actions, statuses, and navigation text.
  */
+import { BRAND } from '@/lib/config/brand'
 
 export const UI_LABELS = {
   // Common actions
@@ -680,7 +681,7 @@ export const TOP_COMPATIBILITIES_LABELS = {
 
 export const AI_ASSISTANT_LABELS = {
   subtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.',
-  componentTitle: 'KI-Assistent für AOZ',
+  componentTitle: `KI-Assistent für ${BRAND.shortName}`,
   componentSubtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften und Vorfällen.',
 } as const
 

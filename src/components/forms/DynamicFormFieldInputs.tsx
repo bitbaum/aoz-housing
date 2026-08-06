@@ -176,7 +176,7 @@ export function ScaleField({
                 disabled={disabled}
                 aria-label={ariaLabel}
               />
-              <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
+              <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors">
                 {level}
               </div>
             </label>
@@ -211,7 +211,7 @@ export function BooleanField({
         name={factor.id}
         value="true"
         defaultChecked={currentValue}
-        className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+        className="w-5 h-5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
         disabled={disabled}
       />
       <span className="text-sm text-ui-muted">{factor.label}</span>
@@ -254,7 +254,7 @@ export function MultiField({
               disabled={disabled}
               aria-label={factor.optionLabels[opt]}
             />
-            <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+            <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
               {factor.optionLabels[opt]}
             </div>
           </label>

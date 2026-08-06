@@ -81,8 +81,8 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Icon className="h-4 w-4 text-aoz-primary" />
-                        <Link href={`/activities/${activity.id}/edit`} className="font-semibold text-ui-text hover:text-aoz-primary">
+                        <Icon className="h-4 w-4 text-brand-primary" />
+                        <Link href={`/activities/${activity.id}/edit`} className="font-semibold text-ui-text hover:text-brand-primary">
                           {activity.title}
                         </Link>
                         <span className={`badge ${ACTIVITY_STATUS_BADGES[activity.status]}`}>

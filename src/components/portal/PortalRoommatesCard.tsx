@@ -25,7 +25,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.roommates}</h2>
-        <Link href="/portal/roommates" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
+        <Link href="/portal/roommates" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
           {PORTAL_LABELS.dashboard.showAll}
         </Link>
       </div>
@@ -40,7 +40,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
               className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
+                <div className="w-10 h-10 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
                   {roommate.code.slice(-3)}
                 </div>
                 <div>

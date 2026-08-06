@@ -1,6 +1,7 @@
 /**
  * Portal labels: resident-facing UI text
  */
+import { BRAND } from '@/lib/config/brand'
 
 export const PORTAL_LABELS = {
   title: 'Mein Zuhause',
@@ -388,14 +389,14 @@ export const PORTAL_LABELS = {
     emergency: {
       police: 'Polizei / Rettung',
       policeNumber: '117 / 144',
-      aoz: 'AOZ Notfallnummer',
+      aoz: `${BRAND.shortName} Notfallnummer`,
       aozNumber: '044 415 66 00',
       aozHours: '24h erreichbar',
     },
     contacts: [
       { icon: '📞', label: 'Allgemeine Anfragen', value: '044 415 66 66', sublabel: 'Mo-Fr 8:00-17:00' },
       { icon: '📧', label: 'E-Mail', value: 'wohnen@aoz.ch', sublabel: 'Antwort innerhalb von 2 Arbeitstagen' },
-      { icon: '📍', label: 'Adresse', value: 'AOZ Zürich', sublabel: 'Zollstrasse 115, 8005 Zürich' },
+      { icon: '📍', label: 'Adresse', value: `${BRAND.shortName} Zürich`, sublabel: 'Zollstrasse 115, 8005 Zürich' },
     ],
     faqs: [
       {

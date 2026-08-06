@@ -106,7 +106,7 @@ export function ScoreExplanation({
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`${sizeClasses[size].score} ${colorClass} cursor-pointer hover:underline decoration-dotted underline-offset-4 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2 rounded`}
+        className={`${sizeClasses[size].score} ${colorClass} cursor-pointer hover:underline decoration-dotted underline-offset-4 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         title={UI_LABELS.clickForDetails}

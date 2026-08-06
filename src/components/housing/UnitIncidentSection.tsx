@@ -149,7 +149,7 @@ function TabButton({ children, active = false }: { children: React.ReactNode; ac
     <button
       className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
         active
-          ? 'border-aoz-primary text-aoz-primary'
+          ? 'border-brand-primary text-brand-primary'
           : 'border-transparent text-ui-muted hover:text-ui-muted'
       }`}
     >

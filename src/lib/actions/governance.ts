@@ -30,6 +30,7 @@ import {
   type UnitRuleInput,
   type UpdateOrgRuleInput,
 } from '@/lib/validation/governance'
+import { BRAND } from '@/lib/config/brand'
 import { checkUnitLegislation } from '@/lib/governance/rules'
 import { adoptProposal, closeProposal } from '@/lib/governance/lifecycle'
 import { syncOrgRules } from '@/lib/governance/sync-org-rules'
@@ -58,7 +59,7 @@ export async function syncOrgRuleCatalog(): Promise<ActionResult<{ created: numb
     revalidatePath('/rules')
     return { success: true, data: { created: result.created, amended: result.amended } }
   } catch (error) {
-    logger.errorWithCause('Failed to sync AOZ rule catalog', error)
+    logger.errorWithCause(`Failed to sync ${BRAND.shortName} rule catalog`, error)
     return { success: false, error: ERROR_MESSAGES.RULE_SYNC_ERROR }
   }
 }
@@ -86,7 +87,7 @@ export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{
     revalidatePath('/rules')
     return { success: true, data: { id: rule.id } }
   } catch (error) {
-    logger.errorWithCause('Failed to create AOZ rule', error, { key: parsed.data.key })
+    logger.errorWithCause(`Failed to create ${BRAND.shortName} rule`, error, { key: parsed.data.key })
     return { success: false, error: ERROR_MESSAGES.RULE_SAVE_ERROR }
   }
 }
@@ -131,7 +132,7 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
     revalidatePath('/rules')
     return { success: true }
   } catch (error) {
-    logger.errorWithCause('Failed to update AOZ rule', error, { ruleId: parsed.data.ruleId })
+    logger.errorWithCause(`Failed to update ${BRAND.shortName} rule`, error, { ruleId: parsed.data.ruleId })
     return { success: false, error: ERROR_MESSAGES.RULE_SAVE_ERROR }
   }
 }

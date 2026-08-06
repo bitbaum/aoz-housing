@@ -216,7 +216,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                       defaultChecked={selectedCategory === key}
                       className="sr-only peer"
                     />
-                    <div className="p-4 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/5 transition-colors">
+                    <div className="p-4 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary/5 transition-colors">
                       <span className="text-2xl">
                         {INCIDENT_CATEGORY_ICONS[key] || '💬'}
                       </span>
@@ -229,7 +229,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </div>
               <p className="text-xs text-ui-muted mt-2">
                 {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
-                <Link href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-aoz-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</Link>
+                <Link href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</Link>
               </p>
             </div>
 
@@ -325,7 +325,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
         {/* Actions */}
         <div className="sticky bottom-0 -mx-4 px-4 py-3 pb-safe sm:static sm:mx-0 sm:px-0 sm:py-0 bg-ui-surface/95 backdrop-blur border-t border-ui-border sm:border-0 flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 z-20">
-          <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
+          <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_PAGE_LABELS.submit}
           </SubmitButton>
           <Link href="/incidents" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">

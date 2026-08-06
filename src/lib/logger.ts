@@ -9,6 +9,7 @@
  *   logger.error('Failed to create placement', { residentId, error })
  *   logger.info('Placement created', { placementId })
  */
+import { BRAND } from '@/lib/config/brand'
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -48,7 +49,7 @@ function formatError(error: unknown): Record<string, unknown> {
 const PII_REDACTORS: ReadonlyArray<[RegExp, string]> = [
   [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
   [/RES-[A-Z0-9]+/g, 'RES-[REDACTED]'],
-  [/AOZ-[A-Z0-9]+/g, 'AOZ-[REDACTED]'],
+  [/AOZ-[A-Z0-9]+/g, `${BRAND.shortName}-[REDACTED]`],
 ]
 
 function redactString(value: string): string {

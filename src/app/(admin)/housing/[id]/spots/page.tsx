@@ -64,7 +64,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           <div>
             <Link
               href={`/housing/${id}`}
-              className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
+              className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline"
             >
               {HOUSING_SPOTS_LABELS.backLink}
             </Link>
@@ -113,17 +113,17 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               {/* Quick Start Steps */}
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">1</span>
                   <span className="text-status-info-text">
                     {HOUSING_SPOTS_LABELS.step1}<code className="bg-ui-surface px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
                   <span className="text-status-info-text">{HOUSING_SPOTS_LABELS.step2}</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">3</span>
                   <span className="text-status-info-text">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   type="checkbox"
                   name="requiresMedicalDocs"
                   value="true"
-                  className="w-4 h-4 rounded border-ui-border-strong text-aoz-primary"
+                  className="w-4 h-4 rounded border-ui-border-strong text-brand-primary"
                 />
                 <span className="text-sm text-ui-muted">
                   {HOUSING_SPOTS_LABELS.requiresMedDocs}
@@ -404,7 +404,7 @@ function SpotRow({
               {spot.label || spot.code}
             </span>
             {spot.requiresMedicalDocs && (
-              <span className="text-xs px-1.5 py-0.5 bg-aoz-primary/10 text-aoz-primary rounded">
+              <span className="text-xs px-1.5 py-0.5 bg-brand-primary/10 text-brand-primary rounded">
                 Med.
               </span>
             )}

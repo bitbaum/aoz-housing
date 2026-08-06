@@ -9,6 +9,7 @@
  * 4. House decisions whose discussion/voting window has elapsed, and conflict
  *    agreements whose review date passed without anyone checking them
  */
+import { BRAND } from '@/lib/config/brand'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
@@ -131,7 +132,7 @@ export async function GET(request: Request) {
     results.orgRulesCreated = ruleSync.created
     results.orgRulesAmended = ruleSync.amended
     if (ruleSync.created > 0 || ruleSync.amended > 0) {
-      logger.info('AOZ rule catalog reconciled', {
+      logger.info(`${BRAND.shortName} rule catalog reconciled`, {
         created: ruleSync.created,
         amended: ruleSync.amended,
         amendedKeys: ruleSync.amendedKeys,

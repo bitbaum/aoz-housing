@@ -48,7 +48,7 @@ export function ScaleInput({
               className="sr-only peer"
               aria-label={`${level} von ${max}`}
             />
-            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors font-medium min-h-[44px] flex items-center justify-center">
+            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors font-medium min-h-[44px] flex items-center justify-center">
               {level}
             </div>
           </label>

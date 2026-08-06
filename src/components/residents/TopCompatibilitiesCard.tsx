@@ -35,7 +35,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
               </div>
               <Link
                 href={`/residents/${assessment.comparedWithId}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
                 {assessment.comparedWith.code}
               </Link>

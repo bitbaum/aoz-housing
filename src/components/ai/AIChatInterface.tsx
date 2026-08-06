@@ -117,8 +117,8 @@ export function AIChatInterface() {
       <div className="flex-1 overflow-y-auto space-y-4 pr-1">
         {isEmpty && (
           <div className="flex flex-col items-center justify-center h-full gap-6 text-center">
-            <div className="icon-container-lg bg-aoz-primary/10">
-              <Bot className="w-6 h-6 text-aoz-primary" />
+            <div className="icon-container-lg bg-brand-primary/10">
+              <Bot className="w-6 h-6 text-brand-primary" />
             </div>
             <div>
               <p className="font-semibold text-ui-text">{AI_ASSISTANT_LABELS.componentTitle}</p>
@@ -129,7 +129,7 @@ export function AIChatInterface() {
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
-                  className="text-sm px-3 py-2 rounded-lg border border-ui-border hover:border-aoz-primary hover:text-aoz-primary hover:bg-aoz-accent transition-colors text-ui-muted text-left"
+                  className="text-sm px-3 py-2 rounded-lg border border-ui-border hover:border-brand-primary hover:text-brand-primary hover:bg-brand-accent transition-colors text-ui-muted text-left"
                 >
                   {q}
                 </button>
@@ -144,14 +144,14 @@ export function AIChatInterface() {
 
         {streaming && (
           <div className="flex gap-3">
-            <div className="icon-container-sm flex-shrink-0 bg-aoz-primary/10">
-              <Bot className="w-4 h-4 text-aoz-primary" />
+            <div className="icon-container-sm flex-shrink-0 bg-brand-primary/10">
+              <Bot className="w-4 h-4 text-brand-primary" />
             </div>
             <div className="flex-1 min-w-0">
               {streamingText ? (
                 <div className="prose prose-sm max-w-none text-ui-text whitespace-pre-wrap">
                   {streamingText}
-                  <span className="inline-block w-1 h-4 bg-aoz-primary ml-0.5 animate-pulse align-middle" />
+                  <span className="inline-block w-1 h-4 bg-brand-primary ml-0.5 animate-pulse align-middle" />
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm text-ui-muted">
@@ -203,16 +203,16 @@ function MessageBubble({ message }: { message: Message }) {
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
-      <div className={`icon-container-sm flex-shrink-0 ${isUser ? 'bg-aoz-secondary/10' : 'bg-aoz-primary/10'}`}>
+      <div className={`icon-container-sm flex-shrink-0 ${isUser ? 'bg-brand-secondary/10' : 'bg-brand-primary/10'}`}>
         {isUser
-          ? <User className="w-4 h-4 text-aoz-secondary" />
-          : <Bot className="w-4 h-4 text-aoz-primary" />
+          ? <User className="w-4 h-4 text-brand-secondary" />
+          : <Bot className="w-4 h-4 text-brand-primary" />
         }
       </div>
       <div
         className={`flex-1 min-w-0 rounded-lg px-4 py-3 text-sm ${
           isUser
-            ? 'bg-aoz-secondary text-ui-on-accent max-w-[80%] ml-auto'
+            ? 'bg-brand-secondary text-ui-on-accent max-w-[80%] ml-auto'
             : 'bg-ui-subtle text-ui-text border border-ui-border'
         }`}
       >

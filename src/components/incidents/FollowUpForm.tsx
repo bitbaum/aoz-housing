@@ -65,7 +65,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.deescalation.outcome,
               followUpPriority: 'MEDIUM',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'deescalation' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'deescalation' ? 'bg-brand-primary/10 border-brand-primary/40 text-brand-primary' : ''}`}
           >
             🗣️ {FOLLOW_UP_FORM_LABELS.templates.deescalation.label}
           </Link>
@@ -77,7 +77,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.safety.outcome,
               followUpPriority: 'HIGH',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'safety-check' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'safety-check' ? 'bg-brand-primary/10 border-brand-primary/40 text-brand-primary' : ''}`}
           >
             🚨 {FOLLOW_UP_FORM_LABELS.templates.safety.label}
           </Link>
@@ -89,7 +89,7 @@ export function FollowUpForm({
               outcome: FOLLOW_UP_FORM_LABELS.templates.houseRules.outcome,
               followUpPriority: 'LOW',
             })}
-            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'house-rules' ? 'bg-aoz-primary/10 border-aoz-primary/40 text-aoz-primary' : ''}`}
+            className={`btn-outline min-h-[44px] inline-flex items-center ${activeTemplate === 'house-rules' ? 'bg-brand-primary/10 border-brand-primary/40 text-brand-primary' : ''}`}
           >
             📋 {FOLLOW_UP_FORM_LABELS.templates.houseRules.label}
           </Link>
@@ -171,7 +171,7 @@ export function FollowUpForm({
           </div>
         </div>
 
-        <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
+        <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
           {FOLLOW_UP_FORM_LABELS.submit}
         </SubmitButton>
       </form>

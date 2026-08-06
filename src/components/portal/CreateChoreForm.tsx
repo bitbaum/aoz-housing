@@ -136,7 +136,7 @@ export function CreateChoreForm() {
                 onClick={() => setTaskType(key)}
                 className={`min-h-[44px] p-3 rounded-lg text-left text-sm transition-colors ${
                   taskType === key
-                    ? 'bg-aoz-primary/10 text-aoz-primary border-2 border-aoz-primary'
+                    ? 'bg-brand-primary/10 text-brand-primary border-2 border-brand-primary'
                     : 'bg-ui-subtle text-ui-muted border-2 border-transparent hover:bg-ui-subtle'
                 }`}
               >

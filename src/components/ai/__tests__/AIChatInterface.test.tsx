@@ -321,7 +321,7 @@ describe('AIChatInterface — MessageBubble', () => {
     await userEvent.type(textarea, 'User text')
     await sendKeyAndFlush(textarea)
 
-    const bubble = screen.getByText('User text').closest('div[class*="bg-aoz-secondary"]')
+    const bubble = screen.getByText('User text').closest('div[class*="bg-brand-secondary"]')
     expect(bubble).not.toBeNull()
   })
 

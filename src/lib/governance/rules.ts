@@ -21,6 +21,7 @@ import {
   DELEGATION_REQUIRES_STAFF_CONFIRMATION,
   RULE_CATEGORY_ORDER,
 } from '@/lib/config/house-rules'
+import { BRAND } from '@/lib/config/brand'
 import type { VoteOutcome } from './voting'
 
 /** The minimum shape these functions need — keeps them testable without a DB. */
@@ -61,7 +62,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
     return {
       allowed: false,
       requiresStaffConfirmation: false,
-      reason: 'Eine Hausregel kann nur zu einer AOZ-Regel gehören.',
+      reason: `Eine Hausregel kann nur zu einer ${BRAND.shortName}-Regel gehören.`,
     }
   }
 
@@ -69,7 +70,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
     return {
       allowed: false,
       requiresStaffConfirmation: false,
-      reason: 'Diese AOZ-Regel ist nicht mehr gültig.',
+      reason: `Diese ${BRAND.shortName}-Regel ist nicht mehr gültig.`,
     }
   }
 

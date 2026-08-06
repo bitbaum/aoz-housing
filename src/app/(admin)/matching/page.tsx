@@ -292,7 +292,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           </p>
           <Link
             href="/algorithm"
-            className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-secondary hover:underline whitespace-nowrap ml-4"
+            className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-secondary hover:underline whitespace-nowrap ml-4"
           >
             {EMPTY_STATE_LABELS.algorithmLink}
           </Link>
@@ -310,7 +310,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           </div>
           <div className="flex-1 h-0.5 bg-status-success" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-aoz-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-brand-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
               2
             </div>
             <span className="text-sm font-medium text-ui-text">{MATCHING_LABELS.findUnit}</span>
@@ -396,14 +396,14 @@ export default async function MatchingPage({ searchParams }: Props) {
                       <Link
                         key={u.id}
                         href={`/matching?unit=${u.id}`}
-                        className="flex items-center justify-between p-3 rounded-lg border border-ui-border hover:border-aoz-primary hover:bg-aoz-accent transition-colors"
+                        className="flex items-center justify-between p-3 rounded-lg border border-ui-border hover:border-brand-primary hover:bg-brand-accent transition-colors"
                       >
                         <div>
                           <p className="font-medium text-ui-text">{u.code}</p>
                           <p className="text-xs text-ui-muted">{u.address}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium text-aoz-secondary">
+                          <p className="text-sm font-medium text-brand-secondary">
                             {MATCHING_LABELS.freeBeds(freeBeds, u.totalBeds)}
                           </p>
                           {u.wheelchairAccess && <span className="text-xs text-ui-muted">♿</span>}

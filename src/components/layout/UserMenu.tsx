@@ -68,7 +68,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
             {user.email && (
               <p className="text-xs text-ui-muted truncate">{user.email}</p>
             )}
-            <p className="text-xs text-aoz-primary mt-1">
+            <p className="text-xs text-brand-primary mt-1">
               {ROLE_LABELS[user.role] || user.role}
             </p>
           </div>

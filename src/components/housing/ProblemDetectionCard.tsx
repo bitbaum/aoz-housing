@@ -213,7 +213,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
             <div className="flex items-center gap-2">
               <Link
                 href={`/residents/${resident.id}`}
-                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+                className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
                 {resident.code}
               </Link>

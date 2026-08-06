@@ -82,7 +82,7 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
           rows={4}
           required
           minLength={10}
-          className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary resize-none"
+          className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary resize-none"
         />
       </div>
 
@@ -96,7 +96,7 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
             id="targetUnit"
             value={targetUnitId}
             onChange={(e) => setTargetUnitId(e.target.value)}
-            className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-aoz-primary focus:ring-1 focus:ring-aoz-primary min-h-[44px]"
+            className="w-full rounded-lg border border-ui-border-strong px-3 py-2 text-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary min-h-[44px]"
           >
             <option value="">{L.targetUnitPlaceholder}</option>
             {availableUnits.map((unit) => (

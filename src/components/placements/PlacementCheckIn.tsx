@@ -68,7 +68,7 @@ export function PlacementCheckIn({
         title={PLACEMENT_LIST_LABELS.checkInStart}
       >
         <p className="text-xs text-ui-muted">{PLACEMENT_LIST_LABELS.checkInNone}</p>
-        <p className="text-xs text-aoz-primary mt-0.5">{PLACEMENT_LIST_LABELS.checkInCapture}</p>
+        <p className="text-xs text-brand-primary mt-0.5">{PLACEMENT_LIST_LABELS.checkInCapture}</p>
       </button>
     )
   }

@@ -197,7 +197,7 @@ export function QuickCheckIn({
                   className={`
                     flex-1 py-2 px-1 text-xs rounded border transition-all
                     ${roommateRelations === option.value
-                      ? 'border-aoz-secondary bg-aoz-secondary/8 text-aoz-secondary font-medium'
+                      ? 'border-brand-secondary bg-brand-secondary/8 text-brand-secondary font-medium'
                       : 'border-ui-border hover:border-ui-border-strong text-ui-muted'
                     }
                     ${isPending ? 'opacity-50' : ''}
@@ -281,7 +281,7 @@ export function QuickCheckIn({
           </span>
           <Link
             href={`/placements/${placementId}/checkin`}
-            className="text-aoz-primary hover:underline"
+            className="text-brand-primary hover:underline"
           >
             {QUICK_CHECKIN_LABELS.detailedLink}
           </Link>

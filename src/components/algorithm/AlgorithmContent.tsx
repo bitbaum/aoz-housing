@@ -106,7 +106,7 @@ export function AlgorithmContent() {
 
       {/* CTA Section */}
       <section className="mt-12 text-center py-12 px-6 bg-ui-subtle rounded-lg">
-        <Sparkles className="w-10 h-10 text-aoz-primary mx-auto mb-4" />
+        <Sparkles className="w-10 h-10 text-brand-primary mx-auto mb-4" />
         <h2 className="text-xl sm:text-2xl font-bold text-ui-text mb-3">
           {ALGORITHM_OVERVIEW_LABELS.ctaTitle}
         </h2>
@@ -115,7 +115,7 @@ export function AlgorithmContent() {
         </p>
         <Link
           href="/matching"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-aoz-primary text-ui-on-accent rounded-lg font-medium hover:bg-aoz-primary/90 transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-brand-primary text-ui-on-accent rounded-lg font-medium hover:bg-brand-primary/90 transition-colors"
         >
           {ALGORITHM_OVERVIEW_LABELS.ctaBtn}
           <ArrowRight className="w-4 h-4" />

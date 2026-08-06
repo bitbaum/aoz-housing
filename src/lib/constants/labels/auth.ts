@@ -1,6 +1,7 @@
 /**
  * Authentication and role labels
  */
+import { BRAND } from '@/lib/config/brand'
 
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrator',
@@ -10,7 +11,7 @@ export const LOGIN_LABELS = {
   title: 'Anmelden',
   subtitle: 'Code eingeben, um sich anzumelden',
   code: 'Zugangscode',
-  codePlaceholder: 'AOZ-XXXXXX oder RES-XXXXXX',
+  codePlaceholder: `${BRAND.shortName}-XXXXXX oder RES-XXXXXX`,
   codeHint: 'Verwenden Sie Ihren persönlichen Zugangscode.',
   submit: 'Anmelden',
   submitting: 'Anmelden...',
@@ -25,11 +26,11 @@ export const LOGIN_LABELS = {
     rateLimit: 'Zu viele Anmeldeversuche',
     generic: 'Ein Fehler ist aufgetreten',
   },
-  help: 'Bei Problemen wenden Sie sich an die AOZ-Verwaltung.',
+  help: `Bei Problemen wenden Sie sich an die ${BRAND.shortName}-Verwaltung.`,
   demo: {
     title: 'Demo-Zugang',
     description: 'Für Präsentationen und Produkttests.',
-    staff: 'AOZ-Verwaltung',
+    staff: `${BRAND.shortName}-Verwaltung`,
     resident: 'Bewohner-Portal',
   },
 } as const

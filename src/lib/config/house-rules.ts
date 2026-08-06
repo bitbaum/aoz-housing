@@ -14,6 +14,7 @@
  * SSOT for rule *content* (staff edit it in the admin UI); this file stays the
  * SSOT for the *vocabulary* — categories, delegation semantics, labels.
  */
+import { BRAND } from '@/lib/config/brand'
 
 import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@prisma/client'
 
@@ -22,12 +23,12 @@ import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@prism
 // =============================================================================
 
 export const RULE_SCOPE_LABELS: Record<RuleScope, string> = {
-  ORG: 'AOZ-Regel',
+  ORG: `${BRAND.shortName}-Regel`,
   UNIT: 'Hausregel',
 }
 
 export const RULE_SCOPE_DESCRIPTIONS: Record<RuleScope, string> = {
-  ORG: 'Gilt in allen AOZ-Unterkünften. Kann nicht vom Haus geändert werden.',
+  ORG: `Gilt in allen ${BRAND.shortName}-Unterkünften. Kann nicht vom Haus geändert werden.`,
   UNIT: 'Von den Bewohnenden dieses Hauses beschlossen.',
 }
 
@@ -44,9 +45,9 @@ export const RULE_DELEGATION_LABELS: Record<RuleDelegation, string> = {
 export const RULE_DELEGATION_DESCRIPTIONS: Record<RuleDelegation, string> = {
   FIXED: 'Diese Regel gilt unverändert. Das Haus kann sie weder lockern noch ersetzen.',
   UNIT_MAY_STRENGTHEN:
-    'Die AOZ-Regel ist das Minimum. Das Haus kann strengere Regeln beschliessen, nie lockerere.',
+    `Die ${BRAND.shortName}-Regel ist das Minimum. Das Haus kann strengere Regeln beschliessen, nie lockerere.`,
   UNIT_DECIDES:
-    'Die AOZ gibt nur das Thema vor. Wie es im Haus konkret gilt, beschliessen die Bewohnenden.',
+    `Die ${BRAND.shortName} gibt nur das Thema vor. Wie es im Haus konkret gilt, beschliessen die Bewohnenden.`,
 }
 
 /** Units may only create their own rule under an AOZ topic that delegates. */
@@ -152,7 +153,7 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     category: 'SAFETY',
     title: 'Keine Gewalt und keine Drohungen',
     body:
-      'Körperliche Gewalt, Drohungen, Einschüchterung und sexuelle Belästigung sind in allen AOZ-Unterkünften verboten. Bei akuter Gefahr: sofort die Betreuung oder die Polizei (117) rufen.',
+      `Körperliche Gewalt, Drohungen, Einschüchterung und sexuelle Belästigung sind in allen ${BRAND.shortName}-Unterkünften verboten. Bei akuter Gefahr: sofort die Betreuung oder die Polizei (117) rufen.`,
     delegation: 'FIXED',
   },
   {
@@ -231,7 +232,7 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     key: 'pets',
     category: 'SHARED_SPACES',
     title: 'Haustiere nur mit Bewilligung',
-    body: 'Tiere dürfen nur mit schriftlicher Bewilligung der AOZ gehalten werden.',
+    body: `Tiere dürfen nur mit schriftlicher Bewilligung der ${BRAND.shortName} gehalten werden.`,
     delegation: 'FIXED',
   },
   {

@@ -10,19 +10,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // AOZ brand colors — references globals.css CSS vars; supports opacity modifiers
-        'aoz': {
-          'primary':        'rgb(var(--color-aoz-primary) / <alpha-value>)',
-          'primary-light':  'rgb(var(--color-aoz-primary-light) / <alpha-value>)',
-          'primary-dark':   'rgb(var(--color-aoz-primary-dark) / <alpha-value>)',
-          'secondary':      'rgb(var(--color-aoz-secondary) / <alpha-value>)',
-          'secondary-light':'rgb(var(--color-aoz-secondary-light) / <alpha-value>)',
-          'secondary-dark': 'rgb(var(--color-aoz-secondary-dark) / <alpha-value>)',
-          'accent':         'rgb(var(--color-aoz-accent) / <alpha-value>)',
-          'accent-light':   'rgb(var(--color-aoz-accent-light) / <alpha-value>)',
-          'accent-dark':    'rgb(var(--color-aoz-accent-dark) / <alpha-value>)',
-          'background':     'rgb(var(--color-aoz-background) / <alpha-value>)',
-          'surface':        'rgb(var(--color-aoz-surface) / <alpha-value>)',
+        // Brand colors — reference globals.css CSS vars (never literals); the active
+        // palette is chosen by the data-brand attribute. @see lib/config/brand.ts
+        'brand': {
+          'primary':        'rgb(var(--color-brand-primary) / <alpha-value>)',
+          'primary-light':  'rgb(var(--color-brand-primary-light) / <alpha-value>)',
+          'primary-dark':   'rgb(var(--color-brand-primary-dark) / <alpha-value>)',
+          'secondary':      'rgb(var(--color-brand-secondary) / <alpha-value>)',
+          'secondary-light':'rgb(var(--color-brand-secondary-light) / <alpha-value>)',
+          'secondary-dark': 'rgb(var(--color-brand-secondary-dark) / <alpha-value>)',
+          'accent':         'rgb(var(--color-brand-accent) / <alpha-value>)',
+          'accent-light':   'rgb(var(--color-brand-accent-light) / <alpha-value>)',
+          'accent-dark':    'rgb(var(--color-brand-accent-dark) / <alpha-value>)',
+          'background':     'rgb(var(--color-brand-background) / <alpha-value>)',
+          'surface':        'rgb(var(--color-brand-surface) / <alpha-value>)',
         },
         'ui': {
           'canvas':        'rgb(var(--color-ui-canvas) / <alpha-value>)',

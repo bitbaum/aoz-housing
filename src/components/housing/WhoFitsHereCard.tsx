@@ -71,7 +71,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
-                      className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+                      className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
                     >
                       {match.resident.code}
                     </Link>

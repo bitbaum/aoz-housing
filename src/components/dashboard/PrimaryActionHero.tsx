@@ -130,7 +130,7 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   const colorStyles = {
     critical: 'bg-status-error text-ui-on-accent',
     checkin: 'bg-status-warning text-ui-on-accent',
-    place: 'bg-aoz-secondary text-ui-on-accent',
+    place: 'bg-brand-secondary text-ui-on-accent',
     problem: 'bg-status-warning text-ui-on-accent',
     allclear: 'bg-status-success text-ui-on-accent',
   }

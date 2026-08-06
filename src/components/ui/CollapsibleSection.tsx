@@ -23,7 +23,7 @@ export function CollapsibleSection({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 rounded-md"
+        className="w-full flex items-center justify-between min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-md"
         aria-expanded={isOpen}
         aria-controls={`section-${sectionId}`}
       >

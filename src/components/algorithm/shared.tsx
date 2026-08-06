@@ -117,11 +117,11 @@ export function ProcessStep({
 }) {
   return (
     <div className="text-center">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-aoz-primary/10 text-aoz-primary mb-4">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-primary/10 text-brand-primary mb-4">
         {icon}
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
-        <span className="w-6 h-6 rounded-full bg-aoz-primary text-ui-on-accent text-sm flex items-center justify-center font-medium">
+        <span className="w-6 h-6 rounded-full bg-brand-primary text-ui-on-accent text-sm flex items-center justify-center font-medium">
           {number}
         </span>
         <h3 className="font-semibold text-ui-text">{title}</h3>
@@ -145,7 +145,7 @@ export function DimensionCard({
   factorCount: number
 }) {
   const colorClasses = {
-    purple: 'bg-aoz-secondary/8 border-aoz-secondary/25 text-aoz-secondary',
+    purple: 'bg-brand-secondary/8 border-brand-secondary/25 text-brand-secondary',
     blue: 'bg-status-info/8 border-status-info/25 text-status-info-text',
     green: 'bg-status-success/10 border-status-success/25 text-status-success-text',
     orange: 'bg-status-warning/10 border-status-warning/25 text-status-warning-text',

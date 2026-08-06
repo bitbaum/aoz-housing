@@ -73,7 +73,7 @@ export function ActionMenu({
           e.stopPropagation()
           setIsOpen(!isOpen)
         }}
-        className={`${sizeClasses} flex items-center justify-center rounded-md text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors focus-visible:ring-2 focus-visible:ring-aoz-primary/30 focus-visible:ring-offset-1`}
+        className={`${sizeClasses} flex items-center justify-center rounded-md text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary/30 focus-visible:ring-offset-1`}
         aria-label={UI_LABELS.actions}
         aria-expanded={isOpen}
         aria-haspopup="menu"

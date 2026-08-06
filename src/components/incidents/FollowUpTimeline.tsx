@@ -31,7 +31,7 @@ export function FollowUpTimeline({ followUps }: Props) {
               }`}
             >
               {/* Timeline dot */}
-              <div className="absolute -left-2 top-0 w-4 h-4 bg-aoz-primary rounded-full border-2 border-ui-surface" />
+              <div className="absolute -left-2 top-0 w-4 h-4 bg-brand-primary rounded-full border-2 border-ui-surface" />
 
               <div className="bg-ui-subtle rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">

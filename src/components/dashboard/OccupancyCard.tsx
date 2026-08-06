@@ -89,7 +89,7 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
 
       <Link
         href="/housing"
-        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-aoz-primary hover:underline"
+        className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-brand-primary hover:underline"
       >
         {DASHBOARD_LABELS.occupancyViewAll} →
       </Link>

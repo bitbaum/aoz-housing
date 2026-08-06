@@ -100,7 +100,7 @@ export function CompatibilityMatrixInteractive({
               <th scope="col" key={r.id} className="p-2 text-center font-medium text-ui-muted">
                 <Link
                   href={`/residents/${r.id}`}
-                  className="hover:text-aoz-primary transition-colors"
+                  className="hover:text-brand-primary transition-colors"
                 >
                   {r.code}
                 </Link>
@@ -114,7 +114,7 @@ export function CompatibilityMatrixInteractive({
               <th scope="row" className="p-2 font-medium text-ui-muted text-left">
                 <Link
                   href={`/residents/${r1.id}`}
-                  className="hover:text-aoz-primary transition-colors"
+                  className="hover:text-brand-primary transition-colors"
                 >
                   {r1.code}
                 </Link>
@@ -143,8 +143,8 @@ export function CompatibilityMatrixInteractive({
                         onClick={(e) => handleCellClick(r1, r2, e)}
                         className={`inline-flex items-center justify-center w-12 min-h-[44px] rounded ${getScoreBgClass(
                           score.overallScore
-                        )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-aoz-primary ${
-                          isSelected ? 'ring-2 ring-offset-1 ring-aoz-primary' : ''
+                        )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-brand-primary ${
+                          isSelected ? 'ring-2 ring-offset-1 ring-brand-primary' : ''
                         }`}
                         aria-label={`Kompatibilität ${r1.code} und ${r2.code}: ${score.overallScore}%`}
                         aria-expanded={isSelected ? true : undefined}

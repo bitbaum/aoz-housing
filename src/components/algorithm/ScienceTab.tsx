@@ -28,7 +28,7 @@ export function ScienceTab() {
       {/* Introduction */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-aoz-primary" />
+          <BookOpen className="w-5 h-5 text-brand-primary" />
           {SCIENCE_TAB_LABELS.title}
         </h2>
         <p className="text-ui-muted">
@@ -176,7 +176,7 @@ export function ScienceTab() {
                         <div className="mt-3 space-y-1">
                           {science.researchFindings.map((finding, i) => (
                             <p key={i} className="text-sm text-ui-muted flex items-start gap-2">
-                              <span className="text-aoz-primary mt-0.5 flex-shrink-0">-</span>
+                              <span className="text-brand-primary mt-0.5 flex-shrink-0">-</span>
                               <span>{finding}</span>
                             </p>
                           ))}
@@ -184,7 +184,7 @@ export function ScienceTab() {
 
                         {/* Swiss context */}
                         {science.swissContext && (
-                          <p className="text-xs text-aoz-primary mt-3 flex items-start gap-1.5 bg-status-success/10 rounded px-2 py-1.5">
+                          <p className="text-xs text-brand-primary mt-3 flex items-start gap-1.5 bg-status-success/10 rounded px-2 py-1.5">
                             <span className="flex-shrink-0">🇨🇭</span>
                             <span>{science.swissContext}</span>
                           </p>

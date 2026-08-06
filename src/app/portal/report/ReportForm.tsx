@@ -192,7 +192,7 @@ export function ReportForm({ roommates }: Props) {
           type="button"
           onClick={() => { setCategory('MAINTENANCE'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
           className={`card-hover flex items-center gap-4 text-left transition-all ${
-            category === 'MAINTENANCE' ? 'ring-2 ring-aoz-primary' : ''
+            category === 'MAINTENANCE' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
           <span className="text-4xl">🔧</span>
@@ -205,7 +205,7 @@ export function ReportForm({ roommates }: Props) {
           type="button"
           onClick={() => { setCategory('INTERPERSONAL'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
           className={`card-hover flex items-center gap-4 text-left transition-all ${
-            category === 'INTERPERSONAL' ? 'ring-2 ring-aoz-primary' : ''
+            category === 'INTERPERSONAL' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
           <span className="text-4xl">💬</span>
@@ -327,7 +327,7 @@ export function ReportForm({ roommates }: Props) {
                       defaultChecked={defaults.severity ? sev.value === defaults.severity : sev.value === 'MEDIUM'}
                       className="sr-only peer"
                     />
-                    <div className="py-3 px-2 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
+                    <div className="py-3 px-2 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                       {'icon' in sev && <span className="text-xl block mb-1">{sev.icon}</span>}
                       <span className={`block ${'desc' in sev ? 'text-sm font-medium' : 'text-xs'}`}>
                         {sev.label}
@@ -348,7 +348,7 @@ export function ReportForm({ roommates }: Props) {
                   <input
                     type="checkbox"
                     name="requestMediation"
-                    className="w-5 h-5 mt-0.5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                    className="w-5 h-5 mt-0.5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                   />
                   <span className="text-sm text-ui-muted">
                     {PORTAL_LABELS.report.mediationLabel}

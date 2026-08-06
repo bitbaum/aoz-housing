@@ -186,14 +186,14 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
       <div className="px-4 py-3 border-t border-ui-border bg-ui-subtle rounded-b-lg flex gap-2">
         <Link
           href={`/residents/${resident1.id}`}
-          className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-aoz-primary hover:underline"
+          className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-brand-primary hover:underline"
         >
           {resident1.code}
         </Link>
         <span className="text-ui-muted">|</span>
         <Link
           href={`/residents/${resident2.id}`}
-          className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-aoz-primary hover:underline"
+          className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-brand-primary hover:underline"
         >
           {resident2.code}
         </Link>

@@ -129,7 +129,7 @@ function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boole
           : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
       }`}
     >
-      <Icon className={`w-4 h-4 ${active ? 'text-aoz-primary' : ''}`} aria-hidden="true" />
+      <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
       <span>{item.label}</span>
     </Link>
   )

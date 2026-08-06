@@ -66,7 +66,7 @@ function ResidentRow({ resident }: { resident: ResidentListItem }) {
             {resident.code.slice(-3)}
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-semibold text-ui-text group-hover:text-aoz-primary">
+            <span className="block truncate font-semibold text-ui-text group-hover:text-brand-primary">
               {resident.code}
             </span>
             <span className="block truncate text-sm text-ui-muted">

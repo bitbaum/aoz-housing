@@ -34,14 +34,14 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
     <section className="mb-8 rounded-lg border border-ui-border bg-ui-surface p-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <Link href={primary.href} className="group flex min-w-0 items-start gap-3">
-          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-aoz-primary text-ui-on-accent">
+          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-brand-primary text-ui-on-accent">
             <PrimaryIcon className="h-5 w-5" />
           </span>
           <span className="min-w-0">
             <span className="block text-xs font-semibold uppercase tracking-wide text-ui-muted">
               {L.prioritySections.now.heading}
             </span>
-            <span className="mt-0.5 block font-semibold text-ui-text group-hover:text-aoz-primary">
+            <span className="mt-0.5 block font-semibold text-ui-text group-hover:text-brand-primary">
               {primary.title}
             </span>
             <span className="mt-0.5 block text-sm text-ui-muted">{primary.description}</span>

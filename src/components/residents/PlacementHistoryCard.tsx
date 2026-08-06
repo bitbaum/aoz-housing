@@ -48,7 +48,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
               <div className="flex items-center gap-2">
                 <Link
                   href={`/housing/${placement.housingUnitId}`}
-                  className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary"
+                  className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
                 >
                   {placement.housingUnit.code}
                 </Link>

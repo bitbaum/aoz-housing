@@ -68,7 +68,7 @@ export function ResidentSelectorPanel({
               key={resident.id}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
                 params.resident === resident.id
-                  ? 'border-aoz-primary bg-aoz-primary/5'
+                  ? 'border-brand-primary bg-brand-primary/5'
                   : 'border-ui-border'
               }`}
             >
@@ -80,7 +80,7 @@ export function ResidentSelectorPanel({
                   {resident.code.slice(-3)}
                 </div>
                 <div>
-                  <p className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-aoz-primary">
+                  <p className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary">
                     {resident.code}
                   </p>
                   <p className="text-sm text-ui-muted">
@@ -96,8 +96,8 @@ export function ResidentSelectorPanel({
                 href={`/matching?resident=${resident.id}`}
                 className={`px-3 py-2 min-h-[44px] flex items-center justify-center rounded text-sm font-medium transition-colors ${
                   params.resident === resident.id
-                    ? 'bg-aoz-primary text-ui-on-accent'
-                    : 'bg-ui-subtle text-ui-muted hover:bg-aoz-primary hover:text-ui-on-accent'
+                    ? 'bg-brand-primary text-ui-on-accent'
+                    : 'bg-ui-subtle text-ui-muted hover:bg-brand-primary hover:text-ui-on-accent'
                 }`}
               >
                 {params.resident === resident.id ? MATCHING_LABELS.selected : MATCHING_LABELS.matching}
@@ -122,7 +122,7 @@ export function ResidentSelectorPanel({
                 key={resident.id}
                 className={`flex items-center justify-between p-2 rounded-lg border transition-colors ${
                   params.resident === resident.id
-                    ? 'border-aoz-primary bg-aoz-primary/5'
+                    ? 'border-brand-primary bg-brand-primary/5'
                     : 'border-ui-border bg-ui-subtle'
                 }`}
               >
@@ -146,7 +146,7 @@ export function ResidentSelectorPanel({
                   href={`/matching?resident=${resident.id}`}
                   className={`min-h-[44px] px-3 py-2 rounded text-xs font-medium transition-colors flex items-center ${
                     params.resident === resident.id
-                      ? 'bg-aoz-primary text-ui-on-accent'
+                      ? 'bg-brand-primary text-ui-on-accent'
                       : 'bg-ui-border text-ui-muted hover:bg-ui-border-strong'
                   }`}
                 >

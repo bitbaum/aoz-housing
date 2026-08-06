@@ -79,7 +79,7 @@ export function ResolutionLadder({
             <li
               key={def.stage}
               className={`rounded-md border p-3 ${
-                isCurrent ? 'border-aoz-primary bg-aoz-primary/5' : 'border-ui-border'
+                isCurrent ? 'border-brand-primary bg-brand-primary/5' : 'border-ui-border'
               }`}
             >
               <div className="flex flex-wrap items-center justify-between gap-2">

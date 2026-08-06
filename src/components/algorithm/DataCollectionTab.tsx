@@ -20,7 +20,7 @@ export function DataCollectionTab() {
     <div className="space-y-6">
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <Database className="w-5 h-5 text-aoz-primary" />
+          <Database className="w-5 h-5 text-brand-primary" />
           {DATA_COLLECTION_TAB_LABELS.title}
         </h2>
         <p className="text-ui-muted mb-4">

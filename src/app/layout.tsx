@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { ToastContainer } from '@/components/ui/Toast'
 import './globals.css'
+import { BRAND } from '@/lib/config/brand'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -52,7 +53,7 @@ export default function RootLayout({
   `
 
   return (
-    <html lang="de" className={inter.variable}>
+    <html lang="de" className={inter.variable} data-brand={BRAND.id}>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

@@ -18,7 +18,7 @@ export function PortalReportsCard({ incidents }: PortalReportsCardProps) {
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.myReports}</h2>
-        <Link href="/portal/report" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
+        <Link href="/portal/report" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
           {PORTAL_LABELS.dashboard.newReport}
         </Link>
       </div>

@@ -78,12 +78,12 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
             <div key={attr.key} className="flex items-center justify-between py-2 border-b border-ui-border">
               <span className="text-xs font-medium text-ui-muted">{attr.label}</span>
               <div className="flex items-center gap-3 text-xs">
-                <span className="text-aoz-secondary bg-aoz-secondary/10 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
+                <span className="text-brand-secondary bg-brand-secondary/10 px-1.5 py-0.5 rounded" title={ALGORITHM_OVERVIEW_LABELS.headToHeadAvg}>
                   Ø {attr.type === 'numeric'
                     ? (avgValue as number | null)?.toFixed(1) || '–'
                     : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}
                 </span>
-                <span className="text-aoz-primary bg-aoz-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
+                <span className="text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded font-medium inline-flex items-center gap-0.5">
                   {getFormattedValue(newVal as string | number | null, attr)}
                   {attr.type === 'numeric' && getDiffIndicator(
                     newVal as number,
@@ -111,8 +111,8 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
               {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (
                 <th scope="col" className="p-1.5 text-center text-ui-muted border-b">+{currentResidents.length - DISPLAY_LIMITS.comparisonResidents}</th>
               )}
-              <th scope="col" className="p-1.5 text-center font-semibold text-aoz-secondary border-b bg-aoz-secondary/10">Ø</th>
-              <th scope="col" className="p-1.5 text-center font-semibold text-aoz-primary border-b bg-aoz-primary/10">Neu</th>
+              <th scope="col" className="p-1.5 text-center font-semibold text-brand-secondary border-b bg-brand-secondary/10">Ø</th>
+              <th scope="col" className="p-1.5 text-center font-semibold text-brand-primary border-b bg-brand-primary/10">Neu</th>
             </tr>
           </thead>
           <tbody>
@@ -134,12 +134,12 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
                     )
                   })}
                   {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && <td className="p-1.5 text-center text-ui-muted">…</td>}
-                  <td className="p-1.5 text-center font-medium bg-aoz-secondary/10 text-aoz-secondary">
+                  <td className="p-1.5 text-center font-medium bg-brand-secondary/10 text-brand-secondary">
                     {attr.type === 'numeric'
                       ? (avgValue as number | null)?.toFixed(1) || '–'
                       : avgValue ? getLabel(attr.labels as Record<string, string>, String(avgValue)) : '–'}
                   </td>
-                  <td className="p-1.5 text-center font-medium bg-aoz-primary/10">
+                  <td className="p-1.5 text-center font-medium bg-brand-primary/10">
                     {(() => {
                       const newVal = (newResident as unknown as Record<string, unknown>)[attr.key] as string | number | null
                       return attr.type === 'numeric' ? (

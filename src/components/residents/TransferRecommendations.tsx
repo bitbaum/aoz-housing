@@ -121,7 +121,7 @@ export function TransferRecommendations({
               key={unit.id}
               className={`rounded-lg border-2 transition-all ${
                 isSelected
-                  ? 'border-aoz-primary bg-aoz-primary/8 ring-2 ring-aoz-primary/20'
+                  ? 'border-brand-primary bg-brand-primary/8 ring-2 ring-brand-primary/20'
                   : `border-ui-border hover:border-ui-border-strong ${SCORE_CARD_BG[level]}`
               }`}
             >

@@ -80,7 +80,7 @@ export function MaintenanceCard({
       {hasOpenTickets && (
         <Link
           href="/maintenance"
-          className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-aoz-primary hover:underline"
+          className="flex items-center justify-center min-h-[44px] mt-4 pt-4 border-t border-ui-border text-sm text-brand-primary hover:underline"
         >
           {MAINTENANCE_CARD_LABELS.viewAll}
         </Link>

@@ -86,7 +86,7 @@ export default async function AdminChoresPage() {
                 <div key={unit.id} className="border border-ui-border rounded-lg p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline font-medium">
+                      <Link href={`/housing/${unit.id}`} className="text-brand-primary hover:underline font-medium">
                         {unit.code}
                       </Link>
                       <p className="text-sm text-ui-muted mt-1">{unit.address}</p>
@@ -132,7 +132,7 @@ export default async function AdminChoresPage() {
                   {unitSummaries.map(unit => (
                     <tr key={unit.id} className="border-b border-ui-border hover:bg-ui-subtle">
                       <td className="py-3 px-2 font-medium">
-                        <Link href={`/housing/${unit.id}`} className="text-aoz-primary hover:underline">
+                        <Link href={`/housing/${unit.id}`} className="text-brand-primary hover:underline">
                           {unit.code}
                         </Link>
                       </td>

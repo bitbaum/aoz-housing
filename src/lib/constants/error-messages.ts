@@ -7,6 +7,7 @@
  * Naming convention:
  *   ENTITY_ACTION_OUTCOME  e.g. RESIDENT_CREATE_ERROR, SPOT_NOT_FOUND
  */
+import { BRAND } from '@/lib/config/brand'
 
 export const ERROR_MESSAGES = {
   // ─── Auth / Session ────────────────────────────────────────────
@@ -23,7 +24,7 @@ export const ERROR_MESSAGES = {
   INVALID_REQUEST: 'Ungültige Anfrage.',
   INVALID_RATING: 'Ungültige Bewertung',
   INVALID_SATISFACTION_VALUE: 'Ungültiger Zufriedenheitswert',
-  INVALID_AOZ_CODE: 'Ungültiger AOZ-Code',
+  INVALID_AOZ_CODE: `Ungültiger ${BRAND.shortName}-Code`,
 
   // ─── Generic operation errors ──────────────────────────────────
   ARCHIVE_ERROR: 'Fehler beim Archivieren',
@@ -108,7 +109,7 @@ export const ERROR_MESSAGES = {
   // ─── Portal / Registration ─────────────────────────────────────
   PREFERENCES_SAVE_ERROR: 'Einstellungen konnten nicht gespeichert werden',
   REPORT_SAVE_ERROR: 'Meldung konnte nicht gespeichert werden',
-  EMAIL_ALREADY_REGISTERED: 'Diese E-Mail ist bereits als AOZ-Profil registriert',
+  EMAIL_ALREADY_REGISTERED: `Diese E-Mail ist bereits als ${BRAND.shortName}-Profil registriert`,
   CODE_GENERATION_ERROR: 'Code-Generierung fehlgeschlagen. Bitte erneut versuchen.',
   RATE_LIMITED: 'Zu viele Versuche. Bitte warte eine Minute.',
   REGISTRATION_FIELDS_REQUIRED: 'Bitte alle Pflichtfelder ausfüllen.',
@@ -118,9 +119,9 @@ export const ERROR_MESSAGES = {
   RULE_NOT_FOUND: 'Regel nicht gefunden',
   RULE_SAVE_ERROR: 'Regel konnte nicht gespeichert werden',
   RULE_ACKNOWLEDGE_ERROR: 'Bestätigung konnte nicht gespeichert werden',
-  RULE_SYNC_ERROR: 'AOZ-Regeln konnten nicht abgeglichen werden',
+  RULE_SYNC_ERROR: `${BRAND.shortName}-Regeln konnten nicht abgeglichen werden`,
   ORG_RULE_IMMUTABLE:
-    'Diese AOZ-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden',
+    `Diese ${BRAND.shortName}-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden`,
 
   // ─── Proposals / voting ────────────────────────────────────────
   PROPOSAL_NOT_FOUND: 'Vorschlag nicht gefunden',

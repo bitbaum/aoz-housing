@@ -104,8 +104,8 @@ export const RESOLUTION_STAGE_LABELS: Record<ResolutionStage, string> = RESOLUTI
 
 export const RESOLUTION_STAGE_COLORS: Record<ResolutionStage, string> = {
   REPORTED: 'bg-status-info/15 text-status-info-text',
-  SELF_RESOLUTION: 'bg-aoz-primary/10 text-aoz-primary',
-  PEER_MEDIATION: 'bg-aoz-primary/10 text-aoz-primary',
+  SELF_RESOLUTION: 'bg-brand-primary/10 text-brand-primary',
+  PEER_MEDIATION: 'bg-brand-primary/10 text-brand-primary',
   STAFF_MEDIATION: 'bg-status-warning/15 text-status-warning-text',
   FORMAL_MEASURE: 'bg-status-error/15 text-status-error-text',
   CLOSED: 'bg-status-success/15 text-status-success-text',
@@ -162,7 +162,7 @@ export const AGREEMENT_STATUS_LABELS: Record<AgreementStatus, string> = {
 
 export const AGREEMENT_STATUS_COLORS: Record<AgreementStatus, string> = {
   PROPOSED: 'bg-status-info/15 text-status-info-text',
-  ACCEPTED: 'bg-aoz-primary/10 text-aoz-primary',
+  ACCEPTED: 'bg-brand-primary/10 text-brand-primary',
   HELD: 'bg-status-success/15 text-status-success-text',
   BROKEN: 'bg-status-error/15 text-status-error-text',
   EXPIRED: 'bg-status-warning/15 text-status-warning-text',

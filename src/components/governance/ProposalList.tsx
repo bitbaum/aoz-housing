@@ -15,6 +15,7 @@ import {
   VOTE_CHOICE_LABELS,
 } from '@/lib/config/decisions'
 import { RULE_CATEGORY_LABELS } from '@/lib/config/house-rules'
+import { BRAND } from '@/lib/config/brand'
 
 interface Tally {
   yes: number
@@ -123,7 +124,7 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
 
       {proposal.parentRuleTitle && (
         <p className="mt-3 text-sm text-ui-muted">
-          Zum AOZ-Thema: <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
+          Zum {BRAND.shortName}-Thema: <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
         </p>
       )}
 
@@ -158,7 +159,7 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
                 className={`min-h-[44px] rounded-md border px-4 text-sm font-medium transition ${
                   proposal.myVote === choice
                     ? `border-transparent ${VOTE_CHOICE_COLORS[choice]}`
-                    : 'border-ui-border text-ui-text hover:border-aoz-primary'
+                    : 'border-ui-border text-ui-text hover:border-brand-primary'
                 }`}
               >
                 {VOTE_CHOICE_LABELS[choice]}

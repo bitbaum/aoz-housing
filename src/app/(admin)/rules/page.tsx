@@ -10,6 +10,7 @@ import {
   DELEGATION_ALLOWS_UNIT_RULE,
   RULE_DELEGATION_LABELS,
 } from '@/lib/config/house-rules'
+import { BRAND } from '@/lib/config/brand'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,7 +68,7 @@ export default async function RulesPage() {
         </dl>
         <p className="mt-4 text-sm text-ui-muted">
           Hausregeln stehen bei der jeweiligen Unterkunft unter{' '}
-          <Link href="/housing" className="text-aoz-primary underline">
+          <Link href="/housing" className="text-brand-primary underline">
             Unterkünfte
           </Link>
           .
@@ -82,7 +83,7 @@ export default async function RulesPage() {
 const DELEGATION_EXPLANATIONS: Record<string, string> = {
   FIXED: 'Gilt unverändert in allen Häusern. Kein Hausbeschluss kann sie lockern oder ersetzen.',
   UNIT_MAY_STRENGTHEN:
-    'Die AOZ-Regel ist das Minimum. Ein Haus kann strenger werden — die Betreuung bestätigt, dass der Beschluss die AOZ-Regel nicht unterläuft.',
+    `Die ${BRAND.shortName}-Regel ist das Minimum. Ein Haus kann strenger werden — die Betreuung bestätigt, dass der Beschluss die ${BRAND.shortName}-Regel nicht unterläuft.`,
   UNIT_DECIDES:
-    'Die AOZ gibt nur das Thema vor. Wie es im Haus gilt, beschliessen die Bewohnenden selbst.',
+    `Die ${BRAND.shortName} gibt nur das Thema vor. Wie es im Haus gilt, beschliessen die Bewohnenden selbst.`,
 }

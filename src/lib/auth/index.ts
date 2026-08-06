@@ -4,6 +4,7 @@
  * Provides session management for staff and residents.
  * Uses stateless JWT tokens stored in httpOnly cookies.
  */
+import { BRAND } from '@/lib/config/brand'
 
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
@@ -162,7 +163,7 @@ export async function isAuthenticated(): Promise<boolean> {
  * RES-prefixed codes → resident login
  */
 export async function loginByCode(code: string, clientIp: string): Promise<LoginByCodeResult> {
-  if (code.startsWith('AOZ-')) {
+  if (code.startsWith(`${BRAND.shortName}-`)) {
     // Staff login
     const user = await prisma.user.findUnique({
       where: { code },
@@ -218,7 +219,7 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     }
   }
 
-  return { success: false, error: 'Ungültiger Code. Codes beginnen mit AOZ- oder RES-.' }
+  return { success: false, error: `Ungültiger Code. Codes beginnen mit ${BRAND.shortName}- oder RES-.` }
 }
 
 /**

@@ -65,7 +65,7 @@ export default async function RoommatesPage() {
     return (
       <div>
         <div className="mb-6">
-          <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
+          <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline">
             {PORTAL_LABELS.form.back}
           </Link>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
@@ -106,7 +106,7 @@ export default async function RoommatesPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline">
+        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
@@ -167,7 +167,7 @@ export default async function RoommatesPage() {
             <strong>{PORTAL_LABELS.roommates.conflictSteps.length + 1}. </strong>{PORTAL_LABELS.roommates.conflictReport}{' '}
             {/* Underlined at rest, not only on hover: inside a text block colour
                 alone is not a sufficient cue (WCAG 1.4.1 / axe link-in-text-block). */}
-            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-aoz-primary underline">
+            <Link href="/portal/report" className="inline-flex items-center py-2 -my-2 text-brand-primary underline">
               {PORTAL_LABELS.roommates.conflictReportLink}
             </Link>.
           </p>
@@ -187,7 +187,7 @@ function RoommateCard({
   return (
     <div className="card">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-aoz-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xl font-bold">
+        <div className="w-16 h-16 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xl font-bold">
           {roommate.code.slice(-3)}
         </div>
         <div className="flex-1">

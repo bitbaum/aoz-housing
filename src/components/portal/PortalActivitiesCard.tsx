@@ -20,7 +20,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
           <h2 className="font-semibold text-ui-text">{PORTAL_LABELS.activities.dashboardTitle}</h2>
           <p className="text-sm text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
         </div>
-        <Globe2 className="h-5 w-5 text-aoz-primary" />
+        <Globe2 className="h-5 w-5 text-brand-primary" />
       </div>
 
       {activities.length === 0 ? (
@@ -33,7 +33,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
             const Icon = ACTIVITY_CATEGORY_ICONS[activity.category]
             return (
               <div key={activity.id} className="flex items-start gap-3">
-                <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-aoz-primary" />
+                <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-primary" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
                   <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>

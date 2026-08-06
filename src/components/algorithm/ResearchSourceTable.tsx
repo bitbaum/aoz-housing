@@ -32,7 +32,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
                         href={source.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-aoz-primary flex-shrink-0"
+                        className="text-brand-primary flex-shrink-0"
                       >
                         <ExternalLink className="w-3 h-3" />
                       </a>
@@ -69,7 +69,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-aoz-primary flex-shrink-0"
+                  className="text-brand-primary flex-shrink-0"
                 >
                   <ExternalLink className="w-3 h-3" />
                 </a>

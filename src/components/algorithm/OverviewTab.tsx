@@ -28,7 +28,7 @@ export function OverviewTab() {
       {/* How it Works */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
-          <Target className="w-5 h-5 text-aoz-primary" />
+          <Target className="w-5 h-5 text-brand-primary" />
           {ALGORITHM_OVERVIEW_LABELS.howItWorksTitle}
         </h2>
 
@@ -57,7 +57,7 @@ export function OverviewTab() {
       {/* Scientific Methodology Summary */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-4 flex items-center gap-2">
-          <Beaker className="w-5 h-5 text-aoz-primary" />
+          <Beaker className="w-5 h-5 text-brand-primary" />
           {ALGORITHM_OVERVIEW_LABELS.scienceMethodTitle}
         </h2>
         <div className="text-ui-muted space-y-2">
@@ -69,7 +69,7 @@ export function OverviewTab() {
       {/* Dimensions with Visual Weight Bars */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
-          <Layers className="w-5 h-5 text-aoz-primary" />
+          <Layers className="w-5 h-5 text-brand-primary" />
           {ALGORITHM_OVERVIEW_LABELS.dimensionsSectionTitle(DIMENSION_COUNT)}
         </h2>
 
@@ -97,7 +97,7 @@ export function OverviewTab() {
           {RESIDENT_DIMENSIONS.map((dim, i) => {
             const pct = Math.round(dim.weight * 100)
             const barColors = [
-              'bg-aoz-secondary',
+              'bg-brand-secondary',
               'bg-status-info',
               'bg-status-success',
               'bg-status-warning',
@@ -121,7 +121,7 @@ export function OverviewTab() {
       {/* Score Scale */}
       <section className="card">
         <h2 className="text-xl font-semibold text-ui-text mb-6 flex items-center gap-2">
-          <Scale className="w-5 h-5 text-aoz-primary" />
+          <Scale className="w-5 h-5 text-brand-primary" />
           {ALGORITHM_OVERVIEW_LABELS.scoreInterpTitle}
         </h2>
 

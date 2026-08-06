@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/config/brand'
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
@@ -46,9 +47,9 @@ export async function POST(request: NextRequest) {
 
   // Generate or validate code
   let code = requestedCode?.trim().toUpperCase()
-  if (code && !code.startsWith('AOZ-')) {
+  if (code && !code.startsWith(`${BRAND.shortName}-`)) {
     return NextResponse.json(
-      { success: false, error: 'Code muss mit AOZ- beginnen' },
+      { success: false, error: `Code muss mit ${BRAND.shortName}- beginnen` },
       { status: 400 }
     )
   }

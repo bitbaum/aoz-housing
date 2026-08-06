@@ -43,9 +43,9 @@ export function ApartmentProfileSection({
   if (apartmentProfile.isEmpty) return null
 
   return (
-    <div className="mb-3 p-3 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded-lg">
+    <div className="mb-3 p-3 bg-brand-secondary/8 border border-brand-secondary/20 rounded-lg">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-semibold text-aoz-secondary uppercase">
+        <p className="text-xs font-semibold text-brand-secondary uppercase">
           {MATCHING_LABELS.apartmentProfile} ({apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
         </p>
         <span className={`text-sm font-bold ${getScoreColorClass(apartmentFit.fitScore)}`}>
@@ -83,10 +83,10 @@ export function ApartmentProfileSection({
       )}
 
       <details className="mt-2 text-xs">
-        <summary className="cursor-pointer text-aoz-secondary hover:text-aoz-secondary-dark font-medium">
+        <summary className="cursor-pointer text-brand-secondary hover:text-brand-secondary-dark font-medium">
           📊 {MATCHING_LABELS.scoreDerivation}
         </summary>
-        <div className="mt-2 p-2 bg-ui-surface border border-aoz-secondary/15 rounded text-ui-muted">
+        <div className="mt-2 p-2 bg-ui-surface border border-brand-secondary/15 rounded text-ui-muted">
           <p className="font-semibold mb-1">Fit Score: {apartmentFit.fitScore}%</p>
           <p className="text-ui-muted mb-2">{MATCHING_LABELS.basePenalty}</p>
 

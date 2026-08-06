@@ -300,12 +300,12 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               {incident.description}
             </p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
-              <span className="hover:text-aoz-primary inline-flex items-center gap-1">
+              <span className="hover:text-brand-primary inline-flex items-center gap-1">
                 <Home className="w-3.5 h-3.5" aria-hidden="true" /> {incident.housingUnit.code}
               </span>
               {incident.reportedBy && (
                 <span
-                  className="hover:text-aoz-primary inline-flex items-center gap-1"
+                  className="hover:text-brand-primary inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
                   <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {incident.reportedBy.code}
@@ -313,7 +313,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
               )}
               {incident.subject && (
                 <span
-                  className="hover:text-aoz-primary font-medium inline-flex items-center gap-1"
+                  className="hover:text-brand-primary font-medium inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
                   <User className="w-3.5 h-3.5" aria-hidden="true" /> {incident.subject.code}

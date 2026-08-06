@@ -10,7 +10,7 @@
   /* Global visible focus indicator — safety net for any interactive element
      that isn't using a project focus ring (btn variants, input, btn-icon). */
   *:focus-visible {
-    outline: 2px solid rgb(var(--color-aoz-primary));
+    outline: 2px solid rgb(var(--color-brand-primary));
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -32,7 +32,7 @@
   top: 0;
   left: 0;
   padding: 0.5rem 0.75rem;
-  background: rgb(var(--color-aoz-primary));
+  background: rgb(var(--color-brand-primary));
   color: rgb(var(--color-ui-on-accent));
   border-radius: 0 0 6px 0;
   font-weight: 600;
@@ -69,18 +69,21 @@
   --color-ui-inverse:       255 255 255;
   --color-ui-on-accent:     255 255 255;
 
-  /* AOZ brand — RGB channels for Tailwind opacity modifier support */
-  --color-aoz-primary:        230 57 70;
-  --color-aoz-primary-light:  236 80 92;
-  --color-aoz-primary-dark:   186 34 46;
-  --color-aoz-secondary:      25 82 82;
-  --color-aoz-secondary-light:45 112 112;
-  --color-aoz-secondary-dark: 17 55 55;
-  --color-aoz-accent:         235 244 243;
-  --color-aoz-accent-light:   245 249 249;
-  --color-aoz-accent-dark:    198 222 220;
-  --color-aoz-background:     247 247 248;
-  --color-aoz-surface:        255 255 255;
+  /* Brand palette — RGB channels for Tailwind opacity modifier support.
+     These base values are the ORIGINAL AOZ palette and are deliberately left
+     untouched: switching back to AOZ must be lossless, not a reconstruction.
+     A different brand overrides them in the [data-brand] block below. */
+  --color-brand-primary:        230 57 70;
+  --color-brand-primary-light:  236 80 92;
+  --color-brand-primary-dark:   186 34 46;
+  --color-brand-secondary:      25 82 82;
+  --color-brand-secondary-light:45 112 112;
+  --color-brand-secondary-dark: 17 55 55;
+  --color-brand-accent:         235 244 243;
+  --color-brand-accent-light:   245 249 249;
+  --color-brand-accent-dark:    198 222 220;
+  --color-brand-background:     247 247 248;
+  --color-brand-surface:        255 255 255;
 
   /* Compatibility score colors */
   --color-score-excellent: 34 197 94;
@@ -120,6 +123,43 @@
   --shadow-card-hover:0 0 0 1px rgb(0 0 0 / 0.06);
 }
 
+/* ── Brand palettes ───────────────────────────────────────────────────────────
+   The :root values above are the ORIGINAL AOZ palette and stay the default, so
+   re-badging to AOZ is lossless rather than a reconstruction. A brand overrides
+   only the --color-brand-* tokens; every component keeps using semantic
+   `brand-*` Tailwind classes and needs no change.
+   The active brand is stamped on <html data-brand> from lib/config/brand.ts. */
+
+:root[data-brand='aoch'] {
+  /* Deep teal instead of AOZ's red. Red is this interface's alarm colour — as a
+     primary in a tool about conflict it makes the calm state and the emergency
+     state look alike. Contrast vs white is ~7:1 in both directions. */
+  --color-brand-primary:         17 94 103;
+  --color-brand-primary-light:   26 125 136;
+  --color-brand-primary-dark:    11 68 75;
+  --color-brand-secondary:       194 106 58;
+  --color-brand-secondary-light: 214 133 90;
+  --color-brand-secondary-dark:  150 78 40;
+  --color-brand-accent:          236 245 246;
+  --color-brand-accent-light:    246 251 251;
+  --color-brand-accent-dark:     198 224 227;
+  --color-brand-background:      247 248 248;
+  --color-brand-surface:         255 255 255;
+}
+
+/* Dark mode keeps the brand hue but drops the surfaces, matching how the AOZ
+   palette already behaves in [data-theme='dark']. */
+[data-theme='dark']:root[data-brand='aoch'] {
+  --color-brand-primary:         56 158 168;
+  --color-brand-primary-light:   84 186 196;
+  --color-brand-primary-dark:    22 108 118;
+  --color-brand-accent:          16 34 36;
+  --color-brand-accent-light:    22 46 49;
+  --color-brand-accent-dark:     34 78 83;
+  --color-brand-background:      9 9 9;
+  --color-brand-surface:         16 16 16;
+}
+
 [data-theme='dark'] {
   --foreground: #f5f5f5;
   --muted-foreground: #a3a3a3;
@@ -130,11 +170,11 @@
   --border-strong: #3f3f46;
   color-scheme: dark;
 
-  --color-aoz-background: 9 9 9;
-  --color-aoz-surface: 16 16 16;
-  --color-aoz-accent: 18 32 32;
-  --color-aoz-accent-light: 23 43 43;
-  --color-aoz-accent-dark: 36 73 73;
+  --color-brand-background: 9 9 9;
+  --color-brand-surface: 16 16 16;
+  --color-brand-accent: 18 32 32;
+  --color-brand-accent-light: 23 43 43;
+  --color-brand-accent-dark: 36 73 73;
 
   --color-ui-canvas:        9 9 9;
   --color-ui-surface:       16 16 16;
@@ -172,11 +212,11 @@
     --border-strong: #3f3f46;
     color-scheme: dark;
 
-    --color-aoz-background: 9 9 9;
-    --color-aoz-surface: 16 16 16;
-    --color-aoz-accent: 18 32 32;
-    --color-aoz-accent-light: 23 43 43;
-    --color-aoz-accent-dark: 36 73 73;
+    --color-brand-background: 9 9 9;
+    --color-brand-surface: 16 16 16;
+    --color-brand-accent: 18 32 32;
+    --color-brand-accent-light: 23 43 43;
+    --color-brand-accent-dark: 36 73 73;
 
     --color-ui-canvas:        9 9 9;
     --color-ui-surface:       16 16 16;
@@ -211,7 +251,7 @@ body {
 }
 
 ::selection {
-  background: rgb(var(--color-aoz-primary) / 0.16);
+  background: rgb(var(--color-brand-primary) / 0.16);
 }
 
 /* Score indicator styles (5-tier: 80+, 60+, 40+, 20+, 0+) */
@@ -256,15 +296,15 @@ body {
 }
 
 .btn-secondary {
-  @apply btn bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark focus:ring-aoz-primary/30;
+  @apply btn bg-brand-primary text-ui-on-accent hover:bg-brand-primary-dark focus:ring-brand-primary/30;
 }
 
 .btn-outline {
-  @apply btn border border-ui-border bg-ui-surface text-ui-text hover:bg-ui-subtle hover:border-ui-border-strong focus:ring-aoz-primary/25;
+  @apply btn border border-ui-border bg-ui-surface text-ui-text hover:bg-ui-subtle hover:border-ui-border-strong focus:ring-brand-primary/25;
 }
 
 .btn-ghost {
-  @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-aoz-primary/25;
+  @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-brand-primary/25;
 }
 
 .btn-danger {
@@ -277,7 +317,7 @@ body {
 
 /* Icon-only square button — keeps 44px target without text-sized padding */
 .btn-icon {
-  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:outline-none focus:ring-2 focus:ring-aoz-primary/25 transition-colors;
+  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:outline-none focus:ring-2 focus:ring-brand-primary/25 transition-colors;
 }
 
 /* Form styles */
@@ -335,7 +375,7 @@ body {
 
 /* Initial / number avatar — circle with brand fill */
 .avatar {
-  @apply inline-flex items-center justify-center w-10 h-10 rounded-full bg-aoz-primary text-ui-on-accent font-medium select-none;
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-primary text-ui-on-accent font-medium select-none;
 }
 .avatar-sm { @apply avatar w-8 h-8 text-sm; }
 .avatar-lg { @apply avatar w-12 h-12 text-lg; }
@@ -375,5 +415,5 @@ body {
 
 /* Explainable number styles */
 .explainable-number {
-  @apply cursor-pointer underline decoration-dotted underline-offset-4 decoration-ui-muted/60 hover:decoration-aoz-primary;
+  @apply cursor-pointer underline decoration-dotted underline-offset-4 decoration-ui-muted/60 hover:decoration-brand-primary;
 }

@@ -55,7 +55,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             )}
             <Link
               href={`/housing/${match.unit.id}`}
-              className="inline-flex items-center py-2 -my-2 font-semibold text-ui-text hover:text-aoz-primary"
+              className="inline-flex items-center py-2 -my-2 font-semibold text-ui-text hover:text-brand-primary"
             >
               {match.unit.code}
             </Link>
@@ -112,23 +112,23 @@ export function MatchCard({ match, resident, rank }: Props) {
       )}
 
       {match.apartmentFit && !match.apartmentProfile.isEmpty && (
-        <div className="mb-3 p-2 bg-aoz-secondary/8 border border-aoz-secondary/20 rounded">
+        <div className="mb-3 p-2 bg-brand-secondary/8 border border-brand-secondary/20 rounded">
           {realSuccessData && realSuccessData.totalPlacements > 0 ? (
             <>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-aoz-secondary">
+                <span className="text-xs text-brand-secondary">
                   📊 {MATCHING_LABELS.historicalData} ({realSuccessData.totalPlacements} {MATCHING_LABELS.placements}):
                 </span>
                 <span className={`text-xs font-bold ${getScoreColorClass(realSuccessData.successRate)}`}>
                   {realSuccessData.successRate}% {MATCHING_LABELS.successRate}
                 </span>
               </div>
-              <p className="text-xs text-aoz-secondary/80 mt-1">
+              <p className="text-xs text-brand-secondary/80 mt-1">
                 {realSuccessData.successfulPlacements}/{realSuccessData.totalPlacements} {MATCHING_LABELS.placementsWithSimilar} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.successRateDesc(realSuccessData.successRate)}
               </p>
             </>
           ) : (
-            <div className="text-xs text-aoz-secondary/80">
+            <div className="text-xs text-brand-secondary/80">
               📊 {MATCHING_LABELS.noHistoricalData} ({match.apartmentFit.fitScore}% {MATCHING_LABELS.plusMinusTen}) {MATCHING_LABELS.available}.
             </div>
           )}

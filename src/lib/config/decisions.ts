@@ -18,6 +18,7 @@
  *
  * That last line is the reason this table exists at all.
  */
+import { BRAND } from '@/lib/config/brand'
 
 import type { DecisionMode, ProposalStatus, RuleCategory, VoteChoice, VoteThreshold } from '@prisma/client'
 
@@ -49,7 +50,7 @@ export const DECISION_MODE_DESCRIPTIONS: Record<DecisionMode, string> = {
   RESIDENT_BINDING:
     'Die Bewohnenden stimmen ab. Das Ergebnis gilt direkt als Hausregel.',
   RESIDENT_ADVISORY:
-    'Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den AOZ-Regeln und dem Mietrecht vereinbar ist.',
+    `Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den ${BRAND.shortName}-Regeln und dem Mietrecht vereinbar ist.`,
   STAFF_ONLY:
     'Bei Sicherheit und Respekt wird nicht abgestimmt — diese Regeln schützen Einzelne und dürfen nicht überstimmt werden. Vorschläge sind trotzdem willkommen und werden beantwortet.',
 }
@@ -165,7 +166,7 @@ export const PROPOSAL_STATUS_LABELS: Record<ProposalStatus, string> = {
 
 export const PROPOSAL_STATUS_COLORS: Record<ProposalStatus, string> = {
   DISCUSSION: 'bg-status-info/15 text-status-info-text',
-  VOTING: 'bg-aoz-primary/10 text-aoz-primary',
+  VOTING: 'bg-brand-primary/10 text-brand-primary',
   NEEDS_STAFF_CONFIRMATION: 'bg-status-warning/15 text-status-warning-text',
   ACCEPTED: 'bg-status-success/15 text-status-success-text',
   REJECTED: 'bg-ui-subtle text-ui-muted',

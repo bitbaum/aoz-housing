@@ -16,6 +16,7 @@ import {
   RULE_DELEGATION_LABELS,
 } from '@/lib/config/house-rules'
 import type { RuleBook, RuleLike } from '@/lib/governance/rules'
+import { BRAND } from '@/lib/config/brand'
 
 interface RuleBookViewProps {
   ruleBook: RuleBook
@@ -73,12 +74,12 @@ export function RuleBookView({
                 {renderRuleActions?.(entry.orgRule)}
 
                 {entry.unitRules.length > 0 && (
-                  <ul className="mt-4 space-y-3 border-l-2 border-aoz-primary/30 pl-4">
+                  <ul className="mt-4 space-y-3 border-l-2 border-brand-primary/30 pl-4">
                     {entry.unitRules.map((rule) => (
                       <li key={rule.id}>
                         <p className="text-sm font-medium text-ui-text">
                           {rule.title}
-                          <span className="ml-2 badge bg-aoz-primary/10 text-aoz-primary">
+                          <span className="ml-2 badge bg-brand-primary/10 text-brand-primary">
                             Hausregel
                           </span>
                         </p>
@@ -115,7 +116,7 @@ export function RuleBookView({
           </h2>
           <Card>
             <p className="mb-3 text-sm text-ui-muted">
-              Diese Hausregeln gehören zu einem AOZ-Thema, das nicht mehr gültig ist. Die Betreuung
+              Diese Hausregeln gehören zu einem {BRAND.shortName}-Thema, das nicht mehr gültig ist. Die Betreuung
               sollte sie überprüfen.
             </p>
             <ul className="space-y-3">
@@ -134,7 +135,7 @@ export function RuleBookView({
       {ruleBook.sections.length === 0 && (
         <Card>
           <p className="text-sm text-ui-muted">
-            Es sind noch keine Regeln erfasst. Die Betreuung kann den AOZ-Regelkatalog laden.
+            Es sind noch keine Regeln erfasst. Die Betreuung kann den {BRAND.shortName}-Regelkatalog laden.
           </p>
         </Card>
       )}

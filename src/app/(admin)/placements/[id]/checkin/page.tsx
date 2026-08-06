@@ -49,7 +49,7 @@ export default async function NewCheckInPage({ params }: Props) {
       <div className="mb-6">
         <Link
           href={`/residents/${placement.residentId}`}
-          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-aoz-primary hover:underline"
+          className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline"
         >
           {CHECKIN_FORM_LABELS.backLink(placement.resident.code)}
         </Link>
@@ -134,7 +134,7 @@ export default async function NewCheckInPage({ params }: Props) {
                     required
                     className="sr-only peer"
                   />
-                  <div className="text-center p-3 rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary/10 hover:bg-ui-subtle transition-colors">
+                  <div className="text-center p-3 rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary/10 hover:bg-ui-subtle transition-colors">
                     <div className="text-2xl mb-1">
                       {score === 1 ? '😢' : score === 2 ? '😕' : score === 3 ? '😐' : score === 4 ? '🙂' : '😊'}
                     </div>
@@ -233,7 +233,7 @@ export default async function NewCheckInPage({ params }: Props) {
                   type="checkbox"
                   name="isAnonymous"
                   value="true"
-                  className="rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                  className="rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                 />
                 <span className="text-sm text-ui-muted">
                   {CHECKIN_FORM_LABELS.anonymousLabel}
@@ -250,7 +250,7 @@ export default async function NewCheckInPage({ params }: Props) {
             >
               {UI_LABELS.cancel}
             </Link>
-            <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
+            <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
               {CHECKIN_FORM_LABELS.submit}
             </SubmitButton>
           </div>

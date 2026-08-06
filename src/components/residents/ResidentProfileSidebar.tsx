@@ -150,7 +150,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
               {resident.languages.map((lang) => (
                 <span
                   key={lang}
-                  className="px-2 py-1 bg-aoz-accent text-aoz-secondary rounded text-xs font-medium"
+                  className="px-2 py-1 bg-brand-accent text-brand-secondary rounded text-xs font-medium"
                 >
                   {getLabel(LANGUAGE_LABELS, lang)}
                 </span>

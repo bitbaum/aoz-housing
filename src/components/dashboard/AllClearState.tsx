@@ -75,9 +75,9 @@ function QuickActionButton({
   badge?: number
 }) {
   const variantStyles = {
-    primary: 'bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark',
+    primary: 'bg-brand-primary text-ui-on-accent hover:bg-brand-primary-dark',
     secondary: 'bg-ui-subtle text-ui-muted hover:bg-ui-border',
-    highlight: 'bg-aoz-secondary text-ui-on-accent hover:bg-aoz-secondary-dark',
+    highlight: 'bg-brand-secondary text-ui-on-accent hover:bg-brand-secondary-dark',
   }
 
   return (

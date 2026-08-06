@@ -39,7 +39,7 @@ export function SystemHealth({
           {worstUnit && worstUnit.conflicts > 0 ? (
             <Link
               href={`/housing/${worstUnit.id}`}
-              className="text-xs text-aoz-primary hover:underline mt-2 block"
+              className="text-xs text-brand-primary hover:underline mt-2 block"
             >
               {SYSTEM_HEALTH_LABELS.worstUnit(worstUnit.code, worstUnit.conflicts)}
             </Link>
@@ -68,7 +68,7 @@ export function SystemHealth({
           {openMaintenanceCount > 0 && oldestTicketDays !== undefined ? (
             <Link
               href="/maintenance"
-              className="text-xs text-aoz-primary hover:underline mt-2 block"
+              className="text-xs text-brand-primary hover:underline mt-2 block"
             >
               {SYSTEM_HEALTH_LABELS.oldest(oldestTicketDays)}
             </Link>

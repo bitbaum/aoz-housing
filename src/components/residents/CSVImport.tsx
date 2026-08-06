@@ -131,7 +131,7 @@ export function CSVImport() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="min-h-[44px] rounded-md bg-aoz-primary px-4 py-2 text-sm font-medium text-ui-on-accent hover:bg-aoz-primary-dark disabled:opacity-50"
+            className="min-h-[44px] rounded-md bg-brand-primary px-4 py-2 text-sm font-medium text-ui-on-accent hover:bg-brand-primary-dark disabled:opacity-50"
           >
             {loading ? EXPORT_LABELS.importing : EXPORT_LABELS.importButton}
           </button>

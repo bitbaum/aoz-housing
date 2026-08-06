@@ -1,12 +1,13 @@
 /**
  * App-level labels: branding, page titles, form/action labels, empty states
  */
+import { BRAND } from '@/lib/config/brand'
 
 export const APP_LABELS = {
-  name: 'AOZ Wohnen',
+  name: `${BRAND.shortName} Wohnen`,
   tagline: 'Platzierungssystem',
-  fullTitle: 'AOZ Wohnen - Platzierungssystem',
-  metaTitle: 'AOZ Wohnen - Intelligentes Platzierungssystem',
+  fullTitle: `${BRAND.shortName} Wohnen - Platzierungssystem`,
+  metaTitle: `${BRAND.shortName} Wohnen - Intelligentes Platzierungssystem`,
   metaDescription:
     'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
   // Layout navigation section headers and utility links

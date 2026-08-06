@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { RuleBookView } from './RuleBookView'
 import { openTopics, type RuleBook } from '@/lib/governance/rules'
 import type { UnitAcknowledgementCoverage } from '@/lib/governance/acknowledgement'
+import { BRAND } from '@/lib/config/brand'
 
 interface UnitRulesSectionProps {
   ruleBook: RuleBook
@@ -34,8 +35,8 @@ export function UnitRulesSection({ ruleBook, coverage, unitCode }: UnitRulesSect
             {open.length === 1 ? '1 Thema noch offen' : `${open.length} Themen noch offen`}
           </p>
         </div>
-        <Link href="/rules" className="text-sm text-aoz-primary hover:underline">
-          AOZ-Regeln ansehen
+        <Link href="/rules" className="text-sm text-brand-primary hover:underline">
+          {BRAND.shortName}-Regeln ansehen
         </Link>
       </div>
 

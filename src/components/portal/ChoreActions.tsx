@@ -124,7 +124,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
         </button>
         <button
           onClick={() => { setActiveModal('request'); setSuccess(null); setError(null) }}
-          className="min-h-[44px] px-4 py-3 bg-aoz-secondary/10 text-aoz-secondary hover:bg-aoz-secondary/15 rounded-lg text-sm font-medium transition-colors"
+          className="min-h-[44px] px-4 py-3 bg-brand-secondary/10 text-brand-secondary hover:bg-brand-secondary/15 rounded-lg text-sm font-medium transition-colors"
         >
           📩 {CHORE_LABELS.actions.request}
         </button>

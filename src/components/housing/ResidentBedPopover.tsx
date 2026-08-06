@@ -54,7 +54,7 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
       }}
     >
       {/* Header */}
-      <div className="px-4 py-3 border-b border-ui-border bg-aoz-primary/8 rounded-t-lg">
+      <div className="px-4 py-3 border-b border-ui-border bg-brand-primary/8 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="avatar font-bold">
@@ -99,7 +99,7 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
       <div className="px-4 py-3 border-t border-ui-border bg-ui-subtle rounded-b-lg">
         <Link
           href={`/residents/${resident.id}`}
-          className="block w-full text-center text-sm text-aoz-primary hover:text-aoz-primary-dark font-medium"
+          className="block w-full text-center text-sm text-brand-primary hover:text-brand-primary-dark font-medium"
           onClick={onClose}
         >
           {BED_GRID_LABELS.showProfile}

@@ -3,6 +3,7 @@
  *
  * Types are derived from the schemas, never declared separately.
  */
+import { BRAND } from '@/lib/config/brand'
 
 import { z } from 'zod'
 
@@ -44,7 +45,7 @@ export const updateOrgRuleSchema = orgRuleSchema.omit({ key: true }).extend({
 
 export const unitRuleSchema = z.object({
   housingUnitId: z.string().min(1),
-  parentRuleId: z.string().min(1, 'Eine Hausregel gehört immer zu einer AOZ-Regel'),
+  parentRuleId: z.string().min(1, `Eine Hausregel gehört immer zu einer ${BRAND.shortName}-Regel`),
   title: z.string().min(3, 'Titel ist zu kurz').max(120),
   body: z.string().min(10, 'Bitte die Regel ausformulieren').max(2000),
 })
@@ -73,7 +74,7 @@ export const createProposalSchema = z
     targetRuleId: z.string().min(1).optional(),
   })
   .refine((data) => data.type !== 'ADD_RULE' || !!data.parentOrgRuleId, {
-    message: 'Bitte wähle das AOZ-Thema, zu dem die Hausregel gehört',
+    message: `Bitte wähle das ${BRAND.shortName}-Thema, zu dem die Hausregel gehört`,
     path: ['parentOrgRuleId'],
   })
   .refine(

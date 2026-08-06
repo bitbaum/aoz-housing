@@ -23,7 +23,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   return (
     <div ref={navRef}>
       <div className="flex items-center justify-between">
-        <Link href="/portal" className="text-lg sm:text-xl font-bold text-aoz-primary">
+        <Link href="/portal" className="text-lg sm:text-xl font-bold text-brand-primary">
           {PORTAL_LABELS.title}
         </Link>
 
@@ -41,7 +41,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           {hasStaffAccess && (
             <Link
               href="/"
-              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm flex items-center gap-1.5 text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm flex items-center gap-1.5 text-brand-primary font-medium hover:bg-brand-primary/10"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
@@ -84,7 +84,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] text-aoz-primary font-medium hover:bg-aoz-primary/10"
+              className="flex items-center gap-2 transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] text-brand-primary font-medium hover:bg-brand-primary/10"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
@@ -130,7 +130,7 @@ function PortalNavLink({
       ? 'py-3 px-2 -mx-2'
       : 'px-3 py-2 text-sm'
   const tone = active
-    ? 'text-aoz-primary bg-aoz-primary/10 font-medium'
+    ? 'text-brand-primary bg-brand-primary/10 font-medium'
     : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
   return (
     <Link

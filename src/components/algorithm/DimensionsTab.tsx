@@ -40,7 +40,7 @@ export function DimensionsTab({
           <div key={dim.id} className="border border-ui-border rounded-lg overflow-hidden">
             <button
               onClick={() => setExpandedDimension(isExpanded ? null : dim.id)}
-              className="w-full flex items-start sm:items-center justify-between gap-3 p-4 text-left hover:bg-ui-subtle transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 rounded-lg"
+              className="w-full flex items-start sm:items-center justify-between gap-3 p-4 text-left hover:bg-ui-subtle transition-colors min-h-[44px] focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded-lg"
               aria-expanded={isExpanded}
               aria-controls={`dimension-${dim.id}`}
             >
@@ -94,7 +94,7 @@ export function DimensionsTab({
                           <div className="mt-3 pt-3 border-t border-ui-border">
                             <p className="text-sm text-ui-muted">{science.whyItMatters}</p>
                             {science.swissContext && (
-                              <p className="text-xs text-aoz-primary mt-2 flex items-start gap-1">
+                              <p className="text-xs text-brand-primary mt-2 flex items-start gap-1">
                                 <span>🇨🇭</span> {science.swissContext}
                               </p>
                             )}

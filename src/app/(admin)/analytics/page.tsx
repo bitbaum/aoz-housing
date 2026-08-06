@@ -310,7 +310,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                     </div>
                     <div className="h-2 bg-ui-border rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-aoz-primary"
+                        className="h-full bg-brand-primary"
                         style={{
                           width: `${(count / recentIncidents.length) * 100}%`,
                         }}

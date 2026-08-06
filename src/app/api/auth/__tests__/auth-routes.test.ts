@@ -42,6 +42,7 @@ jest.mock('@/lib/db', () => ({
 import { POST as logoutPOST } from '../logout/route'
 import { GET as sessionGET } from '../session/route'
 import { POST as registerPOST } from '../register/route'
+import { BRAND } from '@/lib/config/brand'
 
 // --- Helpers ---
 
@@ -218,7 +219,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     expect(body.success).toBe(false)
   })
 
-  test('returns 400 when code does not start with AOZ-', async () => {
+  test('returns 400 when code does not start with the brand prefix', async () => {
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
       { name: 'New Staff', code: 'RES-ABC123' }
@@ -229,21 +230,21 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
     expect(res.status).toBe(400)
     expect(body.success).toBe(false)
-    expect(body.error).toContain('AOZ-')
+    expect(body.error).toContain(BRAND.codePrefix)
   })
 
   test('creates staff user with provided code', async () => {
     mockUserFindUnique.mockResolvedValue(null) // code not taken
     mockUserCreate.mockResolvedValue({
       id: 'new-1',
-      code: 'AOZ-CUSTOM',
+      code: `${BRAND.codePrefix}CUSTOM`,
       name: 'New Staff',
       role: 'ADMIN',
     })
 
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
-      { name: 'New Staff', code: 'AOZ-CUSTOM' }
+      { name: 'New Staff', code: `${BRAND.codePrefix}CUSTOM` }
     )
 
     const res = await registerPOST(req)
@@ -251,14 +252,14 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(body.user.code).toBe('AOZ-CUSTOM')
+    expect(body.user.code).toBe(`${BRAND.codePrefix}CUSTOM`)
     expect(body.user.name).toBe('New Staff')
     expect(body.user.role).toBe('ADMIN')
 
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          code: 'AOZ-CUSTOM',
+          code: `${BRAND.codePrefix}CUSTOM`,
           name: 'New Staff',
           role: 'ADMIN',
           active: true,
@@ -274,7 +275,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
       .mockResolvedValueOnce(null) // uniqueness check passes
     mockUserCreate.mockResolvedValue({
       id: 'new-2',
-      code: 'AOZ-GEN001',
+      code: `${BRAND.codePrefix}GEN001`,
       name: 'Auto Code',
       role: 'ADMIN',
     })
@@ -298,7 +299,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
-      { name: 'Duplicate', code: 'AOZ-EXISTS' }
+      { name: 'Duplicate', code: `${BRAND.codePrefix}EXISTS` }
     )
 
     const res = await registerPOST(req)
@@ -331,7 +332,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
-      { name: 'DB Fail', code: 'AOZ-DBFAIL' }
+      { name: 'DB Fail', code: `${BRAND.codePrefix}DBFAIL` }
     )
 
     const res = await registerPOST(req)
@@ -346,14 +347,14 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     mockUserFindUnique.mockResolvedValue(null)
     mockUserCreate.mockResolvedValue({
       id: 'new-3',
-      code: 'AOZ-LOWER1',
+      code: `${BRAND.codePrefix}LOWER1`,
       name: 'Lower',
       role: 'ADMIN',
     })
 
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
-      { name: 'Lower', code: 'aoz-lower1' }
+      { name: 'Lower', code: `${BRAND.codePrefix.toLowerCase()}lower1` }
     )
 
     const res = await registerPOST(req)
@@ -362,7 +363,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     expect(res.status).toBe(200)
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ code: 'AOZ-LOWER1' }),
+        data: expect.objectContaining({ code: `${BRAND.codePrefix}LOWER1` }),
       })
     )
   })
@@ -371,14 +372,14 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     mockUserFindUnique.mockResolvedValue(null)
     mockUserCreate.mockResolvedValue({
       id: 'new-4',
-      code: 'AOZ-TRIM01',
+      code: `${BRAND.codePrefix}TRIM01`,
       name: 'Trimmed Name',
       role: 'ADMIN',
     })
 
     const req = createJsonRequest(
       'http://localhost:3001/api/auth/register',
-      { name: '  Trimmed Name  ', code: 'AOZ-TRIM01' }
+      { name: '  Trimmed Name  ', code: `${BRAND.codePrefix}TRIM01` }
     )
 
     await registerPOST(req)

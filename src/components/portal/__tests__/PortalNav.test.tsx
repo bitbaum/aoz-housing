@@ -167,7 +167,7 @@ describe('PortalNav', () => {
     mockPathname = '/portal'
     const { container } = renderNav()
     const overviewLinks = container.querySelectorAll('a[href="/portal"]')
-    const activeLink = Array.from(overviewLinks).find(l => l.className.includes('bg-aoz-primary/10'))
+    const activeLink = Array.from(overviewLinks).find(l => l.className.includes('bg-brand-primary/10'))
     expect(activeLink).toBeDefined()
   })
 
@@ -175,7 +175,7 @@ describe('PortalNav', () => {
     mockPathname = '/portal/chores/task-1'
     const { container } = renderNav()
     const choresLinks = container.querySelectorAll('a[href="/portal/chores"]')
-    const activeLink = Array.from(choresLinks).find(l => l.className.includes('bg-aoz-primary/10'))
+    const activeLink = Array.from(choresLinks).find(l => l.className.includes('bg-brand-primary/10'))
     expect(activeLink).toBeDefined()
   })
 })

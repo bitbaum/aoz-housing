@@ -82,7 +82,7 @@ export function ExplainableNumber({
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`${sizeClasses[size]} ${className} cursor-pointer hover:underline decoration-dotted underline-offset-4 decoration-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-aoz-primary focus:ring-offset-2 rounded`}
+        className={`${sizeClasses[size]} ${className} cursor-pointer hover:underline decoration-dotted underline-offset-4 decoration-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
       >

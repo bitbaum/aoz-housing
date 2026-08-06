@@ -103,7 +103,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
     <div>
       <Link
         href="/portal/chores"
-        className="inline-flex items-center min-h-[44px] px-1 -ml-1 mb-2 text-sm text-aoz-primary hover:underline"
+        className="inline-flex items-center min-h-[44px] px-1 -ml-1 mb-2 text-sm text-brand-primary hover:underline"
       >
         ← {CHORE_LABELS.pages.list}
       </Link>
@@ -199,12 +199,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.activeRequests}</h2>
           <div className="space-y-3">
             {activeRequests.map(r => (
-              <div key={r.id} className="p-3 bg-aoz-primary/8 rounded-lg">
+              <div key={r.id} className="p-3 bg-brand-primary/8 rounded-lg">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-ui-text">
                     {r.requestedBy.code} → {r.requestedResident?.code || CHORE_LABELS.request.broadcast}
                   </p>
-                  <span className="chip bg-aoz-primary/10 text-aoz-primary">
+                  <span className="chip bg-brand-primary/10 text-brand-primary">
                     {REQUEST_STATUS_LABELS[r.status]}
                   </span>
                 </div>

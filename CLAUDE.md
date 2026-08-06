@@ -155,6 +155,41 @@ src/
 
 ---
 
+## Branding (re-badging is config, not code)
+
+The product ships under a neutral brand and can be handed to AOZ badged as AOZ.
+Neither is a fork; both are presets.
+
+```bash
+NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the original red palette + wording
+NEXT_PUBLIC_BRAND=aoch   # default
+```
+
+- **SSOT**: `src/lib/config/brand.ts`. Two fields only — `shortName` and
+  `codePrefix` — because all German copy is of the form "AOZ-Regel" /
+  "AOZ-Verwaltung" / "AOZ Wohnen". A config field you can set with no visible
+  effect is a trap; don't add speculative ones.
+- **Colours**: the `:root` palette in `globals.css` is the **original AOZ
+  palette, byte-for-byte** and stays the default, so switching back is lossless
+  rather than a reconstruction. A brand overrides only `--color-brand-*` inside
+  `:root[data-brand='<id>']`. `<html data-brand>` is stamped in `layout.tsx`.
+- Components use semantic `brand-primary` / `brand-secondary` / `brand-accent`
+  classes. **Never** reintroduce `aoz-*` class names or hardcode a hex.
+
+### What must NOT be rebranded
+
+These are identifiers, not branding — renaming them breaks live things for zero
+user benefit:
+
+| Thing | Why it stays |
+|---|---|
+| Repo, deploy app `aoz-wohnen`, domain, DB `aoz_wohnen`, systemd units | Addresses. Renaming means DNS/Caddy/service churn. |
+| `JWT_ISSUER` (`aoz-housing`) | Changing it invalidates every live session. |
+| Theme key `aoz-theme` | Changing it silently resets everyone's light/dark choice. |
+| **Existing resident codes** | `codePrefix` applies to NEW codes only; login resolves by exact string, so old `AOZ-` codes keep working forever. |
+
+---
+
 ## Design System
 
 **Tailwind v3** — config at `tailwind.config.ts`. All design tokens live in `src/app/globals.css` as CSS custom properties; `tailwind.config.ts` only references them (zero literal hex). Both light and dark themes share the same Tailwind class surface — only the CSS-var values flip.

@@ -71,7 +71,7 @@ export function InviteForm() {
         </div>
         <button
           onClick={reset}
-          className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline"
+          className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline"
         >
           {INVITE_FORM_LABELS.inviteAnother}
         </button>

@@ -55,7 +55,7 @@ function RatingScale({
               defaultChecked={defaultValue === level}
               className="sr-only peer"
             />
-            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors">
+            <div className="py-3 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors">
               {level}
             </div>
           </label>
@@ -146,7 +146,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
           <p className="text-status-success-text">
             {P.successMessage}
           </p>
-          <Link href="/portal" className="text-aoz-primary hover:underline mt-4 inline-block">
+          <Link href="/portal" className="text-brand-primary hover:underline mt-4 inline-block">
             {PORTAL_LABELS.form.back}
           </Link>
         </div>
@@ -321,7 +321,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.languages.includes(lowerCode) || resident.languages.includes(code)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {LANGUAGE_LABELS[code] || LANGUAGE_LABELS[lowerCode] || code}
                       </div>
                     </label>
@@ -359,7 +359,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="petTolerance"
                   defaultChecked={resident.petTolerance}
-                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                 />
                 <span className="text-sm text-ui-muted">{P.fields.petTolerance}</span>
               </label>
@@ -369,7 +369,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="sharedBathroom"
                   defaultChecked={resident.sharedBathroom}
-                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                 />
                 <span className="text-sm text-ui-muted">{P.fields.sharedBathroom}</span>
               </label>
@@ -379,7 +379,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                   type="checkbox"
                   name="sharedKitchen"
                   defaultChecked={resident.sharedKitchen}
-                  className="w-5 h-5 rounded border-ui-border-strong text-aoz-primary focus:ring-aoz-primary"
+                  className="w-5 h-5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                 />
                 <span className="text-sm text-ui-muted">{P.fields.sharedKitchen}</span>
               </label>
@@ -399,7 +399,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.dietaryNeeds.includes(lowerOpt) || resident.dietaryNeeds.includes(opt)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-aoz-primary peer-checked:bg-aoz-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {DIET_LABELS[opt] || DIET_LABELS[lowerOpt] || opt}
                       </div>
                     </label>

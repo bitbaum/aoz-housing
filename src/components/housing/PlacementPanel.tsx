@@ -162,7 +162,7 @@ function ResidentRow({
           <div className="min-w-0">
             <Link
               href={`/residents/${resident.id}`}
-              className="font-medium text-ui-text hover:text-aoz-primary truncate block"
+              className="font-medium text-ui-text hover:text-brand-primary truncate block"
             >
               {resident.code}
             </Link>

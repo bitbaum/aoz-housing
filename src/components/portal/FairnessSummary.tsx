@@ -31,7 +31,7 @@ export function FairnessSummary({ fairness }: FairnessSummaryProps) {
               </div>
               <div className="w-full bg-ui-subtle rounded-full h-2.5">
                 <div
-                  className="bg-aoz-primary h-2.5 rounded-full transition-all"
+                  className="bg-brand-primary h-2.5 rounded-full transition-all"
                   style={{ width: `${percentage}%` }}
                 />
               </div>

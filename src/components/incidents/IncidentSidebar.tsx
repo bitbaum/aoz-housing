@@ -136,7 +136,7 @@ export function IncidentSidebar({ incident }: Props) {
                 className="input"
               />
             </div>
-            <SubmitButton className="btn-primary w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
+            <SubmitButton className="btn-primary w-full min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
               {INCIDENT_SIDEBAR_LABELS.markResolved}
             </SubmitButton>
           </form>

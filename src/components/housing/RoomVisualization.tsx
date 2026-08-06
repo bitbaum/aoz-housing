@@ -267,7 +267,7 @@ function OccupancyIndicator({
         <div
           className={`h-full rounded-full ${
             percentage === 100
-              ? 'bg-aoz-primary'
+              ? 'bg-brand-primary'
               : percentage > 0
                 ? 'bg-status-success'
                 : 'bg-ui-border-strong'

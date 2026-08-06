@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/config/brand'
 'use client'
 
 import { useState, useTransition } from 'react'
@@ -36,7 +37,7 @@ export function SyncCatalogButton() {
         className="btn-secondary inline-flex min-h-[44px] items-center gap-2"
       >
         <RefreshCw className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} aria-hidden="true" />
-        {isPending ? 'Wird abgeglichen…' : 'AOZ-Katalog abgleichen'}
+        {isPending ? 'Wird abgeglichen…' : `${BRAND.shortName}-Katalog abgleichen`}
       </button>
       {message && (
         <p className="text-sm text-ui-muted" role="status">

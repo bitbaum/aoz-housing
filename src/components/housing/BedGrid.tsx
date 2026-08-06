@@ -26,7 +26,7 @@ function getBedStatus(spot: HousingSpot): BedStatus {
 function getBedColorClasses(status: BedStatus, isClickable: boolean): string {
   switch (status) {
     case 'occupied':
-      return `bg-aoz-primary/10 border-aoz-primary/30 text-aoz-primary ${isClickable ? 'hover:bg-aoz-primary/15 hover:border-aoz-primary/50 cursor-pointer' : ''}`
+      return `bg-brand-primary/10 border-brand-primary/30 text-brand-primary ${isClickable ? 'hover:bg-brand-primary/15 hover:border-brand-primary/50 cursor-pointer' : ''}`
     case 'available':
       return 'bg-status-success/15 border-status-success/40 text-status-success-text hover:bg-status-success/20 cursor-pointer'
     case 'unavailable':
@@ -122,8 +122,8 @@ export function BedGrid({
                 flex flex-col items-center justify-center
                 transition-all
                 ${getBedColorClasses(status, isOccupiedClickable)}
-                ${isAvailableClickable || isOccupiedClickable ? 'hover:border-ui-border-strong focus-visible:ring-2 focus-visible:ring-aoz-primary focus-visible:ring-offset-1' : ''}
-                ${isSelected ? 'ring-2 ring-aoz-primary ring-offset-1' : ''}
+                ${isAvailableClickable || isOccupiedClickable ? 'hover:border-ui-border-strong focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1' : ''}
+                ${isSelected ? 'ring-2 ring-brand-primary ring-offset-1' : ''}
               `}
               aria-label={
                 status === 'occupied' && activePlacement
@@ -206,7 +206,7 @@ export function BedGridSummary({
               key={i}
               className={`${dotSize} rounded-sm ${
                 status === 'occupied'
-                  ? 'bg-aoz-primary'
+                  ? 'bg-brand-primary'
                   : status === 'available'
                     ? 'bg-status-success'
                     : 'bg-ui-border-strong'

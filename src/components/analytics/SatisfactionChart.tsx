@@ -22,7 +22,7 @@ export function SatisfactionChart({
         <h2 className="text-lg font-semibold text-ui-text">
           Zufriedenheit ({days} Tage)
         </h2>
-        <Link href="/placements" className="inline-flex items-center min-h-[44px] px-1 text-sm text-aoz-primary hover:underline">
+        <Link href="/placements" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
           Alle Check-ins
         </Link>
       </div>

@@ -50,7 +50,7 @@ export default async function PortalRulesPage() {
         </p>
         <Link
           href="/portal/decisions"
-          className="mt-2 inline-flex min-h-[44px] items-center text-sm text-aoz-primary hover:underline"
+          className="mt-2 inline-flex min-h-[44px] items-center text-sm text-brand-primary hover:underline"
         >
           Zu den Beschlüssen und Abstimmungen →
         </Link>

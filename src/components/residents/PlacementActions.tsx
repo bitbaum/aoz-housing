@@ -85,7 +85,7 @@ export function PlacementActions({
         <button
           type="button"
           className={`btn-outline inline-flex items-center gap-2 ${
-            showTransfer ? 'ring-2 ring-aoz-secondary/40 bg-aoz-secondary/8' : ''
+            showTransfer ? 'ring-2 ring-brand-secondary/40 bg-brand-secondary/8' : ''
           }`}
           onClick={() => {
             setShowTransfer(!showTransfer)

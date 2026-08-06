@@ -45,7 +45,7 @@ export function MatchResultsPanel({
           </Link>
           <Link
             href={`/matching?resident=${selectedResident.id}&mode=fast${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
-            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-aoz-primary/10 text-aoz-primary border-aoz-primary/40' : ''}`}
+            className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${fastMode ? 'bg-brand-primary/10 text-brand-primary border-brand-primary/40' : ''}`}
           >
             {MATCH_RESULTS_LABELS.modeFast}
           </Link>
