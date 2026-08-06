@@ -165,6 +165,24 @@ NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the original red palette 
 NEXT_PUBLIC_BRAND=aoch   # default
 ```
 
+**Switching the live deployment** — `NEXT_PUBLIC_*` is inlined at build time, so
+this needs a redeploy, not a restart. The box holds the authoritative runtime
+env and the deploy pulls it into the build:
+
+```bash
+# 1. set the brand in the box's env (the SSOT the build reads)
+ssh root@167.233.22.31 \
+  "grep -q '^NEXT_PUBLIC_BRAND=' /opt/aoz-wohnen/shared/.env \
+     && sed -i 's/^NEXT_PUBLIC_BRAND=.*/NEXT_PUBLIC_BRAND=aoz/' /opt/aoz-wohnen/shared/.env \
+     || echo 'NEXT_PUBLIC_BRAND=aoz' >> /opt/aoz-wohnen/shared/.env"
+
+# 2. rebuild + redeploy
+gh workflow run deploy.yml -R maonakamoto/aoz-housing
+
+# 3. confirm what a user actually sees
+curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZ|AOCH' | sort -u
+```
+
 - **SSOT**: `src/lib/config/brand.ts`. Two fields only — `shortName` and
   `codePrefix` — because all German copy is of the form "AOZ-Regel" /
   "AOZ-Verwaltung" / "AOZ Wohnen". A config field you can set with no visible
