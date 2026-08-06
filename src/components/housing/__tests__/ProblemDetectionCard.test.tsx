@@ -64,7 +64,7 @@ function makeResident(overrides: Partial<ResidentSummary> & { id: string }): Res
     sleepSchedule: overrides.sleepSchedule ?? 'STANDARD',
     smokingStatus: overrides.smokingStatus ?? 'NON_SMOKER',
     noiseTolerance: overrides.noiseTolerance ?? 3,
-    cleanlinessLevel: overrides.cleanlinessLevel ?? 3,
+    cleanlinessPractice: overrides.cleanlinessPractice ?? 3,
     privacyNeed: overrides.privacyNeed ?? 3,
   }
 }
@@ -97,8 +97,8 @@ describe('ProblemDetectionCard', () => {
   })
 
   it('shows all-clear when 2 compatible residents with no issues', () => {
-    const r1 = makeResident({ id: 'r1', cleanlinessLevel: 3, noiseTolerance: 3, privacyNeed: 3 })
-    const r2 = makeResident({ id: 'r2', cleanlinessLevel: 3, noiseTolerance: 3, privacyNeed: 3 })
+    const r1 = makeResident({ id: 'r1', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 })
+    const r2 = makeResident({ id: 'r2', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 })
     const scores = [makeScore('r1', 'r2', 85)]
     render(<ProblemDetectionCard residents={[r1, r2]} compatibilityScores={scores} housingUnitId={UNIT_ID} />)
     expect(screen.getByText('Keine Probleme erkannt')).toBeInTheDocument()
@@ -147,18 +147,18 @@ describe('ProblemDetectionCard', () => {
 
   it('flags lower cleanliness outlier', () => {
     // avg ≈ 2.33; r3 has 1 → |1 - 2.33| = 1.33 — not enough. Use [1,1,5]: avg=2.33; 5-2.33=2.67 > 1.5
-    const r1 = makeResident({ id: 'r1', cleanlinessLevel: 1 })
-    const r2 = makeResident({ id: 'r2', cleanlinessLevel: 1 })
-    const r3 = makeResident({ id: 'r3', cleanlinessLevel: 5, code: 'RES-003' })
+    const r1 = makeResident({ id: 'r1', cleanlinessPractice: 1 })
+    const r2 = makeResident({ id: 'r2', cleanlinessPractice: 1 })
+    const r3 = makeResident({ id: 'r3', cleanlinessPractice: 5, code: 'RES-003' })
     render(<ProblemDetectionCard residents={[r1, r2, r3]} compatibilityScores={NO_SCORES} housingUnitId={UNIT_ID} />)
     expect(screen.getByText(/höhere Sauberkeit als Durchschnitt/)).toBeInTheDocument()
   })
 
   it('flags higher cleanliness outlier', () => {
     // [5,5,1]: avg=3.67; 1-3.67=-2.67 → lower outlier
-    const r1 = makeResident({ id: 'r1', cleanlinessLevel: 5 })
-    const r2 = makeResident({ id: 'r2', cleanlinessLevel: 5 })
-    const r3 = makeResident({ id: 'r3', cleanlinessLevel: 1, code: 'RES-LOW' })
+    const r1 = makeResident({ id: 'r1', cleanlinessPractice: 5 })
+    const r2 = makeResident({ id: 'r2', cleanlinessPractice: 5 })
+    const r3 = makeResident({ id: 'r3', cleanlinessPractice: 1, code: 'RES-LOW' })
     render(<ProblemDetectionCard residents={[r1, r2, r3]} compatibilityScores={NO_SCORES} housingUnitId={UNIT_ID} />)
     expect(screen.getByText(/niedrigere Sauberkeit als Durchschnitt/)).toBeInTheDocument()
   })

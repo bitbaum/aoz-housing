@@ -12,7 +12,9 @@ const P = PORTAL_LABELS.preferences
 interface ResidentData {
   sleepSchedule: string
   noiseTolerance: number
-  cleanlinessLevel: number
+  cleanlinessPractice: number
+  cleanlinessExpectation: number
+  chaosTolerance: number
   socialStyle: string
   privacyNeed: number
   smokingStatus: string
@@ -233,14 +235,40 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
               />
             </div>
 
+            {/* Three separate questions: what I do, what I expect of others, and
+                how much mess I can live with. Asking only the first cannot tell
+                apart a tidy person who leaves others alone from one who will be
+                unhappy every week. */}
             <div>
-              <label className="label">{P.fields.cleanlinessLevel}</label>
-              <p className="text-xs text-ui-muted mb-2">{P.hints.cleanlinessLevel}</p>
+              <label className="label">{P.fields.cleanlinessPractice}</label>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.cleanlinessPractice}</p>
               <RatingScale
-                name="cleanlinessLevel"
-                defaultValue={resident.cleanlinessLevel}
-                lowLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).lowLabel}
-                highLabel={(RESIDENT_FACTORS.cleanlinessLevel as ScaleFactorDef).highLabel}
+                name="cleanlinessPractice"
+                defaultValue={resident.cleanlinessPractice}
+                lowLabel={(RESIDENT_FACTORS.cleanlinessPractice as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.cleanlinessPractice as ScaleFactorDef).highLabel}
+              />
+            </div>
+
+            <div>
+              <label className="label">{P.fields.cleanlinessExpectation}</label>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.cleanlinessExpectation}</p>
+              <RatingScale
+                name="cleanlinessExpectation"
+                defaultValue={resident.cleanlinessExpectation}
+                lowLabel={(RESIDENT_FACTORS.cleanlinessExpectation as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.cleanlinessExpectation as ScaleFactorDef).highLabel}
+              />
+            </div>
+
+            <div>
+              <label className="label">{P.fields.chaosTolerance}</label>
+              <p className="text-xs text-ui-muted mb-2">{P.hints.chaosTolerance}</p>
+              <RatingScale
+                name="chaosTolerance"
+                defaultValue={resident.chaosTolerance}
+                lowLabel={(RESIDENT_FACTORS.chaosTolerance as ScaleFactorDef).lowLabel}
+                highLabel={(RESIDENT_FACTORS.chaosTolerance as ScaleFactorDef).highLabel}
               />
             </div>
           </div>

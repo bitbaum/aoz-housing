@@ -15,6 +15,18 @@ export const APARTMENT_THRESHOLDS = {
   },
 
   /**
+   * Cleanliness fit is scored 0-100 by the directional model rather than by an
+   * absolute difference, so it needs its own bands. Lower score = more friction.
+   * @see lib/compatibility/cleanliness.ts
+   */
+  cleanlinessFit: {
+    BLOCKING: 40, // Someone will be persistently unhappy
+    HIGH: 60,
+    MEDIUM: 75,
+    HARMONIOUS: 95, // Nobody's expectation goes unmet
+  },
+
+  /**
    * Noise tolerance difference thresholds (1-5 scale)
    */
   noiseTolerance: {

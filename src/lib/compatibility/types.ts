@@ -15,6 +15,7 @@ import type {
   RecyclingKnowledge,
   ConflictStyle,
 } from '@prisma/client'
+import type { CleanlinessProfile } from './cleanliness'
 
 export type {
   AgeRange,
@@ -42,8 +43,11 @@ export interface ResidentProfile {
   // Lifestyle
   sleepSchedule: SleepSchedule
   noiseTolerance: number // 1-5
-  cleanlinessLevel: number // 1-5
   guestTolerance: number // 1-5
+  // Three separate cleanliness dimensions — see lib/compatibility/cleanliness.ts
+  cleanlinessPractice: number // 1-5: what this person keeps themselves
+  cleanlinessExpectation: number // 1-5: what they expect from others
+  chaosTolerance: number // 1-5: how much mess they can live with
 
   // Social
   socialStyle: SocialStyle
@@ -120,6 +124,13 @@ export interface ApartmentProfile {
   // Numeric attributes (averages)
   avgNoiseTolerance: number | null
   avgCleanlinessLevel: number | null
+  /**
+   * Individual cleanliness profiles of current residents. Cleanliness fit is
+   * directional and pairwise (see lib/compatibility/cleanliness.ts), so an
+   * average is not enough: averaging hides the single incompatible pairing
+   * that generates the incidents.
+   */
+  cleanlinessProfiles: CleanlinessProfile[]
   avgPrivacyNeed: number | null
   avgChoresContribution: number | null
 

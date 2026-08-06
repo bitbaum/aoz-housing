@@ -149,19 +149,60 @@ describe('calculateCompatibility — lifestyle', () => {
 
   describe('cleanliness', () => {
     it('same level → clean factor 100', () => {
-      const a = makeResident({ cleanlinessLevel: 4 })
-      const b = makeResident({ id: '2', cleanlinessLevel: 4 })
+      const a = makeResident({ cleanlinessPractice: 4 })
+      const b = makeResident({ id: '2', cleanlinessPractice: 4 })
       const result = calculateCompatibility(a, b)
       expect(result.lifestyle).toBe(100)
     })
 
-    it('diff of 3 → clean factor 40', () => {
-      const a = makeResident({ cleanlinessLevel: 1 })
-      const b = makeResident({ id: '2', cleanlinessLevel: 4 })
+    it('penalises the person whose expectation is not met, not the raw difference', () => {
+      // a keeps little order (1), b keeps a lot (4). Both expect a middling 3.
+      // b is let down by a; a is not let down by b — only that direction counts.
+      const a = makeResident({ cleanlinessPractice: 1 })
+      const b = makeResident({ id: '2', cleanlinessPractice: 4 })
       const result = calculateCompatibility(a, b)
-      // Sleep=100 (w35), noise=100 (w25), clean=100-3*20=40 (w30), guest=100 (w10)
-      // (100*35 + 100*25 + 40*30 + 100*10) / 100 = (3500+2500+1200+1000)/100 = 82
-      expect(result.lifestyle).toBe(82)
+
+      // clean = 100 - (3-1) * ((6-3)/5) * 25 = 70, weighted at 30 within lifestyle
+      // (100*35 + 100*25 + 70*30 + 100*10) / 100 = 91
+      expect(result.lifestyle).toBe(91)
+    })
+
+    it('sees no conflict between a tidy person who does not mind mess and a messy one', () => {
+      // The case the old symmetric model got flatly wrong: a difference of 4
+      // with zero friction, because nobody's expectation goes unmet.
+      const a = makeResident({
+        cleanlinessPractice: 5,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 5,
+      })
+      const b = makeResident({
+        id: '2',
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 5,
+      })
+      const result = calculateCompatibility(a, b)
+
+      expect(result.lifestyle).toBe(100)
+    })
+
+    it('flags the messy-but-demanding pairing the old model rated as a good match', () => {
+      // Identical practice, so the symmetric model scored this a perfect fit.
+      // In reality a demands far more than b gives, and cannot tolerate mess.
+      const a = makeResident({
+        cleanlinessPractice: 2,
+        cleanlinessExpectation: 5,
+        chaosTolerance: 1,
+      })
+      const b = makeResident({
+        id: '2',
+        cleanlinessPractice: 2,
+        cleanlinessExpectation: 2,
+        chaosTolerance: 4,
+      })
+      const result = calculateCompatibility(a, b)
+
+      expect(result.lifestyle).toBeLessThan(80)
     })
   })
 
@@ -459,8 +500,8 @@ describe('calculateCompatibility — risk', () => {
   })
 
   it('extreme cleanliness difference (>=3) → cleanliness risk', () => {
-    const a = makeResident({ cleanlinessLevel: 1 })
-    const b = makeResident({ id: '2', cleanlinessLevel: 4 })
+    const a = makeResident({ cleanlinessPractice: 1 })
+    const b = makeResident({ id: '2', cleanlinessPractice: 4 })
     const result = calculateCompatibility(a, b)
     // cleanliness_conflict: 30 * 0.2 = 6
     expect(result.risk).toBeGreaterThanOrEqual(6)
@@ -561,8 +602,8 @@ describe('calculateCompatibility — insights', () => {
   })
 
   it('cleanliness diff ≥ 3 → generates prediction with timeframe', () => {
-    const a = makeResident({ cleanlinessLevel: 1 })
-    const b = makeResident({ id: '2', cleanlinessLevel: 4 })
+    const a = makeResident({ cleanlinessPractice: 1 })
+    const b = makeResident({ id: '2', cleanlinessPractice: 4 })
     const result = calculateCompatibility(a, b)
     expect(result.predictions).toEqual(
       expect.arrayContaining([
@@ -572,8 +613,8 @@ describe('calculateCompatibility — insights', () => {
   })
 
   it('cleanliness diff = 2 → generates medium prediction', () => {
-    const a = makeResident({ cleanlinessLevel: 1 })
-    const b = makeResident({ id: '2', cleanlinessLevel: 3 })
+    const a = makeResident({ cleanlinessPractice: 1 })
+    const b = makeResident({ id: '2', cleanlinessPractice: 3 })
     const result = calculateCompatibility(a, b)
     expect(result.predictions).toEqual(
       expect.arrayContaining([

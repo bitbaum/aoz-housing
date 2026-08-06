@@ -198,7 +198,9 @@ export const PORTAL_LABELS = {
     fields: {
       sleepSchedule: 'Schlafrhythmus',
       noiseTolerance: 'Lärmtoleranz',
-      cleanlinessLevel: 'Sauberkeitsstandard',
+      cleanlinessPractice: 'Eigene Ordnung',
+      cleanlinessExpectation: 'Erwartung an andere',
+      chaosTolerance: 'Toleranz für Unordnung',
       socialStyle: 'Soziale Präferenz',
       privacyNeed: 'Privatsphäre',
       languages: 'Sprachen',
@@ -217,7 +219,9 @@ export const PORTAL_LABELS = {
     },
     hints: {
       noiseTolerance: 'Wie empfindlich bist du gegenüber Geräuschen?',
-      cleanlinessLevel: 'Wie wichtig ist dir Ordnung?',
+      cleanlinessPractice: 'Wie ordentlich hältst du deinen eigenen Bereich?',
+      cleanlinessExpectation: 'Wie ordentlich sollten die anderen sein?',
+      chaosTolerance: 'Wie gut kannst du mit Unordnung leben?',
       privacyNeed: 'Wie viel Rückzugsort brauchst du?',
       languages: 'Welche Sprachen sprichst du?',
       roommatePrefs: 'Optional: Hast du besondere Wünsche für deine Mitbewohner?',

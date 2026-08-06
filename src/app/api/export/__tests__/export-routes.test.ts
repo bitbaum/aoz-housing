@@ -74,7 +74,7 @@ describe('GET /api/export/residents', () => {
         familyStatus: 'SINGLE',
         sleepSchedule: 'STANDARD',
         noiseTolerance: 3,
-        cleanlinessLevel: 4,
+        cleanlinessPractice: 4,
         socialStyle: 'MODERATE',
         smokingStatus: 'NON_SMOKER',
         mobilityNeeds: 'NONE',

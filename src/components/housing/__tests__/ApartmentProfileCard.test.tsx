@@ -36,7 +36,7 @@ jest.mock('@/lib/utils', () => ({
 
 jest.mock('@/lib/config/resident-factors', () => ({
   RESIDENT_FACTORS: {
-    cleanlinessLevel: { type: 'scale', lowLabel: 'Niedrig', highLabel: 'Hoch' },
+    cleanlinessPractice: { type: 'scale', lowLabel: 'Niedrig', highLabel: 'Hoch' },
     noiseTolerance: { type: 'scale', lowLabel: 'Leise', highLabel: 'Laut' },
     privacyNeed: { type: 'scale', lowLabel: 'Offen', highLabel: 'Privat' },
     choresContribution: { type: 'scale', lowLabel: 'Wenig', highLabel: 'Viel' },
@@ -49,7 +49,7 @@ function makeResident(overrides: Partial<ResidentHouseholdProfile> & { id: strin
   return {
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
-    cleanlinessLevel: overrides.cleanlinessLevel ?? 3,
+    cleanlinessPractice: overrides.cleanlinessPractice ?? 3,
     noiseTolerance: overrides.noiseTolerance ?? 3,
     privacyNeed: overrides.privacyNeed ?? 3,
     choresContribution: overrides.choresContribution ?? 3,
@@ -122,8 +122,8 @@ describe('ApartmentProfileCard', () => {
   it('shows harmony score', () => {
     // Identical residents → zero std dev → score 100
     render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessLevel: 3, noiseTolerance: 3, privacyNeed: 3 }),
-      makeResident({ id: 'r2', cleanlinessLevel: 3, noiseTolerance: 3, privacyNeed: 3 }),
+      makeResident({ id: 'r1', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
+      makeResident({ id: 'r2', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
     ]} />)
     expect(screen.getByText('100%')).toBeInTheDocument()
   })
@@ -131,8 +131,8 @@ describe('ApartmentProfileCard', () => {
   it('displays lower harmony score when residents differ significantly', () => {
     // Max spread (1 and 5) → std dev = 2, avgStdDev = 2, score = max(0, 100 - 2*25) = 50
     render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessLevel: 1, noiseTolerance: 1, privacyNeed: 1 }),
-      makeResident({ id: 'r2', cleanlinessLevel: 5, noiseTolerance: 5, privacyNeed: 5 }),
+      makeResident({ id: 'r1', cleanlinessPractice: 1, noiseTolerance: 1, privacyNeed: 1 }),
+      makeResident({ id: 'r2', cleanlinessPractice: 5, noiseTolerance: 5, privacyNeed: 5 }),
     ]} />)
     expect(screen.getByText('50%')).toBeInTheDocument()
   })
@@ -149,8 +149,8 @@ describe('ApartmentProfileCard', () => {
 
   it('shows average scale value rounded to 1dp', () => {
     render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessLevel: 2 }),
-      makeResident({ id: 'r2', cleanlinessLevel: 4 }),
+      makeResident({ id: 'r1', cleanlinessPractice: 2 }),
+      makeResident({ id: 'r2', cleanlinessPractice: 4 }),
     ]} />)
     // Average = 3.0 → displayed as "3.0"
     expect(screen.getAllByText('3.0').length).toBeGreaterThanOrEqual(1)
@@ -164,9 +164,9 @@ describe('ApartmentProfileCard', () => {
 
   it('shows outlier warning for residents > 1.5 away from average', () => {
     render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessLevel: 1, code: 'RES-LOW' }),
-      makeResident({ id: 'r2', cleanlinessLevel: 3 }),
-      makeResident({ id: 'r3', cleanlinessLevel: 3 }),
+      makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-LOW' }),
+      makeResident({ id: 'r2', cleanlinessPractice: 3 }),
+      makeResident({ id: 'r3', cleanlinessPractice: 3 }),
     ]} />)
     // avg ≈ 2.33; 1 - 2.33 = -1.33 → not > 1.5 → no outlier
     // Let's use a more extreme case: [1, 1, 5] avg = 2.33; 5 - 2.33 = 2.67 > 1.5
@@ -176,9 +176,9 @@ describe('ApartmentProfileCard', () => {
 
   it('shows outlier warning code for extreme value', () => {
     render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessLevel: 1, code: 'RES-001' }),
-      makeResident({ id: 'r2', cleanlinessLevel: 1, code: 'RES-002' }),
-      makeResident({ id: 'r3', cleanlinessLevel: 5, code: 'RES-003' }),
+      makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-001' }),
+      makeResident({ id: 'r2', cleanlinessPractice: 1, code: 'RES-002' }),
+      makeResident({ id: 'r3', cleanlinessPractice: 5, code: 'RES-003' }),
     ]} />)
     // avg = 7/3 ≈ 2.33; RES-003 value 5 → |5 - 2.33| = 2.67 > 1.5 → outlier
     expect(screen.getByText(/RES-003/)).toBeInTheDocument()

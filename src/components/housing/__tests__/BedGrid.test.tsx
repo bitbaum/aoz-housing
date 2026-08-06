@@ -88,7 +88,7 @@ function makeOccupiedSpot(overrides: Partial<HousingSpot> = {}): HousingSpot {
           sleepSchedule: 'STANDARD',
           smokingStatus: 'NON_SMOKER',
           noiseTolerance: 3,
-          cleanlinessLevel: 3,
+          cleanlinessPractice: 3,
           privacyNeed: 3,
         },
       },

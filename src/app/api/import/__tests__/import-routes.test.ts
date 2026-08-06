@@ -72,7 +72,7 @@ function createRequest(formData: FormData): Request {
 const VALID_CSV_ROW =
   'RES-TEST,ADULT,MALE,SINGLE,STANDARD,3,4,MODERATE,NON_SMOKER,NONE,"de,en"'
 const CSV_HEADER =
-  'code,ageRange,gender,familyStatus,sleepSchedule,noiseTolerance,cleanlinessLevel,socialStyle,smokingStatus,mobilityNeeds,languages'
+  'code,ageRange,gender,familyStatus,sleepSchedule,noiseTolerance,cleanlinessPractice,socialStyle,smokingStatus,mobilityNeeds,languages'
 
 const STAFF_USER = {
   id: 'user-1',
@@ -257,7 +257,7 @@ describe('POST /api/import/residents', () => {
     mockResidentCreateMany.mockResolvedValue({ count: 1 })
     mockLogAudit.mockResolvedValue(undefined)
 
-    // noiseTolerance and cleanlinessLevel come as strings from CSV
+    // noiseTolerance and cleanlinessPractice come as strings from CSV
     const csv = `${CSV_HEADER}\nRES-COERCE,ADULT,MALE,SINGLE,STANDARD,3,4,MODERATE,NON_SMOKER,NONE,de`
     const file = createCSVFile(csv)
     const request = createRequest(createFormData(file))
@@ -267,7 +267,7 @@ describe('POST /api/import/residents', () => {
     expect(mockResidentCreateMany).toHaveBeenCalledWith({
       data: [expect.objectContaining({
         noiseTolerance: 3,
-        cleanlinessLevel: 4,
+        cleanlinessPractice: 4,
       })],
       skipDuplicates: true,
     })

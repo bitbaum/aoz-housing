@@ -39,7 +39,7 @@ function detectProblems(
   const issues: ResidentIssue[] = []
 
   // Calculate average values for the apartment
-  const avgCleanliness = residents.reduce((s, r) => s + r.cleanlinessLevel, 0) / residents.length
+  const avgCleanliness = residents.reduce((s, r) => s + r.cleanlinessPractice, 0) / residents.length
   const avgNoiseTolerance = residents.reduce((s, r) => s + r.noiseTolerance, 0) / residents.length
   const avgPrivacyNeed = residents.reduce((s, r) => s + r.privacyNeed, 0) / residents.length
 
@@ -71,8 +71,8 @@ function detectProblems(
       : 100
 
     // Check for scale outliers (more than 1.5 away from average)
-    if (Math.abs(resident.cleanlinessLevel - avgCleanliness) > 1.5) {
-      const direction = resident.cleanlinessLevel < avgCleanliness ? PROBLEM_DETECTION_LABELS.lowerCleanliness : PROBLEM_DETECTION_LABELS.higherCleanliness
+    if (Math.abs(resident.cleanlinessPractice - avgCleanliness) > 1.5) {
+      const direction = resident.cleanlinessPractice < avgCleanliness ? PROBLEM_DETECTION_LABELS.lowerCleanliness : PROBLEM_DETECTION_LABELS.higherCleanliness
       residentIssues.push(PROBLEM_DETECTION_LABELS.scaleCleanliness(direction))
     }
 

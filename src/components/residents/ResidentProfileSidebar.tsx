@@ -22,7 +22,7 @@ import { CollapsibleSection } from '@/components/ui/CollapsibleSection'
 export interface ResidentProfileSidebarProps {
   resident: Pick<Resident,
     | 'hasMedicalDocumentation' | 'medicalDocType' | 'roomSharingStatus'
-    | 'sleepSchedule' | 'noiseTolerance' | 'cleanlinessLevel' | 'socialStyle'
+    | 'sleepSchedule' | 'noiseTolerance' | 'cleanlinessPractice' | 'socialStyle'
     | 'privacyNeed' | 'smokingStatus' | 'languages' | 'culturalRegion'
     | 'choresContribution' | 'recyclingKnowledge' | 'mobilityNeeds' | 'supportLevel'
     | 'hasNightDisturbances' | 'needsQuietEnvironment' | 'hasSleepEquipment'
@@ -122,8 +122,8 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
           />
           <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldCleanliness}
-            value={resident.cleanlinessLevel}
-            factorKey="cleanlinessLevel"
+            value={resident.cleanlinessPractice}
+            factorKey="cleanlinessPractice"
           />
           <DetailRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSocialStyle}

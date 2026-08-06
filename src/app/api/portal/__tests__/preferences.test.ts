@@ -50,7 +50,7 @@ import { POST } from '../preferences/route'
 const VALID_PREFS: Record<string, string> = {
   sleepSchedule: 'STANDARD',
   noiseTolerance: '3',
-  cleanlinessLevel: '4',
+  cleanlinessPractice: '4',
   socialStyle: 'MODERATE',
   privacyNeed: '3',
   smokingStatus: 'NON_SMOKER',
@@ -125,7 +125,7 @@ describe('POST /api/portal/preferences', () => {
       data: expect.objectContaining({
         sleepSchedule: 'STANDARD',
         noiseTolerance: 3,
-        cleanlinessLevel: 4,
+        cleanlinessPractice: 4,
         socialStyle: 'MODERATE',
         privacyNeed: 3,
         smokingStatus: 'NON_SMOKER',

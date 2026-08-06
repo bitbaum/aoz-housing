@@ -52,7 +52,7 @@ describe('ResidentInputSchema', () => {
     familyStatus: 'SINGLE',
     sleepSchedule: 'STANDARD',
     noiseTolerance: 3,
-    cleanlinessLevel: 3,
+    cleanlinessPractice: 3,
     socialStyle: 'MODERATE',
     languages: ['German'],
     smokingStatus: 'NON_SMOKER',
@@ -103,7 +103,7 @@ describe('ResidentInputSchema', () => {
   it('rejects scale values above 5', () => {
     const result = ResidentInputSchema.safeParse({
       ...validInput,
-      cleanlinessLevel: 6,
+      cleanlinessPractice: 6,
     })
     expect(result.success).toBe(false)
   })
@@ -112,12 +112,12 @@ describe('ResidentInputSchema', () => {
     const result = ResidentInputSchema.safeParse({
       ...validInput,
       noiseTolerance: '4',
-      cleanlinessLevel: '2',
+      cleanlinessPractice: '2',
     })
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data.noiseTolerance).toBe(4)
-      expect(result.data.cleanlinessLevel).toBe(2)
+      expect(result.data.cleanlinessPractice).toBe(2)
     }
   })
 
@@ -619,7 +619,7 @@ describe('portalPreferencesSchema', () => {
     const result = portalPreferencesSchema.safeParse({
       sleepSchedule: 'STANDARD',
       noiseTolerance: 3,
-      cleanlinessLevel: 4,
+      cleanlinessPractice: 4,
       socialStyle: 'MODERATE',
       privacyNeed: 2,
       smokingStatus: 'NON_SMOKER',

@@ -25,10 +25,19 @@ model Resident {
   familyStatus FamilyStatus
 
   // Lifestyle preferences
-  sleepSchedule    SleepSchedule
-  noiseTolerance   Int // 1-5 scale
-  cleanlinessLevel Int // 1-5 scale
-  guestTolerance   Int           @default(3) // 1-5 scale
+  sleepSchedule  SleepSchedule
+  noiseTolerance Int // 1-5 scale
+  guestTolerance Int           @default(3) // 1-5 scale
+
+  // Cleanliness — three separate things that a single "cleanliness level" hides.
+  // Conflicts come from the gap BETWEEN people, and that gap is directional:
+  // what I expect of you, measured against what you actually do, softened by
+  // how much mess I can live with. Two tidy-but-relaxed people get along; one
+  // demanding person next to one relaxed person does not — even when both are
+  // "medium" on a single combined scale.
+  cleanlinessPractice    Int // 1-5: how much cleanliness this person keeps themselves
+  cleanlinessExpectation Int @default(3) // 1-5: how much they expect from others
+  chaosTolerance         Int @default(3) // 1-5: how much mess/disorder they can live with
 
   // Social factors
   socialStyle    SocialStyle

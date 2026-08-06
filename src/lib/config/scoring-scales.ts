@@ -18,10 +18,31 @@
 export const LIFESTYLE_SCALES = {
   /** Noise tolerance difference multiplier (0-5 scale) */
   noiseTolerance: 20,
-  /** Cleanliness level difference multiplier (0-5 scale) */
-  cleanlinessLevel: 20,
   /** Guest tolerance difference multiplier (0-5 scale) */
   guestTolerance: 20,
+} as const
+
+/**
+ * Cleanliness is scored directionally rather than by absolute difference —
+ * see lib/compatibility/cleanliness.ts for why. These constants shape that
+ * model.
+ */
+export const CLEANLINESS_MODEL = {
+  /** Upper bound of the 1-5 chaos-tolerance scale. */
+  toleranceScaleMax: 5,
+  /**
+   * Score penalty per point of felt friction. Max friction is 4 (expectation 5
+   * meeting practice 1 at tolerance 1), so 25 puts total incompatibility at 0.
+   */
+  frictionPenaltyPerPoint: 25,
+  /** Felt friction at or above this is worth telling staff about. */
+  notableFrictionThreshold: 1.5,
+  /** Expecting this much more from others than one gives is a double standard. */
+  doubleStandardThreshold: 2,
+  /** Expectation at or above this counts as demanding. */
+  highExpectationThreshold: 4,
+  /** Chaos tolerance at or below this counts as low. */
+  lowToleranceThreshold: 2,
 } as const
 
 /**

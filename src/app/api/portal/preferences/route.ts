@@ -45,7 +45,9 @@ export async function POST(request: NextRequest) {
       data: {
         sleepSchedule: data.sleepSchedule,
         noiseTolerance: data.noiseTolerance,
-        cleanlinessLevel: data.cleanlinessLevel,
+        cleanlinessPractice: data.cleanlinessPractice,
+        cleanlinessExpectation: data.cleanlinessExpectation,
+        chaosTolerance: data.chaosTolerance,
         socialStyle: data.socialStyle,
         privacyNeed: data.privacyNeed,
         smokingStatus: data.smokingStatus,
@@ -65,7 +67,7 @@ export async function POST(request: NextRequest) {
       entityId: resident.id,
       changes: {
         updatedBy: 'portal',
-        fields: ['sleepSchedule', 'noiseTolerance', 'cleanlinessLevel', 'socialStyle', 'privacyNeed', 'smokingStatus', 'languages', 'dietaryNeeds', 'roommatePreferences'],
+        fields: ['sleepSchedule', 'noiseTolerance', 'cleanlinessPractice', 'cleanlinessExpectation', 'chaosTolerance', 'socialStyle', 'privacyNeed', 'smokingStatus', 'languages', 'dietaryNeeds', 'roommatePreferences'],
       },
     })
 

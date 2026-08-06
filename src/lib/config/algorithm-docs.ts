@@ -272,8 +272,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     evidenceNote: 'Experimentelle Evidenz: RCT-Studien belegen kausalen Zusammenhang zwischen Schlaf und Konfliktverhalten.',
   },
 
-  cleanlinessLevel: {
-    factorId: 'cleanlinessLevel',
+  cleanlinessPractice: {
+    factorId: 'cleanlinessPractice',
     whyItMatters:
       'Unterschiedliche Sauberkeitsvorstellungen gehören zu den am häufigsten genannten Konfliktursachen. Was für eine Person akzeptabel ist, kann für eine andere störend sein.',
     researchFindings: [
