@@ -5,7 +5,8 @@
  * Checks for:
  * 1. Overdue incident follow-ups (MEDIUM/HIGH/CRITICAL, past nextFollowUpDate)
  * 2. Overdue resident check-ins (based on support level thresholds)
- * 3. House decisions whose discussion/voting window has elapsed, and conflict
+ * 3. The AOZ rule catalog (idempotent reconcile — the feature is inert without it)
+ * 4. House decisions whose discussion/voting window has elapsed, and conflict
  *    agreements whose review date passed without anyone checking them
  */
 
@@ -17,6 +18,7 @@ import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { daysBetween } from '@/lib/utils'
 import { advanceDueProposals, expireStaleAgreements } from '@/lib/governance/lifecycle'
+import { syncOrgRules } from '@/lib/governance/sync-org-rules'
 import { AGREEMENT_CONFIG } from '@/lib/config/conflict-resolution'
 
 // Route timeout for this cron run. Default is 10s; raise so the
@@ -52,6 +54,8 @@ export async function GET(request: Request) {
   const results = {
     incidents: 0,
     checkIns: 0,
+    orgRulesCreated: 0,
+    orgRulesAmended: 0,
     proposalsOpened: 0,
     proposalsClosed: 0,
     agreementsExpired: 0,
@@ -118,7 +122,23 @@ export async function GET(request: Request) {
       const sent = await notifyStaff(template.subject, template.html)
       if (sent) results.checkIns = overdueResidents.length
     }
-    // 3. Move house decisions through their lifecycle and expire unreviewed
+    // 3. Reconcile the AOZ rule catalog. Reference data, not demo data: without
+    // it the whole rules feature is inert (no topics to legislate on, an empty
+    // rule book), and relying on someone remembering to press a button in the
+    // admin UI is how a database ends up silently missing it. Idempotent, so
+    // this is a no-op on every run that changes nothing.
+    const ruleSync = await syncOrgRules(prisma)
+    results.orgRulesCreated = ruleSync.created
+    results.orgRulesAmended = ruleSync.amended
+    if (ruleSync.created > 0 || ruleSync.amended > 0) {
+      logger.info('AOZ rule catalog reconciled', {
+        created: ruleSync.created,
+        amended: ruleSync.amended,
+        amendedKeys: ruleSync.amendedKeys,
+      })
+    }
+
+    // 4. Move house decisions through their lifecycle and expire unreviewed
     // agreements. Both also happen lazily when someone opens the relevant page,
     // but a decision must reach its outcome even if nobody looks — and an
     // agreement nobody reviewed must not silently pass for one that worked.
