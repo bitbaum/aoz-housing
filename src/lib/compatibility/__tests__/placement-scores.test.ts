@@ -28,7 +28,9 @@ function makeResident(overrides: Partial<Resident> = {}): Resident {
     familyStatus: 'SINGLE',
     sleepSchedule: 'STANDARD',
     noiseTolerance: 3,
-    cleanlinessLevel: 3,
+    cleanlinessPractice: 3,
+    cleanlinessExpectation: 3,
+    chaosTolerance: 6 - (3),
     guestTolerance: 3,
     socialStyle: 'MODERATE',
     languages: ['German'],
@@ -140,17 +142,17 @@ describe('calculateAverageScores', () => {
     })
 
     it('highly compatible roommates score above 70', () => {
-      const resident = makeResident({ id: 'r1', code: 'RES-001', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessLevel: 3 })
-      const twin = makeResident({ id: 'r2', code: 'RES-002', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessLevel: 3 })
+      const resident = makeResident({ id: 'r1', code: 'RES-001', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessPractice: 3 })
+      const twin = makeResident({ id: 'r2', code: 'RES-002', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessPractice: 3 })
       const result = calculateAverageScores(resident, [makePlacementWith(twin)])
 
       expect(result.compatibilityScore).toBeGreaterThan(70)
     })
 
     it('incompatible roommates score lower than compatible ones', () => {
-      const resident = makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 1, cleanlinessLevel: 5 })
-      const good = makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 2, cleanlinessLevel: 4 })
-      const bad = makeResident({ id: 'r3', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5, cleanlinessLevel: 1, smokingStatus: 'INDOOR_SMOKER' })
+      const resident = makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 1, cleanlinessPractice: 5 })
+      const good = makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 2, cleanlinessPractice: 4 })
+      const bad = makeResident({ id: 'r3', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5, cleanlinessPractice: 1, smokingStatus: 'INDOOR_SMOKER' })
 
       const goodScore = calculateAverageScores(resident, [makePlacementWith(good)]).compatibilityScore
       const badScore = calculateAverageScores(resident, [makePlacementWith(bad)]).compatibilityScore

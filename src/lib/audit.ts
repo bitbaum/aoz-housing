@@ -32,6 +32,9 @@ export type AuditEntity =
   | 'HOUSEHOLD_TASK'
   | 'TRANSFER_REQUEST'
   | 'ACTIVITY'
+  | 'HOUSE_RULE'
+  | 'PROPOSAL'
+  | 'CONFLICT_AGREEMENT'
 
 interface AuditLogEntry {
   action: AuditAction

@@ -25,7 +25,7 @@ export type ResidentSummary = Pick<
   | 'sleepSchedule'
   | 'smokingStatus'
   | 'noiseTolerance'
-  | 'cleanlinessLevel'
+  | 'cleanlinessPractice'
   | 'privacyNeed'
 >
 
@@ -34,7 +34,7 @@ export type ResidentHouseholdProfile = Pick<
   Resident,
   | 'id'
   | 'code'
-  | 'cleanlinessLevel'
+  | 'cleanlinessPractice'
   | 'noiseTolerance'
   | 'privacyNeed'
   | 'choresContribution'

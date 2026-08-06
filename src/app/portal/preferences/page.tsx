@@ -40,7 +40,9 @@ export default async function PreferencesPage() {
         resident={{
           sleepSchedule: resident.sleepSchedule,
           noiseTolerance: resident.noiseTolerance,
-          cleanlinessLevel: resident.cleanlinessLevel,
+          cleanlinessPractice: resident.cleanlinessPractice,
+          cleanlinessExpectation: resident.cleanlinessExpectation,
+          chaosTolerance: resident.chaosTolerance,
           socialStyle: resident.socialStyle,
           privacyNeed: resident.privacyNeed,
           smokingStatus: resident.smokingStatus,

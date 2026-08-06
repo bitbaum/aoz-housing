@@ -54,7 +54,7 @@ function calculateProfileMetrics(residents: ResidentHouseholdProfile[]): Profile
   const n = residents.length
 
   // Calculate averages
-  const avgCleanliness = residents.reduce((sum, r) => sum + r.cleanlinessLevel, 0) / n
+  const avgCleanliness = residents.reduce((sum, r) => sum + r.cleanlinessPractice, 0) / n
   const avgNoiseTolerance = residents.reduce((sum, r) => sum + r.noiseTolerance, 0) / n
   const avgPrivacyNeed = residents.reduce((sum, r) => sum + r.privacyNeed, 0) / n
   const avgChoresContribution = residents.reduce((sum, r) => sum + r.choresContribution, 0) / n
@@ -80,7 +80,7 @@ function calculateProfileMetrics(residents: ResidentHouseholdProfile[]): Profile
     .sort((a, b) => b.count - a.count)
 
   // Calculate harmony score based on standard deviation of scale values
-  const cleanlinessStdDev = calculateStdDev(residents.map(r => r.cleanlinessLevel))
+  const cleanlinessStdDev = calculateStdDev(residents.map(r => r.cleanlinessPractice))
   const noiseStdDev = calculateStdDev(residents.map(r => r.noiseTolerance))
   const privacyStdDev = calculateStdDev(residents.map(r => r.privacyNeed))
 
@@ -157,8 +157,8 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldCleanliness}
               value={metrics.avgCleanliness}
-              values={residents.map(r => ({ code: r.code, value: r.cleanlinessLevel }))}
-              factorKey="cleanlinessLevel"
+              values={residents.map(r => ({ code: r.code, value: r.cleanlinessPractice }))}
+              factorKey="cleanlinessPractice"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldNoiseTolerance}

@@ -59,7 +59,7 @@ function makeResident(overrides: Partial<CompatibleResident> = {}): CompatibleRe
       sleepSchedule: 'STANDARD',
       smokingStatus: 'NON_SMOKER',
       noiseTolerance: 3,
-      cleanlinessLevel: 3,
+      cleanlinessPractice: 3,
       privacyNeed: 3,
     },
     fitScore: 75,

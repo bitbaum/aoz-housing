@@ -120,8 +120,11 @@ src/
 │   │   ├── incidents/     # Conflict tracking
 │   │   ├── matching/      # Compatibility UI
 │   │   ├── maintenance/   # Maintenance tickets
+│   │   ├── rules/         # AOZ rule catalog + staff decision queue
 │   │   └── transfer-requests/ # Staff transfer approval queue
 │   ├── portal/            # Resident self-service (simple layout)
+│   │   ├── rules/         # House rule book + acknowledgement
+│   │   ├── decisions/     # Proposals and voting
 │   │   └── transfer/      # Resident transfer request
 │   └── api/
 │       ├── cron/          # Daily notification cron
@@ -142,6 +145,7 @@ src/
     │   ├── housing-factors.ts
     │   └── thresholds.ts
     ├── compatibility/    # Scoring algorithm
+    ├── governance/       # House rules, decisions, conflict ladder (pure logic)
     ├── actions/          # Server actions (auth-guarded)
     ├── email/            # Email service (Resend) + templates
     ├── export/           # CSV export (papaparse)
@@ -432,7 +436,7 @@ import { STATUS_LABELS } from '@/lib/constants/labels'
 
 | Dimension | Weight | Factors |
 |-----------|--------|---------|
-| Lifestyle | 30% | Sleep schedule, noise tolerance, cleanliness |
+| Lifestyle | 30% | Sleep schedule, noise tolerance, cleanliness (3 dimensions), guests |
 | Social | 25% | Languages, social style, privacy needs |
 | Practical | 25% | Smoking, dietary, shared space preferences |
 | Risk | 20% | Historical conflict indicators |
@@ -446,6 +450,101 @@ import { STATUS_LABELS } from '@/lib/constants/labels'
 | 40-59 | Mittel | Yellow | Review carefully |
 | 20-39 | Niedrig | Orange | Avoid if possible |
 | 0-19 | Kritisch | Red | Do not place |
+
+### Cleanliness is directional (not a difference)
+
+Cleanliness is **three** fields, because a single scale conflates things that
+behave differently:
+
+| Field | Meaning |
+|-------|---------|
+| `cleanlinessPractice` | How much order this person keeps themselves |
+| `cleanlinessExpectation` | How much they expect from the people they live with |
+| `chaosTolerance` | How much mess and disorder they can live with |
+
+Friction is computed **per direction**: `max(0, expectation(A) − practice(B))`,
+damped by A's `chaosTolerance`. A pair scores as its *unhappier* member; a
+household scores by its *worst pairing*, never the average — averaging hides the
+one pairing that generates the incidents.
+
+Why it must not be symmetric:
+- tidy but relaxed + messy → **no friction** (nobody's expectation goes unmet),
+  yet an absolute-difference model calls it the worst possible match
+- two equally messy people, one demanding → **standing conflict**, yet a
+  difference model calls it a perfect match
+
+Staff also get the *direction* (who will be bothered by whom), plus
+`hasDoubleStandard` (expects more than they contribute) and `isHighMaintenance`.
+
+**Never** reintroduce `Math.abs(a.cleanliness - b.cleanliness)`.
+@see `src/lib/compatibility/cleanliness.ts`
+
+---
+
+## House Rules & Decisions (Governance)
+
+Two tiers, one rule book. `src/lib/governance/` holds the pure logic; server
+actions and API routes only do I/O.
+
+### The hierarchy is real, not two lists
+
+Every AOZ rule declares how much room a house has on that topic:
+
+| `delegation` | Meaning |
+|--------------|---------|
+| `FIXED` | Non-negotiable. No house rule may attach. |
+| `UNIT_MAY_STRENGTHEN` | AOZ rule is the minimum; a house may go stricter (staff confirm). |
+| `UNIT_DECIDES` | AOZ names the topic only; the house sets the norm. |
+
+A unit rule **always** points at the AOZ rule it specialises (`parentRuleId`),
+so every house rule is traceable to the topic that permits it. `checkUnitLegislation()`
+is the gate, and it runs when a proposal is *created* — never after a week of
+voting. "Stricter, never looser" cannot be verified on free text, so those cases
+route to a human instead of pretending to validate.
+
+### Who decides what
+
+`CATEGORY_DECISION_MODE` in `lib/config/decisions.ts` is the SSOT:
+
+- `RESIDENT_BINDING` — everyday life together (kitchen, cleaning, quiet times)
+- `RESIDENT_ADVISORY` — consequences beyond the house (guests, costs); staff confirm
+- `STAFF_ONLY` — **safety and non-discrimination are never put to a vote.** A
+  majority must not be able to vote away a minority's safety. Proposals on these
+  topics are still created, and staff must answer them.
+
+Decisions snapshot their policy (`threshold`, `quorumPercent`, `approvalPercent`,
+`eligibleVoterCount`) when voting opens, so a past decision stays explainable
+after the policy changes. Every tally carries a plain-German explanation that
+residents and staff both see — no black-box outcomes.
+
+A `BLOCK` (veto) stops a **consensus** proposal; under a majority threshold it
+counts as a No and raises a mediation flag, but does not veto — otherwise any
+one resident could block every house decision.
+
+### Acknowledgement (the cheapest prevention)
+
+Acknowledgements are per **rule version**. Amending a rule bumps its version and
+asks everyone bound by it to read it again — nobody is held to wording they never
+saw. Unit coverage is the *leading* indicator for norm conflicts; incidents are
+the lagging one.
+
+### Conflict resolution is a ladder
+
+`REPORTED → SELF_RESOLUTION → PEER_MEDIATION → STAFF_MEDIATION → FORMAL_MEASURE → CLOSED`
+
+Two hard limits, both deliberate:
+1. **Safety never starts at the bottom.** Safety reports and high/critical
+   incidents enter at staff level. Nobody is asked to negotiate with someone who
+   threatened them (`determineEntryStage`).
+2. **Escalation is not punishment.** Moving up a rung means the previous step did
+   not hold; it says nothing about fault.
+
+Each rung ends in a `ConflictAgreement` — concrete terms, named parties, a review
+date, and an explicit *did it hold?*. A broken agreement escalates; one that held
+closes the conflict and can seed a house rule. A free-text resolution note cannot
+be followed up on, which is why "resolved" used to mean nothing.
+
+---
 
 ### Blocking Conflicts
 

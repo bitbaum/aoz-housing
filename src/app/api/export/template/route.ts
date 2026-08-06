@@ -8,7 +8,7 @@ const IMPORT_HEADERS = [
   'familyStatus',
   'sleepSchedule',
   'noiseTolerance',
-  'cleanlinessLevel',
+  'cleanlinessPractice',
   'socialStyle',
   'smokingStatus',
   'mobilityNeeds',

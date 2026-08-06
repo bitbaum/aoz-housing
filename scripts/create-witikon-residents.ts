@@ -21,7 +21,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low tolerance
-      cleanlinessLevel: 5, // Very clean
+      cleanlinessPractice: 5,
+      cleanlinessExpectation: 5,
+      chaosTolerance: 6 - (5), // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High need
       languages: ['AR', 'EN'],
@@ -36,7 +38,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'NIGHT_OWL' as SleepSchedule,
       noiseTolerance: 5, // High tolerance
-      cleanlinessLevel: 3, // Average
+      cleanlinessPractice: 3,
+      cleanlinessExpectation: 3,
+      chaosTolerance: 6 - (3), // Average
       socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low need
       languages: ['ES', 'EN'],
@@ -51,7 +55,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'IRREGULAR' as SleepSchedule,
       noiseTolerance: 3, // Medium
-      cleanlinessLevel: 4, // Clean
+      cleanlinessPractice: 4,
+      cleanlinessExpectation: 4,
+      chaosTolerance: 6 - (4), // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['RU'],
@@ -66,7 +72,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low
-      cleanlinessLevel: 5, // Very clean
+      cleanlinessPractice: 5,
+      cleanlinessExpectation: 5,
+      chaosTolerance: 6 - (5), // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['SO'],
@@ -82,7 +90,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'NIGHT_OWL' as SleepSchedule,
       noiseTolerance: 5, // High
-      cleanlinessLevel: 2, // Messy
+      cleanlinessPractice: 2,
+      cleanlinessExpectation: 2,
+      chaosTolerance: 6 - (2), // Messy
       socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low
       languages: ['PT'],
@@ -97,7 +107,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'IRREGULAR' as SleepSchedule,
       noiseTolerance: 3, // Medium
-      cleanlinessLevel: 4, // Clean
+      cleanlinessPractice: 4,
+      cleanlinessExpectation: 4,
+      chaosTolerance: 6 - (4), // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['AR'],
@@ -112,7 +124,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 2, // Low
-      cleanlinessLevel: 4, // Clean
+      cleanlinessPractice: 4,
+      cleanlinessExpectation: 4,
+      chaosTolerance: 6 - (4), // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['EN'],
@@ -127,7 +141,9 @@ async function main() {
       familyStatus: 'SINGLE' as FamilyStatus,
       sleepSchedule: 'EARLY_BIRD' as SleepSchedule,
       noiseTolerance: 1, // Very low
-      cleanlinessLevel: 5, // Very clean
+      cleanlinessPractice: 5,
+      cleanlinessExpectation: 5,
+      chaosTolerance: 6 - (5), // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['JA'],

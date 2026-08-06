@@ -28,6 +28,10 @@ import {
 import { SuccessToast } from '@/components/ui/SuccessToast'
 import { FollowUpTimeline } from '@/components/incidents/FollowUpTimeline'
 import { FollowUpForm } from '@/components/incidents/FollowUpForm'
+import { ResolutionLadder } from '@/components/governance/ResolutionLadder'
+import { AgreementsPanel } from '@/components/governance/AgreementsPanel'
+import { recommendNextStep } from '@/lib/governance/escalation'
+import { AGREEMENT_CONFIG } from '@/lib/config/conflict-resolution'
 import { IncidentSidebar } from '@/components/incidents/IncidentSidebar'
 
 export const dynamic = 'force-dynamic'
@@ -70,12 +74,46 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       followUps: {
         orderBy: { createdAt: 'desc' },
       },
+      agreements: {
+        orderBy: { createdAt: 'desc' },
+        include: { parties: { include: { resident: { select: { id: true, code: true } } } } },
+      },
     },
   })
 
   if (!incident) {
     notFound()
   }
+
+  // What should happen next with this conflict, and why — computed, explainable,
+  // and shown to staff instead of left to memory.
+  const nextStep = recommendNextStep(
+    {
+      resolutionStage: incident.resolutionStage,
+      stageEnteredAt: incident.stageEnteredAt,
+      resolvedAt: incident.resolvedAt,
+    },
+    incident.agreements.map((a) => ({ status: a.status, reviewDate: a.reviewDate })),
+    new Date()
+  )
+
+  // Everyone the conflict touches can be party to an agreement about it.
+  const agreementCandidates = Array.from(
+    new Map(
+      [
+        ...(incident.reportedById && incident.reportedBy
+          ? [[incident.reportedById, incident.reportedBy.code] as const]
+          : []),
+        ...(incident.subjectId && incident.subject
+          ? [[incident.subjectId, incident.subject.code] as const]
+          : []),
+        ...incident.involvedResidents.map((i) => [i.residentId, i.resident.code] as const),
+      ].map(([id, code]) => [id, { id, code }])
+    ).values()
+  )
+
+  const defaultReviewDate = new Date()
+  defaultReviewDate.setDate(defaultReviewDate.getDate() + AGREEMENT_CONFIG.defaultReviewDays)
 
   const isOverdue = incident.nextFollowUpDate && incident.nextFollowUpDate < new Date() && !incident.resolvedAt
 
@@ -195,6 +233,31 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
               </div>
             )}
           </div>
+
+          <ResolutionLadder
+            incidentId={incident.id}
+            currentStage={incident.resolutionStage}
+            recommendation={nextStep}
+          />
+
+          <AgreementsPanel
+            incidentId={incident.id}
+            agreements={incident.agreements.map((agreement) => ({
+              id: agreement.id,
+              terms: agreement.terms,
+              status: agreement.status,
+              reviewDate: agreement.reviewDate.toISOString(),
+              outcomeNotes: agreement.outcomeNotes,
+              mediatorName: agreement.mediatorName,
+              parties: agreement.parties.map((party) => ({
+                residentId: party.residentId,
+                residentCode: party.resident.code,
+                acceptedAt: party.acceptedAt?.toISOString() ?? null,
+              })),
+            }))}
+            candidates={agreementCandidates}
+            defaultReviewDate={defaultReviewDate.toISOString().slice(0, 10)}
+          />
 
           {/* Follow-ups Timeline + Form */}
           <div className="card">

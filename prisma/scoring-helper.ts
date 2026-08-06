@@ -11,7 +11,7 @@ interface ResidentData {
   familyStatus: string
   sleepSchedule: string
   noiseTolerance: number
-  cleanlinessLevel: number
+  cleanlinessPractice: number
   socialStyle: string
   languages: string[]
   culturalRegion?: string | null
@@ -95,7 +95,7 @@ function calculateLifestyle(r1: ResidentData, r2: ResidentData): number {
   const noiseScore = 100 - noiseDiff * 20
 
   // Cleanliness (30%)
-  const cleanDiff = Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel)
+  const cleanDiff = Math.abs(r1.cleanlinessPractice - r2.cleanlinessPractice)
   const cleanScore = 100 - cleanDiff * 20
 
   return Math.round((sleepScore * 40 + noiseScore * 30 + cleanScore * 30) / 100)
@@ -182,7 +182,7 @@ function calculateRisk(r1: ResidentData, r2: ResidentData): number {
   ) totalRisk += 35 * 0.2
 
   // Extreme cleanliness difference
-  if (Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel) >= 3) totalRisk += 30 * 0.2
+  if (Math.abs(r1.cleanlinessPractice - r2.cleanlinessPractice) >= 3) totalRisk += 30 * 0.2
 
   // Room sharing need
   if (r1.roomSharingStatus === 'NEEDS_PRIVATE' || r2.roomSharingStatus === 'NEEDS_PRIVATE') {

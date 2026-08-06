@@ -26,7 +26,7 @@ describe('calculateApartmentProfile', () => {
   })
 
   it('single resident → averages equal that resident', () => {
-    const r = makeResident({ noiseTolerance: 4, cleanlinessLevel: 2, privacyNeed: 5, choresContribution: 1 })
+    const r = makeResident({ noiseTolerance: 4, cleanlinessPractice: 2, privacyNeed: 5, choresContribution: 1 })
     const profile = calculateApartmentProfile([r])
     expect(profile.isEmpty).toBe(false)
     expect(profile.currentResidentCount).toBe(1)
@@ -37,8 +37,8 @@ describe('calculateApartmentProfile', () => {
   })
 
   it('multiple residents → correct averages', () => {
-    const r1 = makeResident({ noiseTolerance: 2, cleanlinessLevel: 4 })
-    const r2 = makeResident({ id: '2', noiseTolerance: 4, cleanlinessLevel: 2 })
+    const r1 = makeResident({ noiseTolerance: 2, cleanlinessPractice: 4 })
+    const r2 = makeResident({ id: '2', noiseTolerance: 4, cleanlinessPractice: 2 })
     const profile = calculateApartmentProfile([r1, r2])
     expect(profile.avgNoiseTolerance).toBe(3)
     expect(profile.avgCleanlinessLevel).toBe(3)
@@ -125,13 +125,15 @@ describe('calculateApartmentFit', () => {
   })
 
   it('perfect match with apartment → high fitScore, no conflicts', () => {
-    const r1 = makeResident({ cleanlinessLevel: 3, noiseTolerance: 3 })
-    const r2 = makeResident({ id: '2', cleanlinessLevel: 3, noiseTolerance: 3 })
+    const r1 = makeResident({ cleanlinessPractice: 3, noiseTolerance: 3 })
+    const r2 = makeResident({ id: '2', cleanlinessPractice: 3, noiseTolerance: 3 })
     const profile = calculateApartmentProfile([r1, r2])
 
     const newResident = makeResident({
       id: 'new',
-      cleanlinessLevel: 3,
+      cleanlinessPractice: 3,
+      cleanlinessExpectation: 3,
+      chaosTolerance: 6 - (3),
       noiseTolerance: 3,
       sleepSchedule: 'STANDARD',
       smokingStatus: 'NON_SMOKER',
@@ -144,53 +146,87 @@ describe('calculateApartmentFit', () => {
   })
 
   describe('cleanliness conflicts', () => {
-    it('diff >= BLOCKING threshold → BLOCKING conflict', () => {
+    // Cleanliness fit is directional: what the household expects of the newcomer
+    // and what the newcomer expects of the household, each softened by how much
+    // mess that side can live with. Practice alone decides nothing, so these
+    // tests state all three dimensions.
+    it('flags a BLOCKING conflict when a demanding household meets a messy newcomer', () => {
       const residents = [
-        makeResident({ cleanlinessLevel: 5 }),
-        makeResident({ id: '2', cleanlinessLevel: 5 }),
+        makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 5, chaosTolerance: 1 }),
+        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 5, chaosTolerance: 1 }),
       ]
       const profile = calculateApartmentProfile(residents)
-      // avg = 5, new resident = 1, diff = 4 ≥ BLOCKING(3)
-      const newResident = makeResident({ id: 'new', cleanlinessLevel: 1 })
+      const newResident = makeResident({
+        id: 'new',
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 5,
+      })
+
       const result = calculateApartmentFit(newResident, profile)
-      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessLevel')
+      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessPractice')
+
       expect(cleanConflict).toBeDefined()
       expect(cleanConflict!.severity).toBe('BLOCKING')
     })
 
-    it('diff >= HIGH threshold but < BLOCKING → HIGH conflict', () => {
+    it('softens the same practice gap when the household tolerates mess', () => {
       const residents = [
-        makeResident({ cleanlinessLevel: 4 }),
-        makeResident({ id: '2', cleanlinessLevel: 4 }),
+        makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 4, chaosTolerance: 3 }),
+        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 4, chaosTolerance: 3 }),
       ]
       const profile = calculateApartmentProfile(residents)
-      // avg = 4, new resident = 2, diff = 2 ≥ HIGH(2) but < BLOCKING(3)
-      const newResident = makeResident({ id: 'new', cleanlinessLevel: 2 })
+      const newResident = makeResident({
+        id: 'new',
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 5,
+      })
+
       const result = calculateApartmentFit(newResident, profile)
-      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessLevel')
+      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessPractice')
+
       expect(cleanConflict).toBeDefined()
-      expect(cleanConflict!.severity).toBe('HIGH')
+      expect(cleanConflict!.severity).not.toBe('BLOCKING')
     })
 
-    it('diff >= MEDIUM threshold → MEDIUM conflict', () => {
+    it('raises no cleanliness conflict when nobody expects more than they get', () => {
+      // A four-point practice gap with zero friction — the case an absolute
+      // difference model reported as the worst possible match.
       const residents = [
-        makeResident({ cleanlinessLevel: 4 }),
-        makeResident({ id: '2', cleanlinessLevel: 4 }),
+        makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 1, chaosTolerance: 5 }),
+        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 1, chaosTolerance: 5 }),
       ]
       const profile = calculateApartmentProfile(residents)
-      // avg = 4, new = 2.5 → diff 1.5 ≥ MEDIUM(1.5)
-      // Since we can't set 2.5, use 3 residents with avg that gives 1.5 diff
-      // avg = 4, new = 2 → diff = 2, that's HIGH
-      // Let's use a fractional avg: residents with 3,4 → avg=3.5, new=2 → diff=1.5
-      const profile2 = calculateApartmentProfile([
-        makeResident({ cleanlinessLevel: 3 }),
-        makeResident({ id: '2', cleanlinessLevel: 4 }),
-      ])
-      const newResident = makeResident({ id: 'new', cleanlinessLevel: 2 })
-      const result = calculateApartmentFit(newResident, profile2)
-      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessLevel')
-      expect(cleanConflict).toBeDefined()
-      expect(cleanConflict!.severity).toBe('MEDIUM')
+      const newResident = makeResident({
+        id: 'new',
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 5,
+      })
+
+      const result = calculateApartmentFit(newResident, profile)
+
+      expect(result.conflicts.find(c => c.attribute === 'cleanlinessPractice')).toBeUndefined()
+      expect(result.strengths).toContain('Sauberkeitsansprüche passen zusammen')
+    })
+
+    it('warns about a newcomer who demands more order than they keep', () => {
+      const residents = [
+        makeResident({ cleanlinessPractice: 3, cleanlinessExpectation: 3, chaosTolerance: 3 }),
+        makeResident({ id: '2', cleanlinessPractice: 3, cleanlinessExpectation: 3, chaosTolerance: 3 }),
+      ]
+      const profile = calculateApartmentProfile(residents)
+      const newResident = makeResident({
+        id: 'new',
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 5,
+        chaosTolerance: 1,
+      })
+
+      const result = calculateApartmentFit(newResident, profile)
+
+      expect(result.warnings.some(w => w.includes('Putzplan'))).toBe(true)
     })
   })
 
@@ -256,13 +292,26 @@ describe('calculateApartmentFit', () => {
     it('BLOCKING conflict → -40 points', () => {
       // Create scenario with only a BLOCKING cleanliness conflict
       const residents = [
-        makeResident({ cleanlinessLevel: 5, languages: ['German'] }),
-        makeResident({ id: '2', cleanlinessLevel: 5, languages: ['German'] }),
+        makeResident({
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 1,
+          languages: ['German'],
+        }),
+        makeResident({
+          id: '2',
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 1,
+          languages: ['German'],
+        }),
       ]
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
         id: 'new',
-        cleanlinessLevel: 1,
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 5,
+        chaosTolerance: 1,
         languages: ['German'],
         sleepSchedule: 'STANDARD',
         smokingStatus: 'NON_SMOKER',
@@ -285,7 +334,9 @@ describe('calculateApartmentFit', () => {
       // Make a profile that generates many strengths
       const residents = [
         makeResident({
-          cleanlinessLevel: 3,
+          cleanlinessPractice: 3,
+          cleanlinessExpectation: 3,
+          chaosTolerance: 6 - (3),
           noiseTolerance: 3,
           sleepSchedule: 'STANDARD',
           socialStyle: 'MODERATE',
@@ -295,7 +346,9 @@ describe('calculateApartmentFit', () => {
         }),
         makeResident({
           id: '2',
-          cleanlinessLevel: 3,
+          cleanlinessPractice: 3,
+          cleanlinessExpectation: 3,
+          chaosTolerance: 6 - (3),
           noiseTolerance: 3,
           sleepSchedule: 'STANDARD',
           socialStyle: 'MODERATE',
@@ -307,7 +360,9 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
         id: 'new',
-        cleanlinessLevel: 3,
+        cleanlinessPractice: 3,
+        cleanlinessExpectation: 3,
+        chaosTolerance: 6 - (3),
         noiseTolerance: 3,
         sleepSchedule: 'STANDARD',
         socialStyle: 'MODERATE',
@@ -326,7 +381,9 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
         id: 'new',
-        cleanlinessLevel: 3,
+        cleanlinessPractice: 3,
+        cleanlinessExpectation: 3,
+        chaosTolerance: 6 - (3),
         noiseTolerance: 3,
         sleepSchedule: 'STANDARD',
         smokingStatus: 'NON_SMOKER',
@@ -350,7 +407,9 @@ describe('calculateApartmentFit', () => {
       // Place a very different person to get some conflicts
       const newResident = makeResident({
         id: 'new',
-        cleanlinessLevel: 1,
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 6 - (1),
         noiseTolerance: 1,
         sleepSchedule: 'EARLY_BIRD',
         smokingStatus: 'NON_SMOKER',
@@ -374,7 +433,9 @@ describe('calculateApartmentFit', () => {
       // Many conflicts → shouldn't go below 0
       const residents = [
         makeResident({
-          cleanlinessLevel: 5,
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 6 - (5),
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -385,7 +446,9 @@ describe('calculateApartmentFit', () => {
         }),
         makeResident({
           id: '2',
-          cleanlinessLevel: 5,
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 6 - (5),
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -396,7 +459,9 @@ describe('calculateApartmentFit', () => {
         }),
         makeResident({
           id: '3',
-          cleanlinessLevel: 5,
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 6 - (5),
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -409,7 +474,9 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const worstFit = makeResident({
         id: 'worst',
-        cleanlinessLevel: 1,
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 6 - (1),
         noiseTolerance: 5,
         sleepSchedule: 'EARLY_BIRD',
         smokingStatus: 'NON_SMOKER',

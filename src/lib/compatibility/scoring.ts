@@ -16,6 +16,7 @@ import type {
   FactorResult,
   ConflictStyle,
 } from './types'
+import { scoreCleanlinessPair } from './cleanliness'
 import {
   LIFESTYLE_SCALES,
   SOCIAL_SCALES,
@@ -95,14 +96,15 @@ function calculateLifestyleCompatibility(
     note: noiseDiff > 2 ? 'Unterschiedliche Lärmtoleranz' : undefined,
   })
 
-  // Cleanliness (closer values = better)
-  const cleanDiff = Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel)
-  const cleanScore = 100 - cleanDiff * LIFESTYLE_SCALES.cleanlinessLevel
+  // Cleanliness — directional, not an absolute difference. What matters is
+  // whether each person's expectation of the other is met, softened by how much
+  // disorder they can live with. See lib/compatibility/cleanliness.ts.
+  const cleanliness = scoreCleanlinessPair(r1, r2)
   factors.push({
     name: 'cleanliness',
-    score: cleanScore,
+    score: cleanliness.score,
     weight: DIMENSION_WEIGHTS.lifestyle.cleanliness,
-    note: cleanDiff > 2 ? 'Unterschiedliche Sauberkeitsstandards' : undefined,
+    note: cleanliness.note,
   })
 
   // Guest tolerance (closer values = better)
@@ -274,7 +276,7 @@ function calculateRiskFactors(
   }
 
   // Extreme cleanliness difference
-  if (Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel) >= 3) {
+  if (Math.abs(r1.cleanlinessPractice - r2.cleanlinessPractice) >= 3) {
     factors.push({ name: 'cleanliness_conflict', score: 30, weight: 1 })
     totalRisk += 30 * 0.2
   }
@@ -629,7 +631,7 @@ function generateInsights(
   const predictions: string[] = []
 
   // Cleanliness conflict prediction
-  const cleanDiff = Math.abs(r1.cleanlinessLevel - r2.cleanlinessLevel)
+  const cleanDiff = Math.abs(r1.cleanlinessPractice - r2.cleanlinessPractice)
   if (cleanDiff >= 3) {
     predictions.push('Hohe Wahrscheinlichkeit Sauberkeitskonflikt in Wochen 2-4')
   } else if (cleanDiff >= 2) {

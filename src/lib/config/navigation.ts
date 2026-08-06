@@ -17,6 +17,7 @@ import {
   UserCog,
   Bot,
   CalendarDays,
+  ScrollText,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -35,6 +36,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   settings: UserCog,
   bot: Bot,
   calendar: CalendarDays,
+  scroll: ScrollText,
 }
 
 export interface NavItem {
@@ -50,6 +52,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/placements', icon: 'puzzle', label: 'Platzierungen' },
   { href: '/matching', icon: 'heart', label: 'Matching' },
   { href: '/incidents', icon: 'alert', label: 'Vorfälle' },
+  { href: '/rules', icon: 'scroll', label: 'Regeln' },
   { href: '/maintenance', icon: 'wrench', label: 'Wartung' },
   { href: '/chores', icon: 'clipboard', label: 'Aufgaben' },
   { href: '/activities', icon: 'calendar', label: 'Aktivitäten' },
@@ -110,7 +113,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'help' | 'transfer'
+  labelKey: 'overview' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'help' | 'transfer' | 'rules' | 'decisions'
   /** Items in the `primary` set show as top-level links on desktop. Others
    *  only appear in the mobile drawer (avoiding desktop overflow). */
   primary?: boolean
@@ -120,6 +123,8 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal', labelKey: 'overview', primary: true },
   { href: '/portal/roommates', labelKey: 'roommates', primary: true },
   { href: '/portal/chores', labelKey: 'chores', primary: true },
+  { href: '/portal/rules', labelKey: 'rules', primary: true },
+  { href: '/portal/decisions', labelKey: 'decisions', primary: true },
   { href: '/portal/report', labelKey: 'report', primary: true },
   { href: '/portal/preferences', labelKey: 'preferences', primary: true },
   { href: '/portal/housing', labelKey: 'housing' },

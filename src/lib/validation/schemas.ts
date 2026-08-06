@@ -160,7 +160,9 @@ export const ResidentInputSchema = z.object({
   familyStatus: FamilyStatusSchema,
   sleepSchedule: SleepScheduleSchema,
   noiseTolerance: scaleSchema.default(3),
-  cleanlinessLevel: scaleSchema.default(3),
+  cleanlinessPractice: scaleSchema.default(3),
+  cleanlinessExpectation: scaleSchema.default(3),
+  chaosTolerance: scaleSchema.default(3),
   socialStyle: SocialStyleSchema,
   languages: z.array(z.string()).default([]),
   culturalRegion: z.string().optional().nullable(),
@@ -433,7 +435,11 @@ export const portalReportSchema = z.object({
 export const portalPreferencesSchema = z.object({
   sleepSchedule: SleepScheduleSchema,
   noiseTolerance: scaleSchema,
-  cleanlinessLevel: scaleSchema,
+  cleanlinessPractice: scaleSchema,
+  // Neutral by default: a resident who has not yet answered these two should
+  // keep a neutral profile, not have their whole preferences form rejected.
+  cleanlinessExpectation: scaleSchema.default(3),
+  chaosTolerance: scaleSchema.default(3),
   socialStyle: SocialStyleSchema,
   privacyNeed: scaleSchema,
   smokingStatus: SmokingStatusSchema,

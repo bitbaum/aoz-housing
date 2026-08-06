@@ -25,10 +25,19 @@ model Resident {
   familyStatus FamilyStatus
 
   // Lifestyle preferences
-  sleepSchedule    SleepSchedule
-  noiseTolerance   Int // 1-5 scale
-  cleanlinessLevel Int // 1-5 scale
-  guestTolerance   Int           @default(3) // 1-5 scale
+  sleepSchedule  SleepSchedule
+  noiseTolerance Int // 1-5 scale
+  guestTolerance Int           @default(3) // 1-5 scale
+
+  // Cleanliness — three separate things that a single "cleanliness level" hides.
+  // Conflicts come from the gap BETWEEN people, and that gap is directional:
+  // what I expect of you, measured against what you actually do, softened by
+  // how much mess I can live with. Two tidy-but-relaxed people get along; one
+  // demanding person next to one relaxed person does not — even when both are
+  // "medium" on a single combined scale.
+  cleanlinessPractice    Int // 1-5: how much cleanliness this person keeps themselves
+  cleanlinessExpectation Int @default(3) // 1-5: how much they expect from others
+  chaosTolerance         Int @default(3) // 1-5: how much mess/disorder they can live with
 
   // Social factors
   socialStyle    SocialStyle
@@ -91,6 +100,12 @@ model Resident {
 
   // Transfer requests
   transferRequests TransferRequest[]
+
+  // Governance — house rules, decisions, conflict agreements
+  ruleAcknowledgements RuleAcknowledgement[]
+  proposalsMade        Proposal[]            @relation("ProposalAuthor")
+  votes                Vote[]
+  agreementParties     AgreementParty[]
 
   @@index([status])
   @@index([ageRange, gender])
@@ -231,6 +246,10 @@ model HousingUnit {
   householdTasks      HouseholdTask[]
   transferRequests    TransferRequest[]
 
+  // Governance
+  houseRules HouseRule[]
+  proposals  Proposal[]
+
   @@index([status])
   @@index([totalBeds])
 }
@@ -358,7 +377,7 @@ model Placement {
   // Relations
   incidents        Incident[]
   checkIns         SatisfactionCheckIn[]
-  transferRequests TransferRequest[] @relation("TransferFromPlacement")
+  transferRequests TransferRequest[]     @relation("TransferFromPlacement")
 
   @@unique([residentId, housingUnitId, startDate])
   @@index([status])
@@ -439,13 +458,13 @@ model Incident {
   involvedResidents IncidentInvolvement[]
 
   // Details
-  date        DateTime
-  category    IncidentCategory @default(INTERPERSONAL)
-  type        IncidentType
-  severity    IncidentSeverity
-  description String
-  resolution  String?
-  resolvedAt  DateTime?
+  date             DateTime
+  category         IncidentCategory @default(INTERPERSONAL)
+  type             IncidentType
+  severity         IncidentSeverity
+  description      String
+  resolution       String?
+  resolvedAt       DateTime?
   mediationMinutes Int? // Staff time spent mediating this incident (for ROI tracking)
 
   // For algorithm improvement
@@ -456,6 +475,13 @@ model Incident {
   followUps        IncidentFollowUp[]
   nextFollowUpDate DateTime? // Scheduled next follow-up
   followUpPriority FollowUpPriority? // How urgent is follow-up
+
+  // Conflict-resolution ladder: which step this conflict is currently on.
+  // The ladder starts with the people involved and only escalates when a step
+  // does not hold — staff time goes to the cases that actually need it.
+  resolutionStage ResolutionStage     @default(REPORTED)
+  stageEnteredAt  DateTime            @default(now())
+  agreements      ConflictAgreement[]
 
   // Reverse relation for placements ended due to this incident
   conflictPlacements Placement[] @relation("PlacementConflictIncident")
@@ -1027,4 +1053,306 @@ model SystemConfig {
   pilotBaselineRelocationsPerMonth   Float?
   pilotBaselineMediationHoursPerWeek Float?
   pilotStartDate                     DateTime?
+}
+
+// =============================================================================
+// HOUSE RULES (two tiers: AOZ-wide floor + rules a house sets for itself)
+// =============================================================================
+
+// One table, two scopes. An ORG rule states the AOZ floor and declares how much
+// room a house has on that topic (`delegation`). A UNIT rule always points at
+// the ORG rule it specialises via `parentRule`, so every house rule is
+// traceable to the AOZ topic that permits it — and a house can never legislate
+// on a FIXED topic.
+model HouseRule {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  scope RuleScope
+
+  // Null for ORG rules, always set for UNIT rules.
+  housingUnit   HousingUnit? @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+  housingUnitId String?
+
+  // Stable identifier for ORG rules (from ORG_RULE_CATALOG). Code and tests
+  // reference rules by key, never by title text. Null for UNIT rules.
+  key String? @unique
+
+  category RuleCategory
+  title    String
+  body     String
+
+  // Only meaningful on ORG rules.
+  delegation RuleDelegation @default(FIXED)
+
+  parentRule   HouseRule?  @relation("RuleSpecialisation", fields: [parentRuleId], references: [id], onDelete: Restrict)
+  parentRuleId String?
+  childRules   HouseRule[] @relation("RuleSpecialisation")
+
+  status RuleStatus @default(ACTIVE)
+
+  // Bumped on every content change. Acknowledgements are per-version, so an
+  // amended rule must be re-acknowledged by everyone it binds — nobody is held
+  // to a rule they were never shown.
+  version Int @default(1)
+
+  effectiveFrom  DateTime  @default(now())
+  effectiveUntil DateTime?
+
+  // Provenance — a house rule exists because a decision adopted it.
+  adoptedByProposal   Proposal? @relation("ProposalAdoptedRule", fields: [adoptedByProposalId], references: [id], onDelete: SetNull)
+  adoptedByProposalId String?
+  createdByStaff      String?
+
+  acknowledgements RuleAcknowledgement[]
+  targetedBy       Proposal[]            @relation("ProposalTargetRule")
+  topicProposals   Proposal[]            @relation("ProposalTopicRule")
+
+  @@index([scope, status])
+  @@index([housingUnitId, status])
+  @@index([category])
+  @@index([parentRuleId])
+}
+
+enum RuleScope {
+  ORG // AOZ-wide
+  UNIT // Set by the residents of one housing unit
+}
+
+enum RuleDelegation {
+  FIXED // Non-negotiable; no unit rule may attach
+  UNIT_MAY_STRENGTHEN // AOZ rule is the minimum; unit may go stricter (staff confirms)
+  UNIT_DECIDES // AOZ names the topic only; the house sets the norm
+}
+
+enum RuleStatus {
+  ACTIVE
+  SUPERSEDED // Replaced by a newer rule
+  ARCHIVED // Repealed
+}
+
+enum RuleCategory {
+  SAFETY
+  RESPECT
+  NOISE
+  CLEANLINESS
+  KITCHEN
+  BATHROOM
+  GUESTS
+  SHARED_SPACES
+  COSTS
+  COMMUNICATION
+  OTHER
+}
+
+// A rule binds someone only once they have seen it, in a version they saw.
+// The single largest cause of "rule conflicts" is a norm nobody was told about.
+model RuleAcknowledgement {
+  id String @id @default(cuid())
+
+  rule   HouseRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  ruleId String
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  ruleVersion    Int
+  acknowledgedAt DateTime @default(now())
+
+  @@unique([ruleId, residentId, ruleVersion])
+  @@index([residentId])
+}
+
+// =============================================================================
+// DECISIONS (how a house agrees on its own rules)
+// =============================================================================
+
+model Proposal {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+  housingUnitId String
+
+  type     ProposalType
+  category RuleCategory
+  title    String
+  body     String
+
+  // For AMEND / REPEAL: the unit rule being changed.
+  targetRule   HouseRule? @relation("ProposalTargetRule", fields: [targetRuleId], references: [id], onDelete: Cascade)
+  targetRuleId String?
+
+  // For ADD_RULE: the AOZ topic this house rule specialises.
+  parentOrgRule   HouseRule? @relation("ProposalTopicRule", fields: [parentOrgRuleId], references: [id], onDelete: Restrict)
+  parentOrgRuleId String?
+
+  proposedByResident   Resident? @relation("ProposalAuthor", fields: [proposedByResidentId], references: [id], onDelete: SetNull)
+  proposedByResidentId String?
+  proposedByStaff      String?
+
+  status ProposalStatus @default(DISCUSSION)
+
+  // Snapshot of the decision policy in force when voting opened. Stored rather
+  // than derived so a past decision stays explainable after the policy changes.
+  decisionMode       DecisionMode
+  threshold          VoteThreshold
+  quorumPercent      Int
+  approvalPercent    Int
+  eligibleVoterCount Int           @default(0)
+
+  discussionEndsAt DateTime?
+  votingOpenedAt   DateTime?
+  votingEndsAt     DateTime?
+  decidedAt        DateTime?
+
+  // Plain-language record of how the result was reached. No black-box outcomes.
+  outcomeSummary String?
+
+  // Staff confirmation — required for advisory decisions and for anything that
+  // claims to strengthen an AOZ rule.
+  staffDecision  StaffDecision?
+  staffNotes     String?
+  staffUserId    String?
+  staffDecidedAt DateTime?
+
+  votes        Vote[]
+  adoptedRules HouseRule[]        @relation("ProposalAdoptedRule")
+  agreement    ConflictAgreement? @relation("AgreementRuleProposal")
+
+  @@index([housingUnitId, status])
+  @@index([status, votingEndsAt])
+}
+
+model Vote {
+  id String @id @default(cuid())
+
+  proposal   Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  proposalId String
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  choice VoteChoice
+  // Required for BLOCK — a veto must say why, so it can be mediated.
+  reason String?
+
+  castAt DateTime @default(now())
+
+  @@unique([proposalId, residentId])
+  @@index([residentId])
+}
+
+enum ProposalType {
+  ADD_RULE
+  AMEND_RULE
+  REPEAL_RULE
+  HOUSE_DECISION // A one-off decision that does not become a standing rule
+}
+
+enum ProposalStatus {
+  DISCUSSION // Open for comment, voting not yet started
+  VOTING
+  NEEDS_STAFF_CONFIRMATION // Residents agreed; staff must confirm
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  VETOED // Staff rejected (conflicts with an AOZ rule)
+  EXPIRED // Voting window closed without quorum
+}
+
+enum DecisionMode {
+  RESIDENT_BINDING // Residents decide; the result stands
+  RESIDENT_ADVISORY // Residents decide; staff must confirm
+  STAFF_ONLY // Residents may propose and comment; staff decides
+}
+
+enum VoteThreshold {
+  CONSENSUS // Everyone who votes agrees; a single block stops it
+  SUPERMAJORITY
+  SIMPLE_MAJORITY
+}
+
+enum VoteChoice {
+  YES
+  NO
+  ABSTAIN
+  BLOCK // "I cannot live with this" — consensus-breaking, must give a reason
+}
+
+enum StaffDecision {
+  CONFIRMED
+  VETOED
+}
+
+// =============================================================================
+// CONFLICT RESOLUTION
+// =============================================================================
+
+enum ResolutionStage {
+  REPORTED // Logged, no step taken yet
+  SELF_RESOLUTION // The people involved try to sort it out directly
+  PEER_MEDIATION // Other residents / house meeting help
+  STAFF_MEDIATION // Caseworker mediates
+  FORMAL_MEASURE // Transfer, written warning, authority involvement
+  CLOSED
+}
+
+// The output of a resolution step: a concrete, checkable commitment with a
+// review date. Free-text "resolution" notes cannot be followed up on; an
+// agreement can — and one that holds is the natural seed for a house rule.
+model ConflictAgreement {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  incidentId String
+
+  // What was agreed, in the words of the people involved.
+  terms String
+
+  // Who helped reach it (caseworker name, or a resident acting as peer mediator).
+  mediatorName String?
+
+  reviewDate   DateTime
+  status       AgreementStatus @default(PROPOSED)
+  outcomeNotes String?
+  reviewedAt   DateTime?
+
+  parties AgreementParty[]
+
+  // The feedback loop: an agreement that held can be proposed as a house rule,
+  // so the house learns from the conflict instead of repeating it.
+  ruleProposal   Proposal? @relation("AgreementRuleProposal", fields: [ruleProposalId], references: [id], onDelete: SetNull)
+  ruleProposalId String?   @unique
+
+  @@index([incidentId])
+  @@index([status, reviewDate])
+}
+
+model AgreementParty {
+  id String @id @default(cuid())
+
+  agreement   ConflictAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+  agreementId String
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  acceptedAt DateTime?
+  declinedAt DateTime?
+
+  @@unique([agreementId, residentId])
+  @@index([residentId])
+}
+
+enum AgreementStatus {
+  PROPOSED // Drafted, not everyone has accepted yet
+  ACCEPTED // All parties accepted; running until the review date
+  HELD // Reviewed and it worked
+  BROKEN // Reviewed and it did not hold — escalate
+  EXPIRED // Review date passed with no review
 }

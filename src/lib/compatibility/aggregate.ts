@@ -12,6 +12,7 @@ import type {
   ApartmentConflict,
   SleepSchedule,
 } from './types'
+import { hasDoubleStandard, scoreCleanlinessAgainstGroup } from './cleanliness'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
 import { FIT_SCORE_CONFIG } from '@/lib/config/thresholds'
 import {
@@ -34,6 +35,7 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
       isEmpty: true,
       avgNoiseTolerance: null,
       avgCleanlinessLevel: null,
+      cleanlinessProfiles: [],
       avgPrivacyNeed: null,
       avgChoresContribution: null,
       dominantSleepSchedule: null,
@@ -53,7 +55,7 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
 
   // Numeric averages
   const avgNoiseTolerance = average(residents.map(r => r.noiseTolerance))
-  const avgCleanlinessLevel = average(residents.map(r => r.cleanlinessLevel))
+  const avgCleanlinessLevel = average(residents.map(r => r.cleanlinessPractice))
   const avgPrivacyNeed = average(residents.map(r => r.privacyNeed))
   const avgChoresContribution = average(residents.map(r => r.choresContribution))
 
@@ -90,6 +92,11 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
     isEmpty: false,
     avgNoiseTolerance,
     avgCleanlinessLevel,
+    cleanlinessProfiles: residents.map(r => ({
+      cleanlinessPractice: r.cleanlinessPractice,
+      cleanlinessExpectation: r.cleanlinessExpectation,
+      chaosTolerance: r.chaosTolerance,
+    })),
     avgPrivacyNeed,
     avgChoresContribution,
     dominantSleepSchedule,
@@ -124,36 +131,41 @@ export function calculateApartmentFit(
     }
   }
 
-  // Check cleanliness compatibility
-  if (apartmentProfile.avgCleanlinessLevel !== null) {
-    const diff = Math.abs(newResident.cleanlinessLevel - apartmentProfile.avgCleanlinessLevel)
+  // Cleanliness fit is directional: it matters who expects what of whom, not
+  // how far apart two numbers are. Scored against each current resident
+  // individually — the worst pairing is what produces the incidents, and an
+  // average would hide it. See lib/compatibility/cleanliness.ts.
+  if (apartmentProfile.cleanlinessProfiles.length > 0) {
+    const fit = scoreCleanlinessAgainstGroup(newResident, apartmentProfile.cleanlinessProfiles)
 
-    if (diff >= APARTMENT_THRESHOLDS.cleanliness.BLOCKING) {
+    const severity =
+      fit.score <= APARTMENT_THRESHOLDS.cleanlinessFit.BLOCKING
+        ? 'BLOCKING'
+        : fit.score <= APARTMENT_THRESHOLDS.cleanlinessFit.HIGH
+          ? 'HIGH'
+          : fit.score <= APARTMENT_THRESHOLDS.cleanlinessFit.MEDIUM
+            ? 'MEDIUM'
+            : null
+
+    if (severity && fit.note) {
       conflicts.push({
-        attribute: 'cleanlinessLevel',
-        severity: 'BLOCKING',
-        message: `Extreme Sauberkeitsdifferenz: Person ${newResident.cleanlinessLevel}/5, Wohnung Ø ${apartmentProfile.avgCleanlinessLevel.toFixed(1)}/5`,
-        residentValue: newResident.cleanlinessLevel,
-        apartmentAverage: apartmentProfile.avgCleanlinessLevel,
+        attribute: 'cleanlinessPractice',
+        severity,
+        message: fit.note,
+        residentValue: newResident.cleanlinessPractice,
+        apartmentAverage: apartmentProfile.avgCleanlinessLevel ?? 0,
       })
-    } else if (diff >= APARTMENT_THRESHOLDS.cleanliness.HIGH) {
-      conflicts.push({
-        attribute: 'cleanlinessLevel',
-        severity: 'HIGH',
-        message: `Grosse Sauberkeitsdifferenz: Person ${newResident.cleanlinessLevel}/5, Wohnung Ø ${apartmentProfile.avgCleanlinessLevel.toFixed(1)}/5`,
-        residentValue: newResident.cleanlinessLevel,
-        apartmentAverage: apartmentProfile.avgCleanlinessLevel,
-      })
-    } else if (diff >= APARTMENT_THRESHOLDS.cleanliness.MEDIUM) {
-      conflicts.push({
-        attribute: 'cleanlinessLevel',
-        severity: 'MEDIUM',
-        message: `Moderate Sauberkeitsdifferenz: Person ${newResident.cleanlinessLevel}/5, Wohnung Ø ${apartmentProfile.avgCleanlinessLevel.toFixed(1)}/5`,
-        residentValue: newResident.cleanlinessLevel,
-        apartmentAverage: apartmentProfile.avgCleanlinessLevel,
-      })
-    } else if (diff <= 0.5) {
-      strengths.push(`Ähnliches Sauberkeitsniveau (${newResident.cleanlinessLevel}/5)`)
+    } else if (fit.score >= APARTMENT_THRESHOLDS.cleanlinessFit.HARMONIOUS) {
+      strengths.push('Sauberkeitsansprüche passen zusammen')
+    }
+
+    // Worth naming even when the score is acceptable: someone who expects more
+    // than they contribute tends to produce repeated complaints rather than one
+    // clear conflict, which is hard to see from incident reports alone.
+    if (hasDoubleStandard(newResident)) {
+      warnings.push(
+        'Erwartet mehr Ordnung von anderen, als sie/er selbst hält — Putzplan im Haus früh klären'
+      )
     }
   }
 

@@ -1,0 +1,75 @@
+import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { prisma } from '@/lib/db'
+import { requireResidentCookie } from '@/lib/portal-auth'
+import { getOutstandingRules, getRuleBook } from '@/lib/governance/queries'
+import { AcknowledgeRulesPanel } from '@/components/governance/AcknowledgeRulesPanel'
+import { RuleBookView } from '@/components/governance/RuleBookView'
+import { PORTAL_LABELS } from '@/lib/constants/labels/portal'
+
+export const metadata: Metadata = { title: 'Hausregeln' }
+export const dynamic = 'force-dynamic'
+
+export default async function PortalRulesPage() {
+  const residentCode = await requireResidentCookie('/portal')
+
+  const resident = await prisma.resident.findUnique({
+    where: { code: residentCode },
+    include: { placements: { where: { status: 'ACTIVE' }, take: 1 } },
+  })
+
+  if (!resident) redirect('/portal')
+
+  const placement = resident.placements[0]
+  if (!placement) {
+    return (
+      <div>
+        <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">
+          {PORTAL_LABELS.pages.rules}
+        </h1>
+        <p className="text-ui-muted">
+          Sobald du einer Unterkunft zugeteilt bist, findest du hier die Regeln deines Hauses.
+        </p>
+      </div>
+    )
+  }
+
+  const [ruleBook, outstanding] = await Promise.all([
+    getRuleBook(placement.housingUnitId),
+    getOutstandingRules(resident.id, placement.housingUnitId),
+  ])
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-xl font-bold text-ui-text sm:text-2xl">{PORTAL_LABELS.pages.rules}</h1>
+        <p className="mt-2 text-sm leading-6 text-ui-muted">
+          Oben stehen die AOZ-Regeln — sie gelten in allen Unterkünften. Darunter steht, was dein
+          Haus selbst beschlossen hat. Bei manchen Themen könnt ihr im Haus mitbestimmen.
+        </p>
+        <Link
+          href="/portal/decisions"
+          className="mt-2 inline-flex min-h-[44px] items-center text-sm text-aoz-primary hover:underline"
+        >
+          Zu den Beschlüssen und Abstimmungen →
+        </Link>
+      </header>
+
+      {/* Placed first on purpose: an unread rule is the single most common cause
+          of a "conflict" that is really just a norm nobody communicated. */}
+      {outstanding.length > 0 && (
+        <AcknowledgeRulesPanel
+          rules={outstanding.map((o) => ({
+            id: o.rule.id,
+            title: o.rule.title,
+            body: o.rule.body,
+            isAmendment: o.isAmendment,
+          }))}
+        />
+      )}
+
+      <RuleBookView ruleBook={ruleBook} outstandingRuleIds={outstanding.map((o) => o.rule.id)} />
+    </div>
+  )
+}

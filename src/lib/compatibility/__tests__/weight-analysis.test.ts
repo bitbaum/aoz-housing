@@ -34,7 +34,9 @@ describe('Weight balance analysis', () => {
     const baseline = makeResident({
       sleepSchedule: 'STANDARD',
       noiseTolerance: 3,
-      cleanlinessLevel: 3,
+      cleanlinessPractice: 3,
+      cleanlinessExpectation: 3,
+      chaosTolerance: 6 - (3),
       socialStyle: 'MODERATE',
       languages: ['German'],
       smokingStatus: 'NON_SMOKER',
@@ -46,12 +48,16 @@ describe('Weight balance analysis', () => {
       const smallDiff = makeResident({
         id: 'small',
         noiseTolerance: 4, // diff of 1
-        cleanlinessLevel: 4, // diff of 1
+        cleanlinessPractice: 4,
+        cleanlinessExpectation: 4,
+        chaosTolerance: 6 - (4), // diff of 1
       })
       const largeDiff = makeResident({
         id: 'large',
         noiseTolerance: 5, // diff of 2
-        cleanlinessLevel: 1, // diff of 2
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 6 - (1), // diff of 2
         sleepSchedule: 'NIGHT_OWL',
       })
 
@@ -113,14 +119,18 @@ describe('Weight balance analysis', () => {
       const allLow = makeResident({
         id: 'low',
         noiseTolerance: 1,
-        cleanlinessLevel: 1,
+        cleanlinessPractice: 1,
+        cleanlinessExpectation: 1,
+        chaosTolerance: 6 - (1),
         privacyNeed: 1,
         choresContribution: 1,
       })
       const allHigh = makeResident({
         id: 'high',
         noiseTolerance: 5,
-        cleanlinessLevel: 5,
+        cleanlinessPractice: 5,
+        cleanlinessExpectation: 5,
+        chaosTolerance: 6 - (5),
         privacyNeed: 5,
         choresContribution: 5,
       })
@@ -145,7 +155,9 @@ describe('Weight balance analysis', () => {
       const manySmall = makeResident({
         id: 'many',
         noiseTolerance: 4, // +1
-        cleanlinessLevel: 4, // +1
+        cleanlinessPractice: 4,
+        cleanlinessExpectation: 4,
+        chaosTolerance: 6 - (4), // +1
         privacyNeed: 4, // +1
         choresContribution: 4, // +1
         sleepSchedule: 'EARLY_BIRD', // adjacent
@@ -166,7 +178,7 @@ describe('Weight balance analysis', () => {
         makeResident({ id: '1', sleepSchedule: 'NIGHT_OWL' }),
         makeResident({ id: '2', smokingStatus: 'INDOOR_SMOKER' }),
         makeResident({ id: '3', languages: ['Arabic'], socialStyle: 'EXTROVERTED' }),
-        makeResident({ id: '4', cleanlinessLevel: 1, noiseTolerance: 5 }),
+        makeResident({ id: '4', cleanlinessPractice: 1, noiseTolerance: 5 }),
       ]
 
       const scores = profiles.map(p => calculateCompatibility(base, p).overall)

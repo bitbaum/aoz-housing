@@ -14,7 +14,7 @@ import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
  * Config-driven comparison attributes (SSOT)
  */
 const COMPARISON_ATTRIBUTES = [
-  { key: 'cleanlinessLevel', label: 'Sauberkeit', type: 'numeric', avgKey: 'avgCleanlinessLevel', threshold: 'cleanliness' },
+  { key: 'cleanlinessPractice', label: 'Sauberkeit', type: 'numeric', avgKey: 'avgCleanlinessLevel', threshold: 'cleanliness' },
   { key: 'noiseTolerance', label: 'Lärmtoleranz', type: 'numeric', avgKey: 'avgNoiseTolerance', threshold: 'noiseTolerance' },
   { key: 'choresContribution', label: 'Hausarbeit', type: 'numeric', avgKey: 'avgChoresContribution', threshold: 'choresContribution' },
   { key: 'privacyNeed', label: 'Privatsphäre', type: 'numeric', avgKey: 'avgPrivacyNeed' },
