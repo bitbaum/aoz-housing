@@ -5,20 +5,24 @@
  *   npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
  *
  * Or with custom code:
- *   ADMIN_CODE=AOZ-CUSTOM npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+ *   ADMIN_CODE=AOCH-CUSTOM npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
  */
 
 import { PrismaClient } from '@prisma/client'
+// Relative, not '@/': this runs under ts-node, which does not apply tsconfig paths.
+import { BRAND } from '../src/lib/config/brand'
 
 const prisma = new PrismaClient()
 
-const ADMIN_CODE = process.env.ADMIN_CODE || 'AOZ-ADMIN1'
+// Derived from the active brand — a rebrand must not silently orphan the seeded
+// admin, which is exactly what happened when the default moved to AOCH.
+const ADMIN_CODE = process.env.ADMIN_CODE || `${BRAND.codePrefix}ADMIN1`
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Administrator'
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@aoz.ch'
 
 function generateStaffCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let code = 'AOZ-'
+  let code = BRAND.codePrefix
   for (let i = 0; i < 6; i++) {
     code += chars[Math.floor(Math.random() * chars.length)]
   }

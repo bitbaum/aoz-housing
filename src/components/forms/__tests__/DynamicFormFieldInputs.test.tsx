@@ -1,17 +1,45 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import {
-  TextField,
-  EnumField,
-  ScaleField,
-  BooleanField,
-  MultiField,
+  TextField as ControlledTextField,
+  EnumField as ControlledEnumField,
+  ScaleField as ControlledScaleField,
+  BooleanField as ControlledBooleanField,
+  MultiField as ControlledMultiField,
 } from '../DynamicFormFieldInputs'
+
+// These inputs are controlled — the AI assistant and the user write to one
+// shared store, which is only possible if state is lifted out of them. These
+// tests are about rendering, not editing, so `onChange` is defaulted once here
+// rather than added to every call site below.
+const noop = () => {}
+
+type ChangeOptional<P extends { onChange: unknown }> = Omit<P, 'onChange'> & {
+  onChange?: P['onChange']
+}
+type PropsOf<F extends (props: never) => unknown> = Parameters<F>[0]
+
+const TextField = (props: ChangeOptional<PropsOf<typeof ControlledTextField>>) => (
+  <ControlledTextField onChange={noop} {...props} />
+)
+const EnumField = (props: ChangeOptional<PropsOf<typeof ControlledEnumField>>) => (
+  <ControlledEnumField onChange={noop} {...props} />
+)
+const ScaleField = (props: ChangeOptional<PropsOf<typeof ControlledScaleField>>) => (
+  <ControlledScaleField onChange={noop} {...props} />
+)
+const BooleanField = (props: ChangeOptional<PropsOf<typeof ControlledBooleanField>>) => (
+  <ControlledBooleanField onChange={noop} {...props} />
+)
+const MultiField = (props: ChangeOptional<PropsOf<typeof ControlledMultiField>>) => (
+  <ControlledMultiField onChange={noop} {...props} />
+)
 
 // --- Mocks ---
 
 jest.mock('@/lib/constants/labels', () => ({
   UI_LABELS: { selectPlaceholder: 'Bitte wählen' },
+  AI_FORM_LABELS: { aiMarker: 'KI', aiMarkerTitle: 'Von der KI ausgefüllt — bitte prüfen' },
   FORM_VALIDATION_UX_LABELS: {
     readOnly: 'Kann nicht geändert werden',
     requiredFields: 'Bitte prüfen Sie die markierten Pflichtfelder.',
@@ -66,10 +94,13 @@ describe('TextField', () => {
     expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA')
   })
 
-  it('shows default value', () => {
+  it('does not apply the factor default itself', () => {
+    // Defaults are resolved once, in DynamicFormField via factorDisplayValue,
+    // so that "unanswered" stays distinguishable from "answered with the
+    // default". These inputs render exactly what they are handed.
     const f = { ...textFactor, default: 'Standardwert' }
     render(<TextField factor={f} />)
-    expect(screen.getByRole('textbox')).toHaveValue('Standardwert')
+    expect(screen.getByRole('textbox')).toHaveValue('')
   })
 
   it('shows provided value over default', () => {
@@ -184,10 +215,9 @@ describe('ScaleField (radio buttons, max ≤ 5)', () => {
     expect(screen.getByText('Laut')).toBeInTheDocument()
   })
 
-  it('pre-checks default value', () => {
+  it('checks nothing without a value — defaults belong to DynamicFormField', () => {
     render(<ScaleField factor={scaleFactor} />)
-    const radio3 = screen.getByRole('radio', { name: '3' })
-    expect(radio3).toBeChecked()
+    expect(screen.getByRole('radio', { name: '3' })).not.toBeChecked()
   })
 
   it('pre-checks provided value', () => {
@@ -228,9 +258,9 @@ describe('ScaleField (number input, max > 5)', () => {
     expect(screen.getByRole('spinbutton')).toBeInTheDocument()
   })
 
-  it('shows the default value', () => {
+  it('stays empty without a value — defaults belong to DynamicFormField', () => {
     render(<ScaleField factor={largeFactor} />)
-    expect(screen.getByRole('spinbutton')).toHaveValue(10)
+    expect(screen.getByRole('spinbutton')).toHaveValue(null)
   })
 
   it('shows provided value', () => {
@@ -265,10 +295,12 @@ describe('BooleanField', () => {
     expect(screen.getByRole('checkbox')).not.toBeChecked()
   })
 
-  it('is checked when default is true', () => {
+  it('is unchecked without a value even when the default is true', () => {
+    // The important half of the contract: an unanswered tri-state must not
+    // render as a "Ja" that nobody actually gave.
     const f = { ...boolFactor, default: true }
     render(<BooleanField factor={f} />)
-    expect(screen.getByRole('checkbox')).toBeChecked()
+    expect(screen.getByRole('checkbox')).not.toBeChecked()
   })
 
   it('is checked when value prop is true', () => {
@@ -319,12 +351,10 @@ describe('MultiField', () => {
     expect(screen.getByText('Arabisch')).toBeInTheDocument()
   })
 
-  it('pre-checks default values', () => {
+  it('checks nothing without a value — defaults belong to DynamicFormField', () => {
     render(<MultiField factor={multiFactor} />)
-    const deCheckbox = screen.getByRole('checkbox', { name: 'Deutsch' })
-    expect(deCheckbox).toBeChecked()
-    const enCheckbox = screen.getByRole('checkbox', { name: 'Englisch' })
-    expect(enCheckbox).not.toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'Deutsch' })).not.toBeChecked()
+    expect(screen.getByRole('checkbox', { name: 'Englisch' })).not.toBeChecked()
   })
 
   it('pre-checks provided value array', () => {

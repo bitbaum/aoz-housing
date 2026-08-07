@@ -1,6 +1,7 @@
 import { request, FullConfig } from '@playwright/test'
 import fs from 'fs'
 import path from 'path'
+import { BRAND } from '../src/lib/config/brand'
 
 const AUTH_DIR = path.join(process.cwd(), 'tests', '.auth')
 const STAFF_STATE_PATH = path.join(AUTH_DIR, 'staff.json')
@@ -15,7 +16,7 @@ export default async function globalSetup(config: FullConfig) {
 
   const ctx = await request.newContext({ baseURL })
 
-  const staffCode = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
+  const staffCode = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
 
   // Login with staff code (assumes DB is seeded with this user).
   //

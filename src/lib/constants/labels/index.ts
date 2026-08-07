@@ -7,6 +7,7 @@
  */
 
 export { getLabel } from './helpers'
+export * from './ai-forms'
 export * from './app'
 export * from './incidents'
 export * from './residents'

@@ -59,14 +59,17 @@ jest.mock('@/lib/config/housing-factors', () => ({
   },
 }))
 
+const codeFactor = { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 }
+
 jest.mock('@/lib/config/resident-factors', () => ({
   RESIDENT_FORM_SECTIONS: [
     { id: 'basic', label: 'Stammdaten', order: 1 },
   ],
+  // The AI field registry and the form's starting values are both derived from
+  // RESIDENT_FACTORS, so the mock has to provide it too.
+  RESIDENT_FACTORS: { code: codeFactor },
   getFactorsBySection: (id: string) => {
-    if (id === 'basic') return [
-      { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 },
-    ]
+    if (id === 'basic') return [codeFactor]
     return []
   },
 }))
@@ -78,6 +81,20 @@ jest.mock('@/lib/constants', () => ({
     medDocCheckboxLabel: 'Medizinische Dokumentation vorhanden',
     medDocCheckboxDesc: 'Ärztliche Bestätigung erforderlich',
     medDocTypeLabel: 'Art der Berechtigung',
+  },
+  AI_FORM_LABELS: {
+    fillTitle: 'Aus Gesprächsnotizen ausfüllen',
+    fillHint: 'Beschreibe das Gespräch.',
+    fillPlaceholder: 'z.B. Frau, 34…',
+    fillSubmit: 'Ausfüllen',
+    refineTitle: 'Änderung beschreiben',
+    refineHint: 'Sag, was anders sein soll.',
+    refinePlaceholder: 'z.B. Lärmtoleranz eher 2',
+    refineSubmit: 'Übernehmen',
+    working: 'Einen Moment…',
+    undo: 'Rückgängig',
+    changedOne: '1 Feld aktualisiert',
+    changedMany: (count: number) => `${count} Felder aktualisiert`,
   },
 }))
 
