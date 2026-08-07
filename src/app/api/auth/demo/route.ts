@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
-import { checkRateLimit } from '@/lib/auth/rate-limit'
+import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { setResidentCookie } from '@/lib/portal-auth'
 
@@ -64,6 +64,12 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    // Count the SUCCESS. loginByCode already records failed codes, but the
+    // thing this endpoint throttles is session issuance, and a demo code is
+    // valid by definition — so without this one IP could mint unlimited
+    // sessions from a known-good code while the counter stayed at zero.
+    recordLoginAttempt(clientIp)
 
     if (result.type === 'staff') {
       await setSessionCookie(result.user)
