@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { BRAND } from '../src/lib/config/brand'
 import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
@@ -7,7 +8,7 @@ test.describe('Dashboard', () => {
   test('dashboard loads with action-oriented content', async ({ page }) => {
     await page.goto('/')
 
-    await expect(page).toHaveTitle(/AOZ/)
+    await expect(page).toHaveTitle(new RegExp(BRAND.shortName))
 
     // Scoped to <main>: MobileNav renders the whole nav list into the DOM at
     // every viewport and only hides it with CSS, so an unscoped `.first()`
