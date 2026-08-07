@@ -3,15 +3,9 @@ import Anthropic from '@anthropic-ai/sdk'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { checkRateLimit } from '@/lib/auth/rate-limit'
+import { getAnthropic, getAnthropicModel, hasAnthropicKey } from '@/lib/ai/anthropic'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
-
-// Lazy-init so a missing ANTHROPIC_API_KEY in dev doesn't crash module-load.
-let _client: Anthropic | null = null
-function getAnthropic(): Anthropic {
-  if (!_client) _client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  return _client
-}
 
 /** Server-side cap on per-tool result size, regardless of what the LLM asks for. */
 const MAX_TOOL_LIMIT = 25
@@ -237,11 +231,8 @@ async function executeTool(name: string, rawInput: unknown): Promise<unknown> {
 }
 
 export async function POST(request: Request) {
-  // Imported lazily: a module-scope import of '@/lib/env' runs its production
-  // env validation during `next build` page-data collection (no env in CI).
-  const { env } = await import('@/lib/env')
-  const anthropicModel = env.ANTHROPIC_MODEL
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const anthropicModel = await getAnthropicModel()
+  if (!hasAnthropicKey()) {
     return NextResponse.json({ error: 'KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt).' }, { status: 503 })
   }
 

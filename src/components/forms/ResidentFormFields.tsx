@@ -4,16 +4,31 @@
  * Resident Form Fields
  *
  * Config-driven form rendering using RESIDENT_FACTORS and RESIDENT_FORM_SECTIONS.
- * Add a new factor to config → it automatically appears in the form.
+ * Add a new factor to config → it automatically appears in the form, and the
+ * assistant can fill it, because the AI field registry is derived from the same
+ * config (see lib/config/ai-forms.ts).
+ *
+ * The factor answers live in one `useAiForm` store that both the caseworker and
+ * the assistant write to — that shared store is what lets somebody describe an
+ * intake conversation in prose and then keep correcting it by talking. The
+ * inputs keep their `name` attributes, so the enclosing
+ * `<form action={createResident}>` still submits plain FormData.
+ *
+ * Medical documentation is deliberately NOT part of that store: those fields
+ * are outside RESIDENT_FACTORS and therefore outside the AI registry, so the
+ * model is never shown them and can never write them.
  */
 
 import { useState } from 'react'
+import { useAiForm } from '@fleet/ai-forms/react'
 import { DynamicFormField } from './DynamicFormField'
 import type { FormFieldValue } from './DynamicFormField'
+import { AiFormBar } from './AiFormBar'
 import {
   RESIDENT_FORM_SECTIONS,
   getFactorsBySection,
 } from '@/lib/config/resident-factors'
+import { RESIDENT_INTAKE_FORM, residentIntakeInitialValues } from '@/lib/config/ai-forms'
 import { MEDICAL_DOC_TYPE_LABELS } from '@/lib/config/placement-spots'
 import { RESIDENT_FORM_LABELS } from '@/lib/constants'
 
@@ -28,8 +43,22 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
   // Get sections sorted by order
   const sections = [...RESIDENT_FORM_SECTIONS].sort((a, b) => a.order - b.order)
 
+  const form = useAiForm({
+    target: RESIDENT_INTAKE_FORM.key,
+    fields: RESIDENT_INTAKE_FORM.fields,
+    initialValues: residentIntakeInitialValues(defaultValues),
+  })
+
+  /** Bind one factor to the shared store. */
+  const bind = (factorId: string) => ({
+    value: form.values[factorId] as FormFieldValue,
+    onChange: (next: FormFieldValue) => form.setValue(factorId, next),
+    aiTouched: form.isAiTouched(factorId),
+  })
+
   return (
     <>
+      <AiFormBar form={form} />
       {sections.map((section) => {
         const factors = getFactorsBySection(section.id)
 
@@ -54,7 +83,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
                   <DynamicFormField
                     key={factor.id}
                     factor={factor}
-                    value={defaultValues[factor.id]}
+                    {...bind(factor.id)}
                     disabled={isEdit && factor.id === 'code'}
                   />
                 ))}
@@ -66,7 +95,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
                   <DynamicFormField
                     key={factor.id}
                     factor={factor}
-                    value={defaultValues[factor.id]}
+                    {...bind(factor.id)}
                   />
                 ))}
               </div>
@@ -82,7 +111,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
                     <DynamicFormField
                       key={factor.id}
                       factor={factor}
-                      value={defaultValues[factor.id]}
+                      {...bind(factor.id)}
                     />
                   )
                 })}
@@ -95,7 +124,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
                         <DynamicFormField
                           key={factor.id}
                           factor={factor}
-                          value={defaultValues[factor.id]}
+                          {...bind(factor.id)}
                         />
                       ))}
                   </div>

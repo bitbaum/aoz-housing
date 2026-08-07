@@ -17,8 +17,8 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.test.ts',
         '<rootDir>/src/**/__tests__/**/*.spec.ts',
       ],
-      // jose v6 ships ESM-only; transform its .js files through ts-jest
-      transformIgnorePatterns: ['node_modules/(?!jose)'],
+      // jose v6 and @fleet/ai-forms ship ESM-only; transform their .js through ts-jest
+      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms))'],
       transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.js$': 'ts-jest',
@@ -38,8 +38,11 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.spec.tsx',
       ],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.components.ts'],
+      // @fleet/ai-forms ships ESM-only and is imported by the assisted forms
+      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms))'],
       transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
+        '^.+\\.js$': ['ts-jest', { tsconfig: { allowJs: true, jsx: 'react-jsx' } }],
       },
     },
   ],
