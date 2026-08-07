@@ -14,7 +14,7 @@
  * SSOT for rule *content* (staff edit it in the admin UI); this file stays the
  * SSOT for the *vocabulary* — categories, delegation semantics, labels.
  */
-import { BRAND } from '@/lib/config/brand'
+import { BRAND } from './brand'
 
 import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@prisma/client'
 
