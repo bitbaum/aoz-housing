@@ -7,6 +7,7 @@
 import { PrismaClient } from '@prisma/client'
 import { calculateScore } from './scoring-helper'
 import { syncOrgRules } from '../src/lib/governance/sync-org-rules'
+import { BRAND } from '../src/lib/config/brand'
 
 const prisma = new PrismaClient()
 
@@ -2561,7 +2562,7 @@ async function main() {
         reason: 'Ich möchte in eine kleinere Unterkunft wechseln, da ich mehr Privatsphäre benötige.',
         status: 'APPROVED',
         staffNotes: 'Transferanfrage genehmigt. Verlegung wird nächste Woche koordiniert.',
-        reviewedBy: 'AOZ-ADMIN1',
+        reviewedBy: `${BRAND.codePrefix}ADMIN1`,
         reviewedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       },
     }),
@@ -2573,7 +2574,7 @@ async function main() {
         reason: 'Ich möchte näher an meiner Sprachschule wohnen, um den Weg zu verkürzen.',
         status: 'DENIED',
         staffNotes: 'Leider kein geeigneter Platz in der gewünschten Lage verfügbar. Bitte in 4 Wochen erneut anfragen.',
-        reviewedBy: 'AOZ-ADMIN1',
+        reviewedBy: `${BRAND.codePrefix}ADMIN1`,
         reviewedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       },
     }),
