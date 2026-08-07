@@ -17,7 +17,19 @@ export const viewport: Viewport = {
   maximumScale: 5,
 }
 
+/**
+ * Where this app actually serves. Load-bearing for the social preview: Next
+ * resolves the generated og:image against `metadataBase`, and without it the
+ * tag is emitted as http://localhost:3000/opengraph-image — present, plausible,
+ * and unfetchable by every scraper. Falls back to the real host, not localhost.
+ *
+ * The host stays `aoz-wohnen` regardless of brand: it is an address, not
+ * branding (see lib/config/brand.ts).
+ */
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://aoz-wohnen.orangecat.ch'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     template: `%s | ${APP_LABELS.name}`,
     default: APP_LABELS.metaTitle,
@@ -30,6 +42,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: APP_LABELS.metaTitle,
     description: APP_LABELS.metaDescription,
+    url: SITE_URL,
+    siteName: APP_LABELS.name,
     type: 'website',
   },
 }
