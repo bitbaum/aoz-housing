@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test'
+import { BRAND } from '../src/lib/config/brand'
 
 // storageState from playwright.config handles staff auth
 
 test.describe('Navigation — admin pages load', () => {
   test('dashboard loads', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/AOZ/)
+    await expect(page).toHaveTitle(new RegExp(BRAND.shortName))
   })
 
   test('residents list loads', async ({ page }) => {
