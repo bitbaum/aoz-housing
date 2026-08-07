@@ -6,6 +6,7 @@ import { consumeRateLimit } from '@/lib/auth/rate-limit'
 import { getAnthropic, getAnthropicModel, hasAnthropicKey } from '@/lib/ai/anthropic'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
+import { BRAND } from '@/lib/config/brand'
 
 /** Server-side cap on per-tool result size, regardless of what the LLM asks for. */
 const MAX_TOOL_LIMIT = 25
@@ -35,7 +36,7 @@ const recentIncidentsInputSchema = z.object({
   limit: z.number().int().positive().max(MAX_TOOL_LIMIT).optional(),
 })
 
-const SYSTEM_PROMPT = `Du bist ein KI-Assistent für das AOZ (Asylorganisation Zürich) Wohnungsmanagementsystem.
+const SYSTEM_PROMPT = `Du bist ein KI-Assistent für das ${BRAND.shortName} Wohnungsmanagementsystem.
 
 Deine Aufgabe: Mitarbeitenden dabei helfen, Informationen über Bewohner, Unterkünfte, Platzierungen und Vorfälle schnell zu finden und zu analysieren.
 

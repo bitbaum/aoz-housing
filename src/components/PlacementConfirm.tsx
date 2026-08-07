@@ -66,8 +66,8 @@ export function PlacementConfirm({
 
       {/* Confirmation Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-ui-surface rounded-lg shadow-card-hover max-w-lg w-full mx-4">
+        <div className="scrim z-50 flex items-center justify-center">
+          <div className="overlay-panel max-w-lg w-full mx-4">
             {/* Header */}
             <div className="px-6 py-4 border-b border-ui-border">
               <h3 className="text-lg font-semibold text-ui-text">

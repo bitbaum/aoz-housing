@@ -142,7 +142,7 @@ describe('PlacementPanel', () => {
     const onClose = jest.fn()
     const { container } = renderPanel({ onClose })
     // Backdrop is the fixed overlay div before the panel
-    const backdrop = container.querySelector('.bg-black\\/40')!
+    const backdrop = container.querySelector('.scrim')!
     fireEvent.click(backdrop)
     expect(onClose).toHaveBeenCalledTimes(1)
   })

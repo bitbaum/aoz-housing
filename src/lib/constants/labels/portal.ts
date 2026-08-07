@@ -2,6 +2,7 @@
  * Portal labels: resident-facing UI text
  */
 import { BRAND } from '@/lib/config/brand'
+import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
 export const PORTAL_LABELS = {
   title: 'Mein Zuhause',
@@ -62,7 +63,7 @@ export const PORTAL_LABELS = {
   login: {
     title: 'Mein Zuhause',
     subtitle: 'Gib deinen Bewohnercode ein, um fortzufahren',
-    placeholder: 'Dein Code (z.B. RES-001)',
+    placeholder: `Dein Code (z.B. ${RESIDENT_CODE_PREFIX}001)`,
     submit: 'Einloggen',
     hint: 'Deinen Code findest du auf deinem Willkommensbrief',
     errors: {

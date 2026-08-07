@@ -16,11 +16,14 @@ export const alt = APP_LABELS.metaTitle
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Mirrors --foreground / --muted-foreground / --focus-ring in globals.css
-const INK = '#111111'
-const MUTED = '#666666'
+// Mirrors --color-ui-text / --color-ui-muted / --color-brand-primary /
+// --color-ui-canvas in globals.css. A deliberate copy, not a drifted one:
+// Satori cannot read CSS custom properties, so like email (lib/email/tokens.ts)
+// this file is an allowlisted literal-hex site in design-system.test.ts.
+const INK = '#0A0A0A'
+const MUTED = '#707070'
 const ACCENT = '#E63946'
-const CANVAS = '#FAFAFA'
+const CANVAS = '#FFFFFF'
 
 export default function OGImage() {
   return new ImageResponse(
@@ -38,7 +41,7 @@ export default function OGImage() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 18, height: 18, borderRadius: 999, background: ACCENT, display: 'flex' }} />
+          <div style={{ width: 18, height: 18, borderRadius: 3, background: ACCENT, display: 'flex' }} />
           <div style={{ fontSize: 30, fontWeight: 700, color: INK, letterSpacing: '-0.01em' }}>
             {APP_LABELS.name}
           </div>
@@ -63,7 +66,7 @@ export default function OGImage() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 64, height: 5, borderRadius: 999, background: ACCENT, display: 'flex' }} />
+          <div style={{ width: 64, height: 5, background: ACCENT, display: 'flex' }} />
           <div style={{ fontSize: 24, color: MUTED }}>aoz-wohnen.orangecat.ch</div>
         </div>
       </div>

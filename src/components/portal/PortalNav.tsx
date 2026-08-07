@@ -23,7 +23,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   return (
     <div ref={navRef}>
       <div className="flex items-center justify-between">
-        <Link href="/portal" className="text-lg sm:text-xl font-bold text-brand-primary">
+        <Link href="/portal" className="text-base font-semibold tracking-tight text-brand-primary transition-opacity hover:opacity-70 sm:text-lg">
           {PORTAL_LABELS.title}
         </Link>
 
@@ -41,7 +41,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
           {hasStaffAccess && (
             <Link
               href="/"
-              className="min-h-[44px] px-3 py-2 rounded-md transition-colors text-sm flex items-center gap-1.5 text-brand-primary font-medium hover:bg-brand-primary/10"
+              className="nav-item min-h-[44px] text-brand-primary hover:text-brand-primary hover:bg-brand-primary/10"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
@@ -84,7 +84,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2 transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] text-brand-primary font-medium hover:bg-brand-primary/10"
+              className="nav-item w-full min-h-[44px] text-brand-primary hover:text-brand-primary hover:bg-brand-primary/10"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
@@ -125,18 +125,15 @@ function PortalNavLink({
   onClick?: () => void
   variant?: 'desktop' | 'mobile'
 }) {
-  const sizing =
-    variant === 'mobile'
-      ? 'py-3 px-2 -mx-2'
-      : 'px-3 py-2 text-sm'
-  const tone = active
-    ? 'text-brand-primary bg-brand-primary/10 font-medium'
-    : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
+  // Active state comes from the shared `.nav-item-active` class rather than a
+  // local brand tint, so "where am I" looks identical in the portal, the admin
+  // megamenu and the mobile drawer.
+  const sizing = variant === 'mobile' ? 'w-full' : ''
   return (
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center rounded-md transition-colors min-h-[44px] ${sizing} ${tone}`}
+      className={`min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'} ${sizing}`}
     >
       {children}
     </Link>
@@ -146,8 +143,8 @@ function PortalNavLink({
 function LogoutButton({ variant }: { variant: 'desktop' | 'mobile' }) {
   const className =
     variant === 'mobile'
-      ? 'w-full text-left text-ui-muted hover:text-ui-text hover:bg-ui-subtle transition-colors py-3 px-2 -mx-2 rounded-md min-h-[44px] flex items-center gap-2'
-      : 'min-h-[44px] px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors flex items-center gap-1.5'
+      ? 'nav-item w-full min-h-[44px] justify-start'
+      : 'nav-item min-h-[44px]'
   return (
     <form action="/api/portal/logout" method="POST" className={variant === 'mobile' ? 'mt-1' : 'ml-2'}>
       <button type="submit" className={className}>

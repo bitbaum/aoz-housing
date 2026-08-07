@@ -29,9 +29,9 @@ export function UnitOverviewCards({
         <p className="text-xl sm:text-2xl font-bold text-ui-text">
           {occupancy} / {totalBeds}
         </p>
-        <div className="mt-2 h-2 bg-ui-border rounded-full overflow-hidden">
+        <div className="meter-lg mt-2">
           <div
-            className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
+            className={`meter-fill ${getOccupancyColorClass(occupancyPercent)}`}
             style={{ width: `${occupancyPercent}%` }}
           />
         </div>

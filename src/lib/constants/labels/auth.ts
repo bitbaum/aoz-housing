@@ -2,6 +2,7 @@
  * Authentication and role labels
  */
 import { BRAND } from '@/lib/config/brand'
+import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Administrator',
@@ -11,7 +12,7 @@ export const LOGIN_LABELS = {
   title: 'Anmelden',
   subtitle: 'Code eingeben, um sich anzumelden',
   code: 'Zugangscode',
-  codePlaceholder: `${BRAND.shortName}-XXXXXX oder RES-XXXXXX`,
+  codePlaceholder: `${BRAND.codePrefix}XXXXXX oder ${RESIDENT_CODE_PREFIX}XXXXXX`,
   codeHint: 'Verwenden Sie Ihren persönlichen Zugangscode.',
   submit: 'Anmelden',
   submitting: 'Anmelden...',

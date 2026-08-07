@@ -19,13 +19,6 @@ export function DimensionsTab({
   expandedDimension: string | null
   setExpandedDimension: (id: string | null) => void
 }) {
-  const colors = {
-    lifestyle: 'purple',
-    social: 'blue',
-    practical: 'green',
-    requirements: 'orange',
-  } as const
-
   return (
     <div className="space-y-4">
       <p className="text-ui-muted mb-4">
@@ -44,8 +37,13 @@ export function DimensionsTab({
               aria-expanded={isExpanded}
               aria-controls={`dimension-${dim.id}`}
             >
+              {/* The per-dimension colour dot that used to sit here was built
+                  from an interpolated class (`bg-${color}-500`), which Tailwind
+                  never generated — it has been rendering as an invisible 12px
+                  gap. It was decorative (aria-hidden) and four arbitrary hues
+                  are exactly the ornament this design language rations away,
+                  so it is gone rather than reinstated in a token. */}
               <div className="flex items-start sm:items-center gap-3 min-w-0">
-                <div className={`w-3 h-3 rounded-full bg-${colors[dim.id as keyof typeof colors]}-500 mt-1 sm:mt-0`} aria-hidden="true" />
                 <div className="min-w-0">
                   <h3 className="font-semibold text-ui-text">{dim.label}</h3>
                   <p className="text-sm text-ui-muted">{dim.description}</p>
@@ -53,7 +51,7 @@ export function DimensionsTab({
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                 <span className="text-xs sm:text-sm text-ui-muted">{ALGORITHM_OVERVIEW_LABELS.factorsCount(factors.length)}</span>
-                <span className="px-3 py-1 rounded-full text-sm font-bold bg-ui-subtle text-ui-muted">
+                <span className="px-3 py-1 rounded-sm text-sm font-bold bg-ui-subtle text-ui-muted">
                   {Math.round(dim.weight * 100)}%
                 </span>
                 {isExpanded ? (

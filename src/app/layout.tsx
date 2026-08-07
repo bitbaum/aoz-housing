@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { ToastContainer } from '@/components/ui/Toast'
 import './globals.css'
@@ -9,6 +9,17 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter',
+})
+
+/**
+ * Numeric and code-like data (occupancy counts, compatibility scores, login
+ * codes, dates) is set in mono with tabular figures so digits keep a constant
+ * width and columns stay aligned. @see the `.numeric` class in globals.css.
+ */
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
 })
 
 export const viewport: Viewport = {
@@ -67,7 +78,11 @@ export default function RootLayout({
   `
 
   return (
-    <html lang="de" className={inter.variable} data-brand={BRAND.id}>
+    <html
+      lang="de"
+      className={`${inter.variable} ${mono.variable}`}
+      data-brand={BRAND.id}
+    >
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

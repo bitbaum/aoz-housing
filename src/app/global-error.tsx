@@ -18,7 +18,7 @@ export default function GlobalError({
     <html lang="de">
       <body>
         <div className="min-h-screen flex items-center justify-center bg-ui-subtle">
-          <div className="max-w-md p-8 bg-ui-surface rounded-lg shadow-card text-center">
+          <div className="max-w-md p-8 bg-ui-surface rounded-lg border border-ui-border text-center">
             <h2 className="text-xl font-semibold text-ui-text mb-4">
               Ein Fehler ist aufgetreten
             </h2>

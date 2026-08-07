@@ -9,7 +9,8 @@
  *   logger.error('Failed to create placement', { residentId, error })
  *   logger.info('Placement created', { placementId })
  */
-import { BRAND } from '@/lib/config/brand'
+import { ALL_CODE_PREFIXES } from '@/lib/config/brand'
+import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -46,10 +47,26 @@ function formatError(error: unknown): Record<string, unknown> {
 
 // Patterns that identify PII we never want in logs / log aggregators.
 // Mirrors the Sentry beforeSend redactor so both pipelines redact uniformly.
+//
+// Staff-code patterns are derived from EVERY brand's prefix, not the active
+// one. Codes outlive the brand that issued them, and a redactor written
+// against a single literal prefix silently stops redacting the day the product
+// is re-badged — leaking exactly the credentials it exists to hide. Longest
+// prefix first so 'AOZH-' is never partially matched by 'AOZ-'.
+const STAFF_CODE_REDACTORS: ReadonlyArray<[RegExp, string]> = [...ALL_CODE_PREFIXES]
+  .sort((a, b) => b.length - a.length)
+  .map((prefix) => [
+    new RegExp(`${prefix.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')}[A-Z0-9]+`, 'g'),
+    `${prefix}[REDACTED]`,
+  ])
+
 const PII_REDACTORS: ReadonlyArray<[RegExp, string]> = [
   [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
-  [/RES-[A-Z0-9]+/g, 'RES-[REDACTED]'],
-  [/AOZ-[A-Z0-9]+/g, `${BRAND.shortName}-[REDACTED]`],
+  [
+    new RegExp(`${RESIDENT_CODE_PREFIX}[A-Z0-9]+`, 'g'),
+    `${RESIDENT_CODE_PREFIX}[REDACTED]`,
+  ],
+  ...STAFF_CODE_REDACTORS,
 ]
 
 function redactString(value: string): string {

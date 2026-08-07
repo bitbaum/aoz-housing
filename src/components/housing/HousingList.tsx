@@ -81,9 +81,9 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
           </span>
           <span className="font-medium text-ui-text">{occupancy}/{totalBeds}</span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-ui-border">
+        <div className="meter">
           <div
-            className={`h-full ${getOccupancyColorClass(occupancyPercent)}`}
+            className={`meter-fill ${getOccupancyColorClass(occupancyPercent)}`}
             style={{ width: `${occupancyPercent}%` }}
           />
         </div>

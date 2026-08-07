@@ -1,19 +1,24 @@
-import { BRANDS, DEFAULT_BRAND_ID, type BrandId } from '../brand'
+import {
+  ALL_CODE_PREFIXES,
+  BRANDS,
+  DEFAULT_BRAND_ID,
+  type BrandId,
+} from '../brand'
 
 /**
  * The point of the brand layer is that re-badging is a config change, not a
- * code change. These tests hold that promise: every brand must be complete, and
- * the AOZ preset must stay byte-identical to what AOZ was originally shown —
- * "we can put it back" has to remain true.
+ * code change. These tests hold that promise: every brand must be complete,
+ * and the AOZ preset must stay byte-identical to what AOZ was originally
+ * shown — "we can put it back" has to remain true.
  */
 describe('brand presets', () => {
   const ids = Object.keys(BRANDS) as BrandId[]
 
-  it('offers at least the original and the neutral brand', () => {
-    expect(ids).toEqual(expect.arrayContaining(['aoz', 'aoch']))
+  it('offers both the original and the neutral brand', () => {
+    expect(ids).toEqual(expect.arrayContaining(['aoz', 'aozh']))
   })
 
-  it.each(['aoz', 'aoch'] as const)('%s fills in every field', (id) => {
+  it.each(['aoz', 'aozh'] as const)('%s fills in every field', (id) => {
     const brand = BRANDS[id]
     for (const [key, value] of Object.entries(brand)) {
       expect(`${key}=${value}`).not.toMatch(/=(undefined|null|)$/)
@@ -49,6 +54,26 @@ describe('brand presets', () => {
   })
 })
 
+describe('ALL_CODE_PREFIXES', () => {
+  /**
+   * Codes outlive the brand that issued them. Anything matching on the ACTIVE
+   * brand's prefix alone — log redaction was doing exactly this — silently
+   * stops working for previously-issued codes the day the product is
+   * re-badged. This list is what consumers must read instead.
+   */
+  it('covers every brand, not just the active one', () => {
+    const ids = Object.keys(BRANDS) as BrandId[]
+    expect(ALL_CODE_PREFIXES).toHaveLength(ids.length)
+    for (const id of ids) {
+      expect(ALL_CODE_PREFIXES).toContain(BRANDS[id].codePrefix)
+    }
+  })
+
+  it('still covers AOZ once the product ships as AOZH', () => {
+    expect(ALL_CODE_PREFIXES).toEqual(expect.arrayContaining(['AOZ-', 'AOZH-']))
+  })
+})
+
 describe('brand resolution', () => {
   const ORIGINAL = process.env.NEXT_PUBLIC_BRAND
 
@@ -73,7 +98,9 @@ describe('brand resolution', () => {
   })
 
   it('falls back rather than crashing on an unknown brand', () => {
-    // A typo in an env var must not take the whole app down.
+    // A typo in an env var must not take the whole app down — and neither must
+    // a retired brand id left behind in a deployed .env.
     expect(loadBrand('not-a-brand').id).toBe(DEFAULT_BRAND_ID)
+    expect(loadBrand('aoch').id).toBe(DEFAULT_BRAND_ID)
   })
 })

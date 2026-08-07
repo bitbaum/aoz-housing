@@ -161,9 +161,13 @@ The product ships under a neutral brand and can be handed to AOZ badged as AOZ.
 Neither is a fork; both are presets.
 
 ```bash
-NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the original red palette + wording
-NEXT_PUBLIC_BRAND=aoch   # default
+NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the AOZ wording
+NEXT_PUBLIC_BRAND=aozh   # default
 ```
+
+AOZH ships the **same palette** as AOZ deliberately — the brief was to keep
+AOZ's colours and change only the name and the design language — so it defines
+no colour override at all. Only the acronym differs.
 
 **Switching the live deployment** — `NEXT_PUBLIC_*` is inlined at build time, so
 this needs a redeploy, not a restart. The box holds the authoritative runtime
@@ -180,13 +184,18 @@ ssh root@167.233.22.31 \
 gh workflow run deploy.yml -R maonakamoto/aoz-housing
 
 # 3. confirm what a user actually sees
-curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZ|AOCH' | sort -u
+curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
 ```
 
 - **SSOT**: `src/lib/config/brand.ts`. Two fields only — `shortName` and
   `codePrefix` — because all German copy is of the form "AOZ-Regel" /
   "AOZ-Verwaltung" / "AOZ Wohnen". A config field you can set with no visible
   effect is a trap; don't add speculative ones.
+- **`ALL_CODE_PREFIXES`** is the list of every prefix any brand has ever
+  issued. Anything that must recognise codes *across* a rebrand — log
+  redaction, code parsing — reads that, never `BRAND.codePrefix`. Codes outlive
+  the brand that issued them: the log redactor matched a literal `/AOZ-…/` and
+  would have silently stopped redacting staff codes the day this shipped.
 - **Colours**: the `:root` palette in `globals.css` is the **original AOZ
   palette, byte-for-byte** and stays the default, so switching back is lossless
   rather than a reconstruction. A brand overrides only `--color-brand-*` inside
@@ -210,173 +219,160 @@ user benefit:
 
 ## Design System
 
-**Tailwind v3** — config at `tailwind.config.ts`. All design tokens live in `src/app/globals.css` as CSS custom properties; `tailwind.config.ts` only references them (zero literal hex). Both light and dark themes share the same Tailwind class surface — only the CSS-var values flip.
+**Design language:** technical, flat, high-contrast — the register of x.ai /
+SpaceX / Tesla, carrying AOZ's colours. Concretely that means four decisions,
+and every one of them is a token, not a component edit:
+
+| Decision | Where it lives |
+|---|---|
+| **Near-square geometry** — `rounded-lg` is 4px, not 8px | `--radius-*` |
+| **No shadows on in-page surfaces** — hairline borders separate everything | only `--shadow-overlay` exists |
+| **Tight display type, wide micro-labels** | `--tracking-*`, `.eyebrow` |
+| **Mono tabular figures for all data** | `.numeric`, `.metric` |
+
+Colour is *rationed*: brand red marks the one action that matters on a screen
+and nothing else. That is what keeps warning/error legible as signals in a tool
+whose whole job is surfacing conflict.
+
+**Tailwind v3** — config at `tailwind.config.ts`, which holds **zero** literal
+design values; it only maps utilities onto CSS vars. Both themes share one
+class surface — only the var values flip.
 
 ### CSS Custom Properties (SSOT — `src/app/globals.css`)
 
-Colors are stored as **space-separated RGB channels** (e.g. `230 57 70`) so Tailwind's opacity modifier (`bg-aoz-primary/15`) works.
+Colors are space-separated RGB channels (e.g. `230 57 70`) so Tailwind's
+opacity modifier (`bg-brand-primary/15`) works.
 
 ```css
 :root {
-  /* UI surface tokens */
-  --color-ui-canvas:        250 250 250;
+  /* Surfaces — canvas and surface are BOTH pure white: cards are separated
+     by their border, not by floating above a tinted background. */
+  --color-ui-canvas:        255 255 255;
   --color-ui-surface:       255 255 255;
-  --color-ui-elevated:      255 255 255;
-  --color-ui-subtle:        250 250 250;
-  --color-ui-border:        229 229 229;
-  --color-ui-border-strong: 212 212 212;
-  --color-ui-text:          17 17 17;
-  --color-ui-muted:         102 102 102;
-  --color-ui-on-accent:     255 255 255;
+  --color-ui-subtle:        246 246 246;
+  --color-ui-border:        226 226 226;
+  --color-ui-border-strong: 168 168 168;
+  --color-ui-text:           10  10  10;
+  --color-ui-muted:         112 112 112;
 
-  /* AOZ brand */
-  --color-aoz-primary:       230 57 70;   /* red/coral — AOZ logo, CTAs */
-  --color-aoz-secondary:     25 82 82;    /* dark teal — secondary brand */
-  --color-aoz-accent:        235 244 243; /* mint — backgrounds */
+  /* Brand — THE ORIGINAL AOZ PALETTE, BYTE-FOR-BYTE. Do not edit.
+     Guarded by src/lib/__tests__/design-system.test.ts. */
+  --color-brand-primary:    230 57 70;   /* red   — CTAs, active marks */
+  --color-brand-secondary:   25 82 82;   /* teal  */
+  --color-brand-accent:     235 244 243; /* mint  */
 
-  /* Compatibility score (5-tier) */
-  --color-score-excellent: 34 197 94;     /* 80-100 Sehr gut */
-  --color-score-good:      132 204 22;    /* 60-79  Gut */
-  --color-score-medium:    245 158 11;    /* 40-59  Mittel */
-  --color-score-low:       249 115 22;    /* 20-39  Niedrig */
-  --color-score-critical:  239 68 68;     /* 0-19   Kritisch */
-  /* Paired *-text variants ship dark readable shades for use on tinted backgrounds */
+  /* Geometry — near-square. `rounded-lg` is the workhorse (200+ uses), so
+     this one line re-skins the whole product. */
+  --radius-sm: 2px;  --radius-md: 3px;  --radius-lg: 4px;
+  --radius-xl: 6px;  --radius-2xl: 8px;
 
-  /* Status */
-  --color-status-success: 34 197 94;
-  --color-status-warning: 245 158 11;
-  --color-status-error:   239 68 68;
-  --color-status-info:    59 130 246;
+  /* Typography — the gap between display and label is the hierarchy. */
+  --tracking-display: -0.032em;   --tracking-heading: -0.02em;
+  --tracking-label:    0.08em;    --tracking-eyebrow:  0.14em;
 
-  /* Severity */
-  --color-severity-low: 156 163 175;
-  --color-severity-medium: 251 191 36;
-  --color-severity-high: 249 115 22;
-  --color-severity-critical: 239 68 68;
+  /* Depth — the ONLY shadow in the system, for content that genuinely
+     floats (menus, dialogs, drawers). In-page surfaces are flat. */
+  --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.06);
 
-  /* Shadows — `none` in light keeps modern flat look; dark uses ring */
-  --shadow-card:       none;
-  --shadow-card-hover: 0 0 0 1px rgb(0 0 0 / 0.06);
+  /* Score / status / severity tokens — see the file for the full set.
+     Paired *-text variants ship readable shades for tinted backgrounds. */
 }
 ```
 
-Dark mode (`[data-theme='dark']` or `prefers-color-scheme: dark`) overrides the same tokens with darker values. **Never** branch on `dark:` in components except for color-bound utilities Tailwind can't auto-derive (rare).
+Dark mode (`[data-theme='dark']` or `prefers-color-scheme: dark`) is a **true
+black** canvas and overrides the same tokens. The brand red holds 5.0:1 against
+black, so the palette needs no per-theme hue shift — only the surfaces move.
+**Never** branch on `dark:` in components.
 
 ### Component classes (SSOT in `src/app/globals.css`)
 
-**Cards** — always prefer these over hand-built equivalents.
+**Typographic primitives** — the two signature moves.
 ```
-.card        → bg-ui-surface text-ui-text rounded-lg shadow-card border border-ui-border p-4 sm:p-5
-.card-hover  → card + hover:shadow-card-hover hover:border-ui-border-strong cursor-pointer
-```
-
-**Buttons** — all variants enforce `min-h-[44px]` touch target.
-```
-.btn           → px-4 py-2.5 rounded-md text-sm font-medium focus-ring min-h-[44px] inline-flex
-.btn-primary   → btn + bg-ui-text text-ui-inverse hover:bg-ui-text/85          (neutral CTA)
-.btn-secondary → btn + bg-aoz-primary text-ui-on-accent hover:bg-aoz-primary-dark (brand CTA)
-.btn-outline   → btn + border bg-ui-surface hover:bg-ui-subtle
-.btn-ghost     → btn + text-ui-muted hover:bg-ui-subtle hover:text-ui-text
-.btn-danger    → btn + bg-status-error text-ui-on-accent
-.btn-warning   → btn + bg-status-warning text-ui-on-accent
-.btn-icon      → 44x44 icon-only square — use for close (X) etc.
+.eyebrow  → text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted
+.numeric  → font-mono tabular-nums tracking-tight   (anything compared down a column)
+.metric   → numeric + text-3xl font-semibold        (the big number in a stat block)
 ```
 
-Note: `.btn-primary` is the NEUTRAL dark button (used everywhere as the default action); `.btn-secondary` is the BRAND-COLORED red button (used for emphasis). The naming is historical; do not assume "primary = brand color."
-
-**Form elements**
+**Surfaces** — flat. A hover affordance is a border/fill change, never a shadow.
 ```
-.input → w-full px-3 py-2.5 border rounded-md min-h-[44px] focus-ring
-.label → block text-sm font-medium text-ui-muted mb-1.5
-```
-
-**Badges** (rounded-md, subtle ring background)
-```
-.badge        → inline-flex px-2 py-0.5 rounded-md text-xs font-medium ring-1
-.badge-active / .badge-success / .badge-pending / .badge-info / .badge-ended / .badge-alert
+.card          → bg-ui-surface rounded-lg border border-ui-border p-4 sm:p-5
+.card-hover    → card + hover:border-ui-border-strong hover:bg-ui-subtle
+.overlay-panel → bg-ui-elevated border rounded-lg shadow-overlay  (menus/dialogs ONLY)
+.scrim         → fixed inset-0 bg-black/50  (the modal dimmer — one definition)
+.chrome-bar    → sticky translucent header with a hairline underline
 ```
 
-**Chips** (rounded-full pills, tinted fill)
+**Buttons** — all variants enforce `min-h-[44px]`.
 ```
-.chip         → inline-flex px-2 py-0.5 rounded-full text-xs font-medium
-.chip-success / .chip-warning / .chip-error / .chip-info / .chip-neutral
+.btn-primary   → NEUTRAL near-black button — the default action everywhere
+.btn-secondary → BRAND-COLOURED button — for emphasis
+.btn-outline / .btn-ghost / .btn-danger / .btn-warning / .btn-icon
+```
+The naming is historical and 121 files depend on it: **primary ≠ brand colour.**
+
+**Navigation** — one definition of "where am I", shared by the admin megamenu,
+the mobile drawer and the portal nav.
+```
+.nav-item / .nav-item-active
 ```
 
-**Alerts** (inline banner surface for forms, error messages)
+**Badges (outline) & chips (tinted fill)** — both near-square, uppercase
+micro-type, so they read as machine states rather than prose. Colours come from
+the `status-*` tokens; never Tailwind's raw palette.
 ```
-.alert         → p-3 rounded-lg text-sm flex items-start gap-2 ring-1
-.alert-error / .alert-success / .alert-warning / .alert-info
-```
-
-**Avatars** (circle with brand fill for initials/numbers)
-```
-.avatar     → w-10 h-10 rounded-full bg-aoz-primary text-ui-on-accent font-medium
-.avatar-sm  → w-8 h-8 text-sm
-.avatar-lg  → w-12 h-12 text-lg
+.badge-active / -success / -pending / -info / -ended / -alert
+.chip-success / -warning / -error / -info / -neutral
 ```
 
-**Score indicators**
+**Meters** — occupancy, capacity, score and fairness bars.
 ```
-.score-excellent  → bg-score-excellent text-ui-on-accent
-.score-good       → bg-score-good text-ui-on-accent
-.score-medium     → bg-score-medium text-score-contrast
-.score-low        → bg-score-low text-ui-on-accent
-.score-critical   → bg-score-critical text-ui-on-accent
+.meter / .meter-lg  → the track          .meter-fill → the filled portion
 ```
+Square-ended on purpose: a rounded cap misreports the value, because at 3% the
+pill is all cap and reads as more than nothing.
 
-**Icon containers** (square, subtle background — for category icons inside cards)
-```
-.icon-container     → w-10 h-10 rounded-md bg-ui-subtle text-ui-muted ring-1 ring-ui-border
-.icon-container-sm  → w-8 h-8
-.icon-container-lg  → w-12 h-12
-```
+**Alerts** `.alert-error|success|warning|info` · **Avatars** `.avatar[-sm|-lg]`
+(square, not circular — initials are data like anything else) · **Icon
+containers** `.icon-container[-sm|-lg]` · **Scores** `.score-excellent…critical`
 
-**iOS safe-area utilities** (for sticky/fixed bottom CTAs)
-```
-.pb-safe  → padding-bottom: max(1rem, env(safe-area-inset-bottom))
-.mb-safe  → margin-bottom: max(0px, env(safe-area-inset-bottom))
-```
-
-**Other**
-```
-.explainable-number → cursor-pointer underline decoration-dotted hover:decoration-aoz-primary
-```
+**`rounded-full` is now reserved for true circles only** — status dots, timeline
+markers, notification counters. Pills and bars are square. If you are reaching
+for it on something with padding, you want `.chip` or `.meter`.
 
 ### Layout primitives (`src/components/ui/Page.tsx`)
 
 ```tsx
-<PageShell>     → max-width container with vertical rhythm
-<PageHeader     → page title + optional description, eyebrow, actions, backHref/backLabel
-  title="..."
-  description="..."
-  backHref="/path"
-  backLabel="Zurück"
-  actions={<Button>...</Button>}
-/>
-<Toolbar>       → filter/action toolbar row
-<EmptyState>    → dashed-border empty state with title/description/action
-<ListShell>     → rounded list container with overflow-hidden
+<PageShell>      → max-width container with vertical rhythm
+<PageHeader      → SSOT for <h1>: eyebrow, display title, description, actions, backHref
+<SectionHeader   → SSOT for <h2> inside a page — never hand-roll one, never skip a level
+<Toolbar>        → filter/action row
+<EmptyState>     → dashed-hairline empty state
+<ListShell>      → hairline list container
 ```
-
-`<PageHeader>` is the SSOT for h1 — use it on every page. The `backHref` prop renders a `lucide-react` ChevronLeft + label above the title.
 
 ### SSOT rules — never violate
 
-1. **All design tokens live in `globals.css` only.** `tailwind.config.ts` references CSS vars (`'rgb(var(--color-x) / <alpha-value>)'`), never literal values.
-2. **Components use semantic Tailwind classes.** Never `bg-[#hex]`, `text-[#hex]`, `style={{ color: '#hex' }}`.
-3. **Use existing component classes.** Don't rebuild `.card`, `.btn`, `.input`, `.badge`, `.chip`, `.alert`, `.avatar` patterns from primitives.
-4. **Touch targets ≥ 44px on mobile.** Don't override `.btn-*` padding with `py-1` etc. Use `.btn-icon` for icon-only buttons.
-5. **Use `shadow-card-hover` not raw `hover:shadow-md`** — raw Tailwind shadows don't compose with the dark-mode ring strategy.
+1. **All design tokens live in `globals.css` only.** `tailwind.config.ts`
+   references CSS vars; it contains no hex, no `rgb()` triple, no literal.
+2. **Components use semantic classes.** Never `bg-[#hex]`, never a raw Tailwind
+   palette colour (`text-gray-500`), never `style={{ color: '#hex' }}`.
+3. **Use the existing component classes** rather than rebuilding `.card`,
+   `.btn`, `.badge`, `.chip`, `.alert`, `.avatar`, `.scrim` from primitives.
+4. **Touch targets ≥ 44px.** Don't override `.btn-*` padding; use `.btn-icon`.
+5. **No shadow but `shadow-overlay`,** and only on genuinely floating content.
+6. **Email is the one exception** — mail clients can't read CSS vars, so email
+   colour is literal hex confined to `src/lib/email/tokens.ts`.
 
-**Audit commands:**
-```
-grep -rn '\[#' src/                              # hex in className violations
-grep -rn 'rounded-full.*text-xs.*bg-status' src/ # missed chip migrations
-grep -rn 'hover:shadow-md\|hover:shadow-sm' src/ # missed shadow migrations
-grep -rn 'w-10 h-10.*bg-aoz-primary.*rounded-full' src/ # missed avatar migrations
-```
+All six are enforced by **`src/lib/__tests__/design-system.test.ts`**, which
+also verifies that every `var(--x)` in the Tailwind config actually exists (an
+unresolvable CSS variable is invisible to both tsc and ESLint) and that the AOZ
+palette has not drifted. Run it with `npm run test` — not a style opinion, a
+gate.
 
----
+⚠️ `npm run verify` does **not** run `next build`. A `'use client'` placed below
+an import passes lint, typecheck and Jest, and fails only at build. Run a build
+before declaring UI work done; `src/lib/__tests__/use-client-directive.test.ts`
+guards that specific class.
 
 ## Mobile-First Design (MANDATORY)
 

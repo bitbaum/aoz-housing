@@ -187,7 +187,7 @@ function RoommateCard({
   return (
     <div className="card">
       <div className="flex items-start gap-4">
-        <div className="w-16 h-16 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xl font-bold">
+        <div className="avatar h-16 w-16 bg-brand-secondary text-xl">
           {roommate.code.slice(-3)}
         </div>
         <div className="flex-1">
@@ -274,7 +274,7 @@ function CompatibilityIndicator({ score }: { score: number }) {
 
 function LifestyleTag({ icon, label }: { icon: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-1 bg-ui-subtle rounded-full text-xs text-ui-muted">
+    <span className="inline-flex items-center gap-1 px-2 py-1 bg-ui-subtle rounded-sm text-xs text-ui-muted">
       {icon} {label}
     </span>
   )

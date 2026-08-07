@@ -41,7 +41,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
               </Link>
             </div>
             <div
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getScoreBgClass(
+              className={`px-3 py-1 rounded-sm text-sm font-medium ${getScoreBgClass(
                 assessment.overallScore
               )}`}
             >

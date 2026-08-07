@@ -35,12 +35,12 @@ export default async function RulesPage() {
     <PageShell>
       <PageHeader
         title="Regeln"
-        description="AOZ-Regeln gelten überall. Wo sie es zulassen, beschliesst jedes Haus seine eigenen Hausregeln."
+        description={`${BRAND.shortName}-Regeln gelten überall. Wo sie es zulassen, beschliesst jedes Haus seine eigenen Hausregeln.`}
         actions={<SyncCatalogButton />}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="AOZ-Regeln" value={activeOrgRules.length} />
+        <StatCard label={`${BRAND.shortName}-Regeln`} value={activeOrgRules.length} />
         <StatCard
           label="Davon vom Haus gestaltbar"
           value={delegatedCount}

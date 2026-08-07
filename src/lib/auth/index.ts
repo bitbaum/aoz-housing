@@ -4,12 +4,13 @@
  * Provides session management for staff and residents.
  * Uses stateless JWT tokens stored in httpOnly cookies.
  */
-import { BRAND } from '@/lib/config/brand'
+import { ALL_CODE_PREFIXES, BRAND } from '@/lib/config/brand'
 
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import { AUTH_CONFIG } from './config'
 import { RESIDENT_COOKIE } from '@/lib/portal-auth'
+import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
 import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
@@ -158,12 +159,20 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 /**
- * Authenticate by code (unified login)
- * AOZ-prefixed codes → staff login
- * RES-prefixed codes → resident login
+ * Authenticate by code (unified login).
+ *  - a staff prefix from ANY brand → staff login
+ *  - RES-prefixed codes           → resident login
+ *
+ * Staff routing deliberately accepts every prefix the product has ever issued,
+ * not just the active brand's. Codes outlive the brand that issued them: after
+ * the AOZ→AOZH rebrand an existing `AOZ-…` code matches neither the active
+ * staff prefix nor the resident one, falls through to "Ungültiger Code", and
+ * locks out every staff member who has not been re-issued a code — including
+ * the seeded admin. The lookup itself is still by exact string, so no code
+ * changes meaning.
  */
 export async function loginByCode(code: string, clientIp: string): Promise<LoginByCodeResult> {
-  if (code.startsWith(`${BRAND.shortName}-`)) {
+  if (ALL_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
     // Staff login
     const user = await prisma.user.findUnique({
       where: { code },
@@ -199,7 +208,7 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     }
   }
 
-  if (code.startsWith('RES-')) {
+  if (code.startsWith(RESIDENT_CODE_PREFIX)) {
     // Resident login
     const resident = await prisma.resident.findUnique({
       where: { code },
@@ -219,7 +228,10 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     }
   }
 
-  return { success: false, error: `Ungültiger Code. Codes beginnen mit ${BRAND.shortName}- oder RES-.` }
+  return {
+    success: false,
+    error: `Ungültiger Code. Codes beginnen mit ${BRAND.codePrefix} oder ${RESIDENT_CODE_PREFIX}.`,
+  }
 }
 
 /**

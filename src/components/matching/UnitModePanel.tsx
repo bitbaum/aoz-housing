@@ -44,7 +44,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                 href={`/residents/${p.residentId}`}
                 className="inline-flex items-center gap-1.5 px-2 py-1 bg-ui-surface rounded-lg border border-ui-border text-sm hover:border-brand-primary"
               >
-                <span className="w-5 h-5 bg-brand-primary text-ui-on-accent rounded-full flex items-center justify-center text-xs">
+                <span className="w-5 h-5 bg-brand-primary text-ui-on-accent rounded-sm flex items-center justify-center text-xs">
                   {p.resident.code.slice(0, 1)}
                 </span>
                 {p.resident.code}

@@ -264,7 +264,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
       href={`/incidents/${incident.id}`}
       className={`card p-4 border-l-4 ${getSeverityBorderClass(
         incident.severity
-      )} block hover:shadow-card-hover transition-shadow`}
+      )} block transition-colors`}
     >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">

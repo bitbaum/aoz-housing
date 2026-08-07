@@ -49,12 +49,12 @@ export function PlacementPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 z-40 transition-opacity"
+        className="scrim z-40 transition-opacity"
         onClick={onClose}
       />
 
       {/* Panel */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-ui-surface shadow-card-hover z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-md bg-ui-surface border-l border-ui-border shadow-overlay z-50 flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 border-b border-ui-border flex items-center justify-between">
           <div>

@@ -130,7 +130,7 @@ export function ResidentSelectorPanel({
                   href={`/residents/${resident.id}`}
                   className="flex items-center gap-2 flex-1 hover:opacity-80"
                 >
-                  <div className="w-7 h-7 bg-ui-muted text-ui-on-accent rounded-full flex items-center justify-center text-xs font-medium">
+                  <div className="avatar-sm w-7 h-7 bg-ui-muted">
                     {resident.code.slice(-3)}
                   </div>
                   <div>

@@ -225,7 +225,7 @@ export function TechnicalTab() {
 
               <div className="flex items-start gap-4">
                 {/* Version badge */}
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                <div className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${
                   versionIndex === 0
                     ? 'bg-brand-primary text-ui-on-accent'
                     : 'bg-ui-border text-ui-muted'

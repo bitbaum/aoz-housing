@@ -38,7 +38,7 @@ export function ActionTile({ title, count, description, href, color, items, allH
           <h3 className="font-semibold text-ui-text">{title}</h3>
           <p className="text-sm text-ui-muted">{description}</p>
         </div>
-        <span className={`px-2 py-1 rounded-full text-sm font-bold ${badgeStyles[color]}`}>
+        <span className={`px-2 py-1 rounded-sm text-sm font-bold ${badgeStyles[color]}`}>
           {count}
         </span>
       </div>

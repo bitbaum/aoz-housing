@@ -308,9 +308,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                       </span>
                       <span className="text-ui-muted">{count}</span>
                     </div>
-                    <div className="h-2 bg-ui-border rounded-full overflow-hidden">
+                    <div className="meter-lg">
                       <div
-                        className="h-full bg-brand-primary"
+                        className="meter-fill"
                         style={{
                           width: `${(count / recentIncidents.length) * 100}%`,
                         }}
@@ -347,9 +347,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                           {count} ({Math.round((count / endedPlacements.length) * 100)}%)
                         </span>
                       </div>
-                      <div className="h-2 bg-ui-border rounded-full overflow-hidden">
+                      <div className="meter-lg">
                         <div
-                          className={`h-full ${
+                          className={`meter-fill ${
                             reason === 'CONFLICT'
                               ? 'bg-status-error'
                               : reason === 'NATURAL'

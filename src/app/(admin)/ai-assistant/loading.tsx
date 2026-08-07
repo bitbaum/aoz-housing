@@ -7,7 +7,7 @@ export default function AIAssistantLoading() {
       <div className="card p-4 space-y-4 min-h-96">
         {/* Assistant message bubble */}
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 bg-ui-border rounded-full flex-shrink-0" />
+          <div className="w-8 h-8 bg-ui-border rounded-md flex-shrink-0" />
           <div className="space-y-2 flex-1 max-w-md">
             <div className="h-4 bg-ui-border rounded w-full" />
             <div className="h-4 bg-ui-border rounded w-4/5" />

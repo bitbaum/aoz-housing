@@ -48,7 +48,7 @@ export function MobileNav() {
   return (
     <>
       {/* Mobile header bar */}
-      <header className="md:hidden fixed top-0 left-0 right-0 bg-ui-surface/95 backdrop-blur-sm border-b border-ui-border z-40">
+      <header className="chrome-bar fixed inset-x-0 top-0 md:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Logo size="md" />
           <button
@@ -67,7 +67,7 @@ export function MobileNav() {
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/45 z-40 md:hidden"
+          className="scrim z-40 md:hidden"
           onClick={handleClose}
           aria-hidden="true"
         />
@@ -123,11 +123,7 @@ function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boole
     <Link
       href={item.href}
       onClick={onClick}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm min-h-[44px] ${
-        active
-          ? 'text-ui-text bg-ui-subtle font-medium'
-          : 'text-ui-muted hover:text-ui-text hover:bg-ui-subtle'
-      }`}
+      className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
     >
       <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
       <span>{item.label}</span>

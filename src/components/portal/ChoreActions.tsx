@@ -144,7 +144,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
 
       {/* Modal forms */}
       {activeModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-4">
+        <div className="scrim z-50 flex items-end justify-center p-4 sm:items-center">
           <div
             ref={modalPanelRef}
             role="dialog"

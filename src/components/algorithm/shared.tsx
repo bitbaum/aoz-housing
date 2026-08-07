@@ -88,8 +88,8 @@ export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }
     preliminary: 'bg-ui-muted',
   }
   return (
-    <div className="w-full h-1.5 bg-ui-border rounded-full overflow-hidden">
-      <div className={`h-full rounded-full ${barColors[strength]} ${barWidths[strength]}`} />
+    <div className="meter">
+      <div className={`meter-fill ${barColors[strength]} ${barWidths[strength]}`} />
     </div>
   )
 }
@@ -117,11 +117,11 @@ export function ProcessStep({
 }) {
   return (
     <div className="text-center">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-brand-primary/10 text-brand-primary mb-4">
+      <div className="icon-container-lg mb-4 bg-brand-primary/10 text-brand-primary ring-0">
         {icon}
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
-        <span className="w-6 h-6 rounded-full bg-brand-primary text-ui-on-accent text-sm flex items-center justify-center font-medium">
+        <span className="avatar-sm h-6 w-6 text-2xs">
           {number}
         </span>
         <h3 className="font-semibold text-ui-text">{title}</h3>
@@ -192,7 +192,7 @@ export function ScoreLevel({
 
   return (
     <div className={`rounded-lg border p-3 text-center ${bgClasses[color]}`}>
-      <div className={`w-full h-2 rounded-full ${colorClasses[color]} mb-2`} />
+      <div className={`w-full h-2 rounded-sm ${colorClasses[color]} mb-2`} />
       <div className="font-bold text-ui-text">{score}</div>
       <div className="text-sm font-medium text-ui-muted">{label}</div>
       <div className="text-xs text-ui-muted mt-1">{action}</div>

@@ -52,9 +52,9 @@ export function ConflictAnalysisSection({
                         {count} ({Math.round((count / conflictPlacementsCount) * 100)}%)
                       </span>
                     </div>
-                    <div className="h-2 bg-ui-border rounded-full overflow-hidden">
+                    <div className="meter-lg">
                       <div
-                        className="h-full bg-status-warning"
+                        className="meter-fill bg-status-warning"
                         style={{
                           width: `${(count / conflictPlacementsCount) * 100}%`,
                         }}

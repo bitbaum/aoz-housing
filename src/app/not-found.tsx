@@ -3,8 +3,8 @@ import Link from 'next/link'
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-brand-background">
-      <div className="max-w-md p-8 bg-ui-surface rounded-lg shadow-card text-center">
-        <div className="w-16 h-16 bg-ui-subtle rounded-full flex items-center justify-center mx-auto mb-6">
+      <div className="max-w-md p-8 bg-ui-surface rounded-lg border border-ui-border text-center">
+        <div className="icon-container-lg mx-auto mb-6 h-16 w-16">
           <span className="text-3xl text-ui-muted">404</span>
         </div>
         <h1 className="text-xl font-semibold text-ui-text mb-2">

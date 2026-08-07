@@ -89,7 +89,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
         <div className="flex gap-2 overflow-x-auto pb-3 mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveCategory(null)}
-            className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`min-h-[44px] px-4 py-2 rounded-sm text-sm font-medium whitespace-nowrap transition-colors ${
               !activeCategory
                 ? 'bg-brand-primary text-ui-on-accent'
                 : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
@@ -101,7 +101,7 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
-              className={`min-h-[44px] px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`min-h-[44px] px-4 py-2 rounded-sm text-sm font-medium whitespace-nowrap transition-colors ${
                 activeCategory === cat
                   ? 'bg-brand-primary text-ui-on-accent'
                   : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
