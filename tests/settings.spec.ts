@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { BRAND } from '../src/lib/config/brand'
 import { findAdminNavLink } from './helpers'
 
 // storageState from playwright.config handles staff auth
@@ -32,8 +33,8 @@ test.describe('Settings page', () => {
   test('team list shows at least one staff member', async ({ page }) => {
     await page.goto('/settings')
 
-    // At least one staff code visible (AOZ- format)
-    const codeEl = page.locator('text=/AOZ-/').first()
+    // At least one staff code visible, in the ACTIVE brand's format
+    const codeEl = page.locator(`text=/${BRAND.codePrefix}/`).first()
     await expect(codeEl).toBeVisible({ timeout: 15_000 })
   })
 
