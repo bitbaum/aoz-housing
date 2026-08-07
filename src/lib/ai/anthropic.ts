@@ -1,12 +1,11 @@
 /**
- * Anthropic client — one place that owns the key check, the lazy client and
- * the model choice.
+ * Anthropic client — for the streaming chat assistant only.
  *
- * Both AI features go through here: the chat assistant (streaming, with tools)
- * and form assistance (one non-streaming completion). Keeping the client here
- * means there is one answer to "is the assistant configured?" and one place to
- * change the model, rather than a second copy drifting in the next route that
- * needs a completion.
+ * The chat route is a tool-use loop written against the Anthropic SDK, so it
+ * keeps its own client and its own "is it configured?" answer. Anything that
+ * needs a plain completion — form assistance, and anything added next — goes
+ * through src/lib/ai/provider.ts instead, which runs on whichever provider the
+ * deployment actually has a key for.
  */
 
 import Anthropic from '@anthropic-ai/sdk'
@@ -19,7 +18,7 @@ export function getAnthropic(): Anthropic {
   return _client
 }
 
-/** Whether an API key is present at all. Callers answer 503 when it is not. */
+/** Whether an Anthropic key is present. The chat route answers 503 when not. */
 export function hasAnthropicKey(): boolean {
   return !!process.env.ANTHROPIC_API_KEY
 }
@@ -34,31 +33,4 @@ export function hasAnthropicKey(): boolean {
 export async function getAnthropicModel(): Promise<string> {
   const { env } = await import('@/lib/env')
   return env.ANTHROPIC_MODEL
-}
-
-/**
- * One non-streaming completion, returning plain text.
- *
- * This is the seam @fleet/ai-forms calls: the package never owns keys, models
- * or budgets, so form assistance uses the same client and model policy as
- * everything else in the app.
- */
-export async function completeText(input: {
-  system: string
-  prompt: string
-  maxTokens: number
-  temperature: number
-}): Promise<string> {
-  const message = await getAnthropic().messages.create({
-    model: await getAnthropicModel(),
-    max_tokens: input.maxTokens,
-    temperature: input.temperature,
-    system: input.system,
-    messages: [{ role: 'user', content: input.prompt }],
-  })
-
-  return message.content
-    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-    .map((block) => block.text)
-    .join('')
 }

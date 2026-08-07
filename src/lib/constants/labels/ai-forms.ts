@@ -24,7 +24,7 @@ export const AI_FORM_LABELS = {
 } as const
 
 export const AI_FORM_ERRORS = {
-  notConfigured: 'KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt).',
+  notConfigured: 'KI-Assistent nicht konfiguriert (kein API-Schlüssel hinterlegt).',
   unauthenticated: 'Nicht authentifiziert',
   rateLimited: (seconds: number) => `Zu viele Anfragen. Bitte warten Sie ${seconds} Sekunden.`,
 } as const

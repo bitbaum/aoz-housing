@@ -27,6 +27,10 @@ const envSchema = z.object({
   CRON_SECRET: z.string().min(16).optional(),
 
   // Optional integrations
+  // AI: whichever key is set decides the provider (Groq wins if both are).
+  // See src/lib/ai/provider.ts.
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
   ANTHROPIC_API_KEY: z.string().optional(),
   ANTHROPIC_MODEL: z.string().default('claude-opus-5'),
   BREVO_API_KEY: z.string().optional(),
