@@ -4,11 +4,10 @@
  * Provides session management for staff and residents.
  * Uses stateless JWT tokens stored in httpOnly cookies.
  */
-import { BRAND } from '@/lib/config/brand'
 
 import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
-import { AUTH_CONFIG } from './config'
+import { AUTH_CONFIG, RESIDENT_CODE_PREFIX } from './config'
 import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
 import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
@@ -159,11 +158,23 @@ export async function isAuthenticated(): Promise<boolean> {
 
 /**
  * Authenticate by code (unified login)
- * AOZ-prefixed codes → staff login
- * RES-prefixed codes → resident login
+ *
+ * RES-prefixed codes → resident login. Everything else → staff login, resolved
+ * by exact string.
+ *
+ * Deliberately NOT routed on the current brand's prefix. This used to read
+ * code.startsWith(`${BRAND.shortName}-`), which meant flipping the default
+ * brand to AOCH stopped resolving every AOZ- code in the database — all 21
+ * staff accounts, 19 of which had logged in before. A cosmetic rebrand locked
+ * every user out of production, and said "Ungueltiger Code" while doing it.
+ *
+ * brand.ts already promises exactly this: "login resolves a code by exact
+ * string, so codes issued under a previous brand keep working. A rebrand must
+ * not lock anyone out." The promise was in a comment; now it is in the code.
+ * `codePrefix` governs code GENERATION only, and nothing else may read it.
  */
 export async function loginByCode(code: string, clientIp: string): Promise<LoginByCodeResult> {
-  if (code.startsWith(`${BRAND.shortName}-`)) {
+  if (!code.startsWith(RESIDENT_CODE_PREFIX)) {
     // Staff login
     const user = await prisma.user.findUnique({
       where: { code },
@@ -199,27 +210,23 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     }
   }
 
-  if (code.startsWith('RES-')) {
-    // Resident login
-    const resident = await prisma.resident.findUnique({
-      where: { code },
-      select: { id: true, code: true },
-    })
+  // Resident login
+  const resident = await prisma.resident.findUnique({
+    where: { code },
+    select: { id: true, code: true },
+  })
 
-    if (!resident) {
-      recordLoginAttempt(clientIp)
-      return { success: false, error: 'Ungültiger Code' }
-    }
-
-    clearLoginAttempts(clientIp)
-    return {
-      success: true,
-      type: 'resident',
-      code: resident.code,
-    }
+  if (!resident) {
+    recordLoginAttempt(clientIp)
+    return { success: false, error: 'Ungültiger Code' }
   }
 
-  return { success: false, error: `Ungültiger Code. Codes beginnen mit ${BRAND.shortName}- oder RES-.` }
+  clearLoginAttempts(clientIp)
+  return {
+    success: true,
+    type: 'resident',
+    code: resident.code,
+  }
 }
 
 /**

@@ -21,6 +21,18 @@ if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
   throw new Error('SESSION_SECRET environment variable must be set in production')
 }
 
+/**
+ * The one prefix login routes on: RES- goes to residents, everything else to
+ * staff, resolved by exact string.
+ *
+ * Deliberately not brand-derived. Resident codes were never branded, and
+ * routing staff login on the *current* brand's prefix is what locked every
+ * AOZ- account out of production when the default brand flipped to AOCH. A
+ * prefix here is a router, not a validator — issued codes must keep resolving
+ * forever, whatever the product is called this year.
+ */
+export const RESIDENT_CODE_PREFIX = 'RES-'
+
 export const AUTH_CONFIG = {
   // JWT Settings
   jwt: {
