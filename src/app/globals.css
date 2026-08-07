@@ -82,6 +82,15 @@
   --tracking-label:   0.08em;
   --tracking-eyebrow: 0.14em;
 
+  /* ── Focus ────────────────────────────────────────────────────────────────
+     Deliberately NOT the brand colour. The AOZ brand red (230 57 70) and the
+     error red (239 68 68) are practically the same hue, so a red ring around a
+     focused input is indistinguishable from a failed validation — the field
+     looks broken the moment you click into it. Focus follows the text colour
+     instead: maximum contrast in both themes, and it keeps red meaning
+     "something is wrong" everywhere it appears. */
+  --color-focus: var(--color-ui-text);
+
   /* ── Depth ────────────────────────────────────────────────────────────────
      Flat by default: in-page surfaces get no shadow, ever. The single
      exception is content that genuinely floats over other content (menus,
@@ -216,7 +225,7 @@
   /* Global visible focus indicator — safety net for any interactive element
      that is not using a project focus ring (btn variants, input, btn-icon). */
   *:focus-visible {
-    outline: 2px solid rgb(var(--color-brand-primary));
+    outline: 2px solid rgb(var(--color-focus));
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
@@ -351,7 +360,7 @@
   @apply w-full px-3 py-2.5 min-h-[44px] rounded-md
          border border-ui-border bg-ui-surface text-ui-text
          placeholder:text-ui-muted/60
-         focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary
+         focus:outline-none focus:border-ui-text focus:ring-1 focus:ring-ui-text
          transition-colors duration-150;
 }
 
