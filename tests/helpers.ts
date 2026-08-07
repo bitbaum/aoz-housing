@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
+import { BRAND } from '../src/lib/config/brand'
 
-const STAFF_CODE = process.env.E2E_STAFF_CODE || 'AOZ-ADMIN1'
+const STAFF_CODE = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
 
 /**
  * Ensure the page has a valid staff session.
