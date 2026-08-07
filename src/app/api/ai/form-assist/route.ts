@@ -14,12 +14,12 @@
 import { createFormAssistHandler, type AuthorizeResult } from '@fleet/ai-forms/server'
 import { getCurrentUser } from '@/lib/auth'
 import { consumeRateLimit } from '@/lib/auth/rate-limit'
-import { completeText, hasAnthropicKey } from '@/lib/ai/anthropic'
+import { completeText, hasCompletionProvider } from '@/lib/ai/provider'
 import { AI_FORMS } from '@/lib/config/ai-forms'
 import { AI_FORM_ERRORS } from '@/lib/constants'
 
 async function authorize(): Promise<AuthorizeResult> {
-  if (!hasAnthropicKey()) {
+  if (!hasCompletionProvider()) {
     return { ok: false, status: 503, error: AI_FORM_ERRORS.notConfigured }
   }
 
