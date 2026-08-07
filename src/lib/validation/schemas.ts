@@ -15,6 +15,7 @@ import type {
   FamilyStatus,
   SleepSchedule,
   SocialStyle,
+  ConflictStyle,
   SmokingStatus,
   MobilityNeed,
   RoomSharingStatus,
@@ -102,6 +103,7 @@ export const GenderSchema = enumFromFactor<Gender>('gender')
 export const FamilyStatusSchema = enumFromFactor<FamilyStatus>('familyStatus')
 export const SleepScheduleSchema = enumFromFactor<SleepSchedule>('sleepSchedule')
 export const SocialStyleSchema = enumFromFactor<SocialStyle>('socialStyle')
+export const ConflictStyleSchema = enumFromFactor<ConflictStyle>('conflictStyle')
 export const SmokingStatusSchema = enumFromFactor<SmokingStatus>('smokingStatus')
 export const MobilityNeedSchema = enumFromFactor<MobilityNeed>('mobilityNeeds')
 export const RoomSharingStatusSchema = enumFromFactor<RoomSharingStatus>('roomSharingStatus')
@@ -163,7 +165,16 @@ export const ResidentInputSchema = z.object({
   cleanlinessPractice: scaleSchema.default(3),
   cleanlinessExpectation: scaleSchema.default(3),
   chaosTolerance: scaleSchema.default(3),
+  // guestTolerance and conflictStyle were missing here while the form
+  // collected them, the database stored them and the matching algorithm
+  // weighted them — so zod stripped every answer and every resident was saved
+  // with the column default. The damage was invisible because "nobody
+  // answered" and "answered 3 / COOPERATIVE" look identical in the data, and
+  // it disabled the avoidant-vs-direct conflict check entirely: that clash
+  // cannot occur if everyone is COOPERATIVE.
+  guestTolerance: scaleSchema.default(3),
   socialStyle: SocialStyleSchema,
+  conflictStyle: ConflictStyleSchema.default('COOPERATIVE' as ConflictStyle),
   languages: z.array(z.string()).default([]),
   culturalRegion: z.string().optional().nullable(),
   smokingStatus: SmokingStatusSchema,
