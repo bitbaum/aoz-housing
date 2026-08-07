@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
-import { checkRateLimit } from '@/lib/auth/rate-limit'
+import { consumeRateLimit } from '@/lib/auth/rate-limit'
 import { getAnthropic, getAnthropicModel, hasAnthropicKey } from '@/lib/ai/anthropic'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -243,7 +243,12 @@ export async function POST(request: Request) {
 
   // Throttle per user: the endpoint streams to Anthropic with up to 5 tool
   // iterations × 8192 tokens. Unbounded calls are an abuse / billing risk.
-  const rateCheck = checkRateLimit(`ai-chat:${user.id}`)
+  //
+  // `consume`, not `check`: checkRateLimit only reads the counter, and nothing
+  // on this path ever incremented it, so this throttle could not trip no matter
+  // how many requests one user made. Every call here is metered, so every call
+  // counts — there is no failed-vs-successful distinction to make.
+  const rateCheck = consumeRateLimit(`ai-chat:${user.id}`)
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: `Zu viele Anfragen. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.` },
