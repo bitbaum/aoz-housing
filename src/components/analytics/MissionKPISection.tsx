@@ -48,7 +48,7 @@ export function MissionKPISection({ kpis, baseline }: Props) {
             )}
           </p>
         </div>
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${trendStyle.bg} ${trendStyle.text}`}>
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium ${trendStyle.bg} ${trendStyle.text}`}>
           <span aria-hidden="true">{trendStyle.icon}</span>
           {trendStyle.label}
         </div>
@@ -207,9 +207,9 @@ function KPICard({
           </div>
           {/* Progress bar */}
           {progressPct !== null && (
-            <div className="h-1.5 bg-ui-subtle rounded-full overflow-hidden">
+            <div className="meter">
               <div
-                className={`h-full rounded-full transition-all ${isAchieved ? 'bg-status-success' : 'bg-brand-primary'}`}
+                className={`h-full rounded-sm transition-all ${isAchieved ? 'bg-status-success' : 'bg-brand-primary'}`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>

@@ -263,9 +263,9 @@ function OccupancyIndicator({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-2 bg-ui-border rounded-full overflow-hidden">
+      <div className="meter-lg w-16">
         <div
-          className={`h-full rounded-full ${
+          className={`h-full rounded-sm ${
             percentage === 100
               ? 'bg-brand-primary'
               : percentage > 0

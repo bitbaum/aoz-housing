@@ -32,7 +32,7 @@ export default async function PortalLayout({
       <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
 
       {/* Header with responsive navigation */}
-      <header className="bg-ui-surface/95 backdrop-blur-sm border-b border-ui-border sticky top-0 z-40">
+      <header className="chrome-bar sticky top-0">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
           <PortalNav hasStaffAccess={hasStaffAccess} />
         </div>

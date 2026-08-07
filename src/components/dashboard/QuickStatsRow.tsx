@@ -36,7 +36,7 @@ export function QuickStat({ label, value, total, suffix, subtext, href, color, i
   return (
     <Link
       href={href}
-      className={`block p-4 rounded-lg border-2 ${colorStyles[color]} hover:shadow-card-hover transition-all`}
+      className={`block p-4 rounded-lg border-2 ${colorStyles[color]} transition-colors`}
     >
       <div className="flex items-center justify-between mb-1">
         <span className="text-xl inline-flex items-center">{icon}</span>
@@ -49,9 +49,9 @@ export function QuickStat({ label, value, total, suffix, subtext, href, color, i
         <div className="text-xs opacity-70 mt-0.5">{subtext}</div>
       )}
       {total !== undefined && (
-        <div className="mt-2 h-1.5 bg-ui-surface/50 rounded-full overflow-hidden">
+        <div className="meter mt-2 bg-ui-surface/50">
           <div
-            className="h-full bg-current rounded-full transition-all"
+            className="h-full bg-current rounded-sm transition-all"
             style={{ width: `${(value / total) * 100}%` }}
           />
         </div>

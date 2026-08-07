@@ -10,6 +10,7 @@ import {
   newTransferRequestNotification,
   newIncidentNotification,
 } from '../templates'
+import { BRAND } from '@/lib/config/brand'
 
 // =============================================================================
 // incidentFollowUpReminder
@@ -35,12 +36,12 @@ describe('incidentFollowUpReminder', () => {
 
   test('returns subject with incident count', () => {
     const result = incidentFollowUpReminder(incidents)
-    expect(result.subject).toBe('[AOZ Housing] 2 überfällige Nachverfolgungen')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] 2 überfällige Nachverfolgungen`)
   })
 
   test('subject reflects single incident count', () => {
     const result = incidentFollowUpReminder([incidents[0]])
-    expect(result.subject).toBe('[AOZ Housing] 1 überfällige Nachverfolgungen')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] 1 überfällige Nachverfolgungen`)
   })
 
   test('html contains incident descriptions', () => {
@@ -84,12 +85,12 @@ describe('incidentFollowUpReminder', () => {
 
   test('html contains footer', () => {
     const result = incidentFollowUpReminder(incidents)
-    expect(result.html).toContain('automatisch vom AOZ Housing System')
+    expect(result.html).toContain(`automatisch vom ${BRAND.shortName} Wohnen System`)
   })
 
   test('handles empty array', () => {
     const result = incidentFollowUpReminder([])
-    expect(result.subject).toBe('[AOZ Housing] 0 überfällige Nachverfolgungen')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] 0 überfällige Nachverfolgungen`)
     expect(result.html).toContain('0 Vorfall')
   })
 
@@ -134,7 +135,7 @@ describe('checkInReminder', () => {
 
   test('returns subject with resident count', () => {
     const result = checkInReminder(overdueResidents)
-    expect(result.subject).toBe('[AOZ Housing] 3 Check-ins überfällig')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] 3 Check-ins überfällig`)
   })
 
   test('html contains resident codes', () => {
@@ -172,7 +173,7 @@ describe('checkInReminder', () => {
 
   test('handles empty array', () => {
     const result = checkInReminder([])
-    expect(result.subject).toBe('[AOZ Housing] 0 Check-ins überfällig')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] 0 Check-ins überfällig`)
     expect(result.html).toContain('0 Bewohner')
   })
 })
@@ -189,7 +190,7 @@ describe('lowSatisfactionAlert', () => {
       overallSatisfaction: 1,
       concerns: 'Lärm nachts',
     })
-    expect(result.subject).toBe('[AOZ Housing] Niedrige Zufriedenheit: RES-007')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] Niedrige Zufriedenheit: RES-007`)
   })
 
   test('html contains resident code and unit code', () => {
@@ -284,7 +285,7 @@ describe('newIncidentNotification', () => {
 
   test('returns subject with type and severity in German', () => {
     const result = newIncidentNotification(baseData)
-    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Lärmbeschwerde (Hoch)')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] Neuer Vorfall: Lärmbeschwerde (Hoch)`)
   })
 
   test('html contains resident code and housing unit', () => {
@@ -338,12 +339,12 @@ describe('newIncidentNotification', () => {
 
   test('html contains footer', () => {
     const result = newIncidentNotification(baseData)
-    expect(result.html).toContain('automatisch vom AOZ Housing System')
+    expect(result.html).toContain(`automatisch vom ${BRAND.shortName} Wohnen System`)
   })
 
   test('handles CRITICAL severity correctly', () => {
     const result = newIncidentNotification({ ...baseData, severity: 'CRITICAL', type: 'SAFETY_CONCERN' })
-    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Sicherheitsbedenken (Kritisch)')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] Neuer Vorfall: Sicherheitsbedenken (Kritisch)`)
     expect(result.html).toContain('Kritisch')
   })
 
@@ -354,7 +355,7 @@ describe('newIncidentNotification', () => {
       type: 'PLUMBING',
       severity: 'MEDIUM',
     })
-    expect(result.subject).toBe('[AOZ Housing] Neuer Vorfall: Sanitär (Mittel)')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] Neuer Vorfall: Sanitär (Mittel)`)
     expect(result.html).toContain('Wartung')
     expect(result.html).toContain('Sanitär')
   })
@@ -371,7 +372,7 @@ describe('newTransferRequestNotification', () => {
       currentUnitCode: 'WE-001',
       reason: 'Konflikte mit Mitbewohnern',
     })
-    expect(result.subject).toBe('[AOZ Housing] Neue Verlegungsanfrage: RES-010')
+    expect(result.subject).toBe(`[${BRAND.shortName} Wohnen] Neue Verlegungsanfrage: RES-010`)
   })
 
   test('html contains all fields', () => {
@@ -420,6 +421,6 @@ describe('newTransferRequestNotification', () => {
       currentUnitCode: 'WE-001',
       reason: 'Test',
     })
-    expect(result.html).toContain('automatisch vom AOZ Housing System')
+    expect(result.html).toContain(`automatisch vom ${BRAND.shortName} Wohnen System`)
   })
 })

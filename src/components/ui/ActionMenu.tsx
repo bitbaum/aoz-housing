@@ -84,7 +84,7 @@ export function ActionMenu({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-1 w-40 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50 animate-in"
+          className="absolute right-0 mt-1 w-40 overlay-panel py-1 z-50 animate-in"
           role="menu"
         >
           {onEdit && (

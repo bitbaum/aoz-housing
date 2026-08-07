@@ -8,7 +8,7 @@ function Box({ className = '' }: { className?: string }) {
 }
 
 function Circle({ className = '' }: { className?: string }) {
-  return <div className={`bg-ui-border rounded-full ${className}`} />
+  return <div className={`bg-ui-border rounded-sm ${className}`} />
 }
 
 /** Generic skeleton box — for one-off shapes. Tailwind classes set size/shape. */
@@ -36,10 +36,25 @@ export function SkeletonStatCard() {
   )
 }
 
-/** Row of 4 stat cards matching the common list page layout */
+/**
+ * Column counts must be written out in full. Tailwind extracts class names by
+ * scanning source text, so an interpolated `sm:grid-cols-${count}` is never
+ * generated and the grid silently falls back to one column — invisible to
+ * tsc, ESLint and the type system alike.
+ */
+const STAT_GRID_COLUMNS: Record<number, string> = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-3',
+  4: 'sm:grid-cols-4',
+  5: 'sm:grid-cols-5',
+  6: 'sm:grid-cols-6',
+}
+
+/** Row of stat cards matching the common list page layout */
 export function SkeletonStats({ count = 4 }: { count?: number }) {
+  const columns = STAT_GRID_COLUMNS[count] ?? STAT_GRID_COLUMNS[4]
   return (
-    <div className={`grid grid-cols-2 sm:grid-cols-${count} gap-3 sm:gap-4 mb-6 sm:mb-8`}>
+    <div className={`grid grid-cols-2 ${columns} gap-3 sm:gap-4 mb-6 sm:mb-8`}>
       {Array.from({ length: count }, (_, i) => (
         <SkeletonStatCard key={i} />
       ))}
@@ -80,7 +95,7 @@ export function SkeletonCard() {
           <Box className="h-5 w-24" />
           <Box className="h-4 w-32" />
         </div>
-        <Box className="h-6 w-16 rounded-full" />
+        <Box className="h-6 w-16 rounded-sm" />
       </div>
       <Box className="h-4 w-48" />
       <div className="flex items-center justify-between pt-3 border-t border-ui-border">
@@ -119,7 +134,7 @@ export function SkeletonRow() {
             </div>
           </div>
         </div>
-        <Box className="h-6 w-16 rounded-full" />
+        <Box className="h-6 w-16 rounded-sm" />
       </div>
     </div>
   )
@@ -158,7 +173,7 @@ export function SkeletonPlacementRow() {
             <Box className="h-3 w-12" />
             <Box className="h-5 w-16" />
           </div>
-          <Box className="h-6 w-16 rounded-full" />
+          <Box className="h-6 w-16 rounded-sm" />
         </div>
       </div>
       <div className="flex gap-4 mt-3 pt-3 border-t border-ui-border">

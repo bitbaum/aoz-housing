@@ -2,17 +2,223 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   AOZH DESIGN SYSTEM — the single source of truth for every design token.
+
+   Design language: technical, flat, high-contrast. Structure is drawn with
+   1px hairlines and near-square corners rather than shadows and soft radii,
+   headings are set tight, and anything numeric is set in mono with tabular
+   figures so columns of data line up. Colour is rationed: the brand red marks
+   the one action that matters on a screen and nothing else, which is what lets
+   the status colours (warning, error) still read as signals in a tool whose
+   whole job is surfacing conflict.
+
+   Two rules keep this a system rather than a coat of paint:
+     1. Every value below is a CSS custom property. `tailwind.config.ts` maps
+        utilities onto these vars and holds zero literals, so re-theming or
+        re-badging is an edit to this file alone.
+     2. Components only ever use semantic classes (`.card`, `.btn-*`, `bg-ui-*`).
+        Enforced by `src/lib/__tests__/design-system.test.ts`.
+
+   What lives here: colour, radius, tracking, shadow — the values a re-theme
+   would change. What does not: the font-size and spacing scales, which are
+   structural and brand-invariant, so they stay on Tailwind's defaults.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: light;
+
+  /* ── Surfaces & text ──────────────────────────────────────────────────────
+     Canvas and surface are both pure white: cards are separated by their
+     border, not by floating above a tinted background. That is the single
+     biggest visual difference from the old theme. */
+  --color-ui-canvas:        255 255 255;
+  --color-ui-surface:       255 255 255;
+  --color-ui-elevated:      255 255 255;
+  --color-ui-subtle:        246 246 246;
+  --color-ui-border:        226 226 226;
+  --color-ui-border-strong: 168 168 168;
+  --color-ui-text:          10 10 10;
+  --color-ui-muted:         112 112 112;
+  --color-ui-inverse:       255 255 255;
+  --color-ui-on-accent:     255 255 255;
+
+  /* ── Brand palette ────────────────────────────────────────────────────────
+     THE ORIGINAL AOZ PALETTE, BYTE-FOR-BYTE. Do not edit these values.
+     Switching the product back to AOZ branding must restore exactly what AOZ
+     was shown, not an approximation of it. AOZH deliberately ships the same
+     palette — the brief was to keep AOZ's colours and change the design
+     language — so it adds no override block at all. A future brand that wants
+     different colours adds `:root[data-brand='<id>']` below. */
+  --color-brand-primary:        230 57 70;
+  --color-brand-primary-light:  236 80 92;
+  --color-brand-primary-dark:   186 34 46;
+  --color-brand-secondary:      25 82 82;
+  --color-brand-secondary-light:45 112 112;
+  --color-brand-secondary-dark: 17 55 55;
+  --color-brand-accent:         235 244 243;
+  --color-brand-accent-light:   245 249 249;
+  --color-brand-accent-dark:    198 222 220;
+  --color-brand-background:     247 247 248;
+  --color-brand-surface:        255 255 255;
+
+  /* ── Geometry ─────────────────────────────────────────────────────────────
+     Near-square. `rounded-lg` is the workhorse across the app (200+ uses), so
+     pinning it at 4px re-skins the entire product from this one line. */
+  --radius-sm:  2px;
+  --radius-md:  3px;
+  --radius-lg:  4px;
+  --radius-xl:  6px;
+  --radius-2xl: 8px;
+
+  /* ── Typography ───────────────────────────────────────────────────────────
+     Display copy is set tight; micro-labels are set wide and uppercase. The
+     gap between the two is what makes the hierarchy read as deliberate. */
+  --tracking-display: -0.032em;
+  --tracking-heading: -0.02em;
+  --tracking-tight:   -0.01em;
+  --tracking-normal:  0em;
+  --tracking-wide:    0.02em;
+  --tracking-label:   0.08em;
+  --tracking-eyebrow: 0.14em;
+
+  /* ── Depth ────────────────────────────────────────────────────────────────
+     Flat by default: in-page surfaces get no shadow, ever. The single
+     exception is content that genuinely floats over other content (menus,
+     dialogs), where a border alone cannot say "this is on top". */
+  --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.06);
+
+  /* ── Compatibility score (5-tier) ─────────────────────────────────────── */
+  --color-score-excellent: 34 197 94;
+  --color-score-good:      132 204 22;
+  --color-score-medium:    245 158 11;
+  --color-score-low:       249 115 22;
+  --color-score-critical:  239 68 68;
+  --color-score-contrast:  10 10 10;
+
+  /* Dark readable shades, for score text on tinted backgrounds. */
+  --color-score-excellent-text: 22 163 74;
+  --color-score-good-text:      5 150 105;
+  --color-score-medium-text:    202 138 4;
+  --color-score-low-text:       234 88 12;
+  --color-score-critical-text:  220 38 38;
+
+  /* ── Incident severity ────────────────────────────────────────────────── */
+  --color-severity-low:      156 163 175;
+  --color-severity-medium:   251 191 36;
+  --color-severity-high:     249 115 22;
+  --color-severity-critical: 239 68 68;
+
+  /* ── Status ───────────────────────────────────────────────────────────── */
+  --color-status-success: 34 197 94;
+  --color-status-warning: 245 158 11;
+  --color-status-error:   239 68 68;
+  --color-status-info:    59 130 246;
+
+  --color-status-success-text: 21 128 61;
+  --color-status-warning-text: 180 83 9;
+  --color-status-error-text:   185 28 28;
+  --color-status-info-text:    29 78 216;
+}
+
+/* ── Dark theme ─────────────────────────────────────────────────────────────
+   True black canvas. The brand red holds 5.0:1 against it, so it stays as-is
+   and the palette needs no per-theme hue shift — only the surfaces move. */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-ui-canvas:        0 0 0;
+  --color-ui-surface:       10 10 10;
+  --color-ui-elevated:      20 20 20;
+  --color-ui-subtle:        20 20 20;
+  --color-ui-border:        38 38 38;
+  --color-ui-border-strong: 82 82 82;
+  --color-ui-text:          250 250 250;
+  --color-ui-muted:         161 161 161;
+  --color-ui-inverse:       10 10 10;
+  --color-ui-on-accent:     255 255 255;
+
+  --color-brand-background: 0 0 0;
+  --color-brand-surface:    10 10 10;
+  --color-brand-accent:      18 32 32;
+  --color-brand-accent-light:23 43 43;
+  --color-brand-accent-dark: 36 73 73;
+
+  --color-score-contrast: 10 10 10;
+
+  --color-score-excellent-text: 134 239 172;
+  --color-score-good-text:      190 242 100;
+  --color-score-medium-text:    253 186 116;
+  --color-score-low-text:       251 146 60;
+  --color-score-critical-text:  252 165 165;
+  --color-status-success-text:  134 239 172;
+  --color-status-warning-text:  253 186 116;
+  --color-status-error-text:    252 165 165;
+  --color-status-info-text:     147 197 253;
+
+  --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.10);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-ui-canvas:        0 0 0;
+    --color-ui-surface:       10 10 10;
+    --color-ui-elevated:      20 20 20;
+    --color-ui-subtle:        20 20 20;
+    --color-ui-border:        38 38 38;
+    --color-ui-border-strong: 82 82 82;
+    --color-ui-text:          250 250 250;
+    --color-ui-muted:         161 161 161;
+    --color-ui-inverse:       10 10 10;
+    --color-ui-on-accent:     255 255 255;
+
+    --color-brand-background: 0 0 0;
+    --color-brand-surface:    10 10 10;
+    --color-brand-accent:      18 32 32;
+    --color-brand-accent-light:23 43 43;
+    --color-brand-accent-dark: 36 73 73;
+
+    --color-score-contrast: 10 10 10;
+
+    --color-score-excellent-text: 134 239 172;
+    --color-score-good-text:      190 242 100;
+    --color-score-medium-text:    253 186 116;
+    --color-score-low-text:       251 146 60;
+    --color-score-critical-text:  252 165 165;
+    --color-status-success-text:  134 239 172;
+    --color-status-warning-text:  253 186 116;
+    --color-status-error-text:    252 165 165;
+    --color-status-info-text:     147 197 253;
+
+    --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.10);
+  }
+}
+
 @layer base {
-  h1, h2, h3, h4 {
-    letter-spacing: 0;
+  body {
+    @apply bg-ui-canvas text-ui-text;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
+  /* Headings carry the display tracking. Set once here so no component has to
+     remember it, and so a change to the type feel is a one-line edit. */
+  h1 { letter-spacing: var(--tracking-display); }
+  h2, h3 { letter-spacing: var(--tracking-heading); }
+  h4, h5, h6 { letter-spacing: var(--tracking-tight); }
+
+  /* Tabular figures everywhere numbers appear in running text, so digits keep
+     a constant width and columns of data do not jitter between renders. */
+  table, dd, output { font-variant-numeric: tabular-nums; }
+
   /* Global visible focus indicator — safety net for any interactive element
-     that isn't using a project focus ring (btn variants, input, btn-icon). */
+     that is not using a project focus ring (btn variants, input, btn-icon). */
   *:focus-visible {
     outline: 2px solid rgb(var(--color-brand-primary));
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 }
 
@@ -26,7 +232,250 @@
   }
 }
 
-/* Skip-to-content link — visible only when focused via keyboard. */
+::selection {
+  background: rgb(var(--color-brand-primary) / 0.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT CLASSES
+   The vocabulary every component composes from. Adding a raw utility stack in
+   a component that duplicates one of these is the violation the design-system
+   test is there to catch.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+
+/* ── Typographic primitives ─────────────────────────────────────────────── */
+
+/* Uppercase micro-label. The signature move of this design language: it marks
+   what a number or section IS, without competing with the value itself. */
+.eyebrow {
+  @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted;
+}
+
+/* Anything the eye has to compare down a column: counts, scores, codes, dates.
+   Mono + tabular figures keep digits aligned; tight tracking keeps it compact. */
+.numeric {
+  @apply font-mono tabular-nums tracking-tight;
+}
+
+/* Big number in a stat block — the one place type gets to be loud. */
+.metric {
+  @apply numeric text-3xl font-semibold leading-none text-ui-text;
+}
+
+/* ── Surfaces ───────────────────────────────────────────────────────────── */
+
+.card {
+  @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5;
+}
+
+/* Hover affordance is a border and fill change, never a shadow — a card must
+   not appear to lift off a flat surface. */
+.card-hover {
+  @apply card block hover:border-ui-border-strong hover:bg-ui-subtle transition-colors duration-150 cursor-pointer;
+}
+
+/* Content that genuinely floats above other content (menus, popovers,
+   dialogs). The only place a shadow is allowed. */
+.overlay-panel {
+  @apply bg-ui-elevated border border-ui-border rounded-lg shadow-overlay;
+}
+
+/* The dimming layer behind a modal or drawer. One definition — it used to be
+   spelled six different ways (bg-black/40 through /60), which is six chances
+   for the app to look subtly inconsistent depending on which dialog opened.
+   Callers add their own z-index; stacking is the caller's concern, not the
+   scrim's. */
+.scrim {
+  @apply fixed inset-0 bg-black/50;
+}
+
+/* Full-bleed app chrome: hairline underline over a blurred translucent fill.
+   Deliberately sets no `position` — the admin and portal headers are sticky
+   while the mobile bar is fixed, and baking one in would force callers to
+   fight it with a competing position utility (whichever Tailwind happens to
+   emit last would win, which is not a thing to rely on). */
+.chrome-bar {
+  @apply bg-ui-canvas/85 backdrop-blur-md border-b border-ui-border z-40;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────
+   NOTE on naming (historical, do not "fix" without a sweep): `.btn-primary` is
+   the NEUTRAL near-black button used as the default action everywhere, and
+   `.btn-secondary` is the BRAND-COLOURED one used for emphasis. 121 files rely
+   on this. */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
+         text-sm font-medium tracking-tight min-h-[44px]
+         transition-colors duration-150
+         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ui-canvas
+         disabled:opacity-40 disabled:pointer-events-none;
+}
+
+.btn-primary {
+  @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/30;
+}
+
+.btn-secondary {
+  @apply btn bg-brand-primary text-ui-on-accent hover:bg-brand-primary-dark focus:ring-brand-primary/40;
+}
+
+.btn-outline {
+  @apply btn border border-ui-border bg-ui-surface text-ui-text
+         hover:bg-ui-subtle hover:border-ui-border-strong focus:ring-ui-text/25;
+}
+
+.btn-ghost {
+  @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-ui-text/25;
+}
+
+.btn-danger {
+  @apply btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/40;
+}
+
+.btn-warning {
+  @apply btn bg-status-warning text-ui-on-accent hover:bg-status-warning/90 focus:ring-status-warning/40;
+}
+
+/* Icon-only square — keeps the 44px target without text-sized padding. */
+.btn-icon {
+  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md
+         text-ui-muted hover:bg-ui-subtle hover:text-ui-text
+         focus:outline-none focus:ring-2 focus:ring-ui-text/25 transition-colors;
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+
+.input {
+  @apply w-full px-3 py-2.5 min-h-[44px] rounded-md
+         border border-ui-border bg-ui-surface text-ui-text
+         placeholder:text-ui-muted/60
+         focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary
+         transition-colors duration-150;
+}
+
+.label {
+  @apply block text-xs font-medium tracking-wide text-ui-muted mb-1.5;
+}
+
+/* ── Navigation ─────────────────────────────────────────────────────────────
+   Shared by the desktop megamenu, the mobile drawer and the portal nav. The
+   active state is a brand-coloured marker, not a filled pill — colour marks
+   position, it does not decorate. */
+.nav-item {
+  @apply inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
+         text-ui-muted hover:text-ui-text hover:bg-ui-subtle
+         transition-colors duration-150 whitespace-nowrap;
+}
+
+.nav-item-active {
+  @apply nav-item text-ui-text bg-ui-subtle;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+
+.table {
+  @apply min-w-full divide-y divide-ui-border;
+}
+
+.table th {
+  @apply px-4 py-3 bg-ui-subtle text-left eyebrow;
+}
+
+.table td {
+  @apply px-4 py-4 whitespace-nowrap text-sm text-ui-text;
+}
+
+/* ── Badges (outline) & chips (tinted fill) ─────────────────────────────────
+   Both are near-square now; the fill is what distinguishes them, not the
+   corner radius. Uppercase micro-type makes them read as machine states
+   rather than prose. */
+.badge {
+  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+         uppercase tracking-label ring-1 bg-ui-surface;
+}
+
+/* Colours come from the status tokens, never Tailwind's raw palette — "success
+   is green" must have exactly one definition, and the *-text tokens already
+   carry the readable dark-mode shade, so no `dark:` variant is needed here. */
+.badge-active  { @apply badge text-status-success-text ring-status-success/40; }
+.badge-success { @apply badge text-status-success-text ring-status-success/40; }
+.badge-pending { @apply badge text-status-warning-text ring-status-warning/40; }
+.badge-info    { @apply badge text-status-info-text ring-status-info/40; }
+.badge-ended   { @apply badge text-ui-muted ring-ui-border; }
+.badge-alert   { @apply badge text-status-error-text ring-status-error/40; }
+
+.chip {
+  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+         uppercase tracking-label;
+}
+.chip-success { @apply chip bg-status-success/15 text-status-success-text; }
+.chip-warning { @apply chip bg-status-warning/15 text-status-warning-text; }
+.chip-error   { @apply chip bg-status-error/15 text-status-error-text; }
+.chip-info    { @apply chip bg-status-info/15 text-status-info-text; }
+.chip-neutral { @apply chip bg-ui-subtle text-ui-muted ring-1 ring-ui-border; }
+
+/* ── Alerts ─────────────────────────────────────────────────────────────── */
+
+.alert {
+  @apply p-3 rounded-md text-sm flex items-start gap-2 ring-1;
+}
+.alert-error   { @apply alert bg-status-error/10 text-status-error-text ring-status-error/25; }
+.alert-success { @apply alert bg-status-success/10 text-status-success-text ring-status-success/25; }
+.alert-warning { @apply alert bg-status-warning/10 text-status-warning-text ring-status-warning/25; }
+.alert-info    { @apply alert bg-status-info/10 text-status-info-text ring-status-info/25; }
+
+/* ── Avatars ────────────────────────────────────────────────────────────────
+   Square, not circular — the geometry of the system is square, and initials
+   are data like any other. */
+.avatar {
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+         bg-brand-primary text-ui-on-accent font-semibold text-sm select-none;
+}
+.avatar-sm { @apply avatar w-8 h-8 text-xs; }
+.avatar-lg { @apply avatar w-12 h-12 text-base; }
+
+/* ── Meters ─────────────────────────────────────────────────────────────────
+   Occupancy, capacity, score and fairness bars. Square-ended, because a
+   rounded cap misreports the value at both ends — at 3% the pill is all cap
+   and reads as more than nothing. Used with an inner `.meter-fill`. */
+.meter {
+  @apply relative w-full h-1.5 rounded-sm bg-ui-border overflow-hidden;
+}
+.meter-lg { @apply meter h-2.5; }
+.meter-fill {
+  @apply h-full rounded-sm bg-brand-primary transition-[width] duration-300;
+}
+
+/* ── Icon containers ────────────────────────────────────────────────────── */
+
+.icon-container {
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+         bg-ui-subtle text-ui-muted ring-1 ring-ui-border;
+}
+.icon-container-sm { @apply icon-container w-8 h-8; }
+.icon-container-lg { @apply icon-container w-12 h-12; }
+
+/* ── Score indicators ───────────────────────────────────────────────────── */
+
+.score-excellent { @apply bg-score-excellent text-ui-on-accent; }
+.score-good      { @apply bg-score-good text-ui-on-accent; }
+.score-medium    { @apply bg-score-medium text-score-contrast; }
+.score-low       { @apply bg-score-low text-ui-on-accent; }
+.score-critical  { @apply bg-score-critical text-ui-on-accent; }
+/* Legacy aliases */
+.score-moderate  { @apply bg-score-medium text-score-contrast; }
+.score-poor      { @apply bg-score-critical text-ui-on-accent; }
+
+.explainable-number {
+  @apply cursor-pointer underline decoration-dotted underline-offset-4
+         decoration-ui-muted/60 hover:decoration-brand-primary;
+}
+
+}
+
+/* ── Skip-to-content link — visible only when focused via keyboard. ──────── */
 .skip-link {
   position: absolute;
   top: 0;
@@ -34,7 +483,7 @@
   padding: 0.5rem 0.75rem;
   background: rgb(var(--color-brand-primary));
   color: rgb(var(--color-ui-on-accent));
-  border-radius: 0 0 6px 0;
+  border-radius: 0 0 var(--radius-md) 0;
   font-weight: 600;
   transform: translateY(-200%);
   transition: transform 0.15s ease;
@@ -46,349 +495,12 @@
   outline: none;
 }
 
-:root {
-  --foreground: #111111;
-  --muted-foreground: #666666;
-  --background: #fafafa;
-  --surface: #ffffff;
-  --surface-subtle: #fafafa;
-  --border: #e5e5e5;
-  --border-strong: #d4d4d4;
-  --focus-ring: 230 57 70;
-  color-scheme: light;
+/* ── Safe-area utilities for iOS home-indicator overlap on fixed bottom bars ── */
+.pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+.mb-safe { margin-bottom: max(0px, env(safe-area-inset-bottom)); }
 
-  /* UI system tokens — RGB channels for Tailwind opacity modifier support */
-  --color-ui-canvas:        250 250 250;
-  --color-ui-surface:       255 255 255;
-  --color-ui-elevated:      255 255 255;
-  --color-ui-subtle:        250 250 250;
-  --color-ui-border:        229 229 229;
-  --color-ui-border-strong: 212 212 212;
-  --color-ui-text:          17 17 17;
-  --color-ui-muted:         102 102 102;
-  --color-ui-inverse:       255 255 255;
-  --color-ui-on-accent:     255 255 255;
+/* ── Animations ─────────────────────────────────────────────────────────── */
 
-  /* Brand palette — RGB channels for Tailwind opacity modifier support.
-     These base values are the ORIGINAL AOZ palette and are deliberately left
-     untouched: switching back to AOZ must be lossless, not a reconstruction.
-     A different brand overrides them in the [data-brand] block below. */
-  --color-brand-primary:        230 57 70;
-  --color-brand-primary-light:  236 80 92;
-  --color-brand-primary-dark:   186 34 46;
-  --color-brand-secondary:      25 82 82;
-  --color-brand-secondary-light:45 112 112;
-  --color-brand-secondary-dark: 17 55 55;
-  --color-brand-accent:         235 244 243;
-  --color-brand-accent-light:   245 249 249;
-  --color-brand-accent-dark:    198 222 220;
-  --color-brand-background:     247 247 248;
-  --color-brand-surface:        255 255 255;
-
-  /* Compatibility score colors */
-  --color-score-excellent: 34 197 94;
-  --color-score-good:      132 204 22;
-  --color-score-medium:    245 158 11;
-  --color-score-low:       249 115 22;
-  --color-score-critical:  239 68 68;
-  --color-score-contrast:  17 17 17;
-
-  /* Score text colors — dark readable shades per tier */
-  --color-score-excellent-text: 22 163 74;    /* green-600   */
-  --color-score-good-text:      5 150 105;    /* emerald-600 */
-  --color-score-medium-text:    202 138 4;    /* yellow-600  */
-  --color-score-low-text:       234 88 12;    /* orange-600  */
-  --color-score-critical-text:  220 38 38;    /* red-600     */
-
-  /* Incident severity colors */
-  --color-severity-low:      156 163 175;
-  --color-severity-medium:   251 191 36;
-  --color-severity-high:     249 115 22;
-  --color-severity-critical: 239 68 68;
-
-  /* Status colors */
-  --color-status-success: 34 197 94;
-  --color-status-warning: 245 158 11;
-  --color-status-error:   239 68 68;
-  --color-status-info:    59 130 246;
-
-  /* Status text colors — dark readable shades for text on tinted light backgrounds */
-  --color-status-success-text: 21 128 61;    /* green-700  */
-  --color-status-warning-text: 180 83 9;     /* amber-700  */
-  --color-status-error-text:   185 28 28;    /* red-700    */
-  --color-status-info-text:    29 78 216;    /* blue-700   */
-
-  /* Shadows */
-  --shadow-card:      none;
-  --shadow-card-hover:0 0 0 1px rgb(0 0 0 / 0.06);
-}
-
-/* ── Brand palettes ───────────────────────────────────────────────────────────
-   The :root values above are the ORIGINAL AOZ palette and stay the default, so
-   re-badging to AOZ is lossless rather than a reconstruction. A brand overrides
-   only the --color-brand-* tokens; every component keeps using semantic
-   `brand-*` Tailwind classes and needs no change.
-   The active brand is stamped on <html data-brand> from lib/config/brand.ts. */
-
-:root[data-brand='aoch'] {
-  /* Deep teal instead of AOZ's red. Red is this interface's alarm colour — as a
-     primary in a tool about conflict it makes the calm state and the emergency
-     state look alike. Contrast vs white is ~7:1 in both directions. */
-  --color-brand-primary:         17 94 103;
-  --color-brand-primary-light:   26 125 136;
-  --color-brand-primary-dark:    11 68 75;
-  --color-brand-secondary:       194 106 58;
-  --color-brand-secondary-light: 214 133 90;
-  --color-brand-secondary-dark:  150 78 40;
-  --color-brand-accent:          236 245 246;
-  --color-brand-accent-light:    246 251 251;
-  --color-brand-accent-dark:     198 224 227;
-  --color-brand-background:      247 248 248;
-  --color-brand-surface:         255 255 255;
-}
-
-/* Dark mode keeps the brand hue but drops the surfaces, matching how the AOZ
-   palette already behaves in [data-theme='dark']. */
-[data-theme='dark']:root[data-brand='aoch'] {
-  --color-brand-primary:         56 158 168;
-  --color-brand-primary-light:   84 186 196;
-  --color-brand-primary-dark:    22 108 118;
-  --color-brand-accent:          16 34 36;
-  --color-brand-accent-light:    22 46 49;
-  --color-brand-accent-dark:     34 78 83;
-  --color-brand-background:      9 9 9;
-  --color-brand-surface:         16 16 16;
-}
-
-[data-theme='dark'] {
-  --foreground: #f5f5f5;
-  --muted-foreground: #a3a3a3;
-  --background: #090909;
-  --surface: #101010;
-  --surface-subtle: #171717;
-  --border: #262626;
-  --border-strong: #3f3f46;
-  color-scheme: dark;
-
-  --color-brand-background: 9 9 9;
-  --color-brand-surface: 16 16 16;
-  --color-brand-accent: 18 32 32;
-  --color-brand-accent-light: 23 43 43;
-  --color-brand-accent-dark: 36 73 73;
-
-  --color-ui-canvas:        9 9 9;
-  --color-ui-surface:       16 16 16;
-  --color-ui-elevated:      24 24 27;
-  --color-ui-subtle:        18 18 18;
-  --color-ui-border:        38 38 38;
-  --color-ui-border-strong: 63 63 70;
-  --color-ui-text:          245 245 245;
-  --color-ui-muted:         163 163 163;
-  --color-ui-inverse:       17 17 17;
-  --color-ui-on-accent:     255 255 255;
-
-  --color-score-excellent-text: 134 239 172;
-  --color-score-good-text:      190 242 100;
-  --color-score-medium-text:    253 186 116;
-  --color-score-low-text:       251 146 60;
-  --color-score-critical-text:  252 165 165;
-  --color-status-success-text:  134 239 172;
-  --color-status-warning-text:  253 186 116;
-  --color-status-error-text:    252 165 165;
-  --color-status-info-text:     147 197 253;
-
-  --shadow-card:      0 0 0 1px rgb(255 255 255 / 0.04);
-  --shadow-card-hover:0 1px 3px rgb(0 0 0 / 0.32), 0 0 0 1px rgb(255 255 255 / 0.08);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --foreground: #f5f5f5;
-    --muted-foreground: #a3a3a3;
-    --background: #090909;
-    --surface: #101010;
-    --surface-subtle: #171717;
-    --border: #262626;
-    --border-strong: #3f3f46;
-    color-scheme: dark;
-
-    --color-brand-background: 9 9 9;
-    --color-brand-surface: 16 16 16;
-    --color-brand-accent: 18 32 32;
-    --color-brand-accent-light: 23 43 43;
-    --color-brand-accent-dark: 36 73 73;
-
-    --color-ui-canvas:        9 9 9;
-    --color-ui-surface:       16 16 16;
-    --color-ui-elevated:      24 24 27;
-    --color-ui-subtle:        18 18 18;
-    --color-ui-border:        38 38 38;
-    --color-ui-border-strong: 63 63 70;
-    --color-ui-text:          245 245 245;
-    --color-ui-muted:         163 163 163;
-    --color-ui-inverse:       17 17 17;
-    --color-ui-on-accent:     255 255 255;
-
-    --color-score-excellent-text: 134 239 172;
-    --color-score-good-text:      190 242 100;
-    --color-score-medium-text:    253 186 116;
-    --color-score-low-text:       251 146 60;
-    --color-score-critical-text:  252 165 165;
-    --color-status-success-text:  134 239 172;
-    --color-status-warning-text:  253 186 116;
-    --color-status-error-text:    252 165 165;
-    --color-status-info-text:     147 197 253;
-
-    --shadow-card:      0 0 0 1px rgb(255 255 255 / 0.04);
-    --shadow-card-hover:0 1px 3px rgb(0 0 0 / 0.32), 0 0 0 1px rgb(255 255 255 / 0.08);
-  }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  text-rendering: optimizeLegibility;
-}
-
-::selection {
-  background: rgb(var(--color-brand-primary) / 0.16);
-}
-
-/* Score indicator styles (5-tier: 80+, 60+, 40+, 20+, 0+) */
-.score-excellent { @apply bg-score-excellent text-ui-on-accent; }
-.score-good { @apply bg-score-good text-ui-on-accent; }
-.score-medium { @apply bg-score-medium text-score-contrast; }
-.score-low { @apply bg-score-low text-ui-on-accent; }
-.score-critical { @apply bg-score-critical text-ui-on-accent; }
-/* Legacy aliases */
-.score-moderate { @apply bg-score-medium text-score-contrast; }
-.score-poor { @apply bg-score-critical text-ui-on-accent; }
-
-/* Surface styles */
-.card {
-  @apply bg-ui-surface text-ui-text rounded-lg shadow-card border border-ui-border p-4 sm:p-5;
-}
-
-.card-hover {
-  @apply card hover:shadow-card-hover hover:border-ui-border-strong transition-colors duration-150 cursor-pointer;
-}
-
-/* Icon container */
-.icon-container {
-  @apply w-10 h-10 rounded-md bg-ui-subtle text-ui-muted ring-1 ring-ui-border flex items-center justify-center;
-}
-
-.icon-container-sm {
-  @apply w-8 h-8 rounded-md bg-ui-subtle text-ui-muted ring-1 ring-ui-border flex items-center justify-center;
-}
-
-.icon-container-lg {
-  @apply w-12 h-12 rounded-md bg-ui-subtle text-ui-muted ring-1 ring-ui-border flex items-center justify-center;
-}
-
-/* Button styles */
-.btn {
-  @apply px-4 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ui-canvas min-h-[44px] inline-flex items-center justify-center;
-}
-
-.btn-primary {
-  @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/25;
-}
-
-.btn-secondary {
-  @apply btn bg-brand-primary text-ui-on-accent hover:bg-brand-primary-dark focus:ring-brand-primary/30;
-}
-
-.btn-outline {
-  @apply btn border border-ui-border bg-ui-surface text-ui-text hover:bg-ui-subtle hover:border-ui-border-strong focus:ring-brand-primary/25;
-}
-
-.btn-ghost {
-  @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-brand-primary/25;
-}
-
-.btn-danger {
-  @apply btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/30;
-}
-
-.btn-warning {
-  @apply btn bg-status-warning text-ui-on-accent hover:bg-status-warning/90 focus:ring-status-warning/30;
-}
-
-/* Icon-only square button — keeps 44px target without text-sized padding */
-.btn-icon {
-  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:outline-none focus:ring-2 focus:ring-brand-primary/25 transition-colors;
-}
-
-/* Form styles */
-.input {
-  @apply w-full px-3 py-2.5 border border-ui-border rounded-md bg-ui-surface text-ui-text placeholder:text-ui-muted/60 focus:outline-none focus:ring-2 focus:ring-ui-text/10 focus:border-ui-border-strong min-h-[44px] transition-shadow duration-150;
-}
-
-.label {
-  @apply block text-sm font-medium text-ui-muted mb-1.5;
-}
-
-/* Table styles */
-.table {
-  @apply min-w-full divide-y divide-ui-border;
-}
-
-.table th {
-  @apply px-4 py-3 bg-ui-subtle text-left text-xs font-semibold text-ui-muted uppercase;
-}
-
-.table td {
-  @apply px-4 py-4 whitespace-nowrap text-sm text-ui-text;
-}
-
-/* Status badges */
-.badge {
-  @apply inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ring-1;
-}
-
-.badge-active  { @apply bg-ui-surface text-emerald-700 ring-emerald-200 dark:text-emerald-300 dark:ring-emerald-900/80; }
-.badge-success { @apply bg-ui-surface text-emerald-700 ring-emerald-200 dark:text-emerald-300 dark:ring-emerald-900/80; }
-.badge-pending { @apply bg-ui-surface text-amber-700 ring-amber-200 dark:text-amber-300 dark:ring-amber-900/80; }
-.badge-info    { @apply bg-ui-surface text-blue-700 ring-blue-200 dark:text-blue-300 dark:ring-blue-900/80; }
-.badge-ended   { @apply bg-ui-surface text-ui-muted ring-ui-border; }
-.badge-alert   { @apply bg-ui-surface text-red-700 ring-red-200 dark:text-red-300 dark:ring-red-900/80; }
-
-/* Tinted "chip" variants — rounded-full, slightly bolder fill for emphasis */
-.chip {
-  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
-}
-.chip-success { @apply chip bg-status-success/15 text-status-success-text; }
-.chip-warning { @apply chip bg-status-warning/15 text-status-warning-text; }
-.chip-error   { @apply chip bg-status-error/15 text-status-error-text; }
-.chip-info    { @apply chip bg-status-info/15 text-status-info-text; }
-.chip-neutral { @apply chip bg-ui-subtle text-ui-muted ring-1 ring-ui-border; }
-
-/* Alert banners — unified surface for inline error/success/warning/info messages */
-.alert {
-  @apply p-3 rounded-lg text-sm flex items-start gap-2 ring-1;
-}
-.alert-error   { @apply alert bg-status-error/10 text-status-error-text ring-status-error/25; }
-.alert-success { @apply alert bg-status-success/10 text-status-success-text ring-status-success/25; }
-.alert-warning { @apply alert bg-status-warning/10 text-status-warning-text ring-status-warning/25; }
-.alert-info    { @apply alert bg-status-info/10 text-status-info-text ring-status-info/25; }
-
-/* Initial / number avatar — circle with brand fill */
-.avatar {
-  @apply inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-primary text-ui-on-accent font-medium select-none;
-}
-.avatar-sm { @apply avatar w-8 h-8 text-sm; }
-.avatar-lg { @apply avatar w-12 h-12 text-lg; }
-
-/* Safe-area utilities for iOS Home-indicator overlap on sticky/fixed bottom bars */
-.pb-safe {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
-}
-.mb-safe {
-  margin-bottom: max(0px, env(safe-area-inset-bottom));
-}
-
-/* Popover animations */
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -403,7 +515,6 @@ body {
   animation: fade-in 0.15s ease-out, slide-in-from-top 0.15s ease-out;
 }
 
-/* Toast slide-up animation */
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -411,9 +522,4 @@ body {
 
 .animate-slide-up {
   animation: slide-up 0.2s ease-out;
-}
-
-/* Explainable number styles */
-.explainable-number {
-  @apply cursor-pointer underline decoration-dotted underline-offset-4 decoration-ui-muted/60 hover:decoration-brand-primary;
 }

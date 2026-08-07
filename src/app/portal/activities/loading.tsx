@@ -13,7 +13,7 @@ export default function ActivitiesLoading() {
       {/* Category chips */}
       <div className="flex flex-wrap gap-2">
         {[80, 110, 95, 120, 90].map((w, i) => (
-          <div key={i} className="h-9 bg-ui-border rounded-full" style={{ width: w }} />
+          <div key={i} className="h-9 bg-ui-border rounded-sm" style={{ width: w }} />
         ))}
       </div>
 
@@ -23,7 +23,7 @@ export default function ActivitiesLoading() {
           <div key={i} className="card space-y-3">
             <div className="flex items-center justify-between">
               <SkeletonText className="h-5 w-40" />
-              <SkeletonText className="h-5 w-16 rounded-full" />
+              <SkeletonText className="h-5 w-16 rounded-sm" />
             </div>
             <SkeletonText className="h-4 w-full" />
             <SkeletonText className="h-4 w-3/4" />

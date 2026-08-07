@@ -57,7 +57,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
       ref={ref}
       role="dialog"
       aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 bg-ui-surface rounded-lg shadow-card-hover border border-ui-border"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 overlay-panel"
       style={{
         left: Math.max(8, position.x - 160),
         top: position.y,
@@ -217,7 +217,7 @@ function ScoreDimension({
         <p className="text-xs font-medium text-ui-muted">{label}</p>
         <p className="text-xs text-ui-muted">{description}</p>
       </div>
-      <div className="flex-1 bg-ui-subtle rounded-full h-2 overflow-hidden">
+      <div className="meter-lg flex-1">
         <div
           className={`h-full transition-all ${SCORE_BG_COLORS[getScoreLevel(score)]}`}
           style={{ width: `${score}%` }}

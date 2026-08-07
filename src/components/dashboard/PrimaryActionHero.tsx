@@ -148,7 +148,7 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   return (
     <Link
       href={action.href}
-      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} shadow-card hover:shadow-card-hover transition-shadow`}
+      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} transition-colors`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

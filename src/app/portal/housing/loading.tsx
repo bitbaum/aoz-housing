@@ -15,7 +15,7 @@ export default function PortalHousingLoading() {
                 <SkeletonText className="h-5 w-36" />
                 <SkeletonText className="h-4 w-48" />
               </div>
-              <SkeletonText className="h-6 w-20 rounded-full" />
+              <SkeletonText className="h-6 w-20 rounded-sm" />
             </div>
             <div className="flex gap-4">
               <SkeletonText className="h-4 w-24" />

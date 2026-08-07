@@ -1,5 +1,15 @@
 import type { Config } from 'tailwindcss'
 
+/**
+ * Tailwind maps utilities onto the CSS custom properties defined in
+ * `src/app/globals.css`. It holds ZERO literal design values by design: a
+ * re-theme or a re-badge must be an edit to globals.css alone, never a sweep
+ * through this file and 294 components.
+ *
+ * The one deliberate exception is the font-size scale, which is structural
+ * rather than expressive — every brand renders text at the same sizes — so it
+ * stays on Tailwind's defaults plus a `2xs` step for micro-labels.
+ */
 const config: Config = {
   darkMode: ['selector', '[data-theme="dark"]'],
   content: [
@@ -10,8 +20,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Brand colors — reference globals.css CSS vars (never literals); the active
-        // palette is chosen by the data-brand attribute. @see lib/config/brand.ts
+        // Brand colors — the active palette is chosen by the data-brand
+        // attribute on <html>. @see lib/config/brand.ts
         'brand': {
           'primary':        'rgb(var(--color-brand-primary) / <alpha-value>)',
           'primary-light':  'rgb(var(--color-brand-primary-light) / <alpha-value>)',
@@ -72,23 +82,39 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        // Numeric and code-like data. @see the `.numeric` component class.
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
+      fontSize: {
+        // Micro-label step below Tailwind's `xs`, for `.eyebrow` and `.badge`.
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],
       },
       borderRadius: {
-        xl: '0.5rem',
-        '2xl': '0.5rem',
-        '3xl': '0.5rem',
+        sm:   'var(--radius-sm)',
+        DEFAULT: 'var(--radius-md)',
+        md:   'var(--radius-md)',
+        lg:   'var(--radius-lg)',
+        xl:   'var(--radius-xl)',
+        '2xl':'var(--radius-2xl)',
+        '3xl':'var(--radius-2xl)',
       },
       letterSpacing: {
-        tighter: '0',
-        tight: '0',
-        normal: '0',
-        wide: '0',
-        wider: '0',
-        widest: '0',
+        display: 'var(--tracking-display)',
+        heading: 'var(--tracking-heading)',
+        tighter: 'var(--tracking-display)',
+        tight:   'var(--tracking-tight)',
+        normal:  'var(--tracking-normal)',
+        wide:    'var(--tracking-wide)',
+        wider:   'var(--tracking-label)',
+        widest:  'var(--tracking-eyebrow)',
+        label:   'var(--tracking-label)',
+        eyebrow: 'var(--tracking-eyebrow)',
       },
       boxShadow: {
-        'card':      'var(--shadow-card)',
-        'card-hover':'var(--shadow-card-hover)',
+        // The ONLY shadow in the system. Reserved for content that genuinely
+        // floats above other content — menus, popovers, dialogs, drawers.
+        // In-page surfaces are flat and separate with a hairline border.
+        'overlay': 'var(--shadow-overlay)',
       },
     },
   },

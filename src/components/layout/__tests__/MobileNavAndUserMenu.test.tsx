@@ -112,18 +112,18 @@ describe('MobileNav', () => {
   it('shows backdrop when open', () => {
     const { container } = render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
-    expect(container.querySelector('.fixed.inset-0')).toBeInTheDocument()
+    expect(container.querySelector('.scrim')).toBeInTheDocument()
   })
 
   it('hides backdrop when closed', () => {
     const { container } = render(<MobileNav />)
-    expect(container.querySelector('.fixed.inset-0')).not.toBeInTheDocument()
+    expect(container.querySelector('.scrim')).not.toBeInTheDocument()
   })
 
   it('clicking backdrop closes drawer', () => {
     const { container } = render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
-    fireEvent.click(container.querySelector('.fixed.inset-0')!)
+    fireEvent.click(container.querySelector('.scrim')!)
     const drawer = container.querySelector('#mobile-nav-drawer')
     expect(drawer?.className).toContain('-translate-x-full')
   })
@@ -171,7 +171,7 @@ describe('MobileNav', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
     // The active link should use the semantic active surface token.
     const residentsLink = screen.getByRole('link', { name: /Bewohner/ })
-    expect(residentsLink.className).toContain('bg-ui-subtle')
+    expect(residentsLink.className).toContain('nav-item-active')
   })
 
   it('sets body overflow hidden when open', () => {

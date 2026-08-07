@@ -30,14 +30,14 @@ export default function NewHousingPage() {
       {/* Process Indicator */}
       <div className="mb-6 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-brand-primary text-ui-on-accent flex items-center justify-center text-sm font-medium">
+          <div className="avatar-sm">
             1
           </div>
           <span className="text-sm font-medium text-ui-text">{HOUSING_NEW_LABELS.step1Label}</span>
         </div>
         <div className="flex-1 h-0.5 bg-ui-border" />
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-ui-border text-ui-muted flex items-center justify-center text-sm font-medium">
+          <div className="avatar-sm bg-ui-border text-ui-muted">
             2
           </div>
           <span className="text-sm text-ui-muted">{HOUSING_NEW_LABELS.step2Label}</span>

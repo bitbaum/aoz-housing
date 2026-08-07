@@ -254,7 +254,7 @@ export function MultiField({
               disabled={disabled}
               aria-label={factor.optionLabels[opt]}
             />
-            <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+            <div className="px-4 py-2 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
               {factor.optionLabels[opt]}
             </div>
           </label>

@@ -29,9 +29,9 @@ export function FairnessSummary({ fairness }: FairnessSummaryProps) {
                   {entry.completions} {CHORE_LABELS.fairness.completions}
                 </span>
               </div>
-              <div className="w-full bg-ui-subtle rounded-full h-2.5">
+              <div className="meter-lg">
                 <div
-                  className="bg-brand-primary h-2.5 rounded-full transition-all"
+                  className="meter-fill"
                   style={{ width: `${percentage}%` }}
                 />
               </div>

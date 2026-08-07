@@ -53,7 +53,7 @@ export function SatisfactionChart({
               <div key={index} className="flex items-center gap-3">
                 <span className="w-8 text-lg text-center" aria-hidden="true">{SATISFACTION_EMOJIS[index]}</span>
                 <div className="flex-1">
-                  <div className="h-4 bg-ui-border rounded-full overflow-hidden">
+                  <div className="h-4 bg-ui-border rounded-sm overflow-hidden">
                     <div
                       className={`h-full ${
                         index >= 3 ? 'bg-status-success' :

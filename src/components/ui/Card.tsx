@@ -44,11 +44,11 @@ export function StatCard({ label, value, subtitle, trend = 'neutral', href }: St
 
   const content = (
     <>
-      <p className="text-xs font-medium uppercase text-ui-muted">{label}</p>
-      <p className={`mt-2 text-2xl font-semibold leading-none ${valueColor}`}>{value}</p>
-      {subtitle && (
-        <p className={`mt-2 text-sm ${getTrendColorClass(trend)}`}>{subtitle}</p>
-      )}
+      <p className="eyebrow">{label}</p>
+      {/* `.metric` sets the number in mono with tabular figures — a row of
+          stat cards has to line up, and proportional digits will not. */}
+      <p className={`metric mt-3 ${valueColor}`}>{value}</p>
+      {subtitle && <p className={`mt-2 text-sm ${getTrendColorClass(trend)}`}>{subtitle}</p>}
     </>
   )
 
@@ -74,9 +74,9 @@ interface DetailRowProps {
 
 export function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <div className="flex justify-between">
-      <dt className="text-ui-muted">{label}</dt>
-      <dd className="text-ui-text font-medium">{value}</dd>
+    <div className="flex items-baseline justify-between gap-4">
+      <dt className="shrink-0 text-ui-muted">{label}</dt>
+      <dd className="text-right font-medium text-ui-text">{value}</dd>
     </div>
   )
 }

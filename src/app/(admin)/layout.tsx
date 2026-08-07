@@ -38,7 +38,7 @@ export default async function AdminLayout({
       {/* Single sticky bar — logo + megamenu + secondary links + actions.
           x.ai-style: one row of chrome instead of stacking a brand bar on
           top of a megamenu strip. Total chrome ≈ 56px on desktop. */}
-      <header className="hidden md:block bg-ui-canvas/90 backdrop-blur-md border-b border-ui-border sticky top-0 z-40">
+      <header className="chrome-bar sticky top-0 hidden md:block">
         <div className="max-w-screen-2xl mx-auto px-6">
           <div className="flex items-center justify-between gap-6 h-14">
             <div className="flex items-center gap-6 min-w-0">

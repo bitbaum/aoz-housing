@@ -113,17 +113,17 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               {/* Quick Start Steps */}
               <div className="flex flex-wrap gap-3 text-sm">
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                  <span className="avatar-sm h-6 w-6 bg-brand-secondary text-2xs">1</span>
                   <span className="text-status-info-text">
                     {HOUSING_SPOTS_LABELS.step1}<code className="bg-ui-surface px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                  <span className="avatar-sm h-6 w-6 bg-brand-secondary text-2xs">2</span>
                   <span className="text-status-info-text">{HOUSING_SPOTS_LABELS.step2}</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
-                  <span className="w-6 h-6 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                  <span className="avatar-sm h-6 w-6 bg-brand-secondary text-2xs">3</span>
                   <span className="text-status-info-text">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
                 </div>
               </div>

@@ -8,7 +8,7 @@ export default function PlacementCheckinLoading() {
       {/* Resident summary card */}
       <div className="card p-6 space-y-3">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-ui-border rounded-full" />
+          <div className="w-12 h-12 bg-ui-border rounded-md" />
           <div className="space-y-2">
             <div className="h-5 bg-ui-border rounded w-24" />
             <div className="h-4 bg-ui-border rounded w-36" />

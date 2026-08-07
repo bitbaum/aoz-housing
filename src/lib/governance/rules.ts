@@ -79,7 +79,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
       allowed: false,
       requiresStaffConfirmation: false,
       reason:
-        `«${orgRule.title}» ist eine nicht verhandelbare AOZ-Regel. ` +
+        `«${orgRule.title}» ist eine nicht verhandelbare ${BRAND.shortName}-Regel. ` +
         `Sie schützt alle im Haus und kann nicht durch einen Hausbeschluss geändert werden. ` +
         `Anliegen dazu nimmt die Betreuung entgegen.`,
     }

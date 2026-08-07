@@ -267,10 +267,10 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
           )}
         </div>
       </div>
-      <div className="relative h-2 bg-ui-subtle rounded-full overflow-hidden">
+      <div className="meter-lg">
         {/* Average indicator */}
         <div
-          className="absolute h-full bg-brand-primary rounded-full transition-all"
+          className="absolute h-full bg-brand-primary rounded-sm transition-all"
           style={{ width: `${percentage}%` }}
         />
         {/* Individual value markers */}
@@ -280,7 +280,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
           return (
             <div
               key={i}
-              className={`absolute top-0 w-1 h-2 ${isOutlier ? 'bg-status-warning' : 'bg-brand-primary-dark'} rounded-full`}
+              className={`absolute top-0 w-1 h-2 rounded-sm ${isOutlier ? 'bg-status-warning' : 'bg-brand-primary-dark'}`}
               style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
               title={`${v.code}: ${v.value}`}
             />

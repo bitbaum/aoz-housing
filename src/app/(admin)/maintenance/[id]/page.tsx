@@ -75,7 +75,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className={`text-sm px-3 py-1 rounded-full ${priorityClass}`}>
+            <span className={`text-sm px-3 py-1 rounded-sm ${priorityClass}`}>
               {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
             </span>
             <span className={`badge ${statusClass}`}>

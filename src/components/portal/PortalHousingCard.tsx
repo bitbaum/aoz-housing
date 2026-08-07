@@ -58,18 +58,18 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
         <h3 className="font-medium text-ui-text mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
         <div className="flex flex-wrap gap-3 text-sm">
           {housingUnit?.quietHours && (
-            <span className="px-3 py-1 bg-brand-secondary/10 text-brand-secondary rounded-full">
+            <span className="px-3 py-1 bg-brand-secondary/10 text-brand-secondary rounded-sm">
               {PORTAL_LABELS.dashboard.quietHours}: {housingUnit.quietHours}
             </span>
           )}
-          <span className={`px-3 py-1 rounded-full ${
+          <span className={`px-3 py-1 rounded-sm ${
             housingUnit?.smokingAllowed
               ? 'bg-status-success/10 text-status-success-text'
               : 'bg-status-error/10 text-status-error-text'
           }`}>
             {housingUnit?.smokingAllowed ? PORTAL_LABELS.dashboard.smokingAllowed : PORTAL_LABELS.dashboard.noSmoking}
           </span>
-          <span className={`px-3 py-1 rounded-full ${
+          <span className={`px-3 py-1 rounded-sm ${
             housingUnit?.petsAllowed
               ? 'bg-status-success/10 text-status-success-text'
               : 'bg-ui-subtle text-ui-muted'
@@ -109,7 +109,7 @@ export function PortalOnboardingCard({ preferencesCompleted }: PortalOnboardingC
           return (
             <div key={label} className="flex items-start gap-3">
               <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
                   done
                     ? 'bg-status-success/15 text-status-success-text'
                     : isActive

@@ -47,7 +47,7 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
   return (
     <div
       ref={ref}
-      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 bg-ui-surface rounded-lg shadow-card-hover border border-ui-border"
+      className="fixed z-50 w-[calc(100vw-16px)] sm:w-64 overlay-panel"
       style={{
         left: Math.max(8, position.x - 128),
         top: position.y,

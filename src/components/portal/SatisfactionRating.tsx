@@ -149,7 +149,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             className={`w-14 h-14 sm:w-16 sm:h-16 rounded-lg transition-all text-2xl sm:text-3xl flex items-center justify-center ${
               rating === value
                 ? 'bg-brand-primary text-ui-on-accent ring-2 ring-brand-primary ring-offset-2 scale-110'
-                : 'bg-ui-surface hover:bg-brand-primary/10 hover:scale-105 shadow-card'
+                : 'bg-ui-surface hover:bg-brand-primary/10 hover:scale-105'
             } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={SATISFACTION_LABELS[value - 1]}
             aria-label={SATISFACTION_LABELS[value - 1]}

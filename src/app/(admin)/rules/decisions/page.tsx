@@ -10,6 +10,7 @@ import {
   VOTE_CHOICE_LABELS,
 } from '@/lib/config/decisions'
 import { RULE_CATEGORY_LABELS } from '@/lib/config/house-rules'
+import { BRAND } from '@/lib/config/brand'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,7 +23,7 @@ export default async function DecisionsPage() {
     <PageShell>
       <PageHeader
         title="Beschlüsse bestätigen"
-        description="Hausbeschlüsse, die noch eine Bestätigung brauchen — weil sie ein AOZ-Thema betreffen, oder weil im Haus nicht abgestimmt werden konnte."
+        description={`Hausbeschlüsse, die noch eine Bestätigung brauchen — weil sie ein ${BRAND.shortName}-Thema betreffen, oder weil im Haus nicht abgestimmt werden konnte.`}
         backHref="/rules"
         backLabel="Regeln"
       />
@@ -65,7 +66,7 @@ export default async function DecisionsPage() {
 
                 {proposal.parentOrgRule && (
                   <p className="mt-3 text-sm text-ui-muted">
-                    Gehört zur AOZ-Regel:{' '}
+                    Gehört zur {BRAND.shortName}-Regel:{' '}
                     <span className="font-medium text-ui-text">{proposal.parentOrgRule.title}</span>
                   </p>
                 )}

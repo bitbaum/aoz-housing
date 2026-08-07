@@ -60,7 +60,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
 
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-56 bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 z-50"
+          className="absolute right-0 mt-2 w-56 overlay-panel py-1 z-50"
         >
           {/* User identity panel */}
           <div className="px-4 py-3 border-b border-ui-border">

@@ -18,7 +18,7 @@ export function ErrorBoundaryUI({
 }: ErrorBoundaryUIProps) {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="max-w-md p-8 bg-ui-surface rounded-lg shadow-card border border-ui-border text-center">
+      <div className="max-w-md p-8 bg-ui-surface rounded-lg border border-ui-border text-center">
         <div className="w-12 h-12 bg-ui-subtle text-status-error-text rounded-md ring-1 ring-status-error/25 flex items-center justify-center mx-auto mb-4">
           <span className="text-status-error-text text-xl">!</span>
         </div>

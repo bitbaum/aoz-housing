@@ -40,7 +40,7 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
               className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-brand-secondary text-ui-on-accent rounded-full flex items-center justify-center font-medium">
+                <div className="avatar bg-brand-secondary">
                   {roommate.code.slice(-3)}
                 </div>
                 <div>

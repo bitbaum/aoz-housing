@@ -33,7 +33,7 @@ export function PeriodSelector({ currentDays }: { currentDays: number }) {
           onClick={() => handleChange(opt.value)}
           className={`px-3 py-1.5 text-sm rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
             String(currentDays) === opt.value
-              ? 'bg-ui-surface text-ui-text shadow-card font-medium'
+              ? 'bg-ui-surface text-ui-text ring-1 ring-ui-border font-medium'
               : 'text-ui-muted hover:text-ui-muted'
           }`}
         >

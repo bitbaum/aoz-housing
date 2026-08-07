@@ -145,7 +145,7 @@ function CategoryLink({
   return (
     <Link
       href={href}
-      className={`min-h-[44px] inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+      className={`min-h-[44px] inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors ${
         active
           ? 'bg-brand-primary text-ui-on-accent'
           : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'

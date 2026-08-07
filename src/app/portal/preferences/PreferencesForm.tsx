@@ -158,7 +158,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
     <>
       {/* Discard confirmation overlay */}
       {showDiscardConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="scrim z-50 flex items-center justify-center p-4">
           <div
             ref={discardPanelRef}
             role="dialog"
@@ -321,7 +321,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.languages.includes(lowerCode) || resident.languages.includes(code)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {LANGUAGE_LABELS[code] || LANGUAGE_LABELS[lowerCode] || code}
                       </div>
                     </label>
@@ -399,7 +399,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         defaultChecked={resident.dietaryNeeds.includes(lowerOpt) || resident.dietaryNeeds.includes(opt)}
                         className="sr-only peer"
                       />
-                      <div className="px-4 py-2 rounded-full border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
+                      <div className="px-4 py-2 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
                         {DIET_LABELS[opt] || DIET_LABELS[lowerOpt] || opt}
                       </div>
                     </label>

@@ -43,9 +43,9 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           </span>
           <span className="text-ui-muted text-sm">{DASHBOARD_LABELS.occupancyOccupied}</span>
         </div>
-        <div className="h-3 bg-ui-border rounded-full overflow-hidden">
+        <div className="meter-lg">
           <div
-            className={`h-full ${occupancyColor} transition-all duration-300`}
+            className={`meter-fill ${occupancyColor}`}
             style={{ width: `${occupancyPercent}%` }}
           />
         </div>

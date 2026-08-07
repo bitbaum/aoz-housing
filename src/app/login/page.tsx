@@ -182,7 +182,7 @@ function LoginForm() {
       </div>
 
       {demoAccessEnabled && state.status !== 'success' ? (
-        <div className="mt-4 rounded-lg border border-ui-border bg-ui-surface p-4 shadow-card">
+        <div className="mt-4 rounded-lg border border-ui-border bg-ui-surface p-4">
           <div className="mb-3">
             <p className="text-sm font-medium text-ui-text">{LOGIN_LABELS.demo.title}</p>
             <p className="mt-0.5 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>

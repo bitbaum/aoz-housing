@@ -22,7 +22,7 @@ export function ProgressBar({ value, max, colorClass, height = 'sm' }: ProgressB
   }
 
   return (
-    <div className={`${heightClasses[height]} bg-ui-subtle rounded-full overflow-hidden ring-1 ring-ui-border`}>
+    <div className={`${heightClasses[height]} bg-ui-subtle rounded-sm overflow-hidden ring-1 ring-ui-border`}>
       <div
         className={`h-full ${color} transition-all duration-300`}
         style={{ width: `${percent}%` }}

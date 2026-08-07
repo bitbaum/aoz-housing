@@ -76,7 +76,7 @@ export function ConfirmDialog({
       {/* Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          className="scrim z-50 flex items-center justify-center"
           onClick={() => !isPending && close()}
           onKeyDown={handleKeyDown}
         >
@@ -85,7 +85,7 @@ export function ConfirmDialog({
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={messageId}
-            className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border max-w-md w-full mx-4"
+            className="overlay-panel max-w-md w-full mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}

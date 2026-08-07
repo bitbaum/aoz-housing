@@ -11,7 +11,7 @@ export function MegaMenuItem({ href, icon, label }: { href: string; icon: string
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150 min-h-[40px] whitespace-nowrap"
+      className="nav-item min-h-[40px]"
     >
       <Icon className="w-4 h-4" aria-hidden="true" />
       {label}
@@ -35,7 +35,7 @@ export function MegaMenuDropdown({
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         onMouseEnter={() => setIsOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors duration-150 min-h-[40px] whitespace-nowrap"
+        className="nav-item min-h-[40px]"
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
@@ -47,7 +47,7 @@ export function MegaMenuDropdown({
           className="absolute left-0 top-full pt-1.5 z-50"
           onMouseLeave={() => setIsOpen(false)}
         >
-          <div className="bg-ui-elevated rounded-lg shadow-card-hover border border-ui-border py-1 min-w-[240px]">
+          <div className="overlay-panel py-1 min-w-[240px]">
             {items.map((item) => (
               <Link
                 key={item.href}
@@ -55,8 +55,8 @@ export function MegaMenuDropdown({
                 onClick={() => setIsOpen(false)}
                 className="px-3 py-2.5 hover:bg-ui-subtle transition-colors min-h-[44px] flex flex-col justify-center"
               >
-                <div className="font-medium text-ui-text text-sm leading-tight">{item.label}</div>
-                <div className="text-xs text-ui-muted mt-0.5">{item.desc}</div>
+                <div className="text-sm font-medium leading-tight text-ui-text">{item.label}</div>
+                <div className="mt-0.5 text-xs text-ui-muted">{item.desc}</div>
               </Link>
             ))}
           </div>
