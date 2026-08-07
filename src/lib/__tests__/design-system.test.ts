@@ -54,6 +54,9 @@ describe('design tokens are defined in exactly one place', () => {
     // Mail clients strip <style> and cannot read CSS custom properties, so
     // email colour must be inlined as hex. It is confined to this one file.
     'src/lib/email/tokens.ts',
+    // Same constraint, different renderer: the social-preview card is drawn by
+    // Satori, which also cannot read CSS custom properties.
+    'src/app/opengraph-image.tsx',
   ]
 
   it('has no hardcoded hex colour outside the token files', () => {
