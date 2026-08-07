@@ -86,3 +86,25 @@ export function recordLoginAttempt(identifier: string): void {
 export function clearLoginAttempts(identifier: string): void {
   loginAttempts.delete(identifier)
 }
+
+/**
+ * Check and record in one step — use this for anything that is not a login.
+ *
+ * `checkRateLimit` only reads the counter; something else has to call
+ * `recordLoginAttempt` for it to ever rise. That split makes sense for logins,
+ * where only *failed* attempts should count, and is a trap everywhere else: a
+ * caller that just checks is a throttle that never trips, and it looks
+ * identical in review to one that works.
+ *
+ * For a metered endpoint every call counts, so there is nothing to decide and
+ * no second call to forget.
+ */
+export function consumeRateLimit(
+  identifier: string
+): { allowed: true } | { allowed: false; retryAfter: number } {
+  const result = checkRateLimit(identifier)
+  if (result.allowed) {
+    recordLoginAttempt(identifier)
+  }
+  return result
+}
