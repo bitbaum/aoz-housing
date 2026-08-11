@@ -731,6 +731,31 @@ New staff users are created by admins via `POST /api/auth/register`:
 - Code must start with `AOZ-`
 - No email/password needed
 
+### Demo Access (fleet standard: no-account product tour)
+
+The login page offers one-click demo sessions for **both** sides — staff view
+and resident portal. SSOT: `src/lib/demo/` (config, seed narrative, reset).
+
+- **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server) +
+  `NEXT_PUBLIC_DEMO_ACCESS_ENABLED=true` (build-time, shows the buttons).
+  Setting these declares "this instance holds only seeded data" — a deployment
+  with real residents must never set them, because…
+- **The staff demo is a full ADMIN session** (single-role app; there is no
+  lesser role to hand out). Safety is by construction: dedicated demo account
+  (`DEMO_STAFF_CODE`, never a real admin's code), login rate limit, and a
+  daily reset.
+- **Daily reset**: `POST /api/cron/reset-demo` (Bearer `CRON_SECRET`) truncates
+  every table except `User`/`AlgorithmWeight`/`SystemConfig`/migrations —
+  enumerated from `pg_tables`, so new models are wiped automatically — then
+  reseeds the presentation narrative, upserts the demo accounts (self-heals
+  drive-by damage), and re-syncs the AOZ rule catalog. Refuses to run unless
+  `DEMO_ACCESS_ENABLED=true`. Triggered by
+  `appcron-aoz-wohnen-reset-demo.timer` on the box (04:05 UTC).
+- **Demo resident** (`DEMO_RESIDENT_CODE`) is seeded as a *placed* resident in
+  the zero-conflict success unit, so the portal tour shows roommates, rules
+  and chores instead of an empty shell.
+- CLI equivalent: `npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-demo.ts`
+
 ### Resident Portal
 
 **What residents can do:**
