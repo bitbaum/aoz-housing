@@ -61,6 +61,17 @@ export async function findAdminNavLink(page: Page, href: string): Promise<Locato
     }
   }
 
+  // System links (Einstellungen, Algorithmus, Hilfe) live in the user menu
+  // dropdown — one SSOT (SYSTEM_LINKS), not the header row.
+  if ((await chrome.locator(selector).count()) === 0) {
+    await page.getByRole('button', { name: 'Benutzermenü' }).click()
+    await chrome
+      .locator(selector)
+      .first()
+      .waitFor({ state: 'visible', timeout: 2_000 })
+      .catch(() => undefined)
+  }
+
   const link = chrome.locator(selector).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return link
