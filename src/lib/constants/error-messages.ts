@@ -18,6 +18,20 @@ export const ERROR_MESSAGES = {
   ACCOUNT_NOT_SETUP: 'Konto nicht vollständig eingerichtet',
   SESSION_ERROR: 'Ein Fehler ist aufgetreten',
 
+  // ─── Account (register, email login, password reset) ───────────
+  AUTH_CODE_REQUIRED: 'Code erforderlich',
+  AUTH_EMAIL_INVALID: 'Gültige E-Mail-Adresse erforderlich',
+  AUTH_PASSWORD_TOO_SHORT: 'Passwort muss mindestens 8 Zeichen haben',
+  AUTH_PASSWORD_TOO_LONG: 'Passwort darf höchstens 72 Zeichen haben',
+  AUTH_CODE_UNKNOWN: 'Ungültiger Code. Verwenden Sie den Code, den Sie erhalten haben.',
+  AUTH_ALREADY_REGISTERED:
+    'Für diesen Code existiert bereits ein Konto. Verwenden Sie «Passwort vergessen», falls Sie das Passwort nicht mehr wissen.',
+  AUTH_EMAIL_TAKEN: 'Diese E-Mail-Adresse wird bereits verwendet',
+  AUTH_RESET_TOKEN_INVALID:
+    'Dieser Link ist ungültig oder abgelaufen. Fordern Sie einen neuen an.',
+  AUTH_EMAIL_NOT_CONFIGURED:
+    'E-Mail-Versand ist auf dieser Installation nicht eingerichtet. Bitte wenden Sie sich an die Verwaltung.',
+
   // ─── Generic validation ────────────────────────────────────────
   INVALID_INPUT: 'Ungültige Eingabe',
   INVALID_INPUT_DATA: 'Ungültige Eingabedaten',

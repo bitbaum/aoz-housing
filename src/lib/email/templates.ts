@@ -279,6 +279,57 @@ export function staffInviteEmail(data: StaffInviteData): { subject: string; html
   return { subject, html }
 }
 
+// -- Account flow templates (email verification, password reset) --
+
+/** The raw token travels ONLY inside `link`; never log or echo it elsewhere. */
+export function verifyEmailEmail(data: { link: string }): { subject: string; html: string } {
+  const subject = `E-Mail-Adresse bestätigen — ${BRAND.productName}`
+
+  const html = `
+    <h2 style="${STYLES.header}">E-Mail-Adresse bestätigen</h2>
+    <p style="${STYLES.paragraph}">
+      Ihr Konto bei ${BRAND.productName} wurde mit dieser E-Mail-Adresse erstellt.
+      Bestätigen Sie die Adresse, damit die Passwort-Wiederherstellung sicher funktioniert.
+    </p>
+    <p style="${STYLES.paragraph}">
+      <a href="${data.link}" style="display: inline-block; background-color: ${EMAIL_COLORS.info}; color: ${EMAIL_COLORS.onAccent}; text-decoration: none; padding: 12px 28px; border-radius: 6px; ${FONT} font-size: 14px; font-weight: 600;">
+        E-Mail bestätigen
+      </a>
+    </p>
+    <p style="${STYLES.paragraph}">
+      Falls Sie kein Konto erstellt haben, können Sie diese E-Mail ignorieren.
+    </p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+/** The raw token travels ONLY inside `link`; never log or echo it elsewhere. */
+export function passwordResetEmail(data: { link: string }): { subject: string; html: string } {
+  const subject = `Passwort zurücksetzen — ${BRAND.productName}`
+
+  const html = `
+    <h2 style="${STYLES.header}">Passwort zurücksetzen</h2>
+    <p style="${STYLES.paragraph}">
+      Sie haben ein neues Passwort für ${BRAND.productName} angefordert.
+      Der Link ist eine Stunde lang gültig.
+    </p>
+    <p style="${STYLES.paragraph}">
+      <a href="${data.link}" style="display: inline-block; background-color: ${EMAIL_COLORS.info}; color: ${EMAIL_COLORS.onAccent}; text-decoration: none; padding: 12px 28px; border-radius: 6px; ${FONT} font-size: 14px; font-weight: 600;">
+        Neues Passwort setzen
+      </a>
+    </p>
+    <p style="${STYLES.paragraph}">
+      Falls Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren —
+      Ihr Passwort bleibt unverändert.
+    </p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
 export function newTransferRequestNotification(data: TransferRequestData): { subject: string; html: string } {
   const subject = `[${BRAND.productName}] Neue Verlegungsanfrage: ${data.residentCode}`
 

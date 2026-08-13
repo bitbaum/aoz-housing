@@ -5,7 +5,7 @@ import { sendEmail } from '@/lib/email/service'
 import { staffInviteEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
-import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
+import { checkRateLimit, recordLoginAttempt, getClientIp } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { Prisma } from '@prisma/client'
 
@@ -18,10 +18,7 @@ import { Prisma } from '@prisma/client'
  * Requires: authenticated admin session
  */
 export async function POST(request: NextRequest) {
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    request.headers.get('x-real-ip') ||
-    'unknown'
+  const ip = getClientIp(request)
 
   const rateCheck = checkRateLimit(ip)
   if (!rateCheck.allowed) {

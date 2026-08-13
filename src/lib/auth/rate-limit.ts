@@ -108,3 +108,15 @@ export function consumeRateLimit(
   }
   return result
 }
+
+/**
+ * The client IP behind Caddy — SSOT for the rate-limit identifier.
+ * (Third route needed this; the copies in login/invite/demo now import it.)
+ */
+export function getClientIp(request: { headers: { get(name: string): string | null } }): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown'
+  )
+}

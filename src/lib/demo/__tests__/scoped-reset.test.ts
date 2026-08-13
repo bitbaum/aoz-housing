@@ -128,7 +128,15 @@ describe('upsertDemoStaff', () => {
     expect(await upsertDemoStaff(prisma)).toBe('WG-DEMO01')
     expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
-      update: { name: 'Demo-Zugang', active: true },
+      // Credentials stripped too: a visitor-claimed email/password on the
+      // demo account must not outlive the reset.
+      update: {
+        name: 'Demo-Zugang',
+        active: true,
+        email: null,
+        passwordHash: null,
+        emailVerifiedAt: null,
+      },
       create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
     })
   })

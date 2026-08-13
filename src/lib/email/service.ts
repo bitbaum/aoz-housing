@@ -1,14 +1,14 @@
 /**
- * Email sending service — uses Brevo (formerly Sendinblue) transactional API.
- * Gracefully no-ops when BREVO_API_KEY is not configured.
+ * Email sending service — uses the Resend transactional API.
+ * Gracefully no-ops when RESEND_API_KEY is not configured.
  */
 
 import { EMAIL_CONFIG } from './config'
 import { logger } from '@/lib/logger'
 
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+const RESEND_API_URL = 'https://api.resend.com/emails'
 
-// Retry transient Brevo failures (5xx, 429) with linear backoff. 4xx other
+// Retry transient Resend failures (5xx, 429) with linear backoff. 4xx other
 // than 429 are not retried — those are programming errors.
 const RETRY_DELAYS_MS = [0, 1000, 4000]
 
@@ -19,7 +19,7 @@ async function sleep(ms: number): Promise<void> {
 
 export async function sendEmail(to: string[], subject: string, html: string): Promise<boolean> {
   if (!EMAIL_CONFIG.enabled) {
-    logger.info('Email skipped (no BREVO_API_KEY configured)', { subject })
+    logger.info('Email skipped (no RESEND_API_KEY configured)', { subject })
     return false
   }
 
@@ -27,18 +27,17 @@ export async function sendEmail(to: string[], subject: string, html: string): Pr
     await sleep(RETRY_DELAYS_MS[attempt])
 
     try {
-      const response = await fetch(BREVO_API_URL, {
+      const response = await fetch(RESEND_API_URL, {
         method: 'POST',
         headers: {
-          'api-key': EMAIL_CONFIG.apiKey,
+          'Authorization': `Bearer ${EMAIL_CONFIG.apiKey}`,
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: JSON.stringify({
-          sender: { name: EMAIL_CONFIG.fromName, email: EMAIL_CONFIG.fromAddress },
-          to: to.map((email) => ({ email })),
+          from: `${EMAIL_CONFIG.fromName} <${EMAIL_CONFIG.fromAddress}>`,
+          to,
           subject,
-          htmlContent: html,
+          html,
         }),
       })
 
@@ -48,7 +47,7 @@ export async function sendEmail(to: string[], subject: string, html: string): Pr
       const retryable = response.status >= 500 || response.status === 429
       if (!retryable || attempt === RETRY_DELAYS_MS.length - 1) {
         const body = await response.text()
-        logger.error('Brevo email failed', { status: response.status, body, subject, attempt })
+        logger.error('Resend email failed', { status: response.status, body, subject, attempt })
         return false
       }
     } catch (error) {

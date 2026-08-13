@@ -79,6 +79,13 @@ model Resident {
   bio         String?
   photo       ResidentPhoto?
 
+  // Self-chosen account credentials (register with your code). OPTIONAL like
+  // the rest of the self-profile: the code keeps working forever; email +
+  // password add modern login and password recovery on top.
+  email           String?   @unique
+  passwordHash    String?
+  emailVerifiedAt DateTime?
+
   // Status
   status ResidentStatus @default(ACTIVE)
   notes  String? // Caseworker notes
@@ -120,6 +127,9 @@ model Resident {
   expenseShares    ExpenseShare[]
   settlementsPaid  Settlement[]   @relation("SettlementFrom")
   settlementsRecvd Settlement[]   @relation("SettlementTo")
+
+  // Account flows (email verification, password reset)
+  authTokens AuthToken[]
 
   @@index([status])
   @@index([ageRange, gender])
@@ -757,9 +767,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Identity
-  code         String  @unique // AOZ-XXXXXX login code
-  email        String? @unique // Optional, kept for legacy/reference
-  passwordHash String? // Deprecated: no longer used for login
+  code         String    @unique // Staff login code (works forever)
+  email        String?   @unique // Enables email+password login and recovery
+  passwordHash String? // bcrypt; null = code-only account
+  emailVerifiedAt DateTime?
   name         String
 
   // Role & Status
@@ -771,9 +782,41 @@ model User {
   auditLogs         AuditLog[]
   activitiesCreated Activity[] @relation("ActivityCreatedBy")
   activitiesUpdated Activity[] @relation("ActivityUpdatedBy")
+  authTokens        AuthToken[]
 
   @@index([code])
   @@index([role])
+}
+
+// =============================================================================
+// ACCOUNT FLOWS (email verification, password reset)
+// =============================================================================
+
+enum AuthTokenPurpose {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+/// Single-use, expiring token for email flows. Polymorphic on purpose: the
+/// same flow serves staff (User) and residents — exactly one FK is set.
+/// Only the SHA-256 hash is stored; the raw token exists once, in the email.
+model AuthToken {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  tokenHash String           @unique
+  purpose   AuthTokenPurpose
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  residentId String?
+  resident   Resident? @relation(fields: [residentId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([residentId, purpose])
 }
 
 enum StaffRole {

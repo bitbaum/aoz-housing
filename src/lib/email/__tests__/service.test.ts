@@ -1,5 +1,5 @@
 /**
- * Tests for the Brevo email service: graceful no-op when disabled, success,
+ * Tests for the Resend email service: graceful no-op when disabled, success,
  * retry behaviour on transient failures, and bail-out on client errors.
  */
 
@@ -62,18 +62,19 @@ describe('sendEmail', () => {
     expect(mockFetch).not.toHaveBeenCalled()
   })
 
-  it('returns true and posts to Brevo on a successful response', async () => {
+  it('returns true and posts to Resend on a successful response', async () => {
     mockFetch.mockResolvedValueOnce(okResponse())
     const result = await runWithTimers(sendEmail(['a@b.ch'], 'Subj', '<p>hi</p>'))
     expect(result).toBe(true)
     expect(mockFetch).toHaveBeenCalledTimes(1)
 
     const [url, init] = mockFetch.mock.calls[0]
-    expect(url).toBe('https://api.brevo.com/v3/smtp/email')
+    expect(url).toBe('https://api.resend.com/emails')
     expect(init.method).toBe('POST')
-    expect(init.headers['api-key']).toBe('test-key')
+    expect(init.headers['Authorization']).toBe('Bearer test-key')
     const body = JSON.parse(init.body)
-    expect(body.to).toEqual([{ email: 'a@b.ch' }])
+    expect(body.to).toEqual(['a@b.ch'])
+    expect(body.from).toBe('AOZ Housing <noreply@aoz-housing.ch>')
     expect(body.subject).toBe('Subj')
   })
 
@@ -131,6 +132,6 @@ describe('notifyStaff', () => {
     const result = await runWithTimers(notifyStaff('Subj', '<p>hi</p>'))
     expect(result).toBe(true)
     const body = JSON.parse(mockFetch.mock.calls[0][1].body)
-    expect(body.to).toEqual([{ email: 's1@aoz.ch' }, { email: 's2@aoz.ch' }])
+    expect(body.to).toEqual(['s1@aoz.ch', 's2@aoz.ch'])
   })
 })

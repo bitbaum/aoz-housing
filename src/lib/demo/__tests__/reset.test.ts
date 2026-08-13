@@ -88,7 +88,13 @@ describe('resetDemoData', () => {
     expect(mockSeedDemoData).toHaveBeenCalledWith(prisma)
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { code: 'AOZH-DEMO01' },
-      update: { name: 'Demo-Zugang', active: true },
+      update: {
+        name: 'Demo-Zugang',
+        active: true,
+        email: null,
+        passwordHash: null,
+        emailVerifiedAt: null,
+      },
       create: { code: 'AOZH-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
     })
     expect(mockSyncOrgRules).toHaveBeenCalledWith(prisma)

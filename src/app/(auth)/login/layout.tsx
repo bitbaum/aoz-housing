@@ -6,14 +6,6 @@ export const metadata: Metadata = {
   description: APP_LABELS.metaDescription,
 }
 
-export default function LoginLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <div className="min-h-screen bg-ui-canvas flex items-center justify-center p-4">
-      {children}
-    </div>
-  )
+export default function LoginLayout({ children }: { children: React.ReactNode }) {
+  return children
 }

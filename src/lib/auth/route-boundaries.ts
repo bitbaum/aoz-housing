@@ -44,6 +44,9 @@ export const RESIDENT_ROUTES = [
 // Routes that remain public
 export const PUBLIC_ROUTES = [
   '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
   '/portal',
   '/portal/help',
   '/algorithm',

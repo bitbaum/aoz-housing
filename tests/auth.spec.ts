@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { BRAND } from '../src/lib/config/brand'
+import { openCodeLoginForm } from './helpers'
 
 // Auth tests need clean state (no existing session)
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -13,10 +14,13 @@ test.use({ storageState: { cookies: [], origins: [] } })
  * and no state changes appear.
  *
  * We detect hydration by verifying the controlled onChange handler
- * is active: React uppercases the input value on every change.
+ * is active: React uppercases the code input value on every change.
+ * (Reaching the code form at all requires the hydrated mode toggle,
+ * so this also proves the page is interactive.)
  */
-async function waitForLoginFormReady(page: import('@playwright/test').Page) {
+async function waitForCodeFormReady(page: import('@playwright/test').Page) {
   await page.waitForLoadState('networkidle')
+  await openCodeLoginForm(page)
   // Verify React's onChange is active (converts to uppercase)
   await page.locator('#code').fill('x')
   await expect(page.locator('#code')).toHaveValue('X', { timeout: 10000 })
@@ -24,20 +28,30 @@ async function waitForLoginFormReady(page: import('@playwright/test').Page) {
 }
 
 test.describe('Authentication flow', () => {
-  test('login page loads with code input', async ({ page }) => {
+  test('login page defaults to email + password with links to the other flows', async ({
+    page,
+  }) => {
     await page.goto('/login')
 
-    // Code input visible
-    await expect(page.locator('#code')).toBeVisible()
-    await expect(page.locator('#code')).toHaveAttribute('placeholder', /AOZ-|RES-/)
-
-    // Submit button visible
+    await expect(page.locator('#email')).toBeVisible()
+    await expect(page.locator('#password')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Passwort vergessen?' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Konto erstellen' })).toBeVisible()
+  })
+
+  test('the code form stays reachable behind the toggle', async ({ page }) => {
+    await page.goto('/login')
+    await page.waitForLoadState('networkidle')
+    await openCodeLoginForm(page)
+
+    await expect(page.locator('#code')).toBeVisible()
+    await expect(page.locator('#code')).toHaveAttribute('placeholder', /AOZ-|RES-|WG-/)
   })
 
   test('rejects login with invalid code', async ({ page }) => {
     await page.goto('/login')
-    await waitForLoginFormReady(page)
+    await waitForCodeFormReady(page)
 
     await page.locator('#code').fill('INVALID-CODE')
     await page.locator('button[type="submit"]').click()
@@ -49,7 +63,7 @@ test.describe('Authentication flow', () => {
   test('shows success and redirects on valid staff login', async ({ page }) => {
     const staffCode = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
     await page.goto('/login')
-    await waitForLoginFormReady(page)
+    await waitForCodeFormReady(page)
 
     await page.locator('#code').fill(staffCode)
     await page.locator('button[type="submit"]').click()
@@ -64,7 +78,7 @@ test.describe('Authentication flow', () => {
   test('code input is case-insensitive', async ({ page }) => {
     const staffCode = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
     await page.goto('/login')
-    await waitForLoginFormReady(page)
+    await waitForCodeFormReady(page)
 
     // Enter lowercase code
     await page.locator('#code').fill(staffCode.toLowerCase())
@@ -72,5 +86,40 @@ test.describe('Authentication flow', () => {
 
     // Should still succeed (API uppercases before lookup)
     await expect(page.locator('[role="status"]')).toBeVisible({ timeout: 10000 })
+  })
+
+  test('rejects an email login with wrong credentials', async ({ page }) => {
+    await page.goto('/login')
+    await page.waitForLoadState('networkidle')
+
+    await page.locator('#email').fill('nobody@example.ch')
+    await page.locator('#password').fill('definitely-wrong')
+    await page.locator('button[type="submit"]').click()
+
+    await expect(page.locator('[role="alert"]')).toBeVisible({ timeout: 10000 })
+  })
+
+  test('register page renders the claim-your-code form', async ({ page }) => {
+    await page.goto('/register')
+
+    await expect(page.locator('#code')).toBeVisible()
+    await expect(page.locator('#email')).toBeVisible()
+    await expect(page.locator('#password')).toBeVisible()
+  })
+
+  test('forgot-password page renders and links back to login', async ({ page }) => {
+    await page.goto('/forgot-password')
+
+    await expect(page.locator('#email')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Zurück zur Anmeldung' })).toBeVisible()
+  })
+
+  test('reset-password page without a token explains and links to forgot-password', async ({
+    page,
+  }) => {
+    await page.goto('/reset-password')
+
+    await expect(page.locator('[role="alert"]')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Neuen Link anfordern' })).toBeVisible()
   })
 })

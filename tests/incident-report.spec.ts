@@ -32,6 +32,6 @@ test.describe('Portal — unauthenticated access', () => {
 
     // Should redirect to /login — check final URL and page content
     await expect(page).toHaveURL(/\/login/, { timeout: 15000 })
-    await expect(page.locator('#code')).toBeVisible()
+    await expect(page.locator('#email')).toBeVisible()
   })
 })
