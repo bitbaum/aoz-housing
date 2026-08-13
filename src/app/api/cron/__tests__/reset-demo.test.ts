@@ -20,9 +20,9 @@ jest.mock('@/lib/demo/reset', () => ({
   resetDemoData: (...args: unknown[]) => mockResetDemoData(...args),
 }))
 
-const mockSeedDemoWgUnit = jest.fn()
-jest.mock('@/lib/demo/wg-unit', () => ({
-  seedDemoWgUnit: (...args: unknown[]) => mockSeedDemoWgUnit(...args),
+const mockResetDemoWorld = jest.fn()
+jest.mock('@/lib/demo/scoped-reset', () => ({
+  resetDemoWorld: (...args: unknown[]) => mockResetDemoWorld(...args),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -64,10 +64,15 @@ const FULL_RESET_SUMMARY = {
   orgRulesSynced: true,
 }
 
-const WG_RESET_SUMMARY = {
-  unitDeleted: true,
-  residentsDeleted: 3,
+const SCOPED_RESET_SUMMARY = {
+  residents: 15,
+  housingUnits: 5,
+  placements: 13,
+  incidents: 7,
+  unitsDeleted: 5,
+  residentsDeleted: 15,
   demoResidentCode: 'RES-DEMO1',
+  demoStaffCode: 'WG-DEMO01',
 }
 
 describe('POST /api/cron/reset-demo', () => {
@@ -80,7 +85,7 @@ describe('POST /api/cron/reset-demo', () => {
     delete process.env.DEMO_RESET_SCOPE
     mockQueryRaw.mockResolvedValue([{ ok: true }])
     mockResetDemoData.mockResolvedValue(FULL_RESET_SUMMARY)
-    mockSeedDemoWgUnit.mockResolvedValue(WG_RESET_SUMMARY)
+    mockResetDemoWorld.mockResolvedValue(SCOPED_RESET_SUMMARY)
   })
 
   afterEach(() => {
@@ -117,7 +122,7 @@ describe('POST /api/cron/reset-demo', () => {
       const body = await response.json()
       expect(body).toEqual({ skipped: true, reason: 'demo-disabled' })
       expect(mockResetDemoData).not.toHaveBeenCalled()
-      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
+      expect(mockResetDemoWorld).not.toHaveBeenCalled()
     })
   })
 
@@ -128,7 +133,7 @@ describe('POST /api/cron/reset-demo', () => {
       const body = await response.json()
       expect(body).toEqual({ skipped: true, reason: 'lock-held' })
       expect(mockResetDemoData).not.toHaveBeenCalled()
-      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
+      expect(mockResetDemoWorld).not.toHaveBeenCalled()
     })
 
     it('releases the lock after a successful reset', async () => {
@@ -138,7 +143,7 @@ describe('POST /api/cron/reset-demo', () => {
     })
 
     it('releases the lock even when the reset throws', async () => {
-      mockSeedDemoWgUnit.mockRejectedValueOnce(new Error('boom'))
+      mockResetDemoWorld.mockRejectedValueOnce(new Error('boom'))
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       expect(response.status).toBe(500)
       expect(mockQueryRaw).toHaveBeenCalledTimes(2)
@@ -146,12 +151,12 @@ describe('POST /api/cron/reset-demo', () => {
   })
 
   describe('scope', () => {
-    it('defaults to the SAFE scoped reset: only the demo apartment, never a truncate', async () => {
+    it('defaults to the SAFE scoped reset: only the demo world, never a truncate', async () => {
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       const body = await response.json()
       expect(response.status).toBe(200)
-      expect(body).toEqual({ success: true, scope: 'UNIT', ...WG_RESET_SUMMARY })
-      expect(mockSeedDemoWgUnit).toHaveBeenCalledTimes(1)
+      expect(body).toEqual({ success: true, scope: 'UNIT', ...SCOPED_RESET_SUMMARY })
+      expect(mockResetDemoWorld).toHaveBeenCalledTimes(1)
       expect(mockResetDemoData).not.toHaveBeenCalled()
     })
 
@@ -162,11 +167,11 @@ describe('POST /api/cron/reset-demo', () => {
       expect(response.status).toBe(200)
       expect(body).toEqual({ success: true, scope: 'FULL', ...FULL_RESET_SUMMARY })
       expect(mockResetDemoData).toHaveBeenCalledTimes(1)
-      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
+      expect(mockResetDemoWorld).not.toHaveBeenCalled()
     })
 
     it('returns 500 without leaking details when the reset fails', async () => {
-      mockSeedDemoWgUnit.mockRejectedValueOnce(new Error('db exploded'))
+      mockResetDemoWorld.mockRejectedValueOnce(new Error('db exploded'))
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       const body = await response.json()
       expect(response.status).toBe(500)

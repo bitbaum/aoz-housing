@@ -44,23 +44,24 @@ export function getDemoStaffCode(): string | null {
 export const DEMO_STAFF_NAME = 'Demo-Zugang'
 
 /**
- * Every fictional flatmate in the scoped demo apartment gets a code with
- * this prefix, so the scoped reset can always find them for deletion — even
- * after a visitor edited their profiles.
+ * Every fictional resident in the demo world gets a code with this prefix,
+ * so the scoped reset can always find them for deletion — even after a
+ * visitor edited their profiles.
  */
-export const DEMO_WG_RESIDENT_CODE_PREFIX = 'RES-DEMO'
-
-/** Fallback demo login for FULL-scope (presentation narrative) deployments. */
-export const DEFAULT_DEMO_RESIDENT_CODE = 'RES-001'
+export const DEMO_RESIDENT_CODE_PREFIX = 'RES-DEMO'
 
 /**
- * The demo resident login code — the seeds assign it to a PLACED resident,
- * so the portal demo shows a lived-in apartment, not an empty shell. Always
- * resolvable: env override, else the scope-appropriate default.
+ * Every demo housing unit's code carries this prefix. It is what makes the
+ * scoped reset safe on an instance holding real data: deletion targets
+ * prefixes, never tables.
+ */
+export const DEMO_UNIT_CODE_PREFIX = 'DEMO-'
+
+/**
+ * The demo resident login code — the seed assigns it to a PLACED resident,
+ * so the portal demo shows a lived-in apartment, not an empty shell.
+ * Always resolvable: env override, else the default.
  */
 export function resolveDemoResidentCode(): string {
-  if (process.env.DEMO_RESIDENT_CODE) return process.env.DEMO_RESIDENT_CODE
-  return getDemoResetScope() === 'FULL'
-    ? DEFAULT_DEMO_RESIDENT_CODE
-    : `${DEMO_WG_RESIDENT_CODE_PREFIX}1`
+  return process.env.DEMO_RESIDENT_CODE || `${DEMO_RESIDENT_CODE_PREFIX}1`
 }

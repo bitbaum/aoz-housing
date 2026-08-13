@@ -18,7 +18,11 @@
  */
 
 import type { PrismaClient } from '@prisma/client'
-import { resolveDemoResidentCode } from './config'
+import {
+  resolveDemoResidentCode,
+  DEMO_RESIDENT_CODE_PREFIX,
+  DEMO_UNIT_CODE_PREFIX,
+} from './config'
 
 export interface DemoSeedSummary {
   residents: number
@@ -77,7 +81,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const yasmin = await prisma.resident.create({
     data: {
-      code: 'RES-Y002',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}02`,
       ageRange: 'ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -111,7 +115,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const amira = await prisma.resident.create({
     data: {
-      code: 'RES-A003',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}03`,
       ageRange: 'YOUNG_ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -145,7 +149,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const sara = await prisma.resident.create({
     data: {
-      code: 'RES-S004',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}04`,
       ageRange: 'ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -180,7 +184,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // PROBLEM UNIT (Unit 12) - 4 incompatible residents
   const marco = await prisma.resident.create({
     data: {
-      code: 'RES-M005',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}05`,
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -214,7 +218,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const dmitri = await prisma.resident.create({
     data: {
-      code: 'RES-D006',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}06`,
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -248,7 +252,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const petro = await prisma.resident.create({
     data: {
-      code: 'RES-P007',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}07`,
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -282,7 +286,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const alexei = await prisma.resident.create({
     data: {
-      code: 'RES-AL008',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}08`,
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -319,7 +323,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 7 RESIDENTS - Good mid-tier unit
   const habib = await prisma.resident.create({
     data: {
-      code: 'RES-H009',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}09`,
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -353,7 +357,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const omar = await prisma.resident.create({
     data: {
-      code: 'RES-O010',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}10`,
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -387,7 +391,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const mustafa = await prisma.resident.create({
     data: {
-      code: 'RES-MU011',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}11`,
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -422,7 +426,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 9 RESIDENTS - Mixed unit
   const elena = await prisma.resident.create({
     data: {
-      code: 'RES-E012',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}12`,
       ageRange: 'MIDDLE_AGED',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -456,7 +460,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const grace = await prisma.resident.create({
     data: {
-      code: 'RES-G013',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}13`,
       ageRange: 'YOUNG_ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -491,7 +495,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNPLACED RESIDENTS - The stars of the demo
   const ahmed = await prisma.resident.create({
     data: {
-      code: 'RES-AH014',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}14`,
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -526,7 +530,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   const maria = await prisma.resident.create({
     data: {
-      code: 'RES-MA015',
+      code: `${DEMO_RESIDENT_CODE_PREFIX}15`,
       ageRange: 'MIDDLE_AGED',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -568,7 +572,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 5 - THE SUCCESS STORY
   const unit5 = await prisma.housingUnit.create({
     data: {
-      code: 'UNIT-005',
+      code: `${DEMO_UNIT_CODE_PREFIX}U05`,
       address: 'Mühlebachstrasse 45, 8008 Zürich',
       // Resident-chosen apartment name — shows the apartment profile feature.
       nickname: 'Casa Harmonie',
@@ -597,7 +601,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 12 - THE PROBLEM UNIT
   const unit12 = await prisma.housingUnit.create({
     data: {
-      code: 'UNIT-012',
+      code: `${DEMO_UNIT_CODE_PREFIX}U12`,
       address: 'Langstrasse 127, 8004 Zürich',
       totalBeds: 5,
       totalRooms: 3,
@@ -624,7 +628,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 7 - GOOD UNIT (ready for Ahmed)
   const unit7 = await prisma.housingUnit.create({
     data: {
-      code: 'UNIT-007',
+      code: `${DEMO_UNIT_CODE_PREFIX}U07`,
       address: 'Badenerstrasse 88, 8004 Zürich',
       totalBeds: 4,
       totalRooms: 2,
@@ -651,7 +655,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 3 - EMPTY UNIT
   const unit3 = await prisma.housingUnit.create({
     data: {
-      code: 'UNIT-003',
+      code: `${DEMO_UNIT_CODE_PREFIX}U03`,
       address: 'Hohlstrasse 56, 8004 Zürich',
       totalBeds: 3,
       totalRooms: 3,
@@ -678,7 +682,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   // UNIT 9 - MIXED UNIT
   const unit9 = await prisma.housingUnit.create({
     data: {
-      code: 'UNIT-009',
+      code: `${DEMO_UNIT_CODE_PREFIX}U09`,
       address: 'Josefstrasse 34, 8005 Zürich',
       totalBeds: 3,
       totalRooms: 2,
@@ -1210,12 +1214,18 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   })
 
   // Counts are queried, not hardcoded, so the summary can never drift from
-  // the data above (ground truth #2: one source of truth).
+  // the data above (ground truth #2: one source of truth). Scoped to the
+  // demo prefixes: under UNIT scope this database also holds real data.
+  const demoUnitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
   const [residents, housingUnits, placements, incidents] = await Promise.all([
-    prisma.resident.count(),
-    prisma.housingUnit.count(),
-    prisma.placement.count(),
-    prisma.incident.count(),
+    prisma.resident.count({
+      where: {
+        OR: [{ code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } }, { code: demoResidentCode }],
+      },
+    }),
+    prisma.housingUnit.count({ where: demoUnitFilter }),
+    prisma.placement.count({ where: { housingUnit: demoUnitFilter } }),
+    prisma.incident.count({ where: { housingUnit: demoUnitFilter } }),
   ])
 
   return { residents, housingUnits, placements, incidents, demoResidentCode }
