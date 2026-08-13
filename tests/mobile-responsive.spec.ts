@@ -61,7 +61,7 @@ test.describe('Mobile Responsiveness', () => {
     const viewportWidth = await page.evaluate(() => window.innerWidth)
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
 
-    // Code input should be visible and usable
-    await expect(page.locator('#code')).toBeVisible()
+    // The email login form should be visible and usable
+    await expect(page.locator('#email')).toBeVisible()
   })
 })

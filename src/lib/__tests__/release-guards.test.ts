@@ -17,7 +17,7 @@ describe('release guards', () => {
   })
 
   it('does not hardcode demo credentials in the production login page', () => {
-    const loginPage = read('src/app/login/page.tsx')
+    const loginPage = read('src/app/(auth)/login/page.tsx')
 
     expect(loginPage).not.toContain('RES-001')
     expect(loginPage).not.toContain('RES-DEMO')

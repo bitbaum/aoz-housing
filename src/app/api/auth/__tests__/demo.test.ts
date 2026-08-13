@@ -22,6 +22,10 @@ jest.mock('@/lib/auth', () => ({
 const mockCheckRateLimit = jest.fn()
 const mockRecordLoginAttempt = jest.fn()
 jest.mock('@/lib/auth/rate-limit', () => ({
+  getClientIp: (request: { headers: { get(name: string): string | null } }) =>
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown',
   checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
   recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
 }))

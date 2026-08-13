@@ -10,10 +10,22 @@ export const ROLE_LABELS: Record<string, string> = {
 
 export const LOGIN_LABELS = {
   title: 'Anmelden',
-  subtitle: 'Code eingeben, um sich anzumelden',
+  subtitle: 'Mit E-Mail und Passwort anmelden',
+  email: 'E-Mail',
+  emailPlaceholder: 'name@example.ch',
+  password: 'Passwort',
+  forgotPassword: 'Passwort vergessen?',
+  noAccount: 'Noch kein Konto?',
+  registerLink: 'Konto erstellen',
+  useCode: 'Mit Code anmelden',
+  useEmail: 'Mit E-Mail anmelden',
+  codeSubtitle: 'Code eingeben, um sich anzumelden',
   code: 'Zugangscode',
   codePlaceholder: `${BRAND.codePrefix}XXXXXX oder ${RESIDENT_CODE_PREFIX}XXXXXX`,
   codeHint: 'Verwenden Sie Ihren persönlichen Zugangscode.',
+  emailVerified: 'E-Mail-Adresse bestätigt. Sie können sich jetzt anmelden.',
+  emailVerifyFailed: 'Der Bestätigungslink ist ungültig oder abgelaufen.',
+  passwordResetDone: 'Passwort gesetzt. Melden Sie sich jetzt damit an.',
   submit: 'Anmelden',
   submitting: 'Anmelden...',
   success: {
@@ -35,4 +47,37 @@ export const LOGIN_LABELS = {
     staff: `${BRAND.shortName}-Verwaltung`,
     resident: 'Als Bewohner:in ausprobieren',
   },
+} as const
+
+export const REGISTER_LABELS = {
+  title: 'Konto erstellen',
+  subtitle: 'Mit Ihrem Zugangscode registrieren — danach melden Sie sich mit E-Mail und Passwort an.',
+  codeHint: 'Der Code, den Sie von der Verwaltung oder Ihrer WG erhalten haben.',
+  passwordHint: 'Mindestens 8 Zeichen.',
+  submit: 'Konto erstellen',
+  submitting: 'Konto wird erstellt...',
+  success: 'Konto erstellt — Sie sind angemeldet.',
+  hasAccount: 'Bereits ein Konto?',
+  loginLink: 'Anmelden',
+} as const
+
+export const FORGOT_PASSWORD_LABELS = {
+  title: 'Passwort vergessen',
+  subtitle: 'Wir senden Ihnen einen Link zum Zurücksetzen.',
+  submit: 'Link anfordern',
+  submitting: 'Wird gesendet...',
+  // Deliberately identical whether the email exists or not (no enumeration).
+  success:
+    'Falls ein Konto mit dieser E-Mail existiert, haben wir einen Link zum Zurücksetzen gesendet. Prüfen Sie auch den Spam-Ordner.',
+  backToLogin: 'Zurück zur Anmeldung',
+} as const
+
+export const RESET_PASSWORD_LABELS = {
+  title: 'Neues Passwort setzen',
+  subtitle: 'Wählen Sie ein neues Passwort für Ihr Konto.',
+  newPassword: 'Neues Passwort',
+  submit: 'Passwort speichern',
+  submitting: 'Wird gespeichert...',
+  missingToken: 'Dieser Link ist unvollständig. Öffnen Sie den Link aus der E-Mail erneut.',
+  requestNew: 'Neuen Link anfordern',
 } as const

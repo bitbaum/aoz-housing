@@ -15,9 +15,18 @@ export async function upsertDemoStaff(prisma: PrismaClient): Promise<string | nu
   const demoStaffCode = getDemoStaffCode()
   if (!demoStaffCode) return null
 
+  // Also strip account credentials: a drive-by visitor may have claimed the
+  // demo account with their own email + password (registration is open on
+  // any unclaimed code). Without this, that claim would outlive every reset.
   await prisma.user.upsert({
     where: { code: demoStaffCode },
-    update: { name: DEMO_STAFF_NAME, active: true },
+    update: {
+      name: DEMO_STAFF_NAME,
+      active: true,
+      email: null,
+      passwordHash: null,
+      emailVerifiedAt: null,
+    },
     create: { code: demoStaffCode, name: DEMO_STAFF_NAME, role: 'ADMIN' },
   })
   return demoStaffCode

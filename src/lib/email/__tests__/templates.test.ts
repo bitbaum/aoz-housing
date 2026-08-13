@@ -9,6 +9,8 @@ import {
   lowSatisfactionAlert,
   newTransferRequestNotification,
   newIncidentNotification,
+  verifyEmailEmail,
+  passwordResetEmail,
 } from '../templates'
 import { BRAND } from '@/lib/config/brand'
 
@@ -422,5 +424,32 @@ describe('newTransferRequestNotification', () => {
       reason: 'Test',
     })
     expect(result.html).toContain(`automatisch vom ${BRAND.shortName} Wohnen System`)
+  })
+})
+
+// =============================================================================
+// Account flow templates
+// =============================================================================
+
+describe('verifyEmailEmail', () => {
+  test('links the verification URL and brands the subject', () => {
+    const result = verifyEmailEmail({ link: 'https://app.example/api/auth/verify-email?token=abc' })
+    expect(result.subject).toContain(BRAND.productName)
+    expect(result.html).toContain('https://app.example/api/auth/verify-email?token=abc')
+    expect(result.html).toContain('bestätigen')
+  })
+})
+
+describe('passwordResetEmail', () => {
+  test('links the reset URL and states the 1-hour validity', () => {
+    const result = passwordResetEmail({ link: 'https://app.example/reset-password?token=abc' })
+    expect(result.subject).toContain(BRAND.productName)
+    expect(result.html).toContain('https://app.example/reset-password?token=abc')
+    expect(result.html).toContain('eine Stunde')
+  })
+
+  test('tells uninvolved recipients their password stays unchanged', () => {
+    const result = passwordResetEmail({ link: 'https://x/reset-password?token=t' })
+    expect(result.html).toContain('bleibt unverändert')
   })
 })

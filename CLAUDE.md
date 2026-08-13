@@ -760,43 +760,58 @@ All user-facing German text MUST use correct **Swiss German** spelling:
 
 ---
 
-## Authentication Roadmap
+## Authentication
 
-### Unified Code-Based Authentication
+### Two credential shapes, one identity model
 
-Both staff and residents log in with a single code input at `/login`.
+The CODE is the root identity and works forever; an ACCOUNT (email +
+password) is optional credentials claimed ON TOP of it. Registration never
+creates identities — provisioning (staff invites, resident intake) stays
+where it is. `src/lib/auth/account.ts` holds the flows; passwords are bcrypt
+(`lib/auth/passwords.ts`), reset/verify tokens are single-use SHA-256-at-rest
+rows (`lib/auth/tokens.ts`, `AuthToken` table, polymorphic User/Resident).
 
-| User | Code Format | Access | Session Cookie |
-|------|-------------|--------|----------------|
-| **Staff** | `AOZ-XXXXXX` | Full admin interface | `staff_session` (JWT) |
-| **Resident** | `RES-XXXXXX` | Portal only (own data) | `resident_code` |
+| User | Root identity | Account fields live on | Session Cookie |
+|------|--------------|------------------------|----------------|
+| **Staff** | `AOZ-XXXXXX` / `WG-XXXXXX` code | `User.email/passwordHash` | `staff_session` (JWT) |
+| **Resident** | `RES-XXXXXX` code | `Resident.email/passwordHash` (self-chosen, like displayName) | `resident_code` |
 
-**Single role: ADMIN** — all staff have full access.
+**Single role: ADMIN** — all staff have full access. One email namespace
+across BOTH tables (checked at registration), so email login never guesses.
 
-### Login Flow
+### Flows
 
 ```
-/login              → Single code input (no email/password)
-/api/auth/login     → loginByCode() routes by prefix:
-                        AOZ-* → staff JWT session
-                        RES-* → resident cookie session
-/api/auth/logout    → Clears both cookies
-/api/auth/register  → Admin-only staff provisioning (POST { name, code? })
+/login                       → email+password (primary) or code (toggle); demo doors
+/register                    → claim your code: { code, email, password } → auto-login
+/forgot-password             → request reset link (generic success, no enumeration)
+/reset-password?token=…      → set new password (also verifies the email)
+/api/auth/login              → { email, password } or { code } — same endpoint
+/api/auth/signup             → registration (public, rate-limited)
+/api/auth/forgot-password    → 503 LOUDLY when RESEND_API_KEY missing (never a
+                               fake "sent" — that is a silent lockout)
+/api/auth/reset-password     → token + password
+/api/auth/verify-email       → GET, redirects /login?verified=1|0
+/api/auth/logout             → Clears both cookies
+/api/auth/register           → Admin-only staff provisioning (POST { name, code? })
+/api/auth/invite             → Admin-only staff invite by email (sends code)
 ```
 
-- Code is trimmed and uppercased before lookup
-- Rate limiting on login attempts (per IP)
-- Staff users get JWT in `staff_session` httpOnly cookie
-- Residents get code in `resident_code` httpOnly cookie
-- Users with both cookies see role-switching links in nav
+- Codes trimmed + uppercased; emails trimmed + lowercased (zod, `lib/validation/auth.ts`)
+- Rate limiting per IP on every public auth route (`getClientIp` SSOT)
+- Login failures are ONE generic message — anything specific is an enumeration oracle
+- Email login for a resident sets the same `resident_code` cookie: the portal
+  is unchanged, and demo residents can register/reset too (daily reset wipes them)
+- A code-only account with a known email (the seeded admin) bootstraps its
+  first password via forgot-password — mailbox control is the proof
 
-### Staff Provisioning
+### Email transport
 
-New staff users are created by admins via `POST /api/auth/register`:
-- Requires authenticated admin session
-- Takes `{ name: string, code?: string }` — code auto-generated if omitted
-- Code must start with `AOZ-`
-- No email/password needed
+Resend (`lib/email/service.ts`), fleet key, sender on the verified
+`fleetcrown.orangecat.ch` domain. `EMAIL_CONFIG.enabled` is false without
+`RESEND_API_KEY` — notification emails then no-op quietly, but the
+password-reset flow REFUSES loudly (see above). Absolute links come from
+`NEXT_PUBLIC_APP_URL` (`lib/config/app-url.ts`).
 
 ### Demo Access (fleet standard: no-account product tour)
 
@@ -886,10 +901,14 @@ model User {
 
 | Component | Status | Location |
 |-----------|--------|----------|
+| Email+password login | Active | `src/lib/auth/account.ts` (`loginWithEmail()`) |
+| Registration (claim code) | Active | `src/app/api/auth/signup/route.ts` + `/register` |
+| Password reset | Active | `src/lib/auth/{account,tokens}.ts` + `/forgot-password`, `/reset-password` |
+| Email verification | Active | `src/app/api/auth/verify-email/route.ts` |
 | Unified code login | Active | `src/lib/auth/index.ts` (`loginByCode()`) |
 | Staff JWT auth | Active | `src/lib/auth/jwt.ts` |
 | Middleware enforcement | Active | `src/middleware.ts` |
-| Login page (unified) | Working | `src/app/login/page.tsx` |
+| Login page (unified) | Working | `src/app/(auth)/login/page.tsx` |
 | Staff provisioning | Working | `src/app/api/auth/register/route.ts` |
 | Rate limiting | Active | `src/lib/auth/rate-limit.ts` |
 | Role-based access | Active | `src/lib/auth/role-policy.ts` |

@@ -28,6 +28,10 @@ jest.mock('@/lib/db', () => ({
 }))
 
 jest.mock('@/lib/auth/rate-limit', () => ({
+  getClientIp: (request: { headers: { get(name: string): string | null } }) =>
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown',
   recordLoginAttempt: jest.fn(),
   clearLoginAttempts: jest.fn(),
 }))

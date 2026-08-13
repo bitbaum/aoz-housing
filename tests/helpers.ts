@@ -14,9 +14,22 @@ export async function ensureStaffLogin(page: Page) {
 
   // If we got redirected to login, do a UI login
   if (page.url().includes('/login')) {
+    await openCodeLoginForm(page)
     await page.locator('#code').fill(STAFF_CODE)
     await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
     await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30000 })
+  }
+}
+
+/**
+ * The login page defaults to the email + password form; the code form is
+ * behind the "Mit Code anmelden" toggle. Idempotent: no-op if already open.
+ */
+export async function openCodeLoginForm(page: Page) {
+  const codeInput = page.locator('#code')
+  if (!(await codeInput.isVisible())) {
+    await page.getByRole('button', { name: 'Mit Code anmelden' }).click()
+    await expect(codeInput).toBeVisible()
   }
 }
 

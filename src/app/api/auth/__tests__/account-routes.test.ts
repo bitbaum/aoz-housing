@@ -1,0 +1,269 @@
+/**
+ * Tests for the account API routes: signup, forgot-password, reset-password,
+ * verify-email, and the email+password path of the unified login route.
+ */
+
+import { NextRequest } from 'next/server'
+
+// --- Mocks ---
+
+const mockRegisterAccount = jest.fn()
+const mockLoginWithEmail = jest.fn()
+const mockRequestPasswordReset = jest.fn()
+const mockResetPassword = jest.fn()
+const mockVerifyEmailToken = jest.fn()
+jest.mock('@/lib/auth/account', () => ({
+  registerAccount: (...args: unknown[]) => mockRegisterAccount(...args),
+  loginWithEmail: (...args: unknown[]) => mockLoginWithEmail(...args),
+  requestPasswordReset: (...args: unknown[]) => mockRequestPasswordReset(...args),
+  resetPassword: (...args: unknown[]) => mockResetPassword(...args),
+  verifyEmailToken: (...args: unknown[]) => mockVerifyEmailToken(...args),
+}))
+
+const mockSetSessionCookie = jest.fn()
+const mockLoginByCode = jest.fn()
+jest.mock('@/lib/auth', () => ({
+  setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
+  loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
+}))
+
+const mockSetResidentCookie = jest.fn()
+jest.mock('@/lib/portal-auth', () => ({
+  setResidentCookie: (...args: unknown[]) => mockSetResidentCookie(...args),
+}))
+
+const mockConsumeRateLimit = jest.fn()
+const mockCheckRateLimit = jest.fn()
+jest.mock('@/lib/auth/rate-limit', () => ({
+  consumeRateLimit: (...args: unknown[]) => mockConsumeRateLimit(...args),
+  checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
+  recordLoginAttempt: jest.fn(),
+  clearLoginAttempts: jest.fn(),
+  getClientIp: () => '10.0.0.1',
+}))
+
+jest.mock('@/lib/logger', () => ({
+  logger: { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+}))
+
+// --- Import after mocks ---
+import { POST as signupPost } from '../signup/route'
+import { POST as forgotPost } from '../forgot-password/route'
+import { POST as resetPost } from '../reset-password/route'
+import { GET as verifyGet } from '../verify-email/route'
+import { POST as loginPost } from '../login/route'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+
+function jsonRequest(path: string, body: Record<string, unknown>): NextRequest {
+  return new NextRequest(`http://localhost:3001${path}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'content-type': 'application/json' },
+  })
+}
+
+beforeEach(() => {
+  jest.clearAllMocks()
+  mockConsumeRateLimit.mockReturnValue({ allowed: true })
+  mockCheckRateLimit.mockReturnValue({ allowed: true })
+})
+
+describe('POST /api/auth/signup', () => {
+  const VALID = { code: 'RES-ABC123', email: 'ihor@example.ch', password: 'secret-password' }
+
+  it('registers, sets the resident cookie, and reports the type', async () => {
+    mockRegisterAccount.mockResolvedValue({
+      success: true,
+      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+    })
+
+    const response = await signupPost(jsonRequest('/api/auth/signup', VALID))
+    const body = await response.json()
+
+    expect(body).toEqual({ success: true, type: 'resident' })
+    expect(mockSetResidentCookie).toHaveBeenCalledWith('RES-ABC123')
+    expect(mockSetSessionCookie).not.toHaveBeenCalled()
+  })
+
+  it('sets the staff JWT for staff registrations', async () => {
+    mockRegisterAccount.mockResolvedValue({
+      success: true,
+      identity: { type: 'staff', id: 'u1', code: 'AOZ-X', name: 'G', email: 'g@x.ch', role: 'ADMIN' },
+    })
+
+    const response = await signupPost(
+      jsonRequest('/api/auth/signup', { ...VALID, code: 'AOZ-X' })
+    )
+    expect((await response.json()).type).toBe('staff')
+    expect(mockSetSessionCookie).toHaveBeenCalledWith({
+      id: 'u1',
+      email: 'g@x.ch',
+      name: 'G',
+      role: 'ADMIN',
+    })
+  })
+
+  it('normalises input via the schema (trims + lowercases email, uppercases code)', async () => {
+    mockRegisterAccount.mockResolvedValue({
+      success: true,
+      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+    })
+
+    await signupPost(
+      jsonRequest('/api/auth/signup', {
+        code: 'res-abc123',
+        email: '  Ihor@Example.CH ',
+        password: 'secret-password',
+      })
+    )
+    expect(mockRegisterAccount).toHaveBeenCalledWith({
+      code: 'RES-ABC123',
+      email: 'ihor@example.ch',
+      password: 'secret-password',
+    })
+  })
+
+  it('rejects a too-short password with the German message', async () => {
+    const response = await signupPost(
+      jsonRequest('/api/auth/signup', { ...VALID, password: 'short' })
+    )
+    const body = await response.json()
+    expect(response.status).toBe(400)
+    expect(body.error).toBe(ERROR_MESSAGES.AUTH_PASSWORD_TOO_SHORT)
+    expect(mockRegisterAccount).not.toHaveBeenCalled()
+  })
+
+  it('is rate limited', async () => {
+    mockConsumeRateLimit.mockReturnValue({ allowed: false, retryAfter: 42 })
+    const response = await signupPost(jsonRequest('/api/auth/signup', VALID))
+    expect(response.status).toBe(429)
+    expect(mockRegisterAccount).not.toHaveBeenCalled()
+  })
+
+  it('passes domain errors through as 400', async () => {
+    mockRegisterAccount.mockResolvedValue({
+      success: false,
+      error: ERROR_MESSAGES.AUTH_ALREADY_REGISTERED,
+    })
+    const response = await signupPost(jsonRequest('/api/auth/signup', VALID))
+    expect(response.status).toBe(400)
+    expect((await response.json()).error).toBe(ERROR_MESSAGES.AUTH_ALREADY_REGISTERED)
+  })
+})
+
+describe('POST /api/auth/forgot-password', () => {
+  it('returns generic success', async () => {
+    mockRequestPasswordReset.mockResolvedValue({ success: true })
+    const response = await forgotPost(
+      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' })
+    )
+    expect(await response.json()).toEqual({ success: true })
+    expect(mockRequestPasswordReset).toHaveBeenCalledWith('g@example.ch')
+  })
+
+  it('surfaces the email-not-configured refusal as 503', async () => {
+    mockRequestPasswordReset.mockResolvedValue({
+      success: false,
+      error: ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED,
+    })
+    const response = await forgotPost(
+      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' })
+    )
+    expect(response.status).toBe(503)
+    expect((await response.json()).error).toBe(ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED)
+  })
+
+  it('rejects an invalid email shape', async () => {
+    const response = await forgotPost(
+      jsonRequest('/api/auth/forgot-password', { email: 'not-an-email' })
+    )
+    expect(response.status).toBe(400)
+    expect(mockRequestPasswordReset).not.toHaveBeenCalled()
+  })
+})
+
+describe('POST /api/auth/reset-password', () => {
+  it('resets with a valid token', async () => {
+    mockResetPassword.mockResolvedValue({ success: true })
+    const response = await resetPost(
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' })
+    )
+    expect(await response.json()).toEqual({ success: true })
+    expect(mockResetPassword).toHaveBeenCalledWith('tok', 'new-password-1')
+  })
+
+  it('rejects an invalid token as 400', async () => {
+    mockResetPassword.mockResolvedValue({
+      success: false,
+      error: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID,
+    })
+    const response = await resetPost(
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' })
+    )
+    expect(response.status).toBe(400)
+  })
+
+  it('enforces the password policy before touching the token', async () => {
+    const response = await resetPost(
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'short' })
+    )
+    expect(response.status).toBe(400)
+    expect(mockResetPassword).not.toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/auth/verify-email', () => {
+  function verifyRequest(token?: string): NextRequest {
+    const url = token
+      ? `http://localhost:3001/api/auth/verify-email?token=${token}`
+      : 'http://localhost:3001/api/auth/verify-email'
+    return new NextRequest(url)
+  }
+
+  it('redirects to /login?verified=1 on success', async () => {
+    mockVerifyEmailToken.mockResolvedValue(true)
+    const response = await verifyGet(verifyRequest('tok'))
+    expect(response.status).toBe(307)
+    expect(response.headers.get('location')).toContain('/login?verified=1')
+  })
+
+  it('redirects to /login?verified=0 for a bad or missing token', async () => {
+    mockVerifyEmailToken.mockResolvedValue(false)
+    const bad = await verifyGet(verifyRequest('tok'))
+    expect(bad.headers.get('location')).toContain('/login?verified=0')
+
+    const missing = await verifyGet(verifyRequest())
+    expect(missing.headers.get('location')).toContain('/login?verified=0')
+    expect(mockVerifyEmailToken).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('POST /api/auth/login with email credentials', () => {
+  it('routes email bodies to loginWithEmail and sets the right session', async () => {
+    mockLoginWithEmail.mockResolvedValue({
+      success: true,
+      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+    })
+
+    const response = await loginPost(
+      jsonRequest('/api/auth/login', { email: 'ihor@example.ch', password: 'pw-123456' })
+    )
+    const body = await response.json()
+
+    expect(body).toEqual({ success: true, type: 'resident', code: 'RES-ABC123' })
+    expect(mockSetResidentCookie).toHaveBeenCalledWith('RES-ABC123')
+    expect(mockLoginByCode).not.toHaveBeenCalled()
+  })
+
+  it('returns 401 with the generic message on bad credentials', async () => {
+    mockLoginWithEmail.mockResolvedValue({
+      success: false,
+      error: ERROR_MESSAGES.INVALID_CREDENTIALS,
+    })
+    const response = await loginPost(
+      jsonRequest('/api/auth/login', { email: 'x@example.ch', password: 'wrong' })
+    )
+    expect(response.status).toBe(401)
+    expect((await response.json()).error).toBe(ERROR_MESSAGES.INVALID_CREDENTIALS)
+  })
+})

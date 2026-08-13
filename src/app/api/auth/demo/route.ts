@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
-import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
+import { checkRateLimit, recordLoginAttempt, getClientIp } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { setResidentCookie } from '@/lib/portal-auth'
 import { isDemoEnabled, getDemoStaffCode, resolveDemoResidentCode } from '@/lib/demo/config'
@@ -55,9 +55,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-      || request.headers.get('x-real-ip')
-      || 'demo'
+    const clientIp = getClientIp(request)
 
     // Throttle: the demo endpoint issues real sessions; rate-limit per IP.
     const rateCheck = checkRateLimit(clientIp)
