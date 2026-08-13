@@ -8,6 +8,11 @@ import { expenseCategoryLabel } from '@/lib/config/expenses'
 import { formatRappen } from '@/lib/expenses/money'
 import { formatDateShort } from '@/lib/utils/formatting'
 
+export interface ExpenseShareView {
+  name: string
+  amountRappen: number
+}
+
 export interface ExpenseListItem {
   id: string
   description: string
@@ -15,11 +20,42 @@ export interface ExpenseListItem {
   amountRappen: number
   date: string
   paidByName: string
-  shareCount: number
+  /** Shown only when someone recorded the expense on the payer's behalf. */
+  recordedByName: string | null
+  shares: ExpenseShareView[]
+  /** True when the split covers every current member of the unit. */
+  splitAcrossAll: boolean
   canDelete: boolean
 }
 
 const L = PORTAL_LABELS.expenses
+
+/**
+ * "Aufgeteilt auf: alle (je CHF 5.00)" when the split covers everyone with
+ * equal shares; otherwise the explicit list — "Georgy (CHF 2.00), Ihor
+ * (CHF 2.00), Misha (CHF 2.00)" — so exclusions are always visible.
+ */
+function SplitSummary({ expense }: { expense: ExpenseListItem }) {
+  const equal = expense.shares.every((s) => s.amountRappen === expense.shares[0]?.amountRappen)
+  if (expense.splitAcrossAll && equal && expense.shares.length > 0) {
+    return (
+      <span>
+        {L.splitAll} ({L.each}{' '}
+        <span className="numeric">{formatRappen(expense.shares[0].amountRappen)}</span>)
+      </span>
+    )
+  }
+  return (
+    <span>
+      {expense.shares.map((share, i) => (
+        <span key={share.name}>
+          {i > 0 && ', '}
+          {share.name} (<span className="numeric">{formatRappen(share.amountRappen)}</span>)
+        </span>
+      ))}
+    </span>
+  )
+}
 
 export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
   const router = useRouter()
@@ -67,8 +103,17 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
               <div className="min-w-0">
                 <p className="font-medium text-ui-text truncate">{expense.description}</p>
                 <p className="text-sm text-ui-muted">
-                  {expenseCategoryLabel(expense.category)} · {L.paidBy} {expense.paidByName} ·{' '}
-                  {formatDateShort(expense.date)}
+                  {expenseCategoryLabel(expense.category)} · {L.paidBy} {expense.paidByName}
+                  {expense.recordedByName && (
+                    <span>
+                      {' '}
+                      ({L.recordedBy} {expense.recordedByName})
+                    </span>
+                  )}{' '}
+                  · {formatDateShort(expense.date)}
+                </p>
+                <p className="text-xs text-ui-muted mt-0.5">
+                  {L.splitAcross}: <SplitSummary expense={expense} />
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -76,12 +121,6 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
                   <p className="numeric font-medium text-ui-text">
                     {formatRappen(expense.amountRappen)}
                   </p>
-                  {expense.shareCount > 1 && (
-                    <p className="text-xs text-ui-muted numeric">
-                      {formatRappen(Math.round(expense.amountRappen / expense.shareCount))}{' '}
-                      {L.perPerson}
-                    </p>
-                  )}
                 </div>
                 {expense.canDelete && (
                   <button

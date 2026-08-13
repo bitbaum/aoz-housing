@@ -8,7 +8,8 @@ import { AddExpenseForm } from '@/components/portal/expenses/AddExpenseForm'
 import { ExpenseList } from '@/components/portal/expenses/ExpenseList'
 import { SettleUpButton } from '@/components/portal/expenses/SettleUpButton'
 import { residentName } from '@/lib/utils/resident-name'
-import { formatRappen } from '@/lib/expenses'
+import { formatRappen, monthlyStatements } from '@/lib/expenses'
+import { MonthlyStatements } from '@/components/portal/expenses/MonthlyStatement'
 import { formatDateShort } from '@/lib/utils/formatting'
 
 export const metadata: Metadata = { title: PORTAL_LABELS.expenses.title }
@@ -26,6 +27,14 @@ export default async function PortalExpensesPage() {
     const member = memberById.get(id)
     return member ? residentName(member) : '–'
   }
+  // Every resident id appearing anywhere in the data, resolved once — the
+  // statement table needs a serializable map, not a closure.
+  const namesById: Record<string, string> = {}
+  for (const e of data.expenses) {
+    namesById[e.paidById] = nameOf(e.paidById)
+    for (const s of e.shares) namesById[s.residentId] = nameOf(s.residentId)
+  }
+  for (const m of data.members) namesById[m.id] = residentName(m)
 
   return (
     <div>
@@ -113,9 +122,19 @@ export default async function PortalExpensesPage() {
           amountRappen: e.amountRappen,
           date: e.date.toISOString(),
           paidByName: nameOf(e.paidById),
-          shareCount: e.shares.length,
+          recordedByName: e.createdById === e.paidById ? null : nameOf(e.createdById),
+          shares: e.shares.map((s) => ({ name: nameOf(s.residentId), amountRappen: s.amountRappen })),
+          splitAcrossAll:
+            data.members.length > 0 &&
+            data.members.every((m) => e.shares.some((s) => s.residentId === m.id)),
           canDelete: e.paidById === auth.resident.id || e.createdById === auth.resident.id,
         }))}
+      />
+
+      {/* Monthly statement */}
+      <MonthlyStatements
+        statements={monthlyStatements(data.expenses, data.members.map((m) => m.id))}
+        nameOf={namesById}
       />
 
       {/* Settlements */}
