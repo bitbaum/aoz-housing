@@ -59,9 +59,8 @@ export async function findAdminNavLink(page: Page, href: string): Promise<Locato
     const groups = page.locator('header nav button[aria-haspopup="true"]:visible')
     const groupCount = await groups.count()
     for (let i = 0; i < groupCount; i++) {
-      // hover(), not click(): the group opens on mouseenter, so a click lands
-      // on an already-open menu and its toggle handler closes it again.
-      await groups.nth(i).hover()
+      // click(): the megamenu opens on intent (click), never on hover-from-rest.
+      await groups.nth(i).click()
       // The panel mounts on the next React render, so wait for it rather than
       // reading the count synchronously.
       await chrome

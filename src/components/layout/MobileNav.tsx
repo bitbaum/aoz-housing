@@ -120,8 +120,7 @@ export function MobileNav() {
                   .map((item) => (
                     <MobileNavLink
                       key={item.href}
-                      item={{ href: item.href, icon: 'home', label: item.label }}
-                      showIcon={false}
+                      item={{ href: item.href, icon: item.icon, label: item.label }}
                       active={isActive(item.href)}
                       onClick={handleClose}
                     />

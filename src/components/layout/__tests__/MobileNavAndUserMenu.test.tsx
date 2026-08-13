@@ -30,9 +30,9 @@ jest.mock('@/lib/config/navigation', () => ({
     {
       label: 'Personen',
       items: [
-        { href: '/residents', label: 'Bewohner', desc: 'Liste' },
-        { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Erfassen' },
-        { href: '/housing', label: 'Unterkünfte', desc: 'Einheiten' },
+        { href: '/residents', icon: 'users', label: 'Bewohner', desc: 'Liste' },
+        { href: '/residents/new', icon: 'users', label: 'Neuer Bewohner', desc: 'Erfassen' },
+        { href: '/housing', icon: 'building', label: 'Unterkünfte', desc: 'Einheiten' },
       ],
     },
   ],
