@@ -801,21 +801,27 @@ New staff users are created by admins via `POST /api/auth/register`:
 ### Demo Access (fleet standard: no-account product tour)
 
 The demo is **not a separate product** — it is the real tool behind a door
-that needs no account. SSOT: `src/lib/demo/` (config, scoped demo apartment,
-full-reset narrative).
+that needs no account. SSOT: `src/lib/demo/` (config, one shared narrative,
+two reset scopes).
 
+- **One demo world, one narrative**: BOTH scopes seed the same AOZ
+  presentation narrative (`lib/demo/seed-data.ts`: 5 units, 15 residents,
+  incidents, expenses — the full placement story). Every code it creates
+  carries a demo prefix (`DEMO-` units, `RES-DEMO` residents; pinned by
+  `seed-data.test.ts`) — an unprefixed code would leak a row the scoped
+  reset can never clean up. The demo resident login is Fatima, PLACED in the
+  success unit, so the portal tour shows a lived-in flat with expenses.
 - **Server-driven buttons**: the login page asks `GET /api/auth/demo` which
   doors exist; there is **no build-time flag**, so one build serves any demo
   configuration and a button only appears when pressing it can succeed.
 - **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server env only).
 - **Two reset scopes** (`DEMO_RESET_SCOPE`, default `unit`):
-  - **`unit` (default, safe)** — a fictional shared flat (`DEMO-WG`, "WG
-    Tokio": 3 flatmates, expenses, a settlement; `lib/demo/wg-unit.ts`) lives
-    ALONGSIDE real data. The portal's unit scoping isolates it. The daily
-    reset deletes and reseeds ONLY this unit, in explicit Restrict-FK order
-    (incidents → placements → unit → `RES-DEMO*` residents) — it can never
-    truncate. This is what runs on the live instance.
-  - **`full`** — truncate everything except the keep-list + AOZ presentation
+  - **`unit` (default, safe)** — the demo world lives ALONGSIDE real data;
+    the portal's unit scoping isolates it. The daily reset deletes by
+    PREFIX, never by table, in explicit Restrict-FK order (incidents →
+    placements → units → `RES-DEMO*` residents; `lib/demo/scoped-reset.ts`)
+    — it can never truncate. This is what runs on the live instance.
+  - **`full`** — truncate everything except the keep-list, then the same
     narrative (`lib/demo/reset.ts`). Dedicated demo deployments only.
 - **The staff demo is a full ADMIN session** (dedicated account, upserted by
   every reset). George explicitly wants testers to see the Verwaltung side,
@@ -827,8 +833,8 @@ full-reset narrative).
   refuses without `DEMO_ACCESS_ENABLED=true`, advisory-locked. Timer:
   `appcron-aoz-wohnen-reset-demo.timer` (04:05 UTC).
 - Live instance since 2026-08-13: real data (Witikonerstrasse 458) + both
-  demo doors (`WG-DEMO01` staff, `RES-DEMO1` resident into `DEMO-WG`),
-  scope `unit`.
+  demo doors (`WG-DEMO01` staff, `RES-DEMO1` resident = Fatima in the demo
+  success unit), scope `unit`.
 
 ### Resident Portal
 

@@ -22,7 +22,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { syncOrgRules } from '../governance/sync-org-rules'
-import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
+import { upsertDemoStaff } from './staff'
 import { wipeAllExceptKeepList } from './wipe'
 
 export interface DemoResetSummary extends DemoSeedSummary {
@@ -36,14 +36,7 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
 
   const seeded = await seedDemoData(prisma)
 
-  const demoStaffCode = getDemoStaffCode()
-  if (demoStaffCode) {
-    await prisma.user.upsert({
-      where: { code: demoStaffCode },
-      update: { name: DEMO_STAFF_NAME, active: true },
-      create: { code: demoStaffCode, name: DEMO_STAFF_NAME, role: 'ADMIN' },
-    })
-  }
+  const demoStaffCode = await upsertDemoStaff(prisma)
 
   await syncOrgRules(prisma)
 

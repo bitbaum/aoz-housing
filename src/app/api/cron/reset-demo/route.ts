@@ -14,7 +14,7 @@ import { prisma } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { isDemoEnabled, getDemoResetScope } from '@/lib/demo/config'
 import { resetDemoData } from '@/lib/demo/reset'
-import { seedDemoWgUnit } from '@/lib/demo/wg-unit'
+import { resetDemoWorld } from '@/lib/demo/scoped-reset'
 
 // Truncate + full reseed comfortably exceeds the 10s default at cold start.
 export const maxDuration = 120
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   try {
     const scope = getDemoResetScope()
     const summary =
-      scope === 'FULL' ? await resetDemoData(prisma) : await seedDemoWgUnit(prisma)
+      scope === 'FULL' ? await resetDemoData(prisma) : await resetDemoWorld(prisma)
     logger.info('Demo data reset', { scope, ...summary })
     return NextResponse.json({ success: true, scope, ...summary })
   } catch (error) {
