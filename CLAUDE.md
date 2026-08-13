@@ -125,6 +125,9 @@ src/
 │   ├── portal/            # Resident self-service (simple layout)
 │   │   ├── rules/         # House rule book + acknowledgement
 │   │   ├── decisions/     # Proposals and voting
+│   │   ├── expenses/      # Shared expenses: split, balances, settle up
+│   │   ├── apartment/     # Apartment profile (resident-named, rooms, people)
+│   │   ├── profile/       # Resident self-profile (name, photo, bio)
 │   │   └── transfer/      # Resident transfer request
 │   └── api/
 │       ├── cron/          # Daily notification cron
@@ -145,6 +148,7 @@ src/
     │   ├── housing-factors.ts
     │   └── thresholds.ts
     ├── compatibility/    # Scoring algorithm
+    ├── expenses/         # Shared-expense money/split/balance logic (pure, tested)
     ├── governance/       # House rules, decisions, conflict ladder (pure logic)
     ├── actions/          # Server actions (auth-guarded)
     ├── email/            # Email service (Resend) + templates
@@ -595,6 +599,62 @@ be followed up on, which is why "resolved" used to mean nothing.
 
 ---
 
+## Shared Expenses, Resident Profiles & Apartment Profiles
+
+Splitwise-style expense sharing per housing unit, plus optional self-chosen
+identity. `src/lib/expenses/` holds the pure logic; routes only do I/O.
+
+### Money rules (non-negotiable)
+
+- **Integer Rappen end to end.** Parse once at the input boundary
+  (`chfToRappen`), format once at display (`formatRappen`). No floats, ever.
+- **Shares always sum to the total.** `splitEqually` distributes Rappen
+  remainders deterministically (+1 to the first ids in sorted order).
+- **Balances are computed over the FULL history** — a balance over a
+  paginated slice is a wrong number. `computeBalances` sums to exactly zero;
+  `simplifyDebts` yields a stable ≤ n−1 transfer plan (greedy, id-tiebreak).
+- **Resident FKs are `Restrict`, not `Cascade`** — deleting a payer would
+  silently change everyone else's balance. Residents exit via status.
+- Categories are **config, not a Prisma enum** (`lib/config/expenses.ts`):
+  a new category is a config change, never a migration.
+
+Who may do what: any current unit member records expenses (also on behalf of
+the payer) and settlements (always `from = self`). Only the payer or creator
+may delete an expense. Everything unit-scoped via `getPortalAuth()`.
+
+### Resident self-profile (privacy by design)
+
+Residents have **no name field by default** — the code is the identity. The
+portal lets them OPTIONALLY set `displayName`, `bio` and a photo:
+
+- `residentName()` / `residentInitials()` in `lib/utils/resident-name.ts` are
+  the SSOT for display — never inline `displayName || code`.
+- Photos live in `ResidentPhoto` (separate table so Bytes never load on list
+  queries), client-resized via canvas before upload, server-capped at 500 KB,
+  and served ONLY to self + current roommates by
+  `/api/portal/residents/[id]/photo` (404 for everyone else — no existence
+  leak). `ResidentAvatar` renders photo-or-initials everywhere.
+
+### Apartment profile
+
+`HousingUnit.nickname` is the resident-chosen apartment name (e.g.
+"Singapur") — any current resident may set it from `/portal/apartment`
+(audited). The page shows rooms (from the spot hierarchy), occupants and
+profiles.
+
+### Real deployments vs demo
+
+`prisma/seed-real.ts` seeds a REAL apartment from `prisma/real/*.ts` config
+(layout + who lives where; login codes are generated at runtime and printed
+once — never committed). `--wipe` converts a demo instance in place. A real
+instance must run with `DEMO_ACCESS_ENABLED=false` and the reset timer
+disabled — the daily demo reset would truncate real data. The production
+instance `aoz-wohnen.orangecat.ch` runs in REAL mode since 2026-08-13
+(Witikonerstrasse 458); the demo remains fully env-switchable for a future
+dedicated demo deployment.
+
+---
+
 ### Blocking Conflicts
 
 Some incompatibilities are **blocking** (cannot place together):
@@ -735,6 +795,11 @@ New staff users are created by admins via `POST /api/auth/register`:
 
 The login page offers one-click demo sessions for **both** sides — staff view
 and resident portal. SSOT: `src/lib/demo/` (config, seed narrative, reset).
+
+> **Status of the production instance:** since 2026-08-13 `aoz-wohnen`
+> holds REAL data (Witikonerstrasse 458) — demo access is OFF there and the
+> reset timer is disabled. Everything below stays true for any deployment
+> that sets the demo env flags (e.g. a future dedicated demo instance).
 
 - **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server) +
   `NEXT_PUBLIC_DEMO_ACCESS_ENABLED=true` (build-time, shows the buttons).

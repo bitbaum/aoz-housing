@@ -2,10 +2,14 @@ import Link from 'next/link'
 import { SOCIAL_STYLE_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
 import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
+import { residentName } from '@/lib/utils/resident-name'
 
 interface Roommate {
   id: string
   code: string
+  displayName?: string | null
+  photoVersion?: Date | null
   socialStyle: string | null
 }
 
@@ -40,11 +44,9 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
               className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="avatar bg-brand-secondary">
-                  {roommate.code.slice(-3)}
-                </div>
+                <ResidentAvatar resident={roommate} photoVersion={roommate.photoVersion} />
                 <div>
-                  <p className="font-medium text-ui-text">{roommate.code}</p>
+                  <p className="font-medium text-ui-text">{residentName(roommate)}</p>
                   <p className="text-sm text-ui-muted">
                     {roommate.socialStyle ? getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle) : '–'}
                   </p>

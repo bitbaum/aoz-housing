@@ -23,6 +23,8 @@ function makeResident(overrides: Partial<Resident> = {}): Resident {
     createdAt: new Date('2024-01-01'),
     updatedAt: new Date('2024-01-01'),
     code: 'RES-001',
+    displayName: null,
+    bio: null,
     ageRange: 'ADULT',
     gender: 'MALE',
     familyStatus: 'SINGLE',

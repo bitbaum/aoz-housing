@@ -35,6 +35,9 @@ export type AuditEntity =
   | 'HOUSE_RULE'
   | 'PROPOSAL'
   | 'CONFLICT_AGREEMENT'
+  | 'EXPENSE'
+  | 'SETTLEMENT'
+  | 'RESIDENT_PROFILE'
 
 interface AuditLogEntry {
   action: AuditAction

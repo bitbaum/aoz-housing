@@ -23,15 +23,7 @@ import type { PrismaClient } from '@prisma/client'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { syncOrgRules } from '../governance/sync-org-rules'
 import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
-
-/**
- * Tables that survive a reset:
- * - _prisma_migrations — schema state, never data
- * - User               — real staff accounts (the demo user is upserted below)
- * - AlgorithmWeight    — tuned scoring config, not demo data
- * - SystemConfig       — operator configuration, not demo data
- */
-const KEEP_TABLES = new Set(['_prisma_migrations', 'User', 'AlgorithmWeight', 'SystemConfig'])
+import { wipeAllExceptKeepList } from './wipe'
 
 export interface DemoResetSummary extends DemoSeedSummary {
   tablesWiped: number
@@ -40,19 +32,7 @@ export interface DemoResetSummary extends DemoSeedSummary {
 }
 
 export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSummary> {
-  const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
-    SELECT tablename FROM pg_tables WHERE schemaname = 'public'
-  `
-  const wipe = tables.map((t) => t.tablename).filter((t) => !KEEP_TABLES.has(t))
-
-  if (wipe.length > 0) {
-    // Table names come from pg_tables, not user input; quoting preserves the
-    // PascalCase names Prisma creates. CASCADE clears FK order concerns —
-    // none of the kept tables reference a wiped one.
-    await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE ${wipe.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`
-    )
-  }
+  const tablesWiped = await wipeAllExceptKeepList(prisma)
 
   const seeded = await seedDemoData(prisma)
 
@@ -69,7 +49,7 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
 
   return {
     ...seeded,
-    tablesWiped: wipe.length,
+    tablesWiped,
     demoStaffCode,
     orgRulesSynced: true,
   }

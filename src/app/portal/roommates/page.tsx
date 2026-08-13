@@ -14,9 +14,13 @@ import {
   getLabel,
 } from '@/lib/constants/labels'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
+import { residentName } from '@/lib/utils/resident-name'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 
-type RoommateResident = Pick<Resident, 'id' | 'code' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages'>
+type RoommateResident = Pick<Resident, 'id' | 'code' | 'displayName' | 'bio' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages'> & {
+  photoVersion: Date | null
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -38,11 +42,14 @@ export default async function RoommatesPage() {
                     select: {
                       id: true,
                       code: true,
+                      displayName: true,
+                      bio: true,
                       ageRange: true,
                       sleepSchedule: true,
                       socialStyle: true,
                       smokingStatus: true,
                       languages: true,
+                      photo: { select: { updatedAt: true } },
                     },
                   },
                 },
@@ -80,9 +87,9 @@ export default async function RoommatesPage() {
   }
 
   const housingUnit = currentPlacement.housingUnit
-  const roommates = housingUnit.placements
+  const roommates: RoommateResident[] = housingUnit.placements
     .filter(p => p.residentId !== resident.id)
-    .map(p => p.resident)
+    .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null }))
 
   // Get compatibility scores with roommates
   const compatibilityScores = roommates.length > 0
@@ -187,16 +194,15 @@ function RoommateCard({
   return (
     <div className="card">
       <div className="flex items-start gap-4">
-        <div className="avatar h-16 w-16 bg-brand-secondary text-xl">
-          {roommate.code.slice(-3)}
-        </div>
+        <ResidentAvatar resident={roommate} photoVersion={roommate.photoVersion} size="lg" />
         <div className="flex-1">
           <div className="flex items-start justify-between">
             <div>
-              <h3 className="font-semibold text-ui-text">{roommate.code}</h3>
+              <h3 className="font-semibold text-ui-text">{residentName(roommate)}</h3>
               <p className="text-sm text-ui-muted">
                 {getLabel(AGE_RANGE_LABELS, roommate.ageRange)} {PORTAL_LABELS.roommates.ageYears}
               </p>
+              {roommate.bio && <p className="text-sm text-ui-muted mt-1">{roommate.bio}</p>}
             </div>
             {assessment && (
               <CompatibilityIndicator score={assessment.overallScore} />

@@ -15,6 +15,11 @@ import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard
 import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
 import { listActivities } from '@/lib/data/activities'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { getUnitExpenseData } from '@/lib/expenses/data'
+import { PortalExpensesCard } from '@/components/portal/PortalExpensesCard'
+import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
+import { residentName } from '@/lib/utils/resident-name'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +29,7 @@ export default async function ResidentPortal() {
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
     include: {
+      photo: { select: { updatedAt: true } },
       placements: {
         where: { status: 'ACTIVE' },
         include: {
@@ -33,7 +39,13 @@ export default async function ResidentPortal() {
                 where: { status: 'ACTIVE' },
                 include: {
                   resident: {
-                    select: { id: true, code: true, socialStyle: true },
+                    select: {
+                      id: true,
+                      code: true,
+                      displayName: true,
+                      socialStyle: true,
+                      photo: { select: { updatedAt: true } },
+                    },
                   },
                 },
               },
@@ -70,11 +82,11 @@ export default async function ResidentPortal() {
   const housingUnit = currentPlacement?.housingUnit
   const roommates = housingUnit?.placements
     .filter(p => p.residentId !== resident.id)
-    .map(p => p.resident) || []
+    .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null })) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
 
   const now = new Date()
-  const [pendingChores, compatibilityScores, highlightedActivities] = await Promise.all([
+  const [pendingChores, compatibilityScores, highlightedActivities, expenseData] = await Promise.all([
     currentPlacement
       ? prisma.householdTask.findMany({
           where: {
@@ -108,20 +120,26 @@ export default async function ResidentPortal() {
       activeOn: now,
       take: DISPLAY_LIMITS.dashboardItems,
     }),
+    currentPlacement
+      ? getUnitExpenseData(currentPlacement.housingUnitId)
+      : Promise.resolve(null),
   ])
 
   return (
     <div>
       {/* Welcome */}
-      <div className="flex items-start justify-between mb-6">
+      <div className="flex items-start justify-between gap-3 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-            {PORTAL_LABELS.pages.dashboard}, {resident.code}
+            {PORTAL_LABELS.pages.dashboard}, {residentName(resident)}
           </h1>
           <p className="text-ui-muted mt-1">
             {PORTAL_LABELS.pages.dashboardSubtitle}
           </p>
         </div>
+        <Link href="/portal/profile" aria-label={PORTAL_LABELS.nav.profile} className="shrink-0">
+          <ResidentAvatar resident={resident} photoVersion={resident.photo?.updatedAt} />
+        </Link>
       </div>
 
       {/* Satisfaction Check-In - Prominent Position */}
@@ -159,6 +177,11 @@ export default async function ResidentPortal() {
             roommates={roommates}
             compatibilityScores={compatibilityScores}
           />
+        )}
+
+        {/* Shared expenses balance */}
+        {expenseData && (
+          <PortalExpensesCard myBalance={expenseData.balances[resident.id] ?? 0} />
         )}
 
         {/* Recent Reports */}

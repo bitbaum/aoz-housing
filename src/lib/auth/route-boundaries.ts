@@ -26,11 +26,19 @@ export const RESIDENT_ROUTES = [
   '/portal/report',
   '/portal/chores',
   '/portal/transfer',
+  '/portal/expenses',
+  '/portal/apartment',
+  '/portal/profile',
   '/api/portal/transfer',
   '/api/portal/report',
   '/api/portal/preferences',
   '/api/portal/satisfaction',
   '/api/portal/chores',
+  '/api/portal/expenses',
+  '/api/portal/settlements',
+  '/api/portal/profile',
+  '/api/portal/apartment',
+  '/api/portal/residents',
 ]
 
 // Routes that remain public
