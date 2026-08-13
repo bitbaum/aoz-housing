@@ -7,3 +7,9 @@ export {
   type SettlementForBalance,
   type Transfer,
 } from './balances'
+export {
+  monthlyStatements,
+  monthKeyOf,
+  type MonthlyStatement,
+  type MonthlyPersonRow,
+} from './statement'
