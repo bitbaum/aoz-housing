@@ -18,7 +18,7 @@ describe('brand presets', () => {
     expect(ids).toEqual(expect.arrayContaining(['aoz', 'aozh']))
   })
 
-  it.each(['aoz', 'aozh'] as const)('%s fills in every field', (id) => {
+  it.each(['aoz', 'aozh', 'wg'] as const)('%s fills in every field', (id) => {
     const brand = BRANDS[id]
     for (const [key, value] of Object.entries(brand)) {
       expect(`${key}=${value}`).not.toMatch(/=(undefined|null|)$/)
@@ -35,7 +35,18 @@ describe('brand presets', () => {
       id: 'aoz',
       shortName: 'AOZ',
       codePrefix: 'AOZ-',
+      productName: 'AOZ Wohnen',
+      tagline: 'Platzierungssystem',
+      metaDescription:
+        'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
     })
+  })
+
+  it('keeps the WG register free of placement-system language', () => {
+    // A flatmate is not "placed" by a "system" — the real-flat brand must not
+    // present the org register.
+    const wg = BRANDS.wg
+    expect(`${wg.productName} ${wg.tagline} ${wg.metaDescription}`).not.toMatch(/[Pp]latzierung/)
   })
 
   it('gives each brand a distinct short name and code prefix', () => {

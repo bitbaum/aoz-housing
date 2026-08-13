@@ -18,7 +18,7 @@
  */
 
 import type { PrismaClient } from '@prisma/client'
-import { getDemoResidentCode, DEFAULT_DEMO_RESIDENT_CODE } from './config'
+import { resolveDemoResidentCode } from './config'
 
 export interface DemoSeedSummary {
   residents: number
@@ -31,7 +31,7 @@ export interface DemoSeedSummary {
 export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummary> {
   // The portal demo logs in as Fatima: PLACED, in the zero-conflict success
   // unit, so a visitor sees roommates, rules and chores — not an empty shell.
-  const demoResidentCode = getDemoResidentCode() ?? DEFAULT_DEMO_RESIDENT_CODE
+  const demoResidentCode = resolveDemoResidentCode()
 
   // ========================================================================
   // RESIDENTS - Creating diverse profiles for the story

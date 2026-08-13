@@ -20,7 +20,11 @@ describe('release guards', () => {
     const loginPage = read('src/app/login/page.tsx')
 
     expect(loginPage).not.toContain('RES-001')
+    expect(loginPage).not.toContain('RES-DEMO')
     expect(loginPage).not.toContain('AOZ-ADMIN1')
-    expect(loginPage).toContain('NEXT_PUBLIC_DEMO_ACCESS_ENABLED')
+    // Demo availability is server truth (GET /api/auth/demo), never a
+    // build-baked env flag — one build must serve any demo configuration.
+    expect(loginPage).not.toContain('NEXT_PUBLIC_DEMO_ACCESS_ENABLED')
+    expect(loginPage).toContain("fetch('/api/auth/demo')")
   })
 })

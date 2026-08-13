@@ -4,12 +4,11 @@
 import { BRAND } from '@/lib/config/brand'
 
 export const APP_LABELS = {
-  name: `${BRAND.shortName} Wohnen`,
-  tagline: 'Platzierungssystem',
-  fullTitle: `${BRAND.shortName} Wohnen - Platzierungssystem`,
-  metaTitle: `${BRAND.shortName} Wohnen - Intelligentes Platzierungssystem`,
-  metaDescription:
-    'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+  name: BRAND.productName,
+  tagline: BRAND.tagline,
+  fullTitle: `${BRAND.productName} - ${BRAND.tagline}`,
+  metaTitle: `${BRAND.productName} - ${BRAND.tagline}`,
+  metaDescription: BRAND.metaDescription,
   // Layout navigation section headers and utility links
   navSection: 'Navigation',
   systemSection: 'System',

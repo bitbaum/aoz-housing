@@ -46,9 +46,6 @@ export default async function AdminLayout({
               <AdminMegaMenu />
             </div>
             <div className="flex items-center gap-1">
-              <SecondaryLink href="/algorithm">{APP_LABELS.algorithm}</SecondaryLink>
-              <SecondaryLink href="/portal/help">{APP_LABELS.help}</SecondaryLink>
-              <div className="hidden 2xl:block w-px h-5 bg-ui-border mx-2" aria-hidden="true" />
               <ThemeToggle />
               <UserMenu
                 user={{ name: user.name, email: user.email, role: user.role }}
@@ -74,38 +71,15 @@ export default async function AdminLayout({
 }
 
 /**
- * Compact secondary link in the admin header.
- *
- * Shown from 2xl only. Below that the megamenu (which is `whitespace-nowrap`
- * and cannot shrink) is wider than the space `justify-between` leaves it, so
- * these links overlapped and swallowed the clicks for the last megamenu entry
- * — at 1280px the centre of "Einstellungen" hit-tested to "Algorithmus".
- * Both destinations remain reachable from the footer and the mobile drawer.
+ * Single-line footer: the quiet brand line. Deliberately carries NO nav —
+ * system destinations have exactly one home (SYSTEM_LINKS, rendered by the
+ * user menu and the mobile drawer), so the footer never drifts from them.
  */
-function SecondaryLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="hidden 2xl:inline-flex items-center px-3 py-2 text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle rounded-md transition-colors min-h-[40px]"
-    >
-      {children}
-    </Link>
-  )
-}
-
-/** Single-line footer. Hidden on mobile (the drawer carries those links). */
 function AdminFooter() {
   return (
     <footer className="hidden md:block border-t border-ui-border bg-ui-canvas">
-      <div className="max-w-screen-2xl mx-auto px-6 py-3 flex flex-wrap items-center justify-between gap-2 text-xs text-ui-muted">
+      <div className="max-w-screen-2xl mx-auto px-6 py-3 text-xs text-ui-muted">
         <p>{APP_LABELS.name} · {APP_LABELS.tagline}</p>
-        {/* Carries the secondary links at every desktop width — the header only
-            has room for them from 2xl up (see SecondaryLink). */}
-        <nav className="flex items-center gap-4">
-          <Link href="/algorithm" className="hover:text-ui-text transition-colors">{APP_LABELS.algorithm}</Link>
-          <Link href="/portal/help" className="hover:text-ui-text transition-colors">{APP_LABELS.help}</Link>
-          <Link href="/settings" className="hover:text-ui-text transition-colors">{PAGE_TITLES.settings}</Link>
-        </nav>
       </div>
     </footer>
   )

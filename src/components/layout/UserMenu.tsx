@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronDown, LogOut, ArrowRightLeft } from 'lucide-react'
 import { ROLE_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { SYSTEM_LINKS, NAV_ICONS } from '@/lib/config/navigation'
 import { useDismissable } from '@/lib/hooks/useDismissable'
 
 interface UserMenuProps {
@@ -71,6 +72,25 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
             <p className="text-xs text-brand-primary mt-1">
               {ROLE_LABELS[user.role] || user.role}
             </p>
+          </div>
+
+          {/* System destinations — SSOT in lib/config/navigation (SYSTEM_LINKS),
+              shared with the mobile drawer's bottom section. */}
+          <div className="py-1 border-b border-ui-border">
+            {SYSTEM_LINKS.map((item) => {
+              const Icon = NAV_ICONS[item.icon]
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
+                >
+                  <Icon className="w-4 h-4" aria-hidden="true" />
+                  {item.label}
+                </Link>
+              )
+            })}
           </div>
 
           {hasPortalAccess && (

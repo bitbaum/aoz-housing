@@ -23,15 +23,25 @@ jest.mock('next/link', () => ({
 // --- Config/constants mocks ---
 
 jest.mock('@/lib/config/navigation', () => ({
-  NAV_ITEMS: [
+  // The drawer consumes the SAME grouped nav as the desktop megamenu — one
+  // top-level link, one group (whose /new shortcut must be filtered out).
+  MEGAMENU_GROUPS: [
     { href: '/', icon: 'home', label: 'Dashboard' },
-    { href: '/residents', icon: 'users', label: 'Bewohner' },
-    { href: '/housing', icon: 'building', label: 'Unterkünfte' },
+    {
+      label: 'Personen',
+      items: [
+        { href: '/residents', label: 'Bewohner', desc: 'Liste' },
+        { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Erfassen' },
+        { href: '/housing', label: 'Unterkünfte', desc: 'Einheiten' },
+      ],
+    },
   ],
+  SYSTEM_LINKS: [{ href: '/settings', icon: 'settings', label: 'Einstellungen' }],
   NAV_ICONS: {
     home: () => <svg data-testid="icon-home" />,
     users: () => <svg data-testid="icon-users" />,
     building: () => <svg data-testid="icon-building" />,
+    settings: () => <svg data-testid="icon-settings" />,
   },
 }))
 
@@ -136,12 +146,20 @@ describe('MobileNav', () => {
     expect(drawer?.className).toContain('-translate-x-full')
   })
 
-  it('renders all nav item labels', () => {
+  it('renders top-level, grouped and system nav labels', () => {
     render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText('Personen')).toBeInTheDocument() // group eyebrow
     expect(screen.getByText('Bewohner')).toBeInTheDocument()
     expect(screen.getByText('Unterkünfte')).toBeInTheDocument()
+    expect(screen.getByText('Einstellungen')).toBeInTheDocument() // system section
+  })
+
+  it('hides creation shortcuts (…/new) from the drawer', () => {
+    render(<MobileNav />)
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
+    expect(screen.queryByText('Neuer Bewohner')).not.toBeInTheDocument()
   })
 
   it('renders nav links with correct hrefs', () => {
