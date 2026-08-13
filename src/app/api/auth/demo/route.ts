@@ -3,13 +3,29 @@ import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { checkRateLimit, recordLoginAttempt } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
 import { setResidentCookie } from '@/lib/portal-auth'
-import { isDemoEnabled, getDemoStaffCode, getDemoResidentCode } from '@/lib/demo/config'
+import { isDemoEnabled, getDemoStaffCode, resolveDemoResidentCode } from '@/lib/demo/config'
 
 type DemoRole = 'staff' | 'resident'
 
 function getDemoCode(role: DemoRole) {
   if (!isDemoEnabled()) return null
-  return role === 'staff' ? getDemoStaffCode() : getDemoResidentCode()
+  return role === 'staff' ? getDemoStaffCode() : resolveDemoResidentCode()
+}
+
+/**
+ * Which demo doors exist on THIS deployment — asked by the login page at
+ * render time. Server truth instead of a build-baked NEXT_PUBLIC flag, so
+ * one build serves any demo configuration and a button is only ever shown
+ * when pressing it can succeed.
+ */
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    data: {
+      staff: Boolean(getDemoCode('staff')),
+      resident: Boolean(getDemoCode('resident')),
+    },
+  })
 }
 
 export async function POST(request: NextRequest) {

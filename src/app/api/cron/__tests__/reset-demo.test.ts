@@ -20,6 +20,11 @@ jest.mock('@/lib/demo/reset', () => ({
   resetDemoData: (...args: unknown[]) => mockResetDemoData(...args),
 }))
 
+const mockSeedDemoWgUnit = jest.fn()
+jest.mock('@/lib/demo/wg-unit', () => ({
+  seedDemoWgUnit: (...args: unknown[]) => mockSeedDemoWgUnit(...args),
+}))
+
 jest.mock('@/lib/logger', () => ({
   logger: {
     debug: jest.fn(),
@@ -48,7 +53,7 @@ function createCronRequest(authHeader?: string): Request {
   })
 }
 
-const RESET_SUMMARY = {
+const FULL_RESET_SUMMARY = {
   residents: 15,
   housingUnits: 5,
   placements: 13,
@@ -59,6 +64,12 @@ const RESET_SUMMARY = {
   orgRulesSynced: true,
 }
 
+const WG_RESET_SUMMARY = {
+  unitDeleted: true,
+  residentsDeleted: 3,
+  demoResidentCode: 'RES-DEMO1',
+}
+
 describe('POST /api/cron/reset-demo', () => {
   const originalEnv = { ...process.env }
 
@@ -66,8 +77,10 @@ describe('POST /api/cron/reset-demo', () => {
     jest.clearAllMocks()
     process.env.CRON_SECRET = CRON_SECRET
     process.env.DEMO_ACCESS_ENABLED = 'true'
+    delete process.env.DEMO_RESET_SCOPE
     mockQueryRaw.mockResolvedValue([{ ok: true }])
-    mockResetDemoData.mockResolvedValue(RESET_SUMMARY)
+    mockResetDemoData.mockResolvedValue(FULL_RESET_SUMMARY)
+    mockSeedDemoWgUnit.mockResolvedValue(WG_RESET_SUMMARY)
   })
 
   afterEach(() => {
@@ -104,6 +117,7 @@ describe('POST /api/cron/reset-demo', () => {
       const body = await response.json()
       expect(body).toEqual({ skipped: true, reason: 'demo-disabled' })
       expect(mockResetDemoData).not.toHaveBeenCalled()
+      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
     })
   })
 
@@ -114,6 +128,7 @@ describe('POST /api/cron/reset-demo', () => {
       const body = await response.json()
       expect(body).toEqual({ skipped: true, reason: 'lock-held' })
       expect(mockResetDemoData).not.toHaveBeenCalled()
+      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
     })
 
     it('releases the lock after a successful reset', async () => {
@@ -123,24 +138,35 @@ describe('POST /api/cron/reset-demo', () => {
     })
 
     it('releases the lock even when the reset throws', async () => {
-      mockResetDemoData.mockRejectedValueOnce(new Error('boom'))
+      mockSeedDemoWgUnit.mockRejectedValueOnce(new Error('boom'))
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       expect(response.status).toBe(500)
       expect(mockQueryRaw).toHaveBeenCalledTimes(2)
     })
   })
 
-  describe('reset', () => {
-    it('runs the reset and returns its summary', async () => {
+  describe('scope', () => {
+    it('defaults to the SAFE scoped reset: only the demo apartment, never a truncate', async () => {
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       const body = await response.json()
       expect(response.status).toBe(200)
-      expect(body).toEqual({ success: true, ...RESET_SUMMARY })
+      expect(body).toEqual({ success: true, scope: 'UNIT', ...WG_RESET_SUMMARY })
+      expect(mockSeedDemoWgUnit).toHaveBeenCalledTimes(1)
+      expect(mockResetDemoData).not.toHaveBeenCalled()
+    })
+
+    it('runs the destructive full reset only on explicit DEMO_RESET_SCOPE=full', async () => {
+      process.env.DEMO_RESET_SCOPE = 'full'
+      const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
+      const body = await response.json()
+      expect(response.status).toBe(200)
+      expect(body).toEqual({ success: true, scope: 'FULL', ...FULL_RESET_SUMMARY })
       expect(mockResetDemoData).toHaveBeenCalledTimes(1)
+      expect(mockSeedDemoWgUnit).not.toHaveBeenCalled()
     })
 
     it('returns 500 without leaking details when the reset fails', async () => {
-      mockResetDemoData.mockRejectedValueOnce(new Error('db exploded'))
+      mockSeedDemoWgUnit.mockRejectedValueOnce(new Error('db exploded'))
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       const body = await response.json()
       expect(response.status).toBe(500)

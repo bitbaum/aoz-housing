@@ -18,8 +18,28 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const [code, setCode] = useState('')
   const [state, setState] = useState<LoginState>({ status: 'idle' })
-  const demoAccessEnabled = process.env.NEXT_PUBLIC_DEMO_ACCESS_ENABLED === 'true'
+  // Which demo doors this deployment offers — server truth, not a build-baked
+  // flag, so a button only appears when pressing it can succeed.
+  const [demoRoles, setDemoRoles] = useState<{ staff: boolean; resident: boolean }>({
+    staff: false,
+    resident: false,
+  })
   const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/auth/demo')
+      .then((res) => res.json())
+      .then((body) => {
+        if (!cancelled && body?.success) setDemoRoles(body.data)
+      })
+      .catch(() => {
+        // No demo section on failure — the login form is unaffected.
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Pre-fill code from URL param (used by email invite links)
   useEffect(() => {
@@ -181,29 +201,33 @@ function LoginForm() {
         </p>
       </div>
 
-      {demoAccessEnabled && state.status !== 'success' ? (
+      {(demoRoles.staff || demoRoles.resident) && state.status !== 'success' ? (
         <div className="mt-4 rounded-lg border border-ui-border bg-ui-surface p-4">
           <div className="mb-3">
             <p className="text-sm font-medium text-ui-text">{LOGIN_LABELS.demo.title}</p>
             <p className="mt-0.5 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <Button
-              onClick={() => submitDemo('staff')}
-              disabled={state.status === 'loading'}
-              variant="secondary"
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {LOGIN_LABELS.demo.staff}
-            </Button>
-            <Button
-              onClick={() => submitDemo('resident')}
-              disabled={state.status === 'loading'}
-              variant="outline"
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {LOGIN_LABELS.demo.resident}
-            </Button>
+          <div className={`grid grid-cols-1 gap-2 ${demoRoles.staff && demoRoles.resident ? 'sm:grid-cols-2' : ''}`}>
+            {demoRoles.staff && (
+              <Button
+                onClick={() => submitDemo('staff')}
+                disabled={state.status === 'loading'}
+                variant="secondary"
+                className="disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {LOGIN_LABELS.demo.staff}
+              </Button>
+            )}
+            {demoRoles.resident && (
+              <Button
+                onClick={() => submitDemo('resident')}
+                disabled={state.status === 'loading'}
+                variant="outline"
+                className="disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {LOGIN_LABELS.demo.resident}
+              </Button>
+            )}
           </div>
         </div>
       ) : null}

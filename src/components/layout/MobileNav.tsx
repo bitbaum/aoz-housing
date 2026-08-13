@@ -4,7 +4,12 @@ import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
-import { NAV_ITEMS, NAV_ICONS, type NavItem } from '@/lib/config/navigation'
+import {
+  MEGAMENU_GROUPS,
+  SYSTEM_LINKS,
+  NAV_ICONS,
+  type NavItem,
+} from '@/lib/config/navigation'
 import { APP_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
@@ -99,25 +104,65 @@ export function MobileNav() {
             </button>
           </div>
         </div>
-        <nav className="px-3 py-3">
+        <nav className="px-3 py-3 overflow-y-auto max-h-[calc(100vh-96px)]">
           <div className="mb-2 flex justify-end">
             <ThemeToggle />
           </div>
-          {NAV_ITEMS.map((item) => (
-            <MobileNavLink
-              key={item.href}
-              item={item}
-              active={isActive(item.href)}
-              onClick={handleClose}
-            />
-          ))}
+          {/* Same groups as the desktop megamenu — ONE nav definition. Creation
+              shortcuts (…/new) are skipped: every list page carries its own
+              "+" action, and the drawer is for navigation, not verbs. */}
+          {MEGAMENU_GROUPS.map((group) =>
+            'items' in group ? (
+              <div key={group.label} className="mt-3 first:mt-0">
+                <p className="eyebrow px-3 mb-1">{group.label}</p>
+                {group.items
+                  .filter((item) => !item.href.endsWith('/new'))
+                  .map((item) => (
+                    <MobileNavLink
+                      key={item.href}
+                      item={{ href: item.href, icon: 'home', label: item.label }}
+                      showIcon={false}
+                      active={isActive(item.href)}
+                      onClick={handleClose}
+                    />
+                  ))}
+              </div>
+            ) : (
+              <MobileNavLink
+                key={group.href}
+                item={{ href: group.href, icon: group.icon, label: group.label }}
+                active={isActive(group.href)}
+                onClick={handleClose}
+              />
+            )
+          )}
+          <div className="mt-3 pt-3 border-t border-ui-border">
+            {SYSTEM_LINKS.map((item) => (
+              <MobileNavLink
+                key={item.href}
+                item={item}
+                active={isActive(item.href)}
+                onClick={handleClose}
+              />
+            ))}
+          </div>
         </nav>
       </div>
     </>
   )
 }
 
-function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boolean; onClick: () => void }) {
+function MobileNavLink({
+  item,
+  active,
+  onClick,
+  showIcon = true,
+}: {
+  item: NavItem
+  active: boolean
+  onClick: () => void
+  showIcon?: boolean
+}) {
   const Icon = NAV_ICONS[item.icon]
   return (
     <Link
@@ -125,7 +170,9 @@ function MobileNavLink({ item, active, onClick }: { item: NavItem; active: boole
       onClick={onClick}
       className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
     >
-      <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
+      {showIcon && (
+        <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
+      )}
       <span>{item.label}</span>
     </Link>
   )

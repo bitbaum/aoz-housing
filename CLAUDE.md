@@ -166,7 +166,10 @@ Neither is a fork; both are presets.
 
 ```bash
 NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the AOZ wording
-NEXT_PUBLIC_BRAND=aozh   # default
+NEXT_PUBLIC_BRAND=aozh   # default (neutral pitch badge)
+NEXT_PUBLIC_BRAND=wg     # real shared-flat deployments — "WG Wohnen /
+                         # Gemeinsam wohnen", no placement-system register.
+                         # The live instance runs this since 2026-08-13.
 ```
 
 AOZH ships the **same palette** as AOZ deliberately — the brief was to keep
@@ -191,10 +194,11 @@ gh workflow run deploy.yml -R maonakamoto/aoz-housing
 curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
 ```
 
-- **SSOT**: `src/lib/config/brand.ts`. Two fields only — `shortName` and
-  `codePrefix` — because all German copy is of the form "AOZ-Regel" /
-  "AOZ-Verwaltung" / "AOZ Wohnen". A config field you can set with no visible
-  effect is a trap; don't add speculative ones.
+- **SSOT**: `src/lib/config/brand.ts`. Five fields, each with a direct visible
+  effect: `shortName` (drives all compound copy "AOZ-Regel"/"AOZ-Verwaltung"),
+  `codePrefix`, `productName`, `tagline`, `metaDescription`. A config field you
+  can set with no visible effect is a trap; don't add speculative ones.
+  `APP_LABELS`/`LOGIN_LABELS` derive from `BRAND` — never restate brand copy.
 - **`ALL_CODE_PREFIXES`** is the list of every prefix any brand has ever
   issued. Anything that must recognise codes *across* a rebrand — log
   redaction, code parsing — reads that, never `BRAND.codePrefix`. Codes outlive
@@ -793,33 +797,32 @@ New staff users are created by admins via `POST /api/auth/register`:
 
 ### Demo Access (fleet standard: no-account product tour)
 
-The login page offers one-click demo sessions for **both** sides — staff view
-and resident portal. SSOT: `src/lib/demo/` (config, seed narrative, reset).
+The demo is **not a separate product** — it is the real tool behind a door
+that needs no account. SSOT: `src/lib/demo/` (config, scoped demo apartment,
+full-reset narrative).
 
-> **Status of the production instance:** since 2026-08-13 `aoz-wohnen`
-> holds REAL data (Witikonerstrasse 458) — demo access is OFF there and the
-> reset timer is disabled. Everything below stays true for any deployment
-> that sets the demo env flags (e.g. a future dedicated demo instance).
-
-- **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server) +
-  `NEXT_PUBLIC_DEMO_ACCESS_ENABLED=true` (build-time, shows the buttons).
-  Setting these declares "this instance holds only seeded data" — a deployment
-  with real residents must never set them, because…
-- **The staff demo is a full ADMIN session** (single-role app; there is no
-  lesser role to hand out). Safety is by construction: dedicated demo account
-  (`DEMO_STAFF_CODE`, never a real admin's code), login rate limit, and a
-  daily reset.
-- **Daily reset**: `POST /api/cron/reset-demo` (Bearer `CRON_SECRET`) truncates
-  every table except `User`/`AlgorithmWeight`/`SystemConfig`/migrations —
-  enumerated from `pg_tables`, so new models are wiped automatically — then
-  reseeds the presentation narrative, upserts the demo accounts (self-heals
-  drive-by damage), and re-syncs the AOZ rule catalog. Refuses to run unless
-  `DEMO_ACCESS_ENABLED=true`. Triggered by
-  `appcron-aoz-wohnen-reset-demo.timer` on the box (04:05 UTC).
-- **Demo resident** (`DEMO_RESIDENT_CODE`) is seeded as a *placed* resident in
-  the zero-conflict success unit, so the portal tour shows roommates, rules
-  and chores instead of an empty shell.
-- CLI equivalent: `npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-demo.ts`
+- **Server-driven buttons**: the login page asks `GET /api/auth/demo` which
+  doors exist; there is **no build-time flag**, so one build serves any demo
+  configuration and a button only appears when pressing it can succeed.
+- **Opt-in per deployment**: `DEMO_ACCESS_ENABLED=true` (server env only).
+- **Two reset scopes** (`DEMO_RESET_SCOPE`, default `unit`):
+  - **`unit` (default, safe)** — a fictional shared flat (`DEMO-WG`, "WG
+    Tokio": 3 flatmates, expenses, a settlement; `lib/demo/wg-unit.ts`) lives
+    ALONGSIDE real data. The portal's unit scoping isolates it. The daily
+    reset deletes and reseeds ONLY this unit, in explicit Restrict-FK order
+    (incidents → placements → unit → `RES-DEMO*` residents) — it can never
+    truncate. This is what runs on the live instance.
+  - **`full`** — truncate everything except the keep-list + AOZ presentation
+    narrative (`lib/demo/reset.ts`). Dedicated demo deployments only.
+- **The staff demo is a full ADMIN session** — on an instance holding real
+  data, leave `DEMO_STAFF_CODE` unset (button then never renders). Sessions
+  of deactivated users die immediately: `getCurrentUser()` re-checks
+  `User.active` on every request.
+- **Reset endpoint**: `POST /api/cron/reset-demo` (Bearer `CRON_SECRET`),
+  refuses without `DEMO_ACCESS_ENABLED=true`, advisory-locked. Timer:
+  `appcron-aoz-wohnen-reset-demo.timer` (04:05 UTC).
+- Live instance since 2026-08-13: real data (Witikonerstrasse 458) + the
+  resident demo door into `DEMO-WG`, scope `unit`, no staff demo.
 
 ### Resident Portal
 

@@ -1,19 +1,33 @@
 /**
  * Demo access configuration (SSOT).
  *
- * The demo is a deliberate product feature: this deployment is a presentation
- * instance, and anyone landing on /login can tour BOTH sides of the product —
- * staff view and resident portal — without an account. The credentials are
- * public BY DESIGN; safety comes from the daily reset (api/cron/reset-demo),
- * the login rate limit, and the operator opt-in via env.
+ * The demo is not a separate product — it is the REAL product behind a door
+ * that needs no account. Anyone landing on /login can try it exactly as a
+ * resident (or, where configured, staff) would use it. The credentials are
+ * public BY DESIGN; safety comes from the reset (api/cron/reset-demo), the
+ * login rate limit, and the operator opt-in via env.
+ *
+ * Two reset scopes (DEMO_RESET_SCOPE):
+ * - 'unit' (DEFAULT): only the dedicated demo apartment is torn down and
+ *   reseeded. Safe on instances holding real data — the demo lives alongside
+ *   it, isolated by the portal's unit scoping.
+ * - 'full': truncate-everything + AOZ presentation narrative. ONLY for
+ *   dedicated demo deployments; must be opted into explicitly.
  *
  * Relative-import-safe (no '@/' aliases): prisma/seed-demo.ts loads this
  * through ts-node, which does not resolve tsconfig path aliases.
  */
 
-/** Master switch — server-side. The login page reads the NEXT_PUBLIC_ twin. */
+/** Master switch — server-side. The login page asks GET /api/auth/demo. */
 export function isDemoEnabled(): boolean {
   return process.env.DEMO_ACCESS_ENABLED === 'true'
+}
+
+export type DemoResetScope = 'UNIT' | 'FULL'
+
+/** Default is the safe scope; the destructive full wipe is explicit opt-in. */
+export function getDemoResetScope(): DemoResetScope {
+  return process.env.DEMO_RESET_SCOPE === 'full' ? 'FULL' : 'UNIT'
 }
 
 /**
@@ -30,13 +44,23 @@ export function getDemoStaffCode(): string | null {
 export const DEMO_STAFF_NAME = 'Demo-Zugang'
 
 /**
- * The demo resident login code. The seed assigns this code to a PLACED
- * resident in the success-story unit, so the portal demo shows roommates,
- * rules and chores instead of an empty shell.
+ * Every fictional flatmate in the scoped demo apartment gets a code with
+ * this prefix, so the scoped reset can always find them for deletion — even
+ * after a visitor edited their profiles.
  */
-export function getDemoResidentCode(): string | null {
-  return process.env.DEMO_RESIDENT_CODE || null
-}
+export const DEMO_WG_RESIDENT_CODE_PREFIX = 'RES-DEMO'
 
-/** Fallback used by the seed when DEMO_RESIDENT_CODE is not configured. */
+/** Fallback demo login for FULL-scope (presentation narrative) deployments. */
 export const DEFAULT_DEMO_RESIDENT_CODE = 'RES-001'
+
+/**
+ * The demo resident login code — the seeds assign it to a PLACED resident,
+ * so the portal demo shows a lived-in apartment, not an empty shell. Always
+ * resolvable: env override, else the scope-appropriate default.
+ */
+export function resolveDemoResidentCode(): string {
+  if (process.env.DEMO_RESIDENT_CODE) return process.env.DEMO_RESIDENT_CODE
+  return getDemoResetScope() === 'FULL'
+    ? DEFAULT_DEMO_RESIDENT_CODE
+    : `${DEMO_WG_RESIDENT_CODE_PREFIX}1`
+}

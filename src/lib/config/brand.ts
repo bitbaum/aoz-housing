@@ -29,16 +29,15 @@
  * brand that wants the default palette (AOZH) adds nothing at all.
  */
 
-export type BrandId = 'aoz' | 'aozh'
+export type BrandId = 'aoz' | 'aozh' | 'wg'
 
 export interface Brand {
   id: BrandId
   /**
-   * The acronym, and the only word that changes across the UI. Every piece of
-   * German copy is of the form "AOZ-Regel" / "AOZ-Verwaltung" / "AOZ Wohnen",
-   * so one token drives all of it. Deliberately not accompanied by separate
-   * productName/emailTag/ruleLabel fields: config nobody reads is config that
-   * drifts, and a field you can set with no visible effect is a trap.
+   * The acronym driving all compound German copy ("AOZ-Regel",
+   * "AOZ-Verwaltung"). One token, many strings. Deliberately not accompanied
+   * by per-string fields: config nobody reads is config that drifts, and a
+   * field you can set with no visible effect is a trap.
    */
   shortName: string
   /**
@@ -47,6 +46,12 @@ export interface Brand {
    * brand keep working. A rebrand must not lock anyone out.
    */
   codePrefix: string
+  /** Product name in the chrome, login page and page titles. */
+  productName: string
+  /** The register line under the product name (login page, titles). */
+  tagline: string
+  /** Meta description — the org brands sell placement, the WG brand doesn't. */
+  metaDescription: string
 }
 
 export const BRANDS: Record<BrandId, Brand> = {
@@ -57,6 +62,10 @@ export const BRANDS: Record<BrandId, Brand> = {
     id: 'aoz',
     shortName: 'AOZ',
     codePrefix: 'AOZ-',
+    productName: 'AOZ Wohnen',
+    tagline: 'Platzierungssystem',
+    metaDescription:
+      'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
   },
 
   // The neutral badge. Same palette as AOZ by design — the brief was to keep
@@ -65,6 +74,22 @@ export const BRANDS: Record<BrandId, Brand> = {
     id: 'aozh',
     shortName: 'AOZH',
     codePrefix: 'AOZH-',
+    productName: 'AOZH Wohnen',
+    tagline: 'Platzierungssystem',
+    metaDescription:
+      'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+  },
+
+  // Real shared-flat deployments (first: Witikonerstrasse 458). Same product,
+  // different register: nobody in a WG is "placed" by a "system".
+  wg: {
+    id: 'wg',
+    shortName: 'WG',
+    codePrefix: 'WG-',
+    productName: 'WG Wohnen',
+    tagline: 'Gemeinsam wohnen',
+    metaDescription:
+      'Gemeinsam wohnen, fair geteilt: Ausgaben, Aufgaben und Absprachen für die ganze Wohnung',
   },
 }
 

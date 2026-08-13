@@ -42,7 +42,7 @@ jest.mock('@/lib/logger', () => ({
 }))
 
 // --- Import after mocks ---
-import { POST } from '../demo/route'
+import { POST, GET } from '../demo/route'
 
 // --- Helpers ---
 
@@ -166,6 +166,31 @@ describe('POST /api/auth/demo', () => {
       mockLoginByCode.mockResolvedValue({ success: false, error: 'Ungültiger Code' })
       const response = await POST(createDemoRequest({ role: 'staff' }))
       expect(response.status).toBe(401)
+    })
+  })
+
+  describe('GET availability (drives the login page buttons)', () => {
+    it('reports both roles when both are configured', async () => {
+      const body = await (await GET()).json()
+      expect(body).toEqual({ success: true, data: { staff: true, resident: true } })
+    })
+
+    it('hides the staff door when no dedicated staff code is configured', async () => {
+      delete process.env.DEMO_STAFF_CODE
+      const body = await (await GET()).json()
+      expect(body.data).toEqual({ staff: false, resident: true })
+    })
+
+    it('resident stays available without an env code (scope default resolves one)', async () => {
+      delete process.env.DEMO_RESIDENT_CODE
+      const body = await (await GET()).json()
+      expect(body.data.resident).toBe(true)
+    })
+
+    it('reports nothing when demo access is disabled', async () => {
+      process.env.DEMO_ACCESS_ENABLED = 'false'
+      const body = await (await GET()).json()
+      expect(body.data).toEqual({ staff: false, resident: false })
     })
   })
 })

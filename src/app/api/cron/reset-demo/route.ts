@@ -3,15 +3,18 @@
  * Authenticated via Bearer token (CRON_SECRET), same contract as
  * cron/notifications. Triggered by a systemd timer on the box.
  *
- * Wipes drive-by demo edits and restores the pristine presentation dataset,
- * including the demo staff and resident accounts — see lib/demo/reset.ts.
- * This is what makes a public, full-privilege demo safe to leave running.
+ * Scope comes from DEMO_RESET_SCOPE (lib/demo/config):
+ * - UNIT (default): tear down and reseed ONLY the demo apartment — safe on
+ *   instances that also hold real data.
+ * - FULL: truncate-everything + presentation narrative, for dedicated demo
+ *   deployments only. Explicit opt-in.
  */
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { logger } from '@/lib/logger'
-import { isDemoEnabled } from '@/lib/demo/config'
+import { isDemoEnabled, getDemoResetScope } from '@/lib/demo/config'
 import { resetDemoData } from '@/lib/demo/reset'
+import { seedDemoWgUnit } from '@/lib/demo/wg-unit'
 
 // Truncate + full reseed comfortably exceeds the 10s default at cold start.
 export const maxDuration = 120
@@ -47,9 +50,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const summary = await resetDemoData(prisma)
-    logger.info('Demo data reset', { ...summary })
-    return NextResponse.json({ success: true, ...summary })
+    const scope = getDemoResetScope()
+    const summary =
+      scope === 'FULL' ? await resetDemoData(prisma) : await seedDemoWgUnit(prisma)
+    logger.info('Demo data reset', { scope, ...summary })
+    return NextResponse.json({ success: true, scope, ...summary })
   } catch (error) {
     logger.errorWithCause('Demo reset failed', error)
     return NextResponse.json(

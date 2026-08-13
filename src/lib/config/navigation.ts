@@ -18,6 +18,7 @@ import {
   Bot,
   CalendarDays,
   ScrollText,
+  CircleHelp,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -37,6 +38,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   bot: Bot,
   calendar: CalendarDays,
   scroll: ScrollText,
+  help: CircleHelp,
 }
 
 export interface NavItem {
@@ -45,21 +47,17 @@ export interface NavItem {
   label: string
 }
 
-export const NAV_ITEMS: NavItem[] = [
-  { href: '/', icon: 'home', label: 'Dashboard' },
-  { href: '/residents', icon: 'users', label: 'Bewohner' },
-  { href: '/housing', icon: 'building', label: 'Unterkünfte' },
-  { href: '/placements', icon: 'puzzle', label: 'Platzierungen' },
-  { href: '/matching', icon: 'heart', label: 'Matching' },
-  { href: '/incidents', icon: 'alert', label: 'Vorfälle' },
-  { href: '/rules', icon: 'scroll', label: 'Regeln' },
-  { href: '/maintenance', icon: 'wrench', label: 'Wartung' },
-  { href: '/chores', icon: 'clipboard', label: 'Aufgaben' },
-  { href: '/activities', icon: 'calendar', label: 'Aktivitäten' },
-  { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungen' },
-  { href: '/analytics', icon: 'chart', label: 'Auswertung' },
-  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
+/**
+ * System destinations — settings, algorithm docs, help. ONE definition,
+ * rendered by the UserMenu dropdown (desktop) and the drawer's bottom
+ * section (mobile). Deliberately not part of the megamenu: they are about
+ * the tool, not the daily work, and they were the overflow that used to
+ * clutter the header row on wide screens.
+ */
+export const SYSTEM_LINKS: NavItem[] = [
   { href: '/settings', icon: 'settings', label: 'Einstellungen' },
+  { href: '/algorithm', icon: 'brain', label: 'Algorithmus' },
+  { href: '/portal/help', icon: 'help', label: 'Hilfe' },
 ]
 
 export interface MegaMenuDropdownItem {
@@ -97,12 +95,14 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     label: 'Monitoring',
     items: [
       { href: '/incidents', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
+      { href: '/rules', label: 'Regeln', desc: 'Hausregeln & Beschlüsse' },
       { href: '/analytics', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
       { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
     ],
   },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
-  { href: '/settings', icon: 'settings', label: 'Einstellungen' },
+  // Einstellungen intentionally NOT here — system links live in SYSTEM_LINKS
+  // (UserMenu + drawer), keeping the header row to the daily work.
 ]
 
 // =============================================================================

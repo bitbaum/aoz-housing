@@ -29,9 +29,10 @@ export const LOGIN_LABELS = {
   },
   help: `Bei Problemen wenden Sie sich an die ${BRAND.shortName}-Verwaltung.`,
   demo: {
-    title: 'Demo-Zugang',
-    description: 'Für Präsentationen und Produkttests.',
+    title: 'Direkt ausprobieren',
+    description:
+      'Ohne Konto testen — Sie sehen das echte Produkt, genau so, wie es die Bewohnenden nutzen.',
     staff: `${BRAND.shortName}-Verwaltung`,
-    resident: 'Bewohner-Portal',
+    resident: 'Als Bewohner:in ausprobieren',
   },
 } as const

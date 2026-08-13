@@ -50,6 +50,15 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   const payload = await verifyToken(token)
   if (!payload) return null
 
+  // A session must not outlive the account. The JWT alone would keep a
+  // deactivated user (offboarded staff, retired demo account) signed in
+  // until token expiry — with sliding refresh, indefinitely.
+  const user = await prisma.user.findUnique({
+    where: { id: payload.sub },
+    select: { active: true },
+  })
+  if (!user?.active) return null
+
   return {
     id: payload.sub,
     email: payload.email,
