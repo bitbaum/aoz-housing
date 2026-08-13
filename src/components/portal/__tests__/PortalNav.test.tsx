@@ -62,16 +62,19 @@ describe('PortalNav', () => {
 
   // ── Desktop nav links ─────────────────────────────────────────────────────
 
-  it('renders all 5 primary desktop nav links', () => {
+  it('renders the primary desktop nav links', () => {
     renderNav()
     // These are inside the hidden lg:flex nav — still in the DOM
     const links = screen.getAllByRole('link')
     const hrefs = links.map(l => l.getAttribute('href'))
     expect(hrefs).toContain('/portal')
-    expect(hrefs).toContain('/portal/roommates')
+    expect(hrefs).toContain('/portal/apartment')
+    expect(hrefs).toContain('/portal/expenses')
     expect(hrefs).toContain('/portal/chores')
     expect(hrefs).toContain('/portal/report')
-    expect(hrefs).toContain('/portal/preferences')
+    // Roommates and preferences moved to the mobile drawer (apartment page
+    // covers roommates; the drawer lists every item).
+    expect(hrefs).not.toContain('/portal/roommates')
   })
 
   // ── Mobile hamburger toggle ───────────────────────────────────────────────

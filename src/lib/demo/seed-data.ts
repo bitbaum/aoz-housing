@@ -41,6 +41,9 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const fatima = await prisma.resident.create({
     data: {
       code: demoResidentCode,
+      // Self-chosen profile — shows the resident-profile feature in the tour.
+      displayName: 'Fatima',
+      bio: 'Ich koche gern für alle und mag es ruhig am Abend.',
       ageRange: 'ADULT',
       gender: 'FEMALE',
       familyStatus: 'FAMILY_WITH_CHILDREN',
@@ -567,6 +570,8 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
     data: {
       code: 'UNIT-005',
       address: 'Mühlebachstrasse 45, 8008 Zürich',
+      // Resident-chosen apartment name — shows the apartment profile feature.
+      nickname: 'Casa Harmonie',
       totalBeds: 4,
       totalRooms: 2,
       sharedRooms: 2,
@@ -1158,6 +1163,50 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
       { incidentId: incident7.id, residentId: elena.id, role: 'INVOLVED' },
       { incidentId: incident7.id, residentId: grace.id, role: 'INVOLVED' },
     ]
+  })
+
+  // ========================================================================
+  // SHARED EXPENSES (Unit 5) — the expense-sharing tour
+  // ========================================================================
+  // An equal 4-way split of CHF 48.00 with one settlement already recorded,
+  // so the demo shows balances, a suggested transfer AND a payment history.
+  const unit5MemberIds = [fatima.id, yasmin.id, amira.id, sara.id]
+  const groceries = await prisma.expense.create({
+    data: {
+      housingUnitId: unit5.id,
+      paidById: fatima.id,
+      createdById: fatima.id,
+      description: 'Wocheneinkauf Migros',
+      category: 'GROCERIES',
+      amountRappen: 4800,
+      date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      shares: {
+        create: unit5MemberIds.map((residentId) => ({ residentId, amountRappen: 1200 })),
+      },
+    },
+  })
+  await prisma.expense.create({
+    data: {
+      housingUnitId: unit5.id,
+      paidById: yasmin.id,
+      createdById: yasmin.id,
+      description: 'Putzmittel und WC-Papier',
+      category: 'HOUSEHOLD',
+      amountRappen: 1860,
+      date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      shares: {
+        create: unit5MemberIds.map((residentId) => ({ residentId, amountRappen: 465 })),
+      },
+    },
+  })
+  await prisma.settlement.create({
+    data: {
+      housingUnitId: unit5.id,
+      fromId: sara.id,
+      toId: fatima.id,
+      amountRappen: 1200,
+      note: `Anteil ${groceries.description}`,
+    },
   })
 
   // Counts are queried, not hardcoded, so the summary can never drift from

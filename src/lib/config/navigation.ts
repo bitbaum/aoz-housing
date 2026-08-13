@@ -113,7 +113,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'help' | 'transfer' | 'rules' | 'decisions'
+  labelKey: 'overview' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
   /** Items in the `primary` set show as top-level links on desktop. Others
    *  only appear in the mobile drawer (avoiding desktop overflow). */
   primary?: boolean
@@ -121,12 +121,17 @@ export interface PortalNavItem {
 
 export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal', labelKey: 'overview', primary: true },
-  { href: '/portal/roommates', labelKey: 'roommates', primary: true },
+  { href: '/portal/apartment', labelKey: 'apartment', primary: true },
+  { href: '/portal/expenses', labelKey: 'expenses', primary: true },
   { href: '/portal/chores', labelKey: 'chores', primary: true },
   { href: '/portal/rules', labelKey: 'rules', primary: true },
   { href: '/portal/decisions', labelKey: 'decisions', primary: true },
   { href: '/portal/report', labelKey: 'report', primary: true },
-  { href: '/portal/preferences', labelKey: 'preferences', primary: true },
+  // Roommates live inside the apartment profile now; the standalone page
+  // stays reachable from the mobile drawer.
+  { href: '/portal/roommates', labelKey: 'roommates' },
+  { href: '/portal/profile', labelKey: 'profile' },
+  { href: '/portal/preferences', labelKey: 'preferences' },
   { href: '/portal/housing', labelKey: 'housing' },
   { href: '/portal/activities', labelKey: 'activities' },
   { href: '/portal/transfer', labelKey: 'transfer' },

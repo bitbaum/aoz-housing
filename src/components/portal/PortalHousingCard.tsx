@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/utils'
 
 interface HousingUnitData {
   address: string | null
+  nickname?: string | null
   totalRooms: number | null
   quietHours: string | null
   smokingAllowed: boolean | null
@@ -26,7 +27,11 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
     <div className="card mb-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.housing}</h2>
+          <h2 className="text-lg font-semibold text-ui-text">
+            <Link href="/portal/apartment" className="hover:underline">
+              {housingUnit?.nickname || PORTAL_LABELS.dashboard.housing}
+            </Link>
+          </h2>
           <p className="text-ui-muted">{housingUnit?.address}</p>
         </div>
         <span className="badge badge-active">{PORTAL_LABELS.dashboard.active}</span>

@@ -59,6 +59,54 @@ export async function setResidentCookie(code: string): Promise<void> {
 }
 
 /**
+ * Authenticate portal request and return the resident WITHOUT requiring an
+ * active placement. Use for self-profile routes: a resident's own name, bio
+ * and photo exist independently of whether they are currently placed.
+ */
+export async function getPortalResident(): Promise<{ id: string; code: string } | null> {
+  const cookieStore = await cookies()
+  const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
+  if (!residentCode) return null
+
+  const resident = await prisma.resident.findUnique({
+    where: { code: residentCode },
+    select: { id: true, code: true },
+  })
+  return resident
+}
+
+export interface UnitMember {
+  id: string
+  code: string
+  displayName: string | null
+  /** Photo timestamp doubles as the cache-busting version; null = no photo. */
+  photoVersion: Date | null
+}
+
+/** Active members of a housing unit, shaped for display (never includes photo bytes). */
+export async function getActiveUnitMembers(housingUnitId: string): Promise<UnitMember[]> {
+  const placements = await prisma.placement.findMany({
+    where: { housingUnitId, status: 'ACTIVE' },
+    select: {
+      resident: {
+        select: {
+          id: true,
+          code: true,
+          displayName: true,
+          photo: { select: { updatedAt: true } },
+        },
+      },
+    },
+  })
+  return placements.map((p) => ({
+    id: p.resident.id,
+    code: p.resident.code,
+    displayName: p.resident.displayName,
+    photoVersion: p.resident.photo?.updatedAt ?? null,
+  }))
+}
+
+/**
  * Authenticate portal request and return resident + active placement.
  * Returns null if not authenticated or no active placement.
  */

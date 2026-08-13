@@ -142,6 +142,23 @@ export const ERROR_MESSAGES = {
   AGREEMENT_SAVE_ERROR: 'Abmachung konnte nicht gespeichert werden',
   AGREEMENT_PARTIES_REQUIRED: 'Eine Abmachung braucht mindestens zwei Beteiligte',
   RESOLUTION_STAGE_ERROR: 'Der Bearbeitungsschritt konnte nicht geändert werden',
+
+  // ─── Shared expenses ───────────────────────────────────────────
+  EXPENSE_NOT_FOUND: 'Ausgabe nicht gefunden',
+  EXPENSE_CREATE_ERROR: 'Ausgabe konnte nicht gespeichert werden',
+  EXPENSE_DELETE_ERROR: 'Ausgabe konnte nicht gelöscht werden',
+  EXPENSE_DELETE_FORBIDDEN: 'Nur wer die Ausgabe bezahlt oder erfasst hat, kann sie löschen',
+  EXPENSE_MEMBER_INVALID: 'Alle Beteiligten müssen aktuell in dieser Wohnung wohnen',
+  SETTLEMENT_CREATE_ERROR: 'Zahlung konnte nicht gespeichert werden',
+  SETTLEMENT_SELF: 'Du kannst keine Zahlung an dich selbst erfassen',
+
+  // ─── Resident profile / apartment profile ──────────────────────
+  PROFILE_UPDATE_ERROR: 'Profil konnte nicht gespeichert werden',
+  PHOTO_TOO_LARGE: 'Das Foto ist zu gross (max. 500 KB)',
+  PHOTO_TYPE_INVALID: 'Nur JPG, PNG oder WebP werden unterstützt',
+  PHOTO_UPLOAD_ERROR: 'Foto konnte nicht gespeichert werden',
+  PHOTO_DELETE_ERROR: 'Foto konnte nicht entfernt werden',
+  APARTMENT_UPDATE_ERROR: 'Wohnungsname konnte nicht gespeichert werden',
 } as const
 
 export type ErrorMessageKey = keyof typeof ERROR_MESSAGES

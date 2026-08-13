@@ -5,6 +5,8 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
   return {
     id: 'clx1234567890abcdefghijk',
     code: 'RES-001',
+    displayName: null,
+    bio: null,
     ageRange: 'ADULT',
     gender: 'MALE',
     familyStatus: 'SINGLE',

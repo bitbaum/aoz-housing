@@ -72,6 +72,13 @@ model Resident {
   roommatePreferences    String?
   preferencesCompletedAt DateTime? // Set when portal preferences form is submitted
 
+  // Self-chosen identity (portal profile). The code stays the login identity
+  // and the staff-facing reference; displayName/bio/photo are OPTIONAL and
+  // owned by the resident — never entered by staff, never required.
+  displayName String?
+  bio         String?
+  photo       ResidentPhoto?
+
   // Status
   status ResidentStatus @default(ACTIVE)
   notes  String? // Caseworker notes
@@ -107,8 +114,26 @@ model Resident {
   votes                Vote[]
   agreementParties     AgreementParty[]
 
+  // Shared expenses
+  expensesPaid     Expense[]      @relation("ExpensePayer")
+  expensesCreated  Expense[]      @relation("ExpenseCreator")
+  expenseShares    ExpenseShare[]
+  settlementsPaid  Settlement[]   @relation("SettlementFrom")
+  settlementsRecvd Settlement[]   @relation("SettlementTo")
+
   @@index([status])
   @@index([ageRange, gender])
+}
+
+// Avatar photo, one per resident. Separate table on purpose: Prisma selects
+// all scalar columns by default, so Bytes on Resident would drag the image
+// into every findMany. Kept out of the row, joined only by the photo route.
+model ResidentPhoto {
+  residentId String   @id
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  data       Bytes
+  mimeType   String
+  updatedAt  DateTime @updatedAt
 }
 
 enum AgeRange {
@@ -207,6 +232,10 @@ model HousingUnit {
   code    String @unique // Internal reference
   address String
 
+  // Resident-chosen apartment name (e.g. "Singapur"). Set from the portal by
+  // the people who live there; staff views show it next to the address.
+  nickname String?
+
   // Capacity
   totalBeds    Int
   totalRooms   Int
@@ -250,8 +279,79 @@ model HousingUnit {
   houseRules HouseRule[]
   proposals  Proposal[]
 
+  // Shared expenses
+  expenses    Expense[]
+  settlements Settlement[]
+
   @@index([status])
   @@index([totalBeds])
+}
+
+// =============================================================================
+// SHARED EXPENSES
+// =============================================================================
+// Money is stored as INTEGER Rappen — exact arithmetic, no float drift.
+// Invariant (enforced in lib/expenses, tested): sum(shares) === amountRappen.
+// Resident FKs are Restrict, not Cascade: deleting a payer would silently
+// change everyone else's balance. Residents exit via status, not deletion.
+
+model Expense {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  housingUnitId String
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+
+  // Who paid, and who recorded it (may differ: any roommate can log a
+  // purchase on behalf of the person who paid).
+  paidById    String
+  paidBy      Resident @relation("ExpensePayer", fields: [paidById], references: [id], onDelete: Restrict)
+  createdById String
+  createdBy   Resident @relation("ExpenseCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  description  String
+  category     String // Validated against EXPENSE_CATEGORIES config — string, not enum, so a new category is a config change, not a migration
+  amountRappen Int
+  date         DateTime
+
+  shares ExpenseShare[]
+
+  @@index([housingUnitId, date])
+}
+
+model ExpenseShare {
+  id String @id @default(cuid())
+
+  expenseId String
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+
+  residentId String
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Restrict)
+
+  amountRappen Int
+
+  @@unique([expenseId, residentId])
+  @@index([residentId])
+}
+
+// A direct payment between roommates that settles (part of) a debt.
+model Settlement {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  housingUnitId String
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+
+  fromId String
+  from   Resident @relation("SettlementFrom", fields: [fromId], references: [id], onDelete: Restrict)
+  toId   String
+  to     Resident @relation("SettlementTo", fields: [toId], references: [id], onDelete: Restrict)
+
+  amountRappen Int
+  note         String?
+
+  @@index([housingUnitId])
 }
 
 enum HousingStatus {
