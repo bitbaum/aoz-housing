@@ -19,6 +19,8 @@ import {
   CalendarDays,
   ScrollText,
   CircleHelp,
+  UserPlus,
+  HousePlus,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -39,6 +41,8 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   calendar: CalendarDays,
   scroll: ScrollText,
   help: CircleHelp,
+  'user-plus': UserPlus,
+  'house-plus': HousePlus,
 }
 
 export interface NavItem {
@@ -62,6 +66,7 @@ export const SYSTEM_LINKS: NavItem[] = [
 
 export interface MegaMenuDropdownItem {
   href: string
+  icon: keyof typeof NAV_ICONS
   label: string
   desc: string
 }
@@ -75,29 +80,29 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   {
     label: 'Personen',
     items: [
-      { href: '/residents', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
-      { href: '/residents/new', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
-      { href: '/matching', label: 'Matching', desc: 'Platzierung finden' },
-      { href: '/transfer-requests', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen' },
+      { href: '/residents', icon: 'users', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
+      { href: '/residents/new', icon: 'user-plus', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
+      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Platzierung finden' },
+      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen' },
     ],
   },
   {
     label: 'Unterkünfte',
     items: [
-      { href: '/housing', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
-      { href: '/housing/new', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
-      { href: '/placements', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
-      { href: '/chores', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln' },
-      { href: '/activities', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten' },
+      { href: '/housing', icon: 'building', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
+      { href: '/housing/new', icon: 'house-plus', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
+      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
+      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln' },
+      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten' },
     ],
   },
   {
     label: 'Monitoring',
     items: [
-      { href: '/incidents', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
-      { href: '/rules', label: 'Regeln', desc: 'Hausregeln & Beschlüsse' },
-      { href: '/analytics', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
-      { href: '/maintenance', label: 'Wartung', desc: 'Wartungsaufgaben' },
+      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
+      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse' },
+      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
+      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben' },
     ],
   },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
