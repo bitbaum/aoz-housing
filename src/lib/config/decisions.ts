@@ -50,7 +50,7 @@ export const DECISION_MODE_DESCRIPTIONS: Record<DecisionMode, string> = {
   RESIDENT_BINDING:
     'Die Bewohnenden stimmen ab. Das Ergebnis gilt direkt als Hausregel.',
   RESIDENT_ADVISORY:
-    `Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den ${BRAND.shortName}-Regeln und dem Mietrecht vereinbar ist.`,
+    `Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den ${BRAND.orgName}-Regeln und dem Mietrecht vereinbar ist.`,
   STAFF_ONLY:
     'Bei Sicherheit und Respekt wird nicht abgestimmt — diese Regeln schützen Einzelne und dürfen nicht überstimmt werden. Vorschläge sind trotzdem willkommen und werden beantwortet.',
 }

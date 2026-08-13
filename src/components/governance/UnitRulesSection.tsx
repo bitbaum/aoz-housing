@@ -36,7 +36,7 @@ export function UnitRulesSection({ ruleBook, coverage, unitCode }: UnitRulesSect
           </p>
         </div>
         <Link href="/rules" className="text-sm text-brand-primary hover:underline">
-          {BRAND.shortName}-Regeln ansehen
+          {BRAND.orgName}-Regeln ansehen
         </Link>
       </div>
 

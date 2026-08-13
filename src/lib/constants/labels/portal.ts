@@ -393,14 +393,14 @@ export const PORTAL_LABELS = {
     emergency: {
       police: 'Polizei / Rettung',
       policeNumber: '117 / 144',
-      aoz: `${BRAND.shortName} Notfallnummer`,
+      aoz: `${BRAND.orgName} Notfallnummer`,
       aozNumber: '044 415 66 00',
       aozHours: '24h erreichbar',
     },
     contacts: [
       { icon: '📞', label: 'Allgemeine Anfragen', value: '044 415 66 66', sublabel: 'Mo-Fr 8:00-17:00' },
       { icon: '📧', label: 'E-Mail', value: 'wohnen@aoz.ch', sublabel: 'Antwort innerhalb von 2 Arbeitstagen' },
-      { icon: '📍', label: 'Adresse', value: `${BRAND.shortName} Zürich`, sublabel: 'Zollstrasse 115, 8005 Zürich' },
+      { icon: '📍', label: 'Adresse', value: `${BRAND.orgName} Zürich`, sublabel: 'Zollstrasse 115, 8005 Zürich' },
     ],
     faqs: [
       {

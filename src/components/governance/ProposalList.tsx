@@ -124,7 +124,7 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
 
       {proposal.parentRuleTitle && (
         <p className="mt-3 text-sm text-ui-muted">
-          Zum {BRAND.shortName}-Thema: <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
+          Zum {BRAND.orgName}-Thema: <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
         </p>
       )}
 

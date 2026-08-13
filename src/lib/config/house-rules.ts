@@ -23,12 +23,12 @@ import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@prism
 // =============================================================================
 
 export const RULE_SCOPE_LABELS: Record<RuleScope, string> = {
-  ORG: `${BRAND.shortName}-Regel`,
+  ORG: `${BRAND.orgName}-Regel`,
   UNIT: 'Hausregel',
 }
 
 export const RULE_SCOPE_DESCRIPTIONS: Record<RuleScope, string> = {
-  ORG: `Gilt in allen ${BRAND.shortName}-Unterkünften. Kann nicht vom Haus geändert werden.`,
+  ORG: `Gilt in allen ${BRAND.orgName}-Unterkünften. Kann nicht vom Haus geändert werden.`,
   UNIT: 'Von den Bewohnenden dieses Hauses beschlossen.',
 }
 
@@ -45,9 +45,9 @@ export const RULE_DELEGATION_LABELS: Record<RuleDelegation, string> = {
 export const RULE_DELEGATION_DESCRIPTIONS: Record<RuleDelegation, string> = {
   FIXED: 'Diese Regel gilt unverändert. Das Haus kann sie weder lockern noch ersetzen.',
   UNIT_MAY_STRENGTHEN:
-    `Die ${BRAND.shortName}-Regel ist das Minimum. Das Haus kann strengere Regeln beschliessen, nie lockerere.`,
+    `Die ${BRAND.orgName}-Regel ist das Minimum. Das Haus kann strengere Regeln beschliessen, nie lockerere.`,
   UNIT_DECIDES:
-    `Die ${BRAND.shortName} gibt nur das Thema vor. Wie es im Haus konkret gilt, beschliessen die Bewohnenden.`,
+    `Die ${BRAND.orgName} gibt nur das Thema vor. Wie es im Haus konkret gilt, beschliessen die Bewohnenden.`,
 }
 
 /** Units may only create their own rule under an AOZ topic that delegates. */
@@ -153,7 +153,7 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     category: 'SAFETY',
     title: 'Keine Gewalt und keine Drohungen',
     body:
-      `Körperliche Gewalt, Drohungen, Einschüchterung und sexuelle Belästigung sind in allen ${BRAND.shortName}-Unterkünften verboten. Bei akuter Gefahr: sofort die Betreuung oder die Polizei (117) rufen.`,
+      `Körperliche Gewalt, Drohungen, Einschüchterung und sexuelle Belästigung sind in allen ${BRAND.orgName}-Unterkünften verboten. Bei akuter Gefahr: sofort die Betreuung oder die Polizei (117) rufen.`,
     delegation: 'FIXED',
   },
   {
@@ -232,7 +232,7 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     key: 'pets',
     category: 'SHARED_SPACES',
     title: 'Haustiere nur mit Bewilligung',
-    body: `Tiere dürfen nur mit schriftlicher Bewilligung der ${BRAND.shortName} gehalten werden.`,
+    body: `Tiere dürfen nur mit schriftlicher Bewilligung der ${BRAND.orgName} gehalten werden.`,
     delegation: 'FIXED',
   },
   {

@@ -132,7 +132,7 @@ export async function GET(request: Request) {
     results.orgRulesCreated = ruleSync.created
     results.orgRulesAmended = ruleSync.amended
     if (ruleSync.created > 0 || ruleSync.amended > 0) {
-      logger.info(`${BRAND.shortName} rule catalog reconciled`, {
+      logger.info(`${BRAND.orgName} rule catalog reconciled`, {
         created: ruleSync.created,
         amended: ruleSync.amended,
         amendedKeys: ruleSync.amendedKeys,

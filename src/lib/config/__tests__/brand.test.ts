@@ -39,7 +39,15 @@ describe('brand presets', () => {
       tagline: 'Platzierungssystem',
       metaDescription:
         'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+      orgName: 'AOZ',
     })
+  })
+
+  it('keeps AOZ as the rule-issuing organization on the WG product brand', () => {
+    // The product is WG; the rules are AOZ's. Governance copy reads orgName,
+    // so "AOZ-Regel" must survive the WG re-badge.
+    expect(BRANDS.wg.orgName).toBe('AOZ')
+    expect(BRANDS.wg.shortName).toBe('WG')
   })
 
   it('keeps the WG register free of placement-system language', () => {

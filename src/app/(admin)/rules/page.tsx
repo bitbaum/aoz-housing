@@ -35,12 +35,12 @@ export default async function RulesPage() {
     <PageShell>
       <PageHeader
         title="Regeln"
-        description={`${BRAND.shortName}-Regeln gelten überall. Wo sie es zulassen, beschliesst jedes Haus seine eigenen Hausregeln.`}
+        description={`${BRAND.orgName}-Regeln gelten überall. Wo sie es zulassen, beschliesst jedes Haus seine eigenen Hausregeln.`}
         actions={<SyncCatalogButton />}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label={`${BRAND.shortName}-Regeln`} value={activeOrgRules.length} />
+        <StatCard label={`${BRAND.orgName}-Regeln`} value={activeOrgRules.length} />
         <StatCard
           label="Davon vom Haus gestaltbar"
           value={delegatedCount}
@@ -83,7 +83,7 @@ export default async function RulesPage() {
 const DELEGATION_EXPLANATIONS: Record<string, string> = {
   FIXED: 'Gilt unverändert in allen Häusern. Kein Hausbeschluss kann sie lockern oder ersetzen.',
   UNIT_MAY_STRENGTHEN:
-    `Die ${BRAND.shortName}-Regel ist das Minimum. Ein Haus kann strenger werden — die Betreuung bestätigt, dass der Beschluss die ${BRAND.shortName}-Regel nicht unterläuft.`,
+    `Die ${BRAND.orgName}-Regel ist das Minimum. Ein Haus kann strenger werden — die Betreuung bestätigt, dass der Beschluss die ${BRAND.orgName}-Regel nicht unterläuft.`,
   UNIT_DECIDES:
-    `Die ${BRAND.shortName} gibt nur das Thema vor. Wie es im Haus gilt, beschliessen die Bewohnenden selbst.`,
+    `Die ${BRAND.orgName} gibt nur das Thema vor. Wie es im Haus gilt, beschliessen die Bewohnenden selbst.`,
 }

@@ -36,7 +36,7 @@ const recentIncidentsInputSchema = z.object({
   limit: z.number().int().positive().max(MAX_TOOL_LIMIT).optional(),
 })
 
-const SYSTEM_PROMPT = `Du bist ein KI-Assistent für das ${BRAND.shortName} Wohnungsmanagementsystem.
+const SYSTEM_PROMPT = `Du bist ein KI-Assistent für das ${BRAND.productName} System.
 
 Deine Aufgabe: Mitarbeitenden dabei helfen, Informationen über Bewohner, Unterkünfte, Platzierungen und Vorfälle schnell zu finden und zu analysieren.
 

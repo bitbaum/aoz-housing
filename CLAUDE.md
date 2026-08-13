@@ -194,10 +194,13 @@ gh workflow run deploy.yml -R maonakamoto/aoz-housing
 curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
 ```
 
-- **SSOT**: `src/lib/config/brand.ts`. Five fields, each with a direct visible
-  effect: `shortName` (drives all compound copy "AOZ-Regel"/"AOZ-Verwaltung"),
-  `codePrefix`, `productName`, `tagline`, `metaDescription`. A config field you
-  can set with no visible effect is a trap; don't add speculative ones.
+- **SSOT**: `src/lib/config/brand.ts`. Six fields, each with a direct visible
+  effect: `shortName` (product compound copy), `codePrefix`, `productName`,
+  `tagline`, `metaDescription`, and **`orgName` — the rule-issuing
+  organization, distinct from the product**: the WG-branded product runs under
+  AOZ's rule catalog, so ALL governance copy ("AOZ-Regel", "AOZ-Thema", org
+  contact info) reads `orgName`, never `shortName`. A config field you can set
+  with no visible effect is a trap; don't add speculative ones.
   `APP_LABELS`/`LOGIN_LABELS` derive from `BRAND` — never restate brand copy.
 - **`ALL_CODE_PREFIXES`** is the list of every prefix any brand has ever
   issued. Anything that must recognise codes *across* a rebrand — log
@@ -814,15 +817,18 @@ full-reset narrative).
     truncate. This is what runs on the live instance.
   - **`full`** — truncate everything except the keep-list + AOZ presentation
     narrative (`lib/demo/reset.ts`). Dedicated demo deployments only.
-- **The staff demo is a full ADMIN session** — on an instance holding real
-  data, leave `DEMO_STAFF_CODE` unset (button then never renders). Sessions
-  of deactivated users die immediately: `getCurrentUser()` re-checks
-  `User.active` on every request.
+- **The staff demo is a full ADMIN session** (dedicated account, upserted by
+  every reset). George explicitly wants testers to see the Verwaltung side,
+  so the live instance runs `DEMO_STAFF_CODE=WG-DEMO01` — accepted trade-off:
+  demo admins can see/edit the real flat's data. Sessions of deactivated
+  users die immediately: `getCurrentUser()` re-checks `User.active` on every
+  request.
 - **Reset endpoint**: `POST /api/cron/reset-demo` (Bearer `CRON_SECRET`),
   refuses without `DEMO_ACCESS_ENABLED=true`, advisory-locked. Timer:
   `appcron-aoz-wohnen-reset-demo.timer` (04:05 UTC).
-- Live instance since 2026-08-13: real data (Witikonerstrasse 458) + the
-  resident demo door into `DEMO-WG`, scope `unit`, no staff demo.
+- Live instance since 2026-08-13: real data (Witikonerstrasse 458) + both
+  demo doors (`WG-DEMO01` staff, `RES-DEMO1` resident into `DEMO-WG`),
+  scope `unit`.
 
 ### Resident Portal
 

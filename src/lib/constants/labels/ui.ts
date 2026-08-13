@@ -681,7 +681,7 @@ export const TOP_COMPATIBILITIES_LABELS = {
 
 export const AI_ASSISTANT_LABELS = {
   subtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.',
-  componentTitle: `KI-Assistent für ${BRAND.shortName}`,
+  componentTitle: `KI-Assistent für ${BRAND.productName}`,
   componentSubtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften und Vorfällen.',
 } as const
 

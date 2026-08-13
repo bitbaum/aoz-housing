@@ -23,7 +23,7 @@ export default async function DecisionsPage() {
     <PageShell>
       <PageHeader
         title="Beschlüsse bestätigen"
-        description={`Hausbeschlüsse, die noch eine Bestätigung brauchen — weil sie ein ${BRAND.shortName}-Thema betreffen, oder weil im Haus nicht abgestimmt werden konnte.`}
+        description={`Hausbeschlüsse, die noch eine Bestätigung brauchen — weil sie ein ${BRAND.orgName}-Thema betreffen, oder weil im Haus nicht abgestimmt werden konnte.`}
         backHref="/rules"
         backLabel="Regeln"
       />
@@ -66,7 +66,7 @@ export default async function DecisionsPage() {
 
                 {proposal.parentOrgRule && (
                   <p className="mt-3 text-sm text-ui-muted">
-                    Gehört zur {BRAND.shortName}-Regel:{' '}
+                    Gehört zur {BRAND.orgName}-Regel:{' '}
                     <span className="font-medium text-ui-text">{proposal.parentOrgRule.title}</span>
                   </p>
                 )}
