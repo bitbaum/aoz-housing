@@ -119,9 +119,9 @@ export const ERROR_MESSAGES = {
   RULE_NOT_FOUND: 'Regel nicht gefunden',
   RULE_SAVE_ERROR: 'Regel konnte nicht gespeichert werden',
   RULE_ACKNOWLEDGE_ERROR: 'Bestätigung konnte nicht gespeichert werden',
-  RULE_SYNC_ERROR: `${BRAND.shortName}-Regeln konnten nicht abgeglichen werden`,
+  RULE_SYNC_ERROR: `${BRAND.orgName}-Regeln konnten nicht abgeglichen werden`,
   ORG_RULE_IMMUTABLE:
-    `Diese ${BRAND.shortName}-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden`,
+    `Diese ${BRAND.orgName}-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden`,
 
   // ─── Proposals / voting ────────────────────────────────────────
   PROPOSAL_NOT_FOUND: 'Vorschlag nicht gefunden',

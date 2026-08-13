@@ -52,6 +52,14 @@ export interface Brand {
   tagline: string
   /** Meta description — the org brands sell placement, the WG brand doesn't. */
   metaDescription: string
+  /**
+   * The RULE-ISSUING ORGANIZATION — distinct from the product. The org-rule
+   * catalog, the rule hierarchy copy ("AOZ-Regel", "AOZ-Thema") and the org
+   * contact info all name this organization, not the product: the WG-branded
+   * product still runs under AOZ's rules. Governance copy must use `orgName`,
+   * never `shortName`.
+   */
+  orgName: string
 }
 
 export const BRANDS: Record<BrandId, Brand> = {
@@ -66,6 +74,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     tagline: 'Platzierungssystem',
     metaDescription:
       'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+    orgName: 'AOZ',
   },
 
   // The neutral badge. Same palette as AOZ by design — the brief was to keep
@@ -78,6 +87,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     tagline: 'Platzierungssystem',
     metaDescription:
       'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+    orgName: 'AOZH',
   },
 
   // Real shared-flat deployments (first: Witikonerstrasse 458). Same product,
@@ -90,6 +100,9 @@ export const BRANDS: Record<BrandId, Brand> = {
     tagline: 'Gemeinsam wohnen',
     metaDescription:
       'Gemeinsam wohnen, fair geteilt: Ausgaben, Aufgaben und Absprachen für die ganze Wohnung',
+    // The WG-branded product runs under AOZ's rule catalog: the product is
+    // WG, the organization behind the rules is AOZ.
+    orgName: 'AOZ',
   },
 }
 

@@ -14,7 +14,12 @@
  */
 
 import type { PrismaClient } from '@prisma/client'
-import { resolveDemoResidentCode, DEMO_WG_RESIDENT_CODE_PREFIX } from './config'
+import {
+  resolveDemoResidentCode,
+  DEMO_WG_RESIDENT_CODE_PREFIX,
+  getDemoStaffCode,
+  DEMO_STAFF_NAME,
+} from './config'
 
 export const DEMO_WG_UNIT_CODE = 'DEMO-WG'
 
@@ -22,6 +27,7 @@ export interface DemoWgResetSummary {
   unitDeleted: boolean
   residentsDeleted: number
   demoResidentCode: string
+  demoStaffCode: string | null
 }
 
 /** Delete the demo unit + its fictional residents. No-op when absent. */
@@ -207,9 +213,21 @@ export async function seedDemoWgUnit(prisma: PrismaClient): Promise<DemoWgResetS
     },
   })
 
+  // Self-heal the demo staff account (when this deployment offers a staff
+  // door): a visitor renaming or breaking it is undone by the next reset.
+  const demoStaffCode = getDemoStaffCode()
+  if (demoStaffCode) {
+    await prisma.user.upsert({
+      where: { code: demoStaffCode },
+      update: { name: DEMO_STAFF_NAME, active: true },
+      create: { code: demoStaffCode, name: DEMO_STAFF_NAME, role: 'ADMIN' },
+    })
+  }
+
   return {
     unitDeleted: removed.unitDeleted,
     residentsDeleted: removed.residentsDeleted,
     demoResidentCode: resolveDemoResidentCode(),
+    demoStaffCode,
   }
 }

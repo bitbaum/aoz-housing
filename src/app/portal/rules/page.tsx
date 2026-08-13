@@ -46,7 +46,7 @@ export default async function PortalRulesPage() {
       <header>
         <h1 className="text-xl font-bold text-ui-text sm:text-2xl">{PORTAL_LABELS.pages.rules}</h1>
         <p className="mt-2 text-sm leading-6 text-ui-muted">
-          Oben stehen die {BRAND.shortName}-Regeln — sie gelten in allen Unterkünften. Darunter steht, was dein
+          Oben stehen die {BRAND.orgName}-Regeln — sie gelten in allen Unterkünften. Darunter steht, was dein
           Haus selbst beschlossen hat. Bei manchen Themen könnt ihr im Haus mitbestimmen.
         </p>
         <Link

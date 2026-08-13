@@ -62,7 +62,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
     return {
       allowed: false,
       requiresStaffConfirmation: false,
-      reason: `Eine Hausregel kann nur zu einer ${BRAND.shortName}-Regel gehören.`,
+      reason: `Eine Hausregel kann nur zu einer ${BRAND.orgName}-Regel gehören.`,
     }
   }
 
@@ -70,7 +70,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
     return {
       allowed: false,
       requiresStaffConfirmation: false,
-      reason: `Diese ${BRAND.shortName}-Regel ist nicht mehr gültig.`,
+      reason: `Diese ${BRAND.orgName}-Regel ist nicht mehr gültig.`,
     }
   }
 
@@ -79,7 +79,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
       allowed: false,
       requiresStaffConfirmation: false,
       reason:
-        `«${orgRule.title}» ist eine nicht verhandelbare ${BRAND.shortName}-Regel. ` +
+        `«${orgRule.title}» ist eine nicht verhandelbare ${BRAND.orgName}-Regel. ` +
         `Sie schützt alle im Haus und kann nicht durch einen Hausbeschluss geändert werden. ` +
         `Anliegen dazu nimmt die Betreuung entgegen.`,
     }

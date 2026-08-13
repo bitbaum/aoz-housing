@@ -7,7 +7,7 @@ import { BRAND } from '@/lib/config/brand'
 
 export const EMAIL_CONFIG = {
   apiKey: process.env.BREVO_API_KEY || '',
-  fromName: process.env.EMAIL_FROM_NAME || `${BRAND.shortName} Housing`,
+  fromName: process.env.EMAIL_FROM_NAME || BRAND.productName,
   fromAddress: process.env.EMAIL_FROM_ADDRESS || 'noreply@aoz-housing.ch',
   staffRecipients: (process.env.STAFF_EMAIL_RECIPIENTS || '').split(',').filter(Boolean),
   enabled: !!process.env.BREVO_API_KEY,

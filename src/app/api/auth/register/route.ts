@@ -47,9 +47,9 @@ export async function POST(request: NextRequest) {
 
   // Generate or validate code
   let code = requestedCode?.trim().toUpperCase()
-  if (code && !code.startsWith(`${BRAND.shortName}-`)) {
+  if (code && !code.startsWith(BRAND.codePrefix)) {
     return NextResponse.json(
-      { success: false, error: `Code muss mit ${BRAND.shortName}- beginnen` },
+      { success: false, error: `Code muss mit ${BRAND.codePrefix} beginnen` },
       { status: 400 }
     )
   }

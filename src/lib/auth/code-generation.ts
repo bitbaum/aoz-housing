@@ -20,7 +20,7 @@ function randomCode(prefix: string): string {
 }
 
 export function generateStaffCode(): string {
-  return randomCode(`${BRAND.shortName}-`)
+  return randomCode(BRAND.codePrefix)
 }
 
 export function generateResidentCode(): string {

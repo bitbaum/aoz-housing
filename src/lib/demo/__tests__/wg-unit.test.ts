@@ -48,6 +48,7 @@ function createPrismaMock(existingUnit: { id: string } | null) {
       })),
     },
     settlement: { create: track('settlement.create', {}) },
+    user: { upsert: track('user.upsert', {}) },
   }
   return { prisma: prisma as unknown as PrismaClient, calls, raw: prisma }
 }
@@ -55,6 +56,7 @@ function createPrismaMock(existingUnit: { id: string } | null) {
 beforeEach(() => {
   delete process.env.DEMO_RESIDENT_CODE
   delete process.env.DEMO_RESET_SCOPE
+  delete process.env.DEMO_STAFF_CODE
 })
 
 describe('deleteDemoWgUnit', () => {
@@ -129,5 +131,24 @@ describe('seedDemoWgUnit', () => {
     expect(summary.demoResidentCode).toBe('RES-DEMOX')
     const firstResident = (raw.resident.create as jest.Mock).mock.calls[0][0].data
     expect(firstResident.code).toBe('RES-DEMOX')
+  })
+
+  it('self-heals the demo staff account when a staff door is configured', async () => {
+    process.env.DEMO_STAFF_CODE = 'WG-DEMO01'
+    const { prisma, raw } = createPrismaMock(null)
+    const summary = await seedDemoWgUnit(prisma)
+    expect(summary.demoStaffCode).toBe('WG-DEMO01')
+    expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
+      where: { code: 'WG-DEMO01' },
+      update: { name: 'Demo-Zugang', active: true },
+      create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
+    })
+  })
+
+  it('touches no staff account when no staff door is configured', async () => {
+    const { prisma, raw } = createPrismaMock(null)
+    const summary = await seedDemoWgUnit(prisma)
+    expect(summary.demoStaffCode).toBeNull()
+    expect(raw.user.upsert as jest.Mock).not.toHaveBeenCalled()
   })
 })

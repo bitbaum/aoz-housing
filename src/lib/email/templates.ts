@@ -116,13 +116,13 @@ function stars(rating: number): string {
 }
 
 function emailFooter(): string {
-  return `<p style="${STYLES.footer}">Diese E-Mail wurde automatisch vom ${BRAND.shortName} Wohnen System generiert.</p>`
+  return `<p style="${STYLES.footer}">Diese E-Mail wurde automatisch vom ${BRAND.productName} System generiert.</p>`
 }
 
 // -- Template functions --
 
 export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subject: string; html: string } {
-  const subject = `[${BRAND.shortName} Wohnen] ${incidents.length} überfällige Nachverfolgungen`
+  const subject = `[${BRAND.productName}] ${incidents.length} überfällige Nachverfolgungen`
 
   const rows = incidents.map(i => `
     <tr>
@@ -158,7 +158,7 @@ export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subjec
 }
 
 export function checkInReminder(overdueResidents: OverdueResident[]): { subject: string; html: string } {
-  const subject = `[${BRAND.shortName} Wohnen] ${overdueResidents.length} Check-ins überfällig`
+  const subject = `[${BRAND.productName}] ${overdueResidents.length} Check-ins überfällig`
 
   const rows = overdueResidents.map(r => `
     <tr>
@@ -192,7 +192,7 @@ export function checkInReminder(overdueResidents: OverdueResident[]): { subject:
 }
 
 export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: string; html: string } {
-  const subject = `[${BRAND.shortName} Wohnen] Niedrige Zufriedenheit: ${data.residentCode}`
+  const subject = `[${BRAND.productName}] Niedrige Zufriedenheit: ${data.residentCode}`
 
   const html = `
     <div style="${STYLES.warning}">
@@ -216,7 +216,7 @@ const categoryLabel = (category: string) => INCIDENT_CATEGORY_LABELS[category] ?
 const typeLabel = (type: string) => INCIDENT_TYPE_LABELS[type] ?? type
 
 export function newIncidentNotification(data: NewIncidentData): { subject: string; html: string } {
-  const subject = `[${BRAND.shortName} Wohnen] Neuer Vorfall: ${typeLabel(data.type)} (${severityLabel(data.severity)})`
+  const subject = `[${BRAND.productName}] Neuer Vorfall: ${typeLabel(data.type)} (${severityLabel(data.severity)})`
 
   const html = `
     <div style="${STYLES.warning}">
@@ -235,7 +235,7 @@ export function newIncidentNotification(data: NewIncidentData): { subject: strin
       <h3 style="${FONT} color: ${EMAIL_COLORS.textBody}; margin: 0 0 8px 0; font-size: 14px;">Beschreibung</h3>
       <p style="${STYLES.paragraph}">${escapeHtml(data.description)}</p>
     </div>
-    <p style="${STYLES.paragraph}">Bitte prüfen Sie den Vorfall im ${BRAND.shortName} Wohnen System.</p>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie den Vorfall im ${BRAND.productName} System.</p>
     ${emailFooter()}
   `
 
@@ -252,13 +252,13 @@ interface StaffInviteData {
 }
 
 export function staffInviteEmail(data: StaffInviteData): { subject: string; html: string } {
-  const subject = `Einladung zu ${BRAND.shortName} Wohnen`
+  const subject = `Einladung zu ${BRAND.productName}`
   const loginUrl = `${data.appUrl}/login?code=${data.staffCode}`
 
   const html = `
-    <h2 style="${STYLES.header}">Willkommen bei ${BRAND.shortName} Wohnen</h2>
+    <h2 style="${STYLES.header}">Willkommen bei ${BRAND.productName}</h2>
     <p style="${STYLES.paragraph}">
-      ${escapeHtml(data.invitedByName)} hat Sie zum ${BRAND.shortName} Wohnen System eingeladen.
+      ${escapeHtml(data.invitedByName)} hat Sie zum ${BRAND.productName} System eingeladen.
     </p>
     <div style="${STYLES.codePanel}">
       <p style="${FONT} color: ${EMAIL_COLORS.info}; font-size: 13px; margin: 0 0 8px 0;">Ihr persönlicher Zugangscode</p>
@@ -280,7 +280,7 @@ export function staffInviteEmail(data: StaffInviteData): { subject: string; html
 }
 
 export function newTransferRequestNotification(data: TransferRequestData): { subject: string; html: string } {
-  const subject = `[${BRAND.shortName} Wohnen] Neue Verlegungsanfrage: ${data.residentCode}`
+  const subject = `[${BRAND.productName}] Neue Verlegungsanfrage: ${data.residentCode}`
 
   const html = `
     <h2 style="${STYLES.header}">Neue Verlegungsanfrage</h2>
@@ -290,7 +290,7 @@ export function newTransferRequestNotification(data: TransferRequestData): { sub
       ${data.targetUnitCode ? `<strong>Gewünschte Wohneinheit:</strong> ${escapeHtml(data.targetUnitCode)}<br>` : ''}
       <strong>Grund:</strong> ${escapeHtml(data.reason)}
     </p>
-    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Anfrage im ${BRAND.shortName} Wohnen System.</p>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Anfrage im ${BRAND.productName} System.</p>
     ${emailFooter()}
   `
 
