@@ -119,7 +119,9 @@ test.describe('Authentication flow', () => {
   }) => {
     await page.goto('/reset-password')
 
-    await expect(page.locator('[role="alert"]')).toBeVisible()
+    // Text-anchored, not [role=alert]: Next.js can mount a second live
+    // region (route announcer), which trips strict mode on CI.
+    await expect(page.getByText('Dieser Link ist unvollständig', { exact: false })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Neuen Link anfordern' })).toBeVisible()
   })
 })
