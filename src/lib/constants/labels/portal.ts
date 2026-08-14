@@ -1,8 +1,11 @@
 /**
  * Portal labels: resident-facing UI text
  */
-import { BRAND } from '@/lib/config/brand'
+import { ORG_CONTACT, ORG_CONTACT_CHANNELS } from '@/lib/config/organization'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
+
+/** One sentence naming the real channels — reused wherever a page dead-ends. */
+const CONTACT_FALLBACK_SENTENCE = `Melde dich bei deiner Betreuungsperson — bei Schäden: ${ORG_CONTACT.maintenancePhone} (${ORG_CONTACT.maintenanceHours}) oder ${ORG_CONTACT.maintenanceEmail}.`
 
 export const PORTAL_LABELS = {
   title: 'Mein Zuhause',
@@ -109,7 +112,7 @@ export const PORTAL_LABELS = {
     emergencyTitle: 'Bei Notfällen',
     emergencyMessage: 'Bei akuter Gefahr oder medizinischen Notfällen rufe sofort 112 an. Diese Meldung ist nicht für Notfälle gedacht.',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
-    noPlacementContact: 'Kontaktiere uns: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
+    noPlacementContact: CONTACT_FALLBACK_SENTENCE,
     maintenanceTypes: [
       { value: 'PLUMBING', label: 'Sanitär (WC, Dusche, Wasserhahn)' },
       { value: 'ELECTRICAL', label: 'Elektrik (Licht, Steckdosen)' },
@@ -253,7 +256,7 @@ export const PORTAL_LABELS = {
     housing: 'Deine Unterkunft',
     noHousing: 'Du hast noch keine Unterkunft zugewiesen bekommen',
     noHousingHint: 'Bitte kontaktiere deinen Betreuer',
-    noHousingContact: 'Allgemeine Anfragen: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
+    noHousingContact: CONTACT_FALLBACK_SENTENCE,
     onboarding: {
       title: 'Dein Profil ist erstellt',
       subtitle: 'Wir suchen die passende Unterkunft für dich',
@@ -391,18 +394,15 @@ export const PORTAL_LABELS = {
     contactTitle: 'Kontakt',
     emergencyTitle: 'Notfall',
     emergencyDesc: 'Bei Notfällen oder akuter Gefahr wende dich sofort an:',
+    // Real channels from the signed Hausordnung — SSOT: lib/config/organization.ts
     emergency: {
-      police: 'Polizei / Rettung',
-      policeNumber: '117 / 144',
-      aoz: `${BRAND.orgName} Notfallnummer`,
-      aozNumber: '044 415 66 00',
-      aozHours: '24h erreichbar',
+      police: ORG_CONTACT.emergency.police,
+      policeNumber: ORG_CONTACT.emergency.policeNumber,
+      aoz: ORG_CONTACT.emergency.orgLabel,
+      aozNumber: ORG_CONTACT.emergency.orgNumber,
+      aozHours: ORG_CONTACT.emergency.orgHours,
     },
-    contacts: [
-      { icon: '📞', label: 'Allgemeine Anfragen', value: '044 415 66 66', sublabel: 'Mo-Fr 8:00-17:00' },
-      { icon: '📧', label: 'E-Mail', value: 'wohnen@aoz.ch', sublabel: 'Antwort innerhalb von 2 Arbeitstagen' },
-      { icon: '📍', label: 'Adresse', value: `${BRAND.orgName} Zürich`, sublabel: 'Zollstrasse 115, 8005 Zürich' },
-    ],
+    contacts: ORG_CONTACT_CHANNELS,
     faqs: [
       {
         question: 'Wie funktioniert die Zimmerverteilung?',
@@ -464,7 +464,7 @@ export const PORTAL_LABELS = {
     compatible: 'kompatibel',
     isSmoker: 'Raucher',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
-    noPlacementContact: 'Kontaktiere uns: 044 415 66 66 (Mo-Fr 8:00-17:00) oder wohnen@aoz.ch',
+    noPlacementContact: CONTACT_FALLBACK_SENTENCE,
     roommateCount: (n: number) => n === 1 ? 'Du wohnst mit 1 Person zusammen' : `Du wohnst mit ${n} Personen zusammen`,
     ageYears: 'Jahre',
     scoreLevels: {
