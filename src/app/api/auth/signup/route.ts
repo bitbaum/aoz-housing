@@ -7,8 +7,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { registerAccount } from '@/lib/auth/account'
-import { setSessionCookie } from '@/lib/auth'
-import { setResidentCookie } from '@/lib/portal-auth'
+import { establishSessions } from '@/lib/auth/sessions'
 import { consumeRateLimit, getClientIp } from '@/lib/auth/rate-limit'
 import { registerSchema } from '@/lib/validation/auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -47,14 +46,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 })
     }
 
-    if (result.identity.type === 'staff') {
-      const { id, email, name, role } = result.identity
-      await setSessionCookie({ id, email, name, role })
-    } else {
-      await setResidentCookie(result.identity.code)
-    }
-
-    return NextResponse.json({ success: true, type: result.identity.type })
+    // Claiming signs you straight in — with every role the account now holds,
+    // so linking a second code lands you in both immediately.
+    return NextResponse.json(await establishSessions(result.identities))
   } catch (error) {
     logger.errorWithCause('Signup failed', error)
     return NextResponse.json(

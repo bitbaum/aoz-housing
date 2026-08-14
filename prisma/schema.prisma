@@ -79,12 +79,10 @@ model Resident {
   bio         String?
   photo       ResidentPhoto?
 
-  // Self-chosen account credentials (register with your code). OPTIONAL like
-  // the rest of the self-profile: the code keeps working forever; email +
-  // password add modern login and password recovery on top.
-  email           String?   @unique
-  passwordHash    String?
-  emailVerifiedAt DateTime?
+  // Login credentials live on Account, never here — one human may hold both a
+  // staff account and a resident record (a caseworker who also lives in a
+  // shared flat), and two password hashes for one human WILL drift.
+  account Account?
 
   // Status
   status ResidentStatus @default(ACTIVE)
@@ -127,9 +125,6 @@ model Resident {
   expenseShares    ExpenseShare[]
   settlementsPaid  Settlement[]   @relation("SettlementFrom")
   settlementsRecvd Settlement[]   @relation("SettlementTo")
-
-  // Account flows (email verification, password reset)
-  authTokens AuthToken[]
 
   @@index([status])
   @@index([ageRange, gender])
@@ -767,11 +762,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Identity
-  code         String    @unique // Staff login code (works forever)
-  email        String?   @unique // Enables email+password login and recovery
-  passwordHash String? // bcrypt; null = code-only account
-  emailVerifiedAt DateTime?
-  name         String
+  code String @unique // Staff login code (works forever)
+  name String
 
   // Role & Status
   role        StaffRole @default(ADMIN)
@@ -782,24 +774,58 @@ model User {
   auditLogs         AuditLog[]
   activitiesCreated Activity[] @relation("ActivityCreatedBy")
   activitiesUpdated Activity[] @relation("ActivityUpdatedBy")
-  authTokens        AuthToken[]
+  // Login credentials (email + password) live on Account, never here.
+  account Account?
 
   @@index([code])
   @@index([role])
 }
 
 // =============================================================================
-// ACCOUNT FLOWS (email verification, password reset)
+// ACCOUNTS (email + password login, verification, password reset)
 // =============================================================================
+
+/// One human's login. The CODE is the identity (staff User, resident
+/// Resident); the ACCOUNT is the credentials on top of it — and one human may
+/// hold BOTH roles: a caseworker who also lives in a shared flat, or the
+/// operator of a real WG who is its admin and one of its flatmates. Putting
+/// email+password on each identity row forced them to pick one and guaranteed
+/// two hashes for one person; here there is exactly one of each.
+///
+/// A code is claimed by registering with it. Claiming a second code from the
+/// same email links it to this account (proved by the account password), which
+/// is how one login carries both roles.
+model Account {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email           String    @unique
+  passwordHash    String? // bcrypt; null = known email, no password set yet
+  emailVerifiedAt DateTime?
+
+  // The identities this login carries. At least one is always set.
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  residentId String?   @unique
+  resident   Resident? @relation(fields: [residentId], references: [id], onDelete: Cascade)
+
+  authTokens AuthToken[]
+
+  @@index([userId])
+  @@index([residentId])
+}
 
 enum AuthTokenPurpose {
   VERIFY_EMAIL
   RESET_PASSWORD
 }
 
-/// Single-use, expiring token for email flows. Polymorphic on purpose: the
-/// same flow serves staff (User) and residents — exactly one FK is set.
-/// Only the SHA-256 hash is stored; the raw token exists once, in the email.
+/// Single-use, expiring token for email flows. Belongs to the ACCOUNT, not to
+/// an identity: a reset proves control of the mailbox, which is exactly what
+/// an account is. Only the SHA-256 hash is stored; the raw token exists once,
+/// in the email.
 model AuthToken {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -809,14 +835,10 @@ model AuthToken {
   expiresAt DateTime
   usedAt    DateTime?
 
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  residentId String?
-  resident   Resident? @relation(fields: [residentId], references: [id], onDelete: Cascade)
-
-  @@index([userId, purpose])
-  @@index([residentId, purpose])
+  @@index([accountId, purpose])
 }
 
 enum StaffRole {

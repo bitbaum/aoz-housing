@@ -19,7 +19,13 @@ export default async function SettingsPage() {
   const [staffUsers, systemConfig] = await Promise.all([
     prisma.user.findMany({
       where: { active: true },
-      select: { id: true, code: true, name: true, email: true, lastLoginAt: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        lastLoginAt: true,
+        account: { select: { email: true } },
+      },
       orderBy: { name: 'asc' },
     }),
     getSystemConfig(),
@@ -66,7 +72,7 @@ export default async function SettingsPage() {
               <div>
                 <p className="font-medium text-ui-text text-sm">{user.name}</p>
                 <p className="text-xs text-ui-muted">
-                  {user.email || '—'} · <span className="font-mono">{user.code}</span>
+                  {user.account?.email || '—'} · <span className="font-mono">{user.code}</span>
                 </p>
               </div>
               <div className="text-right">

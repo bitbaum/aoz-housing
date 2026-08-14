@@ -57,6 +57,12 @@ export const REGISTER_LABELS = {
   submit: 'Konto erstellen',
   submitting: 'Konto wird erstellt...',
   success: 'Konto erstellt — Sie sind angemeldet.',
+  // Linking a second role is the same form, so it needs saying out loud —
+  // otherwise nobody discovers that one login can hold both sides.
+  linkTitle: 'Zwei Rollen, ein Login',
+  linkHint:
+    'Sie haben bereits ein Konto und einen zweiten Code — etwa als Bewohner und in der Verwaltung? Registrieren Sie den zweiten Code mit derselben E-Mail-Adresse und Ihrem bestehenden Passwort. Beide Rollen liegen danach auf einem Login.',
+  successBothRoles: 'Codes verknüpft — Sie sind für beide Rollen angemeldet.',
   hasAccount: 'Bereits ein Konto?',
   loginLink: 'Anmelden',
 } as const

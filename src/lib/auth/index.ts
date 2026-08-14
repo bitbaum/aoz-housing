@@ -187,10 +187,11 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
       where: { code },
       select: {
         id: true,
-        email: true,
         name: true,
         role: true,
         active: true,
+        // Contact email lives on the account (may be absent for code-only staff).
+        account: { select: { email: true } },
       },
     })
 
@@ -210,7 +211,7 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
       type: 'staff',
       user: {
         id: user.id,
-        email: user.email || '',
+        email: user.account?.email || '',
         name: user.name,
         role: user.role,
       },

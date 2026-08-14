@@ -10,7 +10,7 @@ import { LOGIN_LABELS, REGISTER_LABELS } from '@/lib/constants/labels'
 type RegisterState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'success'; type: 'staff' | 'resident' }
+  | { status: 'success'; type: 'staff' | 'resident'; roles: Array<'staff' | 'resident'> }
   | { status: 'error'; message: string }
 
 function RegisterForm() {
@@ -51,7 +51,7 @@ function RegisterForm() {
         return
       }
 
-      setState({ status: 'success', type: data.type })
+      setState({ status: 'success', type: data.type, roles: data.roles ?? [data.type] })
       redirectTimerRef.current = setTimeout(() => {
         router.push(data.type === 'staff' ? '/' : '/portal')
         router.refresh()
@@ -64,7 +64,12 @@ function RegisterForm() {
   return (
     <AuthShell title={REGISTER_LABELS.title} subtitle={REGISTER_LABELS.subtitle}>
       {state.status === 'success' ? (
-        <AuthSuccess message={REGISTER_LABELS.success} detail={LOGIN_LABELS.success.redirecting} />
+        <AuthSuccess
+          message={
+            state.roles.length > 1 ? REGISTER_LABELS.successBothRoles : REGISTER_LABELS.success
+          }
+          detail={LOGIN_LABELS.success.redirecting}
+        />
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {state.status === 'error' && (
@@ -136,6 +141,11 @@ function RegisterForm() {
           >
             {state.status === 'loading' ? REGISTER_LABELS.submitting : REGISTER_LABELS.submit}
           </Button>
+
+          <div className="rounded-lg border border-ui-border bg-ui-subtle p-3">
+            <p className="eyebrow mb-1">{REGISTER_LABELS.linkTitle}</p>
+            <p className="text-xs text-ui-muted">{REGISTER_LABELS.linkHint}</p>
+          </div>
 
           <p className="text-center text-sm text-ui-muted">
             {REGISTER_LABELS.hasAccount}{' '}

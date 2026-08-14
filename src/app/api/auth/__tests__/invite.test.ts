@@ -32,11 +32,16 @@ jest.mock('@/lib/auth/code-generation', () => ({
 
 const mockUserFindUnique = jest.fn()
 const mockUserCreate = jest.fn()
+const mockAccountFindUnique = jest.fn()
 jest.mock('@/lib/db', () => ({
   prisma: {
     user: {
       findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
       create: (...args: unknown[]) => mockUserCreate(...args),
+    },
+    // Email lives on the Account, not the User.
+    account: {
+      findUnique: (...args: unknown[]) => mockAccountFindUnique(...args),
     },
   },
 }))
@@ -83,12 +88,13 @@ describe('POST /api/auth/invite', () => {
     jest.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
-    mockUserFindUnique.mockResolvedValue(null) // code not taken, email not taken
+    mockUserFindUnique.mockResolvedValue(null) // code not taken
+    mockAccountFindUnique.mockResolvedValue(null) // email not taken
     mockUserCreate.mockResolvedValue({
       id: 'new-1',
       code: 'AOZ-GEN001',
       name: 'New Staff',
-      email: 'new@aoz.ch',
+      account: { email: 'new@aoz.ch' },
     })
     mockSendEmail.mockResolvedValue(true)
   })
@@ -186,10 +192,7 @@ describe('POST /api/auth/invite', () => {
   // ── Email uniqueness ───────────────────────────────────────────────────────
 
   test('returns 409 when email already registered', async () => {
-    // First findUnique (code collision check) returns null, second (email check) returns existing
-    mockUserFindUnique
-      .mockResolvedValueOnce(null)    // generated code is free
-      .mockResolvedValueOnce({ id: 'existing-1' }) // email already taken
+    mockAccountFindUnique.mockResolvedValue({ id: 'existing-1' }) // email already taken
 
     const req = createJsonRequest({ email: 'existing@aoz.ch', name: 'Duplicate' })
     const res = await POST(req)
@@ -234,7 +237,7 @@ describe('POST /api/auth/invite', () => {
         data: expect.objectContaining({
           code: 'AOZ-GEN001',
           name: 'New Staff',
-          email: 'new@aoz.ch',
+          account: { create: { email: 'new@aoz.ch' } },
           role: 'ADMIN',
           active: true,
         }),
@@ -253,7 +256,7 @@ describe('POST /api/auth/invite', () => {
 
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ email: 'upper@aoz.ch' }),
+        data: expect.objectContaining({ account: { create: { email: 'upper@aoz.ch' } } }),
       })
     )
   })
