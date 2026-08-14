@@ -146,6 +146,14 @@ export interface OrgRuleSeed {
  *  - FIXED rules state an obligation directly.
  *  - Delegating rules name a topic and hand the concrete norm to the house.
  *    They read as an invitation, because that is what they are.
+ *
+ * Source of truth for content: the official AOZ "Hausordnung" (the signed
+ * two-page document every resident acknowledges on paper, Stand Januar 2026),
+ * translated into this catalog's vocabulary. Where this catalog and the paper
+ * document disagree, the paper document wins — residents signed THAT text.
+ * City-specific details (blaue Züri-Säcke, ERZ) are deliberate: this is the
+ * org-level catalog of ONE organization in ONE city. Another org ships another
+ * catalog, not another codebase.
  */
 export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
   {
@@ -185,7 +193,15 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     category: 'SAFETY',
     title: 'Brandschutz',
     body:
-      'Fluchtwege, Treppenhäuser und Kellergänge bleiben frei. Keine Kerzen, offenen Flammen, Shisha-Kohlen oder eigenen Heizgeräte in den Zimmern. Rauchmelder nie abdecken oder entfernen.',
+      'Fluchtwege müssen stets freigehalten werden: In Treppenhäusern, Korridoren und Durchgängen dürfen keine Gegenstände oder Abfälle platziert oder gelagert werden. Offene Feuer (zum Beispiel Kohle-Ofen oder Grill), Kerzen, Shisha-Kohlen sowie eigene Heizgeräte und Heizlüfter sind verboten. Rauchmelder nie abdecken oder entfernen. Abgesperrte Bereiche dürfen nicht betreten werden.',
+    delegation: 'FIXED',
+  },
+  {
+    key: 'keys_and_doors',
+    category: 'SAFETY',
+    title: 'Schlüssel und Eingangstüren',
+    body:
+      'Schlüssel dürfen nicht an Drittpersonen weitergegeben werden. Die Eingangstüren bleiben tagsüber geschlossen und werden zwischen 22:00 und 07:00 Uhr mit dem Schlüssel abgeschlossen. Ein Schlüsselverlust wird sofort gemeldet; Ersatzschlüssel und ein allfälliger Austausch der Türschlösser werden verrechnet.',
     delegation: 'FIXED',
   },
   {
@@ -225,39 +241,87 @@ export const ORG_RULE_CATALOG: readonly OrgRuleSeed[] = [
     category: 'COMMUNICATION',
     title: 'Schäden und Defekte sofort melden',
     body:
-      'Defekte, Wasserschäden, Ungeziefer und kaputte Geräte werden sofort gemeldet — über die App oder bei der Betreuung. Wer einen Schaden meldet, wird nicht dafür bestraft.',
+      'Defekte, Wasserschäden, Ungeziefer und kaputte Geräte werden sofort gemeldet — über die App oder bei der Betreuung. Wer einen Schaden meldet, wird nicht dafür bestraft; wer einen Schaden verschweigt, haftet für Folgeschäden. Kleine Reparaturen wie der Austausch von Leuchtmitteln oder die einfache Reinigung von Abflüssen werden selbstständig ausgeführt. Grössere Reparaturen führt ausschliesslich die Immobilienverwaltung oder eine beauftragte Firma aus.',
+    delegation: 'FIXED',
+  },
+  {
+    key: 'care_of_property',
+    category: 'SHARED_SPACES',
+    title: 'Sorgfalt mit Einrichtung und Gebäude',
+    body:
+      `Die Einrichtung und sämtliche Gegenstände werden mit Sorgfalt benutzt; absichtliche oder durch unsachgemässen Gebrauch verursachte Schäden werden verrechnet. Bauliche Veränderungen sind nicht erlaubt — keine Wanddurchbrüche, keine neuen Wände. Ausserhalb der Wohnung (Hauseingang, Treppenhaus, Keller) dürfen keine Gegenstände platziert werden. Der Aussenbereich wird ausschliesslich gemäss den Anweisungen der ${BRAND.orgName} benutzt.`,
+    delegation: 'FIXED',
+  },
+  {
+    key: 'access_appointments',
+    category: 'COMMUNICATION',
+    title: 'Zutritt und Termine',
+    body:
+      `Mitarbeitende der ${BRAND.orgName}-Immobilienverwaltung und beauftragte Firmen dürfen die Unterkunft nach vorgängiger Information betreten — zum Einrichten von Zimmern, für Reparaturarbeiten sowie für Qualitäts- und Sicherheitskontrollen. Vereinbarte Termine werden eingehalten: anwesend sein und den Handwerkerinnen und Handwerkern Zutritt gewähren. In Notfällen darf unangekündigt eingegriffen werden, um Schäden schnell zu beheben.`,
+    delegation: 'FIXED',
+  },
+  {
+    key: 'reachability',
+    category: 'COMMUNICATION',
+    title: 'Erreichbarkeit und Abwesenheit',
+    body:
+      `Bewohnende sind für die ${BRAND.orgName} grundsätzlich erreichbar. Eine längere Abwesenheit wird der Sozialberatung vorher gemeldet. Wer während zwei Monaten weder telefonisch noch schriftlich erreichbar ist, verliert den Platz — die Unterkunft wird für andere Bewohnende freigegeben. Wichtige Dokumente, persönliche Effekten mit emotionalem Wert und Wertsachen werden in diesem Fall 12 Monate aufbewahrt; alles andere wird kostenpflichtig entsorgt.`,
     delegation: 'FIXED',
   },
   {
     key: 'pets',
     category: 'SHARED_SPACES',
-    title: 'Haustiere nur mit Bewilligung',
-    body: `Tiere dürfen nur mit schriftlicher Bewilligung der ${BRAND.orgName} gehalten werden.`,
+    title: 'Keine Haustiere',
+    body: 'Das Halten von Haustieren ist in der Unterkunft nicht gestattet.',
     delegation: 'FIXED',
   },
   {
     key: 'night_quiet',
     category: 'NOISE',
-    title: 'Nachtruhe ab 22:00 Uhr',
+    title: 'Ruhezeiten',
     body:
-      'Von 22:00 bis 07:00 Uhr ist es im ganzen Haus ruhig: kein lautes Musikhören, Telefonieren oder Fernsehen ohne Kopfhörer, keine lauten Gespräche in Fluren und Küchen. Das Haus kann zusätzliche Ruhezeiten beschliessen (zum Beispiel mittags), aber keine kürzeren.',
+      'Nachtruhe gilt von 22:00 bis 07:00 Uhr, Mittagsruhe von 12:00 bis 13:00 Uhr; an Sonn- und Feiertagen gelten besondere Ruhezeiten. In diesen Zeiten: kein lautes Musikhören, Telefonieren oder Fernsehen ohne Kopfhörer, keine lauten Gespräche in Fluren und Küchen, keine lauten Hausarbeiten. Auch die Nachbarschaft darf nicht gestört werden. Das Haus kann zusätzliche Ruhezeiten beschliessen, aber keine kürzeren.',
     delegation: 'UNIT_MAY_STRENGTHEN',
   },
   {
     key: 'guests_registration',
     category: 'GUESTS',
-    title: 'Besuch bis 22:00 Uhr, Übernachtung nur mit Bewilligung',
+    title: 'Besuch von 08:00 bis 22:00 Uhr, keine Übernachtungen',
     body:
-      'Besuch ist bis 22:00 Uhr willkommen. Übernachtungen brauchen vorher eine Bewilligung der Betreuung. Wer Besuch empfängt, ist für das Verhalten des Besuchs im Haus verantwortlich. Das Haus kann engere Regeln beschliessen (zum Beispiel Besuch nur in Gemeinschaftsräumen).',
+      'Besuch ist von 08:00 bis 22:00 Uhr willkommen. Ausserhalb dieser Zeiten dürfen sich keine Besucherinnen und Besucher in der Unterkunft aufhalten; Gäste dürfen nicht übernachten. Besuch hält sich nur in Anwesenheit der Bewohnenden in der Unterkunft auf, und wer Besuch empfängt, ist für dessen Verhalten verantwortlich. Das Haus kann engere Regeln beschliessen (zum Beispiel Besuch nur in Gemeinschaftsräumen).',
     delegation: 'UNIT_MAY_STRENGTHEN',
+  },
+  {
+    key: 'room_care',
+    category: 'CLEANLINESS',
+    title: 'Unterkunft sauber halten und täglich lüften',
+    body:
+      'Die Bewohnenden halten die Unterkunft sauber und in Ordnung. Die Zimmer werden täglich gelüftet — das verhindert Schimmel und schlechte Luft.',
+    delegation: 'FIXED',
   },
   {
     key: 'shared_cleaning',
     category: 'CLEANLINESS',
     title: 'Gemeinschaftsräume gemeinsam sauber halten',
     body:
-      'Küche, Bad, WC, Flure und Aufenthaltsräume werden von allen gemeinsam sauber gehalten. Wie ihr das organisiert — Putzplan, Turnus, Aufteilung — beschliesst das Haus selbst.',
-    delegation: 'UNIT_DECIDES',
+      'Für die Sauberkeit der Gemeinschaftsräume sind alle Bewohnenden mitverantwortlich. Elektrische Geräte (Kochherd, Backofen, Waschmaschine) werden nach Gebrauch gereinigt; Waschküche, Küche und Bad werden gemäss den Instruktionen benutzt. Wäsche darf nicht über Heizungsröhren und Heizkörpern getrocknet werden. Wie ihr die Reinigung organisiert — Putzplan, Turnus, Aufteilung — beschliesst das Haus selbst.',
+    delegation: 'UNIT_MAY_STRENGTHEN',
+  },
+  {
+    key: 'waste_recycling',
+    category: 'CLEANLINESS',
+    title: 'Abfall und Recycling',
+    body:
+      'Hausabfall gehört in die dafür bestimmten Abfallsäcke (blaue «Züri-Säcke») und danach in die vorgesehenen Container. Plastik, Glas, Metall, Öl, Elektrogeräte und Sperrgut werden selbstständig an den offiziellen Sammelstellen von ERZ (Entsorgung + Recycling Zürich) entsorgt.',
+    delegation: 'FIXED',
+  },
+  {
+    key: 'cooking_supervision',
+    category: 'KITCHEN',
+    title: 'Kochherd nie unbeaufsichtigt',
+    body:
+      'Kochherd und Backofen dürfen nur bei Anwesenheit benutzt werden — unbeaufsichtigte Speisen sind Brandgefahr. Nach Gebrauch werden die Kochgeräte ausgeschaltet.',
+    delegation: 'FIXED',
   },
   {
     key: 'kitchen_use',

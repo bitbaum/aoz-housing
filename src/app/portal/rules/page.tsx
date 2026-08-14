@@ -8,6 +8,7 @@ import { AcknowledgeRulesPanel } from '@/components/governance/AcknowledgeRulesP
 import { RuleBookView } from '@/components/governance/RuleBookView'
 import { PORTAL_LABELS } from '@/lib/constants/labels/portal'
 import { BRAND } from '@/lib/config/brand'
+import { ORG_ENFORCEMENT } from '@/lib/config/organization'
 
 export const metadata: Metadata = { title: 'Hausregeln' }
 export const dynamic = 'force-dynamic'
@@ -71,6 +72,25 @@ export default async function PortalRulesPage() {
       )}
 
       <RuleBookView ruleBook={ruleBook} outstandingRuleIds={outstanding.map((o) => o.rule.id)} />
+
+      {/* Consequences belong WITH the rule book: a sanction nobody was told
+          about is not a consequence, it is a surprise. SSOT: config/organization.ts */}
+      <section className="card">
+        <h2 className="text-base font-semibold text-ui-text">{ORG_ENFORCEMENT.title}</h2>
+        <div className="mt-3 space-y-3">
+          {ORG_ENFORCEMENT.paragraphs.map((paragraph) => (
+            <p key={paragraph} className="text-sm leading-6 text-ui-muted">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+        <Link
+          href="/portal/help"
+          className="mt-4 inline-flex min-h-[44px] items-center text-sm text-brand-primary hover:underline"
+        >
+          Kontakte und Notfall-Nummern →
+        </Link>
+      </section>
     </div>
   )
 }
