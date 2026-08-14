@@ -18,7 +18,9 @@
  *
  * That last line is the reason this table exists at all.
  */
-import { BRAND } from '@/lib/config/brand'
+// Relative rather than the usual '@/' alias: the demo seed reaches this module
+// through ts-node, which does not resolve tsconfig path aliases.
+import { BRAND } from './brand'
 
 import type { DecisionMode, ProposalStatus, RuleCategory, VoteChoice, VoteThreshold } from '@prisma/client'
 

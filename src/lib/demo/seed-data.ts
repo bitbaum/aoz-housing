@@ -23,6 +23,7 @@ import {
   DEMO_RESIDENT_CODE_PREFIX,
   DEMO_UNIT_CODE_PREFIX,
 } from './config'
+import { seedDemoGovernance } from './seed-governance'
 
 export interface DemoSeedSummary {
   residents: number
@@ -1211,6 +1212,15 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
       amountRappen: 1200,
       note: `Anteil ${groceries.description}`,
     },
+  })
+
+  // ========================================================================
+  // LIVING TOGETHER (Unit 5) — chores, decisions and maintenance
+  // ========================================================================
+  await seedDemoGovernance(prisma, {
+    unitId: unit5.id,
+    demoResidentId: fatima.id,
+    roommateIds: [yasmin.id, amira.id, sara.id],
   })
 
   // Counts are queried, not hardcoded, so the summary can never drift from

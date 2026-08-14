@@ -8,6 +8,8 @@ import {
   INCIDENT_CATEGORY_LABELS,
   SUPPORT_LEVEL_LABELS,
   INCIDENT_TYPE_LABELS,
+  MAINTENANCE_CATEGORY_LABELS,
+  MAINTENANCE_PRIORITY_LABELS,
 } from '@/lib/constants/labels'
 import { BRAND } from '@/lib/config/brand'
 import { EMAIL_COLORS } from './tokens'
@@ -93,6 +95,15 @@ function severityColor(severity: string): string {
 }
 
 const severityLabel = (severity: string) => INCIDENT_SEVERITY_LABELS[severity] ?? severity
+
+function maintenancePriorityColor(priority: string): string {
+  switch (priority) {
+    case 'URGENT': return EMAIL_COLORS.danger
+    case 'HIGH': return EMAIL_COLORS.warning
+    case 'LOW': return EMAIL_COLORS.muted
+    default: return EMAIL_COLORS.textBody
+  }
+}
 const supportLevelLabel = (level: string) => SUPPORT_LEVEL_LABELS[level] ?? level
 
 function supportLevelColor(level: string): string {
@@ -236,6 +247,50 @@ export function newIncidentNotification(data: NewIncidentData): { subject: strin
       <p style="${STYLES.paragraph}">${escapeHtml(data.description)}</p>
     </div>
     <p style="${STYLES.paragraph}">Bitte prüfen Sie den Vorfall im ${BRAND.productName} System.</p>
+    ${emailFooter()}
+  `
+
+  return { subject, html }
+}
+
+interface NewMaintenanceRequestData {
+  residentCode: string
+  housingUnitCode: string
+  category: string
+  priority: string
+  title: string
+  description: string
+  location: string | null
+}
+
+/**
+ * A resident reported something broken. This goes to the maintenance board, not
+ * onto the conflict ladder — so it needs its own notification rather than being
+ * announced as a "Vorfall", which would read to staff as a conflict.
+ */
+export function newMaintenanceRequestNotification(
+  data: NewMaintenanceRequestData
+): { subject: string; html: string } {
+  const priority = MAINTENANCE_PRIORITY_LABELS[data.priority] ?? data.priority
+  const category = MAINTENANCE_CATEGORY_LABELS[data.category] ?? data.category
+  const subject = `[${BRAND.productName}] Neue Wartungsanfrage: ${escapeHtml(data.title)} (${priority})`
+
+  const html = `
+    <div style="${STYLES.panel}">
+      <h2 style="${STYLES.header}">Neue Wartungsanfrage</h2>
+      <p style="${STYLES.paragraph}">
+        <strong>Gemeldet von:</strong> ${escapeHtml(data.residentCode)}<br>
+        <strong>Wohneinheit:</strong> ${escapeHtml(data.housingUnitCode)}<br>
+        <strong>Bereich:</strong> ${escapeHtml(category)}<br>
+        <strong>Dringlichkeit:</strong> <span style="color: ${maintenancePriorityColor(data.priority)}; font-weight: 600;">${escapeHtml(priority)}</span>
+        ${data.location ? `<br><strong>Ort:</strong> ${escapeHtml(data.location)}` : ''}
+      </p>
+    </div>
+    <div style="${STYLES.panel}">
+      <h3 style="${FONT} color: ${EMAIL_COLORS.textBody}; margin: 0 0 8px 0; font-size: 14px;">Beschreibung</h3>
+      <p style="${STYLES.paragraph}">${escapeHtml(data.description)}</p>
+    </div>
+    <p style="${STYLES.paragraph}">Die Anfrage liegt unter Wartung im ${BRAND.productName} System.</p>
     ${emailFooter()}
   `
 

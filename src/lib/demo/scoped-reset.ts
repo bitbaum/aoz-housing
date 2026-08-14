@@ -25,6 +25,7 @@ import {
 } from './config'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { upsertDemoStaff } from './staff'
+import { syncOrgRules } from '../governance/sync-org-rules'
 
 export interface DemoWorldResetSummary extends DemoSeedSummary {
   unitsDeleted: number
@@ -58,6 +59,10 @@ export async function deleteDemoWorld(prisma: PrismaClient): Promise<{
 /** Tear down and reseed the demo world; self-heal the demo staff account. */
 export async function resetDemoWorld(prisma: PrismaClient): Promise<DemoWorldResetSummary> {
   const removed = await deleteDemoWorld(prisma)
+  // The AOZ catalog is reference data, not demo data — it is never deleted
+  // above. But the demo's adopted house rule points at an ORG rule by key, so
+  // the catalog has to be present before seeding, not merely usually present.
+  await syncOrgRules(prisma)
   const seeded = await seedDemoData(prisma)
   const demoStaffCode = await upsertDemoStaff(prisma)
 

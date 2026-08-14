@@ -286,6 +286,7 @@ export const PORTAL_LABELS = {
     inProgress: 'in Bearbeitung',
     reportResolved: 'Erledigt',
     reportPending: 'Das Team prüft diese Meldung aktuell.',
+    reportAnswer: 'Antwort der Betreuung',
     reported: 'Gemeldet',
     active: 'Aktiv',
     moveIn: 'Einzug',

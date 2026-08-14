@@ -11,6 +11,14 @@ jest.mock('../seed-data', () => ({
   seedDemoData: (...args: unknown[]) => mockSeedDemoData(...args),
 }))
 
+// The catalog sync is reference-data plumbing with its own tests; stubbing it
+// keeps the assertion below about the one thing that matters here — the order
+// demo rows are deleted in.
+const mockSyncOrgRules = jest.fn()
+jest.mock('../../governance/sync-org-rules', () => ({
+  syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
+}))
+
 import { deleteDemoWorld, resetDemoWorld } from '../scoped-reset'
 import { upsertDemoStaff } from '../staff'
 import { DEMO_RESIDENT_CODE_PREFIX, DEMO_UNIT_CODE_PREFIX } from '../config'

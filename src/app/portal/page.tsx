@@ -19,6 +19,7 @@ import { getUnitExpenseData } from '@/lib/expenses/data'
 import { PortalExpensesCard } from '@/components/portal/PortalExpensesCard'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { residentName } from '@/lib/utils/resident-name'
+import { mergeResidentReports } from '@/lib/reports/resident-reports'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -49,14 +50,11 @@ export default async function ResidentPortal() {
                   },
                 },
               },
-              incidents: {
-                where: {
-                  category: 'MAINTENANCE',
-                  resolvedAt: null,
-                },
-                orderBy: { date: 'desc' },
+              maintenanceRequests: {
+                where: { status: { notIn: ['COMPLETED', 'CANCELLED'] } },
+                orderBy: { createdAt: 'desc' },
                 take: DISPLAY_LIMITS.portalIncidentPreview,
-                select: { id: true, type: true, date: true },
+                select: { id: true, category: true, createdAt: true },
               },
             },
           },
@@ -69,7 +67,28 @@ export default async function ResidentPortal() {
       incidentsReported: {
         orderBy: { date: 'desc' },
         take: DISPLAY_LIMITS.portalIncidentPreview,
-        select: { id: true, type: true, description: true, resolvedAt: true },
+        select: {
+          id: true,
+          type: true,
+          description: true,
+          date: true,
+          resolvedAt: true,
+          resolution: true,
+        },
+      },
+      // A resident's own reports live in two tables — conflicts on the ladder,
+      // broken things on the maintenance board — but they are one list to them.
+      maintenanceRequests: {
+        orderBy: { createdAt: 'desc' },
+        take: DISPLAY_LIMITS.portalIncidentPreview,
+        select: {
+          id: true,
+          category: true,
+          description: true,
+          createdAt: true,
+          status: true,
+          resolution: true,
+        },
       },
     },
   })
@@ -84,6 +103,11 @@ export default async function ResidentPortal() {
     .filter(p => p.residentId !== resident.id)
     .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null })) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
+  const myReports = mergeResidentReports(
+    resident.incidentsReported,
+    resident.maintenanceRequests,
+    DISPLAY_LIMITS.portalIncidentPreview
+  )
 
   const now = new Date()
   const [pendingChores, compatibilityScores, highlightedActivities, expenseData] = await Promise.all([
@@ -185,11 +209,11 @@ export default async function ResidentPortal() {
         )}
 
         {/* Recent Reports */}
-        <PortalReportsCard incidents={resident.incidentsReported} />
+        <PortalReportsCard reports={myReports} />
 
         {/* Open Maintenance in Building */}
-        {housingUnit && housingUnit.incidents.length > 0 && (
-          <PortalMaintenanceCard incidents={housingUnit.incidents} />
+        {housingUnit && housingUnit.maintenanceRequests.length > 0 && (
+          <PortalMaintenanceCard requests={housingUnit.maintenanceRequests} />
         )}
 
         {/* Activities */}
