@@ -22,7 +22,10 @@ interface Recorded {
   taskTitles: string[]
   proposalStatuses: string[]
   maintenanceStatuses: string[]
+  maintenance: Array<{ status: string; resolution?: string | null; reportedById?: string }>
   unitRuleTitles: string[]
+  /** Resident code → the id the mock handed back, so ownership is assertable. */
+  residentIdsByCode: Record<string, string>
 }
 
 function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
@@ -33,14 +36,17 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     taskTitles: [],
     proposalStatuses: [],
     maintenanceStatuses: [],
+    maintenance: [],
     unitRuleTitles: [],
+    residentIdsByCode: {},
   }
   let id = 0
 
-  const model = (onCreate?: (data: Record<string, unknown>) => void) => ({
+  const model = (onCreate?: (data: Record<string, unknown>, newId: string) => void) => ({
     create: jest.fn(({ data }: { data: Record<string, unknown> }) => {
-      onCreate?.(data)
-      return Promise.resolve({ ...data, id: `id-${++id}` })
+      const newId = `id-${++id}`
+      onCreate?.(data, newId)
+      return Promise.resolve({ ...data, id: newId })
     }),
     createMany: jest.fn(() => Promise.resolve({ count: 0 })),
     count: jest.fn(() => Promise.resolve(0)),
@@ -48,7 +54,10 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
 
   const prisma = {
     housingUnit: model((d) => recorded.unitCodes.push(d.code as string)),
-    resident: model((d) => recorded.residentCodes.push(d.code as string)),
+    resident: model((d, newId) => {
+      recorded.residentCodes.push(d.code as string)
+      recorded.residentIdsByCode[d.code as string] = newId
+    }),
     placementSpot: model(),
     placement: model(),
     incident: model(),
@@ -60,7 +69,10 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     taskCompletion: model(),
     taskAttentionFlag: model(),
     proposal: model((d) => recorded.proposalStatuses.push(d.status as string)),
-    maintenanceRequest: model((d) => recorded.maintenanceStatuses.push(d.status as string)),
+    maintenanceRequest: model((d) => {
+      recorded.maintenanceStatuses.push(d.status as string)
+      recorded.maintenance.push(d as Recorded['maintenance'][number])
+    }),
     houseRule: {
       ...model((d) => recorded.unitRuleTitles.push(d.title as string)),
       findUnique: jest.fn(() => Promise.resolve({ id: 'org-night-quiet' })),
@@ -130,6 +142,14 @@ describe('seedDemoData', () => {
     await seedDemoData(prisma)
     expect(recorded.maintenanceStatuses).toContain('OPEN')
     expect(recorded.maintenanceStatuses).toContain('COMPLETED')
+  })
+
+  it('gives the DEMO LOGIN an answered report — a reply to a roommate proves nothing', async () => {
+    const { prisma, recorded } = createPrismaMock()
+    const summary = await seedDemoData(prisma)
+    const demoId = recorded.residentIdsByCode[summary.demoResidentCode]
+    const answered = recorded.maintenance.filter((m) => m.status === 'COMPLETED' && m.resolution)
+    expect(answered.some((m) => m.reportedById === demoId)).toBe(true)
   })
 
   it('seeds a proposal ALREADY IN VOTING — a fresh one could never reach a vote', async () => {
