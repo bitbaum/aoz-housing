@@ -291,6 +291,26 @@ export async function seedDemoGovernance(
     },
   })
 
+  // Reported by the DEMO LOGIN and already answered, so the tour shows the one
+  // thing a resident actually wants from reporting something: a reply. An
+  // answered request belonging to a roommate proves nothing to the visitor.
+  await prisma.maintenanceRequest.create({
+    data: {
+      housingUnitId: unitId,
+      reportedById: demoResidentId,
+      category: 'HEATING_COOLING',
+      priority: 'NORMAL',
+      title: 'Heizung/Klima',
+      description: 'Die Heizung im Zimmer wird nur oben warm.',
+      location: 'Zimmer',
+      status: 'COMPLETED',
+      assignedTo: 'Hauswart',
+      completedAt: daysAgo(6),
+      resolution: 'Heizkörper entlüftet. Bitte melden, falls es wieder auftritt.',
+      createdAt: daysAgo(12),
+    },
+  })
+
   await prisma.maintenanceRequest.create({
     data: {
       housingUnitId: unitId,
