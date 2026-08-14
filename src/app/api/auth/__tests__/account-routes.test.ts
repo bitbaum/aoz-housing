@@ -74,13 +74,13 @@ describe('POST /api/auth/signup', () => {
   it('registers, sets the resident cookie, and reports the type', async () => {
     mockRegisterAccount.mockResolvedValue({
       success: true,
-      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+      identities: { resident: { id: 'res-1', code: 'RES-ABC123' } },
     })
 
     const response = await signupPost(jsonRequest('/api/auth/signup', VALID))
     const body = await response.json()
 
-    expect(body).toEqual({ success: true, type: 'resident' })
+    expect(body).toEqual({ success: true, type: 'resident', roles: ['resident'] })
     expect(mockSetResidentCookie).toHaveBeenCalledWith('RES-ABC123')
     expect(mockSetSessionCookie).not.toHaveBeenCalled()
   })
@@ -88,7 +88,9 @@ describe('POST /api/auth/signup', () => {
   it('sets the staff JWT for staff registrations', async () => {
     mockRegisterAccount.mockResolvedValue({
       success: true,
-      identity: { type: 'staff', id: 'u1', code: 'AOZ-X', name: 'G', email: 'g@x.ch', role: 'ADMIN' },
+      identities: {
+        staff: { id: 'u1', code: 'AOZ-X', name: 'G', email: 'g@x.ch', role: 'ADMIN' },
+      },
     })
 
     const response = await signupPost(
@@ -103,10 +105,32 @@ describe('POST /api/auth/signup', () => {
     })
   })
 
+  it('links a second role: one signup, BOTH sessions, both roles reported', async () => {
+    mockRegisterAccount.mockResolvedValue({
+      success: true,
+      identities: {
+        staff: { id: 'u1', code: 'AOZ-X', name: 'G', email: 'g@x.ch', role: 'ADMIN' },
+        resident: { id: 'res-1', code: 'RES-ABC123' },
+      },
+    })
+
+    const response = await signupPost(jsonRequest('/api/auth/signup', VALID))
+
+    // Staff wins the landing page — the admin side is the bigger surface — but
+    // the resident cookie is set too, so the nav can offer the switch.
+    expect(await response.json()).toEqual({
+      success: true,
+      type: 'staff',
+      roles: ['staff', 'resident'],
+    })
+    expect(mockSetSessionCookie).toHaveBeenCalledTimes(1)
+    expect(mockSetResidentCookie).toHaveBeenCalledWith('RES-ABC123')
+  })
+
   it('normalises input via the schema (trims + lowercases email, uppercases code)', async () => {
     mockRegisterAccount.mockResolvedValue({
       success: true,
-      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+      identities: { resident: { id: 'res-1', code: 'RES-ABC123' } },
     })
 
     await signupPost(
@@ -242,7 +266,7 @@ describe('POST /api/auth/login with email credentials', () => {
   it('routes email bodies to loginWithEmail and sets the right session', async () => {
     mockLoginWithEmail.mockResolvedValue({
       success: true,
-      identity: { type: 'resident', id: 'res-1', code: 'RES-ABC123' },
+      identities: { resident: { id: 'res-1', code: 'RES-ABC123' } },
     })
 
     const response = await loginPost(
@@ -250,7 +274,7 @@ describe('POST /api/auth/login with email credentials', () => {
     )
     const body = await response.json()
 
-    expect(body).toEqual({ success: true, type: 'resident', code: 'RES-ABC123' })
+    expect(body).toEqual({ success: true, type: 'resident', roles: ['resident'] })
     expect(mockSetResidentCookie).toHaveBeenCalledWith('RES-ABC123')
     expect(mockLoginByCode).not.toHaveBeenCalled()
   })

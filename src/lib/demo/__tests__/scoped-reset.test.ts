@@ -29,7 +29,8 @@ function createPrismaMock() {
     placement: { deleteMany: track('placement.deleteMany', { count: 13 }) },
     housingUnit: { deleteMany: track('unit.deleteMany', { count: 5 }) },
     resident: { deleteMany: track('resident.deleteMany', { count: 15 }) },
-    user: { upsert: track('user.upsert', {}) },
+    user: { upsert: track('user.upsert', { id: 'demo-user' }) },
+    account: { deleteMany: track('account.deleteMany', { count: 0 }) },
   }
   return { prisma: prisma as unknown as PrismaClient, calls, raw: prisma }
 }
@@ -103,6 +104,7 @@ describe('resetDemoWorld', () => {
       'unit.deleteMany',
       'resident.deleteMany',
       'user.upsert',
+      'account.deleteMany',
     ])
     expect(mockSeedDemoData).toHaveBeenCalledTimes(1)
     expect(summary).toEqual({
@@ -128,16 +130,20 @@ describe('upsertDemoStaff', () => {
     expect(await upsertDemoStaff(prisma)).toBe('WG-DEMO01')
     expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
-      // Credentials stripped too: a visitor-claimed email/password on the
-      // demo account must not outlive the reset.
-      update: {
-        name: 'Demo-Zugang',
-        active: true,
-        email: null,
-        passwordHash: null,
-        emailVerifiedAt: null,
-      },
+      update: { name: 'Demo-Zugang', active: true },
       create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
+      select: { id: true },
+    })
+  })
+
+  it('drops any account a visitor claimed on the demo code', async () => {
+    process.env.DEMO_STAFF_CODE = 'WG-DEMO01'
+    const { prisma, raw } = createPrismaMock()
+    await upsertDemoStaff(prisma)
+    // A visitor-claimed email/password on the demo door must not outlive the
+    // reset — otherwise the next tester cannot get in.
+    expect((raw.account.deleteMany as jest.Mock)).toHaveBeenCalledWith({
+      where: { userId: 'demo-user' },
     })
   })
 })

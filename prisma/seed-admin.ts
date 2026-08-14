@@ -42,29 +42,34 @@ async function main() {
     return
   }
 
-  // Check if admin exists by email (legacy)
+  // Email lives on the Account, not the User — an admin seeded under a former
+  // code prefix is found through the account that carries the same email.
   const existingByEmail = ADMIN_EMAIL
-    ? await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } })
+    ? await prisma.account.findUnique({
+        where: { email: ADMIN_EMAIL.toLowerCase() },
+        select: { userId: true },
+      })
     : null
 
-  if (existingByEmail) {
+  if (existingByEmail?.userId) {
     // Update existing user to have a code
     await prisma.user.update({
-      where: { id: existingByEmail.id },
+      where: { id: existingByEmail.userId },
       data: { code: ADMIN_CODE },
     })
     console.log(`Updated existing admin with code: ${ADMIN_CODE}`)
     return
   }
 
-  // Create admin user
+  // Create admin user. No password: the account is deliberately unclaimed, so
+  // the first sign-in proves mailbox control via /forgot-password.
   const admin = await prisma.user.create({
     data: {
       code: ADMIN_CODE,
-      email: ADMIN_EMAIL,
       name: ADMIN_NAME,
       role: 'ADMIN',
       active: true,
+      account: { create: { email: ADMIN_EMAIL.toLowerCase() } },
     },
   })
 

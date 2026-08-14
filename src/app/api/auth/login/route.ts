@@ -5,11 +5,15 @@
  *   { email, password } — account login (the primary path)
  *   { code }            — code login (works forever; demo doors, flatmates)
  *
- * Both resolve to the same two session types: staff JWT or resident cookie.
+ * An account login issues a session for EVERY identity it carries, so someone
+ * who is both staff and a resident lands signed into both and can switch sides
+ * from the nav. A code login is that code's identity only — the code names one
+ * role, and quietly opening the other would be a surprise.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { loginWithEmail } from '@/lib/auth/account'
+import { establishSessions } from '@/lib/auth/sessions'
 import { logger } from '@/lib/logger'
 import {
   checkRateLimit,
@@ -66,16 +70,7 @@ export async function POST(request: NextRequest) {
       }
 
       clearLoginAttempts(clientIp)
-
-      if (result.identity.type === 'staff') {
-        const { id, email: userEmail, name, role } = result.identity
-        const user = { id, email: userEmail, name, role }
-        await setSessionCookie(user)
-        return NextResponse.json({ success: true, type: 'staff', user })
-      }
-
-      await setResidentCookie(result.identity.code)
-      return NextResponse.json({ success: true, type: 'resident', code: result.identity.code })
+      return NextResponse.json(await establishSessions(result.identities))
     }
 
     // --- Code login ---

@@ -84,7 +84,10 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if email already registered
-  const existingEmail = await prisma.user.findUnique({ where: { email: email.toLowerCase() } })
+  const existingEmail = await prisma.account.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { id: true },
+  })
   if (existingEmail) {
     return NextResponse.json(
       { success: false, error: 'Diese E-Mail-Adresse ist bereits registriert' },
@@ -95,15 +98,18 @@ export async function POST(request: NextRequest) {
   // Create user
   let user
   try {
+    // The invited person's email is KNOWN but they have no password yet —
+    // exactly the shape an unclaimed Account has, so /register (or
+    // /forgot-password) completes it without an admin doing anything else.
     user = await prisma.user.create({
       data: {
         code,
-        email: email.toLowerCase(),
         name: name.trim(),
         role: 'ADMIN',
         active: true,
+        account: { create: { email: email.toLowerCase() } },
       },
-      select: { id: true, code: true, name: true, email: true },
+      select: { id: true, code: true, name: true, account: { select: { email: true } } },
     })
   } catch (error) {
     // Race between pre-check and insert: surface conflict explicitly.
@@ -137,7 +143,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    user: { id: user.id, code: user.code, name: user.name, email: user.email },
+    user: { id: user.id, code: user.code, name: user.name, email: user.account?.email ?? email },
     // We can't await delivery without re-introducing the hang; report optimistically.
     emailSent: true,
   })

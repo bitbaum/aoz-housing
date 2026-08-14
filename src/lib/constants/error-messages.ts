@@ -27,6 +27,10 @@ export const ERROR_MESSAGES = {
   AUTH_ALREADY_REGISTERED:
     'Für diesen Code existiert bereits ein Konto. Verwenden Sie «Passwort vergessen», falls Sie das Passwort nicht mehr wissen.',
   AUTH_EMAIL_TAKEN: 'Diese E-Mail-Adresse wird bereits verwendet',
+  AUTH_ROLE_ALREADY_LINKED:
+    'Mit dieser E-Mail-Adresse ist bereits ein Zugang dieser Art verknüpft.',
+  AUTH_LINK_PASSWORD_MISMATCH:
+    'Für diese E-Mail-Adresse existiert bereits ein Konto. Geben Sie das Passwort dieses Kontos ein, um den Code damit zu verknüpfen.',
   AUTH_RESET_TOKEN_INVALID:
     'Dieser Link ist ungültig oder abgelaufen. Fordern Sie einen neuen an.',
   AUTH_EMAIL_NOT_CONFIGURED:

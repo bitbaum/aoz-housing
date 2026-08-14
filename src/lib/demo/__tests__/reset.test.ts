@@ -32,10 +32,12 @@ function createPrismaMock(tables: string[]) {
   return {
     $queryRaw: jest.fn().mockResolvedValue(tables.map((tablename) => ({ tablename }))),
     $executeRawUnsafe: jest.fn().mockResolvedValue(0),
-    user: { upsert: jest.fn().mockResolvedValue({}) },
+    user: { upsert: jest.fn().mockResolvedValue({ id: 'demo-user' }) },
+    account: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
   } as unknown as PrismaClient & {
     $executeRawUnsafe: jest.Mock
     user: { upsert: jest.Mock }
+    account: { deleteMany: jest.Mock }
   }
 }
 
@@ -88,15 +90,12 @@ describe('resetDemoData', () => {
     expect(mockSeedDemoData).toHaveBeenCalledWith(prisma)
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { code: 'AOZH-DEMO01' },
-      update: {
-        name: 'Demo-Zugang',
-        active: true,
-        email: null,
-        passwordHash: null,
-        emailVerifiedAt: null,
-      },
+      update: { name: 'Demo-Zugang', active: true },
       create: { code: 'AOZH-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
+      select: { id: true },
     })
+    // A visitor-claimed account on the demo code must not outlive the reset.
+    expect(prisma.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'demo-user' } })
     expect(mockSyncOrgRules).toHaveBeenCalledWith(prisma)
     expect(summary).toEqual({
       ...SEED_SUMMARY,

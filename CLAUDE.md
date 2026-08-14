@@ -762,22 +762,43 @@ All user-facing German text MUST use correct **Swiss German** spelling:
 
 ## Authentication
 
-### Two credential shapes, one identity model
+### One human, one login, one or two roles
 
-The CODE is the root identity and works forever; an ACCOUNT (email +
-password) is optional credentials claimed ON TOP of it. Registration never
-creates identities — provisioning (staff invites, resident intake) stays
-where it is. `src/lib/auth/account.ts` holds the flows; passwords are bcrypt
+The CODE is the root identity and works forever; an **`Account`** (one email,
+one password) is optional credentials laid ON TOP of it. Registration never
+creates identities — provisioning (staff invites, resident intake) stays where
+it is. `src/lib/auth/account.ts` holds the flows; passwords are bcrypt cost 12
 (`lib/auth/passwords.ts`), reset/verify tokens are single-use SHA-256-at-rest
-rows (`lib/auth/tokens.ts`, `AuthToken` table, polymorphic User/Resident).
+rows belonging to the ACCOUNT (`lib/auth/tokens.ts`, `AuthToken.accountId`).
 
-| User | Root identity | Account fields live on | Session Cookie |
-|------|--------------|------------------------|----------------|
-| **Staff** | `AOZ-XXXXXX` / `WG-XXXXXX` code | `User.email/passwordHash` | `staff_session` (JWT) |
-| **Resident** | `RES-XXXXXX` code | `Resident.email/passwordHash` (self-chosen, like displayName) | `resident_code` |
+| Role | Root identity | Session cookie |
+|------|--------------|----------------|
+| **Staff** | `AOZ-XXXXXX` / `WG-XXXXXX` code → `User` | `staff_session` (JWT) |
+| **Resident** | `RES-XXXXXX` code → `Resident` | `resident_code` |
 
-**Single role: ADMIN** — all staff have full access. One email namespace
-across BOTH tables (checked at registration), so email login never guesses.
+**An account may carry BOTH.** `Account.userId` and `Account.residentId` are
+each unique and each optional. The person running a real shared flat is its
+admin *and* one of its flatmates; a caseworker may live in one of the houses.
+Credentials on the identity rows forced them to pick one, and guaranteed two
+password hashes for one human that would drift apart — so **never put `email`
+or `passwordHash` back on `User` or `Resident`.**
+
+Linking needs no separate flow, no invite and no admin: **register again with
+your second code and the same email.** A finished account must prove itself
+with its own password before absorbing another identity
+(`AUTH_LINK_PASSWORD_MISMATCH`) — holding a stray code is not enough to attach
+yourself to someone else's login. A role slot that is already filled refuses
+(`AUTH_ROLE_ALREADY_LINKED`).
+
+`establishSessions()` (`lib/auth/sessions.ts`) is the SSOT for "you are now
+signed in": it sets every cookie the account's identities call for and reports
+`roles`. Staff wins the landing page (bigger surface); the nav offers the
+switch. A deactivated staff identity grants nothing but must **not** cost the
+person their resident access — they are different roles.
+
+**Single staff role: ADMIN** — all staff have full access. One email namespace
+across the whole product, because there is exactly one `Account.email` unique
+index; email login can never guess which table you meant.
 
 ### Flows
 
@@ -884,16 +905,27 @@ two reset scopes).
 
 ```prisma
 model User {
-  id            String    @id @default(cuid())
-  code          String    @unique  // AOZ-XXXXXX login code
-  email         String?   @unique  // Optional, for reference
-  passwordHash  String?            // Deprecated
-  name          String
-  role          StaffRole @default(ADMIN)
-  active        Boolean   @default(true)
-  lastLoginAt   DateTime?
+  id           String    @id @default(cuid())
+  code         String    @unique  // AOZ-XXXXXX login code — the identity
+  name         String
+  role         StaffRole @default(ADMIN)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  account      Account?           // credentials, if this person claimed them
   // ...
   @@index([code])
+}
+
+// One human's credentials. Either side may be absent; both may be present,
+// which is how one login carries both a staff and a resident role.
+model Account {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String?            // null = known email, not claimed yet
+  emailVerifiedAt DateTime?
+  userId          String?   @unique
+  residentId      String?   @unique
+  authTokens      AuthToken[]
 }
 ```
 

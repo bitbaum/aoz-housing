@@ -1,17 +1,16 @@
 /**
  * Single-use, expiring tokens for email flows (verification, password reset).
  *
- * The raw token exists exactly once — inside the email link. The database
- * stores only its SHA-256 hash, so a leaked database dump cannot be replayed
- * into a password takeover.
+ * Tokens belong to the ACCOUNT, not to a staff or resident identity: what a
+ * reset link proves is control of the mailbox, and that is exactly what an
+ * account is. The raw token exists once — inside the email. The database
+ * stores only its SHA-256 hash, so a leaked dump cannot be replayed into a
+ * password takeover.
  */
 
 import { createHash, randomBytes } from 'crypto'
 import type { AuthTokenPurpose } from '@prisma/client'
 import { prisma } from '@/lib/db'
-
-/** Exactly one identity per token: staff account or resident. */
-export type TokenIdentity = { userId: string } | { residentId: string }
 
 export const TOKEN_TTL_MS: Record<AuthTokenPurpose, number> = {
   // A reset link is a credential — keep its window short.
@@ -25,20 +24,20 @@ export function hashAuthToken(raw: string): string {
 }
 
 /**
- * Issue a fresh token for the identity+purpose, invalidating earlier ones —
- * only the most recent email link works, so a forgotten stale link cannot
- * be dug out of an old inbox later.
+ * Issue a fresh token for the account+purpose, invalidating earlier ones —
+ * only the most recent email link works, so a stale link dug out of an old
+ * inbox is dead.
  */
 export async function createAuthToken(
-  identity: TokenIdentity,
+  accountId: string,
   purpose: AuthTokenPurpose
 ): Promise<string> {
   const raw = randomBytes(32).toString('hex')
 
-  await prisma.authToken.deleteMany({ where: { ...identity, purpose } })
+  await prisma.authToken.deleteMany({ where: { accountId, purpose } })
   await prisma.authToken.create({
     data: {
-      ...identity,
+      accountId,
       purpose,
       tokenHash: hashAuthToken(raw),
       expiresAt: new Date(Date.now() + TOKEN_TTL_MS[purpose]),
@@ -50,28 +49,22 @@ export async function createAuthToken(
 
 /**
  * Redeem a token: valid + unexpired + unused → mark used and return the
- * identity it belongs to. Anything else → null (one generic failure — the
- * caller must not leak WHY a token failed).
+ * account id. Anything else → null (one generic failure — the caller must not
+ * leak WHY a token failed).
  */
 export async function consumeAuthToken(
   raw: string,
   purpose: AuthTokenPurpose
-): Promise<TokenIdentity | null> {
+): Promise<string | null> {
   const token = await prisma.authToken.findUnique({
     where: { tokenHash: hashAuthToken(raw) },
-    select: { id: true, purpose: true, expiresAt: true, usedAt: true, userId: true, residentId: true },
+    select: { id: true, purpose: true, expiresAt: true, usedAt: true, accountId: true },
   })
 
   if (!token || token.purpose !== purpose || token.usedAt || token.expiresAt < new Date()) {
     return null
   }
 
-  await prisma.authToken.update({
-    where: { id: token.id },
-    data: { usedAt: new Date() },
-  })
-
-  if (token.userId) return { userId: token.userId }
-  if (token.residentId) return { residentId: token.residentId }
-  return null
+  await prisma.authToken.update({ where: { id: token.id }, data: { usedAt: new Date() } })
+  return token.accountId
 }
