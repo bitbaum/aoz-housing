@@ -3,10 +3,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalReportSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { PORTAL_LABELS, INCIDENT_TYPE_LABELS, getLabel } from '@/lib/constants'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { notifyStaff, newIncidentNotification } from '@/lib/email'
+import {
+  notifyStaff,
+  newIncidentNotification,
+  newMaintenanceRequestNotification,
+} from '@/lib/email'
 import { getResidentCookie } from '@/lib/portal-auth'
+import {
+  isMaintenanceType,
+  maintenanceCategoryFor,
+  maintenancePriorityFor,
+} from '@/lib/reports/routing'
 
 export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
@@ -47,10 +56,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
   }
 
-  // Build description with location for maintenance
+  // The maintenance board carries the location in its own column; the incident
+  // table has no such field, so only that path folds it into the text.
+  const locationLabel = data.location
+    ? PORTAL_LABELS.report.locations.find(l => l.value === data.location)?.label || data.location
+    : null
+
   let fullDescription = data.description
-  if (data.category === 'MAINTENANCE' && data.location) {
-    const locationLabel = PORTAL_LABELS.report.locations.find(l => l.value === data.location)?.label || data.location
+  if (data.category === 'MAINTENANCE' && locationLabel) {
     fullDescription = `[${locationLabel}] ${data.description}`
   }
 
@@ -81,6 +94,49 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // A broken tap goes to the maintenance board, not onto the conflict ladder.
+    // @see lib/reports/routing.ts for why the two must not share a table.
+    if (data.category === 'MAINTENANCE' && isMaintenanceType(data.type)) {
+      const request = await prisma.maintenanceRequest.create({
+        data: {
+          housingUnitId: placement.housingUnitId,
+          reportedById: resident.id,
+          category: maintenanceCategoryFor(data.type),
+          priority: maintenancePriorityFor(data.severity),
+          title: getLabel(INCIDENT_TYPE_LABELS, data.type),
+          description: data.description,
+          location: locationLabel,
+        },
+      })
+
+      await logAudit({
+        action: 'CREATE',
+        entity: 'MAINTENANCE',
+        entityId: request.id,
+        changes: {
+          category: request.category,
+          priority: request.priority,
+          reportedBy: residentCode,
+          description: data.description.slice(0, 200),
+        },
+      })
+
+      const mail = newMaintenanceRequestNotification({
+        residentCode,
+        housingUnitCode: placement.housingUnit?.code || '-',
+        category: request.category,
+        priority: request.priority,
+        title: request.title,
+        description: data.description.slice(0, 500),
+        location: locationLabel,
+      })
+      notifyStaff(mail.subject, mail.html).catch((err) =>
+        logger.errorWithCause('Failed to send maintenance notification', err)
+      )
+
+      return NextResponse.json({ success: true })
+    }
+
     const incident = await prisma.incident.create({
       data: {
         housingUnitId: placement.housingUnitId,

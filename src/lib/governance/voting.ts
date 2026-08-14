@@ -7,11 +7,13 @@
  */
 
 import type { VoteChoice, VoteThreshold } from '@prisma/client'
+// Relative rather than the usual '@/' alias: the demo seed reaches this module
+// through ts-node, which does not resolve tsconfig path aliases.
 import {
   DECISION_TIMING,
   THRESHOLD_APPROVAL_PERCENT,
   THRESHOLD_LABELS,
-} from '@/lib/config/decisions'
+} from '../config/decisions'
 
 export type VoteOutcome =
   | 'ACCEPTED'

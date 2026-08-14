@@ -9,5 +9,6 @@ export {
   lowSatisfactionAlert,
   newTransferRequestNotification,
   newIncidentNotification,
+  newMaintenanceRequestNotification,
 } from './templates'
 export { EMAIL_CONFIG } from './config'

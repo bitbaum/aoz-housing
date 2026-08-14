@@ -604,6 +604,26 @@ date, and an explicit *did it hold?*. A broken agreement escalates; one that hel
 closes the conflict and can seed a house rule. A free-text resolution note cannot
 be followed up on, which is why "resolved" used to mean nothing.
 
+### A report goes to the desk that can act on it
+
+A resident report is **not** always an incident. `/api/portal/report` routes on
+category (`src/lib/reports/routing.ts` is the SSOT for the mapping):
+
+| Category | Lands as | Worked on |
+|---|---|---|
+| `MAINTENANCE` | `MaintenanceRequest` | the staff maintenance board |
+| everything else | `Incident` | the conflict ladder |
+
+Filing a dripping tap as an `Incident` cost twice, and both showed up in
+production: it never appeared on the board built to fix it, and it inflated the
+incident count — **the single number the AOZ pilot is judged on**. A broken
+appliance is not a conflict, and counting it as one corrupts the metric.
+
+The resident still sees ONE list. `mergeResidentReports()` folds both tables
+into "Deine Meldungen" and carries `resolution` with it — **an answer stored and
+never rendered is the same as no answer**. Never re-split that list by table:
+residents do not know which desk works their report, and must not have to.
+
 ---
 
 ## Shared Expenses, Resident Profiles & Apartment Profiles
@@ -847,6 +867,16 @@ two reset scopes).
   `seed-data.test.ts`) — an unprefixed code would leak a row the scoped
   reset can never clean up. The demo resident login is Fatima, PLACED in the
   success unit, so the portal tour shows a lived-in flat with expenses.
+- **An empty page reads as a missing feature.** `lib/demo/seed-governance.ts`
+  fills the surfaces that shipped blank — chores (with an uneven completion
+  record, because an even one shows nothing), maintenance, and proposals at
+  every stage. **The proposal timing is the load-bearing part**: voting opens
+  only after a 3-day discussion window and the demo world is wiped nightly, so
+  a proposal created fresh can *never* reach a ballot in a demo. The seeded
+  vote is therefore backdated and already open, with one seat deliberately
+  empty — the visitor casts the deciding vote. Outcome text comes from the real
+  `tallyVotes()`; a demo that explains a result differently from the product is
+  a demo of something that does not exist.
 - **Server-driven buttons**: the login page asks `GET /api/auth/demo` which
   doors exist; there is **no build-time flag**, so one build serves any demo
   configuration and a button only appears when pressing it can succeed.
