@@ -13,7 +13,7 @@ interface PlacementRow {
   status: string
   residentId: string
   housingUnitId: string
-  resident: { code: string; supportLevel: string | null }
+  resident: { code: string; displayName: string | null; supportLevel: string | null }
   housingUnit: { code: string }
   checkIns: { createdAt: Date | string; overallSatisfaction: number }[]
 }

@@ -46,6 +46,7 @@ function makeResident(overrides: Partial<ResidentListItem> & { id: string }): Re
   return {
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
+    displayName: overrides.displayName ?? null,
     ageRange: overrides.ageRange ?? 'ADULT',
     gender: overrides.gender ?? 'PREFER_NOT_SAY',
     status: overrides.status ?? 'ACTIVE',

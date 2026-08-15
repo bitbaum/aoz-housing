@@ -33,7 +33,7 @@ import { AgreementsPanel } from '@/components/governance/AgreementsPanel'
 import { recommendNextStep } from '@/lib/governance/escalation'
 import { AGREEMENT_CONFIG } from '@/lib/config/conflict-resolution'
 import { IncidentSidebar } from '@/components/incidents/IncidentSidebar'
-import { residentName } from '@/lib/utils/resident-name'
+import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,15 +60,15 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
         select: { code: true, address: true },
       },
       reportedBy: {
-        select: { code: true },
+        select: RESIDENT_NAME_SELECT,
       },
       subject: {
-        select: { code: true },
+        select: RESIDENT_NAME_SELECT,
       },
       involvedResidents: {
         include: {
           resident: {
-            select: { code: true },
+            select: RESIDENT_NAME_SELECT,
           },
         },
       },
@@ -77,7 +77,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
       },
       agreements: {
         orderBy: { createdAt: 'desc' },
-        include: { parties: { include: { resident: { select: { id: true, code: true } } } } },
+        include: { parties: { include: { resident: { select: RESIDENT_NAME_SELECT } } } },
       },
     },
   })

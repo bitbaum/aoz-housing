@@ -4,6 +4,7 @@ import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
+import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import {
   getCheckInInterval,
   VERY_OVERDUE_THRESHOLD_DAYS,
@@ -29,7 +30,7 @@ export default async function AdminDashboard() {
   ] = await Promise.all([
     prisma.resident.findMany({
       where: { status: { in: ['ACTIVE', 'PLACED'] } },
-      select: { id: true, code: true, status: true, createdAt: true },
+      select: { ...RESIDENT_NAME_SELECT, status: true, createdAt: true },
     }),
     prisma.housingUnit.findMany({
       select: { totalBeds: true, status: true },
@@ -40,7 +41,7 @@ export default async function AdminDashboard() {
         id: true,
         startDate: true,
         resident: {
-          select: { id: true, code: true, supportLevel: true },
+          select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
         },
         housingUnit: {
           select: { code: true },
@@ -134,6 +135,7 @@ export default async function AdminDashboard() {
     .map(r => ({
       id: r.id,
       code: r.code,
+      displayName: r.displayName,
       createdAt: r.createdAt,
     }))
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())

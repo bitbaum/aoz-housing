@@ -24,6 +24,7 @@ export interface DueSoonCheckIn {
 export interface UnplacedResident {
   id: string
   code: string
+  displayName: string | null
   createdAt: Date
 }
 

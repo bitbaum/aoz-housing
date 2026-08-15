@@ -20,7 +20,7 @@ import { residentName } from '@/lib/utils/resident-name'
 export interface ChoreBalanceRow {
   residentId: string
   code: string
-  displayName?: string | null
+  displayName: string | null
   doneMinutes: number
   shareMinutes: number
   balanceMinutes: number

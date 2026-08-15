@@ -8,7 +8,7 @@ import { residentName } from '@/lib/utils/resident-name'
 interface Roommate {
   id: string
   code: string
-  displayName?: string | null
+  displayName: string | null
   photoVersion?: Date | null
   socialStyle: string | null
 }

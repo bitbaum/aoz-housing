@@ -17,7 +17,7 @@ interface IncidentCardProps {
     description: string
     resolution?: string | null
     resolvedAt?: Date | string | null
-    resident?: { code: string } | null
+    resident?: { code: string; displayName: string | null } | null
     housingUnit?: { code: string } | null
   }
   showUnit?: boolean

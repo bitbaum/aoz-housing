@@ -50,7 +50,7 @@ function makeCheckIn(id: string) {
 }
 
 function makeResident(id: string) {
-  return { id, code: `RES-${id}`, createdAt: new Date('2024-02-01') }
+  return { id, code: `RES-${id}`, displayName: null, createdAt: new Date('2024-02-01') }
 }
 
 function makeMaintenance(id: string) {

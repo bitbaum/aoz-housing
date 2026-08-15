@@ -18,6 +18,7 @@ import { residentInitials, residentName } from '@/lib/utils/resident-name'
 export interface ResidentListItem {
   id: string
   code: string
+  displayName: string | null
   ageRange: string
   gender: string
   status: string

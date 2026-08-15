@@ -100,7 +100,7 @@ function makeCheckIn(id: string) {
 }
 
 function makeResident(id: string) {
-  return { id, code: `RES-${id}`, createdAt: new Date('2024-01-01') }
+  return { id, code: `RES-${id}`, displayName: null, createdAt: new Date('2024-01-01') }
 }
 
 function makeIncident(id: string) {
