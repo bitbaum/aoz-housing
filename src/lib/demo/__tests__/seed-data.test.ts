@@ -26,6 +26,8 @@ interface Recorded {
   unitRuleTitles: string[]
   /** Resident code → the id the mock handed back, so ownership is assertable. */
   residentIdsByCode: Record<string, string>
+  /** Resident code → the display name the seed chose (null if it chose none). */
+  residentNamesByCode: Record<string, string | null>
 }
 
 function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
@@ -39,6 +41,7 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     maintenance: [],
     unitRuleTitles: [],
     residentIdsByCode: {},
+    residentNamesByCode: {},
   }
   let id = 0
 
@@ -57,6 +60,8 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     resident: model((d, newId) => {
       recorded.residentCodes.push(d.code as string)
       recorded.residentIdsByCode[d.code as string] = newId
+      recorded.residentNamesByCode[d.code as string] =
+        (d.displayName as string | undefined) ?? null
     }),
     placementSpot: model(),
     placement: model(),
@@ -110,6 +115,22 @@ describe('seedDemoData', () => {
       expect(code).toMatch(new RegExp(`^${DEMO_RESIDENT_CODE_PREFIX}`))
     }
     expect(recorded.residentCodes).toContain('RES-CUSTOM')
+  })
+
+  it('gives EVERY demo resident a name — the narrative already uses one', async () => {
+    const { prisma, recorded } = createPrismaMock()
+    await seedDemoData(prisma)
+
+    // The incident texts name Alexei and Petro; the resident rows used to carry
+    // no displayName, so the chore board and the queues called the same person
+    // "RES-DEMO07". A visitor meeting one human under two identities is looking
+    // at a bug in the tour. (Real residents still start nameless by default —
+    // this is the demo's story, not the privacy rule.)
+    const nameless = Object.entries(recorded.residentNamesByCode)
+      .filter(([, name]) => !name)
+      .map(([code]) => code)
+
+    expect(nameless).toEqual([])
   })
 
   it('assigns the demo login code to a resident (the portal tour identity)', async () => {

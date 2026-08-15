@@ -1016,7 +1016,7 @@ model Account {
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 2527 tests, 136 suites
+### Unit Tests (Jest) — 2533 tests, 137 suites
 
 Representative coverage by area (not an exhaustive suite list):
 
@@ -1083,7 +1083,7 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (2527 tests)
+npm run test             # Run Jest tests (2533 tests)
 npm run test:e2e         # Run Playwright tests (173 tests)
 ```
 
