@@ -19,9 +19,9 @@ jest.mock('../ChoreCard', () => ({
   ),
 }))
 
-jest.mock('../FairnessSummary', () => ({
-  FairnessSummary: ({ fairness }: { fairness: Array<{ code: string }> }) => (
-    <div data-testid="fairness-summary">{fairness.map(f => f.code).join(',')}</div>
+jest.mock('../ChoreBalanceSummary', () => ({
+  ChoreBalanceSummary: ({ balances }: { balances: Array<{ code: string }> }) => (
+    <div data-testid="chore-balance-summary">{balances.map(b => b.code).join(',')}</div>
   ),
 }))
 
@@ -85,7 +85,7 @@ describe('ChoreList', () => {
   // ── Empty state ───────────────────────────────────────────────────────────
 
   it('shows empty state when no tasks provided', () => {
-    render(<ChoreList tasks={[]} fairness={[]} />)
+    render(<ChoreList tasks={[]} balances={[]} />)
     expect(screen.getByText('Noch keine Aufgaben')).toBeInTheDocument()
     expect(screen.getByText(/Erstelle die erste Aufgabe/)).toBeInTheDocument()
   })
@@ -94,13 +94,13 @@ describe('ChoreList', () => {
 
   it('renders active tasks', () => {
     const tasks = [makeTask({ id: 't1', title: 'Küche putzen' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByTestId('chore-card-t1')).toBeInTheDocument()
   })
 
   it('renders completed tasks in the completed section', () => {
     const tasks = [makeTask({ id: 't1', title: 'Done task', isCompleted: true })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Erledigt')).toBeInTheDocument()
     expect(screen.getByTestId('chore-card-t1')).toBeInTheDocument()
   })
@@ -109,19 +109,19 @@ describe('ChoreList', () => {
 
   it('shows urgent section header when tasks have NEEDS_ATTENTION status', () => {
     const tasks = [makeTask({ id: 't1', title: 'Attention task', currentStatus: 'NEEDS_ATTENTION' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Jetzt wichtig')).toBeInTheDocument()
   })
 
   it('shows urgent section header for URGENT priority tasks', () => {
     const tasks = [makeTask({ id: 't1', title: 'Urgent task', priority: 'URGENT' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Jetzt wichtig')).toBeInTheDocument()
   })
 
   it('hides urgent section header for normal priority active tasks', () => {
     const tasks = [makeTask({ id: 't1', title: 'Normal task' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.queryByText('Jetzt wichtig')).not.toBeInTheDocument()
   })
 
@@ -130,13 +130,13 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Urgent', currentStatus: 'NEEDS_ATTENTION' }),
       makeTask({ id: 't2', title: 'Routine' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Danach')).toBeInTheDocument()
   })
 
   it('hides "Danach" separator when only urgent tasks exist', () => {
     const tasks = [makeTask({ id: 't1', title: 'Urgent', currentStatus: 'NEEDS_ATTENTION' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.queryByText('Danach')).not.toBeInTheDocument()
   })
 
@@ -147,7 +147,7 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Clean 1', category: 'CLEANING' }),
       makeTask({ id: 't2', title: 'Clean 2', category: 'CLEANING' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.queryByText('Alle')).not.toBeInTheDocument()
   })
 
@@ -156,7 +156,7 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Clean', category: 'CLEANING' }),
       makeTask({ id: 't2', title: 'Cook', category: 'COOKING' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Alle')).toBeInTheDocument()
     expect(screen.getByText(/Reinigung/)).toBeInTheDocument()
     expect(screen.getByText(/Kochen/)).toBeInTheDocument()
@@ -167,7 +167,7 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Clean task', category: 'CLEANING' }),
       makeTask({ id: 't2', title: 'Cook task', category: 'COOKING' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     fireEvent.click(screen.getByText(/Reinigung/))
     expect(screen.getByTestId('chore-card-t1')).toBeInTheDocument()
     expect(screen.queryByTestId('chore-card-t2')).not.toBeInTheDocument()
@@ -178,7 +178,7 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Clean task', category: 'CLEANING' }),
       makeTask({ id: 't2', title: 'Cook task', category: 'COOKING' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     fireEvent.click(screen.getByText(/Reinigung/))
     fireEvent.click(screen.getByText('Alle'))
     expect(screen.getByTestId('chore-card-t1')).toBeInTheDocument()
@@ -190,7 +190,7 @@ describe('ChoreList', () => {
       makeTask({ id: 't1', title: 'Clean task', category: 'CLEANING' }),
       makeTask({ id: 't2', title: 'Cook task', category: 'COOKING' }),
     ]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     fireEvent.click(screen.getByText(/Reinigung/))
     fireEvent.click(screen.getByText(/Reinigung/))
     expect(screen.getByTestId('chore-card-t1')).toBeInTheDocument()
@@ -202,7 +202,7 @@ describe('ChoreList', () => {
   it('calls fetch with POST when quick-complete triggered', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     })
@@ -215,7 +215,7 @@ describe('ChoreList', () => {
       new Promise(res => { resolveRequest = res })
     )
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     expect(await screen.findByRole('button', { name: 'completing' })).toBeInTheDocument()
     // Clean up the pending promise
@@ -225,7 +225,7 @@ describe('ChoreList', () => {
   it('does not refresh when fetch returns non-ok response', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     })
@@ -235,24 +235,26 @@ describe('ChoreList', () => {
   it('refreshes router when fetch returns ok', async () => {
     ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
-    render(<ChoreList tasks={tasks} fairness={[]} />)
+    render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     })
     expect(mockRefresh).toHaveBeenCalled()
   })
 
-  // ── Fairness summary ──────────────────────────────────────────────────────
+  // ── Contribution balance ──────────────────────────────────────────────────
 
-  it('renders fairness summary when fairness data is provided', () => {
-    const fairness = [{ residentId: 'r1', code: 'RES-001', completions: 3 }]
-    render(<ChoreList tasks={[]} fairness={fairness} />)
-    expect(screen.getByTestId('fairness-summary')).toBeInTheDocument()
+  it('renders the balance summary when there is a household to compare', () => {
+    const balances = [
+      { residentId: 'r1', code: 'RES-001', displayName: null, doneMinutes: 45, shareMinutes: 30, balanceMinutes: 15 },
+    ]
+    render(<ChoreList tasks={[]} balances={balances} />)
+    expect(screen.getByTestId('chore-balance-summary')).toBeInTheDocument()
     expect(screen.getByText('RES-001')).toBeInTheDocument()
   })
 
-  it('hides fairness summary when fairness array is empty', () => {
-    render(<ChoreList tasks={[]} fairness={[]} />)
-    expect(screen.queryByTestId('fairness-summary')).not.toBeInTheDocument()
+  it('hides the balance summary when there is nobody to compare against', () => {
+    render(<ChoreList tasks={[]} balances={[]} />)
+    expect(screen.queryByTestId('chore-balance-summary')).not.toBeInTheDocument()
   })
 })

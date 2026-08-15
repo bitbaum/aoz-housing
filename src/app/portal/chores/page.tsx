@@ -8,6 +8,7 @@ import { ChoreList } from '@/components/portal/ChoreList'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
+import { loadChoreBalances } from '@/lib/chores/summary'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,8 +39,8 @@ export default async function ChoresPage() {
     )
   }
 
-  // tasks, completionCounts, roommates all only need placement.housingUnitId — fetch in parallel
-  const [tasks, completionCounts, roommates] = await Promise.all([
+  // tasks and balances both only need placement.housingUnitId — fetch in parallel
+  const [tasks, balances] = await Promise.all([
     prisma.householdTask.findMany({
       where: { housingUnitId: placement.housingUnitId },
       include: {
@@ -62,30 +63,8 @@ export default async function ChoresPage() {
         { createdAt: 'desc' },
       ],
     }),
-    prisma.taskCompletion.groupBy({
-      by: ['completedById'],
-      where: {
-        task: { housingUnitId: placement.housingUnitId },
-      },
-      _count: { id: true },
-    }),
-    prisma.placement.findMany({
-      where: {
-        housingUnitId: placement.housingUnitId,
-        status: 'ACTIVE',
-      },
-      select: {
-        resident: { select: RESIDENT_NAME_SELECT },
-      },
-    }),
+    loadChoreBalances(placement.housingUnitId),
   ])
-
-  const fairness = roommates.map(p => ({
-    residentId: p.resident.id,
-    code: p.resident.code,
-    displayName: p.resident.displayName,
-    completions: completionCounts.find(c => c.completedById === p.resident.id)?._count.id || 0,
-  }))
 
   // Serialize dates for client component
   const serializedTasks = JSON.parse(JSON.stringify(tasks))
@@ -105,7 +84,11 @@ export default async function ChoresPage() {
         </Link>
       </div>
 
-      <ChoreList tasks={serializedTasks} fairness={fairness} />
+      <ChoreList
+        tasks={serializedTasks}
+        balances={balances}
+        currentResidentId={resident.id}
+      />
     </div>
   )
 }

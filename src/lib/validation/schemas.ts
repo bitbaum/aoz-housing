@@ -504,11 +504,28 @@ export const portalCreateTaskSchema = z.object({
   priority: HouseholdTaskPrioritySchema.default('NORMAL' as HouseholdTaskPriority),
   scheduleHuman: z.string().max(100).optional(),
   estimatedMinutes: z.coerce.number().int().positive().max(480).optional(),
+  // The definition of done, as binary actions. Bounded so one task cannot
+  // become an unreadable wall of conditions that nobody ever ticks.
+  // Accepts a newline-separated textarea (the create form posts FormData) or a
+  // real array (JSON callers), because the shape a transport happens to use is
+  // not a second definition of what a checklist is.
+  checklist: z
+    .preprocess(
+      value =>
+        typeof value === 'string'
+          ? value.split('\n').map(line => line.trim()).filter(Boolean)
+          : value,
+      z.array(z.string().min(1).max(120)).max(20)
+    )
+    .optional(),
 })
 
 export const portalCompleteTaskSchema = z.object({
   notes: z.string().max(500).optional(),
   durationMinutes: z.coerce.number().int().positive().max(480).optional(),
+  // Which checklist items were ticked. Validated against the task's own
+  // checklist server-side, so a client cannot invent items after the fact.
+  completedItems: z.array(z.string().min(1).max(120)).max(20).optional(),
 })
 
 export const portalAttentionFlagSchema = z.object({

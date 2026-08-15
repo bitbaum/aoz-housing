@@ -317,50 +317,97 @@ describe('UserMenu', () => {
 
 jest.mock('@/lib/config/household-tasks', () => ({
   CHORE_LABELS: {
-    fairness: { title: 'Beiträge', completions: 'Erledigungen' },
+    balance: {
+      title: 'Aufgaben-Saldo',
+      subtitle: 'Diesen Monat, in Minuten',
+      explainer: 'Fast alle überschätzen den eigenen Anteil.',
+      done: 'Geleistet',
+      share: 'Anteil',
+      net: 'Saldo',
+      netHint: 'Saldo = geleistet minus Anteil.',
+      settleHint: 'Ein Saldo wird mit der nächsten Aufgabe ausgeglichen.',
+      minutes: 'Min.',
+      empty: 'Diesen Monat wurde noch nichts erledigt.',
+    },
   },
 }))
 
-import { FairnessSummary } from '../../portal/FairnessSummary'
+import { ChoreBalanceSummary } from '../../portal/ChoreBalanceSummary'
 
-describe('FairnessSummary', () => {
+const row = (
+  code: string,
+  doneMinutes: number,
+  shareMinutes: number,
+  extra: { residentId?: string; displayName?: string | null } = {}
+) => ({
+  residentId: extra.residentId ?? code,
+  code,
+  displayName: extra.displayName ?? null,
+  doneMinutes,
+  shareMinutes,
+  balanceMinutes: doneMinutes - shareMinutes,
+})
+
+describe('ChoreBalanceSummary', () => {
   it('renders section title', () => {
-    render(<FairnessSummary fairness={[]} />)
-    expect(screen.getByText('Beiträge')).toBeInTheDocument()
+    render(<ChoreBalanceSummary balances={[]} />)
+    expect(screen.getByText('Aufgaben-Saldo')).toBeInTheDocument()
   })
 
-  it('renders resident codes', () => {
-    render(<FairnessSummary fairness={[
-      { residentId: 'r1', code: 'RES-001', completions: 5 },
-      { residentId: 'r2', code: 'RES-002', completions: 3 },
-    ]} />)
-    expect(screen.getByText('RES-001')).toBeInTheDocument()
-    expect(screen.getByText('RES-002')).toBeInTheDocument()
+  it('says nothing happened yet rather than drawing empty bars', () => {
+    render(<ChoreBalanceSummary balances={[row('RES-001', 0, 0)]} />)
+    expect(screen.getByText('Diesen Monat wurde noch nichts erledigt.')).toBeInTheDocument()
   })
 
-  it('shows completion counts', () => {
-    render(<FairnessSummary fairness={[
-      { residentId: 'r1', code: 'RES-001', completions: 5 },
-    ]} />)
-    expect(screen.getByText(/5 Erledigungen/)).toBeInTheDocument()
+  it('shows a signed balance in minutes, not a completion count', () => {
+    render(<ChoreBalanceSummary balances={[row('RES-001', 60, 30), row('RES-002', 0, 30)]} />)
+    expect(screen.getByText('+30 Min.')).toBeInTheDocument()
+    expect(screen.getByText('-30 Min.')).toBeInTheDocument()
   })
 
-  it('sets top performer bar to 100%', () => {
-    const { container } = render(<FairnessSummary fairness={[
-      { residentId: 'r1', code: 'RES-001', completions: 10 },
-      { residentId: 'r2', code: 'RES-002', completions: 5 },
-    ]} />)
-    const bars = container.querySelectorAll('[style*="width"]')
-    const widths = Array.from(bars).map(b => (b as HTMLElement).style.width)
-    expect(widths).toContain('100%')
-    expect(widths).toContain('50%')
+  it('shows each person their own minutes done and their share', () => {
+    render(<ChoreBalanceSummary balances={[row('RES-001', 60, 30), row('RES-002', 0, 30)]} />)
+    expect(screen.getByText(/Geleistet 60 · Anteil 30 Min\./)).toBeInTheDocument()
   })
 
-  it('handles all-zero completions without division by zero (uses max 1)', () => {
-    const { container } = render(<FairnessSummary fairness={[
-      { residentId: 'r1', code: 'RES-001', completions: 0 },
-    ]} />)
-    const bar = container.querySelector('[style*="width"]') as HTMLElement
-    expect(bar.style.width).toBe('0%')
+  it('prefers a self-chosen display name over the login code', () => {
+    render(
+      <ChoreBalanceSummary
+        balances={[row('RES-001', 60, 30, { displayName: 'Fatima' }), row('RES-002', 0, 30)]}
+      />
+    )
+    expect(screen.getByText('Fatima')).toBeInTheDocument()
+    expect(screen.queryByText('RES-001')).not.toBeInTheDocument()
+  })
+
+  it('marks the reader so they can find themselves', () => {
+    render(
+      <ChoreBalanceSummary
+        balances={[row('RES-001', 60, 30, { residentId: 'me' }), row('RES-002', 0, 30)]}
+        currentResidentId="me"
+      />
+    )
+    expect(screen.getByText('Du')).toBeInTheDocument()
+  })
+
+  it('scales bars to the largest IMBALANCE, so an even month reads as even', () => {
+    // Ihor is 5 minutes ahead of a 100-minute share. Scaling to contribution
+    // would paint his bar full and imply a winner; scaling to imbalance keeps
+    // the whole panel visibly near-even.
+    const { container } = render(
+      <ChoreBalanceSummary balances={[row('RES-001', 105, 100), row('RES-002', 95, 100)]} />
+    )
+    const widths = Array.from(container.querySelectorAll('[style*="width"]')).map(
+      b => (b as HTMLElement).style.width
+    )
+    // Half-width max: each side of centre can only ever fill 50% of the track.
+    expect(widths).toEqual(['50%', '50%'])
+  })
+
+  it('draws no rank, medal or position number', () => {
+    const { container } = render(
+      <ChoreBalanceSummary balances={[row('RES-001', 90, 30), row('RES-002', 0, 30)]} />
+    )
+    expect(container.textContent).not.toMatch(/[🥇🏆]|\b1\.\s|\bPlatz\b/)
   })
 })

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChoreCard } from './ChoreCard'
-import { FairnessSummary } from './FairnessSummary'
+import { ChoreBalanceSummary, type ChoreBalanceRow } from './ChoreBalanceSummary'
 import {
   TASK_CATEGORY_LABELS,
   TASK_CATEGORY_ICONS,
@@ -28,19 +28,13 @@ interface Task {
   requests: Array<{ id: string }>
 }
 
-interface FairnessEntry {
-  residentId: string
-  code: string
-  displayName?: string | null
-  completions: number
-}
-
 interface ChoreListProps {
   tasks: Task[]
-  fairness: FairnessEntry[]
+  balances: ChoreBalanceRow[]
+  currentResidentId?: string
 }
 
-export function ChoreList({ tasks, fairness }: ChoreListProps) {
+export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps) {
   const router = useRouter()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [completingId, setCompletingId] = useState<string | null>(null)
@@ -168,10 +162,10 @@ export function ChoreList({ tasks, fairness }: ChoreListProps) {
         </div>
       )}
 
-      {/* Fairness summary */}
-      {fairness.length > 0 && (
+      {/* Contribution balance */}
+      {balances.length > 0 && (
         <div className="mt-8">
-          <FairnessSummary fairness={fairness} />
+          <ChoreBalanceSummary balances={balances} currentResidentId={currentResidentId} />
         </div>
       )}
     </div>

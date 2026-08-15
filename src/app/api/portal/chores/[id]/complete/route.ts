@@ -20,6 +20,7 @@ export async function POST(
   // Parse optional body (may be empty for quick-complete)
   let notes: string | undefined
   let durationMinutes: number | undefined
+  let completedItems: string[] | undefined
   try {
     const contentType = request.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
@@ -28,6 +29,7 @@ export async function POST(
       if (parsed.success) {
         notes = parsed.data.notes
         durationMinutes = parsed.data.durationMinutes
+        completedItems = parsed.data.completedItems
       }
     }
   } catch {
@@ -47,6 +49,10 @@ export async function POST(
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
   }
 
+  // Only items that are actually on this task's checklist may be recorded —
+  // otherwise a client could claim credit for work the house never agreed on.
+  const ticked = (completedItems ?? []).filter(item => task.checklist.includes(item))
+
   try {
     // Transaction: create completion + update task + resolve flags + complete requests.
     // For ONE_TIME tasks we use a conditional update with `isCompleted: false` guard
@@ -54,13 +60,21 @@ export async function POST(
     const result = await prisma.$transaction(async (tx) => {
       const isOneTime = task.taskType === 'ONE_TIME'
 
-      // 1. Create completion
+      // 1. Create completion. Ticked items are intersected with the task's own
+      // checklist: a client must not be able to invent a done-criterion that
+      // the house never agreed on, and the order is the task's, not the
+      // client's, so the record reads the same as the list people saw.
+      const tickedItems = completedItems
+        ? (task.checklist ?? []).filter(item => completedItems!.includes(item))
+        : []
+
       const completion = await tx.taskCompletion.create({
         data: {
           taskId: id,
           completedById: auth.resident.id,
           notes: notes || null,
           durationMinutes: durationMinutes || null,
+          completedItems: tickedItems,
         },
       })
 

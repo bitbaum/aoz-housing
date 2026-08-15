@@ -5,6 +5,7 @@ import { portalCreateTaskSchema, ValidationError, validateFormData } from '@/lib
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { loadChoreBalances } from '@/lib/chores/summary'
 
 export async function GET() {
   const auth = await getPortalAuth()
@@ -36,33 +37,11 @@ export async function GET() {
       ],
     })
 
-    // Fairness data: completion counts per resident
-    const completionCounts = await prisma.taskCompletion.groupBy({
-      by: ['completedById'],
-      where: {
-        task: { housingUnitId: auth.placement.housingUnitId },
-      },
-      _count: { id: true },
-    })
+    // Same loader the page uses — a balance that disagreed between the two
+    // would be worse than showing none at all.
+    const balances = await loadChoreBalances(auth.placement.housingUnitId)
 
-    // Get roommate names for the fairness display
-    const roommates = await prisma.placement.findMany({
-      where: {
-        housingUnitId: auth.placement.housingUnitId,
-        status: 'ACTIVE',
-      },
-      select: {
-        resident: { select: { id: true, code: true } },
-      },
-    })
-
-    const fairness = roommates.map(p => ({
-      residentId: p.resident.id,
-      code: p.resident.code,
-      completions: completionCounts.find(c => c.completedById === p.resident.id)?._count.id || 0,
-    }))
-
-    return NextResponse.json({ success: true, data: { tasks, fairness } })
+    return NextResponse.json({ success: true, data: { tasks, balances } })
   } catch (error) {
     logger.errorWithCause('Failed to list household tasks', error)
     return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASKS_LOAD_ERROR }, { status: 500 })
@@ -99,6 +78,7 @@ export async function POST(request: NextRequest) {
         priority: data.priority,
         scheduleHuman: data.scheduleHuman || null,
         estimatedMinutes: data.estimatedMinutes || null,
+        checklist: data.checklist ?? [],
       },
     })
 
