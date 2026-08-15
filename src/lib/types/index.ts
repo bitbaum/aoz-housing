@@ -37,6 +37,7 @@ export type ResidentHouseholdProfile = Pick<
   Resident,
   | 'id'
   | 'code'
+  | 'displayName'
   | 'cleanlinessPractice'
   | 'noiseTolerance'
   | 'privacyNeed'

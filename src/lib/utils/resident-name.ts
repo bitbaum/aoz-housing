@@ -6,9 +6,19 @@
  * these helpers — never `resident.displayName || resident.code` inline.
  */
 
+/**
+ * `displayName` is REQUIRED, deliberately — `null` is how you say "no name",
+ * and that is different from not having asked for it.
+ *
+ * While it was optional, a query selecting `{ code: true }` produced a row that
+ * satisfied this type, so `residentName()` fell back to the code and the staff
+ * resident list showed "RES-DEMO1" for someone whose name was in the same row.
+ * Nothing failed: not tsc, not lint, not the render. Making the field required
+ * moves that whole class from "a rule might catch it" to "it does not compile".
+ */
 export interface NamedResident {
   code: string
-  displayName?: string | null
+  displayName: string | null
 }
 
 /**

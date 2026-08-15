@@ -21,6 +21,7 @@ interface OverdueCheckIn {
 interface UnplacedResident {
   id: string
   code: string
+  displayName: string | null
   createdAt: Date
 }
 

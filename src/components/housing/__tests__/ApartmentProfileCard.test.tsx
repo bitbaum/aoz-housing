@@ -49,6 +49,7 @@ function makeResident(overrides: Partial<ResidentHouseholdProfile> & { id: strin
   return {
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
+    displayName: overrides.displayName ?? null,
     cleanlinessPractice: overrides.cleanlinessPractice ?? 3,
     noiseTolerance: overrides.noiseTolerance ?? 3,
     privacyNeed: overrides.privacyNeed ?? 3,

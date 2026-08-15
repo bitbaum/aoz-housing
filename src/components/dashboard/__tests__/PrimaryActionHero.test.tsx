@@ -51,7 +51,7 @@ jest.mock('@/lib/constants/labels', () => ({
 const EMPTY = {
   criticalIncidents: [] as Array<{ id: string; type: string; unitCode: string; unitId: string; daysSinceCreated: number }>,
   overdueCheckIns: [] as Array<{ id: string; residentCode: string; residentId: string; unitCode: string; daysSinceLastCheckIn: number; supportLevel: string; isVeryOverdue?: boolean }>,
-  unplacedResidents: [] as Array<{ id: string; code: string; createdAt: Date }>,
+  unplacedResidents: [] as Array<{ id: string; code: string; displayName: string | null; createdAt: Date }>,
   freeBeds: 5,
   problemUnits: [] as Array<{ id: string; code: string; incidentCount: number; problemScore: number; unresolvedCount: number; primaryIssue: string }>,
 }
@@ -65,7 +65,7 @@ function makeCheckIn(id = 'c1', daysSinceLastCheckIn = 10, isVeryOverdue = false
 }
 
 function makeResident(id = 'r1') {
-  return { id, code: `RES-${id}`, createdAt: new Date('2024-01-01') }
+  return { id, code: `RES-${id}`, displayName: null, createdAt: new Date('2024-01-01') }
 }
 
 function makeProblem(id = 'p1', unresolvedCount = 2) {

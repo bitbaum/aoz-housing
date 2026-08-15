@@ -70,8 +70,8 @@ jest.mock('next/navigation', () => ({
 
 const TASK_ID = 'task-abc-123'
 const ROOMMATES = [
-  { id: 'res-1', code: 'R001' },
-  { id: 'res-2', code: 'R002' },
+  { id: 'res-1', code: 'R001', displayName: null },
+  { id: 'res-2', code: 'R002', displayName: null },
 ]
 
 function mockFetchSuccess() {

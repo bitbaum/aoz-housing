@@ -668,6 +668,16 @@ portal lets them OPTIONALLY set `displayName`, `bio` and a photo:
   Prisma causes the same bug one layer earlier** — spread `RESIDENT_NAME_SELECT`
   into any query whose rows reach the UI, and use `ResidentSummary` (which
   carries `displayName`) for compatibility cards.
+  **`NamedResident.displayName` is REQUIRED, not optional — this is the load-
+  bearing part.** `null` means "this person chose no name"; a missing field
+  means "the query never asked", and those are different facts. While it was
+  optional, a `select: { code: true }` produced a row that satisfied the type,
+  so `residentName()` fell back to the code and the staff resident list showed
+  "RES-DEMO1" for someone whose name sat in the same row — with tsc, ESLint and
+  the render all green. Requiring it moves the whole class from "a regex might
+  catch it" to "it does not compile", and it caught 28 more sites the moment it
+  landed. Any resident-shaped type that reaches the UI must declare
+  `displayName: string | null`; never widen it back to `?:`.
   This is enforced by `src/lib/__tests__/resident-name-ssot.test.ts`: it failed
   on 50+ surfaces, because rendering a bare code type-checks, lints and looks
   fine — it just tells Georgy that "RES-LCCM7A" did the dishes instead of Ihor,
@@ -1016,7 +1026,7 @@ model Account {
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 2533 tests, 137 suites
+### Unit Tests (Jest) — 2558 tests, 139 suites
 
 Representative coverage by area (not an exhaustive suite list):
 
@@ -1083,7 +1093,7 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (2533 tests)
+npm run test             # Run Jest tests (2558 tests)
 npm run test:e2e         # Run Playwright tests (173 tests)
 ```
 

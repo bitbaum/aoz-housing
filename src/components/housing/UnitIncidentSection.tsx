@@ -25,7 +25,7 @@ interface Incident {
 interface FrequentSubject {
   id: string
   code: string
-  displayName?: string | null
+  displayName: string | null
   count: number
 }
 

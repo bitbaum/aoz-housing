@@ -6,7 +6,7 @@ import { residentInitials, residentName } from '@/lib/utils/resident-name'
 interface Assessment {
   id: string
   comparedWithId: string
-  comparedWith: { code: string; displayName?: string | null }
+  comparedWith: { code: string; displayName: string | null }
   overallScore: number
 }
 

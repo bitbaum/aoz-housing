@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Bewohner' }
 import { getDateDaysAgo } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
+import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { CSVImport } from '@/components/residents/CSVImport'
 import { ButtonLink } from '@/components/ui/Button'
@@ -29,8 +30,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         ...(q ? { code: { contains: q, mode: 'insensitive' } } : {}),
       },
       select: {
-        id: true,
-        code: true,
+        ...RESIDENT_NAME_SELECT,
         ageRange: true,
         gender: true,
         status: true,

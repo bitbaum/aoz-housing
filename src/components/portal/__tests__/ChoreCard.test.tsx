@@ -58,7 +58,7 @@ const BASE_TASK = {
   priority: 'NORMAL',
   isCompleted: false,
   taskType: 'RECURRING',
-  completions: [] as Array<{ completedAt: string; completedBy: { code: string } }>,
+  completions: [] as Array<{ completedAt: string; completedBy: { code: string; displayName: string | null } }>,
   attentionFlags: [] as Array<{ id: string }>,
   requests: [] as Array<{ id: string }>,
 }
@@ -141,7 +141,7 @@ describe('ChoreCard', () => {
 
   it('shows formatted last completion date and code', () => {
     renderCard({
-      completions: [{ completedAt: '2024-01-15', completedBy: { code: 'RES-001' } }],
+      completions: [{ completedAt: '2024-01-15', completedBy: { code: 'RES-001', displayName: null } }],
     })
     expect(screen.getByText(/formatted:2024-01-15.*RES-001/)).toBeInTheDocument()
   })

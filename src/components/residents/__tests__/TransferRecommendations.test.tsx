@@ -199,7 +199,7 @@ describe('TransferRecommendations', () => {
         strengths: [],
         concerns: [],
         residents: [
-          { id: 'r1', code: 'RES-001', compatibilityScore: 75, keyFactors: [] },
+          { id: 'r1', code: 'RES-001', displayName: null, compatibilityScore: 75, keyFactors: [] },
         ],
       },
     }
@@ -223,7 +223,7 @@ describe('TransferRecommendations', () => {
         fitScore: 70,
         strengths: [],
         concerns: [],
-        residents: [{ id: 'r1', code: 'RES-001', compatibilityScore: 75, keyFactors: [] }],
+        residents: [{ id: 'r1', code: 'RES-001', displayName: null, compatibilityScore: 75, keyFactors: [] }],
       },
     }
 

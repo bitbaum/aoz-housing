@@ -17,6 +17,7 @@ import { residentInitials, residentName } from '@/lib/utils/resident-name'
 interface ResidentInUnit {
   id: string
   code: string
+  displayName: string | null
   /** Pairwise compatibility score with the person being transferred */
   compatibilityScore: number
   /** Key factors explaining the compatibility */
