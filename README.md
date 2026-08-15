@@ -5,8 +5,8 @@ Intelligent compatibility-based housing placement for refugees. Reduces conflict
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
-[![Jest](https://img.shields.io/badge/Tests-212%20unit-green.svg)](https://jestjs.io/)
-[![Playwright](https://img.shields.io/badge/E2E-45%20tests-green.svg)](https://playwright.dev/)
+[![Jest](https://img.shields.io/badge/Tests-2341%20unit-green.svg)](https://jestjs.io/)
+[![Playwright](https://img.shields.io/badge/E2E-173%20tests-green.svg)](https://playwright.dev/)
 
 ## What It Does
 
@@ -109,7 +109,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 | Styling | Tailwind CSS (mobile-first) |
 | Validation | Zod |
 | Auth | JWT sessions (bcryptjs + jose) |
-| Testing | Jest (212 unit) + Playwright (45 E2E) |
+| Testing | Jest (2341 unit) + Playwright (173 E2E) |
 | CI/CD | GitHub Actions |
 
 ---
@@ -149,7 +149,7 @@ pnpm dev
 
 Testing is not an afterthought. The compatibility algorithm makes placement decisions that affect people's daily lives. Every scoring path, every threshold boundary, every conflict classification is tested.
 
-### Unit Tests: 212 tests across 36 suites
+### Unit Tests: 2341 tests across 135 suites
 
 | Area | Suites | What They Cover |
 |------|--------|-----------------|
@@ -195,7 +195,7 @@ src/
 prisma/
   schema.prisma           # Single source of truth for data model
 tests/
-  unit/                   # 212 unit tests (36 suites)
+  unit/                   # 2341 unit tests (135 suites)
   e2e/                    # 45 Playwright specs (11 files)
 .github/
   workflows/ci.yml        # Lint, test, build, E2E pipeline
