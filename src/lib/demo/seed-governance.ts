@@ -29,6 +29,26 @@ const DAY_MS = 24 * 60 * 60 * 1000
 const daysAgo = (days: number) => new Date(Date.now() - days * DAY_MS)
 const daysAhead = (days: number) => new Date(Date.now() + days * DAY_MS)
 
+/**
+ * `daysAgo` for anything the CURRENT MONTH's chore balance must contain.
+ *
+ * The demo world is rebuilt nightly and the balance panel is scoped to the
+ * calendar month, so on the 2nd of a month a plain `daysAgo(11)` lands in the
+ * previous month and the panel a visitor came to see renders empty. Dates that
+ * would fall out of the month are pulled to just after its start instead, which
+ * keeps the record uneven — the point of the panel — on every single day.
+ */
+const daysAgoThisMonth = (days: number): Date => {
+  const target = daysAgo(days)
+  const now = new Date()
+  if (target.getMonth() === now.getMonth() && target.getFullYear() === now.getFullYear()) {
+    return target
+  }
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 9, 0, 0)
+  // Keep the relative ordering of the seeded history: a larger `days` stays older.
+  return new Date(Math.min(monthStart.getTime() + (30 - days) * 60 * 1000, now.getTime()))
+}
+
 export interface DemoGovernanceContext {
   /** The success unit — the one the demo resident lives in. */
   unitId: string
@@ -75,6 +95,14 @@ export async function seedDemoGovernance(
       scheduleHuman: 'Jeden Samstag',
       estimatedMinutes: 30,
       currentStatus: 'IDLE',
+      checklist: [
+        'Spüle leer, nichts steht mehr drin',
+        'Herd abgewischt',
+        'Arbeitsflächen abgewischt',
+        'Boden gewischt',
+      ],
+      // A rota so the demo shows whose turn it is; the order is just the house.
+      rotationResidentIds: [demoResidentId, yasmin, amira, sara],
     },
   })
 
@@ -91,6 +119,7 @@ export async function seedDemoGovernance(
       // Someone flagged it — the board shows an open call for help, not a
       // uniform list where nothing ever needs doing.
       currentStatus: 'NEEDS_ATTENTION',
+      checklist: ['Sack zum Container gebracht', 'Neuer Sack eingesetzt'],
     },
   })
 
@@ -106,17 +135,36 @@ export async function seedDemoGovernance(
       scheduleHuman: 'Jeden Mittwoch',
       estimatedMinutes: 25,
       currentStatus: 'IDLE',
+      checklist: [
+        'WC innen und aussen gereinigt',
+        'Lavabo und Spiegel gewischt',
+        'Dusche ausgespült',
+        'Boden gewischt',
+        'Handtücher gewechselt',
+      ],
+      rotationResidentIds: [amira, demoResidentId, yasmin],
     },
   })
 
+  // Minutes, not row counts, are what the balance panel reads — so the seeded
+  // record is uneven in TIME as well as in count. Sara has done nothing this
+  // month and sits visibly behind; that gap is the conversation the panel is
+  // for, and an even board would show a visitor nothing at all.
+  const kitchenItems = kitchen.checklist
+  const bathItems = bathroom.checklist
+  const trashItems = trash.checklist
+
   await prisma.taskCompletion.createMany({
     data: [
-      { taskId: kitchen.id, completedById: demoResidentId, completedAt: daysAgo(2), durationMinutes: 35 },
-      { taskId: kitchen.id, completedById: yasmin, completedAt: daysAgo(9), durationMinutes: 30 },
-      { taskId: bathroom.id, completedById: demoResidentId, completedAt: daysAgo(4), durationMinutes: 20 },
-      { taskId: bathroom.id, completedById: amira, completedAt: daysAgo(11), durationMinutes: 25 },
-      { taskId: trash.id, completedById: yasmin, completedAt: daysAgo(3), durationMinutes: 10 },
-      { taskId: trash.id, completedById: demoResidentId, completedAt: daysAgo(10), durationMinutes: 10 },
+      { taskId: kitchen.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(2), durationMinutes: 35, completedItems: kitchenItems },
+      { taskId: kitchen.id, completedById: yasmin, completedAt: daysAgoThisMonth(9), durationMinutes: 30, completedItems: kitchenItems },
+      { taskId: bathroom.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(4), durationMinutes: 20, completedItems: bathItems },
+      // A deliberately PARTIAL completion: the floor and the towels were left.
+      // "Erledigt" with two items unticked is exactly the situation the
+      // checklist exists to make visible instead of arguable.
+      { taskId: bathroom.id, completedById: amira, completedAt: daysAgoThisMonth(11), durationMinutes: 25, completedItems: bathItems.slice(0, 3) },
+      { taskId: trash.id, completedById: yasmin, completedAt: daysAgoThisMonth(3), durationMinutes: 10, completedItems: trashItems },
+      { taskId: trash.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(10), durationMinutes: 10, completedItems: trashItems },
     ],
   })
 

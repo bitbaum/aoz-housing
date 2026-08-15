@@ -2,7 +2,7 @@
  * Tests for portal chores API routes
  *
  * Endpoints:
- *   GET  /api/portal/chores              — list tasks + fairness
+ *   GET  /api/portal/chores              — list tasks + contribution balance
  *   POST /api/portal/chores              — create task
  *   GET  /api/portal/chores/[id]         — task detail
  *   POST /api/portal/chores/[id]/complete   — mark complete
@@ -26,6 +26,7 @@ const mockFindFirst = jest.fn()
 const mockCreate = jest.fn()
 const mockUpdate = jest.fn()
 const mockGroupBy = jest.fn()
+const mockCompletionFindMany = jest.fn()
 const mockIncidentCreate = jest.fn()
 const mockFlagCreate = jest.fn()
 const mockRequestCreate = jest.fn()
@@ -46,6 +47,7 @@ jest.mock('@/lib/db', () => ({
     taskCompletion: {
       groupBy: (...args: unknown[]) => mockGroupBy(...args),
       create: (...args: unknown[]) => mockCompletionCreate(...args),
+      findMany: (...args: unknown[]) => mockCompletionFindMany(...args),
     },
     taskAttentionFlag: {
       create: (...args: unknown[]) => mockFlagCreate(...args),
@@ -89,39 +91,19 @@ const MockValidationError = class ValidationError extends Error {
     this.fieldErrors = fieldErrors
   }
 }
-jest.mock('@/lib/validation/schemas', () => {
-  const { z } = require('zod')
-  return {
-    portalCreateTaskSchema: z.object({}),
-    portalCompleteTaskSchema: z.object({
-      notes: z.string().max(500).optional(),
-      durationMinutes: z.coerce.number().int().positive().max(480).optional(),
-    }),
-    portalTaskComplaintSchema: z.object({
-      description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
-    }),
-    portalAttentionFlagSchema: z.object({
-      message: z.string().max(500).optional(),
-    }),
-    portalTaskRequestSchema: z.object({
-      requestedResidentId: z.string().optional(),
-      message: z.string().max(500).optional(),
-    }),
-    validateFormData: (...args: unknown[]) => mockValidateFormData(...args),
-    ValidationError: MockValidationError,
-  }
-})
-
-jest.mock('@/lib/config/household-tasks', () => ({
-  CHORE_COMPLAINT_INCIDENT_MAP: {
-    CLEANING: 'CLEANLINESS_DISPUTE',
-    SHOPPING: 'PERSONAL_CONFLICT',
-    MAINTENANCE: 'GENERAL_MAINTENANCE',
-    COOKING: 'SPACE_DISPUTE',
-    TRASH: 'CLEANLINESS_DISPUTE',
-    OTHER: 'PERSONAL_CONFLICT',
-  },
+// Use the REAL schemas and stub only the form-data helper. A hand-copied
+// schema here would go on passing while the route silently dropped every field
+// the real schema later gained — which is exactly how two portal fields were
+// lost once already. The mock must never become a second definition.
+jest.mock('@/lib/validation/schemas', () => ({
+  ...jest.requireActual('@/lib/validation/schemas'),
+  validateFormData: (...args: unknown[]) => mockValidateFormData(...args),
+  ValidationError: MockValidationError,
 }))
+
+// Deliberately NOT mocked: the complaint→incident mapping these tests assert
+// is the config's job, and a copy of it here was byte-identical to the real
+// one — a second definition that could only ever drift, never help.
 
 // --- Import after mocks ---
 
@@ -177,6 +159,7 @@ const SAMPLE_TASK = {
   priority: 'NORMAL',
   currentStatus: 'IDLE',
   isCompleted: false,
+  checklist: ['Boden gewischt', 'Abfalleimer geleert'],
 }
 
 // --- Tests ---
@@ -201,24 +184,27 @@ describe('GET /api/portal/chores', () => {
     expect(body.error).toBe(ERROR_MESSAGES.NOT_AUTHENTICATED)
   })
 
-  test('returns tasks and fairness data on success', async () => {
+  test('returns tasks and a minutes balance on success', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
 
     const tasks = [{ id: 'task-1', title: 'Küche putzen' }]
-    const completionCounts = [
-      { completedById: 'res-1', _count: { id: 5 } },
-      { completedById: 'res-2', _count: { id: 3 } },
-    ]
     const roommates = [
-      { resident: { id: 'res-1', code: 'RES-001' } },
-      { resident: { id: 'res-2', code: 'RES-002' } },
+      { resident: { id: 'res-1', code: 'RES-001', displayName: null } },
+      { resident: { id: 'res-2', code: 'RES-002', displayName: null } },
     ]
 
-    // findMany is used for tasks (first call) and placements (third call)
+    // Four quick bin runs vs one long shower scrub: counting rows would call
+    // res-1 the bigger contributor 4:1. The balance must say the opposite.
+    mockCompletionFindMany.mockResolvedValue([
+      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
+      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
+      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
+      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
+      { completedById: 'res-2', completedAt: new Date(), durationMinutes: 40, task: { estimatedMinutes: null } },
+    ])
     mockFindMany
       .mockResolvedValueOnce(tasks)       // householdTask.findMany
       .mockResolvedValueOnce(roommates)   // placement.findMany
-    mockGroupBy.mockResolvedValue(completionCounts)
 
     const res = await listChores()
     const body = await res.json()
@@ -226,26 +212,49 @@ describe('GET /api/portal/chores', () => {
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
     expect(body.data.tasks).toEqual(tasks)
-    expect(body.data.fairness).toEqual([
-      { residentId: 'res-1', code: 'RES-001', completions: 5 },
-      { residentId: 'res-2', code: 'RES-002', completions: 3 },
+    expect(body.data.balances).toEqual([
+      { residentId: 'res-1', code: 'RES-001', displayName: null, doneMinutes: 20, shareMinutes: 30, balanceMinutes: -10 },
+      { residentId: 'res-2', code: 'RES-002', displayName: null, doneMinutes: 40, shareMinutes: 30, balanceMinutes: 10 },
     ])
   })
 
-  test('fairness shows 0 for residents with no completions', async () => {
+  test('balance shows a zero line for residents who did nothing yet', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
 
+    mockCompletionFindMany.mockResolvedValue([])
     mockFindMany
       .mockResolvedValueOnce([])  // no tasks
-      .mockResolvedValueOnce([{ resident: { id: 'res-3', code: 'RES-003' } }])
-    mockGroupBy.mockResolvedValue([]) // no completions
+      .mockResolvedValueOnce([{ resident: { id: 'res-3', code: 'RES-003', displayName: null } }])
 
     const res = await listChores()
     const body = await res.json()
 
-    expect(body.data.fairness).toEqual([
-      { residentId: 'res-3', code: 'RES-003', completions: 0 },
+    expect(body.data.balances).toEqual([
+      { residentId: 'res-3', code: 'RES-003', displayName: null, doneMinutes: 0, shareMinutes: 0, balanceMinutes: 0 },
     ])
+  })
+
+  test('ignores completions from outside the current month', async () => {
+    mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
+
+    // Comfortably inside the 62-day query window but a different calendar
+    // month, so only the JS month filter can exclude it.
+    const lastMonth = new Date()
+    lastMonth.setUTCDate(1)
+    lastMonth.setUTCHours(12, 0, 0, 0)
+    lastMonth.setUTCDate(lastMonth.getUTCDate() - 5)
+
+    mockCompletionFindMany.mockResolvedValue([
+      { completedById: 'res-1', completedAt: lastMonth, durationMinutes: 90, task: { estimatedMinutes: null } },
+    ])
+    mockFindMany
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ resident: { id: 'res-1', code: 'RES-001', displayName: null } }])
+
+    const res = await listChores()
+    const body = await res.json()
+
+    expect(body.data.balances[0].doneMinutes).toBe(0)
   })
 
   test('returns 500 when database query fails', async () => {
@@ -344,6 +353,7 @@ describe('POST /api/portal/chores', () => {
       priority: 'HIGH',
       scheduleHuman: 'Jeden Montag',
       estimatedMinutes: 30,
+      checklist: ['Boden gewischt', 'Abfalleimer geleert'],
     })
     mockCreate.mockResolvedValue({ id: 'task-new' })
 
@@ -369,6 +379,7 @@ describe('POST /api/portal/chores', () => {
         priority: 'HIGH',
         scheduleHuman: 'Jeden Montag',
         estimatedMinutes: 30,
+        checklist: ['Boden gewischt', 'Abfalleimer geleert'],
       },
     })
   })
@@ -648,6 +659,69 @@ describe('POST /api/portal/chores/[id]/complete', () => {
       where: { id: 'task-1' },
       data: { currentStatus: 'IDLE' },
     })
+  })
+
+  test('records only ticked items that are actually on the task checklist', async () => {
+    mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
+    mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: jest.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    }))
+
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complete', {
+      // The middle item was never agreed by the house — a client must not be
+      // able to invent a done-criterion after the fact.
+      completedItems: ['Boden gewischt', 'Fenster geputzt'],
+    })
+    await completeChore(req, makeParams('task-1'))
+
+    const mockTx = {
+      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: jest.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    }
+    await mockTransaction.mock.calls[0][0](mockTx)
+
+    expect(mockTx.taskCompletion.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ completedItems: ['Boden gewischt'] }),
+      })
+    )
+  })
+
+  test('records a partial completion as partial rather than fully done', async () => {
+    mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
+    mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: jest.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    }))
+
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complete', {
+      completedItems: ['Abfalleimer geleert'],
+    })
+    const res = await completeChore(req, makeParams('task-1'))
+    expect(res.status).toBe(200)
+
+    const mockTx = {
+      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: jest.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    }
+    await mockTransaction.mock.calls[0][0](mockTx)
+
+    expect(mockTx.taskCompletion.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ completedItems: ['Abfalleimer geleert'] }),
+      })
+    )
   })
 
   test('completes ONE_TIME task and marks as fully completed', async () => {
@@ -1325,7 +1399,9 @@ describe('POST /api/portal/chores/[id]/request', () => {
 
     const req = createJsonRequest(
       'http://localhost:3001/api/portal/chores/task-1/request',
-      { requestedResidentId: 'res-2', message: 'Bitte erledigen' }
+      // A real cuid: the schema requires one, and the old hand-copied mock
+      // was laxer than the real schema, so this path was never truly checked.
+      { requestedResidentId: 'cjld2cjxh0000qzrmn831i7rn', message: 'Bitte erledigen' }
     )
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
@@ -1338,7 +1414,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
       data: {
         taskId: 'task-1',
         requestedById: 'res-1',
-        requestedResidentId: 'res-2',
+        requestedResidentId: 'cjld2cjxh0000qzrmn831i7rn',
         isBroadcast: false,
         message: 'Bitte erledigen',
       },

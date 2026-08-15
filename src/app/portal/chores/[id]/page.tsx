@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/utils'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
+import { currentTurnResidentId } from '@/lib/chores/rotation'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,6 +53,10 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         housingUnitId: placement.housingUnitId,
       },
       include: {
+        // Whose turn it is counts EVERY completion ever, not the page's
+        // truncated history slice — a rota that silently reset every 20
+        // completions would put the same person up twice in a row.
+        _count: { select: { completions: true } },
         createdByResident: { select: RESIDENT_NAME_SELECT },
         completions: {
           orderBy: { completedAt: 'desc' },
@@ -75,7 +80,6 @@ export default async function ChoreDetailPage({ params }: PageProps) {
       where: {
         housingUnitId: placement.housingUnitId,
         status: 'ACTIVE',
-        residentId: { not: resident.id },
       },
       select: {
         resident: { select: RESIDENT_NAME_SELECT },
@@ -87,7 +91,13 @@ export default async function ChoreDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const roommates = roommatePlacements.map(p => p.resident)
+  const household = roommatePlacements.map(p => p.resident)
+  // The request dropdown asks someone ELSE to take this on.
+  const roommates = household.filter(r => r.id !== resident.id)
+
+  const turnResidentId = currentTurnResidentId(task.rotationResidentIds, task._count.completions)
+  const turnResident = household.find(r => r.id === turnResidentId)
+  const isMyTurn = turnResidentId === resident.id
 
   const icon = TASK_CATEGORY_ICONS[task.category] || '📋'
   const categoryLabel = TASK_CATEGORY_LABELS[task.category] || task.category
@@ -146,6 +156,28 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           </div>
         )}
 
+        {/* Definition of done. Shown even when empty, because "we never agreed
+            what counts" is the actual finding in most chore disputes and
+            hiding it makes the gap invisible. */}
+        <div className="mb-3">
+          <h3 className="text-sm font-medium text-ui-muted">{CHORE_LABELS.detail.checklist}</h3>
+          {task.checklist.length === 0 ? (
+            <p className="text-sm text-ui-muted mt-1">{CHORE_LABELS.detail.noChecklist}</p>
+          ) : (
+            <>
+              <ul className="mt-2 space-y-1">
+                {task.checklist.map(item => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-ui-text">
+                    <span className="text-ui-muted mt-0.5" aria-hidden="true">☐</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-ui-muted mt-2">{CHORE_LABELS.detail.checklistHint}</p>
+            </>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-4 text-sm text-ui-muted">
           {task.scheduleHuman && (
             <span>📅 {CHORE_LABELS.detail.schedule}: {task.scheduleHuman}</span>
@@ -162,10 +194,34 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         </div>
       </div>
 
+      {/* Whose turn — a default, never a lock. Stated next to the actions so
+          the answer to "should I just do it?" is always yes. */}
+      {turnResident && (
+        <div className="card mb-6">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="eyebrow">
+                {isMyTurn ? CHORE_LABELS.detail.turnYou : CHORE_LABELS.detail.turn}
+              </p>
+              <p className="font-medium text-ui-text mt-1">{residentName(turnResident)}</p>
+            </div>
+            {!task.isCompleted && !isMyTurn && (
+              <span className="chip-neutral">{CHORE_LABELS.detail.turnSwap}</span>
+            )}
+          </div>
+          <p className="text-xs text-ui-muted mt-2">{CHORE_LABELS.detail.turnHint}</p>
+        </div>
+      )}
+
       {/* Actions */}
       {!task.isCompleted && (
         <div className="mb-6">
-          <ChoreActions taskId={task.id} roommates={roommates} />
+          <ChoreActions
+            taskId={task.id}
+            roommates={roommates}
+            checklist={task.checklist}
+            estimatedMinutes={task.estimatedMinutes}
+          />
         </div>
       )}
 
@@ -180,6 +236,18 @@ export default async function ChoreDetailPage({ params }: PageProps) {
               <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-ui-text">{residentName(c.completedBy)}</p>
+                  {/* What was actually ticked. A partial completion stays
+                      visibly partial instead of collapsing into "erledigt",
+                      which is what lets the next person see what was left. */}
+                  {c.completedItems.length > 0 && (
+                    <ul className="mt-1 space-y-0.5">
+                      {c.completedItems.map(item => (
+                        <li key={item} className="text-sm text-ui-muted">
+                          ✓ {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   {c.notes && <p className="text-sm text-ui-muted mt-0.5">{c.notes}</p>}
                 </div>
                 <div className="text-right">

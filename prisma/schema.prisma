@@ -1022,6 +1022,21 @@ model HouseholdTask {
   description  String?
   instructions String?
 
+  // Definition of done: an ordered list of binary, observable ACTIONS
+  // ("Lavabo gespült"), never an outcome ("Bad ist sauber"). Outcomes have a
+  // subjective quality gradient, so two people with different standards can
+  // both be honestly right about whether one was met; actions have no gradient.
+  // This is what makes "erledigt" checkable without anyone agreeing on what
+  // "sauber" means. Empty = no agreed standard yet.
+  checklist String[] @default([])
+
+  // Ordered rotation of resident ids for RECURRING_SCHEDULED tasks. Whose turn
+  // it is, is DERIVED from this list plus the completion count (see
+  // lib/chores/rotation.ts) — never stored, so it cannot drift from the log.
+  // A turn is a default responsibility, not a lock: anyone may complete any
+  // task at any time, and the balance credits whoever actually did it.
+  rotationResidentIds String[] @default([])
+
   // Classification
   taskType HouseholdTaskType     @default(ONE_TIME)
   category HouseholdTaskCategory @default(OTHER)
@@ -1066,6 +1081,11 @@ model TaskCompletion {
   completedAt     DateTime @default(now())
   notes           String?
   durationMinutes Int?
+
+  // Which checklist items were actually ticked, by label. Stored as labels
+  // rather than indices so a later amendment of the task's checklist cannot
+  // silently rewrite what a past completion claimed to have done.
+  completedItems String[] @default([])
 
   // Reverse relations
   resolvedFlags     TaskAttentionFlag[] @relation("FlagResolvedByCompletion")

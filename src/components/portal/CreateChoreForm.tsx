@@ -23,6 +23,7 @@ export function CreateChoreForm() {
   const [category, setCategory] = useState('CLEANING')
   const [taskType, setTaskType] = useState('RECURRING_AS_NEEDED')
   const [instructions, setInstructions] = useState('')
+  const [checklist, setChecklist] = useState('')
   const [scheduleHuman, setScheduleHuman] = useState('')
   const [estimatedMinutes, setEstimatedMinutes] = useState('')
 
@@ -31,6 +32,7 @@ export function CreateChoreForm() {
     setCategory(template.category)
     setTaskType(template.taskType)
     setInstructions(template.instructions || '')
+    setChecklist((template.checklist || []).join('\n'))
     setScheduleHuman(template.scheduleHuman || '')
     setEstimatedMinutes(template.estimatedMinutes?.toString() || '')
   }
@@ -226,6 +228,23 @@ export function CreateChoreForm() {
             value={instructions}
             onChange={e => setInstructions(e.target.value)}
             placeholder={CHORE_LABELS.form.instructionsPlaceholder}
+            className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
+          />
+        </div>
+
+        {/* Definition of done — one observable action per line */}
+        <div>
+          <label htmlFor="checklist" className="block text-sm font-medium text-ui-muted mb-1">
+            {CHORE_LABELS.form.checklist}
+          </label>
+          <p className="text-xs text-ui-muted mb-1">{CHORE_LABELS.form.checklistHint}</p>
+          <textarea
+            id="checklist"
+            name="checklist"
+            rows={4}
+            value={checklist}
+            onChange={e => setChecklist(e.target.value)}
+            placeholder={CHORE_LABELS.form.checklistPlaceholder}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>

@@ -13,11 +13,20 @@ interface Roommate extends NamedResident {
 interface ChoreActionsProps {
   taskId: string
   roommates: Roommate[]
+  /** The task's agreed definition of done. Empty = this house hasn't set one. */
+  checklist?: string[]
+  /** Minutes this task is expected to take — what counts if nothing is logged. */
+  estimatedMinutes?: number | null
 }
 
 type ActiveModal = 'complete' | 'request' | 'attention' | 'complaint' | null
 
-export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
+export function ChoreActions({
+  taskId,
+  roommates,
+  checklist = [],
+  estimatedMinutes,
+}: ChoreActionsProps) {
   const router = useRouter()
   const [activeModal, setActiveModal] = useState<ActiveModal>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -82,6 +91,10 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
     submitChoreAction('complete', (form) => ({
       notes: form.get('notes') || undefined,
       durationMinutes: form.get('durationMinutes') ? Number(form.get('durationMinutes')) : undefined,
+      // Partial ticks are deliberately allowed. Someone who did four of five
+      // things has done four things; forcing all-or-nothing would push them to
+      // either overclaim or log nothing at all, and both corrupt the record.
+      completedItems: form.getAll('completedItems').map(String),
     }), CHORE_LABELS.success.completed, e)
 
   const handleRequest = (e: React.FormEvent<HTMLFormElement>) =>
@@ -171,6 +184,33 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
 
             {activeModal === 'complete' && (
               <form onSubmit={handleComplete} className="space-y-4">
+                {checklist.length > 0 && (
+                  <fieldset>
+                    <legend className="block text-sm font-medium text-ui-muted mb-1">
+                      {CHORE_LABELS.complete.checklistTitle}
+                    </legend>
+                    <p className="text-xs text-ui-muted mb-2">
+                      {CHORE_LABELS.complete.checklistHint}
+                    </p>
+                    <div className="space-y-1">
+                      {checklist.map(item => (
+                        <label
+                          key={item}
+                          className="flex items-center gap-3 min-h-[44px] px-2 -mx-2 rounded-lg cursor-pointer hover:bg-ui-subtle"
+                        >
+                          <input
+                            type="checkbox"
+                            name="completedItems"
+                            value={item}
+                            defaultChecked
+                            className="w-5 h-5 shrink-0 accent-brand-primary"
+                          />
+                          <span className="text-sm text-ui-text">{item}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
                 <div>
                   <label className="block text-sm font-medium text-ui-muted mb-1">
                     {CHORE_LABELS.complete.notes}
@@ -192,8 +232,10 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
                     inputMode="numeric"
                     min="1"
                     max="480"
+                    placeholder={estimatedMinutes ? String(estimatedMinutes) : undefined}
                     className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
                   />
+                  <p className="text-xs text-ui-muted mt-1">{CHORE_LABELS.complete.durationHint}</p>
                 </div>
                 <button
                   type="submit"

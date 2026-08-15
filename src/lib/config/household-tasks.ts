@@ -94,11 +94,24 @@ export const REQUEST_STATUS_LABELS: Record<string, string> = {
 // TASK TEMPLATES (Pre-defined common chores)
 // =============================================================================
 
+/**
+ * `instructions` and `checklist` answer two different questions and must not
+ * duplicate each other:
+ *
+ *   instructions → HOW / WHERE ("der Container steht hinter dem Haus")
+ *   checklist    → WHAT COUNTS AS DONE, as binary observable actions
+ *
+ * The checklist never describes an outcome. "Bad ist sauber" is a gradient two
+ * people can honestly disagree about; "Boden gewischt" is not. That is the
+ * whole trick: housemates with different standards never have to agree on what
+ * "sauber" means, only on whether the floor got wiped.
+ */
 export interface TaskTemplate {
   title: string
   category: string
   taskType: string
   instructions?: string
+  checklist?: string[]
   estimatedMinutes?: number
   scheduleHuman?: string
 }
@@ -108,7 +121,13 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
     title: 'Badezimmer putzen',
     category: 'CLEANING',
     taskType: 'RECURRING_SCHEDULED',
-    instructions: 'WC, Lavabo und Dusche reinigen. Boden wischen.',
+    checklist: [
+      'WC innen und aussen gereinigt',
+      'Lavabo und Spiegel gewischt',
+      'Dusche ausgespült',
+      'Boden gewischt',
+      'Abfalleimer geleert',
+    ],
     estimatedMinutes: 30,
     scheduleHuman: 'Wöchentlich',
   },
@@ -116,27 +135,34 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
     title: 'Küche aufräumen',
     category: 'CLEANING',
     taskType: 'RECURRING_AS_NEEDED',
-    instructions: 'Abwaschen, Herd und Arbeitsflächen reinigen.',
+    checklist: [
+      'Spüle leer, nichts steht mehr drin',
+      'Herd abgewischt',
+      'Arbeitsflächen abgewischt',
+      'Tisch frei geräumt',
+    ],
     estimatedMinutes: 20,
   },
   {
     title: 'Toilettenpapier kaufen',
     category: 'SHOPPING',
     taskType: 'RECURRING_AS_NEEDED',
+    checklist: ['Gekauft', 'Im Bad verstaut'],
     estimatedMinutes: 15,
   },
   {
     title: 'Abfall rausbringen',
     category: 'TRASH',
     taskType: 'RECURRING_AS_NEEDED',
-    instructions: 'Abfall zum Container bringen. Recycling beachten.',
+    instructions: 'Der Container steht hinter dem Haus.',
+    checklist: ['Sack zum Container gebracht', 'Neuer Sack eingesetzt'],
     estimatedMinutes: 10,
   },
   {
     title: 'Boden wischen',
     category: 'CLEANING',
     taskType: 'RECURRING_SCHEDULED',
-    instructions: 'Alle gemeinsamen Räume (Küche, Flur, Bad).',
+    checklist: ['Küche gewischt', 'Flur gewischt', 'Bad gewischt'],
     estimatedMinutes: 25,
     scheduleHuman: 'Wöchentlich',
   },
@@ -144,7 +170,12 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
     title: 'Recycling sortieren',
     category: 'TRASH',
     taskType: 'RECURRING_AS_NEEDED',
-    instructions: 'PET, Glas, Papier und Karton trennen und zum Sammelplatz bringen.',
+    checklist: [
+      'PET getrennt',
+      'Glas getrennt',
+      'Papier und Karton getrennt',
+      'Zum Sammelplatz gebracht',
+    ],
     estimatedMinutes: 15,
   },
 ]
@@ -201,7 +232,11 @@ export const CHORE_LABELS = {
     description: 'Beschreibung (optional)',
     descriptionPlaceholder: 'Zusätzliche Details...',
     instructions: 'Anleitung (optional)',
-    instructionsPlaceholder: 'Wie soll die Aufgabe erledigt werden...',
+    instructionsPlaceholder: 'Wo steht was, worauf achten...',
+    checklist: 'Das gehört dazu',
+    checklistHint:
+      'Eine Zeile pro Handgriff — etwas, das man sehen kann. Also «Boden gewischt», nicht «Bad ist sauber».',
+    checklistPlaceholder: 'Boden gewischt\nAbfalleimer geleert\nSpiegel gewischt',
     category: 'Kategorie',
     taskType: 'Art',
     priority: 'Priorität',
@@ -213,9 +248,12 @@ export const CHORE_LABELS = {
   },
   complete: {
     title: 'Aufgabe erledigt',
+    checklistTitle: 'Was hast du gemacht?',
+    checklistHint: 'Hake ab, was erledigt ist. Nicht alles muss angekreuzt sein.',
     notes: 'Notizen (optional)',
     notesPlaceholder: 'Was hast du gemacht?',
     duration: 'Dauer in Minuten (optional)',
+    durationHint: 'Zählt für den Aufgaben-Saldo. Ohne Angabe gilt die geschätzte Dauer.',
   },
   request: {
     title: 'Hilfe anfragen',
@@ -242,13 +280,35 @@ export const CHORE_LABELS = {
     submitting: 'Wird gemeldet...',
     note: 'Deine Meldung wird an die Hausverwaltung weitergeleitet.',
   },
-  fairness: {
-    title: 'Beiträge',
-    completions: 'Erledigungen',
+  balance: {
+    title: 'Aufgaben-Saldo',
+    subtitle: 'Diesen Monat, in Minuten',
+    // The framing matters more than the numbers. Asked separately, housemates'
+    // estimates of their own share reliably add up to well over 100% — everyone
+    // remembers their own work better than anyone else's. So this is stated as
+    // a correction that applies to all of us, never as an accusation.
+    explainer:
+      'Fast alle überschätzen den eigenen Anteil — nicht aus Unehrlichkeit, sondern weil man die eigene Arbeit besser erinnert als die der anderen. Darum zeigt diese Übersicht die tatsächlichen Minuten und keine Rangliste.',
+    done: 'Geleistet',
+    share: 'Anteil',
+    net: 'Saldo',
+    netHint:
+      'Saldo = geleistet minus Anteil. Plus heisst: hat diesen Monat mehr übernommen als den eigenen Anteil.',
+    settleHint:
+      'Ein Saldo wird nicht zurückgezahlt, sondern mit der nächsten Aufgabe ausgeglichen.',
+    minutes: 'Min.',
+    empty: 'Diesen Monat wurde noch nichts erledigt.',
   },
   detail: {
     description: 'Beschreibung',
     instructions: 'Anleitung',
+    checklist: 'Das gehört dazu',
+    checklistHint: 'Vereinbart im Haus. Ändern geht über einen Vorschlag.',
+    noChecklist: 'Für diese Aufgabe ist noch nicht vereinbart, was dazugehört.',
+    turn: 'Diesmal dran',
+    turnYou: 'Du bist dran',
+    turnHint: 'Wer dran ist, ist eine Voreinstellung — erledigen darf sie jede und jeder.',
+    turnSwap: 'Tauschen',
     schedule: 'Zeitplan',
     estimatedMinutes: 'Geschätzte Dauer',
     minutes: 'Min.',
