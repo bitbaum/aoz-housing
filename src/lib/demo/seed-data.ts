@@ -40,6 +40,16 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
 
   // ========================================================================
   // RESIDENTS - Creating diverse profiles for the story
+  //
+  // Every one of them carries a `displayName`, because the narrative already
+  // does: the incident texts talk about Alexei and Petro, while the chore
+  // board, the queues and the compatibility matrix read the resident rows and
+  // showed "RES-DEMO07" for the same person. One human with two identities
+  // inside one product tour reads as a bug in the tour.
+  //
+  // This is demo data, NOT the privacy default: a real resident starts with no
+  // name and chooses whether to set one (`residentName()` falls back to the
+  // code). Here the names are part of the story being told.
   // ========================================================================
 
   // SUCCESS UNIT (Unit 5) - 4 highly compatible residents
@@ -83,6 +93,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const yasmin = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}02`,
+      displayName: 'Yasmin',
       ageRange: 'ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -117,6 +128,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const amira = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}03`,
+      displayName: 'Amira',
       ageRange: 'YOUNG_ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -151,6 +163,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const sara = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}04`,
+      displayName: 'Sara',
       ageRange: 'ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -186,6 +199,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const marco = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}05`,
+      displayName: 'Marco',
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -220,6 +234,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const dmitri = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}06`,
+      displayName: 'Dmitri',
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -254,6 +269,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const petro = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}07`,
+      displayName: 'Petro',
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -288,6 +304,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const alexei = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}08`,
+      displayName: 'Alexei',
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -325,6 +342,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const habib = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}09`,
+      displayName: 'Habib',
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -359,6 +377,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const omar = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}10`,
+      displayName: 'Omar',
       ageRange: 'YOUNG_ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -393,6 +412,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const mustafa = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}11`,
+      displayName: 'Mustafa',
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -428,6 +448,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const elena = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}12`,
+      displayName: 'Elena',
       ageRange: 'MIDDLE_AGED',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -462,6 +483,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const grace = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}13`,
+      displayName: 'Grace',
       ageRange: 'YOUNG_ADULT',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
@@ -497,6 +519,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const ahmed = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}14`,
+      displayName: 'Ahmed',
       ageRange: 'ADULT',
       gender: 'MALE',
       familyStatus: 'SINGLE',
@@ -532,6 +555,7 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
   const maria = await prisma.resident.create({
     data: {
       code: `${DEMO_RESIDENT_CODE_PREFIX}15`,
+      displayName: 'Maria',
       ageRange: 'MIDDLE_AGED',
       gender: 'FEMALE',
       familyStatus: 'SINGLE',
