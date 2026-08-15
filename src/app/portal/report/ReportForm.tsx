@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
+import { RESIDENT_REPORTS_ANCHOR } from '@/lib/reports/resident-reports'
 
 interface Props {
   roommates: (NamedResident & { id: string })[]
@@ -185,6 +187,12 @@ export function ReportForm({ roommates }: Props) {
           <strong>{PORTAL_LABELS.report.transparency.resolved}</strong>{' '}
           {PORTAL_LABELS.report.transparency.after}
         </p>
+        <Link
+          href={`/portal#${RESIDENT_REPORTS_ANCHOR}`}
+          className="inline-flex items-center min-h-[44px] text-xs text-brand-primary hover:underline"
+        >
+          {PORTAL_LABELS.report.transparency.seeMine}
+        </Link>
       </div>
 
       {/* Category Selection */}

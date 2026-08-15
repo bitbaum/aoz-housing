@@ -12,6 +12,15 @@
 import type { MaintenanceStatus } from '@prisma/client'
 import { INCIDENT_TYPE_LABELS, MAINTENANCE_CATEGORY_LABELS, getLabel } from '@/lib/constants'
 
+/**
+ * Anchor for the dashboard card that shows this list.
+ *
+ * Lives here, not on the card component: the report FORM links to it and is a
+ * client component, so importing it from the server-rendered card would drag
+ * that whole module into the client bundle.
+ */
+export const RESIDENT_REPORTS_ANCHOR = 'meine-meldungen'
+
 export type ResidentReportKind = 'INCIDENT' | 'MAINTENANCE'
 
 export interface ResidentReport {

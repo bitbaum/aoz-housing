@@ -179,6 +179,8 @@ export const PORTAL_LABELS = {
       middle: 'geführt und später als',
       resolved: 'gelöst',
       after: 'markiert. In dringenden Fällen wird priorisiert reagiert.',
+      /** The promise above is only kept if the resident can reach the list. */
+      seeMine: 'Deine bisherigen Meldungen ansehen',
     },
     nextStepsTitle: 'Was passiert als Nächstes?',
     nextSteps: [
