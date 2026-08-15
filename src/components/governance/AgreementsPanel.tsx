@@ -17,14 +17,14 @@ export interface AgreementView {
   reviewDate: string
   outcomeNotes: string | null
   mediatorName: string | null
-  parties: { residentId: string; residentCode: string; acceptedAt: string | null }[]
+  parties: { residentId: string; residentName: string; acceptedAt: string | null }[]
 }
 
 interface AgreementsPanelProps {
   incidentId: string
   agreements: AgreementView[]
   /** Residents who can be party to an agreement on this incident. */
-  candidates: { id: string; code: string }[]
+  candidates: { id: string; name: string }[]
   defaultReviewDate: string
 }
 
@@ -108,7 +108,7 @@ export function AgreementsPanel({
               </div>
 
               <p className="mt-2 text-xs text-ui-muted">
-                Beteiligt: {agreement.parties.map((p) => p.residentCode).join(', ')} · Überprüfung:{' '}
+                Beteiligt: {agreement.parties.map((p) => p.residentName).join(', ')} · Überprüfung:{' '}
                 {formatDate(agreement.reviewDate)}
                 {agreement.mediatorName ? ` · Vermittlung: ${agreement.mediatorName}` : ''}
               </p>
@@ -195,7 +195,7 @@ export function AgreementsPanel({
                     checked={selected.includes(candidate.id)}
                     onChange={() => toggleParty(candidate.id)}
                   />
-                  <span className="text-sm text-ui-text">{candidate.code}</span>
+                  <span className="text-sm text-ui-text">{candidate.name}</span>
                 </label>
               ))}
             </div>

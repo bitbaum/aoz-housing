@@ -4,6 +4,7 @@ import { EMPTY_STATE_LABELS, MATCH_RESULTS_LABELS, PLACEMENT_PANEL_LABELS } from
 import { SubmitButton } from '@/components/ui'
 import { placeResident } from '@/lib/actions/matching'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentName } from '@/lib/utils/resident-name'
 import { MatchCard } from './MatchCard'
 
 interface Props {
@@ -34,7 +35,7 @@ export function MatchResultsPanel({
     <>
       <div className="flex items-center justify-between mb-4 gap-3">
         <h2 className="text-lg font-semibold text-ui-text">
-          {MATCH_RESULTS_LABELS.heading(selectedResident.code)}
+          {MATCH_RESULTS_LABELS.heading(residentName(selectedResident))}
         </h2>
         <div className="flex items-center gap-2">
           <Link

@@ -7,6 +7,7 @@ import { getScoreColorClass, getScoreLabel } from '@/lib/utils'
 import { COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS } from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 export interface CompatibilityScore {
   id: string
@@ -56,7 +57,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
     <div
       ref={ref}
       role="dialog"
-      aria-label={`Kompatibilität: ${resident1.code} und ${resident2.code}`}
+      aria-label={`Kompatibilität: ${residentName(resident1)} und ${residentName(resident2)}`}
       className="fixed z-50 w-[calc(100vw-16px)] sm:w-80 overlay-panel"
       style={{
         left: Math.max(8, position.x - 160),
@@ -68,11 +69,11 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="avatar-sm font-bold">
-              {resident1.code.slice(-3)}
+              {residentInitials(resident1)}
             </div>
             <span className="text-ui-muted">↔</span>
             <div className="avatar-sm font-bold">
-              {resident2.code.slice(-3)}
+              {residentInitials(resident2)}
             </div>
           </div>
           <button
@@ -188,14 +189,14 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
           href={`/residents/${resident1.id}`}
           className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-brand-primary hover:underline"
         >
-          {resident1.code}
+          {residentName(resident1)}
         </Link>
         <span className="text-ui-muted">|</span>
         <Link
           href={`/residents/${resident2.id}`}
           className="flex-1 text-center inline-flex items-center justify-center min-h-[44px] text-sm text-brand-primary hover:underline"
         >
-          {resident2.code}
+          {residentName(resident2)}
         </Link>
       </div>
     </div>

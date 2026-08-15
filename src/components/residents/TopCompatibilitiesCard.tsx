@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { getScoreBgClass } from '@/lib/utils'
 import { TOP_COMPATIBILITIES_LABELS } from '@/lib/constants'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface Assessment {
   id: string
   comparedWithId: string
-  comparedWith: { code: string }
+  comparedWith: { code: string; displayName?: string | null }
   overallScore: number
 }
 
@@ -31,13 +32,13 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
           >
             <div className="flex items-center gap-3">
               <div className="avatar-sm">
-                {assessment.comparedWith.code.slice(-3)}
+                {residentInitials(assessment.comparedWith)}
               </div>
               <Link
                 href={`/residents/${assessment.comparedWithId}`}
                 className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
-                {assessment.comparedWith.code}
+                {residentName(assessment.comparedWith)}
               </Link>
             </div>
             <div

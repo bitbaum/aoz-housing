@@ -669,12 +669,18 @@ portal lets them OPTIONALLY set `displayName`, `bio` and a photo:
   into any query whose rows reach the UI, and use `ResidentSummary` (which
   carries `displayName`) for compatibility cards.
   This is enforced by `src/lib/__tests__/resident-name-ssot.test.ts`: it failed
-  on 30+ surfaces, because rendering a bare code type-checks, lints and looks
+  on 50+ surfaces, because rendering a bare code type-checks, lints and looks
   fine — it just tells Georgy that "RES-LCCM7A" did the dishes instead of Ihor,
   and shows AOZ staff codes for people whose names sat in the same row. The few
   places where the login code *is* the point (the portal's own "your code" card,
   the staff breadcrumb) opt out with a `resident-code-intentional` comment, so
   showing a code stays a decision rather than an accident.
+  **The rule is a DENYLIST of things that own a code without being a person**
+  (units, spots, rooms, staff). Its first version listed the resident-ish
+  accessor names instead and reported all-clear while missing `candidate.code`
+  in the agreements panel — an allowlist cannot catch the name nobody thought
+  of. Any new non-person code holder goes in that list; everything else must
+  use the helpers.
 - Photos live in `ResidentPhoto` (separate table so Bytes never load on list
   queries), client-resized via canvas before upload, server-capped at 500 KB,
   and served ONLY to self + current roommates by
