@@ -23,7 +23,7 @@ export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpB
   const [error, setError] = useState<string | null>(null)
 
   async function handleClick() {
-    if (!window.confirm(`${formatRappen(amountRappen)} ${L.suggestedPays} ${toName}?`)) return
+    if (!window.confirm(L.markPaidConfirm(formatRappen(amountRappen), toName))) return
     setError(null)
     setSubmitting(true)
     try {

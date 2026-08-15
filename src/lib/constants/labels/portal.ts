@@ -491,9 +491,16 @@ export const PORTAL_LABELS = {
     balanceNegative: 'schuldet',
     balanceSettled: 'ausgeglichen',
     suggestedTitle: 'Vorschlag zum Ausgleich',
+    /** Only grammatical with a PERSON as the subject: "Ana zahlt an Bea CHF 5". */
     suggestedPays: 'zahlt an',
     noDebts: 'Alles ausgeglichen — niemand schuldet etwas.',
     markPaid: 'Als bezahlt erfassen',
+    /**
+     * The confirm needs its own sentence — reusing `suggestedPays` here put the
+     * AMOUNT in the subject slot and asked "CHF 16.65 zahlt an Fatima?".
+     */
+    markPaidConfirm: (amount: string, name: string) =>
+      `${amount} an ${name} als bezahlt erfassen?`,
     addTitle: 'Ausgabe erfassen',
     descriptionLabel: 'Beschreibung',
     descriptionPlaceholder: 'z.B. Wocheneinkauf',
