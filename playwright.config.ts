@@ -9,7 +9,15 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  // `fullyParallel` was already on, but `workers: 1` made it a no-op — the suite
+  // ran strictly serially and was the single longest job in CI (494s of a 822s
+  // pipeline). The specs that write data already mint unique keys
+  // (`E2E-${Date.now()}`), so they do not collide; the rest only read.
+  // 3 (not 4) on a 4-vCPU runner leaves a core for the Next dev server, which
+  // compiles routes on demand and is itself CPU-bound.
+  // Local stays at 1: this laptop runs many sessions at once, and a dev who
+  // wants to reproduce CI can set CI=1.
+  workers: process.env.CI ? 3 : 1,
   reporter: 'html',
   timeout: 60_000,
   use: {
