@@ -9,6 +9,7 @@ import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import { SpotSelection } from './SpotSelection'
 import { ApartmentProfileSection } from './ApartmentProfileSection'
+import { residentName } from '@/lib/utils/resident-name'
 
 interface Props {
   match: MatchResult
@@ -167,7 +168,7 @@ export function MatchCard({ match, resident, rank }: Props) {
               const concernCount = detail?.score.concerns?.length || 0
               return (
                 <div key={p.id} className="flex items-center justify-between text-xs">
-                  <span className="font-medium">{p.resident.code}</span>
+                  <span className="font-medium">{residentName(p.resident)}</span>
                   <span className={concernCount > 0 ? 'text-status-warning-text' : 'text-status-success-text'}>
                     {hasSharedLang ? '✓ Sprache' : '✗ Sprache'}
                     {concernCount > 0 && ` · ${concernCount} ${MATCHING_LABELS.concerns}`}

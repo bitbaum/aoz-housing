@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { COMPATIBLE_MATCHES_LABELS } from '@/lib/constants'
+import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface CompatibleUnit {
   unit: { id: string; code: string }
@@ -10,7 +11,7 @@ interface CompatibleUnit {
 }
 
 interface CompatibleResident {
-  resident: { id: string; code: string; languages?: string[] | null }
+  resident: NamedResident & { id: string; languages?: string[] | null }
   score: number
 }
 
@@ -74,10 +75,10 @@ export function CompatibleMatchesCard({
               >
                 <div className="flex items-center gap-3">
                   <div className="avatar-sm">
-                    {other.code.slice(-3)}
+                    {residentInitials(other)}
                   </div>
                   <div>
-                    <p className="font-medium text-ui-text">{other.code}</p>
+                    <p className="font-medium text-ui-text">{residentName(other)}</p>
                     <p className="text-xs text-ui-muted">
                       {other.languages?.slice(0, DISPLAY_LIMITS.languagePreview).join(', ')}
                     </p>

@@ -13,6 +13,7 @@ import {
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { HousingSpot, CompatibleResident } from './types'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface PlacementPanelProps {
   isOpen: boolean
@@ -157,14 +158,14 @@ function ResidentRow({
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="avatar flex-shrink-0">
-            {resident.code.slice(-3)}
+            {residentInitials(resident)}
           </div>
           <div className="min-w-0">
             <Link
               href={`/residents/${resident.id}`}
               className="font-medium text-ui-text hover:text-brand-primary truncate block"
             >
-              {resident.code}
+              {residentName(resident)}
             </Link>
             <p className="text-sm text-ui-muted truncate">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}

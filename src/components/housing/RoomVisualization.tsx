@@ -8,6 +8,7 @@ import {
 import { HOUSING_SPOTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants/labels'
 import { BedGrid, BedGridSummary } from './BedGrid'
 import type { HousingSpot } from './types'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface RoomVisualizationProps {
   spots: HousingSpot[]
@@ -221,7 +222,7 @@ function SpotCard({
               href={`/residents/${activePlacement.resident.id}`}
               className="text-sm text-status-info-text hover:underline"
             >
-              {activePlacement.resident.code}
+              {residentName(activePlacement.resident)}
             </Link>
           ) : (
             <span className="text-sm text-ui-muted">{statusLabel}</span>

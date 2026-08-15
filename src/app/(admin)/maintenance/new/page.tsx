@@ -14,6 +14,7 @@ import {
 import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import { PageHeader } from '@/components/ui/Page'
+import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
     }),
     prisma.resident.findMany({
       where: { status: { in: ['ACTIVE', 'PLACED'] } },
-      select: { id: true, code: true },
+      select: RESIDENT_NAME_SELECT,
       orderBy: { code: 'asc' },
     }),
   ])
@@ -166,7 +167,7 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
                   <option value="">{MAINTENANCE_PAGE_LABELS.fieldResidentDefault}</option>
                   {residents.map((resident) => (
                     <option key={resident.id} value={resident.id}>
-                      {resident.code}
+                      {residentName(resident)}
                     </option>
                   ))}
                 </select>

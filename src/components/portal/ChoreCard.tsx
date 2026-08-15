@@ -10,6 +10,7 @@ import {
 } from '@/lib/config/household-tasks'
 import { UI_LABELS } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface ChoreCardProps {
   task: {
@@ -22,7 +23,7 @@ interface ChoreCardProps {
     taskType: string
     completions: Array<{
       completedAt: string
-      completedBy: { code: string }
+      completedBy: NamedResident
     }>
     attentionFlags: Array<{ id: string }>
     requests: Array<{ id: string }>
@@ -60,7 +61,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           <p className="text-sm text-ui-muted mt-0.5">
             {CHORE_LABELS.card.lastCompleted}:{' '}
             {lastCompletion
-              ? `${formatDate(lastCompletion.completedAt)} ${CHORE_LABELS.card.by} ${lastCompletion.completedBy.code}`
+              ? `${formatDate(lastCompletion.completedAt)} ${CHORE_LABELS.card.by} ${residentName(lastCompletion.completedBy)}`
               : CHORE_LABELS.card.never}
           </p>
           {needsDecision && (

@@ -53,6 +53,7 @@ function makePlacement(residentId: string, status = 'ACTIVE'): HousingPlacement 
     resident: {
       id: residentId,
       code: `RES-${residentId}`,
+      displayName: null,
       ageRange: 'ADULT',
       gender: 'PREFER_NOT_SAY',
       languages: ['de'],

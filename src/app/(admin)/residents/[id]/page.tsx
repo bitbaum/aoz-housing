@@ -39,11 +39,15 @@ import {
 } from '@/lib/utils'
 import { SuccessToast } from '@/components/ui/SuccessToast'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const resident = await prisma.resident.findUnique({ where: { id }, select: { code: true } })
-  return { title: resident?.code ?? 'Bewohner' }
+  const resident = await prisma.resident.findUnique({
+    where: { id },
+    select: { code: true, displayName: true },
+  })
+  return { title: resident ? residentName(resident) : 'Bewohner' }
 }
 
 export const dynamic = 'force-dynamic'
@@ -179,6 +183,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
         return {
           id: otherResident.id,
           code: otherResident.code,
+          displayName: otherResident.displayName,
           compatibilityScore: Math.round(pairwise.overall),
           keyFactors: keyFactors.slice(0, 3), // Limit to 3 factors
         }
@@ -257,15 +262,17 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               {RESIDENT_DETAIL_LABELS.breadcrumb}
             </Link>
             <span className="text-ui-muted">/</span>
+            {/* The login code IS the identity here — staff read it out
+                loud to residents. resident-code-intentional */}
             <span className="text-ui-text">{resident.code}</span>
           </div>
           <div className="flex items-center gap-4 mt-2">
             <div className="avatar-lg font-semibold">
-              {resident.code.slice(-3)}
+              {residentInitials(resident)}
             </div>
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-                {resident.code}
+                {residentName(resident)}
               </h1>
               <p className="text-ui-muted">
                 {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}

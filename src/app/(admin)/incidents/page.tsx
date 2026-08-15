@@ -24,6 +24,7 @@ import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
+import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,10 +61,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           select: { code: true },
         },
         reportedBy: {
-          select: { code: true },
+          select: RESIDENT_NAME_SELECT,
         },
         subject: {
-          select: { code: true },
+          select: RESIDENT_NAME_SELECT,
         },
         _count: {
           select: { followUps: true },
@@ -250,8 +251,8 @@ interface IncidentRowData {
   nextFollowUpDate: Date | string | null
   mediationMinutes: number | null
   housingUnit: { code: string }
-  reportedBy: { code: string } | null
-  subject: { code: string } | null
+  reportedBy: NamedResident | null
+  subject: NamedResident | null
   _count: { followUps: number }
 }
 
@@ -308,7 +309,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   className="hover:text-brand-primary inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
-                  <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {incident.reportedBy.code}
+                  <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {residentName(incident.reportedBy)}
                 </span>
               )}
               {incident.subject && (
@@ -316,7 +317,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   className="hover:text-brand-primary font-medium inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
-                  <User className="w-3.5 h-3.5" aria-hidden="true" /> {incident.subject.code}
+                  <User className="w-3.5 h-3.5" aria-hidden="true" /> {residentName(incident.subject)}
                 </span>
               )}
               <span>{formatRelativeDate(incident.date)}</span>

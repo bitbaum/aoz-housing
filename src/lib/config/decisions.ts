@@ -48,6 +48,20 @@ export const DECISION_MODE_LABELS: Record<DecisionMode, string> = {
   STAFF_ONLY: 'Die Betreuung entscheidet',
 }
 
+/**
+ * Whether residents actually cast votes under this mode.
+ *
+ * STAFF_ONLY proposals are answered, never tallied — showing them a vote
+ * threshold ("Mehrheit — mehr als die Hälfte der abgegebenen Stimmen") next to
+ * "Die Betreuung entscheidet" promises a majority that will never be counted,
+ * on exactly the topics where a majority must not decide.
+ */
+export const DECISION_MODE_IS_VOTED: Record<DecisionMode, boolean> = {
+  RESIDENT_BINDING: true,
+  RESIDENT_ADVISORY: true,
+  STAFF_ONLY: false,
+}
+
 export const DECISION_MODE_DESCRIPTIONS: Record<DecisionMode, string> = {
   RESIDENT_BINDING:
     'Die Bewohnenden stimmen ab. Das Ergebnis gilt direkt als Hausregel.',

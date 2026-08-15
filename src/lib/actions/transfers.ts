@@ -7,6 +7,7 @@ import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requireStaffAuth } from '@/lib/auth'
 import type { ReviewTransferRequestInput } from '@/lib/validation/transfer'
+import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 
 export async function getTransferRequests(status?: string) {
   await requireStaffAuth()
@@ -15,7 +16,7 @@ export async function getTransferRequests(status?: string) {
   return prisma.transferRequest.findMany({
     where,
     include: {
-      resident: { select: { id: true, code: true, supportLevel: true } },
+      resident: { select: { ...RESIDENT_NAME_SELECT, supportLevel: true } },
       currentPlacement: {
         select: {
           id: true,

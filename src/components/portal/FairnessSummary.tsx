@@ -1,10 +1,12 @@
 'use client'
 
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
+import { residentName } from '@/lib/utils/resident-name'
 
 interface FairnessEntry {
   residentId: string
   code: string
+  displayName?: string | null
   completions: number
 }
 
@@ -24,7 +26,7 @@ export function FairnessSummary({ fairness }: FairnessSummaryProps) {
           return (
             <div key={entry.residentId}>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-ui-muted">{entry.code}</span>
+                <span className="text-sm font-medium text-ui-muted">{residentName(entry)}</span>
                 <span className="text-sm text-ui-muted">
                   {entry.completions} {CHORE_LABELS.fairness.completions}
                 </span>

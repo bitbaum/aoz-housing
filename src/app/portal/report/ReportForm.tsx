@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface Props {
-  roommates: { id: string; code: string }[]
+  roommates: (NamedResident & { id: string })[]
 }
 
 type Category = 'MAINTENANCE' | 'INTERPERSONAL'
@@ -269,7 +270,7 @@ export function ReportForm({ roommates }: Props) {
                 <select name="involvedResident" className="input">
                   <option value="">{PORTAL_LABELS.report.involvedPlaceholder}</option>
                   {roommates.map((rm) => (
-                    <option key={rm.id} value={rm.id}>{rm.code}</option>
+                    <option key={rm.id} value={rm.id}>{residentName(rm)}</option>
                   ))}
                   <option value="external">{PORTAL_LABELS.report.involvedExternal}</option>
                 </select>

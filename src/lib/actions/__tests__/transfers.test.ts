@@ -76,7 +76,9 @@ describe('getTransferRequests', () => {
     expect(mockPrisma.transferRequest.findMany).toHaveBeenCalledWith({
       where: {},
       include: {
-        resident: { select: { id: true, code: true, supportLevel: true } },
+        // displayName comes along so the staff queue can show a name rather
+        // than a login code (RESIDENT_NAME_SELECT).
+        resident: { select: { id: true, code: true, displayName: true, supportLevel: true } },
         currentPlacement: {
           select: {
             id: true,

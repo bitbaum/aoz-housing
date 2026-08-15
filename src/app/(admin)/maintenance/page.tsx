@@ -21,6 +21,7 @@ import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import type { MaintenanceStatus, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
+import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,7 +63,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
           select: { code: true, label: true },
         },
         reportedBy: {
-          select: { id: true, code: true },
+          select: RESIDENT_NAME_SELECT,
         },
       },
       orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
@@ -207,7 +208,7 @@ interface RequestRowData {
   reportedById: string | null
   housingUnit: { code: string }
   spot: { code: string; label: string | null } | null
-  reportedBy: { id: string; code: string } | null
+  reportedBy: (NamedResident & { id: string }) | null
 }
 
 function RequestRow({ request }: { request: RequestRowData }) {
@@ -251,7 +252,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
                   href={`/residents/${request.reportedById}`}
                   className="inline-flex items-center py-2 -my-2 hover:text-brand-primary"
                 >
-                  👤 {request.reportedBy.code}
+                  👤 {residentName(request.reportedBy)}
                 </Link>
               )}
               {request.assignedTo && (

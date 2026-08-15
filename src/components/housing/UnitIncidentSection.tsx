@@ -6,6 +6,7 @@ import {
   UNIT_INCIDENT_LABELS,
 } from '@/lib/constants'
 import { getSeverityBorderClass, formatRelativeDate } from '@/lib/utils'
+import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface Incident {
   id: string
@@ -17,8 +18,8 @@ interface Incident {
   resolvedAt: Date | string | null
   resolution: string | null
   subjectId: string | null
-  reportedBy: { code: string } | null
-  subject: { code: string } | null
+  reportedBy: NamedResident | null
+  subject: NamedResident | null
 }
 
 interface FrequentSubject {
@@ -117,7 +118,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
             <p className="text-sm text-ui-muted mt-1">{incident.description}</p>
             {incident.subject && (
               <p className="text-sm text-ui-muted mt-1">
-                Betrifft: {incident.subject.code}
+                Betrifft: {residentName(incident.subject)}
               </p>
             )}
           </div>

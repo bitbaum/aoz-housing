@@ -5,6 +5,7 @@
 import { INCIDENT_TYPE_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { formatRelativeDate, getSeverityBorderClass } from '@/lib/utils/formatting'
 import { Badge } from './Badge'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface IncidentCardProps {
   incident: {
@@ -44,7 +45,7 @@ export function IncidentCard({
             <p className="text-sm text-ui-muted">
               {showUnit && incident.housingUnit && `${incident.housingUnit.code}`}
               {showUnit && incident.housingUnit && showResident && incident.resident && ' • '}
-              {showResident && incident.resident && incident.resident.code}
+              {showResident && incident.resident && residentName(incident.resident)}
             </p>
           </div>
           <div className="text-right">
@@ -68,7 +69,7 @@ export function IncidentCard({
             <p className="text-sm text-ui-muted mt-1">{incident.description}</p>
             {showResident && incident.resident && (
               <p className="text-sm text-ui-muted mt-1">
-                Betrifft: {incident.resident.code}
+                Betrifft: {residentName(incident.resident)}
               </p>
             )}
           </div>

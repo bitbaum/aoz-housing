@@ -16,6 +16,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -37,7 +38,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
     include: {
       housingUnit: true,
       spot: true,
-      reportedBy: { select: { id: true, code: true } },
+      reportedBy: { select: RESIDENT_NAME_SELECT },
     },
   })
 
@@ -240,7 +241,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               >
                 <span className="text-xl">👤</span>
                 <p className="font-medium text-ui-text">
-                  {request.reportedBy.code}
+                  {residentName(request.reportedBy)}
                 </p>
               </Link>
             ) : request.reporterName ? (

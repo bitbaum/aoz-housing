@@ -13,6 +13,7 @@ import {
 import { getStatusBadgeClass, formatDate } from '@/lib/utils'
 import { ResidentCardActions } from '@/components/residents/ResidentCardActions'
 import { EmptyState, ListShell } from '@/components/ui/Page'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 export interface ResidentListItem {
   id: string
@@ -63,11 +64,11 @@ function ResidentRow({ resident }: { resident: ResidentListItem }) {
       <Link href={`/residents/${resident.id}`} className="min-w-0">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-ui-border bg-ui-subtle font-mono text-xs font-semibold text-ui-text">
-            {resident.code.slice(-3)}
+            {residentInitials(resident)}
           </span>
           <span className="min-w-0">
             <span className="block truncate font-semibold text-ui-text group-hover:text-brand-primary">
-              {resident.code}
+              {residentName(resident)}
             </span>
             <span className="block truncate text-sm text-ui-muted">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} · {getLabel(GENDER_LABELS_SHORT, resident.gender)}

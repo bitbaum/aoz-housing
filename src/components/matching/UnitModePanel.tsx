@@ -3,6 +3,7 @@ import type { MatchUnit, UnitMatch } from '@/lib/matching/types'
 import { AGE_RANGE_LABELS, LANGUAGE_LABELS, MATCHING_LABELS, getLabel } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface Props {
   selectedUnit: MatchUnit
@@ -45,9 +46,9 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                 className="inline-flex items-center gap-1.5 px-2 py-1 bg-ui-surface rounded-lg border border-ui-border text-sm hover:border-brand-primary"
               >
                 <span className="w-5 h-5 bg-brand-primary text-ui-on-accent rounded-sm flex items-center justify-center text-xs">
-                  {p.resident.code.slice(0, 1)}
+                  {residentInitials(p.resident).slice(0, 1)}
                 </span>
-                {p.resident.code}
+                {residentName(p.resident)}
               </Link>
             ))}
           </div>
@@ -73,14 +74,14 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="avatar">
-                    {match.resident.code.slice(-3)}
+                    {residentInitials(match.resident)}
                   </div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
                       className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
                     >
-                      {match.resident.code}
+                      {residentName(match.resident)}
                     </Link>
                     <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}

@@ -7,6 +7,7 @@ export const metadata: Metadata = { title: 'Aufgaben' }
 import { ChoreList } from '@/components/portal/ChoreList'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +46,7 @@ export default async function ChoresPage() {
         completions: {
           orderBy: { completedAt: 'desc' },
           take: 1,
-          include: { completedBy: { select: { id: true, code: true } } },
+          include: { completedBy: { select: RESIDENT_NAME_SELECT } },
         },
         attentionFlags: {
           where: { isResolved: false },
@@ -53,7 +54,7 @@ export default async function ChoresPage() {
         requests: {
           where: { status: { in: ['PENDING', 'ACCEPTED'] } },
         },
-        createdByResident: { select: { id: true, code: true } },
+        createdByResident: { select: RESIDENT_NAME_SELECT },
       },
       orderBy: [
         { currentStatus: 'desc' },
@@ -74,7 +75,7 @@ export default async function ChoresPage() {
         status: 'ACTIVE',
       },
       select: {
-        resident: { select: { id: true, code: true } },
+        resident: { select: RESIDENT_NAME_SELECT },
       },
     }),
   ])
@@ -82,6 +83,7 @@ export default async function ChoresPage() {
   const fairness = roommates.map(p => ({
     residentId: p.resident.id,
     code: p.resident.code,
+    displayName: p.resident.displayName,
     completions: completionCounts.find(c => c.completedById === p.resident.id)?._count.id || 0,
   }))
 

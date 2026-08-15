@@ -16,6 +16,7 @@ import {
 import { SubmitButton } from '@/components/ui'
 import { PageHeader } from '@/components/ui/Page'
 import { getSeverityRadioClass, getSeverityDotClass } from '@/lib/utils'
+import { residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -171,7 +172,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 <option value="">{INCIDENT_PAGE_LABELS.fieldReporterUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
-                    {resident.code}
+                    {residentName(resident)}
                   </option>
                 ))}
               </select>
@@ -187,7 +188,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 <option value="">{INCIDENT_PAGE_LABELS.fieldSubjectUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
-                    {resident.code}
+                    {residentName(resident)}
                   </option>
                 ))}
               </select>

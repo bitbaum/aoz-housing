@@ -57,6 +57,7 @@ function makeResident(overrides: Partial<ResidentSummary> & { id: string }): Res
   return {
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
+    displayName: overrides.displayName ?? null,
     ageRange: overrides.ageRange ?? 'ADULT',
     gender: overrides.gender ?? 'PREFER_NOT_SAY',
     languages: overrides.languages ?? ['de'],

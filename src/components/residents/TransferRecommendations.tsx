@@ -7,6 +7,7 @@ import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import type { UnitWithSpots } from '@/lib/types'
 import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 // =============================================================================
 // TYPES - What data do we need to make an informed transfer decision?
@@ -164,7 +165,7 @@ export function TransferRecommendations({
                               className={`text-xs px-1.5 py-0.5 rounded ${getScoreBgClass(resident.compatibilityScore)}`}
                               title={`${resident.compatibilityScore}% kompatibel`}
                             >
-                              {resident.code} ({resident.compatibilityScore}%)
+                              {residentName(resident)} ({resident.compatibilityScore}%)
                             </span>
                           ))}
                           {unit.residents.length > 3 && (
@@ -240,7 +241,7 @@ export function TransferRecommendations({
                                     className="font-medium text-sm text-ui-text hover:text-status-info-text"
                                     onClick={(e) => e.stopPropagation()}
                                   >
-                                    {resident.code}
+                                    {residentName(resident)}
                                   </Link>
                                   <span className={`text-sm font-bold ${getScoreColorClass(resident.compatibilityScore)}`}>
                                     {resident.compatibilityScore}%

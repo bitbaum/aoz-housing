@@ -5,6 +5,7 @@ import { ALGORITHM_ACCURACY_LABELS } from '@/lib/constants/labels/dashboard'
 import { daysSinceCeil, formatDate } from '@/lib/utils'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface PlacementRow {
   id: string
@@ -46,7 +47,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                     <div>
                       <p className="text-xs text-ui-muted">{formatDate(placement.startDate)}</p>
                       <Link href={`/residents/${placement.residentId}`} className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline font-medium">
-                        {placement.resident.code}
+                        {residentName(placement.resident)}
                       </Link>
                       <p className="text-sm text-ui-muted">
                         <Link href={`/housing/${placement.housingUnitId}`} className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline">
@@ -101,7 +102,7 @@ export function RecentPlacementsTable({ placements }: Props) {
                       <td className="py-3 px-2 text-ui-muted">{formatDate(placement.startDate)}</td>
                       <td className="py-3 px-2">
                         <Link href={`/residents/${placement.residentId}`} className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline">
-                          {placement.resident.code}
+                          {residentName(placement.resident)}
                         </Link>
                         {supportLevel !== 'STANDARD' && (
                           <span className="ml-2 text-xs text-status-warning-text">

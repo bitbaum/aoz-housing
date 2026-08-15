@@ -52,6 +52,7 @@ function makeResident(overrides: Partial<CompatibleResident> = {}): CompatibleRe
     resident: {
       id: 'res-1',
       code: 'RES-001',
+      displayName: null,
       ageRange: 'ADULT',
       gender: 'MALE',
       languages: ['DE'],

@@ -10,6 +10,7 @@ import {
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { ResidentSummary } from '@/lib/types'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface CompatibilityScore {
   residentId: string
@@ -207,7 +208,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
         {/* Left: Resident info */}
         <div className="flex items-start gap-3">
           <div className="avatar font-bold flex-shrink-0">
-            {resident.code.slice(-3)}
+            {residentInitials(resident)}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -215,7 +216,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
                 href={`/residents/${resident.id}`}
                 className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
-                {resident.code}
+                {residentName(resident)}
               </Link>
               <span className={`text-sm font-medium ${getScoreColorClass(avgCompatibility)}`}>
                 Ø {avgCompatibility}%

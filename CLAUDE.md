@@ -581,6 +581,13 @@ A `BLOCK` (veto) stops a **consensus** proposal; under a majority threshold it
 counts as a No and raises a mediation flag, but does not veto — otherwise any
 one resident could block every house decision.
 
+**A vote threshold is only shown where a vote actually happens.**
+`DECISION_MODE_IS_VOTED` gates it: a `STAFF_ONLY` proposal used to render
+"Mehrheit — mehr als die Hälfte der abgegebenen Stimmen" directly beside "Die
+Betreuung entscheidet", promising residents a majority that will never be
+counted, on precisely the topics where a majority must not decide. Pinned by
+`src/lib/config/__tests__/decision-mode-voting.test.ts`.
+
 ### Acknowledgement (the cheapest prevention)
 
 Acknowledgements are per **rule version**. Amending a rule bumps its version and
@@ -655,7 +662,19 @@ Residents have **no name field by default** — the code is the identity. The
 portal lets them OPTIONALLY set `displayName`, `bio` and a photo:
 
 - `residentName()` / `residentInitials()` in `lib/utils/resident-name.ts` are
-  the SSOT for display — never inline `displayName || code`.
+  the SSOT for display — never inline `displayName || code`, and never render
+  `resident.code` directly. Both helpers already fall back to the code, so the
+  privacy default is preserved for free. **Selecting only `{ code: true }` in
+  Prisma causes the same bug one layer earlier** — spread `RESIDENT_NAME_SELECT`
+  into any query whose rows reach the UI, and use `ResidentSummary` (which
+  carries `displayName`) for compatibility cards.
+  This is enforced by `src/lib/__tests__/resident-name-ssot.test.ts`: it failed
+  on 30+ surfaces, because rendering a bare code type-checks, lints and looks
+  fine — it just tells Georgy that "RES-LCCM7A" did the dishes instead of Ihor,
+  and shows AOZ staff codes for people whose names sat in the same row. The few
+  places where the login code *is* the point (the portal's own "your code" card,
+  the staff breadcrumb) opt out with a `resident-code-intentional` comment, so
+  showing a code stays a decision rather than an accident.
 - Photos live in `ResidentPhoto` (separate table so Bytes never load on list
   queries), client-resized via canvas before upload, server-capped at 500 KB,
   and served ONLY to self + current roommates by
@@ -909,7 +928,13 @@ two reset scopes).
 - See current roommates
 - Update preferences (triggers staff review)
 - Report issues (goes to staff queue)
-- Request transfer to different housing (goes to staff approval queue)
+- Request transfer to different housing (goes to staff approval queue), **and
+  read the decision when it comes back** — `/portal/transfer` loads the LATEST
+  request whatever its status, not just a `PENDING` one. Filtering to `PENDING`
+  meant every approval or denial vanished from the resident's view the instant
+  staff made it, `staffNotes` included: they were told "du wirst benachrichtigt"
+  and then never were. Same rule as reports — an answer stored and never
+  rendered is the same as no answer.
 - Manage chore assignments
 - View help/FAQ
 

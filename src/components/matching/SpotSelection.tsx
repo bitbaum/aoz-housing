@@ -8,6 +8,7 @@ import {
   getEligibleSpotTypes,
 } from '@/lib/config/placement-spots'
 import { MATCHING_LABELS } from '@/lib/constants'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 type SpotWithPlacements = PlacementSpot & { placements: Placement[] }
 
@@ -101,7 +102,7 @@ export function SpotSelection({ spots, resident, match }: Props) {
               disabled={hasBlockingConflicts}
               aria-label={hasBlockingConflicts
                 ? `${spotName} ${MATCHING_LABELS.blocked.toLowerCase()}`
-                : `${resident.code} in ${spotName} ${MATCHING_LABELS.place.toLowerCase()}`}
+                : `${residentName(resident)} in ${spotName} ${MATCHING_LABELS.place.toLowerCase()}`}
             >
               {hasBlockingConflicts
                 ? MATCHING_LABELS.blocked

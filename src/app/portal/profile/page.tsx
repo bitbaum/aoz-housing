@@ -35,6 +35,7 @@ export default async function PortalProfilePage() {
 
       <div className="card mb-6">
         <p className="eyebrow">{L.codeLabel}</p>
+        {/* This card IS the login code. resident-code-intentional */}
         <p className="numeric text-lg text-ui-text mt-1">{resident.code}</p>
         <p className="text-sm text-ui-muted mt-1">{L.codeHint}</p>
       </div>

@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/ui/Page'
 import { updateResident } from '@/lib/actions'
 import { ResidentDangerZone } from '@/components/residents/ResidentDangerZone'
 import { RESIDENT_EDIT_LABELS } from '@/lib/constants'
+import { residentName } from '@/lib/utils/resident-name'
 
 export const metadata: Metadata = { title: 'Bewohner bearbeiten' }
 
@@ -32,7 +33,7 @@ export default async function EditResidentPage({ params }: Props) {
     <div>
       <div className="mb-6">
         <PageHeader
-          title={RESIDENT_EDIT_LABELS.title(resident.code)}
+          title={RESIDENT_EDIT_LABELS.title(residentName(resident))}
           description={RESIDENT_EDIT_LABELS.subtitle}
           backHref={`/residents/${id}`}
           backLabel={RESIDENT_EDIT_LABELS.backLink.replace(/^← /, '')}

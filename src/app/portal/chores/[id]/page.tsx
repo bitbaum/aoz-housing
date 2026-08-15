@@ -16,6 +16,7 @@ import {
 import { formatDate } from '@/lib/utils'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { requireResidentCookie } from '@/lib/portal-auth'
+import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,21 +52,21 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         housingUnitId: placement.housingUnitId,
       },
       include: {
-        createdByResident: { select: { id: true, code: true } },
+        createdByResident: { select: RESIDENT_NAME_SELECT },
         completions: {
           orderBy: { completedAt: 'desc' },
           take: QUERY_LIMITS.choreHistory,
-          include: { completedBy: { select: { id: true, code: true } } },
+          include: { completedBy: { select: RESIDENT_NAME_SELECT } },
         },
         attentionFlags: {
           orderBy: { createdAt: 'desc' },
-          include: { flaggedBy: { select: { id: true, code: true } } },
+          include: { flaggedBy: { select: RESIDENT_NAME_SELECT } },
         },
         requests: {
           orderBy: { createdAt: 'desc' },
           include: {
-            requestedBy: { select: { id: true, code: true } },
-            requestedResident: { select: { id: true, code: true } },
+            requestedBy: { select: RESIDENT_NAME_SELECT },
+            requestedResident: { select: RESIDENT_NAME_SELECT },
           },
         },
       },
@@ -77,7 +78,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         residentId: { not: resident.id },
       },
       select: {
-        resident: { select: { id: true, code: true } },
+        resident: { select: RESIDENT_NAME_SELECT },
       },
     }),
   ])
@@ -153,7 +154,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
             <span>⏱️ ~{task.estimatedMinutes} {CHORE_LABELS.detail.minutes}</span>
           )}
           {task.createdByResident && (
-            <span>👤 {task.createdByResident.code}</span>
+            <span>👤 {residentName(task.createdByResident)}</span>
           )}
           {task.createdByStaff && (
             <span>👤 {task.createdByStaff}</span>
@@ -178,7 +179,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
             {task.completions.map(c => (
               <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-ui-text">{c.completedBy.code}</p>
+                  <p className="text-sm font-medium text-ui-text">{residentName(c.completedBy)}</p>
                   {c.notes && <p className="text-sm text-ui-muted mt-0.5">{c.notes}</p>}
                 </div>
                 <div className="text-right">
@@ -202,7 +203,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
               <div key={r.id} className="p-3 bg-brand-primary/8 rounded-lg">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-ui-text">
-                    {r.requestedBy.code} → {r.requestedResident?.code || CHORE_LABELS.request.broadcast}
+                    {residentName(r.requestedBy)} → {r.requestedResident ? residentName(r.requestedResident) : CHORE_LABELS.request.broadcast}
                   </p>
                   <span className="chip bg-brand-primary/10 text-brand-primary">
                     {REQUEST_STATUS_LABELS[r.status]}
@@ -223,7 +224,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
             {activeFlags.map(f => (
               <div key={f.id} className="p-3 bg-status-warning/10 rounded-lg">
                 <p className="text-sm font-medium text-ui-text">
-                  ⚠️ {f.flaggedBy.code}
+                  ⚠️ {residentName(f.flaggedBy)}
                 </p>
                 {f.message && <p className="text-sm text-ui-muted mt-1">{f.message}</p>}
                 <p className="text-sm text-ui-muted mt-1">{formatDate(f.createdAt)}</p>
