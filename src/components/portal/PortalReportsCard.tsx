@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
-import type { ResidentReport } from '@/lib/reports/resident-reports'
+import { RESIDENT_REPORTS_ANCHOR, type ResidentReport } from '@/lib/reports/resident-reports'
 
 interface PortalReportsCardProps {
   reports: ResidentReport[]
@@ -9,7 +9,7 @@ interface PortalReportsCardProps {
 
 export function PortalReportsCard({ reports }: PortalReportsCardProps) {
   return (
-    <div className="card">
+    <div className="card" id={RESIDENT_REPORTS_ANCHOR}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.myReports}</h2>
         <Link href="/portal/report" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
