@@ -90,7 +90,15 @@ jobs:
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
-    needs: build
+    # Deliberately NO `needs:`. This job builds nothing from the Build job — it
+    # serves the app with `npm run dev` (see playwright.config.ts webServer), so
+    # waiting for Build was a dependency in the graph that did not exist in
+    # reality. It cost the full lint+unit+build chain (223s) on the critical path
+    # of the longest job in the pipeline. Every job here is still a required
+    # check; they just no longer queue behind each other.
+    # The trade-off, stated: a PR that fails lint now also burns the e2e minutes
+    # instead of being cut off early. That is the price of getting all four
+    # verdicts at once instead of in sequence.
 
     services:
       postgres:
