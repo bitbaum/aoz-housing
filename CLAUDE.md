@@ -985,7 +985,7 @@ model Account {
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 2025 tests, 105 suites
+### Unit Tests (Jest) — 2341 tests, 135 suites
 
 Representative coverage by area (not an exhaustive suite list):
 
@@ -1001,7 +1001,7 @@ Representative coverage by area (not an exhaustive suite list):
 | UI components | Dialogs (a11y), filters, BedGrid, style utilities |
 | Config | Labels, formatting, factor config |
 
-### E2E Tests (Playwright) — 168 tests, 18 specs
+### E2E Tests (Playwright) — 173 tests, 18 specs
 
 - Auth flow (code-based login)
 - Resident creation
@@ -1052,8 +1052,8 @@ npm run prisma:migrate   # Run pending migrations (production)
 npm run prisma:push      # Push schema changes (development only)
 npm run prisma:studio    # Database browser
 npm run prisma:seed      # Seed demo data
-npm run test             # Run Jest tests (2025 tests)
-npm run test:e2e         # Run Playwright tests (168 tests)
+npm run test             # Run Jest tests (2341 tests)
+npm run test:e2e         # Run Playwright tests (173 tests)
 ```
 
 ### Key Files
