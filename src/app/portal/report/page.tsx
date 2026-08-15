@@ -7,6 +7,7 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ReportForm } from './ReportForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
+import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +26,7 @@ export default async function ReportPage() {
                 where: { status: 'ACTIVE' },
                 include: {
                   resident: {
-                    select: { id: true, code: true },
+                    select: RESIDENT_NAME_SELECT,
                   },
                 },
               },
@@ -44,7 +45,7 @@ export default async function ReportPage() {
   const housingUnit = currentPlacement?.housingUnit
   const roommates = housingUnit?.placements
     .filter(p => p.residentId !== resident.id)
-    .map(p => ({ id: p.resident.id, code: p.resident.code })) || []
+    .map(p => ({ id: p.resident.id, code: p.resident.code, displayName: p.resident.displayName })) || []
 
   return (
     <div>

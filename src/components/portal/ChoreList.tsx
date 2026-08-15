@@ -10,6 +10,7 @@ import {
   CHORE_LABELS,
 } from '@/lib/config/household-tasks'
 import { showToast } from '@/components/ui/Toast'
+import type { NamedResident } from '@/lib/utils/resident-name'
 
 interface Task {
   id: string
@@ -21,7 +22,7 @@ interface Task {
   taskType: string
   completions: Array<{
     completedAt: string
-    completedBy: { code: string }
+    completedBy: NamedResident
   }>
   attentionFlags: Array<{ id: string }>
   requests: Array<{ id: string }>
@@ -30,6 +31,7 @@ interface Task {
 interface FairnessEntry {
   residentId: string
   code: string
+  displayName?: string | null
   completions: number
 }
 

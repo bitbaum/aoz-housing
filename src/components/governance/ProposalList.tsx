@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { DecisionMode, ProposalStatus, ProposalType, RuleCategory, VoteChoice, VoteThreshold } from '@prisma/client'
 import {
+  DECISION_MODE_IS_VOTED,
   DECISION_MODE_LABELS,
   PROPOSAL_STATUS_COLORS,
   PROPOSAL_STATUS_LABELS,
@@ -129,8 +130,14 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
       )}
 
       <p className="mt-3 text-sm text-ui-muted">
-        {DECISION_MODE_LABELS[proposal.decisionMode]} · {THRESHOLD_LABELS[proposal.threshold]}
-        <span className="block text-xs">{THRESHOLD_DESCRIPTIONS[proposal.threshold]}</span>
+        {DECISION_MODE_LABELS[proposal.decisionMode]}
+        {DECISION_MODE_IS_VOTED[proposal.decisionMode] && (
+          <>
+            {' · '}
+            {THRESHOLD_LABELS[proposal.threshold]}
+            <span className="block text-xs">{THRESHOLD_DESCRIPTIONS[proposal.threshold]}</span>
+          </>
+        )}
       </p>
 
       {proposal.status === 'DISCUSSION' && proposal.discussionEndsAt && (

@@ -81,6 +81,7 @@ function makeOccupiedSpot(overrides: Partial<HousingSpot> = {}): HousingSpot {
         resident: {
           id: 'res-1',
           code: 'RES-001',
+          displayName: null,
           ageRange: 'YOUNG_ADULT',
           gender: 'MALE',
           languages: ['DE', 'EN'],

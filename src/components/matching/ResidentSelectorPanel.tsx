@@ -3,6 +3,7 @@ import type { Resident } from '@prisma/client'
 import type { ResidentWithPlacement } from '@/lib/matching/types'
 import { AGE_RANGE_LABELS, LANGUAGE_LABELS, EMPTY_STATE_LABELS, MATCHING_LABELS, getLabel } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface Props {
   filteredUnplacedResidents: Resident[]
@@ -77,11 +78,11 @@ export function ResidentSelectorPanel({
                 className="flex items-center gap-3 flex-1 hover:opacity-80"
               >
                 <div className="avatar-sm">
-                  {resident.code.slice(-3)}
+                  {residentInitials(resident)}
                 </div>
                 <div>
                   <p className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary">
-                    {resident.code}
+                    {residentName(resident)}
                   </p>
                   <p className="text-sm text-ui-muted">
                     {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
@@ -131,11 +132,11 @@ export function ResidentSelectorPanel({
                   className="flex items-center gap-2 flex-1 hover:opacity-80"
                 >
                   <div className="avatar-sm w-7 h-7 bg-ui-muted">
-                    {resident.code.slice(-3)}
+                    {residentInitials(resident)}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-ui-muted">
-                      {resident.code}
+                      {residentName(resident)}
                     </p>
                     <p className="text-xs text-ui-muted">
                       {resident.placements[0]?.housingUnit?.code || MATCHING_LABELS.placed}

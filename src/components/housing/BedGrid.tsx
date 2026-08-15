@@ -5,6 +5,7 @@ import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import { BED_GRID_LABELS } from '@/lib/constants'
 import type { HousingSpot } from './types'
 import { getActivePlacement, ResidentBedPopover } from './ResidentBedPopover'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface BedGridProps {
   spots: HousingSpot[]
@@ -149,7 +150,7 @@ export function BedGrid({
                   <span className={iconSize}>{SPOT_TYPE_ICONS[spot.type]}</span>
                   {showLabels && status === 'occupied' && activePlacement && (
                     <span className={`${fontSize} font-medium truncate max-w-full px-0.5`}>
-                      {activePlacement.resident.code.slice(-3)}
+                      {residentInitials(activePlacement.resident)}
                     </span>
                   )}
                 </>

@@ -18,6 +18,9 @@ export type ResidentSummary = Pick<
   Resident,
   | 'id'
   | 'code'
+  // Carried so every card/popover can show a name via residentName(); a
+  // summary without it can only ever render a login code.
+  | 'displayName'
   | 'ageRange'
   | 'gender'
   | 'languages'

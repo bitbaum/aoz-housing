@@ -4,6 +4,7 @@ import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
 import { INCIDENT_SIDEBAR_LABELS } from '@/lib/constants'
+import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface Props {
   incident: {
@@ -13,15 +14,15 @@ interface Props {
     resolvedAt: Date | null
     housingUnitId: string
     housingUnit: { code: string; address: string }
-    reportedBy: { code: string } | null
+    reportedBy: NamedResident | null
     reportedById: string | null
-    subject: { code: string } | null
+    subject: NamedResident | null
     subjectId: string | null
     involvedResidents: Array<{
       id: string
       residentId: string
       role: string
-      resident: { code: string }
+      resident: NamedResident
     }>
     followUpCount: number
     mediationMinutes: number | null
@@ -68,7 +69,7 @@ export function IncidentSidebar({ incident }: Props) {
               <div>
                 <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.reportedBy}</p>
                 <p className="font-medium text-ui-text">
-                  {incident.reportedBy.code}
+                  {residentName(incident.reportedBy)}
                 </p>
               </div>
             </Link>
@@ -83,7 +84,7 @@ export function IncidentSidebar({ incident }: Props) {
               <div>
                 <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.subject}</p>
                 <p className="font-medium text-status-warning-text">
-                  {incident.subject.code}
+                  {residentName(incident.subject)}
                 </p>
               </div>
             </Link>
@@ -99,7 +100,7 @@ export function IncidentSidebar({ incident }: Props) {
                   className="flex items-center gap-3 p-2 bg-ui-subtle rounded hover:bg-ui-subtle"
                 >
                   <span className="font-medium text-ui-text">
-                    {inv.resident.code}
+                    {residentName(inv.resident)}
                   </span>
                   <span className="text-xs text-ui-muted">
                     ({inv.role})

@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/Page'
 import { formatRelativeDate } from '@/lib/utils'
 import { TransferActions } from './TransferActions'
 import { TRANSFER_REQUEST_STATUS_LABELS, TRANSFER_ACTION_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
+import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const metadata: Metadata = { title: PAGE_TITLES.transferRequests }
 export const dynamic = 'force-dynamic'
@@ -101,7 +102,7 @@ interface TransferRequestData {
   staffNotes: string | null
   createdAt: Date | string
   reviewedAt: Date | string | null
-  resident: { id: string; code: string; supportLevel: string | null }
+  resident: NamedResident & { id: string; supportLevel: string | null }
   currentPlacement: {
     id: string
     housingUnit: { id: string; code: string; address: string } | null
@@ -116,7 +117,7 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-semibold text-ui-text">
-              {request.resident.code}
+              {residentName(request.resident)}
             </h3>
             <span className={STATUS_BADGE[request.status] || 'badge'}>
               {STATUS_LABEL[request.status] || request.status}

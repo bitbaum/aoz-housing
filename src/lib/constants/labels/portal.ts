@@ -385,6 +385,10 @@ export const PORTAL_LABELS = {
     successMessage: 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
     navLabel: 'Verlegung',
     currentUnit: 'Aktuelle Unterkunft',
+    decisionTitle: 'Antwort auf deine Anfrage',
+    yourReason: 'Dein Grund',
+    staffNote: 'Nachricht der Betreuung',
+    decidedOn: 'Entschieden am',
   },
   help: {
     faqTitle: 'Häufig gestellte Fragen',

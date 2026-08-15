@@ -38,6 +38,7 @@ import { getUnitFitConcerns } from '@/lib/compatibility'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
+import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -386,7 +387,7 @@ interface ResidentCardPlacement {
   id: string
   residentId: string
   startDate: Date | string
-  resident: { code: string }
+  resident: NamedResident
 }
 
 function ResidentCard({
@@ -413,10 +414,10 @@ function ResidentCard({
     <div className="flex items-center justify-between p-4 bg-ui-subtle rounded-lg">
       <div className="flex items-center gap-4">
         <div className="avatar">
-          {placement.resident.code.slice(-3)}
+          {residentInitials(placement.resident)}
         </div>
         <div>
-          <p className="font-medium text-ui-text">{placement.resident.code}</p>
+          <p className="font-medium text-ui-text">{residentName(placement.resident)}</p>
           <p className="text-sm text-ui-muted">
             {HOUSING_DETAIL_LABELS.residentSince} {formatDate(placement.startDate)}
           </p>

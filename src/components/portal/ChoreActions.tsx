@@ -4,10 +4,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
+import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
-interface Roommate {
+interface Roommate extends NamedResident {
   id: string
-  code: string
 }
 
 interface ChoreActionsProps {
@@ -217,7 +217,7 @@ export function ChoreActions({ taskId, roommates }: ChoreActionsProps) {
                   >
                     <option value="">{CHORE_LABELS.request.broadcast}</option>
                     {roommates.map(r => (
-                      <option key={r.id} value={r.id}>{r.code}</option>
+                      <option key={r.id} value={r.id}>{residentName(r)}</option>
                     ))}
                   </select>
                   <p className="text-xs text-ui-muted mt-1">{CHORE_LABELS.request.broadcastDesc}</p>

@@ -6,6 +6,7 @@ import { X } from 'lucide-react'
 import { AGE_RANGE_LABELS, LANGUAGE_LABELS, BED_GRID_LABELS, getLabel } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { HousingSpot } from './types'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 export function getActivePlacement(spot: HousingSpot) {
   return spot.placements.find((p) => p.status === 'ACTIVE')
@@ -58,10 +59,10 @@ export const ResidentBedPopover = forwardRef<HTMLDivElement, ResidentBedPopoverP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="avatar font-bold">
-              {resident.code.slice(-3)}
+              {residentInitials(resident)}
             </div>
             <div>
-              <p className="font-semibold text-ui-text">{resident.code}</p>
+              <p className="font-semibold text-ui-text">{residentName(resident)}</p>
               <p className="text-xs text-ui-muted">
                 {spot.label || spot.code}
               </p>

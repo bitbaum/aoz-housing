@@ -26,6 +26,7 @@ import {
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
+import { RESIDENT_NAME_SELECT, residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         residentId: true,
         housingUnitId: true,
         resident: {
-          select: { code: true, supportLevel: true },
+          select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
         },
         housingUnit: {
           select: { code: true, address: true },
@@ -111,6 +112,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
   const filteredPlacements = placements.filter((placement) => {
     const matchesQuery = !query ||
+      residentName(placement.resident).toLowerCase().includes(query) ||
       placement.resident.code.toLowerCase().includes(query) ||
       placement.housingUnit.code.toLowerCase().includes(query) ||
       placement.housingUnit.address.toLowerCase().includes(query)
@@ -258,7 +260,7 @@ interface PlacementRowData {
   endReason: string | null
   residentId: string
   housingUnitId: string
-  resident: { code: string; supportLevel: string | null }
+  resident: NamedResident & { supportLevel: string | null }
   housingUnit: { code: string; address: string }
   checkIns: {
     createdAt: Date | string
@@ -296,14 +298,14 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           {/* Resident */}
           <div className="flex items-center gap-3">
             <div className="avatar">
-              {placement.resident.code.slice(-3)}
+              {residentInitials(placement.resident)}
             </div>
             <div>
               <Link
                 href={`/residents/${placement.residentId}`}
                 className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
               >
-                {placement.resident.code}
+                {residentName(placement.resident)}
               </Link>
               {supportLevel !== 'STANDARD' && (
                 <p className="text-xs text-status-warning-text">

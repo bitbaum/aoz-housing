@@ -12,6 +12,7 @@ import {
 } from '@/lib/config/placement-spots'
 import { SpotActions } from '@/components/spots/SpotActions'
 import { HOUSING_SPOTS_LABELS } from '@/lib/constants'
+import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -368,7 +369,7 @@ interface SpotRowData {
   type: string
   status: string
   requiresMedicalDocs: boolean
-  placements?: { id: string; status: string; resident: { id: string; code: string } }[]
+  placements?: { id: string; status: string; resident: NamedResident & { id: string } }[]
 }
 
 function SpotRow({
@@ -414,7 +415,7 @@ function SpotRow({
               href={`/residents/${activePlacement.resident.id}`}
               className="text-sm text-status-info-text hover:underline"
             >
-              {activePlacement.resident.code}
+              {residentName(activePlacement.resident)}
             </Link>
           ) : (
             <span className="text-sm text-ui-muted">

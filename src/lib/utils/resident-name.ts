@@ -11,6 +11,19 @@ export interface NamedResident {
   displayName?: string | null
 }
 
+/**
+ * The columns the helpers below need, as a Prisma `select` fragment.
+ *
+ * Spread this into every query whose rows reach the UI. Selecting only `code`
+ * type-checks and renders — as a bare login code, silently — which is exactly
+ * how the chore board came to tell people "erledigt von RES-LCCM7A".
+ */
+export const RESIDENT_NAME_SELECT = {
+  id: true,
+  code: true,
+  displayName: true,
+} as const
+
 export function residentName(resident: NamedResident): string {
   return resident.displayName?.trim() || resident.code
 }

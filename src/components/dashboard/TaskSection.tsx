@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { AlertTriangle, AlertCircle, Home, Wrench } from 'lucide-react'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { formatDateShort } from '@/lib/utils'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 interface OverdueCheckIn {
   id: string
@@ -128,7 +129,7 @@ export function TaskSection({
               <TaskItem
                 key={resident.id}
                 href={`/residents/${resident.id}`}
-                primary={resident.code}
+                primary={residentName(resident)}
                 secondary={`${DASHBOARD_LABELS.taskSincePrefix} ${formatDateShort(resident.createdAt)}`}
               />
             ))}

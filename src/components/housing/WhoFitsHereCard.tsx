@@ -2,11 +2,11 @@ import Link from 'next/link'
 import { AGE_RANGE_LABELS, LANGUAGE_LABELS, WHO_FITS_HERE_LABELS, getLabel } from '@/lib/constants'
 import { getScoreColorClass } from '@/lib/utils'
 import { getScoreLevel, DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 interface CompatibleResident {
-  resident: {
+  resident: NamedResident & {
     id: string
-    code: string
     ageRange: string
     languages: string[]
   }
@@ -66,14 +66,14 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
               >
                 <div className="flex items-center gap-3">
                   <div className="avatar">
-                    {match.resident.code.slice(-3)}
+                    {residentInitials(match.resident)}
                   </div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
                       className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
                     >
-                      {match.resident.code}
+                      {residentName(match.resident)}
                     </Link>
                     <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
