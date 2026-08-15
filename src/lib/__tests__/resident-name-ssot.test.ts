@@ -23,18 +23,31 @@ import { sync as globSync } from 'glob'
 const SRC = join(process.cwd(), 'src')
 const OPT_OUT = 'resident-code-intentional'
 
-/** Accessors that hold a resident row somewhere in the product. */
-const RESIDENT_ACCESSORS = [
-  'resident',
-  'reportedBy',
-  'subject',
-  'completedBy',
-  'flaggedBy',
-  'requestedBy',
-  'requestedResident',
-  'createdByResident',
-  'involvedResident',
-  'roommate',
+/**
+ * Everything that legitimately owns a `code` WITHOUT being a person.
+ *
+ * This is a denylist on purpose. The first version of this rule listed the
+ * resident-ish accessor names instead and silently missed `candidate.code` in
+ * the agreements panel — a rule that enumerates what to catch cannot catch the
+ * name nobody thought of, and reads as "all clear" while doing it. The set of
+ * things that are NOT people is small, closed, and easy to keep honest.
+ */
+const NON_RESIDENT_CODE_HOLDERS = [
+  'unit',
+  'units',
+  'housingUnit',
+  'targetUnit',
+  'currentUnit',
+  'worstUnit',
+  'topUnit',
+  'spot',
+  'room',
+  'childSpot',
+  'user',
+  'u',
+  'rule',
+  'orgRule',
+  'parentRule',
 ]
 
 // `X.code` inside a JSX expression. Only the accessor DIRECTLY before `.code`
@@ -50,11 +63,16 @@ const CODE_ACCESS = /\{[^{}]*?([A-Za-z0-9_]+)\??\.code\b/g
 const PASSES_CODE_AS_DATA = /\bcode:\s*[A-Za-z0-9_.?[\]]*\.code\b/
 const PASSES_CODE_AS_PROP = /[Cc]ode=\{/
 
+/** `LOGIN_LABELS.code` is a label key on a constants object, not a person. */
+const IS_CONSTANTS_OBJECT = /^[A-Z0-9_]+$/
+
 function rendersResidentCode(line: string): boolean {
   if (PASSES_CODE_AS_DATA.test(line) || PASSES_CODE_AS_PROP.test(line)) return false
   return Array.from(line.match(CODE_ACCESS) ?? []).some((fragment) => {
     const accessor = /([A-Za-z0-9_]+)\??\.code\b/.exec(fragment)?.[1]
-    return !!accessor && RESIDENT_ACCESSORS.includes(accessor)
+    if (!accessor) return false
+    if (IS_CONSTANTS_OBJECT.test(accessor)) return false
+    return !NON_RESIDENT_CODE_HOLDERS.includes(accessor)
   })
 }
 
@@ -89,9 +107,14 @@ describe('resident display-name SSOT', () => {
     expect(rendersResidentCode('<span>{p.resident.code.slice(-3)}</span>')).toBe(true)
     expect(rendersResidentCode('Betrifft: {incident.subject.code}')).toBe(true)
 
+    // The denylist must catch an accessor nobody thought to enumerate — this
+    // exact case (`candidate.code`) escaped the first version of this rule.
+    expect(rendersResidentCode('<span>{candidate.code}</span>')).toBe(true)
+
     expect(rendersResidentCode('<p>{residentName(resident)}</p>')).toBe(false)
     // A UNIT code reached through a resident is not a resident name.
     expect(rendersResidentCode('{resident.placements[0]?.housingUnit?.code}')).toBe(false)
+    expect(rendersResidentCode('<p>{spot.code}</p>')).toBe(false)
     expect(rendersResidentCode('{ id: p.resident.id, code: p.resident.code }')).toBe(false)
     expect(rendersResidentCode('<Danger residentCode={resident.code} />')).toBe(false)
   })

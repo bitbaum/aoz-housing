@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getScoreBgClass } from '@/lib/utils'
 import { COMPATIBILITY_MATRIX_LABELS } from '@/lib/constants'
 import type { ResidentBasic } from '@/lib/types'
+import { residentName } from '@/lib/utils/resident-name'
 import { CompatibilityDetailPopover, type CompatibilityScore } from './CompatibilityDetailPopover'
 
 interface CompatibilityMatrixInteractiveProps {
@@ -102,7 +103,7 @@ export function CompatibilityMatrixInteractive({
                   href={`/residents/${r.id}`}
                   className="hover:text-brand-primary transition-colors"
                 >
-                  {r.code}
+                  {residentName(r)}
                 </Link>
               </th>
             ))}
@@ -116,7 +117,7 @@ export function CompatibilityMatrixInteractive({
                   href={`/residents/${r1.id}`}
                   className="hover:text-brand-primary transition-colors"
                 >
-                  {r1.code}
+                  {residentName(r1)}
                 </Link>
               </th>
               {residents.map((r2) => {
@@ -134,7 +135,7 @@ export function CompatibilityMatrixInteractive({
                       <button
                         onClick={(e) => handleCellClick(r1, r2, e)}
                         className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-ui-subtle text-ui-muted text-xs hover:bg-ui-border transition-colors cursor-pointer"
-                        aria-label={`Keine Bewertung: ${r1.code} und ${r2.code}`}
+                        aria-label={`Keine Bewertung: ${residentName(r1)} und ${residentName(r2)}`}
                       >
                         ?
                       </button>
@@ -146,7 +147,7 @@ export function CompatibilityMatrixInteractive({
                         )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-brand-primary ${
                           isSelected ? 'ring-2 ring-offset-1 ring-brand-primary' : ''
                         }`}
-                        aria-label={`Kompatibilität ${r1.code} und ${r2.code}: ${score.overallScore}%`}
+                        aria-label={`Kompatibilität ${residentName(r1)} und ${residentName(r2)}: ${score.overallScore}%`}
                         aria-expanded={isSelected ? true : undefined}
                       >
                         {score.overallScore}

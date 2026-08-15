@@ -25,6 +25,7 @@ interface Incident {
 interface FrequentSubject {
   id: string
   code: string
+  displayName?: string | null
   count: number
 }
 
@@ -70,7 +71,7 @@ export function UnitIncidentSection({
                     href={`/residents/${s.id}`}
                     className="inline-flex items-center gap-1 px-2 py-1 bg-status-warning/15 text-status-warning-text rounded text-sm hover:bg-status-warning/20 transition-colors"
                   >
-                    <span className="font-medium">{s.code}</span>
+                    <span className="font-medium">{residentName(s)}</span>
                     <span className="text-status-warning-text">({s.count}x)</span>
                   </Link>
                 ))}

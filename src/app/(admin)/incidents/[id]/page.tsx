@@ -33,6 +33,7 @@ import { AgreementsPanel } from '@/components/governance/AgreementsPanel'
 import { recommendNextStep } from '@/lib/governance/escalation'
 import { AGREEMENT_CONFIG } from '@/lib/config/conflict-resolution'
 import { IncidentSidebar } from '@/components/incidents/IncidentSidebar'
+import { residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,13 +103,15 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
     new Map(
       [
         ...(incident.reportedById && incident.reportedBy
-          ? [[incident.reportedById, incident.reportedBy.code] as const]
+          ? [[incident.reportedById, residentName(incident.reportedBy)] as const]
           : []),
         ...(incident.subjectId && incident.subject
-          ? [[incident.subjectId, incident.subject.code] as const]
+          ? [[incident.subjectId, residentName(incident.subject)] as const]
           : []),
-        ...incident.involvedResidents.map((i) => [i.residentId, i.resident.code] as const),
-      ].map(([id, code]) => [id, { id, code }])
+        ...incident.involvedResidents.map(
+          (i) => [i.residentId, residentName(i.resident)] as const
+        ),
+      ].map(([id, name]) => [id, { id, name }])
     ).values()
   )
 
@@ -251,7 +254,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
               mediatorName: agreement.mediatorName,
               parties: agreement.parties.map((party) => ({
                 residentId: party.residentId,
-                residentCode: party.resident.code,
+                residentName: residentName(party.resident),
                 acceptedAt: party.acceptedAt?.toISOString() ?? null,
               })),
             }))}

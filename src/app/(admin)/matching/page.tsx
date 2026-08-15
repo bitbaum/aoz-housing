@@ -23,6 +23,7 @@ import type {
 import { ResidentSelectorPanel } from '@/components/matching/ResidentSelectorPanel'
 import { UnitModePanel } from '@/components/matching/UnitModePanel'
 import { MatchResultsPanel } from '@/components/matching/MatchResultsPanel'
+import { residentName } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -325,7 +326,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             <span className="text-2xl">👤</span>
             <div>
               <h2 className="font-semibold text-status-success-text">
-                {MATCHING_LABELS.residentCreated(selectedResident?.code ?? '')}
+                {MATCHING_LABELS.residentCreated(selectedResident ? residentName(selectedResident) : '')}
               </h2>
               <p className="text-sm text-status-success-text mt-1">
                 {MATCHING_LABELS.newResidentBannerDesc}
@@ -342,7 +343,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             <span className="text-xl">ℹ️</span>
             <div>
               <h2 className="font-semibold text-status-info-text">
-                {MATCHING_LABELS.whatIfTitle(selectedResident.code)}
+                {MATCHING_LABELS.whatIfTitle(residentName(selectedResident))}
               </h2>
               <p className="text-sm text-status-info-text mt-1">
                 {MATCHING_LABELS.whatIfCurrentPlacement(selectedResident.placements[0]?.housingUnit?.code ?? '')}{' '}

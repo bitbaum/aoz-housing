@@ -53,8 +53,8 @@ jest.mock('../CompatibilityDetailPopover', () => ({
 
 // --- Helpers ---
 
-function makeResident(id: string, code: string): ResidentBasic {
-  return { id, code, ageRange: 'ADULT', languages: ['de'] }
+function makeResident(id: string, code: string, displayName: string | null = null): ResidentBasic {
+  return { id, code, displayName, ageRange: 'ADULT', languages: ['de'] }
 }
 
 function makeScore(r1Id: string, r2Id: string, overall: number): CompatibilityScore {

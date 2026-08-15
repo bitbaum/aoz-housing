@@ -38,7 +38,12 @@ import { getUnitFitConcerns } from '@/lib/compatibility'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
-import { residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
+import {
+  RESIDENT_NAME_SELECT,
+  residentInitials,
+  residentName,
+  type NamedResident,
+} from '@/lib/utils/resident-name'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -86,8 +91,8 @@ export default async function HousingDetailPage({ params }: Props) {
         orderBy: { date: 'desc' },
         take: QUERY_LIMITS.unitHistory,
         include: {
-          reportedBy: { select: { code: true } },
-          subject: { select: { code: true } },
+          reportedBy: { select: RESIDENT_NAME_SELECT },
+          subject: { select: RESIDENT_NAME_SELECT },
         },
       },
     },
@@ -127,12 +132,19 @@ export default async function HousingDetailPage({ params }: Props) {
   )
 
   // Analyze frequent subjects (troublemaker detection)
-  const subjectCounts: Record<string, { code: string; count: number }> = {}
+  const subjectCounts: Record<
+    string,
+    { code: string; displayName: string | null; count: number }
+  > = {}
   for (const incident of unit.incidents) {
     if (incident.subject) {
       const id = incident.subjectId!
       if (!subjectCounts[id]) {
-        subjectCounts[id] = { code: incident.subject.code, count: 0 }
+        subjectCounts[id] = {
+          code: incident.subject.code,
+          displayName: incident.subject.displayName,
+          count: 0,
+        }
       }
       subjectCounts[id].count++
     }

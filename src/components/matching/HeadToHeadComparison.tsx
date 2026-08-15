@@ -9,6 +9,7 @@ import {
 } from '@/lib/constants'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 /**
  * Config-driven comparison attributes (SSOT)
@@ -104,8 +105,8 @@ export function HeadToHeadComparison({ currentResidents, newResident, apartmentP
             <tr className="bg-ui-subtle">
               <th scope="col" className="p-1.5 text-left font-semibold text-ui-muted border-b w-20">Attribut</th>
               {currentResidents.slice(0, DISPLAY_LIMITS.comparisonResidents).map((r) => (
-                <th scope="col" key={r.id} className="p-1.5 text-center font-medium text-ui-muted border-b" style={{ minWidth: '50px' }}>
-                  {r.code.slice(-3)}
+                <th scope="col" key={r.id} title={residentName(r)} className="p-1.5 text-center font-medium text-ui-muted border-b" style={{ minWidth: '50px' }}>
+                  {residentInitials(r)}
                 </th>
               ))}
               {currentResidents.length > DISPLAY_LIMITS.comparisonResidents && (

@@ -47,8 +47,17 @@ export type ResidentHouseholdProfile = Pick<
   | 'languages'
 >
 
-/** Minimal resident for matrix headers and simple lists */
-export type ResidentBasic = Pick<Resident, 'id' | 'code' | 'ageRange' | 'languages'>
+/**
+ * Minimal resident for matrix headers and simple lists.
+ *
+ * `displayName` is part of the minimum: a resident subset that carries only the
+ * code forces every consumer to render the login code, which is how the
+ * compatibility matrix came to label its rows "RES-DEMO08".
+ */
+export type ResidentBasic = Pick<
+  Resident,
+  'id' | 'code' | 'displayName' | 'ageRange' | 'languages'
+>
 
 // =============================================================================
 // SPOT / UNIT SUBSETS

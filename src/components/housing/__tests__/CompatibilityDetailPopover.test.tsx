@@ -54,8 +54,8 @@ jest.mock('@/lib/config/thresholds', () => ({
 
 // --- Helpers ---
 
-const R1 = { id: 'res-1', code: 'RES-001', ageRange: 'ADULT' as const, languages: ['de'] }
-const R2 = { id: 'res-2', code: 'RES-002', ageRange: 'ADULT' as const, languages: ['en'] }
+const R1 = { id: 'res-1', code: 'RES-001', displayName: null, ageRange: 'ADULT' as const, languages: ['de'] }
+const R2 = { id: 'res-2', code: 'RES-002', displayName: null, ageRange: 'ADULT' as const, languages: ['en'] }
 const POSITION = { x: 200, y: 100 }
 
 function makeScore(overrides: Partial<CompatibilityScore> = {}): CompatibilityScore {

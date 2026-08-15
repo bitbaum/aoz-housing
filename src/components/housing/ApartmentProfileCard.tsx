@@ -11,6 +11,7 @@ import {
 import { getScoreColorClass } from '@/lib/utils'
 import type { ResidentHouseholdProfile } from '@/lib/types'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+import { residentName } from '@/lib/utils/resident-name'
 
 interface ApartmentProfileCardProps {
   residents: ResidentHouseholdProfile[]
@@ -157,25 +158,25 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldCleanliness}
               value={metrics.avgCleanliness}
-              values={residents.map(r => ({ code: r.code, value: r.cleanlinessPractice }))}
+              values={residents.map(r => ({ name: residentName(r), value: r.cleanlinessPractice }))}
               factorKey="cleanlinessPractice"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldNoiseTolerance}
               value={metrics.avgNoiseTolerance}
-              values={residents.map(r => ({ code: r.code, value: r.noiseTolerance }))}
+              values={residents.map(r => ({ name: residentName(r), value: r.noiseTolerance }))}
               factorKey="noiseTolerance"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldPrivacy}
               value={metrics.avgPrivacyNeed}
-              values={residents.map(r => ({ code: r.code, value: r.privacyNeed }))}
+              values={residents.map(r => ({ name: residentName(r), value: r.privacyNeed }))}
               factorKey="privacyNeed"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldChores}
               value={metrics.avgChoresContribution}
-              values={residents.map(r => ({ code: r.code, value: r.choresContribution }))}
+              values={residents.map(r => ({ name: residentName(r), value: r.choresContribution }))}
               factorKey="choresContribution"
             />
           </div>
@@ -241,7 +242,7 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
 interface ScaleMetricProps {
   label: string
   value: number
-  values: { code: string; value: number }[]
+  values: { name: string; value: number }[]
   factorKey: string
 }
 
@@ -261,8 +262,8 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-ui-text">{roundedValue.toFixed(1)}</span>
           {outliers.length > 0 && (
-            <span className="text-xs text-status-warning-text" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.code).join(', ')}`}>
-              ⚠️ {outliers.map(o => o.code).join(', ')}
+            <span className="text-xs text-status-warning-text" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.name).join(', ')}`}>
+              ⚠️ {outliers.map(o => o.name).join(', ')}
             </span>
           )}
         </div>
@@ -282,7 +283,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
               key={i}
               className={`absolute top-0 w-1 h-2 rounded-sm ${isOutlier ? 'bg-status-warning' : 'bg-brand-primary-dark'}`}
               style={{ left: `${pos}%`, transform: 'translateX(-50%)' }}
-              title={`${v.code}: ${v.value}`}
+              title={`${v.name}: ${v.value}`}
             />
           )
         })}
