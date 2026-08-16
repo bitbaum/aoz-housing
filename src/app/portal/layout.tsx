@@ -4,6 +4,7 @@ import { cookies, headers } from 'next/headers'
 import { createTranslator, resolveLocale, LOCALE_COOKIE, LOCALES } from '@/lib/i18n'
 import { LocaleProvider } from '@/lib/i18n/LocaleProvider'
 import { PortalNav } from '@/components/portal/PortalNav'
+import { PortalSidebar } from '@/components/portal/PortalSidebar'
 import { PortalTabBar } from '@/components/portal/PortalTabBar'
 import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
 
@@ -53,33 +54,45 @@ export default async function PortalLayout({
       <LocaleProvider locale={locale}>
       <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
 
-      {/* Header with responsive navigation */}
-      <header className="chrome-bar sticky top-0">
-        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
-          <PortalNav hasStaffAccess={hasStaffAccess} />
-        </div>
-      </header>
+      {/* Sidebar beside the content on desktop, tab bar below it on mobile.
+          Both are permanent and both are generated from the same nav config,
+          so the two form factors cannot drift into saying different things. */}
+      <div className="flex flex-1 min-h-0">
+        <PortalSidebar hasStaffAccess={hasStaffAccess} />
 
-      <main id="portal-main" className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
-        {children}
-      </main>
+        <div className="flex flex-col flex-1 min-w-0">
+          {/* Below `lg` this is the whole header. At `lg` the sidebar carries
+              the brand and this row would only repeat it. */}
+          <header className="chrome-bar sticky top-0 lg:hidden">
+            <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
+              <PortalNav />
+            </div>
+          </header>
+
+          <main
+            id="portal-main"
+            className="flex-1 w-full max-w-4xl mx-auto px-4 py-6 sm:py-8 lg:px-8"
+          >
+            {children}
+          </main>
+
+          {/* The emergency line must stay reachable on a phone — it is the one
+              piece of copy on this surface that matters at 3am. The wrapper's
+              bottom padding lifts it clear of the fixed tab bar. */}
+          <footer className="border-t border-ui-border bg-ui-surface mt-auto">
+            <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 lg:px-8">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ui-muted">
+                <p className="text-center sm:text-start">{t('safety.emergency')}</p>
+                <Link href="/portal/help" className="hover:text-ui-text min-h-[44px] flex items-center">
+                  {t('nav.help')}
+                </Link>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </div>
 
       <PortalTabBar hasStaffAccess={hasStaffAccess} />
-
-      {/* The emergency line lives here and must stay reachable on a phone —
-          it is the one piece of copy on this surface that matters at 3am. It
-          keeps its place in the flow; the wrapper's bottom padding is what
-          lifts it clear of the fixed tab bar. */}
-      <footer className="border-t border-ui-border bg-ui-surface mt-auto">
-        <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ui-muted">
-            <p className="text-center sm:text-start">{t('safety.emergency')}</p>
-            <Link href="/portal/help" className="hover:text-ui-text min-h-[44px] flex items-center">
-              {t('nav.help')}
-            </Link>
-          </div>
-        </div>
-      </footer>
       </LocaleProvider>
     </div>
   )
