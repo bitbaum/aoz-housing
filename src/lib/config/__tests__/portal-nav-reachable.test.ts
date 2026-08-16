@@ -7,7 +7,9 @@ import {
   NAV_ICONS,
 } from '@/lib/config/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
-import { portalNavLabel, isPortalPathActive } from '@/lib/utils/portal-nav'
+import { portalNavMessageKey, isPortalPathActive } from '@/lib/utils/portal-nav'
+import { createTranslator } from '@/lib/i18n'
+import { de } from '@/lib/i18n/dictionaries/de'
 
 /**
  * A page nobody can reach is a page that does not exist.
@@ -84,7 +86,14 @@ describe('the mobile tab bar', () => {
       expect({ href: item.href, icon: Boolean(NAV_ICONS[item.icon]) })
         .toEqual({ href: item.href, icon: true })
 
-      const label = portalNavLabel(item)
+      // The key must exist in the German dictionary, not merely resolve: a
+      // missing key falls back to German by design, and German falling back to
+      // German would hide a typo'd key behind `undefined`.
+      const key = portalNavMessageKey(item)
+      expect({ href: item.href, inDictionary: key in de })
+        .toEqual({ href: item.href, inDictionary: true })
+
+      const label = createTranslator('de')(key)
       expect({ href: item.href, label: typeof label === 'string' && label.length > 0 })
         .toEqual({ href: item.href, label: true })
     }

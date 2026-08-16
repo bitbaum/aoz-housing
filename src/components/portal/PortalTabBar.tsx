@@ -12,9 +12,12 @@ import {
   type PortalNavGroup,
   type PortalNavItem,
 } from '@/lib/config/navigation'
-import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { UI_LABELS } from '@/lib/constants/labels'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { isPortalPathActive, portalNavLabel } from '@/lib/utils/portal-nav'
+import { isPortalPathActive, portalNavMessageKey } from '@/lib/utils/portal-nav'
+import { useT } from '@/lib/i18n/LocaleProvider'
+import type { MessageKey } from '@/lib/i18n'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 /**
  * The portal's mobile navigation: four pinned destinations plus everything
@@ -28,6 +31,7 @@ import { isPortalPathActive, portalNavLabel } from '@/lib/utils/portal-nav'
  */
 export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
   const [moreOpen, setMoreOpen] = useState(false)
+  const t = useT()
   const pathname = usePathname()
   const openButtonRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
@@ -78,20 +82,20 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
         id="portal-more-sheet"
         role="dialog"
         aria-modal="true"
-        aria-label={PORTAL_LABELS.nav.moreTitle}
+        aria-label={t('nav.moreTitle')}
         hidden={!moreOpen}
         className="fixed inset-x-0 bottom-0 z-50 lg:hidden max-h-[85vh] overflow-y-auto
                    rounded-t-xl border-t border-ui-border bg-ui-surface"
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-ui-border">
-          <p className="eyebrow">{PORTAL_LABELS.nav.moreTitle}</p>
+          <p className="eyebrow">{t('nav.moreTitle')}</p>
           <div className="flex items-center gap-1">
             <ThemeToggle />
             <button
               ref={closeButtonRef}
               onClick={close}
               className="btn-icon -mr-2"
-              aria-label={PORTAL_LABELS.nav.closeMore}
+              aria-label={t('nav.closeMore')}
             >
               <X className="w-5 h-5" />
             </button>
@@ -104,6 +108,10 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
           ))}
 
           <div className="mt-4 pt-3 border-t border-ui-border">
+            <LanguageSwitcher />
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-ui-border">
             {hasStaffAccess && (
               <Link
                 href="/"
@@ -116,7 +124,7 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
             <form action="/api/portal/logout" method="POST">
               <button type="submit" className="nav-item w-full min-h-[44px] justify-start">
                 <LogOut className="w-4 h-4" aria-hidden="true" />
-                {PORTAL_LABELS.nav.logout}
+                {t('nav.logout')}
               </button>
             </form>
           </div>
@@ -135,7 +143,7 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
               aria-current={active ? 'page' : undefined}
             >
               <Icon className="w-5 h-5" aria-hidden="true" />
-              <span>{portalNavLabel(item)}</span>
+              <span>{t(portalNavMessageKey(item))}</span>
             </Link>
           )
         })}
@@ -148,7 +156,7 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
           aria-controls="portal-more-sheet"
         >
           <MoreIcon className="w-5 h-5" aria-hidden="true" />
-          <span>{PORTAL_LABELS.nav.more}</span>
+          <span>{t('nav.more')}</span>
         </button>
       </nav>
     </>
@@ -156,12 +164,13 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
 }
 
 function MoreGroup({ group, pathname }: { group: PortalNavGroup; pathname: string }) {
+  const t = useT()
   const items = PORTAL_NAV_ITEMS.filter((item) => item.group === group)
   if (items.length === 0) return null
 
   return (
     <div className="mt-4 first:mt-0">
-      <p className="eyebrow px-3 mb-1">{PORTAL_LABELS.navGroups[group]}</p>
+      <p className="eyebrow px-3 mb-1">{t(`navGroup.${group}` as MessageKey)}</p>
       {items.map((item) => (
         <MoreLink key={item.href} item={item} active={isPortalPathActive(pathname, item.href)} />
       ))}
@@ -170,6 +179,7 @@ function MoreGroup({ group, pathname }: { group: PortalNavGroup; pathname: strin
 }
 
 function MoreLink({ item, active }: { item: PortalNavItem; active: boolean }) {
+  const t = useT()
   const Icon = NAV_ICONS[item.icon]
   return (
     <Link
@@ -178,7 +188,7 @@ function MoreLink({ item, active }: { item: PortalNavItem; active: boolean }) {
       aria-current={active ? 'page' : undefined}
     >
       <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
-      <span>{portalNavLabel(item)}</span>
+      <span>{t(portalNavMessageKey(item))}</span>
     </Link>
   )
 }

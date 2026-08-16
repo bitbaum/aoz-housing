@@ -1,5 +1,5 @@
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import type { PortalNavItem } from '@/lib/config/navigation'
+import type { MessageKey } from '@/lib/i18n'
 
 /**
  * Display helpers shared by the portal's desktop nav and its mobile tab bar.
@@ -11,13 +11,13 @@ import type { PortalNavItem } from '@/lib/config/navigation'
  */
 
 /**
- * Labels stay in PORTAL_LABELS rather than in the nav config, so German copy
- * has one home. The nav item carries the key.
+ * The nav item carries a KEY, not a string, so the same item renders in
+ * whatever language the reader chose. Translations live in the dictionaries and
+ * the nav config stays language-free — which is what stops a new destination
+ * from being added in German only.
  */
-export function portalNavLabel(item: PortalNavItem): string {
-  if (item.labelKey === 'transfer') return PORTAL_LABELS.transfer.navLabel
-  const nav = PORTAL_LABELS.nav as Record<string, string>
-  return nav[item.labelKey]
+export function portalNavMessageKey(item: PortalNavItem): MessageKey {
+  return `nav.${item.labelKey}` as MessageKey
 }
 
 /**

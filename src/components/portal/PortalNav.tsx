@@ -6,7 +6,8 @@ import { ArrowRightLeft, LogOut } from 'lucide-react'
 import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { PORTAL_NAV_ITEMS } from '@/lib/config/navigation'
-import { isPortalPathActive, portalNavLabel } from '@/lib/utils/portal-nav'
+import { isPortalPathActive, portalNavMessageKey } from '@/lib/utils/portal-nav'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 interface PortalNavProps {
   hasStaffAccess?: boolean
@@ -22,6 +23,7 @@ interface PortalNavProps {
  */
 export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   const pathname = usePathname()
+  const t = useT()
   const primary = PORTAL_NAV_ITEMS.filter((item) => item.primary)
 
   return (
@@ -43,7 +45,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
               className={`min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
               aria-current={active ? 'page' : undefined}
             >
-              {portalNavLabel(item)}
+              {t(portalNavMessageKey(item))}
             </Link>
           )
         })}
@@ -59,7 +61,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         <form action="/api/portal/logout" method="POST" className="ml-2">
           <button type="submit" className="nav-item min-h-[44px]">
             <LogOut className="w-4 h-4" aria-hidden="true" />
-            {PORTAL_LABELS.nav.logout}
+            {t('nav.logout')}
           </button>
         </form>
         <ThemeToggle />

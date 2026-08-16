@@ -8,6 +8,8 @@ let mockPathname = '/portal'
 
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
+  // The language switcher inside the sheet refreshes the route after a change.
+  useRouter: () => ({ refresh: jest.fn() }),
 }))
 
 jest.mock('next/link', () => ({
