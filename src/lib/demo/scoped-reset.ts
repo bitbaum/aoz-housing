@@ -39,19 +39,30 @@ export async function deleteDemoWorld(prisma: PrismaClient): Promise<{
   residentsDeleted: number
 }> {
   const demoUnitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
+  const demoResidentFilter = {
+    OR: [
+      { code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } },
+      { code: resolveDemoResidentCode() },
+    ],
+  }
 
   await prisma.incident.deleteMany({ where: { housingUnit: demoUnitFilter } })
   await prisma.placement.deleteMany({ where: { housingUnit: demoUnitFilter } })
   const units = await prisma.housingUnit.deleteMany({ where: demoUnitFilter })
 
-  const residents = await prisma.resident.deleteMany({
-    where: {
-      OR: [
-        { code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } },
-        { code: resolveDemoResidentCode() },
-      ],
-    },
-  })
+  // Messages a demo resident WROTE hold a Restrict foreign key, so they veto
+  // the resident delete below. Restrict is right for real data — nobody should
+  // be erased out from under a conversation staff may have to account for — but
+  // the demo world is explicitly allowed to disappear, so the reset removes the
+  // messages itself rather than weakening the constraint for everyone.
+  //
+  // Postgres reports only the FIRST blocking foreign key, so a missing delete
+  // here does not surface as "you forgot messages"; it surfaces as the whole
+  // nightly reset failing, and the demo silently rotting from that day on.
+  await prisma.message.deleteMany({ where: { authorResident: demoResidentFilter } })
+  await prisma.messageThread.deleteMany({ where: { resident: demoResidentFilter } })
+
+  const residents = await prisma.resident.deleteMany({ where: demoResidentFilter })
 
   return { unitsDeleted: units.count, residentsDeleted: residents.count }
 }

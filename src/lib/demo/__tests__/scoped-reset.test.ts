@@ -36,6 +36,8 @@ function createPrismaMock() {
     incident: { deleteMany: track('incident.deleteMany', { count: 7 }) },
     placement: { deleteMany: track('placement.deleteMany', { count: 13 }) },
     housingUnit: { deleteMany: track('unit.deleteMany', { count: 5 }) },
+    message: { deleteMany: track('message.deleteMany', { count: 4 }) },
+    messageThread: { deleteMany: track('messageThread.deleteMany', { count: 2 }) },
     resident: { deleteMany: track('resident.deleteMany', { count: 15 }) },
     user: { upsert: track('user.upsert', { id: 'demo-user' }) },
     account: { deleteMany: track('account.deleteMany', { count: 0 }) },
@@ -59,15 +61,44 @@ beforeEach(() => {
 })
 
 describe('deleteDemoWorld', () => {
-  it('deletes in Restrict-FK order: incidents, placements, units, residents', async () => {
+  it('deletes in Restrict-FK order, messages before their authors', async () => {
+    // A message a demo resident WROTE holds a Restrict foreign key on them, so
+    // it vetoes the resident delete. Postgres reports only the FIRST blocking
+    // key, so getting this wrong does not surface as "you forgot messages" —
+    // it surfaces as the whole nightly reset failing and the demo rotting from
+    // that day on.
     const { prisma, calls } = createPrismaMock()
     await deleteDemoWorld(prisma)
+
     expect(calls).toEqual([
       'incident.deleteMany',
       'placement.deleteMany',
       'unit.deleteMany',
+      'message.deleteMany',
+      'messageThread.deleteMany',
       'resident.deleteMany',
     ])
+  })
+
+  it('scopes message deletion to demo residents, never the whole table', async () => {
+    // The demo world lives ALONGSIDE a real flat on this deployment. A delete
+    // without this filter would erase real conversations.
+    const { prisma, raw } = createPrismaMock()
+    await deleteDemoWorld(prisma)
+
+    const demoResidentFilter = {
+      OR: [
+        { code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } },
+        { code: `${DEMO_RESIDENT_CODE_PREFIX}1` },
+      ],
+    }
+
+    expect((raw.message.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+      where: { authorResident: demoResidentFilter },
+    })
+    expect((raw.messageThread.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+      where: { resident: demoResidentFilter },
+    })
   })
 
   it('targets units only by the demo code prefix — never a whole table', async () => {
@@ -110,6 +141,8 @@ describe('resetDemoWorld', () => {
       'incident.deleteMany',
       'placement.deleteMany',
       'unit.deleteMany',
+      'message.deleteMany',
+      'messageThread.deleteMany',
       'resident.deleteMany',
       'user.upsert',
       'account.deleteMany',
