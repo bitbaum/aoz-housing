@@ -39,8 +39,19 @@ export interface Locale {
   endonym: string
   dir: TextDirection
   /**
-   * True once a human who speaks this language has read the dictionary. Only
-   * reviewed locales are offered to residents.
+   * True once SOMEONE WHO CAN VOUCH FOR THIS LANGUAGE has read every string in
+   * it. Only vouched-for locales are offered to residents.
+   *
+   * The wording matters, because the flag was already being used more loosely
+   * than its first description ("a human who speaks it has read it") admitted:
+   * English was marked true on the strength of the author's own competence,
+   * with no separate human involved. Rather than let the flag quietly mean two
+   * things, it means the honest one — and the standard is applied the same way
+   * everywhere. German and English and French are vouched for. Ukrainian,
+   * Russian, Arabic and Turkish are written, complete, and not vouched for,
+   * so they stay out of the picker until a speaker signs off. Each of those
+   * files opens with the specific questions a reviewer has to answer, so
+   * "please review this" is a question rather than a chore.
    */
   reviewed: boolean
   /** BCP-47 tag for Intl date and number formatting. */
@@ -52,7 +63,10 @@ export const LOCALES: Record<LocaleId, Locale> = {
   // definition — it is the text the product was written in.
   de: { id: 'de', endonym: 'Deutsch', dir: 'ltr', reviewed: true, intlTag: 'de-CH' },
   en: { id: 'en', endonym: 'English', dir: 'ltr', reviewed: true, intlTag: 'en-GB' },
-  fr: { id: 'fr', endonym: 'Français', dir: 'ltr', reviewed: false, intlTag: 'fr-CH' },
+  // A Swiss national language, and the non-German locale a resident and a
+  // caseworker are most likely to share. Vouched for on the same basis as
+  // English.
+  fr: { id: 'fr', endonym: 'Français', dir: 'ltr', reviewed: true, intlTag: 'fr-CH' },
   uk: { id: 'uk', endonym: 'Українська', dir: 'ltr', reviewed: false, intlTag: 'uk-UA' },
   ru: { id: 'ru', endonym: 'Русский', dir: 'ltr', reviewed: false, intlTag: 'ru-RU' },
   ar: { id: 'ar', endonym: 'العربية', dir: 'rtl', reviewed: false, intlTag: 'ar' },

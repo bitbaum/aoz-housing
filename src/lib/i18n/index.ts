@@ -2,6 +2,9 @@ import { de, type Dictionary, type MessageKey } from './dictionaries/de'
 import { en } from './dictionaries/en'
 import { uk } from './dictionaries/uk'
 import { ar } from './dictionaries/ar'
+import { fr } from './dictionaries/fr'
+import { ru } from './dictionaries/ru'
+import { tr } from './dictionaries/tr'
 import { DEFAULT_LOCALE, LOCALES, isLocaleId, type LocaleId } from './locales'
 
 export type { MessageKey, Dictionary }
@@ -19,15 +22,15 @@ export * from './locales'
 const DICTIONARIES: Record<LocaleId, Dictionary> = {
   de,
   en,
+  fr,
   uk,
+  ru,
   ar,
+  tr,
   // Not yet written. They resolve entirely to German, which is exactly what
   // `reviewed: false` promises — the language exists as a plan, not as a lie.
-  fr: {},
-  ru: {},
   fa: {},
   ti: {},
-  tr: {},
   sq: {},
   so: {},
 }
@@ -38,10 +41,22 @@ export function getDictionary(locale: LocaleId): Dictionary {
   return DICTIONARIES[locale] ?? {}
 }
 
+/**
+ * The fallback rule itself, over a dictionary rather than a locale id.
+ *
+ * Exported so it can be tested against an EMPTY dictionary directly. Testing
+ * the fallback through whichever language happens to be unwritten today makes
+ * the test rot the moment that language gets written — which is exactly what
+ * happened when French was added.
+ */
+export function translateWith(dictionary: Dictionary, key: MessageKey): string {
+  return dictionary[key] ?? de[key]
+}
+
 /** Build the lookup for one locale. Pure, so it works on server and client. */
 export function createTranslator(locale: LocaleId): Translator {
   const dictionary = getDictionary(locale)
-  return (key) => dictionary[key] ?? de[key]
+  return (key) => translateWith(dictionary, key)
 }
 
 /** How much of the message set this locale actually covers, 0–1. */
