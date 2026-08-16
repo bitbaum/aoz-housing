@@ -9,6 +9,11 @@ export const HOUSING_STATUS_LABELS: Record<string, string> = {
   CLOSED: 'Geschlossen',
 }
 
+/** Names the resident-chosen apartment name where staff see it. */
+export const HOUSING_LABELS = {
+  residentChosenName: 'Von den Bewohnenden benannt',
+} as const
+
 export const HOUSING_STAT_LABELS = {
   total: 'Unterkünfte',
   occupancy: 'Belegung',

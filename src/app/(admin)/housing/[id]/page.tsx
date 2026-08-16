@@ -10,6 +10,7 @@ import {
   HOUSING_DETAIL_LABELS,
   PAGE_TITLES,
   FORM_LABELS,
+  HOUSING_LABELS,
   ACTION_LABELS,
 } from '@/lib/constants'
 import {
@@ -38,6 +39,7 @@ import { getUnitFitConcerns } from '@/lib/compatibility'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
+import { hasResidentName, unitName, UNIT_NAME_SELECT } from '@/lib/utils/unit-name'
 import {
   RESIDENT_NAME_SELECT,
   residentInitials,
@@ -47,8 +49,14 @@ import {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const unit = await prisma.housingUnit.findUnique({ where: { id }, select: { code: true } })
-  return { title: unit?.code ?? 'Unterkunft' }
+  // Selects the nickname too, so the browser tab says what the residents call
+  // the place. Selecting only `code` here is the exact under-selection that
+  // UNIT_NAME_SELECT exists to prevent.
+  const unit = await prisma.housingUnit.findUnique({
+    where: { id },
+    select: UNIT_NAME_SELECT,
+  })
+  return { title: unit ? unitName(unit) : 'Unterkunft' }
 }
 
 export const dynamic = 'force-dynamic'
@@ -228,6 +236,15 @@ export default async function HousingDetailPage({ params }: Props) {
             <span className="text-ui-text">{unit.code}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{unit.address}</h1>
+          {/* The name the residents chose for their own home. Staff saw only
+              the code, so the two groups who talk about this flat daily had no
+              shared word for it. @see lib/utils/unit-name.ts */}
+          {hasResidentName(unit) && (
+            <p className="text-ui-muted mt-1">
+              <span className="eyebrow">{HOUSING_LABELS.residentChosenName}</span>{' '}
+              <span className="text-ui-text">{unitName(unit)}</span>
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <HarmonyBadge status={harmonyStatus} />
