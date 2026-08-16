@@ -41,6 +41,7 @@ export type CreateSettlementInput = z.infer<typeof CreateSettlementSchema>
 export const UpdateProfileSchema = z.object({
   displayName: z.string().trim().max(PROFILE_LIMITS.maxDisplayNameLength).optional(),
   bio: z.string().trim().max(PROFILE_LIMITS.maxBioLength).optional(),
+  profileVisibility: z.enum(['PRIVATE', 'ROOMMATES', 'RESIDENTS']).optional(),
 })
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
 

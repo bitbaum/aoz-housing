@@ -58,7 +58,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
             {UI_LABELS.switchToAdmin}
           </Link>
         )}
-        <form action="/api/portal/logout" method="POST" className="ml-2">
+        <form action="/api/portal/logout" method="POST" className="ms-2">
           <button type="submit" className="nav-item min-h-[44px]">
             <LogOut className="w-4 h-4" aria-hidden="true" />
             {t('nav.logout')}

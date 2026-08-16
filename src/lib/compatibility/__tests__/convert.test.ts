@@ -7,6 +7,7 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     code: 'RES-001',
     displayName: null,
     bio: null,
+    profileVisibility: 'ROOMMATES' as const,
     ageRange: 'ADULT',
     gender: 'MALE',
     familyStatus: 'SINGLE',

@@ -117,7 +117,7 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <div className="text-right">
+                <div className="text-end">
                   <p className="numeric font-medium text-ui-text">
                     {formatRappen(expense.amountRappen)}
                   </p>

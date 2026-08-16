@@ -79,6 +79,12 @@ model Resident {
   bio         String?
   photo       ResidentPhoto?
 
+  /// Who may see displayName, bio and photo. Staff always can — they have to
+  /// be able to identify the person they are supporting. This governs what
+  /// OTHER RESIDENTS see. Default ROOMMATES preserves the behaviour the photo
+  /// endpoint already had, so nobody's visibility widens on migration.
+  profileVisibility ProfileVisibility @default(ROOMMATES)
+
   // Login credentials live on Account, never here — one human may hold both a
   // staff account and a resident record (a caseworker who also lives in a
   // shared flat), and two password hashes for one human WILL drift.
@@ -139,6 +145,16 @@ model ResidentPhoto {
   data       Bytes
   mimeType   String
   updatedAt  DateTime @updatedAt
+}
+
+/// How far a resident's self-chosen profile reaches among other residents.
+enum ProfileVisibility {
+  /// Only the resident and staff.
+  PRIVATE
+  /// Also the people they actually live with.
+  ROOMMATES
+  /// Also every other resident in the system.
+  RESIDENTS
 }
 
 enum AgeRange {

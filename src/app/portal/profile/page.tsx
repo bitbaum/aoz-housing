@@ -21,6 +21,7 @@ export default async function PortalProfilePage() {
       code: true,
       displayName: true,
       bio: true,
+      profileVisibility: true,
       photo: { select: { updatedAt: true } },
     },
   })
@@ -50,7 +51,11 @@ export default async function PortalProfilePage() {
       </div>
 
       <div className="card">
-        <ProfileForm displayName={resident.displayName ?? ''} bio={resident.bio ?? ''} />
+        <ProfileForm
+          displayName={resident.displayName ?? ''}
+          bio={resident.bio ?? ''}
+          profileVisibility={resident.profileVisibility}
+        />
         <p className="text-xs text-ui-muted mt-4">{L.visibleTo}</p>
       </div>
     </div>

@@ -114,7 +114,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
     <div>
       <Link
         href="/portal/chores"
-        className="inline-flex items-center min-h-[44px] px-1 -ml-1 mb-2 text-sm text-brand-primary hover:underline"
+        className="inline-flex items-center min-h-[44px] px-1 -ms-1 mb-2 text-sm text-brand-primary hover:underline"
       >
         ← {CHORE_LABELS.pages.list}
       </Link>
@@ -250,7 +250,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                   )}
                   {c.notes && <p className="text-sm text-ui-muted mt-0.5">{c.notes}</p>}
                 </div>
-                <div className="text-right">
+                <div className="text-end">
                   <p className="text-sm text-ui-muted">{formatDate(c.completedAt)}</p>
                   {c.durationMinutes && (
                     <p className="text-sm text-ui-muted">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>

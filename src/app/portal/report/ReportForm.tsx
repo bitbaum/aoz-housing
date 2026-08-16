@@ -104,7 +104,7 @@ export function ReportForm({ roommates }: Props) {
 
         <div className="card border-status-info/25 bg-status-info/8">
           <h3 className="font-semibold text-status-info-text mb-2">{R.nextStepsTitle}</h3>
-          <ol className="text-sm text-status-info-text space-y-1 list-decimal pl-5">
+          <ol className="text-sm text-status-info-text space-y-1 list-decimal ps-5">
             {R.nextSteps.map((step, i) => (
               <li key={i}>{step}</li>
             ))}
@@ -211,7 +211,7 @@ export function ReportForm({ roommates }: Props) {
         <button
           type="button"
           onClick={() => { setCategory('MAINTENANCE'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
-          className={`card-hover flex items-center gap-4 text-left transition-all ${
+          className={`card-hover flex items-center gap-4 text-start transition-all ${
             category === 'MAINTENANCE' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
@@ -224,7 +224,7 @@ export function ReportForm({ roommates }: Props) {
         <button
           type="button"
           onClick={() => { setCategory('INTERPERSONAL'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
-          className={`card-hover flex items-center gap-4 text-left transition-all ${
+          className={`card-hover flex items-center gap-4 text-start transition-all ${
             category === 'INTERPERSONAL' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
