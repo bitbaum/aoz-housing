@@ -13,7 +13,7 @@ const BASE = {
   label: 'Freie Plätze',
   value: 5,
   href: '/housing',
-  color: 'green' as const,
+  urgency: 'ok' as const,
   icon: '🛏️',
 }
 
@@ -65,23 +65,32 @@ describe('QuickStat', () => {
     expect(container.querySelector('[style*="width"]')).not.toBeInTheDocument()
   })
 
-  it('applies green colour class for color=green', () => {
-    const { container } = render(<QuickStat {...BASE} color="green" />)
-    expect(container.querySelector('.text-status-success')).toBeInTheDocument()
+  // Colour now follows MEANING, not a palette name the caller picked. These
+  // assert the mapping, so a caller cannot reintroduce "blue because it looks
+  // nice" without the type system stopping them first.
+  it('leaves a neutral figure uncoloured', () => {
+    const { container } = render(<QuickStat {...BASE} urgency="neutral" />)
+    expect(container.querySelector('.text-status-error-text')).not.toBeInTheDocument()
+    expect(container.querySelector('.text-status-warning-text')).not.toBeInTheDocument()
   })
 
-  it('applies red colour class for color=red', () => {
-    const { container } = render(<QuickStat {...BASE} color="red" />)
-    expect(container.querySelector('.text-status-error')).toBeInTheDocument()
+  it('colours a critical figure', () => {
+    const { container } = render(<QuickStat {...BASE} urgency="critical" />)
+    expect(container.querySelector('.text-status-error-text')).toBeInTheDocument()
   })
 
-  it('applies yellow colour class for color=yellow', () => {
-    const { container } = render(<QuickStat {...BASE} color="yellow" />)
-    expect(container.querySelector('.text-status-warning')).toBeInTheDocument()
+  it('colours a figure needing attention', () => {
+    const { container } = render(<QuickStat {...BASE} urgency="attention" />)
+    expect(container.querySelector('.text-status-warning-text')).toBeInTheDocument()
   })
 
-  it('applies blue colour class for color=blue', () => {
-    const { container } = render(<QuickStat {...BASE} color="blue" />)
-    expect(container.querySelector('.text-status-info')).toBeInTheDocument()
+  it('never tints the whole card', () => {
+    // The old version filled the surface and drew a 2px coloured border, so
+    // four stat cards read as four alerts and hid the one that mattered.
+    const { container } = render(<QuickStat {...BASE} urgency="critical" />)
+    const card = container.querySelector('a')
+
+    expect(card?.className).toContain('card-hover')
+    expect(card?.className).not.toMatch(/bg-status-|border-2/)
   })
 })

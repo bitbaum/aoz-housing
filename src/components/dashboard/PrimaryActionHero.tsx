@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { AlertTriangle, Hand, Home, AlertCircle, Sparkles } from 'lucide-react'
+import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { URGENCY_BADGE_CLASS, URGENCY_BORDER_CLASS, type Urgency } from '@/lib/config/urgency'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit } from './types'
@@ -126,15 +127,16 @@ export function determinePrimaryAction({
 // HeroAction
 // =============================================================================
 
-export function HeroAction({ action }: { action: PrimaryActionType }) {
-  const colorStyles = {
-    critical: 'bg-status-error text-ui-on-accent',
-    checkin: 'bg-status-warning text-ui-on-accent',
-    place: 'bg-brand-secondary text-ui-on-accent',
-    problem: 'bg-status-warning text-ui-on-accent',
-    allclear: 'bg-status-success text-ui-on-accent',
-  }
+/** What each kind of primary action means, for the shared urgency mapping. */
+const HERO_URGENCY: Record<PrimaryActionType['type'], Urgency> = {
+  critical: 'critical',
+  checkin: 'attention',
+  place: 'neutral',
+  problem: 'attention',
+  allclear: 'ok',
+}
 
+export function HeroAction({ action }: { action: PrimaryActionType }) {
   const icons = {
     critical: AlertTriangle,
     checkin: Hand,
@@ -144,32 +146,35 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   }
 
   const IconComponent = icons[action.type]
+  const urgency = HERO_URGENCY[action.type]
 
   return (
-    <Link
-      href={action.href}
-      className={`block rounded-lg p-6 md:p-8 ${colorStyles[action.type]} transition-colors`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <IconComponent className="w-10 h-10 shrink-0" />
+    // This block used to be a full-bleed slab of saturated colour, a different
+    // hue per type — a hand-sized orange rectangle for a routine check-in.
+    // It is now a normal surface whose BUTTON is brand red, which is the whole
+    // point of the component: it names the single action that matters most
+    // right now, and brand red is reserved for exactly that.
+    <section className={`card ${URGENCY_BORDER_CLASS[urgency]} p-5 sm:p-6`}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+        <div className="flex items-start gap-4">
+          <span className={`icon-container shrink-0 ${URGENCY_BADGE_CLASS[urgency]}`}>
+            <IconComponent className="w-5 h-5" aria-hidden="true" />
+          </span>
           <div>
-            <h2 className="text-xl md:text-2xl font-bold">{action.title}</h2>
-            <p className="text-ui-on-accent/80 mt-1">{action.description}</p>
+            <p className="eyebrow">{DASHBOARD_LABELS.heroEyebrow}</p>
+            <h2 className="text-xl sm:text-2xl font-semibold tracking-heading text-ui-text mt-1 text-balance">
+              {action.title}
+            </h2>
+            <p className="text-ui-muted mt-1">{action.description}</p>
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-3">
-          <span className="px-4 py-2 bg-ui-surface/20 rounded-md font-semibold">
-            {action.buttonText} →
-          </span>
-        </div>
+
+        <Link href={action.href} className="btn-secondary shrink-0 self-start sm:self-auto">
+          {action.buttonText}
+          <ArrowRight className="w-4 h-4" aria-hidden="true" />
+        </Link>
       </div>
-      <div className="md:hidden mt-4">
-        <span className="inline-block px-4 py-2 bg-ui-surface/20 rounded-md font-semibold">
-          {action.buttonText} →
-        </span>
-      </div>
-    </Link>
+    </section>
   )
 }
 
@@ -185,7 +190,15 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
   const incidentLabel = INCIDENT_TYPE_LABELS_SHORT[incidents[0].type] || incidents[0].type
 
   return (
-    <div className="bg-status-error text-ui-on-accent px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 animate-pulse">
+    // Saturated red is earned here and nowhere else on this page: this is the
+    // one banner that means somebody may be unsafe. It no longer pulses —
+    // continuous motion on a red bar is an accessibility problem for
+    // vestibular and attention disorders, and it made the page feel alarmed
+    // rather than making THIS item stand out.
+    <div
+      role="alert"
+      className="bg-status-error text-ui-on-accent px-4 py-3 rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+    >
       <div className="flex items-center gap-3">
         <AlertTriangle className="w-6 h-6 shrink-0" />
         <div>
