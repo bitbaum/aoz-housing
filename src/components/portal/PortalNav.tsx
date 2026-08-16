@@ -1,31 +1,23 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { ArrowRightLeft, LogOut } from 'lucide-react'
-import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { PORTAL_NAV_ITEMS } from '@/lib/config/navigation'
-import { isPortalPathActive, portalNavMessageKey } from '@/lib/utils/portal-nav'
-import { useT } from '@/lib/i18n/LocaleProvider'
-
-interface PortalNavProps {
-  hasStaffAccess?: boolean
-}
 
 /**
- * The portal header.
+ * The portal's title bar on phones and tablets.
  *
- * Below `lg` this is just the title bar: navigation on a phone belongs at the
- * bottom of the screen where the thumb is, and `PortalTabBar` renders it there.
- * The hamburger that used to live here opened a flat list of every page, which
- * is the pattern this pair replaces.
+ * It carries no destinations at all. Below `lg` those live in `PortalTabBar`
+ * at the bottom of the screen where the thumb is; at `lg` and above they live
+ * in `PortalSidebar` and this bar is not rendered.
+ *
+ * It used to hold a horizontal row of every primary link, which was already
+ * crowded at seven and would have wrapped at nine once messaging landed. A row
+ * can only hold the links that fit, so the ones that did not were reachable on
+ * a phone and invisible on a laptop — backwards, since the laptop is the screen
+ * with room to spare.
  */
-export function PortalNav({ hasStaffAccess }: PortalNavProps) {
-  const pathname = usePathname()
-  const t = useT()
-  const primary = PORTAL_NAV_ITEMS.filter((item) => item.primary)
-
+export function PortalNav() {
   return (
     <div className="flex items-center justify-between gap-4">
       <Link
@@ -35,43 +27,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         {PORTAL_LABELS.title}
       </Link>
 
-      <nav className="hidden lg:flex items-center gap-1">
-        {primary.map((item) => {
-          const active = isPortalPathActive(pathname, item.href)
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
-              aria-current={active ? 'page' : undefined}
-            >
-              {t(portalNavMessageKey(item))}
-            </Link>
-          )
-        })}
-        {hasStaffAccess && (
-          <Link
-            href="/"
-            className="nav-item min-h-[44px] text-brand-primary hover:text-brand-primary hover:bg-brand-primary/10"
-          >
-            <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
-            {UI_LABELS.switchToAdmin}
-          </Link>
-        )}
-        <form action="/api/portal/logout" method="POST" className="ms-2">
-          <button type="submit" className="nav-item min-h-[44px]">
-            <LogOut className="w-4 h-4" aria-hidden="true" />
-            {t('nav.logout')}
-          </button>
-        </form>
-        <ThemeToggle />
-      </nav>
-
-      {/* The theme toggle still needs a home on phones, where the nav below
-          carries destinations only. */}
-      <div className="lg:hidden">
-        <ThemeToggle />
-      </div>
+      <ThemeToggle />
     </div>
   )
 }
