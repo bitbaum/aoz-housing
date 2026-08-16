@@ -74,7 +74,7 @@ export function CreateChoreForm() {
               key={template.title}
               type="button"
               onClick={() => applyTemplate(template)}
-              className="min-h-[44px] p-3 bg-ui-subtle hover:bg-ui-subtle rounded-lg text-left transition-colors"
+              className="min-h-[44px] p-3 bg-ui-subtle hover:bg-ui-subtle rounded-lg text-start transition-colors"
             >
               <span className="text-lg">{TASK_CATEGORY_ICONS[template.category]}</span>
               <p className="text-sm font-medium text-ui-text mt-1">{template.title}</p>
@@ -136,7 +136,7 @@ export function CreateChoreForm() {
                 key={key}
                 type="button"
                 onClick={() => setTaskType(key)}
-                className={`min-h-[44px] p-3 rounded-lg text-left text-sm transition-colors ${
+                className={`min-h-[44px] p-3 rounded-lg text-start text-sm transition-colors ${
                   taskType === key
                     ? 'bg-brand-primary/10 text-brand-primary border-2 border-brand-primary'
                     : 'bg-ui-subtle text-ui-muted border-2 border-transparent hover:bg-ui-subtle'

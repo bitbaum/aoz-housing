@@ -5,7 +5,17 @@ import { ar } from './dictionaries/ar'
 import { fr } from './dictionaries/fr'
 import { ru } from './dictionaries/ru'
 import { tr } from './dictionaries/tr'
-import { DEFAULT_LOCALE, LOCALES, isLocaleId, type LocaleId } from './locales'
+import { fa } from './dictionaries/fa'
+import { ti } from './dictionaries/ti'
+import { sq } from './dictionaries/sq'
+import { so } from './dictionaries/so'
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  isLocaleId,
+  offeredLocales,
+  type LocaleId,
+} from './locales'
 
 export type { MessageKey, Dictionary }
 export * from './locales'
@@ -27,12 +37,10 @@ const DICTIONARIES: Record<LocaleId, Dictionary> = {
   ru,
   ar,
   tr,
-  // Not yet written. They resolve entirely to German, which is exactly what
-  // `reviewed: false` promises — the language exists as a plan, not as a lie.
-  fa: {},
-  ti: {},
-  sq: {},
-  so: {},
+  fa,
+  ti,
+  sq,
+  so,
 }
 
 export type Translator = (key: MessageKey) => string
@@ -59,13 +67,34 @@ export function createTranslator(locale: LocaleId): Translator {
   return (key) => translateWith(dictionary, key)
 }
 
-/** How much of the message set this locale actually covers, 0–1. */
-export function coverageOf(locale: LocaleId): number {
+/**
+ * How much of the message set a dictionary covers, 0–1.
+ *
+ * Takes the dictionary rather than a locale id so the arithmetic can be tested
+ * against a known input forever. Testing it through whichever language happens
+ * to be unwritten today makes the test rot the moment that language is written
+ * — which is exactly what happened when French was added.
+ */
+export function coverageOfDictionary(dictionary: Dictionary): number {
   const keys = Object.keys(de) as MessageKey[]
-  const dictionary = getDictionary(locale)
   const translated = keys.filter((key) => typeof dictionary[key] === 'string').length
 
   return translated / keys.length
+}
+
+/** How much of the message set this locale actually covers, 0–1. */
+export function coverageOf(locale: LocaleId): number {
+  return coverageOfDictionary(getDictionary(locale))
+}
+
+/** A locale is offerable once every string is translated. */
+export function isComplete(locale: LocaleId): boolean {
+  return coverageOf(locale) === 1
+}
+
+/** The languages a resident may pick, computed from the dictionaries. */
+export function availableLocales() {
+  return offeredLocales(isComplete)
 }
 
 /**
@@ -73,8 +102,9 @@ export function coverageOf(locale: LocaleId): number {
  *
  * An explicit choice always wins — someone who picked a language meant it, and
  * a browser header must never override them. Below that, `Accept-Language` is a
- * decent guess for a first visit. Anything unreviewed is skipped: it may be in
- * the repo, but it is not something to hand a resident unasked.
+ * decent guess for a first visit. Incomplete languages are skipped, because
+ * half a portal in your language and half in German is worse than all of it in
+ * German: you cannot tell which parts you are missing.
  */
 export function resolveLocale({
   cookieValue,
@@ -83,13 +113,13 @@ export function resolveLocale({
   cookieValue?: string | null
   acceptLanguage?: string | null
 }): LocaleId {
-  if (cookieValue && isLocaleId(cookieValue) && LOCALES[cookieValue].reviewed) {
+  if (cookieValue && isLocaleId(cookieValue) && isComplete(cookieValue)) {
     return cookieValue
   }
 
   for (const tag of parseAcceptLanguage(acceptLanguage)) {
     const base = tag.split('-')[0].toLowerCase()
-    if (isLocaleId(base) && LOCALES[base].reviewed) return base
+    if (isLocaleId(base) && isComplete(base)) return base
   }
 
   return DEFAULT_LOCALE

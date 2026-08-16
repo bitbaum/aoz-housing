@@ -7,15 +7,23 @@
  * that let a resident and a caseworker meet somewhere in the middle. Adding one
  * is a dictionary file and a line here, never a code change.
  *
- * WHY A LOCALE CAN EXIST WITHOUT BEING OFFERED. `reviewed` is the difference
- * between "we have a translation" and "we are willing to put this in front of
- * someone who has to rely on it". Everything on this surface is consequential —
- * how to report a conflict, who to call in an emergency, what the house rules
- * bind you to — and a confidently wrong translation of that is worse than
- * German the reader can at least recognise as foreign and ask about. So an
- * unreviewed language lives in the repo, ready for a native speaker, and does
- * NOT appear in the picker. `i18n.test.ts` enforces that a locale cannot be
- * marked reviewed while its dictionary is incomplete.
+ * OFFERED vs VOUCHED FOR — two different questions, deliberately separated.
+ *
+ * A language is OFFERED when its dictionary is complete. That is the bar for
+ * appearing in the picker, and every written language clears it.
+ *
+ * A language is VOUCHED FOR when someone who can speak it has read every
+ * string. Most are not, and pretending otherwise would be the dishonest part.
+ *
+ * These used to be the same flag, which meant withholding a finished language
+ * from the people who need it in order to express a caveat — the caveat won
+ * over the reader, which is the wrong trade for someone who cannot read the
+ * German. So the caveat is now shown IN the app, next to the language, where
+ * the person choosing it can weigh it: `language.machineNotice`. They get
+ * their language and they get told it has not been checked.
+ *
+ * `i18n.test.ts` holds both halves: a locale cannot be offered while its
+ * dictionary is incomplete, and an unvouched locale must carry the notice.
  */
 
 export type LocaleId =
@@ -39,19 +47,18 @@ export interface Locale {
   endonym: string
   dir: TextDirection
   /**
-   * True once SOMEONE WHO CAN VOUCH FOR THIS LANGUAGE has read every string in
-   * it. Only vouched-for locales are offered to residents.
+   * True once someone who can vouch for this language has read every string.
    *
-   * The wording matters, because the flag was already being used more loosely
-   * than its first description ("a human who speaks it has read it") admitted:
-   * English was marked true on the strength of the author's own competence,
-   * with no separate human involved. Rather than let the flag quietly mean two
-   * things, it means the honest one — and the standard is applied the same way
-   * everywhere. German and English and French are vouched for. Ukrainian,
-   * Russian, Arabic and Turkish are written, complete, and not vouched for,
-   * so they stay out of the picker until a speaker signs off. Each of those
-   * files opens with the specific questions a reviewer has to answer, so
-   * "please review this" is a question rather than a chore.
+   * This no longer decides whether the language is offered — completeness
+   * does. It decides whether the reader is warned. An unvouched language is
+   * shown with `language.machineNotice` in the picker, so the person best
+   * placed to judge the translation is told it is unchecked, in their own
+   * language.
+   *
+   * Every dictionary here was written by the same author, so the honest state
+   * for most of them is false. Each unvouched file opens with the specific
+   * questions a reviewer has to answer, so "please review this" is a question
+   * rather than a chore.
    */
   reviewed: boolean
   /** BCP-47 tag for Intl date and number formatting. */
@@ -86,9 +93,15 @@ export const DEFAULT_LOCALE: LocaleId = 'de'
 
 export const LOCALE_IDS = Object.keys(LOCALES) as LocaleId[]
 
-/** The locales a resident may actually pick. @see the `reviewed` note above. */
-export function offeredLocales(): Locale[] {
-  return LOCALE_IDS.map((id) => LOCALES[id]).filter((locale) => locale.reviewed)
+/**
+ * The locales a resident may pick: every one with a complete dictionary.
+ *
+ * Completeness is computed from the dictionaries rather than declared here, so
+ * a half-written language cannot be listed by editing a boolean — the list
+ * follows the work.
+ */
+export function offeredLocales(isComplete: (id: LocaleId) => boolean): Locale[] {
+  return LOCALE_IDS.map((id) => LOCALES[id]).filter((locale) => isComplete(locale.id))
 }
 
 export function isLocaleId(value: string): value is LocaleId {

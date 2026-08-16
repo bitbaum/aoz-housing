@@ -2,8 +2,9 @@ import {
   LOCALES,
   LOCALE_IDS,
   DEFAULT_LOCALE,
-  offeredLocales,
+  availableLocales,
   coverageOf,
+  coverageOfDictionary,
   createTranslator,
   translateWith,
   getDictionary,
@@ -20,28 +21,40 @@ const KEYS = Object.keys(de) as MessageKey[]
  */
 
 describe('a language is only offered when it is finished', () => {
-  it.each(LOCALE_IDS)('%s is not marked reviewed while incomplete', (id) => {
-    // The whole point of the `reviewed` flag. Marking a half-translated
-    // language as reviewed would put untranslated German in a picker that
-    // promises the reader their own language — worse than not offering it.
-    if (!LOCALES[id].reviewed) return
+  it.each(LOCALE_IDS)('%s is offered only if every string is translated', (id) => {
+    // Half a portal in your language and half in German is worse than all of
+    // it in German: you cannot tell which parts you are missing.
+    const offered = availableLocales().some((locale) => locale.id === id)
+    if (!offered) return
 
     expect({ id, coverage: coverageOf(id) }).toEqual({ id, coverage: 1 })
   })
 
   it('offers at least the language the product is written in', () => {
-    expect(offeredLocales().map((locale) => locale.id)).toContain(DEFAULT_LOCALE)
+    expect(availableLocales().map((locale) => locale.id)).toContain(DEFAULT_LOCALE)
   })
 
-  it('reports honest coverage for a language nobody has written yet', () => {
-    // Derived, not hardcoded: naming a specific language here made the test
-    // fail the day that language was translated, which taught nothing.
-    const unwritten = LOCALE_IDS.filter((id) => Object.keys(getDictionary(id)).length === 0)
-    expect(unwritten.length).toBeGreaterThan(0)
+  it('warns the reader about every language nobody has vouched for', () => {
+    // The honesty half. Offering a language is not the same as standing behind
+    // it, and the reader is the person best placed to judge — so they are told,
+    // in the language they just chose.
+    for (const locale of availableLocales()) {
+      if (locale.reviewed) continue
 
-    for (const id of unwritten) {
-      expect({ id, coverage: coverageOf(id) }).toEqual({ id, coverage: 0 })
+      const notice = getDictionary(locale.id)['language.machineNotice']
+      expect({ id: locale.id, hasNotice: typeof notice === 'string' && notice.length > 0 })
+        .toEqual({ id: locale.id, hasNotice: true })
     }
+  })
+
+  it('reports coverage as a real fraction, not a rubber stamp', () => {
+    // Guards the arithmetic that the offering rule depends on. Every language
+    // is now written, so there is no empty dictionary left to assert against —
+    // what still has to hold is that coverage is COMPUTED.
+    expect(coverageOf(DEFAULT_LOCALE)).toBe(1)
+    expect(coverageOfDictionary({})).toBe(0)
+    expect(coverageOfDictionary({ 'nav.overview': 'x' })).toBeGreaterThan(0)
+    expect(coverageOfDictionary({ 'nav.overview': 'x' })).toBeLessThan(1)
   })
 
   it('reports partial coverage as partial', () => {
@@ -124,11 +137,12 @@ describe('choosing a language for a request', () => {
     expect(resolveLocale({ cookieValue: 'en', acceptLanguage: 'de-CH,de;q=0.9' })).toBe('en')
   })
 
-  it('ignores a cookie naming a language we do not offer yet', () => {
-    // Someone could hold a cookie from before a language was un-reviewed, or
-    // type one in. Neither should show them a half-translated portal.
-    expect(resolveLocale({ cookieValue: 'ar', acceptLanguage: null })).toBe('de')
+  it('ignores a cookie naming a language that does not exist', () => {
     expect(resolveLocale({ cookieValue: 'klingon', acceptLanguage: null })).toBe('de')
+  })
+
+  it('honours a cookie naming a complete language', () => {
+    expect(resolveLocale({ cookieValue: 'ar', acceptLanguage: null })).toBe('ar')
   })
 
   it('guesses from the browser on a first visit', () => {
@@ -140,8 +154,8 @@ describe('choosing a language for a request', () => {
     expect(resolveLocale({ acceptLanguage: 'de;q=0.2,en;q=0.9' })).toBe('en')
   })
 
-  it('skips an unreviewed language the browser asks for', () => {
-    expect(resolveLocale({ acceptLanguage: 'uk-UA,uk;q=0.9' })).toBe('de')
+  it('accepts a complete language the browser asks for', () => {
+    expect(resolveLocale({ acceptLanguage: 'uk-UA,uk;q=0.9' })).toBe('uk')
   })
 
   it('falls back to German for anything unparseable', () => {

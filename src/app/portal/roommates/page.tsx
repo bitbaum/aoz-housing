@@ -72,7 +72,7 @@ export default async function RoommatesPage() {
     return (
       <div>
         <div className="mb-6">
-          <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline">
+          <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ms-1 text-sm text-brand-primary hover:underline">
             {PORTAL_LABELS.form.back}
           </Link>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
@@ -113,7 +113,7 @@ export default async function RoommatesPage() {
   return (
     <div>
       <div className="mb-6">
-        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ml-1 text-sm text-brand-primary hover:underline">
+        <Link href="/portal" className="inline-flex items-center min-h-[44px] px-1 -ms-1 text-sm text-brand-primary hover:underline">
           {PORTAL_LABELS.form.back}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.roommates}</h1>
@@ -268,7 +268,7 @@ function CompatibilityIndicator({ score }: { score: number }) {
   const tokens = SCORE_TOKENS[level]
 
   return (
-    <div className="text-right">
+    <div className="text-end">
       <div className="flex items-center gap-2 justify-end">
         <div className={`w-3 h-3 rounded-full ${tokens.bg}`} />
         <span className={`font-medium ${tokens.text}`}>{PORTAL_LABELS.roommates.scoreLevels[level]}</span>

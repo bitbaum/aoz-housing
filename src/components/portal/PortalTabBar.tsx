@@ -94,7 +94,7 @@ export function PortalTabBar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
             <button
               ref={closeButtonRef}
               onClick={close}
-              className="btn-icon -mr-2"
+              className="btn-icon -me-2"
               aria-label={t('nav.closeMore')}
             >
               <X className="w-5 h-5" />

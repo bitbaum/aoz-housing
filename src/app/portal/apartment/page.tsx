@@ -173,7 +173,7 @@ export default async function PortalApartmentPage() {
                   {occupant.id === auth.resident.id && (
                     <Link
                       href="/portal/profile"
-                      className="ml-2 text-sm font-normal text-brand-primary hover:underline"
+                      className="ms-2 text-sm font-normal text-brand-primary hover:underline"
                     >
                       {PORTAL_LABELS.nav.profile}
                     </Link>

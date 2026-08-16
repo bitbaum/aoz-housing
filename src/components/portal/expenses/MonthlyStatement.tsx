@@ -39,25 +39,25 @@ export function MonthlyStatements({ statements, nameOf }: MonthlyStatementsProps
             <div className="px-4 pb-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left border-b border-ui-border">
+                  <tr className="text-start border-b border-ui-border">
                     <th className="eyebrow py-2 font-semibold">{L.statementPerson}</th>
-                    <th className="eyebrow py-2 font-semibold text-right">{L.statementPaid}</th>
-                    <th className="eyebrow py-2 font-semibold text-right">{L.statementShare}</th>
-                    <th className="eyebrow py-2 font-semibold text-right">{L.statementNet}</th>
+                    <th className="eyebrow py-2 font-semibold text-end">{L.statementPaid}</th>
+                    <th className="eyebrow py-2 font-semibold text-end">{L.statementShare}</th>
+                    <th className="eyebrow py-2 font-semibold text-end">{L.statementNet}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {statement.rows.map((row) => (
                     <tr key={row.residentId} className="border-b border-ui-border last:border-0">
                       <td className="py-2 text-ui-text">{nameOf[row.residentId] ?? '–'}</td>
-                      <td className="py-2 text-right numeric text-ui-text">
+                      <td className="py-2 text-end numeric text-ui-text">
                         {formatRappen(row.paidRappen)}
                       </td>
-                      <td className="py-2 text-right numeric text-ui-text">
+                      <td className="py-2 text-end numeric text-ui-text">
                         {formatRappen(row.shareRappen)}
                       </td>
                       <td
-                        className={`py-2 text-right numeric font-medium ${
+                        className={`py-2 text-end numeric font-medium ${
                           row.netRappen > 0
                             ? 'text-status-success-text'
                             : row.netRappen < 0

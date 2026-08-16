@@ -1,23 +1,27 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Languages } from 'lucide-react'
-import { LOCALE_COOKIE, offeredLocales } from '@/lib/i18n/locales'
+import { Languages, Info } from 'lucide-react'
+import { LOCALE_COOKIE } from '@/lib/i18n/locales'
+import { availableLocales } from '@/lib/i18n'
 import { useLocale, useT } from '@/lib/i18n/LocaleProvider'
 
 /**
  * Lets a resident choose their language.
  *
- * Only reviewed languages appear. A picker that lists a language and then shows
- * mostly German is a worse experience than one that admits we do not have it
- * yet — and on a surface about house rules and emergencies, a half-translation
- * is a safety problem rather than an inconvenience.
+ * Every language with a complete dictionary is here. Most have not been checked
+ * by someone who speaks them, and that is said out loud rather than used as a
+ * reason to withhold the language: a notice the reader can weigh is more use to
+ * them than a picker that quietly omits the only language they read.
+ *
+ * The notice appears AFTER a choice is made, in the chosen language, because
+ * that is the one moment the reader can definitely understand it.
  */
 export function LanguageSwitcher() {
   const router = useRouter()
   const current = useLocale()
   const t = useT()
-  const locales = offeredLocales()
+  const locales = availableLocales()
 
   // One language means no choice to make; a control with a single option is
   // just clutter that implies a setting exists.
@@ -62,6 +66,13 @@ export function LanguageSwitcher() {
           )
         })}
       </div>
+
+      {!current.reviewed && (
+        <p className="mt-3 flex items-start gap-2 text-xs text-ui-muted">
+          <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" aria-hidden="true" />
+          {t('language.machineNotice')}
+        </p>
+      )}
     </div>
   )
 }
