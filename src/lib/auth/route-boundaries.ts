@@ -41,7 +41,15 @@ export const RESIDENT_ROUTES = [
   '/api/portal/residents',
 ]
 
-// Routes that remain public
+// Routes that remain public.
+//
+// Being listed here only means the middleware waves the request through — it
+// does NOT make a page readable, because the layout above that page runs
+// afterwards and can still redirect. `/algorithm` sat in this list for months
+// while `(admin)/layout.tsx` bounced every signed-out visitor to /login, so the
+// boundary the code declared and the boundary the app enforced disagreed.
+// A page that is genuinely public belongs in the `(public)` route group, whose
+// layout reads no session. `public-routes-reachable.test.ts` checks that.
 export const PUBLIC_ROUTES = [
   '/login',
   '/register',
@@ -49,7 +57,7 @@ export const PUBLIC_ROUTES = [
   '/reset-password',
   '/portal',
   '/portal/help',
-  '/algorithm',
+  '/blog',
   '/api/auth',
   '/api/health',
   '/api/cron',

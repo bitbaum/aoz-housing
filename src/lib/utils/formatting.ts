@@ -46,6 +46,19 @@ export function formatDateLong(date: Date | string): string {
   })
 }
 
+/**
+ * Long form for a bare calendar date string ("2026-05-27"), e.g. "27. Mai 2026".
+ *
+ * `new Date('2026-05-27')` is parsed as UTC midnight, so formatting it in a
+ * timezone behind UTC prints the previous day. A date with no time in it should
+ * not be able to move, so the parts are read off the string and rebuilt as a
+ * local date before the locale formatting is reused.
+ */
+export function formatCalendarDateLong(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return formatDateLong(new Date(year, month - 1, day))
+}
+
 /** ISO date for CSV export, e.g. "2026-05-27" */
 export function formatDateISO(date: Date | string): string {
   return new Date(date).toISOString().split('T')[0]
