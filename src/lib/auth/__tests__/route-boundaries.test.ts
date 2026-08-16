@@ -2,6 +2,8 @@ import {
   isPublicRoute,
   requiresResidentAuth,
   requiresStaffAuth,
+  destinationForRoot,
+  LANDING_ROUTE,
 } from '@/lib/auth/route-boundaries'
 
 describe('auth route boundaries', () => {
@@ -31,5 +33,46 @@ describe('auth route boundaries', () => {
   test('staff and resident boundaries stay separated', () => {
     expect(requiresStaffAuth('/portal/preferences')).toBe(false)
     expect(requiresResidentAuth('/residents')).toBe(false)
+  })
+})
+
+describe('what the bare domain does', () => {
+  /**
+   * The product's own address used to answer every stranger with a login form,
+   * which tells a visitor nothing except that they are not welcome yet.
+   */
+  const at = (hasStaffSession: boolean, hasResidentSession: boolean) =>
+    destinationForRoot({ hasStaffSession, hasResidentSession })
+
+  test('shows a stranger the landing page', () => {
+    expect(at(false, false)).toEqual({ kind: 'rewrite', to: LANDING_ROUTE })
+  })
+
+  test('rewrites rather than redirects, so the URL stays the bare domain', () => {
+    // A redirect would park every visitor on /willkommen and make each share of
+    // "the site" carry a path. The distinction is the whole point.
+    expect(at(false, false).kind).toBe('rewrite')
+  })
+
+  test('leaves staff on the dashboard the root has always been', () => {
+    expect(at(true, false)).toEqual({ kind: 'staff-dashboard' })
+  })
+
+  test('sends a resident to their portal instead of a sales page', () => {
+    // Someone who lives here does not need to be sold the product they use.
+    expect(at(false, true)).toEqual({ kind: 'redirect', to: '/portal' })
+  })
+
+  test('gives staff the dashboard when one person holds both roles', () => {
+    // Matches what establishSessions() does at login: staff wins the landing
+    // page because it is the bigger surface, and the nav offers the switch.
+    expect(at(true, true)).toEqual({ kind: 'staff-dashboard' })
+  })
+
+  test('declares the landing page public, or the rewrite bounces to /login', () => {
+    // The rewrite target runs through the same middleware. If it were not
+    // public, the bare domain would send strangers straight back to the login
+    // form this change exists to replace.
+    expect(isPublicRoute(LANDING_ROUTE)).toBe(true)
   })
 })

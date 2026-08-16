@@ -58,10 +58,52 @@ export const PUBLIC_ROUTES = [
   '/portal',
   '/portal/help',
   '/blog',
+  // The landing page. `/` rewrites here for anonymous visitors, so it must be
+  // reachable without a session — and it is also a real URL of its own.
+  '/willkommen',
   '/api/auth',
   '/api/health',
   '/api/cron',
 ]
+
+/** The landing page a stranger sees at the bare domain. */
+export const LANDING_ROUTE = '/willkommen'
+
+/**
+ * What the product's own address should do, by who is asking.
+ *
+ * It used to answer every stranger with a login form, which says nothing except
+ * "you are not welcome yet". Now:
+ *
+ *  - staff continue to their dashboard, which is what `/` has always been;
+ *  - a resident goes to the portal, because someone who already lives here does
+ *    not need to be sold the product they use;
+ *  - everyone else gets the landing page, REWRITTEN rather than redirected, so
+ *    the URL stays the bare domain instead of turning into /willkommen.
+ *
+ * Extracted as a pure function so the decision is testable on its own. Inside
+ * the middleware it would only be reachable by constructing a NextRequest, and
+ * an untested branch here means strangers, residents or staff silently landing
+ * on the wrong side of the product.
+ */
+export type RootDestination =
+  | { kind: 'staff-dashboard' }
+  | { kind: 'redirect'; to: string }
+  | { kind: 'rewrite'; to: string }
+
+export function destinationForRoot({
+  hasStaffSession,
+  hasResidentSession,
+}: {
+  hasStaffSession: boolean
+  hasResidentSession: boolean
+}): RootDestination {
+  // Staff wins when someone holds both: it is the bigger surface, and the nav
+  // offers the switch. Same rule as `establishSessions()` uses at login.
+  if (hasStaffSession) return { kind: 'staff-dashboard' }
+  if (hasResidentSession) return { kind: 'redirect', to: '/portal' }
+  return { kind: 'rewrite', to: LANDING_ROUTE }
+}
 
 export function matchesRoute(pathname: string, route: string): boolean {
   return pathname === route || pathname.startsWith(`${route}/`)

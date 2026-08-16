@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 import {
+  destinationForRoot,
   isPublicRoute,
   requiresResidentAuth,
   requiresStaffAuth,
@@ -56,6 +57,27 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicRoute(pathname)) {
     return NextResponse.next()
+  }
+
+  // The product's own address answered every stranger with a login form, which
+  // says nothing except "you are not welcome yet". Anonymous visitors get the
+  // landing page instead — rewritten, not redirected, so the URL stays the bare
+  // domain. Signed-in people never reach it: staff fall through to their
+  // dashboard below, and a resident goes to the portal, because someone who
+  // lives here does not need to be sold the product they already use.
+  if (pathname === '/') {
+    const destination = destinationForRoot({
+      hasStaffSession: !!request.cookies.get(STAFF_COOKIE)?.value,
+      hasResidentSession: !!request.cookies.get(RESIDENT_COOKIE)?.value,
+    })
+
+    if (destination.kind === 'redirect') {
+      return NextResponse.redirect(new URL(destination.to, publicOrigin(request)))
+    }
+    if (destination.kind === 'rewrite') {
+      return NextResponse.rewrite(new URL(destination.to, publicOrigin(request)))
+    }
+    // 'staff-dashboard' falls through to the staff auth check below.
   }
 
   if (requiresStaffAuth(pathname)) {
