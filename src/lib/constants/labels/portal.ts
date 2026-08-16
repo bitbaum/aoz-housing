@@ -24,6 +24,20 @@ export const PORTAL_LABELS = {
     profile: 'Profil',
     help: 'Hilfe',
     logout: 'Abmelden',
+    more: 'Mehr',
+    moreTitle: 'Alles im Überblick',
+    closeMore: 'Menü schliessen',
+  },
+  /**
+   * Headings for the sections of the "Mehr" sheet. Named for what a resident
+   * wants, not for the tables behind them — somebody looking for the cleaning
+   * rota thinks "Alltag", never "Chores".
+   */
+  navGroups: {
+    living: 'Alltag',
+    together: 'Zusammen entscheiden',
+    concerns: 'Anliegen & Angebote',
+    account: 'Mein Konto',
   },
   emergency: 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
   pages: {

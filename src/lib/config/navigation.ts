@@ -21,6 +21,9 @@ import {
   CircleHelp,
   UserPlus,
   HousePlus,
+  Wallet,
+  Vote,
+  MoreHorizontal,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -43,6 +46,9 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   help: CircleHelp,
   'user-plus': UserPlus,
   'house-plus': HousePlus,
+  wallet: Wallet,
+  vote: Vote,
+  more: MoreHorizontal,
 }
 
 export interface NavItem {
@@ -114,31 +120,63 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
 // PORTAL NAV (resident-facing)
 // =============================================================================
 
+/**
+ * The sections the portal's "Mehr" sheet is organised into.
+ *
+ * A resident opening the menu used to meet fourteen equally-weighted labels in
+ * no particular order, which is a list to read rather than a place to navigate.
+ * Grouping is what turns "scan everything" into "look in the obvious box", so
+ * every item declares which box it is in and the type system requires it.
+ */
+export type PortalNavGroup = 'living' | 'together' | 'concerns' | 'account'
+
+export const PORTAL_NAV_GROUP_ORDER: readonly PortalNavGroup[] = [
+  'living',
+  'together',
+  'concerns',
+  'account',
+]
+
 export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
   labelKey: 'overview' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
+  icon: keyof typeof NAV_ICONS
   /** Items in the `primary` set show as top-level links on desktop. Others
-   *  only appear in the mobile drawer (avoiding desktop overflow). */
+   *  only appear in the "Mehr" sheet (avoiding desktop overflow). */
   primary?: boolean
+  /**
+   * Position in the mobile bottom bar. A phone shows a handful of destinations
+   * permanently or it shows none, and four plus "Mehr" is what fits a 375px
+   * screen at a 44px touch target without the labels truncating.
+   */
+  tab?: 1 | 2 | 3 | 4
+  /** Which section of the "Mehr" sheet this appears under. Required, so a new
+   *  page cannot be added without deciding where a resident would look for it. */
+  group: PortalNavGroup
 }
 
 export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/portal', labelKey: 'overview', primary: true },
-  { href: '/portal/apartment', labelKey: 'apartment', primary: true },
-  { href: '/portal/expenses', labelKey: 'expenses', primary: true },
-  { href: '/portal/chores', labelKey: 'chores', primary: true },
-  { href: '/portal/rules', labelKey: 'rules', primary: true },
-  { href: '/portal/decisions', labelKey: 'decisions', primary: true },
-  { href: '/portal/report', labelKey: 'report', primary: true },
+  { href: '/portal', labelKey: 'overview', icon: 'home', primary: true, tab: 1, group: 'living' },
+  { href: '/portal/chores', labelKey: 'chores', icon: 'calendar', primary: true, tab: 2, group: 'living' },
+  { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living' },
+  { href: '/portal/apartment', labelKey: 'apartment', icon: 'building', primary: true, tab: 4, group: 'living' },
+  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, group: 'together' },
+  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'together' },
   // Roommates live inside the apartment profile now; the standalone page
-  // stays reachable from the mobile drawer.
-  { href: '/portal/roommates', labelKey: 'roommates' },
-  { href: '/portal/profile', labelKey: 'profile' },
-  { href: '/portal/preferences', labelKey: 'preferences' },
-  { href: '/portal/housing', labelKey: 'housing' },
-  { href: '/portal/activities', labelKey: 'activities' },
-  { href: '/portal/transfer', labelKey: 'transfer' },
-  { href: '/portal/help', labelKey: 'help' },
+  // stays reachable from the "Mehr" sheet.
+  { href: '/portal/roommates', labelKey: 'roommates', icon: 'users', group: 'together' },
+  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, group: 'concerns' },
+  { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'concerns' },
+  { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'concerns' },
+  { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'concerns' },
+  { href: '/portal/profile', labelKey: 'profile', icon: 'settings', group: 'account' },
+  { href: '/portal/preferences', labelKey: 'preferences', icon: 'wrench', group: 'account' },
+  { href: '/portal/help', labelKey: 'help', icon: 'help', group: 'account' },
 ]
+
+/** The bottom-bar destinations, in the order they are pinned. */
+export const PORTAL_TAB_ITEMS: PortalNavItem[] = PORTAL_NAV_ITEMS.filter(
+  (item) => item.tab !== undefined
+).sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))

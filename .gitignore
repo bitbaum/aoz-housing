@@ -50,3 +50,9 @@ next-env.d.ts
 # logs
 /logs
 *.log
+
+# Local UI audit artefacts. Screenshots taken while reviewing a screen are
+# working notes, not deliverables — scoped to the repo root and the Playwright
+# output dir so committed assets under public/ and docs/ are unaffected.
+/*.png
+.playwright-mcp/
