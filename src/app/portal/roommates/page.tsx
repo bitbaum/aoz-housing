@@ -16,9 +16,10 @@ import {
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { residentName } from '@/lib/utils/resident-name'
+import { redactProfile } from '@/lib/privacy/profile-visibility'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 
-type RoommateResident = Pick<Resident, 'id' | 'code' | 'displayName' | 'bio' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages'> & {
+type RoommateResident = Pick<Resident, 'id' | 'code' | 'displayName' | 'bio' | 'ageRange' | 'sleepSchedule' | 'socialStyle' | 'smokingStatus' | 'languages' | 'profileVisibility'> & {
   photoVersion: Date | null
 }
 
@@ -49,6 +50,7 @@ export default async function RoommatesPage() {
                       socialStyle: true,
                       smokingStatus: true,
                       languages: true,
+                      profileVisibility: true,
                       photo: { select: { updatedAt: true } },
                     },
                   },
@@ -90,6 +92,12 @@ export default async function RoommatesPage() {
   const roommates: RoommateResident[] = housingUnit.placements
     .filter(p => p.residentId !== resident.id)
     .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null }))
+    // A resident set to PRIVATE has their photo withheld by the endpoint. Their
+    // name and bio come from THIS query, so without the same rule here the card
+    // would hide the picture and print the bio directly underneath it.
+    .map(roommate =>
+      redactProfile(roommate, { kind: 'resident', residentId: resident.id, sharesUnit: true })
+    )
 
   // Get compatibility scores with roommates
   const compatibilityScores = roommates.length > 0

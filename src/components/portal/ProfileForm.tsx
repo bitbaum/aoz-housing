@@ -4,13 +4,24 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PROFILE_LIMITS } from '@/lib/config/profile'
+import { PROFILE_VISIBILITY_OPTIONS } from '@/lib/privacy/profile-visibility'
+import type { ProfileVisibility } from '@prisma/client'
 
 const L = PORTAL_LABELS.profile
 
-export function ProfileForm({ displayName, bio }: { displayName: string; bio: string }) {
+export function ProfileForm({
+  displayName,
+  bio,
+  profileVisibility,
+}: {
+  displayName: string
+  bio: string
+  profileVisibility: ProfileVisibility
+}) {
   const router = useRouter()
   const [name, setName] = useState(displayName)
   const [about, setAbout] = useState(bio)
+  const [visibility, setVisibility] = useState<ProfileVisibility>(profileVisibility)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
 
@@ -22,7 +33,7 @@ export function ProfileForm({ displayName, bio }: { displayName: string; bio: st
       const response = await fetch('/api/portal/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ displayName: name, bio: about }),
+        body: JSON.stringify({ displayName: name, bio: about, profileVisibility: visibility }),
       })
       const body = await response.json()
       if (!body.success) {
@@ -63,6 +74,42 @@ export function ProfileForm({ displayName, bio }: { displayName: string; bio: st
           className="input"
         />
       </label>
+
+      <fieldset className="mt-6">
+        <legend className="label">{L.visibilityLabel}</legend>
+
+        <div className="mt-2 space-y-2">
+          {PROFILE_VISIBILITY_OPTIONS.map((option) => (
+            <label
+              key={option}
+              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                visibility === option
+                  ? 'border-brand-primary bg-ui-subtle'
+                  : 'border-ui-border hover:border-ui-border-strong'
+              }`}
+            >
+              <input
+                type="radio"
+                name="profileVisibility"
+                value={option}
+                checked={visibility === option}
+                onChange={() => setVisibility(option)}
+                className="mt-1"
+              />
+              <span>
+                <span className="block text-sm font-medium text-ui-text">
+                  {L.visibilityOptions[option]}
+                </span>
+                <span className="block text-sm text-ui-muted">{L.visibilityHints[option]}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+
+        {/* Said out loud, on the same screen as the choice. A resident deciding
+            what to share is owed the fact that staff can always see it. */}
+        <p className="mt-2 text-sm text-ui-muted">{L.visibilityStaffNote}</p>
+      </fieldset>
 
       {error && (
         <div role="alert" className="alert-error mt-4">

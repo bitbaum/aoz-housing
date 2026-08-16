@@ -22,7 +22,16 @@ jest.mock('@/lib/portal-auth', () => ({
   getPortalResident: () => mockGetPortalResident(),
 }))
 
+// The photo route asks whether the viewer is staff before it asks anything
+// else. Default: nobody is, so the resident-facing cases are unaffected.
+const mockGetCurrentUser = jest.fn().mockResolvedValue(null)
+jest.mock('@/lib/auth', () => ({
+  getCurrentUser: () => mockGetCurrentUser(),
+}))
+
 const mockResidentUpdate = jest.fn()
+// Every photo request now loads the subject's visibility setting first.
+const mockResidentFindUnique = jest.fn()
 const mockPhotoUpsert = jest.fn()
 const mockPhotoDeleteMany = jest.fn()
 const mockPhotoFindUnique = jest.fn()
@@ -30,7 +39,10 @@ const mockPlacementFindFirst = jest.fn()
 const mockUnitUpdate = jest.fn()
 jest.mock('@/lib/db', () => ({
   prisma: {
-    resident: { update: (...args: unknown[]) => mockResidentUpdate(...args) },
+    resident: {
+      update: (...args: unknown[]) => mockResidentUpdate(...args),
+      findUnique: (...args: unknown[]) => mockResidentFindUnique(...args),
+    },
     residentPhoto: {
       upsert: (...args: unknown[]) => mockPhotoUpsert(...args),
       deleteMany: (...args: unknown[]) => mockPhotoDeleteMany(...args),
@@ -89,6 +101,14 @@ beforeEach(() => {
   jest.clearAllMocks()
   mockGetPortalResident.mockResolvedValue(RESIDENT)
   mockGetPortalAuth.mockResolvedValue(AUTH)
+  mockGetCurrentUser.mockResolvedValue(null)
+  // Default subject: the ROOMMATES setting, which is what the route enforced
+  // before the setting existed — so these cases keep testing the old rule.
+  // Echoes the id that was asked for, the way the real query does — a fixed id
+  // would make "am I looking at my own profile" false for everyone.
+  mockResidentFindUnique.mockImplementation((args: { where: { id: string } }) =>
+    Promise.resolve({ id: args.where.id, profileVisibility: 'ROOMMATES' })
+  )
   mockResidentUpdate.mockImplementation((args: { data: unknown }) =>
     Promise.resolve({ id: 'georgy', code: 'RES-GEO001', ...(args.data as object) })
   )
@@ -187,6 +207,46 @@ describe('GET /api/portal/residents/[id]/photo', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('image/jpeg')
     expect(mockPlacementFindFirst).not.toHaveBeenCalled()
+  })
+
+  it('serves the photo to staff, whatever the resident chose', async () => {
+    // Staff can always identify the person they are supporting. This is the
+    // deliberate change from the route's original behaviour, which hid photos
+    // from staff too.
+    mockGetCurrentUser.mockResolvedValue({ id: 'staff-1', role: 'ADMIN' })
+    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
+    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+
+    const response = await get('ihor')
+
+    expect(response.status).toBe(200)
+    // Staff never need a shared-unit lookup — they are not a flatmate.
+    expect(mockPlacementFindFirst).not.toHaveBeenCalled()
+  })
+
+  it('404s for a roommate when the resident chose PRIVATE', async () => {
+    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
+    mockPlacementFindFirst.mockResolvedValue({ id: 'placement-1' })
+    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+
+    expect((await get('ihor')).status).toBe(404)
+  })
+
+  it('serves a resident of another unit when the setting is RESIDENTS', async () => {
+    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'RESIDENTS' })
+    mockPlacementFindFirst.mockResolvedValue(null)
+    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+
+    expect((await get('ihor')).status).toBe(200)
+  })
+
+  it('404s for an unknown resident without touching the photo table', async () => {
+    // Ordering matters: looking up the photo first would answer "does this
+    // person have a picture" for an id the caller may simply have guessed.
+    mockResidentFindUnique.mockResolvedValue(null)
+
+    expect((await get('nobody')).status).toBe(404)
+    expect(mockPhotoFindUnique).not.toHaveBeenCalled()
   })
 
   it("serves a roommate's photo when a shared unit exists", async () => {

@@ -608,6 +608,23 @@ export const PORTAL_LABELS = {
     photoRemove: 'Foto entfernen',
     photoHint: 'JPG, PNG oder WebP — wird automatisch verkleinert.',
     visibleTo: 'Sichtbar für deine Mitbewohner und die Verwaltung.',
+    /**
+     * The visibility control. The staff line is stated on every option rather
+     * than hidden in small print: a resident deciding what to share is owed
+     * the fact that the people supporting them can always see it.
+     */
+    visibilityLabel: 'Wer sieht dein Profil?',
+    visibilityStaffNote: 'Die Betreuung sieht dein Profil immer — sie muss wissen, wen sie unterstützt.',
+    visibilityOptions: {
+      PRIVATE: 'Nur ich',
+      ROOMMATES: 'Meine Mitbewohnenden',
+      RESIDENTS: 'Alle Bewohnenden',
+    },
+    visibilityHints: {
+      PRIVATE: 'Niemand ausser dir und der Betreuung.',
+      ROOMMATES: 'Die Leute, mit denen du zusammenwohnst.',
+      RESIDENTS: 'Auch Bewohnende aus anderen Wohnungen.',
+    },
   },
   error: {
     title: 'Etwas ist schiefgelaufen',

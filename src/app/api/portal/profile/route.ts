@@ -27,8 +27,20 @@ export async function PATCH(request: NextRequest) {
         // Empty string clears the field back to "code only".
         ...(data.displayName !== undefined && { displayName: data.displayName || null }),
         ...(data.bio !== undefined && { bio: data.bio || null }),
+        // Not coerced with `|| default`: visibility is a choice the resident
+        // made, and silently widening it because the value looked falsy is the
+        // one mistake this field must never make.
+        ...(data.profileVisibility !== undefined && {
+          profileVisibility: data.profileVisibility,
+        }),
       },
-      select: { id: true, code: true, displayName: true, bio: true },
+      select: {
+        id: true,
+        code: true,
+        displayName: true,
+        bio: true,
+        profileVisibility: true,
+      },
     })
 
     await logAudit({
