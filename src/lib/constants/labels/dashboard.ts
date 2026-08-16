@@ -70,6 +70,8 @@ export const DASHBOARD_LABELS = {
   actionCreateResident: 'Neuen Bewohner erfassen',
   actionViewStats: 'Statistiken ansehen',
 
+  /** Names what the hero block is, now that it is no longer a coloured slab. */
+  heroEyebrow: 'Als Nächstes',
   heroCriticalIncidentsSuffix: 'kritische Vorfälle',
   heroActionNow: 'Sofort bearbeiten',
   heroCheckInUrgentPrefix: 'Check-in dringend:',

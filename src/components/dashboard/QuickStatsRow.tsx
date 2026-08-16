@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { URGENCY_VALUE_CLASS, type Urgency } from '@/lib/config/urgency'
 
 // =============================================================================
 // QuickStat
@@ -12,47 +13,34 @@ export interface QuickStatProps {
   suffix?: string
   subtext?: string
   href: string
-  color: 'green' | 'yellow' | 'red' | 'blue' | 'gray'
+  /**
+   * What this number MEANS, not what colour to paint it. Callers used to pass
+   * `'blue'` or `'orange'`, which is how a plain count of free beds ended up
+   * tinted like a warning. @see lib/config/urgency.ts
+   */
+  urgency: Urgency
   icon: ReactNode
 }
 
-export function QuickStat({ label, value, total, suffix, subtext, href, color, icon }: QuickStatProps) {
-  const colorStyles = {
-    green: 'border-status-success/25 bg-status-success/10 text-status-success-text',
-    yellow: 'border-status-warning/25 bg-status-warning/10 text-status-warning-text',
-    red: 'border-status-error/25 bg-status-error/8 text-status-error-text',
-    blue: 'border-status-info/25 bg-status-info/8 text-status-info-text',
-    gray: 'border-ui-border bg-ui-subtle text-ui-muted',
-  }
-
-  const valueColorStyles = {
-    green: 'text-status-success',
-    yellow: 'text-status-warning',
-    red: 'text-status-error',
-    blue: 'text-status-info',
-    gray: 'text-ui-muted',
-  }
-
+export function QuickStat({ label, value, total, suffix, subtext, href, urgency, icon }: QuickStatProps) {
   return (
-    <Link
-      href={href}
-      className={`block p-4 rounded-lg border-2 ${colorStyles[color]} transition-colors`}
-    >
+    // A flat, hairline card like every other surface in the product. The old
+    // tinted fill and 2px coloured border made four stat cards read as four
+    // alerts, which is exactly the noise that hides a real one.
+    <Link href={href} className="card-hover">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xl inline-flex items-center">{icon}</span>
-        <span className={`text-2xl font-bold ${valueColorStyles[color]}`}>
+        <span className="text-ui-muted inline-flex items-center">{icon}</span>
+        <span className={`metric text-2xl ${URGENCY_VALUE_CLASS[urgency]}`}>
           {value}{suffix}
         </span>
       </div>
-      <div className="text-sm font-medium">{label}</div>
-      {subtext && (
-        <div className="text-xs opacity-70 mt-0.5">{subtext}</div>
-      )}
-      {total !== undefined && (
-        <div className="meter mt-2 bg-ui-surface/50">
+      <div className="text-sm font-medium text-ui-text">{label}</div>
+      {subtext && <div className="text-xs text-ui-muted mt-0.5">{subtext}</div>}
+      {total !== undefined && total > 0 && (
+        <div className="meter mt-2">
           <div
-            className="h-full bg-current rounded-sm transition-all"
-            style={{ width: `${(value / total) * 100}%` }}
+            className="meter-fill bg-ui-border-strong"
+            style={{ width: `${Math.min(100, (value / total) * 100)}%` }}
           />
         </div>
       )}

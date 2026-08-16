@@ -30,7 +30,7 @@ const BASE = {
   count: 2,
   description: 'RES-001 wartet am längsten',
   href: '/residents/r1',
-  color: 'orange' as const,
+  urgency: 'attention' as const,
   items: BASE_ITEMS,
   allHref: '/placements?overdue=1',
 }
@@ -78,14 +78,27 @@ describe('ActionTile', () => {
     expect(screen.getByRole('link', { name: /Alle 5 anzeigen/ })).toHaveAttribute('href', '/placements?overdue=1')
   })
 
-  it('applies orange border style for color=orange', () => {
-    const { container } = render(<ActionTile {...BASE} color="orange" />)
-    expect(container.querySelector('.border-status-warning\\/30')).toBeInTheDocument()
+  // Colour follows MEANING now. A tile is not orange because it is about
+  // check-ins; it is amber because something needs attention today.
+  it('marks only a critical tile with a coloured edge', () => {
+    const { container } = render(<ActionTile {...BASE} urgency="critical" />)
+    expect(container.querySelector('.border-status-error\\/40')).toBeInTheDocument()
   })
 
-  it('applies red badge style for color=red', () => {
-    const { container } = render(<ActionTile {...BASE} color="red" />)
-    expect(container.querySelector('.bg-status-error\\/15')).toBeInTheDocument()
+  it('leaves an ordinary tile with the plain hairline card border', () => {
+    const { container } = render(<ActionTile {...BASE} urgency="neutral" />)
+    const card = container.firstElementChild
+
+    expect(card?.className).toContain('card')
+    expect(card?.className).not.toMatch(/border-status-/)
+  })
+
+  it('tints the count badge by urgency, not by topic', () => {
+    const { container: critical } = render(<ActionTile {...BASE} urgency="critical" />)
+    expect(critical.querySelector('.bg-status-error\\/15')).toBeInTheDocument()
+
+    const { container: neutral } = render(<ActionTile {...BASE} urgency="neutral" />)
+    expect(neutral.querySelector('.bg-ui-subtle')).toBeInTheDocument()
   })
 
   it('renders empty item list without errors', () => {
