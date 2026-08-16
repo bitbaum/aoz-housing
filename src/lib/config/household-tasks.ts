@@ -242,6 +242,7 @@ export const CHORE_LABELS = {
     priority: 'Priorität',
     schedule: 'Zeitplan (optional)',
     schedulePlaceholder: 'z.B. Jeden Montag',
+    createError: 'Die Aufgabe konnte nicht erstellt werden.',
     estimatedMinutes: 'Geschätzte Dauer (Min.)',
     submit: 'Aufgabe erstellen',
     submitting: 'Wird erstellt...',
@@ -360,5 +361,7 @@ export const CHORE_LABELS = {
     colResidents: 'Bewohner',
     colTasks: 'Aufgaben',
     colActive: 'Aktiv',
+    chooseUnit: 'Unterkunft wählen …',
+    createHint: 'Die Bewohnenden sehen, dass die Aufgabe von der Betreuung stammt.',
   },
 } as const

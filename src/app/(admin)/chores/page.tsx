@@ -59,7 +59,14 @@ export default async function AdminChoresPage() {
   return (
     <div>
       <div className="mb-6">
-        <PageHeader title={C.pageTitle} />
+        <PageHeader
+          title={C.pageTitle}
+          actions={
+            <Link href="/chores/new" className="btn-secondary">
+              {CHORE_LABELS.actions.create}
+            </Link>
+          }
+        />
       </div>
 
       {/* Stats */}
