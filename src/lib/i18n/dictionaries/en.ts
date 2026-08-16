@@ -1,0 +1,52 @@
+import type { Dictionary } from './de'
+
+/** English. Complete, and reviewed — this one I can vouch for. */
+export const en: Dictionary = {
+  'nav.overview': 'Overview',
+  'nav.apartment': 'Apartment',
+  'nav.expenses': 'Expenses',
+  'nav.roommates': 'Flatmates',
+  'nav.chores': 'Chores',
+  'nav.rules': 'Rules',
+  'nav.decisions': 'Vote',
+  'nav.report': 'Report',
+  'nav.reports': 'My reports',
+  'nav.housing': 'Housing',
+  'nav.activities': 'Activities',
+  'nav.preferences': 'Settings',
+  'nav.profile': 'Profile',
+  'nav.transfer': 'Transfer',
+  'nav.help': 'Help',
+  'nav.logout': 'Sign out',
+  'nav.more': 'More',
+  'nav.moreTitle': 'Everything at a glance',
+  'nav.closeMore': 'Close menu',
+
+  'navGroup.living': 'Everyday',
+  'navGroup.together': 'Deciding together',
+  'navGroup.concerns': 'Requests & offers',
+  'navGroup.account': 'My account',
+
+  'reports.title': 'Your reports',
+  'reports.subtitle': 'Everything you have reported — and what staff said about it.',
+  'reports.showAll': 'Show all reports',
+  'reports.empty': 'You have not reported anything yet.',
+  'reports.new': 'New report',
+  'reports.open': 'Open',
+  'reports.done': 'Resolved',
+  'reports.pending': 'The team is looking at this report.',
+  'reports.answer': 'Reply from staff',
+  'reports.viewYours': 'View your reports',
+
+  'action.save': 'Save',
+  'action.cancel': 'Cancel',
+  'action.back': 'Back',
+  'action.close': 'Close',
+  'action.showAll': 'Show all',
+
+  'language.label': 'Language',
+  'language.change': 'Change language',
+  'language.machineNotice': 'This translation has not yet been checked by a native speaker.',
+
+  'safety.emergency': 'In an emergency: call 112 or contact the housing office',
+}

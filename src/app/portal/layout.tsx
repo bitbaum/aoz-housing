@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { cookies } from 'next/headers'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { cookies, headers } from 'next/headers'
+import { createTranslator, resolveLocale, LOCALE_COOKIE, LOCALES } from '@/lib/i18n'
+import { LocaleProvider } from '@/lib/i18n/LocaleProvider'
 import { PortalNav } from '@/components/portal/PortalNav'
 import { PortalTabBar } from '@/components/portal/PortalTabBar'
 import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
@@ -22,6 +23,14 @@ export default async function PortalLayout({
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
   const hasStaffAccess = !!cookieStore.get(STAFF_COOKIE)?.value
 
+  // Resolved once, on the server, and handed down. Deriving it again in the
+  // browser is how a page ends up half-translated after hydration.
+  const locale = resolveLocale({
+    cookieValue: cookieStore.get(LOCALE_COOKIE)?.value,
+    acceptLanguage: (await headers()).get('accept-language'),
+  })
+  const t = createTranslator(locale)
+
   if (!residentCode) {
     return (
       <div className="min-h-screen bg-ui-canvas text-ui-text">{children}</div>
@@ -32,7 +41,16 @@ export default async function PortalLayout({
     // The bottom padding reserves the strip the fixed tab bar occupies, so the
     // end of every page — including the footer's emergency line — scrolls clear
     // of it instead of underneath it.
-    <div className="min-h-screen bg-ui-canvas text-ui-text flex flex-col pb-[4.5rem] lg:pb-0">
+    // `lang` and `dir` sit here rather than on <html>: the root layout reads no
+    // cookies, which is what keeps the blog and landing pages prerenderable at
+    // build time. Direction is not styling — laid out left-to-right, Arabic is
+    // not merely ugly, it is unreadable.
+    <div
+      lang={locale}
+      dir={LOCALES[locale].dir}
+      className="min-h-screen bg-ui-canvas text-ui-text flex flex-col pb-[4.5rem] lg:pb-0"
+    >
+      <LocaleProvider locale={locale}>
       <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
 
       {/* Header with responsive navigation */}
@@ -55,13 +73,14 @@ export default async function PortalLayout({
       <footer className="border-t border-ui-border bg-ui-surface mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ui-muted">
-            <p className="text-center sm:text-left">{PORTAL_LABELS.emergency}</p>
+            <p className="text-center sm:text-start">{t('safety.emergency')}</p>
             <Link href="/portal/help" className="hover:text-ui-text min-h-[44px] flex items-center">
-              {PORTAL_LABELS.nav.help}
+              {t('nav.help')}
             </Link>
           </div>
         </div>
       </footer>
+      </LocaleProvider>
     </div>
   )
 }
