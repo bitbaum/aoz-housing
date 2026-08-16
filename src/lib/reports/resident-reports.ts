@@ -87,12 +87,19 @@ export function fromMaintenanceRequest(row: MaintenanceReportRow): ResidentRepor
 export function mergeResidentReports(
   incidents: IncidentReportRow[],
   maintenance: MaintenanceReportRow[],
-  limit: number
+  /**
+   * Omit to get everything. The dashboard shows a preview and passes a limit;
+   * the reports page passes none, because a list that silently drops the sixth
+   * report is how a resident ends up unable to find something they filed.
+   */
+  limit?: number
 ): ResidentReport[] {
-  return [...incidents.map(fromIncident), ...maintenance.map(fromMaintenanceRequest)]
-    .sort((a, b) => {
+  const all = [...incidents.map(fromIncident), ...maintenance.map(fromMaintenanceRequest)].sort(
+    (a, b) => {
       if (a.isDone !== b.isDone) return a.isDone ? 1 : -1
       return b.reportedAt.getTime() - a.reportedAt.getTime()
-    })
-    .slice(0, limit)
+    }
+  )
+
+  return limit === undefined ? all : all.slice(0, limit)
 }

@@ -22,6 +22,7 @@ export const PORTAL_LABELS = {
     activities: 'Aktivitäten',
     preferences: 'Einstellungen',
     profile: 'Profil',
+    reports: 'Meine Meldungen',
     help: 'Hilfe',
     logout: 'Abmelden',
     more: 'Mehr',
@@ -38,6 +39,26 @@ export const PORTAL_LABELS = {
     together: 'Zusammen entscheiden',
     concerns: 'Anliegen & Angebote',
     account: 'Mein Konto',
+  },
+  /**
+   * The page that answers "what happened to the thing I reported?".
+   *
+   * It exists because that question had no answer: the list lived only as a
+   * preview on the dashboard, the nav entry led to the submission form, and
+   * anything past the fifth report could not be reached from anywhere.
+   */
+  reports: {
+    title: 'Deine Meldungen',
+    subtitle: 'Alles, was du gemeldet hast — und was die Betreuung dazu sagt.',
+    showAll: 'Alle Meldungen anzeigen',
+    showAllCount: 'Alle Meldungen anzeigen',
+    empty: 'Du hast noch nichts gemeldet.',
+    emptyAction: 'Problem melden',
+    backToOverview: 'Zur Übersicht',
+    openSection: 'Offen',
+    doneSection: 'Erledigt',
+    /** Shown on the confirmation screen, so the report is one tap away. */
+    viewYours: 'Deine Meldungen ansehen',
   },
   emergency: 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
   pages: {

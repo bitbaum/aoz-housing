@@ -1,13 +1,21 @@
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants'
-import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { RESIDENT_REPORTS_ANCHOR, type ResidentReport } from '@/lib/reports/resident-reports'
+import { ResidentReportItem } from './ResidentReportItem'
 
 interface PortalReportsCardProps {
   reports: ResidentReport[]
+  /**
+   * How many the resident actually has. The card shows a preview, so without
+   * the true count it cannot say that there are more — which is how reports
+   * past the preview limit became unreachable.
+   */
+  totalCount: number
 }
 
-export function PortalReportsCard({ reports }: PortalReportsCardProps) {
+export function PortalReportsCard({ reports, totalCount }: PortalReportsCardProps) {
+  const hasMore = totalCount > reports.length
+
   return (
     <div className="card" id={RESIDENT_REPORTS_ANCHOR}>
       <div className="flex items-center justify-between mb-4">
@@ -22,39 +30,28 @@ export function PortalReportsCard({ reports }: PortalReportsCardProps) {
           {PORTAL_LABELS.dashboard.noReports}
         </p>
       ) : (
-        <div className="space-y-3">
-          {reports.map((report) => (
-            <div
-              key={`${report.kind}-${report.id}`}
-              className="p-3 bg-ui-subtle rounded-lg"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-ui-text text-sm">{report.title}</p>
-                  <p className="text-sm text-ui-muted mt-1">
-                    {report.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}
-                    {report.description.length > DISPLAY_LIMITS.descriptionPreview && '...'}
-                  </p>
-                  <p className="text-sm text-ui-muted mt-1">
-                    {report.isDone ? PORTAL_LABELS.dashboard.reportResolved : PORTAL_LABELS.dashboard.reportPending}
-                  </p>
-                </div>
-                <span className={`badge ${report.isDone ? 'badge-active' : 'badge-pending'} shrink-0`}>
-                  {report.isDone ? PORTAL_LABELS.dashboard.resolved : `${PORTAL_LABELS.dashboard.open} · ${PORTAL_LABELS.dashboard.inProgress}`}
-                </span>
-              </div>
+        <>
+          <div className="space-y-3">
+            {reports.map((report) => (
+              <ResidentReportItem
+                key={`${report.kind}-${report.id}`}
+                report={report}
+                truncate
+              />
+            ))}
+          </div>
 
-              {/* An answer that stays in the database is the same as no answer.
-                  This is the only place a resident learns what staff did. */}
-              {report.answer && (
-                <div className="mt-3 border-t border-ui-border pt-3">
-                  <p className="eyebrow">{PORTAL_LABELS.dashboard.reportAnswer}</p>
-                  <p className="text-sm text-ui-text mt-1">{report.answer}</p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+          {/* The way out of the preview. Its absence is what made the sixth
+              report unreachable from anywhere in the product. */}
+          <Link
+            href="/portal/reports"
+            className="mt-4 inline-flex items-center min-h-[44px] text-sm text-brand-primary hover:underline"
+          >
+            {hasMore
+              ? `${PORTAL_LABELS.reports.showAllCount} (${totalCount})`
+              : PORTAL_LABELS.reports.showAll}
+          </Link>
+        </>
       )}
     </div>
   )

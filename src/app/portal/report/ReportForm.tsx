@@ -111,6 +111,17 @@ export function ReportForm({ roommates }: Props) {
           </ol>
           <p className="text-xs text-status-info-text mt-3">{R.successTip}</p>
         </div>
+
+        {/* The way onward. Without it this screen is a dead end that promises
+            an answer and offers no way to ever go and read it. */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/portal/reports" className="btn-secondary">
+            {PORTAL_LABELS.reports.viewYours}
+          </Link>
+          <Link href="/portal" className="btn-outline">
+            {PORTAL_LABELS.reports.backToOverview}
+          </Link>
+        </div>
       </div>
     )
   }
