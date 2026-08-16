@@ -436,6 +436,33 @@
   @apply nav-item text-ui-text bg-ui-subtle;
 }
 
+/* ── Bottom tab bar (portal, mobile) ────────────────────────────────────────
+   A phone needs its main destinations permanently on screen. Behind a
+   hamburger, every move costs a tap to open, a list to read and a tap to
+   choose — so residents stopped looking and the pages may as well not exist.
+
+   The active tab is marked by a rule along the TOP edge plus full-strength
+   text, not by a filled pill: the bar sits under the thumb on every screen, so
+   a filled brand block would put the loudest colour in the product permanently
+   in view and leave nothing to say "this is the action that matters". */
+.tab-bar {
+  @apply fixed inset-x-0 bottom-0 z-40 flex items-stretch
+         border-t border-ui-border bg-ui-surface/95 backdrop-blur;
+  /* Clears the iOS home indicator — without it the last row of tabs sits under
+     the gesture bar and the taps land on the OS instead of the app. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab-item {
+  @apply flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 py-2
+         text-2xs font-medium text-ui-muted transition-colors duration-150
+         border-t-2 border-transparent;
+}
+
+.tab-item-active {
+  @apply tab-item text-ui-text border-t-brand-primary;
+}
+
 /* ── Tables ─────────────────────────────────────────────────────────────── */
 
 .table {
