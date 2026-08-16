@@ -5,6 +5,7 @@ import {
   offeredLocales,
   coverageOf,
   createTranslator,
+  translateWith,
   getDictionary,
   resolveLocale,
   isLocaleId,
@@ -33,9 +34,24 @@ describe('a language is only offered when it is finished', () => {
   })
 
   it('reports honest coverage for a language nobody has written yet', () => {
-    // `fr` is declared but empty. It must read as 0, not as complete, or the
-    // check above passes vacuously for every unwritten language.
-    expect(coverageOf('fr')).toBe(0)
+    // Derived, not hardcoded: naming a specific language here made the test
+    // fail the day that language was translated, which taught nothing.
+    const unwritten = LOCALE_IDS.filter((id) => Object.keys(getDictionary(id)).length === 0)
+    expect(unwritten.length).toBeGreaterThan(0)
+
+    for (const id of unwritten) {
+      expect({ id, coverage: coverageOf(id) }).toEqual({ id, coverage: 0 })
+    }
+  })
+
+  it('reports partial coverage as partial', () => {
+    // Guards the arithmetic itself, so a coverage function that returned 1 for
+    // everything could not make the "only offered when finished" check pass.
+    for (const id of LOCALE_IDS) {
+      const coverage = coverageOf(id)
+      expect(coverage).toBeGreaterThanOrEqual(0)
+      expect(coverage).toBeLessThanOrEqual(1)
+    }
   })
 })
 
@@ -51,10 +67,15 @@ describe('nothing ever renders blank', () => {
   })
 
   it('falls back to German rather than echoing the key', () => {
-    // A key on screen is a bug the resident has to report for us; German is
-    // something they can point at and ask about.
-    const t = createTranslator('fr')
-    expect(t('nav.overview')).toBe(de['nav.overview'])
+    // Tested against an empty dictionary directly, so this keeps proving the
+    // rule after every language has been written. Pointing it at whichever
+    // locale happened to be blank made it fail the day French was added — the
+    // test broke on good news, which is a test that teaches nothing.
+    expect(translateWith({}, 'nav.overview')).toBe(de['nav.overview'])
+  })
+
+  it('prefers the translation over the fallback when there is one', () => {
+    expect(translateWith({ 'nav.overview': 'Aperçu' }, 'nav.overview')).toBe('Aperçu')
   })
 
   it('uses a translation when one exists', () => {
