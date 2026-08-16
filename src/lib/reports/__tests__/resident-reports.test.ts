@@ -105,4 +105,41 @@ describe('mergeResidentReports', () => {
     )
     expect(merged).toHaveLength(3)
   })
+
+  /**
+   * The bug this pins: a resident filed a report and could not find it again.
+   *
+   * The list existed only as a five-item preview on the dashboard, so the sixth
+   * report onward was not reachable from anywhere in the product — and a report
+   * you cannot find is indistinguishable from one that was never saved. The
+   * fix is a page that asks for everything, which only works if "everything"
+   * is expressible.
+   */
+  it('returns every report when no limit is given', () => {
+    const merged = mergeResidentReports(
+      [incident({ id: 'a' }), incident({ id: 'b' }), incident({ id: 'c' })],
+      [maintenance({ id: 'd' }), maintenance({ id: 'e' }), maintenance({ id: 'f' })]
+    )
+
+    expect(merged).toHaveLength(6)
+  })
+
+  it('keeps a limit of zero meaning zero, not "no limit"', () => {
+    // `limit ?? all` would turn 0 into everything — the kind of falsy-check
+    // slip that shows up as a page ignoring its own cap.
+    expect(mergeResidentReports([incident()], [maintenance()], 0)).toHaveLength(0)
+  })
+
+  it('lets the preview and the full list agree on what is first', () => {
+    // The dashboard slices the merged list; the page shows it whole. If the
+    // two ordered differently, the preview would advertise a report that is
+    // not at the top of the page it links to.
+    const incidents = [incident({ id: 'a' }), incident({ id: 'b', resolvedAt: new Date() })]
+    const requests = [maintenance({ id: 'c' })]
+
+    const full = mergeResidentReports(incidents, requests)
+    const preview = mergeResidentReports(incidents, requests, 2)
+
+    expect(preview).toEqual(full.slice(0, 2))
+  })
 })

@@ -141,7 +141,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
+  labelKey: 'overview' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
   icon: keyof typeof NAV_ICONS
   /** Items in the `primary` set show as top-level links on desktop. Others
    *  only appear in the "Mehr" sheet (avoiding desktop overflow). */
@@ -168,6 +168,7 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // stays reachable from the "Mehr" sheet.
   { href: '/portal/roommates', labelKey: 'roommates', icon: 'users', group: 'together' },
   { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, group: 'concerns' },
+  { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
   { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'concerns' },
   { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'concerns' },
   { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'concerns' },

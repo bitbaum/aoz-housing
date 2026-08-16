@@ -103,11 +103,10 @@ export default async function ResidentPortal() {
     .filter(p => p.residentId !== resident.id)
     .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null })) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
-  const myReports = mergeResidentReports(
-    resident.incidentsReported,
-    resident.maintenanceRequests,
-    DISPLAY_LIMITS.portalIncidentPreview
-  )
+  // The full set is merged first so the card knows how many there really are.
+  // Slicing before counting is what let the preview claim to be the whole list.
+  const allReports = mergeResidentReports(resident.incidentsReported, resident.maintenanceRequests)
+  const myReports = allReports.slice(0, DISPLAY_LIMITS.portalIncidentPreview)
 
   const now = new Date()
   const [pendingChores, compatibilityScores, highlightedActivities, expenseData] = await Promise.all([
@@ -209,7 +208,7 @@ export default async function ResidentPortal() {
         )}
 
         {/* Recent Reports */}
-        <PortalReportsCard reports={myReports} />
+        <PortalReportsCard reports={myReports} totalCount={allReports.length} />
 
         {/* Open Maintenance in Building */}
         {housingUnit && housingUnit.maintenanceRequests.length > 0 && (
