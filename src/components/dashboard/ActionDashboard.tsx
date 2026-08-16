@@ -32,11 +32,25 @@ interface ActionDashboardProps {
   // Health indicators
   conflictFreeDays: number
   openMaintenanceCount: number
+
+  /**
+   * Computed on the server and passed in, NOT derived here. This component is
+   * server-rendered as well as hydrated, and `new Date()` means UTC in the
+   * container and Europe/Zurich in the browser — a difference that made React
+   * discard the whole tree and rebuild it. @see lib/utils/local-time.ts
+   */
+  greeting: string
+  todayLabel: string
 }
 
 // =============================================================================
 // Utilities
 // =============================================================================
+
+/** "Tag" for one, "Tage" for anything else. */
+function daysWord(count: number): string {
+  return count === 1 ? DASHBOARD_LABELS.statDaySuffixSingular : DASHBOARD_LABELS.statDaysSuffix
+}
 
 function formatDaysAgo(date: Date): string {
   const days = daysSinceCeil(date)
@@ -61,6 +75,8 @@ export function ActionDashboard({
   problemUnits,
   conflictFreeDays,
   openMaintenanceCount,
+  greeting,
+  todayLabel,
 }: ActionDashboardProps) {
   const freeBeds = totalBeds - occupiedBeds
   const onTimeCheckIns = totalPlacements - overdueCheckIns.length
@@ -77,10 +93,6 @@ export function ActionDashboard({
   // Count total issues
   const totalIssues = criticalIncidents.length + overdueCheckIns.length + unplacedResidents.length
 
-  // Greeting based on time of day (using client time)
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? DASHBOARD_LABELS.greetingMorning : hour < 18 ? DASHBOARD_LABELS.greetingDay : DASHBOARD_LABELS.greetingEvening
-
   return (
     <div className="space-y-6">
       {/* Header with greeting */}
@@ -95,9 +107,7 @@ export function ActionDashboard({
                 : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
           </p>
         </div>
-        <div className="text-right text-sm text-ui-muted">
-          {new Date().toLocaleDateString('de-CH', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </div>
+        <div className="text-right text-sm text-ui-muted">{todayLabel}</div>
       </div>
 
       {/* Critical Alert Banner - Only shows when there are critical incidents */}
@@ -137,7 +147,7 @@ export function ActionDashboard({
         <QuickStat
           label={DASHBOARD_LABELS.statHarmony}
           value={conflictFreeDays}
-          suffix={` ${DASHBOARD_LABELS.statDaysSuffix}`}
+          suffix={` ${daysWord(conflictFreeDays)}`}
           href="/incidents"
           urgency={urgencyForGoodStreak(conflictFreeDays)}
           icon={<Smile className="w-5 h-5" />}
@@ -167,7 +177,7 @@ export function ActionDashboard({
               urgency={urgencyForOpenCount(overdueCheckIns.length)}
               items={overdueCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map(c => ({
                 label: c.residentCode,
-                sublabel: `${c.daysSinceLastCheckIn} ${DASHBOARD_LABELS.statDaysSuffix} · ${c.unitCode}`,
+                sublabel: `${c.daysSinceLastCheckIn} ${daysWord(c.daysSinceLastCheckIn)} · ${c.unitCode}`,
                 href: `/residents/${c.residentId}`,
               }))}
               allHref="/placements?status=active&overdue=1"
