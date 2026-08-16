@@ -59,12 +59,28 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
+// --- Tests for the resident-chosen name ---
+
+describe('the name residents gave their home', () => {
+  it('shows it alongside the code once they have chosen one', () => {
+    render(<HousingList units={[makeUnit({ id: '1', code: 'U05', nickname: 'Casa Harmonie' })]} />)
+    expect(screen.getByText('Casa Harmonie (U05)')).toBeInTheDocument()
+  })
+
+  it('shows the bare code when they have not', () => {
+    // No empty brackets, and no invented name.
+    render(<HousingList units={[makeUnit({ id: '1', code: 'U05', nickname: null })]} />)
+    expect(screen.getByText('U05')).toBeInTheDocument()
+  })
+})
+
 // --- Helpers ---
 
 function makeUnit(overrides: Partial<HousingListItem> & { id: string }): HousingListItem {
   return {
     id: overrides.id,
     code: overrides.code ?? `UNIT-${overrides.id}`,
+    nickname: overrides.nickname ?? null,
     address: overrides.address ?? 'Musterstrasse 1',
     status: overrides.status ?? 'AVAILABLE',
     totalBeds: overrides.totalBeds ?? 4,

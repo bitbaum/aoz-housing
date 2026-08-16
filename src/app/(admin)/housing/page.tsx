@@ -31,12 +31,17 @@ export default async function HousingListPage({ searchParams }: Props) {
           : {}),
         ...(q ? { OR: [
           { code: { contains: q, mode: 'insensitive' } },
+          // A caseworker who hears "Casa Harmonie" must be able to type it.
+          { nickname: { contains: q, mode: 'insensitive' } },
           { address: { contains: q, mode: 'insensitive' } },
         ] } : {}),
       },
       select: {
         id: true,
         code: true,
+        // The name the residents gave their own home. Without it the staff
+        // list can only ever show DEMO-U05. @see lib/utils/unit-name.ts
+        nickname: true,
         address: true,
         status: true,
         totalBeds: true,

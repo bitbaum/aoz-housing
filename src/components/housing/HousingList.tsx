@@ -6,11 +6,14 @@ import { getOccupancyColorClass } from '@/lib/utils'
 import { HousingCardActions } from '@/components/housing/HousingCardActions'
 import { HOUSING_STATUS_LABELS } from '@/lib/constants/labels/housing'
 import { HOUSING_LIST_LABELS } from '@/lib/constants/labels'
+import { unitLabel } from '@/lib/utils/unit-name'
 import { EmptyState, ListShell } from '@/components/ui/Page'
 
 export interface HousingListItem {
   id: string
   code: string
+  /** Required, not optional — `null` means unnamed, missing means unasked. */
+  nickname: string | null
   address: string
   status: string
   totalBeds: number
@@ -66,7 +69,7 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
           </span>
           <span className="min-w-0">
             <span className="block truncate font-semibold text-ui-text group-hover:text-brand-primary">
-              {unit.code}
+              {unitLabel(unit)}
             </span>
             <span className="block truncate text-sm text-ui-muted">{unit.address}</span>
           </span>
