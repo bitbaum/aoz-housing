@@ -30,6 +30,8 @@ export const DASHBOARD_LABELS = {
   statAllCurrent: 'alle aktuell',
   statHarmony: 'Harmonie',
   statDaysSuffix: 'Tage',
+  /** German needs the singular for exactly one. "1 Tage" reads as a bug. */
+  statDaySuffixSingular: 'Tag',
   statNoConflicts: 'ohne Konflikte',
   statMaintenance: 'Wartung',
   statOpenSuffix: 'offen',

@@ -93,6 +93,11 @@ const BASE_PROPS = {
   problemUnits: [],
   conflictFreeDays: 14,
   openMaintenanceCount: 0,
+  // Fixed strings, because they are now computed on the server and passed in.
+  // The component no longer reads a clock, which is what makes its output the
+  // same in the container and in the browser.
+  greeting: 'Guten Tag',
+  todayLabel: 'Sonntag, 16. August',
 }
 
 function makeCheckIn(id: string) {

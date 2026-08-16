@@ -4,6 +4,15 @@ import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
+import { DASHBOARD_LABELS } from '@/lib/constants/labels'
+import { dayPartAt, formatWeekdayDate, type DayPart } from '@/lib/utils/local-time'
+
+/** Which greeting belongs to which part of the day. */
+const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 'greetingEvening'> = {
+  morning: 'greetingMorning',
+  day: 'greetingDay',
+  evening: 'greetingEvening',
+}
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import {
   getCheckInInterval,
@@ -231,6 +240,8 @@ export default async function AdminDashboard() {
       problemUnits={problemUnits}
       conflictFreeDays={conflictFreeDays}
       openMaintenanceCount={openMaintenanceCount}
+      greeting={DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]]}
+      todayLabel={formatWeekdayDate(now)}
     />
   )
 }
