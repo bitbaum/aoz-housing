@@ -14,7 +14,9 @@ export const STAFF_ROUTES = [
   '/matching',
   '/analytics',
   '/chores',
+  '/messages',
   '/transfer-requests',
+  '/api/messages',
   '/api/export',
   '/api/import',
 ]
@@ -39,6 +41,7 @@ export const RESIDENT_ROUTES = [
   '/api/portal/profile',
   '/api/portal/apartment',
   '/api/portal/residents',
+  '/api/portal/messages',
 ]
 
 // Routes that remain public.
