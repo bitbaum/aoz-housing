@@ -24,6 +24,7 @@ import {
   Wallet,
   Vote,
   MoreHorizontal,
+  MessageSquare,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -49,6 +50,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   wallet: Wallet,
   vote: Vote,
   more: MoreHorizontal,
+  message: MessageSquare,
 }
 
 export interface NavItem {
@@ -111,6 +113,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben' },
     ],
   },
+  { href: '/messages', icon: 'message', label: 'Nachrichten' },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
   // Einstellungen intentionally NOT here — system links live in SYSTEM_LINKS
   // (UserMenu + drawer), keeping the header row to the daily work.
@@ -141,7 +144,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
+  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
   icon: keyof typeof NAV_ICONS
   /** Items in the `primary` set show as top-level links on desktop. Others
    *  only appear in the "Mehr" sheet (avoiding desktop overflow). */
@@ -162,6 +165,9 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal/chores', labelKey: 'chores', icon: 'calendar', primary: true, tab: 2, group: 'living' },
   { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living' },
   { href: '/portal/apartment', labelKey: 'apartment', icon: 'building', primary: true, tab: 4, group: 'living' },
+  // Messaging sits in `concerns`: it is where you go when something is wrong
+  // or unclear, next to reporting and transfer.
+  { href: '/portal/messages', labelKey: 'messages', icon: 'message', primary: true, group: 'concerns' },
   { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, group: 'together' },
   { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'together' },
   // Roommates live inside the apartment profile now; the standalone page

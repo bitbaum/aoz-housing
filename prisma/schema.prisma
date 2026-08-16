@@ -85,6 +85,9 @@ model Resident {
   /// endpoint already had, so nobody's visibility widens on migration.
   profileVisibility ProfileVisibility @default(ROOMMATES)
 
+  messageThread   MessageThread?
+  messagesWritten Message[]      @relation("MessageAuthor")
+
   // Login credentials live on Account, never here — one human may hold both a
   // staff account and a resident record (a caseworker who also lives in a
   // shared flat), and two password hashes for one human WILL drift.
@@ -145,6 +148,55 @@ model ResidentPhoto {
   data       Bytes
   mimeType   String
   updatedAt  DateTime @updatedAt
+}
+
+/// A conversation between one resident and the staff team.
+///
+/// One thread per resident, not per topic. A resident with a question does not
+/// know which of their concerns counts as "the same conversation" as another,
+/// and making them pick a thread is asking them to do the filing for us. Staff
+/// get the whole history with that person in one place, which is also how they
+/// avoid asking something a colleague already answered.
+model MessageThread {
+  id         String   @id @default(cuid())
+  residentId String   @unique
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  /// Bumped on every message, so a staff inbox can sort by "waiting longest"
+  /// without loading every thread's messages.
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+
+  @@index([updatedAt])
+}
+
+/// One message. Either a resident wrote it or a staff member did — never both
+/// and never neither, which is what `messageAuthor()` and a CHECK constraint
+/// enforce from either end.
+model Message {
+  id       String        @id @default(cuid())
+  threadId String
+  thread   MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  /// Set when a resident wrote it. Restrict, not Cascade: deleting a person
+  /// must never silently rewrite a conversation staff may have to account for.
+  authorResidentId String?
+  authorResident   Resident? @relation("MessageAuthor", fields: [authorResidentId], references: [id], onDelete: Restrict)
+
+  /// Set when a staff member wrote it.
+  authorUserId String?
+  authorUser   User?     @relation("MessageAuthor", fields: [authorUserId], references: [id], onDelete: Restrict)
+
+  body      String
+  createdAt DateTime @default(now())
+
+  /// When the OTHER side read it. Null means unread. One timestamp is enough
+  /// because a thread has exactly two sides.
+  readAt DateTime?
+
+  @@index([threadId, createdAt])
 }
 
 /// How far a resident's self-chosen profile reaches among other residents.
@@ -776,6 +828,8 @@ model User {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  messagesWritten Message[] @relation("MessageAuthor")
 
   // Identity
   code String @unique // Staff login code (works forever)

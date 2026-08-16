@@ -26,6 +26,7 @@ export const de = {
   'nav.decisions': 'Abstimmen',
   'nav.report': 'Melden',
   'nav.reports': 'Meine Meldungen',
+  'nav.messages': 'Nachrichten',
   'nav.housing': 'Unterkünfte',
   'nav.activities': 'Aktivitäten',
   'nav.preferences': 'Einstellungen',
@@ -54,6 +55,17 @@ export const de = {
   'reports.pending': 'Das Team prüft diese Meldung aktuell.',
   'reports.answer': 'Antwort der Betreuung',
   'reports.viewYours': 'Deine Meldungen ansehen',
+
+  // Messages
+  'messages.title': 'Nachrichten',
+  'messages.subtitle': 'Schreib der Betreuung — sie antwortet dir hier.',
+  'messages.empty': 'Noch keine Nachrichten. Schreib uns, wenn du etwas brauchst.',
+  'messages.placeholder': 'Deine Nachricht …',
+  'messages.send': 'Senden',
+  'messages.sending': 'Wird gesendet …',
+  'messages.you': 'Du',
+  'messages.staff': 'Betreuung',
+  'messages.unread': 'neu',
 
   // Shared actions
   'action.save': 'Speichern',

@@ -36,6 +36,7 @@ export type AuditEntity =
   | 'PROPOSAL'
   | 'CONFLICT_AGREEMENT'
   | 'EXPENSE'
+  | 'MESSAGE'
   | 'SETTLEMENT'
   | 'RESIDENT_PROFILE'
 
