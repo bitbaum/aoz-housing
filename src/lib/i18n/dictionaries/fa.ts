@@ -90,7 +90,7 @@ export const fa: Dictionary = {
   'report.title': 'گزارش مشکل',
   'report.subtitle': 'خرابی یا اختلاف — تیم می‌بیند.',
   'report.emergencyTitle': 'خطر فوری؟',
-  'report.emergencyMessage': 'در اضطرار: 112. اورژانس AOZ خارج از ساعت اداری: 044 415 63 30.',
+  'report.emergencyMessage': 'در اضطرار: 112. خارج از ساعت اداری: 044 415 63 30.',
   'report.noPlacement': 'هنوز مسکن نداری. با مربی تماس بگیر.',
 
   'rules.title': 'قواعد خانه',

@@ -41,7 +41,7 @@ function groupHousingUnits(units: HousingListItem[]): { heading: string | null; 
     buckets.set(code, list)
   }
 
-  const groups = [...buckets.entries()]
+  const groups = Array.from(buckets.entries())
     .sort(([a], [b]) => a.localeCompare(b, 'de-CH'))
     .map(([code, grouped]) => ({
       heading: HOUSING_LIST_LABELS.buildingGroup(code),

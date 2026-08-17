@@ -83,7 +83,7 @@ export const ru: Dictionary = {
 
   'safety.emergency': 'В экстренном случае: звони 112 или свяжись с администрацией дома',
 
-  'help.title': 'Помощь и FAQ',
+  'help.title': 'Помощь и частые вопросы',
   'help.subtitle': 'Ответы и контакты — при опасности сначала номера экстренных служб.',
   'help.faqTitle': 'Частые вопросы',
   'help.contactTitle': 'Контакт',
@@ -107,7 +107,7 @@ export const ru: Dictionary = {
   'report.title': 'Сообщить о проблеме',
   'report.subtitle': 'Поломка или конфликт — команда это увидит.',
   'report.emergencyTitle': 'Непосредственная опасность?',
-  'report.emergencyMessage': 'В экстренном случае: 112. AOZ вне рабочего времени: 044 415 63 30.',
+  'report.emergencyMessage': 'В экстренном случае: 112. Вне рабочего времени: 044 415 63 30.',
   'report.noPlacement': 'У тебя ещё нет жилья. Свяжись с сопровождением.',
 
   'rules.title': 'Правила дома',
@@ -127,11 +127,11 @@ export const ru: Dictionary = {
   'learning.hours': 'Часы',
 
   'care.title': 'Твоя команда',
-  'care.subtitle': 'Кто за тебя отвечает — жильё, социальная работа, job coach.',
+  'care.subtitle': 'Кто за тебя отвечает — жильё, социальная работа, карьерный коуч.',
   'care.empty': 'Пока никого не назначили. Сопровождение добавит команду.',
   'care.housing': 'Жильё / сопровождение',
   'care.social': 'Социальная работа',
-  'care.job': 'Job coach',
+  'care.job': 'Карьерный коуч',
   'care.appointments': 'Встречи',
   'care.appointmentsEmpty': 'Нет запланированных встреч.',
 }

@@ -71,7 +71,7 @@ export const uk: Dictionary = {
 
   'safety.emergency': 'У разі надзвичайної ситуації: телефонуйте 112 або зверніться до адміністрації',
 
-  'help.title': 'Допомога та FAQ',
+  'help.title': 'Допомога та поширені питання',
   'help.subtitle': 'Відповіді та контакти — у небезпеці спочатку номери екстреної допомоги.',
   'help.faqTitle': 'Часті запитання',
   'help.contactTitle': 'Контакт',
@@ -95,7 +95,7 @@ export const uk: Dictionary = {
   'report.title': 'Повідомити про проблему',
   'report.subtitle': 'Поломка або конфлікт — команда це побачить.',
   'report.emergencyTitle': 'Безпосередня небезпека?',
-  'report.emergencyMessage': 'У надзвичайній ситуації: 112. AOZ поза робочим часом: 044 415 63 30.',
+  'report.emergencyMessage': 'У надзвичайній ситуації: 112. Поза робочим часом: 044 415 63 30.',
   'report.noPlacement': 'У тебе ще немає житла. Звернись до супроводу.',
 
   'rules.title': 'Правила будинку',
@@ -115,11 +115,11 @@ export const uk: Dictionary = {
   'learning.hours': 'Години',
 
   'care.title': 'Твоя команда',
-  'care.subtitle': 'Хто за тебе відповідає — житло, соціальна робота, job coach.',
+  'care.subtitle': 'Хто за тебе відповідає — житло, соціальна робота, кар’єрний коуч.',
   'care.empty': 'Ще нікого не призначено. Супровід додасть команду.',
   'care.housing': 'Житло / супровід',
   'care.social': 'Соціальна робота',
-  'care.job': 'Job coach',
+  'care.job': 'Кар’єрний коуч',
   'care.appointments': 'Зустрічі',
   'care.appointmentsEmpty': 'Немає запланованих зустрічей.',
 }

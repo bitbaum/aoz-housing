@@ -87,7 +87,7 @@ export const en: Dictionary = {
   'report.title': 'Report a problem',
   'report.subtitle': 'A broken thing or a conflict — staff will see it.',
   'report.emergencyTitle': 'Immediate danger?',
-  'report.emergencyMessage': 'In an emergency: 112. AOZ out-of-hours: 044 415 63 30.',
+  'report.emergencyMessage': 'In an emergency: 112. Out of hours: 044 415 63 30.',
   'report.noPlacement': 'You have no housing yet. Contact staff.',
 
   'rules.title': 'House rules',

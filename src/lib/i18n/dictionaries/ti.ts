@@ -90,7 +90,7 @@ export const ti: Dictionary = {
   'report.title': 'ጸገም ሕበር',
   'report.subtitle': 'ጉድኣት ወይ ግርጭት — እቲ ጋንታ ይርእዮ.',
   'report.emergencyTitle': 'ቀረባ ሓደጋ?',
-  'report.emergencyMessage': 'ኣብ ሓደጋ: 112. AOZ ካብ ሰዓት ስራሕ ወጻኢ: 044 415 63 30.',
+  'report.emergencyMessage': 'ኣብ ሓደጋ: 112. ካብ ሰዓት ስራሕ ወጻኢ: 044 415 63 30.',
   'report.noPlacement': 'ገና መንበሪ የብልካን. ምስ ሓላፊኻ ተራኸብ.',
 
   'rules.title': 'ሕግታት ገዛ',
