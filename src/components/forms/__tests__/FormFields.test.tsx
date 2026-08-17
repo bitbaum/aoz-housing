@@ -72,6 +72,7 @@ jest.mock('@/lib/config/resident-factors', () => ({
     if (id === 'basic') return [codeFactor]
     return []
   },
+  isEssentialFactor: () => true,
 }))
 
 jest.mock('@/lib/constants', () => ({
