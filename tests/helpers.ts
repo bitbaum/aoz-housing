@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { BRAND } from '../src/lib/config/brand'
+import { LOGIN_LABELS } from '../src/lib/constants/labels'
+import { LOCALE_COOKIE } from '../src/lib/i18n/locales'
 
 const STAFF_CODE = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
 
@@ -21,23 +23,48 @@ export async function ensureStaffLogin(page: Page) {
   }
 }
 
+async function waitForLoginDoors(page: Page) {
+  await expect(page.locator('#email, #code').first()).toBeVisible({ timeout: 15_000 })
+}
+
 /**
  * The login page's primary door depends on the brand: AOZ/AOZH open on the
  * printed code, WG on email. Both doors stay one toggle away. Idempotent.
  */
 export async function openCodeLoginForm(page: Page) {
+  await waitForLoginDoors(page)
   const codeInput = page.locator('#code')
   if (!(await codeInput.isVisible())) {
-    await page.getByRole('button', { name: 'Mit Code anmelden' }).click()
+    await page.getByRole('button', { name: LOGIN_LABELS.useCode }).click()
     await expect(codeInput).toBeVisible()
   }
 }
 
 export async function openEmailLoginForm(page: Page) {
+  await waitForLoginDoors(page)
   const emailInput = page.locator('#email')
   if (!(await emailInput.isVisible())) {
-    await page.getByRole('button', { name: 'Mit E-Mail anmelden' }).click()
+    await page.getByRole('button', { name: LOGIN_LABELS.useEmail }).click()
     await expect(emailInput).toBeVisible()
+  }
+}
+
+/** Short intake hides matching detail fields behind this control. */
+export async function expandResidentIntakeDetails(page: Page) {
+  const more = page.getByRole('button', { name: 'Weitere Angaben' })
+  if (await more.isVisible()) {
+    await more.click()
+    await expect(page.locator('select[name="socialStyle"]')).toBeVisible()
+  }
+}
+
+/** Portal dictionaries follow Accept-Language unless this cookie is set. */
+export function portalLocaleCookie(locale = 'de') {
+  return {
+    name: LOCALE_COOKIE,
+    value: locale,
+    domain: 'localhost',
+    path: '/',
   }
 }
 
