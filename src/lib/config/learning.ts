@@ -6,6 +6,8 @@
  * never a grade of the person. No diagnoses, no case details.
  */
 
+import { BRAND } from './brand'
+
 export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const
 export type CefrLevel = (typeof CEFR_LEVELS)[number]
 
@@ -107,7 +109,7 @@ export const LEARNING_LABELS = {
   language: 'Sprache',
   cefr: 'Niveau (GER)',
   provider: 'Anbieter',
-  providerPlaceholder: 'z.B. AOZ, EB Zürich, fide',
+  providerPlaceholder: `z.B. ${BRAND.orgName}, EB Zürich, fide`,
   category: 'Bereich',
   hours: 'Stunden',
   startedAt: 'Beginn',

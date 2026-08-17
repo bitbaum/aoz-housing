@@ -277,8 +277,3 @@ export async function setAppointmentStatus(formData: FormData): Promise<{ succes
   revalidateResident(appointment.residentId)
   return { success: true }
 }
-
-export function staffCanWriteCare(role: string): boolean {
-  if (!isStaffRole(role)) return false
-  return hasPermission(role, 'residents:write')
-}

@@ -19,8 +19,8 @@ type LoginMode = 'email' | 'code'
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  // Email + password is the primary door; an invite link with ?code= opens
-  // the code form directly so the invited person just presses Anmelden.
+  // Which door opens first is a brand flag. Invite links with ?code= still
+  // land on the code form so the invited person just presses Anmelden.
   const [mode, setMode] = useState<LoginMode>(
     searchParams.get('code')
       ? 'code'

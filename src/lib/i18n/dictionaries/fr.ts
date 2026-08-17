@@ -98,7 +98,7 @@ export const fr: Dictionary = {
   'report.title': 'Signaler un problème',
   'report.subtitle': 'Un dégât ou un conflit — l’équipe le voit.',
   'report.emergencyTitle': 'Danger immédiat ?',
-  'report.emergencyMessage': 'En cas d’urgence : 112. Urgence AOZ hors bureau : 044 415 63 30.',
+  'report.emergencyMessage': 'En cas d’urgence : 112. Hors bureau : 044 415 63 30.',
   'report.noPlacement': 'Tu n’as pas encore de logement. Contacte le suivi.',
 
   'rules.title': 'Règlement intérieur',

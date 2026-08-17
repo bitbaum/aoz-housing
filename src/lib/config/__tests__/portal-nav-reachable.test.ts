@@ -8,6 +8,7 @@ import {
   NAV_ICONS,
   portalTabItems,
   visiblePortalNavItems,
+  portalSidebarItems,
 } from '@/lib/config/navigation'
 import { BRAND } from '@/lib/config/brand'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
@@ -136,10 +137,20 @@ describe('the mobile tab bar', () => {
 
     for (const group of PORTAL_NAV_GROUP_ORDER) {
       expect(PORTAL_LABELS.navGroups[group]).toBeTruthy()
-      // An empty section renders as a heading with nothing under it.
       expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) })
         .toEqual({ group, items: true })
     }
+  })
+
+  it('lists sidebar destinations in living → together → concerns', () => {
+    const items = portalSidebarItems()
+    const groups = items.map((item: { group: string }) => item.group)
+    const seen: string[] = []
+    for (const group of groups) {
+      if (seen[seen.length - 1] !== group) seen.push(group)
+    }
+    expect(seen).toEqual(['living', 'together', 'concerns'])
+    expect(items[0]?.href).toBe('/portal')
   })
 })
 

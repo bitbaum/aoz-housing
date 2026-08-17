@@ -107,7 +107,7 @@ export const tr: Dictionary = {
   'report.title': 'Sorun bildir',
   'report.subtitle': 'Arıza veya çatışma — ekip görür.',
   'report.emergencyTitle': 'Acil tehlike?',
-  'report.emergencyMessage': 'Acil durumda: 112. Mesai dışı AOZ: 044 415 63 30.',
+  'report.emergencyMessage': 'Acil durumda: 112. Mesai dışı: 044 415 63 30.',
   'report.noPlacement': 'Henüz konutun yok. Danışmanına başvur.',
 
   'rules.title': 'Ev kuralları',

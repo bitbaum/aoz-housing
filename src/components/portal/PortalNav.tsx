@@ -80,7 +80,7 @@ function AccountMenu({
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
+                className="w-full px-4 py-3 text-start text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
                 aria-current={pathname === item.href ? 'page' : undefined}
               >
                 <Icon className="w-4 h-4" aria-hidden="true" />
@@ -93,7 +93,7 @@ function AccountMenu({
             <Link
               href="/"
               onClick={() => setIsOpen(false)}
-              className="w-full px-4 py-3 text-left text-sm text-brand-primary hover:bg-brand-primary/10 flex items-center gap-2 min-h-[44px]"
+              className="w-full px-4 py-3 text-start text-sm text-brand-primary hover:bg-brand-primary/10 flex items-center gap-2 min-h-[44px]"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToAdmin}
@@ -103,7 +103,7 @@ function AccountMenu({
           <form action="/api/portal/logout" method="POST">
             <button
               type="submit"
-              className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
+              className="w-full px-4 py-3 text-start text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
             >
               <LogOut className="w-4 h-4" aria-hidden="true" />
               {t('nav.logout')}

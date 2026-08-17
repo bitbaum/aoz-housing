@@ -47,3 +47,7 @@ jobs:
       # bogus token, every dispatch would fail, and the only symptom would be
       # that nothing deploys — while the sweep still reported success.
       rearm_workflows: 'ci.yml deploy.yml'
+      # Without this, a merge whose deploy failed (CI red on master) sits
+      # live-code-on-git, dead-on-the-box forever. The reconciler retries
+      # until the tip and the last successful deploy match.
+      deploy_workflow: deploy.yml

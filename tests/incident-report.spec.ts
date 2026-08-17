@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { openEmailLoginForm } from './helpers'
 
 // storageState from playwright.config handles staff auth
 
@@ -32,6 +33,7 @@ test.describe('Portal — unauthenticated access', () => {
 
     // Should redirect to /login — check final URL and page content
     await expect(page).toHaveURL(/\/login/, { timeout: 15000 })
+    await openEmailLoginForm(page)
     await expect(page.locator('#email')).toBeVisible()
   })
 })

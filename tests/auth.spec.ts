@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { BRAND } from '../src/lib/config/brand'
-import { openCodeLoginForm } from './helpers'
+import { openCodeLoginForm, openEmailLoginForm } from './helpers'
 
 // Auth tests need clean state (no existing session)
 test.use({ storageState: { cookies: [], origins: [] } })
@@ -28,10 +28,12 @@ async function waitForCodeFormReady(page: import('@playwright/test').Page) {
 }
 
 test.describe('Authentication flow', () => {
-  test('login page defaults to email + password with links to the other flows', async ({
+  test('login page offers email + password, with the other door one toggle away', async ({
     page,
   }) => {
     await page.goto('/login')
+    await page.waitForLoadState('networkidle')
+    await openEmailLoginForm(page)
 
     await expect(page.locator('#email')).toBeVisible()
     await expect(page.locator('#password')).toBeVisible()
@@ -91,6 +93,7 @@ test.describe('Authentication flow', () => {
   test('rejects an email login with wrong credentials', async ({ page }) => {
     await page.goto('/login')
     await page.waitForLoadState('networkidle')
+    await openEmailLoginForm(page)
 
     await page.locator('#email').fill('nobody@example.ch')
     await page.locator('#password').fill('definitely-wrong')

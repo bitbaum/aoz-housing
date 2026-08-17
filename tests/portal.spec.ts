@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { portalLocaleCookie } from './helpers'
 
 /**
  * Portal E2E tests — resident self-service interface
@@ -27,6 +28,7 @@ async function setResidentCookie(page: import('@playwright/test').Page, code: st
       secure: false,
       sameSite: 'Lax',
     },
+    portalLocaleCookie('de'),
   ])
 }
 
@@ -126,9 +128,10 @@ test.describe('Portal Report', () => {
   test('shows report form for placed resident', async ({ page }) => {
     await page.goto('/portal/report')
 
-    // Report form should be visible (not the "no placement" message)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
+    // Category / templates first; the <form> mounts after a category is chosen.
     await expect(
-      page.locator('form, [data-testid="report-form"]').first()
+      page.getByRole('heading', { level: 3 }).first()
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -259,8 +262,8 @@ test.describe('Portal navigation', () => {
     await expect(page).toHaveURL('/portal', { timeout: 15_000 })
 
     // Nav links visible (either in sidebar or quick actions)
-    const prefLink = page.locator(`a[href="/portal/preferences"]`).first()
-    const reportLink = page.locator(`a[href="/portal/report"]`).first()
+    const prefLink = page.locator('a[href="/portal/preferences"]:visible').first()
+    const reportLink = page.locator('a[href="/portal/report"]:visible').first()
 
     await expect(prefLink).toBeVisible({ timeout: 15_000 })
     await expect(reportLink).toBeVisible({ timeout: 15_000 })

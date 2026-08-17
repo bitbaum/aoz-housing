@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expandResidentIntakeDetails } from './helpers'
 
 // storageState from playwright.config handles staff auth
 
@@ -50,8 +51,7 @@ test.describe('Resident creation flow', () => {
 
     // Select sleep schedule
     await page.locator('select[name="sleepSchedule"]').selectOption('STANDARD')
-
-    // Select social style
+    await expandResidentIntakeDetails(page)
     await page.locator('select[name="socialStyle"]').selectOption('MODERATE')
 
     // Select smoking status

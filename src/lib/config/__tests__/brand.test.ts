@@ -40,6 +40,13 @@ describe('brand presets', () => {
       metaDescription:
         'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
       orgName: 'AOZ',
+      features: {
+        householdMoney: false,
+        householdVotes: false,
+        householdPrimaryNav: false,
+        codeFirstLogin: true,
+        matchingFastDefault: true,
+      },
     })
   })
 
