@@ -36,6 +36,7 @@ export default async function LearningQueuePage() {
                   <Link href={`/residents/${resident.id}`} className="font-medium text-ui-text hover:underline">
                     {residentName(resident)}
                   </Link>
+                  {/* resident-code-intentional — staff queue, they look people up by login code */}
                   <p className="text-xs text-ui-muted font-mono">{resident.code}</p>
                 </div>
                 <Link

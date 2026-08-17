@@ -113,7 +113,7 @@ export const de = {
   'report.title': 'Problem melden',
   'report.subtitle': 'Technisches Problem oder Konflikt — das Team sieht die Meldung.',
   'report.emergencyTitle': 'Akute Gefahr?',
-  'report.emergencyMessage': 'Bei Notfällen: 112. AOZ-Notfall ausserhalb der Bürozeiten: 044 415 63 30.',
+  'report.emergencyMessage': 'Bei Notfällen: 112. Notfall ausserhalb der Bürozeiten: 044 415 63 30.',
   'report.noPlacement': 'Du hast noch keine Unterkunft. Melde dich bei der Betreuung.',
 
   'rules.title': 'Hausregeln',

@@ -48,6 +48,7 @@ const NON_RESIDENT_CODE_HOLDERS = [
   'rule',
   'orgRule',
   'parentRule',
+  'lang',
 ]
 
 // `X.code` inside a JSX expression. Only the accessor DIRECTLY before `.code`

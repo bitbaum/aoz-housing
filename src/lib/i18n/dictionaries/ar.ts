@@ -97,7 +97,7 @@ export const ar: Dictionary = {
   'report.title': 'الإبلاغ عن مشكلة',
   'report.subtitle': 'عطل أو خلاف — الفريق يراه.',
   'report.emergencyTitle': 'خطر مباشر؟',
-  'report.emergencyMessage': 'في الطوارئ: 112. طوارئ AOZ خارج الدوام: 044 415 63 30.',
+  'report.emergencyMessage': 'في الطوارئ: 112. خارج الدوام: 044 415 63 30.',
   'report.noPlacement': 'ليس لديك سكن بعد. تواصل مع المشرف/ة.',
 
   'rules.title': 'نظام المنزل',
