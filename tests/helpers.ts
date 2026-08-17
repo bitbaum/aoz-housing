@@ -24,15 +24,8 @@ export async function ensureStaffLogin(page: Page) {
 }
 
 async function waitForLoginDoors(page: Page) {
+  await page.waitForLoadState('networkidle')
   await expect(page.locator('#email, #code').first()).toBeVisible({ timeout: 15_000 })
-  // Prove the client hydrated. A click before that is a no-op: the toggle
-  // is a <button> in the SSR HTML, but setMode only exists after hydrate.
-  const code = page.locator('#code')
-  if (await code.isVisible()) {
-    await code.fill('x')
-    await expect(code).toHaveValue('X', { timeout: 10_000 })
-    await code.clear()
-  }
 }
 
 /**

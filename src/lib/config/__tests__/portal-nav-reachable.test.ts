@@ -8,6 +8,7 @@ import {
   NAV_ICONS,
   portalTabItems,
   visiblePortalNavItems,
+  portalSidebarItems,
 } from '@/lib/config/navigation'
 import { BRAND } from '@/lib/config/brand'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
@@ -142,10 +143,14 @@ describe('the mobile tab bar', () => {
   })
 
   it('lists sidebar destinations in living → together → concerns', () => {
-    const groups = portalSidebarItems().map((item) => item.group)
-    const seen = [...new Set(groups)]
-    expect(seen).toEqual(seen.slice().sort((a, b) => PORTAL_SIDEBAR_GROUPS.indexOf(a) - PORTAL_SIDEBAR_GROUPS.indexOf(b)))
-    expect(portalSidebarItems()[0]?.href).toBe('/portal')
+    const items = portalSidebarItems()
+    const groups = items.map((item: { group: string }) => item.group)
+    const seen: string[] = []
+    for (const group of groups) {
+      if (seen[seen.length - 1] !== group) seen.push(group)
+    }
+    expect(seen).toEqual(['living', 'together', 'concerns'])
+    expect(items[0]?.href).toBe('/portal')
   })
 })
 
