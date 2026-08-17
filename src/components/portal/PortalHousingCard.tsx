@@ -28,9 +28,7 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
       <div className="flex items-start justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold text-ui-text">
-            <Link href="/portal/apartment" className="hover:underline">
-              {housingUnit?.nickname || PORTAL_LABELS.dashboard.housing}
-            </Link>
+            {housingUnit?.nickname || PORTAL_LABELS.dashboard.housing}
           </h2>
           <p className="text-ui-muted">{housingUnit?.address}</p>
         </div>
@@ -60,7 +58,9 @@ export function PortalHousingCard({ placement, housingUnit, roommatesCount }: Po
 
       {/* House Rules Summary */}
       <div className="pt-4 border-t border-ui-border">
-        <h3 className="font-medium text-ui-text mb-2">{PORTAL_LABELS.dashboard.houseRules}</h3>
+        <Link href="/portal/rules" className="inline-flex items-center min-h-[44px] text-sm text-brand-primary hover:underline">
+          {PORTAL_LABELS.dashboard.houseRules}
+        </Link>
         <div className="flex flex-wrap gap-3 text-sm">
           {housingUnit?.quietHours && (
             <span className="px-3 py-1 bg-brand-secondary/10 text-brand-secondary rounded-sm">

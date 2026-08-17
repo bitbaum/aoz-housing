@@ -70,6 +70,14 @@ export function MatchCard({ match, resident, rank }: Props) {
           {occupancy === 0 && (
             <p className="text-xs text-status-success-text">{MATCHING_LABELS.empty}</p>
           )}
+          {match.bestRoomFit?.score != null && (
+            <p className="text-xs text-ui-muted mt-1">
+              Zimmer {match.bestRoomFit.spotCode}: {match.bestRoomFit.score}%
+            </p>
+          )}
+          {match.bestRoomFit && match.bestRoomFit.score === null && occupancy > 0 && (
+            <p className="text-xs text-ui-muted mt-1">Freies Zimmer — keine Mitbewohnenden im Zimmer</p>
+          )}
         </div>
       </div>
 

@@ -34,6 +34,7 @@ export default async function HousingListPage({ searchParams }: Props) {
           // A caseworker who hears "Casa Harmonie" must be able to type it.
           { nickname: { contains: q, mode: 'insensitive' } },
           { address: { contains: q, mode: 'insensitive' } },
+          { buildingCode: { contains: q, mode: 'insensitive' } },
         ] } : {}),
       },
       select: {
@@ -43,6 +44,7 @@ export default async function HousingListPage({ searchParams }: Props) {
         // list can only ever show DEMO-U05. @see lib/utils/unit-name.ts
         nickname: true,
         address: true,
+        buildingCode: true,
         status: true,
         totalBeds: true,
         totalRooms: true,

@@ -1,5 +1,12 @@
 /**
- * Which languages this product speaks — SSOT.
+ * Which languages the RESIDENT PORTAL speaks — SSOT.
+ *
+ * SCOPE. These dictionaries, LocaleProvider and LanguageSwitcher are the
+ * resident-facing portal (`src/app/portal/`). Staff surfaces stay German.
+ * Caseworkers speak Swiss state languages plus English; they do not need
+ * Tigrinya, Arabic, Farsi or Turkish on `/residents` or the megamenu.
+ * Wiring origin-language dictionaries into `(admin)` is wasted work and a
+ * false promise. `infra-ssot.test.ts` forbids LocaleProvider there.
  *
  * WHY THESE LANGUAGES. They are not a guess at "popular languages". They are
  * the ones the people living in this housing actually read: the largest asylum

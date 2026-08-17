@@ -28,10 +28,12 @@ export const ar: Dictionary = {
   'nav.profile': 'الملف الشخصي',
   'nav.transfer': 'طلب النقل',
   'nav.help': 'المساعدة',
+  'nav.learning': 'التعلم',
   'nav.logout': 'تسجيل الخروج',
   'nav.more': 'المزيد',
   'nav.moreTitle': 'كل شيء في نظرة واحدة',
   'nav.closeMore': 'إغلاق القائمة',
+  'nav.accountMenu': 'الحساب',
 
   'navGroup.living': 'الحياة اليومية',
   'navGroup.together': 'نقرر معًا',
@@ -70,4 +72,55 @@ export const ar: Dictionary = {
   'language.machineNotice': 'لم تتم مراجعة هذه الترجمة بعد من متحدث أصلي.',
 
   'safety.emergency': 'في حالات الطوارئ: اتصل بالرقم 112 أو تواصل مع إدارة السكن',
+
+  'help.title': 'مساعدة وأسئلة',
+  'help.subtitle': 'إجابات وجهات اتصال — عند الخطر استخدم أرقام الطوارئ أولاً.',
+  'help.faqTitle': 'أسئلة متكررة',
+  'help.contactTitle': 'اتصال',
+  'help.emergencyTitle': 'طوارئ',
+  'help.emergencyDesc': 'عند الخطر اتصل فوراً:',
+  'help.faq.placement.q': 'كيف يتم توزيع الغرف؟',
+  'help.faq.placement.a':
+    'نراعي النوم والضوضاء والنظافة واللغات. كلما كانت إجاباتك أدق كان السكن أنسب.',
+  'help.faq.preferences.q': 'هل يمكنني تغيير بياناتي؟',
+  'help.faq.preferences.a': 'نعم، تحت الإعدادات. التغييرات تسري على التسكين لاحقاً.',
+  'help.faq.conflict.q': 'ماذا أفعل عند خلاف؟',
+  'help.faq.conflict.a': 'استخدم «الإبلاغ» في البوابة. الفريق يأخذ كل بلاغ على محمل الجد.',
+  'help.faq.transfer.q': 'هل يمكنني طلب النقل؟',
+  'help.faq.transfer.a': 'نعم، عبر طلب النقل أو عبر المشرف/ة.',
+  'help.faq.privacy.q': 'هل بياناتي محمية؟',
+  'help.faq.privacy.a':
+    'نعم. تفضيلات السكن فقط — بلا تشخيص وبلا وضع اللجوء. يمكنك طلب الاطلاع على بياناتك.',
+  'help.link.report': 'الإبلاغ عن مشكلة',
+  'help.link.rules': 'نظام المنزل',
+
+  'report.title': 'الإبلاغ عن مشكلة',
+  'report.subtitle': 'عطل أو خلاف — الفريق يراه.',
+  'report.emergencyTitle': 'خطر مباشر؟',
+  'report.emergencyMessage': 'في الطوارئ: 112. طوارئ AOZ خارج الدوام: 044 415 63 30.',
+  'report.noPlacement': 'ليس لديك سكن بعد. تواصل مع المشرف/ة.',
+
+  'rules.title': 'نظام المنزل',
+  'rules.subtitle':
+    'النص الملزم بالألمانية — النسخة التي توقعها. اسأل المشرف/ة إذا لم تفهم شيئاً.',
+  'rules.noPlacement': 'بعد التسكين تظهر القواعد هنا.',
+  'rules.toDecisions': 'إلى القرارات',
+
+  'learning.title': 'تعلّمك',
+  'learning.subtitle': 'شهادات ودورات وتطوع — يمكنك إدخال ما تفعله.',
+  'learning.achievements': 'الإنجازات',
+  'learning.achievementsEmpty': 'لا إنجازات بعد. الاختبارات والدورات والتطوع المكتمل تظهر هنا.',
+  'learning.inProgress': 'جارٍ',
+  'learning.offers': 'دورات وعروض',
+  'learning.offersEmpty': 'لا عروض تعلّم حالياً. انظر الأنشطة.',
+  'learning.hours': 'ساعات',
+
+  'care.title': 'فريقك',
+  'care.subtitle': 'من المسؤول عنك — السكن، العمل الاجتماعي، مدرب العمل.',
+  'care.empty': 'لم يُعيَّن أحد بعد. يضيف المشرفون الفريق.',
+  'care.housing': 'السكن / الإشراف',
+  'care.social': 'العمل الاجتماعي',
+  'care.job': 'مدرب العمل',
+  'care.appointments': 'المواعيد',
+  'care.appointmentsEmpty': 'لا مواعيد مخططة.',
 }

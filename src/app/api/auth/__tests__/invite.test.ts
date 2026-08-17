@@ -220,6 +220,30 @@ describe('POST /api/auth/invite', () => {
 
   // ── Successful invite ──────────────────────────────────────────────────────
 
+  test('returns 403 when the caller cannot manage users', async () => {
+    mockGetCurrentUser.mockResolvedValue({ id: 'coach-1', name: 'Coach', role: 'JOBCOACH' })
+
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
+    const res = await POST(req)
+    const body = await res.json()
+
+    expect(res.status).toBe(403)
+    expect(body.success).toBe(false)
+    expect(mockUserCreate).not.toHaveBeenCalled()
+  })
+
+  test('creates user with an explicit role', async () => {
+    const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff', role: 'JOBCOACH' })
+    const res = await POST(req)
+
+    expect(res.status).toBe(200)
+    expect(mockUserCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ role: 'JOBCOACH' }),
+      })
+    )
+  })
+
   test('creates user and sends email on valid invite', async () => {
     const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
     const res = await POST(req)
@@ -238,7 +262,7 @@ describe('POST /api/auth/invite', () => {
           code: 'AOZ-GEN001',
           name: 'New Staff',
           account: { create: { email: 'new@aoz.ch' } },
-          role: 'ADMIN',
+          role: 'BETREUUNG',
           active: true,
         }),
       })

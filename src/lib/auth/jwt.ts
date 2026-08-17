@@ -8,12 +8,13 @@
 import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
 import { z } from 'zod'
 import { AUTH_CONFIG } from './config'
+import { isStaffRole, type StaffRole } from './role-policy'
 
 export interface TokenPayload extends JWTPayload {
   sub: string // User ID
   email: string
   name: string
-  role: 'ADMIN'
+  role: StaffRole
 }
 
 // Runtime-validates the decoded JWT body before we trust it. Catches both
@@ -25,7 +26,7 @@ const tokenPayloadSchema = z
     sub: z.string().min(1),
     email: z.string(),
     name: z.string().min(1),
-    role: z.literal('ADMIN'),
+    role: z.string().refine(isStaffRole),
   })
   .passthrough()
 

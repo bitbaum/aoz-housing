@@ -78,6 +78,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     description: 'Anonyme Referenznummer',
     placeholder: 'z.B. R-2024-001',
     required: true,
+    intake: 'essential',
     formSection: 'basic',
     formOrder: 1,
     dimension: 'requirements',
@@ -90,6 +91,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'enum',
     label: 'Altersgruppe',
     required: true,
+    intake: 'essential',
     formSection: 'basic',
     formOrder: 2,
     options: ['YOUNG_ADULT', 'ADULT', 'MIDDLE_AGED', 'SENIOR'] as const,
@@ -109,6 +111,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'enum',
     label: 'Geschlecht',
     required: true,
+    intake: 'essential',
     formSection: 'basic',
     formOrder: 3,
     options: ['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_SAY'] as const,
@@ -128,6 +131,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'enum',
     label: 'Familienstatus',
     required: true,
+    intake: 'essential',
     formSection: 'basic',
     formOrder: 4,
     options: ['SINGLE', 'COUPLE', 'FAMILY_WITH_CHILDREN', 'SINGLE_PARENT'] as const,
@@ -151,6 +155,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     label: 'Schlafrhythmus',
     description: 'Wann schläft und wacht die Person normalerweise?',
     required: true,
+    intake: 'essential',
     formSection: 'lifestyle',
     formOrder: 1,
     options: ['EARLY_BIRD', 'STANDARD', 'NIGHT_OWL', 'IRREGULAR'] as const,
@@ -170,6 +175,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'scale',
     label: 'Lärmtoleranz',
     description: 'Wie empfindlich gegenüber Geräuschen?',
+    intake: 'essential',
     formSection: 'lifestyle',
     formOrder: 2,
     min: 1,
@@ -191,6 +197,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'scale',
     label: 'Eigene Ordnung',
     description: 'Wie ordentlich hältst du deinen eigenen Bereich?',
+    intake: 'essential',
     formSection: 'lifestyle',
     formOrder: 3,
     min: 1,
@@ -208,6 +215,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'scale',
     label: 'Erwartung an andere',
     description: 'Wie ordentlich sollten die anderen im Haushalt sein?',
+    intake: 'essential',
     formSection: 'lifestyle',
     formOrder: 4,
     min: 1,
@@ -225,6 +233,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'scale',
     label: 'Toleranz für Unordnung',
     description: 'Wie gut kannst du mit Unordnung und Chaos leben?',
+    intake: 'essential',
     formSection: 'lifestyle',
     formOrder: 5,
     min: 1,
@@ -298,6 +307,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'multi',
     label: 'Sprachen',
     description: 'Welche Sprachen werden gesprochen?',
+    intake: 'essential',
     formSection: 'social',
     formOrder: 3,
     options: ['DE', 'EN', 'FR', 'AR', 'FA', 'TR', 'TI', 'UK', 'RU', 'PS', 'OTHER'] as const,
@@ -323,8 +333,10 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     id: 'culturalRegion',
     type: 'text',
     label: 'Kulturelle Region',
-    description: 'Breite Region, nicht spezifisches Land',
+    description:
+      'Optional, nur grobe Region, nie ein Herkunftsland. Wird nicht bewertet — nur Kontext für die Betreuung. Lieber leer lassen als raten.',
     placeholder: 'z.B. Naher Osten, Ostafrika, Balkan',
+    intake: 'detail',
     formSection: 'social',
     formOrder: 4,
     dimension: 'social',
@@ -360,6 +372,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'enum',
     label: 'Rauchen',
     required: true,
+    intake: 'essential',
     formSection: 'practical',
     formOrder: 1,
     options: ['NON_SMOKER', 'OUTDOOR_SMOKER', 'INDOOR_SMOKER'] as const,
@@ -399,6 +412,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     type: 'enum',
     label: 'Mobilitätsbedarf',
     required: true,
+    intake: 'essential',
     formSection: 'practical',
     formOrder: 3,
     options: ['NONE', 'GROUND_FLOOR', 'WHEELCHAIR'] as const,
@@ -634,6 +648,11 @@ export function getFactorsBySection(sectionId: string): CompatibilityFactorDef[]
   return Object.values(RESIDENT_FACTORS)
     .filter(f => f.formSection === sectionId)
     .sort((a, b) => a.formOrder - b.formOrder)
+}
+
+/** Short-intake fields — enough to place someone today. */
+export function isEssentialFactor(factor: CompatibilityFactorDef): boolean {
+  return factor.intake === 'essential'
 }
 
 /** Get label for a specific value */

@@ -5,6 +5,10 @@ import { requireResidentCookie } from '@/lib/portal-auth'
 import { PORTAL_LABELS } from '@/lib/constants'
 import { ProfileForm } from '@/components/portal/ProfileForm'
 import { PhotoUploader } from '@/components/portal/PhotoUploader'
+import { getRequestTranslator } from '@/lib/i18n/request'
+import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
+import { CareTeamCard } from '@/components/residents/CareTeamCard'
+import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'
 
 export const metadata: Metadata = { title: PORTAL_LABELS.profile.title }
 export const dynamic = 'force-dynamic'
@@ -13,6 +17,7 @@ const L = PORTAL_LABELS.profile
 
 export default async function PortalProfilePage() {
   const residentCode = await requireResidentCookie('/login')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -26,6 +31,10 @@ export default async function PortalProfilePage() {
     },
   })
   if (!resident) redirect('/login')
+  const [careSeats, upcomingAppointments] = await Promise.all([
+    getCareTeam(resident.id),
+    listUpcomingResidentAppointments(resident.id),
+  ])
 
   return (
     <div>
@@ -47,6 +56,28 @@ export default async function PortalProfilePage() {
         <PhotoUploader
           resident={{ id: resident.id, code: resident.code, displayName: resident.displayName }}
           photoVersion={resident.photo?.updatedAt?.toISOString() ?? null}
+        />
+      </div>
+
+      <div className="mb-6">
+        <CareTeamCard
+          seats={careSeats}
+          title={t('care.title')}
+          subtitle={t('care.subtitle')}
+          empty={t('care.empty')}
+          roleLabels={{
+            HOUSING: t('care.housing'),
+            SOCIAL: t('care.social'),
+            JOB: t('care.job'),
+          }}
+        />
+      </div>
+
+      <div className="mb-6">
+        <PortalAppointmentsCard
+          title={t('care.appointments')}
+          empty={t('care.appointmentsEmpty')}
+          appointments={upcomingAppointments}
         />
       </div>
 

@@ -30,9 +30,25 @@ describe('role policy smoke checks', () => {
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(15)
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(17)
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('import:write')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:write')
+  })
+
+  test('JOBCOACH can record learning and cannot place residents', () => {
+    expect(hasPermission('JOBCOACH', 'learning:write')).toBe(true)
+    expect(hasPermission('JOBCOACH', 'residents:read')).toBe(true)
+    expect(hasPermission('JOBCOACH', 'placements:write')).toBe(false)
+    expect(hasPermission('JOBCOACH', 'users:manage')).toBe(false)
+  })
+
+  test('SOZIALARBEIT can work with people and learning, not housing writes', () => {
+    expect(hasPermission('SOZIALARBEIT', 'residents:write')).toBe(true)
+    expect(hasPermission('SOZIALARBEIT', 'learning:write')).toBe(true)
+    expect(hasPermission('SOZIALARBEIT', 'housing:write')).toBe(false)
+    expect(hasPermission('SOZIALARBEIT', 'system:configure')).toBe(false)
   })
 
   test('canRoleAccess matches ADMIN against allowlist', () => {

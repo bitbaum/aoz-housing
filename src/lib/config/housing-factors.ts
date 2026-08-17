@@ -57,6 +57,17 @@ export const HOUSING_FACTORS: Record<string, HousingFactorDef> = {
     category: 'capacity',
   },
 
+  buildingCode: {
+    id: 'buildingCode',
+    type: 'text',
+    label: 'Gebäudecode',
+    placeholder: 'z.B. WITIKON-A — optional, zum Gruppieren',
+    required: false,
+    formSection: 'basic',
+    formOrder: 3,
+    category: 'capacity',
+  },
+
   // ---------------------------------------------------------------------------
   // CAPACITY
   // ---------------------------------------------------------------------------

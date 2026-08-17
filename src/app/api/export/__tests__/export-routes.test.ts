@@ -9,6 +9,11 @@
 const mockGetCurrentUser = jest.fn()
 jest.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
+  authorizeStaff: async () => {
+    const user = await mockGetCurrentUser()
+    if (!user) return { ok: false as const, status: 401 as const }
+    return { ok: true as const, user }
+  },
 }))
 
 const mockResidentFindMany = jest.fn()

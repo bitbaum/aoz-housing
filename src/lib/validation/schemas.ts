@@ -231,6 +231,7 @@ export const HousingUnitInputSchema = z.object({
   nearPublicTransport: z.coerce.boolean().default(true),
   nearHealthServices: z.coerce.boolean().default(false),
   nearSchools: z.coerce.boolean().default(false),
+  buildingCode: z.string().max(40).optional().nullable(),
   notes: z.string().optional().nullable(),
 })
 

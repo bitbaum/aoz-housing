@@ -1,5 +1,9 @@
 # AOZ Housing
 
+created_date: 2025-06-01
+last_modified_date: 2026-08-17
+last_modified_summary: Production is Hetzner Postgres aoz_wohnen (not Neon); portal i18n is not the staff UI.
+
 Intelligent compatibility-based housing placement for refugees. Reduces conflicts through algorithmic matching across 38 factors and 4 dimensions.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -44,6 +48,18 @@ Housing placement for refugees carries real power over real lives. The algorithm
 > "Collect minimum data. Never track immigration status, religion, or medical diagnoses."
 
 This is not a disclaimer. It is a design constraint enforced in code. If a factor cannot be justified by direct housing relevance, it does not enter the system.
+
+---
+
+## Where it runs
+
+Production is self-hosted on Hetzner (box `bitbaum`, app `/opt/aoz-wohnen/`,
+Postgres database **`aoz_wohnen`**). Not Vercel. Not Neon. Env SSOT is
+`/opt/aoz-wohnen/shared/.env` on the box. A laptop `.env` naming `neon.tech`
+is stale. Details: [docs/INFRASTRUCTURE.md](docs/INFRASTRUCTURE.md).
+
+Resident-portal i18n (Tigrinya, Arabic, Farsi, …) does not apply to the staff
+UI — that stays German.
 
 ---
 
@@ -105,7 +121,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 |-------|------------|
 | Framework | Next.js 14 (App Router) |
 | Language | TypeScript (strict mode) |
-| Database | PostgreSQL 16 + Prisma |
+| Database | PostgreSQL 17 on Hetzner (`aoz_wohnen`) + Prisma |
 | Styling | Tailwind CSS (mobile-first) |
 | Validation | Zod |
 | Auth | JWT sessions (bcryptjs + jose) |
@@ -128,7 +144,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 ```bash
 git clone <repo-url> && cd aoz-housing
 pnpm install
-cp .env.example .env.local    # configure DATABASE_URL and secrets
+cp .env.example .env          # local Postgres; production is aoz_wohnen on Hetzner — see docs/INFRASTRUCTURE.md
 pnpm prisma migrate deploy
 pnpm dev
 ```
@@ -137,7 +153,7 @@ pnpm dev
 
 | Variable | Purpose |
 |----------|---------|
-| `DATABASE_URL` | PostgreSQL connection string |
+| `DATABASE_URL` | Local Postgres. Live is `aoz_wohnen` on Hetzner, not Neon. |
 | `JWT_SECRET` | Session signing key |
 | `NEXTAUTH_URL` | Application URL |
 

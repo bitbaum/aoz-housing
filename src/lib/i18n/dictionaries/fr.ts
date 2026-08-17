@@ -27,10 +27,12 @@ export const fr: Dictionary = {
   'nav.profile': 'Profil',
   'nav.transfer': 'Demande de transfert',
   'nav.help': 'Aide',
+  'nav.learning': 'Apprentissage',
   'nav.logout': 'Se déconnecter',
   'nav.more': 'Plus',
   'nav.moreTitle': 'Tout en un coup d’œil',
   'nav.closeMore': 'Fermer le menu',
+  'nav.accountMenu': 'Compte',
 
   'navGroup.living': 'Au quotidien',
   'navGroup.together': 'Décider ensemble',
@@ -71,4 +73,56 @@ export const fr: Dictionary = {
 
   'safety.emergency':
     'En cas d’urgence : appelle le 112 ou contacte l’administration du logement',
+
+  'help.title': 'Aide et FAQ',
+  'help.subtitle': 'Réponses et contact — en cas de danger, d’abord les numéros d’urgence.',
+  'help.faqTitle': 'Questions fréquentes',
+  'help.contactTitle': 'Contact',
+  'help.emergencyTitle': 'Urgence',
+  'help.emergencyDesc': 'En cas de danger, contacte immédiatement :',
+  'help.faq.placement.q': 'Comment les chambres sont-elles attribuées ?',
+  'help.faq.placement.a':
+    'Nous tenons compte du sommeil, du bruit, de la propreté et des langues. Plus tes réponses sont précises, meilleur est le placement.',
+  'help.faq.preferences.q': 'Puis-je modifier mes informations ?',
+  'help.faq.preferences.a': 'Oui, sous Paramètres. Les changements valent pour les placements futurs.',
+  'help.faq.conflict.q': 'Que se passe-t-il en cas de conflit ?',
+  'help.faq.conflict.a': 'Utilise « Signaler » dans le portail. L’équipe prend chaque signalement au sérieux.',
+  'help.faq.transfer.q': 'Puis-je demander un déménagement ?',
+  'help.faq.transfer.a': 'Oui, via Transfert ou ta personne de suivi.',
+  'help.faq.privacy.q': 'Mes données sont-elles protégées ?',
+  'help.faq.privacy.a':
+    'Oui. Uniquement des préférences de logement — pas de diagnostics, pas de statut d’asile. Tu peux demander à voir tes données.',
+  'help.link.report': 'Signaler un problème',
+  'help.link.rules': 'Règlement intérieur',
+
+  'report.title': 'Signaler un problème',
+  'report.subtitle': 'Un dégât ou un conflit — l’équipe le voit.',
+  'report.emergencyTitle': 'Danger immédiat ?',
+  'report.emergencyMessage': 'En cas d’urgence : 112. Urgence AOZ hors bureau : 044 415 63 30.',
+  'report.noPlacement': 'Tu n’as pas encore de logement. Contacte le suivi.',
+
+  'rules.title': 'Règlement intérieur',
+  'rules.subtitle':
+    'La version contraignante est en allemand — celle que tu signes. Demande au suivi si tu ne comprends pas.',
+  'rules.noPlacement': 'Dès que tu as une chambre, les règles apparaissent ici.',
+  'rules.toDecisions': 'Vers les décisions',
+
+  'learning.title': 'Ton apprentissage',
+  'learning.subtitle': 'Attestations, cours et bénévolat — tu peux indiquer ce que tu fais.',
+  'learning.achievements': 'Attestations',
+  'learning.achievementsEmpty':
+    'Pas encore d’attestations. Tests, cours et bénévolat terminés apparaissent ici.',
+  'learning.inProgress': 'En cours',
+  'learning.offers': 'Cours et offres',
+  'learning.offersEmpty': 'Aucune offre d’apprentissage pour l’instant. Voir Activités.',
+  'learning.hours': 'Heures',
+
+  'care.title': 'Ton équipe',
+  'care.subtitle': 'Les personnes responsables de toi — logement, travail social, job coach.',
+  'care.empty': 'Personne n’est encore assigné. Le suivi ajoutera ton équipe.',
+  'care.housing': 'Logement / suivi',
+  'care.social': 'Travail social',
+  'care.job': 'Job coach',
+  'care.appointments': 'Rendez-vous',
+  'care.appointmentsEmpty': 'Aucun rendez-vous prévu.',
 }

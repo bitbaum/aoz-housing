@@ -2,10 +2,14 @@ import { readdirSync, existsSync } from 'fs'
 import { join } from 'path'
 import {
   PORTAL_NAV_ITEMS,
+  PORTAL_NAV_HIDDEN_ROUTES,
   PORTAL_TAB_ITEMS,
   PORTAL_NAV_GROUP_ORDER,
   NAV_ICONS,
+  portalTabItems,
+  visiblePortalNavItems,
 } from '@/lib/config/navigation'
+import { BRAND } from '@/lib/config/brand'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { portalNavMessageKey, isPortalPathActive } from '@/lib/utils/portal-nav'
 import { createTranslator } from '@/lib/i18n'
@@ -52,9 +56,18 @@ describe('portal navigation covers the portal', () => {
 
   it('offers every portal page somewhere in the navigation', () => {
     const linked = new Set(PORTAL_NAV_ITEMS.map((item) => item.href))
-    const unreachable = routesOnDisk.filter((route) => !linked.has(route))
+    const hidden = new Set<string>(PORTAL_NAV_HIDDEN_ROUTES)
+    const unreachable = routesOnDisk.filter((route) => !linked.has(route) && !hidden.has(route))
 
     expect({ unreachable }).toEqual({ unreachable: [] })
+  })
+
+  it('keeps unhelpful pages as redirects, not as menu items', () => {
+    const linked = new Set(PORTAL_NAV_ITEMS.map((item) => item.href))
+    for (const href of PORTAL_NAV_HIDDEN_ROUTES) {
+      expect(routesOnDisk).toContain(href)
+      expect(linked.has(href)).toBe(false)
+    }
   })
 
   it('never links to a page that does not exist', () => {
@@ -72,6 +85,7 @@ describe('the mobile tab bar', () => {
     // Four tabs plus "Mehr". A fifth pinned tab makes every label truncate at
     // the narrowest supported width.
     expect(PORTAL_TAB_ITEMS).toHaveLength(4)
+    expect(portalTabItems()).toHaveLength(4)
   })
 
   it('starts with the overview and keeps the declared order', () => {
@@ -96,6 +110,21 @@ describe('the mobile tab bar', () => {
       const label = createTranslator('de')(key)
       expect({ href: item.href, label: typeof label === 'string' && label.length > 0 })
         .toEqual({ href: item.href, label: true })
+    }
+  })
+
+  it('respects household money and vote flags for this brand', () => {
+    const hrefs = visiblePortalNavItems().map((item) => item.href)
+    expect(hrefs).toContain('/portal/learning')
+    if (BRAND.features.householdMoney) {
+      expect(hrefs).toContain('/portal/expenses')
+    } else {
+      expect(hrefs).not.toContain('/portal/expenses')
+    }
+    if (BRAND.features.householdVotes) {
+      expect(hrefs).toContain('/portal/decisions')
+    } else {
+      expect(hrefs).not.toContain('/portal/decisions')
     }
   })
 

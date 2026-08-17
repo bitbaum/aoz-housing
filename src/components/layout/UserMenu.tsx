@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronDown, LogOut, ArrowRightLeft } from 'lucide-react'
 import { ROLE_LABELS, UI_LABELS } from '@/lib/constants/labels'
-import { SYSTEM_LINKS, NAV_ICONS } from '@/lib/config/navigation'
+import { SYSTEM_LINKS, NAV_ICONS, type NavItem } from '@/lib/config/navigation'
 import { useDismissable } from '@/lib/hooks/useDismissable'
 
 interface UserMenuProps {
@@ -15,9 +15,10 @@ interface UserMenuProps {
     role: string
   }
   hasPortalAccess?: boolean
+  systemLinks?: NavItem[]
 }
 
-export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
+export function UserMenu({ user, hasPortalAccess, systemLinks = SYSTEM_LINKS }: UserMenuProps) {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -77,7 +78,7 @@ export function UserMenu({ user, hasPortalAccess }: UserMenuProps) {
           {/* System destinations — SSOT in lib/config/navigation (SYSTEM_LINKS),
               shared with the mobile drawer's bottom section. */}
           <div className="py-1 border-b border-ui-border">
-            {SYSTEM_LINKS.map((item) => {
+            {systemLinks.map((item) => {
               const Icon = NAV_ICONS[item.icon]
               return (
                 <Link

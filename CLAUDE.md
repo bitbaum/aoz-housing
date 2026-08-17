@@ -1,6 +1,40 @@
 # AOZ Housing
 
+created_date: 2025-06-01
+last_modified_date: 2026-08-17
+last_modified_summary: Production is Hetzner Postgres aoz_wohnen (not Neon); i18n is resident-portal only.
+
 @~/.claude/CLAUDE.md
+
+---
+
+## Where this runs (read before touching the database)
+
+The live product is **https://aoz-wohnen.orangecat.ch** on the Hetzner box
+**bitbaum** (`root@167.233.22.31`). App: `/opt/aoz-wohnen/`. Unit:
+`aoz-wohnen-app.service`. Database: **PostgreSQL on that box**,
+`127.0.0.1:5432`, name **`aoz_wohnen`**. Credentials SSOT:
+`/opt/aoz-wohnen/shared/.env` on the box.
+
+Neon, Vercel and hosted Supabase were decommissioned on 2026-06-12. A laptop
+`.env` that still names `neon.tech` is leftover garbage. Prisma will load it
+and time out; that is not "production is down". Do not restore those URLs.
+Do not treat gitignored env files as SSOT. This laptop's Postgres is not
+`aoz_wohnen`.
+
+Uncommitted work, and any branch that is not `master`, is not what residents
+see. Deploy is push to `master` → `.github/workflows/deploy.yml` (waits for
+CI, pulls box env, `prisma migrate deploy`, build, rsync). Manual:
+`gh workflow run deploy.yml -R maonakamoto/aoz-housing`.
+
+Full table: `docs/INFRASTRUCTURE.md`.
+
+### Languages
+
+`src/lib/i18n/` is the **resident portal**. Staff UI (`(admin)`, megamenu,
+matching) stays German. Admins speak Swiss state languages plus English;
+Tigrinya, Arabic, Farsi and the other origin languages stay off the staff
+side. `LanguageSwitcher` / `LocaleProvider` live only under `src/app/portal/`.
 
 ---
 
@@ -851,9 +885,14 @@ signed in": it sets every cookie the account's identities call for and reports
 switch. A deactivated staff identity grants nothing but must **not** cost the
 person their resident access — they are different roles.
 
-**Single staff role: ADMIN** — all staff have full access. One email namespace
-across the whole product, because there is exactly one `Account.email` unique
-index; email login can never guess which table you meant.
+**Staff roles.** `ADMIN` in the database and JWT is **Leitung** — the name is
+kept so live tokens and User rows keep working. The other roles are
+`BETREUUNG` (daily housing ops), `SOZIALARBEIT` (people, incidents, learning),
+and `JOBCOACH` (learning and resident read). Permissions: `src/lib/auth/role-policy.ts`.
+Nav, invites, export/import and the algorithm page follow those permissions.
+
+One email namespace across the whole product, because there is exactly one
+`Account.email` unique index; email login can never guess which table you meant.
 
 ### Flows
 

@@ -1,51 +1,48 @@
 import type { Dictionary } from './de'
 
 /**
- * Tigrinya — Eritrea and northern Ethiopia, one of the largest asylum origin
- * groups in Switzerland and the language least likely to be covered by any
- * off-the-shelf product. Written left-to-right in Ge'ez script.
- *
- * Not vouched for, and this is the file where that matters most: Tigrinya has
- * the fewest speakers among Swiss staff, so an error here is the least likely
- * to be noticed and reported. A reviewer should check the emergency line first.
+ * Tigrinya. NOT REVIEWED — offered only once coverage is complete, with the
+ * machine-translation notice until a speaker vouches for it.
  */
 export const ti: Dictionary = {
-  'nav.overview': 'ሓፈሻዊ ትሕዝቶ',
-  'nav.apartment': 'መንበሪ ገዛ',
+  'nav.overview': 'ሓፈሻዊ',
+  'nav.apartment': 'ገዛ',
   'nav.expenses': 'ወጻኢታት',
-  'nav.roommates': 'መሳርሕቲ ገዛ',
-  'nav.chores': 'ዕዮታት',
+  'nav.roommates': 'ኣብ ሓደ ገዛ',
+  'nav.chores': 'ስራሕቲ',
   'nav.rules': 'ሕግታት',
-  'nav.decisions': 'ድምጺ ምሃብ',
-  'nav.report': 'ሓብር',
-  'nav.reports': 'ጸብጻባተይ',
-  'nav.messages': 'መልእኽትታት',
+  'nav.decisions': 'ድምጺ',
+  'nav.report': 'ሕበር',
+  'nav.reports': 'ዜናታተይ',
   'nav.housing': 'መንበሪ',
   'nav.activities': 'ንጥፈታት',
-  'nav.preferences': 'ቅንብራት',
-  'nav.profile': 'መለለዪ',
-  'nav.transfer': 'ናይ ምግዓዝ ሕቶ',
+  'nav.preferences': 'ቅጥዕታት',
+  'nav.profile': 'መግለጺ',
+  'nav.transfer': 'ስግግር',
   'nav.help': 'ሓገዝ',
+  'nav.messages': 'መልእኽትታት',
+  'nav.learning': 'ምምሃር',
   'nav.logout': 'ውጻእ',
   'nav.more': 'ተወሳኺ',
-  'nav.moreTitle': 'ኩሉ ብሓንሳብ',
-  'nav.closeMore': 'ዝርዝር ዕጾ',
+  'nav.moreTitle': 'ኩሉ ብሓደ ምልክት',
+  'nav.closeMore': 'ዝርዝር ዕጸው',
+  'nav.accountMenu': 'ሕሳብ',
 
-  'navGroup.living': 'መዓልታዊ ናብራ',
-  'navGroup.together': 'ብሓባር ምውሳን',
-  'navGroup.concerns': 'ሕቶታትን ዕድላትን',
+  'navGroup.living': 'መዓልታዊ',
+  'navGroup.together': 'ብሓባር ውሳነ',
+  'navGroup.concerns': 'ሕቶታት',
   'navGroup.account': 'ሕሳበይ',
 
-  'reports.title': 'ጸብጻባትካ',
-  'reports.subtitle': 'ዝሓበርካዮ ኩሉ — ከምኡ እውን መልሲ ናይቲ ጉጅለ።',
-  'reports.showAll': 'ኩሎም ጸብጻባት ኣርኢ',
-  'reports.empty': 'ክሳብ ሕጂ ዝሓበርካዮ የለን።',
-  'reports.new': 'ሓድሽ ጸብጻብ',
+  'reports.title': 'ዜናታትካ',
+  'reports.subtitle': 'ዝሓበርካዮ — ከምኡውን መልሲ ጋንታ.',
+  'reports.showAll': 'ኩሉ ዜናታት ኣርኢ',
+  'reports.empty': 'ገና ዋላ ሓደ ኣይሓበርካን.',
+  'reports.new': 'ሓድሽ ዜና',
   'reports.open': 'ክፉት',
   'reports.done': 'ተፈቲሑ',
-  'reports.pending': 'እቲ ጉጅለ ነዚ ጸብጻብ ይምርምሮ ኣሎ።',
-  'reports.answer': 'መልሲ ናይቲ ጉጅለ',
-  'reports.viewYours': 'ጸብጻባትካ ርአ',
+  'reports.pending': 'እቲ ጋንታ ነዚ ዜና ይርአ ኣሎ.',
+  'reports.answer': 'መልሲ ጋንታ',
+  'reports.viewYours': 'ዜናታትካ ርአ',
 
   'messages.title': 'መልእኽትታት',
   'messages.subtitle': 'ንጉጅለ ደገፍ ጽሓፍ — ኣብዚ ክምልሱልካ እዮም።',
@@ -57,15 +54,66 @@ export const ti: Dictionary = {
   'messages.staff': 'ጉጅለ ደገፍ',
   'messages.unread': 'ሓድሽ',
 
-  'action.save': 'ኣቐምጥ',
+  'action.save': 'ዓቅብ',
   'action.cancel': 'ሰርዝ',
   'action.back': 'ተመለስ',
-  'action.close': 'ዕጾ',
+  'action.close': 'ዕጸው',
   'action.showAll': 'ኩሉ ኣርኢ',
 
   'language.label': 'ቋንቋ',
   'language.change': 'ቋንቋ ቀይር',
-  'language.machineNotice': 'እዚ ትርጉም ብወዲ ቋንቋ ገና ኣይተረጋገጸን።',
+  'language.machineNotice': 'እዚ ትርጉም ገና ብኣደ ቋንቋ ዝዛረብ ሰብ ኣይተረጋገጸን.',
 
-  'safety.emergency': 'ኣብ ህጹጽ ኩነታት፦ 112 ደውል ወይ ንምምሕዳር መንበሪ ኣዘራርብ',
+  'safety.emergency': 'ኣብ ሓደጋ: 112 ደውል ወይ ምምሕዳር መንበሪ ርኸብ',
+
+  'help.title': 'ሓገዝን ሕቶታትን',
+  'help.subtitle': 'መልስን ርክብን — ኣብ ሓደጋ መጀመርታ ቑጽሪ ሓደጋ.',
+  'help.faqTitle': 'ተደጋጋሚ ሕቶታት',
+  'help.contactTitle': 'ርክብ',
+  'help.emergencyTitle': 'ሓደጋ',
+  'help.emergencyDesc': 'ኣብ ሓደጋ ብኡ ክትርከብ:',
+  'help.faq.placement.q': 'ክፍልታት ከመይ ይምቀሉ?',
+  'help.faq.placement.a':
+    'ዕርደት፣ ድምጺ፣ ጽሬትን ቋንቋን ንርኢ. ትኽክለኛ መልሲ ዝበለጸ ምቕማጥ የምጽእ.',
+  'help.faq.preferences.q': 'ሓበሬታይ ከቐይር ይኽእል ድየ?',
+  'help.faq.preferences.a': 'እወ፣ ኣብ ቅጥዕታት. ለውጢ ንመጻኢ ምቕማጥ እዩ.',
+  'help.faq.conflict.q': 'ኣብ ግርጭት እንታይ?',
+  'help.faq.conflict.a': '«ሕበር» ተጠቐም. እቲ ጋንታ ነፍሲ ወከፍ ዜና ብትኹረት ይወስድ.',
+  'help.faq.transfer.q': 'ስግግር ክሓትት ይኽእል ድየ?',
+  'help.faq.transfer.a': 'እወ፣ ብ«ስግግር» ወይ ብሓላፊኻ.',
+  'help.faq.privacy.q': 'ሓበሬታይ ድሕን ድዩ?',
+  'help.faq.privacy.a':
+    'እወ. ምርጫ መንበሪ ጥራይ — መርመራ ሕክምና የለን፣ ኩነት ዑቕባ የለን. ሓበሬታኻ ክትርኢ ትኽእል ኢኻ.',
+  'help.link.report': 'ጸገም ሕበር',
+  'help.link.rules': 'ሕግታት ገዛ',
+
+  'report.title': 'ጸገም ሕበር',
+  'report.subtitle': 'ጉድኣት ወይ ግርጭት — እቲ ጋንታ ይርእዮ.',
+  'report.emergencyTitle': 'ቀረባ ሓደጋ?',
+  'report.emergencyMessage': 'ኣብ ሓደጋ: 112. AOZ ካብ ሰዓት ስራሕ ወጻኢ: 044 415 63 30.',
+  'report.noPlacement': 'ገና መንበሪ የብልካን. ምስ ሓላፊኻ ተራኸብ.',
+
+  'rules.title': 'ሕግታት ገዛ',
+  'rules.subtitle':
+    'እቲ ዝተኣሳሰር ጽሑፍ ብጀርመን እዩ — እቲ እትፈርሞ. እንተዘይተረዳእካ ንሓላፊኻ ሕተት.',
+  'rules.noPlacement': 'ክፍሊ ምስ ዝህልወካ ሕግታት ኣብዚ ይመጹ.',
+  'rules.toDecisions': 'ናብ ውሳነታት',
+
+  'learning.title': 'ትምህርትካ',
+  'learning.subtitle': 'ምስክር ወረቐት፣ ኮርስን ወለንተርን — እንታይ ከም እትገብር ባዕልኻ ከተእትው ትኽእል ኢኻ.',
+  'learning.achievements': 'ዓወታት',
+  'learning.achievementsEmpty': 'ገና ዓወት የለን። ዝተዛዘሙ ፈተና፣ ኮርስን ወለንተርን ኣብዚ ይመጹ.',
+  'learning.inProgress': 'ኣብ መስርሕ',
+  'learning.offers': 'ኮርስን ኣቕርቦታትን',
+  'learning.offersEmpty': 'ሕጂ ናይ ትምህርቲ ኣቕርቦት የለን. ንጥፈታት ርአ.',
+  'learning.hours': 'ሰዓታት',
+
+  'care.title': 'ጋንታኻ',
+  'care.subtitle': 'ንዓኻ ዝሓልፉ — መንበሪ፣ ማሕበራዊ ስራሕ፣ ናይ ስራሕ ኣሰልጣኒ.',
+  'care.empty': 'ገና ዝተመደበ የለን. ሓላፊ ጋንታ የእትው.',
+  'care.housing': 'መንበሪ / ሓላፍነት',
+  'care.social': 'ማሕበራዊ ስራሕ',
+  'care.job': 'ናይ ስራሕ ኣሰልጣኒ',
+  'care.appointments': 'ቆጸራታት',
+  'care.appointmentsEmpty': 'ዝተመደበ ቆጸራ የለን.',
 }

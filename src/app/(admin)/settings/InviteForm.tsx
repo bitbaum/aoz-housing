@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { INVITE_FORM_LABELS } from '@/lib/constants'
+import { INVITE_FORM_LABELS, ROLE_LABELS } from '@/lib/constants'
+import { STAFF_ROLES, type StaffRole } from '@/lib/auth/role-policy'
 
 interface InviteResult {
   success: boolean
@@ -13,6 +14,7 @@ interface InviteResult {
 export function InviteForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [role, setRole] = useState<StaffRole>('BETREUUNG')
   const [state, setState] = useState<
     | { status: 'idle' }
     | { status: 'loading' }
@@ -28,7 +30,7 @@ export function InviteForm() {
       const res = await fetch('/api/auth/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), role }),
       })
       const data: InviteResult = await res.json()
 
@@ -40,6 +42,7 @@ export function InviteForm() {
       setState({ status: 'success', result: data })
       setName('')
       setEmail('')
+      setRole('BETREUUNG')
     } catch {
       setState({ status: 'error', message: INVITE_FORM_LABELS.errorNetwork })
     }
@@ -116,6 +119,23 @@ export function InviteForm() {
             required
             className="input"
           />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="invite-role" className="label">
+            {INVITE_FORM_LABELS.fieldRole} <span className="text-status-error-text">*</span>
+          </label>
+          <select
+            id="invite-role"
+            value={role}
+            onChange={(e) => setRole(e.target.value as StaffRole)}
+            className="input"
+          >
+            {STAFF_ROLES.map((id) => (
+              <option key={id} value={id}>
+                {ROLE_LABELS[id] || id}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

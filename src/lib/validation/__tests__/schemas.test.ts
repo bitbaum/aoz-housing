@@ -232,6 +232,12 @@ describe('HousingUnitInputSchema', () => {
     privateBathrooms: 0,
   }
 
+  it('accepts an optional buildingCode', () => {
+    const result = HousingUnitInputSchema.safeParse({ ...validHousing, buildingCode: 'WITIKON-A' })
+    expect(result.success).toBe(true)
+    if (result.success) expect(result.data.buildingCode).toBe('WITIKON-A')
+  })
+
   it('accepts valid input with defaults', () => {
     const result = HousingUnitInputSchema.safeParse(validHousing)
     expect(result.success).toBe(true)

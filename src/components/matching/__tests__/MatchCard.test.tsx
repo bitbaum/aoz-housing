@@ -212,6 +212,7 @@ function makeMatch(overrides: Partial<MatchResult> = {}): MatchResult {
     totalRoommateConcerns: 0,
     safeguardWarnings: [],
     sortScore: 85,
+    bestRoomFit: null,
     ...overrides,
   }
 }

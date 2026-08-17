@@ -1,14 +1,17 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { PortalTabBar } from '../PortalTabBar'
-import { PORTAL_NAV_ITEMS, PORTAL_TAB_ITEMS } from '@/lib/config/navigation'
+import {
+  PORTAL_SIDEBAR_GROUPS,
+  portalSidebarItems,
+  portalTabItems,
+} from '@/lib/config/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
 
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
-  // The language switcher inside the sheet refreshes the route after a change.
   useRouter: () => ({ refresh: jest.fn() }),
 }))
 
@@ -21,8 +24,8 @@ jest.mock('next/link', () => ({
 
 jest.mock('@/lib/constants/labels', () => jest.requireActual('@/lib/constants/labels'))
 
-function renderBar(hasStaffAccess?: boolean) {
-  return render(<PortalTabBar hasStaffAccess={hasStaffAccess} />)
+function renderBar() {
+  return render(<PortalTabBar />)
 }
 
 function openSheet() {
@@ -35,32 +38,40 @@ describe('PortalTabBar', () => {
   })
 
   it('pins the tab destinations permanently, with no tap required', () => {
-    // The whole point: these are on screen before any interaction.
     const { container } = renderBar()
 
-    for (const item of PORTAL_TAB_ITEMS) {
+    for (const item of portalTabItems()) {
       expect(container.querySelector(`.tab-bar a[href="${item.href}"]`)).toBeInTheDocument()
     }
   })
 
   it('marks the open tab as the current page', () => {
-    mockPathname = '/portal/chores'
+    const tabs = portalTabItems()
+    const second = tabs[1]
+    if (!second) return
+    mockPathname = second.href
     const { container } = renderBar()
 
-    expect(container.querySelector('a[href="/portal/chores"][aria-current="page"]')).toBeInTheDocument()
+    expect(container.querySelector(`a[href="${second.href}"][aria-current="page"]`)).toBeInTheDocument()
   })
 
   it('keeps the tab marked on a detail page below it', () => {
-    mockPathname = '/portal/chores/abc'
+    const tabs = portalTabItems()
+    const second = tabs[1]
+    if (!second) return
+    mockPathname = `${second.href}/abc`
     const { container } = renderBar()
 
-    expect(container.querySelector('a[href="/portal/chores"][aria-current="page"]')).toBeInTheDocument()
+    expect(container.querySelector(`a[href="${second.href}"][aria-current="page"]`)).toBeInTheDocument()
   })
 
   it('marks "Mehr" when the open page lives in the sheet', () => {
-    // Otherwise a resident reading Regeln sees no mark at all and the bar
-    // stops answering "where am I".
-    mockPathname = '/portal/rules'
+    const tabs = portalTabItems()
+    const sheetPage = portalSidebarItems().find(
+      (item) => !tabs.some((tab) => tab.href === item.href)
+    )
+    if (!sheetPage) return
+    mockPathname = sheetPage.href
     renderBar()
 
     const more = screen.getByRole('button', { name: new RegExp(PORTAL_LABELS.nav.more) })
@@ -68,14 +79,20 @@ describe('PortalTabBar', () => {
   })
 
   it('does not mark "Mehr" while a pinned tab is open', () => {
-    mockPathname = '/portal/expenses'
+    mockPathname = portalTabItems()[0]?.href ?? '/portal'
     renderBar()
 
     const more = screen.getByRole('button', { name: new RegExp(PORTAL_LABELS.nav.more) })
     expect(more.className).toBe('tab-item')
   })
 
-  // ── The sheet ─────────────────────────────────────────────────────────────
+  it('does not mark "Mehr" on account pages — those live in the header', () => {
+    mockPathname = '/portal/profile'
+    renderBar()
+
+    const more = screen.getByRole('button', { name: new RegExp(PORTAL_LABELS.nav.more) })
+    expect(more.className).toBe('tab-item')
+  })
 
   it('keeps the sheet closed until asked', () => {
     renderBar()
@@ -98,44 +115,45 @@ describe('PortalTabBar', () => {
     expect(screen.getByRole('dialog', { hidden: true })).toHaveAttribute('hidden')
   })
 
-  it('offers every navigation destination in the sheet', () => {
-    // The sheet is the only place the non-pinned pages appear on a phone, so
-    // anything missing here is unreachable.
+  it('offers every sidebar destination in the sheet', () => {
     renderBar()
     openSheet()
     const sheet = screen.getByRole('dialog')
 
-    for (const item of PORTAL_NAV_ITEMS) {
+    for (const item of portalSidebarItems()) {
       expect({ href: item.href, present: Boolean(sheet.querySelector(`a[href="${item.href}"]`)) })
         .toEqual({ href: item.href, present: true })
     }
   })
 
-  it('groups the sheet under headings instead of one flat list', () => {
+  it('keeps account pages and dead pages out of the sheet', () => {
     renderBar()
     openSheet()
     const sheet = screen.getByRole('dialog')
 
-    for (const heading of Object.values(PORTAL_LABELS.navGroups)) {
-      expect(within(sheet).getByText(heading)).toBeInTheDocument()
-    }
+    expect(sheet.querySelector('a[href="/portal/profile"]')).not.toBeInTheDocument()
+    expect(sheet.querySelector('a[href="/portal/apartment"]')).not.toBeInTheDocument()
+    expect(sheet.querySelector('a[href="/portal/roommates"]')).not.toBeInTheDocument()
   })
 
-  it('offers logout from the sheet', () => {
+  it('groups the sheet under collapsible headings', () => {
     renderBar()
     openSheet()
-    expect(within(screen.getByRole('dialog')).getByRole('button', { name: PORTAL_LABELS.nav.logout }))
-      .toHaveAttribute('type', 'submit')
+    const sheet = screen.getByRole('dialog')
+
+    expect(sheet.querySelectorAll('details').length).toBe(PORTAL_SIDEBAR_GROUPS.length)
+    for (const group of PORTAL_SIDEBAR_GROUPS) {
+      expect(within(sheet).getByText(PORTAL_LABELS.navGroups[group])).toBeInTheDocument()
+    }
+    expect(within(sheet).queryByText(PORTAL_LABELS.navGroups.account)).not.toBeInTheDocument()
   })
 
-  it('shows the staff switch only when the person has staff access', () => {
-    const { unmount } = renderBar(false)
+  it('does not dump the language picker into the sheet', () => {
+    renderBar()
     openSheet()
-    expect(screen.queryByRole('link', { name: /Verwaltung/ })).not.toBeInTheDocument()
-    unmount()
+    const sheet = screen.getByRole('dialog')
 
-    renderBar(true)
-    openSheet()
-    expect(screen.getByRole('link', { name: /Verwaltung/ })).toHaveAttribute('href', '/')
+    expect(within(sheet).queryByRole('combobox', { name: 'Sprache wechseln' })).not.toBeInTheDocument()
+    expect(within(sheet).queryByRole('button', { name: 'Shqip' })).not.toBeInTheDocument()
   })
 })

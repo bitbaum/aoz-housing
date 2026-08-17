@@ -10,6 +10,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { APP_LABELS, PAGE_TITLES } from '@/lib/constants/labels'
 import { getCurrentUser } from '@/lib/auth'
 import { RESIDENT_COOKIE } from '@/lib/auth/constants'
+import { visibleMegaMenuGroups, visibleSystemLinks } from '@/lib/config/navigation'
 
 export const metadata: Metadata = {
   title: {
@@ -31,6 +32,9 @@ export default async function AdminLayout({
     redirect('/login')
   }
 
+  const megaMenuGroups = visibleMegaMenuGroups(user.role)
+  const systemLinks = visibleSystemLinks(user.role)
+
   return (
     <>
       <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
@@ -43,13 +47,14 @@ export default async function AdminLayout({
           <div className="flex items-center justify-between gap-6 h-14">
             <div className="flex items-center gap-6 min-w-0">
               <Logo href="/" size="md" />
-              <AdminMegaMenu />
+              <AdminMegaMenu groups={megaMenuGroups} />
             </div>
             <div className="flex items-center gap-1">
               <ThemeToggle />
               <UserMenu
                 user={{ name: user.name, email: user.email, role: user.role }}
                 hasPortalAccess={hasPortalAccess}
+                systemLinks={systemLinks}
               />
             </div>
           </div>
@@ -57,7 +62,7 @@ export default async function AdminLayout({
       </header>
 
       <div className="flex min-h-[calc(100vh-56px)]">
-        <MobileNav />
+        <MobileNav groups={megaMenuGroups} systemLinks={systemLinks} />
         <main id="admin-main" className="flex-1 flex flex-col">
           <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
             {children}

@@ -37,10 +37,12 @@ export const tr: Dictionary = {
   'nav.profile': 'Profil',
   'nav.transfer': 'Nakil talebi',
   'nav.help': 'Yardım',
+  'nav.learning': 'Öğrenme',
   'nav.logout': 'Çıkış yap',
   'nav.more': 'Daha fazla',
   'nav.moreTitle': 'Her şey bir bakışta',
   'nav.closeMore': 'Menüyü kapat',
+  'nav.accountMenu': 'Hesap',
 
   'navGroup.living': 'Günlük yaşam',
   'navGroup.together': 'Birlikte karar vermek',
@@ -80,4 +82,56 @@ export const tr: Dictionary = {
     'Bu çeviri henüz ana dili bu dil olan biri tarafından kontrol edilmedi.',
 
   'safety.emergency': 'Acil durumda: 112’yi ara veya konut yönetimine başvur',
+
+  'help.title': 'Yardım ve SSS',
+  'help.subtitle': 'Yanıtlar ve iletişim — tehlikede önce acil numaralar.',
+  'help.faqTitle': 'Sık sorulan sorular',
+  'help.contactTitle': 'İletişim',
+  'help.emergencyTitle': 'Acil durum',
+  'help.emergencyDesc': 'Tehlikedeysen hemen şuraya başvur:',
+  'help.faq.placement.q': 'Odalar nasıl dağıtılıyor?',
+  'help.faq.placement.a':
+    'Uyku, gürültü, temizlik ve dilleri dikkate alırız. Yanıtların ne kadar doğruysa yerleştirme o kadar iyi olur.',
+  'help.faq.preferences.q': 'Bilgilerimi değiştirebilir miyim?',
+  'help.faq.preferences.a': 'Evet, Ayarlar altında. Değişiklikler sonraki yerleştirmeler için geçerlidir.',
+  'help.faq.conflict.q': 'Çatışmada ne yapmalıyım?',
+  'help.faq.conflict.a': 'Portalde «Bildir»i kullan. Ekip her bildirimi ciddiye alır.',
+  'help.faq.transfer.q': 'Taşınma isteyebilir miyim?',
+  'help.faq.transfer.a': 'Evet, «Nakil» üzerinden veya danışmanından.',
+  'help.faq.privacy.q': 'Verilerim korunuyor mu?',
+  'help.faq.privacy.a':
+    'Evet. Yalnızca konut tercihleri — teşhis yok, iltica durumu yok. Verilerini görmeyi isteyebilirsin.',
+  'help.link.report': 'Sorun bildir',
+  'help.link.rules': 'Ev kuralları',
+
+  'report.title': 'Sorun bildir',
+  'report.subtitle': 'Arıza veya çatışma — ekip görür.',
+  'report.emergencyTitle': 'Acil tehlike?',
+  'report.emergencyMessage': 'Acil durumda: 112. Mesai dışı AOZ: 044 415 63 30.',
+  'report.noPlacement': 'Henüz konutun yok. Danışmanına başvur.',
+
+  'rules.title': 'Ev kuralları',
+  'rules.subtitle':
+    'Bağlayıcı metin Almancadır — imzaladığın sürüm. Anlamadığın bir şey varsa danışmanına sor.',
+  'rules.noPlacement': 'Odan olunca kurallar burada görünür.',
+  'rules.toDecisions': 'Kararlara',
+
+  'learning.title': 'Öğrenmen',
+  'learning.subtitle': 'Sertifikalar, kurslar ve gönüllülük — ne yaptığını kendin ekleyebilirsin.',
+  'learning.achievements': 'Başarılar',
+  'learning.achievementsEmpty':
+    'Henüz başarı yok. Bitmiş testler, kurslar ve gönüllülük burada görünür.',
+  'learning.inProgress': 'Devam ediyor',
+  'learning.offers': 'Kurslar ve teklifler',
+  'learning.offersEmpty': 'Şu an öğrenme teklifi yok. Etkinliklere bak.',
+  'learning.hours': 'Saat',
+
+  'care.title': 'Senin ekibin',
+  'care.subtitle': 'Senden sorumlu kişiler — konut, sosyal çalışma, iş koçu.',
+  'care.empty': 'Henüz kimse atanmadı. Danışman ekibi ekler.',
+  'care.housing': 'Konut / danışmanlık',
+  'care.social': 'Sosyal çalışma',
+  'care.job': 'İş koçu',
+  'care.appointments': 'Randevular',
+  'care.appointmentsEmpty': 'Planlanmış randevu yok.',
 }

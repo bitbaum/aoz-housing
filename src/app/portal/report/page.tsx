@@ -8,11 +8,13 @@ import { ReportForm } from './ReportForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ReportPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -51,16 +53,16 @@ export default async function ReportPage() {
     <div>
       <div className="mb-6">
         <PageHeader
-          title={PORTAL_LABELS.pages.report}
-          description={PORTAL_LABELS.pages.reportSubtitle}
+          title={t('report.title')}
+          description={t('report.subtitle')}
           backHref="/portal"
-          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+          backLabel={t('action.back')}
         />
       </div>
 
       {!currentPlacement ? (
         <div className="card text-center py-12">
-          <p className="text-ui-muted mb-3">{PORTAL_LABELS.report.noPlacement}</p>
+          <p className="text-ui-muted mb-3">{t('report.noPlacement')}</p>
           <p className="text-sm text-ui-muted font-medium">{PORTAL_LABELS.report.noPlacementContact}</p>
         </div>
       ) : (
@@ -69,9 +71,9 @@ export default async function ReportPage() {
 
       {/* Emergency Notice */}
       <div className="mt-8 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
-        <h3 className="font-medium text-status-error-text mb-2">{PORTAL_LABELS.report.emergencyTitle}</h3>
+        <h3 className="font-medium text-status-error-text mb-2">{t('report.emergencyTitle')}</h3>
         <p className="text-sm text-status-error-text">
-          {PORTAL_LABELS.report.emergencyMessage}
+          {t('report.emergencyMessage')}
         </p>
       </div>
     </div>

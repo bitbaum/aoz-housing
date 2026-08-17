@@ -1,5 +1,9 @@
 # AOZ Housing — Resident Portal UX Master Plan
 
+created_date: 2026-02-01
+last_modified_date: 2026-08-17
+last_modified_summary: Documented header + collapsible sidebar chrome; dropped the roommate-page pass because that page is gone.
+
 ## Objective
 
 Make the resident portal fast, clear, and trustworthy across mobile/tablet/desktop, with minimal cognitive load and strong completion rates for core resident tasks.
@@ -88,8 +92,11 @@ Primary resident outcomes:
 - Improve report status language and timeline hints
 - Clarify what happens after submit (expectation setting)
 
-### B3 — Roommates page mobile readability pass
-- Tighten card density and compatibility explanation microcopy
+### B3 — Portal chrome (done 2026-08-17)
+- Header: brand, compact language select (finished locales only), account dropdown
+- Desktop: left sidebar with collapsible groups (Alltag / Zusammen / Anliegen)
+- Mobile: four tabs + Mehr sheet using the same accordion; language/account stay in the header
+- Removed `/portal/apartment` and `/portal/roommates` from the menu (redirects only)
 
 ---
 

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { ChevronDown } from 'lucide-react'
-import { NAV_ICONS, MEGAMENU_GROUPS, type MegaMenuDropdownItem } from '@/lib/config/navigation'
+import { NAV_ICONS, MEGAMENU_GROUPS, type MegaMenuDropdownItem, type MegaMenuGroup } from '@/lib/config/navigation'
 import { useDismissable } from '@/lib/hooks/useDismissable'
 
 /** Route-aware active check: exact for '/', prefix for everything else. */
@@ -115,7 +115,7 @@ function MegaMenuDropdown({
   )
 }
 
-export function AdminMegaMenu() {
+export function AdminMegaMenu({ groups = MEGAMENU_GROUPS }: { groups?: MegaMenuGroup[] }) {
   const pathname = usePathname()
   // ONE open group for the whole bar — opening a sibling closes the current
   // one, so panels never stack or fight.
@@ -124,7 +124,7 @@ export function AdminMegaMenu() {
 
   return (
     <nav ref={navRef} className="hidden md:flex items-center gap-0.5">
-      {MEGAMENU_GROUPS.map((group) =>
+      {groups.map((group) =>
         'items' in group ? (
           <MegaMenuDropdown
             key={group.label}

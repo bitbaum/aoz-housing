@@ -27,6 +27,7 @@ import { AiFormBar } from './AiFormBar'
 import {
   RESIDENT_FORM_SECTIONS,
   getFactorsBySection,
+  isEssentialFactor,
 } from '@/lib/config/resident-factors'
 import { RESIDENT_INTAKE_FORM, residentIntakeInitialValues } from '@/lib/config/ai-forms'
 import { MEDICAL_DOC_TYPE_LABELS } from '@/lib/config/placement-spots'
@@ -40,7 +41,6 @@ interface ResidentFormFieldsProps {
 }
 
 export function ResidentFormFields({ defaultValues = {}, isEdit = false }: ResidentFormFieldsProps) {
-  // Get sections sorted by order
   const sections = [...RESIDENT_FORM_SECTIONS].sort((a, b) => a.order - b.order)
 
   const form = useAiForm({
@@ -48,95 +48,90 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
     fields: RESIDENT_INTAKE_FORM.fields,
     initialValues: residentIntakeInitialValues(defaultValues),
   })
+  const [showDetails, setShowDetails] = useState(isEdit)
 
-  /** Bind one factor to the shared store. */
   const bind = (factorId: string) => ({
     value: form.values[factorId] as FormFieldValue,
     onChange: (next: FormFieldValue) => form.setValue(factorId, next),
     aiTouched: form.isAiTouched(factorId),
   })
 
-  return (
-    <>
-      <AiFormBar form={form} />
-      {sections.map((section) => {
-        const factors = getFactorsBySection(section.id)
+  function renderSection(section: (typeof sections)[number], essentialOnly: boolean) {
+    const factors = getFactorsBySection(section.id).filter((factor) =>
+      essentialOnly ? isEssentialFactor(factor) : !isEssentialFactor(factor)
+    )
+    if (factors.length === 0) return null
 
-        // Skip empty sections
-        if (factors.length === 0) return null
+    const isGridSection = section.id === 'basic'
+    const isBooleanGroupSection = ['preferences'].includes(section.id)
+    const heading = essentialOnly ? section.label : section.label
 
-        // Special handling for sections with different layouts
-        const isGridSection = section.id === 'basic'
-        const isBooleanGroupSection = ['preferences'].includes(section.id)
+    return (
+      <div key={`${section.id}-${essentialOnly ? 'ess' : 'det'}`} className="card">
+        <h2 className="text-lg font-semibold text-ui-text mb-4">{heading}</h2>
+        {section.description && (
+          <p className="text-sm text-ui-muted mb-4">{section.description}</p>
+        )}
 
-        return (
-          <div key={section.id} className="card">
-            <h2 className="text-lg font-semibold text-ui-text mb-4">{section.label}</h2>
-            {section.description && (
-              <p className="text-sm text-ui-muted mb-4">{section.description}</p>
+        {isGridSection ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {factors.map((factor) => (
+              <DynamicFormField
+                key={factor.id}
+                factor={factor}
+                {...bind(factor.id)}
+                disabled={isEdit && factor.id === 'code'}
+              />
+            ))}
+          </div>
+        ) : isBooleanGroupSection ? (
+          <div className="flex flex-wrap gap-6">
+            {factors.map((factor) => (
+              <DynamicFormField key={factor.id} factor={factor} {...bind(factor.id)} />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {factors.map((factor) =>
+              factor.type === 'boolean' ? null : (
+                <DynamicFormField key={factor.id} factor={factor} {...bind(factor.id)} />
+              )
             )}
-
-            {isGridSection ? (
-              // Grid layout for basic info
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {factors.map((factor) => (
-                  <DynamicFormField
-                    key={factor.id}
-                    factor={factor}
-                    {...bind(factor.id)}
-                    disabled={isEdit && factor.id === 'code'}
-                  />
-                ))}
-              </div>
-            ) : isBooleanGroupSection ? (
-              // Horizontal layout for boolean groups
+            {factors.some((f) => f.type === 'boolean') && (
               <div className="flex flex-wrap gap-6">
-                {factors.map((factor) => (
-                  <DynamicFormField
-                    key={factor.id}
-                    factor={factor}
-                    {...bind(factor.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              // Standard vertical layout
-              <div className="space-y-4">
-                {factors.map((factor) => {
-                  // Group booleans together in a row
-                  if (factor.type === 'boolean') {
-                    return null // Handle below
-                  }
-                  return (
-                    <DynamicFormField
-                      key={factor.id}
-                      factor={factor}
-                      {...bind(factor.id)}
-                    />
-                  )
-                })}
-                {/* Render booleans in a row at the end */}
-                {factors.some(f => f.type === 'boolean') && (
-                  <div className="flex flex-wrap gap-6">
-                    {factors
-                      .filter(f => f.type === 'boolean')
-                      .map((factor) => (
-                        <DynamicFormField
-                          key={factor.id}
-                          factor={factor}
-                          {...bind(factor.id)}
-                        />
-                      ))}
-                  </div>
-                )}
+                {factors
+                  .filter((f) => f.type === 'boolean')
+                  .map((factor) => (
+                    <DynamicFormField key={factor.id} factor={factor} {...bind(factor.id)} />
+                  ))}
               </div>
             )}
           </div>
-        )
-      })}
+        )}
+      </div>
+    )
+  }
 
-      {/* Medical Documentation - Special section not in factor config */}
+  return (
+    <>
+      <AiFormBar form={form} />
+      <p className="text-sm text-ui-muted">
+        Die ersten Felder reichen für eine Platzierung. Weitere Angaben verbessern das Matching.
+      </p>
+      {sections.map((section) => renderSection(section, true))}
       <MedicalDocumentationSection defaultValues={defaultValues} />
+
+      {!showDetails ? (
+        <button
+          type="button"
+          onClick={() => setShowDetails(true)}
+          className="btn-outline min-h-[44px] w-full sm:w-auto"
+        >
+          Weitere Angaben
+        </button>
+      ) : (
+        sections.map((section) => renderSection(section, false))
+      )}
     </>
   )
 }

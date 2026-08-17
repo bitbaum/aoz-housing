@@ -21,6 +21,37 @@ export interface HousingListItem {
   wheelchairAccess: boolean
   placementCount: number
   incidentCount: number
+  buildingCode?: string | null
+}
+
+function groupHousingUnits(units: HousingListItem[]): { heading: string | null; units: HousingListItem[] }[] {
+  const hasGroups = units.some((unit) => unit.buildingCode && unit.buildingCode.trim() !== '')
+  if (!hasGroups) return [{ heading: null, units }]
+
+  const buckets = new Map<string, HousingListItem[]>()
+  const ungrouped: HousingListItem[] = []
+  for (const unit of units) {
+    const code = unit.buildingCode?.trim()
+    if (!code) {
+      ungrouped.push(unit)
+      continue
+    }
+    const list = buckets.get(code) ?? []
+    list.push(unit)
+    buckets.set(code, list)
+  }
+
+  const groups = [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b, 'de-CH'))
+    .map(([code, grouped]) => ({
+      heading: HOUSING_LIST_LABELS.buildingGroup(code),
+      units: grouped,
+    }))
+
+  if (ungrouped.length > 0) {
+    groups.push({ heading: HOUSING_LIST_LABELS.ungroupedBuilding, units: ungrouped })
+  }
+  return groups
 }
 
 export function HousingList({ units }: { units: HousingListItem[] }) {
@@ -33,11 +64,20 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
     )
   }
 
+  const groups = groupHousingUnits(units)
+
   return (
     <ListShell>
       <div className="divide-y divide-ui-border">
-        {units.map((unit) => (
-          <UnitRow key={unit.id} unit={unit} />
+        {groups.map((group) => (
+          <div key={group.heading ?? 'all'}>
+            {group.heading && (
+              <p className="eyebrow px-4 pt-4 pb-1">{group.heading}</p>
+            )}
+            {group.units.map((unit) => (
+              <UnitRow key={unit.id} unit={unit} />
+            ))}
+          </div>
         ))}
       </div>
     </ListShell>

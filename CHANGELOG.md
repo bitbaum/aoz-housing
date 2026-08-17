@@ -7,9 +7,18 @@ project does not tag semver releases yet — entries are grouped by deploy date
 
 Related documents: [Roadmap](docs/ROADMAP.md) · [Blog](docs/blog/README.md)
 
+created_date: 2026-01-15
+last_modified_date: 2026-08-17
+last_modified_summary: Portal chrome, learning, care team; production is Hetzner aoz_wohnen not Neon.
+
 ## Unreleased
 
 ### Changed
+- **Infrastructure SSOT.** Production is Postgres on Hetzner (`aoz_wohnen` on bitbaum). Docs, `.env.example` and `src/lib/db.ts` describe that host. A leftover laptop `.env` pointing at Neon is not the database. i18n dictionaries stay on the resident portal; staff UI stays German.
+- **Resident portal chrome.** Header keeps brand, a compact language select, and an account dropdown (Profil, Einstellungen, Hilfe, Abmelden). Destinations moved into a **collapsible left sidebar** on desktop and the same accordion in the mobile Mehr sheet. Wohnung and Mitbewohner pages are gone from the menu — they had no profiles behind the names; old bookmarks redirect to Übersicht.
+- **AOZ and WG are different surfaces of the same product.** On AOZ/AOZH the portal pins Übersicht, Melden, Regeln, Hilfe — not chores/expenses/votes. Login opens on the code first; email stays the other door. Matching opens in compact Top-3 mode.
+- **Staff roles are no longer one ADMIN blob.** Leitung (DB name `ADMIN`), Betreuung, Sozialarbeit and Jobcoach each have a permission set. Nav, invites, export/import and the algorithm page follow it. Existing JWTs keep working.
+- **Complete languages are offered before a native speaker vouches.** Arabic, Farsi, Tigrinya, Ukrainian, Russian and Turkish appear in the picker when the dictionary is finished. Help, report and rules chrome are translated; the signed Hausordnung body stays German.
 - **The org rule catalog now IS the signed AOZ Hausordnung.** The in-app
   AOZ tier of the rule book was rewritten against the official two-page
   Hausordnung every resident signs on paper (Stand Januar 2026). Materially
@@ -38,6 +47,14 @@ Related documents: [Roadmap](docs/ROADMAP.md) · [Blog](docs/blog/README.md)
   non-negotiable rules (`src/lib/config/__tests__/house-rules.test.ts`).
 - This changelog, the [roadmap](docs/ROADMAP.md) and the
   [engineering blog](docs/blog/README.md).
+- **Learning records** on the resident profile — language tests, courses, informal learning, qualifications. Residents can add their own; Sozialarbeit and Jobcoach see a queue (`/learning`) and missing Deutsch tests.
+- **Room-level matching.** Placement scores the Zimmer, not only the Wohnung average, and the fast-place action uses that bed.
+- **Short intake** as the default: sleep, noise, directional cleanliness, smoking, languages, mobility first; the rest behind "Weitere Angaben".
+- **Gebäudecode** on housing units — enough to group a Standort without a Building CRUD.
+- **Pilot evidence** on the staff dashboard: baseline vs now for the mission KPIs.
+- **Care team** on the resident file and in the portal: Wohnen/Betreuung, Sozialarbeit, Jobcoach — one named person per seat.
+- **Care workspace** on the resident file: appointments (Zurich wall-clock) and catalog-driven work attributes per domain. Adding a field is a line in `CARE_ATTRIBUTE_CATALOG`, not a migration. Residents see team + upcoming appointments.
+- **Learning achievements** in the portal: completed tests, courses, qualifications, volunteering and community-service hours, plus language activity offers next to existing Aktivitäten.
 
 ## 2026-08-13 — Real deployment + full-product demo
 

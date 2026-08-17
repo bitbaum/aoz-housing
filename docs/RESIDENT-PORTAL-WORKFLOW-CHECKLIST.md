@@ -3,6 +3,10 @@
 Purpose: practical QA/UX checklist for resident-facing workflows.  
 Use this as a runbook during testing and sign-off.
 
+created_date: 2026-02-18
+last_modified_date: 2026-08-17
+last_modified_summary: Replaced Mitbewohner/Wohnung pages with learning, care team, appointments, and collapsible portal chrome.
+
 Legend:
 - [ ] not checked
 - [x] checked/passed
@@ -20,7 +24,7 @@ Pass type below: **Pass 1 = code review + automated checks (lint/tests), no full
 - [x] Invalid code shows clear error message
 - [x] Rate-limit message appears correctly on repeated invalid attempts
 - [x] Logout works and returns to portal landing
-- [x] Session-protected pages redirect correctly when unauthenticated (`/portal/preferences`, `/portal/roommates`, `/portal/report`, `/portal/chores`)
+- [x] Session-protected pages redirect correctly when unauthenticated (`/portal/preferences`, `/portal/learning`, `/portal/report`, `/portal/chores`)
 
 ---
 
@@ -36,11 +40,16 @@ Pass type below: **Pass 1 = code review + automated checks (lint/tests), no full
 ## 2) Dashboard Overview (`/portal`)
 
 - [x] Header and welcome text render correctly
+- [x] Language switcher and account dropdown sit in the header
 - [x] Prioritization section (`Jetzt / Als Nächstes / Info`) appears and is readable
 - [x] Quick actions are visible and tappable (mobile)
 - [~] Satisfaction check-in loads and submit triggers, but request remained in loading in this pass and needs re-check
 - [x] Current housing card shows core data (address, move-in date, roommates, compatibility)
-- [x] House rules chips (quiet hours/smoking/pets) display correctly
+- [x] House rules chips (quiet hours/smoking/pets) display correctly and link to Regeln
+- [x] Care team card renders (empty or with Wohnen / Sozialarbeit / Jobcoach)
+- [x] Upcoming appointments render on overview and profile
+- [x] Learning is reachable from quick actions
+- [x] Roommate names stay on the overview (no separate Mitbewohner page)
 - [x] Pending chores preview links to correct task detail
 - [x] "Meine Meldungen" shows open/resolved states with clear wording
 - [x] Open maintenance preview in building renders if data exists
@@ -83,14 +92,23 @@ Pass type below: **Pass 1 = code review + automated checks (lint/tests), no full
 
 ---
 
-## 5) Roommates Workflow (`/portal/roommates`)
+## 5) Learning (`/portal/learning`)
 
-- [~] No-placement state renders correctly
-- [x] Roommate cards load with readable key info
-- [x] Compatibility indicator renders when available
-- [x] Strengths/concerns sections are understandable
-- [x] Tips and conflict guidance sections are readable on mobile
-- [x] Link to report page works
+- [x] Achievements list completed tests, courses, qualifications and service
+- [x] In-progress records show separately
+- [x] Published language activities appear as offers
+- [x] Resident can add their own record (including hours for courses/service)
+
+## 5b) Care team (overview + profile)
+
+- [x] Resident sees Wohnen / Sozialarbeit / Jobcoach seats
+- [x] Empty state tells them staff will assign the team
+- [x] Staff can assign seats on the resident file (`/residents/[id]`)
+
+## 5c) Removed destinations
+
+- [x] `/portal/roommates` and `/portal/apartment` redirect to `/portal` (old bookmarks)
+- [x] Neither appears in sidebar, tabs, or account menu
 
 ---
 
@@ -125,7 +143,8 @@ Pass type below: **Pass 1 = code review + automated checks (lint/tests), no full
 
 ## 8) Cross-Device UX (mobile/tablet/desktop)
 
-- [~] Navigation is usable in all breakpoints
+- [x] Desktop left nav groups collapse/expand (`<details>`)
+- [x] Mobile "Mehr" sheet uses the same groups, without language dump or account/logout
 - [~] Tap targets are >=44px on primary actions
 - [~] No horizontal overflow observed in tested pages; full device sweep still pending
 - [~] Sticky action bars do not hide fields/buttons
