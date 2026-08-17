@@ -1,7 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test'
 import { BRAND } from '../src/lib/config/brand'
-import { LOGIN_LABELS } from '../src/lib/constants/labels'
-import { LOCALE_COOKIE } from '../src/lib/i18n/locales'
 
 const STAFF_CODE = process.env.E2E_STAFF_CODE || `${BRAND.codePrefix}ADMIN1`
 
@@ -23,49 +21,23 @@ export async function ensureStaffLogin(page: Page) {
   }
 }
 
-async function waitForLoginDoors(page: Page) {
-  await page.waitForLoadState('networkidle')
-  await expect(page.locator('#email, #code').first()).toBeVisible({ timeout: 15_000 })
-}
-
 /**
  * The login page's primary door depends on the brand: AOZ/AOZH open on the
  * printed code, WG on email. Both doors stay one toggle away. Idempotent.
  */
 export async function openCodeLoginForm(page: Page) {
-  await waitForLoginDoors(page)
   const codeInput = page.locator('#code')
   if (!(await codeInput.isVisible())) {
-    await page.getByRole('button', { name: LOGIN_LABELS.useCode }).click()
+    await page.getByRole('button', { name: 'Mit Code anmelden' }).click()
     await expect(codeInput).toBeVisible()
   }
 }
 
 export async function openEmailLoginForm(page: Page) {
-  await waitForLoginDoors(page)
   const emailInput = page.locator('#email')
   if (!(await emailInput.isVisible())) {
-    await page.getByRole('button', { name: LOGIN_LABELS.useEmail }).click()
+    await page.getByRole('button', { name: 'Mit E-Mail anmelden' }).click()
     await expect(emailInput).toBeVisible()
-  }
-}
-
-/** Short intake hides matching detail fields behind this control. */
-export async function expandResidentIntakeDetails(page: Page) {
-  const more = page.getByRole('button', { name: 'Weitere Angaben' })
-  if (await more.isVisible()) {
-    await more.click()
-    await expect(page.locator('select[name="socialStyle"]')).toBeVisible()
-  }
-}
-
-/** Portal dictionaries follow Accept-Language unless this cookie is set. */
-export function portalLocaleCookie(locale = 'de') {
-  return {
-    name: LOCALE_COOKIE,
-    value: locale,
-    domain: 'localhost',
-    path: '/',
   }
 }
 
@@ -85,28 +57,32 @@ export function portalLocaleCookie(locale = 'de') {
  * fails on visibility rather than on reachability.
  */
 export async function findAdminNavLink(page: Page, href: string): Promise<Locator> {
-  // Desktop chrome only. MobileNav renders a second `header.chrome-bar` that
-  // stays in the DOM at every viewport (`md:hidden`), so an unscoped `header`
-  // match is two elements and Playwright strict-mode assertions fail.
-  const chrome = page.locator('header.sticky, footer')
+  const chrome = page.locator('header, footer')
+  // `:visible` on the link itself, not just its container: the header keeps its
+  // secondary links in the DOM and hides them below 2xl, and MobileNav renders
+  // a second (hidden) header with the full link list at every viewport.
   const selector = `a[href="${href}"]:visible`
 
-  await expect(page.locator('header.sticky')).toBeVisible({ timeout: 15_000 })
-
   if ((await chrome.locator(selector).count()) === 0) {
-    const groups = page.locator('header.sticky nav button[aria-haspopup="true"]:visible')
+    const groups = page.locator('header nav button[aria-haspopup="true"]:visible')
     const groupCount = await groups.count()
     for (let i = 0; i < groupCount; i++) {
+      // click(): the megamenu opens on intent (click), never on hover-from-rest.
       await groups.nth(i).click()
-      try {
-        await expect(chrome.locator(selector).first()).toBeVisible({ timeout: 3_000 })
-        break
-      } catch {
-        await page.keyboard.press('Escape')
-      }
+      // The panel mounts on the next React render, so wait for it rather than
+      // reading the count synchronously.
+      await chrome
+        .locator(selector)
+        .first()
+        .waitFor({ state: 'visible', timeout: 2_000 })
+        .catch(() => undefined)
+      if ((await chrome.locator(selector).count()) > 0) break
+      await page.keyboard.press('Escape') // close before probing the next group
     }
   }
 
+  // System links (Einstellungen, Algorithmus, Hilfe) live in the user menu
+  // dropdown — one SSOT (SYSTEM_LINKS), not the header row.
   if ((await chrome.locator(selector).count()) === 0) {
     await page.getByRole('button', { name: 'Benutzermenü' }).click()
     await chrome
