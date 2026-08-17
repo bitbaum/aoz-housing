@@ -25,6 +25,14 @@ export async function ensureStaffLogin(page: Page) {
 
 async function waitForLoginDoors(page: Page) {
   await expect(page.locator('#email, #code').first()).toBeVisible({ timeout: 15_000 })
+  // Prove the client hydrated. A click before that is a no-op: the toggle
+  // is a <button> in the SSR HTML, but setMode only exists after hydrate.
+  const code = page.locator('#code')
+  if (await code.isVisible()) {
+    await code.fill('x')
+    await expect(code).toHaveValue('X', { timeout: 10_000 })
+    await code.clear()
+  }
 }
 
 /**
@@ -84,32 +92,28 @@ export function portalLocaleCookie(locale = 'de') {
  * fails on visibility rather than on reachability.
  */
 export async function findAdminNavLink(page: Page, href: string): Promise<Locator> {
-  const chrome = page.locator('header, footer')
-  // `:visible` on the link itself, not just its container: the header keeps its
-  // secondary links in the DOM and hides them below 2xl, and MobileNav renders
-  // a second (hidden) header with the full link list at every viewport.
+  // Desktop chrome only. MobileNav renders a second `header.chrome-bar` that
+  // stays in the DOM at every viewport (`md:hidden`), so an unscoped `header`
+  // match is two elements and Playwright strict-mode assertions fail.
+  const chrome = page.locator('header.sticky, footer')
   const selector = `a[href="${href}"]:visible`
 
+  await expect(page.locator('header.sticky')).toBeVisible({ timeout: 15_000 })
+
   if ((await chrome.locator(selector).count()) === 0) {
-    const groups = page.locator('header nav button[aria-haspopup="true"]:visible')
+    const groups = page.locator('header.sticky nav button[aria-haspopup="true"]:visible')
     const groupCount = await groups.count()
     for (let i = 0; i < groupCount; i++) {
-      // click(): the megamenu opens on intent (click), never on hover-from-rest.
       await groups.nth(i).click()
-      // The panel mounts on the next React render, so wait for it rather than
-      // reading the count synchronously.
-      await chrome
-        .locator(selector)
-        .first()
-        .waitFor({ state: 'visible', timeout: 2_000 })
-        .catch(() => undefined)
-      if ((await chrome.locator(selector).count()) > 0) break
-      await page.keyboard.press('Escape') // close before probing the next group
+      try {
+        await expect(chrome.locator(selector).first()).toBeVisible({ timeout: 3_000 })
+        break
+      } catch {
+        await page.keyboard.press('Escape')
+      }
     }
   }
 
-  // System links (Einstellungen, Algorithmus, Hilfe) live in the user menu
-  // dropdown — one SSOT (SYSTEM_LINKS), not the header row.
   if ((await chrome.locator(selector).count()) === 0) {
     await page.getByRole('button', { name: 'Benutzermenü' }).click()
     await chrome
