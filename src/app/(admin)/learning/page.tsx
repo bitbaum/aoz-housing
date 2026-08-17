@@ -5,67 +5,51 @@ import { listLearningQueue } from '@/lib/actions/learning'
 import { PageHeader } from '@/components/ui/Page'
 import {
   LEARNING_KIND_LABELS,
-  LEARNING_KINDS,
   LEARNING_LABELS,
   LEARNING_STATUS_LABELS,
   type LearningKindId,
   type LearningStatusId,
 } from '@/lib/config/learning'
 import { residentName } from '@/lib/utils/resident-name'
-import type { LearningKind } from '@prisma/client'
 
 export const metadata: Metadata = { title: 'Lernen' }
 export const dynamic = 'force-dynamic'
 
-type Props = {
-  searchParams: Promise<{ kind?: string }>
-}
-
-export default async function LearningQueuePage({ searchParams }: Props) {
+export default async function LearningQueuePage() {
   await requirePermission('learning:read')
-  const { kind: rawKind } = await searchParams
-  const kind =
-    rawKind && (LEARNING_KINDS as readonly string[]).includes(rawKind)
-      ? (rawKind as LearningKind)
-      : undefined
-  const { records, missingGerman } = await listLearningQueue(kind)
+  const { records, missingGerman } = await listLearningQueue()
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title={kind ? LEARNING_KIND_LABELS[kind as LearningKindId] : LEARNING_LABELS.title}
-        description={LEARNING_LABELS.subtitle}
-      />
+      <PageHeader title={LEARNING_LABELS.title} description={LEARNING_LABELS.subtitle} />
 
-      {!kind && (
-        <section className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-1">{LEARNING_LABELS.germanMissing}</h2>
-          <p className="text-sm text-ui-muted mb-4">{LEARNING_LABELS.noGermanHint}</p>
-          {missingGerman.length === 0 ? (
-            <p className="text-sm text-ui-muted">{LEARNING_LABELS.empty}</p>
-          ) : (
-            <ul className="divide-y divide-ui-border">
-              {missingGerman.map((resident) => (
-                <li key={resident.id} className="py-3 flex items-center justify-between gap-3">
-                  <div>
-                    <Link href={`/residents/${resident.id}`} className="font-medium text-ui-text hover:underline">
-                      {residentName(resident)}
-                    </Link>
-                    {/* resident-code-intentional — staff queue, they look people up by login code */}
-                    <p className="text-xs text-ui-muted font-mono">{resident.code}</p>
-                  </div>
-                  <Link
-                    href={`/residents/${resident.id}`}
-                    className="btn-outline text-sm min-h-[44px] inline-flex items-center"
-                  >
-                    {LEARNING_LABELS.add}
+      <section className="card">
+        <h2 className="text-lg font-semibold text-ui-text mb-1">{LEARNING_LABELS.germanMissing}</h2>
+        <p className="text-sm text-ui-muted mb-4">{LEARNING_LABELS.noGermanHint}</p>
+        {missingGerman.length === 0 ? (
+          <p className="text-sm text-ui-muted">{LEARNING_LABELS.empty}</p>
+        ) : (
+          <ul className="divide-y divide-ui-border">
+            {missingGerman.map((resident) => (
+              <li key={resident.id} className="py-3 flex items-center justify-between gap-3">
+                <div>
+                  <Link href={`/residents/${resident.id}`} className="font-medium text-ui-text hover:underline">
+                    {residentName(resident)}
                   </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
+                  {/* resident-code-intentional — staff queue, they look people up by login code */}
+                  <p className="text-xs text-ui-muted font-mono">{resident.code}</p>
+                </div>
+                <Link
+                  href={`/residents/${resident.id}`}
+                  className="btn-outline text-sm min-h-[44px] inline-flex items-center"
+                >
+                  {LEARNING_LABELS.add}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="card">
         <h2 className="text-lg font-semibold text-ui-text mb-4">
