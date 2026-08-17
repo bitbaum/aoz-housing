@@ -6,11 +6,12 @@ import type { Resident, HousingUnit, Placement, PlacementSpot } from '@prisma/cl
 import type { ApartmentProfile, ApartmentCompatibility, CompatibilityScore } from '@/lib/compatibility/types'
 import type { UnitMetrics } from '@/lib/analytics/unit-metrics'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
+import type { RoomFit } from '@/lib/compatibility/room-fit'
 
 /** Housing unit with active placements (including resident) and available spots */
 export type MatchUnit = HousingUnit & {
   placements: (Placement & { resident: Resident })[]
-  spots: (PlacementSpot & { placements: Placement[] })[]
+  spots: (PlacementSpot & { placements: (Placement & { resident: Resident })[] })[]
 }
 
 /** Pairwise compatibility between new resident and one existing resident */
@@ -40,6 +41,8 @@ export interface MatchResult {
   totalRoommateConcerns: number
   safeguardWarnings: SafeguardWarning[]
   sortScore: number
+  /** Best available Zimmer vs the people who share it. Null = no assignable spot. */
+  bestRoomFit: RoomFit | null
 }
 
 /** Resident with active placement info (for "what-if" analysis) */

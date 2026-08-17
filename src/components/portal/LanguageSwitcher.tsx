@@ -2,37 +2,56 @@
 
 import { useRouter } from 'next/navigation'
 import { Languages, Info } from 'lucide-react'
-import { LOCALE_COOKIE } from '@/lib/i18n/locales'
-import { availableLocales } from '@/lib/i18n'
+import { LOCALE_COOKIE, availableLocales } from '@/lib/i18n'
 import { useLocale, useT } from '@/lib/i18n/LocaleProvider'
 
 /**
- * Lets a resident choose their language.
+ * Lets a resident choose their language. Staff UI does not mount this.
  *
- * Every language with a complete dictionary is here. Most have not been checked
- * by someone who speaks them, and that is said out loud rather than used as a
- * reason to withhold the language: a notice the reader can weigh is more use to
- * them than a picker that quietly omits the only language they read.
+ * Compact lives in the header — a native select of finished languages only.
+ * Incomplete locales (Shqip, Soomaali, …) never appear: listing a language and
+ * then showing mostly German is worse than admitting we do not have it yet.
  *
- * The notice appears AFTER a choice is made, in the chosen language, because
- * that is the one moment the reader can definitely understand it.
+ * Unvouched complete languages still show `language.machineNotice` after the
+ * choice, in the chosen language — the reader is the person who can judge.
  */
-export function LanguageSwitcher() {
+export function LanguageSwitcher({
+  variant = 'compact',
+}: {
+  variant?: 'compact' | 'panel'
+}) {
   const router = useRouter()
   const current = useLocale()
   const t = useT()
   const locales = availableLocales()
 
-  // One language means no choice to make; a control with a single option is
-  // just clutter that implies a setting exists.
   if (locales.length < 2) return null
 
   function choose(id: string) {
-    // A year, path-wide: the choice must survive both a session ending and a
-    // move between the portal and the login page, or a resident re-picks their
-    // language every time they sign in.
     document.cookie = `${LOCALE_COOKIE}=${id};path=/;max-age=${60 * 60 * 24 * 365};samesite=lax`
     router.refresh()
+  }
+
+  if (variant === 'compact') {
+    return (
+      <label className="inline-flex items-center gap-2 min-h-[44px]">
+        <Languages className="w-4 h-4 text-ui-muted shrink-0" aria-hidden="true" />
+        <span className="sr-only">{t('language.change')}</span>
+        <select
+          aria-label={t('language.change')}
+          className="input py-1.5 min-h-[44px] text-sm w-auto max-w-[11rem]"
+          value={current.id}
+          title={!current.reviewed ? t('language.machineNotice') : undefined}
+          onChange={(event) => choose(event.target.value)}
+        >
+          {locales.map((locale) => (
+            <option key={locale.id} value={locale.id} lang={locale.id}>
+              {locale.endonym}
+            </option>
+          ))}
+        </select>
+      </label>
+    )
   }
 
   return (
@@ -41,7 +60,6 @@ export function LanguageSwitcher() {
         <Languages className="w-3.5 h-3.5" aria-hidden="true" />
         {t('language.label')}
       </p>
-
       <div className="flex flex-wrap gap-2">
         {locales.map((locale) => {
           const active = locale.id === current.id
@@ -52,9 +70,6 @@ export function LanguageSwitcher() {
               onClick={() => choose(locale.id)}
               aria-current={active ? 'true' : undefined}
               lang={locale.id}
-              // The name is written in its own language and marked with `lang`,
-              // so a screen reader pronounces it in that language rather than
-              // reading Ukrainian letters with a German voice.
               className={`min-h-[44px] px-3 rounded-md border text-sm transition-colors ${
                 active
                   ? 'border-brand-primary text-ui-text'

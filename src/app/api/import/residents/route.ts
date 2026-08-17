@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth'
+import { authorizeStaff } from '@/lib/auth'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { prisma } from '@/lib/db'
 import { ResidentImportSchema } from '@/lib/validation/import'
 import Papa from 'papaparse'
@@ -11,10 +12,14 @@ import { logger } from '@/lib/logger'
 const MAX_CSV_BYTES = 5 * 1024 * 1024
 
 export async function POST(request: Request) {
-  const user = await getCurrentUser()
-  if (!user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
+  const auth = await authorizeStaff('import:write')
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
+      { status: auth.status }
+    )
   }
+  const user = auth.user
 
   const formData = await request.formData()
   const file = formData.get('file') as File | null

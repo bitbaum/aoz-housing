@@ -2,6 +2,10 @@
 
 Related: [Changelog](../CHANGELOG.md) · [Blog](blog/README.md) · [AOZ pitch](AOZ-PITCH.md)
 
+created_date: 2026-01-15
+last_modified_date: 2026-08-17
+last_modified_summary: Marked portal chrome, care team and learning achievements as done in H1.
+
 ## The thesis
 
 Housing shortage in Zürich, New York, San Francisco — and weakening family
@@ -50,12 +54,19 @@ baseline. Everything in H1 serves that.
   expenses, report routing.
 - ✅ Signed Hausordnung as the in-app org rule catalog, with per-version
   acknowledgement — done (see changelog).
-- Baseline/outcome dashboard: the four pilot metrics tracked in-product,
-  exportable as the Phase-3 decision document. Incidents already carry the
-  data; surface it as evidence.
+- ✅ AOZ vs WG surfaces (nav, expenses/votes, code-first login, fast matching).
+- ✅ Staff roles: Leitung, Betreuung, Sozialarbeit, Jobcoach.
+- ✅ Learning records (tests, courses, informal) for residents and Jobcoach.
+- ✅ Learning achievements and volunteering/community-service hours; language offers reuse Aktivitäten.
+- ✅ Care team (Wohnen, Sozialarbeit, Jobcoach) visible to the resident.
+- ✅ Care workspace: appointments and catalog attributes per domain; one login can be resident + Leitung.
+- ✅ Portal chrome: collapsible sidebar + header account/language; dead Wohnung/Mitbewohner pages removed.
+- ✅ Room-level matching and a short intake as the default.
+- ✅ Complete locale packs offered (AR, FA, TI, UK, RU, TR) plus DE/EN/FR vouched.
+- ✅ Baseline/outcome dashboard on the staff home and analytics.
 - Close the loop from incidents to matching: recorded conflict outcomes
   feeding the risk dimension per factor pair (transparent weights, no black
-  box — every score explainable in German).
+  box — every score explainable in German). Wait for AOZ outcome data.
 - Acknowledgement coverage as the leading indicator on the staff dashboard.
 
 ### H2 — Multi-tenancy without forks (2027)
@@ -70,8 +81,9 @@ One deployment currently serves one org. The multibillion path requires one
 - **Property hierarchy**: org → property → unit → room → spot, with rule
   delegation at every level (a building Hausordnung between org floor and
   house rules — the AOZ paper document already implies this level).
-- **i18n**: labels are already centralized; add locale packs (DE done; EN,
-  FR next). Swiss-German register stays the reference.
+- **i18n**: resident chrome has locale packs (DE/EN/FR vouched; AR, FA, TI,
+  UK, RU, TR complete). Swiss High German stays the binding Hausordnung
+  text. Incomplete files (sq, so) stay hidden.
 - **Vertical factor packs**: student housing (semester rhythm, study/party
   axis), coliving (profession, guest frequency), senior co-housing
   (care-adjacent functional needs — never diagnoses).

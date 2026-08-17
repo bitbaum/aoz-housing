@@ -16,6 +16,9 @@ import {
   CompatibleMatchesCard,
   TopCompatibilitiesCard,
   PlacementHistoryCard,
+  LearningRecordsCard,
+  CareTeamCard,
+  CareWorkspace,
 } from '@/components/residents'
 import type { UnitCompatibilityData } from '@/components/residents/TransferRecommendations'
 import { calculateCompatibility } from '@/lib/compatibility/scoring'
@@ -40,6 +43,9 @@ import {
 import { SuccessToast } from '@/components/ui/SuccessToast'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
+import { getCurrentUser, hasPermission } from '@/lib/auth'
+import { getCareTeam, listAssignableStaff, listCareAttributes, listResidentAppointments } from '@/lib/actions/care'
+import { writableCareDomains } from '@/lib/config/care'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -62,7 +68,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const query = await searchParams
 
   // resident and availableUnits are independent — fetch in parallel
-  const [resident, availableUnits] = await Promise.all([
+  const [resident, availableUnits, staff, careSeats, assignableStaff, careAttributes, careAppointments] = await Promise.all([
     prisma.resident.findUnique({
       where: { id },
       include: {
@@ -73,6 +79,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           },
           orderBy: { startDate: 'desc' },
         },
+        learningRecords: { orderBy: { updatedAt: 'desc' } },
         incidentsAsSubject: {
           include: {
             housingUnit: true,
@@ -116,6 +123,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
       },
       orderBy: { code: 'asc' },
     }),
+    getCurrentUser(),
+    getCareTeam(id),
+    listAssignableStaff(),
+    listCareAttributes(id),
+    listResidentAppointments(id),
   ])
 
   if (!resident) {
@@ -435,6 +447,29 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             incidentsReportedCount={resident.incidentsReported.length}
             currentPlacement={currentPlacement ? { id: currentPlacement.id, housingUnitId: currentPlacement.housingUnitId } : null}
             residentId={resident.id}
+          />
+
+          <LearningRecordsCard
+            residentId={resident.id}
+            records={resident.learningRecords}
+            canWrite={staff ? hasPermission(staff.role, 'learning:write') : false}
+          />
+
+          <CareTeamCard
+            residentId={resident.id}
+            seats={careSeats}
+            staffOptions={assignableStaff}
+            canWrite={false}
+            writableDomains={staff ? writableCareDomains(staff.role) : []}
+            title="Betreuungsteam"
+            empty="Noch niemand zugewiesen."
+          />
+
+          <CareWorkspace
+            residentId={resident.id}
+            attributes={careAttributes}
+            appointments={careAppointments}
+            writableDomains={staff ? writableCareDomains(staff.role) : []}
           />
 
           {/* Placement History */}

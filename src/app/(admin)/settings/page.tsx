@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { requireStaffAuth } from '@/lib/auth'
+import { requireStaffAuth, hasPermission } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { InviteForm } from './InviteForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
-import { SETTINGS_LABELS, PILOT_BASELINE_LABELS } from '@/lib/constants'
+import { SETTINGS_LABELS, PILOT_BASELINE_LABELS, ROLE_LABELS } from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
 import { SubmitButton } from '@/components/ui'
 import { PageHeader } from '@/components/ui/Page'
@@ -14,7 +14,9 @@ export const metadata: Metadata = { title: 'Einstellungen' }
 export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
-  await requireStaffAuth()
+  const currentUser = await requireStaffAuth()
+  const canInvite = hasPermission(currentUser.role, 'users:manage')
+  const canConfigure = hasPermission(currentUser.role, 'system:configure')
 
   const [staffUsers, systemConfig] = await Promise.all([
     prisma.user.findMany({
@@ -23,6 +25,7 @@ export default async function SettingsPage() {
         id: true,
         code: true,
         name: true,
+        role: true,
         lastLoginAt: true,
         account: { select: { email: true } },
       },
@@ -41,7 +44,7 @@ export default async function SettingsPage() {
     <div className="max-w-3xl space-y-6">
       <PageHeader title={SETTINGS_LABELS.title} description={SETTINGS_LABELS.subtitle} />
 
-      {/* Invite new staff */}
+      {canInvite && (
       <div className="card">
         <h2 className="text-lg font-semibold text-ui-text mb-1">{SETTINGS_LABELS.inviteTitle}</h2>
         <p className="text-sm text-ui-muted mb-4">
@@ -56,6 +59,7 @@ export default async function SettingsPage() {
 
         <InviteForm />
       </div>
+      )}
 
       {/* Current team */}
       <div className="card">
@@ -72,7 +76,8 @@ export default async function SettingsPage() {
               <div>
                 <p className="font-medium text-ui-text text-sm">{user.name}</p>
                 <p className="text-xs text-ui-muted">
-                  {user.account?.email || '—'} · <span className="font-mono">{user.code}</span>
+                  {ROLE_LABELS[user.role] || user.role} · {user.account?.email || '—'} ·{' '}
+                  <span className="font-mono">{user.code}</span>
                 </p>
               </div>
               <div className="text-right">
@@ -104,6 +109,8 @@ export default async function SettingsPage() {
                 name="pilotStartDate"
                 defaultValue={pilotStartValue}
                 className="input"
+                disabled={!canConfigure}
+                readOnly={!canConfigure}
               />
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
             </div>
@@ -119,6 +126,8 @@ export default async function SettingsPage() {
                 defaultValue={systemConfig.pilotBaselineIncidentsPerMonth ?? ''}
                 placeholder="z.B. 15"
                 className="input"
+                disabled={!canConfigure}
+                readOnly={!canConfigure}
               />
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
             </div>
@@ -134,6 +143,8 @@ export default async function SettingsPage() {
                 defaultValue={systemConfig.pilotBaselineRelocationsPerMonth ?? ''}
                 placeholder="z.B. 4"
                 className="input"
+                disabled={!canConfigure}
+                readOnly={!canConfigure}
               />
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
             </div>
@@ -149,15 +160,19 @@ export default async function SettingsPage() {
                 defaultValue={systemConfig.pilotBaselineMediationHoursPerWeek ?? ''}
                 placeholder="z.B. 12"
                 className="input"
+                disabled={!canConfigure}
+                readOnly={!canConfigure}
               />
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.mediationHoursHint}</p>
             </div>
           </div>
+          {canConfigure && (
           <div>
             <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
               {PILOT_BASELINE_LABELS.saveButton}
             </SubmitButton>
           </div>
+          )}
         </form>
       </div>
 

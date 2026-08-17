@@ -18,10 +18,12 @@ export const en: Dictionary = {
   'nav.profile': 'Profile',
   'nav.transfer': 'Transfer',
   'nav.help': 'Help',
+  'nav.learning': 'Learning',
   'nav.logout': 'Sign out',
   'nav.more': 'More',
   'nav.moreTitle': 'Everything at a glance',
   'nav.closeMore': 'Close menu',
+  'nav.accountMenu': 'Account',
 
   'navGroup.living': 'Everyday',
   'navGroup.together': 'Deciding together',
@@ -60,4 +62,56 @@ export const en: Dictionary = {
   'language.machineNotice': 'This translation has not yet been checked by a native speaker.',
 
   'safety.emergency': 'In an emergency: call 112 or contact the housing office',
+
+  'help.title': 'Help & FAQ',
+  'help.subtitle': 'Answers and contact — in danger, use the emergency numbers first.',
+  'help.faqTitle': 'Frequently asked questions',
+  'help.contactTitle': 'Contact',
+  'help.emergencyTitle': 'Emergency',
+  'help.emergencyDesc': 'If you are in danger, contact immediately:',
+  'help.faq.placement.q': 'How are rooms assigned?',
+  'help.faq.placement.a':
+    'We look at sleep, noise, cleanliness and languages. The more accurate your answers, the better the match.',
+  'help.faq.preferences.q': 'Can I change my details?',
+  'help.faq.preferences.a': 'Yes, under Settings. Changes apply to future placements.',
+  'help.faq.conflict.q': 'What if there is a conflict?',
+  'help.faq.conflict.a': 'Use Report in the portal. Staff take every report seriously.',
+  'help.faq.transfer.q': 'Can I request a move?',
+  'help.faq.transfer.a': 'Yes, via Transfer or your caseworker.',
+  'help.faq.privacy.q': 'Is my data protected?',
+  'help.faq.privacy.a':
+    'Yes. Housing preferences only — no diagnoses, no asylum status. You can ask to see your data.',
+  'help.link.report': 'Report a problem',
+  'help.link.rules': 'House rules',
+
+  'report.title': 'Report a problem',
+  'report.subtitle': 'A broken thing or a conflict — staff will see it.',
+  'report.emergencyTitle': 'Immediate danger?',
+  'report.emergencyMessage': 'In an emergency: 112. AOZ out-of-hours: 044 415 63 30.',
+  'report.noPlacement': 'You have no housing yet. Contact staff.',
+
+  'rules.title': 'House rules',
+  'rules.subtitle':
+    'The binding text is German — the version you sign. Ask staff if you do not understand something.',
+  'rules.noPlacement': 'Once you have a room, the rules will appear here.',
+  'rules.toDecisions': 'To decisions',
+
+  'learning.title': 'Your learning',
+  'learning.subtitle': 'Certificates, courses and volunteering — you can add what you are doing.',
+  'learning.achievements': 'Achievements',
+  'learning.achievementsEmpty':
+    'No achievements yet. Completed tests, courses and volunteering appear here.',
+  'learning.inProgress': 'In progress',
+  'learning.offers': 'Courses and offers',
+  'learning.offersEmpty': 'No learning offers right now. Check Activities.',
+  'learning.hours': 'Hours',
+
+  'care.title': 'Your team',
+  'care.subtitle': 'The people responsible for you — housing, social work, job coach.',
+  'care.empty': 'Nobody assigned yet. Staff will add your team.',
+  'care.housing': 'Housing / support',
+  'care.social': 'Social work',
+  'care.job': 'Job coach',
+  'care.appointments': 'Appointments',
+  'care.appointmentsEmpty': 'No appointments planned.',
 }

@@ -1,5 +1,11 @@
 import Link from 'next/link'
 import type { MatchResult, ResidentWithPlacement } from '@/lib/matching/types'
+
+function spotIdToPlace(match: MatchResult): string {
+  return match.bestRoomFit?.spotId
+    || match.unit.spots.find((s) => s.status === 'AVAILABLE')?.id
+    || ''
+}
 import { EMPTY_STATE_LABELS, MATCH_RESULTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
 import { placeResident } from '@/lib/actions/matching'
@@ -75,7 +81,7 @@ export function MatchResultsPanel({
               <input
                 type="hidden"
                 name="spotId"
-                value={bestQuickMatch.unit.spots.find((s) => s.status === 'AVAILABLE')?.id || ''}
+                value={spotIdToPlace(bestQuickMatch)}
               />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <p className="text-sm text-status-success-text">
@@ -95,7 +101,7 @@ export function MatchResultsPanel({
                 <span className="text-xs text-ui-muted">{MATCH_RESULTS_LABELS.fastModeSubtitle}</span>
               </div>
               {matches.slice(0, DISPLAY_LIMITS.topUnits).map((match, idx) => {
-                const availableSpot = match.unit.spots.find((s) => s.status === 'AVAILABLE')
+                const availableSpotId = spotIdToPlace(match)
                 const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (
                   <div key={match.unit.id} className={`p-3 rounded-lg border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-ui-border'}`}>
@@ -104,14 +110,16 @@ export function MatchResultsPanel({
                         <p className="font-semibold text-ui-text">#{idx + 1} · {match.unit.code}</p>
                         <p className="text-sm text-ui-muted">{match.unit.address}</p>
                         <p className="text-xs text-ui-muted mt-1">
-                          {MATCH_RESULTS_LABELS.fitInfo(match.apartmentFit.fitScore, match.unit.placements.length, match.unit.totalBeds)}
+                          {match.bestRoomFit?.score != null
+                            ? `Zimmer ${match.bestRoomFit.spotCode}: ${match.bestRoomFit.score}% mit ${match.bestRoomFit.roommateCount} Mitbewohnenden`
+                            : MATCH_RESULTS_LABELS.fitInfo(match.apartmentFit.fitScore, match.unit.placements.length, match.unit.totalBeds)}
                         </p>
                       </div>
-                      {availableSpot && !hasBlockingConflicts ? (
+                      {availableSpotId && !hasBlockingConflicts ? (
                         <form action={placeResident}>
                           <input type="hidden" name="residentId" value={selectedResident.id} />
                           <input type="hidden" name="housingUnitId" value={match.unit.id} />
-                          <input type="hidden" name="spotId" value={availableSpot.id} />
+                          <input type="hidden" name="spotId" value={availableSpotId} />
                           <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">{PLACEMENT_PANEL_LABELS.place}</SubmitButton>
                         </form>
                       ) : (

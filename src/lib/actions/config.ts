@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 
 export interface SystemConfigData {
   pilotBaselineIncidentsPerMonth: number | null
@@ -22,7 +22,7 @@ export async function getSystemConfig(): Promise<SystemConfigData> {
 }
 
 export async function saveSystemConfig(formData: FormData): Promise<void> {
-  await requireStaffAuth()
+  await requirePermission('system:configure')
 
   const parseFloat = (v: FormDataEntryValue | null) => {
     const n = Number(v)

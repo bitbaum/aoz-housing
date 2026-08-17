@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { SOCIAL_STYLE_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
 import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
@@ -29,9 +28,6 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.roommates}</h2>
-        <Link href="/portal/roommates" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
-          {PORTAL_LABELS.dashboard.showAll}
-        </Link>
       </div>
       <div className="space-y-3">
         {roommates.slice(0, DISPLAY_LIMITS.dashboardItems).map((roommate) => {

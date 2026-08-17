@@ -28,13 +28,14 @@ import { EMAIL_CONFIG } from '@/lib/email/config'
 import { getAppUrl } from '@/lib/config/app-url'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { logger } from '@/lib/logger'
+import type { StaffRole } from './role-policy'
 
 export interface StaffIdentity {
   id: string
   code: string
   name: string
   email: string
-  role: 'ADMIN'
+  role: StaffRole
 }
 
 export interface ResidentIdentity {
@@ -64,7 +65,7 @@ type AccountRow = {
   id: string
   email: string
   passwordHash: string | null
-  user: { id: string; code: string; name: string; role: 'ADMIN'; active: boolean } | null
+  user: { id: string; code: string; name: string; role: StaffRole; active: boolean } | null
   resident: { id: string; code: string } | null
 }
 

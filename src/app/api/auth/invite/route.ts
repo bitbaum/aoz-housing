@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { hasPermission, isStaffRole, type StaffRole } from '@/lib/auth/role-policy'
 import { sendEmail } from '@/lib/email/service'
 import { staffInviteEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -14,8 +15,8 @@ import { Prisma } from '@prisma/client'
  * Invite a new staff member by email.
  * Creates a User record with a generated AOZ code and sends the code by email.
  *
- * Body: { email: string, name: string }
- * Requires: authenticated admin session
+ * Body: { email: string, name: string, role?: StaffRole }
+ * Requires: users:manage
  */
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request)
@@ -37,6 +38,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  if (!hasPermission(currentUser.role, 'users:manage')) {
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
+      { status: 403 }
+    )
+  }
+
   let body: unknown
   try {
     body = await request.json()
@@ -48,7 +56,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { email, name } = body as { email?: string; name?: string }
+  const { email, name, role: rawRole } = body as { email?: string; name?: string; role?: string }
 
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     recordLoginAttempt(ip)
@@ -62,6 +70,16 @@ export async function POST(request: NextRequest) {
     recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: 'Name ist erforderlich (mindestens 2 Zeichen)' },
+      { status: 400 }
+    )
+  }
+
+  const role: StaffRole =
+    rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
+  if (rawRole && !isStaffRole(rawRole)) {
+    recordLoginAttempt(ip)
+    return NextResponse.json(
+      { success: false, error: 'Ungültige Rolle' },
       { status: 400 }
     )
   }
@@ -105,7 +123,7 @@ export async function POST(request: NextRequest) {
       data: {
         code,
         name: name.trim(),
-        role: 'ADMIN',
+        role,
         active: true,
         account: { create: { email: email.toLowerCase() } },
       },

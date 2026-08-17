@@ -132,7 +132,7 @@ test.describe('Accessibility — portal pages', () => {
     { name: 'Portal report', url: '/portal/report' },
     { name: 'Portal transfer', url: '/portal/transfer' },
     { name: 'Portal housing', url: '/portal/housing' },
-    { name: 'Portal roommates', url: '/portal/roommates' },
+    { name: 'Portal learning', url: '/portal/learning' },
     { name: 'Portal activities', url: '/portal/activities' },
     { name: 'Portal help', url: '/portal/help' },
   ]

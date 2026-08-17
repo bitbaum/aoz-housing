@@ -31,8 +31,42 @@
 
 export type BrandId = 'aoz' | 'aozh' | 'wg'
 
+/**
+ * Surfaces that differ between an AOZ Standort and a private WG.
+ * Each flag hides or shows a real control — never a dormant switch.
+ */
+export interface BrandFeatures {
+  /** Shared-expense split and settle-up. WG yes; AOZ pays the rent. */
+  householdMoney: boolean
+  /** House votes on UNIT_DECIDES topics. AOZ residents acknowledge, they don't legislate. */
+  householdVotes: boolean
+  /** Pin chores / expenses / apartment on the portal tab bar. */
+  householdPrimaryNav: boolean
+  /** Code-first login (printed/SMS code). Email stays available as the other door. */
+  codeFirstLogin: boolean
+  /** Open matching in compact Top-3 mode. */
+  matchingFastDefault: boolean
+}
+
+const AOZ_FEATURES: BrandFeatures = {
+  householdMoney: false,
+  householdVotes: false,
+  householdPrimaryNav: false,
+  codeFirstLogin: true,
+  matchingFastDefault: true,
+}
+
+const WG_FEATURES: BrandFeatures = {
+  householdMoney: true,
+  householdVotes: true,
+  householdPrimaryNav: true,
+  codeFirstLogin: false,
+  matchingFastDefault: false,
+}
+
 export interface Brand {
   id: BrandId
+  features: BrandFeatures
   /**
    * The acronym driving all compound German copy ("AOZ-Regel",
    * "AOZ-Verwaltung"). One token, many strings. Deliberately not accompanied
@@ -75,6 +109,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     metaDescription:
       'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
     orgName: 'AOZ',
+    features: AOZ_FEATURES,
   },
 
   // The neutral badge. Same palette as AOZ by design — the brief was to keep
@@ -88,6 +123,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     metaDescription:
       'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
     orgName: 'AOZH',
+    features: AOZ_FEATURES,
   },
 
   // Real shared-flat deployments (first: Witikonerstrasse 458). Same product,
@@ -103,6 +139,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     // The WG-branded product runs under AOZ's rule catalog: the product is
     // WG, the organization behind the rules is AOZ.
     orgName: 'AOZ',
+    features: WG_FEATURES,
   },
 }
 
@@ -129,3 +166,8 @@ function resolveBrandId(): BrandId {
 
 /** The brand this deployment runs under. Set `NEXT_PUBLIC_BRAND=aoz` to re-badge. */
 export const BRAND: Brand = BRANDS[resolveBrandId()]
+
+/** AOZ and the neutral pitch badge share the staff/resident surface. */
+export function isAozSurface(brand: Brand = BRAND): boolean {
+  return brand.id === 'aoz' || brand.id === 'aozh'
+}

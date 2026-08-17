@@ -20,12 +20,17 @@ import { PortalExpensesCard } from '@/components/portal/PortalExpensesCard'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { residentName } from '@/lib/utils/resident-name'
 import { mergeResidentReports } from '@/lib/reports/resident-reports'
+import { getRequestTranslator } from '@/lib/i18n/request'
+import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
+import { CareTeamCard } from '@/components/residents/CareTeamCard'
+import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ResidentPortal() {
   const residentCode = await requireResidentCookie('/login')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -109,7 +114,7 @@ export default async function ResidentPortal() {
   const myReports = allReports.slice(0, DISPLAY_LIMITS.portalIncidentPreview)
 
   const now = new Date()
-  const [pendingChores, compatibilityScores, highlightedActivities, expenseData] = await Promise.all([
+  const [pendingChores, compatibilityScores, highlightedActivities, expenseData, careSeats, upcomingAppointments] = await Promise.all([
     currentPlacement
       ? prisma.householdTask.findMany({
           where: {
@@ -146,6 +151,8 @@ export default async function ResidentPortal() {
     currentPlacement
       ? getUnitExpenseData(currentPlacement.housingUnitId)
       : Promise.resolve(null),
+    getCareTeam(resident.id),
+    listUpcomingResidentAppointments(resident.id),
   ])
 
   return (
@@ -187,6 +194,28 @@ export default async function ResidentPortal() {
       )}
 
       <PortalQuickActions pendingChoresCount={pendingChores.length} />
+
+      <div className="mb-6">
+        <CareTeamCard
+          seats={careSeats}
+          title={t('care.title')}
+          subtitle={t('care.subtitle')}
+          empty={t('care.empty')}
+          roleLabels={{
+            HOUSING: t('care.housing'),
+            SOCIAL: t('care.social'),
+            JOB: t('care.job'),
+          }}
+        />
+      </div>
+
+      <div className="mb-6">
+        <PortalAppointmentsCard
+          title={t('care.appointments')}
+          empty={t('care.appointmentsEmpty')}
+          appointments={upcomingAppointments}
+        />
+      </div>
 
       {/* Pending Chores */}
       {currentPlacement && pendingChores.length > 0 && (

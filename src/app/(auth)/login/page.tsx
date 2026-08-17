@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { AuthShell, AuthSuccess } from '@/components/auth/AuthShell'
 import { LOGIN_LABELS } from '@/lib/constants/labels'
+import { BRAND } from '@/lib/config/brand'
 
 type LoginState =
   | { status: 'idle' }
@@ -20,7 +21,13 @@ function LoginForm() {
   const searchParams = useSearchParams()
   // Email + password is the primary door; an invite link with ?code= opens
   // the code form directly so the invited person just presses Anmelden.
-  const [mode, setMode] = useState<LoginMode>(searchParams.get('code') ? 'code' : 'email')
+  const [mode, setMode] = useState<LoginMode>(
+    searchParams.get('code')
+      ? 'code'
+      : BRAND.features.codeFirstLogin
+        ? 'code'
+        : 'email'
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')

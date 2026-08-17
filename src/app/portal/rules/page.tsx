@@ -6,15 +6,16 @@ import { requireResidentCookie } from '@/lib/portal-auth'
 import { getOutstandingRules, getRuleBook } from '@/lib/governance/queries'
 import { AcknowledgeRulesPanel } from '@/components/governance/AcknowledgeRulesPanel'
 import { RuleBookView } from '@/components/governance/RuleBookView'
-import { PORTAL_LABELS } from '@/lib/constants/labels/portal'
 import { BRAND } from '@/lib/config/brand'
 import { ORG_ENFORCEMENT } from '@/lib/config/organization'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const metadata: Metadata = { title: 'Hausregeln' }
 export const dynamic = 'force-dynamic'
 
 export default async function PortalRulesPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -28,10 +29,10 @@ export default async function PortalRulesPage() {
     return (
       <div>
         <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">
-          {PORTAL_LABELS.pages.rules}
+          {t('rules.title')}
         </h1>
         <p className="text-ui-muted">
-          Sobald du einer Unterkunft zugeteilt bist, findest du hier die Regeln deines Hauses.
+          {t('rules.noPlacement')}
         </p>
       </div>
     )
@@ -45,17 +46,18 @@ export default async function PortalRulesPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold text-ui-text sm:text-2xl">{PORTAL_LABELS.pages.rules}</h1>
+        <h1 className="text-xl font-bold text-ui-text sm:text-2xl">{t('rules.title')}</h1>
         <p className="mt-2 text-sm leading-6 text-ui-muted">
-          Oben stehen die {BRAND.orgName}-Regeln — sie gelten in allen Unterkünften. Darunter steht, was dein
-          Haus selbst beschlossen hat. Bei manchen Themen könnt ihr im Haus mitbestimmen.
+          {t('rules.subtitle')}
         </p>
+        {BRAND.features.householdVotes && (
         <Link
           href="/portal/decisions"
           className="mt-2 inline-flex min-h-[44px] items-center text-sm text-brand-primary hover:underline"
         >
-          Zu den Beschlüssen und Abstimmungen →
+          {t('rules.toDecisions')} →
         </Link>
+        )}
       </header>
 
       {/* Placed first on purpose: an unread rule is the single most common cause

@@ -38,10 +38,12 @@ export const ru: Dictionary = {
   'nav.profile': 'Профиль',
   'nav.transfer': 'Заявка на переезд',
   'nav.help': 'Помощь',
+  'nav.learning': 'Обучение',
   'nav.logout': 'Выйти',
   'nav.more': 'Ещё',
   'nav.moreTitle': 'Всё сразу',
   'nav.closeMore': 'Закрыть меню',
+  'nav.accountMenu': 'Аккаунт',
 
   'navGroup.living': 'Повседневное',
   'navGroup.together': 'Решаем вместе',
@@ -80,4 +82,56 @@ export const ru: Dictionary = {
   'language.machineNotice': 'Этот перевод ещё не проверен носителем языка.',
 
   'safety.emergency': 'В экстренном случае: звони 112 или свяжись с администрацией дома',
+
+  'help.title': 'Помощь и FAQ',
+  'help.subtitle': 'Ответы и контакты — при опасности сначала номера экстренных служб.',
+  'help.faqTitle': 'Частые вопросы',
+  'help.contactTitle': 'Контакт',
+  'help.emergencyTitle': 'Экстренная ситуация',
+  'help.emergencyDesc': 'При опасности сразу свяжись:',
+  'help.faq.placement.q': 'Как распределяют комнаты?',
+  'help.faq.placement.a':
+    'Учитываем сон, шум, чистоту и языки. Чем точнее ответы, тем лучше заселение.',
+  'help.faq.preferences.q': 'Могу ли я изменить данные?',
+  'help.faq.preferences.a': 'Да, в настройках. Изменения действуют для будущих заселений.',
+  'help.faq.conflict.q': 'Что делать при конфликте?',
+  'help.faq.conflict.a': 'Используй «Сообщить». Команда воспринимает каждое сообщение всерьёз.',
+  'help.faq.transfer.q': 'Могу ли я просить переезд?',
+  'help.faq.transfer.a': 'Да, через «Перевод» или своего социального работника.',
+  'help.faq.privacy.q': 'Защищены ли мои данные?',
+  'help.faq.privacy.a':
+    'Да. Только жилищные предпочтения — без диагнозов и без статуса убежища. Можно запросить доступ к данным.',
+  'help.link.report': 'Сообщить о проблеме',
+  'help.link.rules': 'Правила дома',
+
+  'report.title': 'Сообщить о проблеме',
+  'report.subtitle': 'Поломка или конфликт — команда это увидит.',
+  'report.emergencyTitle': 'Непосредственная опасность?',
+  'report.emergencyMessage': 'В экстренном случае: 112. AOZ вне рабочего времени: 044 415 63 30.',
+  'report.noPlacement': 'У тебя ещё нет жилья. Свяжись с сопровождением.',
+
+  'rules.title': 'Правила дома',
+  'rules.subtitle':
+    'Обязательный текст на немецком — тот, который ты подписываешь. Спроси сопровождение, если что-то непонятно.',
+  'rules.noPlacement': 'Когда будет комната, правила появятся здесь.',
+  'rules.toDecisions': 'К решениям',
+
+  'learning.title': 'Твоё обучение',
+  'learning.subtitle': 'Сертификаты, курсы и волонтёрство — можешь сам указать, чем занимаешься.',
+  'learning.achievements': 'Достижения',
+  'learning.achievementsEmpty':
+    'Пока нет достижений. Завершённые тесты, курсы и волонтёрство появятся здесь.',
+  'learning.inProgress': 'В процессе',
+  'learning.offers': 'Курсы и предложения',
+  'learning.offersEmpty': 'Сейчас нет учебных предложений. Смотри Мероприятия.',
+  'learning.hours': 'Часы',
+
+  'care.title': 'Твоя команда',
+  'care.subtitle': 'Кто за тебя отвечает — жильё, социальная работа, job coach.',
+  'care.empty': 'Пока никого не назначили. Сопровождение добавит команду.',
+  'care.housing': 'Жильё / сопровождение',
+  'care.social': 'Социальная работа',
+  'care.job': 'Job coach',
+  'care.appointments': 'Встречи',
+  'care.appointmentsEmpty': 'Нет запланированных встреч.',
 }

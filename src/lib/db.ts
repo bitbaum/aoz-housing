@@ -5,8 +5,8 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function makePrismaClient() {
-  // Plain TCP Postgres (self-hosted). The previous Neon websocket adapter
-  // only worked against Neon's proxy.
+  // Plain TCP to PostgreSQL. Live: Hetzner box bitbaum, database aoz_wohnen,
+  // loopback-only on the box. See docs/INFRASTRUCTURE.md. Not a cloud pooler.
   return new PrismaClient()
 }
 

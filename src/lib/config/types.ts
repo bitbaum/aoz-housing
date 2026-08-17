@@ -37,6 +37,12 @@ interface BaseFactorDef {
   required?: boolean
   formSection: string
   formOrder: number
+  /**
+   * Short intake shows `essential` first so a caseworker with ten minutes
+   * can place someone. Everything else lives behind "Weitere Angaben".
+   * Unset means detail — never silently required on the fast path.
+   */
+  intake?: 'essential' | 'detail'
 }
 
 export interface EnumFactorDef extends BaseFactorDef {

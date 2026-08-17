@@ -1,120 +1,112 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ArrowRightLeft, LogOut } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import {
   NAV_ICONS,
-  PORTAL_NAV_GROUP_ORDER,
-  PORTAL_NAV_ITEMS,
+  PORTAL_SIDEBAR_GROUPS,
+  portalSidebarItems,
   type PortalNavGroup,
+  type PortalNavItem,
 } from '@/lib/config/navigation'
-import { PORTAL_LABELS, UI_LABELS } from '@/lib/constants/labels'
-import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { LanguageSwitcher } from './LanguageSwitcher'
 import { isPortalPathActive, portalNavMessageKey } from '@/lib/utils/portal-nav'
 import { useT } from '@/lib/i18n/LocaleProvider'
 import type { MessageKey } from '@/lib/i18n'
 
 /**
- * The portal's desktop navigation.
+ * Collapsible groups for the desktop sidebar and the mobile "Mehr" sheet.
  *
- * It replaces a horizontal strip in the header, which was already crowded at
- * seven links and would have wrapped at nine once messaging landed. A row is
- * the wrong container for fifteen destinations: it can only hold the ones that
- * fit, so the rest were reachable on a phone and invisible on a laptop —
- * exactly backwards, since the laptop is where there is room to spare.
- *
- * A sidebar also makes the two form factors say the same thing. Bottom tabs
- * where the thumb is, a sidebar where the space is, both permanently visible,
- * both grouped under the same headings, both generated from one nav config.
+ * The open group is the one that contains the current page; the others start
+ * closed so a resident is not staring at fourteen labels at once.
  */
-export function PortalSidebar({ hasStaffAccess }: { hasStaffAccess?: boolean }) {
+export function PortalNavAccordion({ pathname }: { pathname: string }) {
+  const t = useT()
+  const items = portalSidebarItems()
+
+  return (
+    <nav aria-label={t('nav.moreTitle')}>
+      {PORTAL_SIDEBAR_GROUPS.map((group) => (
+        <NavGroup
+          key={group}
+          group={group}
+          pathname={pathname}
+          items={items}
+          heading={t(`navGroup.${group}` as MessageKey)}
+        />
+      ))}
+    </nav>
+  )
+}
+
+function NavGroup({
+  group,
+  pathname,
+  items,
+  heading,
+}: {
+  group: PortalNavGroup
+  pathname: string
+  items: PortalNavItem[]
+  heading: string
+}) {
+  const grouped = items.filter((item) => item.group === group)
+  const containsCurrent = grouped.some((item) => isPortalPathActive(pathname, item.href))
+  const [open, setOpen] = useState(containsCurrent)
+
+  useEffect(() => {
+    if (containsCurrent) setOpen(true)
+  }, [containsCurrent])
+
+  if (grouped.length === 0) return null
+
+  return (
+    <details
+      open={open}
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+      className="group mt-2 first:mt-0"
+    >
+      <summary className="flex items-center justify-between gap-2 min-h-[44px] px-3 cursor-pointer list-none rounded-md hover:bg-ui-subtle text-xs font-semibold uppercase tracking-wide text-ui-muted [&::-webkit-details-marker]:hidden">
+        {heading}
+        <ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <ul className="mt-1">
+        {grouped.map((item) => (
+          <li key={item.href}>
+            <GroupLink item={item} active={isPortalPathActive(pathname, item.href)} />
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
+function GroupLink({ item, active }: { item: PortalNavItem; active: boolean }) {
+  const t = useT()
+  const Icon = NAV_ICONS[item.icon]
+  return (
+    <Link
+      href={item.href}
+      className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
+      aria-current={active ? 'page' : undefined}
+    >
+      <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
+      <span>{t(portalNavMessageKey(item))}</span>
+    </Link>
+  )
+}
+
+export function PortalSidebar() {
   const pathname = usePathname()
   const t = useT()
 
   return (
     <aside
-      className="hidden lg:flex lg:flex-col lg:w-60 lg:shrink-0 border-e border-ui-border bg-ui-surface"
-      aria-label={UI_LABELS.navigation}
+      className="hidden lg:block w-60 xl:w-64 shrink-0 border-e border-ui-border bg-ui-surface sticky top-14 self-start h-[calc(100vh-3.5rem)] overflow-y-auto px-2 py-3"
+      aria-label={t('nav.moreTitle')}
     >
-      <div className="flex items-center justify-between gap-2 px-4 h-14 border-b border-ui-border">
-        <Link
-          href="/portal"
-          className="text-base font-semibold tracking-tight text-brand-primary transition-opacity hover:opacity-70"
-        >
-          {PORTAL_LABELS.title}
-        </Link>
-        <ThemeToggle />
-      </div>
-
-      {/* Scrolls independently: the nav is long enough to outgrow a short
-          viewport, and a nav that pushes the page down is worse than one that
-          scrolls. */}
-      <nav className="flex-1 overflow-y-auto px-2 py-3">
-        {PORTAL_NAV_GROUP_ORDER.map((group) => (
-          <SidebarGroup key={group} group={group} pathname={pathname} t={t} />
-        ))}
-      </nav>
-
-      <div className="border-t border-ui-border">
-        <LanguageSwitcher />
-
-        <div className="px-2 pb-3">
-          {hasStaffAccess && (
-            <Link
-              href="/"
-              className="nav-item w-full min-h-[44px] text-brand-primary hover:text-brand-primary hover:bg-brand-primary/10"
-            >
-              <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
-              {UI_LABELS.switchToAdmin}
-            </Link>
-          )}
-          <form action="/api/portal/logout" method="POST">
-            <button type="submit" className="nav-item w-full min-h-[44px] justify-start">
-              <LogOut className="w-4 h-4" aria-hidden="true" />
-              {t('nav.logout')}
-            </button>
-          </form>
-        </div>
-      </div>
+      <PortalNavAccordion pathname={pathname} />
     </aside>
-  )
-}
-
-function SidebarGroup({
-  group,
-  pathname,
-  t,
-}: {
-  group: PortalNavGroup
-  pathname: string
-  t: (key: MessageKey) => string
-}) {
-  const items = PORTAL_NAV_ITEMS.filter((item) => item.group === group)
-  if (items.length === 0) return null
-
-  return (
-    <div className="mt-4 first:mt-0">
-      <p className="eyebrow px-3 mb-1">{t(`navGroup.${group}` as MessageKey)}</p>
-      {items.map((item) => {
-        const Icon = NAV_ICONS[item.icon]
-        const active = isPortalPathActive(pathname, item.href)
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? 'page' : undefined}
-            className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
-          >
-            <Icon
-              className={`w-4 h-4 shrink-0 ${active ? 'text-brand-primary' : ''}`}
-              aria-hidden="true"
-            />
-            <span>{t(portalNavMessageKey(item))}</span>
-          </Link>
-        )
-      })}
-    </div>
   )
 }

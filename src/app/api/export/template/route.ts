@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth'
+import { authorizeStaff } from '@/lib/auth'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 const IMPORT_HEADERS = [
   'code',
@@ -16,9 +17,12 @@ const IMPORT_HEADERS = [
 ]
 
 export async function GET() {
-  const user = await getCurrentUser()
-  if (!user) {
-    return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
+  const auth = await authorizeStaff('export:read')
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
+      { status: auth.status }
+    )
   }
 
   const csv = IMPORT_HEADERS.join(',') + '\n'

@@ -53,3 +53,47 @@ export function formatWeekdayDate(
     month: 'long',
   }).format(now)
 }
+
+/** Date and time a resident or caseworker actually means — Zurich, not UTC. */
+export function formatZurichDateTime(date: Date, locale = 'de-CH'): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: APP_TIME_ZONE,
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
+
+/**
+ * Wall-clock in Zurich as `YYYY-MM-DDTHH:mm` for `<input type="datetime-local">`.
+ * The input has no timezone; we always mean Europe/Zurich.
+ */
+export function toDatetimeLocalInput(date: Date, timeZone: string = APP_TIME_ZONE): string {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date)
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? ''
+  return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`
+}
+
+/**
+ * Read a datetime-local value as a Zurich wall-clock instant.
+ * Tries CET and CEST and keeps the offset that round-trips.
+ */
+export function fromDatetimeLocalInput(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value.trim())
+  if (!match) return null
+  const wall = `${match[1]}-${match[2]}-${match[3]}T${match[4]}:${match[5]}`
+  for (const offset of ['+02:00', '+01:00'] as const) {
+    const instant = new Date(`${wall}:00${offset}`)
+    if (Number.isNaN(instant.getTime())) continue
+    if (toDatetimeLocalInput(instant) === wall) return instant
+  }
+  const fallback = new Date(`${wall}:00+01:00`)
+  return Number.isNaN(fallback.getTime()) ? null : fallback
+}

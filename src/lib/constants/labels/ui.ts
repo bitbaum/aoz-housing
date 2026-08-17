@@ -272,6 +272,8 @@ export const HOUSING_LIST_LABELS = {
   createHousingFirst: 'Erste Unterkunft erfassen',
   occupancy: 'Belegung',
   wheelchairTitle: 'Rollstuhlgerecht',
+  buildingGroup: (code: string) => `Gebäude ${code}`,
+  ungroupedBuilding: 'Weitere Unterkünfte',
 } as const
 
 export const BED_GRID_LABELS = {
@@ -372,6 +374,7 @@ export const INVITE_FORM_LABELS = {
   fieldNamePlaceholder: 'Vorname Nachname',
   fieldEmail: 'E-Mail-Adresse',
   fieldEmailPlaceholder: 'name@example.com',
+  fieldRole: 'Rolle',
   sending: 'Wird gesendet...',
   submit: 'Einladung senden',
 } as const

@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { join } from 'path'
-import { dayPartAt, formatWeekdayDate, APP_TIME_ZONE } from '@/lib/utils/local-time'
+import { dayPartAt, formatWeekdayDate, APP_TIME_ZONE, fromDatetimeLocalInput, toDatetimeLocalInput } from '@/lib/utils/local-time'
 
 /**
  * The bug: a `'use client'` component is ALSO rendered on the server, so
@@ -43,6 +43,22 @@ describe('the day part is the reader’s, not the container’s', () => {
     // 23:30 UTC on the 16th is already the 17th in Zurich. A staff member
     // reading "16. August" late in the evening is being told the wrong day.
     expect(formatWeekdayDate(new Date('2026-08-16T23:30:00Z'))).toContain('17')
+  })
+})
+
+describe('datetime-local values are Zurich wall-clock, not the server zone', () => {
+  it('round-trips a summer afternoon', () => {
+    const wall = '2026-08-17T14:30'
+    const instant = fromDatetimeLocalInput(wall)
+    expect(instant).not.toBeNull()
+    expect(toDatetimeLocalInput(instant!)).toBe(wall)
+  })
+
+  it('round-trips a winter morning', () => {
+    const wall = '2026-01-15T09:15'
+    const instant = fromDatetimeLocalInput(wall)
+    expect(instant).not.toBeNull()
+    expect(toDatetimeLocalInput(instant!)).toBe(wall)
   })
 })
 

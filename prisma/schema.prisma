@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -134,6 +133,13 @@ model Resident {
   expenseShares    ExpenseShare[]
   settlementsPaid  Settlement[]   @relation("SettlementFrom")
   settlementsRecvd Settlement[]   @relation("SettlementTo")
+
+  // Learning — language tests, courses, informal learning. Functional, never
+  // a diagnosis. Social workers and job coaches read this; residents own it.
+  learningRecords LearningRecord[]
+  careAssignments CareAssignment[]
+  appointments    Appointment[]
+  careAttributes  CareAttribute[]
 
   @@index([status])
   @@index([ageRange, gender])
@@ -336,6 +342,10 @@ model HousingUnit {
   nearHealthServices  Boolean @default(false)
   nearSchools         Boolean @default(false)
 
+  // Optional grouping for a Standort with many apartments.
+  // A full Building table is H2; a code is enough to sort and filter today.
+  buildingCode String?
+
   // Status
   status HousingStatus @default(AVAILABLE)
   notes  String?
@@ -358,6 +368,7 @@ model HousingUnit {
 
   @@index([status])
   @@index([totalBeds])
+  @@index([buildingCode])
 }
 
 // =============================================================================
@@ -844,6 +855,9 @@ model User {
   auditLogs         AuditLog[]
   activitiesCreated Activity[] @relation("ActivityCreatedBy")
   activitiesUpdated Activity[] @relation("ActivityUpdatedBy")
+  careAssignments       CareAssignment[]
+  appointments          Appointment[]
+  careAttributesUpdated CareAttribute[]
   // Login credentials (email + password) live on Account, never here.
   account Account?
 
@@ -912,7 +926,10 @@ model AuthToken {
 }
 
 enum StaffRole {
-  ADMIN // Full access — single role for all staff
+  ADMIN // Leitung — full access. Name kept so live JWTs and existing rows keep working.
+  BETREUUNG // Daily housing ops: place, incidents, maintenance
+  SOZIALARBEIT // People, incidents, learning — no housing writes, no algorithm
+  JOBCOACH // Learning and resident read — no placements
 }
 
 model AuditLog {
@@ -1610,4 +1627,139 @@ enum AgreementStatus {
   HELD // Reviewed and it worked
   BROKEN // Reviewed and it did not hold — escalate
   EXPIRED // Review date passed with no review
+}
+
+// =============================================================================
+// LEARNING (language tests, courses, informal learning)
+// =============================================================================
+// Functional credentials only — a CEFR level is a communication fact, not a
+// diagnosis. Residents can add their own records; staff (Sozialarbeit,
+// Jobcoach) read and add them. Never a grade of the person.
+
+model LearningRecord {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  kind   LearningKind
+  title  String
+  status LearningStatus @default(PLANNED)
+
+  // Language tests (CEFR). languageCode is ISO 639-1 uppercased (DE, EN, FR).
+  languageCode String?
+  cefrLevel    String? // A1 A2 B1 B2 C1 C2
+
+  provider String? // e.g. AOZ, EB Zürich, fide
+  category String? // language, integration, vocational, digital, other
+  hours    Int?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  notes        String?
+
+  // Who recorded it — resident self-report vs staff. Not a permission bit.
+  recordedBy ResidentOrStaff
+
+  @@index([residentId, kind])
+  @@index([status])
+  @@index([languageCode, cefrLevel])
+}
+
+enum LearningKind {
+  LANGUAGE_TEST
+  COURSE
+  INFORMAL
+  QUALIFICATION
+  VOLUNTEERING
+  COMMUNITY_SERVICE
+}
+
+enum LearningStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+}
+
+enum ResidentOrStaff {
+  RESIDENT
+  STAFF
+}
+
+// =============================================================================
+// CARE TEAM — who is responsible for this resident
+// =============================================================================
+// One named person per role. Staff assign from the resident file; the resident
+// sees the same names in the portal. Not a second org chart — three seats that
+// match how AOZ actually splits the work.
+
+enum CareRole {
+  HOUSING
+  SOCIAL
+  JOB
+}
+
+model CareAssignment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+  staff      User     @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  staffId    String
+  role       CareRole
+
+  @@unique([residentId, role])
+  @@index([staffId])
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Appointment {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+  staff      User     @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  staffId    String
+  domain     CareRole
+
+  title    String
+  startsAt DateTime
+  endsAt   DateTime?
+  location String?
+  notes    String?
+  status   AppointmentStatus @default(SCHEDULED)
+
+  @@index([residentId, startsAt])
+  @@index([staffId, startsAt])
+  @@index([status])
+}
+
+// Domain-scoped facts for staff work. Keys come from CARE_ATTRIBUTE_CATALOG —
+// adding a field is a catalog line, never a column. No diagnoses, no asylum.
+model CareAttribute {
+  id        String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+
+  resident    Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId  String
+  domain      CareRole
+  key         String
+  value       String
+  updatedBy   User     @relation(fields: [updatedById], references: [id], onDelete: Restrict)
+  updatedById String
+
+  @@unique([residentId, domain, key])
+  @@index([residentId, domain])
 }

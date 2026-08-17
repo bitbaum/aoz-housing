@@ -1,51 +1,48 @@
 import type { Dictionary } from './de'
 
 /**
- * Persian — Farsi and Dari together, which is why the endonym names both.
- * Right-to-left.
- *
- * Not vouched for. The register is informal, following the German source. A
- * reviewer should look first at whether that holds for Dari speakers as well as
- * Iranian Farsi speakers, and at `گزارش` for a report — it is the plain word
- * but also the bureaucratic one.
+ * Farsi / Dari. NOT REVIEWED — offered only once coverage is complete, with
+ * the machine-translation notice until a speaker vouches for it.
  */
 export const fa: Dictionary = {
-  'nav.overview': 'نمای کلی',
+  'nav.overview': 'نگاه کلی',
   'nav.apartment': 'آپارتمان',
   'nav.expenses': 'هزینه‌ها',
-  'nav.roommates': 'هم‌خانه‌ها',
+  'nav.roommates': 'همخانه‌ها',
   'nav.chores': 'کارها',
-  'nav.rules': 'قوانین',
-  'nav.decisions': 'رأی‌گیری',
-  'nav.report': 'گزارش دادن',
+  'nav.rules': 'قواعد',
+  'nav.decisions': 'رأی',
+  'nav.report': 'گزارش',
   'nav.reports': 'گزارش‌های من',
-  'nav.messages': 'پیام‌ها',
   'nav.housing': 'مسکن',
   'nav.activities': 'فعالیت‌ها',
   'nav.preferences': 'تنظیمات',
-  'nav.profile': 'پروفایل',
-  'nav.transfer': 'درخواست انتقال',
+  'nav.profile': 'نمایه',
+  'nav.transfer': 'جابه‌جایی',
   'nav.help': 'راهنما',
+  'nav.messages': 'پیام‌ها',
+  'nav.learning': 'یادگیری',
   'nav.logout': 'خروج',
   'nav.more': 'بیشتر',
-  'nav.moreTitle': 'همه چیز در یک نگاه',
+  'nav.moreTitle': 'همه در یک نگاه',
   'nav.closeMore': 'بستن منو',
+  'nav.accountMenu': 'حساب',
 
-  'navGroup.living': 'زندگی روزمره',
-  'navGroup.together': 'تصمیم‌گیری مشترک',
-  'navGroup.concerns': 'درخواست‌ها و پیشنهادها',
+  'navGroup.living': 'روزمره',
+  'navGroup.together': 'با هم تصمیم',
+  'navGroup.concerns': 'درخواست‌ها',
   'navGroup.account': 'حساب من',
 
   'reports.title': 'گزارش‌های تو',
-  'reports.subtitle': 'هر چه گزارش داده‌ای — و پاسخ تیم پشتیبانی.',
-  'reports.showAll': 'نمایش همهٔ گزارش‌ها',
-  'reports.empty': 'هنوز چیزی گزارش نداده‌ای.',
-  'reports.new': 'گزارش جدید',
+  'reports.subtitle': 'آنچه گزارش کردی — و پاسخ تیم.',
+  'reports.showAll': 'همه گزارش‌ها',
+  'reports.empty': 'هنوز چیزی گزارش نکرده‌ای.',
+  'reports.new': 'گزارش تازه',
   'reports.open': 'باز',
   'reports.done': 'حل شد',
   'reports.pending': 'تیم در حال بررسی این گزارش است.',
-  'reports.answer': 'پاسخ تیم پشتیبانی',
-  'reports.viewYours': 'دیدن گزارش‌های تو',
+  'reports.answer': 'پاسخ تیم',
+  'reports.viewYours': 'گزارش‌هایت را ببین',
 
   'messages.title': 'پیام‌ها',
   'messages.subtitle': 'به تیم پشتیبانی بنویس — همین‌جا پاسخت را می‌دهد.',
@@ -65,7 +62,59 @@ export const fa: Dictionary = {
 
   'language.label': 'زبان',
   'language.change': 'تغییر زبان',
-  'language.machineNotice': 'این ترجمه هنوز توسط یک گویشور بومی بررسی نشده است.',
+  'language.machineNotice': 'این ترجمه هنوز توسط گویشور بومی بررسی نشده است.',
 
-  'safety.emergency': 'در مواقع اضطراری: با ۱۱۲ (112) تماس بگیر یا با مدیریت ساختمان تماس بگیر',
+  'safety.emergency': 'در شرایط اضطراری: با 112 تماس بگیر یا با مدیریت مسکن صحبت کن',
+
+  'help.title': 'راهنما و پرسش‌ها',
+  'help.subtitle': 'پاسخ و تماس — در خطر اول شماره‌های اضطراری.',
+  'help.faqTitle': 'پرسش‌های رایج',
+  'help.contactTitle': 'تماس',
+  'help.emergencyTitle': 'اضطراری',
+  'help.emergencyDesc': 'در خطر فوراً تماس بگیر:',
+  'help.faq.placement.q': 'اتاق‌ها چگونه تقسیم می‌شوند؟',
+  'help.faq.placement.a':
+    'خواب، صدا، پاکیزگی و زبان را در نظر می‌گیریم. هرچه پاسخ‌هایت دقیق‌تر، جا بهتر است.',
+  'help.faq.preferences.q': 'می‌توانم اطلاعاتم را عوض کنم؟',
+  'help.faq.preferences.a': 'بله، در تنظیمات. تغییرها برای اسکان بعدی است.',
+  'help.faq.conflict.q': 'در اختلاف چه کنم؟',
+  'help.faq.conflict.a': 'از «گزارش» در پورتال استفاده کن. تیم هر گزارش را جدی می‌گیرد.',
+  'help.faq.transfer.q': 'می‌توانم درخواست جابه‌جایی بدهم؟',
+  'help.faq.transfer.a': 'بله، از «جابه‌جایی» یا از مربی‌ات.',
+  'help.faq.privacy.q': 'داده‌هایم محفوظ است؟',
+  'help.faq.privacy.a':
+    'بله. فقط ترجیحات مسکن — بدون تشخیص پزشکی و بدون وضعیت پناهندگی. می‌توانی بخواهی داده‌هایت را ببینی.',
+  'help.link.report': 'گزارش مشکل',
+  'help.link.rules': 'قواعد خانه',
+
+  'report.title': 'گزارش مشکل',
+  'report.subtitle': 'خرابی یا اختلاف — تیم می‌بیند.',
+  'report.emergencyTitle': 'خطر فوری؟',
+  'report.emergencyMessage': 'در اضطرار: 112. اورژانس AOZ خارج از ساعت اداری: 044 415 63 30.',
+  'report.noPlacement': 'هنوز مسکن نداری. با مربی تماس بگیر.',
+
+  'rules.title': 'قواعد خانه',
+  'rules.subtitle':
+    'متن الزام‌آور به آلمانی است — نسخه‌ای که امضا می‌کنی. اگر نفهمیدی از مربی بپرس.',
+  'rules.noPlacement': 'وقتی اتاق داشته باشی، قواعد اینجا می‌آید.',
+  'rules.toDecisions': 'به تصمیم‌ها',
+
+  'learning.title': 'یادگیری تو',
+  'learning.subtitle': 'گواهی، دوره و داوطلبی — خودت می‌توانی بنویسی چه می‌کنی.',
+  'learning.achievements': 'دستاوردها',
+  'learning.achievementsEmpty':
+    'هنوز دستاوردی نیست. آزمون، دوره و داوطلبی تمام‌شده اینجا می‌آید.',
+  'learning.inProgress': 'در جریان',
+  'learning.offers': 'دوره‌ها و پیشنهادها',
+  'learning.offersEmpty': 'الان پیشنهاد یادگیری نیست. فعالیت‌ها را ببین.',
+  'learning.hours': 'ساعت',
+
+  'care.title': 'تیم تو',
+  'care.subtitle': 'کسانی که مسئول تو هستند — مسکن، کار اجتماعی، مربی شغل.',
+  'care.empty': 'هنوز کسی تعیین نشده. مربی تیم را اضافه می‌کند.',
+  'care.housing': 'مسکن / مربی',
+  'care.social': 'کار اجتماعی',
+  'care.job': 'مربی شغل',
+  'care.appointments': 'قرارها',
+  'care.appointmentsEmpty': 'قرار برنامه‌ریزی‌شده نیست.',
 }

@@ -2,7 +2,8 @@
 
 **Für** AOZ (Asyl-Organisation Zürich)
 **Von** Georgy Butaev, Zürich
-**Datum** 15. August 2026
+**Datum** 15. August 2026  
+**Zuletzt angepasst** 16. August 2026 — Rollen, Lernen, Zimmer-Matching, Sprachen, AOZ-Oberfläche.  
 **Gültig bis** 14. Oktober 2026
 **Referenz** AOZ-WOHNEN-2026-01
 
@@ -78,8 +79,21 @@ Betrieb:
 - Unterhalt/Reparaturmeldungen mit Ticketstatus
 - Umzugsanträge mit Freigabe-Warteschlange für Mitarbeitende
 - Ämtli-/Aufgabenverwaltung
+
+### Rollen und Lernen
+
+- Vier Mitarbeitenden-Rollen: **Leitung**, **Betreuung**, **Sozialarbeit**, **Jobcoach**
+  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugänge weiterlaufen)
+- Lernprofil pro Bewohner:in: Sprachtests (GER), Kurse, informelles Lernen,
+  Abschlüsse — selbst eingetragen oder durch Sozialarbeit / Jobcoach
+
+### Bewohnerportal
 - Zufriedenheitserfassung
 - CSV-Import und -Export für alle zentralen Datenbestände
+- Vier Mitarbeitenden-Rollen: **Leitung**, **Betreuung**, **Sozialarbeit**, **Jobcoach**
+  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugänge weiterlaufen)
+- Lernprofil pro Bewohner:in: Sprachtests (GER), Kurse, informelles Lernen,
+  Abschlüsse — selbst eingetragen oder durch Sozialarbeit / Jobcoach
 
 ### Bewohnendenportal (Selbstbedienung)
 
@@ -88,15 +102,17 @@ Betrieb:
 - Anliegen melden — geht in die Warteschlange der Mitarbeitenden
 - Umzug beantragen
 - Ämtli einsehen und übernehmen
-- Hilfe/FAQ
+- Hilfe/FAQ in Deutsch, Englisch, Französisch, Arabisch, Farsi/Dari, Tigrinya u. a.
+- Lernprofil (Sprachtests, Kurse) selbst pflegen
 
 Bewohnende sehen ausschliesslich **ihre eigenen Daten**. Alle folgenreichen Aktionen
 laufen über die Freigabe der Mitarbeitenden.
 
 ### Zugang und Nachvollziehbarkeit
 
-- Anmeldung über einen einzigen Code — kein Passwortmanagement für Mitarbeitende und
-  keine E-Mail-Adressen für Bewohnende nötig
+- Anmeldung mit **Zugangscode** (Standard auf der AOZ-Fläche) oder mit
+  E-Mail und Passwort — beides bleibt verfügbar. Bewohnende brauchen keine
+  E-Mail-Adresse.
 - Rate-Limiting gegen Code-Erraten
 - **Vollständiger Audit-Trail**: Wer hat wann welche Platzierung vorgenommen, mit welchem
   Kompatibilitätswert, und mit welcher Begründung bei Übersteuerung
@@ -104,7 +120,7 @@ laufen über die Freigabe der Mitarbeitenden.
 
 ### Bedienung
 
-- Vollständig auf **Deutsch** (Schweizer Rechtschreibung)
+- Verbindliche Hausordnung auf **Deutsch**; Portal-Chrome übersetzt
 - **Mobile-First**: bedienbar auf dem Mobiltelefon ab 375 px Breite, Touch-Ziele ≥ 44 px
 - Hell- und Dunkelmodus
 - Auf Barrierefreiheit und Tastaturbedienung getestet

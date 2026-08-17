@@ -13,18 +13,20 @@ import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
 import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
-import { canRoleAccess, hasPermission, type StaffPermission } from './role-policy'
+import { canRoleAccess, hasPermission, type StaffPermission, type StaffRole } from './role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Re-export types
 export type { TokenPayload }
+export type { StaffRole, StaffPermission }
+export { hasPermission, canRoleAccess, STAFF_ROLES, isStaffRole } from './role-policy'
 
 // Types for auth
 export interface AuthUser {
   id: string
   email: string // JWT still carries email (may be empty string for code-only users)
   name: string
-  role: 'ADMIN'
+  role: StaffRole
 }
 
 export interface AuthResident {
@@ -157,6 +159,19 @@ export async function requirePermission(permission: StaffPermission): Promise<Au
   }
 
   return user
+}
+
+/**
+ * API-route form of the same check: 401 if nobody is signed in, 403 if the
+ * role cannot do this. Callers return the status without throwing into HTML.
+ */
+export async function authorizeStaff(
+  permission: StaffPermission
+): Promise<{ ok: true; user: AuthUser } | { ok: false; status: 401 | 403 }> {
+  const user = await getCurrentUser()
+  if (!user) return { ok: false, status: 401 }
+  if (!hasPermission(user.role, permission)) return { ok: false, status: 403 }
+  return { ok: true, user }
 }
 
 /**

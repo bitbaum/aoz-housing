@@ -5,9 +5,11 @@ import { logger } from '@/lib/logger'
 export const metadata: Metadata = { title: 'Matching' }
 import Link from 'next/link'
 import { EMPTY_STATE_LABELS, PLACEMENT_CONCERN_LABELS, MATCHING_LABELS } from '@/lib/constants'
+import { BRAND } from '@/lib/config/brand'
 import { calculateCompatibility, getUnitFitConcerns } from '@/lib/compatibility'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
+import { bestRoomFit } from '@/lib/compatibility/room-fit'
 import { validateScoreForDiscrimination } from '@/lib/compatibility/safeguards'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
@@ -79,13 +81,10 @@ export default async function MatchingPage({ searchParams }: Props) {
           include: { resident: true },
         },
         spots: {
-          where: {
-            status: 'AVAILABLE',
-            type: { not: 'ROOM' },
-          },
           include: {
             placements: {
               where: { status: 'ACTIVE' },
+              include: { resident: true },
             },
           },
         },
@@ -233,6 +232,20 @@ export default async function MatchingPage({ searchParams }: Props) {
             safeguardWarnings.push(...result.warnings)
           }
 
+          const roomFit = bestRoomFit(
+            foundResident,
+            unit.spots.map((s) => ({
+              id: s.id,
+              type: s.type,
+              parentSpotId: s.parentSpotId,
+              code: s.code,
+              status: s.status,
+              placements: s.placements.map((p) => ({ resident: p.resident })),
+            }))
+          )
+          const roomScore = roomFit?.score ?? apartmentFit.fitScore
+          const emptyRoomPenalty = roomFit && roomFit.score === null ? 15 : 0
+
           return {
             unit,
             apartmentProfile,
@@ -245,13 +258,16 @@ export default async function MatchingPage({ searchParams }: Props) {
             sharedLanguageCount,
             totalRoommateConcerns,
             safeguardWarnings,
+            bestRoomFit: roomFit,
             sortScore: (hasBlockingIssue ? 1000 : 0) +
               (apartmentFit.conflicts.filter(c => c.severity === 'BLOCKING').length * 500) +
+              (roomFit?.blocking ? 400 : 0) +
               (apartmentFit.conflicts.filter(c => c.severity === 'HIGH').length * 100) +
               unitRiskPenalty +
               unitConcerns.length * 10 +
-              totalRoommateConcerns -
-              apartmentFit.fitScore -
+              totalRoommateConcerns +
+              emptyRoomPenalty -
+              roomScore -
               sharedLanguageCount * 5 -
               (currentResidents.length === 0 ? 20 : 0)
           }
@@ -264,7 +280,9 @@ export default async function MatchingPage({ searchParams }: Props) {
 
   const isNewResident = params.new === '1' && !!selectedResident
   const isUnitMode = !!selectedUnit && !selectedResident
-  const fastMode = params.mode === 'fast'
+  const fastMode =
+    params.mode === 'fast' ||
+    (params.mode !== 'standard' && BRAND.features.matchingFastDefault)
 
   const filteredUnplacedResidents = unplacedResidents.filter((resident) => {
     if (!residentQuery) return true

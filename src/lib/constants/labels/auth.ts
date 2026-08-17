@@ -5,7 +5,10 @@ import { BRAND } from '@/lib/config/brand'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
 export const ROLE_LABELS: Record<string, string> = {
-  ADMIN: 'Administrator',
+  ADMIN: 'Leitung',
+  BETREUUNG: 'Betreuung',
+  SOZIALARBEIT: 'Sozialarbeit',
+  JOBCOACH: 'Jobcoach',
 }
 
 export const LOGIN_LABELS = {

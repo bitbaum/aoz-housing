@@ -25,8 +25,11 @@ import {
   Vote,
   MoreHorizontal,
   MessageSquare,
+  GraduationCap,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { BRAND, isAozSurface, type BrandFeatures } from '@/lib/config/brand'
+import { hasPermission, type StaffPermission, type StaffRole } from '@/lib/auth/role-policy'
 
 export const NAV_ICONS: Record<string, LucideIcon> = {
   home: Home,
@@ -51,12 +54,14 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   vote: Vote,
   more: MoreHorizontal,
   message: MessageSquare,
+  learning: GraduationCap,
 }
 
 export interface NavItem {
   href: string
   icon: keyof typeof NAV_ICONS
   label: string
+  permission?: StaffPermission
 }
 
 /**
@@ -67,70 +72,89 @@ export interface NavItem {
  * clutter the header row on wide screens.
  */
 export const SYSTEM_LINKS: NavItem[] = [
-  { href: '/settings', icon: 'settings', label: 'Einstellungen' },
-  { href: '/algorithm', icon: 'brain', label: 'Algorithmus' },
+  { href: '/settings', icon: 'settings', label: 'Einstellungen', permission: 'users:manage' },
+  { href: '/algorithm', icon: 'brain', label: 'Algorithmus', permission: 'system:configure' },
   { href: '/portal/help', icon: 'help', label: 'Hilfe' },
 ]
+
+export function visibleSystemLinks(role: StaffRole): NavItem[] {
+  return SYSTEM_LINKS.filter(
+    (item) => !item.permission || hasPermission(role, item.permission)
+  )
+}
 
 export interface MegaMenuDropdownItem {
   href: string
   icon: keyof typeof NAV_ICONS
   label: string
   desc: string
+  permission?: StaffPermission
+  feature?: keyof BrandFeatures
 }
 
 export type MegaMenuGroup =
-  | { label: string; href: string; icon: string }
+  | { label: string; href: string; icon: string; permission?: StaffPermission }
   | { label: string; items: MegaMenuDropdownItem[] }
 
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
-  { href: '/', icon: 'home', label: 'Dashboard' },
+  { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
     label: 'Personen',
     items: [
-      { href: '/residents', icon: 'users', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten' },
-      { href: '/residents/new', icon: 'user-plus', label: 'Neuer Bewohner', desc: 'Bewohner erfassen' },
-      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Platzierung finden' },
-      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen' },
+      { href: '/residents', icon: 'users', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten', permission: 'residents:read' },
+      { href: '/residents/new', icon: 'user-plus', label: 'Neuer Bewohner', desc: 'Bewohner erfassen', permission: 'residents:write' },
+      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Platzierung finden', permission: 'placements:write' },
+      { href: '/learning', icon: 'learning', label: 'Lernen', desc: 'Kurse, Tests, Weiterbildung', permission: 'learning:read' },
+      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
     ],
   },
   {
     label: 'Unterkünfte',
     items: [
-      { href: '/housing', icon: 'building', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten' },
-      { href: '/housing/new', icon: 'house-plus', label: 'Neue Einheit', desc: 'Einheit hinzufügen' },
-      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen' },
-      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln' },
-      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten' },
+      { href: '/housing', icon: 'building', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten', permission: 'housing:read' },
+      { href: '/housing/new', icon: 'house-plus', label: 'Neue Einheit', desc: 'Einheit hinzufügen', permission: 'housing:write' },
+      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen', permission: 'placements:read' },
+      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln', permission: 'housing:read' },
+      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten', permission: 'residents:write' },
     ],
   },
   {
     label: 'Monitoring',
     items: [
-      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Wartung' },
-      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse' },
-      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte' },
-      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben' },
+      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Wartung', permission: 'incidents:read' },
+      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
+      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
+      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben', permission: 'maintenance:read' },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
-  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent' },
+  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
   // Einstellungen intentionally NOT here — system links live in SYSTEM_LINKS
   // (UserMenu + drawer), keeping the header row to the daily work.
 ]
+
+function itemVisible(item: MegaMenuDropdownItem, role: StaffRole): boolean {
+  if (item.permission && !hasPermission(role, item.permission)) return false
+  if (item.feature && !BRAND.features[item.feature]) return false
+  return true
+}
+
+export function visibleMegaMenuGroups(role: StaffRole): MegaMenuGroup[] {
+  return MEGAMENU_GROUPS.flatMap((group): MegaMenuGroup[] => {
+    if ('href' in group) {
+      if (group.permission && !hasPermission(role, group.permission)) return []
+      return [group]
+    }
+    const items = group.items.filter((item) => itemVisible(item, role))
+    if (items.length === 0) return []
+    return [{ ...group, items }]
+  })
+}
 
 // =============================================================================
 // PORTAL NAV (resident-facing)
 // =============================================================================
 
-/**
- * The sections the portal's "Mehr" sheet is organised into.
- *
- * A resident opening the menu used to meet fourteen equally-weighted labels in
- * no particular order, which is a list to read rather than a place to navigate.
- * Grouping is what turns "scan everything" into "look in the obvious box", so
- * every item declares which box it is in and the type system requires it.
- */
 export type PortalNavGroup = 'living' | 'together' | 'concerns' | 'account'
 
 export const PORTAL_NAV_GROUP_ORDER: readonly PortalNavGroup[] = [
@@ -144,46 +168,94 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions'
+  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning'
   icon: keyof typeof NAV_ICONS
-  /** Items in the `primary` set show as top-level links on desktop. Others
-   *  only appear in the "Mehr" sheet (avoiding desktop overflow). */
   primary?: boolean
-  /**
-   * Position in the mobile bottom bar. A phone shows a handful of destinations
-   * permanently or it shows none, and four plus "Mehr" is what fits a 375px
-   * screen at a 44px touch target without the labels truncating.
-   */
   tab?: 1 | 2 | 3 | 4
-  /** Which section of the "Mehr" sheet this appears under. Required, so a new
-   *  page cannot be added without deciding where a resident would look for it. */
+  /** AOZ tab bar: Übersicht, Melden, Regeln, Hilfe. */
+  aozTab?: 1 | 2 | 3 | 4
   group: PortalNavGroup
+  requiresFeature?: keyof BrandFeatures
 }
 
+/**
+ * Destinations that still exist as routes (old bookmarks, redirects) but must
+ * not appear in any menu. A page without a real job is worse than a missing
+ * page — "Unsere Wohnung" and "Mitbewohner" were diagrams and generic tips
+ * with no resident profiles behind them.
+ */
+export const PORTAL_NAV_HIDDEN_ROUTES = ['/portal/apartment', '/portal/roommates'] as const
+
+/** Sidebar / Mehr sheet: the work of living here. Account lives in the header. */
+export const PORTAL_SIDEBAR_GROUPS: readonly PortalNavGroup[] = [
+  'living',
+  'together',
+  'concerns',
+]
+
 export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  { href: '/portal', labelKey: 'overview', icon: 'home', primary: true, tab: 1, group: 'living' },
+  { href: '/portal', labelKey: 'overview', icon: 'home', primary: true, tab: 1, aozTab: 1, group: 'living' },
   { href: '/portal/chores', labelKey: 'chores', icon: 'calendar', primary: true, tab: 2, group: 'living' },
-  { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living' },
-  { href: '/portal/apartment', labelKey: 'apartment', icon: 'building', primary: true, tab: 4, group: 'living' },
-  // Messaging sits in `concerns`: it is where you go when something is wrong
-  // or unclear, next to reporting and transfer.
+  { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living', requiresFeature: 'householdMoney' },
   { href: '/portal/messages', labelKey: 'messages', icon: 'message', primary: true, group: 'concerns' },
-  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, group: 'together' },
-  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'together' },
-  // Roommates live inside the apartment profile now; the standalone page
-  // stays reachable from the "Mehr" sheet.
-  { href: '/portal/roommates', labelKey: 'roommates', icon: 'users', group: 'together' },
-  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, group: 'concerns' },
+  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, aozTab: 3, group: 'together' },
+  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'together', requiresFeature: 'householdVotes' },
+  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, aozTab: 2, group: 'concerns' },
   { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
   { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'concerns' },
   { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'concerns' },
   { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'concerns' },
+  { href: '/portal/learning', labelKey: 'learning', icon: 'learning', primary: true, tab: 4, group: 'concerns' },
   { href: '/portal/profile', labelKey: 'profile', icon: 'settings', group: 'account' },
   { href: '/portal/preferences', labelKey: 'preferences', icon: 'wrench', group: 'account' },
-  { href: '/portal/help', labelKey: 'help', icon: 'help', group: 'account' },
+  { href: '/portal/help', labelKey: 'help', icon: 'help', aozTab: 4, group: 'account' },
 ]
 
-/** The bottom-bar destinations, in the order they are pinned. */
+const AOZ_PRIMARY_HREFS = new Set([
+  '/portal',
+  '/portal/report',
+  '/portal/rules',
+  '/portal/help',
+  '/portal/transfer',
+])
+
+export function visiblePortalNavItems(): PortalNavItem[] {
+  return PORTAL_NAV_ITEMS.filter(
+    (item) => !item.requiresFeature || BRAND.features[item.requiresFeature]
+  )
+}
+
+export function portalTabItems(): PortalNavItem[] {
+  const items = visiblePortalNavItems()
+  if (isAozSurface()) {
+    return items
+      .filter((item) => item.aozTab !== undefined)
+      .sort((a, b) => (a.aozTab ?? 0) - (b.aozTab ?? 0))
+  }
+  return items
+    .filter((item) => item.tab !== undefined)
+    .sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))
+}
+
+export function portalPrimaryItems(): PortalNavItem[] {
+  const items = visiblePortalNavItems()
+  if (isAozSurface()) {
+    return items.filter((item) => AOZ_PRIMARY_HREFS.has(item.href))
+  }
+  return items.filter((item) => item.primary)
+}
+
+/** The bottom-bar destinations, in the order they are pinned. WG default. */
 export const PORTAL_TAB_ITEMS: PortalNavItem[] = PORTAL_NAV_ITEMS.filter(
   (item) => item.tab !== undefined
 ).sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))
+
+export function portalSidebarItems(): PortalNavItem[] {
+  return visiblePortalNavItems().filter((item) =>
+    PORTAL_SIDEBAR_GROUPS.includes(item.group)
+  )
+}
+
+export function portalAccountItems(): PortalNavItem[] {
+  return visiblePortalNavItems().filter((item) => item.group === 'account')
+}

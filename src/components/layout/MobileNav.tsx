@@ -9,12 +9,19 @@ import {
   SYSTEM_LINKS,
   NAV_ICONS,
   type NavItem,
+  type MegaMenuGroup,
 } from '@/lib/config/navigation'
 import { APP_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
-export function MobileNav() {
+export function MobileNav({
+  groups = MEGAMENU_GROUPS,
+  systemLinks = SYSTEM_LINKS,
+}: {
+  groups?: MegaMenuGroup[]
+  systemLinks?: NavItem[]
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const openButtonRef = useRef<HTMLButtonElement>(null)
@@ -111,7 +118,7 @@ export function MobileNav() {
           {/* Same groups as the desktop megamenu — ONE nav definition. Creation
               shortcuts (…/new) are skipped: every list page carries its own
               "+" action, and the drawer is for navigation, not verbs. */}
-          {MEGAMENU_GROUPS.map((group) =>
+          {groups.map((group) =>
             'items' in group ? (
               <div key={group.label} className="mt-3 first:mt-0">
                 <p className="eyebrow px-3 mb-1">{group.label}</p>
@@ -136,7 +143,7 @@ export function MobileNav() {
             )
           )}
           <div className="mt-3 pt-3 border-t border-ui-border">
-            {SYSTEM_LINKS.map((item) => (
+            {systemLinks.map((item) => (
               <MobileNavLink
                 key={item.href}
                 item={item}

@@ -26,6 +26,11 @@ jest.mock('next/cache', () => ({
 }))
 
 jest.mock('@/lib/auth', () => ({
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
   requireStaffAuth: jest.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
@@ -277,8 +282,8 @@ describe('saveSystemConfig', () => {
   })
 
   it('rejects unauthenticated requests', async () => {
-    const { requireStaffAuth } = require('@/lib/auth')
-    requireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
+    const { requirePermission } = require('@/lib/auth')
+    requirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(saveSystemConfig(new FormData())).rejects.toThrow('Anmeldung erforderlich')
     expect(mockPrisma.systemConfig.upsert).not.toHaveBeenCalled()

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ComponentType } from 'react'
-import { ClipboardCheck, MessageSquareWarning, Settings2, Users } from 'lucide-react'
+import { ClipboardCheck, GraduationCap, MessageSquareWarning, Settings2 } from 'lucide-react'
 import { PORTAL_LABELS } from '@/lib/constants'
 
 interface PortalQuickActionsProps {
@@ -26,7 +26,7 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
   const PrimaryIcon = primary.icon
   const secondaryActions = [
     { href: '/portal/report', label: L.quickActions.report.title, icon: MessageSquareWarning },
-    { href: '/portal/roommates', label: L.quickActions.roommates.title, icon: Users },
+    { href: '/portal/learning', label: L.quickActions.learning.title, icon: GraduationCap },
     { href: '/portal/preferences', label: L.quickActions.preferences.title, icon: Settings2 },
   ].filter((action) => action.href !== primary.href)
 
