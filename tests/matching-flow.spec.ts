@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { expandResidentIntakeDetails } from './helpers'
 
 // storageState from playwright.config handles staff auth.
 //
@@ -182,6 +183,7 @@ test.describe('Full placement flow', () => {
     await page.locator('select[name="gender"]').selectOption('MALE')
     await page.locator('select[name="familyStatus"]').selectOption('SINGLE')
     await page.locator('select[name="sleepSchedule"]').selectOption('STANDARD')
+    await expandResidentIntakeDetails(page)
     await page.locator('select[name="socialStyle"]').selectOption('MODERATE')
     await page.locator('select[name="smokingStatus"]').selectOption('NON_SMOKER')
     await page.locator('select[name="mobilityNeeds"]').selectOption('NONE')
