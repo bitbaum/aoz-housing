@@ -57,3 +57,10 @@ describe('i18n stays on the resident portal', () => {
     expect(layout).not.toMatch(/LanguageSwitcher/)
   })
 })
+
+describe('a failed deploy is retried', () => {
+  it('tells auto-merge to reconcile deploy.yml against master', () => {
+    const yml = read('.github/workflows/auto-merge.yml')
+    expect(yml).toMatch(/deploy_workflow:\s*deploy\.yml/)
+  })
+})

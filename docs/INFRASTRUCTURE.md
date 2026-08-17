@@ -2,7 +2,7 @@
 
 created_date: 2026-08-17
 last_modified_date: 2026-08-17
-last_modified_summary: SSOT for production host, database, deploy, and why a laptop `.env` naming Neon is not the live database.
+last_modified_summary: Auto-merge must reconcile deploy.yml or a red master CI leaves the box on an old release.
 
 This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, Prisma loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
 
@@ -40,6 +40,12 @@ Push to `master` → `.github/workflows/deploy.yml` → reusable
 That pipeline waits for this commit's CI, pulls `/opt/aoz-wohnen/shared/.env`
 from the box (the box stays env SSOT), runs `prisma migrate deploy` against
 `aoz_wohnen` over the deploy tunnel, builds, rsyncs, health-checks.
+
+If CI on `master` is red, deploy is blocked. Auto-merge must set
+`deploy_workflow: deploy.yml` so the next sweep retries once the tip is green
+instead of leaving git ahead of the box. Observed 2026-08-17: #71 merged, CI
+on that squash was red, deploy stopped at the CI gate, and without the
+reconciler the box stayed on the 16 Aug release.
 
 Manual rebuild (brand switch, stuck job):
 

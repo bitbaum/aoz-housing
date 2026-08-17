@@ -136,10 +136,16 @@ describe('the mobile tab bar', () => {
 
     for (const group of PORTAL_NAV_GROUP_ORDER) {
       expect(PORTAL_LABELS.navGroups[group]).toBeTruthy()
-      // An empty section renders as a heading with nothing under it.
       expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) })
         .toEqual({ group, items: true })
     }
+  })
+
+  it('lists sidebar destinations in living → together → concerns', () => {
+    const groups = portalSidebarItems().map((item) => item.group)
+    const seen = [...new Set(groups)]
+    expect(seen).toEqual(seen.slice().sort((a, b) => PORTAL_SIDEBAR_GROUPS.indexOf(a) - PORTAL_SIDEBAR_GROUPS.indexOf(b)))
+    expect(portalSidebarItems()[0]?.href).toBe('/portal')
   })
 })
 
