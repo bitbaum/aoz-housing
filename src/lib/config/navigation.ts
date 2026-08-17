@@ -140,7 +140,7 @@ function itemVisible(item: MegaMenuDropdownItem, role: StaffRole): boolean {
 }
 
 export function visibleMegaMenuGroups(role: StaffRole): MegaMenuGroup[] {
-  return MEGAMENU_GROUPS.flatMap((group) => {
+  return MEGAMENU_GROUPS.flatMap((group): MegaMenuGroup[] => {
     if ('href' in group) {
       if (group.permission && !hasPermission(role, group.permission)) return []
       return [group]
