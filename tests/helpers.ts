@@ -22,14 +22,22 @@ export async function ensureStaffLogin(page: Page) {
 }
 
 /**
- * The login page defaults to the email + password form; the code form is
- * behind the "Mit Code anmelden" toggle. Idempotent: no-op if already open.
+ * The login page's primary door depends on the brand: AOZ/AOZH open on the
+ * printed code, WG on email. Both doors stay one toggle away. Idempotent.
  */
 export async function openCodeLoginForm(page: Page) {
   const codeInput = page.locator('#code')
   if (!(await codeInput.isVisible())) {
     await page.getByRole('button', { name: 'Mit Code anmelden' }).click()
     await expect(codeInput).toBeVisible()
+  }
+}
+
+export async function openEmailLoginForm(page: Page) {
+  const emailInput = page.locator('#email')
+  if (!(await emailInput.isVisible())) {
+    await page.getByRole('button', { name: 'Mit E-Mail anmelden' }).click()
+    await expect(emailInput).toBeVisible()
   }
 }
 

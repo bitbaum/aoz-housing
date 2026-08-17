@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { openEmailLoginForm } from './helpers'
 
 // storageState from playwright.config handles staff auth
 test.use({ viewport: { width: 375, height: 667 } })
@@ -61,7 +62,8 @@ test.describe('Mobile Responsiveness', () => {
     const viewportWidth = await page.evaluate(() => window.innerWidth)
     expect(bodyWidth).toBeLessThanOrEqual(viewportWidth + 1)
 
-    // The email login form should be visible and usable
+    // The email login form stays reachable and usable on a phone.
+    await openEmailLoginForm(page)
     await expect(page.locator('#email')).toBeVisible()
   })
 })
