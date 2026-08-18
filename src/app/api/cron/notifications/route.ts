@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
 import { logger } from '@/lib/logger'
-import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { DISPLAY_LIMITS, CRON_BATCH_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { daysBetween } from '@/lib/utils'
 import { advanceDueProposals, expireStaleAgreements } from '@/lib/governance/lifecycle'
@@ -74,7 +74,7 @@ export async function GET(request: Request) {
       include: {
         housingUnit: { select: { code: true } },
       },
-      take: 50,
+      take: CRON_BATCH_LIMITS.overdueIncidents,
     })
 
     if (overdueIncidents.length > 0) {
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
         resident: { select: { code: true, supportLevel: true } },
         checkIns: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
-      take: 1000,
+      take: CRON_BATCH_LIMITS.activePlacementScan,
     })
 
     const overdueResidents = activePlacements

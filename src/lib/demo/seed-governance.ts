@@ -24,10 +24,10 @@ import {
 } from '../config/decisions'
 import { tallyVotes } from '../governance/voting'
 import { BRAND } from '../config/brand'
+import { getDateDaysAgo } from '../utils/formatting'
 
-const DAY_MS = 24 * 60 * 60 * 1000
-const daysAgo = (days: number) => new Date(Date.now() - days * DAY_MS)
-const daysAhead = (days: number) => new Date(Date.now() + days * DAY_MS)
+const daysAgo = getDateDaysAgo
+const daysAhead = (days: number) => getDateDaysAgo(-days)
 
 /**
  * `daysAgo` for anything the CURRENT MONTH's chore balance must contain.

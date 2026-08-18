@@ -175,7 +175,7 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           <span className="text-sm text-ui-muted">{INCIDENT_PAGE_LABELS.filterOpen}:</span>
           <a
             href={`/incidents${categoryFilter !== 'all' ? `?category=${categoryFilter}` : ''}`}
-            className="chip-info gap-1 hover:bg-status-info/25 transition-colors"
+            className="chip-info gap-1 min-h-[44px] inline-flex items-center hover:bg-status-info/25 transition-colors"
             aria-label="Filter entfernen"
           >
             {UI_LABELS.open}

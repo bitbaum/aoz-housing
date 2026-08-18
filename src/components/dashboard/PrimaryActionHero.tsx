@@ -210,13 +210,13 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
       <div className="flex items-center gap-2 self-end sm:self-auto">
         <Link
           href={`/incidents/${incidents[0].id}`}
-          className="px-3 py-1 bg-ui-surface text-status-error rounded font-medium hover:bg-status-error/8"
+          className="min-h-[44px] inline-flex items-center px-3 bg-ui-surface text-status-error rounded font-medium hover:bg-status-error/8"
         >
           {DASHBOARD_LABELS.alertEdit}
         </Link>
         <button
           onClick={() => setDismissed(true)}
-          className="p-1 hover:bg-status-error/80 rounded"
+          className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center hover:bg-status-error/80 rounded"
           aria-label={UI_LABELS.close}
         >
           ✕

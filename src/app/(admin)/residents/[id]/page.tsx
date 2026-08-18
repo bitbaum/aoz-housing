@@ -99,7 +99,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             comparedWith: true,
           },
           orderBy: { overallScore: 'desc' },
-          take: 5,
+          take: QUERY_LIMITS.residentAssessments,
         },
       },
     }),

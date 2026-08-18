@@ -14,6 +14,7 @@ import {
   type CareRoleId,
 } from '@/lib/config/care'
 import { fromDatetimeLocalInput } from '@/lib/utils/local-time'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import type { AppointmentStatus, CareRole } from '@prisma/client'
 
 export type CareSeat = {
@@ -121,7 +122,7 @@ export async function listUpcomingResidentAppointments(
     where: { residentId, status: 'SCHEDULED', startsAt: { gte: now } },
     include: { staff: { select: { id: true, name: true } } },
     orderBy: { startsAt: 'asc' },
-    take: 8,
+    take: QUERY_LIMITS.upcomingAppointments,
   })
   return rows.map(mapAppointment)
 }

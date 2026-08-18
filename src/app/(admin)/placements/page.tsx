@@ -13,7 +13,7 @@ import {
   getLabel,
 } from '@/lib/constants'
 
-import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { DISPLAY_LIMITS, QUERY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { PlacementCheckIn } from '@/components/placements/PlacementCheckIn'
 
@@ -74,7 +74,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         },
       },
       orderBy: { startDate: 'desc' },
-      take: 200,
+      take: QUERY_LIMITS.pageList,
     }),
     // Aggregate tab counts by status (single query instead of fetching all rows)
     prisma.placement.groupBy({

@@ -11,6 +11,7 @@ import {
   LEARNING_KINDS,
   LEARNING_STATUSES,
 } from '@/lib/config/learning'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import type { LearningKind, LearningStatus, ResidentOrStaff } from '@prisma/client'
 
 function parseDate(value: FormDataEntryValue | null): Date | null {
@@ -117,7 +118,7 @@ export async function listLearningQueue(kind?: LearningKind) {
         resident: { select: { id: true, code: true, displayName: true, languages: true } },
       },
       orderBy: { updatedAt: 'desc' },
-      take: 50,
+      take: QUERY_LIMITS.learningQueue,
     }),
     kind
       ? Promise.resolve([])
@@ -130,7 +131,7 @@ export async function listLearningQueue(kind?: LearningKind) {
           },
           select: { id: true, code: true, displayName: true, languages: true },
           orderBy: { code: 'asc' },
-          take: 40,
+          take: QUERY_LIMITS.missingGermanQueue,
         }),
   ])
 

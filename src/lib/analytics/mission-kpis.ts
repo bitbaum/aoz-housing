@@ -11,7 +11,8 @@
  */
 
 import { prisma } from '@/lib/db'
-import { zurichMonthKey, getZurichParts } from '@/lib/utils'
+import { zurichMonthKey, getZurichParts, getDateDaysAgo } from '@/lib/utils'
+import { PROBLEM_DETECTION } from '@/lib/config/thresholds'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -218,7 +219,7 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
 
   const placementTimes: number[] = []
   const recentPlacementTimes: number[] = []
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const thirtyDaysAgo = getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays)
 
   for (const r of residents) {
     const firstPlacement = firstPlacementMap.get(r.id)

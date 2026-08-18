@@ -17,6 +17,7 @@ import {
   type LearningStatusId,
 } from '@/lib/config/learning'
 import { ACTIVITY_COST_LABELS } from '@/lib/config/activities'
+import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export const metadata: Metadata = { title: 'Lernen' }
 export const dynamic = 'force-dynamic'
@@ -33,7 +34,7 @@ export default async function PortalLearningPage() {
       publishedOnly: true,
       category: 'LANGUAGE',
       activeOn: new Date(),
-      take: 8,
+      take: QUERY_LIMITS.portalLearningActivities,
     }),
   ])
   if (!resident) redirect('/portal')

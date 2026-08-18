@@ -10,6 +10,7 @@
  */
 
 import type { CompatibilityScore, ResidentProfile } from './types'
+import { DISCRIMINATION_SAFEGUARD_THRESHOLDS as THRESHOLDS } from '@/lib/config/thresholds'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -25,19 +26,6 @@ export interface SafeguardWarning {
   message: string // German — shown to staff
   detail: string // English — for logging
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Thresholds
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Score below this triggers safeguard checks */
-const LOW_SCORE_THRESHOLD = 40
-
-/** If one dimension is this much lower than others, flag it */
-const DIMENSION_GAP_THRESHOLD = 40
-
-/** Minimum number of shared languages for language-only flag */
-const LANGUAGE_OVERLAP_THRESHOLD = 0
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Age distance map
@@ -73,7 +61,7 @@ export function validateScoreForDiscrimination(
   const warnings: SafeguardWarning[] = []
 
   // Only check low scores — high scores don't pose discrimination risk
-  if (score.overall >= LOW_SCORE_THRESHOLD) {
+  if (score.overall >= THRESHOLDS.lowScoreReview) {
     return { safe: true, warnings: [] }
   }
 
@@ -85,10 +73,10 @@ export function validateScoreForDiscrimination(
   )
 
   if (
-    sharedLanguages.length <= LANGUAGE_OVERLAP_THRESHOLD &&
-    score.social < 40 &&
-    score.lifestyle >= 60 &&
-    score.practical >= 60
+    sharedLanguages.length <= THRESHOLDS.languageOverlapMax &&
+    score.social < THRESHOLDS.languageOnlySocialMax &&
+    score.lifestyle >= THRESHOLDS.languageOnlyOtherDimensionMin &&
+    score.practical >= THRESHOLDS.languageOnlyOtherDimensionMin
   ) {
     warnings.push({
       type: 'LANGUAGE_ONLY',
@@ -101,11 +89,11 @@ export function validateScoreForDiscrimination(
   // Large age gap shouldn't be the sole reason for a low score.
   const ageDist = ageDistance(resident1.ageRange, resident2.ageRange)
   if (
-    ageDist >= 2 &&
-    score.risk > 50 &&
-    score.lifestyle >= 50 &&
-    score.practical >= 50 &&
-    score.social >= 50
+    ageDist >= THRESHOLDS.ageGapSteps &&
+    score.risk > THRESHOLDS.ageOnlyRiskMin &&
+    score.lifestyle >= THRESHOLDS.ageOnlyOtherDimensionMin &&
+    score.practical >= THRESHOLDS.ageOnlyOtherDimensionMin &&
+    score.social >= THRESHOLDS.ageOnlyOtherDimensionMin
   ) {
     warnings.push({
       type: 'AGE_ONLY',
@@ -128,7 +116,7 @@ export function validateScoreForDiscrimination(
       .filter(d => d.name !== dim.name)
       .reduce((s, d) => s + d.score, 0) / (dimensions.length - 1)
 
-    if (dim.score < othersAvg - DIMENSION_GAP_THRESHOLD && dim.score < 30) {
+    if (dim.score < othersAvg - THRESHOLDS.dimensionGap && dim.score < THRESHOLDS.singleDimensionAbsoluteMax) {
       warnings.push({
         type: 'SINGLE_DIMENSION',
         message: `Dimension "${dim.name}" ist deutlich niedriger als andere (${dim.score} vs. Ø${Math.round(othersAvg)}). Prüfen Sie die Einzelfaktoren.`,

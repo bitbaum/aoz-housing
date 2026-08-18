@@ -16,6 +16,7 @@ import {
   maintenanceCategoryFor,
   maintenancePriorityFor,
 } from '@/lib/reports/routing'
+import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 
 export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
           category: request.category,
           priority: request.priority,
           reportedBy: residentCode,
-          description: data.description.slice(0, 200),
+          description: data.description.slice(0, DISPLAY_LIMITS.auditChangePreview),
         },
       })
 
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
         category: request.category,
         priority: request.priority,
         title: request.title,
-        description: data.description.slice(0, 500),
+        description: data.description.slice(0, DISPLAY_LIMITS.reportEmailDescription),
         location: locationLabel,
       })
       notifyStaff(mail.subject, mail.html).catch((err) =>
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
         severity: data.severity,
         reportedBy: residentCode,
         subjectId: validatedSubjectId,
-        description: fullDescription.slice(0, 200),
+        description: fullDescription.slice(0, DISPLAY_LIMITS.auditChangePreview),
         requestedMediation: data.requestMediation,
       },
     })
@@ -173,7 +174,7 @@ export async function POST(request: NextRequest) {
       category: data.category,
       type: data.type,
       severity: data.severity,
-      description: fullDescription.slice(0, 500),
+      description: fullDescription.slice(0, DISPLAY_LIMITS.reportEmailDescription),
       subjectCode: data.involvedResident && data.involvedResident !== 'external' && data.involvedResident !== 'anonymous'
         ? data.involvedResident : undefined,
       requestedMediation: data.requestMediation ?? false,

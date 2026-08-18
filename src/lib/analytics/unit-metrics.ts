@@ -5,7 +5,8 @@
  */
 
 import { prisma } from '@/lib/db'
-import { zurichMonthKey } from '@/lib/utils'
+import { zurichMonthKey, getDateDaysAgo } from '@/lib/utils'
+import { PROBLEM_DETECTION, UNIT_METRICS_WINDOWS } from '@/lib/config/thresholds'
 
 export interface UnitMetrics {
   unitId: string
@@ -39,8 +40,8 @@ export interface UnitMetrics {
  */
 export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics> {
   const now = new Date()
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-  const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000)
+  const thirtyDaysAgo = getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays)
+  const sixMonthsAgo = getDateDaysAgo(UNIT_METRICS_WINDOWS.historyDays)
 
   // Fetch unit with related data
   const unit = await prisma.housingUnit.findUnique({
@@ -170,7 +171,7 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
   } else if (incidentFreeMonths >= 3) {
     label = 'Stabil'
   } else if (recentConflicts < unit.incidents.filter(i => {
-    const twoMonthsAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+    const twoMonthsAgo = getDateDaysAgo(UNIT_METRICS_WINDOWS.trendComparisonDays)
     return new Date(i.date) >= twoMonthsAgo && new Date(i.date) < thirtyDaysAgo
   }).length) {
     label = 'Verbesserung'
