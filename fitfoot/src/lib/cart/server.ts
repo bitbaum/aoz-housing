@@ -33,7 +33,8 @@ export interface CartView {
 }
 
 export async function getCartId(): Promise<string | null> {
-  return cookies().get(CART_COOKIE)?.value ?? null
+  const store = await cookies()
+  return store.get(CART_COOKIE)?.value ?? null
 }
 
 export async function getOrCreateCartId(): Promise<string> {
@@ -43,7 +44,8 @@ export async function getOrCreateCartId(): Promise<string> {
     if (row) return row.id
   }
   const [created] = await db.insert(carts).values({}).returning({ id: carts.id })
-  cookies().set(CART_COOKIE, created.id, {
+  const store = await cookies()
+  store.set(CART_COOKIE, created.id, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

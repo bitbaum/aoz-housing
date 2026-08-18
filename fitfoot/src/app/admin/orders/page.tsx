@@ -9,10 +9,10 @@ import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge'
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: { status?: string }
+  searchParams: Promise<{ status?: string }>
 }) {
-  const statusFilter =
-    searchParams.status && isOrderStatus(searchParams.status) ? searchParams.status : null
+  const { status } = await searchParams
+  const statusFilter = status && isOrderStatus(status) ? status : null
 
   const rows = await db
     .select()

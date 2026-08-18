@@ -13,8 +13,13 @@ const CONDITION_LABELS: Record<string, string> = {
   FAIR: 'Fair',
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const result = await getProductBySlug(params.slug)
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const result = await getProductBySlug(slug)
   if (!result) notFound()
   const { product, variants } = result
 

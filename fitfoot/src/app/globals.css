@@ -1,8 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-/* === REFINED SWISS LUXURY PALETTE (carried over from the original FitFoot) === */
+/*
+ * === REFINED SWISS LUXURY PALETTE (carried over from the original FitFoot) ===
+ * Tailwind v4 CSS-first config — this @theme block is the only place
+ * design tokens are defined; nothing lives in a separate JS config file.
+ */
+@theme {
+  --color-gold-50: #fffdf7;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #b8860b;
+  --color-gold-600: #92400e;
+  --color-gold-700: #78350f;
+  --color-gold-800: #451a03;
+  --color-gold-900: #292524;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-playfair), serif;
+
+  --radius-DEFAULT: 8px;
+}
 
 @layer components {
   .gold-gradient {

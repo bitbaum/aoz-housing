@@ -19,11 +19,16 @@ const CATEGORY_LABELS: Record<string, string> = {
   ACCESSORIES: 'Accessories',
 }
 
-interface ShopPageProps {
-  searchParams: { type?: string; category?: string }
+interface ShopFilters {
+  type?: string
+  category?: string
 }
 
-function filterHref(base: ShopPageProps['searchParams'], patch: Partial<ShopPageProps['searchParams']>) {
+interface ShopPageProps {
+  searchParams: Promise<ShopFilters>
+}
+
+function filterHref(base: ShopFilters, patch: Partial<ShopFilters>) {
   const merged = { ...base, ...patch }
   const params = new URLSearchParams()
   if (merged.type) params.set('type', merged.type)
@@ -33,7 +38,8 @@ function filterHref(base: ShopPageProps['searchParams'], patch: Partial<ShopPage
 }
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  const products = await listProducts(searchParams)
+  const filters = await searchParams
+  const products = await listProducts(filters)
 
   const typeFilters = [
     { label: 'All', value: undefined },
@@ -56,9 +62,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         {typeFilters.map((f) => (
           <Link
             key={f.label}
-            href={filterHref(searchParams, { type: f.value })}
+            href={filterHref(filters, { type: f.value })}
             className={`inline-flex min-h-[44px] items-center rounded border px-4 py-2 text-sm font-medium transition-colors ${
-              (searchParams.type ?? undefined) === f.value
+              (filters.type ?? undefined) === f.value
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
                 : 'border-neutral-300 text-neutral-600 hover:border-neutral-400'
             }`}
@@ -70,11 +76,11 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         {PRODUCT_CATEGORIES.map((cat) => (
           <Link
             key={cat}
-            href={filterHref(searchParams, {
-              category: searchParams.category === cat ? undefined : cat,
+            href={filterHref(filters, {
+              category: filters.category === cat ? undefined : cat,
             })}
             className={`inline-flex min-h-[44px] items-center rounded border px-4 py-2 text-sm font-medium transition-colors ${
-              searchParams.category === cat
+              filters.category === cat
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
                 : 'border-neutral-300 text-neutral-600 hover:border-neutral-400'
             }`}

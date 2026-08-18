@@ -9,12 +9,13 @@ import { handleRouteError, jsonError } from '@/lib/api'
 import { logger } from '@/lib/logger'
 import { sendEmail } from '@/lib/email'
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const staff = await requireStaff()
+    const { id } = await params
     const input = orderStatusSchema.parse(await request.json())
 
-    const [order] = await db.select().from(orders).where(eq(orders.id, params.id)).limit(1)
+    const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1)
     if (!order) return jsonError(404, 'Order not found.')
     if (!isOrderStatus(order.status)) return jsonError(500, 'Order has an unknown status.')
 
@@ -25,7 +26,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const [updated] = await db
       .update(orders)
       .set({ status: input.status })
-      .where(eq(orders.id, params.id))
+      .where(eq(orders.id, id))
       .returning()
 
     logger.info('Order status changed', {

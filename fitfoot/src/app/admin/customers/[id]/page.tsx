@@ -9,9 +9,14 @@ import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge'
 import { CrmNoteForm } from '@/components/admin/CrmNoteForm'
 import { RoleSelect } from '@/components/admin/RoleSelect'
 
-export default async function AdminCustomerDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminCustomerDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const staff = await requireStaff()
-  const [customer] = await db.select().from(customers).where(eq(customers.id, params.id)).limit(1)
+  const { id } = await params
+  const [customer] = await db.select().from(customers).where(eq(customers.id, id)).limit(1)
   if (!customer) notFound()
 
   const [customerOrders, notes, inquiries] = await Promise.all([
@@ -27,12 +32,12 @@ export default async function AdminCustomerDetailPage({ params }: { params: { id
       })
       .from(crmNotes)
       .innerJoin(customers, eq(crmNotes.authorId, customers.id))
-      .where(eq(crmNotes.customerId, params.id))
+      .where(eq(crmNotes.customerId, id))
       .orderBy(desc(crmNotes.createdAt)),
     db
       .select()
       .from(contactInquiries)
-      .where(eq(contactInquiries.customerId, params.id))
+      .where(eq(contactInquiries.customerId, id))
       .orderBy(desc(contactInquiries.createdAt)),
   ])
 

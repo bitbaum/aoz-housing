@@ -2,25 +2,31 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+function readDraft<T>(key: string, enabled: boolean): T | null {
+  if (!enabled || typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : null
+  } catch {
+    // Corrupt or inaccessible storage — ignore, just start fresh.
+    return null
+  }
+}
+
 /**
  * Autosaves form state to localStorage as the person types, and offers to
  * restore it on the next visit. A lost connection or an accidental tab
  * close should never mean retyping a whole product from scratch.
+ *
+ * `key` and `enabled` are read once at mount (they derive from a stable id
+ * such as a product id, not from user input) via a lazy initializer —
+ * reading storage in an effect-plus-setState would trigger an avoidable
+ * extra render on every mount.
  */
 export function useDraftAutosave<T>(key: string, value: T, enabled: boolean) {
-  const [restored, setRestored] = useState<T | null>(null)
+  const [restored] = useState<T | null>(() => readDraft<T>(key, enabled))
   const [dismissed, setDismissed] = useState(false)
   const hydrated = useRef(false)
-
-  useEffect(() => {
-    if (!enabled) return
-    try {
-      const raw = window.localStorage.getItem(key)
-      if (raw) setRestored(JSON.parse(raw) as T)
-    } catch {
-      // Corrupt or inaccessible storage — ignore, just start fresh.
-    }
-  }, [key, enabled])
 
   useEffect(() => {
     if (!enabled) return
@@ -46,7 +52,7 @@ export function useDraftAutosave<T>(key: string, value: T, enabled: boolean) {
     } catch {
       // Best-effort.
     }
-    setRestored(null)
+    setDismissed(true)
   }
 
   function dismissRestore() {

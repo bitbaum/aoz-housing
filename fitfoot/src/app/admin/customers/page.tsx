@@ -7,9 +7,9 @@ import { formatRappen } from '@/lib/money'
 export default async function AdminCustomersPage({
   searchParams,
 }: {
-  searchParams: { q?: string }
+  searchParams: Promise<{ q?: string }>
 }) {
-  const q = searchParams.q?.trim() ?? ''
+  const q = (await searchParams).q?.trim() ?? ''
 
   const rows = await db
     .select({

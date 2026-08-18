@@ -6,14 +6,15 @@ import { variantUpsertSchema } from '@/lib/validation/schemas'
 import { requireStaff } from '@/lib/auth/guards'
 import { handleRouteError, jsonError } from '@/lib/api'
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireStaff()
+    const { id } = await params
     const input = variantUpsertSchema.partial().parse(await request.json())
     const [updated] = await db
       .update(productVariants)
       .set(input)
-      .where(eq(productVariants.id, params.id))
+      .where(eq(productVariants.id, id))
       .returning()
     if (!updated) return jsonError(404, 'Variant not found.')
     return NextResponse.json(updated)
@@ -22,12 +23,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await requireStaff()
+    const { id } = await params
     const [deleted] = await db
       .delete(productVariants)
-      .where(eq(productVariants.id, params.id))
+      .where(eq(productVariants.id, id))
       .returning()
     if (!deleted) return jsonError(404, 'Variant not found.')
     return NextResponse.json({ ok: true })

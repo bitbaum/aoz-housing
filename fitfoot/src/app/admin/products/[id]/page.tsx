@@ -7,8 +7,13 @@ import { ProductForm } from '@/components/admin/ProductForm'
 import { VariantManager } from '@/components/admin/VariantManager'
 import { DuplicateProductButton } from '@/components/admin/DuplicateProductButton'
 
-export default async function AdminProductDetailPage({ params }: { params: { id: string } }) {
-  const [product] = await db.select().from(products).where(eq(products.id, params.id)).limit(1)
+export default async function AdminProductDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const [product] = await db.select().from(products).where(eq(products.id, id)).limit(1)
   if (!product) notFound()
 
   const variants = await db

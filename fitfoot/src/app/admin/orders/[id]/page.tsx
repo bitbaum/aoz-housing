@@ -8,8 +8,13 @@ import { formatRappen } from '@/lib/money'
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge'
 import { OrderStatusActions } from '@/components/admin/OrderStatusActions'
 
-export default async function AdminOrderDetailPage({ params }: { params: { id: string } }) {
-  const [order] = await db.select().from(orders).where(eq(orders.id, params.id)).limit(1)
+export default async function AdminOrderDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
+  const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1)
   if (!order) notFound()
 
   const items = await db.select().from(orderItems).where(eq(orderItems.orderId, order.id))

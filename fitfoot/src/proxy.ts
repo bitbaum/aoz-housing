@@ -1,14 +1,15 @@
 /**
- * Middleware — coarse route protection. /admin needs a session whose token
- * claims STAFF or ADMIN; the server-side guards re-check the database on
- * every request (tokens can outlive a role change — the guard is the truth).
+ * Proxy (Next.js 16's renamed middleware) — coarse route protection.
+ * /admin needs a session whose token claims STAFF or ADMIN; the
+ * server-side guards re-check the database on every request (tokens can
+ * outlive a role change — the guard is the truth).
  */
 import { NextResponse, type NextRequest } from 'next/server'
 import { verifySessionToken } from '@/lib/auth/session'
 
 const SESSION_COOKIE = 'fitfoot_session'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const needsStaff = pathname.startsWith('/admin')

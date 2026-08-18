@@ -3,11 +3,12 @@ import { db } from '@/db'
 import { productImages } from '@/db/schema'
 
 /** Public — anyone browsing the shop needs to load product photos. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const [image] = await db
     .select()
     .from(productImages)
-    .where(eq(productImages.productId, params.id))
+    .where(eq(productImages.productId, id))
     .limit(1)
 
   if (!image) {

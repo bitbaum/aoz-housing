@@ -14,12 +14,11 @@ const STATUS_LABELS: Record<string, string> = {
 export default async function AdminInquiriesPage({
   searchParams,
 }: {
-  searchParams: { status?: string }
+  searchParams: Promise<{ status?: string }>
 }) {
+  const { status } = await searchParams
   const statusFilter =
-    searchParams.status && (INQUIRY_STATUSES as readonly string[]).includes(searchParams.status)
-      ? searchParams.status
-      : null
+    status && (INQUIRY_STATUSES as readonly string[]).includes(status) ? status : null
 
   const rows = await db
     .select()

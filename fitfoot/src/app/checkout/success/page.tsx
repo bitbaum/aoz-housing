@@ -5,11 +5,12 @@ export const metadata: Metadata = {
   title: 'Order confirmed',
 }
 
-export default function CheckoutSuccessPage({
+export default async function CheckoutSuccessPage({
   searchParams,
 }: {
-  searchParams: { order?: string }
+  searchParams: Promise<{ order?: string }>
 }) {
+  const { order } = await searchParams
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
       <p className="text-6xl" aria-hidden>
@@ -18,7 +19,7 @@ export default function CheckoutSuccessPage({
       <h1 className="mt-6 font-heading text-4xl">Thank you!</h1>
       <p className="mt-3 text-neutral-600">
         Your order{' '}
-        {searchParams.order ? <strong className="text-neutral-900">{searchParams.order}</strong> : null}{' '}
+        {order ? <strong className="text-neutral-900">{order}</strong> : null}{' '}
         has been placed. We&apos;ve sent a confirmation to your email and will let you know as soon
         as it ships.
       </p>

@@ -11,21 +11,25 @@ import { handleRouteError, jsonError } from '@/lib/api'
  * colorway". The copy starts INACTIVE (a draft) so it can't accidentally
  * go live with the wrong details, and stock starts at zero.
  */
-export async function POST(_request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     await requireStaff()
-    const [original] = await db.select().from(products).where(eq(products.id, params.id)).limit(1)
+    const { id } = await params
+    const [original] = await db.select().from(products).where(eq(products.id, id)).limit(1)
     if (!original) return jsonError(404, 'Product not found.')
 
     const variants = await db
       .select()
       .from(productVariants)
-      .where(eq(productVariants.productId, params.id))
+      .where(eq(productVariants.productId, id))
 
     const [image] = await db
       .select()
       .from(productImages)
-      .where(eq(productImages.productId, params.id))
+      .where(eq(productImages.productId, id))
       .limit(1)
 
     const newSlug = await resolveProductSlug(`${original.name} copy`)
