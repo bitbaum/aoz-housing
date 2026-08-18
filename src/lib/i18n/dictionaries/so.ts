@@ -22,6 +22,8 @@ export const so: Dictionary = {
   'nav.messages': 'Farriimaha',
   'nav.housing': 'Guryaha',
   'nav.activities': 'Hawlgallada',
+  'nav.marketplace': 'Suuqa',
+  'nav.events': 'Dhacdooyinka',
   'nav.preferences': 'Dejinta',
   'nav.profile': 'Astaanta',
   'nav.transfer': 'Codsi wareejin',

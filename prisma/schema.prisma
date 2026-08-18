@@ -141,6 +141,12 @@ model Resident {
   appointments    Appointment[]
   careAttributes  CareAttribute[]
 
+  // Marketplace & events
+  marketplacePostsCreated MarketplacePost[] @relation("MarketplacePostedBy")
+  marketplacePostsClaimed MarketplacePost[] @relation("MarketplacePostClaimedBy")
+  houseEventsCreated      HouseEvent[]      @relation("HouseEventCreatedByResident")
+  eventRsvps              EventRsvp[]
+
   @@index([status])
   @@index([ageRange, gender])
 }
@@ -357,6 +363,8 @@ model HousingUnit {
   maintenanceRequests MaintenanceRequest[]
   householdTasks      HouseholdTask[]
   transferRequests    TransferRequest[]
+  marketplacePosts    MarketplacePost[]
+  houseEvents         HouseEvent[]
 
   // Governance
   houseRules HouseRule[]
@@ -858,6 +866,7 @@ model User {
   careAssignments       CareAssignment[]
   appointments          Appointment[]
   careAttributesUpdated CareAttribute[]
+  houseEventsCreated    HouseEvent[] @relation("HouseEventCreatedByStaff")
   // Login credentials (email + password) live on Account, never here.
   account Account?
 
@@ -930,6 +939,7 @@ enum StaffRole {
   BETREUUNG // Daily housing ops: place, incidents, maintenance
   SOZIALARBEIT // People, incidents, learning — no housing writes, no algorithm
   JOBCOACH // Learning and resident read — no placements
+  FREIWILLIGENARBEIT // Volunteering coordination — resident read, learning + marketplace/events own-domain writes, no housing/placement writes
 }
 
 model AuditLog {
@@ -1012,6 +1022,80 @@ enum ActivityStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+// =============================================================================
+// HOUSE EVENTS — internal, RSVP'd events (house meetings, social gatherings).
+// =============================================================================
+// Distinct from Activity: Activity is a curated, admin-authored listing of
+// EXTERNAL offerings with no attendee state. A HouseEvent is something
+// happening inside the unit itself — staff or a resident calls it, roommates
+// RSVP. Keeping the two models separate keeps that trust distinction visible
+// in the portal instead of blurring "AOZ-curated offer" with "the house is
+// throwing a thing".
+
+model HouseEvent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+  housingUnitId String
+
+  title       String
+  description String
+  category    HouseEventCategory @default(SOCIAL)
+  location    String?
+  startsAt    DateTime
+  endsAt      DateTime?
+
+  status HouseEventStatus @default(PUBLISHED)
+
+  // Creator (dual: staff OR resident — mirrors HouseholdTask's creator duality)
+  createdByStaff      User?     @relation("HouseEventCreatedByStaff", fields: [createdByStaffId], references: [id], onDelete: SetNull)
+  createdByStaffId    String?
+  createdByResident   Resident? @relation("HouseEventCreatedByResident", fields: [createdByResidentId], references: [id], onDelete: SetNull)
+  createdByResidentId String?
+
+  rsvps EventRsvp[]
+
+  @@index([housingUnitId, startsAt])
+  @@index([status, startsAt])
+}
+
+enum HouseEventCategory {
+  HOUSE_MEETING
+  SOCIAL
+  CULTURE
+  SUPPORT
+}
+
+enum HouseEventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+}
+
+model EventRsvp {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  event   HouseEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId String
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  status EventRsvpStatus @default(GOING)
+
+  @@unique([eventId, residentId])
+  @@index([eventId])
+}
+
+enum EventRsvpStatus {
+  GOING
+  MAYBE
+  DECLINED
 }
 
 // =============================================================================
@@ -1270,6 +1354,63 @@ enum TaskRequestStatus {
   ACCEPTED
   DECLINED
   COMPLETED
+}
+
+// =============================================================================
+// MARKETPLACE — resident-to-resident give away / lend / ask for
+// =============================================================================
+// Per-unit scoped like HouseholdTask; resident FKs are Cascade/SetNull, not
+// Restrict — unlike expense payers, no financial state depends on who posted
+// or claimed a listing.
+
+model MarketplacePost {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+  housingUnitId String
+
+  postedBy   Resident @relation("MarketplacePostedBy", fields: [postedById], references: [id], onDelete: Cascade)
+  postedById String
+
+  title       String
+  description String
+  kind        MarketplacePostKind
+  category    MarketplacePostCategory @default(OTHER)
+
+  status      MarketplacePostStatus @default(OPEN)
+  claimedBy   Resident?             @relation("MarketplacePostClaimedBy", fields: [claimedById], references: [id], onDelete: SetNull)
+  claimedById String?
+  closedAt    DateTime?
+
+  // Staff moderation
+  hiddenByStaff Boolean @default(false)
+  hiddenReason  String?
+
+  @@index([housingUnitId, status])
+  @@index([postedById])
+}
+
+enum MarketplacePostKind {
+  GIVE_AWAY
+  LEND
+  WANTED
+}
+
+enum MarketplacePostCategory {
+  FURNITURE
+  KITCHEN
+  CLOTHING
+  ELECTRONICS
+  KIDS
+  OTHER
+}
+
+enum MarketplacePostStatus {
+  OPEN
+  CLAIMED
+  CLOSED
 }
 
 // =============================================================================
@@ -1692,13 +1833,14 @@ enum ResidentOrStaff {
 // CARE TEAM — who is responsible for this resident
 // =============================================================================
 // One named person per role. Staff assign from the resident file; the resident
-// sees the same names in the portal. Not a second org chart — three seats that
+// sees the same names in the portal. Not a second org chart — four seats that
 // match how AOZ actually splits the work.
 
 enum CareRole {
   HOUSING
   SOCIAL
   JOB
+  VOLUNTEERING
 }
 
 model CareAssignment {

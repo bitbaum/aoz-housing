@@ -17,6 +17,7 @@ import {
   UserCog,
   Bot,
   CalendarDays,
+  CalendarClock,
   ScrollText,
   CircleHelp,
   UserPlus,
@@ -26,6 +27,8 @@ import {
   MoreHorizontal,
   MessageSquare,
   GraduationCap,
+  ShoppingBag,
+  HandHeart,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BRAND, isAozSurface, type BrandFeatures } from '@/lib/config/brand'
@@ -55,6 +58,9 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   more: MoreHorizontal,
   message: MessageSquare,
   learning: GraduationCap,
+  shop: ShoppingBag,
+  event: CalendarClock,
+  volunteer: HandHeart,
 }
 
 export interface NavItem {
@@ -96,35 +102,61 @@ export type MegaMenuGroup =
   | { label: string; href: string; icon: string; permission?: StaffPermission }
   | { label: string; items: MegaMenuDropdownItem[] }
 
+// Grouped by mission area (Wohnen/Alltag/Soziales/Lernen & Arbeit/
+// Freiwilligenarbeit), not by database entity — each of AOZ's four staff
+// roles (Betreuung, Sozialarbeit, Jobcoach, Freiwilligenarbeit) should be
+// able to find their own daily work as one group, not hunt across
+// "Personen"/"Unterkünfte"/"Monitoring". Wartung/Vorfälle/Regeln moved out
+// of the old catch-all "Monitoring" into the role that actually owns them
+// day to day; "Monitoring" now holds only the strategic/retrospective
+// destination (Statistiken).
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
-    label: 'Personen',
+    label: 'Wohnen',
     items: [
       { href: '/residents', icon: 'users', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten', permission: 'residents:read' },
       { href: '/residents/new', icon: 'user-plus', label: 'Neuer Bewohner', desc: 'Bewohner erfassen', permission: 'residents:write' },
       { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Platzierung finden', permission: 'placements:write' },
-      { href: '/learning', icon: 'learning', label: 'Lernen', desc: 'Kurse, Tests, Weiterbildung', permission: 'learning:read' },
-      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
-    ],
-  },
-  {
-    label: 'Unterkünfte',
-    items: [
       { href: '/housing', icon: 'building', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten', permission: 'housing:read' },
       { href: '/housing/new', icon: 'house-plus', label: 'Neue Einheit', desc: 'Einheit hinzufügen', permission: 'housing:write' },
       { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen', permission: 'placements:read' },
-      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Regeln', permission: 'housing:read' },
-      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Angebote fürs Portal verwalten', permission: 'residents:write' },
+      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
+      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben', permission: 'maintenance:read' },
+    ],
+  },
+  {
+    label: 'Alltag',
+    items: [
+      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Rotation', permission: 'housing:read' },
+      { href: '/marketplace', icon: 'shop', label: 'Marktplatz', desc: 'Geben, Leihen, Suchen', permission: 'marketplace:read' },
+      { href: '/events', icon: 'event', label: 'Veranstaltungen', desc: 'Hausversammlungen & Events', permission: 'events:read' },
+      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Externe Angebote fürs Portal', permission: 'residents:write' },
+    ],
+  },
+  {
+    label: 'Soziales',
+    items: [
+      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Meldungen', permission: 'incidents:read' },
+      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
+    ],
+  },
+  {
+    label: 'Lernen & Arbeit',
+    items: [
+      { href: '/learning', icon: 'learning', label: 'Lernen', desc: 'Kurse, Tests, Weiterbildung', permission: 'learning:read' },
+    ],
+  },
+  {
+    label: 'Freiwilligenarbeit',
+    items: [
+      { href: '/learning?kind=VOLUNTEERING', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Engagement erfassen & begleiten', permission: 'learning:read' },
     ],
   },
   {
     label: 'Monitoring',
     items: [
-      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Wartung', permission: 'incidents:read' },
-      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
       { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
-      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben', permission: 'maintenance:read' },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
@@ -168,7 +200,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning'
+  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning' | 'marketplace' | 'events'
   icon: keyof typeof NAV_ICONS
   primary?: boolean
   tab?: 1 | 2 | 3 | 4
@@ -203,6 +235,8 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, aozTab: 2, group: 'concerns' },
   { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
   { href: '/portal/learning', labelKey: 'learning', icon: 'learning', primary: true, tab: 4, group: 'concerns' },
+  { href: '/portal/marketplace', labelKey: 'marketplace', icon: 'shop', group: 'concerns' },
+  { href: '/portal/events', labelKey: 'events', icon: 'event', group: 'concerns' },
   { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'concerns' },
   { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'concerns' },
   { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'concerns' },

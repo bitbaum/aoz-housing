@@ -30,11 +30,15 @@ describe('role policy smoke checks', () => {
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(17)
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(21)
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('import:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:write')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('marketplace:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('marketplace:moderate')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('events:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('events:write')
   })
 
   test('JOBCOACH can record learning and cannot place residents', () => {
@@ -49,6 +53,16 @@ describe('role policy smoke checks', () => {
     expect(hasPermission('SOZIALARBEIT', 'learning:write')).toBe(true)
     expect(hasPermission('SOZIALARBEIT', 'housing:write')).toBe(false)
     expect(hasPermission('SOZIALARBEIT', 'system:configure')).toBe(false)
+  })
+
+  test('FREIWILLIGENARBEIT can moderate marketplace and coordinate events, not place residents', () => {
+    expect(hasPermission('FREIWILLIGENARBEIT', 'residents:read')).toBe(true)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'learning:write')).toBe(true)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'marketplace:moderate')).toBe(true)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'events:write')).toBe(true)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'placements:write')).toBe(false)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'housing:write')).toBe(false)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'users:manage')).toBe(false)
   })
 
   test('canRoleAccess matches ADMIN against allowlist', () => {

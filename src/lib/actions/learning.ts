@@ -104,29 +104,34 @@ export async function createOwnLearningRecord(formData: FormData): Promise<{ suc
   return { success: true }
 }
 
-export async function listLearningQueue() {
+export async function listLearningQueue(kind?: LearningKind) {
   await requirePermission('learning:read')
 
   const [records, missingGerman] = await Promise.all([
     prisma.learningRecord.findMany({
-      where: { status: { in: ['PLANNED', 'IN_PROGRESS'] } },
+      where: {
+        status: { in: ['PLANNED', 'IN_PROGRESS'] },
+        ...(kind ? { kind } : {}),
+      },
       include: {
         resident: { select: { id: true, code: true, displayName: true, languages: true } },
       },
       orderBy: { updatedAt: 'desc' },
       take: 50,
     }),
-    prisma.resident.findMany({
-      where: {
-        status: { in: ['ACTIVE', 'PLACED'] },
-        learningRecords: {
-          none: { kind: 'LANGUAGE_TEST', languageCode: 'DE' },
-        },
-      },
-      select: { id: true, code: true, displayName: true, languages: true },
-      orderBy: { code: 'asc' },
-      take: 40,
-    }),
+    kind
+      ? Promise.resolve([])
+      : prisma.resident.findMany({
+          where: {
+            status: { in: ['ACTIVE', 'PLACED'] },
+            learningRecords: {
+              none: { kind: 'LANGUAGE_TEST', languageCode: 'DE' },
+            },
+          },
+          select: { id: true, code: true, displayName: true, languages: true },
+          orderBy: { code: 'asc' },
+          take: 40,
+        }),
   ])
 
   return { records, missingGerman }

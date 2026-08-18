@@ -205,6 +205,7 @@ export default async function ResidentPortal() {
             HOUSING: t('care.housing'),
             SOCIAL: t('care.social'),
             JOB: t('care.job'),
+            VOLUNTEERING: t('care.volunteering'),
           }}
         />
       </div>
