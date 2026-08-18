@@ -19,7 +19,7 @@ export function VariantManager({
   variants: VariantRow[]
 }) {
   const router = useRouter()
-  const [draft, setDraft] = useState({ sku: '', size: '', color: '', stockQty: '0' })
+  const [draft, setDraft] = useState({ size: '', color: '', stockQty: '5' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -59,7 +59,7 @@ export function VariantManager({
       body: JSON.stringify({ ...draft, stockQty: Number(draft.stockQty) }),
     })
     if (res.ok) {
-      setDraft({ sku: '', size: '', color: '', stockQty: '0' })
+      setDraft({ size: '', color: '', stockQty: '5' })
       router.refresh()
     } else {
       const body = (await res.json().catch(() => null)) as { error?: string } | null
@@ -120,7 +120,8 @@ export function VariantManager({
 
       <form onSubmit={addVariant} className="mt-4 rounded border border-dashed border-neutral-300 p-3">
         <p className="text-sm font-semibold">Add size</p>
-        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <p className="mt-1 text-xs text-neutral-500">The stock code is generated for you.</p>
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <div>
             <label htmlFor="vm-size" className="label-field text-xs">
               Size
@@ -132,20 +133,6 @@ export function VariantManager({
               value={draft.size}
               onChange={(e) => setDraft({ ...draft, size: e.target.value })}
               placeholder="42"
-              className="input-field text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="vm-sku" className="label-field text-xs">
-              SKU
-            </label>
-            <input
-              id="vm-sku"
-              type="text"
-              required
-              value={draft.sku}
-              onChange={(e) => setDraft({ ...draft, sku: e.target.value })}
-              placeholder="ETR-42-GRN"
               className="input-field text-sm"
             />
           </div>

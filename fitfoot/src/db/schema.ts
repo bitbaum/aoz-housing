@@ -8,6 +8,7 @@
  */
 import {
   boolean,
+  customType,
   integer,
   pgTable,
   text,
@@ -15,6 +16,13 @@ import {
   uniqueIndex,
   index,
 } from 'drizzle-orm/pg-core'
+
+/** Raw bytes — image data lives in its own table so it never loads on list queries. */
+const bytea = customType<{ data: Buffer }>({
+  dataType() {
+    return 'bytea'
+  },
+})
 import { createId } from '@/lib/id'
 import { TABLE_NAMES } from '@/config/database'
 
@@ -82,6 +90,20 @@ export const productVariants = pgTable(
   ]
 )
 
+/**
+ * One image per product, kept out of the `products` row so its bytes never
+ * ride along on catalog list queries. `products.imageUrl` points at the
+ * serving route (`/api/products/[id]/image`) once an upload exists.
+ */
+export const productImages = pgTable(TABLE_NAMES.PRODUCT_IMAGES, {
+  productId: text('product_id')
+    .primaryKey()
+    .references(() => products.id, { onDelete: 'cascade' }),
+  data: bytea('data').notNull(),
+  mimeType: text('mime_type').notNull(),
+  updatedAt: updatedAt(),
+})
+
 // ---------------------------------------------------------------------------
 // Customers & CRM
 // ---------------------------------------------------------------------------
@@ -103,6 +125,25 @@ export const customers = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [uniqueIndex('customers_email_idx').on(t.email)]
+)
+
+/** Single-use, SHA-256-at-rest password reset tokens (never store the raw token). */
+export const passwordResetTokens = pgTable(
+  TABLE_NAMES.PASSWORD_RESET_TOKENS,
+  {
+    id: id(),
+    customerId: text('customer_id')
+      .notNull()
+      .references(() => customers.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    uniqueIndex('password_reset_tokens_hash_idx').on(t.tokenHash),
+    index('password_reset_tokens_customer_idx').on(t.customerId),
+  ]
 )
 
 export const addresses = pgTable(
@@ -252,7 +293,9 @@ export const orderItems = pgTable(
 export type Product = typeof products.$inferSelect
 export type NewProduct = typeof products.$inferInsert
 export type ProductVariant = typeof productVariants.$inferSelect
+export type ProductImage = typeof productImages.$inferSelect
 export type Customer = typeof customers.$inferSelect
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect
 export type Address = typeof addresses.$inferSelect
 export type CrmNote = typeof crmNotes.$inferSelect
 export type ContactInquiry = typeof contactInquiries.$inferSelect

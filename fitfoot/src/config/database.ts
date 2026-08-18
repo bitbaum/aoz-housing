@@ -8,9 +8,11 @@ export const TABLE_NAMES = {
   // Catalog
   PRODUCTS: 'products',
   PRODUCT_VARIANTS: 'product_variants',
+  PRODUCT_IMAGES: 'product_images',
 
   // Customers & CRM
   CUSTOMERS: 'customers',
+  PASSWORD_RESET_TOKENS: 'password_reset_tokens',
   ADDRESSES: 'addresses',
   CRM_NOTES: 'crm_notes',
   CONTACT_INQUIRIES: 'contact_inquiries',

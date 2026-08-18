@@ -11,12 +11,14 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   try {
     await requireStaff()
     const input = productUpsertSchema.partial().parse(await request.json())
-    const { priceChf, compareAtChf, ...rest } = input
+    const { priceChf, compareAtChf, imageDataUrl: _ignored, slug, ...rest } = input
     const values: Record<string, unknown> = { ...rest }
     if (priceChf !== undefined) values.priceRappen = chfToRappen(priceChf)
     if (compareAtChf !== undefined) {
       values.compareAtRappen = compareAtChf ? chfToRappen(compareAtChf) : null
     }
+    // A blank slug means "leave it alone" — never write an empty URL.
+    if (slug) values.slug = slug
     const [updated] = await db
       .update(products)
       .set(values)

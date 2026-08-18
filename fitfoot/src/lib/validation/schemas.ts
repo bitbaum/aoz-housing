@@ -32,6 +32,15 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(200),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().trim().min(1).max(200),
+  password: z.string().min(8).max(200),
+})
+
 export const contactSchema = z.object({
   name: z.string().trim().min(1).max(200),
   email: emailSchema,
@@ -66,13 +75,15 @@ export const checkoutSchema = z.object({
 // --- Admin / CRM ---
 
 export const productUpsertSchema = z.object({
+  // Optional — the server auto-generates a slug from the name when omitted
+  // or blank, so staff never has to invent a URL-safe string by hand.
   slug: z
     .string()
     .trim()
     .toLowerCase()
-    .min(1)
     .max(100)
-    .regex(/^[a-z0-9-]+$/),
+    .regex(/^[a-z0-9-]*$/)
+    .optional(),
   name: z.string().trim().min(1).max(200),
   category: z.enum(PRODUCT_CATEGORIES),
   productType: z.enum(PRODUCT_TYPES).default('NEW'),
@@ -89,11 +100,24 @@ export const productUpsertSchema = z.object({
   priceChf: z.string().trim().min(1), // parsed via chfToRappen at the boundary
   compareAtChf: z.string().trim().nullable().default(null),
   imageUrl: z.string().trim().max(1000).default(''),
+  imageDataUrl: z.string().trim().max(3_000_000).nullable().default(null),
   active: z.coerce.boolean().default(true),
 })
 
+// Variants nested inside a product create — no SKU: the server generates it.
+export const nestedVariantSchema = z.object({
+  size: z.string().trim().min(1).max(20),
+  color: z.string().trim().max(50).default(''),
+  stockQty: z.coerce.number().int().min(0).max(100_000).default(0),
+})
+
+export const productCreateSchema = productUpsertSchema.extend({
+  variants: z.array(nestedVariantSchema).max(50).default([]),
+})
+
 export const variantUpsertSchema = z.object({
-  sku: z.string().trim().min(1).max(100).toUpperCase(),
+  // Optional — auto-generated from the product + size + color when omitted.
+  sku: z.string().trim().max(100).toUpperCase().optional(),
   size: z.string().trim().min(1).max(20),
   color: z.string().trim().max(50).default(''),
   stockQty: z.coerce.number().int().min(0).max(100_000),

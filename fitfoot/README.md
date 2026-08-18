@@ -13,8 +13,35 @@ live in one app on one self-hosted PostgreSQL database that we own.
 |---|---|---|
 | **Storefront** | `/`, `/shop`, `/shop/[slug]`, `/about`, `/sustainability`, `/contact` | The original FitFoot brand (gold "Refined Swiss Luxury" palette, Inter + Playfair Display, "Two paths, one mission" new-vs-refurbished story) on live catalog data |
 | **Commerce** | `/cart`, `/checkout`, `/checkout/success`, `/account` | Server-side cart (cookie token → DB), transactional checkout with row locks + stock decrement, guest checkout, order history |
-| **Auth** | `/login`, `/register` | In-house email+password (bcrypt 12), JWT session cookie, three role tiers: CUSTOMER → STAFF → ADMIN |
+| **Auth** | `/login`, `/register`, `/forgot-password`, `/reset-password` | In-house email+password (bcrypt 12), JWT session cookie, three role tiers: CUSTOMER → STAFF → ADMIN, self-service password recovery |
 | **CRM / Admin** | `/admin`, `/admin/{orders,customers,products,inquiries,newsletter}` | Dashboard KPIs, order queue with an explicit status state machine, customer 360 (orders + inquiries + staff notes), product & variant/stock management, contact-form inbox, newsletter list |
+
+### Admin, designed for a non-technical shop owner
+
+The product form was rebuilt around one rule: staff should never have to
+know what a "slug" or a "SKU" is.
+
+- **One screen, one save** — name, price, photo and every size are filled in
+  on the same page and created together; no separate "now go add sizes"
+  step.
+- **Real photo upload** — drag/tap to upload, resized client-side, stored in
+  our own database and served from `/api/products/[id]/image`. No external
+  image hosting, no URLs to paste.
+- **Auto-generated web address and stock code** — the slug comes from the
+  product name and the SKU from product+size+color, both deduplicated
+  server-side. An advanced, collapsed field lets someone who wants control
+  override the address; nobody is required to.
+- **Sustainability tags are checkboxes**, not a comma-separated text field —
+  no typos, no near-duplicate tags.
+- **Live price preview** under the CHF field so a typo is visible before
+  saving, not after.
+- **Draft autosave** — the form saves to the browser every half-second and
+  offers to restore it if the tab closes or the connection drops.
+- **Duplicate product** for the common "same shoe, new colorway" case — the
+  copy starts hidden from the shop until reviewed.
+- **Self-service password recovery** — `/forgot-password` → emailed
+  single-use link → `/reset-password`, so a forgotten password never means
+  calling a developer.
 
 ## The evig patterns in here
 
@@ -62,6 +89,6 @@ npm run db:studio    # browse the database
   seam for Payrexx (Swiss: Twint/card, the evig choice) is the order status
   machine: a webhook flips `PENDING → PAID`.
 - **Email transport** — the seam exists (`src/lib/email`); plug in
-  nodemailer/Resend credentials and set `EMAIL_ENABLED=true`.
-- **Product photos** — `imageUrl` per product; a branded placeholder renders
-  until photos are uploaded.
+  nodemailer/Resend credentials and set `EMAIL_ENABLED=true`. Without it,
+  password-reset and order emails are logged, not sent — set this before a
+  real deployment or "forgot password" won't actually reach anyone.

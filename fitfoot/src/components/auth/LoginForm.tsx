@@ -61,6 +61,12 @@ export function LoginForm() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="input-field"
         />
+        <Link
+          href="/forgot-password"
+          className="mt-1 inline-block text-sm text-neutral-500 hover:text-gold-600"
+        >
+          Forgot your password?
+        </Link>
       </div>
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
       <button type="submit" disabled={busy} className="btn-gold w-full">

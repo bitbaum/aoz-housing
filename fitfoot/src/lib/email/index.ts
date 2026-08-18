@@ -33,6 +33,13 @@ export const emailTemplates = {
       html: `<h1>On its way!</h1><p>Order <strong>${orderNumber}</strong> has shipped.</p><p>${SITE.name} · ${SITE.contactEmail}</p>`,
     }
   },
+  passwordReset(resetUrl: string): EmailContent {
+    return {
+      subject: `Reset your ${SITE.name} password`,
+      text: `Click the link below to choose a new password. This link works once and expires in 1 hour.\n\n${resetUrl}\n\nIf you didn't ask for this, you can ignore this email — your password won't change.\n\n${SITE.name} · ${SITE.contactEmail}`,
+      html: `<h1>Reset your password</h1><p><a href="${resetUrl}">Click here to choose a new password</a>. This link works once and expires in 1 hour.</p><p>If you didn't ask for this, you can ignore this email — your password won't change.</p><p>${SITE.name} · ${SITE.contactEmail}</p>`,
+    }
+  },
 } as const
 
 export interface SendEmailResult {
