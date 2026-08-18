@@ -1,15 +1,16 @@
 /**
- * Care work — SSOT for the three domains a resident actually meets.
+ * Care work — SSOT for the four domains a resident actually meets.
  *
- * Housing, Sozialarbeit and Jobcoach are not three apps. They are three seats
- * on one person, with appointments and a small catalog of operational facts.
- * Adding a field is a line in CARE_ATTRIBUTE_CATALOG, never a new column and
- * never a one-off form. Nothing here is a diagnosis or an asylum status.
+ * Housing, Sozialarbeit, Jobcoach and Freiwilligenarbeit are not four apps.
+ * They are four seats on one person, with appointments and a small catalog
+ * of operational facts. Adding a field is a line in CARE_ATTRIBUTE_CATALOG,
+ * never a new column and never a one-off form. Nothing here is a diagnosis
+ * or an asylum status.
  */
 
 import type { StaffRole } from '@/lib/auth/role-policy'
 
-export const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB'] as const
+export const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB', 'VOLUNTEERING'] as const
 export type CareRoleId = (typeof CARE_ROLES)[number]
 
 /** Which staff role owns which seat. Leitung (ADMIN) may work every seat. */
@@ -17,12 +18,14 @@ export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMI
   HOUSING: 'BETREUUNG',
   SOCIAL: 'SOZIALARBEIT',
   JOB: 'JOBCOACH',
+  VOLUNTEERING: 'FREIWILLIGENARBEIT',
 }
 
 export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {
   HOUSING: 'Wohnen / Betreuung',
   SOCIAL: 'Sozialarbeit',
   JOB: 'Jobcoach',
+  VOLUNTEERING: 'Freiwilligenarbeit',
 }
 
 export const APPOINTMENT_STATUSES = ['SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
@@ -124,6 +127,25 @@ export const CARE_ATTRIBUTE_CATALOG: Record<CareRoleId, readonly CareAttributeDe
       ],
     },
   ],
+  VOLUNTEERING: [
+    {
+      key: 'interest_area',
+      label: 'Interessengebiet',
+      hint: 'Wofür sich die Person engagieren möchte oder engagiert.',
+      kind: 'text',
+    },
+    {
+      key: 'engagement_status',
+      label: 'Stand Engagement',
+      kind: 'select',
+      options: [
+        { value: 'interested', label: 'Interessiert' },
+        { value: 'matched', label: 'Vermittelt' },
+        { value: 'active', label: 'Aktiv' },
+        { value: 'paused', label: 'Pausiert' },
+      ],
+    },
+  ],
 }
 
 export function attributeDef(domain: CareRoleId, key: string): CareAttributeDef | undefined {
@@ -147,7 +169,7 @@ export const CARE_LABELS = {
   title: 'Betreuungsteam',
   workspaceTitle: 'Begleitung',
   workspaceSubtitle:
-    'Wohnen, Sozialarbeit und Jobcoach — dieselben drei Sitze, Termine und was für die Arbeit nützt.',
+    'Wohnen, Sozialarbeit, Jobcoach und Freiwilligenarbeit — dieselben vier Sitze, Termine und was für die Arbeit nützt.',
   portalTitle: 'Dein Team',
   portalSubtitle: 'Die Menschen, die für dich zuständig sind.',
   empty: 'Noch niemand zugewiesen.',

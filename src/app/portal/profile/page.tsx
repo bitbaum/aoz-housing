@@ -69,6 +69,7 @@ export default async function PortalProfilePage() {
             HOUSING: t('care.housing'),
             SOCIAL: t('care.social'),
             JOB: t('care.job'),
+            VOLUNTEERING: t('care.volunteering'),
           }}
         />
       </div>

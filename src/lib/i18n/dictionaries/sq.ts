@@ -19,6 +19,8 @@ export const sq: Dictionary = {
   'nav.messages': 'Mesazhet',
   'nav.housing': 'Banesat',
   'nav.activities': 'Aktivitetet',
+  'nav.marketplace': 'Tregu',
+  'nav.events': 'Ngjarjet',
   'nav.preferences': 'Cilësimet',
   'nav.profile': 'Profili',
   'nav.transfer': 'Kërkesë për transferim',

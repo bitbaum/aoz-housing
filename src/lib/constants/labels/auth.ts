@@ -9,6 +9,7 @@ export const ROLE_LABELS: Record<string, string> = {
   BETREUUNG: 'Betreuung',
   SOZIALARBEIT: 'Sozialarbeit',
   JOBCOACH: 'Jobcoach',
+  FREIWILLIGENARBEIT: 'Freiwilligenarbeit',
 }
 
 export const LOGIN_LABELS = {

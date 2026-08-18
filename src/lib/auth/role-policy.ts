@@ -7,15 +7,23 @@
  * BETREUUNG — daily housing ops (place, incidents, maintenance).
  * SOZIALARBEIT — people and learning; no housing writes, no algorithm.
  * JOBCOACH — learning and resident read; no placements.
+ * FREIWILLIGENARBEIT — volunteering coordination; learning + marketplace/
+ * events own-domain writes, no housing/placement writes.
  */
 
-export type StaffRole = 'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH'
+export type StaffRole =
+  | 'ADMIN'
+  | 'BETREUUNG'
+  | 'SOZIALARBEIT'
+  | 'JOBCOACH'
+  | 'FREIWILLIGENARBEIT'
 
 export const STAFF_ROLES: readonly StaffRole[] = [
   'ADMIN',
   'BETREUUNG',
   'SOZIALARBEIT',
   'JOBCOACH',
+  'FREIWILLIGENARBEIT',
 ] as const
 
 export function isStaffRole(value: string): value is StaffRole {
@@ -37,6 +45,10 @@ const OPERATIONAL = [
   'learning:read',
   'learning:write',
   'export:read',
+  'marketplace:read',
+  'marketplace:moderate',
+  'events:read',
+  'events:write',
 ] as const
 
 export const ROLE_PERMISSIONS = {
@@ -57,12 +69,25 @@ export const ROLE_PERMISSIONS = {
     'learning:read',
     'learning:write',
     'export:read',
+    'marketplace:read',
+    'events:read',
+    'events:write',
   ],
   JOBCOACH: [
     'dashboard:read',
     'residents:read',
     'learning:read',
     'learning:write',
+  ],
+  FREIWILLIGENARBEIT: [
+    'dashboard:read',
+    'residents:read',
+    'learning:read',
+    'learning:write',
+    'marketplace:read',
+    'marketplace:moderate',
+    'events:read',
+    'events:write',
   ],
 } as const
 

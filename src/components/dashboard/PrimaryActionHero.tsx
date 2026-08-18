@@ -6,6 +6,7 @@ import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight } from 'lu
 import { URGENCY_BADGE_CLASS, URGENCY_BORDER_CLASS, type Urgency } from '@/lib/config/urgency'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import { residentName } from '@/lib/utils/resident-name'
 import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit } from './types'
 
 // =============================================================================
@@ -55,7 +56,7 @@ export function determinePrimaryAction({
   if (veryOverdue.length > 0) {
     return {
       type: 'checkin',
-      title: `${DASHBOARD_LABELS.heroCheckInUrgentPrefix} ${veryOverdue[0].residentCode}`,
+      title: `${DASHBOARD_LABELS.heroCheckInUrgentPrefix} ${residentName({ code: veryOverdue[0].residentCode, displayName: veryOverdue[0].residentDisplayName })}`,
       description: `${DASHBOARD_LABELS.tileSincePrefix} ${veryOverdue[0].daysSinceLastCheckIn} ${DASHBOARD_LABELS.heroNotSeenSuffix}`,
       href: `/residents/${veryOverdue[0].residentId}`,
       buttonText: DASHBOARD_LABELS.heroStartCheckIn,
@@ -94,7 +95,7 @@ export function determinePrimaryAction({
     return {
       type: 'checkin',
       title: `${overdueCheckIns.length} ${DASHBOARD_LABELS.heroCheckInsPendingSuffix}`,
-      description: `${DASHBOARD_LABELS.heroNextPrefix} ${overdueCheckIns[0].residentCode}`,
+      description: `${DASHBOARD_LABELS.heroNextPrefix} ${residentName({ code: overdueCheckIns[0].residentCode, displayName: overdueCheckIns[0].residentDisplayName })}`,
       href: `/residents/${overdueCheckIns[0].residentId}`,
       buttonText: DASHBOARD_LABELS.heroStartCheckIn,
       count: overdueCheckIns.length,

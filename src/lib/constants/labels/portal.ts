@@ -22,6 +22,8 @@ export const PORTAL_LABELS = {
     learning: 'Lernen',
     housing: 'Unterkünfte',
     activities: 'Aktivitäten',
+    marketplace: 'Marktplatz',
+    events: 'Veranstaltungen',
     preferences: 'Einstellungen',
     profile: 'Profil',
     reports: 'Meine Meldungen',

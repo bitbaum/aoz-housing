@@ -12,7 +12,9 @@ describe('care domains', () => {
     expect(writableCareDomains('BETREUUNG')).toEqual(['HOUSING'])
     expect(writableCareDomains('SOZIALARBEIT')).toEqual(['SOCIAL'])
     expect(writableCareDomains('JOBCOACH')).toEqual(['JOB'])
+    expect(writableCareDomains('FREIWILLIGENARBEIT')).toEqual(['VOLUNTEERING'])
     expect(canWriteCareDomain('JOBCOACH', 'HOUSING')).toBe(false)
+    expect(canWriteCareDomain('FREIWILLIGENARBEIT', 'VOLUNTEERING')).toBe(true)
     expect(canWriteCareDomain('ADMIN', 'JOB')).toBe(true)
   })
 

@@ -4,10 +4,7 @@ import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
-import { MissionKPISection } from '@/components/analytics/MissionKPISection'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
-import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
-import { getSystemConfig } from '@/lib/actions/config'
 import { dayPartAt, formatWeekdayDate, type DayPart } from '@/lib/utils/local-time'
 
 /** Which greeting belongs to which part of the day. */
@@ -39,8 +36,6 @@ export default async function AdminDashboard() {
     placements,
     recentIncidents,
     openMaintenanceCount,
-    missionKPIs,
-    systemConfig,
   ] = await Promise.all([
     prisma.resident.findMany({
       where: { status: { in: ['ACTIVE', 'PLACED'] } },
@@ -88,8 +83,6 @@ export default async function AdminDashboard() {
         status: { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] },
       },
     }),
-    calculateMissionKPIs(6),
-    getSystemConfig(),
   ])
 
   // =============================================================================
@@ -121,6 +114,7 @@ export default async function AdminDashboard() {
     return {
       id: p.id,
       residentCode: p.resident.code,
+      residentDisplayName: p.resident.displayName,
       residentId: p.resident.id,
       unitCode: p.housingUnit.code,
       daysSinceLastCheckIn: daysSinceCheckIn,
@@ -235,9 +229,7 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   return (
-    <div className="space-y-6">
-      <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
-      <ActionDashboard
+    <ActionDashboard
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       availableUnits={availableUnits}
@@ -252,7 +244,6 @@ export default async function AdminDashboard() {
       greeting={DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]]}
       todayLabel={formatWeekdayDate(now)}
     />
-    </div>
   )
 }
 

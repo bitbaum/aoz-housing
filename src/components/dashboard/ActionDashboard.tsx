@@ -5,6 +5,7 @@ import { urgencyForGoodStreak, urgencyForOpenCount } from '@/lib/config/urgency'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
+import { residentName } from '@/lib/utils/resident-name'
 import { HeroAction, CriticalAlertBanner, determinePrimaryAction } from './PrimaryActionHero'
 import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
@@ -172,11 +173,11 @@ export function ActionDashboard({
             <ActionTile
               title={DASHBOARD_LABELS.tileCheckIns}
               count={overdueCheckIns.length}
-              description={`${overdueCheckIns[0]?.residentCode} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
+              description={`${overdueCheckIns[0] ? residentName({ code: overdueCheckIns[0].residentCode, displayName: overdueCheckIns[0].residentDisplayName }) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
               href={`/residents/${overdueCheckIns[0]?.residentId}`}
               urgency={urgencyForOpenCount(overdueCheckIns.length)}
               items={overdueCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map(c => ({
-                label: c.residentCode,
+                label: residentName({ code: c.residentCode, displayName: c.residentDisplayName }),
                 sublabel: `${c.daysSinceLastCheckIn} ${daysWord(c.daysSinceLastCheckIn)} · ${c.unitCode}`,
                 href: `/residents/${c.residentId}`,
               }))}
@@ -188,11 +189,11 @@ export function ActionDashboard({
             <ActionTile
               title={DASHBOARD_LABELS.tilePlaceResidents}
               count={unplacedResidents.length}
-              description={`${unplacedResidents[0]?.code} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
+              description={`${unplacedResidents[0] ? residentName(unplacedResidents[0]) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
               href="/matching"
               urgency="neutral"
               items={unplacedResidents.slice(0, DISPLAY_LIMITS.dashboardItems).map(r => ({
-                label: r.code,
+                label: residentName(r),
                 sublabel: `${DASHBOARD_LABELS.tileSincePrefix} ${formatDaysAgo(r.createdAt)}`,
                 href: `/matching?resident=${r.id}`,
               }))}
@@ -231,7 +232,7 @@ export function ActionDashboard({
               href={`/residents/${dueSoonCheckIns[0]?.residentId}`}
               urgency="neutral"
               items={dueSoonCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map(c => ({
-                label: c.residentCode,
+                label: residentName({ code: c.residentCode, displayName: c.residentDisplayName }),
                 sublabel: c.daysUntilDue === 0 ? `${DASHBOARD_LABELS.dueTodayPrefix} · ${c.unitCode}` : c.daysUntilDue === 1 ? `${DASHBOARD_LABELS.dueTomorrowPrefix} · ${c.unitCode}` : `${DASHBOARD_LABELS.dueInPrefix} ${c.daysUntilDue} ${DASHBOARD_LABELS.dueInSuffix} · ${c.unitCode}`,
                 href: `/residents/${c.residentId}`,
               }))}

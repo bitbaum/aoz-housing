@@ -49,7 +49,7 @@ export default async function AdminLayout({
               <Logo href="/" size="md" />
               <AdminMegaMenu groups={megaMenuGroups} />
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <ThemeToggle />
               <UserMenu
                 user={{ name: user.name, email: user.email, role: user.role }}
