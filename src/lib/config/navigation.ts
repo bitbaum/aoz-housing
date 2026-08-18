@@ -102,14 +102,28 @@ export type MegaMenuGroup =
   | { label: string; href: string; icon: string; permission?: StaffPermission }
   | { label: string; items: MegaMenuDropdownItem[] }
 
-// Grouped by mission area (Wohnen/Alltag/Soziales/Lernen & Arbeit/
-// Freiwilligenarbeit), not by database entity — each of AOZ's four staff
-// roles (Betreuung, Sozialarbeit, Jobcoach, Freiwilligenarbeit) should be
-// able to find their own daily work as one group, not hunt across
-// "Personen"/"Unterkünfte"/"Monitoring". Wartung/Vorfälle/Regeln moved out
-// of the old catch-all "Monitoring" into the role that actually owns them
-// day to day; "Monitoring" now holds only the strategic/retrospective
-// destination (Statistiken).
+// Grouped by mission area (Wohnen/Alltag/Konflikte/Lernen & Engagement),
+// not by database entity — each of AOZ's four staff roles
+// (Betreuung, Sozialarbeit, Jobcoach, Freiwilligenarbeit) should be able to
+// find their own daily work as one group, not hunt across "Personen"/
+// "Unterkünfte"/"Monitoring". Wartung/Vorfälle/Regeln moved out of the old
+// catch-all "Monitoring" into the role that actually owns them day to day;
+// Statistiken folded into Wohnen (occupancy/placement reporting is a housing
+// concern) rather than staying its own single-item "Monitoring" group.
+// Lernen/Freiwilligenarbeit share one group since both are a resident's
+// development work outside the roof over their head. Deliberately NOT called
+// "Soziales" — the resident form has its own "Soziales" section (a different
+// concept: that resident's own social factors) and two same-named things on
+// one screen is confusing for staff, not just ambiguous for a test selector
+// — "Konflikte" is also the more accurate name for what this group actually
+// holds (incidents, house rules), not general social-work administration.
+//
+// The bar itself never needs a magic item-count budget to "fit": every entry
+// carries `shrink-0` (never compressed), and the <nav> in AdminMegaMenu
+// scrolls its own overflow (`.scroll-fade` in globals.css, with a JS-driven
+// edge-fade affordance so an overflow is visibly discoverable, not a silent
+// dead end) instead of spilling into the user menu — see AdminHeader.tsx.
+// Add a mission area here without checking whether it "fits" a viewport.
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
@@ -123,6 +137,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen', permission: 'placements:read' },
       { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
       { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben', permission: 'maintenance:read' },
+      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
     ],
   },
   {
@@ -135,28 +150,17 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     ],
   },
   {
-    label: 'Soziales',
+    label: 'Konflikte',
     items: [
       { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Meldungen', permission: 'incidents:read' },
       { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
     ],
   },
   {
-    label: 'Lernen & Arbeit',
+    label: 'Lernen & Engagement',
     items: [
       { href: '/learning', icon: 'learning', label: 'Lernen', desc: 'Kurse, Tests, Weiterbildung', permission: 'learning:read' },
-    ],
-  },
-  {
-    label: 'Freiwilligenarbeit',
-    items: [
       { href: '/learning?kind=VOLUNTEERING', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Engagement erfassen & begleiten', permission: 'learning:read' },
-    ],
-  },
-  {
-    label: 'Monitoring',
-    items: [
-      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },

@@ -363,6 +363,22 @@
   @apply bg-ui-canvas/85 backdrop-blur-md border-b border-ui-border z-40;
 }
 
+/* A row whose content length is config-driven (nav groups, filter chips) must
+   never be the reason the chrome around it breaks — same principle as
+   `.prose-post table` below: it scrolls inside its own frame instead of
+   overflowing into a sibling. Hides the scrollbar so a fully-loaded row (an
+   ADMIN with every permission) still reads as a normal bar, not a scroll
+   affordance, while a narrower one (fewer permissions, a narrower window)
+   quietly gains the ability to scroll instead of clipping or overlapping. */
+.scroll-fade {
+  @apply overflow-x-auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-fade::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Buttons ────────────────────────────────────────────────────────────────
    NOTE on naming (historical, do not "fix" without a sweep): `.btn-primary` is
    the NEUTRAL near-black button used as the default action everywhere, and
