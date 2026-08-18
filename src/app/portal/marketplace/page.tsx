@@ -7,9 +7,11 @@ import {
   createMarketplacePost,
   claimMarketplacePost,
   closeMarketplacePost,
+  reportMarketplacePost,
   type MarketplacePostSummary,
 } from '@/lib/actions/marketplace'
 import { MARKETPLACE_STATUS_BADGE } from '@/lib/constants'
+import { PHOTO_LIMITS } from '@/lib/config/profile'
 
 export const metadata: Metadata = { title: 'Marktplatz' }
 export const dynamic = 'force-dynamic'
@@ -27,6 +29,11 @@ async function submitClaimPost(formData: FormData): Promise<void> {
 async function submitClosePost(formData: FormData): Promise<void> {
   'use server'
   await closeMarketplacePost(formData)
+}
+
+async function submitReportPost(formData: FormData): Promise<void> {
+  'use server'
+  await reportMarketplacePost(formData)
 }
 
 export default async function PortalMarketplacePage() {
@@ -53,9 +60,22 @@ export default async function PortalMarketplacePage() {
     CLOSED: t('marketplace.statusClosed'),
   }
 
-  function renderPost(post: MarketplacePostSummary) {
+  function renderPost(post: MarketplacePostSummary, canClaim: boolean) {
     return (
       <div key={post.id} className="card">
+        {post.photos.length > 0 ? (
+          <div className="mb-3 flex gap-2 overflow-x-auto">
+            {post.photos.map((photo) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={photo.id}
+                src={`/api/marketplace/photos/${photo.id}`}
+                alt={post.title}
+                className="h-24 w-24 shrink-0 rounded-lg border border-ui-border object-cover"
+              />
+            ))}
+          </div>
+        ) : null}
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-semibold text-ui-text">{post.title}</span>
           <span className={`badge ${MARKETPLACE_STATUS_BADGE[post.status]}`}>{statusLabels[post.status]}</span>
@@ -64,27 +84,50 @@ export default async function PortalMarketplacePage() {
         <p className="mt-1 text-sm text-ui-muted">{post.description}</p>
         <div className="mt-2 flex flex-wrap gap-3 text-xs text-ui-muted">
           <span>{categoryLabels[post.category]}</span>
-          <span>{t('marketplace.postedBy')}: {post.postedByName}</span>
+          <span>{t('marketplace.postedBy')}: {post.postedByName ?? '—'}</span>
           {post.claimedByName ? (
             <span>{t('marketplace.claimedBy')}: {post.claimedByName}</span>
           ) : null}
         </div>
-        {post.status === 'OPEN' ? (
-          <form action={submitClaimPost} className="mt-3">
-            <input type="hidden" name="id" value={post.id} />
-            <button type="submit" className="btn-outline min-h-[44px] px-4">
-              {t('marketplace.claim')}
-            </button>
-          </form>
-        ) : null}
-        {post.status === 'CLAIMED' ? (
-          <form action={submitClosePost} className="mt-3">
-            <input type="hidden" name="id" value={post.id} />
-            <button type="submit" className="btn-outline min-h-[44px] px-4">
-              {t('marketplace.close')}
-            </button>
-          </form>
-        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {post.status === 'OPEN' && canClaim ? (
+            <form action={submitClaimPost}>
+              <input type="hidden" name="id" value={post.id} />
+              <button type="submit" className="btn-outline min-h-[44px] px-4">
+                {t('marketplace.claim')}
+              </button>
+            </form>
+          ) : null}
+          {post.status === 'CLAIMED' && canClaim ? (
+            <form action={submitClosePost}>
+              <input type="hidden" name="id" value={post.id} />
+              <button type="submit" className="btn-outline min-h-[44px] px-4">
+                {t('marketplace.close')}
+              </button>
+            </form>
+          ) : null}
+          {post.reportedByViewer ? (
+            <span className="chip chip-neutral self-center">{t('marketplace.alreadyReported')}</span>
+          ) : (
+            <details className="group">
+              <summary className="btn-ghost min-h-[44px] px-4 cursor-pointer list-none">
+                {t('marketplace.report')}
+              </summary>
+              <form action={submitReportPost} className="mt-2 flex flex-wrap items-end gap-2">
+                <input type="hidden" name="id" value={post.id} />
+                <div>
+                  <label htmlFor={`report-reason-${post.id}`} className="label">
+                    {t('marketplace.reportReason')}
+                  </label>
+                  <input id={`report-reason-${post.id}`} name="reason" required className="input" />
+                </div>
+                <button type="submit" className="btn-outline min-h-[44px] px-4">
+                  {t('marketplace.reportSubmit')}
+                </button>
+              </form>
+            </details>
+          )}
+        </div>
       </div>
     )
   }
@@ -121,6 +164,17 @@ export default async function PortalMarketplacePage() {
             </select>
           </div>
           <div className="sm:col-span-2">
+            <label htmlFor="mp-photos" className="label">{t('marketplace.formPhotos')}</label>
+            <input
+              id="mp-photos"
+              name="photos"
+              type="file"
+              accept={PHOTO_LIMITS.allowedMimeTypes.join(',')}
+              multiple
+              className="input"
+            />
+          </div>
+          <div className="sm:col-span-2">
             <button type="submit" className="btn-primary min-h-[44px] px-6">
               {t('marketplace.submit')}
             </button>
@@ -135,13 +189,13 @@ export default async function PortalMarketplacePage() {
           {posts.own.length > 0 ? (
             <div className="space-y-3">
               <h2 className="text-lg font-semibold text-ui-text">{t('marketplace.ownUnit')}</h2>
-              {posts.own.map(renderPost)}
+              {posts.own.map((post) => renderPost(post, true))}
             </div>
           ) : null}
           {posts.other.length > 0 ? (
             <div className="space-y-3">
               <h2 className="text-lg font-semibold text-ui-text">{t('marketplace.otherUnits')}</h2>
-              {posts.other.map(renderPost)}
+              {posts.other.map((post) => renderPost(post, false))}
             </div>
           ) : null}
         </>

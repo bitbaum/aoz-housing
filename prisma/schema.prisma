@@ -142,9 +142,10 @@ model Resident {
   careAttributes  CareAttribute[]
 
   // Marketplace & events
-  marketplacePostsCreated MarketplacePost[] @relation("MarketplacePostedBy")
-  marketplacePostsClaimed MarketplacePost[] @relation("MarketplacePostClaimedBy")
-  houseEventsCreated      HouseEvent[]      @relation("HouseEventCreatedByResident")
+  marketplacePostsCreated MarketplacePost[]   @relation("MarketplacePostedBy")
+  marketplacePostsClaimed MarketplacePost[]   @relation("MarketplacePostClaimedBy")
+  marketplaceReportsMade  MarketplaceReport[] @relation("MarketplaceReportedBy")
+  houseEventsCreated      HouseEvent[]        @relation("HouseEventCreatedByResident")
   eventRsvps              EventRsvp[]
 
   @@index([status])
@@ -867,6 +868,7 @@ model User {
   appointments          Appointment[]
   careAttributesUpdated CareAttribute[]
   houseEventsCreated    HouseEvent[] @relation("HouseEventCreatedByStaff")
+  marketplaceReportsResolved MarketplaceReport[]
   // Login credentials (email + password) live on Account, never here.
   account Account?
 
@@ -1359,9 +1361,13 @@ enum TaskRequestStatus {
 // =============================================================================
 // MARKETPLACE — resident-to-resident give away / lend / ask for
 // =============================================================================
-// Per-unit scoped like HouseholdTask; resident FKs are Cascade/SetNull, not
-// Restrict — unlike expense payers, no financial state depends on who posted
-// or claimed a listing.
+// Per-unit scoped like HouseholdTask; resident FKs are SetNull, not Restrict
+// — unlike expense payers, no financial state depends on who posted or
+// claimed a listing. `postedBy` was originally Cascade, inconsistent with
+// `HouseEvent.createdByResident`'s SetNull for the same shape of relationship
+// (a resident who authored a record others interact with): deleting the
+// poster of a CLAIMED post would have cascaded the post away, silently
+// destroying the claimant's own record of what they'd arranged to receive.
 
 model MarketplacePost {
   id        String   @id @default(cuid())
@@ -1371,8 +1377,8 @@ model MarketplacePost {
   housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
   housingUnitId String
 
-  postedBy   Resident @relation("MarketplacePostedBy", fields: [postedById], references: [id], onDelete: Cascade)
-  postedById String
+  postedBy   Resident? @relation("MarketplacePostedBy", fields: [postedById], references: [id], onDelete: SetNull)
+  postedById String?
 
   title       String
   description String
@@ -1384,9 +1390,14 @@ model MarketplacePost {
   claimedById String?
   closedAt    DateTime?
 
-  // Staff moderation
+  // Staff moderation — direct hide/unhide. Distinct from MarketplaceReport
+  // below: this is staff acting unilaterally; a report is a resident flagging
+  // something for staff to look at, which may or may not end in a hide.
   hiddenByStaff Boolean @default(false)
   hiddenReason  String?
+
+  photos  MarketplacePostPhoto[]
+  reports MarketplaceReport[]
 
   @@index([housingUnitId, status])
   @@index([postedById])
@@ -1411,6 +1422,48 @@ enum MarketplacePostStatus {
   OPEN
   CLAIMED
   CLOSED
+}
+
+// One photo per row (not Bytes on MarketplacePost itself) for the same
+// reason as ResidentPhoto: Prisma selects all scalar columns by default, so
+// image bytes on the post row would load on every list query. `isPrimary`
+// picks the listing thumbnail; a post may have none.
+model MarketplacePostPhoto {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  post   MarketplacePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  data      Bytes
+  mimeType  String
+  isPrimary Boolean @default(false)
+
+  @@index([postId])
+}
+
+// A resident flagging a listing for staff attention — distinct from the
+// direct hiddenByStaff toggle above (staff acting on their own judgement).
+// Modeled on evig's listingReports: a real resolution record, not just a
+// boolean, so "was this looked at, and what came of it" is answerable later.
+model MarketplaceReport {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  post   MarketplacePost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  reportedBy   Resident? @relation("MarketplaceReportedBy", fields: [reportedById], references: [id], onDelete: SetNull)
+  reportedById String?
+  reason       String
+
+  resolvedAt   DateTime?
+  resolvedBy   User?     @relation(fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolvedById String?
+  resolution   String?
+
+  @@index([postId])
+  @@index([resolvedAt])
 }
 
 // =============================================================================

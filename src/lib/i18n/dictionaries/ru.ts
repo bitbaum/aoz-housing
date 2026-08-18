@@ -165,6 +165,11 @@ export const ru: Dictionary = {
   'marketplace.statusOpen': 'Открыто',
   'marketplace.statusClaimed': 'Забронировано',
   'marketplace.statusClosed': 'Завершено',
+  'marketplace.formPhotos': 'Фото (необязательно)',
+  'marketplace.report': 'Пожаловаться',
+  'marketplace.reportReason': 'Причина',
+  'marketplace.reportSubmit': 'Отправить жалобу',
+  'marketplace.alreadyReported': 'Уже пожаловались',
 
   'events.title': 'Мероприятия',
   'events.subtitle': 'Собрания дома и совместные встречи — подтверди участие или создай своё мероприятие.',

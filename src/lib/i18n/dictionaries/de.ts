@@ -172,6 +172,11 @@ export const de = {
   'marketplace.statusOpen': 'Offen',
   'marketplace.statusClaimed': 'Übernommen',
   'marketplace.statusClosed': 'Abgeschlossen',
+  'marketplace.formPhotos': 'Fotos (optional)',
+  'marketplace.report': 'Melden',
+  'marketplace.reportReason': 'Grund',
+  'marketplace.reportSubmit': 'Meldung senden',
+  'marketplace.alreadyReported': 'Bereits gemeldet',
 
   'events.title': 'Veranstaltungen',
   'events.subtitle': 'Hausversammlungen und gemeinsame Anlässe — sag zu, ab, oder erstelle selbst einen Termin.',

@@ -147,6 +147,11 @@ export const ti: Dictionary = {
   'marketplace.statusOpen': 'ክፉት',
   'marketplace.statusClaimed': 'ተወሲዱ',
   'marketplace.statusClosed': 'ተዓጽዩ',
+  'marketplace.formPhotos': 'ስእልታት (ኣማራጺ)',
+  'marketplace.report': 'ኣመልክት',
+  'marketplace.reportReason': 'ምኽንያት',
+  'marketplace.reportSubmit': 'ጸብጻብ ስደድ',
+  'marketplace.alreadyReported': 'ቅድሚ ሕጂ ተመልኪቱ',
 
   'events.title': 'ንጥፈታት',
   'events.subtitle': 'ኣኼባ ገዛን ሓባራዊ ርክባትን — ተሳተፍ: ወይ ባዕልኻ ፍጠር።',

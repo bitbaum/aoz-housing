@@ -154,6 +154,11 @@ export const ar: Dictionary = {
   'marketplace.statusOpen': 'متاح',
   'marketplace.statusClaimed': 'محجوز',
   'marketplace.statusClosed': 'مغلق',
+  'marketplace.formPhotos': 'صور (اختياري)',
+  'marketplace.report': 'إبلاغ',
+  'marketplace.reportReason': 'السبب',
+  'marketplace.reportSubmit': 'إرسال البلاغ',
+  'marketplace.alreadyReported': 'تم الإبلاغ بالفعل',
 
   'events.title': 'الفعاليات',
   'events.subtitle': 'اجتماعات السكن ولقاءات مشتركة — أكّد حضورك أو أنشئ فعالية بنفسك.',

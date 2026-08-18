@@ -145,6 +145,11 @@ export const en: Dictionary = {
   'marketplace.statusOpen': 'Open',
   'marketplace.statusClaimed': 'Claimed',
   'marketplace.statusClosed': 'Closed',
+  'marketplace.formPhotos': 'Photos (optional)',
+  'marketplace.report': 'Report',
+  'marketplace.reportReason': 'Reason',
+  'marketplace.reportSubmit': 'Submit report',
+  'marketplace.alreadyReported': 'Already reported',
 
   'events.title': 'Events',
   'events.subtitle': 'House meetings and shared get-togethers — RSVP, or create one yourself.',

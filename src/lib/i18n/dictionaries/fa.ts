@@ -148,6 +148,11 @@ export const fa: Dictionary = {
   'marketplace.statusOpen': 'باز',
   'marketplace.statusClaimed': 'رزرو شده',
   'marketplace.statusClosed': 'بسته شده',
+  'marketplace.formPhotos': 'عکس‌ها (اختیاری)',
+  'marketplace.report': 'گزارش',
+  'marketplace.reportReason': 'دلیل',
+  'marketplace.reportSubmit': 'ارسال گزارش',
+  'marketplace.alreadyReported': 'قبلاً گزارش شده',
 
   'events.title': 'رویدادها',
   'events.subtitle': 'جلسات خانه و دورهمی‌های مشترک — اعلام حضور کن یا خودت رویدادی بساز.',

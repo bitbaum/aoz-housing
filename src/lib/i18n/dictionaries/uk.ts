@@ -153,6 +153,11 @@ export const uk: Dictionary = {
   'marketplace.statusOpen': 'Відкрито',
   'marketplace.statusClaimed': 'Заброньовано',
   'marketplace.statusClosed': 'Завершено',
+  'marketplace.formPhotos': 'Фото (необов’язково)',
+  'marketplace.report': 'Поскаржитися',
+  'marketplace.reportReason': 'Причина',
+  'marketplace.reportSubmit': 'Надіслати скаргу',
+  'marketplace.alreadyReported': 'Вже поскаржились',
 
   'events.title': 'Заходи',
   'events.subtitle': 'Збори мешканців та спільні зустрічі — підтверди участь або створи свій захід.',

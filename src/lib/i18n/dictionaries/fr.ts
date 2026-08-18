@@ -156,6 +156,11 @@ export const fr: Dictionary = {
   'marketplace.statusOpen': 'Ouvert',
   'marketplace.statusClaimed': 'Réservé',
   'marketplace.statusClosed': 'Clôturé',
+  'marketplace.formPhotos': 'Photos (facultatif)',
+  'marketplace.report': 'Signaler',
+  'marketplace.reportReason': 'Motif',
+  'marketplace.reportSubmit': 'Envoyer le signalement',
+  'marketplace.alreadyReported': 'Déjà signalé',
 
   'events.title': 'Événements',
   'events.subtitle': "Réunions de maison et moments partagés — réponds, ou crée toi-même un événement.",

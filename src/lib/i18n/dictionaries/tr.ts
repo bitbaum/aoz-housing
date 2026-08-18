@@ -165,6 +165,11 @@ export const tr: Dictionary = {
   'marketplace.statusOpen': 'Açık',
   'marketplace.statusClaimed': 'Ayrıldı',
   'marketplace.statusClosed': 'Kapandı',
+  'marketplace.formPhotos': 'Fotoğraflar (isteğe bağlı)',
+  'marketplace.report': 'Bildir',
+  'marketplace.reportReason': 'Sebep',
+  'marketplace.reportSubmit': 'Bildirimi gönder',
+  'marketplace.alreadyReported': 'Zaten bildirildi',
 
   'events.title': 'Etkinlikler',
   'events.subtitle': 'Ev toplantıları ve ortak buluşmalar — katılımını bildir ya da kendin bir etkinlik oluştur.',
