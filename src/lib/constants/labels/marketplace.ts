@@ -33,3 +33,12 @@ export const MARKETPLACE_ADMIN_LABELS = {
     CLOSED: 'Abgeschlossen',
   },
 } as const
+
+/** Badge class per MarketplacePostStatus — the one definition, shared by the
+ *  admin moderation table and the portal listing (previously copy-pasted in
+ *  both). */
+export const MARKETPLACE_STATUS_BADGE: Record<string, string> = {
+  OPEN: 'badge-active',
+  CLAIMED: 'badge-pending',
+  CLOSED: 'badge-ended',
+}

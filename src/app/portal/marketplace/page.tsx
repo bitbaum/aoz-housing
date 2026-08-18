@@ -9,15 +9,10 @@ import {
   closeMarketplacePost,
   type MarketplacePostSummary,
 } from '@/lib/actions/marketplace'
+import { MARKETPLACE_STATUS_BADGE } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Marktplatz' }
 export const dynamic = 'force-dynamic'
-
-const STATUS_BADGE: Record<string, string> = {
-  OPEN: 'badge-active',
-  CLAIMED: 'badge-pending',
-  CLOSED: 'badge-ended',
-}
 
 async function submitCreatePost(formData: FormData): Promise<void> {
   'use server'
@@ -63,7 +58,7 @@ export default async function PortalMarketplacePage() {
       <div key={post.id} className="card">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-semibold text-ui-text">{post.title}</span>
-          <span className={`badge ${STATUS_BADGE[post.status]}`}>{statusLabels[post.status]}</span>
+          <span className={`badge ${MARKETPLACE_STATUS_BADGE[post.status]}`}>{statusLabels[post.status]}</span>
           <span className="chip chip-neutral">{kindLabels[post.kind]}</span>
         </div>
         <p className="mt-1 text-sm text-ui-muted">{post.description}</p>

@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
-import { EVENTS_ADMIN_LABELS } from '@/lib/constants'
+import { EVENTS_ADMIN_LABELS, EVENTS_STATUS_BADGE } from '@/lib/constants'
 import { listStaffEvents, createEventAsStaff, cancelEvent } from '@/lib/actions/events'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
 
 export const metadata: Metadata = { title: EVENTS_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
-
-const STATUS_BADGE: Record<string, string> = {
-  DRAFT: 'badge-pending',
-  PUBLISHED: 'badge-active',
-  CANCELLED: 'badge-ended',
-}
 
 async function submitCreateEvent(formData: FormData): Promise<void> {
   'use server'
@@ -90,7 +84,7 @@ export default async function EventsAdminPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-ui-text">{event.title}</span>
-                      <span className={`badge ${STATUS_BADGE[event.status]}`}>
+                      <span className={`badge ${EVENTS_STATUS_BADGE[event.status]}`}>
                         {EVENTS_ADMIN_LABELS.status[event.status]}
                       </span>
                       <span className="chip chip-neutral">{EVENTS_ADMIN_LABELS.category[event.category]}</span>

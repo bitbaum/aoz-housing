@@ -1,16 +1,10 @@
 import type { Metadata } from 'next'
 import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
-import { MARKETPLACE_ADMIN_LABELS } from '@/lib/constants'
+import { MARKETPLACE_ADMIN_LABELS, MARKETPLACE_STATUS_BADGE } from '@/lib/constants'
 import { listStaffMarketplacePosts, hideMarketplacePost, unhideMarketplacePost } from '@/lib/actions/marketplace'
 
 export const metadata: Metadata = { title: MARKETPLACE_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
-
-const STATUS_BADGE: Record<string, string> = {
-  OPEN: 'badge-active',
-  CLAIMED: 'badge-pending',
-  CLOSED: 'badge-ended',
-}
 
 async function submitHide(formData: FormData): Promise<void> {
   'use server'
@@ -43,7 +37,7 @@ export default async function MarketplaceAdminPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-semibold text-ui-text">{post.title}</span>
-                      <span className={`badge ${STATUS_BADGE[post.status]}`}>
+                      <span className={`badge ${MARKETPLACE_STATUS_BADGE[post.status]}`}>
                         {MARKETPLACE_ADMIN_LABELS.status[post.status]}
                       </span>
                       <span className="chip chip-neutral">
