@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === REFINED SWISS LUXURY PALETTE (carried over from the original FitFoot) === */
+
+@layer components {
+  .gold-gradient {
+    background: linear-gradient(135deg, #b8860b 0%, #daa520 30%, #d4af37 70%, #b8860b 100%);
+  }
+
+  .gold-text-gradient {
+    background: linear-gradient(135deg, #b8860b 0%, #daa520 30%, #d4af37 70%, #b8860b 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-gold {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded px-6 py-3 font-semibold text-white transition-transform;
+    background: linear-gradient(135deg, #b8860b 0%, #daa520 30%, #d4af37 70%, #b8860b 100%);
+    box-shadow: 0 2px 8px rgba(184, 134, 11, 0.25);
+  }
+
+  .btn-gold:hover {
+    background: linear-gradient(135deg, #a0750a 0%, #c8941c 30%, #bf9d32 70%, #a0750a 100%);
+  }
+
+  .btn-outline-gold {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded border-2 border-gold-500 px-6 py-3 font-semibold text-gold-500 transition-colors hover:bg-gold-50;
+  }
+
+  .btn-dark {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded bg-neutral-900 px-6 py-3 font-semibold text-white transition-colors hover:bg-neutral-700;
+  }
+
+  .btn-ghost {
+    @apply inline-flex min-h-[44px] items-center justify-center rounded px-4 py-2 font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900;
+  }
+
+  .card-premium {
+    @apply rounded border border-neutral-200 bg-white p-6 transition-shadow hover:shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full rounded border border-neutral-300 px-4 py-3 text-neutral-900 focus:border-gold-500 focus:outline-none focus:ring-1 focus:ring-gold-500;
+  }
+
+  .label-field {
+    @apply mb-1 block text-sm font-medium text-neutral-700;
+  }
+
+  .badge-gold {
+    @apply inline-flex items-center rounded bg-gold-100 px-2.5 py-0.5 text-xs font-semibold text-gold-700;
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center rounded bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-600;
+  }
+
+  .badge-green {
+    @apply inline-flex items-center rounded bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700;
+  }
+}
