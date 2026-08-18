@@ -18,10 +18,18 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   const params = await searchParams
   const statusFilter = params.status || 'PENDING'
 
-  const [requests, allRequests] = await Promise.all([
+  const [requestsRaw, allRequests] = await Promise.all([
     getTransferRequests(statusFilter === 'ALL' ? undefined : statusFilter),
     getTransferRequests(),
   ])
+  // Pending requests are a queue, not a feed — the one waiting longest
+  // should be the one staff see first, the same principle the staff inbox
+  // already applies to unanswered messages. Decided requests stay
+  // newest-first: that's review history, where "what just happened" is what
+  // matters.
+  const requests = statusFilter === 'PENDING'
+    ? [...requestsRaw].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    : requestsRaw
   const counts = {
     all: allRequests.length,
     pending: allRequests.filter(r => r.status === 'PENDING').length,

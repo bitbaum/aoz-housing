@@ -154,11 +154,21 @@ export default async function HousingListPage({ searchParams }: Props) {
           }
         />
       ) : (
-        <HousingList units={units.map(u => ({
-          ...u,
-          placementCount: u._count.placements,
-          incidentCount: u._count.incidents,
-        }))} />
+        <HousingList units={units
+          .map(u => ({
+            ...u,
+            placementCount: u._count.placements,
+            incidentCount: u._count.incidents,
+          }))
+          // Units needing attention surface first — MAINTENANCE status and
+          // recent incidents were already fetched per row but a flat
+          // alphabetical order buried them among every healthy unit.
+          .sort((a, b) => {
+            const priority = (u: typeof a) =>
+              (u.status === 'MAINTENANCE' ? 2 : 0) + (u.incidentCount > 0 ? 1 : 0)
+            const diff = priority(b) - priority(a)
+            return diff !== 0 ? diff : b.incidentCount - a.incidentCount
+          })} />
       )}
     </PageShell>
   )

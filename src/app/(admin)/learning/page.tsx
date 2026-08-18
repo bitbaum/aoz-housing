@@ -12,6 +12,7 @@ import {
   type LearningStatusId,
 } from '@/lib/config/learning'
 import { residentName } from '@/lib/utils/resident-name'
+import { formatRelativeDate } from '@/lib/utils'
 import type { LearningKind } from '@prisma/client'
 
 export const metadata: Metadata = { title: 'Lernen' }
@@ -51,8 +52,12 @@ export default async function LearningQueuePage({ searchParams }: Props) {
                     <Link href={`/residents/${resident.id}`} className="font-medium text-ui-text hover:underline">
                       {residentName(resident)}
                     </Link>
-                    {/* resident-code-intentional — staff queue, they look people up by login code */}
-                    <p className="text-xs text-ui-muted font-mono">{resident.code}</p>
+                    <p className="text-xs text-ui-muted">
+                      {/* resident-code-intentional — staff queue, they look people up by login code */}
+                      <span className="font-mono">{resident.code}</span>
+                      {' · '}
+                      {formatRelativeDate(resident.createdAt)}
+                    </p>
                   </div>
                   <Link
                     href={`/residents/${resident.id}`}
@@ -75,7 +80,18 @@ export default async function LearningQueuePage({ searchParams }: Props) {
           <p className="text-sm text-ui-muted">{LEARNING_LABELS.empty}</p>
         ) : (
           <ul className="divide-y divide-ui-border">
-            {records.map((record) => (
+            {[...records]
+              // IN_PROGRESS records need a follow-up more than PLANNED ones
+              // do, and the one nobody has touched in the longest time needs
+              // it most — the query's own `updatedAt desc` order buried
+              // exactly that record at the bottom.
+              .sort((a, b) => {
+                const priority = (r: typeof a) => (r.status === 'IN_PROGRESS' ? 1 : 0)
+                const diff = priority(b) - priority(a)
+                if (diff !== 0) return diff
+                return new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
+              })
+              .map((record) => (
               <li key={record.id} className="py-3">
                 <Link href={`/residents/${record.resident.id}`} className="font-medium text-ui-text hover:underline">
                   {residentName(record.resident)}

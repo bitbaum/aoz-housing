@@ -129,8 +129,11 @@ export async function listLearningQueue(kind?: LearningKind) {
               none: { kind: 'LANGUAGE_TEST', languageCode: 'DE' },
             },
           },
-          select: { id: true, code: true, displayName: true, languages: true },
-          orderBy: { code: 'asc' },
+          select: { id: true, code: true, displayName: true, languages: true, createdAt: true },
+          // Whoever has been waiting longest without a German test on file
+          // surfaces first — an alphabetical queue meant staff had to already
+          // know who to check on.
+          orderBy: { createdAt: 'asc' },
           take: QUERY_LIMITS.missingGermanQueue,
         }),
   ])

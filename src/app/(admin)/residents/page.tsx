@@ -172,10 +172,17 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           }
         />
       ) : (
-        <ResidentsList residents={residents.map(r => ({
-          ...r,
-          incidentCount: r._count.incidentsAsSubject,
-        }))} />
+        <ResidentsList residents={residents
+          .map(r => ({
+            ...r,
+            incidentCount: r._count.incidentsAsSubject,
+          }))
+          // Recent-incident residents surface first — the count is already
+          // fetched per row, but a flat createdAt order buried it below
+          // whoever was added most recently, so a caseworker had to already
+          // know who to look for. Prisma can't `orderBy` this WHERE-filtered
+          // nested count, so the sort happens here instead.
+          .sort((a, b) => b.incidentCount - a.incidentCount)} />
       )}
     </PageShell>
   )
