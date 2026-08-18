@@ -5,6 +5,7 @@
 export interface OverdueCheckIn {
   id: string
   residentCode: string
+  residentDisplayName: string | null
   residentId: string
   unitCode: string
   daysSinceLastCheckIn: number
@@ -15,6 +16,7 @@ export interface OverdueCheckIn {
 export interface DueSoonCheckIn {
   id: string
   residentCode: string
+  residentDisplayName: string | null
   residentId: string
   unitCode: string
   daysUntilDue: number

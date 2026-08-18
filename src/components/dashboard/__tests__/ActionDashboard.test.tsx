@@ -101,7 +101,7 @@ const BASE_PROPS = {
 }
 
 function makeCheckIn(id: string) {
-  return { id, residentCode: `RES-${id}`, residentId: `rid-${id}`, unitCode: 'A01', daysSinceLastCheckIn: 8, supportLevel: 'STANDARD' }
+  return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'A01', daysSinceLastCheckIn: 8, supportLevel: 'STANDARD' }
 }
 
 function makeResident(id: string) {
@@ -117,7 +117,7 @@ function makeProblemUnit(id: string) {
 }
 
 function makeDueSoon(id: string, daysUntilDue = 2) {
-  return { id, residentCode: `RES-${id}`, residentId: `rid-${id}`, unitCode: 'C03', daysUntilDue, supportLevel: 'STANDARD' }
+  return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'C03', daysUntilDue, supportLevel: 'STANDARD' }
 }
 
 // --- Tests ---

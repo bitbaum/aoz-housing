@@ -114,6 +114,7 @@ export default async function AdminDashboard() {
     return {
       id: p.id,
       residentCode: p.resident.code,
+      residentDisplayName: p.resident.displayName,
       residentId: p.resident.id,
       unitCode: p.housingUnit.code,
       daysSinceLastCheckIn: daysSinceCheckIn,

@@ -35,6 +35,7 @@ const OPT_OUT = 'resident-code-intentional'
 const NON_RESIDENT_CODE_HOLDERS = [
   'unit',
   'units',
+  'problemUnits',
   'housingUnit',
   'targetUnit',
   'currentUnit',
@@ -54,7 +55,11 @@ const NON_RESIDENT_CODE_HOLDERS = [
 // `X.code` inside a JSX expression. Only the accessor DIRECTLY before `.code`
 // decides: `resident.placements[0].housingUnit.code` is a unit code that
 // happens to be reached through a resident, and is none of this rule's business.
-const CODE_ACCESS = /\{[^{}]*?([A-Za-z0-9_]+)\??\.code\b/g
+// The optional `[...]` lets `unplacedResidents[0]?.code` still resolve to the
+// `unplacedResidents` accessor — a bracket index sat between the identifier
+// and `.code` and the rule simply never matched the line, which is how a
+// dashboard tile rendered a raw code with this very guard already in the repo.
+const CODE_ACCESS = /\{[^{}]*?([A-Za-z0-9_]+)(?:\[[^[\]]*\])?\??\.code\b/g
 
 /**
  * Carrying the code as DATA is fine — `{ code: resident.code }` feeds the very
@@ -70,7 +75,7 @@ const IS_CONSTANTS_OBJECT = /^[A-Z0-9_]+$/
 function rendersResidentCode(line: string): boolean {
   if (PASSES_CODE_AS_DATA.test(line) || PASSES_CODE_AS_PROP.test(line)) return false
   return Array.from(line.match(CODE_ACCESS) ?? []).some((fragment) => {
-    const accessor = /([A-Za-z0-9_]+)\??\.code\b/.exec(fragment)?.[1]
+    const accessor = /([A-Za-z0-9_]+)(?:\[[^[\]]*\])?\??\.code\b/.exec(fragment)?.[1]
     if (!accessor) return false
     if (IS_CONSTANTS_OBJECT.test(accessor)) return false
     return !NON_RESIDENT_CODE_HOLDERS.includes(accessor)
@@ -111,6 +116,13 @@ describe('resident display-name SSOT', () => {
     // The denylist must catch an accessor nobody thought to enumerate — this
     // exact case (`candidate.code`) escaped the first version of this rule.
     expect(rendersResidentCode('<span>{candidate.code}</span>')).toBe(true)
+
+    // A bracket index between the accessor and `.code` — this exact shape
+    // (`unplacedResidents[0]?.code`) rendered a raw code on the admin
+    // dashboard while this rule, unable to match past the `[0]`, stayed
+    // silent about it.
+    expect(rendersResidentCode('{unplacedResidents[0]?.code}')).toBe(true)
+    expect(rendersResidentCode('<span>{list[i].code}</span>')).toBe(true)
 
     expect(rendersResidentCode('<p>{residentName(resident)}</p>')).toBe(false)
     // A UNIT code reached through a resident is not a resident name.
