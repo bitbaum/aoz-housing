@@ -2,7 +2,7 @@
 
 created_date: 2026-08-17
 last_modified_date: 2026-08-19
-last_modified_summary: Updated the public site/domain while preserving the legacy internal deploy identifiers that still name the runtime.
+last_modified_summary: Document fleet AI keys (Groq → OpenRouter); staff chat no longer uses Anthropic.
 
 This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, Prisma loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
 
@@ -74,6 +74,26 @@ npx prisma migrate status
 Do not point this laptop's Prisma at Neon. Do not assume `localhost:5432` on the laptop is `aoz_wohnen` — that database lives on the box.
 
 Local development uses a **local** Postgres and `.env.example` as the template (`aoz_wohnen` as the name so it matches production). Copy credentials from the box only when you are deliberately tunnelling, and rewrite the host/port to the tunnel — never keep a `neon.tech` host "for convenience".
+
+## AI (fleet keys — same as Kivvi / FleetCrown)
+
+All AI surfaces share one provider chain in `src/lib/ai/provider.ts`:
+
+1. **`GROQ_API_KEY`** — free, fleet default (`llama-3.3-70b-versatile` or whatever `GROQ_MODEL` names)
+2. **`OPENROUTER_API_KEY`** — fallback when Groq is down or rate-limited (`OPENROUTER_MODEL`, default `openai/gpt-oss-20b:free`)
+
+Surfaces:
+
+| Surface | Route / module | Package |
+|---------|----------------|---------|
+| Staff chat assistant | `/api/ai/chat` → `runStaffChat()` | tool-use loop, OpenAI-compatible API |
+| Form assist ("Aus Text ausfüllen") | `/api/ai/form-assist` | `@fleet/ai-forms` → `completeText()` |
+
+**Anthropic is not used.** Do not add `ANTHROPIC_API_KEY` to the box env for this app.
+
+Production SSOT: copy `GROQ_API_KEY` and/or `OPENROUTER_API_KEY` from the same place as the other OrangeCat apps into `/opt/aoz-wohnen/shared/.env`. Without at least one key, both endpoints answer 503 with an explicit message.
+
+The `@fleet/ai-forms` package (github:maonakamoto/ai-forms) is the shared form-fill engine — field registry stays server-side, keys stay in the host app. Extracting/publishing it further is optional product work; this repo already consumes it.
 
 ## Languages (so this is not re-litigated)
 

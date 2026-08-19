@@ -14,6 +14,7 @@ last_modified_summary: Report form SSOT via portal-report config + i18n; uk/ar d
 ## Unreleased
 
 ### Changed
+- **Fleet AI provider for all surfaces.** Staff chat and form assist now use Groq → OpenRouter (OpenAI-compatible API). Anthropic removed. Same keys as other OrangeCat apps on the box.
 - **Resident report flow uses SSOT i18n.** Form values live in `lib/config/portal-report.ts`; copy lives in `de.ts` and is built via `buildReportFormLabels()`. Contact fallback pulls phone numbers from `ORG_CONTACT`. Emojis stay in components, not translation strings.
 - **Public positioning now matches the expanded product.** The public narrative no longer treats the software as only a placement or housing tool. It is framed through four operational pillars: Stability, Capability, Participation and Guidance.
 - **Infrastructure SSOT.** Production is Postgres on Hetzner (`aoz_wohnen` on bitbaum). Docs, `.env.example` and `src/lib/db.ts` describe that host. A leftover laptop `.env` pointing at Neon is not the database. i18n dictionaries stay on the resident portal; staff UI stays German.

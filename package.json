@@ -23,7 +23,6 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.96.0",
     "@fleet/ai-forms": "github:maonakamoto/ai-forms#v0.1.0",
     "@prisma/client": "^5.17.0",
     "@sentry/nextjs": "^10.55.0",

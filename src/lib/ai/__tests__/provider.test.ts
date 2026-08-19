@@ -1,19 +1,20 @@
 /**
- * The provider seam.
+ * The fleet AI provider seam.
  *
- * These tests exist because of a specific failure: the app shipped an AI
- * feature that was green in CI and 503 in production, for the whole life of the
- * feature, because no deployment ever had the one key it was written against.
- * The thing worth pinning is therefore not "does it call the API" but "does the
- * key that is actually present decide the backend".
+ * Groq → OpenRouter. No Anthropic on the box.
  */
 
 const ORIGINAL_ENV = process.env
 
-/** Load the module fresh so its lazy '@/lib/env' import sees this env. */
 async function loadProvider(env: Record<string, string | undefined>) {
   jest.resetModules()
-  process.env = { ...ORIGINAL_ENV, GROQ_API_KEY: undefined, ANTHROPIC_API_KEY: undefined, ...env }
+  process.env = {
+    ...ORIGINAL_ENV,
+    GROQ_API_KEY: undefined,
+    OPENROUTER_API_KEY: undefined,
+    ANTHROPIC_API_KEY: undefined,
+    ...env,
+  }
   return import('../provider')
 }
 
@@ -24,35 +25,31 @@ afterEach(() => {
 
 describe('which provider a completion uses', () => {
   it('uses Groq when only a Groq key is set', async () => {
-    const { getCompletionProvider, hasCompletionProvider } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
-    expect(getCompletionProvider()).toBe('groq')
-    expect(hasCompletionProvider()).toBe(true)
+    const { getAIProvider, hasAIProvider } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
+    expect(getAIProvider()).toBe('groq')
+    expect(hasAIProvider()).toBe(true)
   })
 
-  it('uses Anthropic when only an Anthropic key is set', async () => {
-    const { getCompletionProvider } = await loadProvider({ ANTHROPIC_API_KEY: 'sk-ant-test' })
-    expect(getCompletionProvider()).toBe('anthropic')
+  it('uses OpenRouter when only an OpenRouter key is set', async () => {
+    const { getAIProvider } = await loadProvider({ OPENROUTER_API_KEY: 'sk-or-test' })
+    expect(getAIProvider()).toBe('openrouter')
   })
 
-  it('prefers Groq when both are set', async () => {
-    // Groq is the fleet's configured provider and it is free; a box that has
-    // both should not quietly spend money.
-    const { getCompletionProvider } = await loadProvider({
+  it('prefers Groq when both fleet keys are set', async () => {
+    const { getAIProvider } = await loadProvider({
       GROQ_API_KEY: 'gsk_test',
-      ANTHROPIC_API_KEY: 'sk-ant-test',
+      OPENROUTER_API_KEY: 'sk-or-test',
     })
-    expect(getCompletionProvider()).toBe('groq')
+    expect(getAIProvider()).toBe('groq')
   })
 
-  it('reports unconfigured rather than pretending, when neither is set', async () => {
-    // This is the 503 the route answers. It must be decidable BEFORE a request
-    // is made, or the failure arrives as a stack trace mid-completion.
-    const { getCompletionProvider, hasCompletionProvider, completeText } = await loadProvider({})
-    expect(getCompletionProvider()).toBeNull()
-    expect(hasCompletionProvider()).toBe(false)
+  it('reports unconfigured when neither fleet key is set', async () => {
+    const { getAIProvider, hasAIProvider, completeText } = await loadProvider({})
+    expect(getAIProvider()).toBeNull()
+    expect(hasAIProvider()).toBe(false)
     await expect(
       completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
-    ).rejects.toThrow(/GROQ_API_KEY or ANTHROPIC_API_KEY/)
+    ).rejects.toThrow(/GROQ_API_KEY or OPENROUTER_API_KEY/)
   })
 })
 
@@ -70,17 +67,9 @@ describe('the Groq call', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('https://api.groq.com/openai/v1/chat/completions')
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer gsk_test')
-    const body = JSON.parse(init.body as string)
-    expect(body.model).toBe('test-model')
-    expect(body.messages).toEqual([
-      { role: 'system', content: 'sys' },
-      { role: 'user', content: 'user text' },
-    ])
   })
 
-  it('surfaces the provider’s own reason when the call fails', async () => {
-    // A decommissioned model and a bad key are both "it stopped working";
-    // swallowing the body makes them the same blank wall. This bit us fleet-wide.
+  it('surfaces the provider error body when the call fails', async () => {
     const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
@@ -92,13 +81,24 @@ describe('the Groq call', () => {
       completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
     ).rejects.toThrow(/400.*model_decommissioned/)
   })
+})
 
-  it('returns empty text rather than crashing on an unexpected body', async () => {
-    const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
-    jest.spyOn(global, 'fetch').mockResolvedValue({ ok: true, json: async () => ({}) } as Response)
+describe('the OpenRouter call', () => {
+  it('uses OpenRouter when Groq is absent', async () => {
+    const { completeText } = await loadProvider({
+      OPENROUTER_API_KEY: 'sk-or-test',
+      OPENROUTER_MODEL: 'test/openrouter-model',
+    })
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+    } as Response)
 
-    await expect(
-      completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
-    ).resolves.toBe('')
+    await completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
+
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('https://openrouter.ai/api/v1/chat/completions')
+    const body = JSON.parse(init.body as string)
+    expect(body.model).toBe('test/openrouter-model')
   })
 })

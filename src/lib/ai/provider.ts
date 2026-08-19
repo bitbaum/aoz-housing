@@ -1,44 +1,44 @@
 /**
- * Text completion provider.
+ * Fleet AI provider — SSOT for every AI call in this app.
  *
- * One seam, two possible backends, chosen by which key is actually present.
+ * Priority: Groq (free, fleet default) → OpenRouter (fallback, free-tier models).
+ * Anthropic is not used; no deployment on the box carries that key.
  *
- * Why this exists: this app was written against Anthropic, and no machine it
- * deploys to has ever had an ANTHROPIC_API_KEY. Every other app on the same box
- * runs on Groq. So the AI surface typechecked, tested and shipped green while
- * answering 503 to every real request — a feature that existed everywhere
- * except in production.
- *
- * Groq is preferred when both keys exist: it is the fleet's configured provider
- * and it is free, so the default path costs nothing to leave switched on.
- * Anthropic remains supported so a deployment that does set that key keeps
- * working without a code change.
- *
- * The streaming chat assistant (/api/ai/chat) still speaks the Anthropic SDK
- * directly — it is a tool-use loop, not a completion, and porting it is a
- * separate piece of work. Until that happens it stays 503 wherever only a Groq
- * key is set. See getCompletionProvider() for the single answer to "which
- * backend are we on".
+ * Surfaces:
+ * - `completeText` — @fleet/ai-forms ("Aus Text ausfüllen" on intake)
+ * - `runStaffChat` — streaming staff assistant (/api/ai/chat)
  */
-
-import Anthropic from '@anthropic-ai/sdk'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
-export type CompletionProvider = 'groq' | 'anthropic' | null
+export type AIProvider = 'groq' | 'openrouter'
+
+/** @deprecated use AIProvider */
+export type CompletionProvider = AIProvider | null
 
 /**
- * Which backend a completion would use right now, or null if none is
- * configured. Callers answer 503 on null rather than failing mid-request.
+ * Which backend is configured right now. Groq wins when both keys exist —
+ * same rule as every other app on the box.
  */
-export function getCompletionProvider(): CompletionProvider {
-  if (process.env.GROQ_API_KEY) return 'groq'
-  if (process.env.ANTHROPIC_API_KEY) return 'anthropic'
+export function getAIProvider(): AIProvider | null {
+  if (process.env.GROQ_API_KEY?.trim()) return 'groq'
+  if (process.env.OPENROUTER_API_KEY?.trim()) return 'openrouter'
   return null
 }
 
+/** @deprecated use getAIProvider */
+export function getCompletionProvider(): CompletionProvider {
+  return getAIProvider()
+}
+
+export function hasAIProvider(): boolean {
+  return getAIProvider() !== null
+}
+
+/** @deprecated use hasAIProvider */
 export function hasCompletionProvider(): boolean {
-  return getCompletionProvider() !== null
+  return hasAIProvider()
 }
 
 export interface CompletionInput {
@@ -48,35 +48,57 @@ export interface CompletionInput {
   temperature: number
 }
 
-// Lazy-init so a missing key in dev doesn't crash module-load.
-let _anthropic: Anthropic | null = null
-
-function anthropicClient(): Anthropic {
-  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  return _anthropic
+export interface AIProviderConfig {
+  provider: AIProvider
+  url: string
+  headers: Record<string, string>
+  model: string
 }
 
 /**
- * Read a configured model name.
- *
- * '@/lib/env' is imported lazily on purpose: at module scope its production
- * validation runs during `next build` page-data collection, where there is no
- * env to validate.
+ * Resolved endpoint + model for the active provider.
+ * Returns null when neither GROQ_API_KEY nor OPENROUTER_API_KEY is set.
  */
-async function modelFor(provider: Exclude<CompletionProvider, null>): Promise<string> {
+export async function getAIProviderConfig(): Promise<AIProviderConfig | null> {
+  const provider = getAIProvider()
+  if (!provider) return null
+
   const { env } = await import('@/lib/env')
-  return provider === 'groq' ? env.GROQ_MODEL : env.ANTHROPIC_MODEL
+
+  if (provider === 'groq') {
+    return {
+      provider,
+      url: GROQ_API_URL,
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      model: env.GROQ_MODEL,
+    }
+  }
+
+  return {
+    provider,
+    url: OPENROUTER_API_URL,
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': env.NEXT_PUBLIC_APP_URL ?? 'https://aoz.orangecat.ch',
+      'X-Title': 'AOZ Begleitung',
+    },
+    model: env.OPENROUTER_MODEL,
+  }
 }
 
-async function completeWithGroq(input: CompletionInput, model: string): Promise<string> {
-  const res = await fetch(GROQ_API_URL, {
+async function completeWithOpenAICompat(
+  config: AIProviderConfig,
+  input: CompletionInput
+): Promise<string> {
+  const res = await fetch(config.url, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers: config.headers,
     body: JSON.stringify({
-      model,
+      model: config.model,
       max_tokens: input.maxTokens,
       temperature: input.temperature,
       messages: [
@@ -87,29 +109,12 @@ async function completeWithGroq(input: CompletionInput, model: string): Promise<
   })
 
   if (!res.ok) {
-    // The body carries the actual reason (bad key, decommissioned model, rate
-    // limit). Losing it turns every provider problem into the same blank wall.
     const detail = await res.text().catch(() => '')
-    throw new Error(`Groq completion failed (${res.status}): ${detail.slice(0, 500)}`)
+    throw new Error(`${config.provider} completion failed (${res.status}): ${detail.slice(0, 500)}`)
   }
 
   const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> }
   return body.choices?.[0]?.message?.content ?? ''
-}
-
-async function completeWithAnthropic(input: CompletionInput, model: string): Promise<string> {
-  const message = await anthropicClient().messages.create({
-    model,
-    max_tokens: input.maxTokens,
-    temperature: input.temperature,
-    system: input.system,
-    messages: [{ role: 'user', content: input.prompt }],
-  })
-
-  return message.content
-    .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-    .map((block) => block.text)
-    .join('')
 }
 
 /**
@@ -119,11 +124,10 @@ async function completeWithAnthropic(input: CompletionInput, model: string): Pro
  * or budgets, so form assistance uses whatever provider the deployment has.
  */
 export async function completeText(input: CompletionInput): Promise<string> {
-  const provider = getCompletionProvider()
-  if (!provider) throw new Error('No AI provider configured (set GROQ_API_KEY or ANTHROPIC_API_KEY)')
+  const config = await getAIProviderConfig()
+  if (!config) {
+    throw new Error('No AI provider configured (set GROQ_API_KEY or OPENROUTER_API_KEY)')
+  }
 
-  const model = await modelFor(provider)
-  return provider === 'groq'
-    ? completeWithGroq(input, model)
-    : completeWithAnthropic(input, model)
+  return completeWithOpenAICompat(config, input)
 }
