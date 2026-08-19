@@ -40,7 +40,6 @@ import {
   formatDate,
   weeksBetween,
 } from '@/lib/utils'
-import { SuccessToast } from '@/components/ui/SuccessToast'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 import { getCurrentUser, hasPermission } from '@/lib/auth'
@@ -265,14 +264,6 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
   return (
     <div>
-      <SuccessToast
-        triggers={[
-          { param: 'placed', message: RESIDENT_DETAIL_LABELS.toastPlaced },
-          { param: 'checkin', message: RESIDENT_DETAIL_LABELS.toastCheckin },
-          { param: 'transferred', message: RESIDENT_DETAIL_LABELS.toastTransferred },
-          { param: 'ended', message: RESIDENT_DETAIL_LABELS.toastEnded },
-        ]}
-      />
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>

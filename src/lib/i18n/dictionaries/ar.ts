@@ -125,6 +125,8 @@ export const ar: Dictionary = {
   'learning.offers': 'دورات وعروض',
   'learning.offersEmpty': 'لا عروض تعلّم حالياً. انظر الأنشطة.',
   'learning.hours': 'ساعات',
+  'learning.evidenceSaved': 'تم حفظ الدليل — يراه فريق الدعم.',
+  'learning.evidenceSaveError': 'تعذّر الحفظ. تحقق من البيانات وحاول مرة أخرى.',
 
   'care.title': 'فريقك',
   'care.subtitle': 'من المسؤول عنك — السكن، العمل الاجتماعي، مدرب العمل.',

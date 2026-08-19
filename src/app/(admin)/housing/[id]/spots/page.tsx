@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { SuccessToast } from '@/components/ui/SuccessToast'
 
 export const metadata: Metadata = { title: 'Plätze verwalten' }
 import { createSpot, createMultipleSpots } from '@/lib/actions'
@@ -69,14 +68,6 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
   return (
     <div>
-      <SuccessToast
-        triggers={[
-          { param: 'created', message: 'Platz erfolgreich erstellt' },
-          { param: 'createdMultiple', message: 'Zimmer mit Betten erfolgreich erstellt' },
-          { param: 'updated', message: 'Platzstatus erfolgreich aktualisiert' },
-          { param: 'deleted', message: 'Platz erfolgreich gelöscht' },
-        ]}
-      />
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>

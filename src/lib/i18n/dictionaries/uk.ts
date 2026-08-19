@@ -124,6 +124,8 @@ export const uk: Dictionary = {
   'learning.offers': 'Курси та пропозиції',
   'learning.offersEmpty': 'Зараз немає навчальних пропозицій. Подивись у Заходи.',
   'learning.hours': 'Години',
+  'learning.evidenceSaved': 'Запис збережено — твоя команда бачить цей запис.',
+  'learning.evidenceSaveError': 'Не вдалося зберегти. Перевір дані та спробуй ще раз.',
 
   'care.title': 'Твоя команда',
   'care.subtitle': 'Хто за тебе відповідає — житло, соціальна робота, кар’єрний коуч.',

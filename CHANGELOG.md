@@ -9,12 +9,13 @@ Related documents: [Roadmap](docs/ROADMAP.md) · [Blog](docs/blog/README.md)
 
 created_date: 2026-01-15
 last_modified_date: 2026-08-19
-last_modified_summary: Workflow feedback — URL toasts, filter empty states, chore create confirmation.
+last_modified_summary: Admin URL feedback, resident learning save confirmation, production launch hardening.
 
 ## Unreleased
 
 ### Changed
 - **Workflow feedback for launch.** Portal layout shows URL-driven success/error toasts (e.g. missing account, chore created). Activity category filters and staff integration board show empty states with a clear reset. Transfer request list links back to open requests when a status tab is empty.
+- **Staff admin URL feedback.** Layout-wide toasts after placements, check-ins, incidents, and spot changes — pathname-scoped so `?created=true` means the right message on the right page. Resident learning page confirms saved evidence and offers empty states with next steps.
 - **Fleet AI provider for all surfaces.** Staff chat and form assist now use Groq → OpenRouter (OpenAI-compatible API). Anthropic removed. Same keys as other OrangeCat apps on the box.
 - **Resident portal i18n (expenses, profile, transfer, preferences).** 181 new dictionary keys; `buildExpenseLabels`, `buildProfileLabels`, `buildTransferLabels`, `buildPreferencesLabels` and related helpers in `lib/i18n/portal-surfaces.ts`. Remaining portal pages and dashboard cards no longer read `PORTAL_LABELS` for resident copy.
 - **Public positioning now matches the expanded product.** The public narrative no longer treats the software as only a placement or housing tool. It is framed through four operational pillars: Stability, Capability, Participation and Guidance.

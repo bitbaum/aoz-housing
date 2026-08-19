@@ -134,12 +134,6 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
 
   return (
     <div>
-      <SuccessToast
-        triggers={[
-          { param: 'created', message: INCIDENT_PAGE_LABELS.createdToast },
-          { param: 'resolved', message: INCIDENT_DETAIL_LABELS.markedResolved },
-        ]}
-      />
       {/* Header */}
       <div className="mb-6">
         <Link

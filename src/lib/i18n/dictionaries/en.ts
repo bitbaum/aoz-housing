@@ -209,6 +209,8 @@ export const en: Dictionary = {
   'learning.offers': 'Courses and offers',
   'learning.offersEmpty': 'No learning offers right now. Check Activities.',
   'learning.hours': 'Hours',
+  'learning.evidenceSaved': 'Evidence saved — your team can see this entry.',
+  'learning.evidenceSaveError': 'Could not save. Please check your entries and try again.',
 
   'care.title': 'Your team',
   'care.subtitle': 'The people responsible for you — housing, social work, job coach.',

@@ -237,6 +237,8 @@ export const de = {
   'learning.offers': 'Kurse und Angebote',
   'learning.offersEmpty': 'Gerade keine Lernangebote. Schau unter Aktivitäten nach.',
   'learning.hours': 'Stunden',
+  'learning.evidenceSaved': 'Nachweis gespeichert — dein Team sieht den Eintrag.',
+  'learning.evidenceSaveError': 'Speichern fehlgeschlagen. Bitte Eingaben prüfen und erneut versuchen.',
 
   'care.title': 'Dein Team',
   'care.subtitle': 'Wer für dich zuständig ist — Wohnen, Sozialarbeit, Jobcoach, Freiwilligenarbeit.',

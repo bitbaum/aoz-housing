@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireResidentCookie } from '@/lib/portal-auth'
-import { PageHeader } from '@/components/ui/Page'
+import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { LearningForm } from '@/components/residents/LearningForm'
 import { createOwnLearningRecord, listResidentLearningEvidence } from '@/lib/actions/learning'
 import { getRequestTranslator } from '@/lib/i18n/request'
@@ -57,7 +57,14 @@ export default async function PortalLearningPage() {
       <section className="mb-8">
         <h2 className="text-lg font-semibold text-ui-text mb-3">{t('learning.achievements')}</h2>
         {achievements.length === 0 ? (
-          <p className="text-sm text-ui-muted">{t('learning.achievementsEmpty')}</p>
+          <EmptyState
+            title={t('learning.achievementsEmpty')}
+            action={
+              <Link href="#learning-evidence" className="btn-outline min-h-[44px] inline-flex items-center">
+                {LEARNING_LABELS.add}
+              </Link>
+            }
+          />
         ) : (
           <ul className="space-y-3">
             {achievements.map((record) => (
@@ -143,7 +150,14 @@ export default async function PortalLearningPage() {
           </Link>
         </div>
         {languageOffers.length === 0 ? (
-          <p className="text-sm text-ui-muted">{t('learning.offersEmpty')}</p>
+          <EmptyState
+            title={t('learning.offersEmpty')}
+            action={
+              <Link href="/portal/activities" className="btn-outline min-h-[44px] inline-flex items-center">
+                {t('nav.activities')}
+              </Link>
+            }
+          />
         ) : (
           <ul className="space-y-3">
             {languageOffers.map((offer) => (
@@ -161,10 +175,15 @@ export default async function PortalLearningPage() {
         )}
       </section>
 
-      <div className="card">
+      <div className="card" id="learning-evidence">
         <h2 className="text-lg font-semibold text-ui-text mb-1">{LEARNING_LABELS.evidenceTitle}</h2>
         <p className="text-sm text-ui-muted mb-4">{LEARNING_LABELS.evidenceSubtitle}</p>
-        <LearningForm action={createOwnLearningRecord} audience="resident" />
+        <LearningForm
+          action={createOwnLearningRecord}
+          audience="resident"
+          successMessage={t('learning.evidenceSaved')}
+          errorMessage={t('learning.evidenceSaveError')}
+        />
       </div>
     </div>
   )

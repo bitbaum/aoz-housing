@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ArrowRightLeft } from 'lucide-react'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { AdminUrlFeedback } from '@/components/admin/AdminUrlFeedback'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { AdminMegaMenu } from '@/components/layout/AdminHeader'
 import { Logo } from '@/components/ui/Logo'
@@ -38,6 +39,7 @@ export default async function AdminLayout({
 
   return (
     <>
+      <AdminUrlFeedback />
       <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
 
       {/* Single sticky bar — logo + megamenu + secondary links + actions.

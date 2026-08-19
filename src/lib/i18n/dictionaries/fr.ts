@@ -127,6 +127,8 @@ export const fr: Dictionary = {
   'learning.offers': 'Cours et offres',
   'learning.offersEmpty': 'Aucune offre d’apprentissage pour l’instant. Voir Activités.',
   'learning.hours': 'Heures',
+  'learning.evidenceSaved': 'Preuve enregistrée — ton équipe voit cette entrée.',
+  'learning.evidenceSaveError': 'Enregistrement impossible. Vérifie les champs et réessaie.',
 
   'care.title': 'Ton équipe',
   'care.subtitle': 'Les personnes responsables de toi — logement, travail social, job coach.',

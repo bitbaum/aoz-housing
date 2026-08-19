@@ -136,6 +136,8 @@ export const ru: Dictionary = {
   'learning.offers': 'Курсы и предложения',
   'learning.offersEmpty': 'Сейчас нет учебных предложений. Смотри Мероприятия.',
   'learning.hours': 'Часы',
+  'learning.evidenceSaved': 'Запись сохранена — твоя команда видит эту запись.',
+  'learning.evidenceSaveError': 'Не удалось сохранить. Проверь данные и попробуй снова.',
 
   'care.title': 'Твоя команда',
   'care.subtitle': 'Кто за тебя отвечает — жильё, социальная работа, карьерный коуч.',

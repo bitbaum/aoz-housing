@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   CEFR_LEVELS,
   LEARNING_CATEGORIES,
@@ -11,12 +12,17 @@ import {
   LEARNING_STATUS_LABELS,
   kindTracksHours,
 } from '@/lib/config/learning'
+import { showToast } from '@/components/ui/Toast'
 
 interface Props {
   action: (formData: FormData) => Promise<unknown>
   residentId?: string
   submitLabel?: string
   audience?: 'resident' | 'staff'
+  /** Shown after a successful save (resident portal). */
+  successMessage?: string
+  /** Overrides default staff save error copy. */
+  errorMessage?: string
 }
 
 export function LearningForm({
@@ -24,7 +30,10 @@ export function LearningForm({
   residentId,
   submitLabel,
   audience = 'staff',
+  successMessage,
+  errorMessage,
 }: Props) {
+  const router = useRouter()
   const [kind, setKind] = useState('COURSE')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,17 +41,23 @@ export function LearningForm({
   const showHours = kindTracksHours(kind)
   const residentMode = audience === 'resident'
 
+  const saveErrorCopy = errorMessage ?? LEARNING_LABELS.saveError
+
   async function handleSubmit(formData: FormData) {
     setPending(true)
     setError(null)
     try {
       const result = await action(formData)
       if (result && typeof result === 'object' && 'success' in result && result.success === false) {
-        setError(String((result as { error?: string }).error || LEARNING_LABELS.saveError))
+        setError(String((result as { error?: string }).error || saveErrorCopy))
         return
       }
+      if (successMessage) {
+        showToast('success', successMessage)
+        router.refresh()
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : LEARNING_LABELS.saveError)
+      setError(err instanceof Error ? err.message : saveErrorCopy)
       return
     } finally {
       setPending(false)
