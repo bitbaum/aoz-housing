@@ -36,11 +36,11 @@ export default async function AdminProductsPage() {
           <li key={product.id}>
             <Link
               href={`/admin/products/${product.id}`}
-              className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-4 hover:bg-neutral-50"
+              className="flex flex-wrap items-center justify-between gap-2 rounded border border-line p-4 hover:bg-subtle"
             >
               <span>
                 <span className="font-medium">{product.name}</span>
-                <span className="block text-sm text-neutral-500">
+                <span className="block text-sm text-muted">
                   {product.category} · {product.productType}
                   {!product.active && ' · INACTIVE'}
                 </span>
@@ -48,7 +48,7 @@ export default async function AdminProductsPage() {
               <span className="flex items-center gap-4 text-sm">
                 <span
                   className={
-                    Number(product.totalStock) <= 3 ? 'font-semibold text-red-600' : 'text-neutral-500'
+                    Number(product.totalStock) <= 3 ? 'font-semibold text-error-text' : 'text-muted'
                   }
                 >
                   {product.totalStock} in stock · {product.variantCount} sizes

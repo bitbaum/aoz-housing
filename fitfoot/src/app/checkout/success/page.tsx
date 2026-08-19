@@ -17,9 +17,9 @@ export default async function CheckoutSuccessPage({
         🎉
       </p>
       <h1 className="mt-6 font-heading text-4xl">Thank you!</h1>
-      <p className="mt-3 text-neutral-600">
+      <p className="mt-3 text-muted">
         Your order{' '}
-        {order ? <strong className="text-neutral-900">{order}</strong> : null}{' '}
+        {order ? <strong className="text-ink">{order}</strong> : null}{' '}
         has been placed. We&apos;ve sent a confirmation to your email and will let you know as soon
         as it ships.
       </p>

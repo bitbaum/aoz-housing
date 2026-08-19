@@ -27,13 +27,13 @@ export function ContactForm() {
 
   if (state === 'done') {
     return (
-      <div className="card-premium flex items-center justify-center text-center">
+      <div className="card flex items-center justify-center text-center">
         <div>
           <p className="text-4xl" aria-hidden>
             ✉️
           </p>
           <h2 className="mt-3 font-heading text-2xl">Message sent</h2>
-          <p className="mt-2 text-sm text-neutral-600">
+          <p className="mt-2 text-sm text-muted">
             Thanks for reaching out — we&apos;ll get back to you within one business day.
           </p>
         </div>
@@ -42,7 +42,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card-premium">
+    <form onSubmit={onSubmit} className="card">
       <h2 className="font-heading text-2xl">Send us a message</h2>
       <div className="mt-6 space-y-4">
         <div>
@@ -99,7 +99,7 @@ export function ContactForm() {
             className="input-field"
           />
         </div>
-        {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+        {error && <p className="text-sm font-medium text-error-text">{error}</p>}
         <button type="submit" disabled={state === 'busy'} className="btn-gold w-full">
           {state === 'busy' ? 'Sending…' : 'Send Message'}
         </button>

@@ -65,7 +65,7 @@ export function ImageUploadField({ currentImageUrl, productId, onChange }: Image
     <div>
       <p className="label-field">Photo</p>
       <div className="flex items-start gap-4">
-        <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded border border-neutral-200 bg-neutral-50">
+        <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded border border-line bg-subtle">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={preview} alt="Product preview" className="h-full w-full object-cover" />
@@ -100,13 +100,13 @@ export function ImageUploadField({ currentImageUrl, productId, onChange }: Image
               type="button"
               disabled={busy}
               onClick={remove}
-              className="ml-2 min-h-[44px] text-sm text-neutral-500 underline hover:text-red-600"
+              className="ml-2 min-h-[44px] text-sm text-muted underline hover:text-error-text"
             >
               Remove
             </button>
           )}
-          <p className="mt-2 text-xs text-neutral-500">JPEG, PNG or WebP. Resized automatically.</p>
-          {error && <p className="mt-1 text-sm font-medium text-red-600">{error}</p>}
+          <p className="mt-2 text-xs text-muted">JPEG, PNG or WebP. Resized automatically.</p>
+          {error && <p className="mt-1 text-sm font-medium text-error-text">{error}</p>}
         </div>
       </div>
     </div>

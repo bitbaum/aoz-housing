@@ -21,12 +21,12 @@ export function ForgotPasswordForm() {
 
   if (state === 'done') {
     return (
-      <div className="card-premium mt-8 text-center">
+      <div className="card mt-8 text-center">
         <p className="text-4xl" aria-hidden>
           📬
         </p>
         <h2 className="mt-3 font-heading text-xl">Check your inbox</h2>
-        <p className="mt-2 text-sm text-neutral-600">
+        <p className="mt-2 text-sm text-muted">
           If an account exists for <strong>{email}</strong>, a reset link is on its way. It works
           once and expires in an hour.
         </p>
@@ -38,7 +38,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card-premium mt-8 space-y-4">
+    <form onSubmit={onSubmit} className="card mt-8 space-y-4">
       <div>
         <label htmlFor="fp-email" className="label-field">
           Email
@@ -56,7 +56,7 @@ export function ForgotPasswordForm() {
       <button type="submit" disabled={state === 'busy'} className="btn-gold w-full">
         {state === 'busy' ? 'Sending…' : 'Send reset link'}
       </button>
-      <p className="text-center text-sm text-neutral-600">
+      <p className="text-center text-sm text-muted">
         <Link href="/login" className="font-medium text-gold-600 hover:underline">
           Back to sign in
         </Link>

@@ -12,13 +12,13 @@ export default async function AdminNewsletterPage() {
   return (
     <div>
       <h1 className="font-heading text-3xl">Newsletter</h1>
-      <p className="mt-2 text-sm text-neutral-600">
+      <p className="mt-2 text-sm text-muted">
         {subscribers.length} active {subscribers.length === 1 ? 'subscriber' : 'subscribers'}. Copy
         the list into your mailing tool of choice.
       </p>
 
       {subscribers.length === 0 ? (
-        <p className="mt-8 rounded border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+        <p className="mt-8 rounded border border-dashed border-line p-8 text-center text-muted">
           No subscribers yet.
         </p>
       ) : (
@@ -27,17 +27,17 @@ export default async function AdminNewsletterPage() {
             {subscribers.map((sub) => (
               <li
                 key={sub.id}
-                className="flex items-center justify-between rounded border border-neutral-200 px-4 py-2 text-sm"
+                className="flex items-center justify-between rounded border border-line px-4 py-2 text-sm"
               >
                 <span>{sub.email}</span>
-                <span className="text-neutral-400">
+                <span className="text-muted">
                   since {sub.subscribedAt.toLocaleDateString('en-CH')}
                 </span>
               </li>
             ))}
           </ul>
           <details className="mt-6">
-            <summary className="cursor-pointer text-sm font-medium text-neutral-600">
+            <summary className="cursor-pointer text-sm font-medium text-muted">
               Copy-paste list
             </summary>
             <textarea

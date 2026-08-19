@@ -29,7 +29,7 @@ export default async function AdminOrdersPage({
         <Link
           href="/admin/orders"
           className={`inline-flex min-h-[44px] items-center rounded border px-3 py-1 text-sm font-medium ${
-            !statusFilter ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-neutral-300 text-neutral-600'
+            !statusFilter ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-line text-muted'
           }`}
         >
           All
@@ -41,7 +41,7 @@ export default async function AdminOrdersPage({
             className={`inline-flex min-h-[44px] items-center rounded border px-3 py-1 text-sm font-medium ${
               statusFilter === status
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
-                : 'border-neutral-300 text-neutral-600'
+                : 'border-line text-muted'
             }`}
           >
             {status}
@@ -50,7 +50,7 @@ export default async function AdminOrdersPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 rounded border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+        <p className="mt-8 rounded border border-dashed border-line p-8 text-center text-muted">
           No orders here.
         </p>
       ) : (
@@ -59,11 +59,11 @@ export default async function AdminOrdersPage({
             <li key={order.id}>
               <Link
                 href={`/admin/orders/${order.id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-4 hover:bg-neutral-50"
+                className="flex flex-wrap items-center justify-between gap-2 rounded border border-line p-4 hover:bg-subtle"
               >
                 <span>
                   <span className="font-medium">{order.orderNumber}</span>
-                  <span className="block text-sm text-neutral-500">
+                  <span className="block text-sm text-muted">
                     {order.shipName} · {order.email}
                   </span>
                 </span>

@@ -26,14 +26,14 @@ export default async function ProductPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="aspect-square overflow-hidden rounded border border-neutral-200">
+        <div className="aspect-square overflow-hidden rounded border border-line">
           <ProductImage imageUrl={product.imageUrl} name={product.name} />
         </div>
 
         <div>
           <div className="flex flex-wrap items-center gap-2">
             {product.productType === 'REFURBISHED' ? (
-              <span className="badge-green">
+              <span className="badge-success">
                 Refurbished
                 {product.conditionGrade
                   ? ` · ${CONDITION_LABELS[product.conditionGrade] ?? product.conditionGrade}`
@@ -53,13 +53,13 @@ export default async function ProductPage({
               compareAtRappen={product.compareAtRappen}
               size="lg"
             />
-            <p className="mt-1 text-sm text-neutral-500">incl. VAT, free shipping over CHF 100</p>
+            <p className="mt-1 text-sm text-muted">incl. VAT, free shipping over CHF 100</p>
           </div>
 
-          <p className="mt-6 text-neutral-700">{product.description}</p>
+          <p className="mt-6 text-ink">{product.description}</p>
 
           {product.sustainabilityNotes && (
-            <p className="mt-4 rounded bg-emerald-50 p-3 text-sm font-medium text-emerald-800">
+            <p className="mt-4 rounded bg-success p-3 text-sm font-medium text-success-text">
               🌱 {product.sustainabilityNotes}
             </p>
           )}
@@ -73,11 +73,11 @@ export default async function ProductPage({
             }))}
           />
 
-          <dl className="mt-10 space-y-4 border-t border-neutral-200 pt-6 text-sm">
+          <dl className="mt-10 space-y-4 border-t border-line pt-6 text-sm">
             {product.materials && (
               <div>
                 <dt className="font-semibold">Materials</dt>
-                <dd className="mt-1 text-neutral-600">{product.materials}</dd>
+                <dd className="mt-1 text-muted">{product.materials}</dd>
               </div>
             )}
             {product.sustainabilityFeatures.length > 0 && (
@@ -85,7 +85,7 @@ export default async function ProductPage({
                 <dt className="font-semibold">Sustainability</dt>
                 <dd className="mt-2 flex flex-wrap gap-2">
                   {product.sustainabilityFeatures.map((feature) => (
-                    <span key={feature} className="badge-green">
+                    <span key={feature} className="badge-success">
                       {feature}
                     </span>
                   ))}
@@ -95,7 +95,7 @@ export default async function ProductPage({
             {product.careInstructions && (
               <div>
                 <dt className="font-semibold">Care</dt>
-                <dd className="mt-1 text-neutral-600">{product.careInstructions}</dd>
+                <dd className="mt-1 text-muted">{product.careInstructions}</dd>
               </div>
             )}
           </dl>

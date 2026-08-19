@@ -15,8 +15,8 @@ export function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <div className="card-premium mt-8 text-center">
-        <p className="text-sm text-neutral-600">
+      <div className="card mt-8 text-center">
+        <p className="text-sm text-muted">
           This link is missing its reset code. Please request a new one.
         </p>
         <Link href="/forgot-password" className="btn-gold mt-4 inline-flex">
@@ -49,7 +49,7 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card-premium mt-8 space-y-4">
+    <form onSubmit={onSubmit} className="card mt-8 space-y-4">
       <div>
         <label htmlFor="rp-password" className="label-field">
           New password
@@ -64,7 +64,7 @@ export function ResetPasswordForm() {
           onChange={(e) => setPassword(e.target.value)}
           className="input-field"
         />
-        <p className="mt-1 text-xs text-neutral-500">At least 8 characters.</p>
+        <p className="mt-1 text-xs text-muted">At least 8 characters.</p>
       </div>
       <div>
         <label htmlFor="rp-confirm" className="label-field">
@@ -80,7 +80,7 @@ export function ResetPasswordForm() {
           className="input-field"
         />
       </div>
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
       <button type="submit" disabled={busy} className="btn-gold w-full">
         {busy ? 'Saving…' : 'Set new password'}
       </button>

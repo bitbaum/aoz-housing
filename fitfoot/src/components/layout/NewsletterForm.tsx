@@ -18,7 +18,7 @@ export function NewsletterForm() {
   }
 
   if (state === 'done') {
-    return <p className="mt-3 text-sm font-medium text-emerald-700">Thanks — you&apos;re on the list!</p>
+    return <p className="mt-3 text-sm font-medium text-success-text">Thanks — you&apos;re on the list!</p>
   }
 
   return (

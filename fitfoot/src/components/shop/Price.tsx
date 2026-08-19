@@ -13,7 +13,7 @@ export function Price({ priceRappen, compareAtRappen, size = 'sm' }: PriceProps)
         {formatRappen(priceRappen)}
       </span>
       {compareAtRappen && compareAtRappen > priceRappen ? (
-        <span className="text-sm text-neutral-400 line-through">{formatRappen(compareAtRappen)}</span>
+        <span className="text-sm text-muted line-through">{formatRappen(compareAtRappen)}</span>
       ) : null}
     </span>
   )

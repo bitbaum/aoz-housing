@@ -35,7 +35,7 @@ export function RoleSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="role-select" className="text-sm text-neutral-500">
+      <label htmlFor="role-select" className="text-sm text-muted">
         Role
       </label>
       <select
@@ -43,7 +43,7 @@ export function RoleSelect({
         disabled={busy}
         value={currentRole}
         onChange={(e) => change(e.target.value)}
-        className="min-h-[44px] rounded border border-neutral-300 px-3 py-2 text-sm"
+        className="min-h-[44px] rounded border border-line px-3 py-2 text-sm"
       >
         {CUSTOMER_ROLES.map((role) => (
           <option key={role} value={role}>
@@ -51,7 +51,7 @@ export function RoleSelect({
           </option>
         ))}
       </select>
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
     </div>
   )
 }

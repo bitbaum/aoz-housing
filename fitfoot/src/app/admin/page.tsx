@@ -57,8 +57,8 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
-          <Link key={stat.label} href={stat.href} className="card-premium block">
-            <p className="text-sm text-neutral-500">{stat.label}</p>
+          <Link key={stat.label} href={stat.href} className="card block">
+            <p className="text-sm text-muted">{stat.label}</p>
             <p className="mt-1 text-2xl font-bold">{stat.value}</p>
           </Link>
         ))}
@@ -67,17 +67,17 @@ export default async function AdminDashboardPage() {
       <section className="mt-10">
         <h2 className="font-heading text-2xl">Latest orders</h2>
         {recentOrders.length === 0 ? (
-          <p className="mt-4 text-neutral-500">No orders yet.</p>
+          <p className="mt-4 text-muted">No orders yet.</p>
         ) : (
           <ul className="mt-4 space-y-2">
             {recentOrders.map((order) => (
               <li key={order.id}>
                 <Link
                   href={`/admin/orders/${order.id}`}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-4 hover:bg-neutral-50"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded border border-line p-4 hover:bg-subtle"
                 >
                   <span className="font-medium">{order.orderNumber}</span>
-                  <span className="text-sm text-neutral-500">{order.shipName}</span>
+                  <span className="text-sm text-muted">{order.shipName}</span>
                   <span className="flex items-center gap-3">
                     <OrderStatusBadge status={order.status} />
                     <span className="font-semibold">{formatRappen(order.totalRappen)}</span>

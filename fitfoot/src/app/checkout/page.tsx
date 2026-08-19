@@ -18,7 +18,7 @@ export default async function CheckoutPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6">
         <h1 className="font-heading text-3xl">Nothing to check out</h1>
-        <p className="mt-2 text-neutral-600">Your cart is empty.</p>
+        <p className="mt-2 text-muted">Your cart is empty.</p>
         <Link href="/shop" className="btn-gold mt-6">
           Back to the shop
         </Link>
@@ -34,12 +34,12 @@ export default async function CheckoutPage() {
           <CheckoutForm initialEmail={session?.email ?? ''} subtotalRappen={cart.subtotalRappen} />
         </div>
 
-        <div className="card-premium h-fit">
+        <div className="card h-fit">
           <h2 className="font-heading text-xl">Your order</h2>
           <ul className="mt-4 space-y-3 text-sm">
             {cart.items.map((item) => (
               <li key={item.id} className="flex justify-between gap-2">
-                <span className="text-neutral-700">
+                <span className="text-ink">
                   {item.quantity} × {item.productName} ({item.size})
                 </span>
                 <span className="font-medium">
@@ -48,7 +48,7 @@ export default async function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-4 border-t border-neutral-200 pt-3 text-sm text-neutral-600">
+          <p className="mt-4 border-t border-line pt-3 text-sm text-muted">
             Subtotal: <strong>{formatRappen(cart.subtotalRappen)}</strong>
             <br />
             Shipping is calculated from your chosen method.

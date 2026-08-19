@@ -53,13 +53,13 @@ export function OrderStatusActions({
             type="button"
             disabled={busy}
             onClick={() => move(status)}
-            className={DESTRUCTIVE.has(status) ? 'btn-ghost text-sm text-red-600' : 'btn-dark text-sm'}
+            className={DESTRUCTIVE.has(status) ? 'btn-ghost text-sm text-error-text' : 'btn-dark text-sm'}
           >
             {ACTION_LABELS[status] ?? status}
           </button>
         ))}
       </div>
-      {error && <p className="mt-2 text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-sm font-medium text-error-text">{error}</p>}
     </div>
   )
 }

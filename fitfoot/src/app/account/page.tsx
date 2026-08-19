@@ -36,7 +36,7 @@ export default async function AccountPage() {
           <h1 className="font-heading text-3xl">
             Hi {customer.firstName || customer.email.split('@')[0]}!
           </h1>
-          <p className="mt-1 text-sm text-neutral-600">{customer.email}</p>
+          <p className="mt-1 text-sm text-muted">{customer.email}</p>
         </div>
         <LogoutButton />
       </div>
@@ -44,7 +44,7 @@ export default async function AccountPage() {
       <section className="mt-10">
         <h2 className="font-heading text-2xl">Your orders</h2>
         {myOrders.length === 0 ? (
-          <p className="mt-4 rounded border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+          <p className="mt-4 rounded border border-dashed border-line p-8 text-center text-muted">
             No orders yet — your first pair is waiting in the shop.
           </p>
         ) : (
@@ -52,11 +52,11 @@ export default async function AccountPage() {
             {myOrders.map((order) => (
               <li
                 key={order.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded border border-neutral-200 p-4"
+                className="flex flex-wrap items-center justify-between gap-3 rounded border border-line p-4"
               >
                 <div>
                   <p className="font-semibold">{order.orderNumber}</p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-muted">
                     {order.createdAt.toLocaleDateString('en-CH', {
                       year: 'numeric',
                       month: 'long',

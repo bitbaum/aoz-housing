@@ -30,7 +30,7 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card-premium mt-8 space-y-4">
+    <form onSubmit={onSubmit} className="card mt-8 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="reg-first" className="label-field">
@@ -89,13 +89,13 @@ export function RegisterForm() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="input-field"
         />
-        <p className="mt-1 text-xs text-neutral-500">At least 8 characters.</p>
+        <p className="mt-1 text-xs text-muted">At least 8 characters.</p>
       </div>
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
       <button type="submit" disabled={busy} className="btn-gold w-full">
         {busy ? 'Creating account…' : 'Create account'}
       </button>
-      <p className="text-center text-sm text-neutral-600">
+      <p className="text-center text-sm text-muted">
         Already have an account?{' '}
         <Link href="/login" className="font-medium text-gold-600 hover:underline">
           Sign in

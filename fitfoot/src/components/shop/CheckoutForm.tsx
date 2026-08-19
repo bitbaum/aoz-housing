@@ -53,7 +53,7 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
 
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      <section className="card-premium">
+      <section className="card">
         <h2 className="font-heading text-xl">Contact</h2>
         <div className="mt-4">
           <label htmlFor="co-email" className="label-field">
@@ -71,7 +71,7 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
         </div>
       </section>
 
-      <section className="card-premium">
+      <section className="card">
         <h2 className="font-heading text-xl">Shipping address</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -131,13 +131,13 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
             />
           </div>
         </div>
-        <p className="mt-3 text-sm text-neutral-500">Currently shipping within Switzerland.</p>
+        <p className="mt-3 text-sm text-muted">Currently shipping within Switzerland.</p>
       </section>
 
-      <section className="card-premium">
+      <section className="card">
         <h2 className="font-heading text-xl">Shipping method</h2>
         <div className="mt-4 space-y-3">
-          <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded border border-neutral-300 p-4 has-[:checked]:border-gold-500 has-[:checked]:bg-gold-50">
+          <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded border border-line p-4 has-[:checked]:border-gold-500 has-[:checked]:bg-gold-50">
             <span className="flex items-center gap-3">
               <input
                 type="radio"
@@ -147,14 +147,14 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
               />
               <span>
                 <span className="font-medium">Standard</span>
-                <span className="block text-sm text-neutral-500">3–5 business days</span>
+                <span className="block text-sm text-muted">3–5 business days</span>
               </span>
             </span>
             <span className="font-semibold">
               {standardCost === 0 ? 'Free' : formatRappen(standardCost)}
             </span>
           </label>
-          <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded border border-neutral-300 p-4 has-[:checked]:border-gold-500 has-[:checked]:bg-gold-50">
+          <label className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded border border-line p-4 has-[:checked]:border-gold-500 has-[:checked]:bg-gold-50">
             <span className="flex items-center gap-3">
               <input
                 type="radio"
@@ -164,7 +164,7 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
               />
               <span>
                 <span className="font-medium">Express</span>
-                <span className="block text-sm text-neutral-500">1–2 business days</span>
+                <span className="block text-sm text-muted">1–2 business days</span>
               </span>
             </span>
             <span className="font-semibold">{formatRappen(EXPRESS_SHIPPING_RAPPEN)}</span>
@@ -172,12 +172,12 @@ export function CheckoutForm({ initialEmail, subtotalRappen }: CheckoutFormProps
         </div>
       </section>
 
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
 
       <button type="submit" disabled={busy} className="btn-gold w-full">
         {busy ? 'Placing order…' : 'Place order'}
       </button>
-      <p className="text-center text-xs text-neutral-500">
+      <p className="text-center text-xs text-muted">
         Payment on invoice while we finish integrating Swiss payment providers.
       </p>
     </form>

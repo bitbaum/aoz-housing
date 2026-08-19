@@ -52,7 +52,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       <h1 className="font-heading text-3xl sm:text-4xl">
         Find shoes that feel good <span className="gold-text-gradient">inside and out</span>
       </h1>
-      <p className="mt-3 max-w-2xl text-neutral-600">
+      <p className="mt-3 max-w-2xl text-muted">
         Every pair in our collection is chosen for comfort, style, and positive environmental
         impact. New eco-friendly designs or expertly refurbished favorites.
       </p>
@@ -66,13 +66,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             className={`inline-flex min-h-[44px] items-center rounded border px-4 py-2 text-sm font-medium transition-colors ${
               (filters.type ?? undefined) === f.value
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
-                : 'border-neutral-300 text-neutral-600 hover:border-neutral-400'
+                : 'border-line text-muted hover:border-line-strong'
             }`}
           >
             {f.label}
           </Link>
         ))}
-        <span className="mx-2 hidden h-6 w-px bg-neutral-300 sm:block" aria-hidden />
+        <span className="mx-2 hidden h-6 w-px bg-line-strong sm:block" aria-hidden />
         {PRODUCT_CATEGORIES.map((cat) => (
           <Link
             key={cat}
@@ -82,7 +82,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
             className={`inline-flex min-h-[44px] items-center rounded border px-4 py-2 text-sm font-medium transition-colors ${
               filters.category === cat
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
-                : 'border-neutral-300 text-neutral-600 hover:border-neutral-400'
+                : 'border-line text-muted hover:border-line-strong'
             }`}
           >
             {CATEGORY_LABELS[cat] ?? cat}
@@ -91,7 +91,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       </div>
 
       {products.length === 0 ? (
-        <div className="mt-16 rounded border border-dashed border-neutral-300 p-12 text-center text-neutral-500">
+        <div className="mt-16 rounded border border-dashed border-line p-12 text-center text-muted">
           No products match these filters yet.
         </div>
       ) : (

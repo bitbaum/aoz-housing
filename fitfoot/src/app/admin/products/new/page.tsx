@@ -4,7 +4,7 @@ import { ProductForm } from '@/components/admin/ProductForm'
 export default function AdminNewProductPage() {
   return (
     <div>
-      <Link href="/admin/products" className="text-sm text-neutral-500 hover:text-neutral-900">
+      <Link href="/admin/products" className="text-sm text-muted hover:text-ink">
         ← All products
       </Link>
       <h1 className="mt-2 font-heading text-3xl">New product</h1>

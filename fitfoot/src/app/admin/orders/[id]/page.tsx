@@ -22,14 +22,14 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div>
-      <Link href="/admin/orders" className="text-sm text-neutral-500 hover:text-neutral-900">
+      <Link href="/admin/orders" className="text-sm text-muted hover:text-ink">
         ← All orders
       </Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-heading text-3xl">{order.orderNumber}</h1>
         <OrderStatusBadge status={order.status} />
       </div>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-muted">
         Placed {order.createdAt.toLocaleString('en-CH')} ·{' '}
         {order.customerId ? (
           <Link href={`/admin/customers/${order.customerId}`} className="text-gold-600 hover:underline">
@@ -41,7 +41,7 @@ export default async function AdminOrderDetailPage({
       </p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <section className="card-premium">
+        <section className="card">
           <h2 className="font-heading text-xl">Items</h2>
           <ul className="mt-4 space-y-3 text-sm">
             {items.map((item) => (
@@ -56,27 +56,27 @@ export default async function AdminOrderDetailPage({
               </li>
             ))}
           </ul>
-          <dl className="mt-4 space-y-1 border-t border-neutral-200 pt-3 text-sm">
+          <dl className="mt-4 space-y-1 border-t border-line pt-3 text-sm">
             <div className="flex justify-between">
-              <dt className="text-neutral-600">Subtotal</dt>
+              <dt className="text-muted">Subtotal</dt>
               <dd>{formatRappen(order.subtotalRappen)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-neutral-600">Shipping ({order.shippingMethod.toLowerCase()})</dt>
+              <dt className="text-muted">Shipping ({order.shippingMethod.toLowerCase()})</dt>
               <dd>{order.shippingRappen === 0 ? 'Free' : formatRappen(order.shippingRappen)}</dd>
             </div>
             <div className="flex justify-between text-base font-bold">
               <dt>Total</dt>
               <dd>{formatRappen(order.totalRappen)}</dd>
             </div>
-            <p className="text-xs text-neutral-500">incl. {formatRappen(order.vatRappen)} VAT</p>
+            <p className="text-xs text-muted">incl. {formatRappen(order.vatRappen)} VAT</p>
           </dl>
         </section>
 
         <div className="space-y-6">
-          <section className="card-premium">
+          <section className="card">
             <h2 className="font-heading text-xl">Shipping address</h2>
-            <address className="mt-3 text-sm not-italic text-neutral-700">
+            <address className="mt-3 text-sm not-italic text-ink">
               {order.shipName}
               <br />
               {order.shipStreet}
@@ -85,10 +85,10 @@ export default async function AdminOrderDetailPage({
             </address>
           </section>
 
-          <section className="card-premium">
+          <section className="card">
             <h2 className="font-heading text-xl">Actions</h2>
             {transitions.length === 0 ? (
-              <p className="mt-3 text-sm text-neutral-500">
+              <p className="mt-3 text-sm text-muted">
                 This order is in a final state — nothing left to do.
               </p>
             ) : (

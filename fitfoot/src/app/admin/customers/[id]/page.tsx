@@ -49,7 +49,7 @@ export default async function AdminCustomerDetailPage({
 
   return (
     <div>
-      <Link href="/admin/customers" className="text-sm text-neutral-500 hover:text-neutral-900">
+      <Link href="/admin/customers" className="text-sm text-muted hover:text-ink">
         ← All customers
       </Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
@@ -60,7 +60,7 @@ export default async function AdminCustomerDetailPage({
           customer.role !== 'CUSTOMER' && <span className="badge-gold">{customer.role}</span>
         )}
       </div>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-muted">
         {customer.email}
         {customer.phone ? ` · ${customer.phone}` : ''} · joined{' '}
         {customer.createdAt.toLocaleDateString('en-CH')}
@@ -68,16 +68,16 @@ export default async function AdminCustomerDetailPage({
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <div className="card-premium">
-          <p className="text-sm text-neutral-500">Orders</p>
+        <div className="card">
+          <p className="text-sm text-muted">Orders</p>
           <p className="mt-1 text-2xl font-bold">{customerOrders.length}</p>
         </div>
-        <div className="card-premium">
-          <p className="text-sm text-neutral-500">Total spent</p>
+        <div className="card">
+          <p className="text-sm text-muted">Total spent</p>
           <p className="mt-1 text-2xl font-bold">{formatRappen(totalSpent)}</p>
         </div>
-        <div className="card-premium">
-          <p className="text-sm text-neutral-500">Inquiries</p>
+        <div className="card">
+          <p className="text-sm text-muted">Inquiries</p>
           <p className="mt-1 text-2xl font-bold">{inquiries.length}</p>
         </div>
       </div>
@@ -86,14 +86,14 @@ export default async function AdminCustomerDetailPage({
         <section>
           <h2 className="font-heading text-2xl">Order history</h2>
           {customerOrders.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-500">No orders yet.</p>
+            <p className="mt-3 text-sm text-muted">No orders yet.</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {customerOrders.map((order) => (
                 <li key={order.id}>
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="flex items-center justify-between gap-2 rounded border border-neutral-200 p-3 text-sm hover:bg-neutral-50"
+                    className="flex items-center justify-between gap-2 rounded border border-line p-3 text-sm hover:bg-subtle"
                   >
                     <span className="font-medium">{order.orderNumber}</span>
                     <span className="flex items-center gap-3">
@@ -111,9 +111,9 @@ export default async function AdminCustomerDetailPage({
               <h2 className="mt-8 font-heading text-2xl">Inquiries</h2>
               <ul className="mt-3 space-y-2">
                 {inquiries.map((inquiry) => (
-                  <li key={inquiry.id} className="rounded border border-neutral-200 p-3 text-sm">
+                  <li key={inquiry.id} className="rounded border border-line p-3 text-sm">
                     <p className="font-medium">{inquiry.subject}</p>
-                    <p className="mt-1 text-neutral-600">{inquiry.message}</p>
+                    <p className="mt-1 text-muted">{inquiry.message}</p>
                   </li>
                 ))}
               </ul>
@@ -125,13 +125,13 @@ export default async function AdminCustomerDetailPage({
           <h2 className="font-heading text-2xl">Notes</h2>
           <CrmNoteForm customerId={customer.id} />
           {notes.length === 0 ? (
-            <p className="mt-3 text-sm text-neutral-500">No notes yet.</p>
+            <p className="mt-3 text-sm text-muted">No notes yet.</p>
           ) : (
             <ul className="mt-3 space-y-2">
               {notes.map((note) => (
-                <li key={note.id} className="rounded border border-neutral-200 p-3 text-sm">
-                  <p className="whitespace-pre-wrap text-neutral-700">{note.body}</p>
-                  <p className="mt-2 text-xs text-neutral-400">
+                <li key={note.id} className="rounded border border-line p-3 text-sm">
+                  <p className="whitespace-pre-wrap text-ink">{note.body}</p>
+                  <p className="mt-2 text-xs text-muted">
                     {`${note.authorFirstName} ${note.authorLastName}`.trim() || note.authorEmail} ·{' '}
                     {note.createdAt.toLocaleString('en-CH')}
                   </p>

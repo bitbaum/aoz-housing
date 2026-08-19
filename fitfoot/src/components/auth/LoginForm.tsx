@@ -33,7 +33,7 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card-premium mt-8 space-y-4">
+    <form onSubmit={onSubmit} className="card mt-8 space-y-4">
       <div>
         <label htmlFor="login-email" className="label-field">
           Email
@@ -63,16 +63,16 @@ export function LoginForm() {
         />
         <Link
           href="/forgot-password"
-          className="mt-1 inline-block text-sm text-neutral-500 hover:text-gold-600"
+          className="mt-1 inline-block text-sm text-muted hover:text-gold-600"
         >
           Forgot your password?
         </Link>
       </div>
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
       <button type="submit" disabled={busy} className="btn-gold w-full">
         {busy ? 'Signing in…' : 'Sign in'}
       </button>
-      <p className="text-center text-sm text-neutral-600">
+      <p className="text-center text-sm text-muted">
         New to FitFoot?{' '}
         <Link href="/register" className="font-medium text-gold-600 hover:underline">
           Create an account

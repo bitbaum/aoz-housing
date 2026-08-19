@@ -26,13 +26,13 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
 
   return (
     <div className="flex items-center gap-3">
-      <div className="inline-flex items-center rounded border border-neutral-300">
+      <div className="inline-flex items-center rounded border border-line">
         <button
           type="button"
           aria-label="Decrease quantity"
           disabled={busy || quantity <= 1}
           onClick={() => setQuantity(quantity - 1)}
-          className="min-h-[44px] min-w-[44px] px-3 font-bold text-neutral-600 disabled:text-neutral-300"
+          className="min-h-[44px] min-w-[44px] px-3 font-bold text-muted disabled:text-muted"
         >
           −
         </button>
@@ -42,7 +42,7 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
           aria-label="Increase quantity"
           disabled={busy || quantity >= maxQty}
           onClick={() => setQuantity(quantity + 1)}
-          className="min-h-[44px] min-w-[44px] px-3 font-bold text-neutral-600 disabled:text-neutral-300"
+          className="min-h-[44px] min-w-[44px] px-3 font-bold text-muted disabled:text-muted"
         >
           +
         </button>
@@ -51,7 +51,7 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
         type="button"
         disabled={busy}
         onClick={() => setQuantity(0)}
-        className="min-h-[44px] text-sm text-neutral-500 underline hover:text-red-600"
+        className="min-h-[44px] text-sm text-muted underline hover:text-error-text"
       >
         Remove
       </button>

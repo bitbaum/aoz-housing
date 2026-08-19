@@ -20,7 +20,7 @@ export function AdminNav({ sections }: AdminNavProps) {
             key={section.id}
             href={section.path}
             className={`flex min-h-[44px] shrink-0 items-center gap-2 rounded px-3 py-2 text-sm font-medium transition-colors ${
-              active ? 'bg-gold-50 text-gold-700' : 'text-neutral-600 hover:bg-neutral-100'
+              active ? 'bg-gold-50 text-gold-700' : 'text-muted hover:bg-subtle'
             }`}
           >
             <span aria-hidden>{section.emoji}</span>

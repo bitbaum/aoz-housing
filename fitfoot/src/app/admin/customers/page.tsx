@@ -60,7 +60,7 @@ export default async function AdminCustomersPage({
       </form>
 
       {rows.length === 0 ? (
-        <p className="mt-8 rounded border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+        <p className="mt-8 rounded border border-dashed border-line p-8 text-center text-muted">
           No customers found.
         </p>
       ) : (
@@ -69,7 +69,7 @@ export default async function AdminCustomersPage({
             <li key={row.id}>
               <Link
                 href={`/admin/customers/${row.id}`}
-                className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-4 hover:bg-neutral-50"
+                className="flex flex-wrap items-center justify-between gap-2 rounded border border-line p-4 hover:bg-subtle"
               >
                 <span>
                   <span className="font-medium">
@@ -77,12 +77,12 @@ export default async function AdminCustomersPage({
                       ? `${row.firstName} ${row.lastName}`.trim()
                       : row.email}
                   </span>
-                  <span className="block text-sm text-neutral-500">{row.email}</span>
+                  <span className="block text-sm text-muted">{row.email}</span>
                 </span>
                 <span className="flex items-center gap-3 text-sm">
                   {row.role !== 'CUSTOMER' && <span className="badge-gold">{row.role}</span>}
                   {row.newsletterOptIn && <span className="badge-neutral">Newsletter</span>}
-                  <span className="text-neutral-500">{row.orderCount} orders</span>
+                  <span className="text-muted">{row.orderCount} orders</span>
                   <span className="font-semibold">{formatRappen(Number(row.totalSpent ?? 0))}</span>
                 </span>
               </Link>

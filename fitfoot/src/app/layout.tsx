@@ -22,10 +22,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${playfair.variable} flex min-h-screen flex-col bg-white font-sans text-neutral-900 antialiased`}
-      >
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="flex min-h-screen flex-col font-sans antialiased">
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -21,7 +21,7 @@ export default async function CartPage() {
           🛒
         </p>
         <h1 className="mt-4 font-heading text-3xl">Your cart is empty</h1>
-        <p className="mt-2 text-neutral-600">Your perfect pair is waiting in the shop.</p>
+        <p className="mt-2 text-muted">Your perfect pair is waiting in the shop.</p>
         <Link href="/shop" className="btn-gold mt-6">
           Browse the collection
         </Link>
@@ -36,7 +36,7 @@ export default async function CartPage() {
       <div className="mt-8 grid gap-8 lg:grid-cols-3">
         <ul className="space-y-4 lg:col-span-2">
           {cart.items.map((item) => (
-            <li key={item.id} className="flex gap-4 rounded border border-neutral-200 p-4">
+            <li key={item.id} className="flex gap-4 rounded border border-line p-4">
               <Link href={`/shop/${item.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded">
                 <ProductImage imageUrl={item.imageUrl} name={item.productName} />
               </Link>
@@ -46,7 +46,7 @@ export default async function CartPage() {
                     <Link href={`/shop/${item.slug}`} className="font-semibold hover:text-gold-600">
                       {item.productName}
                     </Link>
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-muted">
                       Size {item.size}
                       {item.color ? ` · ${item.color}` : ''}
                     </p>
@@ -61,22 +61,22 @@ export default async function CartPage() {
           ))}
         </ul>
 
-        <div className="card-premium h-fit">
+        <div className="card h-fit">
           <h2 className="font-heading text-xl">Order summary</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-neutral-600">Subtotal</dt>
+              <dt className="text-muted">Subtotal</dt>
               <dd>{formatRappen(cart.subtotalRappen)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-neutral-600">Shipping (standard)</dt>
+              <dt className="text-muted">Shipping (standard)</dt>
               <dd>{cart.shippingRappen === 0 ? 'Free' : formatRappen(cart.shippingRappen)}</dd>
             </div>
-            <div className="flex justify-between border-t border-neutral-200 pt-2 text-base font-bold">
+            <div className="flex justify-between border-t border-line pt-2 text-base font-bold">
               <dt>Total</dt>
               <dd>{formatRappen(cart.totalRappen)}</dd>
             </div>
-            <p className="text-xs text-neutral-500">incl. {formatRappen(cart.vatRappen)} VAT (8.1%)</p>
+            <p className="text-xs text-muted">incl. {formatRappen(cart.vatRappen)} VAT (8.1%)</p>
           </dl>
           <Link href="/checkout" className="btn-gold mt-6 w-full">
             Checkout

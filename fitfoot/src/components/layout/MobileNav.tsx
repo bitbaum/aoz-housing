@@ -19,7 +19,7 @@ export function MobileNav({ links, isSignedIn, isStaff }: MobileNavProps) {
         onClick={() => setOpen(!open)}
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
-        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 hover:bg-neutral-100"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 hover:bg-subtle"
       >
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
           {open ? (
@@ -31,14 +31,14 @@ export function MobileNav({ links, isSignedIn, isStaff }: MobileNavProps) {
       </button>
 
       {open && (
-        <div className="absolute inset-x-0 top-16 border-b border-neutral-200 bg-white shadow-lg">
+        <div className="absolute inset-x-0 top-16 border-b border-line bg-surface shadow-lifted">
           <nav className="flex flex-col p-4">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="min-h-[44px] rounded px-4 py-3 font-medium text-neutral-700 hover:bg-neutral-100"
+                className="min-h-[44px] rounded px-4 py-3 font-medium text-ink hover:bg-subtle"
               >
                 {link.label}
               </Link>
@@ -47,7 +47,7 @@ export function MobileNav({ links, isSignedIn, isStaff }: MobileNavProps) {
               <Link
                 href="/admin"
                 onClick={() => setOpen(false)}
-                className="min-h-[44px] rounded px-4 py-3 font-medium text-neutral-700 hover:bg-neutral-100"
+                className="min-h-[44px] rounded px-4 py-3 font-medium text-ink hover:bg-subtle"
               >
                 Admin
               </Link>
@@ -55,7 +55,7 @@ export function MobileNav({ links, isSignedIn, isStaff }: MobileNavProps) {
             <Link
               href={isSignedIn ? '/account' : '/login'}
               onClick={() => setOpen(false)}
-              className="min-h-[44px] rounded px-4 py-3 font-medium text-neutral-700 hover:bg-neutral-100"
+              className="min-h-[44px] rounded px-4 py-3 font-medium text-ink hover:bg-subtle"
             >
               {isSignedIn ? 'Account' : 'Sign in'}
             </Link>

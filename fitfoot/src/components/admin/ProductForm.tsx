@@ -186,7 +186,7 @@ export function ProductForm({
           className="input-field"
         />
         {slugPreview && (
-          <p className="mt-1 text-xs text-neutral-500">Shop address: /shop/{slugPreview}</p>
+          <p className="mt-1 text-xs text-muted">Shop address: /shop/{slugPreview}</p>
         )}
       </div>
 
@@ -282,7 +282,7 @@ export function ProductForm({
             placeholder="e.g. 179.00"
             className="input-field"
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted">
             {pricePreview(form.priceChf) ? `= ${pricePreview(form.priceChf)}` : 'e.g. 179.00'}
           </p>
         </div>
@@ -299,7 +299,7 @@ export function ProductForm({
             placeholder="e.g. 249.00"
             className="input-field"
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted">
             {form.compareAtChf
               ? pricePreview(form.compareAtChf)
                 ? `= ${pricePreview(form.compareAtChf)}`
@@ -310,9 +310,9 @@ export function ProductForm({
       </div>
 
       {!productId && (
-        <div className="rounded border border-dashed border-neutral-300 p-3">
+        <div className="rounded border border-dashed border-line p-3">
           <p className="text-sm font-semibold">Sizes</p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted">
             Add every size you have in stock. You can always add more later.
           </p>
           <div className="mt-3 space-y-2">
@@ -358,7 +358,7 @@ export function ProductForm({
                 <button
                   type="button"
                   onClick={() => setRows((rs) => rs.filter((r) => r.key !== row.key))}
-                  className="min-h-[44px] px-2 text-sm text-neutral-400 hover:text-red-600"
+                  className="min-h-[44px] px-2 text-sm text-muted hover:text-error-text"
                   aria-label="Remove size"
                 >
                   ✕
@@ -479,8 +479,8 @@ export function ProductForm({
         </div>
       </div>
 
-      <details className="rounded border border-dashed border-neutral-300 p-3">
-        <summary className="cursor-pointer text-sm font-medium text-neutral-600">
+      <details className="rounded border border-dashed border-line p-3">
+        <summary className="cursor-pointer text-sm font-medium text-muted">
           Edit shop web address (optional)
         </summary>
         <div className="mt-3">
@@ -491,7 +491,7 @@ export function ProductForm({
             placeholder={slugify(form.name) || 'auto-generated from the name'}
             className="input-field text-sm"
           />
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted">
             Leave blank to generate this automatically from the name.
           </p>
         </div>
@@ -508,7 +508,7 @@ export function ProductForm({
 
       {message && (
         <p
-          className={`text-sm font-medium ${message.kind === 'ok' ? 'text-emerald-700' : 'text-red-600'}`}
+          className={`text-sm font-medium ${message.kind === 'ok' ? 'text-success-text' : 'text-error-text'}`}
         >
           {message.text}
         </p>

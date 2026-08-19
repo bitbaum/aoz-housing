@@ -42,7 +42,7 @@ export function CrmNoteForm({ customerId }: { customerId: string }) {
         placeholder="Add a note about this customer…"
         className="input-field text-sm"
       />
-      {error && <p className="mt-1 text-sm font-medium text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm font-medium text-error-text">{error}</p>}
       <button type="submit" disabled={busy || !body.trim()} className="btn-dark mt-2 text-sm">
         {busy ? 'Saving…' : 'Add note'}
       </button>

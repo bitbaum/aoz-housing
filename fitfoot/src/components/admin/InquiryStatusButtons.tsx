@@ -42,7 +42,7 @@ export function InquiryStatusButtons({
           className={`min-h-[44px] rounded border px-3 py-1 text-xs font-semibold transition-colors ${
             status === current
               ? 'border-gold-500 bg-gold-50 text-gold-700'
-              : 'border-neutral-300 text-neutral-500 hover:border-neutral-500'
+              : 'border-line text-muted hover:border-line-strong'
           }`}
         >
           {LABELS[status]}

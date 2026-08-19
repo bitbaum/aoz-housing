@@ -74,12 +74,12 @@ export function VariantManager({
         {variants.map((variant) => (
           <li
             key={variant.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded border border-neutral-200 p-3 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 rounded border border-line p-3 text-sm"
           >
             <span>
               <span className="font-medium">Size {variant.size}</span>
-              {variant.color && <span className="text-neutral-500"> · {variant.color}</span>}
-              <span className="block text-xs text-neutral-400">{variant.sku}</span>
+              {variant.color && <span className="text-muted"> · {variant.color}</span>}
+              <span className="block text-xs text-muted">{variant.sku}</span>
             </span>
             <span className="flex items-center gap-2">
               <button
@@ -87,12 +87,12 @@ export function VariantManager({
                 aria-label="Decrease stock"
                 disabled={busy || variant.stockQty <= 0}
                 onClick={() => updateStock(variant.id, variant.stockQty - 1)}
-                className="min-h-[44px] min-w-[44px] rounded border border-neutral-300 font-bold disabled:text-neutral-300"
+                className="min-h-[44px] min-w-[44px] rounded border border-line font-bold disabled:text-muted"
               >
                 −
               </button>
               <span
-                className={`min-w-8 text-center font-semibold ${variant.stockQty <= 3 ? 'text-red-600' : ''}`}
+                className={`min-w-8 text-center font-semibold ${variant.stockQty <= 3 ? 'text-error-text' : ''}`}
               >
                 {variant.stockQty}
               </span>
@@ -101,7 +101,7 @@ export function VariantManager({
                 aria-label="Increase stock"
                 disabled={busy}
                 onClick={() => updateStock(variant.id, variant.stockQty + 1)}
-                className="min-h-[44px] min-w-[44px] rounded border border-neutral-300 font-bold"
+                className="min-h-[44px] min-w-[44px] rounded border border-line font-bold"
               >
                 +
               </button>
@@ -109,7 +109,7 @@ export function VariantManager({
                 type="button"
                 disabled={busy}
                 onClick={() => removeVariant(variant.id)}
-                className="ml-2 min-h-[44px] text-xs text-neutral-400 underline hover:text-red-600"
+                className="ml-2 min-h-[44px] text-xs text-muted underline hover:text-error-text"
               >
                 delete
               </button>
@@ -118,9 +118,9 @@ export function VariantManager({
         ))}
       </ul>
 
-      <form onSubmit={addVariant} className="mt-4 rounded border border-dashed border-neutral-300 p-3">
+      <form onSubmit={addVariant} className="mt-4 rounded border border-dashed border-line p-3">
         <p className="text-sm font-semibold">Add size</p>
-        <p className="mt-1 text-xs text-neutral-500">The stock code is generated for you.</p>
+        <p className="mt-1 text-xs text-muted">The stock code is generated for you.</p>
         <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <div>
             <label htmlFor="vm-size" className="label-field text-xs">
@@ -162,7 +162,7 @@ export function VariantManager({
             />
           </div>
         </div>
-        {error && <p className="mt-2 text-sm font-medium text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm font-medium text-error-text">{error}</p>}
         <button type="submit" disabled={busy} className="btn-dark mt-3 text-sm">
           Add size
         </button>

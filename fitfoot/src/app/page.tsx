@@ -18,7 +18,7 @@ export default async function HomePage() {
             <br />
             <span className="gold-text-gradient">{HERO.headlineAccent}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-600">{HERO.sub}</p>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">{HERO.sub}</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href="/shop" className="btn-gold w-full sm:w-auto">
               {HERO.ctaPrimary}
@@ -27,7 +27,7 @@ export default async function HomePage() {
               {HERO.ctaSecondary}
             </Link>
           </div>
-          <ul className="mt-10 flex flex-col items-center justify-center gap-3 text-sm text-neutral-600 sm:flex-row sm:gap-8">
+          <ul className="mt-10 flex flex-col items-center justify-center gap-3 text-sm text-muted sm:flex-row sm:gap-8">
             {TRUST_BADGES.map((badge) => (
               <li key={badge} className="flex items-center gap-2">
                 <span className="text-gold-500" aria-hidden>
@@ -43,13 +43,13 @@ export default async function HomePage() {
       {/* Two paths */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
         <h2 className="text-center font-heading text-3xl sm:text-4xl">{TWO_PATHS.headline}</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-center text-neutral-600">{TWO_PATHS.sub}</p>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-muted">{TWO_PATHS.sub}</p>
         <div className="mt-10 grid gap-6 sm:grid-cols-2">
           {[TWO_PATHS.newPath, TWO_PATHS.refurbishedPath].map((path) => (
-            <div key={path.title} className="card-premium flex flex-col">
+            <div key={path.title} className="card flex flex-col">
               <h3 className="font-heading text-2xl">{path.title}</h3>
-              <p className="mt-3 text-neutral-600">{path.body}</p>
-              <ul className="mt-4 flex-1 space-y-2 text-sm text-neutral-700">
+              <p className="mt-3 text-muted">{path.body}</p>
+              <ul className="mt-4 flex-1 space-y-2 text-sm text-ink">
                 {path.points.map((point) => (
                   <li key={point} className="flex items-center gap-2">
                     <span className="text-gold-500" aria-hidden>
@@ -69,10 +69,10 @@ export default async function HomePage() {
 
       {/* Customer favorites */}
       {favorites.length > 0 && (
-        <section className="bg-neutral-50">
+        <section className="bg-subtle">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
             <h2 className="text-center font-heading text-3xl sm:text-4xl">Customer favorites</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-center text-neutral-600">
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted">
               The shoes our community loves most, chosen for comfort, style, and impact
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -91,11 +91,11 @@ export default async function HomePage() {
           {IMPACT_STATS.map((stat) => (
             <div key={stat.label}>
               <p className="gold-text-gradient font-heading text-5xl">{stat.value}</p>
-              <p className="mt-2 text-neutral-600">{stat.label}</p>
+              <p className="mt-2 text-muted">{stat.label}</p>
             </div>
           ))}
         </div>
-        <p className="mx-auto mt-8 max-w-2xl text-neutral-600">
+        <p className="mx-auto mt-8 max-w-2xl text-muted">
           Every pair you choose makes a difference. Join our community of conscious consumers
           creating positive change.
         </p>
@@ -111,7 +111,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/shop"
-            className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded bg-white px-8 py-3 font-semibold text-gold-600 transition-colors hover:bg-gold-50"
+            className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded bg-surface px-8 py-3 font-semibold text-gold-600 transition-colors hover:bg-gold-50"
           >
             Shop the collection
           </Link>

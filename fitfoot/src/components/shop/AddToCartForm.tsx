@@ -61,8 +61,8 @@ export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
                 selected
                   ? 'border-gold-500 bg-gold-50 text-gold-700'
                   : disabled
-                    ? 'cursor-not-allowed border-neutral-200 text-neutral-300 line-through'
-                    : 'border-neutral-300 hover:border-neutral-500'
+                    ? 'cursor-not-allowed border-line text-muted line-through'
+                    : 'border-line hover:border-line-strong'
               }`}
             >
               {variant.size}
@@ -81,14 +81,14 @@ export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
       </button>
 
       {state === 'added' && (
-        <p className="mt-3 text-sm font-medium text-emerald-700">
+        <p className="mt-3 text-sm font-medium text-success-text">
           Added to cart —{' '}
           <a href="/cart" className="underline">
             view cart
           </a>
         </p>
       )}
-      {message && <p className="mt-3 text-sm font-medium text-red-600">{message}</p>}
+      {message && <p className="mt-3 text-sm font-medium text-error-text">{message}</p>}
     </div>
   )
 }

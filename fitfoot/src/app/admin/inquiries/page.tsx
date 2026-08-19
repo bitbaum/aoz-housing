@@ -35,7 +35,7 @@ export default async function AdminInquiriesPage({
         <Link
           href="/admin/inquiries"
           className={`inline-flex min-h-[44px] items-center rounded border px-3 py-1 text-sm font-medium ${
-            !statusFilter ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-neutral-300 text-neutral-600'
+            !statusFilter ? 'border-gold-500 bg-gold-50 text-gold-700' : 'border-line text-muted'
           }`}
         >
           All
@@ -47,7 +47,7 @@ export default async function AdminInquiriesPage({
             className={`inline-flex min-h-[44px] items-center rounded border px-3 py-1 text-sm font-medium ${
               statusFilter === status
                 ? 'border-gold-500 bg-gold-50 text-gold-700'
-                : 'border-neutral-300 text-neutral-600'
+                : 'border-line text-muted'
             }`}
           >
             {STATUS_LABELS[status]}
@@ -56,17 +56,17 @@ export default async function AdminInquiriesPage({
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-8 rounded border border-dashed border-neutral-300 p-8 text-center text-neutral-500">
+        <p className="mt-8 rounded border border-dashed border-line p-8 text-center text-muted">
           Inbox zero — nothing here.
         </p>
       ) : (
         <ul className="mt-6 space-y-3">
           {rows.map((inquiry) => (
-            <li key={inquiry.id} className="rounded border border-neutral-200 p-4">
+            <li key={inquiry.id} className="rounded border border-line p-4">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <p className="font-semibold">{inquiry.subject}</p>
-                  <p className="text-sm text-neutral-500">
+                  <p className="text-sm text-muted">
                     {inquiry.name} ·{' '}
                     <a href={`mailto:${inquiry.email}`} className="hover:text-gold-600">
                       {inquiry.email}
@@ -88,7 +88,7 @@ export default async function AdminInquiriesPage({
                 </div>
                 <InquiryStatusButtons inquiryId={inquiry.id} current={inquiry.status} />
               </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm text-neutral-700">{inquiry.message}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm text-ink">{inquiry.message}</p>
             </li>
           ))}
         </ul>

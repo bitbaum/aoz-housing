@@ -20,15 +20,15 @@ export default function SustainabilityPage() {
       <h1 className="text-center font-heading text-4xl sm:text-5xl">
         Products built to <span className="gold-text-gradient">last forever</span>
       </h1>
-      <p className="mx-auto mt-4 max-w-2xl text-center text-neutral-600">
+      <p className="mx-auto mt-4 max-w-2xl text-center text-muted">
         Where precision meets purpose. Every product represents our commitment to exceptional
         quality and environmental responsibility.
       </p>
 
       {/* Take-back program */}
-      <section className="mt-16 rounded border border-neutral-200 p-8 sm:p-10">
+      <section className="mt-16 rounded border border-line p-8 sm:p-10">
         <h2 className="font-heading text-3xl">{TAKE_BACK.headline}</h2>
-        <p className="mt-3 max-w-2xl text-neutral-600">{TAKE_BACK.sub}</p>
+        <p className="mt-3 max-w-2xl text-muted">{TAKE_BACK.sub}</p>
         <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {TAKE_BACK.steps.map((step, index) => (
             <li key={step.title}>
@@ -36,7 +36,7 @@ export default function SustainabilityPage() {
                 {index + 1}
               </span>
               <h3 className="mt-3 font-semibold">{step.title}</h3>
-              <p className="mt-1 text-sm text-neutral-600">{step.body}</p>
+              <p className="mt-1 text-sm text-muted">{step.body}</p>
             </li>
           ))}
         </ol>
@@ -54,7 +54,7 @@ export default function SustainabilityPage() {
           {IMPACT_STATS.map((stat) => (
             <div key={stat.label}>
               <p className="gold-text-gradient font-heading text-5xl">{stat.value}</p>
-              <p className="mt-2 text-neutral-600">{stat.label}</p>
+              <p className="mt-2 text-muted">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -70,7 +70,7 @@ export default function SustainabilityPage() {
                 {index + 1}
               </span>
               <h3 className="mt-3 font-semibold">{step.title}</h3>
-              <p className="mt-1 text-sm text-neutral-600">{step.body}</p>
+              <p className="mt-1 text-sm text-muted">{step.body}</p>
             </li>
           ))}
         </ol>
@@ -80,7 +80,7 @@ export default function SustainabilityPage() {
         <h2 className="font-heading text-3xl">
           Ready to experience <span className="gold-text-gradient">lasting quality?</span>
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-neutral-600">
+        <p className="mx-auto mt-3 max-w-xl text-muted">
           Discover footwear that&apos;s built to last, designed to perform, and created with respect
           for our planet. Your perfect pair is waiting.
         </p>

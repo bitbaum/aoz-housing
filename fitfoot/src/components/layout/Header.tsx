@@ -20,7 +20,7 @@ export async function Header() {
   const isStaff = session?.role === 'STAFF' || session?.role === 'ADMIN'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="font-heading text-2xl tracking-tight">
           {SITE.name}
@@ -48,7 +48,7 @@ export async function Header() {
           </Link>
           <Link
             href="/cart"
-            className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 hover:bg-neutral-100"
+            className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded p-2 hover:bg-subtle"
             aria-label={`Cart, ${itemCount} items`}
           >
             <svg

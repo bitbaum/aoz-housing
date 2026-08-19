@@ -24,7 +24,7 @@ export default async function AdminProductDetailPage({
 
   return (
     <div>
-      <Link href="/admin/products" className="text-sm text-neutral-500 hover:text-neutral-900">
+      <Link href="/admin/products" className="text-sm text-muted hover:text-ink">
         ← All products
       </Link>
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
@@ -37,7 +37,7 @@ export default async function AdminProductDetailPage({
         </span>
       </div>
       {!product.active && (
-        <p className="mt-2 inline-flex rounded bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-500">
+        <p className="mt-2 inline-flex rounded bg-subtle px-2.5 py-0.5 text-xs font-semibold text-muted">
           Not visible in the shop
         </p>
       )}

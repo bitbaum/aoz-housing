@@ -19,7 +19,7 @@ export function ProductImage({ imageUrl, name, className = '' }: ProductImagePro
   }
   return (
     <div
-      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-gold-50 via-neutral-100 to-gold-100 ${className}`}
+      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-gold-50 via-subtle to-gold-100 ${className}`}
       aria-label={name}
       role="img"
     >
