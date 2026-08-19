@@ -37,7 +37,7 @@ export const uk: Dictionary = {
 
   'navGroup.living': 'Щоденне',
   'navGroup.together': 'Вирішуємо разом',
-  'navGroup.concerns': 'Звернення та пропозиції',
+  'navGroup.integration': 'Звернення та пропозиції',
   'navGroup.account': 'Мій акаунт',
 
   'reports.title': 'Ваші звернення',

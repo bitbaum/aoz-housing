@@ -32,7 +32,7 @@ export const ti: Dictionary = {
 
   'navGroup.living': 'መዓልታዊ',
   'navGroup.together': 'ብሓባር ውሳነ',
-  'navGroup.concerns': 'ሕቶታት',
+  'navGroup.integration': 'ሕቶታት',
   'navGroup.account': 'ሕሳበይ',
 
   'reports.title': 'ዜናታትካ',

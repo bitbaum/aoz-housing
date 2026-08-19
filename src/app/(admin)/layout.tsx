@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { ArrowRightLeft } from 'lucide-react'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { AdminMegaMenu } from '@/components/layout/AdminHeader'
@@ -51,6 +52,16 @@ export default async function AdminLayout({
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <ThemeToggle />
+              {hasPortalAccess && (
+                <Link
+                  href="/portal"
+                  className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border border-brand-primary/40 text-brand-primary hover:bg-brand-primary/8 transition-colors min-h-[36px]"
+                  title="Zum Bewohner*innen-Portal wechseln"
+                >
+                  <ArrowRightLeft className="w-3.5 h-3.5" aria-hidden="true" />
+                  Bewohnerportal
+                </Link>
+              )}
               <UserMenu
                 user={{ name: user.name, email: user.email, role: user.role }}
                 hasPortalAccess={hasPortalAccess}

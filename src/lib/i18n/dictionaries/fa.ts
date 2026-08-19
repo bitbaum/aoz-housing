@@ -32,7 +32,7 @@ export const fa: Dictionary = {
 
   'navGroup.living': 'روزمره',
   'navGroup.together': 'با هم تصمیم',
-  'navGroup.concerns': 'درخواست‌ها',
+  'navGroup.integration': 'درخواست‌ها',
   'navGroup.account': 'حساب من',
 
   'reports.title': 'گزارش‌های تو',

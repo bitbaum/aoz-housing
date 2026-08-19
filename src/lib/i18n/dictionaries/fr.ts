@@ -38,7 +38,7 @@ export const fr: Dictionary = {
 
   'navGroup.living': 'Au quotidien',
   'navGroup.together': 'Décider ensemble',
-  'navGroup.concerns': 'Demandes et offres',
+  'navGroup.integration': 'Demandes et offres',
   'navGroup.account': 'Mon compte',
 
   'reports.title': 'Tes signalements',

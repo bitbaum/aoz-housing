@@ -58,7 +58,7 @@ export default function OGImage() {
               maxWidth: 980,
             }}
           >
-            Intelligentes Platzierungssystem
+            Integrationsplattform für Fachpersonen
           </div>
           <div style={{ marginTop: 28, fontSize: 32, lineHeight: 1.35, color: MUTED, maxWidth: 900 }}>
             {APP_LABELS.metaDescription}

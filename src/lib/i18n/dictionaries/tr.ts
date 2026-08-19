@@ -48,7 +48,7 @@ export const tr: Dictionary = {
 
   'navGroup.living': 'Günlük yaşam',
   'navGroup.together': 'Birlikte karar vermek',
-  'navGroup.concerns': 'Talepler ve fırsatlar',
+  'navGroup.integration': 'Talepler ve fırsatlar',
   'navGroup.account': 'Hesabım',
 
   'reports.title': 'Bildirimlerin',
