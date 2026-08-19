@@ -3,12 +3,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
+import { LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
 import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildPreferencesLabels } from '@/lib/i18n/portal-surfaces'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import type { ScaleFactorDef, EnumFactorDef } from '@/lib/config/types'
-
-const P = PORTAL_LABELS.preferences
 
 interface ResidentData {
   sleepSchedule: string
@@ -72,6 +71,7 @@ function RatingScale({
 
 export function PreferencesForm({ resident, languageOptions, dietOptions }: Props) {
   const t = useT()
+  const P = buildPreferencesLabels(t)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -464,7 +464,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             {isSubmitting ? P.saving : P.saveButton}
           </button>
           <button type="button" onClick={handleCancel} className="btn-outline w-full sm:w-auto min-h-[44px]">
-            {PORTAL_LABELS.form.cancel}
+            {t('action.cancel')}
           </button>
         </div>
       </form>

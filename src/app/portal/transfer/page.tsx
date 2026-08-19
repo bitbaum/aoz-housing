@@ -1,16 +1,20 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { TransferRequestForm } from '@/components/portal/TransferRequestForm'
+import { buildTransferLabels } from '@/lib/i18n/portal-surfaces'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { TRANSFER_REQUEST_STATUS_LABELS } from '@/lib/constants/labels/residents'
 import { formatDate } from '@/lib/utils'
 import { getRequestTranslator } from '@/lib/i18n/request'
 
-export const metadata: Metadata = { title: 'Verlegung anfragen' }
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.transfer') }
+}
 
 export default async function TransferPage() {
   const residentCode = await requireResidentCookie('/portal')
@@ -68,7 +72,7 @@ export default async function TransferPage() {
       })
     : []
 
-  const L = PORTAL_LABELS.transfer
+  const L = buildTransferLabels(t)
 
   return (
     <div>

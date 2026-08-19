@@ -2,8 +2,9 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { getUnitExpenseData } from '@/lib/expenses/data'
-import { PORTAL_LABELS } from '@/lib/constants'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
+import { getRequestTranslator } from '@/lib/i18n/request'
+import { buildExpenseLabels } from '@/lib/i18n/portal-surfaces'
 import { AddExpenseForm } from '@/components/portal/expenses/AddExpenseForm'
 import { ExpenseList } from '@/components/portal/expenses/ExpenseList'
 import { SettleUpButton } from '@/components/portal/expenses/SettleUpButton'
@@ -13,14 +14,19 @@ import { MonthlyStatements } from '@/components/portal/expenses/MonthlyStatement
 import { formatDateShort } from '@/lib/utils/formatting'
 import { SuccessToast } from '@/components/ui/SuccessToast'
 
-export const metadata: Metadata = { title: PORTAL_LABELS.expenses.title }
 export const dynamic = 'force-dynamic'
 
-const L = PORTAL_LABELS.expenses
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('expenses.title') }
+}
 
 export default async function PortalExpensesPage() {
   const auth = await getPortalAuth()
   if (!auth) redirect('/login')
+
+  const { t } = await getRequestTranslator()
+  const L = buildExpenseLabels(t)
 
   const data = await getUnitExpenseData(auth.placement.housingUnitId)
   const memberById = new Map(data.members.map((m) => [m.id, m]))
@@ -143,6 +149,7 @@ export default async function PortalExpensesPage() {
       <MonthlyStatements
         statements={monthlyStatements(data.expenses, data.members.map((m) => m.id))}
         nameOf={namesById}
+        labels={L}
       />
 
       {/* Settlements */}

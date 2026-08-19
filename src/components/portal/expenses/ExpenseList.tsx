@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Trash2 } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { expenseCategoryLabel } from '@/lib/config/expenses'
 import { formatRappen } from '@/lib/expenses/money'
 import { formatDateShort } from '@/lib/utils/formatting'
 import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildExpenseLabels, type ExpenseLabels } from '@/lib/i18n/portal-surfaces'
 
 export interface ExpenseShareView {
   name: string
@@ -29,14 +29,7 @@ export interface ExpenseListItem {
   canDelete: boolean
 }
 
-const L = PORTAL_LABELS.expenses
-
-/**
- * "Aufgeteilt auf: alle (je CHF 5.00)" when the split covers everyone with
- * equal shares; otherwise the explicit list — "Georgy (CHF 2.00), Ihor
- * (CHF 2.00), Misha (CHF 2.00)" — so exclusions are always visible.
- */
-function SplitSummary({ expense }: { expense: ExpenseListItem }) {
+function SplitSummary({ expense, L }: { expense: ExpenseListItem; L: ExpenseLabels }) {
   const equal = expense.shares.every((s) => s.amountRappen === expense.shares[0]?.amountRappen)
   if (expense.splitAcrossAll && equal && expense.shares.length > 0) {
     return (
@@ -61,6 +54,7 @@ function SplitSummary({ expense }: { expense: ExpenseListItem }) {
 export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
   const router = useRouter()
   const t = useT()
+  const L = buildExpenseLabels(t)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -115,7 +109,7 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
                   · {formatDateShort(expense.date)}
                 </p>
                 <p className="text-xs text-ui-muted mt-0.5">
-                  {L.splitAcross}: <SplitSummary expense={expense} />
+                  {L.splitAcross}: <SplitSummary expense={expense} L={L} />
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">

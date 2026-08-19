@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Pencil } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PROFILE_LIMITS } from '@/lib/config/profile'
-
-const L = PORTAL_LABELS.apartment
+import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildApartmentLabels } from '@/lib/i18n/portal-surfaces'
 
 /** Inline editor for the resident-chosen apartment name (e.g. "Singapur"). */
 export function ApartmentNameEditor({ nickname }: { nickname: string | null }) {
   const router = useRouter()
+  const t = useT()
+  const L = buildApartmentLabels(t)
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(nickname ?? '')
   const [error, setError] = useState<string | null>(null)
@@ -28,13 +29,13 @@ export function ApartmentNameEditor({ nickname }: { nickname: string | null }) {
       })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       setEditing(false)
       router.refresh()
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setSaving(false)
     }
@@ -83,10 +84,10 @@ export function ApartmentNameEditor({ nickname }: { nickname: string | null }) {
       )}
       <div className="mt-3 flex gap-2">
         <button type="submit" disabled={saving} className="btn-primary">
-          {saving ? PORTAL_LABELS.form.saving : L.nameSave}
+          {saving ? t('action.saving') : L.nameSave}
         </button>
         <button type="button" onClick={() => setEditing(false)} className="btn-ghost">
-          {PORTAL_LABELS.form.cancel}
+          {t('action.cancel')}
         </button>
       </div>
     </form>

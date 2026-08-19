@@ -2,35 +2,28 @@ import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { TransferRequestForm } from '../TransferRequestForm'
 
-// --- Mocks ---
-
-jest.mock('@/lib/constants/labels', () => ({
-  PORTAL_LABELS: {
-    transfer: {
-      title: 'Verlegung anfragen',
-      subtitle: 'Möchtest du in eine andere Unterkunft wechseln?',
-      reasonLabel: 'Warum möchtest du verlegt werden?',
-      reasonPlaceholder: 'Beschreibe den Grund...',
-      targetUnitLabel: 'Wunsch-Unterkunft (optional)',
-      targetUnitPlaceholder: 'Keine Präferenz',
-      submit: 'Anfrage senden',
-      submitting: 'Wird gesendet...',
-      successTitle: 'Anfrage gesendet',
-      successMessage: 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
-      currentUnit: 'Aktuelle Unterkunft',
-    },
-    form: {
-      errorGeneric: 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
-    },
-  },
-}))
+const TRANSFER_COPY: Record<string, string> = {
+  'transfer.subtitle': 'Möchtest du in eine andere Unterkunft wechseln?',
+  'transfer.reasonLabel': 'Warum möchtest du verlegt werden?',
+  'transfer.reasonPlaceholder': 'Beschreibe den Grund...',
+  'transfer.targetUnitLabel': 'Wunsch-Unterkunft (optional)',
+  'transfer.targetUnitPlaceholder': 'Keine Präferenz',
+  'transfer.submit': 'Anfrage senden',
+  'transfer.submitting': 'Wird gesendet...',
+  'transfer.successTitle': 'Anfrage gesendet',
+  'transfer.successMessage': 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
+  'transfer.successNextStepsTitle': 'Wie geht es weiter?',
+  'transfer.successNextStep1': 'Schritt 1',
+  'transfer.successNextStep2': 'Schritt 2',
+  'transfer.successNextStep3': 'Schritt 3',
+  'transfer.successToMessages': 'Nachricht an die Betreuung',
+  'transfer.successToOverview': 'Zur Übersicht',
+  'transfer.currentUnit': 'Aktuelle Unterkunft',
+  'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
+}
 
 jest.mock('@/lib/i18n/LocaleProvider', () => ({
-  useT: () => (key: string) => {
-    if (key === 'action.saving') return 'Wird gespeichert ...'
-    if (key === 'error.generic') return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.'
-    return key
-  },
+  useT: () => (key: string) => TRANSFER_COPY[key] ?? key,
 }))
 
 // --- Helpers ---
@@ -136,7 +129,7 @@ describe('TransferRequestForm', () => {
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
-    expect(await screen.findByRole('button', { name: 'Wird gespeichert ...' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Wird gesendet...' })).toBeDisabled()
     expect(await screen.findByText('Anfrage gesendet')).toBeInTheDocument()
   })
 

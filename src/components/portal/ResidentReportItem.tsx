@@ -1,6 +1,9 @@
-import { PORTAL_LABELS } from '@/lib/constants'
+'use client'
+
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import type { ResidentReport } from '@/lib/reports/resident-reports'
+import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildDashboardReportLabels } from '@/lib/i18n/portal-surfaces'
 
 /**
  * One reported item, as the resident who filed it sees it.
@@ -17,7 +20,8 @@ export function ResidentReportItem({
   /** The dashboard clips long descriptions; the full page shows all of it. */
   truncate?: boolean
 }) {
-  const L = PORTAL_LABELS.dashboard
+  const t = useT()
+  const L = buildDashboardReportLabels(t)
   const clipped =
     truncate && report.description.length > DISPLAY_LIMITS.descriptionPreview
 
@@ -36,12 +40,10 @@ export function ResidentReportItem({
           </p>
         </div>
         <span className={`badge ${report.isDone ? 'badge-active' : 'badge-pending'} shrink-0`}>
-          {report.isDone ? L.resolved : `${L.open} · ${L.inProgress}`}
+          {report.isDone ? L.reportResolved : `${L.open} · ${L.inProgress}`}
         </span>
       </div>
 
-      {/* An answer that stays in the database is the same as no answer. This is
-          the only place a resident learns what staff did. */}
       {report.answer && (
         <div className="mt-3 border-t border-ui-border pt-3">
           <p className="eyebrow">{L.reportAnswer}</p>

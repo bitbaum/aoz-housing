@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { PORTAL_LABELS } from '@/lib/constants'
 import { getRequestTranslator } from '@/lib/i18n/request'
 import { formatDate } from '@/lib/utils'
 
@@ -173,7 +172,7 @@ export async function PortalOnboardingCard({ preferencesCompleted }: PortalOnboa
 
       {/* Contact info */}
       <p className="text-sm text-ui-muted mt-4">
-        {PORTAL_LABELS.dashboard.noHousingContact}
+        {t('dashboard.noHousingContact')}
       </p>
     </div>
   )

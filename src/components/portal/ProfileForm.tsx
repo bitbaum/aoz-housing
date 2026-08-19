@@ -2,13 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PROFILE_LIMITS } from '@/lib/config/profile'
 import { PROFILE_VISIBILITY_OPTIONS } from '@/lib/privacy/profile-visibility'
 import type { ProfileVisibility } from '@prisma/client'
 import { useT } from '@/lib/i18n/LocaleProvider'
-
-const L = PORTAL_LABELS.profile
+import { buildProfileLabels } from '@/lib/i18n/portal-surfaces'
 
 export function ProfileForm({
   displayName,
@@ -21,6 +19,7 @@ export function ProfileForm({
 }) {
   const router = useRouter()
   const t = useT()
+  const L = buildProfileLabels(t)
   const [name, setName] = useState(displayName)
   const [about, setAbout] = useState(bio)
   const [visibility, setVisibility] = useState<ProfileVisibility>(profileVisibility)

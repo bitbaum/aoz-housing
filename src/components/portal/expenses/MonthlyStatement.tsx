@@ -1,12 +1,11 @@
-import { PORTAL_LABELS } from '@/lib/constants'
 import { formatRappen, type MonthlyStatement } from '@/lib/expenses'
-
-const L = PORTAL_LABELS.expenses
+import type { ExpenseLabels } from '@/lib/i18n/portal-surfaces'
 
 interface MonthlyStatementsProps {
   statements: MonthlyStatement[]
   /** residentId → display name (SSOT-resolved by the page). */
   nameOf: Record<string, string>
+  labels: ExpenseLabels
 }
 
 /**
@@ -14,7 +13,7 @@ interface MonthlyStatementsProps {
  * The newest month is expanded; history stays one tap away. Server-rendered —
  * a <details> element needs no JavaScript.
  */
-export function MonthlyStatements({ statements, nameOf }: MonthlyStatementsProps) {
+export function MonthlyStatements({ statements, nameOf, labels: L }: MonthlyStatementsProps) {
   if (statements.length === 0) return null
 
   return (

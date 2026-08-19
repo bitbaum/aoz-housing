@@ -3,10 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { EXPENSE_CATEGORIES } from '@/lib/config/expenses'
 import { chfToRappen } from '@/lib/expenses/money'
 import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildExpenseLabels } from '@/lib/i18n/portal-surfaces'
 
 interface Member {
   id: string
@@ -18,11 +18,10 @@ interface AddExpenseFormProps {
   members: Member[]
 }
 
-const L = PORTAL_LABELS.expenses
-
 export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
   const router = useRouter()
   const t = useT()
+  const L = buildExpenseLabels(t)
   const [open, setOpen] = useState(false)
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')

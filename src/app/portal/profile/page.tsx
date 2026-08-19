@@ -2,23 +2,26 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireResidentCookie } from '@/lib/portal-auth'
-import { PORTAL_LABELS } from '@/lib/constants'
 import { ProfileForm } from '@/components/portal/ProfileForm'
 import { PhotoUploader } from '@/components/portal/PhotoUploader'
 import { getRequestTranslator } from '@/lib/i18n/request'
+import { buildProfileLabels } from '@/lib/i18n/portal-surfaces'
 import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
 import { CareTeamCard } from '@/components/residents/CareTeamCard'
 import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'
 import { SuccessToast } from '@/components/ui/SuccessToast'
 
-export const metadata: Metadata = { title: PORTAL_LABELS.profile.title }
 export const dynamic = 'force-dynamic'
 
-const L = PORTAL_LABELS.profile
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('profile.title') }
+}
 
 export default async function PortalProfilePage() {
   const residentCode = await requireResidentCookie('/login')
   const { t } = await getRequestTranslator()
+  const L = buildProfileLabels(t)
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },

@@ -2,12 +2,10 @@
 
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PHOTO_LIMITS } from '@/lib/config/profile'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { useT } from '@/lib/i18n/LocaleProvider'
-
-const L = PORTAL_LABELS.profile
+import { buildProfileLabels } from '@/lib/i18n/portal-surfaces'
 
 interface PhotoUploaderProps {
   resident: { id: string; code: string; displayName: string | null }
@@ -48,6 +46,7 @@ async function resizeToAvatar(file: File): Promise<Blob> {
 export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
   const router = useRouter()
   const t = useT()
+  const L = buildProfileLabels(t)
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)

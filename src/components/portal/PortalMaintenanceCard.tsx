@@ -1,5 +1,7 @@
-import { MAINTENANCE_CATEGORY_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
+import { MAINTENANCE_CATEGORY_LABELS, getLabel } from '@/lib/constants'
 import { formatDate } from '@/lib/utils'
+import { getRequestTranslator } from '@/lib/i18n/request'
+import { buildDashboardReportLabels } from '@/lib/i18n/portal-surfaces'
 
 interface OpenMaintenanceRequest {
   id: string
@@ -11,12 +13,13 @@ interface PortalMaintenanceCardProps {
   requests: OpenMaintenanceRequest[]
 }
 
-export function PortalMaintenanceCard({ requests }: PortalMaintenanceCardProps) {
+export async function PortalMaintenanceCard({ requests }: PortalMaintenanceCardProps) {
+  const { t } = await getRequestTranslator()
+  const L = buildDashboardReportLabels(t)
+
   return (
     <div className="card md:col-span-2">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">
-        {PORTAL_LABELS.dashboard.openMaintenance}
-      </h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{L.openMaintenance}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {requests.map((request) => (
           <div
@@ -29,7 +32,7 @@ export function PortalMaintenanceCard({ requests }: PortalMaintenanceCardProps) 
                 {getLabel(MAINTENANCE_CATEGORY_LABELS, request.category)}
               </p>
               <p className="text-sm text-ui-muted">
-                {PORTAL_LABELS.dashboard.reported}: {formatDate(request.createdAt)}
+                {L.reported}: {formatDate(request.createdAt)}
               </p>
             </div>
           </div>

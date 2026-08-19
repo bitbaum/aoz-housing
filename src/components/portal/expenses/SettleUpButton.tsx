@@ -2,17 +2,15 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { formatRappen } from '@/lib/expenses/money'
 import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildExpenseLabels } from '@/lib/i18n/portal-surfaces'
 
 interface SettleUpButtonProps {
   toResidentId: string
   toName: string
   amountRappen: number
 }
-
-const L = PORTAL_LABELS.expenses
 
 /**
  * One-tap "I paid this" for a suggested transfer. Only rendered for the
@@ -21,6 +19,7 @@ const L = PORTAL_LABELS.expenses
 export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpButtonProps) {
   const router = useRouter()
   const t = useT()
+  const L = buildExpenseLabels(t)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
