@@ -2,14 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateOrderStatusAction } from '@/lib/actions/crm'
-
-const ACTION_LABELS: Record<string, string> = {
-  PAID: 'Mark as paid',
-  SHIPPED: 'Mark as shipped',
-  COMPLETED: 'Mark as completed',
-  CANCELLED: 'Cancel order',
-  REFUNDED: 'Mark as refunded',
-}
+import { ORDER_ACTION_LABELS as ACTION_LABELS } from '@/config/labels'
 
 const DESTRUCTIVE = new Set(['CANCELLED', 'REFUNDED'])
 

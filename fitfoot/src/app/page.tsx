@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { HERO, IMPACT_STATS, TRUST_BADGES, TWO_PATHS } from '@/config/site'
 import { featuredProducts } from '@/lib/catalog'
 import { ProductCard } from '@/components/shop/ProductCard'
+import { ProductArt } from '@/components/shop/ProductArt'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,31 +13,36 @@ export default async function HomePage() {
     <>
       {/* Hero */}
       <section className="bg-gradient-to-b from-gold-50 to-white">
-        <div className="mx-auto max-w-7xl px-4 py-20 text-center sm:px-6 sm:py-28">
-          <h1 className="font-heading text-4xl leading-tight sm:text-6xl">
-            {HERO.headline}
-            <br />
-            <span className="gold-text-gradient">{HERO.headlineAccent}</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted">{HERO.sub}</p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/shop" className="btn-gold w-full sm:w-auto">
-              {HERO.ctaPrimary}
-            </Link>
-            <Link href="/sustainability" className="btn-outline-gold w-full sm:w-auto">
-              {HERO.ctaSecondary}
-            </Link>
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:gap-16 lg:py-28">
+          <div className="text-center lg:text-left">
+            <h1 className="h1-display">
+              {HERO.headline}
+              <br />
+              <span className="gold-text-gradient">{HERO.headlineAccent}</span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-muted lg:mx-0">{HERO.sub}</p>
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <Link href="/shop" className="btn-gold w-full sm:w-auto">
+                {HERO.ctaPrimary}
+              </Link>
+              <Link href="/sustainability" className="btn-outline-gold w-full sm:w-auto">
+                {HERO.ctaSecondary}
+              </Link>
+            </div>
+            <ul className="mt-10 flex flex-col items-center justify-center gap-3 text-sm text-muted sm:flex-row sm:gap-8 lg:justify-start">
+              {TRUST_BADGES.map((badge) => (
+                <li key={badge} className="flex items-center gap-2">
+                  <span className="text-gold-500" aria-hidden>
+                    ✓
+                  </span>
+                  {badge}
+                </li>
+              ))}
+            </ul>
           </div>
-          <ul className="mt-10 flex flex-col items-center justify-center gap-3 text-sm text-muted sm:flex-row sm:gap-8">
-            {TRUST_BADGES.map((badge) => (
-              <li key={badge} className="flex items-center gap-2">
-                <span className="text-gold-500" aria-hidden>
-                  ✓
-                </span>
-                {badge}
-              </li>
-            ))}
-          </ul>
+          <div className="hidden overflow-hidden rounded-lg border border-line shadow-lifted lg:block">
+            <ProductArt category="SNEAKERS" className="aspect-[5/4]" />
+          </div>
         </div>
       </section>
 
@@ -45,23 +51,32 @@ export default async function HomePage() {
         <h2 className="text-center font-heading text-3xl sm:text-4xl">{TWO_PATHS.headline}</h2>
         <p className="mx-auto mt-3 max-w-2xl text-center text-muted">{TWO_PATHS.sub}</p>
         <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          {[TWO_PATHS.newPath, TWO_PATHS.refurbishedPath].map((path) => (
-            <div key={path.title} className="card flex flex-col">
-              <h3 className="font-heading text-2xl">{path.title}</h3>
-              <p className="mt-3 text-muted">{path.body}</p>
-              <ul className="mt-4 flex-1 space-y-2 text-sm text-ink">
-                {path.points.map((point) => (
-                  <li key={point} className="flex items-center gap-2">
-                    <span className="text-gold-500" aria-hidden>
-                      ✓
-                    </span>
-                    {point}
-                  </li>
-                ))}
-              </ul>
-              <Link href={path.href} className="btn-dark mt-6">
-                {path.cta}
-              </Link>
+          {[
+            { path: TWO_PATHS.newPath, art: 'RUNNING' as const },
+            { path: TWO_PATHS.refurbishedPath, art: 'BOOTS' as const },
+          ].map(({ path, art }) => (
+            <div
+              key={path.title}
+              className="flex flex-col overflow-hidden rounded-lg border border-line bg-surface shadow-card"
+            >
+              <ProductArt category={art} className="aspect-[16/7]" />
+              <div className="flex flex-1 flex-col p-6">
+                <h3 className="font-heading text-2xl">{path.title}</h3>
+                <p className="mt-3 text-muted">{path.body}</p>
+                <ul className="mt-4 flex-1 space-y-2 text-sm text-ink">
+                  {path.points.map((point) => (
+                    <li key={point} className="flex items-center gap-2">
+                      <span className="text-gold-500" aria-hidden>
+                        ✓
+                      </span>
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+                <Link href={path.href} className="btn-dark mt-6">
+                  {path.cta}
+                </Link>
+              </div>
             </div>
           ))}
         </div>

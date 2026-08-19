@@ -3,20 +3,12 @@ import type { Metadata } from 'next'
 import { listProducts } from '@/lib/catalog'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { PRODUCT_CATEGORIES } from '@/config/database'
+import { CATEGORY_LABELS } from '@/config/labels'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Shop',
-}
-
-const CATEGORY_LABELS: Record<string, string> = {
-  SNEAKERS: 'Sneakers',
-  RUNNING: 'Running',
-  BOOTS: 'Boots',
-  FORMAL: 'Formal',
-  SANDALS: 'Sandals',
-  ACCESSORIES: 'Accessories',
 }
 
 interface ShopFilters {
@@ -90,9 +82,16 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         ))}
       </div>
 
+      <p className="mt-4 text-sm text-muted">
+        {products.length} {products.length === 1 ? 'pair' : 'pairs'} found
+      </p>
+
       {products.length === 0 ? (
-        <div className="mt-16 rounded border border-dashed border-line p-12 text-center text-muted">
-          No products match these filters yet.
+        <div className="mt-8 rounded border border-dashed border-line p-12 text-center">
+          <p className="text-muted">No products match these filters yet.</p>
+          <Link href="/shop" className="btn-outline-gold mt-4">
+            Clear filters
+          </Link>
         </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

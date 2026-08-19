@@ -4,12 +4,7 @@ import { db } from '@/db'
 import { contactInquiries } from '@/db/schema'
 import { INQUIRY_STATUSES } from '@/config/database'
 import { InquiryStatusButtons } from '@/components/admin/InquiryStatusButtons'
-
-const STATUS_LABELS: Record<string, string> = {
-  NEW: 'New',
-  IN_PROGRESS: 'In progress',
-  DONE: 'Done',
-}
+import { INQUIRY_STATUS_LABELS as STATUS_LABELS } from '@/config/labels'
 
 export default async function AdminInquiriesPage({
   searchParams,

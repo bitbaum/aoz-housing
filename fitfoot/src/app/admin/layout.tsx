@@ -21,10 +21,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
       <aside className="shrink-0 lg:w-56">
-        <p className="hidden font-heading text-lg lg:block">{SITE.name} Admin</p>
-        <p className="hidden text-xs text-muted lg:block">
-          {staff.firstName} {staff.lastName} · {staff.role}
-        </p>
+        <div className="mb-3 flex items-center justify-between lg:mb-0 lg:block">
+          <div>
+            <p className="font-heading text-lg">{SITE.name} Admin</p>
+            <p className="text-xs text-muted">
+              {staff.firstName} {staff.lastName} · {staff.role}
+            </p>
+          </div>
+          <Link href="/" className="btn-ghost text-sm lg:hidden">
+            ← Shop
+          </Link>
+        </div>
         <AdminNav sections={ADMIN_SECTION_LIST.map(({ id, path, label, emoji }) => ({ id, path, label, emoji }))} />
         <Link href="/" className="btn-ghost mt-4 hidden w-full text-sm lg:flex">
           ← Back to shop

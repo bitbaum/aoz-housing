@@ -1,12 +1,15 @@
 /* eslint-disable @next/next/no-img-element */
+import { ProductArt } from './ProductArt'
+
 interface ProductImageProps {
   imageUrl: string
   name: string
+  category: string
   className?: string
 }
 
-/** Product visual: the stored image, or a branded placeholder until photos exist. */
-export function ProductImage({ imageUrl, name, className = '' }: ProductImageProps) {
+/** Product visual: the stored photo, or an art-directed placeholder until one exists. */
+export function ProductImage({ imageUrl, name, category, className = '' }: ProductImageProps) {
   if (imageUrl) {
     return (
       <img
@@ -17,15 +20,5 @@ export function ProductImage({ imageUrl, name, className = '' }: ProductImagePro
       />
     )
   }
-  return (
-    <div
-      className={`flex h-full w-full items-center justify-center bg-gradient-to-br from-gold-50 via-subtle to-gold-100 ${className}`}
-      aria-label={name}
-      role="img"
-    >
-      <span className="text-5xl" aria-hidden>
-        👟
-      </span>
-    </div>
-  )
+  return <ProductArt category={category} className={className} />
 }

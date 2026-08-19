@@ -36,18 +36,21 @@ export default async function AdminDashboardPage() {
     ])
 
   const stats = [
-    { label: 'Open orders', value: String(openOrders[0].n), href: '/admin/orders' },
+    { label: 'Open orders', value: String(openOrders[0].n), href: '/admin/orders', icon: '📦' },
     {
       label: 'Revenue this month',
       value: formatRappen(Number(monthRevenue[0].total ?? 0)),
       href: '/admin/orders',
+      icon: '💰',
     },
-    { label: 'Customers', value: String(customerCount[0].n), href: '/admin/customers' },
-    { label: 'New inquiries', value: String(newInquiries[0].n), href: '/admin/inquiries' },
+    { label: 'Customers', value: String(customerCount[0].n), href: '/admin/customers', icon: '👥' },
+    { label: 'New inquiries', value: String(newInquiries[0].n), href: '/admin/inquiries', icon: '✉️' },
     {
-      label: `Variants low on stock (≤${LOW_STOCK_THRESHOLD})`,
+      label: `Low stock (≤${LOW_STOCK_THRESHOLD})`,
       value: String(lowStock[0].n),
       href: '/admin/products',
+      icon: '⚠️',
+      alert: lowStock[0].n > 0,
     },
   ]
 
@@ -57,9 +60,18 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
-          <Link key={stat.label} href={stat.href} className="card block">
-            <p className="text-sm text-muted">{stat.label}</p>
-            <p className="mt-1 text-2xl font-bold">{stat.value}</p>
+          <Link
+            key={stat.label}
+            href={stat.href}
+            className={`card-hover block ${stat.alert ? 'border-warning-text/40' : ''}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-sm text-muted">{stat.label}</p>
+              <span className="text-lg" aria-hidden>
+                {stat.icon}
+              </span>
+            </div>
+            <p className="mt-2 font-mono text-3xl font-semibold tracking-tight">{stat.value}</p>
           </Link>
         ))}
       </div>

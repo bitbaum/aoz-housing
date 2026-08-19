@@ -163,6 +163,27 @@ body {
     @apply inline-flex items-center rounded bg-error px-2.5 py-0.5 text-xs font-semibold text-error-text;
   }
 
+  /* Art-directed product placeholder: gold duotone + a faint diagonal grain
+     (rgb(120 53 15) is gold-700) so an unphotographed product reads as
+     designed, not empty. */
+  .product-art {
+    position: relative;
+    background: linear-gradient(135deg, var(--color-gold-50) 0%, var(--color-subtle) 55%, var(--color-gold-100) 100%);
+  }
+
+  .product-art::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      135deg,
+      rgb(120 53 15 / 0.05) 0,
+      rgb(120 53 15 / 0.05) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+  }
+
   /* Typography primitives — the type scale lives here, once. */
   .eyebrow {
     @apply text-xs font-semibold uppercase tracking-widest text-gold-600;

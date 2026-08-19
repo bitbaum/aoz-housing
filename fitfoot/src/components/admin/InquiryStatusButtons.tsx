@@ -3,12 +3,7 @@
 import { useTransition } from 'react'
 import { INQUIRY_STATUSES } from '@/config/database'
 import { updateInquiryStatusAction } from '@/lib/actions/crm'
-
-const LABELS: Record<string, string> = {
-  NEW: 'New',
-  IN_PROGRESS: 'In progress',
-  DONE: 'Done',
-}
+import { INQUIRY_STATUS_LABELS as LABELS } from '@/config/labels'
 
 export function InquiryStatusButtons({
   inquiryId,

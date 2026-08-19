@@ -44,6 +44,15 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   REFUNDED: 'Refunded',
 }
 
+/** Verb-phrase button labels for staff-initiated order transitions. */
+export const ORDER_ACTION_LABELS: Record<string, string> = {
+  PAID: 'Mark as paid',
+  SHIPPED: 'Mark as shipped',
+  COMPLETED: 'Mark as completed',
+  CANCELLED: 'Cancel order',
+  REFUNDED: 'Mark as refunded',
+}
+
 export const ORDER_STATUS_BADGE_CLASS: Record<OrderStatus, string> = {
   PENDING: 'badge-warning',
   PAID: 'badge-gold',

@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
       className="group overflow-hidden rounded border border-line bg-surface transition-shadow hover:shadow-lifted"
     >
       <div className="relative aspect-square overflow-hidden">
-        <ProductImage imageUrl={product.imageUrl} name={product.name} />
+        <ProductImage imageUrl={product.imageUrl} name={product.name} category={product.category} />
         {product.productType === 'REFURBISHED' && (
           <span className="badge-success absolute left-3 top-3">Refurbished</span>
         )}

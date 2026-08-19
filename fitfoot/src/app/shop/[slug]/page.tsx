@@ -3,15 +3,9 @@ import { getProductBySlug } from '@/lib/catalog'
 import { ProductImage } from '@/components/shop/ProductImage'
 import { Price } from '@/components/shop/Price'
 import { AddToCartForm } from '@/components/shop/AddToCartForm'
+import { CONDITION_LABELS } from '@/config/labels'
 
 export const dynamic = 'force-dynamic'
-
-const CONDITION_LABELS: Record<string, string> = {
-  LIKE_NEW: 'Like new',
-  EXCELLENT: 'Excellent',
-  GOOD: 'Good',
-  FAIR: 'Fair',
-}
 
 export default async function ProductPage({
   params,
@@ -27,7 +21,7 @@ export default async function ProductPage({
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="grid gap-10 lg:grid-cols-2">
         <div className="aspect-square overflow-hidden rounded border border-line">
-          <ProductImage imageUrl={product.imageUrl} name={product.name} />
+          <ProductImage imageUrl={product.imageUrl} name={product.name} category={product.category} />
         </div>
 
         <div>

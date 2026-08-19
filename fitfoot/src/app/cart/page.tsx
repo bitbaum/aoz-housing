@@ -38,7 +38,7 @@ export default async function CartPage() {
           {cart.items.map((item) => (
             <li key={item.id} className="flex gap-4 rounded border border-line p-4">
               <Link href={`/shop/${item.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded">
-                <ProductImage imageUrl={item.imageUrl} name={item.productName} />
+                <ProductImage imageUrl={item.imageUrl} name={item.productName} category={item.category} />
               </Link>
               <div className="flex flex-1 flex-col">
                 <div className="flex items-start justify-between gap-2">

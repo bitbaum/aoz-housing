@@ -20,6 +20,7 @@ export interface CartView {
     productName: string
     slug: string
     imageUrl: string
+    category: string
     size: string
     color: string
     unitPriceRappen: number
@@ -114,6 +115,7 @@ export async function loadCart(cartId: string | null): Promise<CartView> {
       productName: products.name,
       slug: products.slug,
       imageUrl: products.imageUrl,
+      category: products.category,
       unitPriceRappen: products.priceRappen,
     })
     .from(cartItems)
