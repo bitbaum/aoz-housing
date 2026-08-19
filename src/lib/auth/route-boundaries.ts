@@ -61,6 +61,8 @@ export const PUBLIC_ROUTES = [
   '/portal',
   '/portal/help',
   '/blog',
+  '/changelog',
+  '/roadmap',
   // The landing page. `/` rewrites here for anonymous visitors, so it must be
   // reachable without a session — and it is also a real URL of its own.
   '/willkommen',

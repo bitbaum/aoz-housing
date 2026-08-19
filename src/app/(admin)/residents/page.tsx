@@ -128,7 +128,6 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const myResidentIdSet = new Set(myResidentIds)
 
   // Compute check-in status and assemble ClientBoardItem for each resident
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const clientBoardItems: ClientBoardItem[] = (residents as any[]).map((r) => {
     const placement = r.placements?.[0]
     const intervalDays = getCheckInInterval(r.supportLevel)
@@ -284,7 +283,6 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           }
         />
       ) : layout === 'list' ? (
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         <ResidentsList residents={(residents as any[]).map(r => ({
           ...r,
           incidentCount: r._count?.incidentsAsSubject ?? 0,

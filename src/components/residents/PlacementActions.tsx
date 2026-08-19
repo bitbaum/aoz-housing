@@ -48,8 +48,6 @@ export function PlacementActions({
   const [selectedUnitId, setSelectedUnitId] = useState<string>('')
   const [selectedEndReason, setSelectedEndReason] = useState<string>('')
 
-  if (!canWriteCheckIn && !canWritePlacement) return null
-
   useEffect(() => {
     const onShortcut = (event: KeyboardEvent) => {
       if (!(event.altKey && event.shiftKey)) return
@@ -70,6 +68,8 @@ export function PlacementActions({
     window.addEventListener('keydown', onShortcut)
     return () => window.removeEventListener('keydown', onShortcut)
   }, [])
+
+  if (!canWriteCheckIn && !canWritePlacement) return null
 
   const eligibleUnits = availableUnits.filter((u) => {
     if (u.id === currentUnitId) return false

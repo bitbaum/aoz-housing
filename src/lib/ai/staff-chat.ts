@@ -103,7 +103,10 @@ export async function runStaffChat(turns: StaffChatTurn[]): Promise<string> {
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     const { message, finishReason } = await chatCompletion(config.provider, config, messages)
 
-    if (message.tool_calls?.length || finishReason === 'tool_calls') {
+    if (
+      message.role === 'assistant' &&
+      (message.tool_calls?.length || finishReason === 'tool_calls')
+    ) {
       messages.push({
         role: 'assistant',
         content: message.content ?? null,

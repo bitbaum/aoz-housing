@@ -71,7 +71,6 @@ export default async function ChoresPage() {
 
   return (
     <div>
-      <SuccessToast triggers={[{ param: 'created', message: CHORE_LABELS.success.created }]} />
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{CHORE_LABELS.pages.list}</h1>
