@@ -20,7 +20,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
   const [failed, setFailed] = useState(false)
-  const endRef = useRef<HTMLDivElement>(null)
+  const endRef = useRef<HTMLLIElement>(null)
 
   // Newest message in view on open — a conversation you have to scroll to read
   // the end of is one people stop reading.
@@ -72,36 +72,40 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 min-h-[60vh]">
       {messages.length === 0 ? (
         <p className="text-sm text-ui-muted py-8 text-center">{t('messages.empty')}</p>
       ) : (
-        <ol className="space-y-3">
+        <ol className="flex-1 overflow-y-auto space-y-3 pr-1">
           {messages.map((message) => {
             const mine = message.authorResidentId !== null
             return (
               <li key={message.id} className={mine ? 'flex justify-end' : 'flex justify-start'}>
                 <div
-                  className={`max-w-[85%] rounded-lg border p-3 ${
+                  className={`max-w-[85%] rounded-2xl border px-4 py-3 shadow-sm ${
                     mine
-                      ? 'bg-ui-subtle border-ui-border'
+                      ? 'bg-brand-primary text-ui-on-accent border-brand-primary/40'
                       : 'bg-ui-surface border-ui-border-strong'
                   }`}
                 >
-                  <p className="eyebrow">{mine ? t('messages.you') : t('messages.staff')}</p>
-                  <p className="text-sm text-ui-text mt-1 whitespace-pre-line">{message.body}</p>
-                  <p className="text-2xs text-ui-muted mt-2 numeric">
+                  <p className={`eyebrow ${mine ? 'text-ui-on-accent/80' : ''}`}>
+                    {mine ? t('messages.you') : t('messages.staff')}
+                  </p>
+                  <p className={`text-sm mt-1 whitespace-pre-line ${mine ? 'text-ui-on-accent' : 'text-ui-text'}`}>
+                    {message.body}
+                  </p>
+                  <p className={`text-2xs mt-2 numeric ${mine ? 'text-ui-on-accent/75' : 'text-ui-muted'}`}>
                     {formatDateTime(message.createdAt)}
                   </p>
                 </div>
               </li>
             )
           })}
+          <li ref={endRef} />
         </ol>
       )}
-      <div ref={endRef} />
 
-      <form onSubmit={send} className="flex flex-col gap-2 sticky bottom-0 bg-ui-canvas pt-2">
+      <form onSubmit={send} className="sticky bottom-0 border-t border-ui-border bg-ui-canvas pt-3 flex flex-col gap-2">
         <textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}

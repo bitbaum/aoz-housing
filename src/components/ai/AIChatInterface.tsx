@@ -15,6 +15,7 @@ export function AIChatInterface() {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
   const [streamingText, setStreamingText] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -39,6 +40,7 @@ export function AIChatInterface() {
     setInput('')
     setStreaming(true)
     setStreamingText('')
+    setError(null)
 
     const controller = new AbortController()
     abortRef.current = controller
@@ -52,7 +54,14 @@ export function AIChatInterface() {
       })
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
+        let message = `HTTP ${response.status}`
+        try {
+          const body = await response.json() as { error?: string }
+          if (body.error) message = body.error
+        } catch {
+          // keep fallback status message
+        }
+        throw new Error(message)
       }
 
       const reader = response.body?.getReader()
@@ -88,12 +97,19 @@ export function AIChatInterface() {
         }
       }
 
+      if (!accumulated.trim()) {
+        accumulated = 'Keine Antwort erhalten. Bitte Anfrage präzisieren oder erneut versuchen.'
+      }
       setMessages(prev => [...prev, { role: 'assistant', content: accumulated }])
     } catch (err) {
       if ((err as Error).name === 'AbortError') return
+      const message = err instanceof Error && err.message
+        ? err.message
+        : 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.'
+      setError(message)
       setMessages(prev => [
         ...prev,
-        { role: 'assistant', content: 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.' },
+        { role: 'assistant', content: message },
       ])
     } finally {
       if (abortRef.current === controller) abortRef.current = null
@@ -167,32 +183,39 @@ export function AIChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="mt-4 flex gap-2 items-end border-t border-ui-border pt-4">
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={UI_LABELS.aiChatPlaceholder}
-          rows={1}
-          disabled={streaming}
-          className="flex-1 resize-none input py-2.5 text-sm min-h-[44px] max-h-32 overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ height: 'auto' }}
-          onInput={e => {
-            const el = e.currentTarget
-            el.style.height = 'auto'
-            el.style.height = `${Math.min(el.scrollHeight, 128)}px`
-          }}
-        />
-        <button
-          onClick={() => sendMessage(input)}
-          disabled={!input.trim() || streaming}
-          className="btn btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label={UI_LABELS.sendMessage}
-        >
-          {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          <span className="hidden sm:inline">{UI_LABELS.aiChatSend}</span>
-        </button>
+      <div className="mt-4 border-t border-ui-border pt-4">
+        {error && (
+          <p role="alert" className="alert-error mb-3">
+            {error}
+          </p>
+        )}
+        <div className="flex gap-2 items-end">
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={UI_LABELS.aiChatPlaceholder}
+            rows={1}
+            disabled={streaming}
+            className="flex-1 resize-none input py-2.5 text-sm min-h-[44px] max-h-32 overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ height: 'auto' }}
+            onInput={e => {
+              const el = e.currentTarget
+              el.style.height = 'auto'
+              el.style.height = `${Math.min(el.scrollHeight, 128)}px`
+            }}
+          />
+          <button
+            onClick={() => sendMessage(input)}
+            disabled={!input.trim() || streaming}
+            className="btn btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label={UI_LABELS.sendMessage}
+          >
+            {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            <span className="hidden sm:inline">{UI_LABELS.aiChatSend}</span>
+          </button>
+        </div>
       </div>
     </div>
   )

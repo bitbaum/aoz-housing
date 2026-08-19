@@ -6,6 +6,7 @@ export const metadata: Metadata = { title: 'Dashboard' }
 import { ActionDashboard } from '@/components/dashboard/ActionDashboard'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { dayPartAt, formatWeekdayDate, type DayPart } from '@/lib/utils/local-time'
+import { getCurrentUser } from '@/lib/auth'
 
 /** Which greeting belongs to which part of the day. */
 const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 'greetingEvening'> = {
@@ -28,6 +29,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
   const now = new Date()
+  const user = await getCurrentUser()
 
   // Fetch all data in parallel
   const [
@@ -241,10 +243,29 @@ export default async function AdminDashboard() {
       problemUnits={problemUnits}
       conflictFreeDays={conflictFreeDays}
       openMaintenanceCount={openMaintenanceCount}
-      greeting={DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]]}
+      greeting={buildGreeting(DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]], user)}
       todayLabel={formatWeekdayDate(now)}
     />
   )
+}
+
+function buildGreeting(
+  greeting: string,
+  user: Awaited<ReturnType<typeof getCurrentUser>>
+): string {
+  if (!user) return greeting
+
+  const raw = user.name?.trim() || user.email?.split('@')[0]?.trim() || ''
+  if (!raw) return greeting
+
+  const cleaned = raw.replace(/[_-]+/g, ' ')
+  if (/^admin$/i.test(cleaned)) return greeting
+
+  const firstToken = cleaned.split(/\s+/)[0]
+  const pretty =
+    firstToken.charAt(0).toUpperCase() + firstToken.slice(1)
+
+  return `${greeting}, ${pretty}`
 }
 
 /**
