@@ -9,11 +9,12 @@ Related documents: [Roadmap](docs/ROADMAP.md) · [Blog](docs/blog/README.md)
 
 created_date: 2026-01-15
 last_modified_date: 2026-08-19
-last_modified_summary: Added the integration research framework, public roadmap/changelog pages, and broader public positioning beyond housing only.
+last_modified_summary: Report form SSOT via portal-report config + i18n; uk/ar dictionary completion; AI chat thinking mode removed.
 
 ## Unreleased
 
 ### Changed
+- **Resident report flow uses SSOT i18n.** Form values live in `lib/config/portal-report.ts`; copy lives in `de.ts` and is built via `buildReportFormLabels()`. Contact fallback pulls phone numbers from `ORG_CONTACT`. Emojis stay in components, not translation strings.
 - **Public positioning now matches the expanded product.** The public narrative no longer treats the software as only a placement or housing tool. It is framed through four operational pillars: Stability, Capability, Participation and Guidance.
 - **Infrastructure SSOT.** Production is Postgres on Hetzner (`aoz_wohnen` on bitbaum). Docs, `.env.example` and `src/lib/db.ts` describe that host. A leftover laptop `.env` pointing at Neon is not the database. i18n dictionaries stay on the resident portal; staff UI stays German.
 - **Resident portal chrome.** Header keeps brand, a compact language select, and an account dropdown (Profil, Einstellungen, Hilfe, Abmelden). Destinations moved into a **collapsible left sidebar** on desktop and the same accordion in the mobile Mehr sheet. Wohnung and Mitbewohner pages are gone from the menu — they had no profiles behind the names; old bookmarks redirect to Übersicht.
