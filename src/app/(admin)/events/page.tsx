@@ -4,6 +4,7 @@ import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Pa
 import { EVENTS_ADMIN_LABELS } from '@/lib/constants'
 import { listStaffEvents, createEventAsStaff, cancelEvent } from '@/lib/actions/events'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
+import { getCurrentUser, hasPermission, requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: EVENTS_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
@@ -25,6 +26,9 @@ async function submitCancelEvent(formData: FormData): Promise<void> {
 }
 
 export default async function EventsAdminPage() {
+  await requirePermission('events:read')
+  const staff = await getCurrentUser()
+  const canWriteEvents = !!staff && hasPermission(staff.role, 'events:write')
   const [events, units] = await Promise.all([
     listStaffEvents(),
     prisma.housingUnit.findMany({ select: { id: true, code: true }, orderBy: { code: 'asc' } }),
@@ -38,7 +42,8 @@ export default async function EventsAdminPage() {
       />
 
       <div className="card">
-        <form action={submitCreateEvent} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {canWriteEvents ? (
+          <form action={submitCreateEvent} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
             <label htmlFor="ev-title" className="label">{EVENTS_ADMIN_LABELS.formTitle}</label>
             <input id="ev-title" name="title" required className="input" />
@@ -77,6 +82,11 @@ export default async function EventsAdminPage() {
             </button>
           </div>
         </form>
+        ) : (
+          <div className="text-sm text-ui-muted">
+            Nur Lesen
+          </div>
+        )}
       </div>
 
       {events.length === 0 ? (
@@ -103,7 +113,7 @@ export default async function EventsAdminPage() {
                       <span>{EVENTS_ADMIN_LABELS.rsvps}: {event.rsvps.filter((r) => r.status === 'GOING').length}</span>
                     </div>
                   </div>
-                  {event.status !== 'CANCELLED' ? (
+                  {canWriteEvents && event.status !== 'CANCELLED' ? (
                     <form action={submitCancelEvent}>
                       <input type="hidden" name="id" value={event.id} />
                       <button type="submit" className="btn-outline min-h-[44px] px-4">

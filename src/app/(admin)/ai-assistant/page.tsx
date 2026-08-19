@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import { AIChatInterface } from '@/components/ai/AIChatInterface'
 import { PageHeader } from '@/components/ui/Page'
 import { AI_ASSISTANT_LABELS } from '@/lib/constants'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'KI-Assistent' }
 
-export default function AIAssistantPage() {
+export default async function AIAssistantPage() {
+  await requirePermission('residents:write')
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">

@@ -23,6 +23,7 @@ import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccura
 import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
+import { requirePermission } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +32,7 @@ interface Props {
 }
 
 export default async function AnalyticsPage({ searchParams }: Props) {
+  await requirePermission('dashboard:read')
   const params = await searchParams
   const days = Math.min(Math.max(Number(params.days) || 30, 7), 365)
   const periodStart = getDateDaysAgo(days)

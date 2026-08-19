@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/Page'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Haushaltsaufgaben' }
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
@@ -12,6 +13,7 @@ const C = CHORE_LABELS.admin
 export const dynamic = 'force-dynamic'
 
 export default async function AdminChoresPage() {
+  await requirePermission('housing:read')
   // Overall stats
   const [totalTasks, activeTasks, attentionTasks, totalCompletions] = await Promise.all([
     prisma.householdTask.count(),

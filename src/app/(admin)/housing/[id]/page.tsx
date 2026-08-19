@@ -36,6 +36,7 @@ import { WhoFitsHereCard } from '@/components/housing/WhoFitsHereCard'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { getUnitFitConcerns } from '@/lib/compatibility'
+import { requirePermission } from '@/lib/auth'
 import type { Resident, CompatibilityAssessment } from '@prisma/client'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
@@ -66,6 +67,7 @@ interface Props {
 }
 
 export default async function HousingDetailPage({ params }: Props) {
+  await requirePermission('housing:read')
   const { id } = await params
 
   const unit = await prisma.housingUnit.findUnique({

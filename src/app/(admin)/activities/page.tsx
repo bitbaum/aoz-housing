@@ -14,6 +14,7 @@ import {
 } from '@/lib/config/activities'
 import { countActivities, listActivities } from '@/lib/data/activities'
 import { ACTIVITIES_ADMIN_LABELS } from '@/lib/constants'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: ACTIVITIES_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
@@ -23,6 +24,7 @@ type Props = {
 }
 
 export default async function ActivitiesAdminPage({ searchParams }: Props) {
+  await requirePermission('residents:write')
   const { status } = await searchParams
   const statusFilter = status && status in ACTIVITY_STATUS_LABELS ? status as ActivityStatus : undefined
 

@@ -12,7 +12,7 @@ import {
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 
 // Simple schema for delete operation
@@ -22,7 +22,7 @@ const DeleteSpotSchema = z.object({
 })
 
 export async function createSpot(formData: FormData): Promise<void> {
-  await requireStaffAuth()
+  await requirePermission('housing:write')
   const data = validateFormData(SpotInputSchema, formData)
 
   try {
@@ -53,7 +53,7 @@ export async function createSpot(formData: FormData): Promise<void> {
 }
 
 export async function updateSpot(formData: FormData): Promise<void> {
-  await requireStaffAuth()
+  await requirePermission('housing:write')
   const data = validateFormData(SpotUpdateSchema, formData)
   const { id, housingUnitId, ...updateData } = data
 
@@ -75,7 +75,7 @@ export async function updateSpot(formData: FormData): Promise<void> {
 }
 
 export async function deleteSpot(formData: FormData): Promise<void> {
-  await requireStaffAuth()
+  await requirePermission('housing:write')
   const { id, housingUnitId } = validateFormData(DeleteSpotSchema, formData)
 
   try {
@@ -109,7 +109,7 @@ export async function deleteSpot(formData: FormData): Promise<void> {
 }
 
 export async function createMultipleSpots(formData: FormData): Promise<void> {
-  await requireStaffAuth()
+  await requirePermission('housing:write')
   const data = validateFormData(MultipleSpotInputSchema, formData)
 
   try {

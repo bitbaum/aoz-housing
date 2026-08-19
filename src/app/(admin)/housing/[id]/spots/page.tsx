@@ -13,6 +13,7 @@ import {
 import { SpotActions } from '@/components/spots/SpotActions'
 import { HOUSING_SPOTS_LABELS } from '@/lib/constants'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
+import { requirePermission } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default async function SpotManagementPage({ params, searchParams }: Props) {
+  await requirePermission('housing:write')
   const { id } = await params
   const { new: isNewUnit } = await searchParams
 

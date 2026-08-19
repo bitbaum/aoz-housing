@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
 import { MARKETPLACE_ADMIN_LABELS } from '@/lib/constants'
 import { listStaffMarketplacePosts, hideMarketplacePost, unhideMarketplacePost } from '@/lib/actions/marketplace'
+import { getCurrentUser, hasPermission, requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: MARKETPLACE_ADMIN_LABELS.pageTitle }
 export const dynamic = 'force-dynamic'
@@ -23,6 +24,9 @@ async function submitUnhide(formData: FormData): Promise<void> {
 }
 
 export default async function MarketplaceAdminPage() {
+  await requirePermission('marketplace:read')
+  const staff = await getCurrentUser()
+  const canModerate = !!staff && hasPermission(staff.role, 'marketplace:moderate')
   const posts = await listStaffMarketplacePosts()
 
   return (
@@ -63,14 +67,16 @@ export default async function MarketplaceAdminPage() {
                       <span>{MARKETPLACE_ADMIN_LABELS.category[post.category]}</span>
                     </div>
                   </div>
-                  <form action={post.hiddenByStaff ? submitUnhide : submitHide}>
-                    <input type="hidden" name="id" value={post.id} />
-                    <button type="submit" className="btn-outline min-h-[44px] px-4">
-                      {post.hiddenByStaff
-                        ? MARKETPLACE_ADMIN_LABELS.unhide
-                        : MARKETPLACE_ADMIN_LABELS.hide}
-                    </button>
-                  </form>
+                  {canModerate ? (
+                    <form action={post.hiddenByStaff ? submitUnhide : submitHide}>
+                      <input type="hidden" name="id" value={post.id} />
+                      <button type="submit" className="btn-outline min-h-[44px] px-4">
+                        {post.hiddenByStaff
+                          ? MARKETPLACE_ADMIN_LABELS.unhide
+                          : MARKETPLACE_ADMIN_LABELS.hide}
+                      </button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
             ))}
