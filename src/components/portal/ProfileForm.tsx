@@ -42,7 +42,7 @@ export function ProfileForm({
         return
       }
       setStatus('saved')
-      router.refresh()
+      router.push('/portal/profile?saved=true')
     } catch {
       setStatus('error')
       setError(PORTAL_LABELS.form.errorGeneric)

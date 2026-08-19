@@ -429,6 +429,14 @@ export const PORTAL_LABELS = {
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     successTitle: 'Anfrage gesendet',
     successMessage: 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
+    successNextStepsTitle: 'Wie geht es weiter?',
+    successNextSteps: [
+      'Die Betreuung sieht deine Anfrage im Team-Posteingang.',
+      'Bei Rückfragen oder bei einem Entscheid meldet sich das Team bei dir.',
+      'Wenn sich deine Situation ändert, kannst du zusätzlich eine Nachricht schreiben.',
+    ],
+    successToMessages: 'Nachricht an die Betreuung',
+    successToOverview: 'Zur Übersicht',
     navLabel: 'Verlegung',
     currentUnit: 'Aktuelle Unterkunft',
     decisionTitle: 'Antwort auf deine Anfrage',
@@ -566,6 +574,9 @@ export const PORTAL_LABELS = {
     you: 'Du',
     settlementNoteLabel: 'Notiz (optional)',
     settlementRecorded: 'Zahlung erfasst',
+    createdToast: 'Ausgabe erfolgreich gespeichert',
+    settledToast: 'Zahlung erfolgreich erfasst',
+    deletedToast: 'Ausgabe erfolgreich gelöscht',
     dashboardTitle: 'Ausgaben',
     dashboardCta: 'Alle Ausgaben anzeigen',
     dashboardBalance: 'Dein Kontostand',
@@ -614,6 +625,9 @@ export const PORTAL_LABELS = {
     photoRemove: 'Foto entfernen',
     photoHint: 'JPG, PNG oder WebP — wird automatisch verkleinert.',
     visibleTo: 'Sichtbar für deine Mitbewohner und die Verwaltung.',
+    savedToast: 'Profil erfolgreich gespeichert',
+    photoUpdatedToast: 'Foto erfolgreich aktualisiert',
+    photoRemovedToast: 'Foto erfolgreich entfernt',
     /**
      * The visibility control. The staff line is stated on every option rather
      * than hidden in small print: a resident deciding what to share is owed

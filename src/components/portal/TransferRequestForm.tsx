@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 interface TransferRequestFormProps {
@@ -50,10 +51,29 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
   if (success) {
     return (
       <div className="card">
-        <div className="text-center py-8">
+        <div className="py-8">
           <div className="text-4xl mb-4">✅</div>
-          <h2 className="text-lg font-semibold text-ui-text mb-2">{L.successTitle}</h2>
-          <p className="text-ui-muted max-w-md mx-auto">{L.successMessage}</p>
+          <h2 className="text-lg font-semibold text-ui-text mb-2 text-center">{L.successTitle}</h2>
+          <p className="text-ui-muted max-w-md mx-auto text-center">{L.successMessage}</p>
+          <div className="mt-5 rounded-lg border border-ui-border bg-ui-subtle p-4">
+            <h3 className="text-sm font-semibold text-ui-text mb-2">{L.successNextStepsTitle}</h3>
+            <ul className="space-y-2 text-sm text-ui-muted">
+              {(L.successNextSteps ?? []).map((step) => (
+                <li key={step} className="flex gap-2">
+                  <span aria-hidden="true">•</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/portal/messages" className="btn-secondary">
+              {L.successToMessages}
+            </Link>
+            <Link href="/portal" className="btn-outline">
+              {L.successToOverview}
+            </Link>
+          </div>
         </div>
       </div>
     )

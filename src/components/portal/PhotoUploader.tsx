@@ -68,7 +68,7 @@ export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
         setError(body.error || PORTAL_LABELS.form.errorGeneric)
         return
       }
-      router.refresh()
+      router.push('/portal/profile?photoUpdated=true')
     } catch {
       setError(PORTAL_LABELS.form.errorGeneric)
     } finally {
@@ -86,7 +86,7 @@ export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
         setError(body.error || PORTAL_LABELS.form.errorGeneric)
         return
       }
-      router.refresh()
+      router.push('/portal/profile?photoRemoved=true')
     } catch {
       setError(PORTAL_LABELS.form.errorGeneric)
     } finally {

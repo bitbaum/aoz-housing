@@ -37,7 +37,7 @@ export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpB
         setError(body.error || PORTAL_LABELS.form.errorGeneric)
         return
       }
-      router.refresh()
+      router.push('/portal/expenses?settled=true')
     } catch {
       setError(PORTAL_LABELS.form.errorGeneric)
     } finally {

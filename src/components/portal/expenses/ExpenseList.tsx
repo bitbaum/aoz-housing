@@ -73,7 +73,7 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
         setError(body.error || PORTAL_LABELS.form.errorGeneric)
         return
       }
-      router.refresh()
+      router.push('/portal/expenses?deleted=true')
     } catch {
       setError(PORTAL_LABELS.form.errorGeneric)
     } finally {

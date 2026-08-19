@@ -9,6 +9,7 @@ import { getRequestTranslator } from '@/lib/i18n/request'
 import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
 import { CareTeamCard } from '@/components/residents/CareTeamCard'
 import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'
+import { SuccessToast } from '@/components/ui/SuccessToast'
 
 export const metadata: Metadata = { title: PORTAL_LABELS.profile.title }
 export const dynamic = 'force-dynamic'
@@ -38,6 +39,13 @@ export default async function PortalProfilePage() {
 
   return (
     <div>
+      <SuccessToast
+        triggers={[
+          { param: 'saved', message: L.savedToast },
+          { param: 'photoUpdated', message: L.photoUpdatedToast },
+          { param: 'photoRemoved', message: L.photoRemovedToast },
+        ]}
+      />
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{L.title}</h1>
         <p className="text-ui-muted mt-1">{L.subtitle}</p>

@@ -68,7 +68,7 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
       setAmount('')
       setParticipantIds(members.map((m) => m.id))
       setOpen(false)
-      router.refresh()
+      router.push('/portal/expenses?created=true')
     } catch {
       setError(PORTAL_LABELS.form.errorGeneric)
     } finally {

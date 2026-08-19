@@ -11,6 +11,7 @@ import { residentName } from '@/lib/utils/resident-name'
 import { formatRappen, monthlyStatements } from '@/lib/expenses'
 import { MonthlyStatements } from '@/components/portal/expenses/MonthlyStatement'
 import { formatDateShort } from '@/lib/utils/formatting'
+import { SuccessToast } from '@/components/ui/SuccessToast'
 
 export const metadata: Metadata = { title: PORTAL_LABELS.expenses.title }
 export const dynamic = 'force-dynamic'
@@ -38,6 +39,13 @@ export default async function PortalExpensesPage() {
 
   return (
     <div>
+      <SuccessToast
+        triggers={[
+          { param: 'created', message: L.createdToast },
+          { param: 'settled', message: L.settledToast },
+          { param: 'deleted', message: L.deletedToast },
+        ]}
+      />
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{L.title}</h1>
         <p className="text-ui-muted mt-1">{L.subtitle}</p>
