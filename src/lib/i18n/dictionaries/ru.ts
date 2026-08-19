@@ -83,6 +83,8 @@ export const ru: Dictionary = {
   'action.close': 'Закрыть',
   'action.showAll': 'Показать все',
   'error.generic': 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.',
+  'error.portalMessage': 'При загрузке портала произошла ошибка. Пожалуйста, попробуйте еще раз.',
+  'error.portalHome': 'На главную',
 
   'language.label': 'Язык',
   'language.change': 'Сменить язык',
@@ -229,10 +231,17 @@ export const ru: Dictionary = {
   'dashboard.onboarding.browseHousing': 'Изучить жильё',
   'dashboard.onboarding.browseHousingHint': 'Посмотрите, где вы размещены.',
 
+  'housing.subtitle': 'Жильё, которое подходит вашим предпочтениям',
+  'preferences.subtitle': 'Эти данные помогают нам подобрать подходящих соседей',
+  'decisions.title': 'Решения в доме',
+  'decisions.noPlacement': 'Когда вам назначат жильё, здесь можно участвовать в решениях.',
+
   'activities.dashboardTitle': 'Мероприятия и курсы',
   'activities.dashboardSubtitle': 'Рекомендации для вас.',
   'activities.noResults': 'Нет текущих предложений.',
   'activities.dashboardCta': 'Все предложения',
+  'activities.allCategories': 'Все категории',
+  'activities.website': 'Открыть сайт',
 
   'expenses.dashboardTitle': 'Общие расходы',
   'expenses.dashboardCta': 'Управлять расходами',

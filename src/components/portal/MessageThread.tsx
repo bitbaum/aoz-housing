@@ -76,7 +76,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
       {messages.length === 0 ? (
         <p className="text-sm text-ui-muted py-8 text-center">{t('messages.empty')}</p>
       ) : (
-        <ol className="flex-1 overflow-y-auto space-y-3 pr-1">
+        <ol className="flex-1 overflow-y-auto space-y-3 pe-1">
           {messages.map((message) => {
             const mine = message.authorResidentId !== null
             return (

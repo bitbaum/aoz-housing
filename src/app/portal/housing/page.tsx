@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
-import { PORTAL_LABELS } from '@/lib/constants'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { PortalHousingBrowse } from '@/components/portal/PortalHousingBrowse'
@@ -91,7 +90,7 @@ export default async function PortalHousingPage() {
           {t('action.back')}
         </Link>
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{t('nav.housing')}</h1>
-        <p className="text-ui-muted mt-1">{PORTAL_LABELS.pages.housingSubtitle}</p>
+        <p className="text-ui-muted mt-1">{t('housing.subtitle')}</p>
       </div>
 
       <PortalHousingBrowse results={results} />

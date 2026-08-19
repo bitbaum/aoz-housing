@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 
 export const metadata: Metadata = { title: 'Präferenzen' }
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PreferencesForm } from './PreferencesForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
@@ -32,7 +31,7 @@ export default async function PreferencesPage() {
       <div className="mb-6">
         <PageHeader
           title={t('nav.preferences')}
-          description={PORTAL_LABELS.pages.preferencesSubtitle}
+          description={t('preferences.subtitle')}
           backHref="/portal"
           backLabel={t('action.back')}
         />

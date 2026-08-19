@@ -3,7 +3,7 @@
 import * as Sentry from '@sentry/nextjs'
 import { useEffect } from 'react'
 import { ErrorBoundaryUI } from '@/components/ui'
-import { PORTAL_LABELS } from '@/lib/constants'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 export default function PortalError({
   error,
@@ -12,16 +12,18 @@ export default function PortalError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const t = useT()
+
   useEffect(() => {
     Sentry.captureException(error)
   }, [error])
 
   return (
     <ErrorBoundaryUI
-      description={PORTAL_LABELS.error.message}
+      description={t('error.portalMessage')}
       onRetry={reset}
       backHref="/portal"
-      backLabel={PORTAL_LABELS.error.home}
+      backLabel={t('error.portalHome')}
     />
   )
 }

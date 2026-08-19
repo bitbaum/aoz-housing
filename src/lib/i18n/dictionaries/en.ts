@@ -63,6 +63,8 @@ export const en: Dictionary = {
   'action.close': 'Close',
   'action.showAll': 'Show all',
   'error.generic': 'Something went wrong. Please try again.',
+  'error.portalMessage': 'An error occurred while loading the portal. Please try again.',
+  'error.portalHome': 'Back to overview',
 
   'language.label': 'Language',
   'language.change': 'Change language',
@@ -209,10 +211,17 @@ export const en: Dictionary = {
   'dashboard.onboarding.browseHousing': 'Explore accommodation',
   'dashboard.onboarding.browseHousingHint': 'See where you are staying.',
 
+  'housing.subtitle': 'Accommodation that matches your preferences',
+  'preferences.subtitle': 'This information helps us find suitable housemates',
+  'decisions.title': 'House decisions',
+  'decisions.noPlacement': 'Once you are assigned accommodation, you can take part in decisions here.',
+
   'activities.dashboardTitle': 'Activities & Courses',
   'activities.dashboardSubtitle': 'Recommendations for you.',
   'activities.noResults': 'No current offerings.',
   'activities.dashboardCta': 'See all offerings',
+  'activities.allCategories': 'All categories',
+  'activities.website': 'Open website',
 
   'expenses.dashboardTitle': 'Shared expenses',
   'expenses.dashboardCta': 'Manage expenses',

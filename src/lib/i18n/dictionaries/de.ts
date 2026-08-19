@@ -82,6 +82,8 @@ export const de = {
   'action.close': 'Schliessen',
   'action.showAll': 'Alle anzeigen',
   'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
+  'error.portalMessage': 'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte erneut versuchen.',
+  'error.portalHome': 'Zur Startseite',
 
   // The language picker itself
   'language.label': 'Sprache',
@@ -237,11 +239,18 @@ export const de = {
   'dashboard.onboarding.browseHousing': 'Unterkunft erkunden',
   'dashboard.onboarding.browseHousingHint': 'Sieh dir an, wo du untergebracht bist.',
 
+  'housing.subtitle': 'Unterkünfte, die zu deinen Einstellungen passen',
+  'preferences.subtitle': 'Diese Angaben helfen uns, passende Mitbewohner zu finden',
+  'decisions.title': 'Beschlüsse im Haus',
+  'decisions.noPlacement': 'Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.',
+
   // Activities card
   'activities.dashboardTitle': 'Aktivitäten & Kurse',
   'activities.dashboardSubtitle': 'Empfehlungen für dich.',
   'activities.noResults': 'Keine aktuellen Angebote.',
   'activities.dashboardCta': 'Alle Angebote ansehen',
+  'activities.allCategories': 'Alle Kategorien',
+  'activities.website': 'Website öffnen',
 
   // Expenses card
   'expenses.dashboardTitle': 'Gemeinsame Ausgaben',

@@ -8,14 +8,15 @@ import { openTopics } from '@/lib/governance/rules'
 import { canHoldVote, tallyVotes } from '@/lib/governance/voting'
 import { ProposalList } from '@/components/governance/ProposalList'
 import { NewProposalForm } from '@/components/governance/NewProposalForm'
-import { PORTAL_LABELS } from '@/lib/constants/labels/portal'
 import { DECISION_TIMING } from '@/lib/config/decisions'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const metadata: Metadata = { title: 'Beschlüsse' }
 export const dynamic = 'force-dynamic'
 
 export default async function PortalDecisionsPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -29,10 +30,10 @@ export default async function PortalDecisionsPage() {
     return (
       <div>
         <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">
-          {PORTAL_LABELS.pages.decisions}
+          {t('decisions.title')}
         </h1>
         <p className="text-ui-muted">
-          Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.
+          {t('decisions.noPlacement')}
         </p>
       </div>
     )
@@ -81,7 +82,7 @@ export default async function PortalDecisionsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-bold text-ui-text sm:text-2xl">
-          {PORTAL_LABELS.pages.decisions}
+          {t('decisions.title')}
         </h1>
         <p className="mt-2 text-sm leading-6 text-ui-muted">
           Bei vielen Themen entscheidet ihr im Haus selbst. Ein Vorschlag wird zuerst{' '}

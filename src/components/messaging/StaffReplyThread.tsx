@@ -78,7 +78,7 @@ export function StaffReplyThread({
       {messages.length === 0 ? (
         <p className="text-sm text-ui-muted py-6">{MESSAGES_LABELS.empty}</p>
       ) : (
-        <ol className="flex-1 overflow-y-auto space-y-3 pr-1">
+        <ol className="flex-1 overflow-y-auto space-y-3 pe-1">
           {messages.map((message) => {
             const fromStaff = message.authorUserId !== null
             return (

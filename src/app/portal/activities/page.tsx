@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { Globe2, MapPin, Phone, Clock, ExternalLink } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import {
   ACTIVITY_CATEGORY_ICONS,
   ACTIVITY_CATEGORY_LABELS,
@@ -45,7 +44,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
 
       <div className="mb-6 flex flex-wrap gap-2">
         <CategoryLink href="/portal/activities" active={!selectedCategory}>
-          {PORTAL_LABELS.activities.allCategories}
+          {t('activities.allCategories')}
         </CategoryLink>
         {Object.entries(ACTIVITY_CATEGORY_LABELS).map(([value, label]) => {
           const Icon = ACTIVITY_CATEGORY_ICONS[value as ActivityCategory]
@@ -65,7 +64,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
       {activities.length === 0 ? (
         <div className="card py-12 text-center">
           <Globe2 className="mx-auto h-8 w-8 text-ui-muted" />
-          <p className="mt-3 text-ui-muted">{PORTAL_LABELS.activities.noResults}</p>
+          <p className="mt-3 text-ui-muted">{t('activities.noResults')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -112,7 +111,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
                         className="btn btn-outline text-sm inline-flex items-center gap-2"
                       >
                         <ExternalLink className="h-4 w-4" />
-                        {PORTAL_LABELS.activities.website}
+                        {t('activities.website')}
                       </a>
                     ) : null}
                     {activity.phone ? (
