@@ -2,44 +2,9 @@ import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { SatisfactionRating } from '../SatisfactionRating'
 
-// --- Mocks ---
-
-jest.mock('@/lib/constants', () => ({
-  SATISFACTION_EMOJIS: ['😞', '😕', '😐', '🙂', '😊'],
-  SATISFACTION_LABELS: [
-    'Sehr unzufrieden',
-    'Unzufrieden',
-    'Neutral',
-    'Zufrieden',
-    'Sehr zufrieden',
-  ],
-  SATISFACTION_SURVEY_LABELS: {
-    saveFailed: 'Speichern fehlgeschlagen. Bitte erneut versuchen.',
-    day: 'Tag',
-    days: 'Tagen',
-    ratings: { bad: 'Schlecht', okay: 'Okay', great: 'Super' },
-    commentPrompt: 'Möchtest du uns mehr erzählen?',
-    optional: '(optional)',
-    commentPlaceholder: 'Was können wir verbessern?',
-    submitting: 'Wird gesendet...',
-    submit: 'Absenden',
-    submitWithoutComment: 'Ohne Kommentar absenden',
-    submitFeedback: 'Feedback absenden',
-  },
-  PORTAL_LABELS: {
-    satisfaction: {
-      title: 'Wie geht es dir in deiner Unterkunft?',
-      subtitle: 'Dein vertrauliches Feedback hilft uns',
-      privacyNote: 'Vertraulich gespeichert',
-      thankYouTitle: 'Danke für dein Feedback!',
-      thankYouMessage: 'Deine Rückmeldung hilft uns',
-      concernsForwarded: 'Wir haben deine Anliegen weitergeleitet',
-      newFeedback: 'Neues Feedback',
-      lastFeedback: 'Letztes Feedback',
-      today: 'Heute',
-    },
-  },
-}))
+// No mocks needed: SATISFACTION_EMOJIS is stable, and useT() falls back to the
+// real German dictionary outside a LocaleProvider — the same text a resident
+// on the default locale actually sees.
 
 // --- Helpers ---
 
@@ -161,7 +126,7 @@ describe('SatisfactionRating', () => {
     render(<SatisfactionRating />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Sehr unzufrieden' }))
-    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern?'), {
+    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern? Was beschäftigt dich?'), {
       target: { value: 'Es ist zu laut' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Absenden' }))
@@ -176,7 +141,7 @@ describe('SatisfactionRating', () => {
     render(<SatisfactionRating />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Sehr unzufrieden' }))
-    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern?'), {
+    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern? Was beschäftigt dich?'), {
       target: { value: 'Es ist zu laut' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Absenden' }))
@@ -255,7 +220,7 @@ describe('SatisfactionRating', () => {
     render(<SatisfactionRating />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Unzufrieden' }))
-    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern?'), {
+    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern? Was beschäftigt dich?'), {
       target: { value: '  Es ist sehr laut  ' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Absenden' }))
@@ -272,7 +237,7 @@ describe('SatisfactionRating', () => {
     render(<SatisfactionRating />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Sehr unzufrieden' }))
-    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern?'), {
+    fireEvent.change(screen.getByPlaceholderText('Was können wir verbessern? Was beschäftigt dich?'), {
       target: { value: 'Wird ignoriert' },
     })
     fireEvent.click(screen.getByRole('button', { name: 'Ohne Kommentar absenden' }))

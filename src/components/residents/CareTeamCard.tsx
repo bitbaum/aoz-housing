@@ -13,6 +13,7 @@ interface CareTeamCardProps {
   title: string
   subtitle?: string
   empty: string
+  unassigned?: string
   roleLabels?: Record<CareRoleId, string>
 }
 
@@ -25,6 +26,7 @@ export function CareTeamCard({
   title,
   subtitle,
   empty,
+  unassigned = CARE_LABELS.unassigned,
   roleLabels = CARE_ROLE_LABELS,
 }: CareTeamCardProps) {
   const writable = new Set(writableDomains ?? (canWrite ? CARE_ROLES : []))
@@ -48,7 +50,7 @@ export function CareTeamCard({
                 <li key={role} className="flex items-baseline justify-between gap-3">
                   <span className="text-sm text-ui-muted">{roleLabels[role]}</span>
                   <span className="text-sm font-medium text-ui-text">
-                    {seat?.staffName || CARE_LABELS.unassigned}
+                    {seat?.staffName || unassigned}
                   </span>
                 </li>
               )
@@ -68,7 +70,7 @@ export function CareTeamCard({
                     defaultValue={seat?.staffId ?? ''}
                     onChange={(event) => event.currentTarget.form?.requestSubmit()}
                   >
-                    <option value="">{CARE_LABELS.unassigned}</option>
+                    <option value="">{unassigned}</option>
                     {staffOptions.map((person) => (
                       <option key={person.id} value={person.id}>
                         {person.name}
@@ -88,7 +90,7 @@ export function CareTeamCard({
             <li key={seat.role} className="flex items-baseline justify-between gap-3">
               <span className="text-sm text-ui-muted">{roleLabels[seat.role]}</span>
               <span className="text-sm font-medium text-ui-text">
-                {seat.staffName || CARE_LABELS.unassigned}
+                {seat.staffName || unassigned}
               </span>
             </li>
           ))}

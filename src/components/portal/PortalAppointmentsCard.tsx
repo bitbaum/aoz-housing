@@ -1,4 +1,4 @@
-import { CARE_ROLE_LABELS, type CareRoleId } from '@/lib/config/care'
+import type { CareRoleId } from '@/lib/config/care'
 import type { CareAppointment } from '@/lib/actions/care'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
 
@@ -6,12 +6,14 @@ interface PortalAppointmentsCardProps {
   title: string
   empty: string
   appointments: CareAppointment[]
+  roleLabels: Record<CareRoleId, string>
 }
 
 export function PortalAppointmentsCard({
   title,
   empty,
   appointments,
+  roleLabels,
 }: PortalAppointmentsCardProps) {
   return (
     <div className="card">
@@ -25,7 +27,7 @@ export function PortalAppointmentsCard({
               <span className="font-medium text-ui-text">{item.title}</span>
               <span className="text-sm text-ui-muted">
                 {formatZurichDateTime(item.startsAt)}
-                {` · ${CARE_ROLE_LABELS[item.domain as CareRoleId]}`}
+                {` · ${roleLabels[item.domain as CareRoleId]}`}
                 {` · ${item.staffName}`}
                 {item.location ? ` · ${item.location}` : ''}
               </span>

@@ -1,8 +1,9 @@
-import { SOCIAL_STYLE_LABELS, PORTAL_LABELS, getLabel } from '@/lib/constants'
-import { getScoreBgClass, getScoreLabel } from '@/lib/utils'
+import { getScoreBgClass, getScoreLevel } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { residentName } from '@/lib/utils/resident-name'
+import { getRequestTranslator } from '@/lib/i18n/request'
+import type { MessageKey } from '@/lib/i18n'
 
 interface Roommate {
   id: string
@@ -23,11 +24,27 @@ interface PortalRoommatesCardProps {
   compatibilityScores: CompatibilityScore[]
 }
 
-export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRoommatesCardProps) {
+const SOCIAL_STYLE_KEYS: Record<string, MessageKey> = {
+  INTROVERTED: 'socialStyle.INTROVERTED',
+  MODERATE: 'socialStyle.MODERATE',
+  EXTROVERTED: 'socialStyle.EXTROVERTED',
+}
+
+const SCORE_LEVEL_KEYS: Record<string, MessageKey> = {
+  excellent: 'scores.excellent',
+  good: 'scores.good',
+  moderate: 'scores.moderate',
+  low: 'scores.low',
+  critical: 'scores.critical',
+}
+
+export async function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRoommatesCardProps) {
+  const { t } = await getRequestTranslator()
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-ui-text">{PORTAL_LABELS.dashboard.roommates}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{t('dashboard.roommates')}</h2>
       </div>
       <div className="space-y-3">
         {roommates.slice(0, DISPLAY_LIMITS.dashboardItems).map((roommate) => {
@@ -44,25 +61,21 @@ export function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRo
                 <div>
                   <p className="font-medium text-ui-text">{residentName(roommate)}</p>
                   <p className="text-sm text-ui-muted">
-                    {roommate.socialStyle ? getLabel(SOCIAL_STYLE_LABELS, roommate.socialStyle) : '–'}
+                    {roommate.socialStyle && SOCIAL_STYLE_KEYS[roommate.socialStyle]
+                      ? t(SOCIAL_STYLE_KEYS[roommate.socialStyle])
+                      : '–'}
                   </p>
                 </div>
               </div>
               {score && (
-                <CompatibilityBadge score={score} />
+                <span className={`badge ${getScoreBgClass(score)}`}>
+                  {t(SCORE_LEVEL_KEYS[getScoreLevel(score)])}
+                </span>
               )}
             </div>
           )
         })}
       </div>
     </div>
-  )
-}
-
-function CompatibilityBadge({ score }: { score: number }) {
-  return (
-    <span className={`badge ${getScoreBgClass(score)}`}>
-      {getScoreLabel(score)}
-    </span>
   )
 }

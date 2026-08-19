@@ -65,6 +65,7 @@ export default async function PortalProfilePage() {
           title={t('care.title')}
           subtitle={t('care.subtitle')}
           empty={t('care.empty')}
+          unassigned={t('care.unassigned')}
           roleLabels={{
             HOUSING: t('care.housing'),
             SOCIAL: t('care.social'),
@@ -79,6 +80,12 @@ export default async function PortalProfilePage() {
           title={t('care.appointments')}
           empty={t('care.appointmentsEmpty')}
           appointments={upcomingAppointments}
+          roleLabels={{
+            HOUSING: t('care.housing'),
+            SOCIAL: t('care.social'),
+            JOB: t('care.job'),
+            VOLUNTEERING: t('care.volunteering'),
+          }}
         />
       </div>
 

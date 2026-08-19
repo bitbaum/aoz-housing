@@ -1,31 +1,39 @@
 import Link from 'next/link'
 import { Globe2 } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import {
   ACTIVITY_CATEGORY_ICONS,
   ACTIVITY_COST_BADGES,
-  ACTIVITY_COST_LABELS,
   type ActivityRecord,
 } from '@/lib/config/activities'
+import type { MessageKey } from '@/lib/i18n'
 
 type PortalActivitiesCardProps = {
   activities: ActivityRecord[]
 }
 
-export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) {
+const ACTIVITY_COST_KEYS: Record<string, MessageKey> = {
+  FREE: 'activities.costFree',
+  REDUCED: 'activities.costReduced',
+  PAID: 'activities.costPaid',
+}
+
+export async function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) {
+  const { t } = await getRequestTranslator()
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-semibold text-ui-text">{PORTAL_LABELS.activities.dashboardTitle}</h2>
-          <p className="text-sm text-ui-muted">{PORTAL_LABELS.activities.dashboardSubtitle}</p>
+          <h2 className="font-semibold text-ui-text">{t('activities.dashboardTitle')}</h2>
+          <p className="text-sm text-ui-muted">{t('activities.dashboardSubtitle')}</p>
         </div>
         <Globe2 className="h-5 w-5 text-brand-primary" />
       </div>
 
       {activities.length === 0 ? (
         <p className="rounded-md bg-ui-subtle px-3 py-4 text-sm text-ui-muted">
-          {PORTAL_LABELS.activities.noResults}
+          {t('activities.noResults')}
         </p>
       ) : (
         <div className="space-y-3">
@@ -39,7 +47,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
                   <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
                 </div>
                 <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
-                  {ACTIVITY_COST_LABELS[activity.cost]}
+                  {t(ACTIVITY_COST_KEYS[activity.cost])}
                 </span>
               </div>
             )
@@ -51,7 +59,7 @@ export function PortalActivitiesCard({ activities }: PortalActivitiesCardProps) 
         href="/portal/activities"
         className="mt-4 block w-full text-center btn btn-outline text-sm"
       >
-        {PORTAL_LABELS.activities.dashboardCta}
+        {t('activities.dashboardCta')}
       </Link>
     </div>
   )

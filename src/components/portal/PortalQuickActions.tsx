@@ -1,33 +1,33 @@
 import Link from 'next/link'
 import type { ComponentType } from 'react'
 import { ClipboardCheck, GraduationCap, MessageSquareWarning, Settings2 } from 'lucide-react'
-import { PORTAL_LABELS } from '@/lib/constants'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 interface PortalQuickActionsProps {
   pendingChoresCount: number
 }
 
-export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
-  const L = PORTAL_LABELS.dashboard
+export async function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
+  const { t } = await getRequestTranslator()
   const primary = pendingChoresCount > 0
     ? {
         href: '/portal/chores',
-        title: L.quickActions.chores.title,
-        description: `${pendingChoresCount} ${pendingChoresCount === 1 ? L.prioritySections.now.taskSingular : L.prioritySections.now.taskPlural}`,
+        title: t('quickActions.chores'),
+        description: `${pendingChoresCount} ${pendingChoresCount === 1 ? t('prioritySections.taskSingular') : t('prioritySections.taskPlural')}`,
         icon: ClipboardCheck,
       }
     : {
         href: '/portal/preferences',
-        title: L.quickActions.preferences.title,
-        description: L.prioritySections.next.desc,
+        title: t('quickActions.preferences'),
+        description: t('prioritySections.nextDesc'),
         icon: Settings2,
       }
 
   const PrimaryIcon = primary.icon
   const secondaryActions = [
-    { href: '/portal/report', label: L.quickActions.report.title, icon: MessageSquareWarning },
-    { href: '/portal/learning', label: L.quickActions.learning.title, icon: GraduationCap },
-    { href: '/portal/preferences', label: L.quickActions.preferences.title, icon: Settings2 },
+    { href: '/portal/report', label: t('quickActions.report'), icon: MessageSquareWarning },
+    { href: '/portal/learning', label: t('quickActions.learning'), icon: GraduationCap },
+    { href: '/portal/preferences', label: t('quickActions.preferences'), icon: Settings2 },
   ].filter((action) => action.href !== primary.href)
 
   return (
@@ -39,7 +39,7 @@ export function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsPro
           </span>
           <span className="min-w-0">
             <span className="block text-xs font-semibold uppercase tracking-wide text-ui-muted">
-              {L.prioritySections.now.heading}
+              {t('prioritySections.now')}
             </span>
             <span className="mt-0.5 block font-semibold text-ui-text group-hover:text-brand-primary">
               {primary.title}

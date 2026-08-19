@@ -1,5 +1,5 @@
-import { PORTAL_LABELS } from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import type { ResidentReport } from '@/lib/reports/resident-reports'
 
 /**
@@ -9,7 +9,7 @@ import type { ResidentReport } from '@/lib/reports/resident-reports'
  * drift: the same report must not look answered in one place and open in the
  * other, and the staff answer must appear wherever the report does.
  */
-export function ResidentReportItem({
+export async function ResidentReportItem({
   report,
   truncate = false,
 }: {
@@ -17,7 +17,7 @@ export function ResidentReportItem({
   /** The dashboard clips long descriptions; the full page shows all of it. */
   truncate?: boolean
 }) {
-  const L = PORTAL_LABELS.dashboard
+  const { t } = await getRequestTranslator()
   const clipped =
     truncate && report.description.length > DISPLAY_LIMITS.descriptionPreview
 
@@ -32,11 +32,11 @@ export function ResidentReportItem({
               : report.description}
           </p>
           <p className="text-sm text-ui-muted mt-1">
-            {report.isDone ? L.reportResolved : L.reportPending}
+            {report.isDone ? t('reports.done') : t('reports.pending')}
           </p>
         </div>
         <span className={`badge ${report.isDone ? 'badge-active' : 'badge-pending'} shrink-0`}>
-          {report.isDone ? L.resolved : `${L.open} · ${L.inProgress}`}
+          {report.isDone ? t('reports.done') : `${t('reports.open')} · ${t('reports.inProgress')}`}
         </span>
       </div>
 
@@ -44,7 +44,7 @@ export function ResidentReportItem({
           the only place a resident learns what staff did. */}
       {report.answer && (
         <div className="mt-3 border-t border-ui-border pt-3">
-          <p className="eyebrow">{L.reportAnswer}</p>
+          <p className="eyebrow">{t('reports.answer')}</p>
           <p className="text-sm text-ui-text mt-1 whitespace-pre-line">{report.answer}</p>
         </div>
       )}
