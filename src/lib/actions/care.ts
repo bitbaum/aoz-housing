@@ -46,6 +46,18 @@ export type CareAttributeValue = {
   value: string
 }
 
+/**
+ * Returns resident IDs where the given staff user is assigned as a care worker.
+ * Used to power the "Meine Klient*innen" filter on the client board.
+ */
+export async function getMyResidentIds(staffId: string): Promise<string[]> {
+  const assignments = await prisma.careAssignment.findMany({
+    where: { staffId },
+    select: { residentId: true },
+  })
+  return assignments.map((a) => a.residentId)
+}
+
 function canWriteAnyCare(role: string): boolean {
   if (!isStaffRole(role)) return false
   return hasPermission(role, 'residents:write') || hasPermission(role, 'learning:write')

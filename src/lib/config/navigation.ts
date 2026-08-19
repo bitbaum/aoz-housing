@@ -127,16 +127,19 @@ export type MegaMenuGroup =
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
-    label: 'Wohnen',
+    // People-first: every role lands here. Housing tools are a sub-section,
+    // not the name of the whole group. BETREUUNG sees the full list;
+    // JOBCOACH and SOZIALARBEIT see only /residents (board).
+    label: 'Klient*innen',
     items: [
-      { href: '/residents', icon: 'users', label: 'Alle Bewohner', desc: 'Bewohnerliste verwalten', permission: 'residents:read' },
-      { href: '/residents/new', icon: 'user-plus', label: 'Neuer Bewohner', desc: 'Bewohner erfassen', permission: 'residents:write' },
-      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Platzierung finden', permission: 'placements:write' },
-      { href: '/housing', icon: 'building', label: 'Alle Einheiten', desc: 'Wohneinheiten verwalten', permission: 'housing:read' },
-      { href: '/housing/new', icon: 'house-plus', label: 'Neue Einheit', desc: 'Einheit hinzufügen', permission: 'housing:write' },
-      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Platzierungen', permission: 'placements:read' },
+      { href: '/residents', icon: 'users', label: 'Klient*innen', desc: 'Übersicht & Karten-Board', permission: 'residents:read' },
+      { href: '/residents/new', icon: 'user-plus', label: 'Neue*r Klient*in', desc: 'Person erfassen', permission: 'residents:write' },
+      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Passende Unterkunft finden', permission: 'placements:write' },
+      { href: '/housing', icon: 'building', label: 'Unterkünfte', desc: 'Alle Wohneinheiten', permission: 'housing:read' },
+      { href: '/housing/new', icon: 'house-plus', label: 'Neue Unterkunft', desc: 'Einheit hinzufügen', permission: 'housing:write' },
+      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Belegung', permission: 'placements:read' },
       { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
-      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Wartungsaufgaben', permission: 'maintenance:read' },
+      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Reparaturen & Meldungen', permission: 'maintenance:read' },
       { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
     ],
   },
@@ -157,16 +160,18 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     ],
   },
   {
-    label: 'Lernen & Engagement',
+    // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain.
+    // Jobcoach only sees these; Freiwilligenarbeit primarily uses this group.
+    label: 'Integration',
     items: [
-      { href: '/learning', icon: 'learning', label: 'Lernen', desc: 'Kurse, Tests, Weiterbildung', permission: 'learning:read' },
-      { href: '/learning?kind=VOLUNTEERING', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Engagement erfassen & begleiten', permission: 'learning:read' },
+      { href: '/learning', icon: 'learning', label: 'Sprache & Kurse', desc: 'Sprachkurse, Tests, Weiterbildung', permission: 'learning:read' },
+      { href: '/learning?kind=QUALIFICATION', icon: 'learning', label: 'Qualifikationen', desc: 'Abschlüsse & Zertifikate', permission: 'learning:read' },
+      { href: '/learning?kind=VOLUNTEERING', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Einsätze erfassen & begleiten', permission: 'learning:read' },
+      { href: '/learning?kind=COMMUNITY_SERVICE', icon: 'heart', label: 'Gemeindeeinsätze', desc: 'Community-Service-Stunden', permission: 'learning:read' },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
-  // Einstellungen intentionally NOT here — system links live in SYSTEM_LINKS
-  // (UserMenu + drawer), keeping the header row to the daily work.
 ]
 
 function itemVisible(item: MegaMenuDropdownItem, role: StaffRole): boolean {
