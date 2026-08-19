@@ -46,6 +46,7 @@ export const de = {
   'navGroup.living': 'Alltag',
   'navGroup.together': 'Zusammen entscheiden',
   'navGroup.concerns': 'Anliegen & Angebote',
+  'navGroup.integration': 'Integration & Beruf',
   'navGroup.account': 'Mein Konto',
 
   // Reports
@@ -67,6 +68,7 @@ export const de = {
   'messages.placeholder': 'Deine Nachricht …',
   'messages.send': 'Senden',
   'messages.sending': 'Wird gesendet …',
+  'messages.sendFailed': 'Nachricht konnte nicht gesendet werden. Bitte erneut versuchen.',
   'messages.you': 'Du',
   'messages.staff': 'Betreuung',
   'messages.unread': 'neu',
@@ -259,12 +261,6 @@ export const de = {
   'satisfaction.today': 'Heute',
   'satisfaction.lastFeedback': 'Letztes Feedback',
   'satisfaction.newFeedback': 'Neues Feedback geben',
-
-  // Nav group labels
-  'navGroup.living': 'Alltag & Wohnen',
-  'navGroup.together': 'Miteinander',
-  'navGroup.integration': 'Integration & Beruf',
-  'navGroup.account': 'Mein Konto',
 } as const
 
 /** The key set every dictionary is measured against. */

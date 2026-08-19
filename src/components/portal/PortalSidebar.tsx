@@ -21,7 +21,13 @@ import type { MessageKey } from '@/lib/i18n'
  * The open group is the one that contains the current page; the others start
  * closed so a resident is not staring at fourteen labels at once.
  */
-export function PortalNavAccordion({ pathname }: { pathname: string }) {
+export function PortalNavAccordion({
+  pathname,
+  messageUnreadCount = 0,
+}: {
+  pathname: string
+  messageUnreadCount?: number
+}) {
   const t = useT()
   const items = portalSidebarItems()
 
@@ -34,6 +40,7 @@ export function PortalNavAccordion({ pathname }: { pathname: string }) {
           pathname={pathname}
           items={items}
           heading={t(`navGroup.${group}` as MessageKey)}
+          messageUnreadCount={messageUnreadCount}
         />
       ))}
     </nav>
@@ -45,11 +52,13 @@ function NavGroup({
   pathname,
   items,
   heading,
+  messageUnreadCount,
 }: {
   group: PortalNavGroup
   pathname: string
   items: PortalNavItem[]
   heading: string
+  messageUnreadCount: number
 }) {
   const grouped = items.filter((item) => item.group === group)
   const containsCurrent = grouped.some((item) => isPortalPathActive(pathname, item.href))
@@ -74,7 +83,11 @@ function NavGroup({
       <ul className="mt-1">
         {grouped.map((item) => (
           <li key={item.href}>
-            <GroupLink item={item} active={isPortalPathActive(pathname, item.href)} />
+            <GroupLink
+              item={item}
+              active={isPortalPathActive(pathname, item.href)}
+              messageUnreadCount={messageUnreadCount}
+            />
           </li>
         ))}
       </ul>
@@ -82,9 +95,18 @@ function NavGroup({
   )
 }
 
-function GroupLink({ item, active }: { item: PortalNavItem; active: boolean }) {
+function GroupLink({
+  item,
+  active,
+  messageUnreadCount,
+}: {
+  item: PortalNavItem
+  active: boolean
+  messageUnreadCount: number
+}) {
   const t = useT()
   const Icon = NAV_ICONS[item.icon]
+  const showUnread = item.labelKey === 'messages' && messageUnreadCount > 0
   return (
     <Link
       href={item.href}
@@ -92,12 +114,15 @@ function GroupLink({ item, active }: { item: PortalNavItem; active: boolean }) {
       aria-current={active ? 'page' : undefined}
     >
       <Icon className={`w-4 h-4 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
-      <span>{t(portalNavMessageKey(item))}</span>
+      <span className="flex min-w-0 items-center gap-2">
+        <span>{t(portalNavMessageKey(item))}</span>
+        {showUnread && <span className="chip-warning text-xs">{messageUnreadCount}</span>}
+      </span>
     </Link>
   )
 }
 
-export function PortalSidebar() {
+export function PortalSidebar({ messageUnreadCount = 0 }: { messageUnreadCount?: number }) {
   const pathname = usePathname()
   const t = useT()
 
@@ -106,7 +131,7 @@ export function PortalSidebar() {
       className="hidden lg:block w-60 xl:w-64 shrink-0 border-e border-ui-border bg-ui-surface sticky top-14 self-start h-[calc(100vh-3.5rem)] overflow-y-auto px-2 py-3"
       aria-label={t('nav.moreTitle')}
     >
-      <PortalNavAccordion pathname={pathname} />
+      <PortalNavAccordion pathname={pathname} messageUnreadCount={messageUnreadCount} />
     </aside>
   )
 }

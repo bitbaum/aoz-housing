@@ -8,6 +8,8 @@ import { PortalNav } from '@/components/portal/PortalNav'
 import { PortalSidebar } from '@/components/portal/PortalSidebar'
 import { PortalTabBar } from '@/components/portal/PortalTabBar'
 import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
+import { prisma } from '@/lib/db'
+import { residentUnreadCount } from '@/lib/messaging/queries'
 
 export const metadata: Metadata = {
   title: {
@@ -24,6 +26,13 @@ export default async function PortalLayout({
   const cookieStore = await cookies()
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
   const hasStaffAccess = !!cookieStore.get(STAFF_COOKIE)?.value
+  const resident = residentCode
+    ? await prisma.resident.findUnique({
+        where: { code: residentCode },
+        select: { id: true },
+      })
+    : null
+  const messageUnreadCount = resident ? await residentUnreadCount(resident.id) : 0
 
   const { locale, t } = await getRequestTranslator()
 
@@ -51,7 +60,7 @@ export default async function PortalLayout({
         </header>
 
         <div className="flex flex-1 min-h-0">
-          <PortalSidebar />
+          <PortalSidebar messageUnreadCount={messageUnreadCount} />
 
           <div className="flex-1 min-w-0 flex flex-col">
             <main id="portal-main" className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 sm:py-8">
@@ -71,7 +80,7 @@ export default async function PortalLayout({
           </div>
         </div>
 
-        <PortalTabBar />
+        <PortalTabBar messageUnreadCount={messageUnreadCount} />
       </LocaleProvider>
     </div>
   )

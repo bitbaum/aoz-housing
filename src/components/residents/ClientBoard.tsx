@@ -332,7 +332,7 @@ function ClientCard({
           <p className="truncate text-sm font-semibold text-ui-text group-hover:text-brand-primary leading-tight">
             {residentName(client)}
           </p>
-          <p className="font-mono text-[11px] text-ui-muted">{client.code}</p>
+          <p className="font-mono text-[11px] text-ui-muted">{/* resident-code-intentional */}{client.code}</p>
         </div>
         <SupportBadge level={client.supportLevel} />
       </div>

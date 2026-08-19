@@ -52,6 +52,7 @@ export const fa: Dictionary = {
   'messages.placeholder': 'پیام تو …',
   'messages.send': 'ارسال',
   'messages.sending': 'در حال ارسال …',
+  'messages.sendFailed': 'پیام فرستاده نشد. لطفاً دوباره تلاش کن.',
   'messages.you': 'تو',
   'messages.staff': 'تیم پشتیبانی',
   'messages.unread': 'جدید',

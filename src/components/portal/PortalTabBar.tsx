@@ -14,7 +14,7 @@ import { PortalNavAccordion } from './PortalSidebar'
  * The portal's mobile navigation: four pinned destinations plus a sheet of
  * collapsible groups. Language and account live in the header, not here.
  */
-export function PortalTabBar() {
+export function PortalTabBar({ messageUnreadCount = 0 }: { messageUnreadCount?: number }) {
   const [moreOpen, setMoreOpen] = useState(false)
   const t = useT()
   const pathname = usePathname()
@@ -52,6 +52,7 @@ export function PortalTabBar() {
   const onTabPage = tabItems.some((item) => isPortalPathActive(pathname, item.href))
   const onAccountPage = portalAccountItems().some((item) => isPortalPathActive(pathname, item.href))
   const moreActive = moreOpen || (!onTabPage && !onAccountPage)
+  const showMoreUnread = messageUnreadCount > 0 && !tabItems.some((item) => item.labelKey === 'messages')
 
   return (
     <>
@@ -81,7 +82,7 @@ export function PortalTabBar() {
         </div>
 
         <div className="px-3 py-3">
-          <PortalNavAccordion pathname={pathname} />
+          <PortalNavAccordion pathname={pathname} messageUnreadCount={messageUnreadCount} />
         </div>
       </div>
 
@@ -109,7 +110,14 @@ export function PortalTabBar() {
           aria-expanded={moreOpen}
           aria-controls="portal-more-sheet"
         >
-          <MoreIcon className="w-5 h-5" aria-hidden="true" />
+          <span className="relative inline-flex">
+            <MoreIcon className="w-5 h-5" aria-hidden="true" />
+            {showMoreUnread && (
+              <span className="absolute -right-2 -top-2 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-status-warning px-1 text-[10px] font-semibold text-status-warning-text">
+                {messageUnreadCount}
+              </span>
+            )}
+          </span>
           <span>{t('nav.more')}</span>
         </button>
       </nav>

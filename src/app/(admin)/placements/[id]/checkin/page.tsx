@@ -15,11 +15,13 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ rating?: string }>
 }
 
-export default async function NewCheckInPage({ params }: Props) {
+export default async function NewCheckInPage({ params, searchParams }: Props) {
   await requirePermission('residents:write')
   const { id } = await params
+  const sp = await searchParams
 
   // Get placement with resident and housing info
   const placement = await prisma.placement.findUnique({
@@ -45,6 +47,7 @@ export default async function NewCheckInPage({ params }: Props) {
   // Determine suggested check-in type
   const checkInCount = placement.checkIns.length
   const suggestedType = checkInCount === 0 ? 'INITIAL' : 'REGULAR'
+  const prefilledRating = ['1', '2', '3', '4', '5'].includes(sp.rating || '') ? Number(sp.rating) : null
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -103,6 +106,11 @@ export default async function NewCheckInPage({ params }: Props) {
       <div className="card">
         <form action={createCheckInFromForm} className="space-y-6">
           <input type="hidden" name="placementId" value={placement.id} />
+          {prefilledRating !== null && (
+            <div className="rounded-lg border border-status-warning/30 bg-status-warning/5 px-4 py-3 text-sm text-status-warning-text">
+              Vorbewertung übernommen: {prefilledRating}/5. Ergänze jetzt die Details, damit die Rückmeldung vollständig dokumentiert ist.
+            </div>
+          )}
 
           {/* Check-in Type */}
           <div>
@@ -135,6 +143,7 @@ export default async function NewCheckInPage({ params }: Props) {
                     name="overallSatisfaction"
                     value={score}
                     required
+                    defaultChecked={prefilledRating === score}
                     className="sr-only peer"
                   />
                   <div className="text-center p-3 rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary/10 hover:bg-ui-subtle transition-colors">

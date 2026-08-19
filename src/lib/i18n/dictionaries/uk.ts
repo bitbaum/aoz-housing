@@ -57,6 +57,7 @@ export const uk: Dictionary = {
   'messages.placeholder': 'Твоє повідомлення …',
   'messages.send': 'Надіслати',
   'messages.sending': 'Надсилання …',
+  'messages.sendFailed': 'Повідомлення не вдалося надіслати. Спробуй ще раз.',
   'messages.you': 'Ти',
   'messages.staff': 'Команда',
   'messages.unread': 'нове',

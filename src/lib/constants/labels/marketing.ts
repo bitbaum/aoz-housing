@@ -71,84 +71,74 @@ export interface MarketingCopy {
 
 /** The pitch register: an organisation deciding whether to use this. */
 const PLACEMENT_COPY: MarketingCopy = {
-  eyebrow: 'Wohnen ohne Zufallsprinzip',
-  headline: 'Wer zusammen wohnt, sollte zusammenpassen.',
+  eyebrow: 'Stabilität, Integration, Begleitung',
+  headline: 'Ein System für Fachpersonen, das Wohnen und Integration zusammenführt.',
   subline:
-    'Menschen werden heute nach freien Betten platziert — nicht danach, ob sie miteinander leben können. Diese Software macht den Unterschied sichtbar, bevor jemand einzieht.',
+    'Housing ist der Anfang, nicht das ganze Bild. Das Produkt verbindet Stabilität, Sprache, Qualifikation, Teilhabe und koordinierte Begleitung in einem System, das Fachpersonen im Alltag wirklich verwenden können — inklusive Matching, Platzierung und Folgeschritten.',
   ctaPrimary: 'Produkt ansehen',
   ctaSecondary: 'Anmelden',
   ctaNote: 'Kein Konto nötig. Sie sehen das echte Produkt mit Beispieldaten.',
 
   problemEyebrow: 'Das Problem',
-  problemTitle: 'Ein Konflikt beginnt bei der Zuteilung, nicht bei der Eskalation.',
+  problemTitle: 'Integration scheitert oft an Fragmentierung, nicht an fehlendem Willen.',
   problems: [
     {
-      title: 'Platziert wird nach Verfügbarkeit',
-      body: 'Wer wo einzieht, entscheidet sich am freien Bett. Schlafrhythmus, Lärmempfinden und Ordnungsanspruch tauchen erst auf, wenn sie aneinandergeraten.',
+      title: 'Stabilität und Fortschritt laufen getrennt',
+      body: 'Housing, Sprache, Arbeit, Teilhabe und Betreuungsschritte liegen oft in verschiedenen Listen, Köpfen und Postfächern. Niemand sieht schnell genug, was als Nächstes zählt.',
     },
     {
-      title: 'Konflikte kosten zuerst Menschen, dann Zeit',
-      body: 'Streit im Zimmer trifft Menschen in einer ohnehin schwierigen Lage. Danach bindet er die Betreuung, die eigentlich betreuen sollte.',
+      title: 'Instabilität frisst Betreuungszeit',
+      body: 'Konflikte, ungeklärte Transfers, verpasste Rückmeldungen und offene Follow-ups binden Fachpersonen genau dort, wo sie eigentlich begleiten sollten.',
     },
     {
-      title: 'Erfahrung bleibt in Köpfen',
-      body: 'Was in einer Wohnung funktioniert hat, weiss die Person, die dabei war. Wechselt sie die Stelle, beginnt das Lernen von vorn.',
+      title: 'Evidenz bleibt zu oft folgenlos',
+      body: 'Kurse, Sprachtests, Qualifikationen oder freiwilliges Engagement werden dokumentiert, aber nicht konsequent in Prioritäten, Boards und nächste Schritte übersetzt.',
     },
   ],
 
   howEyebrow: 'So funktioniert es',
-  howTitle: 'Vier Schritte, keine Blackbox.',
+  howTitle: 'Vier Arbeitsbereiche, ein gemeinsamer Verlauf.',
   steps: [
     {
-      title: 'Präferenzen erfassen',
-      body: 'Schlafrhythmus, Lärmtoleranz, Ordnung, Sprachen, Rauchen. Nur was fürs Zusammenleben zählt.',
+      title: 'Stabilität sichern',
+      body: 'Housing, Sicherheit, Vorfälle, Transfers und Regeln bilden die belastbare Basis. Ohne Stabilität trägt keine Integration.',
     },
     {
-      title: 'Kompatibilität berechnen',
-      body: 'Jede Kombination bekommt einen Wert — und eine Begründung in einem Satz, die man vorlesen kann.',
+      title: 'Capability sichtbar machen',
+      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktschritte werden als evidenzbasierter Verlauf erfasst, nicht als lose Notizen.',
     },
     {
-      title: 'Entscheiden — nicht entscheiden lassen',
-      body: 'Die Software empfiehlt und warnt. Platziert wird von einem Menschen, mit dokumentiertem Grund.',
+      title: 'Participation fördern',
+      body: 'Freiwilligenarbeit, Aktivitäten, soziale Teilhabe und Alltagsorientierung werden als echte Fortschrittssignale sichtbar gemacht.',
     },
     {
-      title: 'Ergebnis zurückspielen',
-      body: 'Vorfälle und Verläufe fliessen zurück in die Einschätzung. Die nächste Platzierung weiss mehr als die letzte.',
+      title: 'Guidance schliessen',
+      body: 'Boards, Follow-ups, Nachrichten und nächste Schritte führen Fachpersonen zurück in eine klare Handlung statt in offene Schleifen.',
     },
   ],
 
   featuresEyebrow: 'Im Produkt',
-  featuresTitle: 'Was die Betreuung und was die Bewohnenden bekommen.',
+  featuresTitle: 'Vier Pfeiler für Fachpersonen und Klient*innen.',
   features: [
     {
-      icon: 'puzzle',
-      title: 'Kompatibilität',
-      body: 'Ein Wert pro Kombination, mit der Richtung des Konflikts — wer sich an wem stören wird, nicht nur dass es nicht passt.',
+      icon: 'building',
+      title: 'Stability',
+      body: 'Housing, Sicherheit, Vorfälle, Verlegungen und Regeln in einem operativen Verlauf statt in isolierten Einzelfunktionen.',
     },
     {
-      icon: 'scroll',
-      title: 'Hausregeln, die gelten',
-      body: 'Ein Regelwerk in zwei Stufen: was die Organisation vorgibt und was die Wohnung selbst bestimmen darf.',
+      icon: 'learning',
+      title: 'Capability',
+      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktnähe werden als verwertbare Evidenz sichtbar, filterbar und teamfähig.',
     },
     {
-      icon: 'vote',
-      title: 'Beschlüsse statt Aushang',
-      body: 'Die Wohnung stimmt ab, das Ergebnis ist nachvollziehbar begründet. Sicherheit wird nie zur Abstimmung gestellt.',
+      icon: 'volunteer',
+      title: 'Participation',
+      body: 'Freiwilligenarbeit, Aktivitäten, soziale Kontakte und Alltagsorientierung werden nicht nur angeboten, sondern im Verlauf nachvollziehbar.',
     },
     {
-      icon: 'wallet',
-      title: 'Geteilte Ausgaben',
-      body: 'Wer hat was bezahlt, wer schuldet wem. Auf den Rappen genau, mit dem kürzesten Ausgleichsweg.',
-    },
-    {
-      icon: 'calendar',
-      title: 'Aufgaben und Fairness',
-      body: 'Der Putzplan als Bilanz statt als Rangliste: sichtbar, wer wie viel getragen hat.',
-    },
-    {
-      icon: 'alert',
-      title: 'Konflikte mit Leiter',
-      body: 'Von der Selbstklärung bis zur formellen Massnahme — mit der Regel, dass Sicherheit nie unten anfängt.',
+      icon: 'message',
+      title: 'Guidance',
+      body: 'Care Team, Nachrichten, Follow-ups, Boards und nächste Schritte sorgen dafür, dass Verantwortung sichtbar bleibt und Antwortschlaufen sich schliessen.',
     },
   ],
 
@@ -163,13 +153,13 @@ const PLACEMENT_COPY: MarketingCopy = {
     'Persönliche Geschichte ohne Wohnbezug',
   ],
 
-  blogEyebrow: 'Technik-Blog',
-  blogTitle: 'Warum das Produkt so gebaut ist, wie es ist.',
+  blogEyebrow: 'Blog und Produktdokumente',
+  blogTitle: 'Warum das Produkt so gebaut ist und wie es sich weiterentwickelt.',
   blogLink: 'Alle Beiträge lesen',
 
   closingTitle: 'Sehen Sie es sich an.',
   closingBody:
-    'Die Demo ist das echte Produkt mit Beispieldaten — beide Seiten, Verwaltung und Bewohnendenportal.',
+    'Die Demo ist das echte Produkt mit Beispieldaten — Verwaltung, Begleitung und Bewohner*innen-Portal. Blog, Roadmap und Changelog machen die Produktentscheidungen nachvollziehbar.',
 }
 
 /** The household register: the people who actually live in the flat. */

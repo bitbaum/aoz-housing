@@ -50,7 +50,9 @@ export function CreateChoreForm() {
         body: formData,
       })
       if (res.ok) {
-        router.push('/portal/chores')
+        const data = await res.json()
+        const taskId = data?.data?.id
+        router.push(taskId ? `/portal/chores/${taskId}` : '/portal/chores')
         router.refresh()
       } else {
         const data = await res.json()

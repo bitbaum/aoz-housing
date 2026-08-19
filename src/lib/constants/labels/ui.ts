@@ -570,6 +570,8 @@ export const RESIDENT_DETAIL_LABELS = {
   findUnit: 'Passende Unterkunft finden',
   toastPlaced: 'Bewohner erfolgreich platziert',
   toastCheckin: 'Check-in erfolgreich gespeichert',
+  toastTransferred: 'Platzierung erfolgreich verlegt',
+  toastEnded: 'Platzierung erfolgreich beendet',
   lifestyleSimilar: 'Ähnlicher Lebensstil',
   lifestyleDifferent: 'Unterschiedlicher Lebensstil',
   socialGood: 'Gute soziale Passung',

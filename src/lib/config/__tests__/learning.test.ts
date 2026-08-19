@@ -1,4 +1,9 @@
-import { isAchievementRecord, kindTracksHours } from '@/lib/config/learning'
+import {
+  boardKinds,
+  defaultLearningBoardForRole,
+  isAchievementRecord,
+  kindTracksHours,
+} from '@/lib/config/learning'
 
 describe('learning records', () => {
   it('treats completed tests, courses, qualifications and service as achievements', () => {
@@ -12,5 +17,16 @@ describe('learning records', () => {
     expect(kindTracksHours('COURSE')).toBe(true)
     expect(kindTracksHours('VOLUNTEERING')).toBe(true)
     expect(kindTracksHours('LANGUAGE_TEST')).toBe(false)
+  })
+
+  it('maps job and volunteering boards to the right evidence kinds', () => {
+    expect(boardKinds('job')).toEqual(['LANGUAGE_TEST', 'COURSE', 'QUALIFICATION'])
+    expect(boardKinds('volunteering')).toEqual(['VOLUNTEERING', 'COMMUNITY_SERVICE'])
+  })
+
+  it('defaults the board by staff role', () => {
+    expect(defaultLearningBoardForRole('JOBCOACH')).toBe('job')
+    expect(defaultLearningBoardForRole('FREIWILLIGENARBEIT')).toBe('volunteering')
+    expect(defaultLearningBoardForRole('SOZIALARBEIT')).toBe('overview')
   })
 })

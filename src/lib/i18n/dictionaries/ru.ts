@@ -69,6 +69,7 @@ export const ru: Dictionary = {
   'messages.placeholder': 'Твоё сообщение …',
   'messages.send': 'Отправить',
   'messages.sending': 'Отправка …',
+  'messages.sendFailed': 'Сообщение не удалось отправить. Попробуй ещё раз.',
   'messages.you': 'Ты',
   'messages.staff': 'Команда',
   'messages.unread': 'новое',

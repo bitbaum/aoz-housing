@@ -16,14 +16,21 @@ interface Props {
   action: (formData: FormData) => Promise<unknown>
   residentId?: string
   submitLabel?: string
+  audience?: 'resident' | 'staff'
 }
 
-export function LearningForm({ action, residentId, submitLabel }: Props) {
+export function LearningForm({
+  action,
+  residentId,
+  submitLabel,
+  audience = 'staff',
+}: Props) {
   const [kind, setKind] = useState('COURSE')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isLanguageTest = kind === 'LANGUAGE_TEST'
   const showHours = kindTracksHours(kind)
+  const residentMode = audience === 'resident'
 
   async function handleSubmit(formData: FormData) {
     setPending(true)
@@ -31,11 +38,11 @@ export function LearningForm({ action, residentId, submitLabel }: Props) {
     try {
       const result = await action(formData)
       if (result && typeof result === 'object' && 'success' in result && result.success === false) {
-        setError(String((result as { error?: string }).error || LEARNING_LABELS.titleField))
+        setError(String((result as { error?: string }).error || LEARNING_LABELS.saveError))
         return
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : LEARNING_LABELS.titleField)
+      setError(err instanceof Error ? err.message : LEARNING_LABELS.saveError)
       return
     } finally {
       setPending(false)
@@ -49,6 +56,62 @@ export function LearningForm({ action, residentId, submitLabel }: Props) {
         <p role="alert" className="alert-error">
           {error}
         </p>
+      )}
+
+      {residentMode && (
+        <div className="rounded-lg border border-ui-border bg-ui-subtle p-3">
+          <p className="text-sm text-ui-text mb-2">{LEARNING_LABELS.evidenceHelp}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              aria-pressed={kind === 'COURSE'}
+              className={`min-h-[44px] rounded-full border px-4 text-sm ${
+                kind === 'COURSE'
+                  ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                  : 'border-ui-border text-ui-text hover:border-brand-primary/30'
+              }`}
+              onClick={() => setKind('COURSE')}
+            >
+              {LEARNING_LABELS.evidenceQuickCourse}
+            </button>
+            <button
+              type="button"
+              aria-pressed={kind === 'LANGUAGE_TEST'}
+              className={`min-h-[44px] rounded-full border px-4 text-sm ${
+                kind === 'LANGUAGE_TEST'
+                  ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                  : 'border-ui-border text-ui-text hover:border-brand-primary/30'
+              }`}
+              onClick={() => setKind('LANGUAGE_TEST')}
+            >
+              {LEARNING_LABELS.evidenceQuickLanguage}
+            </button>
+            <button
+              type="button"
+              aria-pressed={kind === 'VOLUNTEERING'}
+              className={`min-h-[44px] rounded-full border px-4 text-sm ${
+                kind === 'VOLUNTEERING'
+                  ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                  : 'border-ui-border text-ui-text hover:border-brand-primary/30'
+              }`}
+              onClick={() => setKind('VOLUNTEERING')}
+            >
+              {LEARNING_LABELS.evidenceQuickVolunteering}
+            </button>
+            <button
+              type="button"
+              aria-pressed={kind === 'QUALIFICATION'}
+              className={`min-h-[44px] rounded-full border px-4 text-sm ${
+                kind === 'QUALIFICATION'
+                  ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                  : 'border-ui-border text-ui-text hover:border-brand-primary/30'
+              }`}
+              onClick={() => setKind('QUALIFICATION')}
+            >
+              {LEARNING_LABELS.evidenceQuickQualification}
+            </button>
+          </div>
+        </div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -168,6 +231,31 @@ export function LearningForm({ action, residentId, submitLabel }: Props) {
           />
         </div>
       )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="learning-startedAt" className="label">
+            {LEARNING_LABELS.startedAt}
+          </label>
+          <input
+            id="learning-startedAt"
+            name="startedAt"
+            type="date"
+            className="input"
+          />
+        </div>
+        <div>
+          <label htmlFor="learning-completedAt" className="label">
+            {LEARNING_LABELS.completedAt}
+          </label>
+          <input
+            id="learning-completedAt"
+            name="completedAt"
+            type="date"
+            className="input"
+          />
+        </div>
+      </div>
 
       <div>
         <label htmlFor="learning-notes" className="label">

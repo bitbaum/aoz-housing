@@ -68,6 +68,7 @@ export const tr: Dictionary = {
   'messages.placeholder': 'Mesajın …',
   'messages.send': 'Gönder',
   'messages.sending': 'Gönderiliyor …',
+  'messages.sendFailed': 'Mesaj gönderilemedi. Lütfen tekrar dene.',
   'messages.you': 'Sen',
   'messages.staff': 'Ekip',
   'messages.unread': 'yeni',

@@ -243,7 +243,7 @@ export async function endPlacement(formData: FormData): Promise<void> {
 
   revalidatePath(`/residents/${residentId}`)
   revalidatePath('/placements')
-  redirect(`/residents/${residentId}`)
+  redirect(`/residents/${residentId}?ended=true`)
 }
 
 export async function transferPlacement(formData: FormData): Promise<void> {
@@ -403,5 +403,5 @@ export async function transferPlacement(formData: FormData): Promise<void> {
   revalidatePath('/placements')
   revalidatePath(`/housing/${fromHousingUnitId}`)
   revalidatePath(`/housing/${targetHousingUnitId}`)
-  redirect(`/residents/${residentId}`)
+  redirect(`/residents/${residentId}?transferred=true`)
 }

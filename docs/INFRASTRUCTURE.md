@@ -1,8 +1,8 @@
-# Where AOZ Wohnen actually runs
+# Where AOZ Begleitung actually runs
 
 created_date: 2026-08-17
-last_modified_date: 2026-08-17
-last_modified_summary: Auto-merge must reconcile deploy.yml or a red master CI leaves the box on an old release.
+last_modified_date: 2026-08-19
+last_modified_summary: Updated the public site/domain while preserving the legacy internal deploy identifiers that still name the runtime.
 
 This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, Prisma loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
 
@@ -10,7 +10,7 @@ This file exists because a gitignored laptop `.env` still named a decommissioned
 
 | Fact | Value |
 |------|--------|
-| Public site | https://aoz-wohnen.orangecat.ch |
+| Public site | https://aoz.orangecat.ch |
 | Host | Hetzner box `bitbaum`, `root@167.233.22.31` |
 | App directory | `/opt/aoz-wohnen/` (releases under `current/`, env under `shared/.env`) |
 | systemd | `aoz-wohnen-app.service` |
@@ -18,6 +18,10 @@ This file exists because a gitignored laptop `.env` still named a decommissioned
 | Database name | `aoz_wohnen` |
 | Brand | `NEXT_PUBLIC_BRAND=wg` (in the box env, inlined at build) |
 | Env SSOT | `/opt/aoz-wohnen/shared/.env` on the box — not GitHub secrets, not this repo, not a laptop `.env` |
+
+The public badge and public domain can change without renaming the runtime. The
+Hetzner app path, service name and database identifier still use the historical
+`aoz-wohnen` address, and that is intentional.
 
 Postgres on the box is loopback-only. There is no public `DATABASE_URL`. There is no cloud pooler.
 

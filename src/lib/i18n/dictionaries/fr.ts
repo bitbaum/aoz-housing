@@ -58,6 +58,7 @@ export const fr: Dictionary = {
   'messages.placeholder': 'Ton message …',
   'messages.send': 'Envoyer',
   'messages.sending': 'Envoi …',
+  'messages.sendFailed': 'Le message n’a pas pu être envoyé. Réessaie.',
   'messages.you': 'Toi',
   'messages.staff': 'L’équipe',
   'messages.unread': 'nouveau',

@@ -52,6 +52,7 @@ export const sq: Dictionary = {
   'messages.placeholder': 'Mesazhi yt …',
   'messages.send': 'Dërgo',
   'messages.sending': 'Duke dërguar …',
+  'messages.sendFailed': 'Mesazhi nuk u dërgua. Ju lutem provo sërish.',
   'messages.you': 'Ti',
   'messages.staff': 'Ekipi',
   'messages.unread': 'i ri',

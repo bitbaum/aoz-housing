@@ -112,6 +112,7 @@ export const INCIDENT_PAGE_LABELS = {
   export: 'Exportieren',
   newIncident: 'Neuer Vorfall',
   createIncident: 'Vorfall erfassen',
+  createdToast: 'Vorfall erfolgreich erfasst',
   criticalAlertSuffix: 'kritische Vorfälle erfordern sofortige Aufmerksamkeit',
   criticalAlertDesc: 'Diese Vorfälle haben höchste Priorität und sollten umgehend bearbeitet werden',
   noIncidents: 'Keine Vorfälle dokumentiert',

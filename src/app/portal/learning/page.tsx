@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { LearningForm } from '@/components/residents/LearningForm'
-import { createOwnLearningRecord } from '@/lib/actions/learning'
+import { createOwnLearningRecord, listResidentLearningEvidence } from '@/lib/actions/learning'
 import { getRequestTranslator } from '@/lib/i18n/request'
 import { listActivities } from '@/lib/data/activities'
 import {
@@ -22,13 +21,10 @@ export const metadata: Metadata = { title: 'Lernen' }
 export const dynamic = 'force-dynamic'
 
 export default async function PortalLearningPage() {
-  const residentCode = await requireResidentCookie('/portal')
+  await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
   const [resident, languageOffers] = await Promise.all([
-    prisma.resident.findUnique({
-      where: { code: residentCode },
-      include: { learningRecords: { orderBy: { updatedAt: 'desc' } } },
-    }),
+    listResidentLearningEvidence(),
     listActivities({
       publishedOnly: true,
       category: 'LANGUAGE',
@@ -40,6 +36,12 @@ export default async function PortalLearningPage() {
 
   const achievements = resident.learningRecords.filter(isAchievementRecord)
   const inProgress = resident.learningRecords.filter((record) => record.status === 'IN_PROGRESS')
+  const selfLogged = resident.learningRecords.filter(
+    (record) => record.recordedBy === 'RESIDENT' && !isAchievementRecord(record)
+  )
+  const staffAssigned = resident.learningRecords.filter(
+    (record) => record.recordedBy === 'STAFF' && !isAchievementRecord(record)
+  )
 
   return (
     <div>
@@ -92,6 +94,48 @@ export default async function PortalLearningPage() {
       )}
 
       <section className="mb-8">
+        <h2 className="text-lg font-semibold text-ui-text mb-3">{LEARNING_LABELS.assignedToYou}</h2>
+        {staffAssigned.length === 0 ? (
+          <p className="text-sm text-ui-muted">{t('learning.offersEmpty')}</p>
+        ) : (
+          <ul className="space-y-3">
+            {staffAssigned.slice(0, 6).map((record) => (
+              <li key={record.id} className="card">
+                <p className="font-medium text-ui-text">{record.title}</p>
+                <p className="text-sm text-ui-muted">
+                  {LEARNING_KIND_LABELS[record.kind as LearningKindId]}
+                  {' · '}
+                  {LEARNING_STATUS_LABELS[record.status as LearningStatusId]}
+                  {record.provider ? ` · ${record.provider}` : ''}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-ui-text mb-3">{LEARNING_LABELS.selfLogged}</h2>
+        {selfLogged.length === 0 ? (
+          <p className="text-sm text-ui-muted">{LEARNING_LABELS.empty}</p>
+        ) : (
+          <ul className="space-y-3">
+            {selfLogged.slice(0, 6).map((record) => (
+              <li key={record.id} className="card">
+                <p className="font-medium text-ui-text">{record.title}</p>
+                <p className="text-sm text-ui-muted">
+                  {LEARNING_KIND_LABELS[record.kind as LearningKindId]}
+                  {' · '}
+                  {LEARNING_STATUS_LABELS[record.status as LearningStatusId]}
+                  {record.hours != null ? ` · ${record.hours} ${t('learning.hours')}` : ''}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mb-8">
         <div className="flex items-baseline justify-between gap-3 mb-3">
           <h2 className="text-lg font-semibold text-ui-text">{t('learning.offers')}</h2>
           <Link href="/portal/activities" className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center">
@@ -118,8 +162,9 @@ export default async function PortalLearningPage() {
       </section>
 
       <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-4">{LEARNING_LABELS.add}</h2>
-        <LearningForm action={createOwnLearningRecord} />
+        <h2 className="text-lg font-semibold text-ui-text mb-1">{LEARNING_LABELS.evidenceTitle}</h2>
+        <p className="text-sm text-ui-muted mb-4">{LEARNING_LABELS.evidenceSubtitle}</p>
+        <LearningForm action={createOwnLearningRecord} audience="resident" />
       </div>
     </div>
   )

@@ -12,6 +12,7 @@ import {
   FOLLOW_UP_PRIORITY_LABELS,
   FOLLOW_UP_PRIORITY_COLORS,
   INCIDENT_RESOLVED_LABELS,
+  INCIDENT_PAGE_LABELS,
   INCIDENT_DETAIL_LABELS,
   getLabel,
 } from '@/lib/constants'
@@ -41,6 +42,7 @@ export const dynamic = 'force-dynamic'
 interface Props {
   params: Promise<{ id: string }>
   searchParams: Promise<{
+    created?: string
     tpl?: string
     action?: string
     notes?: string
@@ -134,6 +136,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
     <div>
       <SuccessToast
         triggers={[
+          { param: 'created', message: INCIDENT_PAGE_LABELS.createdToast },
           { param: 'resolved', message: INCIDENT_DETAIL_LABELS.markedResolved },
         ]}
       />

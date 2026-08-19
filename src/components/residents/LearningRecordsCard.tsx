@@ -23,7 +23,7 @@ export function LearningRecordsCard({ residentId, records, canWrite }: Props) {
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-ui-text">{LEARNING_LABELS.title}</h2>
+        <h2 className="text-lg font-semibold text-ui-text">{LEARNING_LABELS.boardTitle}</h2>
         <Link href="/learning" className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center">
           {LEARNING_LABELS.subtitle.split('—')[0]}
         </Link>
@@ -71,7 +71,11 @@ export function LearningRecordsCard({ residentId, records, canWrite }: Props) {
             {LEARNING_LABELS.add}
           </summary>
           <div className="mt-4">
-            <LearningForm action={createLearningRecordForResident} residentId={residentId} />
+            <LearningForm
+              action={createLearningRecordForResident}
+              residentId={residentId}
+              audience="staff"
+            />
           </div>
         </details>
       )}

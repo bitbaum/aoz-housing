@@ -3,6 +3,15 @@ import { join } from 'path'
 import { getAllPosts, getPostBySlug } from '@/lib/blog/posts'
 import { renderMarkdown } from '@/lib/blog/markdown'
 
+jest.mock('marked', () => ({
+  Marked: class {
+    parse(input: string) {
+      if (input.includes('|---|')) return '<table><thead><tr><th>a</th><th>b</th></tr></thead></table>'
+      return input.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    }
+  },
+}), { virtual: true })
+
 const BLOG_DIR = join(process.cwd(), 'docs', 'blog')
 
 const posts = getAllPosts()

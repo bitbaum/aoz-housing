@@ -67,7 +67,7 @@ export default function OGImage() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 64, height: 5, background: ACCENT, display: 'flex' }} />
-          <div style={{ fontSize: 24, color: MUTED }}>aoz-wohnen.orangecat.ch</div>
+          <div style={{ fontSize: 24, color: MUTED }}>aoz.orangecat.ch</div>
         </div>
       </div>
     ),

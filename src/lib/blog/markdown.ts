@@ -10,7 +10,7 @@ import { Marked } from 'marked'
  * the line that has to change first.
  */
 
-/** Where the posts live in the repo — the base every relative link resolves against. */
+/** Where the posts live in the repo — the default base every relative link resolves against. */
 const POSTS_DIR = 'docs/blog'
 
 /**
@@ -36,14 +36,14 @@ const POST_FILE = /^(?:\.\/)?\d{4}-\d{2}-\d{2}-([a-z0-9-]+)\.md$/
  * working from one source, which is why `posts.test.ts` fails if a rendered
  * post still points at a `.md` file.
  */
-function rewriteInternalLinks(markdown: string): string {
+function rewriteInternalLinks(markdown: string, baseDir: string): string {
   return markdown.replace(MARKDOWN_LINK, (match, target: string, hash = '') => {
     if (/^[a-z][a-z0-9+.-]*:/i.test(target)) return match
 
     const post = POST_FILE.exec(target)
     if (post) return `](/blog/${post[1]}${hash})`
 
-    const repoPath = posix.normalize(posix.join(POSTS_DIR, target))
+    const repoPath = posix.normalize(posix.join(baseDir, target))
     // A path that climbs out of the repo cannot be resolved to anything. Left
     // as it is so the gate reports it, rather than pointed at a guess.
     if (repoPath.startsWith('..')) return match
@@ -57,5 +57,9 @@ function rewriteInternalLinks(markdown: string): string {
 const marked = new Marked({ gfm: true, breaks: false })
 
 export function renderMarkdown(markdown: string): string {
-  return marked.parse(rewriteInternalLinks(markdown), { async: false })
+  return marked.parse(rewriteInternalLinks(markdown, POSTS_DIR), { async: false })
+}
+
+export function renderRepoMarkdown(markdown: string, baseDir: string): string {
+  return marked.parse(rewriteInternalLinks(markdown, baseDir), { async: false })
 }

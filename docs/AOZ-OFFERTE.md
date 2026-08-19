@@ -1,9 +1,9 @@
-# Offerte: AOZ Wohnen — Kompatibilitätsbasierte Platzierung
+# Offerte: AOZ Begleitung — Integrationsplattform fuer Fachpersonen
 
 **Für** AOZ (Asyl-Organisation Zürich)
 **Von** Georgy Butaev, Zürich
 **Datum** 15. August 2026  
-**Zuletzt angepasst** 16. August 2026 — Rollen, Lernen, Zimmer-Matching, Sprachen, AOZ-Oberfläche.  
+**Zuletzt angepasst** 19. August 2026 — Reframing fuer Montag: AOZ Begleitung, Vier-Pfeiler-Narrativ, breitere Fachpersonen-Sicht.  
 **Gültig bis** 14. Oktober 2026
 **Referenz** AOZ-WOHNEN-2026-01
 
@@ -15,13 +15,22 @@
 
 ## 1. Zusammenfassung
 
-AOZ platziert Bewohnende heute nach Verfügbarkeit und Erfahrungswissen. Konflikte, die
-daraus entstehen, kosten Betreuungszeit — Zeit, die für Betreuung fehlt.
+AOZ braucht nicht nur ein besseres Platzierungswerkzeug, sondern eine
+**gemeinsame Arbeitsflaeche fuer Fachpersonen**. Housing-Stabilitaet,
+Sprach- und Lernfortschritt, Arbeitsmarktnaehe, Teilhabe und koordinierte
+Begleitung duerfen nicht in getrennten Sichten stecken bleiben.
 
-Das System ist **bereits gebaut und läuft**. Es prüft vor der Platzierung, ob Personen
-zusammenpassen, warnt vor blockierenden Konflikten und dokumentiert jede Entscheidung
-nachvollziehbar. Diese Offerte betrifft nicht die Entwicklung, sondern die **Einführung,
-den Betrieb und die Weiterentwicklung**.
+Das System ist **bereits gebaut und laeuft**. Es verbindet:
+
+- erklaerbares Matching und Platzierung
+- Housing-, Vorfall- und Transferprozesse
+- Integrations-Evidenz fuer Sprache, Kurse, Qualifikationen und Freiwilligenarbeit
+- rollenfoermige Sichten fuer Leitung, Betreuung, Sozialarbeit und Jobcoach
+- ein mehrsprachiges Portal fuer Klient*innen
+
+Diese Offerte betrifft nicht die Entwicklung eines Prototyps, sondern die
+**Einfuehrung, den Betrieb und die gezielte Weiterentwicklung** eines bereits
+funktionsfaehigen Produkts.
 
 | | |
 | --- | --- |
@@ -35,8 +44,9 @@ Alle Preise in Schweizer Franken, exkl. MwSt.
 
 ## 2. Ausgangslage
 
-Bei der Platzierung in Gemeinschaftsunterkünfte entstehen wiederkehrend Konflikte aus
-Unverträglichkeiten, die bei der Zuteilung sichtbar gewesen wären:
+Bei der Platzierung in Gemeinschaftsunterkuenften entstehen wiederkehrend
+Konflikte aus Unvertraeglichkeiten, die bei der Zuteilung sichtbar gewesen
+waeren:
 
 - unterschiedliche Schlafrhythmen
 - unterschiedliche Lärmtoleranz und Sauberkeitsstandards
@@ -44,8 +54,16 @@ Unverträglichkeiten, die bei der Zuteilung sichtbar gewesen wären:
 - fehlende gemeinsame Sprache im Zimmer
 - Mobilitätsbedarf ohne passende Unterkunft
 
-Jeder dieser Konflikte bindet Personalzeit für Schlichtung und, im schlechteren Fall,
-für einen Umzug.
+Jeder dieser Konflikte bindet Personalzeit fuer Schlichtung und, im schlechteren
+Fall, fuer einen Umzug.
+
+Gleichzeitig endet die operative Realitaet nicht bei der Platzierung. AOZ muss
+auch sehen:
+
+- wie stabil eine Unterbringung bleibt
+- welche Rueckmeldungen von Klient*innen offen sind
+- welche Integrationsschritte bereits sichtbar sind
+- wo Sozialarbeit und Jobcoach naechste Schritte brauchen
 
 **Wichtig:** Wie hoch diese Kosten bei AOZ tatsächlich sind, ist heute nicht gemessen.
 Diese Offerte behauptet keine Einsparung. Sie schlägt vor, sie zuerst zu messen
@@ -58,7 +76,7 @@ Diese Offerte behauptet keine Einsparung. Sie schlägt vor, sie zuerst zu messen
 Das System ist kein Prototyp. Folgende Funktionen sind implementiert, getestet und im
 Betrieb:
 
-### Platzierung und Kompatibilität
+### Stability - Platzierung und Kompatibilitaet
 
 - Kompatibilitätsberechnung über **4 Dimensionen** (Lebensstil 30 %, Sozial 25 %,
   Praktisch 25 %, Risiko 20 %) und 38 Faktoren
@@ -71,7 +89,7 @@ Betrieb:
 - **Das System empfiehlt, der Mensch entscheidet.** Übersteuerungen sind jederzeit
   möglich und werden mit Begründung protokolliert.
 
-### Betrieb der Unterkünfte
+### Stability - Betrieb der Unterkuenfte
 
 - Verwaltung von Bewohnenden, Unterkünften, Zimmern und Betten
 - Platzierungshistorie mit Ein- und Auszug
@@ -80,20 +98,22 @@ Betrieb:
 - Umzugsanträge mit Freigabe-Warteschlange für Mitarbeitende
 - Ämtli-/Aufgabenverwaltung
 
-### Rollen und Lernen
+### Capability, Participation und Guidance
 
 - Vier Mitarbeitenden-Rollen: **Leitung**, **Betreuung**, **Sozialarbeit**, **Jobcoach**
-  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugänge weiterlaufen)
-- Lernprofil pro Bewohner:in: Sprachtests (GER), Kurse, informelles Lernen,
-  Abschlüsse — selbst eingetragen oder durch Sozialarbeit / Jobcoach
+  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugaenge weiterlaufen)
+- Lernprofil pro Bewohner:in: Sprachtests, Kurse, informelles Lernen,
+  Abschluesse, Freiwilligenarbeit und weitere Integrations-Evidenz
+- rollenfoermige Boards fuer Integrations-Evidenz mit Filtern fuer eigene
+  Klient*innen, Status, Quelle und Kategorie
+- Care Team mit sichtbaren Zustaendigkeiten, Nachrichten und Follow-ups
 
-### Bewohnerportal
+### Betriebsfaehigkeit
+
 - Zufriedenheitserfassung
-- CSV-Import und -Export für alle zentralen Datenbestände
-- Vier Mitarbeitenden-Rollen: **Leitung**, **Betreuung**, **Sozialarbeit**, **Jobcoach**
-  (in der Datenbank bleibt Leitung `ADMIN`, damit bestehende Zugänge weiterlaufen)
-- Lernprofil pro Bewohner:in: Sprachtests (GER), Kurse, informelles Lernen,
-  Abschlüsse — selbst eingetragen oder durch Sozialarbeit / Jobcoach
+- CSV-Import und -Export fuer alle zentralen Datenbestaende
+- nachvollziehbare Rollentrennung
+- mobile Bedienbarkeit und produktionsnahe Demo-Umgebung
 
 ### Bewohnendenportal (Selbstbedienung)
 
@@ -103,7 +123,7 @@ Betrieb:
 - Umzug beantragen
 - Ämtli einsehen und übernehmen
 - Hilfe/FAQ in Deutsch, Englisch, Französisch, Arabisch, Farsi/Dari, Tigrinya u. a.
-- Lernprofil (Sprachtests, Kurse) selbst pflegen
+- Lernprofil und Integrations-Evidenz selbst pflegen
 
 Bewohnende sehen ausschliesslich **ihre eigenen Daten**. Alle folgenreichen Aktionen
 laufen über die Freigabe der Mitarbeitenden.

@@ -164,10 +164,9 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     // Jobcoach only sees these; Freiwilligenarbeit primarily uses this group.
     label: 'Integration',
     items: [
-      { href: '/learning', icon: 'learning', label: 'Sprache & Kurse', desc: 'Sprachkurse, Tests, Weiterbildung', permission: 'learning:read' },
-      { href: '/learning?kind=QUALIFICATION', icon: 'learning', label: 'Qualifikationen', desc: 'Abschlüsse & Zertifikate', permission: 'learning:read' },
-      { href: '/learning?kind=VOLUNTEERING', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Einsätze erfassen & begleiten', permission: 'learning:read' },
-      { href: '/learning?kind=COMMUNITY_SERVICE', icon: 'heart', label: 'Gemeindeeinsätze', desc: 'Community-Service-Stunden', permission: 'learning:read' },
+      { href: '/learning?board=overview', icon: 'learning', label: 'Lernen & Sprache', desc: 'Kurse, Tests und alle Nachweise', permission: 'learning:read' },
+      { href: '/learning?board=job', icon: 'learning', label: 'Beruf & Qualifikation', desc: 'Jobcoach-Board für Sprache, Kurse und Abschlüsse', permission: 'learning:read' },
+      { href: '/learning?board=volunteering', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Engagement und Gemeindeeinsätze', permission: 'learning:read' },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },

@@ -37,7 +37,7 @@ export const viewport: Viewport = {
  * The host stays `aoz-wohnen` regardless of brand: it is an address, not
  * branding (see lib/config/brand.ts).
  */
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://aoz-wohnen.orangecat.ch'
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://aoz.orangecat.ch'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

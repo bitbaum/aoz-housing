@@ -55,6 +55,7 @@ export const so: Dictionary = {
   'messages.placeholder': 'Farriintaada …',
   'messages.send': 'Dir',
   'messages.sending': 'Waa la dirayaa …',
+  'messages.sendFailed': 'Farriinta lama diri karin. Fadlan mar kale isku day.',
   'messages.you': 'Adiga',
   'messages.staff': 'Kooxda',
   'messages.unread': 'cusub',

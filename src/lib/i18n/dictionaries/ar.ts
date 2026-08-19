@@ -59,6 +59,7 @@ export const ar: Dictionary = {
   'messages.placeholder': 'رسالتك …',
   'messages.send': 'إرسال',
   'messages.sending': 'جارٍ الإرسال …',
+  'messages.sendFailed': 'تعذر إرسال الرسالة. حاول مرة أخرى.',
   'messages.you': 'أنت',
   'messages.staff': 'فريق الرعاية',
   'messages.unread': 'جديد',

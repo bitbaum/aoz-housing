@@ -25,7 +25,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <header className="chrome-bar sticky top-0">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between gap-4 h-14">
-            <Logo href="/blog" size="md" />
+            <div className="flex items-center gap-3">
+              <Logo href="/" size="md" />
+              <nav className="hidden md:flex items-center gap-1 text-sm">
+                <Link href="/blog" className="btn-ghost text-sm">Blog</Link>
+                <Link href="/roadmap" className="btn-ghost text-sm">Roadmap</Link>
+                <Link href="/changelog" className="btn-ghost text-sm">Changelog</Link>
+              </nav>
+            </div>
             <div className="flex items-center gap-1">
               <ThemeToggle />
               <Link href="/login" className="btn-ghost text-sm">
@@ -42,7 +49,14 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
       <footer className="border-t border-ui-border mt-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
-          <p className="eyebrow">{BLOG_LABELS.title}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="eyebrow">{BLOG_LABELS.title}</p>
+            <div className="flex flex-wrap gap-4 text-sm text-ui-muted">
+              <Link href="/blog" className="hover:text-ui-text">Blog</Link>
+              <Link href="/roadmap" className="hover:text-ui-text">Roadmap</Link>
+              <Link href="/changelog" className="hover:text-ui-text">Changelog</Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

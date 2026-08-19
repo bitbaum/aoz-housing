@@ -38,7 +38,7 @@ describe('brand presets', () => {
       productName: 'AOZ Begleitung',
       tagline: 'Integrationsplattform',
       metaDescription:
-        'Klient*innen begleiten, Fortschritte dokumentieren und den Alltag in der Unterkunft koordinieren',
+        'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
       orgName: 'AOZ',
       features: {
         householdMoney: false,

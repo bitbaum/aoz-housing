@@ -1,111 +1,176 @@
-# AOZ Wohnen - Intelligentes Platzierungssystem
+# AOZ Begleitung - Integrationsplattform fuer Fachpersonen
 
-## Das Problem
+created_date: 2026-08-19
+last_modified_date: 2026-08-19
+last_modified_summary: Reframed the pitch from a housing-only placement tool to a four-pillar integration operations platform for the AOZ demo.
 
-Wenn Bewohner in Gemeinschaftsunterkünfte platziert werden, entstehen oft Konflikte:
+## Kurzfassung
 
-- **Unterschiedliche Schlafzeiten** - Frühaufsteher mit Nachtmenschen
-- **Lärmtoleranz** - Ruhebedürftige mit geselligen Bewohnern
-- **Sauberkeitsstandards** - Verschiedene Vorstellungen von Ordnung
-- **Rauchgewohnheiten** - Raucher mit Nichtrauchern
+`AOZ Begleitung` ist kein weiteres Einzelsystem fuer einen Teilprozess. Es ist
+eine **Integrationsplattform fuer Fachpersonen**, die Housing-Stabilitaet,
+Sprach- und Lernfortschritt, Arbeitsmarktnaehe, Teilhabe und koordinierte
+Begleitung in einem gemeinsamen Verlauf sichtbar macht.
 
-Diese Konflikte kosten AOZ:
-- **Personalzeit** für Mediation und Schlichtung
-- **Umzüge** wenn Bewohner verlegt werden müssen
-- **Stress** für Bewohner und Mitarbeitende
+Die Housing-Logik bleibt zentral, aber sie ist nicht mehr die ganze Geschichte.
+Stabile Unterbringung ist die Basis. Darauf aufbauend muessen Fachpersonen auch
+sehen:
 
----
+- wie es einer Person in der Unterkunft geht
+- welche Vorfaelle, Transfers oder Risiken offen sind
+- welche Sprach- und Lernschritte dokumentiert wurden
+- welche Qualifikationen, Jobcoach-Schritte oder Freiwilligeneinsaetze sichtbar sind
+- wer im Care Team als Naechstes handeln muss
 
-## Die Lösung
+## Das Problem heute
 
-Ein System das **vor der Platzierung** prüft, ob Bewohner zusammenpassen.
+AOZ hat nicht nur ein Platzierungsproblem. AOZ hat ein **Fragmentierungsproblem**.
 
-### So funktioniert es:
+Wichtige Informationen liegen oft getrennt:
 
-1. **Bei Aufnahme**: Mitarbeiter erfasst Präferenzen des neuen Bewohners
-   - Schlafrhythmus (Frühaufsteher/Spätschläfer)
-   - Lärmtoleranz (1-5 Skala)
-   - Sauberkeit (1-5 Skala)
-   - Raucherstatus
-   - Sprachen
+- Housing und Vorfaelle in einer operativen Sicht
+- Sprach- und Lernfortschritt an anderer Stelle
+- Jobcoach-relevante Hinweise in Notizen oder einzelnen Dossiers
+- Rueckmeldungen von Klient*innen in Nachrichten, Telefonaten oder Papier
+- offene Follow-ups im Kopf der zustaendigen Person
 
-2. **Bei Platzierung**: System zeigt passende Unterkünfte
-   - "Einheit A: 85% kompatibel - ähnlicher Schlafrhythmus, gemeinsame Sprache"
-   - "Einheit B: 40% kompatibel - Warnung: Raucher mit Nichtrauchern"
+Das fuehrt zu drei wiederkehrenden Kosten:
 
-3. **Mitarbeiter entscheidet**: System empfiehlt, Mensch entscheidet
+1. **Instabilitaet**  
+   Konflikte, verpasste Rueckmeldungen und unklare Verantwortung erzeugen
+   Eskalationen, Umzuege und unnötige Schleifen.
 
----
+2. **Verlorene Betreuungszeit**  
+   Fachpersonen suchen Informationen, koordinieren parallel und muessen Dinge
+   nachfassen, die im System eigentlich sichtbar sein sollten.
 
-## Messbare Vorteile
+3. **Unsichtbarer Fortschritt**  
+   Kurse, Sprachtests, Qualifikationen, Freiwilligenarbeit oder Alltagsfortschritte
+   werden zwar erfasst, aber oft nicht so dargestellt, dass daraus naechste
+   Schritte entstehen.
 
-### Was wir messen (Pilotphase):
+## Die Produktlogik
 
-| Kennzahl | Heute | Ziel nach 3 Monaten |
-|----------|-------|---------------------|
-| Konflikte pro Monat | ? | -30% |
-| Umzüge wegen Konflikten | ? | -50% |
-| Personalstunden für Mediation | ? | -40% |
+Das Produkt folgt vier operativen Pfeilern:
 
-### Beispielrechnung:
+### 1. Stability
 
-**Annahme für eine Unterkunft mit 50 Plätzen:**
-- 15 Konflikte/Monat × 1h Mediation = 15h
-- 4 Umzüge/Monat × 2h = 8h
-- **Total: 23 Personalstunden/Monat**
+Housing, Sicherheit, Vorfaelle, Transfers und Regeln.
 
-**Mit System (-30% Konflikte, -50% Umzüge):**
-- 10 Konflikte × 1h = 10h
-- 2 Umzüge × 2h = 4h
-- **Total: 14 Personalstunden/Monat**
+Hier geht es um die operative Stabilitaet der Unterbringung:
 
-**Ersparnis: 9 Stunden/Monat** = mehr Zeit für Betreuung statt Streitschlichtung
+- passende Platzierungen
+- nachvollziehbare Transfer- und Verlaufsentscheide
+- Vorfallmanagement
+- Hausregeln und praktische Wohnkoordination
 
----
+### 2. Capability
 
-## Pilot-Vorschlag
+Sprache, Kurse, Qualifikationen und Arbeitsmarktnähe.
 
-### Phase 1: Baseline (1 Monat)
-- Konflikte und Umzüge dokumentieren
-- Personalzeit für Mediation erfassen
-- Kein neues System nötig
+Hier geht es darum, Fortschritt nicht nur zu speichern, sondern fuer
+Sozialarbeit und Jobcoach **verwertbar** zu machen:
 
-### Phase 2: Pilot (3 Monate)
-- System an 1-2 Standorten testen
-- Gleiche Kennzahlen weiter erfassen
-- Vergleich mit Baseline
+- Sprachtests und Kursnachweise
+- Qualifikationen und Abschluesse
+- arbeitsmarktbezogene Schritte
+- evidenzbasierte Boards statt lose Dokumentation
 
-### Phase 3: Entscheidung
-- Kennzahlen besser → Ausweitung
-- Keine Verbesserung → Analyse und Anpassung
+### 3. Participation
 
----
+Freiwilligenarbeit, Gemeinschaftsaktivitaeten, soziale Teilhabe und
+Alltagsorientierung.
 
-## Was AOZ NICHT tun muss
+Das ist wichtig, weil Integration nicht nur aus Housing-Ruhe und einem
+Sprachniveau besteht. Sichtbare Teilnahme ist ein eigenes Fortschrittssignal.
 
-- Keine neue Hardware kaufen
-- Keine lange Schulung - System ist einfach wie eine Webseite
-- Keine Änderung der Prozesse - nur eine zusätzliche Informationsquelle
+### 4. Guidance
 
----
+Care Team, Follow-ups, Nachrichten, naechste Schritte.
 
-## Was wir von AOZ brauchen
+Das ist der operative Kitt:
 
-1. **Zugang zu einer Testunterkunft** (1-2 Standorte)
-2. **Baseline-Daten** (aktuelle Konflikt- und Umzugszahlen)
-3. **Feedback von Mitarbeitenden** (was funktioniert, was nicht)
+- wer fuer welche Person zustaendig ist
+- welche Nachricht unbeantwortet ist
+- welches Follow-up offen ist
+- ob ein Nutzerpfad sauber abgeschlossen wurde
 
----
+## Was AOZ am Montag sehen kann
 
-## Nächster Schritt
+Die Demo zeigt kein Konzeptdeck, sondern das laufende Produkt.
 
-**Demo vereinbaren** - Wir zeigen das System in 30 Minuten und beantworten Fragen.
+### Fuer Leitung und Betreuung
 
----
+- Fachpersonen-Dashboard mit klientenbezogener Sicht
+- Housing, Vorfaelle, Transfers und Check-ins
+- Matching mit erklaerbarer Logik
+- Care Team und Follow-ups
 
-## Datenschutz
+### Fuer Sozialarbeit und Jobcoach
 
-- Keine medizinischen Daten
-- Keine Asylstatus-Details
-- Nur Wohnpräferenzen (Lärm, Schlaf, Sauberkeit)
-- Daten bleiben bei AOZ
+- rollenfoermige Boards statt nur technische Listen
+- Integrations-Evidenz fuer Sprache, Kurse, Qualifikationen und Arbeit
+- Filter fuer eigene Klient*innen, Status, Kategorie und Quelle
+- klare naechste Schritte statt totes Archiv
+
+### Fuer Klient*innen
+
+- mehrsprachiges Portal
+- Nachrichten, Hilfe und Meldungen
+- eigene Integrations-Evidenz erfassen
+- sichtbare Orientierung ueber offene und abgeschlossene Schritte
+
+## Warum das glaubwuerdig ist
+
+Die Produktthese ist bewusst diszipliniert:
+
+- **kein Black-Box-Score** ueber Menschen
+- **keine** medizinischen Diagnosen
+- **keine** Dossierdetails ohne operative Notwendigkeit
+- **keine** religiösen oder politischen Angaben
+- **keine** normative "Integrationsnote"
+
+Das System misst keine Person als Ganzes. Es zeigt Zustaende, Fortschritt,
+offene Arbeit und nachvollziehbare Evidenz.
+
+## Pilotvorschlag
+
+### Phase 1 - Baseline
+
+Gemeinsam festlegen, welche Kennzahlen fuer AOZ operativ wirklich zaehlen:
+
+- Vorfaelle
+- konfliktbedingte Verlegungen
+- Antwort- und Follow-up-Zeiten
+- dokumentierte Sprach- und Integrationsschritte
+
+### Phase 2 - Pilot
+
+Pilot an 1 bis 2 Standorten mit echten Fachpersonen-Rollen und echten
+Alltagsablaeufen.
+
+Wichtig ist nicht nur, ob Daten erfasst werden, sondern ob die Mitarbeitenden
+schneller zu einer guten Handlung kommen.
+
+### Phase 3 - Entscheid
+
+Nach dem Pilot ist klarer beurteilbar:
+
+- wo das Produkt Zeit spart
+- wo es Stabilitaet schafft
+- wo Integrationsfortschritt sichtbarer wird
+- welche AOZ-spezifischen Erweiterungen priorisiert werden sollen
+
+## Was AOZ dafuer nicht braucht
+
+- keine neue Hardware
+- keine grosse IT-Einfuehrung
+- keine Prozessrevolution vor dem Pilot
+- keine Preisgabe sensibler Daten, die operativ nichts bringen
+
+## Gewuenschter naechster Schritt
+
+**Demo mit AOZ-Fachpersonen**:
+
+1. reale Arbeitswege zeigen
+2. offene Rueckfragen aufnehmen
+3. Pilot-Set-up mit Rollen und Erfolgskriterien festlegen

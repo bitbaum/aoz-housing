@@ -49,6 +49,7 @@ export const en: Dictionary = {
   'messages.placeholder': 'Your message …',
   'messages.send': 'Send',
   'messages.sending': 'Sending …',
+  'messages.sendFailed': 'Message could not be sent. Please try again.',
   'messages.you': 'You',
   'messages.staff': 'Support team',
   'messages.unread': 'new',

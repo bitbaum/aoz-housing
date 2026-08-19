@@ -3,7 +3,6 @@
  *
  * Tests createSpot, updateSpot, deleteSpot, and createMultipleSpots.
  * All actions take FormData, perform Prisma operations, and call revalidatePath.
- * None of these actions use redirect().
  */
 
 import { prisma } from '@/lib/db'
@@ -50,6 +49,7 @@ const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admi
 jest.mock('@/lib/auth', () => ({
   getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
   requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -457,8 +457,8 @@ describe('createMultipleSpots', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
-    mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
+    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     const fd = new FormData()
     await expect(createSpot(fd)).rejects.toThrow('Anmeldung erforderlich')

@@ -1,10 +1,10 @@
-# Roadmap — from AOZ pilot to a cohabitation operating system
+# Roadmap — from AOZ pilot to an integration operations system
 
-Related: [Changelog](../CHANGELOG.md) · [Blog](blog/README.md) · [AOZ pitch](AOZ-PITCH.md)
+Related: [Changelog](../CHANGELOG.md) · [Blog](blog/README.md) · [AOZ pitch](AOZ-PITCH.md) · [Integration research framework](./INTEGRATION-RESEARCH-FRAMEWORK.md)
 
 created_date: 2026-01-15
-last_modified_date: 2026-08-17
-last_modified_summary: Marked portal chrome, care team and learning achievements as done in H1.
+last_modified_date: 2026-08-19
+last_modified_summary: Reframed the roadmap headline and thesis around integration operations, with housing as the base layer.
 
 ## The thesis
 
@@ -15,13 +15,19 @@ people share territory, there must be a common understanding of how living
 together works. Today that understanding lives in gut feeling, paper
 Hausordnungen, and staff who firefight conflicts after they explode.
 
-The product is the **operating system for cohabitation**: who lives where
-(placement & vacancy), who fits whom (compatibility matching), what the rules
-are (layered governance), what it costs (shared expenses), and what happens
-when it breaks (conflict ladder, maintenance, incidents). AOZ asylum housing
-is the first vertical — deliberately the hardest one: vulnerable residents,
-high conflict cost, strict privacy duties, and published research to build on.
-A system that works there works anywhere.
+The product is an **integration operations system for Fachpersonen** with
+housing stability as the base layer: who lives where (placement & vacancy), who
+fits whom (compatibility matching), what the rules are (layered governance),
+what happens when stability breaks (conflict ladder, maintenance, incidents),
+and how language, capability, participation and coordinated guidance progress
+over time. AOZ asylum housing is the first vertical — deliberately the hardest
+one: vulnerable residents, high conflict cost, strict privacy duties, and
+published research to build on. A system that works there works anywhere.
+
+The scientific basis is now broader than cohabitation alone: see
+`docs/INTEGRATION-RESEARCH-FRAMEWORK.md` for the product's five research pillars
+(housing stability, language/orientation, capability/work readiness,
+participation, and coordinated guidance).
 
 **Not the mission:** maximizing occupancy or throughput at the cost of
 wellbeing. Reduced conflict *is* the business case (see CLAUDE.md ROI
@@ -58,6 +64,7 @@ baseline. Everything in H1 serves that.
 - ✅ Staff roles: Leitung, Betreuung, Sozialarbeit, Jobcoach.
 - ✅ Learning records (tests, courses, informal) for residents and Jobcoach.
 - ✅ Learning achievements and volunteering/community-service hours; language offers reuse Aktivitäten.
+- ✅ Role-shaped integration evidence boards: overview, Jobcoach, and Freiwilligenarbeit with filters for own clients, source, status, and category.
 - ✅ Care team (Wohnen, Sozialarbeit, Jobcoach) visible to the resident.
 - ✅ Care workspace: appointments and catalog attributes per domain; one login can be resident + Leitung.
 - ✅ Portal chrome: collapsible sidebar + header account/language; dead Wohnung/Mitbewohner pages removed.

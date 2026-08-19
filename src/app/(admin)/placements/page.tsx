@@ -135,6 +135,7 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
     return matchesQuery && matchesOverdue && matchesConflicts
   })
+  const hasActiveFilters = Boolean(query || overdueOnly || conflictsOnly)
 
   return (
     <div>
@@ -232,15 +233,24 @@ export default async function PlacementsListPage({ searchParams }: Props) {
       {filteredPlacements.length === 0 ? (
         <div className="card text-center py-12">
           <p className="text-ui-muted mb-4">
-            {statusFilter === 'active'
+            {hasActiveFilters
+              ? 'Keine Platzierungen passen zu den aktuellen Filtern.'
+              : statusFilter === 'active'
               ? PLACEMENT_LIST_LABELS.emptyActive
               : statusFilter === 'ended'
               ? PLACEMENT_LIST_LABELS.emptyEnded
               : PLACEMENT_LIST_LABELS.emptyAll}
           </p>
-          <Link href="/matching" className="btn-primary">
-            {PLACEMENT_LIST_LABELS.createPlacement}
-          </Link>
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+            {hasActiveFilters ? (
+              <Link href={`/placements?status=${statusFilter}`} className="btn-outline">
+                {PLACEMENT_LIST_LABELS.filterReset}
+              </Link>
+            ) : null}
+            <Link href="/matching" className="btn-primary">
+              {PLACEMENT_LIST_LABELS.createPlacement}
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">

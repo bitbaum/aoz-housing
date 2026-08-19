@@ -107,7 +107,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     productName: 'AOZ Begleitung',
     tagline: 'Integrationsplattform',
     metaDescription:
-      'Klient*innen begleiten, Fortschritte dokumentieren und den Alltag in der Unterkunft koordinieren',
+      'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
     orgName: 'AOZ',
     features: AOZ_FEATURES,
   },
@@ -121,7 +121,7 @@ export const BRANDS: Record<BrandId, Brand> = {
     productName: 'AOZH Begleitung',
     tagline: 'Integrationsplattform',
     metaDescription:
-      'Klient*innen begleiten, Fortschritte dokumentieren und den Alltag in der Unterkunft koordinieren',
+      'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
     orgName: 'AOZH',
     features: AOZ_FEATURES,
   },

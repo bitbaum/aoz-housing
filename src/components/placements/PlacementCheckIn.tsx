@@ -27,11 +27,13 @@ export function PlacementCheckIn({
   const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState<number | null>(null)
   const [showTapper, setShowTapper] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleTap = (value: number) => {
+    setError(null)
     if (value <= 3) {
-      router.push(`/placements/${placementId}/checkin`)
+      router.push(`/placements/${placementId}/checkin?rating=${value}`)
       return
     }
     startTransition(async () => {
@@ -45,7 +47,9 @@ export function PlacementCheckIn({
         setSaved(value)
         setShowTapper(false)
         router.refresh()
+        return
       }
+      setError(result.error || 'Check-in konnte nicht gespeichert werden')
     })
   }
 
@@ -112,6 +116,11 @@ export function PlacementCheckIn({
       {lastSatisfaction && (
         <p className="text-xs text-ui-muted mt-0.5">
           Letzter: {EMOJIS[lastSatisfaction - 1]} vor {daysSinceCheckIn}d
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="text-xs text-status-error-text mt-1">
+          {error}
         </p>
       )}
     </div>

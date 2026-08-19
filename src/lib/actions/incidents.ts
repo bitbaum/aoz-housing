@@ -26,6 +26,7 @@ const ClearFollowUpSchema = z.object({
 export async function createIncident(formData: FormData): Promise<void> {
   const user = await requirePermission('incidents:write')
   const data = validateFormData(IncidentInputSchema, formData)
+  let incidentId: string
 
   try {
     const incident = await prisma.incident.create({
@@ -63,12 +64,13 @@ export async function createIncident(formData: FormData): Promise<void> {
         housingUnitId: data.housingUnitId,
       },
     })
+    incidentId = incident.id
   } catch (error) {
     logger.errorWithCause('Failed to create incident', error, { housingUnitId: data.housingUnitId })
     throw new Error(ERROR_MESSAGES.INCIDENT_CREATE_ERROR)
   }
 
-  redirect('/incidents')
+  redirect(`/incidents/${incidentId}?created=true`)
 }
 
 export async function resolveIncident(formData: FormData): Promise<void> {

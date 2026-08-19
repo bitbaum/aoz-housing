@@ -269,6 +269,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
         triggers={[
           { param: 'placed', message: RESIDENT_DETAIL_LABELS.toastPlaced },
           { param: 'checkin', message: RESIDENT_DETAIL_LABELS.toastCheckin },
+          { param: 'transferred', message: RESIDENT_DETAIL_LABELS.toastTransferred },
+          { param: 'ended', message: RESIDENT_DETAIL_LABELS.toastEnded },
         ]}
       />
       {/* Header */}

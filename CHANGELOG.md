@@ -8,12 +8,13 @@ project does not tag semver releases yet — entries are grouped by deploy date
 Related documents: [Roadmap](docs/ROADMAP.md) · [Blog](docs/blog/README.md)
 
 created_date: 2026-01-15
-last_modified_date: 2026-08-17
-last_modified_summary: Portal chrome, learning, care team; production is Hetzner aoz_wohnen not Neon.
+last_modified_date: 2026-08-19
+last_modified_summary: Added the integration research framework, public roadmap/changelog pages, and broader public positioning beyond housing only.
 
 ## Unreleased
 
 ### Changed
+- **Public positioning now matches the expanded product.** The public narrative no longer treats the software as only a placement or housing tool. It is framed through four operational pillars: Stability, Capability, Participation and Guidance.
 - **Infrastructure SSOT.** Production is Postgres on Hetzner (`aoz_wohnen` on bitbaum). Docs, `.env.example` and `src/lib/db.ts` describe that host. A leftover laptop `.env` pointing at Neon is not the database. i18n dictionaries stay on the resident portal; staff UI stays German.
 - **Resident portal chrome.** Header keeps brand, a compact language select, and an account dropdown (Profil, Einstellungen, Hilfe, Abmelden). Destinations moved into a **collapsible left sidebar** on desktop and the same accordion in the mobile Mehr sheet. Wohnung and Mitbewohner pages are gone from the menu — they had no profiles behind the names; old bookmarks redirect to Übersicht.
 - **AOZ and WG are different surfaces of the same product.** On AOZ/AOZH the portal pins Übersicht, Melden, Regeln, Hilfe — not chores/expenses/votes. Login opens on the code first; email stays the other door. Matching opens in compact Top-3 mode.
@@ -36,6 +37,9 @@ last_modified_summary: Portal chrome, learning, care team; production is Hetzner
   (`src/lib/config/organization.ts`) instead of numbers hardcoded in labels.
 
 ### Added
+- **Public roadmap and changelog routes.** Blog already existed; roadmap and changelog are now first-class public pages too, so product direction and shipped changes are readable from the site itself.
+- **Integration research framework.** `docs/INTEGRATION-RESEARCH-FRAMEWORK.md` defines the broader scientific basis beyond housing alone: stability, capability, participation and guidance.
+- **New blog post on the four-pillar model.** The public blog now explains why the product expanded beyond pure housing operations.
 - New AOZ rules covering the previously missing Hausordnung sections: keys
   and entrance doors, unattended cooking, waste & recycling (Züri-Säcke,
   ERZ), daily airing, care of property & repairs, staff access &

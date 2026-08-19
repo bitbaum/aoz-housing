@@ -52,6 +52,7 @@ export const ti: Dictionary = {
   'messages.placeholder': 'መልእኽትኻ …',
   'messages.send': 'ስደድ',
   'messages.sending': 'ይስደድ ኣሎ …',
+  'messages.sendFailed': 'መልእኽቲ ክስደድ ኣይከኣለን። በጃኻ ደጊምካ ፈትን።',
   'messages.you': 'ንስኻ',
   'messages.staff': 'ጉጅለ ደገፍ',
   'messages.unread': 'ሓድሽ',

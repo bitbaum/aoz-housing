@@ -19,6 +19,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
   const [messages, setMessages] = useState(initialMessages)
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
+  const [failed, setFailed] = useState(false)
   const endRef = useRef<HTMLDivElement>(null)
 
   // Newest message in view on open — a conversation you have to scroll to read
@@ -33,6 +34,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
 
     const text = body.trim()
     setSending(true)
+    setFailed(false)
     setBody('')
 
     const pending: MessageRow = {
@@ -63,6 +65,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
       // than one you can see failed.
       setMessages((current) => current.filter((message) => message.id !== pending.id))
       setBody(text)
+      setFailed(true)
     } finally {
       setSending(false)
     }
@@ -107,6 +110,11 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
           rows={3}
           className="input"
         />
+        {failed && (
+          <p role="alert" className="alert-error">
+            {t('messages.sendFailed')}
+          </p>
+        )}
         <button
           type="submit"
           disabled={sending || !isSendableBody(body)}

@@ -39,6 +39,7 @@ export default function LandingPage() {
       <Steps />
       <Features />
       <Ethics />
+      <ProductDocs />
       {posts.length > 0 && <FromTheBlog posts={posts} />}
       <Closing />
     </div>
@@ -202,6 +203,43 @@ function FromTheBlog({ posts }: { posts: ReturnType<typeof getAllPosts> }) {
         <ArrowRight className="w-4 h-4" aria-hidden="true" />
       </Link>
       <span className="sr-only">{BLOG_LABELS.title}</span>
+    </section>
+  )
+}
+
+function ProductDocs() {
+  const links = [
+    {
+      href: '/roadmap',
+      title: 'Roadmap',
+      body: 'Wohin sich das Produkt entwickelt und welche Prinzipien die Richtung bestimmen.',
+    },
+    {
+      href: '/changelog',
+      title: 'Changelog',
+      body: 'Was bereits im Produkt angekommen ist und wie sich die Plattform konkret verändert.',
+    },
+    {
+      href: '/blog',
+      title: 'Blog',
+      body: 'Hintergründe zu Entscheidungen, Forschung, Produktlogik und technischer Umsetzung.',
+    },
+  ]
+
+  return (
+    <section className="py-14 sm:py-20 border-b border-ui-border">
+      <p className="eyebrow">Nachvollziehbarkeit</p>
+      <h2 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-heading text-ui-text max-w-2xl text-balance">
+        Produktdenken, Fortschritt und wissenschaftliche Grundlage sind öffentlich lesbar.
+      </h2>
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {links.map((link) => (
+          <Link key={link.href} href={link.href} className="card-hover">
+            <h3 className="font-semibold text-ui-text">{link.title}</h3>
+            <p className="mt-2 text-sm text-ui-muted leading-relaxed">{link.body}</p>
+          </Link>
+        ))}
+      </div>
     </section>
   )
 }

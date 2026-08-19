@@ -4,8 +4,8 @@ Purpose: practical QA/UX checklist for resident-facing workflows.
 Use this as a runbook during testing and sign-off.
 
 created_date: 2026-02-18
-last_modified_date: 2026-08-17
-last_modified_summary: Replaced Mitbewohner/Wohnung pages with learning, care team, appointments, and collapsible portal chrome.
+last_modified_date: 2026-08-19
+last_modified_summary: Clarified portal learning as integration evidence, including self-logged vs staff-recorded entries and richer evidence capture.
 
 Legend:
 - [ ] not checked
@@ -96,8 +96,11 @@ Pass type below: **Pass 1 = code review + automated checks (lint/tests), no full
 
 - [x] Achievements list completed tests, courses, qualifications and service
 - [x] In-progress records show separately
+- [x] Resident sees which evidence was logged by them vs by the staff team
 - [x] Published language activities appear as offers
 - [x] Resident can add their own record (including hours for courses/service)
+- [x] Evidence form supports common integration steps (course, language test, volunteering, qualification)
+- [x] Evidence form captures optional start and completion dates
 
 ## 5b) Care team (overview + profile)
 
