@@ -7,12 +7,14 @@ import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatib
 import { PortalHousingBrowse } from '@/components/portal/PortalHousingBrowse'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import Link from 'next/link'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const metadata: Metadata = { title: 'Verfügbare Unterkünfte' }
 export const dynamic = 'force-dynamic'
 
 export default async function PortalHousingPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -86,9 +88,9 @@ export default async function PortalHousingPage() {
     <div>
       <div className="mb-6">
         <Link href="/portal" className="text-sm text-ui-muted hover:text-brand-primary min-h-[44px] inline-flex items-center">
-          {PORTAL_LABELS.form.back}
+          {t('action.back')}
         </Link>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{PORTAL_LABELS.pages.housing}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">{t('nav.housing')}</h1>
         <p className="text-ui-muted mt-1">{PORTAL_LABELS.pages.housingSubtitle}</p>
       </div>
 

@@ -10,6 +10,7 @@ import {
 } from '@/lib/config/activities'
 import { listActivities } from '@/lib/data/activities'
 import { PageHeader } from '@/components/ui/Page'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,7 @@ type Props = {
 
 export default async function ActivitiesPage({ searchParams }: Props) {
   const { category } = await searchParams
+  const { t } = await getRequestTranslator()
   const selectedCategory = category && category in ACTIVITY_CATEGORY_LABELS
     ? category as ActivityCategory
     : undefined
@@ -34,10 +36,10 @@ export default async function ActivitiesPage({ searchParams }: Props) {
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
         <PageHeader
-          title={PORTAL_LABELS.pages.activities}
-          description={PORTAL_LABELS.pages.activitiesSubtitle}
+          title={t('activities.dashboardTitle')}
+          description={t('activities.dashboardSubtitle')}
           backHref="/portal"
-          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+          backLabel={t('action.back')}
         />
       </div>
 

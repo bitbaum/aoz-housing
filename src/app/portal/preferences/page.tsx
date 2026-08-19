@@ -8,6 +8,7 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PreferencesForm } from './PreferencesForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 const LANGUAGE_OPTIONS = (RESIDENT_FACTORS.languages as { options: readonly string[] }).options.filter(c => c !== 'OTHER')
 const DIET_OPTIONS = (RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }).options.filter(c => c !== 'NONE')
@@ -16,6 +17,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function PreferencesPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -29,10 +31,10 @@ export default async function PreferencesPage() {
     <div>
       <div className="mb-6">
         <PageHeader
-          title={PORTAL_LABELS.pages.preferences}
+          title={t('nav.preferences')}
           description={PORTAL_LABELS.pages.preferencesSubtitle}
           backHref="/portal"
-          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+          backLabel={t('action.back')}
         />
       </div>
 

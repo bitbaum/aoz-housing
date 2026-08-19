@@ -47,7 +47,7 @@ export default async function PortalProfilePage() {
         ]}
       />
       <div className="mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{L.title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{t('nav.profile')}</h1>
         <p className="text-ui-muted mt-1">{L.subtitle}</p>
       </div>
 

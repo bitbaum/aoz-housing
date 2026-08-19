@@ -7,12 +7,14 @@ import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { TRANSFER_REQUEST_STATUS_LABELS } from '@/lib/constants/labels/residents'
 import { formatDate } from '@/lib/utils'
+import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const metadata: Metadata = { title: 'Verlegung anfragen' }
 export const dynamic = 'force-dynamic'
 
 export default async function TransferPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -72,10 +74,10 @@ export default async function TransferPage() {
     <div>
       <div className="mb-6">
         <PageHeader
-          title={L.title}
+          title={t('nav.transfer')}
           description={L.subtitle}
           backHref="/portal"
-          backLabel={PORTAL_LABELS.form.back.replace(/^← /, '')}
+          backLabel={t('action.back')}
         />
       </div>
 
