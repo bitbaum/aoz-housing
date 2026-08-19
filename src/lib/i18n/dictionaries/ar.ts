@@ -39,7 +39,7 @@ export const ar: Dictionary = {
 
   'navGroup.living': 'الحياة اليومية',
   'navGroup.together': 'نقرر معًا',
-  'navGroup.concerns': 'الطلبات والعروض',
+  'navGroup.integration': 'الطلبات والعروض',
   'navGroup.account': 'حسابي',
 
   'reports.title': 'بلاغاتك',

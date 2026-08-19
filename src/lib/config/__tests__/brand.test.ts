@@ -35,10 +35,10 @@ describe('brand presets', () => {
       id: 'aoz',
       shortName: 'AOZ',
       codePrefix: 'AOZ-',
-      productName: 'AOZ Wohnen',
-      tagline: 'Platzierungssystem',
+      productName: 'AOZ Begleitung',
+      tagline: 'Integrationsplattform',
       metaDescription:
-        'Konflikte reduzieren und Wohlbefinden verbessern durch kompatibilitätsbasierte Wohnplatzierung',
+        'Klient*innen begleiten, Fortschritte dokumentieren und den Alltag in der Unterkunft koordinieren',
       orgName: 'AOZ',
       features: {
         householdMoney: false,

@@ -192,7 +192,7 @@ describe('the AOZ palette stays restorable', () => {
 
 describe('the organisation name is never hardcoded in UI copy', () => {
   /**
-   * German copy is full of constructions like "AOZ-Regel" and "AOZ Wohnen".
+   * German copy is full of constructions like "AOZ-Regel" and "AOZ Begleitung".
    * Spelled literally they survive a re-badge and the product ends up showing
    * two different organisation names at once.
    */

@@ -192,6 +192,79 @@ export const de = {
   'events.categorySocial': 'Geselliges',
   'events.categoryCulture': 'Kultur',
   'events.categorySupport': 'Unterstützung',
+
+  // Portal dashboard
+  'dashboard.welcome': 'Willkommen zurück',
+  'dashboard.subtitle': 'Hier siehst du, wie es in deiner Unterkunft läuft.',
+  'dashboard.housing': 'Unterkunft',
+  'dashboard.active': 'Aktiv',
+  'dashboard.moveIn': 'Einzug',
+  'dashboard.rooms': 'Zimmer',
+  'dashboard.roommatesCount': 'Mitbewohnende',
+  'dashboard.compatibility': 'Kompatibilität',
+  'dashboard.houseRules': 'Hausregeln',
+  'dashboard.quietHours': 'Nachtruhe',
+  'dashboard.smokingAllowed': 'Rauchen erlaubt',
+  'dashboard.noSmoking': 'Kein Rauchen',
+  'dashboard.petsAllowed': 'Haustiere erlaubt',
+  'dashboard.noPets': 'Keine Haustiere',
+  'dashboard.roommates': 'Mitbewohnende',
+  'dashboard.noHousingContact': 'Noch keine Unterkunft zugewiesen.',
+  'dashboard.myReports': 'Meine Meldungen',
+  'dashboard.newReport': 'Neue Meldung',
+  'dashboard.noReports': 'Noch keine Meldungen.',
+  'dashboard.quickChores': 'Aufgaben',
+  'dashboard.taskSingular': 'Aufgabe',
+  'dashboard.taskPlural': 'Aufgaben',
+  'dashboard.quickPreferences': 'Präferenzen',
+  'dashboard.nextDesc': 'Nächste Aufgabe',
+  'dashboard.quickReport': 'Melden',
+  'dashboard.quickLearning': 'Kurse',
+  'dashboard.now': 'Jetzt',
+  'dashboard.onboarding.title': 'Erste Schritte',
+  'dashboard.onboarding.subtitle': 'So startest du im Portal durch.',
+  'dashboard.onboarding.step1': 'Profil vervollständigen',
+  'dashboard.onboarding.step2': 'Präferenzen angeben',
+  'dashboard.onboarding.step3': 'Unterkunft erkunden',
+  'dashboard.onboarding.step4': 'Mitbewohnende kennenlernen',
+  'dashboard.onboarding.completePreferences': 'Präferenzen angeben',
+  'dashboard.onboarding.completePreferencesHint': 'Damit wir dir die passende Unterkunft zeigen können.',
+  'dashboard.onboarding.browseHousing': 'Unterkunft erkunden',
+  'dashboard.onboarding.browseHousingHint': 'Sieh dir an, wo du untergebracht bist.',
+
+  // Activities card
+  'activities.dashboardTitle': 'Aktivitäten & Kurse',
+  'activities.dashboardSubtitle': 'Empfehlungen für dich.',
+  'activities.noResults': 'Keine aktuellen Angebote.',
+  'activities.dashboardCta': 'Alle Angebote ansehen',
+
+  // Expenses card
+  'expenses.dashboardTitle': 'Gemeinsame Ausgaben',
+  'expenses.dashboardCta': 'Ausgaben verwalten',
+  'expenses.dashboardBalance': 'Dein Saldo',
+  'expenses.balanceSettled': 'Alles beglichen',
+  'expenses.balancePositive': 'Du bekommst noch Geld',
+  'expenses.balanceNegative': 'Du bist noch schuldig',
+
+  // Reports
+  'reports.showAllCount': 'Alle Meldungen anzeigen',
+
+  // Satisfaction rating (resident-facing widget)
+  'satisfaction.title': 'Wie geht es dir?',
+  'satisfaction.subtitle': 'Dein Feedback hilft uns, die Unterkunft zu verbessern.',
+  'satisfaction.privacyNote': 'Deine Angaben werden vertraulich behandelt.',
+  'satisfaction.thankYouTitle': 'Danke für dein Feedback!',
+  'satisfaction.thankYouMessage': 'Wir haben deine Rückmeldung erhalten.',
+  'satisfaction.concernsForwarded': 'Deine Anliegen wurden an das Betreuungsteam weitergeleitet.',
+  'satisfaction.today': 'Heute',
+  'satisfaction.lastFeedback': 'Letztes Feedback',
+  'satisfaction.newFeedback': 'Neues Feedback geben',
+
+  // Nav group labels
+  'navGroup.living': 'Alltag & Wohnen',
+  'navGroup.together': 'Miteinander',
+  'navGroup.integration': 'Integration & Beruf',
+  'navGroup.account': 'Mein Konto',
 } as const
 
 /** The key set every dictionary is measured against. */
