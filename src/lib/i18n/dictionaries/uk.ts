@@ -71,6 +71,8 @@ export const uk: Dictionary = {
   'action.close': 'Закрити',
   'action.showAll': 'Показати всі',
   'error.generic': 'Сталася помилка. Будь ласка, спробуйте ще раз.',
+  'error.accountNotFound':
+    'Твій обліковий запис не знайдено. Звернися до своєї соціальної працівниці.',
   'error.portalMessage': 'Під час завантаження порталу сталася помилка. Спробуй ще раз.',
   'error.portalHome': 'На головну',
 
@@ -523,4 +525,6 @@ export const uk: Dictionary = {
   'transfer.targetUnitLabel': 'Бажане житло (необов\'язково)',
   'transfer.targetUnitPlaceholder': 'Без переваги',
   'transfer.yourReason': 'Твоя причина',
+  'empty.filtered': 'Нічого не відповідає твоєму вибору.',
+  'empty.clearFilters': 'Скинути фільтри',
 }

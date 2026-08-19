@@ -196,6 +196,7 @@ export const TRANSFER_ACTION_LABELS = {
   success: 'Erfolgreich bearbeitet',
   emptyPending: 'Keine offenen Verlegungsanfragen',
   emptyOther: 'Keine Verlegungsanfragen in dieser Kategorie',
+  filterReset: 'Filter zurücksetzen',
   noteLabel: 'Notiz:',
   fromUnit: 'Von:',
   toUnit: 'Nach:',

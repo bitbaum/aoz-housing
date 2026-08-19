@@ -72,6 +72,8 @@ export const fr: Dictionary = {
   'action.close': 'Fermer',
   'action.showAll': 'Tout afficher',
   'error.generic': "Une erreur s'est produite. Veuillez reessayer.",
+  'error.accountNotFound':
+    'Ton compte est introuvable. Contacte ta personne de suivi.',
   'error.portalMessage': "Une erreur s'est produite lors du chargement du portail. Veuillez reessayer.",
   'error.portalHome': "Retour a l'apercu",
 
@@ -526,4 +528,6 @@ export const fr: Dictionary = {
   'transfer.targetUnitLabel': 'Preferred accommodation (optional)',
   'transfer.targetUnitPlaceholder': 'No preference',
   'transfer.yourReason': 'Your reason',
+  'empty.filtered': 'Rien ne correspond à ta sélection.',
+  'empty.clearFilters': 'Réinitialiser les filtres',
 }

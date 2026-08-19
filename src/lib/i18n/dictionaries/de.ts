@@ -86,6 +86,8 @@ export const de = {
   'action.close': 'Schliessen',
   'action.showAll': 'Alle anzeigen',
   'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
+  'error.accountNotFound':
+    'Dein Konto wurde nicht gefunden. Bitte wende dich an deine Betreuungsperson.',
   'error.portalMessage': 'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte erneut versuchen.',
   'error.portalHome': 'Zur Startseite',
 
@@ -549,6 +551,8 @@ export const de = {
   'transfer.targetUnitLabel': 'Wunsch-Unterkunft (optional)',
   'transfer.targetUnitPlaceholder': 'Keine Präferenz',
   'transfer.yourReason': 'Dein Grund',
+  'empty.filtered': 'Nichts passt zu deiner Auswahl.',
+  'empty.clearFilters': 'Filter zurücksetzen',
 } as const
 
 /** The key set every dictionary is measured against. */

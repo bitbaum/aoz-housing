@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
@@ -75,6 +76,11 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
               ? TRANSFER_ACTION_LABELS.emptyPending
               : TRANSFER_ACTION_LABELS.emptyOther}
           </p>
+          {statusFilter !== 'PENDING' && (
+            <Link href="/transfer-requests?status=PENDING" className="btn-outline mt-4 inline-flex min-h-[44px] items-center">
+              {TRANSFER_ACTION_LABELS.filterReset}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

@@ -67,6 +67,8 @@ export const en: Dictionary = {
   'action.close': 'Close',
   'action.showAll': 'Show all',
   'error.generic': 'Something went wrong. Please try again.',
+  'error.accountNotFound':
+    'Your account was not found. Please contact your support worker.',
   'error.portalMessage': 'An error occurred while loading the portal. Please try again.',
   'error.portalHome': 'Back to overview',
 
@@ -517,4 +519,6 @@ export const en: Dictionary = {
   'transfer.targetUnitLabel': 'Preferred accommodation (optional)',
   'transfer.targetUnitPlaceholder': 'No preference',
   'transfer.yourReason': 'Your reason',
+  'empty.filtered': 'Nothing matches your current filters.',
+  'empty.clearFilters': 'Clear filters',
 }

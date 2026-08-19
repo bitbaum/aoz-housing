@@ -71,6 +71,13 @@ export default async function LearningQueuePage({ searchParams }: Props) {
     ? (categoryParam as LearningCategoryId)
     : 'ALL'
 
+  const hasActiveFilters =
+    status !== 'ALL' ||
+    query.length > 0 ||
+    source !== 'ALL' ||
+    category !== 'ALL' ||
+    mine !== mineDefault
+
   const { records, missingGerman, stats } = await listLearningBoard({
     board,
     status,
@@ -221,6 +228,16 @@ export default async function LearningQueuePage({ searchParams }: Props) {
         <IntegrationBoard
           records={records}
           emptyLabel={mine !== '0' ? LEARNING_LABELS.noMine : LEARNING_LABELS.noResults}
+          emptyAction={
+            hasActiveFilters && records.length === 0 ? (
+              <Link
+                href={`/learning?board=${board}`}
+                className="btn-outline min-h-[44px] inline-flex items-center"
+              >
+                {LEARNING_LABELS.filterReset}
+              </Link>
+            ) : undefined
+          }
         />
       </section>
     </div>

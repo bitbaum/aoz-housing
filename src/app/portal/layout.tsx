@@ -51,6 +51,7 @@ export default async function PortalLayout({
       className="min-h-screen bg-ui-canvas text-ui-text flex flex-col pb-[4.5rem] lg:pb-0"
     >
       <LocaleProvider locale={locale}>
+        <PortalUrlFeedback />
         <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
 
         <header className="chrome-bar sticky top-0 z-30 h-14">

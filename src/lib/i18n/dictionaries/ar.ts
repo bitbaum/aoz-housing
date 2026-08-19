@@ -73,6 +73,8 @@ export const ar: Dictionary = {
   'action.close': 'إغلاق',
   'action.showAll': 'عرض الكل',
   'error.generic': 'حدث خطأ. يرجى المحاولة مرة أخرى.',
+  'error.accountNotFound':
+    'لم يتم العثور على حسابك. تواصل مع مشرف/ة الدعم.',
   'error.portalMessage': 'حدث خطأ أثناء تحميل البوابة. يرجى المحاولة مرة أخرى.',
   'error.portalHome': 'إلى الصفحة الرئيسية',
 
@@ -524,4 +526,6 @@ export const ar: Dictionary = {
   'transfer.targetUnitLabel': 'السكن المفضل (اختياري)',
   'transfer.targetUnitPlaceholder': 'بدون تفضيل',
   'transfer.yourReason': 'سببك',
+  'empty.filtered': 'لا يوجد شيء يطابق اختيارك.',
+  'empty.clearFilters': 'إزالة الفلاتر',
 }

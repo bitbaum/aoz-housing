@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Globe2, MapPin, Phone, Clock, ExternalLink } from 'lucide-react'
+import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react'
 import {
   ACTIVITY_CATEGORY_ICONS,
   ACTIVITY_CATEGORY_LABELS,
@@ -8,7 +8,7 @@ import {
   type ActivityCategory,
 } from '@/lib/config/activities'
 import { listActivities } from '@/lib/data/activities'
-import { PageHeader } from '@/components/ui/Page'
+import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { getRequestTranslator } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
@@ -62,10 +62,17 @@ export default async function ActivitiesPage({ searchParams }: Props) {
       </div>
 
       {activities.length === 0 ? (
-        <div className="card py-12 text-center">
-          <Globe2 className="mx-auto h-8 w-8 text-ui-muted" />
-          <p className="mt-3 text-ui-muted">{t('activities.noResults')}</p>
-        </div>
+        <EmptyState
+          title={selectedCategory ? t('empty.filtered') : t('activities.noResults')}
+          description={selectedCategory ? t('activities.noResults') : undefined}
+          action={
+            selectedCategory ? (
+              <Link href="/portal/activities" className="btn-outline min-h-[44px] inline-flex items-center">
+                {t('empty.clearFilters')}
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="space-y-4">
           {activities.map((activity) => {

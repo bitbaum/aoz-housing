@@ -140,6 +140,7 @@ export const LEARNING_LABELS = {
   unitUnknown: 'Ohne aktuelle Unterkunft',
   noResults: 'Keine passenden Nachweise.',
   noMine: 'Für diese Filter sind noch keine eigenen Klient*innen zugeordnet.',
+  filterReset: 'Filter zurücksetzen',
   evidenceTitle: 'Nachweis erfassen',
   evidenceSubtitle:
     'Dokumentiere, was du machst: Kurse, Sprachtests, Freiwilligenarbeit oder andere Schritte, die deine Integration zeigen.',

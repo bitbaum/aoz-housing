@@ -83,6 +83,8 @@ export const ru: Dictionary = {
   'action.close': 'Закрыть',
   'action.showAll': 'Показать все',
   'error.generic': 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.',
+  'error.accountNotFound':
+    'Твой аккаунт не найден. Обратись к своему социальному работнику.',
   'error.portalMessage': 'При загрузке портала произошла ошибка. Пожалуйста, попробуйте еще раз.',
   'error.portalHome': 'На главную',
 
@@ -535,4 +537,6 @@ export const ru: Dictionary = {
   'transfer.targetUnitLabel': 'Бажане житло (необов\'язково)',
   'transfer.targetUnitPlaceholder': 'Без переваги',
   'transfer.yourReason': 'Твоя причина',
+  'empty.filtered': 'Ничего не подходит под твой выбор.',
+  'empty.clearFilters': 'Сбросить фильтры',
 }

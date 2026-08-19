@@ -27,6 +27,7 @@ export type LearningBoardRecord = LearningRecord & {
 interface IntegrationBoardProps {
   records: LearningBoardRecord[]
   emptyLabel: string
+  emptyAction?: React.ReactNode
 }
 
 function statusBadge(status: string): string {
@@ -42,11 +43,12 @@ function sourceLabel(source: ResidentOrStaff): string {
     : LEARNING_LABELS.sourceStaff
 }
 
-export function IntegrationBoard({ records, emptyLabel }: IntegrationBoardProps) {
+export function IntegrationBoard({ records, emptyLabel, emptyAction }: IntegrationBoardProps) {
   if (records.length === 0) {
     return (
-      <div className="card">
+      <div className="card text-center py-10">
         <p className="text-sm text-ui-muted">{emptyLabel}</p>
+        {emptyAction ? <div className="mt-4 flex justify-center">{emptyAction}</div> : null}
       </div>
     )
   }
