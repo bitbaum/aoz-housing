@@ -1,50 +1,36 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useActionState, useEffect, useRef } from 'react'
+import { addCrmNoteAction } from '@/lib/actions/crm'
+import type { ActionState } from '@/lib/actions/types'
 
 export function CrmNoteForm({ customerId }: { customerId: string }) {
-  const router = useRouter()
-  const [body, setBody] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const formRef = useRef<HTMLFormElement>(null)
+  const [state, formAction, pending] = useActionState<ActionState, FormData>(
+    addCrmNoteAction.bind(null, customerId),
+    {}
+  )
 
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    setBusy(true)
-    setError('')
-    const res = await fetch(`/api/admin/customers/${customerId}/notes`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body }),
-    })
-    if (res.ok) {
-      setBody('')
-      router.refresh()
-    } else {
-      const resBody = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(resBody?.error ?? 'Could not save the note.')
-    }
-    setBusy(false)
-  }
+  useEffect(() => {
+    if (state.ok) formRef.current?.reset()
+  }, [state])
 
   return (
-    <form onSubmit={onSubmit} className="mt-3">
+    <form ref={formRef} action={formAction} className="mt-3">
       <label htmlFor="crm-note" className="sr-only">
         New note
       </label>
       <textarea
         id="crm-note"
+        name="body"
         rows={3}
         required
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
         placeholder="Add a note about this customer…"
         className="input-field text-sm"
       />
-      {error && <p className="mt-1 text-sm font-medium text-error-text">{error}</p>}
-      <button type="submit" disabled={busy || !body.trim()} className="btn-dark mt-2 text-sm">
-        {busy ? 'Saving…' : 'Add note'}
+      {state.error && <p className="mt-1 text-sm font-medium text-error-text">{state.error}</p>}
+      <button type="submit" disabled={pending} className="btn-dark mt-2 text-sm">
+        {pending ? 'Saving…' : 'Add note'}
       </button>
     </form>
   )

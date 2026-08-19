@@ -1,19 +1,11 @@
-'use client'
-
-import { useRouter } from 'next/navigation'
+import { logoutAction } from '@/lib/actions/auth'
 
 export function LogoutButton() {
-  const router = useRouter()
-
-  async function logout() {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/')
-    router.refresh()
-  }
-
   return (
-    <button type="button" onClick={logout} className="btn-ghost text-sm">
-      Sign out
-    </button>
+    <form action={logoutAction}>
+      <button type="submit" className="btn-ghost text-sm">
+        Sign out
+      </button>
+    </form>
   )
 }

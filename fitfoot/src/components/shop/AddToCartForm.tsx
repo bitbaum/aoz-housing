@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useActionState, useState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { addToCartAction } from '@/lib/actions/cart'
+import type { ActionState } from '@/lib/actions/types'
 
 interface VariantOption {
   id: string
@@ -10,38 +12,28 @@ interface VariantOption {
   stockQty: number
 }
 
-export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
-  const router = useRouter()
-  const [variantId, setVariantId] = useState<string | null>(null)
-  const [state, setState] = useState<'idle' | 'busy' | 'added' | 'error'>('idle')
-  const [message, setMessage] = useState('')
+function AddButton({ soldOut, noSizeChosen }: { soldOut: boolean; noSizeChosen: boolean }) {
+  const { pending } = useFormStatus()
+  return (
+    <button
+      type="submit"
+      disabled={soldOut || noSizeChosen || pending}
+      className="btn-gold mt-6 w-full sm:w-auto sm:min-w-64"
+    >
+      {soldOut ? 'Sold out' : pending ? 'Adding…' : 'Add to cart'}
+    </button>
+  )
+}
 
+export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
+  const [variantId, setVariantId] = useState<string | null>(null)
+  const [state, formAction] = useActionState<ActionState, FormData>(addToCartAction, {})
   const anyInStock = variants.some((v) => v.stockQty > 0)
 
-  async function add() {
-    if (!variantId) {
-      setMessage('Please choose a size first.')
-      return
-    }
-    setState('busy')
-    setMessage('')
-    const res = await fetch('/api/cart/items', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ variantId, quantity: 1 }),
-    })
-    if (res.ok) {
-      setState('added')
-      router.refresh()
-    } else {
-      setState('error')
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setMessage(body?.error ?? 'Could not add to cart. Please try again.')
-    }
-  }
-
   return (
-    <div className="mt-8">
+    <form action={formAction} className="mt-8">
+      <input type="hidden" name="variantId" value={variantId ?? ''} />
+      <input type="hidden" name="quantity" value="1" />
       <p className="label-field">Size (EU)</p>
       <div className="flex flex-wrap gap-2">
         {variants.map((variant) => {
@@ -52,11 +44,7 @@ export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
               key={variant.id}
               type="button"
               disabled={disabled}
-              onClick={() => {
-                setVariantId(variant.id)
-                setState('idle')
-                setMessage('')
-              }}
+              onClick={() => setVariantId(variant.id)}
               className={`min-h-[44px] min-w-[52px] rounded border px-3 py-2 font-medium transition-colors ${
                 selected
                   ? 'border-gold-500 bg-gold-50 text-gold-700'
@@ -71,16 +59,9 @@ export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={add}
-        disabled={state === 'busy' || !anyInStock}
-        className="btn-gold mt-6 w-full sm:w-auto sm:min-w-64"
-      >
-        {!anyInStock ? 'Sold out' : state === 'busy' ? 'Adding…' : 'Add to cart'}
-      </button>
+      <AddButton soldOut={!anyInStock} noSizeChosen={!variantId} />
 
-      {state === 'added' && (
+      {state.ok && (
         <p className="mt-3 text-sm font-medium text-success-text">
           Added to cart —{' '}
           <a href="/cart" className="underline">
@@ -88,7 +69,7 @@ export function AddToCartForm({ variants }: { variants: VariantOption[] }) {
           </a>
         </p>
       )}
-      {message && <p className="mt-3 text-sm font-medium text-error-text">{message}</p>}
-    </div>
+      {state.error && <p className="mt-3 text-sm font-medium text-error-text">{state.error}</p>}
+    </form>
   )
 }

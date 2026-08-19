@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
+import { updateOrderStatusAction } from '@/lib/actions/crm'
 
 const ACTION_LABELS: Record<string, string> = {
   PAID: 'Mark as paid',
@@ -20,28 +20,18 @@ export function OrderStatusActions({
   orderId: string
   transitions: string[]
 }) {
-  const router = useRouter()
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [pending, startTransition] = useTransition()
 
-  async function move(status: string) {
+  function move(status: string) {
     if (DESTRUCTIVE.has(status) && !window.confirm(`Really ${ACTION_LABELS[status]?.toLowerCase()}?`)) {
       return
     }
-    setBusy(true)
     setError('')
-    const res = await fetch(`/api/admin/orders/${orderId}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
+    startTransition(async () => {
+      const result = await updateOrderStatusAction(orderId, status)
+      if (result.error) setError(result.error)
     })
-    if (res.ok) {
-      router.refresh()
-    } else {
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(body?.error ?? 'Update failed.')
-    }
-    setBusy(false)
   }
 
   return (
@@ -51,7 +41,7 @@ export function OrderStatusActions({
           <button
             key={status}
             type="button"
-            disabled={busy}
+            disabled={pending}
             onClick={() => move(status)}
             className={DESTRUCTIVE.has(status) ? 'btn-ghost text-sm text-error-text' : 'btn-dark text-sm'}
           >

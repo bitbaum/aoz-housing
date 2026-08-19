@@ -1,7 +1,11 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition, type FormEvent } from 'react'
+import {
+  createVariantAction,
+  deleteVariantAction,
+  updateVariantStockAction,
+} from '@/lib/actions/products'
 
 interface VariantRow {
   id: string
@@ -18,54 +22,43 @@ export function VariantManager({
   productId: string
   variants: VariantRow[]
 }) {
-  const router = useRouter()
   const [draft, setDraft] = useState({ size: '', color: '', stockQty: '5' })
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [pending, startTransition] = useTransition()
 
-  async function updateStock(variantId: string, stockQty: number) {
+  function updateStock(variantId: string, stockQty: number) {
     if (stockQty < 0) return
-    setBusy(true)
     setError('')
-    const res = await fetch(`/api/admin/variants/${variantId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stockQty }),
+    startTransition(async () => {
+      const result = await updateVariantStockAction(variantId, stockQty)
+      if (result.error) setError(result.error)
     })
-    if (!res.ok) {
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(body?.error ?? 'Update failed.')
-    }
-    router.refresh()
-    setBusy(false)
   }
 
-  async function removeVariant(variantId: string) {
+  function removeVariant(variantId: string) {
     if (!window.confirm('Delete this size?')) return
-    setBusy(true)
     setError('')
-    await fetch(`/api/admin/variants/${variantId}`, { method: 'DELETE' })
-    router.refresh()
-    setBusy(false)
+    startTransition(async () => {
+      const result = await deleteVariantAction(variantId)
+      if (result.error) setError(result.error)
+    })
   }
 
-  async function addVariant(event: FormEvent) {
+  function addVariant(event: FormEvent) {
     event.preventDefault()
-    setBusy(true)
     setError('')
-    const res = await fetch(`/api/admin/products/${productId}/variants`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...draft, stockQty: Number(draft.stockQty) }),
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('size', draft.size)
+      formData.set('color', draft.color)
+      formData.set('stockQty', draft.stockQty)
+      const result = await createVariantAction(productId, {}, formData)
+      if (result.error) {
+        setError(result.error)
+      } else {
+        setDraft({ size: '', color: '', stockQty: '5' })
+      }
     })
-    if (res.ok) {
-      setDraft({ size: '', color: '', stockQty: '5' })
-      router.refresh()
-    } else {
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(body?.error ?? 'Could not add the size.')
-    }
-    setBusy(false)
   }
 
   return (
@@ -85,7 +78,7 @@ export function VariantManager({
               <button
                 type="button"
                 aria-label="Decrease stock"
-                disabled={busy || variant.stockQty <= 0}
+                disabled={pending || variant.stockQty <= 0}
                 onClick={() => updateStock(variant.id, variant.stockQty - 1)}
                 className="min-h-[44px] min-w-[44px] rounded border border-line font-bold disabled:text-muted"
               >
@@ -99,7 +92,7 @@ export function VariantManager({
               <button
                 type="button"
                 aria-label="Increase stock"
-                disabled={busy}
+                disabled={pending}
                 onClick={() => updateStock(variant.id, variant.stockQty + 1)}
                 className="min-h-[44px] min-w-[44px] rounded border border-line font-bold"
               >
@@ -107,7 +100,7 @@ export function VariantManager({
               </button>
               <button
                 type="button"
-                disabled={busy}
+                disabled={pending}
                 onClick={() => removeVariant(variant.id)}
                 className="ml-2 min-h-[44px] text-xs text-muted underline hover:text-error-text"
               >
@@ -163,7 +156,7 @@ export function VariantManager({
           </div>
         </div>
         {error && <p className="mt-2 text-sm font-medium text-error-text">{error}</p>}
-        <button type="submit" disabled={busy} className="btn-dark mt-3 text-sm">
+        <button type="submit" disabled={pending} className="btn-dark mt-3 text-sm">
           Add size
         </button>
       </form>

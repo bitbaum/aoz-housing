@@ -1,8 +1,8 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRef, useState, useTransition } from 'react'
 import { resizeImageToDataUrl } from '@/lib/image-resize'
+import { uploadProductImageAction, deleteProductImageAction } from '@/lib/actions/products'
 
 interface ImageUploadFieldProps {
   /** Existing image to show, if any (the live serving URL). */
@@ -17,47 +17,41 @@ interface ImageUploadFieldProps {
 }
 
 export function ImageUploadField({ currentImageUrl, productId, onChange }: ImageUploadFieldProps) {
-  const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(currentImageUrl ?? null)
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [pending, startTransition] = useTransition()
 
-  async function handleFile(file: File) {
-    setBusy(true)
+  function handleFile(file: File) {
     setError('')
-    try {
-      const dataUrl = await resizeImageToDataUrl(file)
+    startTransition(async () => {
+      let dataUrl: string
+      try {
+        dataUrl = await resizeImageToDataUrl(file)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not use that photo.')
+        return
+      }
       setPreview(dataUrl)
       onChange?.(dataUrl)
 
       if (productId) {
-        const res = await fetch(`/api/admin/products/${productId}/image`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ imageDataUrl: dataUrl }),
-        })
-        if (!res.ok) {
-          const body = (await res.json().catch(() => null)) as { error?: string } | null
-          throw new Error(body?.error ?? 'Could not save the photo.')
-        }
-        router.refresh()
+        const formData = new FormData()
+        formData.set('imageDataUrl', dataUrl)
+        const result = await uploadProductImageAction(productId, {}, formData)
+        if (result.error) setError(result.error)
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not use that photo.')
-    } finally {
-      setBusy(false)
-    }
+    })
   }
 
-  async function remove() {
+  function remove() {
     setPreview(null)
     onChange?.(null)
     if (productId) {
-      setBusy(true)
-      await fetch(`/api/admin/products/${productId}/image`, { method: 'DELETE' })
-      router.refresh()
-      setBusy(false)
+      startTransition(async () => {
+        const result = await deleteProductImageAction(productId)
+        if (result.error) setError(result.error)
+      })
     }
   }
 
@@ -83,22 +77,22 @@ export function ImageUploadField({ currentImageUrl, productId, onChange }: Image
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0]
-              if (file) void handleFile(file)
+              if (file) handleFile(file)
               e.target.value = ''
             }}
           />
           <button
             type="button"
-            disabled={busy}
+            disabled={pending}
             onClick={() => inputRef.current?.click()}
             className="btn-dark text-sm"
           >
-            {busy ? 'Uploading…' : preview ? 'Choose a different photo' : 'Upload a photo'}
+            {pending ? 'Uploading…' : preview ? 'Choose a different photo' : 'Upload a photo'}
           </button>
           {preview && (
             <button
               type="button"
-              disabled={busy}
+              disabled={pending}
               onClick={remove}
               className="ml-2 min-h-[44px] text-sm text-muted underline hover:text-error-text"
             >

@@ -1,31 +1,24 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
+import { contactAction } from '@/lib/actions/checkout'
+import { Field } from '@/components/ui/Field'
+import type { ActionState } from '@/lib/actions/types'
+
+function SendButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" disabled={pending} className="btn-gold w-full">
+      {pending ? 'Sending…' : 'Send Message'}
+    </button>
+  )
+}
 
 export function ContactForm() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
-  const [state, setState] = useState<'idle' | 'busy' | 'done' | 'error'>('idle')
-  const [error, setError] = useState('')
+  const [state, formAction] = useActionState<ActionState, FormData>(contactAction, {})
 
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    setState('busy')
-    setError('')
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    if (res.ok) {
-      setState('done')
-    } else {
-      setState('error')
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(body?.error ?? 'Could not send your message. Please try again.')
-    }
-  }
-
-  if (state === 'done') {
+  if (state.ok) {
     return (
       <div className="card flex items-center justify-center text-center">
         <div>
@@ -42,67 +35,37 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card">
+    <form action={formAction} className="card">
       <h2 className="font-heading text-2xl">Send us a message</h2>
       <div className="mt-6 space-y-4">
-        <div>
-          <label htmlFor="contact-name" className="label-field">
-            Name
-          </label>
-          <input
-            id="contact-name"
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label htmlFor="contact-email" className="label-field">
-            Email
-          </label>
+        <Field id="contact-name" label="Name">
+          <input id="contact-name" name="name" type="text" required className="input-field" />
+        </Field>
+        <Field id="contact-email" label="Email">
           <input
             id="contact-email"
+            name="email"
             type="email"
             required
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
             placeholder="your.email@example.com"
             className="input-field"
           />
-        </div>
-        <div>
-          <label htmlFor="contact-subject" className="label-field">
-            Subject
-          </label>
-          <input
-            id="contact-subject"
-            type="text"
-            required
-            value={form.subject}
-            onChange={(e) => setForm({ ...form, subject: e.target.value })}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label htmlFor="contact-message" className="label-field">
-            Message
-          </label>
+        </Field>
+        <Field id="contact-subject" label="Subject">
+          <input id="contact-subject" name="subject" type="text" required className="input-field" />
+        </Field>
+        <Field id="contact-message" label="Message">
           <textarea
             id="contact-message"
+            name="message"
             required
             rows={5}
-            value={form.message}
-            onChange={(e) => setForm({ ...form, message: e.target.value })}
             placeholder="Tell us how we can help you..."
             className="input-field"
           />
-        </div>
-        {error && <p className="text-sm font-medium text-error-text">{error}</p>}
-        <button type="submit" disabled={state === 'busy'} className="btn-gold w-full">
-          {state === 'busy' ? 'Sending…' : 'Send Message'}
-        </button>
+        </Field>
+        {state.error && <p className="text-sm font-medium text-error-text">{state.error}</p>}
+        <SendButton />
       </div>
     </form>
   )

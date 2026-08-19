@@ -17,10 +17,15 @@ export function rateLimit(key: string, limit: number, windowMs: number): boolean
   return true
 }
 
-export function getClientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')
+interface HeaderLike {
+  get(name: string): string | null
+}
+
+/** Accepts a Fetch API Request's headers or next/headers()'s ReadonlyHeaders — both satisfy this. */
+export function getClientIp(headers: HeaderLike): string {
+  const forwarded = headers.get('x-forwarded-for')
   if (forwarded) return forwarded.split(',')[0].trim()
-  return request.headers.get('x-real-ip') ?? 'unknown'
+  return headers.get('x-real-ip') ?? 'unknown'
 }
 
 /** Test hook. */

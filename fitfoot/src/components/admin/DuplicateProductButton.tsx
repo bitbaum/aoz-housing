@@ -1,26 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { duplicateProductAction } from '@/lib/actions/products'
 
 export function DuplicateProductButton({ productId }: { productId: string }) {
   const router = useRouter()
-  const [busy, setBusy] = useState(false)
+  const [pending, startTransition] = useTransition()
 
-  async function duplicate() {
-    setBusy(true)
-    const res = await fetch(`/api/admin/products/${productId}/duplicate`, { method: 'POST' })
-    const body = (await res.json().catch(() => null)) as { id?: string } | null
-    if (res.ok && body?.id) {
-      router.push(`/admin/products/${body.id}`)
-      router.refresh()
-    }
-    setBusy(false)
+  function duplicate() {
+    startTransition(async () => {
+      const result = await duplicateProductAction(productId)
+      if (result.ok && result.data?.id) {
+        router.push(`/admin/products/${result.data.id}`)
+      }
+    })
   }
 
   return (
-    <button type="button" onClick={duplicate} disabled={busy} className="btn-ghost text-sm">
-      {busy ? 'Copying…' : 'Duplicate'}
+    <button type="button" onClick={duplicate} disabled={pending} className="btn-ghost text-sm">
+      {pending ? 'Copying…' : 'Duplicate'}
     </button>
   )
 }

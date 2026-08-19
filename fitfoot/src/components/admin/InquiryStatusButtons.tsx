@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
 import { INQUIRY_STATUSES } from '@/config/database'
+import { updateInquiryStatusAction } from '@/lib/actions/crm'
 
 const LABELS: Record<string, string> = {
   NEW: 'New',
@@ -17,18 +17,12 @@ export function InquiryStatusButtons({
   inquiryId: string
   current: string
 }) {
-  const router = useRouter()
-  const [busy, setBusy] = useState(false)
+  const [pending, startTransition] = useTransition()
 
-  async function setStatus(status: string) {
-    setBusy(true)
-    await fetch(`/api/admin/inquiries/${inquiryId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
+  function setStatus(status: string) {
+    startTransition(async () => {
+      await updateInquiryStatusAction(inquiryId, status)
     })
-    router.refresh()
-    setBusy(false)
   }
 
   return (
@@ -37,7 +31,7 @@ export function InquiryStatusButtons({
         <button
           key={status}
           type="button"
-          disabled={busy || status === current}
+          disabled={pending || status === current}
           onClick={() => setStatus(status)}
           className={`min-h-[44px] rounded border px-3 py-1 text-xs font-semibold transition-colors ${
             status === current

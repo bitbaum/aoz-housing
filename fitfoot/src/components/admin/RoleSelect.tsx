@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 import { CUSTOMER_ROLES } from '@/config/database'
+import { updateCustomerRoleAction } from '@/lib/actions/crm'
 
 export function RoleSelect({
   customerId,
@@ -11,26 +11,16 @@ export function RoleSelect({
   customerId: string
   currentRole: string
 }) {
-  const router = useRouter()
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [pending, startTransition] = useTransition()
 
-  async function change(role: string) {
+  function change(role: string) {
     if (!window.confirm(`Change this person's role to ${role}?`)) return
-    setBusy(true)
     setError('')
-    const res = await fetch(`/api/admin/customers/${customerId}/role`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role }),
+    startTransition(async () => {
+      const result = await updateCustomerRoleAction(customerId, role)
+      if (result.error) setError(result.error)
     })
-    if (res.ok) {
-      router.refresh()
-    } else {
-      const body = (await res.json().catch(() => null)) as { error?: string } | null
-      setError(body?.error ?? 'Could not change the role.')
-    }
-    setBusy(false)
   }
 
   return (
@@ -40,7 +30,7 @@ export function RoleSelect({
       </label>
       <select
         id="role-select"
-        disabled={busy}
+        disabled={pending}
         value={currentRole}
         onChange={(e) => change(e.target.value)}
         className="min-h-[44px] rounded border border-line px-3 py-2 text-sm"

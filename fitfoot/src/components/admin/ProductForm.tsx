@@ -1,12 +1,14 @@
 'use client'
 
-import { useMemo, useState, type FormEvent } from 'react'
+import { useActionState, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CONDITION_GRADES, GENDERS, PRODUCT_CATEGORIES, PRODUCT_TYPES } from '@/config/database'
 import { SUSTAINABILITY_FEATURES } from '@/config/product-features'
 import { chfToRappen, formatRappen } from '@/lib/money'
 import { slugify } from '@/lib/slug'
 import { useDraftAutosave } from '@/lib/useDraftAutosave'
+import { createProductAction, updateProductAction } from '@/lib/actions/products'
+import type { ActionState } from '@/lib/actions/types'
 import { ImageUploadField } from './ImageUploadField'
 
 export interface ProductFormValues {
@@ -71,6 +73,8 @@ function pricePreview(chf: string): string | null {
   }
 }
 
+type ProductActionState = ActionState<{ id: string }>
+
 export function ProductForm({
   productId,
   initial,
@@ -82,12 +86,25 @@ export function ProductForm({
   const [form, setForm] = useState<ProductFormValues>(initial ?? EMPTY)
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [rows, setRows] = useState<DraftVariant[]>(() => (productId ? [] : [newVariantRow()]))
-  const [busy, setBusy] = useState(false)
-  const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
+
+  const action = useMemo(
+    () => (productId ? updateProductAction.bind(null, productId) : createProductAction),
+    [productId]
+  )
+  const [state, formAction, pending] = useActionState<ProductActionState, FormData>(action, {})
 
   const draftKey = `fitfoot-admin-product-draft:${productId ?? 'new'}`
   const draftPayload = useMemo(() => ({ form, rows }), [form, rows])
   const { draft, clearDraft, dismissRestore } = useDraftAutosave(draftKey, draftPayload, !productId)
+
+  useEffect(() => {
+    if (!state.ok) return
+    clearDraft()
+    if (!productId && state.data?.id) {
+      router.push(`/admin/products/${state.data.id}`)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state])
 
   function set<K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) {
     setForm((f) => ({ ...f, [key]: value }))
@@ -110,48 +127,22 @@ export function ProductForm({
   }
 
   const slugPreview = form.slug.trim() ? slugify(form.slug) : slugify(form.name)
-
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    setBusy(true)
-    setMessage(null)
-
-    const payload = {
-      ...form,
-      slug: form.slug.trim() || undefined,
-      conditionGrade: form.conditionGrade || null,
-      compareAtChf: form.compareAtChf || null,
-      ...(productId
-        ? {}
-        : {
-            imageDataUrl,
-            variants: rows
-              .filter((r) => r.size.trim())
-              .map((r) => ({ size: r.size, color: r.color, stockQty: Number(r.stockQty) || 0 })),
-          }),
-    }
-
-    const res = await fetch(productId ? `/api/admin/products/${productId}` : '/api/admin/products', {
-      method: productId ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    const body = (await res.json().catch(() => null)) as { id?: string; error?: string } | null
-    if (res.ok) {
-      setMessage({ kind: 'ok', text: 'Saved.' })
-      clearDraft()
-      if (!productId && body?.id) {
-        router.push(`/admin/products/${body.id}`)
-      }
-      router.refresh()
-    } else {
-      setMessage({ kind: 'error', text: body?.error ?? 'Save failed.' })
-    }
-    setBusy(false)
-  }
+  const variantsJson = JSON.stringify(
+    rows
+      .filter((r) => r.size.trim())
+      .map((r) => ({ size: r.size, color: r.color, stockQty: Number(r.stockQty) || 0 }))
+  )
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form action={formAction} className="space-y-4">
+      <input type="hidden" name="active" value={form.active ? 'true' : 'false'} />
+      {!productId && (
+        <>
+          <input type="hidden" name="imageDataUrl" value={imageDataUrl ?? ''} />
+          <input type="hidden" name="variantsJson" value={variantsJson} />
+        </>
+      )}
+
       {draft && (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-gold-300 bg-gold-50 p-3 text-sm">
           <span>You have unsaved work from earlier. Continue where you left off?</span>
@@ -179,6 +170,7 @@ export function ProductForm({
         </label>
         <input
           id="pf-name"
+          name="name"
           type="text"
           required
           value={form.name}
@@ -203,6 +195,7 @@ export function ProductForm({
           </label>
           <select
             id="pf-category"
+            name="category"
             value={form.category}
             onChange={(e) => set('category', e.target.value)}
             className="input-field"
@@ -220,6 +213,7 @@ export function ProductForm({
           </label>
           <select
             id="pf-gender"
+            name="gender"
             value={form.gender}
             onChange={(e) => set('gender', e.target.value)}
             className="input-field"
@@ -237,6 +231,7 @@ export function ProductForm({
           </label>
           <select
             id="pf-type"
+            name="productType"
             value={form.productType}
             onChange={(e) => set('productType', e.target.value)}
             className="input-field"
@@ -255,6 +250,7 @@ export function ProductForm({
             </label>
             <select
               id="pf-condition"
+              name="conditionGrade"
               value={form.conditionGrade}
               onChange={(e) => set('conditionGrade', e.target.value)}
               className="input-field"
@@ -274,6 +270,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-price"
+            name="priceChf"
             type="text"
             required
             inputMode="decimal"
@@ -292,6 +289,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-compare"
+            name="compareAtChf"
             type="text"
             inputMode="decimal"
             value={form.compareAtChf}
@@ -382,6 +380,7 @@ export function ProductForm({
         </label>
         <input
           id="pf-short"
+          name="shortDescription"
           type="text"
           value={form.shortDescription}
           onChange={(e) => set('shortDescription', e.target.value)}
@@ -394,6 +393,7 @@ export function ProductForm({
         </label>
         <textarea
           id="pf-desc"
+          name="description"
           rows={4}
           value={form.description}
           onChange={(e) => set('description', e.target.value)}
@@ -407,6 +407,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-materials"
+            name="materials"
             type="text"
             value={form.materials}
             onChange={(e) => set('materials', e.target.value)}
@@ -419,6 +420,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-care"
+            name="careInstructions"
             type="text"
             value={form.careInstructions}
             onChange={(e) => set('careInstructions', e.target.value)}
@@ -431,6 +433,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-origin"
+            name="origin"
             type="text"
             value={form.origin}
             onChange={(e) => set('origin', e.target.value)}
@@ -443,6 +446,7 @@ export function ProductForm({
           </label>
           <input
             id="pf-brand"
+            name="brand"
             type="text"
             value={form.brand}
             onChange={(e) => set('brand', e.target.value)}
@@ -456,6 +460,7 @@ export function ProductForm({
         </label>
         <input
           id="pf-sustain"
+          name="sustainabilityNotes"
           type="text"
           value={form.sustainabilityNotes}
           onChange={(e) => set('sustainabilityNotes', e.target.value)}
@@ -470,6 +475,8 @@ export function ProductForm({
             <label key={feature} className="flex min-h-[44px] items-center gap-2 text-sm">
               <input
                 type="checkbox"
+                name="sustainabilityFeatures"
+                value={feature}
                 checked={form.sustainabilityFeatures.includes(feature)}
                 onChange={() => toggleFeature(feature)}
               />
@@ -486,6 +493,7 @@ export function ProductForm({
         <div className="mt-3">
           <input
             type="text"
+            name="slug"
             value={form.slug}
             onChange={(e) => set('slug', e.target.value)}
             placeholder={slugify(form.name) || 'auto-generated from the name'}
@@ -506,16 +514,11 @@ export function ProductForm({
         Visible in the shop
       </label>
 
-      {message && (
-        <p
-          className={`text-sm font-medium ${message.kind === 'ok' ? 'text-success-text' : 'text-error-text'}`}
-        >
-          {message.text}
-        </p>
-      )}
+      {state.error && <p className="text-sm font-medium text-error-text">{state.error}</p>}
+      {state.ok && productId && <p className="text-sm font-medium text-success-text">Saved.</p>}
 
-      <button type="submit" disabled={busy} className="btn-gold">
-        {busy ? 'Saving…' : productId ? 'Save changes' : 'Create product'}
+      <button type="submit" disabled={pending} className="btn-gold">
+        {pending ? 'Saving…' : productId ? 'Save changes' : 'Create product'}
       </button>
     </form>
   )

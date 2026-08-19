@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useActionState, useTransition } from 'react'
+import { updateCartItemAction } from '@/lib/actions/cart'
+import type { ActionState } from '@/lib/actions/types'
 
 interface CartLineControlsProps {
   itemId: string
@@ -10,18 +11,14 @@ interface CartLineControlsProps {
 }
 
 export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsProps) {
-  const router = useRouter()
-  const [busy, setBusy] = useState(false)
+  const [, formAction] = useActionState<ActionState, FormData>(updateCartItemAction, {})
+  const [pending, startTransition] = useTransition()
 
-  async function setQuantity(next: number) {
-    setBusy(true)
-    await fetch('/api/cart/items', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itemId, quantity: next }),
-    })
-    router.refresh()
-    setBusy(false)
+  function setQuantity(next: number) {
+    const formData = new FormData()
+    formData.set('itemId', itemId)
+    formData.set('quantity', String(next))
+    startTransition(() => formAction(formData))
   }
 
   return (
@@ -30,7 +27,7 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
         <button
           type="button"
           aria-label="Decrease quantity"
-          disabled={busy || quantity <= 1}
+          disabled={pending || quantity <= 1}
           onClick={() => setQuantity(quantity - 1)}
           className="min-h-[44px] min-w-[44px] px-3 font-bold text-muted disabled:text-muted"
         >
@@ -40,7 +37,7 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
         <button
           type="button"
           aria-label="Increase quantity"
-          disabled={busy || quantity >= maxQty}
+          disabled={pending || quantity >= maxQty}
           onClick={() => setQuantity(quantity + 1)}
           className="min-h-[44px] min-w-[44px] px-3 font-bold text-muted disabled:text-muted"
         >
@@ -49,7 +46,7 @@ export function CartLineControls({ itemId, quantity, maxQty }: CartLineControlsP
       </div>
       <button
         type="button"
-        disabled={busy}
+        disabled={pending}
         onClick={() => setQuantity(0)}
         className="min-h-[44px] text-sm text-muted underline hover:text-error-text"
       >

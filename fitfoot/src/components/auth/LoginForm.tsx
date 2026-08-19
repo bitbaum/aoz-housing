@@ -1,64 +1,46 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useActionState } from 'react'
+import { useFormStatus } from 'react-dom'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
+import { loginAction } from '@/lib/actions/auth'
+import { Field } from '@/components/ui/Field'
+import type { ActionState } from '@/lib/actions/types'
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" disabled={pending} className="btn-gold w-full">
+      {pending ? 'Signing in…' : 'Sign in'}
+    </button>
+  )
+}
 
 export function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
-  const [form, setForm] = useState({ email: '', password: '' })
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-
-  async function onSubmit(event: FormEvent) {
-    event.preventDefault()
-    setBusy(true)
-    setError('')
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    const body = (await res.json().catch(() => null)) as { error?: string; role?: string } | null
-    if (res.ok) {
-      const next = searchParams.get('next')
-      const fallback = body?.role === 'STAFF' || body?.role === 'ADMIN' ? '/admin' : '/account'
-      router.push(next && next.startsWith('/') ? next : fallback)
-      router.refresh()
-    } else {
-      setBusy(false)
-      setError(body?.error ?? 'Sign-in failed. Please try again.')
-    }
-  }
+  const [state, formAction] = useActionState<ActionState, FormData>(loginAction, {})
 
   return (
-    <form onSubmit={onSubmit} className="card mt-8 space-y-4">
-      <div>
-        <label htmlFor="login-email" className="label-field">
-          Email
-        </label>
+    <form action={formAction} className="card mt-8 space-y-4">
+      <input type="hidden" name="next" value={searchParams.get('next') ?? ''} />
+      <Field id="login-email" label="Email">
         <input
           id="login-email"
+          name="email"
           type="email"
           required
           autoComplete="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
           className="input-field"
         />
-      </div>
-      <div>
-        <label htmlFor="login-password" className="label-field">
-          Password
-        </label>
+      </Field>
+      <Field id="login-password" label="Password">
         <input
           id="login-password"
+          name="password"
           type="password"
           required
           autoComplete="current-password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
           className="input-field"
         />
         <Link
@@ -67,11 +49,9 @@ export function LoginForm() {
         >
           Forgot your password?
         </Link>
-      </div>
-      {error && <p className="text-sm font-medium text-error-text">{error}</p>}
-      <button type="submit" disabled={busy} className="btn-gold w-full">
-        {busy ? 'Signing in…' : 'Sign in'}
-      </button>
+      </Field>
+      {state.error && <p className="text-sm font-medium text-error-text">{state.error}</p>}
+      <SubmitButton />
       <p className="text-center text-sm text-muted">
         New to FitFoot?{' '}
         <Link href="/register" className="font-medium text-gold-600 hover:underline">
