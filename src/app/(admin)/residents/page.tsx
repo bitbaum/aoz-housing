@@ -2,46 +2,70 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { EMPTY_STATE_LABELS, RESIDENT_LIST_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
 
-export const metadata: Metadata = { title: 'Bewohner' }
-import { getDateDaysAgo } from '@/lib/utils'
+export const metadata: Metadata = { title: 'Klient*innen' }
+import { getDateDaysAgo, daysSinceCeil } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { ResidentsList } from '@/components/residents/ResidentsList'
+import { ClientBoard } from '@/components/residents/ClientBoard'
+import type { ClientBoardItem } from '@/components/residents/ClientBoard'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { CSVImport } from '@/components/residents/CSVImport'
 import { ButtonLink } from '@/components/ui/Button'
 import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page'
+import { LayoutGrid, List } from 'lucide-react'
+import Link from 'next/link'
+import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ view?: string; q?: string }>
+  searchParams: Promise<{ view?: string; q?: string; layout?: string }>
 }
 
 export default async function ResidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
+  const layout = params.layout || 'board'
+
+  const now = new Date()
 
   const [residents, statusGroups, unplacedCount] = await Promise.all([
     prisma.resident.findMany({
       where: {
         ...(view === 'active' ? { status: { in: ['ACTIVE', 'PLACED'] } } : view === 'archived' ? { status: 'EXITED' } : {}),
-        ...(q ? { code: { contains: q, mode: 'insensitive' } } : {}),
+        ...(q ? {
+          OR: [
+            { code: { contains: q, mode: 'insensitive' } },
+            { displayName: { contains: q, mode: 'insensitive' } },
+          ],
+        } : {}),
       },
       select: {
         ...RESIDENT_NAME_SELECT,
         ageRange: true,
         gender: true,
         status: true,
+        supportLevel: true,
         languages: true,
         createdAt: true,
         placements: {
           where: { status: 'ACTIVE' },
           select: {
-            housingUnit: {
-              select: { code: true },
+            startDate: true,
+            housingUnit: { select: { code: true } },
+            checkIns: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              select: { createdAt: true },
             },
+          },
+        },
+        careAssignments: {
+          select: {
+            role: true,
+            staff: { select: { name: true } },
           },
         },
         _count: {
@@ -85,10 +109,51 @@ export default async function ResidentsListPage({ searchParams }: Props) {
     visible: residents.length,
   }
 
+  // Compute check-in status for each resident
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clientBoardItems: ClientBoardItem[] = (residents as any[]).map((r) => {
+    const placement = r.placements?.[0]
+    const intervalDays = getCheckInInterval(r.supportLevel)
+    let daysSinceCheckIn: number | null = null
+
+    if (placement) {
+      const lastCheckIn = placement.checkIns?.[0]
+      daysSinceCheckIn = lastCheckIn
+        ? daysSinceCeil(lastCheckIn.createdAt, now)
+        : daysSinceCeil(placement.startDate, now)
+    }
+
+    return {
+      id: r.id,
+      code: r.code,
+      displayName: r.displayName,
+      ageRange: r.ageRange,
+      gender: r.gender,
+      status: r.status,
+      supportLevel: r.supportLevel ?? 'STANDARD',
+      languages: r.languages,
+      createdAt: r.createdAt,
+      placements: r.placements ?? [],
+      careSeats: r.careAssignments ?? [],
+      incidentCount: r._count?.incidentsAsSubject ?? 0,
+      daysSinceCheckIn,
+      checkInIntervalDays: intervalDays,
+    }
+  })
+
+  // Sort board: most urgent (very overdue) first
+  const sortedBoardItems = [...clientBoardItems].sort((a, b) => {
+    const scoreA = (a.daysSinceCheckIn ?? 0) - a.checkInIntervalDays
+    const scoreB = (b.daysSinceCheckIn ?? 0) - b.checkInIntervalDays
+    return scoreB - scoreA
+  })
+
+  const layoutParam = layout === 'list' ? '&layout=list' : ''
+
   return (
     <PageShell>
       <PageHeader
-        title={RESIDENT_LIST_LABELS.title}
+        title="Klient*innen"
         description={`${stats.visible} sichtbar · ${stats.unplaced} ohne Platzierung`}
         actions={
           <>
@@ -103,26 +168,45 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       />
 
       <Toolbar>
-        <form method="GET" action="/residents" className="flex-1">
+        <form method="GET" action="/residents" className="flex-1 flex items-center gap-2">
           <input type="hidden" name="view" value={view} />
+          {layout === 'list' && <input type="hidden" name="layout" value="list" />}
           <input
             type="search"
             name="q"
             defaultValue={q}
-            placeholder={RESIDENT_LIST_LABELS.searchPlaceholder}
+            placeholder="Suche nach Name oder Code…"
             className="input w-full md:max-w-sm"
             autoComplete="off"
           />
         </form>
+        <div className="flex items-center gap-1 shrink-0">
+          <Link
+            href={`/residents?view=${view}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            className={`p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${layout !== 'list' ? 'bg-brand-primary/10 text-brand-primary' : 'text-ui-muted hover:bg-ui-subtle'}`}
+            title="Kartenansicht"
+            aria-label="Kartenansicht"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </Link>
+          <Link
+            href={`/residents?view=${view}&layout=list${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            className={`p-2 rounded-md transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center ${layout === 'list' ? 'bg-brand-primary/10 text-brand-primary' : 'text-ui-muted hover:bg-ui-subtle'}`}
+            title="Listenansicht"
+            aria-label="Listenansicht"
+          >
+            <List className="w-4 h-4" />
+          </Link>
+        </div>
         <TabLinkGroup label={UI_LABELS.filterNav}>
-          <TabLink href={`/residents?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.active + stats.placed} active={view === 'active'} />
-          <TabLink href={`/residents?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
-          <TabLink href={`/residents?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
+          <TabLink href={`/residents?view=active${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label="Aktiv" count={stats.active + stats.placed} active={view === 'active'} />
+          <TabLink href={`/residents?view=archived${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
+          <TabLink href={`/residents?view=all${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
         </TabLinkGroup>
       </Toolbar>
 
       {view !== 'archived' && stats.unplaced > 0 && (
-        <div className="rounded-lg border border-ui-border bg-ui-surface p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="rounded-lg border border-status-warning/30 bg-status-warning/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="font-medium text-ui-text">
               {stats.unplaced} {RESIDENT_LIST_LABELS.unplacedBannerSuffix}
@@ -162,20 +246,23 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           action={
             q ? (
               <ButtonLink href={`/residents?view=${view}`} variant="outline">
-              {RESIDENT_LIST_LABELS.filterReset}
+                {RESIDENT_LIST_LABELS.filterReset}
               </ButtonLink>
-          ) : view !== 'archived' ? (
+            ) : view !== 'archived' ? (
               <ButtonLink href="/residents/new">
-              {RESIDENT_LIST_LABELS.emptyFirst}
+                {RESIDENT_LIST_LABELS.emptyFirst}
               </ButtonLink>
             ) : null
           }
         />
-      ) : (
-        <ResidentsList residents={residents.map(r => ({
+      ) : layout === 'list' ? (
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        <ResidentsList residents={(residents as any[]).map(r => ({
           ...r,
-          incidentCount: r._count.incidentsAsSubject,
+          incidentCount: r._count?.incidentsAsSubject ?? 0,
         }))} />
+      ) : (
+        <ClientBoard clients={sortedBoardItems} />
       )}
     </PageShell>
   )
