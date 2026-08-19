@@ -35,6 +35,7 @@ export const so: Dictionary = {
 
   'navGroup.living': 'Nolosha iyo guriyaha',
   'navGroup.together': 'Wada shaqaynta',
+  'navGroup.concerns': 'Arrimo iyo fursado',
   'navGroup.integration': 'Dhaqanka iyo shaqada',
   'navGroup.account': 'Akoonkayga',
 
@@ -61,10 +62,13 @@ export const so: Dictionary = {
   'messages.unread': 'cusub',
 
   'action.save': 'Kaydi',
+  'action.saving': 'Waa la kaydinayaa ...',
+  'action.saved': 'Waa la kaydiyay',
   'action.cancel': 'Jooji',
   'action.back': 'Dib u noqo',
   'action.close': 'Xir',
   'action.showAll': 'Muuji dhammaan',
+  'error.generic': 'Waxbaa khaldamay. Fadlan mar kale isku day.',
 
   'language.label': 'Luqadda',
   'language.change': 'Beddel luqadda',

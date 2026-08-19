@@ -32,6 +32,7 @@ export const fa: Dictionary = {
 
   'navGroup.living': 'روزمره',
   'navGroup.together': 'با هم تصمیم',
+  'navGroup.concerns': 'درخواست‌ها و پیشنهادها',
   'navGroup.integration': 'درخواست‌ها',
   'navGroup.account': 'حساب من',
 
@@ -58,10 +59,13 @@ export const fa: Dictionary = {
   'messages.unread': 'جدید',
 
   'action.save': 'ذخیره',
+  'action.saving': 'در حال ذخیره ...',
+  'action.saved': 'ذخیره شد',
   'action.cancel': 'لغو',
   'action.back': 'بازگشت',
   'action.close': 'بستن',
   'action.showAll': 'نمایش همه',
+  'error.generic': 'خطایی رخ داد. لطفا دوباره تلاش کنید.',
 
   'language.label': 'زبان',
   'language.change': 'تغییر زبان',

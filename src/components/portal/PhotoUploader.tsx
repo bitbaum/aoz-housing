@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PHOTO_LIMITS } from '@/lib/config/profile'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 const L = PORTAL_LABELS.profile
 
@@ -46,6 +47,7 @@ async function resizeToAvatar(file: File): Promise<Blob> {
 
 export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
   const router = useRouter()
+  const t = useT()
   const inputRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -65,12 +67,12 @@ export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
       const response = await fetch('/api/portal/profile/photo', { method: 'POST', body: formData })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       router.push('/portal/profile?photoUpdated=true')
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setBusy(false)
     }
@@ -83,12 +85,12 @@ export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
       const response = await fetch('/api/portal/profile/photo', { method: 'DELETE' })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       router.push('/portal/profile?photoRemoved=true')
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setBusy(false)
     }
@@ -105,7 +107,7 @@ export function PhotoUploader({ resident, photoVersion }: PhotoUploaderProps) {
             disabled={busy}
             className="btn-outline"
           >
-            {busy ? PORTAL_LABELS.form.saving : L.photoUpload}
+            {busy ? t('action.saving') : L.photoUpload}
           </button>
           {photoVersion && (
             <button type="button" onClick={handleRemove} disabled={busy} className="btn-ghost">

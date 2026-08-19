@@ -75,10 +75,13 @@ export const de = {
 
   // Shared actions
   'action.save': 'Speichern',
+  'action.saving': 'Wird gespeichert ...',
+  'action.saved': 'Gespeichert',
   'action.cancel': 'Abbrechen',
   'action.back': 'Zurück',
   'action.close': 'Schliessen',
   'action.showAll': 'Alle anzeigen',
+  'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
 
   // The language picker itself
   'language.label': 'Sprache',

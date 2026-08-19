@@ -49,6 +49,7 @@ export const ru: Dictionary = {
 
   'navGroup.living': 'Быт и жильё',
   'navGroup.together': 'Решаем вместе',
+  'navGroup.concerns': 'Вопросы и предложения',
   'navGroup.integration': 'Интеграция и работа',
   'navGroup.account': 'Мой аккаунт',
 
@@ -75,10 +76,13 @@ export const ru: Dictionary = {
   'messages.unread': 'новое',
 
   'action.save': 'Сохранить',
+  'action.saving': 'Сохранение ...',
+  'action.saved': 'Сохранено',
   'action.cancel': 'Отмена',
   'action.back': 'Назад',
   'action.close': 'Закрыть',
   'action.showAll': 'Показать все',
+  'error.generic': 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.',
 
   'language.label': 'Язык',
   'language.change': 'Сменить язык',

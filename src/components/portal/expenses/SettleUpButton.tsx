@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { formatRappen } from '@/lib/expenses/money'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 interface SettleUpButtonProps {
   toResidentId: string
@@ -19,6 +20,7 @@ const L = PORTAL_LABELS.expenses
  */
 export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpButtonProps) {
   const router = useRouter()
+  const t = useT()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,12 +36,12 @@ export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpB
       })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       router.push('/portal/expenses?settled=true')
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setSubmitting(false)
     }
@@ -48,7 +50,7 @@ export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpB
   return (
     <span className="shrink-0">
       <button type="button" onClick={handleClick} disabled={submitting} className="btn-outline text-sm">
-        {submitting ? PORTAL_LABELS.form.saving : L.markPaid}
+        {submitting ? t('action.saving') : L.markPaid}
       </button>
       {error && <span className="block text-xs text-status-error-text mt-1">{error}</span>}
     </span>

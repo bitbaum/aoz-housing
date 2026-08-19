@@ -39,6 +39,7 @@ export const ar: Dictionary = {
 
   'navGroup.living': 'الحياة اليومية',
   'navGroup.together': 'نقرر معًا',
+  'navGroup.concerns': 'الطلبات والعروض',
   'navGroup.integration': 'الطلبات والعروض',
   'navGroup.account': 'حسابي',
 
@@ -65,10 +66,13 @@ export const ar: Dictionary = {
   'messages.unread': 'جديد',
 
   'action.save': 'حفظ',
+  'action.saving': 'جارٍ الحفظ ...',
+  'action.saved': 'تم الحفظ',
   'action.cancel': 'إلغاء',
   'action.back': 'رجوع',
   'action.close': 'إغلاق',
   'action.showAll': 'عرض الكل',
+  'error.generic': 'حدث خطأ. يرجى المحاولة مرة أخرى.',
 
   'language.label': 'اللغة',
   'language.change': 'تغيير اللغة',

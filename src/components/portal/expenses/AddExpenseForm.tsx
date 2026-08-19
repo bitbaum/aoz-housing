@@ -6,6 +6,7 @@ import { Plus } from 'lucide-react'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { EXPENSE_CATEGORIES } from '@/lib/config/expenses'
 import { chfToRappen } from '@/lib/expenses/money'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 interface Member {
   id: string
@@ -21,6 +22,7 @@ const L = PORTAL_LABELS.expenses
 
 export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
   const router = useRouter()
+  const t = useT()
   const [open, setOpen] = useState(false)
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
@@ -61,7 +63,7 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
       })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       setDescription('')
@@ -70,7 +72,7 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
       setOpen(false)
       router.push('/portal/expenses?created=true')
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setSubmitting(false)
     }
@@ -176,10 +178,10 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
 
       <div className="mt-4 flex gap-3">
         <button type="submit" disabled={submitting || participantIds.length === 0} className="btn-primary">
-          {submitting ? PORTAL_LABELS.form.saving : L.submit}
+          {submitting ? t('action.saving') : t('action.save')}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="btn-ghost">
-          {PORTAL_LABELS.form.cancel}
+          {t('action.cancel')}
         </button>
       </div>
     </form>

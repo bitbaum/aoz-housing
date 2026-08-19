@@ -32,6 +32,7 @@ export const sq: Dictionary = {
 
   'navGroup.living': 'Jeta e përditshme dhe strehimi',
   'navGroup.together': 'Bashkë',
+  'navGroup.concerns': 'Çështje dhe oferta',
   'navGroup.integration': 'Integrimi dhe puna',
   'navGroup.account': 'Llogaria ime',
 
@@ -58,10 +59,13 @@ export const sq: Dictionary = {
   'messages.unread': 'i ri',
 
   'action.save': 'Ruaj',
+  'action.saving': 'Po ruhet ...',
+  'action.saved': 'U ruajt',
   'action.cancel': 'Anulo',
   'action.back': 'Kthehu',
   'action.close': 'Mbyll',
   'action.showAll': 'Shfaq të gjitha',
+  'error.generic': 'Ndodhi një gabim. Ju lutem provoni përsëri.',
 
   'language.label': 'Gjuha',
   'language.change': 'Ndrysho gjuhën',

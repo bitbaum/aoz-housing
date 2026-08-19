@@ -32,6 +32,7 @@ export const ti: Dictionary = {
 
   'navGroup.living': 'መዓልታዊ',
   'navGroup.together': 'ብሓባር ውሳነ',
+  'navGroup.concerns': 'ሕቶታትን ኣቕርቦትን',
   'navGroup.integration': 'ሕቶታት',
   'navGroup.account': 'ሕሳበይ',
 
@@ -58,10 +59,13 @@ export const ti: Dictionary = {
   'messages.unread': 'ሓድሽ',
 
   'action.save': 'ዓቅብ',
+  'action.saving': 'ይዕቀብ ኣሎ ...',
+  'action.saved': 'ተዓቂቡ',
   'action.cancel': 'ሰርዝ',
   'action.back': 'ተመለስ',
   'action.close': 'ዕጸው',
   'action.showAll': 'ኩሉ ኣርኢ',
+  'error.generic': 'ጌጋ ተፈጢሩ። በጃኹም ዳግም ፈትኑ።',
 
   'language.label': 'ቋንቋ',
   'language.change': 'ቋንቋ ቀይር',

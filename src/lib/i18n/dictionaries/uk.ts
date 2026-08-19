@@ -37,6 +37,7 @@ export const uk: Dictionary = {
 
   'navGroup.living': 'Щоденне',
   'navGroup.together': 'Вирішуємо разом',
+  'navGroup.concerns': 'Звернення та пропозиції',
   'navGroup.integration': 'Звернення та пропозиції',
   'navGroup.account': 'Мій акаунт',
 
@@ -63,10 +64,13 @@ export const uk: Dictionary = {
   'messages.unread': 'нове',
 
   'action.save': 'Зберегти',
+  'action.saving': 'Збереження ...',
+  'action.saved': 'Збережено',
   'action.cancel': 'Скасувати',
   'action.back': 'Назад',
   'action.close': 'Закрити',
   'action.showAll': 'Показати всі',
+  'error.generic': 'Сталася помилка. Будь ласка, спробуйте ще раз.',
 
   'language.label': 'Мова',
   'language.change': 'Змінити мову',

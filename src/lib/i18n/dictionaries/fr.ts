@@ -38,6 +38,7 @@ export const fr: Dictionary = {
 
   'navGroup.living': 'Au quotidien',
   'navGroup.together': 'Décider ensemble',
+  'navGroup.concerns': 'Demandes et offres',
   'navGroup.integration': 'Demandes et offres',
   'navGroup.account': 'Mon compte',
 
@@ -64,10 +65,13 @@ export const fr: Dictionary = {
   'messages.unread': 'nouveau',
 
   'action.save': 'Enregistrer',
+  'action.saving': 'Enregistrement ...',
+  'action.saved': 'Enregistre',
   'action.cancel': 'Annuler',
   'action.back': 'Retour',
   'action.close': 'Fermer',
   'action.showAll': 'Tout afficher',
+  'error.generic': "Une erreur s'est produite. Veuillez reessayer.",
 
   'language.label': 'Langue',
   'language.change': 'Changer de langue',

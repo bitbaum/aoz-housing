@@ -6,6 +6,7 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { PROFILE_LIMITS } from '@/lib/config/profile'
 import { PROFILE_VISIBILITY_OPTIONS } from '@/lib/privacy/profile-visibility'
 import type { ProfileVisibility } from '@prisma/client'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 const L = PORTAL_LABELS.profile
 
@@ -19,6 +20,7 @@ export function ProfileForm({
   profileVisibility: ProfileVisibility
 }) {
   const router = useRouter()
+  const t = useT()
   const [name, setName] = useState(displayName)
   const [about, setAbout] = useState(bio)
   const [visibility, setVisibility] = useState<ProfileVisibility>(profileVisibility)
@@ -38,14 +40,14 @@ export function ProfileForm({
       const body = await response.json()
       if (!body.success) {
         setStatus('error')
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       setStatus('saved')
       router.push('/portal/profile?saved=true')
     } catch {
       setStatus('error')
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     }
   }
 
@@ -119,10 +121,10 @@ export function ProfileForm({
 
       <div className="mt-4 flex items-center gap-3">
         <button type="submit" disabled={status === 'saving'} className="btn-primary">
-          {status === 'saving' ? PORTAL_LABELS.form.saving : PORTAL_LABELS.form.submit}
+          {status === 'saving' ? t('action.saving') : t('action.save')}
         </button>
         {status === 'saved' && (
-          <span className="text-sm text-status-success-text">{PORTAL_LABELS.form.saved}</span>
+          <span className="text-sm text-status-success-text">{t('action.saved')}</span>
         )}
       </div>
     </form>

@@ -25,6 +25,14 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
+jest.mock('@/lib/i18n/LocaleProvider', () => ({
+  useT: () => (key: string) => {
+    if (key === 'action.saving') return 'Wird gespeichert ...'
+    if (key === 'error.generic') return 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.'
+    return key
+  },
+}))
+
 // --- Helpers ---
 
 const DEFAULT_PROPS = {
@@ -128,7 +136,7 @@ describe('TransferRequestForm', () => {
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
-    expect(await screen.findByRole('button', { name: 'Wird gesendet...' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Wird gespeichert ...' })).toBeDisabled()
     expect(await screen.findByText('Anfrage gesendet')).toBeInTheDocument()
   })
 

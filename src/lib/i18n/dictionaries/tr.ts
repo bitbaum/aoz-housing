@@ -48,6 +48,7 @@ export const tr: Dictionary = {
 
   'navGroup.living': 'Günlük yaşam',
   'navGroup.together': 'Birlikte karar vermek',
+  'navGroup.concerns': 'Talepler ve fırsatlar',
   'navGroup.integration': 'Talepler ve fırsatlar',
   'navGroup.account': 'Hesabım',
 
@@ -74,10 +75,13 @@ export const tr: Dictionary = {
   'messages.unread': 'yeni',
 
   'action.save': 'Kaydet',
+  'action.saving': 'Kaydediliyor ...',
+  'action.saved': 'Kaydedildi',
   'action.cancel': 'İptal',
   'action.back': 'Geri',
   'action.close': 'Kapat',
   'action.showAll': 'Tümünü göster',
+  'error.generic': 'Bir hata oluştu. Lütfen tekrar deneyin.',
 
   'language.label': 'Dil',
   'language.change': 'Dili değiştir',

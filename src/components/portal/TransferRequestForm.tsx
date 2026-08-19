@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 interface TransferRequestFormProps {
   currentUnit?: { code: string; address: string }
@@ -12,6 +13,7 @@ interface TransferRequestFormProps {
 const L = PORTAL_LABELS.transfer
 
 export function TransferRequestForm({ currentUnit, availableUnits }: TransferRequestFormProps) {
+  const t = useT()
   const [reason, setReason] = useState('')
   const [targetUnitId, setTargetUnitId] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -36,13 +38,13 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
       const data = await res.json()
 
       if (!res.ok || !data.success) {
-        setError(data.error || PORTAL_LABELS.form.errorGeneric)
+        setError(data.error || t('error.generic'))
         return
       }
 
       setSuccess(true)
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setSubmitting(false)
     }
@@ -139,7 +141,7 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
         disabled={submitting || reason.length < 10}
         className="btn-primary w-full min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {submitting ? L.submitting : L.submit}
+        {submitting ? t('action.saving') : L.submit}
       </button>
     </form>
   )

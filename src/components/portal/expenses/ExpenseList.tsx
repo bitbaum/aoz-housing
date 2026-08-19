@@ -7,6 +7,7 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { expenseCategoryLabel } from '@/lib/config/expenses'
 import { formatRappen } from '@/lib/expenses/money'
 import { formatDateShort } from '@/lib/utils/formatting'
+import { useT } from '@/lib/i18n/LocaleProvider'
 
 export interface ExpenseShareView {
   name: string
@@ -59,6 +60,7 @@ function SplitSummary({ expense }: { expense: ExpenseListItem }) {
 
 export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
   const router = useRouter()
+  const t = useT()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -70,12 +72,12 @@ export function ExpenseList({ expenses }: { expenses: ExpenseListItem[] }) {
       const response = await fetch(`/api/portal/expenses/${id}`, { method: 'DELETE' })
       const body = await response.json()
       if (!body.success) {
-        setError(body.error || PORTAL_LABELS.form.errorGeneric)
+        setError(body.error || t('error.generic'))
         return
       }
       router.push('/portal/expenses?deleted=true')
     } catch {
-      setError(PORTAL_LABELS.form.errorGeneric)
+      setError(t('error.generic'))
     } finally {
       setDeletingId(null)
     }

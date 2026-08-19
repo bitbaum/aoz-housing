@@ -29,6 +29,7 @@ export const en: Dictionary = {
 
   'navGroup.living': 'Daily Life & Housing',
   'navGroup.together': 'Together',
+  'navGroup.concerns': 'Concerns & Offers',
   'navGroup.integration': 'Integration & Work',
   'navGroup.account': 'My Account',
 
@@ -55,10 +56,13 @@ export const en: Dictionary = {
   'messages.unread': 'new',
 
   'action.save': 'Save',
+  'action.saving': 'Saving ...',
+  'action.saved': 'Saved',
   'action.cancel': 'Cancel',
   'action.back': 'Back',
   'action.close': 'Close',
   'action.showAll': 'Show all',
+  'error.generic': 'Something went wrong. Please try again.',
 
   'language.label': 'Language',
   'language.change': 'Change language',
