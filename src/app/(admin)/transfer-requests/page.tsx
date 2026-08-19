@@ -3,6 +3,7 @@ import { getTransferRequests } from '@/lib/actions/transfers'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import { formatRelativeDate } from '@/lib/utils'
+import { requirePermission } from '@/lib/auth'
 import { TransferActions } from './TransferActions'
 import { TRANSFER_REQUEST_STATUS_LABELS, TRANSFER_ACTION_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default async function TransferRequestsPage({ searchParams }: Props) {
+  await requirePermission('placements:write')
   const params = await searchParams
   const statusFilter = params.status || 'PENDING'
 

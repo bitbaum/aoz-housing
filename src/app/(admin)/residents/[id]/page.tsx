@@ -67,8 +67,15 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const { id } = await params
   const query = await searchParams
 
+  const staff = await getCurrentUser()
+  const canReadHousing = staff ? hasPermission(staff.role, 'housing:read') : false
+  const canWriteResidents = staff ? hasPermission(staff.role, 'residents:write') : false
+  const canWritePlacements = staff ? hasPermission(staff.role, 'placements:write') : false
+  const canWriteIncidents = staff ? hasPermission(staff.role, 'incidents:write') : false
+  const canWriteLearning = staff ? hasPermission(staff.role, 'learning:write') : false
+
   // resident and availableUnits are independent — fetch in parallel
-  const [resident, availableUnits, staff, careSeats, assignableStaff, careAttributes, careAppointments] = await Promise.all([
+  const [resident, availableUnits, careSeats, assignableStaff, careAttributes, careAppointments] = await Promise.all([
     prisma.resident.findUnique({
       where: { id },
       include: {
@@ -104,26 +111,27 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
       },
     }),
     // Available units for placement/transfer actions
-    prisma.housingUnit.findMany({
-      where: {
-        status: { in: ['AVAILABLE', 'FULL'] },
-      },
-      include: {
-        spots: {
+    canWritePlacements
+      ? prisma.housingUnit.findMany({
           where: {
-            status: 'AVAILABLE',
-            type: { not: 'ROOM' }, // Only assignable spots
+            status: { in: ['AVAILABLE', 'FULL'] },
+          },
+          include: {
+            spots: {
+              where: {
+                status: 'AVAILABLE',
+                type: { not: 'ROOM' }, // Only assignable spots
+              },
+              orderBy: { code: 'asc' },
+            },
+            placements: {
+              where: { status: 'ACTIVE' },
+              include: { resident: true },
+            },
           },
           orderBy: { code: 'asc' },
-        },
-        placements: {
-          where: { status: 'ACTIVE' },
-          include: { resident: true },
-        },
-      },
-      orderBy: { code: 'asc' },
-    }),
-    getCurrentUser(),
+        })
+      : Promise.resolve([]),
     getCareTeam(id),
     listAssignableStaff(),
     listCareAttributes(id),
@@ -210,7 +218,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     }
   }
 
-  if (!currentPlacement) {
+  if (!currentPlacement && canWritePlacements) {
     // Both queries depend only on resident.id — fetch in parallel
     const [unitsWithResidents, otherUnplaced] = await Promise.all([
       prisma.housingUnit.findMany({
@@ -330,12 +338,18 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                       {'\u{1F3E0}'}
                     </div>
                     <div>
-                      <Link
-                        href={`/housing/${currentPlacement.housingUnitId}`}
-                        className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
-                      >
-                        {currentPlacement.housingUnit.code}
-                      </Link>
+                      {canReadHousing ? (
+                        <Link
+                          href={`/housing/${currentPlacement.housingUnitId}`}
+                          className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
+                        >
+                          {currentPlacement.housingUnit.code}
+                        </Link>
+                      ) : (
+                        <span className="inline-flex items-center py-2 -my-2 font-medium text-ui-text">
+                          {currentPlacement.housingUnit.code}
+                        </span>
+                      )}
                       <p className="text-sm text-ui-muted">
                         {currentPlacement.housingUnit.address}
                       </p>
@@ -366,18 +380,20 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                 </div>
 
                 {/* Quick Check-in - Primary action for case workers */}
-                <div className="pt-4 border-t border-ui-border">
-                  <h3 className="text-sm font-medium text-ui-muted mb-3">
-                    {RESIDENT_DETAIL_LABELS.quickCheckin}
-                  </h3>
-                  <QuickCheckIn
-                    placementId={currentPlacement.id}
-                    residentId={resident.id}
-                    checkInCount={checkInCount}
-                    weeksSinceStart={weeksSinceStart}
-                    lastSatisfaction={lastSatisfaction}
-                  />
-                </div>
+                {canWriteResidents && (
+                  <div className="pt-4 border-t border-ui-border">
+                    <h3 className="text-sm font-medium text-ui-muted mb-3">
+                      {RESIDENT_DETAIL_LABELS.quickCheckin}
+                    </h3>
+                    <QuickCheckIn
+                      placementId={currentPlacement.id}
+                      residentId={resident.id}
+                      checkInCount={checkInCount}
+                      weeksSinceStart={weeksSinceStart}
+                      lastSatisfaction={lastSatisfaction}
+                    />
+                  </div>
+                )}
 
                 {/* Actions Section - Client Component */}
                 <PlacementActions
@@ -409,23 +425,27 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                   }))}
                   initialCompatibilityScore={currentPlacement.compatibilityScore}
                   initialAction={query.action === 'transfer' ? 'transfer' : query.action === 'end' ? 'end' : undefined}
+                  canWriteCheckIn={canWriteResidents}
+                  canWritePlacement={canWritePlacements}
                 />
               </div>
             ) : (
               <div className="text-center py-8">
                 <p className="text-ui-muted mb-4">{RESIDENT_DETAIL_LABELS.notPlaced}</p>
-                <Link
-                  href={`/matching?resident=${resident.id}`}
-                  className="btn-primary"
-                >
-                  {RESIDENT_DETAIL_LABELS.findUnit}
-                </Link>
+                {canWritePlacements && (
+                  <Link
+                    href={`/matching?resident=${resident.id}`}
+                    className="btn-primary"
+                  >
+                    {RESIDENT_DETAIL_LABELS.findUnit}
+                  </Link>
+                )}
               </div>
             )}
           </div>
 
           {/* Compatible Matches for Unplaced Residents */}
-          {!currentPlacement && (
+          {!currentPlacement && canWritePlacements && (
             <CompatibleMatchesCard
               residentId={resident.id}
               compatibleUnits={compatibleUnits}
@@ -447,12 +467,13 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             incidentsReportedCount={resident.incidentsReported.length}
             currentPlacement={currentPlacement ? { id: currentPlacement.id, housingUnitId: currentPlacement.housingUnitId } : null}
             residentId={resident.id}
+            canWriteIncidents={canWriteIncidents}
           />
 
           <LearningRecordsCard
             residentId={resident.id}
             records={resident.learningRecords}
-            canWrite={staff ? hasPermission(staff.role, 'learning:write') : false}
+            canWrite={canWriteLearning}
           />
 
           <CareTeamCard

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { clearFollowUpReminder } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 import {
   INCIDENT_TYPE_LABELS,
   INCIDENT_CATEGORY_LABELS,
@@ -50,6 +51,7 @@ interface Props {
 }
 
 export default async function IncidentDetailPage({ params, searchParams }: Props) {
+  await requirePermission('incidents:read')
   const { id } = await params
   const sp = await searchParams
 

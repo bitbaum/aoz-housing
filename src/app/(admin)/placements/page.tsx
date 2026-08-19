@@ -26,6 +26,7 @@ import {
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
+import { requirePermission } from '@/lib/auth'
 import { RESIDENT_NAME_SELECT, residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,7 @@ interface Props {
 
 export default async function PlacementsListPage({ searchParams }: Props) {
   const params = await searchParams
+  await requirePermission('placements:read')
   const statusFilter = params.status || 'active'
   const query = (params.q || '').trim().toLowerCase()
   const overdueOnly = params.overdue === '1'

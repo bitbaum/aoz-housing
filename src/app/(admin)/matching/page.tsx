@@ -26,6 +26,7 @@ import { ResidentSelectorPanel } from '@/components/matching/ResidentSelectorPan
 import { UnitModePanel } from '@/components/matching/UnitModePanel'
 import { MatchResultsPanel } from '@/components/matching/MatchResultsPanel'
 import { residentName } from '@/lib/utils/resident-name'
+import { requirePermission } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export default async function MatchingPage({ searchParams }: Props) {
+  await requirePermission('placements:write')
   const params = await searchParams
   const residentQuery = (params.q || '').trim().toLowerCase()
 

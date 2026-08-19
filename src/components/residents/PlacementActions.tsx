@@ -23,6 +23,10 @@ interface PlacementActionsProps {
   initialCompatibilityScore?: number | null
   /** Optionally open one action panel by default */
   initialAction?: 'transfer' | 'end'
+  /** People-focused support work: staff may check in without being allowed to move housing */
+  canWriteCheckIn?: boolean
+  /** Housing ops only: transfer / end placement */
+  canWritePlacement?: boolean
 }
 
 export function PlacementActions({
@@ -36,11 +40,15 @@ export function PlacementActions({
   recentIncidents = [],
   initialCompatibilityScore,
   initialAction,
+  canWriteCheckIn = true,
+  canWritePlacement = true,
 }: PlacementActionsProps) {
   const [showTransfer, setShowTransfer] = useState(initialAction === 'transfer')
   const [showEnd, setShowEnd] = useState(initialAction === 'end')
   const [selectedUnitId, setSelectedUnitId] = useState<string>('')
   const [selectedEndReason, setSelectedEndReason] = useState<string>('')
+
+  if (!canWriteCheckIn && !canWritePlacement) return null
 
   useEffect(() => {
     const onShortcut = (event: KeyboardEvent) => {
@@ -71,48 +79,56 @@ export function PlacementActions({
   return (
     <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
       <h3 className="text-sm font-medium text-ui-muted mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
-      <p className="text-xs text-ui-muted mb-3">
-        {PLACEMENT_ACTIONS_LABELS.shortcutHint}
-      </p>
+      {canWritePlacement && (
+        <p className="text-xs text-ui-muted mb-3">
+          {PLACEMENT_ACTIONS_LABELS.shortcutHint}
+        </p>
+      )}
       <div className="flex flex-wrap gap-2">
-        <Link
-          href={`/placements/${placementId}/checkin`}
-          className="btn-primary inline-flex items-center gap-2"
-        >
-          <span>📋</span>
-          {PLACEMENT_ACTIONS_LABELS.checkinBtn}
-        </Link>
-        <button
-          type="button"
-          className={`btn-outline inline-flex items-center gap-2 ${
-            showTransfer ? 'ring-2 ring-brand-secondary/40 bg-brand-secondary/8' : ''
-          }`}
-          onClick={() => {
-            setShowTransfer(!showTransfer)
-            setShowEnd(false)
-          }}
-        >
-          <span>🔄</span>
-          {PLACEMENT_ACTIONS_LABELS.transferToggleBtn}
-        </button>
-        <button
-          type="button"
-          className={`btn-outline inline-flex items-center gap-2 ${
-            showEnd
-              ? 'ring-2 ring-status-error/40 bg-status-error/8 text-status-error'
-              : 'text-ui-muted hover:text-status-error hover:border-status-error/40'
-          }`}
-          onClick={() => {
-            setShowEnd(!showEnd)
-            setShowTransfer(false)
-          }}
-        >
-          <span>⏹️</span>
-          {PLACEMENT_ACTIONS_LABELS.endToggleBtn}
-        </button>
+        {canWriteCheckIn && (
+          <Link
+            href={`/placements/${placementId}/checkin`}
+            className="btn-primary inline-flex items-center gap-2"
+          >
+            <span>📋</span>
+            {PLACEMENT_ACTIONS_LABELS.checkinBtn}
+          </Link>
+        )}
+        {canWritePlacement && (
+          <>
+            <button
+              type="button"
+              className={`btn-outline inline-flex items-center gap-2 ${
+                showTransfer ? 'ring-2 ring-brand-secondary/40 bg-brand-secondary/8' : ''
+              }`}
+              onClick={() => {
+                setShowTransfer(!showTransfer)
+                setShowEnd(false)
+              }}
+            >
+              <span>🔄</span>
+              {PLACEMENT_ACTIONS_LABELS.transferToggleBtn}
+            </button>
+            <button
+              type="button"
+              className={`btn-outline inline-flex items-center gap-2 ${
+                showEnd
+                  ? 'ring-2 ring-status-error/40 bg-status-error/8 text-status-error'
+                  : 'text-ui-muted hover:text-status-error hover:border-status-error/40'
+              }`}
+              onClick={() => {
+                setShowEnd(!showEnd)
+                setShowTransfer(false)
+              }}
+            >
+              <span>⏹️</span>
+              {PLACEMENT_ACTIONS_LABELS.endToggleBtn}
+            </button>
+          </>
+        )}
       </div>
 
-      {showTransfer && (
+      {canWritePlacement && showTransfer && (
         <TransferForm
           placementId={placementId}
           residentId={residentId}
@@ -126,7 +142,7 @@ export function PlacementActions({
         />
       )}
 
-      {showEnd && (
+      {canWritePlacement && showEnd && (
         <EndPlacementForm
           placementId={placementId}
           residentId={residentId}

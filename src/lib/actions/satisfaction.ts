@@ -10,11 +10,11 @@ import {
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { weeksBetween } from '@/lib/utils'
 
 export async function createCheckInFromForm(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   const data = validateFormData(SatisfactionCheckInInputSchema, formData)
 
   const placement = await prisma.placement.findUnique({
@@ -99,7 +99,7 @@ interface QuickCheckInInput {
 export async function createQuickCheckIn(
   input: QuickCheckInInput
 ): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   try {
     const placement = await prisma.placement.findUnique({
       where: { id: input.placementId },
@@ -177,7 +177,7 @@ export async function createQuickCheckIn(
 }
 
 export async function getPlacementCheckIns(placementId: string) {
-  await requireStaffAuth()
+  await requirePermission('residents:read')
   return prisma.satisfactionCheckIn.findMany({
     where: { placementId },
     orderBy: { createdAt: 'desc' },
@@ -185,7 +185,7 @@ export async function getPlacementCheckIns(placementId: string) {
 }
 
 export async function getPlacementSatisfactionTrend(placementId: string) {
-  await requireStaffAuth()
+  await requirePermission('residents:read')
   const checkIns = await prisma.satisfactionCheckIn.findMany({
     where: { placementId },
     orderBy: { createdAt: 'asc' },

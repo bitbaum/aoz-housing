@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { createIncident } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Neuer Vorfall' }
 import {
@@ -34,6 +35,7 @@ interface Props {
 }
 
 export default async function NewIncidentPage({ searchParams }: Props) {
+  await requirePermission('incidents:write')
   const params = await searchParams
 
   const [units, residents] = await Promise.all([

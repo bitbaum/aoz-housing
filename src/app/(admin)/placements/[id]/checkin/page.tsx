@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
 import { weeksBetween } from '@/lib/utils'
@@ -17,6 +18,7 @@ interface Props {
 }
 
 export default async function NewCheckInPage({ params }: Props) {
+  await requirePermission('residents:write')
   const { id } = await params
 
   // Get placement with resident and housing info

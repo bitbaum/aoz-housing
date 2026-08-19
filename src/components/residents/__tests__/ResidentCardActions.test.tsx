@@ -55,6 +55,11 @@ describe('ResidentCardActions', () => {
     expect(screen.getByRole('button', { name: 'Aktionen' })).toBeInTheDocument()
   })
 
+  it('renders nothing when writing is disabled', () => {
+    render(<ResidentCardActions residentId="res-1" status="ACTIVE" canWrite={false} />)
+    expect(screen.queryByRole('button', { name: 'Aktionen' })).not.toBeInTheDocument()
+  })
+
   it('does not show menu items before trigger is clicked', () => {
     render(<ResidentCardActions residentId="res-1" status="ACTIVE" />)
     expect(screen.queryByRole('menuitem')).not.toBeInTheDocument()

@@ -4,12 +4,15 @@ import { HousingFormFields } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import { createHousingUnit } from '@/lib/actions'
 import { HOUSING_NEW_LABELS, UI_LABELS } from '@/lib/constants'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Neue Unterkunft' }
 
 export const dynamic = 'force-dynamic'
 
-export default function NewHousingPage() {
+export default async function NewHousingPage() {
+  await requirePermission('housing:write')
+
   return (
     <div>
       <div className="mb-6">

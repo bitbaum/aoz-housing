@@ -4,12 +4,15 @@ import { ResidentFormFields } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import { createResident } from '@/lib/actions'
 import { RESIDENT_NEW_LABELS } from '@/lib/constants'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Neuer Bewohner' }
 
 export const dynamic = 'force-dynamic'
 
-export default function NewResidentPage() {
+export default async function NewResidentPage() {
+  await requirePermission('residents:write')
+
   return (
     <div>
       <div className="mb-6">

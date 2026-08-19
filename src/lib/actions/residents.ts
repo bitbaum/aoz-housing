@@ -12,11 +12,11 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 
 export async function createResident(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   const data = validateFormData(ResidentInputSchema, formData)
 
   let resident
@@ -50,7 +50,7 @@ export async function createResident(formData: FormData): Promise<void> {
 }
 
 export async function exitResident(residentId: string): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -89,7 +89,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
 }
 
 export async function updateResident(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   const data = validateFormData(ResidentUpdateSchema, formData)
   const { id, code: _code, ...updateData } = data
 
@@ -117,7 +117,7 @@ export async function updateResident(formData: FormData): Promise<void> {
 }
 
 export async function archiveResident(residentId: string): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -155,7 +155,7 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
 }
 
 export async function restoreResident(residentId: string): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
       where: { id: residentId },
@@ -200,7 +200,7 @@ export async function hardDeleteResidentProtected(
   confirmation: string,
   reason: string
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('residents:write')
   try {
     if (confirmation !== 'DELETE') {
       return { success: false, error: 'Bestätigung fehlt (DELETE)' }

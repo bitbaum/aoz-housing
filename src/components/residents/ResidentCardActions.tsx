@@ -8,12 +8,19 @@ import { archiveResident, restoreResident } from '@/lib/actions'
 interface ResidentCardActionsProps {
   residentId: string
   status: string
+  canWrite?: boolean
 }
 
-export function ResidentCardActions({ residentId, status }: ResidentCardActionsProps) {
+export function ResidentCardActions({
+  residentId,
+  status,
+  canWrite = true,
+}: ResidentCardActionsProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const isArchived = status === 'EXITED'
+
+  if (!canWrite) return null
 
   const handleArchiveToggle = () => {
     if (isPending) return

@@ -15,7 +15,7 @@ import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateAverageScores } from '@/lib/compatibility/placement-scores'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 
 interface CreatePlacementInput {
   residentId: string
@@ -26,7 +26,7 @@ interface CreatePlacementInput {
 }
 
 export async function createPlacement(input: CreatePlacementInput): Promise<{ success: boolean; placementId?: string; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('placements:write')
   const { residentId, housingUnitId, spotId, startDate, notes } = input
 
   try {
@@ -142,7 +142,7 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
 }
 
 export async function endPlacement(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('placements:write')
   const {
     placementId,
     residentId,
@@ -247,7 +247,7 @@ export async function endPlacement(formData: FormData): Promise<void> {
 }
 
 export async function transferPlacement(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('placements:write')
   const {
     currentPlacementId,
     residentId,

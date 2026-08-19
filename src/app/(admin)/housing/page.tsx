@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
 import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
@@ -20,6 +21,8 @@ export default async function HousingListPage({ searchParams }: Props) {
   const params = await searchParams
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
+
+  await requirePermission('housing:read')
 
   const [units, allUnits] = await Promise.all([
     prisma.housingUnit.findMany({

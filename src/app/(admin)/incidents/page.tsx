@@ -25,6 +25,7 @@ import { PageHeader } from '@/components/ui/Page'
 import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
+import { requirePermission } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +37,8 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const categoryFilter = params.category || 'all'
   const statusFilter = params.status || 'all'
+
+  await requirePermission('incidents:read')
 
   const where: Prisma.IncidentWhereInput = {
     ...(categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : {}),

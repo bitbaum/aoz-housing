@@ -32,7 +32,13 @@ export interface ResidentListItem {
   incidentCount: number
 }
 
-export function ResidentsList({ residents }: { residents: ResidentListItem[] }) {
+export function ResidentsList({
+  residents,
+  canWrite = true,
+}: {
+  residents: ResidentListItem[]
+  canWrite?: boolean
+}) {
   if (residents.length === 0) {
     return (
       <EmptyState
@@ -46,14 +52,20 @@ export function ResidentsList({ residents }: { residents: ResidentListItem[] }) 
     <ListShell>
       <div className="divide-y divide-ui-border">
         {residents.map((resident) => (
-          <ResidentRow key={resident.id} resident={resident} />
+          <ResidentRow key={resident.id} resident={resident} canWrite={canWrite} />
         ))}
       </div>
     </ListShell>
   )
 }
 
-function ResidentRow({ resident }: { resident: ResidentListItem }) {
+function ResidentRow({
+  resident,
+  canWrite,
+}: {
+  resident: ResidentListItem
+  canWrite: boolean
+}) {
   const currentPlacement = resident.placements[0]
   const languages = resident.languages
     .slice(0, 3)
@@ -114,7 +126,7 @@ function ResidentRow({ resident }: { resident: ResidentListItem }) {
             </span>
           ) : null}
         </div>
-        <ResidentCardActions residentId={resident.id} status={resident.status} />
+        <ResidentCardActions residentId={resident.id} status={resident.status} canWrite={canWrite} />
       </div>
     </div>
   )

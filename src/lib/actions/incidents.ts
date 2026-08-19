@@ -15,7 +15,7 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { determineEntryStage } from '@/lib/governance/escalation'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 // Simple schema for clearing follow-up
@@ -24,7 +24,7 @@ const ClearFollowUpSchema = z.object({
 })
 
 export async function createIncident(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('incidents:write')
   const data = validateFormData(IncidentInputSchema, formData)
 
   try {
@@ -72,7 +72,7 @@ export async function createIncident(formData: FormData): Promise<void> {
 }
 
 export async function resolveIncident(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('incidents:write')
   const { incidentId, resolution } = validateFormData(ResolveIncidentSchema, formData)
 
   try {
@@ -101,7 +101,7 @@ export async function resolveIncident(formData: FormData): Promise<void> {
 }
 
 export async function updateMediationTime(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('incidents:write')
   const { incidentId, mediationMinutes } = validateFormData(UpdateMediationTimeSchema, formData)
 
   try {
@@ -134,7 +134,7 @@ export interface ResidentIncidentStats {
 }
 
 export async function getResidentIncidentStats(residentId: string): Promise<ResidentIncidentStats> {
-  await requireStaffAuth()
+  await requirePermission('incidents:read')
   const [reported, asSubject, involved] = await Promise.all([
     prisma.incident.count({
       where: { reportedById: residentId },
@@ -168,7 +168,7 @@ export async function getResidentIncidentStats(residentId: string): Promise<Resi
 }
 
 export async function getHousingUnitIncidentHistory(housingUnitId: string) {
-  await requireStaffAuth()
+  await requirePermission('incidents:read')
   const incidents = await prisma.incident.findMany({
     where: { housingUnitId },
     include: {
@@ -218,7 +218,7 @@ export async function getHousingUnitIncidentHistory(housingUnitId: string) {
 // =============================================================================
 
 export async function addFollowUp(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('incidents:write')
   const data = validateFormData(FollowUpInputSchema, formData)
 
   try {
@@ -267,7 +267,7 @@ export async function addFollowUp(formData: FormData): Promise<void> {
 }
 
 export async function getIncidentWithFollowUps(incidentId: string) {
-  await requireStaffAuth()
+  await requirePermission('incidents:read')
   return prisma.incident.findUnique({
     where: { id: incidentId },
     include: {
@@ -285,7 +285,7 @@ export async function getIncidentWithFollowUps(incidentId: string) {
 }
 
 export async function getIncidentsNeedingFollowUp() {
-  await requireStaffAuth()
+  await requirePermission('incidents:read')
   const now = new Date()
   const tomorrow = new Date(now)
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -339,7 +339,7 @@ export async function getIncidentsNeedingFollowUp() {
 }
 
 export async function clearFollowUpReminder(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('incidents:write')
   const { incidentId } = validateFormData(ClearFollowUpSchema, formData)
 
   try {

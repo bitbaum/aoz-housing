@@ -9,6 +9,7 @@ import { updateResident } from '@/lib/actions'
 import { ResidentDangerZone } from '@/components/residents/ResidentDangerZone'
 import { RESIDENT_EDIT_LABELS } from '@/lib/constants'
 import { residentName } from '@/lib/utils/resident-name'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Bewohner bearbeiten' }
 
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default async function EditResidentPage({ params }: Props) {
+  await requirePermission('residents:write')
   const { id } = await params
 
   const resident = await prisma.resident.findUnique({

@@ -9,6 +9,7 @@ import { updateHousingUnit } from '@/lib/actions'
 import { HousingDangerZone } from '@/components/housing/HousingDangerZone'
 import { HOUSING_EDIT_LABELS } from '@/lib/constants'
 import { HOUSING_STATUS_LABELS } from '@/lib/constants/labels/housing'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Unterkunft bearbeiten' }
 
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export default async function EditHousingPage({ params }: Props) {
+  await requirePermission('housing:write')
   const { id } = await params
 
   const unit = await prisma.housingUnit.findUnique({

@@ -16,7 +16,7 @@ import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page
 import { LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, requirePermission } from '@/lib/auth'
 import { getMyResidentIds } from '@/lib/actions/care'
 import { ROLE_DOMAIN } from '@/lib/config/care-role-domain'
 
@@ -32,6 +32,8 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const q = params.q?.trim() || ''
   const layout = params.layout || 'board'
   const filter = (params.filter === 'all' ? 'all' : 'mine') as 'mine' | 'all'
+
+  await requirePermission('residents:read')
 
   const now = new Date()
 
@@ -286,7 +288,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         <ResidentsList residents={(residents as any[]).map(r => ({
           ...r,
           incidentCount: r._count?.incidentsAsSubject ?? 0,
-        }))} />
+        }))} canWrite={viewerRole === 'ADMIN' || viewerRole === 'BETREUUNG' || viewerRole === 'SOZIALARBEIT'} />
       ) : (
         <ClientBoard
           clients={sortedBoardItems}

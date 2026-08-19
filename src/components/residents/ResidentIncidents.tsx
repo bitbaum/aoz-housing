@@ -19,6 +19,7 @@ interface ResidentIncidentsProps {
   incidentsReportedCount: number
   currentPlacement: { id: string; housingUnitId: string } | null
   residentId: string
+  canWriteIncidents?: boolean
 }
 
 export function ResidentIncidents({
@@ -26,6 +27,7 @@ export function ResidentIncidents({
   incidentsReportedCount,
   currentPlacement,
   residentId,
+  canWriteIncidents = false,
 }: ResidentIncidentsProps) {
   const subjectLevel = getIncidentLevel(incidentsAsSubject.length)
 
@@ -82,7 +84,7 @@ export function ResidentIncidents({
           <h2 className="text-lg font-semibold text-ui-text">
             {RESIDENT_INCIDENTS_LABELS.subjectTitle(incidentsAsSubject.length)}
           </h2>
-          {currentPlacement && (
+          {currentPlacement && canWriteIncidents && (
             <Link
               href={`/incidents/new?subject=${residentId}&unit=${currentPlacement.housingUnitId}`}
               className="btn-outline text-sm"

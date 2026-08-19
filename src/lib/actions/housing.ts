@@ -12,11 +12,11 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { Prisma } from '@prisma/client'
 
 export async function createHousingUnit(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('housing:write')
   const data = validateFormData(HousingUnitInputSchema, formData)
 
   let unit
@@ -49,7 +49,7 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
 }
 
 export async function updateHousingUnit(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('housing:write')
   const data = validateFormData(HousingUnitUpdateSchema, formData)
   const { id, ...updateData } = data
 
@@ -77,7 +77,7 @@ export async function updateHousingUnit(formData: FormData): Promise<void> {
 }
 
 export async function archiveHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('housing:write')
   try {
     const unit = await prisma.housingUnit.findUnique({
       where: { id: housingUnitId },
@@ -115,7 +115,7 @@ export async function archiveHousingUnit(housingUnitId: string): Promise<{ succe
 }
 
 export async function restoreHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('housing:write')
   try {
     const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })
     if (!unit) return { success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND }
@@ -152,7 +152,7 @@ export async function hardDeleteHousingUnitProtected(
   confirmation: string,
   reason: string
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('housing:write')
   try {
     if (confirmation !== 'DELETE') {
       return { success: false, error: 'Bestätigung fehlt (DELETE)' }
