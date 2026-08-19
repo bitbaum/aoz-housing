@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { useT } from '@/lib/i18n/LocaleProvider'
+import { buildReportFormLabels } from '@/lib/i18n/report-form'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 import { RESIDENT_REPORTS_ANCHOR } from '@/lib/reports/resident-reports'
 
@@ -13,12 +14,14 @@ interface Props {
 type Category = 'MAINTENANCE' | 'INTERPERSONAL'
 
 export function ReportForm({ roommates }: Props) {
+  const t = useT()
+  const R = useMemo(() => buildReportFormLabels(t), [t])
+
   const [category, setCategory] = useState<Category | null>(null)
   const [formKey, setFormKey] = useState(0)
   const formRef = useRef<HTMLDivElement>(null)
   const prevCategoryRef = useRef<Category | null>(null)
 
-  // Scroll the form into view when it first appears (category transitions null → value)
   useEffect(() => {
     if (category !== null && prevCategoryRef.current === null) {
       setTimeout(() => {
@@ -27,6 +30,7 @@ export function ReportForm({ roommates }: Props) {
     }
     prevCategoryRef.current = category
   }, [category])
+
   const [defaults, setDefaults] = useState<{
     type?: string
     severity?: string
@@ -75,19 +79,18 @@ export function ReportForm({ roommates }: Props) {
       const result = await response.json()
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || PORTAL_LABELS.report.errorGeneric)
+        throw new Error(result.error || R.errorGeneric)
       }
 
       setSubmitted(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : PORTAL_LABELS.report.errorGeneric)
+      setError(err instanceof Error ? err.message : R.errorGeneric)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   if (submitted) {
-    const R = PORTAL_LABELS.report
     return (
       <div className="space-y-4">
         <div className="card border-status-success/25 bg-status-success/8">
@@ -96,9 +99,7 @@ export function ReportForm({ roommates }: Props) {
             <h2 className="text-xl font-semibold text-status-success-text mb-2">
               {R.successTitle}
             </h2>
-            <p className="text-status-success-text">
-              {R.successMessage}
-            </p>
+            <p className="text-status-success-text">{R.successMessage}</p>
           </div>
         </div>
 
@@ -112,14 +113,12 @@ export function ReportForm({ roommates }: Props) {
           <p className="text-xs text-status-info-text mt-3">{R.successTip}</p>
         </div>
 
-        {/* The way onward. Without it this screen is a dead end that promises
-            an answer and offers no way to ever go and read it. */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Link href="/portal/reports" className="btn-secondary">
-            {PORTAL_LABELS.reports.viewYours}
+            {R.viewYours}
           </Link>
           <Link href="/portal" className="btn-outline">
-            {PORTAL_LABELS.reports.backToOverview}
+            {R.backToOverview}
           </Link>
         </div>
       </div>
@@ -128,124 +127,118 @@ export function ReportForm({ roommates }: Props) {
 
   return (
     <div>
-      {/* Quick templates */}
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.quickTitle}</h3>
-            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.quickSubtitle}</p>
+            <h3 className="font-semibold text-ui-text">{R.quickTitle}</h3>
+            <p className="text-sm text-ui-muted">{R.quickSubtitle}</p>
           </div>
           {activeTemplate && (
             <button
               type="button"
-              onClick={() => { setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1) }}
+              onClick={() => {
+                setActiveTemplate(null)
+                setDefaults({})
+                setFormKey((k) => k + 1)
+              }}
               className="text-sm text-ui-muted hover:text-ui-muted min-h-[44px]"
             >
-              {PORTAL_LABELS.report.resetTemplate}
+              {R.resetTemplate}
             </button>
           )}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => applyTemplate({
-              key: 'maintenance-urgent',
-              category: 'MAINTENANCE',
-              type: '',
-              severity: 'HIGH',
-              location: 'COMMON_AREA',
-              description: PORTAL_LABELS.report.templates.urgentRepair.description,
-            })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'maintenance-urgent' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
-          >
-            {PORTAL_LABELS.report.templates.urgentRepair.label}
-          </button>
-          <button
-            type="button"
-            onClick={() => applyTemplate({
-              key: 'noise',
-              category: 'INTERPERSONAL',
-              type: 'NOISE_COMPLAINT',
-              severity: 'MEDIUM',
-              description: PORTAL_LABELS.report.templates.noise.description,
-            })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'noise' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
-          >
-            {PORTAL_LABELS.report.templates.noise.label}
-          </button>
-          <button
-            type="button"
-            onClick={() => applyTemplate({
-              key: 'safety',
-              category: 'INTERPERSONAL',
-              type: 'SAFETY_CONCERN',
-              severity: 'HIGH',
-              description: PORTAL_LABELS.report.templates.safety.description,
-            })}
-            className={`btn-outline min-h-[44px] ${activeTemplate === 'safety' ? 'bg-status-info/15 border-status-info/40 text-status-info-text' : ''}`}
-          >
-            {PORTAL_LABELS.report.templates.safety.label}
-          </button>
+          {R.templates.map((template) => (
+            <button
+              key={template.key}
+              type="button"
+              onClick={() =>
+                applyTemplate({
+                  key: template.key,
+                  category: template.category,
+                  type: template.type,
+                  severity: template.severity,
+                  location: 'location' in template ? template.location : undefined,
+                  description: template.description,
+                })
+              }
+              className={`btn-outline min-h-[44px] ${
+                activeTemplate === template.key
+                  ? 'bg-status-info/15 border-status-info/40 text-status-info-text'
+                  : ''
+              }`}
+            >
+              {template.icon ? `${template.icon} ` : ''}{template.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="mb-6 p-3 rounded-lg border border-ui-border bg-ui-subtle">
-        <h3 className="text-sm font-semibold text-ui-text mb-1">{PORTAL_LABELS.report.transparency.title}</h3>
+        <h3 className="text-sm font-semibold text-ui-text mb-1">{R.transparency.title}</h3>
         <p className="text-xs text-ui-muted">
-          {PORTAL_LABELS.report.transparency.before}{' '}
-          <strong>{PORTAL_LABELS.report.transparency.open}</strong>{' '}
-          {PORTAL_LABELS.report.transparency.middle}{' '}
-          <strong>{PORTAL_LABELS.report.transparency.resolved}</strong>{' '}
-          {PORTAL_LABELS.report.transparency.after}
+          {R.transparency.before}{' '}
+          <strong>{R.transparency.open}</strong>{' '}
+          {R.transparency.middle}{' '}
+          <strong>{R.transparency.resolved}</strong>{' '}
+          {R.transparency.after}
         </p>
         <Link
           href={`/portal#${RESIDENT_REPORTS_ANCHOR}`}
           className="inline-flex items-center min-h-[44px] text-xs text-brand-primary hover:underline"
         >
-          {PORTAL_LABELS.report.transparency.seeMine}
+          {R.transparency.seeMine}
         </Link>
       </div>
 
-      {/* Category Selection */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <button
           type="button"
-          onClick={() => { setCategory('MAINTENANCE'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
+          onClick={() => {
+            setCategory('MAINTENANCE')
+            setActiveTemplate(null)
+            setDefaults({})
+            setFormKey((k) => k + 1)
+            setError(null)
+          }}
           className={`card-hover flex items-center gap-4 text-start transition-all ${
             category === 'MAINTENANCE' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
           <span className="text-4xl">🔧</span>
           <div>
-            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.categoryMaintenance}</h3>
-            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.categoryMaintenanceDesc}</p>
+            <h3 className="font-semibold text-ui-text">{R.categoryMaintenance}</h3>
+            <p className="text-sm text-ui-muted">{R.categoryMaintenanceDesc}</p>
           </div>
         </button>
         <button
           type="button"
-          onClick={() => { setCategory('INTERPERSONAL'); setActiveTemplate(null); setDefaults({}); setFormKey((k) => k + 1); setError(null) }}
+          onClick={() => {
+            setCategory('INTERPERSONAL')
+            setActiveTemplate(null)
+            setDefaults({})
+            setFormKey((k) => k + 1)
+            setError(null)
+          }}
           className={`card-hover flex items-center gap-4 text-start transition-all ${
             category === 'INTERPERSONAL' ? 'ring-2 ring-brand-primary' : ''
           }`}
         >
           <span className="text-4xl">💬</span>
           <div>
-            <h3 className="font-semibold text-ui-text">{PORTAL_LABELS.report.categoryConflict}</h3>
-            <p className="text-sm text-ui-muted">{PORTAL_LABELS.report.categoryConflictDesc}</p>
+            <h3 className="font-semibold text-ui-text">{R.categoryConflict}</h3>
+            <p className="text-sm text-ui-muted">{R.categoryConflictDesc}</p>
           </div>
         </button>
       </div>
 
-      {/* Dynamic Form */}
       {category && (
         <div ref={formRef} className="card">
           <h2 className="text-lg font-semibold text-ui-text mb-4">
-            {category === 'MAINTENANCE' ? PORTAL_LABELS.report.titleMaintenance : PORTAL_LABELS.report.titleConflict}
+            {category === 'MAINTENANCE' ? R.titleMaintenance : R.titleConflict}
           </h2>
           {category === 'INTERPERSONAL' && (
-            <p className="text-sm text-ui-muted mb-4">
-              {PORTAL_LABELS.report.conflictSubtitle}
-            </p>
+            <p className="text-sm text-ui-muted mb-4">{R.conflictSubtitle}</p>
           )}
 
           {error && (
@@ -257,70 +250,75 @@ export function ReportForm({ roommates }: Props) {
           <form key={formKey} onSubmit={handleSubmit} className="space-y-4">
             <input type="hidden" name="category" value={category} />
 
-            {/* Type Selection */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.typeLabel : PORTAL_LABELS.report.conflictTypeLabel}
+                {category === 'MAINTENANCE' ? R.typeLabel : R.conflictTypeLabel}
               </label>
               <select name="type" className="input" required defaultValue={defaults.type || ''}>
-                <option value="">{PORTAL_LABELS.report.selectPlaceholder}</option>
-                {(category === 'MAINTENANCE' ? PORTAL_LABELS.report.maintenanceTypes : PORTAL_LABELS.report.conflictTypes).map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                <option value="">{R.selectPlaceholder}</option>
+                {(category === 'MAINTENANCE' ? R.maintenanceTypes : R.conflictTypes).map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
             </div>
 
-            {/* Location (maintenance only) */}
             {category === 'MAINTENANCE' && (
               <div>
-                <label className="label">{PORTAL_LABELS.report.locationLabel}</label>
-                <select name="location" className="input" defaultValue={defaults.location || PORTAL_LABELS.report.locations[0]?.value}>
-                  {PORTAL_LABELS.report.locations.map((l) => (
-                    <option key={l.value} value={l.value}>{l.label}</option>
+                <label className="label">{R.locationLabel}</label>
+                <select
+                  name="location"
+                  className="input"
+                  defaultValue={defaults.location || R.locations[0]?.value}
+                >
+                  {R.locations.map((loc) => (
+                    <option key={loc.value} value={loc.value}>
+                      {loc.label}
+                    </option>
                   ))}
                 </select>
               </div>
             )}
 
-            {/* Involved person (conflict only) */}
             {category === 'INTERPERSONAL' && roommates.length > 0 && (
               <div>
-                <label className="label">{PORTAL_LABELS.report.involvedLabel}</label>
+                <label className="label">{R.involvedLabel}</label>
                 <select name="involvedResident" className="input">
-                  <option value="">{PORTAL_LABELS.report.involvedPlaceholder}</option>
+                  <option value="">{R.involvedPlaceholder}</option>
                   {roommates.map((rm) => (
-                    <option key={rm.id} value={rm.id}>{residentName(rm)}</option>
+                    <option key={rm.id} value={rm.id}>
+                      {residentName(rm)}
+                    </option>
                   ))}
-                  <option value="external">{PORTAL_LABELS.report.involvedExternal}</option>
+                  <option value="external">{R.involvedExternal}</option>
                 </select>
-                <p className="text-xs text-ui-muted mt-1">
-                  {PORTAL_LABELS.report.confidentialNote}
-                </p>
+                <p className="text-xs text-ui-muted mt-1">{R.confidentialNote}</p>
               </div>
             )}
 
-            {/* Description */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.descriptionLabel : PORTAL_LABELS.report.conflictDescriptionLabel}
+                {category === 'MAINTENANCE' ? R.descriptionLabel : R.conflictDescriptionLabel}
               </label>
               <textarea
                 name="description"
                 className="input"
                 defaultValue={defaults.description || ''}
                 rows={4}
-                placeholder={category === 'MAINTENANCE'
-                  ? PORTAL_LABELS.report.descriptionPlaceholder
-                  : PORTAL_LABELS.report.conflictDescriptionPlaceholder}
+                placeholder={
+                  category === 'MAINTENANCE'
+                    ? R.descriptionPlaceholder
+                    : R.conflictDescriptionPlaceholder
+                }
                 required
                 maxLength={2000}
               />
             </div>
 
-            {/* Incident date (conflict only) */}
             {category === 'INTERPERSONAL' && (
               <div>
-                <label className="label">{PORTAL_LABELS.report.dateLabel}</label>
+                <label className="label">{R.dateLabel}</label>
                 <input
                   type="date"
                   name="incidentDate"
@@ -330,26 +328,31 @@ export function ReportForm({ roommates }: Props) {
               </div>
             )}
 
-            {/* Severity */}
             <div>
               <label className="label">
-                {category === 'MAINTENANCE' ? PORTAL_LABELS.report.severityLabel : PORTAL_LABELS.report.conflictSeverityLabel}
+                {category === 'MAINTENANCE' ? R.severityLabel : R.conflictSeverityLabel}
               </label>
-              <div className={`grid gap-2 sm:gap-3 ${
-                category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'
-              }`}>
-                {PORTAL_LABELS.report.severityOptions[category].map((sev) => (
+              <div
+                className={`grid gap-2 sm:gap-3 ${
+                  category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'
+                }`}
+              >
+                {R.severityOptions[category].map((sev) => (
                   <label key={sev.value} className="cursor-pointer">
                     <input
                       type="radio"
                       name="severity"
                       value={sev.value}
-                      defaultChecked={defaults.severity ? sev.value === defaults.severity : sev.value === 'MEDIUM'}
+                      defaultChecked={
+                        defaults.severity ? sev.value === defaults.severity : sev.value === 'MEDIUM'
+                      }
                       className="sr-only peer"
                     />
                     <div className="py-3 px-2 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-status-info/8 transition-colors min-h-[70px] flex flex-col items-center justify-center">
                       {'icon' in sev && <span className="text-xl block mb-1">{sev.icon}</span>}
-                      <span className={`block ${'desc' in sev ? 'text-sm font-medium' : 'text-xs'}`}>
+                      <span
+                        className={`block ${'desc' in sev ? 'text-sm font-medium' : 'text-xs'}`}
+                      >
                         {sev.label}
                       </span>
                       {'desc' in sev && (
@@ -361,7 +364,6 @@ export function ReportForm({ roommates }: Props) {
               </div>
             </div>
 
-            {/* Mediation request (conflict only) */}
             {category === 'INTERPERSONAL' && (
               <div>
                 <label className="flex items-start gap-2 cursor-pointer min-h-[44px] py-2">
@@ -370,9 +372,7 @@ export function ReportForm({ roommates }: Props) {
                     name="requestMediation"
                     className="w-5 h-5 mt-0.5 rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                   />
-                  <span className="text-sm text-ui-muted">
-                    {PORTAL_LABELS.report.mediationLabel}
-                  </span>
+                  <span className="text-sm text-ui-muted">{R.mediationLabel}</span>
                 </label>
               </div>
             )}
@@ -383,10 +383,10 @@ export function ReportForm({ roommates }: Props) {
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting
-                ? PORTAL_LABELS.report.submitting
+                ? R.submitting
                 : category === 'MAINTENANCE'
-                  ? PORTAL_LABELS.report.submitMaintenance
-                  : PORTAL_LABELS.report.submitConflict}
+                  ? R.submitMaintenance
+                  : R.submitConflict}
             </button>
           </form>
         </div>

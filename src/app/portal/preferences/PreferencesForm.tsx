@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PORTAL_LABELS, LANGUAGE_LABELS, DIET_LABELS } from '@/lib/constants/labels'
+import { useT } from '@/lib/i18n/LocaleProvider'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import type { ScaleFactorDef, EnumFactorDef } from '@/lib/config/types'
 
@@ -70,6 +71,7 @@ function RatingScale({
 }
 
 export function PreferencesForm({ resident, languageOptions, dietOptions }: Props) {
+  const t = useT()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -147,7 +149,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             {P.successMessage}
           </p>
           <Link href="/portal" className="text-brand-primary hover:underline mt-4 inline-block">
-            {PORTAL_LABELS.form.back}
+            {t('action.back')}
           </Link>
         </div>
       </div>
@@ -175,7 +177,7 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                 onClick={() => setShowDiscardConfirm(false)}
                 className="btn-outline min-h-[44px]"
               >
-                {PORTAL_LABELS.form.cancel}
+                {t('action.cancel')}
               </button>
               <button
                 type="button"

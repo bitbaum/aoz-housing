@@ -234,7 +234,13 @@ async function executeTool(name: string, rawInput: unknown): Promise<unknown> {
 export async function POST(request: Request) {
   const anthropicModel = await getAnthropicModel()
   if (!hasAnthropicKey()) {
-    return NextResponse.json({ error: 'KI-Assistent nicht konfiguriert (ANTHROPIC_API_KEY fehlt).' }, { status: 503 })
+    return NextResponse.json(
+      {
+        error:
+          'KI-Assistent nicht konfiguriert. Bitte ANTHROPIC_API_KEY in der Server-Umgebung setzen (siehe docs/INFRASTRUCTURE.md).',
+      },
+      { status: 503 }
+    )
   }
 
   const user = await getCurrentUser()
@@ -289,7 +295,6 @@ export async function POST(request: Request) {
           const sdkStream = getAnthropic().messages.stream({
             model: anthropicModel,
             max_tokens: 8192,
-            thinking: { type: 'adaptive' },
             system: [{
               type: 'text',
               text: SYSTEM_PROMPT,

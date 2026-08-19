@@ -3,16 +3,14 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireResidentCookie } from '@/lib/portal-auth'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { mergeResidentReports } from '@/lib/reports/resident-reports'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { ResidentReportItem } from '@/components/portal/ResidentReportItem'
-import { mergeResidentReports } from '@/lib/reports/resident-reports'
 
-export const metadata: Metadata = { title: PORTAL_LABELS.reports.title }
+export const metadata: Metadata = { title: 'Reports' }
 
 export const dynamic = 'force-dynamic'
-
-const L = PORTAL_LABELS.reports
 
 /**
  * Everything this resident has reported, in one list.
@@ -29,6 +27,7 @@ const L = PORTAL_LABELS.reports
  */
 export default async function PortalReportsPage() {
   const residentCode = await requireResidentCookie('/portal')
+  const { t } = await getRequestTranslator()
 
   const resident = await prisma.resident.findUnique({
     where: { code: residentCode },
@@ -70,34 +69,32 @@ export default async function PortalReportsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={L.title}
-        description={L.subtitle}
+        title={t('reports.title')}
+        description={t('reports.subtitle')}
         backHref="/portal"
         actions={
           <Link href="/portal/report" className="btn-secondary">
-            {PORTAL_LABELS.dashboard.newReport}
+            {t('dashboard.newReport')}
           </Link>
         }
       />
 
       {reports.length === 0 ? (
         <EmptyState
-          title={L.empty}
+          title={t('reports.empty')}
           action={
             <Link href="/portal/report" className="btn-secondary">
-              {L.emptyAction}
+              {t('reports.emptyAction')}
             </Link>
           }
         />
       ) : (
         <>
-          {/* Open first, and under its own heading: the reason a resident opens
-              this page is almost always something still unanswered. */}
           {open.length > 0 && (
-            <ReportSection title={L.openSection} count={open.length} reports={open} />
+            <ReportSection title={t('reports.openSection')} count={open.length} reports={open} />
           )}
           {done.length > 0 && (
-            <ReportSection title={L.doneSection} count={done.length} reports={done} />
+            <ReportSection title={t('reports.doneSection')} count={done.length} reports={done} />
           )}
         </>
       )}
