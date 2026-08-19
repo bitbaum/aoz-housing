@@ -16,11 +16,14 @@ import { EmptyState, PageHeader, PageShell, Toolbar } from '@/components/ui/Page
 import { LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
+import { getCurrentUser } from '@/lib/auth'
+import { getMyResidentIds } from '@/lib/actions/care'
+import { ROLE_DOMAIN } from '@/lib/config/care-role-domain'
 
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ view?: string; q?: string; layout?: string }>
+  searchParams: Promise<{ view?: string; q?: string; layout?: string; filter?: string }>
 }
 
 export default async function ResidentsListPage({ searchParams }: Props) {
@@ -28,10 +31,16 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
   const layout = params.layout || 'board'
+  const filter = (params.filter === 'all' ? 'all' : 'mine') as 'mine' | 'all'
 
   const now = new Date()
 
-  const [residents, statusGroups, unplacedCount] = await Promise.all([
+  // Get current user for "my clients" filter and role-contextual content
+  const currentUser = await getCurrentUser()
+  const viewerRole = currentUser?.role ?? 'BETREUUNG'
+  const viewerDomain = ROLE_DOMAIN[viewerRole] ?? null
+
+  const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
     prisma.resident.findMany({
       where: {
         ...(view === 'active' ? { status: { in: ['ACTIVE', 'PLACED'] } } : view === 'archived' ? { status: 'EXITED' } : {}),
@@ -68,6 +77,9 @@ export default async function ResidentsListPage({ searchParams }: Props) {
             staff: { select: { name: true } },
           },
         },
+        careAttributes: {
+          select: { key: true, value: true, domain: true },
+        },
         _count: {
           select: {
             incidentsAsSubject: {
@@ -86,13 +98,15 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       by: ['status'],
       _count: { _all: true },
     }),
-    // Count of ACTIVE residents with no active placement (separate query — groupBy can't express this)
+    // Count of ACTIVE residents with no active placement (separate query)
     prisma.resident.count({
       where: {
         status: 'ACTIVE',
         placements: { none: { status: 'ACTIVE' } },
       },
     }),
+    // "My clients" — IDs where this user is a care worker
+    currentUser ? getMyResidentIds(currentUser.id) : Promise.resolve([]),
   ])
 
   const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
@@ -109,7 +123,9 @@ export default async function ResidentsListPage({ searchParams }: Props) {
     visible: residents.length,
   }
 
-  // Compute check-in status for each resident
+  const myResidentIdSet = new Set(myResidentIds)
+
+  // Compute check-in status and assemble ClientBoardItem for each resident
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const clientBoardItems: ClientBoardItem[] = (residents as any[]).map((r) => {
     const placement = r.placements?.[0]
@@ -135,18 +151,28 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       createdAt: r.createdAt,
       placements: r.placements ?? [],
       careSeats: r.careAssignments ?? [],
+      careAttributes: (r.careAttributes ?? [])
+        .filter((a: { domain: string }) => !viewerDomain || a.domain === viewerDomain),
       incidentCount: r._count?.incidentsAsSubject ?? 0,
       daysSinceCheckIn,
       checkInIntervalDays: intervalDays,
+      isMyClient: myResidentIdSet.has(r.id),
     }
   })
 
-  // Sort board: most urgent (very overdue) first
+  // Sort: most urgent (overdue check-ins) first, unhoused second, then alphabetical
   const sortedBoardItems = [...clientBoardItems].sort((a, b) => {
-    const scoreA = (a.daysSinceCheckIn ?? 0) - a.checkInIntervalDays
-    const scoreB = (b.daysSinceCheckIn ?? 0) - b.checkInIntervalDays
-    return scoreB - scoreA
+    const urgencyA = (a.daysSinceCheckIn ?? 0) - a.checkInIntervalDays
+    const urgencyB = (b.daysSinceCheckIn ?? 0) - b.checkInIntervalDays
+    if (urgencyB !== urgencyA) return urgencyB - urgencyA
+    // Unhoused before housed
+    const aUnhoused = a.placements.length === 0 ? 1 : 0
+    const bUnhoused = b.placements.length === 0 ? 1 : 0
+    return bUnhoused - aUnhoused
   })
+
+  // Build URL base for filter toggle (preserves view + layout + q)
+  const filterBase = `/residents?view=${view}&layout=${layout}${q ? `&q=${encodeURIComponent(q)}` : ''}`
 
   const layoutParam = layout === 'list' ? '&layout=list' : ''
 
@@ -262,7 +288,12 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           incidentCount: r._count?.incidentsAsSubject ?? 0,
         }))} />
       ) : (
-        <ClientBoard clients={sortedBoardItems} />
+        <ClientBoard
+          clients={sortedBoardItems}
+          viewerRole={viewerRole}
+          filter={filter}
+          baseHref={filterBase}
+        />
       )}
     </PageShell>
   )
