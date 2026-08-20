@@ -34,14 +34,16 @@ test.describe('Resident list (/residents)', () => {
   test('loads with heading and new-resident button', async ({ page }) => {
     await page.goto('/residents')
 
-    await expect(page.getByRole('heading', { name: /Klient\*innen/i })).toBeVisible({ timeout: 15_000 })
+    // level 1: the empty "mine" board renders an h2 "Keine Klient*innen zugewiesen"
+    await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: /^\+ Bewohner$/i })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
     await page.goto('/residents?filter=all')
 
-    await expect(page.getByText('RES-001')).toBeVisible({ timeout: 15_000 })
+    // .first(): a board row prints the code twice (name line + mono code)
+    await expect(page.getByText('RES-001').first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('each row links to the resident detail page', async ({ page }) => {
