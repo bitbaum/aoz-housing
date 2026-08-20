@@ -26,6 +26,7 @@ const config: Config = {
           'primary':        'rgb(var(--color-brand-primary) / <alpha-value>)',
           'primary-light':  'rgb(var(--color-brand-primary-light) / <alpha-value>)',
           'primary-dark':   'rgb(var(--color-brand-primary-dark) / <alpha-value>)',
+          'primary-darker': 'rgb(var(--color-brand-primary-darker) / <alpha-value>)',
           'secondary':      'rgb(var(--color-brand-secondary) / <alpha-value>)',
           'secondary-light':'rgb(var(--color-brand-secondary-light) / <alpha-value>)',
           'secondary-dark': 'rgb(var(--color-brand-secondary-dark) / <alpha-value>)',
