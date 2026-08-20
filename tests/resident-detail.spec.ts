@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { expectNotFoundPage } from './helpers'
+import { RESIDENT_DETAIL_LABELS, RESIDENT_LIST_LABELS } from '../src/lib/constants/labels/ui'
 
 // storageState from playwright.config handles staff auth
 // Seed data (prisma/seed.ts):
@@ -32,8 +33,10 @@ test.describe('Resident list (/residents)', () => {
   test('loads with heading and new-resident button', async ({ page }) => {
     await page.goto('/residents')
 
-    await expect(page.getByRole('heading', { name: /Bewohner/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /^\+ Bewohner$/i })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: RESIDENT_LIST_LABELS.title })
+    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: RESIDENT_LIST_LABELS.addResident })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
@@ -52,7 +55,7 @@ test.describe('Resident list (/residents)', () => {
   test('new-resident button points to /residents/new', async ({ page }) => {
     await page.goto('/residents')
 
-    const link = page.getByRole('link', { name: /^\+ Bewohner$/i }).first()
+    const link = page.getByRole('link', { name: RESIDENT_LIST_LABELS.addResident }).first()
     await expect(link).toHaveAttribute('href', '/residents/new')
   })
 })
@@ -111,7 +114,9 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     const href = await getResidentHrefByCode(page, 'RES-001')
     await page.goto(href)
 
-    const back = page.getByRole('link', { name: /Bewohner/i }).first()
+    // The breadcrumb's own label, not the list page's — they point at the same
+    // place and must agree, which is a separate assertion below.
+    const back = page.getByRole('link', { name: RESIDENT_DETAIL_LABELS.breadcrumb }).first()
     await expect(back).toBeVisible({ timeout: 15_000 })
     await back.click()
     await page.waitForURL('**/residents', { timeout: 10_000 })

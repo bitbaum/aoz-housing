@@ -84,7 +84,7 @@ export function StaffReplyThread({
             return (
               <li key={message.id} className={fromStaff ? 'flex justify-end' : 'flex justify-start'}>
                 <div
-                  className={`max-w-[85%] rounded-2xl border px-4 py-3 shadow-sm ${
+                  className={`max-w-[85%] rounded-2xl border px-4 py-3 ${
                     fromStaff
                       ? 'bg-brand-primary text-ui-on-accent border-brand-primary/40'
                       : 'bg-ui-surface border-ui-border-strong'

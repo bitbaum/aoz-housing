@@ -317,7 +317,7 @@ function ClientCard({
   return (
     <Link
       href={`/residents/${client.id}`}
-      className={`group relative flex flex-col gap-3 rounded-xl border bg-ui-surface p-4 transition-all hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${borderCls}`}
+      className={`group relative flex flex-col gap-3 rounded-xl border bg-ui-surface p-4 transition-colors hover:border-ui-border-strong hover:bg-ui-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${borderCls}`}
       aria-label={`${residentName(client)} — Profil öffnen`}
     >
       {/* ── Row 1: Identity + support level ── */}
@@ -397,7 +397,7 @@ function FilterBar({
   const chip = (active: boolean) =>
     `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
       active
-        ? 'bg-brand-primary text-white border-brand-primary'
+        ? 'bg-brand-primary text-ui-on-accent border-brand-primary'
         : 'bg-ui-surface text-ui-muted border-ui-border hover:border-brand-primary/40 hover:text-ui-text'
     }`
 
@@ -408,13 +408,13 @@ function FilterBar({
     <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="Klient*innen filtern">
       <Link href={mineHref} className={chip(filter === 'mine')} aria-current={filter === 'mine' ? 'true' : undefined}>
         Meine Klient*innen
-        <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-xs">
+        <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-ui-surface/20 px-1.5 text-xs">
           {myCount}
         </span>
       </Link>
       <Link href={allHref} className={chip(filter === 'all')} aria-current={filter === 'all' ? 'true' : undefined}>
         Alle
-        <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-xs">
+        <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-ui-surface/20 px-1.5 text-xs">
           {allCount}
         </span>
       </Link>

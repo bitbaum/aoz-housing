@@ -11,7 +11,6 @@ import {
   portalSidebarItems,
 } from '@/lib/config/navigation'
 import { BRAND } from '@/lib/config/brand'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { portalNavMessageKey, isPortalPathActive } from '@/lib/utils/portal-nav'
 import { createTranslator } from '@/lib/i18n'
 import { de } from '@/lib/i18n/dictionaries/de'
@@ -136,7 +135,9 @@ describe('the mobile tab bar', () => {
     }
 
     for (const group of PORTAL_NAV_GROUP_ORDER) {
-      expect(PORTAL_LABELS.navGroups[group]).toBeTruthy()
+      // Read from the dictionary the components render from. The duplicate in
+      // PORTAL_LABELS.navGroups had already drifted from it and is gone.
+      expect(createTranslator('de')(`navGroup.${group}` as never)).toBeTruthy()
       expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) })
         .toEqual({ group, items: true })
     }

@@ -231,7 +231,10 @@ export const PLACEMENT_LIST_LABELS = {
 } as const
 
 export const RESIDENT_LIST_LABELS = {
-  title: 'Bewohner',
+  // The page hardcoded 'Klient*innen' while this said 'Bewohner', so the SSOT
+  // and the screen disagreed — and the E2E suite, which asserted the SSOT's
+  // word, went red and blocked every deploy for twelve hours.
+  title: 'Klient*innen',
   export: 'Exportieren',
   addResident: '+ Bewohner',
   unplacedBannerSuffix: 'Bewohner warten auf Platzierung',
@@ -563,7 +566,9 @@ export const RESIDENT_FORM_LABELS = {
 } as const
 
 export const RESIDENT_DETAIL_LABELS = {
-  breadcrumb: 'Bewohner',
+  // Same destination as the list, so it must carry the same word. It said
+  // 'Bewohner' while the page it links to said 'Klient*innen'.
+  breadcrumb: 'Klient*innen',
   transferBtn: 'Verlegen',
   editBtn: 'Bearbeiten',
   placeBtn: 'Platzieren',

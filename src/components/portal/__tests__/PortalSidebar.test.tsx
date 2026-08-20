@@ -3,6 +3,12 @@ import { render, screen } from '@testing-library/react'
 import { PortalSidebar } from '../PortalSidebar'
 import { PORTAL_SIDEBAR_GROUPS, portalSidebarItems } from '@/lib/config/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { createTranslator } from '@/lib/i18n'
+
+// The components render group headings from the i18n dictionary. A second copy
+// lived in PORTAL_LABELS.navGroups, read by nothing but these tests, and it had
+// already drifted ('Alltag & Wohnen' vs 'Alltag'). Read the real source.
+const groupHeading = (group: string) => createTranslator('de')(`navGroup.${group}` as never)
 
 let mockPathname = '/portal'
 
@@ -43,7 +49,7 @@ describe('PortalSidebar', () => {
 
     expect(container.querySelectorAll('details')).toHaveLength(PORTAL_SIDEBAR_GROUPS.length)
     for (const group of PORTAL_SIDEBAR_GROUPS) {
-      expect(screen.getByText(PORTAL_LABELS.navGroups[group])).toBeInTheDocument()
+      expect(screen.getByText(groupHeading(group))).toBeInTheDocument()
     }
   })
 
@@ -51,10 +57,10 @@ describe('PortalSidebar', () => {
     mockPathname = '/portal/learning'
     render(<PortalSidebar />)
 
-    const integration = screen.getByText(PORTAL_LABELS.navGroups.integration).closest('details')
+    const integration = screen.getByText(groupHeading('integration')).closest('details')
     expect(integration).toHaveAttribute('open')
 
-    const living = screen.getByText(PORTAL_LABELS.navGroups.living).closest('details')
+    const living = screen.getByText(groupHeading('living')).closest('details')
     expect(living).not.toHaveAttribute('open')
   })
 })

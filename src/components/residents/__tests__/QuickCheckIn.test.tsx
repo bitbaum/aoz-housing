@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QuickCheckIn } from '../QuickCheckIn'
+import { QUICK_CHECKIN_LABELS } from '@/lib/constants/labels'
 
 // --- Mocks ---
 
@@ -117,7 +118,15 @@ describe('QuickCheckIn', () => {
 
     // Expanded form appears
     await waitFor(() => {
-      expect(screen.getByLabelText(/Wie ist die Beziehung zu Ihren Mitbewohnern/i)).not.toBeNull()
+      // The label SSOT, not a copy of the German — and queried as the group's
+      // accessible name, because the label is wired with `aria-labelledby`
+      // rather than `htmlFor`, so getByLabelText never matched it.
+      expect(
+        // Matched loosely: the label also contains the required-marker's own
+        // aria-label, so the group's accessible name is the heading plus that
+        // word — an exact match can never succeed.
+        screen.getByRole('radiogroup', { name: new RegExp(QUICK_CHECKIN_LABELS.roommateLabel) })
+      ).not.toBeNull()
     })
   })
 

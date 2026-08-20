@@ -180,7 +180,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   return (
     <PageShell>
       <PageHeader
-        title="Klient*innen"
+        title={RESIDENT_LIST_LABELS.title}
         description={`${stats.visible} sichtbar · ${stats.unplaced} ohne Platzierung`}
         actions={
           <>

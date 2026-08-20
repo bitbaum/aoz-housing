@@ -7,6 +7,12 @@ import {
   portalTabItems,
 } from '@/lib/config/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
+import { createTranslator } from '@/lib/i18n'
+
+// The components render group headings from the i18n dictionary. A second copy
+// lived in PORTAL_LABELS.navGroups, read by nothing but these tests, and it had
+// already drifted ('Alltag & Wohnen' vs 'Alltag'). Read the real source.
+const groupHeading = (group: string) => createTranslator('de')(`navGroup.${group}` as never)
 
 let mockPathname = '/portal'
 
@@ -143,9 +149,9 @@ describe('PortalTabBar', () => {
 
     expect(sheet.querySelectorAll('details').length).toBe(PORTAL_SIDEBAR_GROUPS.length)
     for (const group of PORTAL_SIDEBAR_GROUPS) {
-      expect(within(sheet).getByText(PORTAL_LABELS.navGroups[group])).toBeInTheDocument()
+      expect(within(sheet).getByText(groupHeading(group))).toBeInTheDocument()
     }
-    expect(within(sheet).queryByText(PORTAL_LABELS.navGroups.account)).not.toBeInTheDocument()
+    expect(within(sheet).queryByText(groupHeading('account'))).not.toBeInTheDocument()
   })
 
   it('does not dump the language picker into the sheet', () => {

@@ -76,7 +76,14 @@ jest.mock('next/navigation', () => ({
 // --- Helpers ---
 
 function mockFetchSuccess() {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true } as Response)
+  // The form reads the created task out of the response to link straight to it.
+  // A mock with no `json` made that throw, so the component fell into its catch
+  // and never redirected — which the test reported as "push was not called",
+  // pointing at the redirect rather than at the mock.
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ success: true, data: { id: 'task-1' } }),
+  } as unknown as Response)
 }
 
 function mockFetchApiError(message = 'Ungültig') {
@@ -201,7 +208,9 @@ describe('CreateChoreForm', () => {
     fireEvent.change(screen.getByLabelText(/Titel/), { target: { value: 'Test Aufgabe' } })
     fireEvent.submit(screen.getByRole('button', { name: 'Aufgabe erstellen' }).closest('form')!)
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/portal/chores'))
+    // Straight to the task that was just created, with the flag the portal
+    // uses to confirm the action landed.
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/portal/chores/task-1?created=true'))
     expect(mockRefresh).toHaveBeenCalled()
   })
 

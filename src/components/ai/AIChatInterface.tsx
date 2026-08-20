@@ -10,6 +10,9 @@ interface Message {
 }
 
 
+/** An error whose message came from the API and is meant for the reader. */
+class ApiMessageError extends Error {}
+
 export function AIChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -54,21 +57,22 @@ export function AIChatInterface() {
       })
 
       if (!response.ok) {
-        let message = `HTTP ${response.status}`
+        let message = ''
         try {
           const body = await response.json() as { error?: string }
           if (body.error) message = body.error
         } catch {
-          // keep fallback status message
+          // No JSON body — nothing user-facing to show.
         }
-        throw new Error(message)
+        throw message ? new ApiMessageError(message) : new Error('')
       }
 
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
       let accumulated = ''
 
-      if (!reader) throw new Error('No reader')
+      // Empty on purpose: "No reader" is an implementation detail.
+      if (!reader) throw new Error('')
 
       while (true) {
         const { done, value } = await reader.read()
@@ -103,7 +107,10 @@ export function AIChatInterface() {
       setMessages(prev => [...prev, { role: 'assistant', content: accumulated }])
     } catch (err) {
       if ((err as Error).name === 'AbortError') return
-      const message = err instanceof Error && err.message
+      // Only a message the API wrote is fit to show a caseworker. A status
+      // code, a `TypeError: Failed to fetch`, or "No reader" tells the reader
+      // nothing they can act on, so everything unmarked gets German.
+      const message = err instanceof ApiMessageError
         ? err.message
         : 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.'
       setError(message)

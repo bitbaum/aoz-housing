@@ -39,12 +39,6 @@ export const PORTAL_LABELS = {
    * wants, not for the tables behind them — somebody looking for the cleaning
    * rota thinks "Alltag", never "Chores".
    */
-  navGroups: {
-    living: 'Alltag & Wohnen',
-    together: 'Miteinander',
-    integration: 'Integration & Beruf',
-    account: 'Mein Konto',
-  },
   /**
    * The page that answers "what happened to the thing I reported?".
    *
