@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom'
+import { de } from '@/lib/i18n/dictionaries/de'
+import type { MessageKey } from '@/lib/i18n/dictionaries/de'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { PortalTabBar } from '../PortalTabBar'
 import {
@@ -143,9 +145,9 @@ describe('PortalTabBar', () => {
 
     expect(sheet.querySelectorAll('details').length).toBe(PORTAL_SIDEBAR_GROUPS.length)
     for (const group of PORTAL_SIDEBAR_GROUPS) {
-      expect(within(sheet).getByText(PORTAL_LABELS.navGroups[group])).toBeInTheDocument()
+      expect(within(sheet).getByText(de[`navGroup.${group}` as MessageKey])).toBeInTheDocument()
     }
-    expect(within(sheet).queryByText(PORTAL_LABELS.navGroups.account)).not.toBeInTheDocument()
+    expect(within(sheet).queryByText(de['navGroup.account'])).not.toBeInTheDocument()
   })
 
   it('does not dump the language picker into the sheet', () => {

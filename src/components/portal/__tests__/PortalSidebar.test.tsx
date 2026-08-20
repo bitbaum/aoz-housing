@@ -1,4 +1,6 @@
 import '@testing-library/jest-dom'
+import { de } from '@/lib/i18n/dictionaries/de'
+import type { MessageKey } from '@/lib/i18n/dictionaries/de'
 import { render, screen } from '@testing-library/react'
 import { PortalSidebar } from '../PortalSidebar'
 import { PORTAL_SIDEBAR_GROUPS, portalSidebarItems } from '@/lib/config/navigation'
@@ -43,7 +45,7 @@ describe('PortalSidebar', () => {
 
     expect(container.querySelectorAll('details')).toHaveLength(PORTAL_SIDEBAR_GROUPS.length)
     for (const group of PORTAL_SIDEBAR_GROUPS) {
-      expect(screen.getByText(PORTAL_LABELS.navGroups[group])).toBeInTheDocument()
+      expect(screen.getByText(de[`navGroup.${group}` as MessageKey])).toBeInTheDocument()
     }
   })
 
@@ -51,10 +53,10 @@ describe('PortalSidebar', () => {
     mockPathname = '/portal/learning'
     render(<PortalSidebar />)
 
-    const integration = screen.getByText(PORTAL_LABELS.navGroups.integration).closest('details')
+    const integration = screen.getByText(de['navGroup.integration']).closest('details')
     expect(integration).toHaveAttribute('open')
 
-    const living = screen.getByText(PORTAL_LABELS.navGroups.living).closest('details')
+    const living = screen.getByText(de['navGroup.living']).closest('details')
     expect(living).not.toHaveAttribute('open')
   })
 })
