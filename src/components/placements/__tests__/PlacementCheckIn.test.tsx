@@ -105,20 +105,20 @@ describe('PlacementCheckIn', () => {
   it('pushes to the full check-in page when rating 1 is tapped', () => {
     renderCheckIn({ isOverdue: true })
     fireEvent.click(screen.getByTitle('1/5'))
-    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin')
+    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin?rating=1')
     expect(mockCreateQuickCheckIn).not.toHaveBeenCalled()
   })
 
   it('pushes to the full check-in page when rating 2 is tapped', () => {
     renderCheckIn({ isOverdue: true })
     fireEvent.click(screen.getByTitle('2/5'))
-    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin')
+    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin?rating=2')
   })
 
   it('pushes to the full check-in page when rating 3 is tapped', () => {
     renderCheckIn({ isOverdue: true })
     fireEvent.click(screen.getByTitle('3/5'))
-    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin')
+    expect(mockPush).toHaveBeenCalledWith('/placements/placement-1/checkin?rating=3')
   })
 
   // ── High rating (4–5): quick save ───────────────────────────────────────

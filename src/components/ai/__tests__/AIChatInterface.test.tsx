@@ -272,33 +272,49 @@ describe('AIChatInterface — streaming', () => {
 // ─── Error handling ───────────────────────────────────────────────────────────
 
 describe('AIChatInterface — error handling', () => {
-  const FALLBACK = 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.'
+  // The component surfaces the most specific message it has — the server's own
+  // error body, then the HTTP status, then the thrown error's message — and
+  // reserves the generic fallback for errors that carry no message at all.
 
-  it('shows fallback on HTTP error response', async () => {
+  it('surfaces the server error message on an HTTP error response', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'KI-Dienst nicht erreichbar' }),
+      body: null,
+    })
+    render(<AIChatInterface />)
+    const textarea = screen.getByPlaceholderText('Frage stellen…')
+    await userEvent.type(textarea, 'Hi')
+    await sendKeyAndFlush(textarea)
+    expect(screen.getByRole('alert')).toHaveTextContent('KI-Dienst nicht erreichbar')
+  })
+
+  it('surfaces the HTTP status when the error body is unreadable', async () => {
     mockFetch.mockResolvedValueOnce({ ok: false, status: 500, body: null })
     render(<AIChatInterface />)
     const textarea = screen.getByPlaceholderText('Frage stellen…')
     await userEvent.type(textarea, 'Hi')
     await sendKeyAndFlush(textarea)
-    expect(screen.getByText(FALLBACK)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('HTTP 500')
   })
 
-  it('shows fallback on network error', async () => {
+  it('surfaces the error message on network error', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network failure'))
     render(<AIChatInterface />)
     const textarea = screen.getByPlaceholderText('Frage stellen…')
     await userEvent.type(textarea, 'Hi')
     await sendKeyAndFlush(textarea)
-    expect(screen.getByText(FALLBACK)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('Network failure')
   })
 
-  it('shows fallback when response body is null', async () => {
+  it('shows an error when the response has no body', async () => {
     mockFetch.mockResolvedValueOnce({ ok: true, status: 200, body: null })
     render(<AIChatInterface />)
     const textarea = screen.getByPlaceholderText('Frage stellen…')
     await userEvent.type(textarea, 'Hi')
     await sendKeyAndFlush(textarea)
-    expect(screen.getByText(FALLBACK)).toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent(/\S/)
   })
 
   it('re-enables input after error', async () => {

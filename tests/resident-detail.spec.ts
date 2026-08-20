@@ -10,7 +10,9 @@ import { expectNotFoundPage } from './helpers'
 
 /** Navigate to residents list, click the first detail link, return the href. */
 async function getFirstResidentHref(page: import('@playwright/test').Page): Promise<string> {
-  await page.goto('/residents')
+  // The board defaults to the viewer's own case load; the seeded E2E user has
+  // no assignments, so content lives behind the "all" filter.
+  await page.goto('/residents?filter=all')
   const link = page.locator('a[href^="/residents/"]').filter({ hasNotText: /Bearbeiten|Edit|neu|new/i }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return (await link.getAttribute('href'))!
@@ -18,7 +20,7 @@ async function getFirstResidentHref(page: import('@playwright/test').Page): Prom
 
 /** Navigate via the list to find a resident by code. Returns the detail href. */
 async function getResidentHrefByCode(page: import('@playwright/test').Page, code: string): Promise<string> {
-  await page.goto('/residents')
+  await page.goto('/residents?filter=all')
   const link = page.locator(`a[href^="/residents/"]`).filter({ hasText: code }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return (await link.getAttribute('href'))!
@@ -32,19 +34,19 @@ test.describe('Resident list (/residents)', () => {
   test('loads with heading and new-resident button', async ({ page }) => {
     await page.goto('/residents')
 
-    await expect(page.getByRole('heading', { name: /Bewohner/i })).toBeVisible({ timeout: 15_000 })
+    // level 1: the empty "mine" board renders an h2 "Keine Klient*innen zugewiesen"
+    await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: /^\+ Bewohner$/i })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
-    await page.goto('/residents')
+    await page.goto('/residents?filter=all')
 
-    await expect(page.getByText('RES-001')).toBeVisible({ timeout: 15_000 })
+    // .first(): a board row prints the code twice (name line + mono code)
+    await expect(page.getByText('RES-001').first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('each row links to the resident detail page', async ({ page }) => {
-    await page.goto('/residents')
-
     const href = await getFirstResidentHref(page)
     expect(href).toMatch(/^\/residents\/[a-z0-9]+$/)
   })

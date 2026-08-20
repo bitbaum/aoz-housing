@@ -47,6 +47,7 @@ import {
   residentName,
   type NamedResident,
 } from '@/lib/utils/resident-name'
+import { toResidentUiSummary, type ResidentUiSummary } from '@/lib/housing/resident-ui'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -167,7 +168,7 @@ export default async function HousingDetailPage({ params }: Props) {
   const occupancy = unit.placements.length
 
   // Calculate who fits in this unit (only if there's space)
-  let compatibleResidents: { resident: Resident; fitScore: number; strengths: string[]; concerns: string[] }[] = []
+  let compatibleResidents: { resident: ResidentUiSummary; fitScore: number; strengths: string[]; concerns: string[] }[] = []
   const hasAvailableSpace = unit.placements.length < unit.totalBeds
 
   if (hasAvailableSpace) {
@@ -202,7 +203,7 @@ export default async function HousingDetailPage({ params }: Props) {
             .forEach((c: ApartmentConflict) => concerns.push(c.message))
 
           return {
-            resident,
+            resident: toResidentUiSummary(resident),
             fitScore: fit.fitScore,
             strengths: fit.strengths.slice(0, 2),
             concerns,
@@ -329,14 +330,14 @@ export default async function HousingDetailPage({ params }: Props) {
           {/* Apartment Profile Card */}
           {unit.placements.length > 0 && (
             <ApartmentProfileCard
-              residents={unit.placements.map(p => p.resident)}
+              residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
             />
           )}
 
           {/* Problem Detection Card */}
           {unit.placements.length > 1 && (
             <ProblemDetectionCard
-              residents={unit.placements.map(p => p.resident)}
+              residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
               compatibilityScores={compatibilityScores}
               housingUnitId={unit.id}
             />
@@ -358,7 +359,7 @@ export default async function HousingDetailPage({ params }: Props) {
                 {COMPATIBILITY_MATRIX_LABELS.heading}
               </h2>
               <CompatibilityMatrixInteractive
-                residents={unit.placements.map(p => p.resident)}
+                residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
                 scores={compatibilityScores}
               />
             </div>

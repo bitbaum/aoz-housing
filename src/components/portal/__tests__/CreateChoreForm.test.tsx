@@ -75,8 +75,11 @@ jest.mock('next/navigation', () => ({
 
 // --- Helpers ---
 
-function mockFetchSuccess() {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true } as Response)
+function mockFetchSuccess(id?: string) {
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ data: id ? { id } : {} }),
+  } as unknown as Response)
 }
 
 function mockFetchApiError(message = 'Ungültig') {
@@ -194,14 +197,14 @@ describe('CreateChoreForm', () => {
     expect((options.body as FormData).get('title')).toBe('Küche aufräumen')
   })
 
-  it('redirects to /portal/chores on success', async () => {
-    mockFetchSuccess()
+  it('redirects to the created chore with the created flag on success', async () => {
+    mockFetchSuccess('chore-9')
     render(<CreateChoreForm />)
 
     fireEvent.change(screen.getByLabelText(/Titel/), { target: { value: 'Test Aufgabe' } })
     fireEvent.submit(screen.getByRole('button', { name: 'Aufgabe erstellen' }).closest('form')!)
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/portal/chores'))
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/portal/chores/chore-9?created=true'))
     expect(mockRefresh).toHaveBeenCalled()
   })
 

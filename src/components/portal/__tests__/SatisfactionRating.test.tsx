@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { SatisfactionRating } from '../SatisfactionRating'
+import { de } from '@/lib/i18n/dictionaries/de'
 
 // --- Mocks ---
 
@@ -25,19 +26,6 @@ jest.mock('@/lib/constants', () => ({
     submit: 'Absenden',
     submitWithoutComment: 'Ohne Kommentar absenden',
     submitFeedback: 'Feedback absenden',
-  },
-  PORTAL_LABELS: {
-    satisfaction: {
-      title: 'Wie geht es dir in deiner Unterkunft?',
-      subtitle: 'Dein vertrauliches Feedback hilft uns',
-      privacyNote: 'Vertraulich gespeichert',
-      thankYouTitle: 'Danke für dein Feedback!',
-      thankYouMessage: 'Deine Rückmeldung hilft uns',
-      concernsForwarded: 'Wir haben deine Anliegen weitergeleitet',
-      newFeedback: 'Neues Feedback',
-      lastFeedback: 'Letztes Feedback',
-      today: 'Heute',
-    },
   },
 }))
 
@@ -71,13 +59,13 @@ describe('SatisfactionRating', () => {
 
   it('shows the full form when no lastCheckInDate is provided', () => {
     render(<SatisfactionRating />)
-    expect(screen.getByText('Wie geht es dir in deiner Unterkunft?')).toBeInTheDocument()
+    expect(screen.getByText(de['satisfaction.title'])).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sehr unzufrieden' })).toBeInTheDocument()
   })
 
   it('shows the full form when last check-in was 8+ days ago', () => {
     render(<SatisfactionRating lastCheckInDate={OLD_DATE} />)
-    expect(screen.getByText('Wie geht es dir in deiner Unterkunft?')).toBeInTheDocument()
+    expect(screen.getByText(de['satisfaction.title'])).toBeInTheDocument()
   })
 
   // ── Compact / recently-checked-in view ─────────────────────────────────
@@ -85,8 +73,8 @@ describe('SatisfactionRating', () => {
   it('shows compact view when last check-in is recent', () => {
     render(<SatisfactionRating lastCheckInDate={RECENT_DATE} />)
     expect(screen.getByText('Letztes Feedback')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Neues Feedback' })).toBeInTheDocument()
-    expect(screen.queryByText('Wie geht es dir in deiner Unterkunft?')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: de['satisfaction.newFeedback'] })).toBeInTheDocument()
+    expect(screen.queryByText(de['satisfaction.title'])).not.toBeInTheDocument()
   })
 
   it('shows "Heute" when last check-in was today', () => {
@@ -102,8 +90,8 @@ describe('SatisfactionRating', () => {
 
   it('shows full form after clicking "Neues Feedback"', () => {
     render(<SatisfactionRating lastCheckInDate={RECENT_DATE} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Neues Feedback' }))
-    expect(screen.getByText('Wie geht es dir in deiner Unterkunft?')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: de['satisfaction.newFeedback'] }))
+    expect(screen.getByText(de['satisfaction.title'])).toBeInTheDocument()
   })
 
   // ── Rating selection ────────────────────────────────────────────────────
@@ -153,7 +141,7 @@ describe('SatisfactionRating', () => {
     await waitFor(() => {
       expect(screen.getByText('Danke für dein Feedback!')).toBeInTheDocument()
     })
-    expect(screen.queryByText('Wie geht es dir in deiner Unterkunft?')).not.toBeInTheDocument()
+    expect(screen.queryByText(de['satisfaction.title'])).not.toBeInTheDocument()
   })
 
   it('shows thank-you view after submitting with concerns for low rating', async () => {
@@ -182,7 +170,7 @@ describe('SatisfactionRating', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Absenden' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Wir haben deine Anliegen weitergeleitet')).toBeInTheDocument()
+      expect(screen.getByText(de['satisfaction.concernsForwarded'])).toBeInTheDocument()
     })
   })
 
@@ -196,7 +184,7 @@ describe('SatisfactionRating', () => {
     await waitFor(() => {
       expect(screen.getByText('Danke für dein Feedback!')).toBeInTheDocument()
     })
-    expect(screen.queryByText('Wir haben deine Anliegen weitergeleitet')).not.toBeInTheDocument()
+    expect(screen.queryByText(de['satisfaction.concernsForwarded'])).not.toBeInTheDocument()
   })
 
   // ── Error handling ──────────────────────────────────────────────────────
@@ -214,7 +202,7 @@ describe('SatisfactionRating', () => {
       )
     })
     // Form stays visible
-    expect(screen.getByText('Wie geht es dir in deiner Unterkunft?')).toBeInTheDocument()
+    expect(screen.getByText(de['satisfaction.title'])).toBeInTheDocument()
   })
 
   it('shows error alert on network failure', async () => {
