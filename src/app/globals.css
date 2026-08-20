@@ -53,6 +53,11 @@
   --color-brand-primary:        230 57 70;
   --color-brand-primary-light:  236 80 92;
   --color-brand-primary-dark:   186 34 46;
+  /* Hover step for fills that rest on primary-dark: white on primary itself
+     is 4.17:1 (under the 4.5 AA floor), so text-bearing fills rest on
+     primary-dark (6.26:1) and darken further on hover instead of lightening
+     back under the floor. */
+  --color-brand-primary-darker: 150 27 37;
   --color-brand-secondary:      25 82 82;
   --color-brand-secondary-light:45 112 112;
   --color-brand-secondary-dark: 17 55 55;
@@ -397,7 +402,7 @@
 }
 
 .btn-secondary {
-  @apply btn bg-brand-primary text-ui-on-accent hover:bg-brand-primary-dark focus:ring-brand-primary/40;
+  @apply btn bg-brand-primary-dark text-ui-on-accent hover:bg-brand-primary-darker focus:ring-brand-primary/40;
 }
 
 .btn-outline {
@@ -587,7 +592,8 @@
   top: 0;
   left: 0;
   padding: 0.5rem 0.75rem;
-  background: rgb(var(--color-brand-primary));
+  /* primary-dark, not primary: white on the brand red is 4.17:1, under AA. */
+  background: rgb(var(--color-brand-primary-dark));
   color: rgb(var(--color-ui-on-accent));
   border-radius: 0 0 var(--radius-md) 0;
   font-weight: 600;
