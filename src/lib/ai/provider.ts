@@ -9,6 +9,8 @@
  * - `runStaffChat` — streaming staff assistant (/api/ai/chat)
  */
 
+import { BRAND } from '@/lib/config/brand'
+
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
@@ -84,7 +86,7 @@ export async function getAIProviderConfig(): Promise<AIProviderConfig | null> {
       Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': env.NEXT_PUBLIC_APP_URL ?? 'https://aoz.orangecat.ch',
-      'X-Title': 'AOZ Begleitung',
+      'X-Title': BRAND.productName,
     },
     model: env.OPENROUTER_MODEL,
   }

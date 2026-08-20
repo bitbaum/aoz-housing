@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { QuickCheckIn } from '../QuickCheckIn'
+import { QUICK_CHECKIN_LABELS } from '@/lib/constants/labels'
 
 // --- Mocks ---
 
@@ -117,7 +118,7 @@ describe('QuickCheckIn', () => {
 
     // Expanded form appears
     await waitFor(() => {
-      expect(screen.getByLabelText(/Wie ist die Beziehung zu Ihren Mitbewohnern/i)).not.toBeNull()
+      expect(screen.getByLabelText(QUICK_CHECKIN_LABELS.roommateLabel, { exact: false })).not.toBeNull()
     })
   })
 

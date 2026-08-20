@@ -11,7 +11,7 @@ test.describe('Navigation — admin pages load', () => {
 
   test('residents list loads', async ({ page }) => {
     await page.goto('/residents')
-    await expect(page.getByRole('heading', { level: 1, name: /Bewohner/i })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({ timeout: 30_000 })
   })
 
   test('housing list loads', async ({ page }) => {
