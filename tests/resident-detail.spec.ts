@@ -9,17 +9,24 @@ import { RESIDENT_DETAIL_LABELS, RESIDENT_LIST_LABELS } from '../src/lib/constan
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-/** Navigate to residents list, click the first detail link, return the href. */
+// The list defaults to `filter=mine` (assigned-to-me clients), and the E2E
+// staff account carries no CareAssignment seed rows — so the default view is
+// empty for it. These helpers exist to find a SPECIFIC seeded resident, which
+// is a `filter=all` question regardless of who is logged in, so they ask for
+// that explicitly rather than depending on what the current session happens
+// to have assigned.
+
+/** Navigate to residents list (all), click the first detail link, return the href. */
 async function getFirstResidentHref(page: import('@playwright/test').Page): Promise<string> {
-  await page.goto('/residents')
+  await page.goto('/residents?filter=all')
   const link = page.locator('a[href^="/residents/"]').filter({ hasNotText: /Bearbeiten|Edit|neu|new/i }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return (await link.getAttribute('href'))!
 }
 
-/** Navigate via the list to find a resident by code. Returns the detail href. */
+/** Navigate via the full list to find a resident by code. Returns the detail href. */
 async function getResidentHrefByCode(page: import('@playwright/test').Page, code: string): Promise<string> {
-  await page.goto('/residents')
+  await page.goto('/residents?filter=all')
   const link = page.locator(`a[href^="/residents/"]`).filter({ hasText: code }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return (await link.getAttribute('href'))!
@@ -33,21 +40,27 @@ test.describe('Resident list (/residents)', () => {
   test('loads with heading and new-resident button', async ({ page }) => {
     await page.goto('/residents')
 
+    // Scoped to the page's own `<h1>`: the resident board's EmptyState also
+    // renders an `<h2>` whose text contains RESIDENT_LIST_LABELS.title as a
+    // substring ("Keine Klient*innen zugewiesen") when the signed-in staff
+    // account has no assigned clients under the default `mine` filter — which
+    // the E2E account does not — and Playwright's role-name match is substring
+    // by default, so the unscoped query resolved to both.
     await expect(
-      page.getByRole('heading', { name: RESIDENT_LIST_LABELS.title })
+      page.getByRole('heading', { level: 1, name: RESIDENT_LIST_LABELS.title })
     ).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: RESIDENT_LIST_LABELS.addResident })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
-    await page.goto('/residents')
+    // `filter=all`: the default `mine` view is legitimately empty for an
+    // account with no assigned clients, which is not what this test checks.
+    await page.goto('/residents?filter=all')
 
     await expect(page.getByText('RES-001')).toBeVisible({ timeout: 15_000 })
   })
 
   test('each row links to the resident detail page', async ({ page }) => {
-    await page.goto('/residents')
-
     const href = await getFirstResidentHref(page)
     expect(href).toMatch(/^\/residents\/[a-z0-9]+$/)
   })
