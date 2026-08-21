@@ -265,8 +265,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+        <div className="min-w-0">
           <div className="flex items-center gap-3">
             <Link
               href="/residents"
@@ -283,7 +283,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             <div className="avatar-lg font-semibold">
               {residentInitials(resident)}
             </div>
-            <div>
+            <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
                 {residentName(resident)}
               </h1>
@@ -295,7 +295,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
             {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
@@ -325,12 +325,12 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             </h2>
             {currentPlacement ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-status-success/10 rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-status-success text-ui-on-accent rounded-lg flex items-center justify-center">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 bg-status-success/10 rounded-lg">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="w-10 h-10 shrink-0 bg-status-success text-ui-on-accent rounded-lg flex items-center justify-center">
                       {'\u{1F3E0}'}
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       {canReadHousing ? (
                         <Link
                           href={`/housing/${currentPlacement.housingUnitId}`}
@@ -358,7 +358,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                     </div>
                   </div>
                   {currentPlacement.compatibilityScore && (
-                    <div className="text-right">
+                    <div className="text-left sm:text-right shrink-0">
                       <p className="text-sm text-ui-muted">{RESIDENT_DETAIL_LABELS.compatibility}</p>
                       <p
                         className={`text-lg font-semibold ${getScoreColorClass(

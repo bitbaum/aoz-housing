@@ -226,8 +226,8 @@ export default async function HousingDetailPage({ params }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+        <div className="min-w-0">
           <div className="flex items-center gap-3">
             <Link
               href="/housing"
@@ -249,7 +249,7 @@ export default async function HousingDetailPage({ params }: Props) {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <HarmonyBadge status={harmonyStatus} />
           <StatusBadge status={unit.status} />
           <Link href={`/housing/${unit.id}/edit`} className="btn-outline">

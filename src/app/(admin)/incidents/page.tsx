@@ -270,11 +270,11 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
         incident.severity
       )} block transition-colors`}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <span className="text-2xl" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
-          <div>
-            <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start gap-4 min-w-0">
+          <span className="text-2xl shrink-0" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-semibold text-ui-text">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </h3>
@@ -327,7 +327,7 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {incident.resolvedAt ? (
             <span className="badge badge-active">{INCIDENT_RESOLVED_LABELS.resolved}</span>
           ) : (
