@@ -76,8 +76,14 @@ export default async function AdminLayout({
 
       <div className="flex min-h-[calc(100vh-56px)]">
         <MobileNav groups={megaMenuGroups} systemLinks={systemLinks} />
-        <main id="admin-main" className="flex-1 flex flex-col">
-          <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6">
+        {/* min-w-0: a flex item defaults to min-width:auto, which means it
+            cannot shrink below its content's intrinsic width. Any wide child
+            anywhere on an admin page — an unwrapped row, a scrollable tab
+            strip, a stat grid — was pushing this ENTIRE main column wider
+            than the viewport instead of being contained and clipped/scrolled
+            the way each of those children already intended. */}
+        <main id="admin-main" className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6 min-w-0">
             {children}
           </div>
         </main>

@@ -302,17 +302,17 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
   return (
     <div
       className={`card p-4 ${placement.status !== 'ACTIVE' ? 'opacity-75' : ''} ${
-        isCheckInOverdue ? 'border-l-4 border-l-orange-400' : ''
+        isCheckInOverdue ? 'border-l-4 border-l-status-warning' : ''
       }`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-4 min-w-0">
           {/* Resident */}
-          <div className="flex items-center gap-3">
-            <div className="avatar">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="avatar shrink-0">
               {residentInitials(placement.resident)}
             </div>
-            <div>
+            <div className="min-w-0">
               <Link
                 href={`/residents/${placement.residentId}`}
                 className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
@@ -327,10 +327,10 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
             </div>
           </div>
 
-          <span className="text-ui-muted">→</span>
+          <span className="text-ui-muted hidden sm:inline">→</span>
 
           {/* Housing */}
-          <div>
+          <div className="min-w-0">
             <Link
               href={`/housing/${placement.housingUnitId}`}
               className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
@@ -343,9 +343,9 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 shrink-0">
           {/* Duration */}
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <p className="text-xs text-ui-muted">
               {placement.status === 'ACTIVE' ? PLACEMENT_LIST_LABELS.since : PLACEMENT_LIST_LABELS.duration}
             </p>
@@ -368,14 +368,14 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
           {/* Last satisfaction for ended placements */}
           {placement.status !== 'ACTIVE' && placement.satisfactionRating && (
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-xs text-ui-muted">{SATISFACTION_SURVEY_LABELS.groupLabel}</p>
               <p className="text-lg">{SATISFACTION_EMOJIS[placement.satisfactionRating - 1]}</p>
             </div>
           )}
 
           {/* Status / End Reason */}
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             {placement.status === 'ACTIVE' ? (
               <span className={`badge ${getStatusBadgeClass(placement.status)}`}>
                 {getLabel(PLACEMENT_STATUS_LABELS, placement.status)}

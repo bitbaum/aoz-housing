@@ -302,8 +302,8 @@ export default async function MatchingPage({ searchParams }: Props) {
             ? MATCHING_LABELS.findUnit
             : MATCHING_LABELS.title}
         </h1>
-        <div className="flex items-center justify-between">
-          <p className="text-ui-muted">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-ui-muted min-w-0">
             {isUnitMode
               ? MATCHING_LABELS.findMatchingResidents(selectedUnit?.address ?? '')
               : isNewResident
@@ -313,7 +313,7 @@ export default async function MatchingPage({ searchParams }: Props) {
           </p>
           <Link
             href="/algorithm"
-            className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-secondary hover:underline whitespace-nowrap ml-4"
+            className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-secondary hover:underline whitespace-nowrap shrink-0 sm:ml-4"
           >
             {EMPTY_STATE_LABELS.algorithmLink}
           </Link>

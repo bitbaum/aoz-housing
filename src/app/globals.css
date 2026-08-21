@@ -264,7 +264,7 @@
 /* Uppercase micro-label. The signature move of this design language: it marks
    what a number or section IS, without competing with the value itself. */
 .eyebrow {
-  @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted;
+  @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted break-words;
 }
 
 /* Anything the eye has to compare down a column: counts, scores, codes, dates.
@@ -334,8 +334,12 @@
 
 /* ── Surfaces ───────────────────────────────────────────────────────────── */
 
+/* min-w-0: a card is routinely a flex/grid item (stat grids, list rows). Without
+   it, a card defaults to min-width:auto and cannot shrink below the intrinsic
+   width of its content — an unbreakable label then forces the whole grid track,
+   and the page, wider than the viewport instead of wrapping inside the card. */
 .card {
-  @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5;
+  @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5 min-w-0;
 }
 
 /* Hover affordance is a border and fill change, never a shadow — a card must
