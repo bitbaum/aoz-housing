@@ -38,6 +38,7 @@ export default function LandingPage() {
       <Problems />
       <Steps />
       <Features />
+      <Science />
       <Ethics />
       <ProductDocs />
       {posts.length > 0 && <FromTheBlog posts={posts} />}
@@ -149,6 +150,27 @@ function Features() {
             </div>
           )
         })}
+      </div>
+    </section>
+  )
+}
+
+function Science() {
+  return (
+    <section className="py-14 sm:py-20 border-b border-ui-border">
+      <p className="eyebrow">{C.scienceEyebrow}</p>
+      <h2 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-heading text-ui-text max-w-2xl text-balance">
+        {C.scienceTitle}
+      </h2>
+      <p className="mt-4 text-ui-muted max-w-2xl leading-relaxed">{C.scienceBody}</p>
+
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-px bg-ui-border border border-ui-border rounded-lg overflow-hidden">
+        {C.science.map((item) => (
+          <div key={item.title} className="bg-ui-surface p-5">
+            <h3 className="font-semibold text-ui-text">{item.title}</h3>
+            <p className="mt-2 text-sm text-ui-muted leading-relaxed">{item.body}</p>
+          </div>
+        ))}
       </div>
     </section>
   )

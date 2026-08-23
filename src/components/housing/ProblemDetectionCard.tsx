@@ -167,7 +167,7 @@ export function ProblemDetectionCard({
           <h2 className="text-lg font-semibold text-ui-text">{PROBLEM_DETECTION_LABELS.problemsDetected}</h2>
         </div>
         <span className="text-sm text-ui-muted">
-          {problems.length} {problems.length === 1 ? 'Bewohner' : 'Bewohner'} {PROBLEM_DETECTION_LABELS.adaptationIssues}
+          {problems.length} {problems.length === 1 ? 'Klient*in' : 'Klient*innen'} {PROBLEM_DETECTION_LABELS.adaptationIssues}
         </span>
       </div>
 

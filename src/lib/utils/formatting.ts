@@ -73,7 +73,8 @@ export function formatRelativeDate(date: Date | string): string {
   if (days === 0) return 'Heute'
   if (days === 1) return 'Gestern'
   if (days < 7) return `Vor ${days} Tagen`
-  if (days < 30) return `Vor ${Math.floor(days / 7)} Wochen`
+  const weeks = Math.floor(days / 7)
+  if (days < 30) return weeks === 1 ? 'Vor 1 Woche' : `Vor ${weeks} Wochen`
   return formatDate(date)
 }
 

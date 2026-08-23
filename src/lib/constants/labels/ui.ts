@@ -55,7 +55,7 @@ export const UI_LABELS = {
   // Error boundaries — page-specific descriptions
   errorGenericDesc: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
   errorHousingDesc: 'Beim Laden der Unterkunftsdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorResidentsDesc: 'Beim Laden der Bewohnerdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorResidentsDesc: 'Beim Laden der Klient*innen-Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
   errorIncidentsDesc: 'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
   errorMaintenanceDesc: 'Beim Laden der Wartungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
   errorAnalyticsDesc: 'Beim Laden der Analysedaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
@@ -92,7 +92,7 @@ export const FOLLOW_UP_FORM_LABELS = {
     },
   },
   actionLabel: 'Aktion/Massnahme *',
-  actionPlaceholder: 'z.B. Gespräch mit Bewohner geführt',
+  actionPlaceholder: 'z.B. Gespräch mit Klient*in geführt',
   notesLabel: 'Notizen',
   notesPlaceholder: 'Details zur Massnahme...',
   outcomeLabel: 'Ergebnis',
@@ -111,7 +111,7 @@ export const INCIDENT_SIDEBAR_LABELS = {
   reportedBy: 'Gemeldet von',
   subject: 'Betrifft',
   otherInvolved: 'Weitere Beteiligte',
-  noResidentsAssigned: 'Keine Bewohner zugeordnet',
+  noResidentsAssigned: 'Keine Klient*innen zugeordnet',
   actions: 'Aktionen',
   resolution: 'Lösung',
   resolutionPlaceholder: 'Wie wurde der Vorfall gelöst?',
@@ -130,8 +130,8 @@ export const INCIDENT_SIDEBAR_LABELS = {
 
 export const DANGER_ZONE_LABELS = {
   title: 'Danger Zone — Hard-Delete',
-  description: 'Nur für Test-/Demo-Bewohner. Diese Aktion ist endgültig und entfernt den Datensatz.',
-  notTestResident: 'Dieser Bewohner-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
+  description: 'Nur für Test-/Demo-Klient*innen. Diese Aktion ist endgültig und entfernt den Datensatz.',
+  notTestResident: 'Dieser Klient*innen-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
   blockerReport: 'Blocker-Report:',
   noDetails: 'Keine Details',
   copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
@@ -139,7 +139,7 @@ export const DANGER_ZONE_LABELS = {
   confirmLabel: 'Bestätigung: DELETE',
   reasonLabel: 'Grund (mind. 10 Zeichen)',
   deleteFailed: 'Hard-Delete fehlgeschlagen',
-  deleteSuccess: 'Bewohner wurde endgültig gelöscht',
+  deleteSuccess: 'Klient*in wurde endgültig gelöscht',
   deleteButton: 'Endgültig löschen',
   blockers: {
     placements: 'Platzierungen',
@@ -160,7 +160,7 @@ export const PLACEMENT_HISTORY_LABELS = {
 export const UNIT_INCIDENT_LABELS = {
   title: 'Vorfälle & Meldungen',
   newIncident: 'Neuer Vorfall',
-  frequentResidents: 'Häufig betroffene Bewohner',
+  frequentResidents: 'Häufig betroffene Klient*innen',
   tabs: {
     all: 'Alle',
     conflicts: 'Konflikte',
@@ -194,6 +194,7 @@ export const TRANSFER_ACTION_LABELS = {
   deny: 'Ablehnen',
   processing: 'Wird bearbeitet...',
   success: 'Erfolgreich bearbeitet',
+  approvedNextStep: 'Passende Unterkunft finden',
   emptyPending: 'Keine offenen Verlegungsanfragen',
   emptyOther: 'Keine Verlegungsanfragen in dieser Kategorie',
   filterReset: 'Filter zurücksetzen',
@@ -206,7 +207,7 @@ export const PLACEMENT_LIST_LABELS = {
   title: 'Platzierungen',
   export: 'Exportieren',
   newPlacement: 'Neue Platzierung',
-  searchPlaceholder: 'Suchen: Bewohner, Unterkunft, Adresse',
+  searchPlaceholder: 'Suchen: Klient*innen, Unterkunft, Adresse',
   filterOverdue: 'Nur überfällige Check-ins',
   filterConflicts: 'Nur konfliktbedingt beendet',
   filterApply: 'Filter anwenden',
@@ -231,19 +232,19 @@ export const PLACEMENT_LIST_LABELS = {
 } as const
 
 export const RESIDENT_LIST_LABELS = {
-  title: 'Bewohner',
+  title: 'Klient*innen',
   export: 'Exportieren',
-  addResident: '+ Bewohner',
-  unplacedBannerSuffix: 'Bewohner warten auf Platzierung',
+  addResident: '+ Klient*in',
+  unplacedBannerSuffix: 'Klient*innen warten auf Platzierung',
   unplacedBannerDesc: 'Starten Sie den Matching-Prozess um passende Unterkünfte zu finden',
   startMatching: 'Matching starten',
-  emptyArchived: 'Keine archivierten Bewohner',
-  emptyFirst: 'Ersten Bewohner erfassen',
-  searchPlaceholder: 'Bewohner suchen...',
+  emptyArchived: 'Keine archivierten Klient*innen',
+  emptyFirst: 'Erste*n Klient*in erfassen',
+  searchPlaceholder: 'Klient*innen suchen...',
   statusFilter: 'Status',
   allStatus: 'Alle Status',
-  emptyDefault: 'Noch keine Bewohner vorhanden',
-  emptyFiltered: 'Keine Bewohner für diese Filter',
+  emptyDefault: 'Noch keine Klient*innen vorhanden',
+  emptyFiltered: 'Keine Klient*innen für diese Filter',
   notPlaced: 'Nicht platziert',
   filterReset: 'Filter zurücksetzen',
   recentIncidentsSuffix: 'Vorfälle',
@@ -292,10 +293,10 @@ export const BED_GRID_LABELS = {
 } as const
 
 export const PLACEMENT_PANEL_LABELS = {
-  title: 'Bewohner platzieren',
-  noResidents: 'Keine unplatzierten Bewohner verfügbar',
-  addResident: 'Neuen Bewohner erfassen',
-  foundSuffix: 'passende Bewohner gefunden, nach Kompatibilität sortiert',
+  title: 'Klient*in platzieren',
+  noResidents: 'Keine unplatzierten Klient*innen verfügbar',
+  addResident: 'Neue*n Klient*in erfassen',
+  foundSuffix: 'passende Klient*innen gefunden, nach Kompatibilität sortiert',
   advancedMatching: 'Erweitertes Matching',
   placing: 'Wird platziert...',
   place: 'Platzieren',
@@ -350,17 +351,17 @@ export const SETTINGS_LABELS = {
   subtitle: 'Teamverwaltung und Systemkonfiguration',
   inviteTitle: 'Mitarbeiter einladen',
   inviteSubtitle: 'Erstellt einen Zugangscode und sendet eine Einladungs-E-Mail.',
-  emailWarning: 'E-Mail nicht konfiguriert (kein BREVO_API_KEY). Der Code wird nach dem Senden angezeigt — bitte manuell übermitteln.',
+  emailWarning: 'E-Mail nicht konfiguriert (kein RESEND_API_KEY). Der Code wird nach dem Senden angezeigt — bitte manuell übermitteln.',
   teamTitle: 'Team',
   lastSeen: 'Zuletzt:',
   neverLoggedIn: 'Noch nie angemeldet',
   emailConfigTitle: 'E-Mail-Konfiguration',
-  brevoConnected: 'Brevo API: Verbunden',
-  brevoNotConfigured: 'Brevo API: Nicht konfiguriert',
+  brevoConnected: 'Resend API: Verbunden',
+  brevoNotConfigured: 'Resend API: Nicht konfiguriert',
   senderPrefix: 'Absender:',
   notificationsPrefix: 'Benachrichtigungen:',
   noRecipients: 'Keine Empfänger konfiguriert',
-  addBrevoHint: 'Fügen Sie BREVO_API_KEY zur .env-Datei hinzu, um E-Mails zu aktivieren.',
+  addBrevoHint: 'Fügen Sie RESEND_API_KEY zur .env-Datei hinzu, um E-Mails zu aktivieren.',
 } as const
 
 export const INVITE_FORM_LABELS = {
@@ -421,9 +422,9 @@ export const RESIDENT_PROFILE_SIDEBAR_LABELS = {
 
 export const APARTMENT_PROFILE_LABELS = {
   title: 'Wohnungsprofil',
-  emptyState: 'Keine Bewohner - Profil wird erstellt wenn Bewohner platziert werden',
+  emptyState: 'Keine Klient*innen - Profil wird erstellt wenn Klient*innen platziert werden',
   harmonyLabel: 'Harmonie',
-  residentsSuffix: ' Bewohner',
+  residentsSuffix: ' Klient*innen',
   nonSmokers: ' · Nichtraucher',
   smokerWarning: 'Raucher in der Wohnung: ',
   deviationPrefix: 'Abweichung: ',
@@ -563,7 +564,7 @@ export const RESIDENT_FORM_LABELS = {
 } as const
 
 export const RESIDENT_DETAIL_LABELS = {
-  breadcrumb: 'Bewohner',
+  breadcrumb: 'Klient*innen',
   transferBtn: 'Verlegen',
   editBtn: 'Bearbeiten',
   placeBtn: 'Platzieren',
@@ -573,7 +574,7 @@ export const RESIDENT_DETAIL_LABELS = {
   quickCheckin: 'Schnell-Check-in',
   notPlaced: 'Nicht platziert',
   findUnit: 'Passende Unterkunft finden',
-  toastPlaced: 'Bewohner erfolgreich platziert',
+  toastPlaced: 'Klient*in erfolgreich platziert',
   toastCheckin: 'Check-in erfolgreich gespeichert',
   toastTransferred: 'Platzierung erfolgreich verlegt',
   toastEnded: 'Platzierung erfolgreich beendet',
@@ -645,7 +646,7 @@ export const INCIDENT_DETAIL_LABELS = {
 
 export const RESIDENT_NEW_LABELS = {
   backLink: '← Zurück zur Übersicht',
-  title: 'Neuen Bewohner erfassen',
+  title: 'Neue*n Klient*in erfassen',
   step1Subtitle: 'Schritt 1 von 2: Profil erfassen. Danach finden wir passende Unterkünfte.',
   step1Label: 'Profil erfassen',
   step2Label: 'Unterkunft finden',
@@ -656,7 +657,7 @@ export const RESIDENT_NEW_LABELS = {
 export const RESIDENT_EDIT_LABELS = {
   backLink: '← Zurück zum Profil',
   title: (code: string) => `${code} bearbeiten`,
-  subtitle: 'Aktualisieren Sie die Informationen des Bewohners',
+  subtitle: 'Aktualisieren Sie die Informationen der Klient*in',
   submit: 'Änderungen speichern',
   cancel: 'Abbrechen',
 } as const
@@ -678,11 +679,11 @@ export const FORM_VALIDATION_UX_LABELS = {
 } as const
 
 export const COMPATIBLE_MATCHES_LABELS = {
-  desc: 'Diese Bewohner könnten zusammen platziert werden.',
+  desc: 'Diese Klient*innen könnten zusammen platziert werden.',
   unitsTitle: 'Beste Unterkünfte',
   residentsTitle: 'Passende Mitbewohner (unplatziert)',
   emptyUnit: 'Leer',
-  residentCount: (count: number) => `${count} Bewohner`,
+  residentCount: (count: number) => `${count} Klient*innen`,
 } as const
 
 export const TOP_COMPATIBILITIES_LABELS = {
@@ -690,13 +691,13 @@ export const TOP_COMPATIBILITIES_LABELS = {
 } as const
 
 export const AI_ASSISTANT_LABELS = {
-  subtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften, Vorfällen und Statistiken.',
+  subtitle: 'Stellen Sie Fragen zu Klient*innen, Unterkünften, Vorfällen und Statistiken.',
   componentTitle: `KI-Assistent für ${BRAND.productName}`,
-  componentSubtitle: 'Stellen Sie Fragen zu Bewohnern, Unterkünften und Vorfällen.',
+  componentSubtitle: 'Stellen Sie Fragen zu Klient*innen, Unterkünften und Vorfällen.',
 } as const
 
 export const AI_SUGGESTED_QUESTIONS = [
-  'Wie viele Bewohner sind aktuell im System?',
+  'Wie viele Klient*innen sind aktuell im System?',
   'Welche Einheiten haben noch freie Plätze?',
   'Zeige mir die letzten offenen Vorfälle.',
   'Was ist die aktuelle Belegungsrate?',
@@ -724,7 +725,7 @@ export const TRANSFER_RECOMMENDATIONS_LABELS = {
 
 export const PROBLEM_DETECTION_LABELS = {
   noProblems: 'Keine Probleme erkannt',
-  noProblemsDesc: 'Alle Bewohner passen gut zusammen. Harmonie in der Wohnung.',
+  noProblemsDesc: 'Alle Klient*innen passen gut zusammen. Harmonie in der Wohnung.',
   problemsDetected: 'Probleme erkannt',
   adaptationIssues: 'mit Anpassungsproblemen',
   lowerCleanliness: 'niedrigere',
@@ -743,6 +744,6 @@ export const PROBLEM_DETECTION_LABELS = {
   smokerInNonSmoking: 'Raucher in einer Nichtraucher-Wohnung',
   avgCompatibilityOnly: 'Durchschnittliche Kompatibilität nur',
   tip: 'Tipp:',
-  tipMessage: 'Bewohner mit Anpassungsproblemen könnten in einer anderen Wohnung besser passen. Nutzen Sie "Umplatzieren", um passende Alternativen zu finden.',
+  tipMessage: 'Klient*innen mit Anpassungsproblemen könnten in einer anderen Wohnung besser passen. Nutzen Sie "Umplatzieren", um passende Alternativen zu finden.',
   relocate: 'Umplatzieren',
 } as const

@@ -36,7 +36,7 @@ test.describe('Resident list (/residents)', () => {
 
     // level 1: the empty "mine" board renders an h2 "Keine Klient*innen zugewiesen"
     await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /^\+ Bewohner$/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /^\+ Klient\*in$/i })).toBeVisible()
   })
 
   test('shows seed residents in the list', async ({ page }) => {
@@ -54,7 +54,7 @@ test.describe('Resident list (/residents)', () => {
   test('new-resident button points to /residents/new', async ({ page }) => {
     await page.goto('/residents')
 
-    const link = page.getByRole('link', { name: /^\+ Bewohner$/i }).first()
+    const link = page.getByRole('link', { name: /^\+ Klient\*in$/i }).first()
     await expect(link).toHaveAttribute('href', '/residents/new')
   })
 })
@@ -113,7 +113,7 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     const href = await getResidentHrefByCode(page, 'RES-001')
     await page.goto(href)
 
-    const back = page.getByRole('link', { name: /Bewohner/i }).first()
+    const back = page.getByRole('link', { name: /Klient\*innen/i }).first()
     await expect(back).toBeVisible({ timeout: 15_000 })
     await back.click()
     await page.waitForURL('**/residents', { timeout: 10_000 })

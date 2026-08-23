@@ -5,7 +5,7 @@
  * keep working. The UI says "Leitung".
  *
  * BETREUUNG — daily housing ops (place, incidents, maintenance).
- * SOZIALARBEIT — people and learning; no housing writes, no algorithm.
+ * SOZIALARBEIT — people and learning; no housing writes.
  * JOBCOACH — learning and resident read; no placements.
  * FREIWILLIGENARBEIT — volunteering coordination; learning + marketplace/
  * events own-domain writes, no housing/placement writes.

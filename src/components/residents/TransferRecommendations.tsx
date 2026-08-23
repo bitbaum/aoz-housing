@@ -159,7 +159,7 @@ export function TransferRecommendations({
                         </p>
                       ) : (
                         <div className="flex items-center gap-1 flex-wrap">
-                          <span className="text-xs text-ui-muted">Bewohner:</span>
+                          <span className="text-xs text-ui-muted">Klient*in:</span>
                           {unit.residents.slice(0, DISPLAY_LIMITS.dashboardItems).map((resident, i) => (
                             <span
                               key={resident.id}

@@ -14,6 +14,7 @@ import {
   saveCareAttributes,
   setAppointmentStatus,
 } from '@/lib/actions/care'
+import { ChevronDown } from 'lucide-react'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
 
 interface CareWorkspaceProps {
@@ -66,34 +67,53 @@ function DomainPanel({
   const byKey = new Map(attributes.map((item) => [item.key, item.value]))
   const upcoming = appointments.filter((item) => item.status === 'SCHEDULED')
   const past = appointments.filter((item) => item.status !== 'SCHEDULED')
+  const hasContent =
+    attributes.some((item) => item.value?.trim()) || appointments.length > 0
 
   return (
-    <section className="border border-ui-border rounded-lg p-4">
-      <h3 className="font-semibold text-ui-text mb-4">{CARE_ROLE_LABELS[domain]}</h3>
-
-      {canWrite ? (
-        <AttributeForm residentId={residentId} domain={domain} values={byKey} />
-      ) : (
-        <AttributeReadout domain={domain} values={byKey} />
-      )}
-
-      <div className="mt-6">
-        <h4 className="text-sm font-medium text-ui-text mb-3">{CARE_LABELS.appointments}</h4>
-        {upcoming.length === 0 && past.length === 0 ? (
-          <p className="text-sm text-ui-muted">{CARE_LABELS.appointmentsEmpty}</p>
+    // Four of these stack on the page. When every panel is a wall of empty
+    // inputs, the page is ~2500px of form for a person with no care notes yet
+    // — so an empty domain collapses to its heading and opens on demand,
+    // while a domain with real content stays open.
+    <details
+      open={hasContent || undefined}
+      className="group border border-ui-border rounded-lg"
+    >
+      <summary className="flex min-h-[44px] cursor-pointer select-none list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
+        <h3 className="font-semibold text-ui-text">{CARE_ROLE_LABELS[domain]}</h3>
+        <span className="flex items-center gap-2 text-xs text-ui-muted">
+          {!hasContent && CARE_LABELS.domainEmpty}
+          <ChevronDown
+            className="w-4 h-4 transition-transform group-open:rotate-180"
+            aria-hidden="true"
+          />
+        </span>
+      </summary>
+      <div className="px-4 pb-4">
+        {canWrite ? (
+          <AttributeForm residentId={residentId} domain={domain} values={byKey} />
         ) : (
-          <ul className="space-y-3">
-            {upcoming.map((item) => (
-              <AppointmentRow key={item.id} item={item} canWrite={canWrite} />
-            ))}
-            {past.map((item) => (
-              <AppointmentRow key={item.id} item={item} canWrite={false} />
-            ))}
-          </ul>
+          <AttributeReadout domain={domain} values={byKey} />
         )}
-        {canWrite && <AppointmentForm residentId={residentId} domain={domain} />}
+
+        <div className="mt-6">
+          <h4 className="text-sm font-medium text-ui-text mb-3">{CARE_LABELS.appointments}</h4>
+          {upcoming.length === 0 && past.length === 0 ? (
+            <p className="text-sm text-ui-muted">{CARE_LABELS.appointmentsEmpty}</p>
+          ) : (
+            <ul className="space-y-3">
+              {upcoming.map((item) => (
+                <AppointmentRow key={item.id} item={item} canWrite={canWrite} />
+              ))}
+              {past.map((item) => (
+                <AppointmentRow key={item.id} item={item} canWrite={false} />
+              ))}
+            </ul>
+          )}
+          {canWrite && <AppointmentForm residentId={residentId} domain={domain} />}
+        </div>
       </div>
-    </section>
+    </details>
   )
 }
 

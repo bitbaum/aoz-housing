@@ -118,7 +118,7 @@ export const MAINTENANCE_PAGE_LABELS = {
   fieldDescription: 'Beschreibung *',
   fieldDescriptionPlaceholder: 'Detaillierte Beschreibung des Problems...',
   sectionReporter: 'Gemeldet von',
-  fieldResident: 'Bewohner',
+  fieldResident: 'Klient*in',
   fieldResidentDefault: 'Nicht zugeordnet',
   fieldReporterName: 'Oder Name eingeben',
   fieldReporterNamePlaceholder: 'z.B. Hauswart, Nachbar...',

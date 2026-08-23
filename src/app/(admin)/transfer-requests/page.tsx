@@ -152,7 +152,18 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
       )}
 
       {request.status === 'PENDING' && (
-        <TransferActions requestId={request.id} />
+        <TransferActions requestId={request.id} residentId={request.resident.id} />
+      )}
+
+      {/* An approved request whose resident never moved is unfinished work,
+          not history — keep the handoff into matching visible on the card. */}
+      {request.status === 'APPROVED' && (
+        <Link
+          href={`/matching?resident=${request.resident.id}`}
+          className="inline-flex min-h-[44px] items-center text-sm font-medium text-brand-primary hover:underline"
+        >
+          {TRANSFER_ACTION_LABELS.approvedNextStep} →
+        </Link>
       )}
     </div>
   )
