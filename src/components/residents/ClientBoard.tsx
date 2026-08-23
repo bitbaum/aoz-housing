@@ -163,7 +163,7 @@ function CheckInChip({
   return (
     <span className="inline-flex items-center gap-1 text-xs text-ui-muted">
       <CheckCircle2 className="w-3 h-3 shrink-0" />
-      {compact ? `vor ${daysSince}T` : `Vor ${daysSince} Tagen`}
+      {compact ? `vor ${daysSince}T` : daysSince === 1 ? 'Vor 1 Tag' : `Vor ${daysSince} Tagen`}
     </span>
   )
 }
@@ -332,7 +332,11 @@ function ClientCard({
           <p className="truncate text-sm font-semibold text-ui-text group-hover:text-brand-primary leading-tight">
             {residentName(client)}
           </p>
-          <p className="font-mono text-[11px] text-ui-muted">{/* resident-code-intentional */}{client.code}</p>
+          {/* Without a chosen name, residentName() already shows the code —
+              repeating it as a subtitle printed the same string twice. */}
+          {client.displayName && (
+            <p className="font-mono text-[11px] text-ui-muted">{/* resident-code-intentional */}{client.code}</p>
+          )}
         </div>
         <SupportBadge level={client.supportLevel} />
       </div>

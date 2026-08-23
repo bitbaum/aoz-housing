@@ -4,7 +4,7 @@
 
 export const MARKETPLACE_ADMIN_LABELS = {
   pageTitle: 'Marktplatz',
-  pageDescription: 'Meldungen der Bewohner:innen — geben, leihen, suchen. Moderation für alle Einheiten.',
+  pageDescription: 'Meldungen der Klient*innen — geben, leihen, suchen. Moderation für alle Einheiten.',
   emptyTitle: 'Noch keine Meldungen.',
   hide: 'Ausblenden',
   unhide: 'Wieder einblenden',

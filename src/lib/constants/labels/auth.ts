@@ -34,7 +34,7 @@ export const LOGIN_LABELS = {
   submitting: 'Anmelden...',
   success: {
     staff: 'Admin-Zugang aktiviert',
-    resident: 'Bewohner-Zugang aktiviert',
+    resident: 'Klient*innen-Zugang aktiviert',
     redirecting: 'Weiterleitung...',
   },
   error: {
@@ -65,7 +65,7 @@ export const REGISTER_LABELS = {
   // otherwise nobody discovers that one login can hold both sides.
   linkTitle: 'Zwei Rollen, ein Login',
   linkHint:
-    'Sie haben bereits ein Konto und einen zweiten Code — etwa als Bewohner und in der Verwaltung? Registrieren Sie den zweiten Code mit derselben E-Mail-Adresse und Ihrem bestehenden Passwort. Beide Rollen liegen danach auf einem Login.',
+    'Sie haben bereits ein Konto und einen zweiten Code — etwa als Klient*in und in der Verwaltung? Registrieren Sie den zweiten Code mit derselben E-Mail-Adresse und Ihrem bestehenden Passwort. Beide Rollen liegen danach auf einem Login.',
   successBothRoles: 'Codes verknüpft — Sie sind für beide Rollen angemeldet.',
   hasAccount: 'Bereits ein Konto?',
   loginLink: 'Anmelden',

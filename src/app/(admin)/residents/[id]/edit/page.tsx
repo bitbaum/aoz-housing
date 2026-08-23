@@ -11,7 +11,7 @@ import { RESIDENT_EDIT_LABELS } from '@/lib/constants'
 import { residentName } from '@/lib/utils/resident-name'
 import { requirePermission } from '@/lib/auth'
 
-export const metadata: Metadata = { title: 'Bewohner bearbeiten' }
+export const metadata: Metadata = { title: 'Klient*in bearbeiten' }
 
 export const dynamic = 'force-dynamic'
 

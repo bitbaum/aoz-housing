@@ -27,7 +27,7 @@ export const APP_LABELS = {
  */
 export const PAGE_TITLES = {
   dashboard: 'Dashboard',
-  residents: 'Bewohner',
+  residents: 'Klient*innen',
   housing: 'Unterkünfte',
   newHousing: 'Neue Unterkunft',
   incidents: 'Vorfälle',
@@ -40,7 +40,7 @@ export const PAGE_TITLES = {
 } as const
 
 export const EMPTY_STATE_LABELS = {
-  noResidents: 'Keine Bewohner erfasst',
+  noResidents: 'Keine Klient*innen erfasst',
   noHousing: 'Keine Unterkünfte erfasst',
   noPlacements: 'Keine Platzierungen vorhanden',
   noIncidents: 'Keine Vorfälle dokumentiert',
@@ -49,11 +49,11 @@ export const EMPTY_STATE_LABELS = {
   noMatches: 'Keine passenden Ergebnisse',
   noData: 'Keine Daten verfügbar',
   // Matching page
-  noResidentsAtAll: 'Keine Bewohner vorhanden',
-  allResidentsPlaced: 'Alle Bewohner sind platziert',
+  noResidentsAtAll: 'Keine Klient*innen vorhanden',
+  allResidentsPlaced: 'Alle Klient*innen sind platziert',
   noAvailableUnits: 'Keine verfügbaren Unterkünfte',
   noHousingArchived: 'Keine archivierten Unterkünfte',
-  createResident: 'Neuen Bewohner erfassen',
+  createResident: 'Neue*n Klient*in erfassen',
   createHousing: 'Neue Unterkunft erfassen',
   createHousingFirst: 'Erste Unterkunft erstellen',
   algorithmLink: 'Wie funktioniert der Algorithmus?',
@@ -84,12 +84,12 @@ export const FORM_LABELS: Record<string, string> = {
 }
 
 export const ACTION_LABELS: Record<string, string> = {
-  newResident: 'Neuer Bewohner',
+  newResident: 'Neue*r Klient*in',
   newHousing: 'Neue Unterkunft',
   newIncident: 'Neuer Vorfall',
   newPlacement: 'Neue Platzierung',
-  placeResident: 'Bewohner platzieren',
+  placeResident: 'Klient*in platzieren',
   resolveIncident: 'Vorfall lösen',
   endPlacement: 'Platzierung beenden',
-  transferResident: 'Bewohner verlegen',
+  transferResident: 'Klient*in verlegen',
 }

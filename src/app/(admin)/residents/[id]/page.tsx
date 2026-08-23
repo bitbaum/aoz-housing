@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     where: { id },
     select: { code: true, displayName: true },
   })
-  return { title: resident ? residentName(resident) : 'Bewohner' }
+  return { title: resident ? residentName(resident) : 'Klient*in' }
 }
 
 export const dynamic = 'force-dynamic'

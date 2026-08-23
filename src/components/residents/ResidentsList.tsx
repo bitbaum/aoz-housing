@@ -43,7 +43,7 @@ export function ResidentsList({
     return (
       <EmptyState
         title={RESIDENT_LIST_LABELS.emptyDefault}
-        description="Neue Bewohner werden über den Erfassungsprozess angelegt und erscheinen danach hier."
+        description="Neue Klient*innen werden über den Erfassungsprozess angelegt und erscheinen danach hier."
       />
     )
   }

@@ -1,4 +1,11 @@
 import { BRAND, type BrandId } from '@/lib/config/brand'
+import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
+import { RESEARCH_SOURCES } from '@/lib/config/algorithm-docs'
+
+// Counted from the same config the algorithm runs on — a marketing page that
+// hand-writes "27 Faktoren" starts lying the day a factor is added.
+const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter((f) => f.weight > 0).length
+const SOURCE_COUNT = RESEARCH_SOURCES.length
 
 /**
  * The public landing page — the only surface that speaks to someone who has
@@ -54,6 +61,12 @@ export interface MarketingCopy {
   featuresEyebrow: string
   featuresTitle: string
   features: MarketingFeature[]
+
+  scienceEyebrow: string
+  scienceTitle: string
+  scienceBody: string
+  /** The load-bearing design decisions of the matching science, stated plainly. */
+  science: MarketingSection[]
 
   ethicsEyebrow: string
   ethicsTitle: string
@@ -139,6 +152,29 @@ const PLACEMENT_COPY: MarketingCopy = {
       icon: 'message',
       title: 'Guidance',
       body: 'Care Team, Nachrichten, Follow-ups, Boards und nächste Schritte sorgen dafür, dass Verantwortung sichtbar bleibt und Antwortschlaufen sich schliessen.',
+    },
+  ],
+
+  scienceEyebrow: 'Wissenschaftliche Grundlage',
+  scienceTitle: `Matching ist keine Meinung: ${FACTOR_COUNT} Faktoren, gewichtet nach publizierter Evidenz.`,
+  scienceBody:
+    `Jeder Kompatibilitätsfaktor stützt sich auf mindestens eine publizierte Studie — Schweizer Forschung zuerst (unter anderem BFH/HSLU 2024 mit 1'000 Gastfamilien), internationale Studien zur Validierung, insgesamt ${SOURCE_COUNT} Quellen. Die vollständige Methodik samt Quellenverzeichnis ist im Produkt für alle Fachpersonen einsehbar — und in der Demo für Sie.`,
+  science: [
+    {
+      title: 'Sauberkeit ist eine Richtung, kein Durchschnitt',
+      body: 'Gemessen wird, wessen Erwartung an die anderen unerfüllt bleibt — nicht die Differenz zweier Zahlen. Ordentlich-aber-gelassen neben unordentlich ergibt keinen Konflikt; zwei gleich Unordentliche, von denen eine*r viel erwartet, sehr wohl.',
+    },
+    {
+      title: 'Das schwierigste Paar bestimmt die Bewertung',
+      body: 'Ein Haushalt wird nach seiner konfliktreichsten Paarung bewertet, nie nach dem Durchschnitt — der Durchschnitt versteckt genau die Paarung, die später die Vorfälle produziert.',
+    },
+    {
+      title: 'Harte Anforderungen werden nicht verrechnet',
+      body: 'Rollstuhlzugang, Rauchen, Schutzbedürfnis Einzelzimmer: Was nicht erfüllbar ist, wird nicht von guten Teilwerten schöngerechnet, sondern blockiert die Platzierung.',
+    },
+    {
+      title: 'Jede Zahl ist erklärbar',
+      body: 'Jeder Score zerlegt sich in benannte Faktoren mit Gewicht und Evidenzstärke, und Warnungen sagen, wer sich woran stören wird. Entscheidungen bleiben bei den Fachpersonen — begründbar gegenüber Team und Klient*innen.',
     },
   ],
 
@@ -242,6 +278,25 @@ const HOUSEHOLD_COPY: MarketingCopy = {
       icon: 'alert',
       title: 'Melden',
       body: 'Schaden oder Konflikt — landet bei der Stelle, die etwas tun kann, und die Antwort kommt zurück.',
+    },
+  ],
+
+  scienceEyebrow: 'Warum das funktioniert',
+  scienceTitle: 'Hinter den Regeln steckt Forschung, kein Bauchgefühl.',
+  scienceBody:
+    'WG-Konflikte sind gut erforscht: Wer aufräumt, überschätzt den eigenen Anteil; Abmachungen ohne Datum zerfallen; Sauberkeitsstreit entsteht aus enttäuschten Erwartungen, nicht aus Unterschieden an sich. Die App ist um diese Befunde herum gebaut.',
+  science: [
+    {
+      title: 'Alle glauben, sie machen mehr — messbar',
+      body: 'Der dokumentierte Eigenanteil-Bias ist der Grund, weshalb der Putzplan eine Bilanz ist: sichtbar, wer wie viel getragen hat, statt Erinnerung gegen Erinnerung.',
+    },
+    {
+      title: 'Sauberkeit ist eine Richtung',
+      body: 'Es zählt, wessen Erwartung unerfüllt bleibt — nicht wer «ordentlicher» ist. Deshalb fragt die App nach eigenem Standard, Erwartung an andere und Toleranz, nicht nach einer Note.',
+    },
+    {
+      title: 'Abmachungen brauchen ein Datum',
+      body: 'Was im Flur besprochen wurde, gilt bis zur nächsten Erinnerungslücke. Beschlüsse mit Frist, Ergebnis und Begründung halten — und Sicherheit wird nie zur Abstimmung gestellt.',
     },
   ],
 

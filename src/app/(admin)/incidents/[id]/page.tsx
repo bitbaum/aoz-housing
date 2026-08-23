@@ -236,13 +236,18 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
             )}
           </div>
 
-          <ResolutionLadder
-            incidentId={incident.id}
-            currentStage={incident.resolutionStage}
-            recommendation={nextStep}
-          />
+          {/* The ladder is for conflicts between people. A dripping tap has
+              no parties to mediate between — maintenance closes with a plain
+              resolution note in the sidebar instead. */}
+          {incident.category !== 'MAINTENANCE' && (
+            <ResolutionLadder
+              incidentId={incident.id}
+              currentStage={incident.resolutionStage}
+              recommendation={nextStep}
+            />
+          )}
 
-          <AgreementsPanel
+          {incident.category !== 'MAINTENANCE' && <AgreementsPanel
             incidentId={incident.id}
             agreements={incident.agreements.map((agreement) => ({
               id: agreement.id,
@@ -259,7 +264,7 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
             }))}
             candidates={agreementCandidates}
             defaultReviewDate={defaultReviewDate.toISOString().slice(0, 10)}
-          />
+          />}
 
           {/* Follow-ups Timeline + Form */}
           <div className="card">

@@ -79,7 +79,9 @@ export interface NavItem {
  */
 export const SYSTEM_LINKS: NavItem[] = [
   { href: '/settings', icon: 'settings', label: 'Einstellungen', permission: 'users:manage' },
-  { href: '/algorithm', icon: 'brain', label: 'Algorithmus', permission: 'system:configure' },
+  // Read-only methodology docs — visible to every staff role that sees a
+  // compatibility score (i.e. all of them), matching the page's own guard.
+  { href: '/algorithm', icon: 'brain', label: 'Algorithmus', permission: 'dashboard:read' },
   { href: '/portal/help', icon: 'help', label: 'Hilfe' },
 ]
 
@@ -127,14 +129,25 @@ export type MegaMenuGroup =
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
-    // People-first: every role lands here. Housing tools are a sub-section,
-    // not the name of the whole group. BETREUUNG sees the full list;
-    // JOBCOACH and SOZIALARBEIT see only /residents (board).
+    // People-first: every role lands here. This group is ONLY about the
+    // person and the placement decision — everything about buildings and
+    // beds lives in "Wohnen" below. It used to be one 9-item dropdown named
+    // "Klient*innen" that also held Unterkünfte, Wartung and Statistiken:
+    // the label lied about the content, and the list outgrew short viewports.
+    // BETREUUNG sees all three; JOBCOACH and SOZIALARBEIT see only /residents.
     label: 'Klient*innen',
     items: [
       { href: '/residents', icon: 'users', label: 'Klient*innen', desc: 'Übersicht & Karten-Board', permission: 'residents:read' },
       { href: '/residents/new', icon: 'user-plus', label: 'Neue*r Klient*in', desc: 'Person erfassen', permission: 'residents:write' },
       { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Passende Unterkunft finden', permission: 'placements:write' },
+    ],
+  },
+  {
+    // The roof: units, occupancy, moves, repairs, and the reporting on all
+    // of it. Mirrors AOZ's own split between Betreuung (people work) and the
+    // Fachbereiche Wohnen/Immobilienverwaltung (building work).
+    label: 'Wohnen',
+    items: [
       { href: '/housing', icon: 'building', label: 'Unterkünfte', desc: 'Alle Wohneinheiten', permission: 'housing:read' },
       { href: '/housing/new', icon: 'house-plus', label: 'Neue Unterkunft', desc: 'Einheit hinzufügen', permission: 'housing:write' },
       { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Belegung', permission: 'placements:read' },

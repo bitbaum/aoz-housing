@@ -528,12 +528,15 @@ import { STATUS_LABELS } from '@/lib/constants/labels'
 
 ### Scoring Dimensions
 
+SSOT: `RESIDENT_DIMENSIONS` in `src/lib/config/resident-factors.ts` — the
+table below mirrors it and goes stale before the config does; trust the config.
+
 | Dimension | Weight | Factors |
 |-----------|--------|---------|
-| Lifestyle | 30% | Sleep schedule, noise tolerance, cleanliness (3 dimensions), guests |
-| Social | 25% | Languages, social style, privacy needs |
-| Practical | 25% | Smoking, dietary, shared space preferences |
-| Risk | 20% | Historical conflict indicators |
+| Lebensstil | 35% | Sleep schedule, noise tolerance, cleanliness (3 dimensions), guests |
+| Soziales | 25% | Communication, privacy, interaction, conflict style |
+| Praktisches | 20% | Smoking, dietary, shared space preferences |
+| Anforderungen | 20% | Hard requirements that must be met (blocking) |
 
 ### Score Thresholds
 

@@ -16,7 +16,7 @@ export const MESSAGES_LABELS = {
   send: 'Senden',
   sending: 'Wird gesendet …',
   sendFailed: 'Die Nachricht wurde nicht gesendet. Bitte nochmals versuchen.',
-  fromResident: 'Bewohner:in',
+  fromResident: 'Klient*in',
   fromStaff: 'Betreuung',
   /** Said where staff write, because a resident reads this in their language. */
   languageHint: 'Die Bewohnenden lesen das Portal in ihrer eigenen Sprache — deine Nachricht wird nicht übersetzt.',

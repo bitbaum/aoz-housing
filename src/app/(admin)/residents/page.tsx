@@ -31,7 +31,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
   const layout = params.layout || 'board'
-  const filter = (params.filter === 'all' ? 'all' : 'mine') as 'mine' | 'all'
+  const filterParam = params.filter === 'all' ? 'all' : params.filter === 'mine' ? 'mine' : null
 
   await requirePermission('residents:read')
 
@@ -126,6 +126,13 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   }
 
   const myResidentIdSet = new Set(myResidentIds)
+
+  // Default to "Meine Klient*innen" only when the viewer actually has an
+  // assigned caseload. A Leitung/admin with no assignments used to land on an
+  // empty "Keine Klient*innen zugewiesen" board while 24 real clients sat one
+  // click away behind "Alle" — an empty page as the default view of a full list.
+  const filter: 'mine' | 'all' =
+    filterParam ?? (myResidentIdSet.size > 0 ? 'mine' : 'all')
 
   // Compute check-in status and assemble ClientBoardItem for each resident
   const clientBoardItems: ClientBoardItem[] = (residents as any[]).map((r) => {

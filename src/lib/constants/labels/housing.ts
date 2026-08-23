@@ -46,8 +46,8 @@ export const END_REASON_LABELS: Record<string, string> = {
 export const END_REASON_DESCRIPTIONS: Record<string, string> = {
   NATURAL: 'Planmässiges Ende der Unterbringung (z.B. Auszug, eigene Wohnung)',
   CONFLICT: 'Beendigung aufgrund von Konflikten mit Mitbewohnern oder Regelverstössen',
-  REQUEST: 'Bewohner hat selbst um Verlegung/Beendigung gebeten',
-  CAPACITY: 'Platz wird für andere Bewohner benötigt (Umstrukturierung)',
+  REQUEST: 'Klient*in hat selbst um Verlegung/Beendigung gebeten',
+  CAPACITY: 'Platz wird für andere Klient*innen benötigt (Umstrukturierung)',
   UPGRADE: 'Wechsel zu einer besseren Unterkunft (z.B. grösseres Zimmer, Privatzimmer)',
   OTHER: 'Sonstige Gründe (bitte in Notizen erläutern)',
 }
@@ -90,9 +90,9 @@ export const COMPATIBILITY_GAP_LABELS: Record<string, string> = {
 export const HOUSING_DETAIL_LABELS = {
   spotsHeading: 'Zimmer & Plätze',
   manageSpots: 'Plätze verwalten',
-  residentsHeading: 'Aktuelle Bewohner',
+  residentsHeading: 'Aktuelle Klient*innen',
   defineSpots: 'Plätze definieren',
-  noActiveResidents: 'Keine aktiven Bewohner',
+  noActiveResidents: 'Keine aktiven Klient*innen',
   residentSince: 'Seit',
   avgCompatibility: 'Ø Kompatibilität',
   details: 'Details',
@@ -103,7 +103,7 @@ export const WHO_FITS_HERE_LABELS = {
   spaceCountSingular: 'freier Platz',
   spaceCountPlural: 'freie Plätze',
   showAll: 'Alle anzeigen',
-  emptyState: 'Keine passenden unplatzierten Bewohner',
-  addResident: 'Neuen Bewohner erfassen',
+  emptyState: 'Keine passenden unplatzierten Klient*innen',
+  addResident: 'Neue*n Klient*in erfassen',
   place: 'Platzieren',
 } as const

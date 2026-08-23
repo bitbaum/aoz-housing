@@ -9,6 +9,7 @@ import { residentInitials, residentName, type NamedResident } from '@/lib/utils/
 interface Props {
   incident: {
     id: string
+    category: string
     createdAt: Date
     date: Date
     resolvedAt: Date | null
@@ -118,8 +119,12 @@ export function IncidentSidebar({ incident }: Props) {
         </div>
       </div>
 
-      {/* Actions */}
-      {!incident.resolvedAt && (
+      {/* Actions — the free-text quick-close exists ONLY for maintenance.
+          A conflict must close through the resolution ladder, which records
+          the stage and an agreement that can be checked later; a free-text
+          "gelöst" note beside the ladder was a second, cheaper door out of
+          the same conflict, and notes can't be followed up on. */}
+      {!incident.resolvedAt && incident.category === 'MAINTENANCE' && (
         <div className="card">
           <h2 className="text-lg font-semibold text-ui-text mb-4">
             {INCIDENT_SIDEBAR_LABELS.actions}

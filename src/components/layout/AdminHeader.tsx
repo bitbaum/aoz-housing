@@ -113,7 +113,14 @@ function MegaMenuDropdown({
       </button>
       {isOpen && panelPos && (
         <div className="fixed z-50" style={{ top: panelPos.top, left: panelPos.left }}>
-          <div className="overlay-panel py-1.5 min-w-[280px]">
+          {/* Bounded by the viewport: on a short window a long group must
+              scroll inside its own panel — otherwise the items below the
+              fold are simply unreachable (overflow was `visible`, and the
+              page doesn't scroll a `fixed` panel into view). */}
+          <div
+            className="overlay-panel py-1.5 min-w-[280px] overflow-y-auto"
+            style={{ maxHeight: `calc(100vh - ${panelPos.top + 12}px)` }}
+          >
             {items.map((item) => {
               const Icon = NAV_ICONS[item.icon] || NAV_ICONS.home
               const active = isRouteActive(pathname, item.href)

@@ -6,7 +6,7 @@ import { createResident } from '@/lib/actions'
 import { RESIDENT_NEW_LABELS } from '@/lib/constants'
 import { requirePermission } from '@/lib/auth'
 
-export const metadata: Metadata = { title: 'Neuer Bewohner' }
+export const metadata: Metadata = { title: 'Neue*r Klient*in' }
 
 export const dynamic = 'force-dynamic'
 

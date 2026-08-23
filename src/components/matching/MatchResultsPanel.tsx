@@ -45,7 +45,10 @@ export function MatchResultsPanel({
         </h2>
         <div className="flex items-center gap-2">
           <Link
-            href={`/matching?resident=${selectedResident.id}${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
+            // `mode=standard` must be explicit: a missing param falls back to
+            // the brand default (fast for WG), so an URL without it re-renders
+            // Fast Mode and the Standard button appears to do nothing.
+            href={`/matching?resident=${selectedResident.id}&mode=standard${isNewResident ? '&new=1' : ''}${searchQuery ? `&q=${encodeURIComponent(searchQuery)}` : ''}`}
             className={`btn-outline text-sm min-h-[44px] inline-flex items-center ${!fastMode ? 'bg-ui-subtle' : ''}`}
           >
             {MATCH_RESULTS_LABELS.modeStandard}
