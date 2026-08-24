@@ -65,4 +65,35 @@ describe('compatibility scoring SSOT', () => {
     const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8'))
     expect(pkg.prisma.seed).toContain('tsconfig-paths/register')
   })
+
+  it('every npm script running a prisma script registers the alias resolver', () => {
+    const pkg = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8'))
+    const offenders = Object.entries(pkg.scripts as Record<string, string>)
+      .filter(([, cmd]) => /ts-node[^&|]*prisma\//.test(cmd))
+      .filter(([, cmd]) => !cmd.includes('tsconfig-paths/register'))
+      .map(([name]) => name)
+
+    expect(offenders).toEqual([])
+  })
+
+  it('no workflow invokes ts-node on a prisma script by hand', () => {
+    // CI seeded with a bare `npx ts-node prisma/seed.ts`, which is a SECOND
+    // definition of "how to seed" — and the one that broke the moment the seed
+    // began importing the product algorithm. Workflows call the npm scripts,
+    // so the flag is declared once.
+    const workflowDir = join(REPO_ROOT, '.github', 'workflows')
+    const offenders: string[] = []
+
+    for (const file of readdirSync(workflowDir).filter((f) => /\.ya?ml$/.test(f))) {
+      const source = readFileSync(join(workflowDir, file), 'utf8')
+      for (const line of source.split('\n')) {
+        if (!/ts-node[^&|]*prisma\//.test(line)) continue
+        if (line.trimStart().startsWith('#')) continue
+        if (line.includes('tsconfig-paths/register')) continue
+        offenders.push(`${file}: ${line.trim()}`)
+      }
+    }
+
+    expect(offenders).toEqual([])
+  })
 })
