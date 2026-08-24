@@ -1,10 +1,15 @@
-# AOZ Housing
+# AOZ Begleitung
 
 created_date: 2025-06-01
-last_modified_date: 2026-08-17
-last_modified_summary: Production is Hetzner Postgres aoz_wohnen (not Neon); portal i18n is not the staff UI.
+last_modified_date: 2026-08-24
+last_modified_summary: Reframed from housing-placement-only to the four-pillar support platform the product has become; repo name stays aoz-housing (identifier, not branding).
 
-Intelligent compatibility-based housing placement for refugees. Reduces conflicts through algorithmic matching across 38 factors and 4 dimensions.
+A support platform for refugee care work, built on four pillars: **housing
+stability** (compatibility-based placement, conflict resolution), **capability**
+(language, courses, qualifications), **participation** (volunteering, events,
+activities), and **guidance** (care teams, follow-ups, resident portal).
+Placement matching is the flagship capability — every score decomposes into
+research-backed factors — but housing is the beginning, not the whole picture.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
@@ -14,11 +19,23 @@ Intelligent compatibility-based housing placement for refugees. Reduces conflict
 
 ## What It Does
 
-- **Scores compatibility** between residents across 4 dimensions (lifestyle, social, practical, risk) before placement
-- **Detects blocking conflicts** (e.g., smoker placed with asthmatic) and flags them before they happen
-- **Evaluates apartment-level fit**, not just pairwise -- a new resident is matched against the entire existing group
-- **Predicts conflict timelines** (e.g., "High probability cleanliness conflict in weeks 2-4")
-- **Audits every placement** with who, what, when, why, and the compatibility score at decision time
+**Stability** — the flagship: compatibility-based placement.
+- Scores compatibility between residents across weighted dimensions (lifestyle, social, practical, hard requirements) before placement — the factor set lives in `src/lib/config/resident-factors.ts`, the SSOT the algorithm actually runs on
+- Detects blocking conflicts (e.g., smoker placed with asthmatic) and flags them before they happen
+- Evaluates apartment-level fit, not just pairwise — a new resident is matched against the entire existing group, and the worst pairing decides
+- Runs conflicts through a resolution ladder (self-resolution → mediation → formal measures) with concrete agreements instead of free-text notes
+- Audits every placement with who, what, when, why, and the compatibility score at decision time
+
+**Daily life** — chores with a fairness balance (not a leaderboard), shared
+expenses in integer Rappen, maintenance tickets routed to the right desk.
+
+**Together** — two-tier house rules (org rules delegate room to each
+household), proposals and votes with snapshotted policy, and the hard rule
+that safety is never put to a vote.
+
+**Capability & participation** — learning records (language, courses,
+qualifications), jobcoach boards, volunteering and events — the integration
+evidence that otherwise lives in spreadsheets.
 
 ---
 

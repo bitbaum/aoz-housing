@@ -187,6 +187,7 @@ export const uk: Dictionary = {
 
   'dashboard.welcome': 'З поверненням',
   'dashboard.subtitle': 'Тут ти бачиш, як справи у твоєму житлі.',
+  'dashboard.allAreas': 'Усі розділи',
   'dashboard.housing': 'Житло',
   'dashboard.active': 'Активно',
   'dashboard.moveIn': 'Заселення',

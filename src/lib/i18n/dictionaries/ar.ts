@@ -188,6 +188,7 @@ export const ar: Dictionary = {
 
   'dashboard.welcome': 'مرحباً بعودتك',
   'dashboard.subtitle': 'هنا ترى كيف تسير الأمور في سكنك.',
+  'dashboard.allAreas': 'جميع الأقسام',
   'dashboard.housing': 'السكن',
   'dashboard.active': 'نشط',
   'dashboard.moveIn': 'تاريخ الانتقال',

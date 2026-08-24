@@ -35,9 +35,14 @@ jest.mock('@/lib/constants/labels', () => ({
     heroHadSuffix: 'hatte',
     heroIncidentsSuffix: 'Vorfälle',
     heroReview: 'Überprüfen',
+    heroProposalsTitle: (n: number) =>
+      n === 1 ? '1 Beschluss wartet auf Bestätigung' : `${n} Beschlüsse warten auf Bestätigung`,
+    heroReviewProposals: 'Jetzt prüfen',
     allClearAllDone: 'Alles erledigt!',
     allClearNoDringend: 'Keine dringenden Aufgaben',
     actionCreateResident: 'Neuen Bewohner erfassen',
+    actionOpenLearning: 'Lernen & Kurse öffnen',
+    actionViewStats: 'Statistiken ansehen',
     tileSincePrefix: 'Seit',
     alertCriticalAttentionSuffix: 'kritische Vorfälle erfordern sofortige Aufmerksamkeit',
     alertEdit: 'Bearbeiten',
@@ -54,6 +59,12 @@ const EMPTY = {
   unplacedResidents: [] as Array<{ id: string; code: string; displayName: string | null; createdAt: Date }>,
   freeBeds: 5,
   problemUnits: [] as Array<{ id: string; code: string; incidentCount: number; problemScore: number; unresolvedCount: number; primaryIssue: string }>,
+  proposalsAwaitingStaff: [] as Array<{ id: string; title: string; unitCode: string; daysWaiting: number }>,
+  role: 'ADMIN' as const,
+}
+
+function makeProposal(id = 'pr1', title = 'Ruhezeiten ab 21 Uhr') {
+  return { id, title, unitCode: 'A01', daysWaiting: 3 }
 }
 
 function makeIncident(id = 'i1', type = 'NOISE') {
@@ -174,11 +185,54 @@ describe('determinePrimaryAction', () => {
     expect(result.type).toBe('critical')
   })
 
-  // All clear
+  // Priority 3: proposals awaiting a staff answer
+  it('returns type=proposal when proposals await staff confirmation', () => {
+    const result = determinePrimaryAction({ ...EMPTY, proposalsAwaitingStaff: [makeProposal()] })
+    expect(result.type).toBe('proposal')
+    expect(result.href).toBe('/rules')
+    expect(result.title).toBe('1 Beschluss wartet auf Bestätigung')
+    expect(result.description).toContain('Ruhezeiten ab 21 Uhr')
+    expect(result.description).toContain('A01')
+  })
+
+  it('pluralizes the proposal title for multiple proposals', () => {
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      proposalsAwaitingStaff: [makeProposal('pr1'), makeProposal('pr2')],
+    })
+    expect(result.title).toBe('2 Beschlüsse warten auf Bestätigung')
+  })
+
+  it('prefers very-overdue check-ins over proposals', () => {
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      overdueCheckIns: [makeCheckIn('c1', 50, true)],
+      proposalsAwaitingStaff: [makeProposal()],
+    })
+    expect(result.type).toBe('checkin')
+  })
+
+  it('prefers proposals over unplaced residents', () => {
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      unplacedResidents: [makeResident()],
+      proposalsAwaitingStaff: [makeProposal()],
+    })
+    expect(result.type).toBe('proposal')
+  })
+
+  // All clear — CTA follows the role's permissions
   it('returns type=allclear when nothing is pending', () => {
     const result = determinePrimaryAction(EMPTY)
     expect(result.type).toBe('allclear')
     expect(result.href).toBe('/residents/new')
+  })
+
+  it('allclear CTA falls back to learning for JOBCOACH (no residents:write)', () => {
+    const result = determinePrimaryAction({ ...EMPTY, role: 'JOBCOACH' })
+    expect(result.type).toBe('allclear')
+    expect(result.href).toBe('/learning?board=overview')
+    expect(result.buttonText).toBe('Lernen & Kurse öffnen')
   })
 })
 
@@ -229,6 +283,11 @@ describe('HeroAction', () => {
   it('renders the correct icon for type=place (Home)', () => {
     const { container } = render(<HeroAction action={makeAction({ type: 'place' })} />)
     expect(container.querySelector('.lucide-house')).toBeInTheDocument()
+  })
+
+  it('renders the correct icon for type=proposal (Vote)', () => {
+    const { container } = render(<HeroAction action={makeAction({ type: 'proposal' })} />)
+    expect(container.querySelector('.lucide-vote')).toBeInTheDocument()
   })
 
   it('renders the correct icon for type=allclear (Sparkles)', () => {

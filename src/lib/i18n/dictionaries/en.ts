@@ -272,6 +272,7 @@ export const en: Dictionary = {
 
   'dashboard.welcome': 'Welcome back',
   'dashboard.subtitle': 'Here you can see how things are going in your accommodation.',
+  'dashboard.allAreas': 'All areas',
   'dashboard.housing': 'Accommodation',
   'dashboard.active': 'Active',
   'dashboard.moveIn': 'Move-in',

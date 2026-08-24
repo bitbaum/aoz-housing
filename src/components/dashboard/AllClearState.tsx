@@ -7,18 +7,34 @@ import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 // AllClearState
 // =============================================================================
 
-export function AllClearState({ freeBeds, conflictFreeDays }: { freeBeds: number; conflictFreeDays: number }) {
+export function AllClearState({
+  freeBeds,
+  conflictFreeDays,
+  ctaHref,
+  ctaLabel,
+}: {
+  /** null = this role's dashboard has no occupancy section — say nothing about beds. */
+  freeBeds: number | null
+  /** null = this role's dashboard has no incidents section. */
+  conflictFreeDays: number | null
+  ctaHref: string
+  ctaLabel: string
+}) {
   return (
     <div className="card bg-status-success/10 border-status-success/25 text-center py-12">
       <div className="text-6xl mb-4">🎉</div>
       <h2 className="text-2xl font-bold text-status-success-text mb-2">{DASHBOARD_LABELS.allClearTitle}</h2>
       <p className="text-status-success-text mb-6">
-        {conflictFreeDays > 0 && `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
-        {freeBeds > 0 ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}` : DASHBOARD_LABELS.allClearAllOccupied}
+        {conflictFreeDays !== null && conflictFreeDays > 0 && `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
+        {freeBeds !== null &&
+          (freeBeds > 0
+            ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}`
+            : DASHBOARD_LABELS.allClearAllOccupied)}
+        {freeBeds === null && conflictFreeDays === null && DASHBOARD_LABELS.allClearNoDringend}
       </p>
       <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-        <Link href="/residents/new" className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
-          {DASHBOARD_LABELS.actionCreateResident}
+        <Link href={ctaHref} className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+          {ctaLabel}
         </Link>
       </div>
     </div>

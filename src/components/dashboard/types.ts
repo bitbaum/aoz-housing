@@ -38,6 +38,22 @@ export interface CriticalIncident {
   daysSinceCreated: number
 }
 
+export interface PendingTransferRequest {
+  id: string
+  residentCode: string
+  residentDisplayName: string | null
+  /** Code of the unit the resident wants to leave; null if unplaced. */
+  unitCode: string | null
+  daysSinceCreated: number
+}
+
+export interface ProposalAwaitingStaff {
+  id: string
+  title: string
+  unitCode: string
+  daysWaiting: number
+}
+
 /**
  * Problem unit based on ACTUAL incidents (evidence-based)
  */

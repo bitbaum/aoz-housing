@@ -199,6 +199,7 @@ export const ru: Dictionary = {
 
   'dashboard.welcome': 'С возвращением',
   'dashboard.subtitle': 'Здесь вы видите, как дела в вашем жилище.',
+  'dashboard.allAreas': 'Все разделы',
   'dashboard.housing': 'Жильё',
   'dashboard.active': 'Активно',
   'dashboard.moveIn': 'Въезд',

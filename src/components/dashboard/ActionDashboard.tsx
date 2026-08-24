@@ -1,8 +1,10 @@
 'use client'
 
-import { Bed, Clock, Check, Wrench, Smile } from 'lucide-react'
+import { Bed, Clock, Check, Wrench, Smile, GraduationCap, CalendarClock } from 'lucide-react'
 import { urgencyForGoodStreak, urgencyForOpenCount } from '@/lib/config/urgency'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { sectionVisible, fallbackCta, type DashboardSection } from '@/lib/config/dashboard'
+import type { StaffRole } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
 import { residentName } from '@/lib/utils/resident-name'
@@ -10,17 +12,27 @@ import { HeroAction, CriticalAlertBanner, determinePrimaryAction } from './Prima
 import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
 import { AllClearState } from './AllClearState'
-import type { OverdueCheckIn, DueSoonCheckIn, UnplacedResident, CriticalIncident, ProblemUnit } from './types'
+import type {
+  OverdueCheckIn,
+  DueSoonCheckIn,
+  UnplacedResident,
+  CriticalIncident,
+  ProblemUnit,
+  PendingTransferRequest,
+  ProposalAwaitingStaff,
+} from './types'
 
 // =============================================================================
 // Types
 // =============================================================================
 
 interface ActionDashboardProps {
+  /** Gates which sections render — @see lib/config/dashboard.ts */
+  role: StaffRole
+
   // Core stats
   occupiedBeds: number
   totalBeds: number
-  availableUnits: number
   totalPlacements: number
 
   // Action items
@@ -29,10 +41,15 @@ interface ActionDashboardProps {
   unplacedResidents: UnplacedResident[]
   criticalIncidents: CriticalIncident[]
   problemUnits: ProblemUnit[]
+  pendingTransfers: PendingTransferRequest[]
+  proposalsAwaitingStaff: ProposalAwaitingStaff[]
 
   // Health indicators
   conflictFreeDays: number
   openMaintenanceCount: number
+  learningInProgressCount: number
+  learningRecentCompletions: number
+  upcomingEventsCount: number
 
   /**
    * Computed on the server and passed in, NOT derived here. This component is
@@ -65,20 +82,26 @@ function formatDaysAgo(date: Date): string {
 // =============================================================================
 
 export function ActionDashboard({
+  role,
   occupiedBeds,
   totalBeds,
-  availableUnits,
   totalPlacements,
   overdueCheckIns,
   dueSoonCheckIns,
   unplacedResidents,
   criticalIncidents,
   problemUnits,
+  pendingTransfers,
+  proposalsAwaitingStaff,
   conflictFreeDays,
   openMaintenanceCount,
+  learningInProgressCount,
+  learningRecentCompletions,
+  upcomingEventsCount,
   greeting,
   todayLabel,
 }: ActionDashboardProps) {
+  const show = (section: DashboardSection) => sectionVisible(role, section)
   const freeBeds = totalBeds - occupiedBeds
   const onTimeCheckIns = totalPlacements - overdueCheckIns.length
 
@@ -89,10 +112,18 @@ export function ActionDashboard({
     unplacedResidents,
     freeBeds,
     problemUnits,
+    proposalsAwaitingStaff,
+    role,
   })
 
-  // Count total issues
-  const totalIssues = criticalIncidents.length + overdueCheckIns.length + unplacedResidents.length
+  // Count total issues — every queue that waits on a staff answer, not just
+  // the placement ones.
+  const totalIssues =
+    criticalIncidents.length +
+    overdueCheckIns.length +
+    unplacedResidents.length +
+    pendingTransfers.length +
+    proposalsAwaitingStaff.length
 
   return (
     <div className="space-y-6">
@@ -119,49 +150,79 @@ export function ActionDashboard({
       {/* Hero Section - Primary Action */}
       <HeroAction action={primaryAction} />
 
-      {/* Quick Stats Row */}
+      {/* Quick Stats Row — one pulse tile per pillar the role works in.
+          Which tiles exist is the config's decision, not this component's. */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <QuickStat
-          label={DASHBOARD_LABELS.statFreeBeds}
-          value={freeBeds}
-          total={totalBeds}
-          href="/housing?status=AVAILABLE"
-          urgency="neutral"
-          icon={<Bed className="w-5 h-5" />}
-          subtext={`${occupiedBeds}/${totalBeds} ${DASHBOARD_LABELS.occupancyOccupied}`}
-        />
-        <QuickStat
-          label={DASHBOARD_LABELS.statCheckIns}
-          value={overdueCheckIns.length}
-          suffix={` ${DASHBOARD_LABELS.statOverdueSuffix}`}
-          href="/placements?status=active&overdue=1"
-          urgency={urgencyForOpenCount(overdueCheckIns.length)}
-          icon={overdueCheckIns.length === 0 ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
-          subtext={
-            onTimeCheckIns === 0
-              ? DASHBOARD_LABELS.statNoneCurrent
-              : onTimeCheckIns === totalPlacements
-              ? DASHBOARD_LABELS.statAllCurrent
-              : `${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`
-          }
-        />
-        <QuickStat
-          label={DASHBOARD_LABELS.statHarmony}
-          value={conflictFreeDays}
-          suffix={` ${daysWord(conflictFreeDays)}`}
-          href="/incidents"
-          urgency={urgencyForGoodStreak(conflictFreeDays)}
-          icon={<Smile className="w-5 h-5" />}
-          subtext={DASHBOARD_LABELS.statNoConflicts}
-        />
-        <QuickStat
-          label={DASHBOARD_LABELS.statMaintenance}
-          value={openMaintenanceCount}
-          suffix={` ${DASHBOARD_LABELS.statOpenSuffix}`}
-          href="/maintenance"
-          urgency={urgencyForOpenCount(openMaintenanceCount)}
-          icon={openMaintenanceCount === 0 ? <Check className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
-        />
+        {show('occupancy') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statFreeBeds}
+            value={freeBeds}
+            total={totalBeds}
+            href="/housing?status=AVAILABLE"
+            urgency="neutral"
+            icon={<Bed className="w-5 h-5" />}
+            subtext={`${occupiedBeds}/${totalBeds} ${DASHBOARD_LABELS.occupancyOccupied}`}
+          />
+        )}
+        {show('checkIns') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statCheckIns}
+            value={overdueCheckIns.length}
+            suffix={` ${DASHBOARD_LABELS.statOverdueSuffix}`}
+            href="/placements?status=active&overdue=1"
+            urgency={urgencyForOpenCount(overdueCheckIns.length)}
+            icon={overdueCheckIns.length === 0 ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+            subtext={
+              onTimeCheckIns === 0
+                ? DASHBOARD_LABELS.statNoneCurrent
+                : onTimeCheckIns === totalPlacements
+                ? DASHBOARD_LABELS.statAllCurrent
+                : `${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`
+            }
+          />
+        )}
+        {show('incidents') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statHarmony}
+            value={conflictFreeDays}
+            suffix={` ${daysWord(conflictFreeDays)}`}
+            href="/incidents"
+            urgency={urgencyForGoodStreak(conflictFreeDays)}
+            icon={<Smile className="w-5 h-5" />}
+            subtext={DASHBOARD_LABELS.statNoConflicts}
+          />
+        )}
+        {show('maintenance') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statMaintenance}
+            value={openMaintenanceCount}
+            suffix={` ${DASHBOARD_LABELS.statOpenSuffix}`}
+            href="/maintenance"
+            urgency={urgencyForOpenCount(openMaintenanceCount)}
+            icon={openMaintenanceCount === 0 ? <Check className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
+          />
+        )}
+        {show('learning') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statLearning}
+            value={learningInProgressCount}
+            suffix={` ${DASHBOARD_LABELS.statRunningSuffix}`}
+            href="/learning?board=overview"
+            urgency="neutral"
+            icon={<GraduationCap className="w-5 h-5" />}
+            subtext={DASHBOARD_LABELS.statLearningCompletions(learningRecentCompletions)}
+          />
+        )}
+        {show('events') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statEvents}
+            value={upcomingEventsCount}
+            suffix={` ${DASHBOARD_LABELS.statPlannedSuffix}`}
+            href="/events"
+            urgency="neutral"
+            icon={<CalendarClock className="w-5 h-5" />}
+          />
+        )}
       </div>
 
       {/* Action Tiles - Only show what needs action */}
@@ -198,6 +259,38 @@ export function ActionDashboard({
                 href: `/matching?resident=${r.id}`,
               }))}
               allHref="/matching"
+            />
+          )}
+
+          {pendingTransfers.length > 0 && (
+            <ActionTile
+              title={DASHBOARD_LABELS.tileTransferRequests}
+              count={pendingTransfers.length}
+              description={DASHBOARD_LABELS.tileTransferRequestsDesc}
+              href="/transfer-requests"
+              urgency={urgencyForOpenCount(pendingTransfers.length)}
+              items={pendingTransfers.slice(0, DISPLAY_LIMITS.dashboardItems).map(t => ({
+                label: residentName({ code: t.residentCode, displayName: t.residentDisplayName }),
+                sublabel: `${t.unitCode ? `${t.unitCode} · ` : ''}${DASHBOARD_LABELS.tileSincePrefix} ${t.daysSinceCreated} ${daysWord(t.daysSinceCreated)}`,
+                href: '/transfer-requests',
+              }))}
+              allHref="/transfer-requests"
+            />
+          )}
+
+          {proposalsAwaitingStaff.length > 0 && (
+            <ActionTile
+              title={DASHBOARD_LABELS.tileProposals}
+              count={proposalsAwaitingStaff.length}
+              description={DASHBOARD_LABELS.tileProposalsDesc}
+              href="/rules"
+              urgency={urgencyForOpenCount(proposalsAwaitingStaff.length)}
+              items={proposalsAwaitingStaff.slice(0, DISPLAY_LIMITS.dashboardItems).map(p => ({
+                label: p.title,
+                sublabel: `${p.unitCode} · ${DASHBOARD_LABELS.tileSincePrefix} ${p.daysWaiting} ${daysWord(p.daysWaiting)}`,
+                href: '/rules',
+              }))}
+              allHref="/rules"
             />
           )}
 
@@ -245,8 +338,10 @@ export function ActionDashboard({
       {/* All Clear State */}
       {totalIssues === 0 && criticalIncidents.length === 0 && problemUnits.length === 0 && (
         <AllClearState
-          freeBeds={freeBeds}
-          conflictFreeDays={conflictFreeDays}
+          freeBeds={show('occupancy') ? freeBeds : null}
+          conflictFreeDays={show('incidents') ? conflictFreeDays : null}
+          ctaHref={fallbackCta(role).href}
+          ctaLabel={DASHBOARD_LABELS[fallbackCta(role).labelKey]}
         />
       )}
     </div>

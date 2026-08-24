@@ -35,11 +35,21 @@ export const DASHBOARD_LABELS = {
   statNoConflicts: 'ohne Konflikte',
   statMaintenance: 'Wartung',
   statOpenSuffix: 'offen',
+  statLearning: 'Lernen & Kurse',
+  statRunningSuffix: 'laufend',
+  statLearningCompletions: (n: number) =>
+    n === 1 ? '1 Abschluss in 30 Tagen' : `${n} Abschlüsse in 30 Tagen`,
+  statEvents: 'Veranstaltungen',
+  statPlannedSuffix: 'geplant',
 
   tileCheckIns: 'Check-ins durchführen',
   tilePlaceResidents: 'Klient*innen platzieren',
   tileConflictUnits: 'Einheiten mit Konflikten',
   tileConflictUnitsDesc: 'Wiederholte Vorfälle in den letzten 30 Tagen',
+  tileTransferRequests: 'Verlegungsanfragen prüfen',
+  tileTransferRequestsDesc: 'Klient*innen warten auf eine Antwort',
+  tileProposals: 'Beschlüsse bestätigen',
+  tileProposalsDesc: 'Häuser warten auf eine Antwort der Betreuung',
   tileCheckInsThisWeek: 'Check-ins diese Woche',
   tilePlanProactively: 'Proaktiv planen',
   tileWaitingLongestSuffix: 'wartet am längsten',
@@ -70,6 +80,7 @@ export const DASHBOARD_LABELS = {
   actionReportIncident: 'Vorfall melden',
   actionMaintenanceTicket: 'Wartungsticket',
   actionCreateResident: 'Neue*n Klient*in erfassen',
+  actionOpenLearning: 'Lernen & Kurse öffnen',
   actionViewStats: 'Statistiken ansehen',
 
   /** Names what the hero block is, now that it is no longer a coloured slab. */
@@ -79,6 +90,11 @@ export const DASHBOARD_LABELS = {
   heroCheckInUrgentPrefix: 'Check-in dringend:',
   heroNotSeenSuffix: 'Tagen nicht gesehen',
   heroStartCheckIn: 'Check-in starten',
+  heroProposalsTitle: (n: number) =>
+    n === 1
+      ? '1 Beschluss wartet auf Bestätigung'
+      : `${n} Beschlüsse warten auf Bestätigung`,
+  heroReviewProposals: 'Jetzt prüfen',
   heroPlaceResidentsSuffix: 'Klient*innen platzieren',
   heroFreeBedsAvailableSuffix: 'freie Plätze verfügbar',
   heroOpenConflictsSuffix: 'offene Konflikte',
