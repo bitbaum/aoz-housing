@@ -10,7 +10,7 @@
  *   logger.info('Placement created', { placementId })
  */
 import { ALL_CODE_PREFIXES } from '@/lib/config/brand'
-import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
+import { ALL_RESIDENT_CODE_PREFIXES } from '@/lib/auth/code-prefixes'
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -60,12 +60,20 @@ const STAFF_CODE_REDACTORS: ReadonlyArray<[RegExp, string]> = [...ALL_CODE_PREFI
     `${prefix}[REDACTED]`,
   ])
 
+// Same rule as the staff redactors, and for the same reason: redacting only
+// the ACTIVE brand's prefix would silently stop redacting every code issued
+// under any other one. Longest prefix first so a shorter prefix can never
+// partially match a longer one.
+const RESIDENT_CODE_REDACTORS: ReadonlyArray<[RegExp, string]> = [...ALL_RESIDENT_CODE_PREFIXES]
+  .sort((a, b) => b.length - a.length)
+  .map((prefix) => [
+    new RegExp(`${prefix.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&')}[A-Z0-9]+`, 'g'),
+    `${prefix}[REDACTED]`,
+  ])
+
 const PII_REDACTORS: ReadonlyArray<[RegExp, string]> = [
   [/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[EMAIL]'],
-  [
-    new RegExp(`${RESIDENT_CODE_PREFIX}[A-Z0-9]+`, 'g'),
-    `${RESIDENT_CODE_PREFIX}[REDACTED]`,
-  ],
+  ...RESIDENT_CODE_REDACTORS,
   ...STAFF_CODE_REDACTORS,
 ]
 

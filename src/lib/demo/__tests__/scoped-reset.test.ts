@@ -21,7 +21,11 @@ jest.mock('../../governance/sync-org-rules', () => ({
 
 import { deleteDemoWorld, resetDemoWorld } from '../scoped-reset'
 import { upsertDemoStaff } from '../staff'
-import { DEMO_RESIDENT_CODE_PREFIX, DEMO_UNIT_CODE_PREFIX } from '../config'
+import {
+  ALL_DEMO_RESIDENT_CODE_PREFIXES,
+  DEMO_RESIDENT_CODE_PREFIX,
+  DEMO_UNIT_CODE_PREFIX,
+} from '../config'
 import type { PrismaClient } from '@prisma/client'
 
 function createPrismaMock() {
@@ -86,9 +90,12 @@ describe('deleteDemoWorld', () => {
     const { prisma, raw } = createPrismaMock()
     await deleteDemoWorld(prisma)
 
+    // EVERY demo prefix the product has ever issued, not just today's — a demo
+    // resident seeded under an earlier client prefix must still be reachable
+    // by the reset, or it survives forever beside the real flat.
     const demoResidentFilter = {
       OR: [
-        { code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } },
+        ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) => ({ code: { startsWith: prefix } })),
         { code: `${DEMO_RESIDENT_CODE_PREFIX}1` },
       ],
     }
@@ -121,7 +128,10 @@ describe('deleteDemoWorld', () => {
     const { prisma, raw } = createPrismaMock()
     await deleteDemoWorld(prisma)
     expect((raw.resident.deleteMany as jest.Mock).mock.calls[0][0].where).toEqual({
-      OR: [{ code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } }, { code: 'RES-SPECIAL' }],
+      OR: [
+        ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) => ({ code: { startsWith: prefix } })),
+        { code: 'RES-SPECIAL' },
+      ],
     })
   })
 

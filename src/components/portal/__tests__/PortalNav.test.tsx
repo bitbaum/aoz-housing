@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PortalNav } from '../PortalNav'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
 
@@ -31,9 +32,15 @@ describe('PortalNav', () => {
     mockPathname = '/portal'
   })
 
-  it('renders the brand link to /portal', () => {
+  it('renders the brand link to /portal, named by the brand not by this file', () => {
+    // Asserting the literal "Mein Zuhause" is what let the nav and the page
+    // metadata drift apart in the first place. The name is the brand's
+    // decision, so the test reads the same source the component does.
     renderNav()
-    expect(screen.getByRole('link', { name: 'Mein Zuhause' })).toHaveAttribute('href', '/portal')
+    expect(screen.getByRole('link', { name: PORTAL_LABELS.title })).toHaveAttribute(
+      'href',
+      '/portal'
+    )
   })
 
   it('keeps destinations out of the header — they live in the sidebar and tabs', () => {

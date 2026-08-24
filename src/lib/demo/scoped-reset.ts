@@ -20,7 +20,7 @@
 import type { PrismaClient } from '@prisma/client'
 import {
   resolveDemoResidentCode,
-  DEMO_RESIDENT_CODE_PREFIX,
+  ALL_DEMO_RESIDENT_CODE_PREFIXES,
   DEMO_UNIT_CODE_PREFIX,
 } from './config'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
@@ -39,9 +39,12 @@ export async function deleteDemoWorld(prisma: PrismaClient): Promise<{
   residentsDeleted: number
 }> {
   const demoUnitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
+  // Every demo prefix ever issued, not just this brand's: a demo resident
+  // seeded under a previous client prefix would otherwise survive every reset,
+  // uncleanable and — on a `unit`-scope instance — parked next to real data.
   const demoResidentFilter = {
     OR: [
-      { code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } },
+      ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) => ({ code: { startsWith: prefix } })),
       { code: resolveDemoResidentCode() },
     ],
   }

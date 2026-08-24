@@ -358,7 +358,7 @@ export const CHORE_LABELS = {
     attention: 'Achtung',
     colUnit: 'Unterkunft',
     colAddress: 'Adresse',
-    colResidents: 'Bewohner',
+    colResidents: 'Klient*innen',
     colTasks: 'Aufgaben',
     colActive: 'Aktiv',
     chooseUnit: 'Unterkunft wählen …',

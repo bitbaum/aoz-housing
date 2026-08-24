@@ -13,6 +13,11 @@ export const ROLE_LABELS: Record<string, string> = {
 }
 
 export const LOGIN_LABELS = {
+  /** The way out of the login page. It had none: every account page was a
+   *  dead end, so anyone who reached /login could no longer get to the site. */
+  backToHome: 'Zurück zur Startseite',
+  /** Names who each door is for, so nobody guesses which field is theirs. */
+  audienceHint: 'Für Fachpersonen und Klient*innen — ein Login, beide Rollen.',
   title: 'Anmelden',
   subtitle: 'Mit E-Mail und Passwort anmelden',
   email: 'E-Mail',

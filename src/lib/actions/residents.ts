@@ -76,7 +76,7 @@ export async function exitResident(residentId: string): Promise<{ success: boole
       entityId: residentId,
       userId: user.id,
       changes: { status: 'EXITED' },
-      reason: 'Bewohner ausgetreten',
+      reason: 'Klient*in ausgetreten',
     })
 
     revalidatePath('/residents')
@@ -216,7 +216,7 @@ export async function hardDeleteResidentProtected(
     }
 
     if (!isTestOrDemoCode(resident.code)) {
-      return { success: false, error: 'Hard-Delete nur für Test-/Demo-Bewohner erlaubt' }
+      return { success: false, error: 'Hard-Delete nur für Test-/Demo-Klient*innen erlaubt' }
     }
 
     const [placements, incidentsReported, incidentsAsSubject, involvements, maintenanceRequests, assessments] = await Promise.all([
@@ -235,7 +235,7 @@ export async function hardDeleteResidentProtected(
     if (placements + incidentsReported + incidentsAsSubject + involvements + maintenanceRequests + assessments > 0) {
       return {
         success: false,
-        error: 'Hard-Delete blockiert: Bewohner hat verknüpfte Historie',
+        error: 'Hard-Delete blockiert: Klient*in hat verknüpfte Historie',
         blockerReport: {
           placements,
           incidentsReported,

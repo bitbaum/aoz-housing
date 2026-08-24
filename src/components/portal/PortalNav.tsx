@@ -7,6 +7,7 @@ import { ArrowRightLeft, ChevronDown, LogOut, User } from 'lucide-react'
 import { UI_LABELS } from '@/lib/constants/labels'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { NAV_ICONS, portalAccountItems } from '@/lib/config/navigation'
+import { BRAND } from '@/lib/config/brand'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
 import { useT } from '@/lib/i18n/LocaleProvider'
 import { useDismissable } from '@/lib/hooks/useDismissable'
@@ -31,7 +32,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
         href="/portal"
         className="text-base font-semibold tracking-tight text-brand-primary transition-opacity hover:opacity-70 sm:text-lg shrink-0"
       >
-        {t('portal.title')}
+        {t(BRAND.portalTitleKey)}
       </Link>
 
       <div className="flex items-center gap-1 sm:gap-2 min-w-0">

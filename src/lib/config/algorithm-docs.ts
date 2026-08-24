@@ -310,7 +310,7 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
   guestTolerance: {
     factorId: 'guestTolerance',
     whyItMatters:
-      'Unterschiedliche Einstellungen zu Besuchern sind ein häufiger Konfliktauslöser. Manche Bewohner schätzen Ruhe und Privatsphäre, andere empfangen gerne Gäste.',
+      'Unterschiedliche Einstellungen zu Besuchern sind ein häufiger Konfliktauslöser. Manche Klient*innen schätzen Ruhe und Privatsphäre, andere empfangen gerne Gäste.',
     researchFindings: [
       'Top-5 Konfliktauslöser in nationaler Umfrage (31\'500 Studierende)',
       '~48% berichten von häufigen/gelegentlichen Konflikten, Besucher als häufiger Grund',

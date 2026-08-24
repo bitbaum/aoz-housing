@@ -35,7 +35,13 @@ describe('brand presets', () => {
       id: 'aoz',
       shortName: 'AOZ',
       codePrefix: 'AOZ-',
+      // AOZ staff say Klient*in. The prefix is vocabulary, so it is per brand.
+      residentCodePrefix: 'KL-',
       productName: 'AOZ Begleitung',
+      // Neutral register: an AOZ Unterkunft is not asserted to be someone's
+      // home by the software they are required to use.
+      portalName: 'Mein Bereich',
+      portalTitleKey: 'portal.title',
       tagline: 'Integrationsplattform',
       metaDescription:
         'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',

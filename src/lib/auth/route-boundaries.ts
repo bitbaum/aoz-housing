@@ -96,16 +96,30 @@ export type RootDestination =
   | { kind: 'redirect'; to: string }
   | { kind: 'rewrite'; to: string }
 
+/**
+ * The parameter is `hasVALIDStaffSession`, not `hasStaffSession`, and the
+ * difference is the whole bug it was written to end.
+ *
+ * This used to be answered from cookie PRESENCE. A staff cookie that had
+ * expired — or been signed with a secret that has since rotated — still sent
+ * `/` to the dashboard, the dashboard bounced to /login, and the landing page
+ * became permanently unreachable for that browser: every visit repeated the
+ * loop, because nothing ever cleared the dead credential. The product's own
+ * address answered "you are not welcome yet" to someone who had simply been
+ * away too long, and no amount of navigating could escape it.
+ *
+ * Presence is not a session. The caller must verify before asking.
+ */
 export function destinationForRoot({
-  hasStaffSession,
+  hasValidStaffSession,
   hasResidentSession,
 }: {
-  hasStaffSession: boolean
+  hasValidStaffSession: boolean
   hasResidentSession: boolean
 }): RootDestination {
   // Staff wins when someone holds both: it is the bigger surface, and the nav
   // offers the switch. Same rule as `establishSessions()` uses at login.
-  if (hasStaffSession) return { kind: 'staff-dashboard' }
+  if (hasValidStaffSession) return { kind: 'staff-dashboard' }
   if (hasResidentSession) return { kind: 'redirect', to: '/portal' }
   return { kind: 'rewrite', to: LANDING_ROUTE }
 }

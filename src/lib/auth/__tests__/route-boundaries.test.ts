@@ -41,8 +41,8 @@ describe('what the bare domain does', () => {
    * The product's own address used to answer every stranger with a login form,
    * which tells a visitor nothing except that they are not welcome yet.
    */
-  const at = (hasStaffSession: boolean, hasResidentSession: boolean) =>
-    destinationForRoot({ hasStaffSession, hasResidentSession })
+  const at = (hasValidStaffSession: boolean, hasResidentSession: boolean) =>
+    destinationForRoot({ hasValidStaffSession, hasResidentSession })
 
   test('shows a stranger the landing page', () => {
     expect(at(false, false)).toEqual({ kind: 'rewrite', to: LANDING_ROUTE })
@@ -67,6 +67,15 @@ describe('what the bare domain does', () => {
     // Matches what establishSessions() does at login: staff wins the landing
     // page because it is the bigger surface, and the nav offers the switch.
     expect(at(true, true)).toEqual({ kind: 'staff-dashboard' })
+  })
+
+  test('an expired staff cookie sees the landing page, not a login wall', () => {
+    // The caller passes VALIDITY, not presence. When a staff cookie no longer
+    // verifies, this must answer exactly as it does for a stranger — otherwise
+    // `/` routes to the dashboard, the dashboard bounces to /login, and the
+    // landing page is unreachable in that browser until the cookie is cleared
+    // by hand. Middleware deletes the dead cookie alongside this answer.
+    expect(at(false, false)).toEqual({ kind: 'rewrite', to: LANDING_ROUTE })
   })
 
   test('declares the landing page public, or the rewrite bounces to /login', () => {

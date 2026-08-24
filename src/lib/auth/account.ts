@@ -18,7 +18,7 @@
  */
 
 import { ALL_CODE_PREFIXES } from '@/lib/config/brand'
-import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
+import { ALL_RESIDENT_CODE_PREFIXES } from '@/lib/auth/code-prefixes'
 import { prisma } from '@/lib/db'
 import { hashPassword, verifyPassword } from './passwords'
 import { createAuthToken, consumeAuthToken } from './tokens'
@@ -103,7 +103,8 @@ async function findIdentityByCode(code: string): Promise<CodeIdentity | null> {
     return user ? { kind: 'staff', id: user.id, active: user.active } : null
   }
 
-  if (code.startsWith(RESIDENT_CODE_PREFIX)) {
+  // All prefixes, never just the active brand's — see loginByCode.
+  if (ALL_RESIDENT_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
     const resident = await prisma.resident.findUnique({ where: { code }, select: { id: true } })
     return resident ? { kind: 'resident', id: resident.id } : null
   }

@@ -182,11 +182,11 @@ export function checkInReminder(overdueResidents: OverdueResident[]): { subject:
 
   const html = `
     <h2 style="${STYLES.header}">Überfällige Check-ins</h2>
-    <p style="${STYLES.paragraph}">${overdueResidents.length} Bewohner benötigen einen Check-in:</p>
+    <p style="${STYLES.paragraph}">${overdueResidents.length} Klient*innen benötigen einen Check-in:</p>
     <table style="${STYLES.table}">
       <thead>
         <tr>
-          <th style="${STYLES.th}">Bewohner</th>
+          <th style="${STYLES.th}">Klient*in</th>
           <th style="${STYLES.th}">Betreuungsstufe</th>
           <th style="${STYLES.th}">Letzter Check-in</th>
           <th style="${STYLES.th}">Überfällig</th>
@@ -209,13 +209,13 @@ export function lowSatisfactionAlert(data: LowSatisfactionData): { subject: stri
     <div style="${STYLES.warning}">
       <h2 style="${STYLES.alertHeading}">Niedrige Zufriedenheit gemeldet</h2>
       <p style="${STYLES.paragraph}">
-        <strong>Bewohner:</strong> ${escapeHtml(data.residentCode)}<br>
+        <strong>Klient*in:</strong> ${escapeHtml(data.residentCode)}<br>
         <strong>Wohneinheit:</strong> ${escapeHtml(data.housingUnitCode)}<br>
         <strong>Bewertung:</strong> <span style="font-size: 18px; color: ${EMAIL_COLORS.danger};">${stars(data.overallSatisfaction)}</span> (${data.overallSatisfaction}/5)
       </p>
       ${data.concerns ? `<p style="${STYLES.paragraph}"><strong>Anliegen:</strong> ${escapeHtml(data.concerns)}</p>` : ''}
     </div>
-    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Situation und kontaktieren Sie den Bewohner zeitnah.</p>
+    <p style="${STYLES.paragraph}">Bitte prüfen Sie die Situation und kontaktieren Sie die*den Klient*in zeitnah.</p>
     ${emailFooter()}
   `
 
@@ -391,7 +391,7 @@ export function newTransferRequestNotification(data: TransferRequestData): { sub
   const html = `
     <h2 style="${STYLES.header}">Neue Verlegungsanfrage</h2>
     <p style="${STYLES.paragraph}">
-      <strong>Bewohner:</strong> ${escapeHtml(data.residentCode)}<br>
+      <strong>Klient*in:</strong> ${escapeHtml(data.residentCode)}<br>
       <strong>Aktuelle Wohneinheit:</strong> ${escapeHtml(data.currentUnitCode)}<br>
       ${data.targetUnitCode ? `<strong>Gewünschte Wohneinheit:</strong> ${escapeHtml(data.targetUnitCode)}<br>` : ''}
       <strong>Grund:</strong> ${escapeHtml(data.reason)}

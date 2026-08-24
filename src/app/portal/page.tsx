@@ -2,8 +2,11 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = { title: 'Mein Bereich' }
+// The portal's name is the brand's decision, not this file's — the tab used to
+// say "Mein Bereich" while the nav in the same page said "Mein Zuhause".
+export const metadata: Metadata = { title: PORTAL_LABELS.title }
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
+import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
 import { PortalHousingCard, PortalOnboardingCard } from '@/components/portal/PortalHousingCard'
 import { PortalQuickActions } from '@/components/portal/PortalQuickActions'

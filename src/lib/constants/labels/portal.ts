@@ -3,12 +3,16 @@
  */
 import { ORG_CONTACT, ORG_CONTACT_CHANNELS } from '@/lib/config/organization'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
+import { BRAND } from '@/lib/config/brand'
 
 /** One sentence naming the real channels — reused wherever a page dead-ends. */
 const CONTACT_FALLBACK_SENTENCE = `Melde dich bei deiner Betreuungsperson — bei Schäden: ${ORG_CONTACT.maintenancePhone} (${ORG_CONTACT.maintenanceHours}) oder ${ORG_CONTACT.maintenanceEmail}.`
 
 export const PORTAL_LABELS = {
-  title: 'Mein Zuhause',
+  // Never a literal: the portal's name is the brand's decision, and it was
+  // previously spelled three different ways across this file and the page
+  // metadata. @see lib/config/brand.ts
+  title: BRAND.portalName,
   nav: {
     overview: 'Übersicht',
     apartment: 'Wohnung',
@@ -107,7 +111,7 @@ export const PORTAL_LABELS = {
     successGeneric: 'Erfolgreich gespeichert',
   },
   login: {
-    title: 'Mein Zuhause',
+    title: BRAND.portalName,
     subtitle: 'Gib deinen Bewohnercode ein, um fortzufahren',
     placeholder: `Dein Code (z.B. ${RESIDENT_CODE_PREFIX}001)`,
     submit: 'Einloggen',
@@ -382,7 +386,7 @@ export const PORTAL_LABELS = {
     },
   },
   landing: {
-    hero: 'Willkommen bei Mein Zuhause',
+    hero: `Willkommen bei ${BRAND.portalName}`,
     heroSubtitle: 'Hier findest du alles rund um deine Unterkunft — Mitbewohner, Meldungen und Einstellungen an einem Ort.',
     features: [
       {
