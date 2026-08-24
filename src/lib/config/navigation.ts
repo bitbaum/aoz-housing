@@ -2,6 +2,8 @@
  * Navigation configuration - SSOT for all nav items and icons
  */
 
+import { LEARNING_AREA_NAME } from './learning'
+
 import {
   Home,
   Users,
@@ -203,7 +205,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   // disagree about where you are, and picking "Beruf" in the menu looked like
   // navigating somewhere new when it only moved a tab. The page owns its
   // boards; the nav owns the destination.
-  { href: '/learning', icon: 'learning', label: 'Lernen & Beruf', permission: 'learning:read' },
+  { href: '/learning', icon: 'learning', label: LEARNING_AREA_NAME, permission: 'learning:read' },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
 ]
 

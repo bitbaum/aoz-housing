@@ -77,8 +77,10 @@ export async function resetDemoWorld(prisma: PrismaClient): Promise<DemoWorldRes
   // above. But the demo's adopted house rule points at an ORG rule by key, so
   // the catalog has to be present before seeding, not merely usually present.
   await syncOrgRules(prisma)
-  const seeded = await seedDemoData(prisma)
-  const demoStaffCode = await upsertDemoStaff(prisma)
+  // Before the seed: it assigns this account the care seats on every demo
+  // resident, so the account has to exist first.
+  const demoStaff = await upsertDemoStaff(prisma)
+  const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
 
-  return { ...seeded, ...removed, demoStaffCode }
+  return { ...seeded, ...removed, demoStaffCode: demoStaff?.code ?? null }
 }

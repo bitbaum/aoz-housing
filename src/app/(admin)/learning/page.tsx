@@ -10,6 +10,7 @@ import {
   LEARNING_BOARD_IDS,
   LEARNING_CATEGORIES,
   LEARNING_CATEGORY_LABELS,
+  LEARNING_AREA_NAME,
   LEARNING_LABELS,
   LEARNING_STATUSES,
   LEARNING_STATUS_LABELS,
@@ -19,7 +20,7 @@ import {
 } from '@/lib/config/learning'
 import { residentName } from '@/lib/utils/resident-name'
 
-export const metadata: Metadata = { title: 'Integrationsnachweise' }
+export const metadata: Metadata = { title: LEARNING_AREA_NAME }
 export const dynamic = 'force-dynamic'
 
 interface Props {

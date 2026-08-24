@@ -2,6 +2,8 @@
  * Staff dashboard labels
  */
 
+import { LEARNING_AREA_NAME, LEARNING_PULSE_WINDOW_DAYS } from '@/lib/config/learning'
+
 export const DASHBOARD_LABELS = {
   greetingMorning: 'Guten Morgen',
   greetingDay: 'Guten Tag',
@@ -35,10 +37,15 @@ export const DASHBOARD_LABELS = {
   statNoConflicts: 'ohne Konflikte',
   statMaintenance: 'Wartung',
   statOpenSuffix: 'offen',
-  statLearning: 'Lernen & Kurse',
+  statLearning: LEARNING_AREA_NAME,
   statRunningSuffix: 'laufend',
+  // Reads the window it reports on: the subtext said "30 Tagen" as a literal
+  // while the query behind it read LEARNING_PULSE_WINDOW_DAYS, so changing the
+  // window would have left the tile confidently describing the old one.
   statLearningCompletions: (n: number) =>
-    n === 1 ? '1 Abschluss in 30 Tagen' : `${n} Abschlüsse in 30 Tagen`,
+    n === 1
+      ? `1 Abschluss in ${LEARNING_PULSE_WINDOW_DAYS} Tagen`
+      : `${n} Abschlüsse in ${LEARNING_PULSE_WINDOW_DAYS} Tagen`,
   statEvents: 'Veranstaltungen',
   statPlannedSuffix: 'geplant',
 
@@ -74,13 +81,29 @@ export const DASHBOARD_LABELS = {
   allClearNoDringend: 'Keine dringenden Aufgaben',
   allClearBedsFreeSuffix: 'Plätze frei',
 
+  /**
+   * A workspace with nobody in it yet. Deliberately NOT celebratory: this
+   * screen used to say "Alles erledigt!" to a team that had not started, and
+   * a green tick over an empty database is a false report, not a welcome.
+   * @see lib/config/dashboard.ts — workspaceState()
+   */
+  emptyTitle: 'Noch keine Daten erfasst',
+  emptySummary: 'Noch nichts erfasst.',
+  emptyBody:
+    'Diese Übersicht zeigt Aufgaben, sobald es Klient*innen gibt. Zurzeit ist die Datenbank leer — das ist kein Fehler, sondern der Startpunkt.',
+  /** For roles that may not create anything: no button, just the reason. */
+  emptyNoSetupRights:
+    'Sobald die Leitung Unterkünfte und Klient*innen erfasst hat, erscheint hier Ihre Arbeit.',
+  setupCreateHousing: 'Erste Unterkunft erfassen',
+  setupCreateResident: 'Erste*n Klient*in erfassen',
+
   actionNewResident: 'Neue*r Klient*in',
   actionNewUnit: 'Neue Einheit',
   actionStartMatching: 'Matching starten',
   actionReportIncident: 'Vorfall melden',
   actionMaintenanceTicket: 'Wartungsticket',
   actionCreateResident: 'Neue*n Klient*in erfassen',
-  actionOpenLearning: 'Lernen & Kurse öffnen',
+  actionOpenLearning: `${LEARNING_AREA_NAME} öffnen`,
   actionViewStats: 'Statistiken ansehen',
 
   /** Names what the hero block is, now that it is no longer a coloured slab. */

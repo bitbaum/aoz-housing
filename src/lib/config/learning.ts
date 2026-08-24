@@ -58,6 +58,16 @@ export const LEARNING_CATEGORIES = [
 ] as const
 export type LearningCategoryId = (typeof LEARNING_CATEGORIES)[number]
 
+/**
+ * Window for the dashboard's "Abschlüsse in N Tagen" pulse.
+ *
+ * Lives here rather than in the dashboard config because it is a statement
+ * about learning ("recent" means a month), not about dashboard composition —
+ * and the demo seed needs it too, to place completions inside the window
+ * instead of reporting zero on a world full of finished courses.
+ */
+export const LEARNING_PULSE_WINDOW_DAYS = 30
+
 export const LEARNING_BOARD_IDS = ['overview', 'job', 'volunteering'] as const
 export type LearningBoardId = (typeof LEARNING_BOARD_IDS)[number]
 
@@ -117,10 +127,23 @@ export const LEARNING_LANGUAGE_OPTIONS = [
   { code: 'RU', label: 'Russisch' },
 ] as const
 
+/**
+ * The ONE name for this area of the product.
+ *
+ * It had four. The nav said "Lernen & Beruf", the page title and its heading
+ * said "Integrationsnachweise", the dashboard tile said "Lernen & Kurse", and
+ * the permission descriptions said "Integrationsnachweise" again — so a
+ * Jobcoach told to "open Lernen & Beruf" arrived at a page whose heading,
+ * browser tab and dashboard tile all named something else, with no way to
+ * know they were the same place. Every surface reads this constant now, and
+ * `learning-area-name.test.ts` fails if a literal reappears.
+ */
+export const LEARNING_AREA_NAME = 'Lernen & Beruf'
+
 export const LEARNING_LABELS = {
-  title: 'Lernen',
+  title: LEARNING_AREA_NAME,
   subtitle: 'Kurse, Sprachtests und was jemand selbst gelernt hat — für Betreuung und Jobcoach.',
-  boardTitle: 'Integrationsnachweise',
+  boardTitle: LEARNING_AREA_NAME,
   boardSubtitle:
     'Was jemand macht, lernt und nachweisen kann — damit Jobcoach, Sozialarbeit und Freiwilligenarbeit schnell sehen, was zählt.',
   boardOverview: 'Alle Nachweise',

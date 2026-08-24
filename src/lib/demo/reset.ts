@@ -34,16 +34,19 @@ export interface DemoResetSummary extends DemoSeedSummary {
 export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSummary> {
   const tablesWiped = await wipeAllExceptKeepList(prisma)
 
-  const seeded = await seedDemoData(prisma)
+  // BEFORE the seed, not after: the seed hands this account the care seats on
+  // every demo resident, and an assignment cannot point at a row that does not
+  // exist yet. (The wipe keeps User, so this is an update on a repeat run.)
+  const demoStaff = await upsertDemoStaff(prisma)
 
-  const demoStaffCode = await upsertDemoStaff(prisma)
+  const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
 
   await syncOrgRules(prisma)
 
   return {
     ...seeded,
     tablesWiped,
-    demoStaffCode,
+    demoStaffCode: demoStaff?.code ?? null,
     orgRulesSynced: true,
   }
 }

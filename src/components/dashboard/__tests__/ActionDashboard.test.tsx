@@ -37,62 +37,20 @@ jest.mock('@/lib/config/thresholds', () => ({
   DISPLAY_LIMITS: { dashboardItems: 3 },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
-  DASHBOARD_LABELS: {
-    greetingMorning: 'Guten Morgen',
-    greetingDay: 'Guten Tag',
-    greetingEvening: 'Guten Abend',
-    today: 'heute',
-    yesterday: 'gestern',
-    daysAgo: 'Tagen',
-    allClearSummary: 'Alles unter Kontrolle heute.',
-    oneTaskWaiting: '1 Aufgabe wartet auf Sie.',
-    tasksWaitingSuffix: 'Aufgaben warten auf Sie.',
-    sectionOpenTasks: 'Offene Aufgaben',
-    sectionDueSoon: 'Bald fällig',
-    statFreeBeds: 'Freie Plätze',
-    statCheckIns: 'Check-ins',
-    statOverdueSuffix: 'überfällig',
-    statNoneCurrent: 'Keine aktuell',
-    statAllCurrent: 'Alle aktuell',
-    statCurrentSuffix: 'aktuell',
-    statHarmony: 'Harmonie',
-    statDaysSuffix: 'Tage',
-    statDaySuffixSingular: 'Tag',
-    statNoConflicts: 'Keine Konflikte',
-    statMaintenance: 'Wartung',
-    statOpenSuffix: 'offen',
-    statLearning: 'Lernen & Kurse',
-    statRunningSuffix: 'laufend',
-    statLearningCompletions: (n: number) => `${n} Abschlüsse in 30 Tagen`,
-    statEvents: 'Veranstaltungen',
-    statPlannedSuffix: 'geplant',
-    occupancyOccupied: 'belegt',
-    tileCheckIns: 'Check-ins durchführen',
-    tilePlaceResidents: 'Bewohner platzieren',
-    tileTransferRequests: 'Verlegungsanfragen prüfen',
-    tileTransferRequestsDesc: 'Klient*innen warten auf eine Antwort',
-    tileProposals: 'Beschlüsse bestätigen',
-    tileProposalsDesc: 'Häuser warten auf eine Antwort der Betreuung',
-    tileConflictUnits: 'Einheiten mit Konflikten',
-    tileConflictUnitsDesc: 'Wiederholte Vorfälle',
-    tileWaitingLongestSuffix: 'wartet am längsten',
-    tileCheckInsThisWeek: 'Check-ins diese Woche',
-    tilePlanProactively: 'Proaktiv planen',
-    tileSincePrefix: 'Seit',
-    dueTodayPrefix: 'Heute fällig',
-    dueTomorrowPrefix: 'Morgen fällig',
-    dueInPrefix: 'In',
-    dueInSuffix: 'Tagen',
-    tileIncidents: 'Vorfälle',
-  },
-  INCIDENT_TYPE_LABELS_SHORT: { NOISE: 'Lärm' },
-}))
+// NOT mocked: the German labels are the SSOT and this test reads them.
+// They used to be re-typed here as a 50-key literal, which is a second copy
+// of a table that already exists — and it silently dropped every key added
+// after it was written, so a component rendering a brand-new label rendered
+// `undefined` while the suite stayed green.
 
 // --- Helpers ---
 
 const BASE_PROPS = {
   role: 'ADMIN' as const,
+  // A populated workspace with nothing urgent — the "quiet" case. Emptiness
+  // is a THIRD state and is exercised separately below.
+  residentCount: 15,
+  housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,
   totalPlacements: 15,
@@ -176,7 +134,7 @@ describe('ActionDashboard', () => {
   it('routes unplaced residents into the open task list instead of another CTA bar', () => {
     render(<ActionDashboard {...BASE_PROPS} unplacedResidents={[makeResident('r1'), makeResident('r2')]} />)
     expect(screen.queryByTestId('quick-actions-bar')).not.toBeInTheDocument()
-    expect(screen.getByText('Bewohner platzieren (2)')).toBeInTheDocument()
+    expect(screen.getByText('Klient*innen platzieren (2)')).toBeInTheDocument()
   })
 
   // ── Critical alert banner ─────────────────────────────────────────────────
@@ -193,9 +151,17 @@ describe('ActionDashboard', () => {
 
   // ── HeroAction ────────────────────────────────────────────────────────────
 
-  it('always renders HeroAction', () => {
-    render(<ActionDashboard {...BASE_PROPS} />)
+  it('renders HeroAction when there is an action to name', () => {
+    render(<ActionDashboard {...BASE_PROPS} overdueCheckIns={[makeCheckIn('c1')]} />)
     expect(screen.getByTestId('hero-action')).toBeInTheDocument()
+  })
+
+  it('does not render HeroAction on a quiet day — the all-clear block says it once', () => {
+    // The hero, the all-clear block and the greeting line all used to render
+    // together, three sentences and two identical buttons for one fact.
+    render(<ActionDashboard {...BASE_PROPS} />)
+    expect(screen.queryByTestId('hero-action')).not.toBeInTheDocument()
+    expect(screen.getByTestId('all-clear-state')).toBeInTheDocument()
   })
 
   // ── QuickStats row ────────────────────────────────────────────────────────
@@ -209,7 +175,7 @@ describe('ActionDashboard', () => {
     render(<ActionDashboard {...BASE_PROPS} role="JOBCOACH" learningInProgressCount={4} />)
     const stats = screen.getAllByTestId('quick-stat')
     expect(stats).toHaveLength(1)
-    expect(stats[0]).toHaveTextContent('Lernen & Kurse: 4')
+    expect(stats[0]).toHaveTextContent('Lernen & Beruf: 4')
   })
 
   it('renders learning and events stats for FREIWILLIGENARBEIT, no housing stats', () => {
@@ -266,7 +232,7 @@ describe('ActionDashboard', () => {
 
   it('renders unplaced-residents ActionTile when unplacedResidents present', () => {
     render(<ActionDashboard {...BASE_PROPS} unplacedResidents={[makeResident('r1')]} />)
-    expect(screen.getByTestId('action-tile')).toHaveTextContent('Bewohner platzieren (1)')
+    expect(screen.getByTestId('action-tile')).toHaveTextContent('Klient*innen platzieren (1)')
   })
 
   it('renders problem-units ActionTile when problemUnits present', () => {
@@ -328,5 +294,58 @@ describe('ActionDashboard', () => {
   it('hides AllClearState when problem units exist', () => {
     render(<ActionDashboard {...BASE_PROPS} problemUnits={[makeProblemUnit('1')]} />)
     expect(screen.queryByTestId('all-clear-state')).not.toBeInTheDocument()
+  })
+
+  // ── Empty workspace ───────────────────────────────────────────────────────
+  //
+  // A database nobody has filled in used to be indistinguishable from a day's
+  // work completed: every queue is empty either way, so the page congratulated
+  // a team that had not started. These pin the two apart.
+
+  const EMPTY_WORKSPACE = {
+    ...BASE_PROPS,
+    residentCount: 0,
+    housingUnitCount: 0,
+    totalPlacements: 0,
+    occupiedBeds: 0,
+    totalBeds: 0,
+  }
+
+  it('never reports an empty workspace as finished work', () => {
+    render(<ActionDashboard {...EMPTY_WORKSPACE} />)
+    expect(screen.queryByTestId('all-clear-state')).not.toBeInTheDocument()
+    expect(screen.queryByText('Alles unter Kontrolle heute.')).not.toBeInTheDocument()
+    expect(screen.getByText('Noch keine Daten erfasst')).toBeInTheDocument()
+  })
+
+  it('offers the first setup step a Leitung can actually take', () => {
+    render(<ActionDashboard {...EMPTY_WORKSPACE} />)
+    // No units yet, and ADMIN may create them.
+    expect(screen.getByRole('link', { name: 'Erste Unterkunft erfassen' })).toHaveAttribute(
+      'href',
+      '/housing/new'
+    )
+  })
+
+  it('moves to resident intake once housing exists', () => {
+    render(<ActionDashboard {...EMPTY_WORKSPACE} housingUnitCount={3} />)
+    expect(screen.getByRole('link', { name: 'Erste*n Klient*in erfassen' })).toHaveAttribute(
+      'href',
+      '/residents/new'
+    )
+  })
+
+  it('offers a Jobcoach no setup button, because every one would be a 403', () => {
+    render(<ActionDashboard {...EMPTY_WORKSPACE} role="JOBCOACH" />)
+    expect(screen.getByText('Noch keine Daten erfasst')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /erfassen/i })).not.toBeInTheDocument()
+  })
+
+  it('leaves the empty state as soon as one person exists', () => {
+    // Emptiness is measured in PEOPLE, not units: the product exists to
+    // support residents, so the first intake is what starts the workspace.
+    render(<ActionDashboard {...EMPTY_WORKSPACE} residentCount={2} />)
+    expect(screen.queryByText('Noch keine Daten erfasst')).not.toBeInTheDocument()
+    expect(screen.getByTestId('all-clear-state')).toBeInTheDocument()
   })
 })
