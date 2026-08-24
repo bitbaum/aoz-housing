@@ -1,0 +1,71 @@
+/**
+ * Dashboard composition — SSOT for which role sees which dashboard surface.
+ *
+ * The dashboard used to hardcode the housing/placement widgets for everyone:
+ * a Jobcoach or Freiwilligenarbeit coordinator logged in and saw "freie
+ * Betten" and a matching CTA — none of it their work — and nothing from the
+ * pillars that ARE their work (learning, events). The permission model in
+ * role-policy.ts already IS the definition of "what is this person's daily
+ * work"; this file only maps each dashboard section onto the permission that
+ * makes the section that role's business. Consumed by the page (to skip the
+ * queries a role cannot see) and by ActionDashboard (to gate rendering) —
+ * one mapping, two readers, so they can never disagree.
+ */
+
+import { hasPermission, type StaffPermission, type StaffRole } from '@/lib/auth/role-policy'
+
+export const DASHBOARD_SECTIONS = {
+  /** Free-beds stat. */
+  occupancy: 'housing:read',
+  /** Check-in stat, overdue/due-soon tiles, check-in hero branches. */
+  checkIns: 'placements:read',
+  /** Harmony stat, critical-incident banner, problem-unit tiles. */
+  incidents: 'incidents:read',
+  /** Open-maintenance stat. */
+  maintenance: 'maintenance:read',
+  /** Unplaced-residents tile + hero branch — they link into /matching. */
+  matching: 'placements:write',
+  /** Pending transfer-request queue — resolved on /transfer-requests. */
+  transferRequests: 'placements:write',
+  /**
+   * Proposals awaiting a staff answer — resolved on /rules. Gated like the
+   * /rules nav item itself (see MEGAMENU_GROUPS), not by a governance-specific
+   * permission that does not exist.
+   */
+  proposals: 'housing:read',
+  /** Learning pulse — in-progress records and recent completions. */
+  learning: 'learning:read',
+  /** Upcoming published events. */
+  events: 'events:read',
+} as const satisfies Record<string, StaffPermission>
+
+export type DashboardSection = keyof typeof DASHBOARD_SECTIONS
+
+/** Window for the learning stat's "Abschlüsse in N Tagen" subtext. */
+export const LEARNING_PULSE_WINDOW_DAYS = 30
+
+export function sectionVisible(role: StaffRole, section: DashboardSection): boolean {
+  return hasPermission(role, DASHBOARD_SECTIONS[section])
+}
+
+/**
+ * All-clear hero CTA: when nothing is urgent, offer the first action the role
+ * may actually perform — not /residents/new for a Jobcoach who cannot create
+ * residents. Order is deliberate: creating a resident is the product's main
+ * intake, learning is the coaching roles' home, analytics is readable by
+ * every staff role and therefore the guaranteed last resort.
+ */
+export const DASHBOARD_FALLBACK_CTAS: readonly {
+  permission: StaffPermission
+  href: string
+  labelKey: 'actionCreateResident' | 'actionOpenLearning' | 'actionViewStats'
+}[] = [
+  { permission: 'residents:write', href: '/residents/new', labelKey: 'actionCreateResident' },
+  { permission: 'learning:write', href: '/learning?board=overview', labelKey: 'actionOpenLearning' },
+  { permission: 'dashboard:read', href: '/analytics', labelKey: 'actionViewStats' },
+]
+
+export function fallbackCta(role: StaffRole): (typeof DASHBOARD_FALLBACK_CTAS)[number] {
+  // dashboard:read is in every role, so the find can never miss.
+  return DASHBOARD_FALLBACK_CTAS.find((cta) => hasPermission(role, cta.permission))!
+}

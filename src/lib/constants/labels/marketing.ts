@@ -156,9 +156,9 @@ const PLACEMENT_COPY: MarketingCopy = {
   ],
 
   scienceEyebrow: 'Wissenschaftliche Grundlage',
-  scienceTitle: `Matching ist keine Meinung: ${FACTOR_COUNT} Faktoren, gewichtet nach publizierter Evidenz.`,
+  scienceTitle: `Keine Meinung, sondern Methode: ${FACTOR_COUNT} Matching-Faktoren — und Alltagsmechanik nach dokumentierten Befunden.`,
   scienceBody:
-    `Jeder Kompatibilitätsfaktor stützt sich auf mindestens eine publizierte Studie — Schweizer Forschung zuerst (unter anderem BFH/HSLU 2024 mit 1'000 Gastfamilien), internationale Studien zur Validierung, insgesamt ${SOURCE_COUNT} Quellen. Die vollständige Methodik samt Quellenverzeichnis ist im Produkt für alle Fachpersonen einsehbar — und in der Demo für Sie.`,
+    `Jeder Kompatibilitätsfaktor stützt sich auf mindestens eine publizierte Studie — Schweizer Forschung zuerst (unter anderem BFH/HSLU 2024 mit 1'000 Gastfamilien), internationale Studien zur Validierung, insgesamt ${SOURCE_COUNT} Quellen. Und die Mechanik jenseits des Matchings folgt denselben Massstäben: vom Eigenanteil-Bias beim Putzplan bis zur Regel, dass Sicherheit nie zur Abstimmung steht. Die vollständige Methodik samt Quellenverzeichnis ist im Produkt für alle Fachpersonen einsehbar — und in der Demo für Sie.`,
   science: [
     {
       title: 'Sauberkeit ist eine Richtung, kein Durchschnitt',
@@ -175,6 +175,14 @@ const PLACEMENT_COPY: MarketingCopy = {
     {
       title: 'Jede Zahl ist erklärbar',
       body: 'Jeder Score zerlegt sich in benannte Faktoren mit Gewicht und Evidenzstärke, und Warnungen sagen, wer sich woran stören wird. Entscheidungen bleiben bei den Fachpersonen — begründbar gegenüber Team und Klient*innen.',
+    },
+    {
+      title: 'Fairness ist eine Bilanz, kein Ranking',
+      body: 'Wer aufräumt, überschätzt den eigenen Anteil — ein dokumentierter Bias, kein Charakterfehler. Der Aufgabenplan zeigt deshalb, wer wie viel getragen hat, statt Erinnerung gegen Erinnerung antreten zu lassen.',
+    },
+    {
+      title: 'Sicherheit steht nie zur Abstimmung',
+      body: 'Haushalte entscheiden über ihren Alltag selbst — aber eine Mehrheit kann die Sicherheit einer Minderheit nicht wegstimmen. Solche Themen gehen immer an die Fachpersonen, und jedes Abstimmungsergebnis bleibt mit der damals gültigen Regel erklärbar.',
     },
   ],
 

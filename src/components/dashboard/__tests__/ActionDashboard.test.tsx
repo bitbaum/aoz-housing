@@ -58,12 +58,22 @@ jest.mock('@/lib/constants/labels', () => ({
     statCurrentSuffix: 'aktuell',
     statHarmony: 'Harmonie',
     statDaysSuffix: 'Tage',
+    statDaySuffixSingular: 'Tag',
     statNoConflicts: 'Keine Konflikte',
     statMaintenance: 'Wartung',
     statOpenSuffix: 'offen',
+    statLearning: 'Lernen & Kurse',
+    statRunningSuffix: 'laufend',
+    statLearningCompletions: (n: number) => `${n} Abschlüsse in 30 Tagen`,
+    statEvents: 'Veranstaltungen',
+    statPlannedSuffix: 'geplant',
     occupancyOccupied: 'belegt',
     tileCheckIns: 'Check-ins durchführen',
     tilePlaceResidents: 'Bewohner platzieren',
+    tileTransferRequests: 'Verlegungsanfragen prüfen',
+    tileTransferRequestsDesc: 'Klient*innen warten auf eine Antwort',
+    tileProposals: 'Beschlüsse bestätigen',
+    tileProposalsDesc: 'Häuser warten auf eine Antwort der Betreuung',
     tileConflictUnits: 'Einheiten mit Konflikten',
     tileConflictUnitsDesc: 'Wiederholte Vorfälle',
     tileWaitingLongestSuffix: 'wartet am längsten',
@@ -82,17 +92,22 @@ jest.mock('@/lib/constants/labels', () => ({
 // --- Helpers ---
 
 const BASE_PROPS = {
+  role: 'ADMIN' as const,
   occupiedBeds: 10,
   totalBeds: 20,
-  availableUnits: 3,
   totalPlacements: 15,
   overdueCheckIns: [],
   dueSoonCheckIns: [],
   unplacedResidents: [],
   criticalIncidents: [],
   problemUnits: [],
+  pendingTransfers: [],
+  proposalsAwaitingStaff: [],
   conflictFreeDays: 14,
   openMaintenanceCount: 0,
+  learningInProgressCount: 0,
+  learningRecentCompletions: 0,
+  upcomingEventsCount: 0,
   // Fixed strings, because they are now computed on the server and passed in.
   // The component no longer reads a clock, which is what makes its output the
   // same in the container and in the browser.
@@ -118,6 +133,14 @@ function makeProblemUnit(id: string) {
 
 function makeDueSoon(id: string, daysUntilDue = 2) {
   return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'C03', daysUntilDue, supportLevel: 'STANDARD' }
+}
+
+function makeTransfer(id: string) {
+  return { id, residentCode: `RES-${id}`, residentDisplayName: null, unitCode: 'A01', daysSinceCreated: 4 }
+}
+
+function makeProposal(id: string) {
+  return { id, title: 'Ruhezeiten ab 21 Uhr', unitCode: 'A01', daysWaiting: 3 }
 }
 
 // --- Tests ---
@@ -177,9 +200,31 @@ describe('ActionDashboard', () => {
 
   // ── QuickStats row ────────────────────────────────────────────────────────
 
-  it('renders 4 QuickStat tiles', () => {
+  it('renders all 6 QuickStat tiles for ADMIN', () => {
     render(<ActionDashboard {...BASE_PROPS} />)
-    expect(screen.getAllByTestId('quick-stat')).toHaveLength(4)
+    expect(screen.getAllByTestId('quick-stat')).toHaveLength(6)
+  })
+
+  it('renders only the learning stat for JOBCOACH', () => {
+    render(<ActionDashboard {...BASE_PROPS} role="JOBCOACH" learningInProgressCount={4} />)
+    const stats = screen.getAllByTestId('quick-stat')
+    expect(stats).toHaveLength(1)
+    expect(stats[0]).toHaveTextContent('Lernen & Kurse: 4')
+  })
+
+  it('renders learning and events stats for FREIWILLIGENARBEIT, no housing stats', () => {
+    render(<ActionDashboard {...BASE_PROPS} role="FREIWILLIGENARBEIT" upcomingEventsCount={2} />)
+    const stats = screen.getAllByTestId('quick-stat')
+    expect(stats).toHaveLength(2)
+    expect(screen.queryByText(/Freie Plätze/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Veranstaltungen: 2/)).toBeInTheDocument()
+  })
+
+  it('hides check-in and maintenance stats for SOZIALARBEIT but keeps occupancy', () => {
+    render(<ActionDashboard {...BASE_PROPS} role="SOZIALARBEIT" />)
+    expect(screen.queryByText(/Check-ins:/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Wartung:/)).not.toBeInTheDocument()
+    expect(screen.getByText(/Freie Plätze: 10/)).toBeInTheDocument()
   })
 
   it('shows correct freeBeds in the free-beds stat', () => {
@@ -232,6 +277,18 @@ describe('ActionDashboard', () => {
   it('shows open-tasks section when only problemUnits present', () => {
     render(<ActionDashboard {...BASE_PROPS} problemUnits={[makeProblemUnit('1')]} />)
     expect(screen.getByText('Offene Aufgaben')).toBeInTheDocument()
+  })
+
+  it('renders transfer-requests ActionTile and counts it as a waiting task', () => {
+    render(<ActionDashboard {...BASE_PROPS} pendingTransfers={[makeTransfer('t1')]} />)
+    expect(screen.getByTestId('action-tile')).toHaveTextContent('Verlegungsanfragen prüfen (1)')
+    expect(screen.getByText('1 Aufgabe wartet auf Sie.')).toBeInTheDocument()
+  })
+
+  it('renders proposals ActionTile and counts it as a waiting task', () => {
+    render(<ActionDashboard {...BASE_PROPS} proposalsAwaitingStaff={[makeProposal('p1')]} />)
+    expect(screen.getByTestId('action-tile')).toHaveTextContent('Beschlüsse bestätigen (1)')
+    expect(screen.getByText('1 Aufgabe wartet auf Sie.')).toBeInTheDocument()
   })
 
   // ── Due-soon section ──────────────────────────────────────────────────────

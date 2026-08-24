@@ -190,6 +190,7 @@ export const fr: Dictionary = {
 
   'dashboard.welcome': 'Bon retour',
   'dashboard.subtitle': 'Ici tu vois comment ça se passe dans ton logement.',
+  'dashboard.allAreas': 'Tous les domaines',
   'dashboard.housing': 'Logement',
   'dashboard.active': 'Actif',
   'dashboard.moveIn': 'Entrée',

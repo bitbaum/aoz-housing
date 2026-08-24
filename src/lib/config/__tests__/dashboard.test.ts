@@ -1,0 +1,87 @@
+/**
+ * The dashboard section map is what makes the admin dashboard role-aware:
+ * these tests pin the OUTCOME per role, so a permission edit in role-policy
+ * that silently reshapes someone's dashboard fails here first.
+ */
+
+import {
+  DASHBOARD_SECTIONS,
+  DASHBOARD_FALLBACK_CTAS,
+  sectionVisible,
+  fallbackCta,
+  type DashboardSection,
+} from '../dashboard'
+import { ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
+
+const ALL_SECTIONS = Object.keys(DASHBOARD_SECTIONS) as DashboardSection[]
+
+function visibleSections(role: (typeof STAFF_ROLES)[number]): DashboardSection[] {
+  return ALL_SECTIONS.filter((s) => sectionVisible(role, s))
+}
+
+describe('DASHBOARD_SECTIONS', () => {
+  it('every section permission exists in the ADMIN permission set (superset)', () => {
+    const adminPerms = ROLE_PERMISSIONS.ADMIN as readonly string[]
+    for (const permission of Object.values(DASHBOARD_SECTIONS)) {
+      expect(adminPerms).toContain(permission)
+    }
+  })
+
+  it('ADMIN and BETREUUNG see every section', () => {
+    expect(visibleSections('ADMIN')).toEqual(ALL_SECTIONS)
+    expect(visibleSections('BETREUUNG')).toEqual(ALL_SECTIONS)
+  })
+
+  it('JOBCOACH sees exactly the learning section — their dashboard is their board', () => {
+    expect(visibleSections('JOBCOACH')).toEqual(['learning'])
+  })
+
+  it('FREIWILLIGENARBEIT sees learning and events, nothing housing', () => {
+    expect(visibleSections('FREIWILLIGENARBEIT')).toEqual(['learning', 'events'])
+  })
+
+  it('SOZIALARBEIT sees people/conflict/governance sections but no placement writes', () => {
+    const sections = visibleSections('SOZIALARBEIT')
+    expect(sections).toContain('incidents')
+    expect(sections).toContain('proposals')
+    expect(sections).toContain('learning')
+    expect(sections).toContain('events')
+    expect(sections).toContain('occupancy')
+    expect(sections).not.toContain('checkIns')
+    expect(sections).not.toContain('maintenance')
+    expect(sections).not.toContain('matching')
+    expect(sections).not.toContain('transferRequests')
+  })
+
+  it('every role sees at least one section — nobody gets an empty dashboard', () => {
+    for (const role of STAFF_ROLES) {
+      expect(visibleSections(role).length).toBeGreaterThan(0)
+    }
+  })
+})
+
+describe('fallbackCta', () => {
+  it('resolves for every role (last entry is readable by all staff)', () => {
+    for (const role of STAFF_ROLES) {
+      expect(fallbackCta(role)).toBeDefined()
+    }
+  })
+
+  it('offers resident intake to roles that can create residents', () => {
+    expect(fallbackCta('ADMIN').href).toBe('/residents/new')
+    expect(fallbackCta('BETREUUNG').href).toBe('/residents/new')
+    expect(fallbackCta('SOZIALARBEIT').href).toBe('/residents/new')
+  })
+
+  it('offers learning to coaching roles without residents:write', () => {
+    expect(fallbackCta('JOBCOACH').href).toBe('/learning?board=overview')
+    expect(fallbackCta('FREIWILLIGENARBEIT').href).toBe('/learning?board=overview')
+  })
+
+  it('final fallback is gated on a permission every role holds', () => {
+    const last = DASHBOARD_FALLBACK_CTAS[DASHBOARD_FALLBACK_CTAS.length - 1]
+    for (const role of STAFF_ROLES) {
+      expect(ROLE_PERMISSIONS[role] as readonly string[]).toContain(last.permission)
+    }
+  })
+})

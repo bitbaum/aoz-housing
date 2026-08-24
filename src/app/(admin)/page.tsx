@@ -24,6 +24,13 @@ import {
   INCIDENT_SEVERITY_WEIGHTS,
   DISPLAY_LIMITS,
 } from '@/lib/config/thresholds'
+import {
+  sectionVisible,
+  LEARNING_PULSE_WINDOW_DAYS,
+  type DashboardSection,
+} from '@/lib/config/dashboard'
+import { getProposalsAwaitingStaff } from '@/lib/governance/queries'
+import type { StaffRole } from '@/lib/auth/role-policy'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,60 +38,120 @@ export default async function AdminDashboard() {
   const now = new Date()
   const user = await getCurrentUser()
 
-  // Fetch all data in parallel
+  // Middleware guards this route, so `user` is only null in the moment
+  // between session expiry and redirect; defaulting to ADMIN there matches
+  // the old show-everything behavior for that dying render.
+  const role: StaffRole = user?.role ?? 'ADMIN'
+  const show = (section: DashboardSection) => sectionVisible(role, section)
+
+  // Fetch only what this role's dashboard renders (config/dashboard.ts is
+  // the SSOT for that mapping) — a Jobcoach's dashboard runs the learning
+  // queries and none of the housing ones.
   const [
     residents,
     units,
+    // Occupancy is derived from placements, but the free-beds stat must stay
+    // correct for roles that read housing WITHOUT reading placements
+    // (Sozialarbeit) — so the aggregate count is its own query, gated with
+    // the occupancy section rather than the check-in list.
+    occupiedBeds,
     placements,
     recentIncidents,
     openMaintenanceCount,
+    pendingTransfersRaw,
+    proposalsRaw,
+    learningInProgressCount,
+    learningRecentCompletions,
+    upcomingEventsCount,
   ] = await Promise.all([
-    prisma.resident.findMany({
-      where: { status: { in: ['ACTIVE', 'PLACED'] } },
-      select: { ...RESIDENT_NAME_SELECT, status: true, createdAt: true },
-    }),
-    prisma.housingUnit.findMany({
-      select: { totalBeds: true, status: true },
-    }),
-    prisma.placement.findMany({
-      where: { status: 'ACTIVE' },
-      select: {
-        id: true,
-        startDate: true,
-        resident: {
-          select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
-        },
-        housingUnit: {
-          select: { code: true },
-        },
-        checkIns: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: { createdAt: true },
-        },
-      },
-    }),
-    prisma.incident.findMany({
-      where: {
-        date: { gte: getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays) },
-      },
-      select: {
-        id: true,
-        type: true,
-        category: true,
-        severity: true,
-        date: true,
-        resolvedAt: true,
-        housingUnitId: true,
-        housingUnit: { select: { code: true } },
-      },
-      orderBy: { date: 'desc' },
-    }),
-    prisma.maintenanceRequest.count({
-      where: {
-        status: { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] },
-      },
-    }),
+    show('matching')
+      ? prisma.resident.findMany({
+          where: { status: { in: ['ACTIVE', 'PLACED'] } },
+          select: { ...RESIDENT_NAME_SELECT, status: true, createdAt: true },
+        })
+      : [],
+    show('occupancy')
+      ? prisma.housingUnit.findMany({
+          select: { totalBeds: true, status: true },
+        })
+      : [],
+    show('occupancy') ? prisma.placement.count({ where: { status: 'ACTIVE' } }) : 0,
+    show('checkIns')
+      ? prisma.placement.findMany({
+          where: { status: 'ACTIVE' },
+          select: {
+            id: true,
+            startDate: true,
+            resident: {
+              select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
+            },
+            housingUnit: {
+              select: { code: true },
+            },
+            checkIns: {
+              orderBy: { createdAt: 'desc' },
+              take: 1,
+              select: { createdAt: true },
+            },
+          },
+        })
+      : [],
+    show('incidents')
+      ? prisma.incident.findMany({
+          where: {
+            date: { gte: getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays) },
+          },
+          select: {
+            id: true,
+            type: true,
+            category: true,
+            severity: true,
+            date: true,
+            resolvedAt: true,
+            housingUnitId: true,
+            housingUnit: { select: { code: true } },
+          },
+          orderBy: { date: 'desc' },
+        })
+      : [],
+    show('maintenance')
+      ? prisma.maintenanceRequest.count({
+          where: {
+            status: { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] },
+          },
+        })
+      : 0,
+    show('transferRequests')
+      ? prisma.transferRequest.findMany({
+          where: { status: 'PENDING' },
+          select: {
+            id: true,
+            createdAt: true,
+            resident: { select: RESIDENT_NAME_SELECT },
+            currentPlacement: {
+              select: { housingUnit: { select: { code: true } } },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        })
+      : [],
+    show('proposals') ? getProposalsAwaitingStaff() : [],
+    show('learning')
+      ? prisma.learningRecord.count({ where: { status: 'IN_PROGRESS' } })
+      : 0,
+    show('learning')
+      ? prisma.learningRecord.count({
+          where: {
+            status: 'COMPLETED',
+            completedAt: { gte: getDateDaysAgo(LEARNING_PULSE_WINDOW_DAYS) },
+          },
+        })
+      : 0,
+    show('events')
+      ? prisma.houseEvent.count({
+          where: { status: 'PUBLISHED', startsAt: { gte: now } },
+        })
+      : 0,
   ])
 
   // =============================================================================
@@ -92,8 +159,6 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
-  const occupiedBeds = placements.length
-  const availableUnits = units.filter(u => u.status === 'AVAILABLE').length
 
   // =============================================================================
   // Overdue Check-ins (using config intervals)
@@ -183,11 +248,14 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   // Group incidents by unit and calculate problem score
+  // Element-level type: `typeof recentIncidents` is now a union with the
+  // empty-array branch of the role-gated fetch, and pushing into a union of
+  // arrays collapses to never.
   const unitIncidentMap = new Map<string, {
     code: string
     incidentCount: number
     problemScore: number
-    recentIncidents: typeof recentIncidents
+    recentIncidents: (typeof recentIncidents)[number][]
     unresolvedCount: number
   }>()
 
@@ -227,22 +295,42 @@ export default async function AdminDashboard() {
     .slice(0, DISPLAY_LIMITS.problemUnits)
 
   // =============================================================================
-  // Open Maintenance
+  // Cross-pillar queues (transfers, governance)
   // =============================================================================
+
+  const pendingTransfers = pendingTransfersRaw.map((t) => ({
+    id: t.id,
+    residentCode: t.resident.code,
+    residentDisplayName: t.resident.displayName,
+    unitCode: t.currentPlacement?.housingUnit.code ?? null,
+    daysSinceCreated: daysSinceCeil(t.createdAt, now),
+  }))
+
+  const proposalsAwaitingStaff = proposalsRaw.map((p) => ({
+    id: p.id,
+    title: p.title,
+    unitCode: p.housingUnit.code,
+    daysWaiting: daysSinceCeil(p.decidedAt ?? p.updatedAt, now),
+  }))
 
   return (
     <ActionDashboard
+      role={role}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
-      availableUnits={availableUnits}
       totalPlacements={totalPlacements}
       overdueCheckIns={overdueCheckIns}
       dueSoonCheckIns={dueSoonCheckIns}
       unplacedResidents={unplacedResidents}
       criticalIncidents={criticalIncidents}
       problemUnits={problemUnits}
+      pendingTransfers={pendingTransfers}
+      proposalsAwaitingStaff={proposalsAwaitingStaff}
       conflictFreeDays={conflictFreeDays}
       openMaintenanceCount={openMaintenanceCount}
+      learningInProgressCount={learningInProgressCount}
+      learningRecentCompletions={learningRecentCompletions}
+      upcomingEventsCount={upcomingEventsCount}
       greeting={buildGreeting(DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]], user)}
       todayLabel={formatWeekdayDate(now)}
     />

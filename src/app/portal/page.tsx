@@ -23,6 +23,7 @@ import { getRequestTranslator } from '@/lib/i18n/request'
 import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
 import { CareTeamCard } from '@/components/residents/CareTeamCard'
 import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'
+import { PortalPillarDirectory } from '@/components/portal/PortalPillarDirectory'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -247,6 +248,9 @@ export default async function ResidentPortal() {
         {/* Activities */}
         <PortalActivitiesCard activities={highlightedActivities} />
       </div>
+
+      {/* Every pillar, reachable from home — derived from the nav config. */}
+      <PortalPillarDirectory t={t} />
     </div>
   )
 }

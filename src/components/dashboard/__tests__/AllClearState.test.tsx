@@ -16,6 +16,7 @@ jest.mock('@/lib/constants/labels', () => ({
     allClearBedsReadySuffix: 'Plätze für neue Bewohner bereit.',
     allClearAllOccupied: 'Alle Plätze belegt.',
     allClearBedsFreeSuffix: 'Plätze frei',
+    allClearNoDringend: 'Keine dringenden Aufgaben',
     actionCreateResident: 'Neuen Bewohner erfassen',
     actionViewStats: 'Statistiken ansehen',
     sectionQuickActions: 'Schnellaktionen',
@@ -29,39 +30,63 @@ jest.mock('@/lib/constants/labels', () => ({
 
 // ─── AllClearState ────────────────────────────────────────────────────────────
 
+const CTA = { ctaHref: '/residents/new', ctaLabel: 'Neuen Bewohner erfassen' }
+
 describe('AllClearState', () => {
   it('renders the all-clear title', () => {
-    render(<AllClearState freeBeds={5} conflictFreeDays={10} />)
+    render(<AllClearState freeBeds={5} conflictFreeDays={10} {...CTA} />)
     expect(screen.getByRole('heading', { name: 'Alles unter Kontrolle!' })).toBeInTheDocument()
   })
 
   it('shows conflict-free day count when > 0', () => {
-    render(<AllClearState freeBeds={5} conflictFreeDays={7} />)
+    render(<AllClearState freeBeds={5} conflictFreeDays={7} {...CTA} />)
     expect(screen.getByText(/7 Tage ohne Konflikte/)).toBeInTheDocument()
   })
 
   it('hides conflict-free days when 0', () => {
-    render(<AllClearState freeBeds={5} conflictFreeDays={0} />)
+    render(<AllClearState freeBeds={5} conflictFreeDays={0} {...CTA} />)
     expect(screen.queryByText(/Tage ohne Konflikte/)).not.toBeInTheDocument()
   })
 
   it('shows free beds count and suffix when freeBeds > 0', () => {
-    render(<AllClearState freeBeds={4} conflictFreeDays={0} />)
+    render(<AllClearState freeBeds={4} conflictFreeDays={0} {...CTA} />)
     expect(screen.getByText(/4 Plätze für neue Bewohner bereit/)).toBeInTheDocument()
   })
 
   it('shows "Alle Plätze belegt" when freeBeds === 0', () => {
-    render(<AllClearState freeBeds={0} conflictFreeDays={5} />)
+    render(<AllClearState freeBeds={0} conflictFreeDays={5} {...CTA} />)
     expect(screen.getByText(/Alle Plätze belegt/)).toBeInTheDocument()
   })
 
-  it('links "Neuen Bewohner erfassen" to /residents/new', () => {
-    render(<AllClearState freeBeds={2} conflictFreeDays={3} />)
+  it('links the CTA to the given href', () => {
+    render(<AllClearState freeBeds={2} conflictFreeDays={3} {...CTA} />)
     expect(screen.getByRole('link', { name: 'Neuen Bewohner erfassen' })).toHaveAttribute('href', '/residents/new')
   })
 
+  it('renders a role-specific CTA when given one', () => {
+    render(
+      <AllClearState
+        freeBeds={null}
+        conflictFreeDays={null}
+        ctaHref="/learning?board=overview"
+        ctaLabel="Lernen & Kurse öffnen"
+      />
+    )
+    expect(screen.getByRole('link', { name: 'Lernen & Kurse öffnen' })).toHaveAttribute(
+      'href',
+      '/learning?board=overview'
+    )
+  })
+
+  it('says nothing about beds or conflicts when both sections are hidden (null)', () => {
+    render(<AllClearState freeBeds={null} conflictFreeDays={null} {...CTA} />)
+    expect(screen.queryByText(/Plätze/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Konflikte/)).not.toBeInTheDocument()
+    expect(screen.getByText('Keine dringenden Aufgaben')).toBeInTheDocument()
+  })
+
   it('does not render a secondary analytics CTA in the all-clear state', () => {
-    render(<AllClearState freeBeds={2} conflictFreeDays={3} />)
+    render(<AllClearState freeBeds={2} conflictFreeDays={3} {...CTA} />)
     expect(screen.queryByRole('link', { name: 'Statistiken ansehen' })).not.toBeInTheDocument()
   })
 })

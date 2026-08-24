@@ -301,6 +301,7 @@ export const de = {
   // Portal dashboard
   'dashboard.welcome': 'Willkommen zurück',
   'dashboard.subtitle': 'Hier siehst du, wie es in deiner Unterkunft läuft.',
+  'dashboard.allAreas': 'Alle Bereiche',
   'dashboard.housing': 'Unterkunft',
   'dashboard.active': 'Aktiv',
   'dashboard.moveIn': 'Einzug',

@@ -2,19 +2,21 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight } from 'lucide-react'
+import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight, Vote } from 'lucide-react'
 import { URGENCY_BADGE_CLASS, URGENCY_BORDER_CLASS, type Urgency } from '@/lib/config/urgency'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
+import { fallbackCta } from '@/lib/config/dashboard'
+import type { StaffRole } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { residentName } from '@/lib/utils/resident-name'
-import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit } from './types'
+import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit, ProposalAwaitingStaff } from './types'
 
 // =============================================================================
 // Types
 // =============================================================================
 
 export interface PrimaryActionType {
-  type: 'critical' | 'checkin' | 'place' | 'problem' | 'allclear'
+  type: 'critical' | 'checkin' | 'proposal' | 'place' | 'problem' | 'allclear'
   title: string
   description: string
   href: string
@@ -32,12 +34,16 @@ export function determinePrimaryAction({
   unplacedResidents,
   freeBeds,
   problemUnits,
+  proposalsAwaitingStaff,
+  role,
 }: {
   criticalIncidents: CriticalIncident[]
   overdueCheckIns: OverdueCheckIn[]
   unplacedResidents: UnplacedResident[]
   freeBeds: number
   problemUnits: ProblemUnit[]
+  proposalsAwaitingStaff: ProposalAwaitingStaff[]
+  role: StaffRole
 }): PrimaryActionType {
   // Priority 1: Critical incidents
   if (criticalIncidents.length > 0) {
@@ -64,7 +70,22 @@ export function determinePrimaryAction({
     }
   }
 
-  // Priority 3: Unplaced residents with available beds
+  // Priority 3: Proposals awaiting a staff answer. A whole household voted
+  // and is now blocked on the Betreuung — leaving that hanging teaches
+  // residents that participation goes nowhere.
+  if (proposalsAwaitingStaff.length > 0) {
+    const top = proposalsAwaitingStaff[0]
+    return {
+      type: 'proposal',
+      title: DASHBOARD_LABELS.heroProposalsTitle(proposalsAwaitingStaff.length),
+      description: `«${top.title}» · ${top.unitCode}`,
+      href: '/rules',
+      buttonText: DASHBOARD_LABELS.heroReviewProposals,
+      count: proposalsAwaitingStaff.length,
+    }
+  }
+
+  // Priority 4: Unplaced residents with available beds
   if (unplacedResidents.length > 0 && freeBeds > 0) {
     return {
       type: 'place',
@@ -76,7 +97,7 @@ export function determinePrimaryAction({
     }
   }
 
-  // Priority 4: Problem units with unresolved incidents
+  // Priority 5: Problem units with unresolved incidents
   const unitsWithUnresolved = problemUnits.filter(u => u.unresolvedCount > 0)
   if (unitsWithUnresolved.length > 0) {
     const topUnit = unitsWithUnresolved[0]
@@ -90,7 +111,7 @@ export function determinePrimaryAction({
     }
   }
 
-  // Priority 5: Regular overdue check-ins
+  // Priority 6: Regular overdue check-ins
   if (overdueCheckIns.length > 0) {
     return {
       type: 'checkin',
@@ -102,7 +123,7 @@ export function determinePrimaryAction({
     }
   }
 
-  // Priority 6: Problem units (all resolved but worth monitoring)
+  // Priority 7: Problem units (all resolved but worth monitoring)
   if (problemUnits.length > 0) {
     return {
       type: 'problem',
@@ -114,13 +135,15 @@ export function determinePrimaryAction({
     }
   }
 
-  // All clear!
+  // All clear! Offer the first action this role may actually perform —
+  // /residents/new is a 403 for a Jobcoach. @see lib/config/dashboard.ts
+  const cta = fallbackCta(role)
   return {
     type: 'allclear',
     title: DASHBOARD_LABELS.allClearAllDone,
     description: DASHBOARD_LABELS.allClearNoDringend,
-    href: '/residents/new',
-    buttonText: DASHBOARD_LABELS.actionCreateResident,
+    href: cta.href,
+    buttonText: DASHBOARD_LABELS[cta.labelKey],
   }
 }
 
@@ -132,6 +155,7 @@ export function determinePrimaryAction({
 const HERO_URGENCY: Record<PrimaryActionType['type'], Urgency> = {
   critical: 'critical',
   checkin: 'attention',
+  proposal: 'attention',
   place: 'neutral',
   problem: 'attention',
   allclear: 'ok',
@@ -141,6 +165,7 @@ export function HeroAction({ action }: { action: PrimaryActionType }) {
   const icons = {
     critical: AlertTriangle,
     checkin: Hand,
+    proposal: Vote,
     place: Home,
     problem: AlertCircle,
     allclear: Sparkles,
