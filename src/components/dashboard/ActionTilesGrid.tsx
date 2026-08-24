@@ -30,8 +30,15 @@ export function ActionTile({ title, count, description, href, urgency, items, al
         <div>
           {/* Stays a heading: this is a section of the page, and screen-reader
               users navigate the dashboard by its headings. */}
+          {/* The heading IS the tile's primary link — measured at 20px tall on
+              a 390px screen, less than half the 44px floor, on the dashboard
+              tiles that name the day's work. inline-flex + min-h lifts the hit
+              area without changing the type or the row's alignment. */}
           <h3 className="font-semibold text-ui-text">
-            <Link href={href} className="hover:text-brand-primary transition-colors">
+            <Link
+              href={href}
+              className="inline-flex items-center min-h-[44px] hover:text-brand-primary transition-colors"
+            >
               {title}
             </Link>
           </h3>

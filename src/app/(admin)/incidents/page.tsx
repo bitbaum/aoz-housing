@@ -115,8 +115,29 @@ export default async function IncidentsListPage({ searchParams }: Props) {
 
   // Tab counts reflect the active status filter
   const tabTotal = statusFilter === 'open' ? stats.open : stats.total
-  const tabInterpersonal = statusFilter === 'open' ? stats.openInterpersonal : stats.interpersonal
-  const tabSafety = statusFilter === 'open' ? stats.openSafety : stats.safety
+
+  /**
+   * One tab per category that actually HAS incidents, derived from the counts
+   * rather than a hardcoded pair.
+   *
+   * Only Zwischenmenschlich and Sicherheit had tabs, so rows in any other
+   * category — Wartung and Wohlbefinden — were counted in "Alle" and in the
+   * total, but no filter could isolate them: present in the arithmetic,
+   * unreachable in the UI. Deriving the tabs means a Wartung tab appears only
+   * when such rows exist, and then it is itself the signal that they are on
+   * the wrong desk (a broken appliance belongs on /maintenance, which is why
+   * portal reports route there — see lib/reports/routing.ts).
+   */
+  const categoryTabs = Object.keys(INCIDENT_CATEGORY_LABELS)
+    .filter((category) => (categoryCounts[category] ?? 0) > 0)
+    .map((category) => ({
+      category,
+      label: INCIDENT_CATEGORY_LABELS[category],
+      count:
+        statusFilter === 'open'
+          ? (openCategoryCounts[category] ?? 0)
+          : (categoryCounts[category] ?? 0),
+    }))
 
   // Build query suffix to preserve status filter across tab links
   const statusQS = statusFilter !== 'all' ? `&status=${statusFilter}` : ''
@@ -196,18 +217,15 @@ export default async function IncidentsListPage({ searchParams }: Props) {
             count={tabTotal}
             active={categoryFilter === 'all'}
           />
-          <TabLink
-            href={`/incidents?category=INTERPERSONAL${statusQS}`}
-            label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL}
-            count={tabInterpersonal}
-            active={categoryFilter === 'INTERPERSONAL'}
-          />
-          <TabLink
-            href={`/incidents?category=SAFETY${statusQS}`}
-            label={INCIDENT_CATEGORY_LABELS.SAFETY}
-            count={tabSafety}
-            active={categoryFilter === 'SAFETY'}
-          />
+          {categoryTabs.map((tab) => (
+            <TabLink
+              key={tab.category}
+              href={`/incidents?category=${tab.category}${statusQS}`}
+              label={tab.label}
+              count={tab.count}
+              active={categoryFilter === tab.category}
+            />
+          ))}
         </TabLinkGroup>
       </div>
 
