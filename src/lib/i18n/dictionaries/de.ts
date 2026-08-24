@@ -461,7 +461,10 @@ export const de = {
   'housingBrowse.wheelchairAccess': 'Rollstuhlgerecht',
   'pendingChores.requestOpen': 'Anfrage offen',
   'pendingChores.title': 'Offene Aufgaben',
-  'portal.title': 'Mein Zuhause',
+  // Two registers, one decision: the brand picks the key (Brand.portalTitleKey).
+  // Neutral for an AOZ Unterkunft, household wording for a shared flat.
+  'portal.title': 'Mein Bereich',
+  'portal.titleHousehold': 'Mein Zuhause',
   'preferences.confirmDiscard': 'Änderungen verwerfen?',
   'preferences.confirmDiscardBody': 'Nicht gespeicherte Eingaben gehen verloren.',
   'preferences.confirmDiscardConfirm': 'Verwerfen',

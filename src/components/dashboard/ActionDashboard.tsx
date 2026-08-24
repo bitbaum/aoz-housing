@@ -207,7 +207,7 @@ export function ActionDashboard({
             label={DASHBOARD_LABELS.statLearning}
             value={learningInProgressCount}
             suffix={` ${DASHBOARD_LABELS.statRunningSuffix}`}
-            href="/learning?board=overview"
+            href="/learning"
             urgency="neutral"
             icon={<GraduationCap className="w-5 h-5" />}
             subtext={DASHBOARD_LABELS.statLearningCompletions(learningRecentCompletions)}

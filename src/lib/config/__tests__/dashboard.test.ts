@@ -74,8 +74,8 @@ describe('fallbackCta', () => {
   })
 
   it('offers learning to coaching roles without residents:write', () => {
-    expect(fallbackCta('JOBCOACH').href).toBe('/learning?board=overview')
-    expect(fallbackCta('FREIWILLIGENARBEIT').href).toBe('/learning?board=overview')
+    expect(fallbackCta('JOBCOACH').href).toBe('/learning')
+    expect(fallbackCta('FREIWILLIGENARBEIT').href).toBe('/learning')
   })
 
   it('final fallback is gated on a permission every role holds', () => {

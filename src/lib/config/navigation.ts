@@ -137,7 +137,9 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     // BETREUUNG sees all three; JOBCOACH and SOZIALARBEIT see only /residents.
     label: 'Klient*innen',
     items: [
-      { href: '/residents', icon: 'users', label: 'Klient*innen', desc: 'Übersicht & Karten-Board', permission: 'residents:read' },
+      // "Alle …", not "Klient*innen" again: an item whose label repeats its own
+      // group reads as a broken menu, and gives the reader nothing to choose by.
+      { href: '/residents', icon: 'users', label: 'Alle Klient*innen', desc: 'Übersicht & Karten-Board', permission: 'residents:read' },
       { href: '/residents/new', icon: 'user-plus', label: 'Neue*r Klient*in', desc: 'Person erfassen', permission: 'residents:write' },
       { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Passende Unterkunft finden', permission: 'placements:write' },
     ],
@@ -172,16 +174,15 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
     ],
   },
-  {
-    // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain.
-    // Jobcoach only sees these; Freiwilligenarbeit primarily uses this group.
-    label: 'Integration',
-    items: [
-      { href: '/learning?board=overview', icon: 'learning', label: 'Lernen & Sprache', desc: 'Kurse, Tests und alle Nachweise', permission: 'learning:read' },
-      { href: '/learning?board=job', icon: 'learning', label: 'Beruf & Qualifikation', desc: 'Jobcoach-Board für Sprache, Kurse und Abschlüsse', permission: 'learning:read' },
-      { href: '/learning?board=volunteering', icon: 'volunteer', label: 'Freiwilligenarbeit', desc: 'Engagement und Gemeindeeinsätze', permission: 'learning:read' },
-    ],
-  },
+  // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain, and
+  // ONE destination. This was a three-item dropdown whose entries were
+  // `/learning?board=overview`, `?board=job` and `?board=volunteering`: the
+  // same page three times, competing with the board switcher that page already
+  // renders. Two controls for one choice means the menu and the page can
+  // disagree about where you are, and picking "Beruf" in the menu looked like
+  // navigating somewhere new when it only moved a tab. The page owns its
+  // boards; the nav owns the destination.
+  { href: '/learning', icon: 'learning', label: 'Lernen & Beruf', permission: 'learning:read' },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
   { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
 ]

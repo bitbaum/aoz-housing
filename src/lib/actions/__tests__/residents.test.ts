@@ -270,7 +270,7 @@ describe('hardDeleteResidentProtected', () => {
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
     expect(result.success).toBe(false)
-    expect(result.error).toContain('Test-/Demo-Bewohner')
+    expect(result.error).toContain('Test-/Demo-Klient*innen')
   })
 
   it('returns error with blocker report when resident has linked history', async () => {

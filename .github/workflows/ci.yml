@@ -134,10 +134,16 @@ jobs:
           DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
           DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
 
+      # Through the npm scripts, never `npx ts-node prisma/…` directly: the
+      # seed imports the product's compatibility algorithm by its `@/` alias,
+      # and only the scripts carry `-r tsconfig-paths/register`. Invoking
+      # ts-node here by hand was a second definition of "how to seed", and it
+      # broke the moment the seed stopped re-implementing the algorithm.
+      # Guarded by src/lib/__tests__/scoring-ssot.test.ts.
       - name: Seed E2E data
         run: |
-          npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed.ts
-          npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+          npm run prisma:seed
+          npm run prisma:seed:admin
         env:
           DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
           DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"

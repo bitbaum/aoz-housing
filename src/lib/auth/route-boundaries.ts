@@ -3,18 +3,37 @@
  * Kept framework-agnostic for easy testing.
  */
 
-// Routes that require staff authentication
+// Routes that require staff authentication.
+//
+// This list must cover EVERY page under `src/app/(admin)/`. It had drifted to
+// eleven of nineteen: /rules, /learning, /marketplace, /events, /activities,
+// /settings, /algorithm and /ai-assistant were reachable through middleware
+// and stopped one layer later by the admin layout. Nothing leaked — the
+// layout and every API route guard themselves — but a declared boundary that
+// does not match the enforced one is how the /algorithm mismatch survived for
+// months, and reading this list told you the wrong thing about the app.
+//
+// `route-boundaries.test.ts` now derives the expected set from the filesystem,
+// so a new admin page fails the suite until it is listed here.
 export const STAFF_ROUTES = [
   '/',
-  '/residents',
-  '/housing',
-  '/placements',
-  '/incidents',
-  '/maintenance',
-  '/matching',
+  '/activities',
+  '/ai-assistant',
+  '/algorithm',
   '/analytics',
   '/chores',
+  '/events',
+  '/housing',
+  '/incidents',
+  '/learning',
+  '/maintenance',
+  '/marketplace',
+  '/matching',
   '/messages',
+  '/placements',
+  '/residents',
+  '/rules',
+  '/settings',
   '/transfer-requests',
   '/api/messages',
   '/api/export',
@@ -96,16 +115,30 @@ export type RootDestination =
   | { kind: 'redirect'; to: string }
   | { kind: 'rewrite'; to: string }
 
+/**
+ * The parameter is `hasVALIDStaffSession`, not `hasStaffSession`, and the
+ * difference is the whole bug it was written to end.
+ *
+ * This used to be answered from cookie PRESENCE. A staff cookie that had
+ * expired — or been signed with a secret that has since rotated — still sent
+ * `/` to the dashboard, the dashboard bounced to /login, and the landing page
+ * became permanently unreachable for that browser: every visit repeated the
+ * loop, because nothing ever cleared the dead credential. The product's own
+ * address answered "you are not welcome yet" to someone who had simply been
+ * away too long, and no amount of navigating could escape it.
+ *
+ * Presence is not a session. The caller must verify before asking.
+ */
 export function destinationForRoot({
-  hasStaffSession,
+  hasValidStaffSession,
   hasResidentSession,
 }: {
-  hasStaffSession: boolean
+  hasValidStaffSession: boolean
   hasResidentSession: boolean
 }): RootDestination {
   // Staff wins when someone holds both: it is the bigger surface, and the nav
   // offers the switch. Same rule as `establishSessions()` uses at login.
-  if (hasStaffSession) return { kind: 'staff-dashboard' }
+  if (hasValidStaffSession) return { kind: 'staff-dashboard' }
   if (hasResidentSession) return { kind: 'redirect', to: '/portal' }
   return { kind: 'rewrite', to: LANDING_ROUTE }
 }

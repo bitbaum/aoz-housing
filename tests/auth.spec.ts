@@ -48,7 +48,14 @@ test.describe('Authentication flow', () => {
     await openCodeLoginForm(page)
 
     await expect(page.locator('#code')).toBeVisible()
-    await expect(page.locator('#code')).toHaveAttribute('placeholder', /AOZ-|RES-|WG-/)
+    // Both prefixes from the brand SSOT, never a hardcoded /AOZ-|RES-|WG-/
+    // alternation: that list silently stopped describing the product the day
+    // the client prefix moved into the brand config, and a test that pins
+    // literals is the same drift it is supposed to catch.
+    await expect(page.locator('#code')).toHaveAttribute(
+      'placeholder',
+      new RegExp(`${BRAND.codePrefix}.*${BRAND.residentCodePrefix}`)
+    )
   })
 
   test('rejects login with invalid code', async ({ page }) => {

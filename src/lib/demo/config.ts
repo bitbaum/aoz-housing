@@ -18,6 +18,9 @@
  * through ts-node, which does not resolve tsconfig path aliases.
  */
 
+// Relative on purpose — see the note above about ts-node and path aliases.
+import { ALL_RESIDENT_CODE_PREFIXES, RESIDENT_CODE_PREFIX } from '../auth/code-prefixes'
+
 /** Master switch — server-side. The login page asks GET /api/auth/demo. */
 export function isDemoEnabled(): boolean {
   return process.env.DEMO_ACCESS_ENABLED === 'true'
@@ -47,8 +50,23 @@ export const DEMO_STAFF_NAME = 'Demo-Zugang'
  * Every fictional resident in the demo world gets a code with this prefix,
  * so the scoped reset can always find them for deletion — even after a
  * visitor edited their profiles.
+ *
+ * Derived from the brand's client prefix rather than hardcoded, so demo codes
+ * speak the same register as real ones.
  */
-export const DEMO_RESIDENT_CODE_PREFIX = 'RES-DEMO'
+export const DEMO_RESIDENT_CODE_PREFIX = `${RESIDENT_CODE_PREFIX}DEMO`
+
+/**
+ * Demo prefixes under EVERY client prefix the product has ever issued.
+ *
+ * The reset deletes by prefix. If it matched only today's prefix, demo rows
+ * seeded under a previous one would survive every reset — invisible, never
+ * cleaned, and on a `unit`-scope instance sitting next to real data forever.
+ * A cleanup that silently stops covering old rows is worse than no cleanup,
+ * because the summary still says it succeeded.
+ */
+export const ALL_DEMO_RESIDENT_CODE_PREFIXES: readonly string[] =
+  ALL_RESIDENT_CODE_PREFIXES.map((prefix) => `${prefix}DEMO`)
 
 /**
  * Every demo housing unit's code carries this prefix. It is what makes the

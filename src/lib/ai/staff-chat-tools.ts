@@ -28,7 +28,7 @@ export const STAFF_CHAT_TOOLS = [
     function: {
       name: 'get_dashboard_stats',
       description:
-        'Gibt aktuelle Systemstatistiken zurück: Bewohnerzahlen, Belegungsrate, offene Vorfälle, ausstehende Verlegungen.',
+        'Gibt aktuelle Systemstatistiken zurück: Klient*innen-Zahlen, Belegungsrate, offene Vorfälle, ausstehende Verlegungen.',
       parameters: { type: 'object', properties: {}, required: [] },
     },
   },
@@ -37,11 +37,11 @@ export const STAFF_CHAT_TOOLS = [
     function: {
       name: 'search_residents',
       description:
-        'Sucht Bewohner nach Code oder Status. Gibt Code, Status, Sprachen und aktuelle Unterkunft zurück.',
+        'Sucht Klient*innen nach Code oder Status. Gibt Code, Status, Sprachen und aktuelle Unterkunft zurück.',
       parameters: {
         type: 'object',
         properties: {
-          code: { type: 'string', description: 'Bewohnercode oder Teilstring (z.B. "RES-A")' },
+          code: { type: 'string', description: 'Klient*innen-Code oder Teilstring (z.B. "RES-A")' },
           status: {
             type: 'string',
             enum: ['ACTIVE', 'PLACED', 'TRANSFERRED', 'EXITED'],

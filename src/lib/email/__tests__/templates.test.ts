@@ -168,7 +168,7 @@ describe('checkInReminder', () => {
 
   test('html contains table headers', () => {
     const result = checkInReminder(overdueResidents)
-    expect(result.html).toContain('Bewohner')
+    expect(result.html).toContain('Klient*in')
     expect(result.html).toContain('Betreuungsstufe')
     expect(result.html).toContain('Letzter Check-in')
   })
@@ -176,7 +176,7 @@ describe('checkInReminder', () => {
   test('handles empty array', () => {
     const result = checkInReminder([])
     expect(result.subject).toBe(`[${BRAND.productName}] 0 Check-ins überfällig`)
-    expect(result.html).toContain('0 Bewohner')
+    expect(result.html).toContain('0 Klient*innen')
   })
 })
 

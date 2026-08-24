@@ -137,7 +137,7 @@ export function residentIntakeInitialValues(
 
 export const RESIDENT_INTAKE_FORM: FormTarget = {
   key: 'resident-intake',
-  name: 'Bewohner-Aufnahme',
+  name: 'Klient*innen-Aufnahme',
   fields: RESIDENT_INTAKE_FIELDS,
   instructions: [
     'Die Eingabe sind die Notizen einer Fallarbeiterin oder eines Fallarbeiters aus einem Aufnahmegespräch. Übertrage nur, was dort tatsächlich steht.',

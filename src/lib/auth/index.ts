@@ -10,7 +10,7 @@ import { cookies } from 'next/headers'
 import { prisma } from '@/lib/db'
 import { AUTH_CONFIG } from './config'
 import { RESIDENT_COOKIE } from '@/lib/portal-auth'
-import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
+import { ALL_RESIDENT_CODE_PREFIXES, RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from './jwt'
 import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
 import { canRoleAccess, hasPermission, type StaffPermission, type StaffRole } from './role-policy'
@@ -233,7 +233,11 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     }
   }
 
-  if (code.startsWith(RESIDENT_CODE_PREFIX)) {
+  // EVERY prefix ever issued, not just this brand's. Matching on the active
+  // prefix alone would stop routing `RES-` codes to the resident table the day
+  // the brand's prefix changed — locking out every resident holding a code
+  // printed before the rebrand, with a "Ungültiger Code" that is a lie.
+  if (ALL_RESIDENT_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
     // Resident login
     const resident = await prisma.resident.findUnique({
       where: { code },

@@ -61,7 +61,7 @@ export const DASHBOARD_FALLBACK_CTAS: readonly {
   labelKey: 'actionCreateResident' | 'actionOpenLearning' | 'actionViewStats'
 }[] = [
   { permission: 'residents:write', href: '/residents/new', labelKey: 'actionCreateResident' },
-  { permission: 'learning:write', href: '/learning?board=overview', labelKey: 'actionOpenLearning' },
+  { permission: 'learning:write', href: '/learning', labelKey: 'actionOpenLearning' },
   { permission: 'dashboard:read', href: '/analytics', labelKey: 'actionViewStats' },
 ]
 

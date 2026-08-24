@@ -66,16 +66,30 @@ export async function middleware(request: NextRequest) {
   // dashboard below, and a resident goes to the portal, because someone who
   // lives here does not need to be sold the product they already use.
   if (pathname === '/') {
+    // VERIFY, don't just look. A cookie that exists but no longer verifies —
+    // expired, or signed with a rotated secret — used to route `/` to the
+    // dashboard, which bounced to /login, and because nothing ever cleared the
+    // dead cookie the landing page stayed unreachable for that browser for
+    // good. So the token is checked here, and a dead one is deleted on the way
+    // out: the next request is a clean anonymous visit instead of the same
+    // loop.
+    const staffToken = request.cookies.get(STAFF_COOKIE)?.value
+    const staffTokenValid = staffToken ? (await verifyStaffToken(staffToken)).valid : false
+    const staffCookieIsDead = !!staffToken && !staffTokenValid
+
     const destination = destinationForRoot({
-      hasStaffSession: !!request.cookies.get(STAFF_COOKIE)?.value,
+      hasValidStaffSession: staffTokenValid,
       hasResidentSession: !!request.cookies.get(RESIDENT_COOKIE)?.value,
     })
 
-    if (destination.kind === 'redirect') {
-      return NextResponse.redirect(new URL(destination.to, publicOrigin(request)))
-    }
-    if (destination.kind === 'rewrite') {
-      return NextResponse.rewrite(new URL(destination.to, publicOrigin(request)))
+    if (destination.kind !== 'staff-dashboard') {
+      const target = new URL(destination.to, publicOrigin(request))
+      const response =
+        destination.kind === 'redirect'
+          ? NextResponse.redirect(target)
+          : NextResponse.rewrite(target)
+      if (staffCookieIsDead) response.cookies.delete(STAFF_COOKIE)
+      return response
     }
     // 'staff-dashboard' falls through to the staff auth check below.
   }

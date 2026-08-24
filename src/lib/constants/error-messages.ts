@@ -53,14 +53,14 @@ export const ERROR_MESSAGES = {
   TRANSFER_ERROR: 'Fehler bei der Verlegung',
 
   // ─── Resident ──────────────────────────────────────────────────
-  RESIDENT_NOT_FOUND: 'Bewohner nicht gefunden',
+  RESIDENT_NOT_FOUND: 'Klient*in nicht gefunden',
   /** With trailing period — used inside matching transaction */
-  RESIDENT_NOT_FOUND_P: 'Bewohner nicht gefunden.',
-  RESIDENT_CREATE_ERROR: 'Fehler beim Erstellen des Bewohners',
-  RESIDENT_UPDATE_ERROR: 'Fehler beim Aktualisieren des Bewohners',
-  RESIDENT_HAS_ACTIVE_PLACEMENT: 'Bewohner hat bereits eine aktive Platzierung',
-  RESIDENT_HAS_ACTIVE_PLACEMENTS: 'Bewohner hat noch aktive Platzierungen. Bitte zuerst beenden.',
-  RESIDENT_ALREADY_PLACED: 'Bewohner ist bereits platziert.',
+  RESIDENT_NOT_FOUND_P: 'Klient*in nicht gefunden.',
+  RESIDENT_CREATE_ERROR: 'Fehler beim Erstellen der Klient*in',
+  RESIDENT_UPDATE_ERROR: 'Fehler beim Aktualisieren der Klient*in',
+  RESIDENT_HAS_ACTIVE_PLACEMENT: 'Klient*in hat bereits eine aktive Platzierung',
+  RESIDENT_HAS_ACTIVE_PLACEMENTS: 'Klient*in hat noch aktive Platzierungen. Bitte zuerst beenden.',
+  RESIDENT_ALREADY_PLACED: 'Klient*in ist bereits platziert.',
   RESIDENT_ARCHIVE_BLOCKED: 'Archivieren nicht möglich: aktive Platzierung vorhanden',
   RESIDENT_CODE_EXISTS: 'Code ist bereits vergeben',
 
