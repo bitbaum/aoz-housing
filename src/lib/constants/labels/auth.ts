@@ -16,8 +16,13 @@ export const LOGIN_LABELS = {
   /** The way out of the login page. It had none: every account page was a
    *  dead end, so anyone who reached /login could no longer get to the site. */
   backToHome: 'Zurück zur Startseite',
-  /** Names who each door is for, so nobody guesses which field is theirs. */
-  audienceHint: 'Für Fachpersonen und Klient*innen — ein Login, beide Rollen.',
+  /**
+   * Names who each door is for, so nobody guesses which field is theirs.
+   * Reads the register from the brand: hardcoding "Klient*innen" here put AOZ
+   * casework language on the shared-flat deployment, in the same change that
+   * added the config to stop exactly that.
+   */
+  audienceHint: `Für Fachpersonen und ${BRAND.clientTermPlural} — ein Login, beide Rollen.`,
   title: 'Anmelden',
   subtitle: 'Mit E-Mail und Passwort anmelden',
   email: 'E-Mail',
