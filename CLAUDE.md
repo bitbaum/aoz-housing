@@ -10,7 +10,7 @@ last_modified_summary: Updated the public product/domain naming while preserving
 
 ## Where this runs (read before touching the database)
 
-The live product is **https://aoz.orangecat.ch** on the Hetzner box
+The live product is **https://aoz-wohnen.orangecat.ch** on the Hetzner box
 **bitbaum** (`root@167.233.22.31`). App: `/opt/aoz-wohnen/`. Unit:
 `aoz-wohnen-app.service`. Database: **PostgreSQL on that box**,
 `127.0.0.1:5432`, name **`aoz_wohnen`**. Credentials SSOT:
@@ -225,17 +225,30 @@ ssh root@167.233.22.31 \
 gh workflow run deploy.yml -R maonakamoto/aoz-housing
 
 # 3. confirm what a user actually sees
-curl -s https://aoz.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
+curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
 ```
 
-- **SSOT**: `src/lib/config/brand.ts`. Six fields, each with a direct visible
-  effect: `shortName` (product compound copy), `codePrefix`, `productName`,
-  `tagline`, `metaDescription`, and **`orgName` — the rule-issuing
+- **SSOT**: `src/lib/config/brand.ts`. Every field has a direct visible
+  effect: `shortName` (product compound copy), `codePrefix`,
+  **`residentCodePrefix`** (NEW client codes — AOZ issues `KL-`, WG `MB-`),
+  **`clientTerm` / `clientTermPlural`** (what this register calls the person —
+  gender star, never a colon), `productName` (**the wordmark reads this; never
+  hardcode the product word in `Logo.tsx` again**), **`portalName` /
+  `portalTitleKey`** (the portal is "Mein Bereich" in the AOZ register and
+  "Mein Zuhause" only in a real WG — the software does not get to tell someone
+  their temporary accommodation is home), `tagline`, `metaDescription`, and
+  **`orgName` — the rule-issuing
   organization, distinct from the product**: the WG-branded product runs under
   AOZ's rule catalog, so ALL governance copy ("AOZ-Regel", "AOZ-Thema", org
   contact info) reads `orgName`, never `shortName`. A config field you can set
   with no visible effect is a trap; don't add speculative ones.
   `APP_LABELS`/`LOGIN_LABELS` derive from `BRAND` — never restate brand copy.
+- **`ALL_RESIDENT_CODE_PREFIXES`** is the client-side twin, and it carries
+  `LEGACY_RESIDENT_CODE_PREFIXES = ['RES-']` forever: every code in every live
+  database starts with `RES-`, printed on paper and handed to a person. Login,
+  registration, log redaction and the demo reset all match the FULL list;
+  only code GENERATION reads `BRAND.residentCodePrefix`. Matching the active
+  prefix alone would answer "Ungültiger Code" to every existing resident.
 - **`ALL_CODE_PREFIXES`** is the list of every prefix any brand has ever
   issued. Anything that must recognise codes *across* a rebrand — log
   redaction, code parsing — reads that, never `BRAND.codePrefix`. Codes outlive
@@ -748,7 +761,7 @@ profiles.
 once — never committed). `--wipe` converts a demo instance in place. A real
 instance must run with `DEMO_ACCESS_ENABLED=false` and the reset timer
 disabled — the daily demo reset would truncate real data. The production
-instance `aoz.orangecat.ch` runs in REAL mode since 2026-08-13
+instance `aoz-wohnen.orangecat.ch` runs in REAL mode since 2026-08-13
 (Witikonerstrasse 458); the demo remains fully env-switchable for a future
 dedicated demo deployment.
 
