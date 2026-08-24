@@ -95,6 +95,24 @@ export interface Brand {
    * prefix ever issued stays valid — see `ALL_RESIDENT_CODE_PREFIXES`.
    */
   residentCodePrefix: string
+  /**
+   * What this register calls the person the product serves, singular.
+   *
+   * The companion to `residentCodePrefix`: same decision, other half. Without
+   * it the login page offered "Als Bewohner:in ausprobieren" — a third
+   * gendering convention (colon) beside the product's gender star, naming a
+   * role ("Bewohner") that the staff side had already stopped using.
+   *
+   * Swiss German gender star throughout; never the colon or the interpunct.
+   */
+  clientTerm: string
+  /**
+   * The same word, plural. German plurals of gender-star forms are not
+   * derivable from the singular by rule (Klient*in → Klient*innen, but
+   * Mitbewohner*in → Mitbewohner*innen), and inferring one with a conditional
+   * on the singular's value is the hardcoding this config exists to remove.
+   */
+  clientTermPlural: string
   /** Product name in the chrome, login page and page titles. */
   productName: string
   /**
@@ -146,6 +164,8 @@ export const BRANDS: Record<BrandId, Brand> = {
     shortName: 'AOZ',
     codePrefix: 'AOZ-',
     residentCodePrefix: 'KL-',
+    clientTerm: 'Klient*in',
+    clientTermPlural: 'Klient*innen',
     productName: 'AOZ Begleitung',
     portalName: 'Mein Bereich',
     portalTitleKey: 'portal.title',
@@ -163,6 +183,8 @@ export const BRANDS: Record<BrandId, Brand> = {
     shortName: 'AOZH',
     codePrefix: 'AOZH-',
     residentCodePrefix: 'KL-',
+    clientTerm: 'Klient*in',
+    clientTermPlural: 'Klient*innen',
     productName: 'AOZH Begleitung',
     portalName: 'Mein Bereich',
     portalTitleKey: 'portal.title',
@@ -180,6 +202,8 @@ export const BRANDS: Record<BrandId, Brand> = {
     shortName: 'WG',
     codePrefix: 'WG-',
     residentCodePrefix: 'MB-',
+    clientTerm: 'Mitbewohner*in',
+    clientTermPlural: 'Mitbewohner*innen',
     productName: 'WG Zuhause',
     portalName: 'Mein Zuhause',
     portalTitleKey: 'portal.titleHousehold',

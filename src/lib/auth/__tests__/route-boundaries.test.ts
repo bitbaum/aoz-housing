@@ -1,3 +1,5 @@
+import { readdirSync } from 'fs'
+import { join } from 'path'
 import {
   isPublicRoute,
   requiresResidentAuth,
@@ -5,6 +7,32 @@ import {
   destinationForRoot,
   LANDING_ROUTE,
 } from '@/lib/auth/route-boundaries'
+
+describe('the declared boundary matches the app on disk', () => {
+  /**
+   * Derived from the filesystem, never hand-listed — a hand-listed expectation
+   * drifts exactly like the thing it is supposed to guard. STAFF_ROUTES had
+   * fallen to eleven of nineteen admin pages this way.
+   */
+  const adminPages = readdirSync(join(__dirname, '..', '..', '..', 'app', '(admin)'), {
+    withFileTypes: true,
+  })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => `/${entry.name}`)
+
+  it('finds the admin route group', () => {
+    // Guards the guard: a wrong path would make every assertion below vacuous.
+    expect(adminPages.length).toBeGreaterThan(10)
+  })
+
+  it.each(adminPages)('requires staff auth for %s', (route) => {
+    expect(requiresStaffAuth(route)).toBe(true)
+  })
+
+  it.each(adminPages)('does not treat %s as public', (route) => {
+    expect(isPublicRoute(route)).toBe(false)
+  })
+})
 
 describe('auth route boundaries', () => {
   test('public routes are public', () => {

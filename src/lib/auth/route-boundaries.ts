@@ -3,18 +3,37 @@
  * Kept framework-agnostic for easy testing.
  */
 
-// Routes that require staff authentication
+// Routes that require staff authentication.
+//
+// This list must cover EVERY page under `src/app/(admin)/`. It had drifted to
+// eleven of nineteen: /rules, /learning, /marketplace, /events, /activities,
+// /settings, /algorithm and /ai-assistant were reachable through middleware
+// and stopped one layer later by the admin layout. Nothing leaked — the
+// layout and every API route guard themselves — but a declared boundary that
+// does not match the enforced one is how the /algorithm mismatch survived for
+// months, and reading this list told you the wrong thing about the app.
+//
+// `route-boundaries.test.ts` now derives the expected set from the filesystem,
+// so a new admin page fails the suite until it is listed here.
 export const STAFF_ROUTES = [
   '/',
-  '/residents',
-  '/housing',
-  '/placements',
-  '/incidents',
-  '/maintenance',
-  '/matching',
+  '/activities',
+  '/ai-assistant',
+  '/algorithm',
   '/analytics',
   '/chores',
+  '/events',
+  '/housing',
+  '/incidents',
+  '/learning',
+  '/maintenance',
+  '/marketplace',
+  '/matching',
   '/messages',
+  '/placements',
+  '/residents',
+  '/rules',
+  '/settings',
   '/transfer-requests',
   '/api/messages',
   '/api/export',

@@ -51,10 +51,12 @@ export const LOGIN_LABELS = {
   help: `Bei Problemen wenden Sie sich an die ${BRAND.shortName}-Verwaltung.`,
   demo: {
     title: 'Direkt ausprobieren',
-    description:
-      'Ohne Konto testen — Sie sehen das echte Produkt, genau so, wie es die Bewohnenden nutzen.',
+    // The person's term comes from the brand, like their code prefix does —
+    // this line used to say "Bewohner:in", a third gendering convention beside
+    // the gender star used everywhere else in the product.
+    description: `Ohne Konto testen — Sie sehen das echte Produkt, genau so, wie es ${BRAND.clientTermPlural} nutzen.`,
     staff: `${BRAND.shortName}-Verwaltung`,
-    resident: 'Als Bewohner:in ausprobieren',
+    resident: `Als ${BRAND.clientTerm} ausprobieren`,
   },
 } as const
 

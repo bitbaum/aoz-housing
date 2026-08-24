@@ -231,7 +231,7 @@ describe('determinePrimaryAction', () => {
   it('allclear CTA falls back to learning for JOBCOACH (no residents:write)', () => {
     const result = determinePrimaryAction({ ...EMPTY, role: 'JOBCOACH' })
     expect(result.type).toBe('allclear')
-    expect(result.href).toBe('/learning?board=overview')
+    expect(result.href).toBe('/learning')
     expect(result.buttonText).toBe('Lernen & Kurse öffnen')
   })
 })

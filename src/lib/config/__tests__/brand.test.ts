@@ -37,6 +37,8 @@ describe('brand presets', () => {
       codePrefix: 'AOZ-',
       // AOZ staff say Klient*in. The prefix is vocabulary, so it is per brand.
       residentCodePrefix: 'KL-',
+      clientTerm: 'Klient*in',
+      clientTermPlural: 'Klient*innen',
       productName: 'AOZ Begleitung',
       // Neutral register: an AOZ Unterkunft is not asserted to be someone's
       // home by the software they are required to use.

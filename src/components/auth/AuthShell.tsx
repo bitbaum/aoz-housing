@@ -21,6 +21,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { APP_LABELS, LOGIN_LABELS, MARKETING_COPY } from '@/lib/constants/labels'
+import { BRAND } from '@/lib/config/brand'
 
 interface AuthShellProps {
   title: string
@@ -71,9 +72,13 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
 
       <div className="order-1 lg:order-2 w-full max-w-md mx-auto lg:mx-0">
         <div className="text-center mb-6">
+          {/* Named for the product, not "Zurück zur Startseite": the back link
+              above already carries that name, and two links with the same
+              accessible name pointing at the same place is a screen-reader
+              stutter with nothing to choose between them. */}
           <Link
             href="/"
-            aria-label={LOGIN_LABELS.backToHome}
+            aria-label={BRAND.productName}
             className="inline-flex flex-col items-center gap-2 transition-opacity hover:opacity-70"
           >
             <Logo size="xl" />

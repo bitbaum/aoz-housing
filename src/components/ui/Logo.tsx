@@ -7,8 +7,14 @@ import { BRAND } from '@/lib/config/brand'
  * brand colour, the product word stays neutral — so it reads as a mark rather
  * than as two words that happen to sit together.
  *
- * The acronym itself is never hardcoded: it comes from the brand SSOT, so
- * re-badging the product re-badges the logo. @see lib/config/brand.ts
+ * NOTHING here is hardcoded: both halves come from `BRAND.productName`, so
+ * re-badging the product re-badges the logo. The comment used to promise this
+ * about the acronym only, while the product word beside it was the literal
+ * " Wohnen" — so every screen showed "AOZ Wohnen" while the page title, the
+ * tab and the metadata said "AOZ Begleitung". The wordmark is the most-seen
+ * string in the product, and it was the one disagreeing with the SSOT.
+ *
+ * @see lib/config/brand.ts
  */
 
 type LogoSize = 'sm' | 'md' | 'lg' | 'xl'
@@ -27,13 +33,25 @@ const sizeConfig: Record<LogoSize, { mark: string; tagline: string }> = {
   xl: { mark: 'text-3xl', tagline: 'text-sm' },
 }
 
+/**
+ * Split the product name into the coloured acronym and the neutral remainder.
+ * Every brand names itself "<acronym> <word>"; if one ever does not, the whole
+ * name simply renders neutral rather than printing a wrong acronym.
+ */
+function splitWordmark(productName: string, shortName: string): [string, string] {
+  return productName.startsWith(`${shortName} `)
+    ? [shortName, productName.slice(shortName.length)]
+    : ['', productName]
+}
+
 function LogoMark({ size = 'md', showTagline = false, className = '' }: Omit<LogoProps, 'href'>) {
   const s = sizeConfig[size]
+  const [mark, rest] = splitWordmark(BRAND.productName, BRAND.shortName)
   return (
     <div className={`flex items-baseline gap-2 ${className}`}>
       <span className={`font-semibold tracking-tight ${s.mark}`}>
-        <span className="text-brand-primary">{BRAND.shortName}</span>
-        <span className="text-ui-text"> Wohnen</span>
+        {mark ? <span className="text-brand-primary">{mark}</span> : null}
+        <span className="text-ui-text">{rest}</span>
       </span>
       {showTagline && (
         <span className={`hidden lg:inline eyebrow ${s.tagline}`}>{APP_LABELS.tagline}</span>
