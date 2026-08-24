@@ -25,6 +25,10 @@ export const STAFF_ROUTES = [
   '/events',
   '/housing',
   '/incidents',
+  // Where requirePermission() lands a signed-in staff member whose role
+  // cannot open a page. Staff-only: an anonymous visitor has no role to
+  // explain, and belongs at /login.
+  '/kein-zugriff',
   '/learning',
   '/maintenance',
   '/marketplace',

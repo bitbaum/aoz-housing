@@ -98,6 +98,20 @@ export function visibleSystemLinks(role: StaffRole): NavItem[] {
   )
 }
 
+/**
+ * Admin routes that exist but are deliberately NOT navigation destinations.
+ *
+ * The rule "every page under (admin) is reachable from the nav" is what stops
+ * pages becoming undiscoverable, so the exceptions must be listed here and
+ * argued for rather than silently tolerated — the same treatment
+ * PORTAL_NAV_HIDDEN_ROUTES gives the portal.
+ *
+ * `/kein-zugriff` is somewhere you are SENT, never somewhere you go: putting
+ * "Kein Zugriff" in a menu would be absurd, and a nav entry that 100% of
+ * roles can reach would defeat the page's own purpose.
+ */
+export const ADMIN_NAV_EXCLUDED_ROUTES = ['/kein-zugriff'] as const
+
 export interface MegaMenuDropdownItem {
   href: string
   icon: keyof typeof NAV_ICONS

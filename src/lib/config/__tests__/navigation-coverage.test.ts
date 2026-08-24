@@ -15,14 +15,20 @@
 
 import { readdirSync } from 'fs'
 import { join } from 'path'
-import { MEGAMENU_GROUPS, SYSTEM_LINKS } from '../navigation'
+import { ADMIN_NAV_EXCLUDED_ROUTES, MEGAMENU_GROUPS, SYSTEM_LINKS } from '../navigation'
 
 const ADMIN_DIR = join(__dirname, '..', '..', '..', 'app', '(admin)')
 
-/** Every admin page directory, as a top-level route. */
+/**
+ * Every admin page directory, as a top-level route, minus the routes that are
+ * documented destinations-you-are-SENT-to rather than places you navigate.
+ * The exception list is explicit config, so weakening this rule requires
+ * writing down why.
+ */
 const adminRoutes = readdirSync(ADMIN_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => `/${entry.name}`)
+  .filter((route) => !(ADMIN_NAV_EXCLUDED_ROUTES as readonly string[]).includes(route))
 
 /** Every destination the staff nav offers, megamenu plus system links. */
 const navHrefs: string[] = [

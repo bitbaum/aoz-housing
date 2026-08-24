@@ -17,6 +17,7 @@ import { LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { getCurrentUser, requirePermission } from '@/lib/auth'
+import { hasPermission, type StaffPermission } from '@/lib/auth/role-policy'
 import { getMyResidentIds } from '@/lib/actions/care'
 import { ROLE_DOMAIN } from '@/lib/config/care-role-domain'
 
@@ -41,6 +42,14 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const currentUser = await getCurrentUser()
   const viewerRole = currentUser?.role ?? 'BETREUUNG'
   const viewerDomain = ROLE_DOMAIN[viewerRole] ?? null
+
+  // The NAV is permission-filtered; the PAGES were not, so a Jobcoach was
+  // offered "+ Klient*in", "Matching starten", export and the CSV importer —
+  // four controls their role cannot use. Clicking one produced a generic
+  // "Etwas ist schiefgelaufen … erneut versuchen", so the app looked broken
+  // rather than out of scope. Offering an action is a promise; these are the
+  // ones the role can actually keep.
+  const can = (permission: StaffPermission) => hasPermission(viewerRole, permission)
 
   const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
     prisma.resident.findMany({
@@ -191,12 +200,16 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         description={`${stats.visible} sichtbar · ${stats.unplaced} ohne Platzierung`}
         actions={
           <>
-            <ButtonLink href="/api/export/residents" variant="outline">
-              {RESIDENT_LIST_LABELS.export}
-            </ButtonLink>
-            <ButtonLink href="/residents/new">
-              {RESIDENT_LIST_LABELS.addResident}
-            </ButtonLink>
+            {can('export:read') && (
+              <ButtonLink href="/api/export/residents" variant="outline">
+                {RESIDENT_LIST_LABELS.export}
+              </ButtonLink>
+            )}
+            {can('residents:write') && (
+              <ButtonLink href="/residents/new">
+                {RESIDENT_LIST_LABELS.addResident}
+              </ButtonLink>
+            )}
           </>
         }
       />
@@ -239,7 +252,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         </TabLinkGroup>
       </Toolbar>
 
-      {view !== 'archived' && stats.unplaced > 0 && (
+      {can('placements:write') && view !== 'archived' && stats.unplaced > 0 && (
         <div className="rounded-lg border border-status-warning/30 bg-status-warning/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="font-medium text-ui-text">
@@ -266,7 +279,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         />
       </div>
 
-      <CSVImport />
+      {can('import:write') && <CSVImport />}
 
       {residents.length === 0 ? (
         <EmptyState
@@ -282,7 +295,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
               <ButtonLink href={`/residents?view=${view}`} variant="outline">
                 {RESIDENT_LIST_LABELS.filterReset}
               </ButtonLink>
-            ) : view !== 'archived' ? (
+            ) : view !== 'archived' && can('residents:write') ? (
               <ButtonLink href="/residents/new">
                 {RESIDENT_LIST_LABELS.emptyFirst}
               </ButtonLink>

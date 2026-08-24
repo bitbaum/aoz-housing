@@ -12,6 +12,30 @@ export const ROLE_LABELS: Record<string, string> = {
   FREIWILLIGENARBEIT: 'Freiwilligenarbeit',
 }
 
+/**
+ * The access-denied page.
+ *
+ * A permission denial used to surface as "Etwas ist schiefgelaufen … Bitte
+ * versuchen Sie es erneut" — a generic crash telling the person to retry
+ * something that can never succeed. A Jobcoach clicking a button the app
+ * itself offered would conclude the software was broken. A boundary is not an
+ * outage, and it must never be dressed as one.
+ */
+export const NO_ACCESS_LABELS = {
+  eyebrow: 'Kein Zugriff',
+  title: 'Diese Seite gehört zu einem anderen Aufgabenbereich.',
+  /** Filled with the permission's plain-language description. */
+  needs: (what: string) => `Um sie zu öffnen, braucht es die Berechtigung, ${what}.`,
+  needsUnknown: 'Ihre Rolle hat für diesen Bereich keine Berechtigung.',
+  yourRole: 'Ihre Rolle',
+  whoCan: 'Diese Rollen können das',
+  /** Named so nobody has to guess whom to ask. */
+  askHint: 'Wenden Sie sich an die Leitung, wenn Sie den Zugriff brauchen.',
+  backToDashboard: 'Zum Dashboard',
+  /** NOT "Erneut versuchen": retrying a permission boundary never works. */
+  retryIsPointless: 'Erneutes Laden ändert daran nichts — es ist kein Fehler.',
+} as const
+
 export const LOGIN_LABELS = {
   /** The way out of the login page. It had none: every account page was a
    *  dead end, so anyone who reached /login could no longer get to the site. */

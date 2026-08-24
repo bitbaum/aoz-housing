@@ -299,15 +299,21 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           <span className={`badge ${getStatusBadgeClass(resident.status)}`}>
             {getLabel(RESIDENT_STATUS_LABELS, resident.status)}
           </span>
-          {currentPlacement && (
+          {/* This page already computed the permission flags; these three
+              header buttons were the ones still ignoring them, so a Jobcoach
+              was offered Verlegen / Bearbeiten / Platzieren and got a generic
+              crash on click. */}
+          {canWritePlacements && currentPlacement && (
             <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
               {RESIDENT_DETAIL_LABELS.transferBtn}
             </Link>
           )}
-          <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
-            {RESIDENT_DETAIL_LABELS.editBtn}
-          </Link>
-          {!currentPlacement && (
+          {canWriteResidents && (
+            <Link href={`/residents/${resident.id}/edit`} className="btn-outline">
+              {RESIDENT_DETAIL_LABELS.editBtn}
+            </Link>
+          )}
+          {canWritePlacements && !currentPlacement && (
             <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
               {RESIDENT_DETAIL_LABELS.placeBtn}
             </Link>

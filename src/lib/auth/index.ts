@@ -7,6 +7,7 @@
 import { ALL_CODE_PREFIXES, BRAND } from '@/lib/config/brand'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { AUTH_CONFIG } from './config'
 import { RESIDENT_COOKIE } from '@/lib/portal-auth'
@@ -147,15 +148,32 @@ export async function requireRole(allowedRoles: AuthUser['role'][]): Promise<Aut
 /**
  * Check if current user has required permission
  */
+/**
+ * Page-level permission gate. REDIRECTS rather than throws.
+ *
+ * It used to `throw new Error(...)`, which the (admin) error boundary caught
+ * and rendered as "Etwas ist schiefgelaufen … Bitte versuchen Sie es erneut".
+ * A Jobcoach clicking a button the app itself offered was told the software
+ * had failed and asked to retry something that can never succeed.
+ *
+ * Throwing cannot be rescued at the boundary either: Next strips
+ * server-component error messages in production, so `error.tsx` genuinely
+ * cannot tell a denial from a real fault. The reliable place to decide is
+ * here, where the answer is still known — hence a redirect to a real page
+ * that explains what was needed and who has it.
+ *
+ * @see app/(admin)/kein-zugriff/page.tsx
+ * @see authorizeStaff for the API-route form, which returns 401/403 instead.
+ */
 export async function requirePermission(permission: StaffPermission): Promise<AuthUser> {
   const user = await getCurrentUser()
 
   if (!user) {
-    throw new Error(ERROR_MESSAGES.AUTH_REQUIRED)
+    redirect('/login')
   }
 
   if (!hasPermission(user.role, permission)) {
-    throw new Error(ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS)
+    redirect(`/kein-zugriff?needs=${encodeURIComponent(permission)}`)
   }
 
   return user
