@@ -231,9 +231,11 @@ function LoginForm() {
                   <label htmlFor="password" className="label">
                     {LOGIN_LABELS.password}
                   </label>
+                  {/* inline-flex + min-h so the tap target clears 44px without
+                      moving the label off the password row's baseline. */}
                   <Link
                     href="/forgot-password"
-                    className="text-xs text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
+                    className="inline-flex items-center min-h-[44px] text-xs text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
                   >
                     {LOGIN_LABELS.forgotPassword}
                   </Link>
@@ -298,7 +300,7 @@ function LoginForm() {
               {LOGIN_LABELS.noAccount}{' '}
               <Link
                 href="/register"
-                className="font-medium text-ui-text underline underline-offset-2"
+                className="inline-flex items-center min-h-[44px] font-medium text-ui-text underline underline-offset-2"
               >
                 {LOGIN_LABELS.registerLink}
               </Link>
