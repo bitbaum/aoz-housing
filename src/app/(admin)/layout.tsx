@@ -54,16 +54,14 @@ export default async function AdminLayout({
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <ThemeToggle />
-              {hasPortalAccess && (
-                <Link
-                  href="/portal"
-                  className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border border-brand-primary/40 text-brand-primary hover:bg-brand-primary/8 transition-colors min-h-[36px]"
-                  title="Zum Bewohner*innen-Portal wechseln"
-                >
-                  <ArrowRightLeft className="w-3.5 h-3.5" aria-hidden="true" />
-                  Bewohnerportal
-                </Link>
-              )}
+              {/* The role switch lives in the UserMenu, next to sign-out,
+                  because switching identity is an account action — and because
+                  UserMenu ALREADY renders this exact /portal link. Two controls
+                  for one destination is the same defect as the old three-way
+                  "Integration" menu, and this one was expensive: at 151px it
+                  squeezed the primary nav below the width its own items need,
+                  so on a 1280px laptop two mission areas sat behind a
+                  horizontal scroll nobody finds. Measured, not guessed. */}
               <UserMenu
                 user={{ name: user.name, email: user.email, role: user.role }}
                 hasPortalAccess={hasPortalAccess}

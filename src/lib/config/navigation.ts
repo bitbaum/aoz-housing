@@ -79,6 +79,13 @@ export interface NavItem {
  */
 export const SYSTEM_LINKS: NavItem[] = [
   { href: '/settings', icon: 'settings', label: 'Einstellungen', permission: 'users:manage' },
+  // A utility OVER the work, not one of the mission areas — the same kind of
+  // thing as the algorithm docs and settings it now sits beside. It was also
+  // costing 128px of a bar that did not have them: measured on a 1440px
+  // laptop the nav needed 954px and had 865, so two entries sat behind a
+  // horizontal scroll that people do not find. One click away, and the
+  // mission areas fit.
+  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
   // Read-only methodology docs — visible to every staff role that sees a
   // compatibility score (i.e. all of them), matching the page's own guard.
   { href: '/algorithm', icon: 'brain', label: 'Algorithmus', permission: 'dashboard:read' },
@@ -184,7 +191,6 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   // boards; the nav owns the destination.
   { href: '/learning', icon: 'learning', label: 'Lernen & Beruf', permission: 'learning:read' },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
-  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
 ]
 
 function itemVisible(item: MegaMenuDropdownItem, role: StaffRole): boolean {
