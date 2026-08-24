@@ -87,7 +87,9 @@ describe('resetDemoData', () => {
 
     const summary = await resetDemoData(prisma)
 
-    expect(mockSeedDemoData).toHaveBeenCalledWith(prisma)
+    // The staff account is upserted BEFORE the seed and handed to it: the
+    // care seats it assigns cannot point at a row that does not exist yet.
+    expect(mockSeedDemoData).toHaveBeenCalledWith(prisma, { careStaffId: 'demo-user' })
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { code: 'AOZH-DEMO01' },
       update: { name: 'Demo-Zugang', active: true },

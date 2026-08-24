@@ -178,7 +178,7 @@ describe('upsertDemoStaff', () => {
   it('upserts the dedicated demo admin under the configured code', async () => {
     process.env.DEMO_STAFF_CODE = 'WG-DEMO01'
     const { prisma, raw } = createPrismaMock()
-    expect(await upsertDemoStaff(prisma)).toBe('WG-DEMO01')
+    expect(await upsertDemoStaff(prisma)).toEqual({ id: 'demo-user', code: 'WG-DEMO01' })
     expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
       update: { name: 'Demo-Zugang', active: true },

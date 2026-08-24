@@ -3,7 +3,12 @@
 import { Bed, Clock, Check, Wrench, Smile, GraduationCap, CalendarClock } from 'lucide-react'
 import { urgencyForGoodStreak, urgencyForOpenCount } from '@/lib/config/urgency'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
-import { sectionVisible, fallbackCta, type DashboardSection } from '@/lib/config/dashboard'
+import {
+  sectionVisible,
+  fallbackCta,
+  workspaceState,
+  type DashboardSection,
+} from '@/lib/config/dashboard'
 import type { StaffRole } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
@@ -12,6 +17,7 @@ import { HeroAction, CriticalAlertBanner, determinePrimaryAction } from './Prima
 import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
 import { AllClearState } from './AllClearState'
+import { EmptyWorkspaceState } from './EmptyWorkspaceState'
 import type {
   OverdueCheckIn,
   DueSoonCheckIn,
@@ -34,6 +40,15 @@ interface ActionDashboardProps {
   occupiedBeds: number
   totalBeds: number
   totalPlacements: number
+
+  /**
+   * How many people and units exist AT ALL — not how many need something.
+   * Without these the dashboard cannot tell "nothing to do" from "no data
+   * yet", and reports an untouched database as finished work.
+   * @see lib/config/dashboard.ts — workspaceState()
+   */
+  residentCount: number
+  housingUnitCount: number
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -83,6 +98,8 @@ function formatDaysAgo(date: Date): string {
 
 export function ActionDashboard({
   role,
+  residentCount,
+  housingUnitCount,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -125,6 +142,13 @@ export function ActionDashboard({
     pendingTransfers.length +
     proposalsAwaitingStaff.length
 
+  // "Nothing to do" and "nothing entered yet" are different facts and get
+  // different screens. @see lib/config/dashboard.ts
+  const state = workspaceState({
+    residentCount,
+    openTaskCount: totalIssues + problemUnits.length,
+  })
+
   return (
     <div className="space-y-6">
       {/* Header with greeting */}
@@ -132,11 +156,13 @@ export function ActionDashboard({
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{greeting}!</h1>
           <p className="text-ui-muted">
-            {totalIssues === 0
-              ? DASHBOARD_LABELS.allClearSummary
-              : totalIssues === 1
-                ? DASHBOARD_LABELS.oneTaskWaiting
-                : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
+            {state === 'empty'
+              ? DASHBOARD_LABELS.emptySummary
+              : totalIssues === 0
+                ? DASHBOARD_LABELS.allClearSummary
+                : totalIssues === 1
+                  ? DASHBOARD_LABELS.oneTaskWaiting
+                  : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
           </p>
         </div>
         <div className="text-right text-sm text-ui-muted">{todayLabel}</div>
@@ -147,8 +173,24 @@ export function ActionDashboard({
         <CriticalAlertBanner incidents={criticalIncidents} />
       )}
 
-      {/* Hero Section - Primary Action */}
-      <HeroAction action={primaryAction} />
+      {/* Exactly ONE summary panel. All three used to render together on a
+          quiet day: the hero ("Alles erledigt!"), the all-clear block
+          ("Alles unter Kontrolle!") and the greeting line — three sentences
+          and two identical buttons for one fact. The hero names the next
+          ACTION, so when there is none it has nothing to say and yields to
+          the block that carries the actual numbers. */}
+      {state === 'empty' ? (
+        <EmptyWorkspaceState role={role} housingUnitCount={housingUnitCount} />
+      ) : state === 'quiet' ? (
+        <AllClearState
+          freeBeds={show('occupancy') ? freeBeds : null}
+          conflictFreeDays={show('incidents') ? conflictFreeDays : null}
+          ctaHref={fallbackCta(role).href}
+          ctaLabel={DASHBOARD_LABELS[fallbackCta(role).labelKey]}
+        />
+      ) : (
+        <HeroAction action={primaryAction} />
+      )}
 
       {/* Quick Stats Row — one pulse tile per pillar the role works in.
           Which tiles exist is the config's decision, not this component's. */}
@@ -335,15 +377,6 @@ export function ActionDashboard({
         </div>
       )}
 
-      {/* All Clear State */}
-      {totalIssues === 0 && criticalIncidents.length === 0 && problemUnits.length === 0 && (
-        <AllClearState
-          freeBeds={show('occupancy') ? freeBeds : null}
-          conflictFreeDays={show('incidents') ? conflictFreeDays : null}
-          ctaHref={fallbackCta(role).href}
-          ctaLabel={DASHBOARD_LABELS[fallbackCta(role).labelKey]}
-        />
-      )}
     </div>
   )
 }

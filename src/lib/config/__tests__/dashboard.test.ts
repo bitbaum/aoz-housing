@@ -9,6 +9,8 @@ import {
   DASHBOARD_FALLBACK_CTAS,
   sectionVisible,
   fallbackCta,
+  workspaceState,
+  setupCta,
   type DashboardSection,
 } from '../dashboard'
 import { ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
@@ -83,5 +85,40 @@ describe('fallbackCta', () => {
     for (const role of STAFF_ROLES) {
       expect(ROLE_PERMISSIONS[role] as readonly string[]).toContain(last.permission)
     }
+  })
+
+  // ── Empty vs quiet ────────────────────────────────────────────────────────
+
+  it('calls a workspace with no people empty, however many queues are clear', () => {
+    expect(workspaceState({ residentCount: 0, openTaskCount: 0 })).toBe('empty')
+  })
+
+  it('distinguishes a quiet day from an unstarted one', () => {
+    expect(workspaceState({ residentCount: 12, openTaskCount: 0 })).toBe('quiet')
+    expect(workspaceState({ residentCount: 12, openTaskCount: 3 })).toBe('busy')
+  })
+
+  it('never calls an empty workspace busy, even with stray queue rows', () => {
+    // Work listed for nobody is a data fault, not a to-do list.
+    expect(workspaceState({ residentCount: 0, openTaskCount: 5 })).toBe('empty')
+  })
+
+  it('starts setup at housing while there is none', () => {
+    expect(setupCta('ADMIN', { housingUnitCount: 0 })?.href).toBe('/housing/new')
+  })
+
+  it('moves setup to resident intake once housing exists', () => {
+    expect(setupCta('ADMIN', { housingUnitCount: 3 })?.href).toBe('/residents/new')
+  })
+
+  it('sends roles that cannot create housing straight to resident intake', () => {
+    // Sozialarbeit holds residents:write but not housing:write.
+    expect(setupCta('SOZIALARBEIT', { housingUnitCount: 0 })?.href).toBe('/residents/new')
+  })
+
+  it('offers no setup step to a role that may create neither', () => {
+    // Any button here would land on /kein-zugriff — the dead end PR #88 removed.
+    expect(setupCta('JOBCOACH', { housingUnitCount: 0 })).toBeNull()
+    expect(setupCta('FREIWILLIGENARBEIT', { housingUnitCount: 2 })).toBeNull()
   })
 })

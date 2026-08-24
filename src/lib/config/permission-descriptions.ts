@@ -9,6 +9,7 @@
  */
 
 import { ROLE_PERMISSIONS, type StaffPermission } from '@/lib/auth/role-policy'
+import { LEARNING_AREA_NAME } from './learning'
 
 export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'dashboard:read': 'das Dashboard ansehen',
@@ -22,8 +23,8 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'incidents:write': 'Vorfälle erfassen und bearbeiten',
   'maintenance:read': 'Wartungstickets ansehen',
   'maintenance:write': 'Wartungstickets bearbeiten',
-  'learning:read': 'Integrationsnachweise ansehen',
-  'learning:write': 'Integrationsnachweise erfassen',
+  'learning:read': `${LEARNING_AREA_NAME} ansehen`,
+  'learning:write': `Nachweise in ${LEARNING_AREA_NAME} erfassen`,
   'export:read': 'Daten exportieren',
   'marketplace:read': 'den Marktplatz ansehen',
   'marketplace:moderate': 'den Marktplatz moderieren',

@@ -28,6 +28,8 @@ interface Recorded {
   residentIdsByCode: Record<string, string>
   /** Resident code → the display name the seed chose (null if it chose none). */
   residentNamesByCode: Record<string, string | null>
+  /** Every residentId that received a learning record. */
+  learningResidentIds: string[]
 }
 
 function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
@@ -42,18 +44,39 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     unitRuleTitles: [],
     residentIdsByCode: {},
     residentNamesByCode: {},
+    learningResidentIds: [],
   }
   let id = 0
 
-  const model = (onCreate?: (data: Record<string, unknown>, newId: string) => void) => ({
-    create: jest.fn(({ data }: { data: Record<string, unknown> }) => {
-      const newId = `id-${++id}`
-      onCreate?.(data, newId)
-      return Promise.resolve({ ...data, id: newId })
-    }),
-    createMany: jest.fn(() => Promise.resolve({ count: 0 })),
-    count: jest.fn(() => Promise.resolve(0)),
-  })
+  // A small STORE, not a set of empty stubs: `findMany` returns what was
+  // created. Filtering is deliberately unimplemented — the seed's only
+  // findMany asks for every demo-prefixed resident, and the test below proves
+  // every resident the seed creates carries that prefix, so "everything" and
+  // "everything matching" are the same set here.
+  const model = (onCreate?: (data: Record<string, unknown>, newId: string) => void) => {
+    const rows: Array<Record<string, unknown>> = []
+    return {
+      create: jest.fn(({ data }: { data: Record<string, unknown> }) => {
+        const newId = `id-${++id}`
+        rows.push({ ...data, id: newId })
+        onCreate?.(data, newId)
+        return Promise.resolve({ ...data, id: newId })
+      }),
+      createMany: jest.fn(({ data }: { data: Array<Record<string, unknown>> }) => {
+        // Same recording hook as `create`. Without this a model written via
+        // createMany records nothing, and an assertion about it passes on an
+        // empty array — green because it never looked.
+        for (const row of data) {
+          const newId = `id-${++id}`
+          rows.push({ ...row, id: newId })
+          onCreate?.(row, newId)
+        }
+        return Promise.resolve({ count: data.length })
+      }),
+      count: jest.fn(() => Promise.resolve(0)),
+      findMany: jest.fn(() => Promise.resolve(rows)),
+    }
+  }
 
   const prisma = {
     housingUnit: model((d) => recorded.unitCodes.push(d.code as string)),
@@ -78,6 +101,9 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
       recorded.maintenanceStatuses.push(d.status as string)
       recorded.maintenance.push(d as Recorded['maintenance'][number])
     }),
+    // The integration pillar (lib/seed/integration-evidence.ts).
+    learningRecord: model((d) => recorded.learningResidentIds.push(d.residentId as string)),
+    careAssignment: model(),
     houseRule: {
       ...model((d) => recorded.unitRuleTitles.push(d.title as string)),
       findUnique: jest.fn(() => Promise.resolve({ id: 'org-night-quiet' })),
@@ -193,5 +219,44 @@ describe('seedDemoData', () => {
     const { prisma, recorded } = createPrismaMock()
     await seedDemoData(prisma)
     expect(recorded.unitRuleTitles.length).toBeGreaterThan(0)
+  })
+
+  // ── Integration pillar ────────────────────────────────────────────────────
+  //
+  // This shipped blank: /learning rendered five zeroes and an empty list on a
+  // demo world of fifteen people, and a Jobcoach evaluating the product
+  // concluded the pillar was unbuilt.
+
+  it('gives EVERY demo resident integration evidence', async () => {
+    const { prisma, recorded } = createPrismaMock()
+    const summary = await seedDemoData(prisma)
+
+    const withEvidence = new Set(recorded.learningResidentIds)
+    const everyResidentId = Object.values(recorded.residentIdsByCode)
+
+    expect(summary.learningRecords).toBeGreaterThan(0)
+    expect(everyResidentId.length).toBeGreaterThan(0)
+    for (const residentId of everyResidentId) {
+      expect(withEvidence.has(residentId)).toBe(true)
+    }
+  })
+
+  it('assigns the care seats when the deployment has a staff account', async () => {
+    // Without an assignment, "Meine Klient*innen" — the DEFAULT view for every
+    // non-Leitung role — is empty however full the database is.
+    const { prisma } = createPrismaMock()
+    const summary = await seedDemoData(prisma, { careStaffId: 'demo-staff' })
+
+    expect(summary.careAssignments).toBeGreaterThan(0)
+  })
+
+  it('invents no colleague when the deployment has no demo staff door', async () => {
+    // A fake staff row would appear in every real "zuständig" picker on an
+    // instance that also holds real data.
+    const { prisma } = createPrismaMock()
+    const summary = await seedDemoData(prisma)
+
+    expect(summary.careAssignments).toBe(0)
+    expect(summary.learningRecords).toBeGreaterThan(0)
   })
 })

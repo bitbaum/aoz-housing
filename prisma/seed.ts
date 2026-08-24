@@ -7,6 +7,7 @@
 import { PrismaClient } from '@prisma/client'
 import { calculateScore } from './scoring-helper'
 import { syncOrgRules } from '../src/lib/governance/sync-org-rules'
+import { seedIntegrationEvidence } from '../src/lib/seed/integration-evidence'
 import { BRAND } from '../src/lib/config/brand'
 
 const prisma = new PrismaClient()
@@ -1619,6 +1620,28 @@ async function main() {
   ])
 
   console.log(`✅ Created ${residents.length} residents`)
+
+  // Integration evidence — language, qualification and volunteering records,
+  // derived from each resident's own profile. Without it /learning renders
+  // five zeroes and an empty list on a database holding 24 people, and the
+  // dashboard's learning pulse reports nothing to every coaching role.
+  //
+  // Care seats go to whichever staff account this database already has (the
+  // admin from prisma/seed-admin.ts); with none, evidence still seeds and the
+  // seats stay empty rather than conjuring a colleague.
+  const seedStaff = await prisma.user.findFirst({
+    where: { active: true },
+    select: { id: true },
+    orderBy: { code: 'asc' },
+  })
+  const integration = await seedIntegrationEvidence(prisma, {
+    residentIds: residents.map((r) => r.id),
+    staffId: seedStaff?.id ?? null,
+  })
+  console.log(
+    `✅ Created ${integration.records} learning records, ` +
+    `${integration.careAssignments} care assignments`
+  )
 
   // Create placements with CALCULATED compatibility scores
   const now = new Date()

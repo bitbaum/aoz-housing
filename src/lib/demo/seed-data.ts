@@ -24,6 +24,7 @@ import {
   DEMO_UNIT_CODE_PREFIX,
 } from './config'
 import { seedDemoGovernance } from './seed-governance'
+import { seedIntegrationEvidence } from '../seed/integration-evidence'
 
 export interface DemoSeedSummary {
   residents: number
@@ -31,9 +32,23 @@ export interface DemoSeedSummary {
   placements: number
   incidents: number
   demoResidentCode: string
+  learningRecords: number
+  careAssignments: number
 }
 
-export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummary> {
+export interface DemoSeedOptions {
+  /**
+   * Staff account that takes the care seats on every demo resident. Null (the
+   * default) seeds evidence without assignments rather than inventing a
+   * colleague who would then appear in every real "zuständig" picker.
+   */
+  careStaffId?: string | null
+}
+
+export async function seedDemoData(
+  prisma: PrismaClient,
+  options: DemoSeedOptions = {}
+): Promise<DemoSeedSummary> {
   // The portal demo logs in as Fatima: PLACED, in the zero-conflict success
   // unit, so a visitor sees roommates, rules and chores — not an empty shell.
   const demoResidentCode = resolveDemoResidentCode()
@@ -1247,6 +1262,24 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
     roommateIds: [yasmin.id, amira.id, sara.id],
   })
 
+  // ========================================================================
+  // INTEGRATION — language, qualification and volunteering evidence
+  // ========================================================================
+  // Every demo resident, not just unit 5: the learning boards are org-wide,
+  // and a board holding four people out of fifteen looks like a filter bug.
+  // Ids are queried by prefix rather than threaded through this function, so
+  // adding a resident above needs no change here.
+  const demoResidents = await prisma.resident.findMany({
+    where: {
+      OR: [{ code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } }, { code: demoResidentCode }],
+    },
+    select: { id: true },
+  })
+  const integration = await seedIntegrationEvidence(prisma, {
+    residentIds: demoResidents.map((resident) => resident.id),
+    staffId: options.careStaffId ?? null,
+  })
+
   // Counts are queried, not hardcoded, so the summary can never drift from
   // the data above (ground truth #2: one source of truth). Scoped to the
   // demo prefixes: under UNIT scope this database also holds real data.
@@ -1262,5 +1295,13 @@ export async function seedDemoData(prisma: PrismaClient): Promise<DemoSeedSummar
     prisma.incident.count({ where: { housingUnit: demoUnitFilter } }),
   ])
 
-  return { residents, housingUnits, placements, incidents, demoResidentCode }
+  return {
+    residents,
+    housingUnits,
+    placements,
+    incidents,
+    demoResidentCode,
+    learningRecords: integration.records,
+    careAssignments: integration.careAssignments,
+  }
 }

@@ -11,7 +11,17 @@
 import type { PrismaClient } from '@prisma/client'
 import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
 
-export async function upsertDemoStaff(prisma: PrismaClient): Promise<string | null> {
+export interface DemoStaffAccount {
+  id: string
+  code: string
+}
+
+/**
+ * Returns the id as well as the code: the care seats on every demo resident
+ * point at this account, and they are what makes the boards' default
+ * "Meine Klient*innen" view show anything for a non-Leitung role.
+ */
+export async function upsertDemoStaff(prisma: PrismaClient): Promise<DemoStaffAccount | null> {
   const demoStaffCode = getDemoStaffCode()
   if (!demoStaffCode) return null
 
@@ -28,5 +38,5 @@ export async function upsertDemoStaff(prisma: PrismaClient): Promise<string | nu
   // and lock the next visitor out of the demo door.
   await prisma.account.deleteMany({ where: { userId: user.id } })
 
-  return demoStaffCode
+  return { id: user.id, code: demoStaffCode }
 }

@@ -24,11 +24,8 @@ import {
   INCIDENT_SEVERITY_WEIGHTS,
   DISPLAY_LIMITS,
 } from '@/lib/config/thresholds'
-import {
-  sectionVisible,
-  LEARNING_PULSE_WINDOW_DAYS,
-  type DashboardSection,
-} from '@/lib/config/dashboard'
+import { sectionVisible, type DashboardSection } from '@/lib/config/dashboard'
+import { LEARNING_PULSE_WINDOW_DAYS } from '@/lib/config/learning'
 import { getProposalsAwaitingStaff } from '@/lib/governance/queries'
 import type { StaffRole } from '@/lib/auth/role-policy'
 
@@ -48,6 +45,16 @@ export default async function AdminDashboard() {
   // the SSOT for that mapping) — a Jobcoach's dashboard runs the learning
   // queries and none of the housing ones.
   const [
+    // How many people and units EXIST — not how many need something. The
+    // dashboard cannot otherwise tell an empty workspace from a finished one,
+    // and reports a database nobody has filled in as "Alles erledigt".
+    //
+    // Deliberately NOT derived from the `residents` list below: that one is
+    // gated on placements:write, so a Jobcoach would see zero residents and
+    // be told the workspace is empty while 24 people sit in it. Every staff
+    // role holds residents:read, so this count is safe for all of them.
+    residentCount,
+    housingUnitCount,
     residents,
     units,
     // Occupancy is derived from placements, but the free-beds stat must stay
@@ -64,6 +71,10 @@ export default async function AdminDashboard() {
     learningRecentCompletions,
     upcomingEventsCount,
   ] = await Promise.all([
+    prisma.resident.count(),
+    // Only used to pick the first setup step, which requires housing:write —
+    // a subset of the housing:read this section is gated on.
+    show('occupancy') ? prisma.housingUnit.count() : 0,
     show('matching')
       ? prisma.resident.findMany({
           where: { status: { in: ['ACTIVE', 'PLACED'] } },
@@ -316,6 +327,8 @@ export default async function AdminDashboard() {
   return (
     <ActionDashboard
       role={role}
+      residentCount={residentCount}
+      housingUnitCount={housingUnitCount}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}

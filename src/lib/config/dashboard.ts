@@ -41,9 +41,6 @@ export const DASHBOARD_SECTIONS = {
 
 export type DashboardSection = keyof typeof DASHBOARD_SECTIONS
 
-/** Window for the learning stat's "Abschlüsse in N Tagen" subtext. */
-export const LEARNING_PULSE_WINDOW_DAYS = 30
-
 export function sectionVisible(role: StaffRole, section: DashboardSection): boolean {
   return hasPermission(role, DASHBOARD_SECTIONS[section])
 }
@@ -68,4 +65,58 @@ export const DASHBOARD_FALLBACK_CTAS: readonly {
 export function fallbackCta(role: StaffRole): (typeof DASHBOARD_FALLBACK_CTAS)[number] {
   // dashboard:read is in every role, so the find can never miss.
   return DASHBOARD_FALLBACK_CTAS.find((cta) => hasPermission(role, cta.permission))!
+}
+
+/**
+ * Whether this workspace has nothing YET, nothing RIGHT NOW, or work waiting.
+ *
+ * The dashboard used to collapse the first two. On a database with no people
+ * in it every queue is empty, so every check passed and the page reported
+ * "Alles erledigt!" and "Alles unter Kontrolle!" — twice, with the same
+ * button under each. Nothing was under control; there was simply nothing.
+ * That is the single most misleading screen a new AOZ team could be handed,
+ * because it says the setup they have not started is finished.
+ *
+ * Emptiness is measured in PEOPLE, not units: this product exists to support
+ * residents, and a workspace with buildings and nobody in them has not begun.
+ */
+export type WorkspaceState = 'empty' | 'quiet' | 'busy'
+
+export function workspaceState({
+  residentCount,
+  openTaskCount,
+}: {
+  residentCount: number
+  openTaskCount: number
+}): WorkspaceState {
+  if (residentCount === 0) return 'empty'
+  return openTaskCount > 0 ? 'busy' : 'quiet'
+}
+
+/**
+ * The first real setup step, for a workspace that has no data yet.
+ *
+ * Returns null when this role cannot set anything up — a Jobcoach may neither
+ * create housing nor create residents, and offering them a button that ends
+ * at /kein-zugriff repeats the mistake PR #88 fixed. They get the explanation
+ * without the dead end. @see app/(admin)/kein-zugriff/page.tsx
+ */
+export interface SetupStep {
+  href: string
+  labelKey: 'setupCreateHousing' | 'setupCreateResident'
+}
+
+export function setupCta(
+  role: StaffRole,
+  { housingUnitCount }: { housingUnitCount: number }
+): SetupStep | null {
+  // Housing first, but only while there is none: residents are placed INTO
+  // units, so an instance with no unit cannot complete an intake.
+  if (housingUnitCount === 0 && hasPermission(role, 'housing:write')) {
+    return { href: '/housing/new', labelKey: 'setupCreateHousing' }
+  }
+  if (hasPermission(role, 'residents:write')) {
+    return { href: '/residents/new', labelKey: 'setupCreateResident' }
+  }
+  return null
 }
