@@ -274,7 +274,7 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning' | 'marketplace' | 'events'
+  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning' | 'opportunities' | 'marketplace' | 'events'
   icon: keyof typeof NAV_ICONS
   primary?: boolean
   tab?: 1 | 2 | 3 | 4
@@ -315,6 +315,7 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'together' },
   // Integration & Beruf — language, job coaching, volunteering
   { href: '/portal/learning', labelKey: 'learning', icon: 'learning', primary: true, tab: 4, group: 'integration' },
+  { href: '/portal/opportunities', labelKey: 'opportunities', icon: 'opportunities', group: 'integration' },
   { href: '/portal/marketplace', labelKey: 'marketplace', icon: 'shop', group: 'integration' },
   { href: '/portal/events', labelKey: 'events', icon: 'event', group: 'integration' },
   // Account — profile and settings
