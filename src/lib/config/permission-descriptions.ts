@@ -10,6 +10,7 @@
 
 import { ROLE_PERMISSIONS, type StaffPermission } from '@/lib/auth/role-policy'
 import { LEARNING_AREA_NAME } from './learning'
+import { OPPORTUNITY_AREA_NAME } from './opportunities'
 
 export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'dashboard:read': 'das Dashboard ansehen',
@@ -30,6 +31,8 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'marketplace:moderate': 'den Marktplatz moderieren',
   'events:read': 'Veranstaltungen ansehen',
   'events:write': 'Veranstaltungen erstellen',
+  'opportunities:read': `${OPPORTUNITY_AREA_NAME} und laufende Einsätze ansehen`,
+  'opportunities:write': `${OPPORTUNITY_AREA_NAME} erfassen und Personen zuordnen`,
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',
   'system:configure': 'Systemeinstellungen ändern',
   'import:write': 'Daten importieren',

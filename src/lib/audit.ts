@@ -39,6 +39,8 @@ export type AuditEntity =
   | 'MESSAGE'
   | 'SETTLEMENT'
   | 'RESIDENT_PROFILE'
+  | 'OPPORTUNITY'
+  | 'OPPORTUNITY_APPLICATION'
 
 interface AuditLogEntry {
   action: AuditAction

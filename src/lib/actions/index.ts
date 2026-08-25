@@ -36,3 +36,11 @@ export {
   publishActivity,
   archiveActivity,
 } from './activities'
+export {
+  createOpportunity,
+  updateOpportunity,
+  publishOpportunity,
+  archiveOpportunity,
+  addApplicant,
+  changeApplicationStage,
+} from './opportunities'

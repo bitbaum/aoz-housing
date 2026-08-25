@@ -1,4 +1,4 @@
-import { canRoleAccess, hasPermission, ROLE_PERMISSIONS } from '@/lib/auth/role-policy'
+import { canRoleAccess, hasPermission, ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
 
 describe('role policy smoke checks', () => {
   test('ADMIN has all operational permissions', () => {
@@ -30,8 +30,10 @@ describe('role policy smoke checks', () => {
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(21)
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(23)
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('import:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:write')
@@ -39,6 +41,25 @@ describe('role policy smoke checks', () => {
     expect(ROLE_PERMISSIONS.ADMIN).toContain('marketplace:moderate')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('events:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('events:write')
+  })
+
+  test('every role can read the opportunity directory', () => {
+    // Betreuung fields "is there anything I could point them at?" at the
+    // kitchen table. A directory only the integration roles can open is a
+    // directory nobody mentions.
+    for (const role of STAFF_ROLES) {
+      expect(hasPermission(role, 'opportunities:read')).toBe(true)
+    }
+  })
+
+  test('curating the directory belongs to the integration roles', () => {
+    expect(hasPermission('JOBCOACH', 'opportunities:write')).toBe(true)
+    expect(hasPermission('FREIWILLIGENARBEIT', 'opportunities:write')).toBe(true)
+    expect(hasPermission('SOZIALARBEIT', 'opportunities:write')).toBe(true)
+    expect(hasPermission('ADMIN', 'opportunities:write')).toBe(true)
+    // Betreuung reads it but does not maintain it — the one role where read
+    // and write genuinely differ, which is why the permission is split at all.
+    expect(hasPermission('BETREUUNG', 'opportunities:write')).toBe(false)
   })
 
   test('JOBCOACH can record learning and cannot place residents', () => {

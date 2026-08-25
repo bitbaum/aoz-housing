@@ -49,6 +49,10 @@ const OPERATIONAL = [
   'marketplace:moderate',
   'events:read',
   'events:write',
+  // Every role may READ the directory — Betreuung fields "is there anything I
+  // could point them at?" at the kitchen table, not at a desk. Curating it is
+  // separate, and belongs to the integration roles below.
+  'opportunities:read',
 ] as const
 
 export const ROLE_PERMISSIONS = {
@@ -57,6 +61,7 @@ export const ROLE_PERMISSIONS = {
     'users:manage',
     'system:configure',
     'import:write',
+    'opportunities:write',
   ],
   BETREUUNG: [...OPERATIONAL],
   SOZIALARBEIT: [
@@ -72,12 +77,16 @@ export const ROLE_PERMISSIONS = {
     'marketplace:read',
     'events:read',
     'events:write',
+    'opportunities:read',
+    'opportunities:write',
   ],
   JOBCOACH: [
     'dashboard:read',
     'residents:read',
     'learning:read',
     'learning:write',
+    'opportunities:read',
+    'opportunities:write',
   ],
   FREIWILLIGENARBEIT: [
     'dashboard:read',
@@ -88,6 +97,8 @@ export const ROLE_PERMISSIONS = {
     'marketplace:moderate',
     'events:read',
     'events:write',
+    'opportunities:read',
+    'opportunities:write',
   ],
 } as const
 

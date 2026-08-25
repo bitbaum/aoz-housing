@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client'
 import { calculateScore } from './scoring-helper'
 import { syncOrgRules } from '../src/lib/governance/sync-org-rules'
 import { seedIntegrationEvidence } from '../src/lib/seed/integration-evidence'
+import { seedOpportunities } from '../src/lib/seed/opportunities'
 import { BRAND } from '../src/lib/config/brand'
 
 const prisma = new PrismaClient()
@@ -16,6 +17,10 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Clean existing data (order matters: FK constraints)
+  // Applications hold a Restrict on Opportunity, so they go first — and both
+  // go before residents, whose delete would otherwise be vetoed.
+  await prisma.opportunityApplication.deleteMany()
+  await prisma.opportunity.deleteMany()
   await prisma.taskRequest.deleteMany()
   await prisma.taskAttentionFlag.deleteMany()
   await prisma.taskCompletion.deleteMany()
@@ -1641,6 +1646,16 @@ async function main() {
   console.log(
     `✅ Created ${integration.records} learning records, ` +
     `${integration.careAssignments} care assignments`
+  )
+
+  const opportunities = await seedOpportunities(prisma, {
+    residentIds: residents.map((r) => r.id),
+    staffId: seedStaff?.id ?? null,
+  })
+  console.log(
+    `✅ Created ${opportunities.opportunities} opportunities, ` +
+    `${opportunities.applications} applications, ` +
+    `${opportunities.evidenceRecords} generated records`
   )
 
   // Create placements with CALCULATED compatibility scores

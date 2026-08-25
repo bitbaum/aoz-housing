@@ -3,6 +3,7 @@
  */
 
 import { LEARNING_AREA_NAME } from './learning'
+import { OPPORTUNITY_AREA_NAME } from './opportunities'
 
 import {
   Home,
@@ -31,6 +32,7 @@ import {
   GraduationCap,
   ShoppingBag,
   HandHeart,
+  Handshake,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BRAND, isAozSurface, type BrandFeatures } from '@/lib/config/brand'
@@ -63,6 +65,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   shop: ShoppingBag,
   event: CalendarClock,
   volunteer: HandHeart,
+  opportunities: Handshake,
 }
 
 export interface NavItem {
@@ -197,15 +200,42 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
     ],
   },
-  // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain, and
-  // ONE destination. This was a three-item dropdown whose entries were
+  // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain.
+  //
+  // This was once a three-item dropdown whose entries were
   // `/learning?board=overview`, `?board=job` and `?board=volunteering`: the
   // same page three times, competing with the board switcher that page already
-  // renders. Two controls for one choice means the menu and the page can
-  // disagree about where you are, and picking "Beruf" in the menu looked like
-  // navigating somewhere new when it only moved a tab. The page owns its
-  // boards; the nav owns the destination.
-  { href: '/learning', icon: 'learning', label: LEARNING_AREA_NAME, permission: 'learning:read' },
+  // renders. It was collapsed to a single top-level link, and the lesson still
+  // holds — a menu must not offer tabs of one page as if they were places.
+  //
+  // A group is right again now that there are genuinely TWO destinations:
+  // `/learning` is the record of what people have DONE, `/opportunities` the
+  // directory of what they could do next and who is going. Different
+  // questions, different pages.
+  //
+  // Keeping both at top level instead is what forced this: measured at
+  // 1280px as Leitung, a second top-level entry pushed the nav 90px past its
+  // container (0px without it) — re-breaking the fit that #86 fixed, on the
+  // widest role, which is the one that sees every item.
+  {
+    label: 'Integration',
+    items: [
+      {
+        href: '/learning',
+        icon: 'learning',
+        label: LEARNING_AREA_NAME,
+        desc: 'Kurse, Sprachtests & Nachweise',
+        permission: 'learning:read',
+      },
+      {
+        href: '/opportunities',
+        icon: 'opportunities',
+        label: OPPORTUNITY_AREA_NAME,
+        desc: 'Freiwilligenarbeit & Einsätze',
+        permission: 'opportunities:read',
+      },
+    ],
+  },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
 ]
 

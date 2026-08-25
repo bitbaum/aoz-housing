@@ -17,6 +17,11 @@ jest.mock('../../governance/sync-org-rules', () => ({
   syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
 }))
 
+const mockSeedOpportunities = jest.fn()
+jest.mock('../../seed/opportunities', () => ({
+  seedOpportunities: (...args: unknown[]) => mockSeedOpportunities(...args),
+}))
+
 import { resetDemoData } from '../reset'
 import type { PrismaClient } from '@prisma/client'
 
@@ -34,10 +39,17 @@ function createPrismaMock(tables: string[]) {
     $executeRawUnsafe: jest.fn().mockResolvedValue(0),
     user: { upsert: jest.fn().mockResolvedValue({ id: 'demo-user' }) },
     account: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    // The org-wide opportunity directory is seeded from the demo residents
+    // this path just created. Unscoped is correct HERE and only here: the
+    // wipe above ran first, so every remaining resident is a demo resident.
+    resident: {
+      findMany: jest.fn().mockResolvedValue([{ id: 'demo-resident-1' }]),
+    },
   } as unknown as PrismaClient & {
     $executeRawUnsafe: jest.Mock
     user: { upsert: jest.Mock }
     account: { deleteMany: jest.Mock }
+    resident: { findMany: jest.Mock }
   }
 }
 
@@ -49,6 +61,25 @@ describe('resetDemoData', () => {
     process.env.DEMO_STAFF_CODE = 'AOZH-DEMO01'
     mockSeedDemoData.mockResolvedValue(SEED_SUMMARY)
     mockSyncOrgRules.mockResolvedValue({ created: 0, amended: 0 })
+    mockSeedOpportunities.mockResolvedValue({
+      opportunities: 5,
+      applications: 10,
+      evidenceRecords: 3,
+    })
+  })
+
+  it('seeds the opportunity directory from the residents it just created', async () => {
+    // Mocking a seed away and then never asserting it ran is how a step
+    // silently stops happening while the suite stays green.
+    const prisma = createPrismaMock(['Resident'])
+    const summary = await resetDemoData(prisma)
+
+    expect(mockSeedOpportunities).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' })
+    )
+    expect(summary.opportunities).toBe(5)
+    expect(summary.opportunityApplications).toBe(10)
   })
 
   afterEach(() => {
@@ -104,6 +135,8 @@ describe('resetDemoData', () => {
       tablesWiped: 1,
       demoStaffCode: 'AOZH-DEMO01',
       orgRulesSynced: true,
+      opportunities: 5,
+      opportunityApplications: 10,
     })
   })
 
