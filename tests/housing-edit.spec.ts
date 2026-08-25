@@ -135,7 +135,14 @@ test.describe('Housing spots management page', () => {
     const href = await getHousingHrefByCode(page, 'ZH-001')
     await page.goto(href)
 
-    const spotsLink = page.getByRole('link', { name: /Plätze|Zimmer|Spots/i }).first()
+    // Scoped to the page body: unscoped, this searched the chrome too, and the
+    // nav's "Einsatzplätze" entry contains "plätze" — so the first match became
+    // /opportunities and the assertion reported the wrong link for the right
+    // reason. The link this test means is the one ON the housing detail page.
+    const spotsLink = page
+      .locator('#admin-main')
+      .getByRole('link', { name: /Plätze|Zimmer|Spots/i })
+      .first()
     const hasSpotsLink = await spotsLink.isVisible({ timeout: 5_000 }).catch(() => false)
     if (hasSpotsLink) {
       const spotsHref = await spotsLink.getAttribute('href')
