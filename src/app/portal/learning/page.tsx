@@ -17,7 +17,10 @@ import {
 } from '@/lib/config/learning'
 import { activityCostLabel } from '@/lib/i18n/activity-labels'
 
-export const metadata: Metadata = { title: 'Lernen' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.learning') }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function PortalLearningPage() {

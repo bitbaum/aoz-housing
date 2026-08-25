@@ -8,7 +8,10 @@ import { requireResidentCookie } from '@/lib/portal-auth'
 import Link from 'next/link'
 import { getRequestTranslator } from '@/lib/i18n/request'
 
-export const metadata: Metadata = { title: 'Verfügbare Unterkünfte' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.housing') }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function PortalHousingPage() {

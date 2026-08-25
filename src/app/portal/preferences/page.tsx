@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = { title: 'Präferenzen' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.preferences') }
+}
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import { PreferencesForm } from './PreferencesForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
-import { getRequestTranslator } from '@/lib/i18n/request'
 
 const LANGUAGE_OPTIONS = (RESIDENT_FACTORS.languages as { options: readonly string[] }).options.filter(c => c !== 'OTHER')
 const DIET_OPTIONS = (RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }).options.filter(c => c !== 'NONE')

@@ -11,7 +11,10 @@ import { NewProposalForm } from '@/components/governance/NewProposalForm'
 import { DECISION_TIMING } from '@/lib/config/decisions'
 import { getRequestTranslator } from '@/lib/i18n/request'
 
-export const metadata: Metadata = { title: 'Beschlüsse' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.decisions') }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function PortalDecisionsPage() {

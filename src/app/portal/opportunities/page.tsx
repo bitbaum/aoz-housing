@@ -20,7 +20,10 @@ import {
 } from '@/lib/config/opportunities'
 import { formatDate } from '@/lib/utils/formatting'
 
-export const metadata: Metadata = { title: 'Einsatzplätze' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.opportunities') }
+}
 export const dynamic = 'force-dynamic'
 
 type Props = {

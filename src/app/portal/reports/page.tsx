@@ -8,8 +8,10 @@ import { getRequestTranslator } from '@/lib/i18n/request'
 import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { ResidentReportItem } from '@/components/portal/ResidentReportItem'
 
-export const metadata: Metadata = { title: 'Reports' }
-
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.reports') }
+}
 export const dynamic = 'force-dynamic'
 
 /**
