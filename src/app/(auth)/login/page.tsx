@@ -156,11 +156,15 @@ function LoginForm() {
         <p className="mt-0.5 mb-3 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {demoDoors.map((door) => (
+            // Outline, not brand: these are six equal choices, and brand red
+            // marks the ONE action that matters on a screen. Six red blocks
+            // spend the whole palette on a menu and leave the form's own
+            // submit with nothing to be louder than.
             <Button
               key={door.id}
               onClick={() => submitDemo(door.id)}
               disabled={state.status === 'loading'}
-              variant={door.id === 'resident' ? 'outline' : 'secondary'}
+              variant="outline"
               className="disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {door.label}
