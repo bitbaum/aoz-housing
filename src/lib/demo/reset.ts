@@ -22,7 +22,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { syncOrgRules } from '../governance/sync-org-rules'
-import { upsertDemoStaff } from './staff'
+import { upsertDemoStaff, upsertDemoStaffRoles } from './staff'
 import { wipeAllExceptKeepList } from './wipe'
 import { seedOpportunities } from '../seed/opportunities'
 
@@ -41,6 +41,8 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
   // every demo resident, and an assignment cannot point at a row that does not
   // exist yet. (The wipe keeps User, so this is an update on a repeat run.)
   const demoStaff = await upsertDemoStaff(prisma)
+  // Every role door, so the visitor can walk the product as each of them.
+  await upsertDemoStaffRoles(prisma)
 
   const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
 

@@ -23,6 +23,7 @@ jest.mock('../../seed/opportunities', () => ({
 }))
 
 import { resetDemoData } from '../reset'
+import { STAFF_ROLES } from '@/lib/auth/role-policy'
 import type { PrismaClient } from '@prisma/client'
 
 const SEED_SUMMARY = {
@@ -140,13 +141,19 @@ describe('resetDemoData', () => {
     })
   })
 
-  it('skips the staff upsert when no demo staff code is configured', async () => {
+  it('still opens every role door when no staff code is configured', async () => {
+    // The full reset builds a DEDICATED demo instance, where the point is to
+    // walk the product as each role. Those codes are derived from the brand,
+    // so an absent `DEMO_STAFF_CODE` only means the Leitung door uses its
+    // derived code — it does not mean "no staff demo", which is what this used
+    // to assert back when the single door was the whole feature.
     delete process.env.DEMO_STAFF_CODE
     const prisma = createPrismaMock(['Resident'])
 
     const summary = await resetDemoData(prisma)
 
-    expect(prisma.user.upsert).not.toHaveBeenCalled()
+    expect(prisma.user.upsert).toHaveBeenCalledTimes(STAFF_ROLES.length)
+    // The legacy single-door summary field stays null: nothing was configured.
     expect(summary.demoStaffCode).toBeNull()
   })
 })

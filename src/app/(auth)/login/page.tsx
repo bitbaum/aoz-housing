@@ -33,11 +33,10 @@ function LoginForm() {
   const [code, setCode] = useState('')
   const [state, setState] = useState<LoginState>({ status: 'idle' })
   // Which demo doors this deployment offers — server truth, not a build-baked
-  // flag, so a button only appears when pressing it can succeed.
-  const [demoRoles, setDemoRoles] = useState<{ staff: boolean; resident: boolean }>({
-    staff: false,
-    resident: false,
-  })
+  // flag, so a button only appears when pressing it can succeed. One per role:
+  // the product looks entirely different depending on who you are, and a
+  // single "staff" door shows a fifth of it while implying it is the whole.
+  const [demoDoors, setDemoDoors] = useState<{ id: string; label: string }[]>([])
   const redirectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -45,7 +44,7 @@ function LoginForm() {
     fetch('/api/auth/demo')
       .then((res) => res.json())
       .then((body) => {
-        if (!cancelled && body?.success) setDemoRoles(body.data)
+        if (!cancelled && body?.success) setDemoDoors(body.data?.doors ?? [])
       })
       .catch(() => {
         // No demo section on failure — the login form is unaffected.
@@ -116,7 +115,7 @@ function LoginForm() {
     }
   }
 
-  async function submitDemo(role: 'staff' | 'resident') {
+  async function submitDemo(role: string) {
     setState({ status: 'loading' })
 
     try {
@@ -142,36 +141,31 @@ function LoginForm() {
     }
   }
 
-  const demoFooter =
-    (demoRoles.staff || demoRoles.resident) && state.status !== 'success' ? (
-      <div className="mt-4 rounded-lg border border-ui-border bg-ui-surface p-4">
-        <div className="mb-3">
-          <p className="text-sm font-medium text-ui-text">{LOGIN_LABELS.demo.title}</p>
-          <p className="mt-0.5 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>
-        </div>
-        <div
-          className={`grid grid-cols-1 gap-2 ${demoRoles.staff && demoRoles.resident ? 'sm:grid-cols-2' : ''}`}
-        >
-          {demoRoles.staff && (
+  /**
+   * The doors come FIRST, above the form.
+   *
+   * Someone arriving here without an account previously met a password field
+   * and a code field — two ways of being told no — with the thing they could
+   * actually do buried underneath. What most visitors want is to look at the
+   * product, and looking requires no credentials at all.
+   */
+  const demoDoorPanel =
+    demoDoors.length > 0 && state.status !== 'success' ? (
+      <div className="mb-6 rounded-lg border border-ui-border bg-ui-subtle p-4">
+        <p className="text-sm font-medium text-ui-text">{LOGIN_LABELS.demo.title}</p>
+        <p className="mt-0.5 mb-3 text-xs text-ui-muted">{LOGIN_LABELS.demo.description}</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {demoDoors.map((door) => (
             <Button
-              onClick={() => submitDemo('staff')}
+              key={door.id}
+              onClick={() => submitDemo(door.id)}
               disabled={state.status === 'loading'}
-              variant="secondary"
+              variant={door.id === 'resident' ? 'outline' : 'secondary'}
               className="disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {LOGIN_LABELS.demo.staff}
+              {door.label}
             </Button>
-          )}
-          {demoRoles.resident && (
-            <Button
-              onClick={() => submitDemo('resident')}
-              disabled={state.status === 'loading'}
-              variant="outline"
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {LOGIN_LABELS.demo.resident}
-            </Button>
-          )}
+          ))}
         </div>
       </div>
     ) : null
@@ -180,11 +174,12 @@ function LoginForm() {
     <AuthShell
       title={LOGIN_LABELS.title}
       subtitle={mode === 'email' ? LOGIN_LABELS.subtitle : LOGIN_LABELS.codeSubtitle}
-      footer={demoFooter}
     >
       {state.status === 'success' ? (
         <AuthSuccess message={state.message} detail={LOGIN_LABELS.success.redirecting} />
       ) : (
+        <>
+        {demoDoorPanel}
         <form onSubmit={handleSubmit} className="space-y-4">
           {verified === '1' && (
             <div className="alert-success" role="status">
@@ -307,6 +302,7 @@ function LoginForm() {
             </span>
           </div>
         </form>
+        </>
       )}
 
       <p className="mt-6 text-center text-xs text-ui-muted">{LOGIN_LABELS.help}</p>
