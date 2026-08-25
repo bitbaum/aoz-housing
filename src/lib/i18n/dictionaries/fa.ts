@@ -30,10 +30,10 @@ export const fa: Dictionary = {
   'nav.closeMore': 'بستن منو',
   'nav.accountMenu': 'حساب',
 
-  'navGroup.living': 'روزمره',
-  'navGroup.together': 'با هم تصمیم',
-  'navGroup.concerns': 'درخواست‌ها و پیشنهادها',
-  'navGroup.integration': 'درخواست‌ها',
+  'navGroup.living': 'مسکن',
+  'navGroup.community': 'زندگی مشترک',
+  'navGroup.concerns': 'درخواست‌های من',
+  'navGroup.integration': 'ادغام',
   'navGroup.account': 'حساب من',
 
   'reports.title': 'گزارش‌های تو',

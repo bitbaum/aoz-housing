@@ -158,6 +158,14 @@ describe('resetDemoWorld', () => {
       'account.deleteMany',
     ])
     expect(mockSeedDemoData).toHaveBeenCalledTimes(1)
+    // The other end of the safety property the full reset test pins. This
+    // scope may share a database with a real flat, and it deletes by demo
+    // PREFIX — so anything it seeds without a prefix survives forever. An
+    // Activity has no unit and no code, which is exactly that.
+    expect(mockSeedDemoData).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.not.objectContaining({ siteWideContent: true })
+    )
     expect(summary).toEqual({
       ...SEED_SUMMARY,
       unitsDeleted: 5,

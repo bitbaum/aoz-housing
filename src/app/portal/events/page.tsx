@@ -1,14 +1,20 @@
 import type { Metadata } from 'next'
-import { requireResidentCookie } from '@/lib/portal-auth'
-import { getPortalAuth } from '@/lib/portal-auth'
+import { requireResidentCookie, getPortalAuth } from '@/lib/portal-auth'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { EmptyState, PageHeader, PageShell } from '@/components/ui/Page'
+import { EmptyState, PageHeader, PageShell, SectionHeader } from '@/components/ui/Page'
+import { EventCreateForm } from '@/components/portal/EventCreateForm'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
+import {
+  HOUSE_EVENT_CATEGORY_LABEL_KEYS,
+  EVENT_RSVP_LABEL_KEYS,
+  EVENT_RSVP_STATUSES,
+} from '@/lib/config/events'
 import {
   listUnitEvents,
   createEventAsResident,
   rsvpToEvent,
   cancelEvent,
+  type HouseEventSummary,
 } from '@/lib/actions/events'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,105 +43,110 @@ export default async function PortalEventsPage() {
   const { t } = await getRequestTranslator()
   const [auth, events] = await Promise.all([getPortalAuth(), listUnitEvents()])
 
-  const categoryLabels: Record<string, string> = {
-    HOUSE_MEETING: t('events.categoryHouseMeeting'),
-    SOCIAL: t('events.categorySocial'),
-    CULTURE: t('events.categoryCulture'),
-    SUPPORT: t('events.categorySupport'),
+  const upcoming = events?.upcoming ?? []
+  const past = events?.past ?? []
+
+  function renderEvent(event: HouseEventSummary, { isPast }: { isPast: boolean }) {
+    const myRsvp = auth
+      ? event.rsvps.find((rsvp) => rsvp.residentId === auth.resident.id)
+      : undefined
+    const isCreator = Boolean(auth && event.createdByResidentId === auth.resident.id)
+    const going = event.rsvps.filter((rsvp) => rsvp.status === 'GOING')
+
+    return (
+      <article key={event.id} className={`card ${isPast ? 'opacity-70' : ''}`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-semibold text-ui-text">{event.title}</span>
+          <span className="chip chip-neutral">
+            {t(HOUSE_EVENT_CATEGORY_LABEL_KEYS[event.category])}
+          </span>
+          {event.status === 'CANCELLED' ? (
+            <span className="badge badge-ended">{t('events.cancelled')}</span>
+          ) : null}
+        </div>
+
+        <p className="mt-1 text-sm text-ui-muted">{event.description}</p>
+
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ui-muted">
+          <span className="numeric">{formatZurichDateTime(event.startsAt)}</span>
+          {event.location ? <span>{event.location}</span> : null}
+          {event.createdByName ? (
+            <span>{t('events.createdBy')}: {event.createdByName}</span>
+          ) : null}
+        </div>
+
+        {/* Names, not a bare count. "3 × Ich komme" tells you how many people
+            are coming; it does not tell you whether any of them is someone you
+            would want to sit next to, which is the actual question. */}
+        <p className="mt-2 text-sm text-ui-text">
+          <span className="eyebrow">{t('events.attendees')}</span>{' '}
+          {going.length > 0
+            ? going.map((rsvp) => rsvp.residentName).join(', ')
+            : t('events.noAttendees')}
+        </p>
+
+        {!isPast && event.status !== 'CANCELLED' ? (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {EVENT_RSVP_STATUSES.map((status) => (
+              <form key={status} action={submitRsvp}>
+                <input type="hidden" name="eventId" value={event.id} />
+                <input type="hidden" name="status" value={status} />
+                <button
+                  type="submit"
+                  aria-pressed={myRsvp?.status === status}
+                  className={
+                    myRsvp?.status === status
+                      ? 'btn-secondary min-h-[44px] px-4'
+                      : 'btn-outline min-h-[44px] px-4'
+                  }
+                >
+                  {t(EVENT_RSVP_LABEL_KEYS[status])}
+                </button>
+              </form>
+            ))}
+            {isCreator ? (
+              <form action={submitCancelEvent}>
+                <input type="hidden" name="id" value={event.id} />
+                <button type="submit" className="btn-ghost min-h-[44px] px-4">
+                  {t('events.cancel')}
+                </button>
+              </form>
+            ) : null}
+          </div>
+        ) : null}
+      </article>
+    )
   }
 
   return (
     <PageShell>
       <PageHeader title={t('events.title')} description={t('events.subtitle')} />
 
-      <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-4">{t('events.createNew')}</h2>
-        <form action={submitCreateEvent} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label htmlFor="ev-title" className="label">{t('events.formTitle')}</label>
-            <input id="ev-title" name="title" required className="input" />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="ev-description" className="label">{t('events.formDescription')}</label>
-            <textarea id="ev-description" name="description" required rows={2} className="input" />
-          </div>
-          <div>
-            <label htmlFor="ev-category" className="label">{t('events.formCategory')}</label>
-            <select id="ev-category" name="category" className="input" defaultValue="SOCIAL">
-              {Object.entries(categoryLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="ev-location" className="label">{t('events.formLocation')}</label>
-            <input id="ev-location" name="location" className="input" />
-          </div>
-          <div>
-            <label htmlFor="ev-startsAt" className="label">{t('events.formStartsAt')}</label>
-            <input id="ev-startsAt" name="startsAt" type="datetime-local" required className="input" />
-          </div>
-          <div className="sm:col-span-2">
-            <button type="submit" className="btn-primary min-h-[44px] px-6">
-              {t('events.submit')}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {!events || events.length === 0 ? (
-        <EmptyState title={t('events.empty')} />
+      {/* Same reason as the marketplace: with no placement there is no house
+          to hold an event in, and the form would silently swallow the entry. */}
+      {!events ? (
+        <EmptyState title={t('placement.none')} />
       ) : (
-        <div className="space-y-3">
-          {events.map((event) => {
-            const myRsvp = auth
-              ? event.rsvps.find((rsvp) => rsvp.residentId === auth.resident.id)
-              : undefined
-            const isCreator = Boolean(auth && event.createdByResidentId === auth.resident.id)
-            return (
-              <div key={event.id} className="card">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-ui-text">{event.title}</span>
-                  <span className="chip chip-neutral">{categoryLabels[event.category]}</span>
-                  {event.status === 'CANCELLED' ? (
-                    <span className="badge badge-ended">{t('events.cancelled')}</span>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-sm text-ui-muted">{event.description}</p>
-                <div className="mt-2 flex flex-wrap gap-3 text-xs text-ui-muted">
-                  <span>{formatZurichDateTime(event.startsAt)}</span>
-                  {event.location ? <span>{event.location}</span> : null}
-                  <span>{event.rsvps.filter((r) => r.status === 'GOING').length} × {t('events.rsvpGoing')}</span>
-                </div>
-                {event.status !== 'CANCELLED' ? (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(['GOING', 'MAYBE', 'DECLINED'] as const).map((status) => (
-                      <form key={status} action={submitRsvp}>
-                        <input type="hidden" name="eventId" value={event.id} />
-                        <input type="hidden" name="status" value={status} />
-                        <button
-                          type="submit"
-                          className={myRsvp?.status === status ? 'btn-secondary min-h-[44px] px-4' : 'btn-outline min-h-[44px] px-4'}
-                        >
-                          {status === 'GOING' ? t('events.rsvpGoing') : status === 'MAYBE' ? t('events.rsvpMaybe') : t('events.rsvpDeclined')}
-                        </button>
-                      </form>
-                    ))}
-                    {isCreator ? (
-                      <form action={submitCancelEvent}>
-                        <input type="hidden" name="id" value={event.id} />
-                        <button type="submit" className="btn-ghost min-h-[44px] px-4">
-                          {t('events.cancel')}
-                        </button>
-                      </form>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            )
-          })}
-        </div>
+        <EventCreateForm action={submitCreateEvent} />
       )}
+
+      <section className={events ? 'space-y-3' : 'hidden'}>
+        <SectionHeader title={t('events.upcoming')} />
+        {upcoming.length === 0 ? (
+          <EmptyState title={t('events.emptyUpcoming')} />
+        ) : (
+          upcoming.map((event) => renderEvent(event, { isPast: false }))
+        )}
+      </section>
+
+      {/* Only when there is one — an empty "Vorbei" heading is a promise of a
+          history that does not exist yet. */}
+      {past.length > 0 ? (
+        <section className="space-y-3">
+          <SectionHeader title={t('events.past')} />
+          {past.map((event) => renderEvent(event, { isPast: true }))}
+        </section>
+      ) : null}
     </PageShell>
   )
 }

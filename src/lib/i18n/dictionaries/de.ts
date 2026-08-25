@@ -44,10 +44,10 @@ export const de = {
   'nav.accountMenu': 'Konto',
 
   // Sections of the "more" sheet
-  'navGroup.living': 'Alltag',
-  'navGroup.together': 'Zusammen entscheiden',
-  'navGroup.concerns': 'Anliegen & Angebote',
-  'navGroup.integration': 'Integration & Beruf',
+  'navGroup.living': 'Wohnen',
+  'navGroup.community': 'Gemeinschaft',
+  'navGroup.concerns': 'Anliegen',
+  'navGroup.integration': 'Integration',
   'navGroup.account': 'Mein Konto',
 
   // Reports
@@ -101,6 +101,7 @@ export const de = {
   // Safety copy. Translated last and reviewed hardest — this is the text that
   // has to be right at three in the morning.
   'safety.emergency': 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
+  'placement.none': 'Du hast noch keine Unterkunft. Sobald du zugeteilt bist, siehst du hier, was in deinem Haus läuft.',
 
   'help.title': 'Hilfe & FAQ',
   'help.subtitle': 'Antworten und Kontakt — bei Gefahr zuerst die Notfallnummern.',
@@ -293,7 +294,7 @@ export const de = {
   'care.appointmentsEmpty': 'Keine Termine geplant.',
 
   'marketplace.title': 'Marktplatz',
-  'marketplace.subtitle': 'Verschenken, verleihen oder suchen — innerhalb deiner Unterkunft und darüber hinaus.',
+  'marketplace.subtitle': 'Sachen weitergeben und einander helfen — in deiner Unterkunft und darüber hinaus.',
   'marketplace.ownUnit': 'Deine Unterkunft',
   'marketplace.otherUnits': 'Andere Unterkünfte',
   'marketplace.empty': 'Noch keine Meldungen.',
@@ -319,6 +320,34 @@ export const de = {
   'marketplace.statusOpen': 'Offen',
   'marketplace.statusClaimed': 'Übernommen',
   'marketplace.statusClosed': 'Abgeschlossen',
+  'marketplace.natureGoods': 'Sachen',
+  'marketplace.natureService': 'Hilfe',
+  'marketplace.kindOfferHelp': 'Hilfe anbieten',
+  'marketplace.kindNeedHelp': 'Hilfe gesucht',
+  'marketplace.claimTake': 'Ich nehme es',
+  'marketplace.claimBorrow': 'Ich leihe es',
+  'marketplace.claimHaveOne': 'Ich habe eins',
+  'marketplace.claimAcceptHelp': 'Ja, gerne',
+  'marketplace.claimGiveHelp': 'Ich helfe',
+  'marketplace.categoryTranslation': 'Übersetzen',
+  'marketplace.categoryChildcare': 'Kinderbetreuung',
+  'marketplace.categoryMoving': 'Umzug & Transport',
+  'marketplace.categoryRepair': 'Reparieren',
+  'marketplace.categoryTutoring': 'Lernen & Nachhilfe',
+  'marketplace.categoryCooking': 'Kochen & Backen',
+  'marketplace.categoryPaperwork': 'Formulare & Post',
+  'marketplace.filterAll': 'Alles',
+  'marketplace.openOnly': 'Nur offene Einträge aus anderen Unterkünften.',
+  'marketplace.noMoney': 'Nachbarschaftshilfe ohne Bezahlung. Für bezahlte Einsätze gibt es Einsatzplätze.',
+  'marketplace.formContact': 'Wie erreicht man dich?',
+  'marketplace.formContactHint': 'Sehen nur die Person, die übernimmt, und die Betreuung. Zum Beispiel: Zimmer 3, abends.',
+  'marketplace.contactLabel': 'Kontakt',
+  'marketplace.release': 'Doch nicht',
+  'marketplace.reopen': 'Wieder öffnen',
+  'marketplace.delete': 'Löschen',
+  'marketplace.mine': 'Von dir',
+  'marketplace.emptyOpen': 'Hier ist gerade nichts offen. Trag selbst etwas ein.',
+  'marketplace.postedAgo': 'Eingetragen',
 
   'events.title': 'Veranstaltungen',
   'events.subtitle': 'Hausversammlungen und gemeinsame Anlässe — sag zu, ab, oder erstelle selbst einen Termin.',
@@ -339,6 +368,13 @@ export const de = {
   'events.categorySocial': 'Geselliges',
   'events.categoryCulture': 'Kultur',
   'events.categorySupport': 'Unterstützung',
+  'events.upcoming': 'Kommt',
+  'events.past': 'Vorbei',
+  'events.emptyUpcoming': 'Nichts geplant. Schlag selbst etwas vor.',
+  'events.attendees': 'Dabei',
+  'events.noAttendees': 'Noch niemand hat zugesagt.',
+  'events.yourAnswer': 'Deine Antwort',
+  'events.createdBy': 'Von',
 
   // Portal dashboard
   'dashboard.welcome': 'Willkommen zurück',
@@ -384,6 +420,11 @@ export const de = {
   'preferences.subtitle': 'Diese Angaben helfen uns, passende Mitbewohner zu finden',
   'decisions.title': 'Beschlüsse im Haus',
   'decisions.noPlacement': 'Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.',
+  'decisions.subtitle': 'Bei vielen Themen entscheidet ihr im Haus selbst.',
+  'decisions.phaseDiscussion': 'Besprechung',
+  'decisions.phaseVoting': 'Abstimmung',
+  'decisions.days': 'Tage',
+  'decisions.tooFewVoters': 'In diesem Haus wohnen zurzeit zu wenige Personen für eine Abstimmung. Vorschläge kannst du trotzdem einreichen — die Betreuung bespricht sie mit euch.',
 
   // Activities card
   'activities.dashboardTitle': 'Aktivitäten & Kurse',

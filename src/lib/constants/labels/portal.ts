@@ -39,17 +39,6 @@ export const PORTAL_LABELS = {
     closeMore: 'Menü schliessen',
   },
   /**
-   * Headings for the sections of the "Mehr" sheet. Named for what a resident
-   * wants, not for the tables behind them — somebody looking for the cleaning
-   * rota thinks "Alltag", never "Chores".
-   */
-  navGroups: {
-    living: 'Alltag & Wohnen',
-    together: 'Miteinander',
-    integration: 'Integration & Beruf',
-    account: 'Mein Konto',
-  },
-  /**
    * The page that answers "what happened to the thing I reported?".
    *
    * It exists because that question had no answer: the list lived only as a

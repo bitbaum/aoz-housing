@@ -46,10 +46,10 @@ export const tr: Dictionary = {
   'nav.closeMore': 'Menüyü kapat',
   'nav.accountMenu': 'Hesap',
 
-  'navGroup.living': 'Günlük yaşam',
-  'navGroup.together': 'Birlikte karar vermek',
-  'navGroup.concerns': 'Talepler ve fırsatlar',
-  'navGroup.integration': 'Talepler ve fırsatlar',
+  'navGroup.living': 'Konut',
+  'navGroup.community': 'Topluluk',
+  'navGroup.concerns': 'Taleplerim',
+  'navGroup.integration': 'Uyum',
   'navGroup.account': 'Hesabım',
 
   'reports.title': 'Bildirimlerin',

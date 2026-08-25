@@ -1,12 +1,26 @@
 import type { Metadata } from 'next'
-import { requireResidentCookie } from '@/lib/portal-auth'
+import Link from 'next/link'
+import { requireResidentCookie, getPortalAuth } from '@/lib/portal-auth'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { EmptyState, PageHeader, PageShell } from '@/components/ui/Page'
+import { EmptyState, PageHeader, PageShell, SectionHeader } from '@/components/ui/Page'
+import { MarketplacePostForm } from '@/components/portal/MarketplacePostForm'
+import { formatZurichDateTime } from '@/lib/utils/local-time'
+import {
+  MARKETPLACE_KINDS,
+  MARKETPLACE_CATEGORY_LABEL_KEYS,
+  MARKETPLACE_NATURE_LABEL_KEYS,
+  MARKETPLACE_NATURES,
+  MARKETPLACE_STATUS_LABEL_KEYS,
+  type MarketplaceNature,
+} from '@/lib/config/marketplace'
 import {
   listPortalMarketplacePosts,
   createMarketplacePost,
   claimMarketplacePost,
   closeMarketplacePost,
+  releaseMarketplaceClaim,
+  reopenMarketplacePost,
+  deleteMarketplacePost,
   type MarketplacePostSummary,
 } from '@/lib/actions/marketplace'
 
@@ -37,123 +51,217 @@ async function submitClosePost(formData: FormData): Promise<void> {
   await closeMarketplacePost(formData)
 }
 
-export default async function PortalMarketplacePage() {
-  await requireResidentCookie('/login')
-  const { t } = await getRequestTranslator()
-  const posts = await listPortalMarketplacePosts()
+async function submitReleaseClaim(formData: FormData): Promise<void> {
+  'use server'
+  await releaseMarketplaceClaim(formData)
+}
 
-  const kindLabels: Record<string, string> = {
-    GIVE_AWAY: t('marketplace.kindGiveAway'),
-    LEND: t('marketplace.kindLend'),
-    WANTED: t('marketplace.kindWanted'),
-  }
-  const categoryLabels: Record<string, string> = {
-    FURNITURE: t('marketplace.categoryFurniture'),
-    KITCHEN: t('marketplace.categoryKitchen'),
-    CLOTHING: t('marketplace.categoryClothing'),
-    ELECTRONICS: t('marketplace.categoryElectronics'),
-    KIDS: t('marketplace.categoryKids'),
-    OTHER: t('marketplace.categoryOther'),
-  }
-  const statusLabels: Record<string, string> = {
-    OPEN: t('marketplace.statusOpen'),
-    CLAIMED: t('marketplace.statusClaimed'),
-    CLOSED: t('marketplace.statusClosed'),
+async function submitReopenPost(formData: FormData): Promise<void> {
+  'use server'
+  await reopenMarketplacePost(formData)
+}
+
+async function submitDeletePost(formData: FormData): Promise<void> {
+  'use server'
+  await deleteMarketplacePost(formData)
+}
+
+type Props = { searchParams: Promise<{ nature?: string }> }
+
+export default async function PortalMarketplacePage({ searchParams }: Props) {
+  await requireResidentCookie('/login')
+  const { nature: requested } = await searchParams
+  const { t } = await getRequestTranslator()
+
+  const nature = (MARKETPLACE_NATURES as readonly string[]).includes(requested ?? '')
+    ? (requested as MarketplaceNature)
+    : undefined
+
+  const [auth, posts] = await Promise.all([
+    getPortalAuth(),
+    listPortalMarketplacePosts(nature),
+  ])
+  const me = auth?.resident.id ?? null
+
+  function ActionButton({
+    action,
+    id,
+    label,
+    variant = 'btn-outline',
+  }: {
+    action: (formData: FormData) => void
+    id: string
+    label: string
+    variant?: string
+  }) {
+    return (
+      <form action={action}>
+        <input type="hidden" name="id" value={id} />
+        <button type="submit" className={`${variant} min-h-[44px] px-4`}>
+          {label}
+        </button>
+      </form>
+    )
   }
 
   function renderPost(post: MarketplacePostSummary) {
+    const isPoster = post.postedById === me
+    const isClaimer = post.claimedById === me
+
     return (
-      <div key={post.id} className="card">
+      <article key={post.id} className="card">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-semibold text-ui-text">{post.title}</span>
-          <span className={`badge ${STATUS_BADGE[post.status]}`}>{statusLabels[post.status]}</span>
-          <span className="chip chip-neutral">{kindLabels[post.kind]}</span>
+          <span className={`badge ${STATUS_BADGE[post.status]}`}>
+            {t(MARKETPLACE_STATUS_LABEL_KEYS[post.status])}
+          </span>
+          <span className="chip chip-neutral">{t(MARKETPLACE_KINDS[post.kind].labelKey)}</span>
+          {isPoster ? <span className="chip chip-info">{t('marketplace.mine')}</span> : null}
         </div>
+
         <p className="mt-1 text-sm text-ui-muted">{post.description}</p>
-        <div className="mt-2 flex flex-wrap gap-3 text-xs text-ui-muted">
-          <span>{categoryLabels[post.category]}</span>
+
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ui-muted">
+          <span>{t(MARKETPLACE_CATEGORY_LABEL_KEYS[post.category] ?? 'marketplace.categoryOther')}</span>
           <span>{t('marketplace.postedBy')}: {post.postedByName}</span>
+          <span className="numeric">{t('marketplace.postedAgo')}: {formatZurichDateTime(post.createdAt)}</span>
           {post.claimedByName ? (
             <span>{t('marketplace.claimedBy')}: {post.claimedByName}</span>
           ) : null}
         </div>
-        {post.status === 'OPEN' ? (
-          <form action={submitClaimPost} className="mt-3">
-            <input type="hidden" name="id" value={post.id} />
-            <button type="submit" className="btn-outline min-h-[44px] px-4">
-              {t('marketplace.claim')}
-            </button>
-          </form>
+
+        {/* Only ever reaches the two people the handover is between — the
+            server drops it from the payload for everyone else. */}
+        {post.contactNote ? (
+          <p className="mt-2 rounded-md bg-ui-subtle px-3 py-2 text-sm text-ui-text">
+            <span className="eyebrow">{t('marketplace.contactLabel')}</span>{' '}
+            {post.contactNote}
+          </p>
         ) : null}
-        {post.status === 'CLAIMED' ? (
-          <form action={submitClosePost} className="mt-3">
-            <input type="hidden" name="id" value={post.id} />
-            <button type="submit" className="btn-outline min-h-[44px] px-4">
-              {t('marketplace.close')}
-            </button>
-          </form>
-        ) : null}
-      </div>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {post.status === 'OPEN' && !isPoster ? (
+            <ActionButton
+              action={submitClaimPost}
+              id={post.id}
+              label={t(MARKETPLACE_KINDS[post.kind].claimLabelKey)}
+            />
+          ) : null}
+
+          {post.status === 'OPEN' && isPoster ? (
+            <ActionButton
+              action={submitDeletePost}
+              id={post.id}
+              label={t('marketplace.delete')}
+              variant="btn-ghost"
+            />
+          ) : null}
+
+          {post.status === 'CLAIMED' && (isPoster || isClaimer) ? (
+            <>
+              <ActionButton action={submitClosePost} id={post.id} label={t('marketplace.close')} />
+              <ActionButton
+                action={submitReleaseClaim}
+                id={post.id}
+                label={t('marketplace.release')}
+                variant="btn-ghost"
+              />
+            </>
+          ) : null}
+
+          {post.status === 'CLOSED' && isPoster ? (
+            <ActionButton
+              action={submitReopenPost}
+              id={post.id}
+              label={t('marketplace.reopen')}
+              variant="btn-ghost"
+            />
+          ) : null}
+        </div>
+      </article>
     )
   }
+
+  const own = posts?.own ?? []
+  const open = posts?.open ?? []
 
   return (
     <PageShell>
       <PageHeader title={t('marketplace.title')} description={t('marketplace.subtitle')} />
 
-      <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-4">{t('marketplace.postNew')}</h2>
-        <form action={submitCreatePost} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label htmlFor="mp-title" className="label">{t('marketplace.formTitle')}</label>
-            <input id="mp-title" name="title" required className="input" />
-          </div>
-          <div className="sm:col-span-2">
-            <label htmlFor="mp-description" className="label">{t('marketplace.formDescription')}</label>
-            <textarea id="mp-description" name="description" required rows={2} className="input" />
-          </div>
-          <div>
-            <label htmlFor="mp-kind" className="label">{t('marketplace.formKind')}</label>
-            <select id="mp-kind" name="kind" required className="input" defaultValue="GIVE_AWAY">
-              {Object.entries(kindLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="mp-category" className="label">{t('marketplace.formCategory')}</label>
-            <select id="mp-category" name="category" className="input" defaultValue="OTHER">
-              {Object.entries(categoryLabels).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="sm:col-span-2">
-            <button type="submit" className="btn-primary min-h-[44px] px-6">
-              {t('marketplace.submit')}
-            </button>
-          </div>
-        </form>
-      </div>
+      {/* Stated where people post, not buried in help: this board carries no
+          money, and paid work has its own channel with its own permit check. */}
+      <p className="text-sm text-ui-muted">{t('marketplace.noMoney')}</p>
 
-      {!posts || (posts.own.length === 0 && posts.other.length === 0) ? (
-        <EmptyState title={t('marketplace.empty')} />
+      <nav className="flex flex-wrap gap-2" aria-label={t('marketplace.title')}>
+        <FilterLink href="/portal/marketplace" active={!nature}>
+          {t('marketplace.filterAll')}
+        </FilterLink>
+        {MARKETPLACE_NATURES.map((value) => (
+          <FilterLink
+            key={value}
+            href={`/portal/marketplace?nature=${value}`}
+            active={nature === value}
+          >
+            {t(MARKETPLACE_NATURE_LABEL_KEYS[value])}
+          </FilterLink>
+        ))}
+      </nav>
+
+      {/* Without a placement the create action has no unit to file a post
+          under and returns an error the page throws away — so the form looked
+          normal, accepted a post, and did nothing at all. Say so instead. */}
+      {posts ? (
+        <MarketplacePostForm action={submitCreatePost} />
+      ) : (
+        <EmptyState title={t('placement.none')} />
+      )}
+
+      {!posts ? null : own.length === 0 && open.length === 0 ? (
+        <EmptyState title={t('marketplace.emptyOpen')} />
       ) : (
         <>
-          {posts.own.length > 0 ? (
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-ui-text">{t('marketplace.ownUnit')}</h2>
-              {posts.own.map(renderPost)}
-            </div>
+          {own.length > 0 ? (
+            <section className="space-y-3">
+              <SectionHeader title={t('marketplace.ownUnit')} />
+              {own.map(renderPost)}
+            </section>
           ) : null}
-          {posts.other.length > 0 ? (
-            <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-ui-text">{t('marketplace.otherUnits')}</h2>
-              {posts.other.map(renderPost)}
-            </div>
+          {open.length > 0 ? (
+            <section className="space-y-3">
+              <SectionHeader
+                title={t('marketplace.otherUnits')}
+                description={t('marketplace.openOnly')}
+              />
+              {open.map(renderPost)}
+            </section>
           ) : null}
         </>
       )}
     </PageShell>
+  )
+}
+
+function FilterLink({
+  href,
+  active,
+  children,
+}: {
+  href: string
+  active: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={`min-h-[44px] inline-flex items-center gap-2 rounded-sm px-3 py-1.5 text-sm font-medium transition-colors ${
+        active
+          ? 'bg-brand-primary text-ui-on-accent'
+          : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
+      }`}
+    >
+      {children}
+    </Link>
   )
 }

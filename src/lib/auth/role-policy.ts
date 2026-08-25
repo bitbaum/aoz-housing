@@ -53,6 +53,11 @@ const OPERATIONAL = [
   // could point them at?" at the kitchen table, not at a desk. Curating it is
   // separate, and belongs to the integration roles below.
   'opportunities:read',
+  // Same rule, same reason, for the catalogue of external offers. It used to
+  // ride on `residents:write`, which meant the two roles who exist to point
+  // people at sport, language and community offers — JOBCOACH and
+  // FREIWILLIGENARBEIT — were the two who could not open the page.
+  'activities:read',
 ] as const
 
 export const ROLE_PERMISSIONS = {
@@ -62,6 +67,7 @@ export const ROLE_PERMISSIONS = {
     'system:configure',
     'import:write',
     'opportunities:write',
+    'activities:write',
   ],
   BETREUUNG: [...OPERATIONAL],
   SOZIALARBEIT: [
@@ -79,6 +85,8 @@ export const ROLE_PERMISSIONS = {
     'events:write',
     'opportunities:read',
     'opportunities:write',
+    'activities:read',
+    'activities:write',
   ],
   JOBCOACH: [
     'dashboard:read',
@@ -87,6 +95,8 @@ export const ROLE_PERMISSIONS = {
     'learning:write',
     'opportunities:read',
     'opportunities:write',
+    'activities:read',
+    'activities:write',
   ],
   FREIWILLIGENARBEIT: [
     'dashboard:read',
@@ -99,6 +109,8 @@ export const ROLE_PERMISSIONS = {
     'events:write',
     'opportunities:read',
     'opportunities:write',
+    'activities:read',
+    'activities:write',
   ],
 } as const
 

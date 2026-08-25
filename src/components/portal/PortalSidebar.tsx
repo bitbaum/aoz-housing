@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react'
 import {
   NAV_ICONS,
   PORTAL_SIDEBAR_GROUPS,
+  PORTAL_SIDEBAR_PINNED,
   portalSidebarItems,
   type PortalNavGroup,
   type PortalNavItem,
@@ -30,15 +31,28 @@ export function PortalNavAccordion({
 }) {
   const t = useT()
   const items = portalSidebarItems()
+  const pinned = items.filter((item) => PORTAL_SIDEBAR_PINNED.includes(item.href))
+  const grouped = items.filter((item) => !PORTAL_SIDEBAR_PINNED.includes(item.href))
 
   return (
     <nav aria-label={t('nav.moreTitle')}>
+      {/* The way back to the overview must not depend on which accordion
+          happens to be open. */}
+      {pinned.map((item) => (
+        <GroupLink
+          key={item.href}
+          item={item}
+          active={isPortalPathActive(pathname, item.href)}
+          messageUnreadCount={messageUnreadCount}
+        />
+      ))}
+
       {PORTAL_SIDEBAR_GROUPS.map((group) => (
         <NavGroup
           key={group}
           group={group}
           pathname={pathname}
-          items={items}
+          items={grouped}
           heading={t(`navGroup.${group}` as MessageKey)}
           messageUnreadCount={messageUnreadCount}
         />

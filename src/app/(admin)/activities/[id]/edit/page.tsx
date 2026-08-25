@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/Page'
 import { ACTIVITY_STATUS_LABELS } from '@/lib/config/activities'
 import { getActivityById } from '@/lib/data/activities'
 import { ACTIVITIES_ADMIN_LABELS } from '@/lib/constants'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: ACTIVITIES_ADMIN_LABELS.editTitle }
 export const dynamic = 'force-dynamic'
@@ -16,6 +17,7 @@ type Props = {
 }
 
 export default async function EditActivityPage({ params }: Props) {
+  await requirePermission('activities:write')
   const { id } = await params
   const activity = await getActivityById(id)
 

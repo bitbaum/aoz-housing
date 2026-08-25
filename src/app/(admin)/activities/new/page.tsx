@@ -1,13 +1,19 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createActivity } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 import { ActivityFormFields } from '@/components/activities/ActivityFormFields'
 import { PageHeader } from '@/components/ui/Page'
 import { ACTIVITIES_ADMIN_LABELS } from '@/lib/constants'
 
 export const metadata: Metadata = { title: ACTIVITIES_ADMIN_LABELS.createTitle }
 
-export default function NewActivityPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function NewActivityPage() {
+  // The form posted to an action that only checked "are you staff at all".
+  // Curating the public catalogue is a write, so the page asks for the write.
+  await requirePermission('activities:write')
   return (
     <div className="max-w-3xl">
       <div className="mb-6">

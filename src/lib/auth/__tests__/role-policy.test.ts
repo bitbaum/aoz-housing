@@ -30,7 +30,7 @@ describe('role policy smoke checks', () => {
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(23)
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(25)
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:write')

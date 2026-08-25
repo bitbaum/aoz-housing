@@ -78,16 +78,33 @@ export interface MarketingCopy {
   blogTitle: string
   blogLink: string
 
+  /**
+   * The section that lists what the product actually contains.
+   *
+   * Only the FRAME lives here — the eyebrow, the heading, the line under it.
+   * The contents come from `lib/config/product-surface.ts`, which reads the
+   * navigation, so this section grows when the product does instead of when
+   * somebody remembers to edit a paragraph.
+   */
+  surfaceEyebrow: string
+  surfaceTitle: string
+  surfaceBody: string
+
+  /** The three public product documents, as cards. */
+  docsEyebrow: string
+  docsTitle: string
+  docs: MarketingSection[]
+
   closingTitle: string
   closingBody: string
 }
 
 /** The pitch register: an organisation deciding whether to use this. */
 const PLACEMENT_COPY: MarketingCopy = {
-  eyebrow: 'Stabilität, Integration, Begleitung',
-  headline: 'Ein System für Fachpersonen, das Wohnen und Integration zusammenführt.',
+  eyebrow: 'Wohnen, Alltag, Integration, Begleitung',
+  headline: 'Die ganze Begleitung an einem Ort — nicht nur das Zimmer.',
   subline:
-    'Housing ist der Anfang, nicht das ganze Bild. Das Produkt verbindet Stabilität, Sprache, Qualifikation, Teilhabe und koordinierte Begleitung in einem System, das Fachpersonen im Alltag wirklich verwenden können — inklusive Matching, Platzierung und Folgeschritten.',
+    'Ein Zimmer zuteilen ist der erste Tag, nicht die Aufgabe. Dieses Produkt trägt auch alles, was danach kommt: den Alltag im Haus, die Regeln, die das Haus sich selbst gibt, Aufgaben und Ausgaben, was weitergegeben und wo geholfen wird, Kurse und Nachweise, Einsatzplätze — und die Fachpersonen, die das koordinieren, sehen denselben Verlauf wie die Klient*innen.',
   ctaPrimary: 'Produkt ansehen',
   ctaSecondary: 'Anmelden',
   ctaNote: 'Kein Konto nötig. Sie sehen das echte Produkt mit Beispieldaten.',
@@ -132,26 +149,39 @@ const PLACEMENT_COPY: MarketingCopy = {
 
   featuresEyebrow: 'Im Produkt',
   featuresTitle: 'Vier Pfeiler für Fachpersonen und Klient*innen.',
+  // German, not English. "Stability / Capability / Participation / Guidance"
+  // were four abstract nouns in the wrong language on a page written for Swiss
+  // social services, and none of them named a thing you could go and press.
   features: [
     {
       icon: 'building',
-      title: 'Stability',
-      body: 'Housing, Sicherheit, Vorfälle, Verlegungen und Regeln in einem operativen Verlauf statt in isolierten Einzelfunktionen.',
+      title: 'Stabilität im Wohnen',
+      body: 'Unterkünfte, Platzierung, Verlegungen, Wartung und Vorfälle in einem Verlauf — mit einem Matching, das erklärt, warum es diese Kombination vorschlägt.',
+    },
+    {
+      icon: 'vote',
+      title: 'Das Haus regelt seinen Alltag',
+      body: 'Hausregeln mit Versionen und Bestätigung, Vorschläge und Abstimmungen, Aufgaben mit Fairness-Bilanz, geteilte Ausgaben auf den Rappen genau.',
+    },
+    {
+      icon: 'shop',
+      title: 'Nachbarschaft, die trägt',
+      body: 'Ein Marktplatz für Sachen und für Hilfe, Veranstaltungen im Haus mit Zusagen, und ein Verzeichnis der Angebote im Quartier.',
     },
     {
       icon: 'learning',
-      title: 'Capability',
-      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktnähe werden als verwertbare Evidenz sichtbar, filterbar und teamfähig.',
-    },
-    {
-      icon: 'volunteer',
-      title: 'Participation',
-      body: 'Freiwilligenarbeit, Aktivitäten, soziale Kontakte und Alltagsorientierung werden nicht nur angeboten, sondern im Verlauf nachvollziehbar.',
+      title: 'Weiterkommen',
+      body: 'Sprache, Kurse und Qualifikationen als belegter Verlauf, dazu Einsatzplätze und Freiwilligenarbeit mit Bewerbungsstand.',
     },
     {
       icon: 'message',
-      title: 'Guidance',
-      body: 'Care Team, Nachrichten, Follow-ups, Boards und nächste Schritte sorgen dafür, dass Verantwortung sichtbar bleibt und Antwortschlaufen sich schliessen.',
+      title: 'Antworten, die ankommen',
+      body: 'Meldungen gehen an die Stelle, die etwas tun kann, und die Antwort kommt zurück. Care Team, Nachrichten und Follow-ups halten die Zuständigkeit sichtbar.',
+    },
+    {
+      icon: 'chart',
+      title: 'Nachvollziehbar für alle',
+      body: 'Jede Platzierung ist protokolliert, jeder Score zerlegbar, jedes Abstimmungsergebnis mit der damals gültigen Regel erklärbar.',
     },
   ],
 
@@ -200,6 +230,28 @@ const PLACEMENT_COPY: MarketingCopy = {
   blogEyebrow: 'Blog und Produktdokumente',
   blogTitle: 'Warum das Produkt so gebaut ist und wie es sich weiterentwickelt.',
   blogLink: 'Alle Beiträge lesen',
+
+  surfaceEyebrow: 'Im Produkt enthalten',
+  surfaceTitle: 'Beide Seiten, vollständig — so wie sie im Menü stehen.',
+  surfaceBody:
+    'Diese Liste ist nicht abgetippt, sondern die Navigation des Produkts selbst. Kommt ein Bereich dazu, steht er hier. Verschwindet einer, verschwindet er auch hier.',
+
+  docsEyebrow: 'Nachvollziehbarkeit',
+  docsTitle: 'Produktdenken, Fortschritt und wissenschaftliche Grundlage sind öffentlich lesbar.',
+  docs: [
+    {
+      title: 'Roadmap',
+      body: 'Wohin sich das Produkt entwickelt und welche Prinzipien die Richtung bestimmen.',
+    },
+    {
+      title: 'Changelog',
+      body: 'Was bereits im Produkt angekommen ist und wie sich die Plattform konkret verändert.',
+    },
+    {
+      title: 'Blog',
+      body: 'Hintergründe zu Entscheidungen, Forschung, Produktlogik und technischer Umsetzung.',
+    },
+  ],
 
   closingTitle: 'Sehen Sie es sich an.',
   closingBody:
@@ -322,6 +374,28 @@ const HOUSEHOLD_COPY: MarketingCopy = {
   blogEyebrow: 'Technik-Blog',
   blogTitle: 'Warum das Produkt so gebaut ist, wie es ist.',
   blogLink: 'Alle Beiträge lesen',
+
+  surfaceEyebrow: 'Alles drin',
+  surfaceTitle: 'Was ihr in der App findet — genau so wie im Menü.',
+  surfaceBody:
+    'Diese Liste ist nicht abgetippt, sondern das Menü der App selbst. Kommt etwas dazu, steht es hier.',
+
+  docsEyebrow: 'Zum Nachlesen',
+  docsTitle: 'Wie die App entstanden ist und was als Nächstes kommt.',
+  docs: [
+    {
+      title: 'Roadmap',
+      body: 'Woran gerade gearbeitet wird und was als Nächstes dazukommt.',
+    },
+    {
+      title: 'Changelog',
+      body: 'Was sich zuletzt geändert hat, mit Datum.',
+    },
+    {
+      title: 'Blog',
+      body: 'Warum die App so funktioniert, wie sie funktioniert.',
+    },
+  ],
 
   closingTitle: 'Schau es dir an.',
   closingBody:

@@ -33,6 +33,8 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'events:write': 'Veranstaltungen erstellen',
   'opportunities:read': `${OPPORTUNITY_AREA_NAME} und laufende Einsätze ansehen`,
   'opportunities:write': `${OPPORTUNITY_AREA_NAME} erfassen und Personen zuordnen`,
+  'activities:read': 'externe Aktivitäten ansehen',
+  'activities:write': 'externe Aktivitäten erfassen und veröffentlichen',
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',
   'system:configure': 'Systemeinstellungen ändern',
   'import:write': 'Daten importieren',

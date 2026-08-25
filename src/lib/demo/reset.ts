@@ -44,7 +44,12 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
   // Every role door, so the visitor can walk the product as each of them.
   await upsertDemoStaffRoles(prisma)
 
-  const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
+  const seeded = await seedDemoData(prisma, {
+    careStaffId: demoStaff?.id ?? null,
+    // Full scope owns the whole database, so it can also own — and next time
+    // truncate — content that no demo prefix reaches.
+    siteWideContent: true,
+  })
 
   // The opportunity directory is org-wide, so it is seeded HERE and never in
   // the scoped reset: this path truncated the database first, which makes an

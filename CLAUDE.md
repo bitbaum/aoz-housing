@@ -1,8 +1,8 @@
 # AOZ Begleitung
 
 created_date: 2025-06-01
-last_modified_date: 2026-08-19
-last_modified_summary: Updated the public product/domain naming while preserving legacy internal runtime identifiers.
+last_modified_date: 2026-08-25
+last_modified_summary: Documented the navigation IA rule (name a group for what it IS) and the marketplace's two halves with its deliberate absence of money.
 
 @~/.claude/CLAUDE.md
 
@@ -683,6 +683,79 @@ residents do not know which desk works their report, and must not have to.
 
 ---
 
+## Navigation: a group is named for what it IS
+
+SSOT: `src/lib/config/navigation.ts`. Both sides of the product share one
+vocabulary — "Gemeinschaft" means the same thing to staff and to residents, and
+a word that differs between the two surfaces is how a shared language rots.
+
+**The rule, and it is load-bearing: never name a group for what you DO there.**
+A verb heading breaks the day its verb is feature-flagged away — silently, with
+everything still green. That is not hypothetical. The portal shipped a group
+called **"Zusammen entscheiden"** which, on the AOZ brand, held Regeln,
+Nachrichten, Melden and Meine Meldungen and nothing to decide: `householdVotes:
+false` had removed Abstimmen, the one item the name described, and the heading
+stayed. Types, coverage and route-reachability were all green throughout.
+
+The five portal groups each answer one question a resident arrives with:
+
+| Group | The question |
+|---|---|
+| `living` — Wohnen | the roof over my head, and running this household |
+| `community` — Gemeinschaft | the people I live with |
+| `concerns` — Anliegen | I raised something; where did it go |
+| `integration` — Integration | where I am going next |
+| `account` — Mein Konto | me and this app |
+
+Messages sit under **Anliegen, not Gemeinschaft**: a `MessageThread` belongs to
+one resident and the other side is always STAFF, so it is not community at all.
+
+Gates: `portal-nav-groups.test.ts` checks every group against EVERY brand's
+flags (the flags are what empties a group; the built brand is what hides that
+from you) and requires ≥2 items — a one-item accordion is a link wearing a hat.
+`nav-labels-distinct.test.ts` compares rendered headings AND item labels per
+locale: `navGroup.integration` was a verbatim copy of `navGroup.concerns` in fr,
+uk, ar and tr, so those readers had two accordions with the same name while the
+labels inside them were perfectly distinct.
+
+Group headings live ONLY in the dictionaries. `PORTAL_LABELS.navGroups` was a
+second copy read by nothing but a test; the sidebar resolves headings through an
+`as MessageKey` cast, and a cast is not a check — an unkeyed group renders an
+EMPTY heading, because the German fallback misses too.
+
+---
+
+## Marketplace: two halves, and no money
+
+SSOT: `src/lib/config/marketplace.ts`. The board carries **goods and services**,
+because the thing people in a shared house pass around most is not a toaster —
+it is half an hour. Translating a letter, watching a child, carrying a wardrobe.
+
+**There is no price field and there must never be one.** The people using this
+hold permits that constrain paid work, and a neighbour-help board where one
+resident quotes another turns into informal employment nobody has checked,
+inside a population that cannot afford to have that go wrong. Paid and formal
+work keeps its own channel with its own permit gate — `Opportunity` — and the
+separation between the two IS the safeguard.
+
+- **`kind` is an enum, `category` is config.** Not the same kind of thing: a
+  category is vocabulary (adding "Fahrrad" is one line, never a migration — same
+  rule as the expense categories), a kind is behaviour (it decides who claims
+  from whom and what the button says).
+- **The button reverses with the direction.** On a `GIVE_AWAY` the poster holds
+  the thing; on a `WANTED` or `NEED_HELP` the poster is the one asking, and
+  answering means offering. `claimLabelKey` per kind.
+- **`contactNote` is how the two people actually meet.** There is no
+  resident-to-resident messaging in this product, so without it a match
+  stranded both sides at "claimed". It reaches the poster, the claimer and
+  staff — and is dropped from the payload for everyone else, not hidden in the
+  JSX. The payload is the leak, not the markup.
+- You cannot claim your own post; a claimer may release rather than only close
+  (closing destroyed the offer for everyone); the poster may withdraw an
+  untouched post or reopen one that fell through; other units show OPEN only.
+
+---
+
 ## Shared Expenses, Resident Profiles & Apartment Profiles
 
 Splitwise-style expense sharing per housing unit, plus optional self-chosen
@@ -1210,4 +1283,4 @@ npm run test:e2e         # Run Playwright tests (173 tests)
 
 ---
 
-**Last Updated**: 2026-02-23
+**Last Updated**: 2026-08-25

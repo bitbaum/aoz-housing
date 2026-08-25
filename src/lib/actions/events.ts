@@ -82,7 +82,18 @@ function mapEvent(row: {
   }
 }
 
-export async function listUnitEvents(): Promise<HouseEventSummary[] | null> {
+/**
+ * The unit's events, split by whether they have happened yet.
+ *
+ * One list sorted ascending put last month's Frühlingsputz above next week's
+ * Hausversammlung and asked a resident to RSVP to both. What is coming is the
+ * only part anyone can act on, so it comes first and in the order it will
+ * happen; what is done is a record, so it reads newest-first.
+ */
+export async function listUnitEvents(now: Date = new Date()): Promise<{
+  upcoming: HouseEventSummary[]
+  past: HouseEventSummary[]
+} | null> {
   const auth = await getPortalAuth()
   if (!auth) return null
 
@@ -96,7 +107,12 @@ export async function listUnitEvents(): Promise<HouseEventSummary[] | null> {
     },
     orderBy: { startsAt: 'asc' },
   })
-  return rows.map(mapEvent)
+
+  const mapped = rows.map(mapEvent)
+  return {
+    upcoming: mapped.filter((event) => event.startsAt >= now),
+    past: mapped.filter((event) => event.startsAt < now).reverse(),
+  }
 }
 
 export async function listStaffEvents(): Promise<HouseEventSummary[]> {
@@ -185,6 +201,22 @@ export async function rsvpToEvent(formData: FormData): Promise<{ success: boolea
   const eventId = String(formData.get('eventId') || '')
   const status = parseRsvpStatus(formData.get('status'))
   if (!eventId || !status) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+
+  // The id arrived in a form field, so it is a claim, not a fact. Without this
+  // check any resident could answer any unit's event by id — and since the
+  // attendee list renders NAMES, that puts a stranger into another household's
+  // "wer kommt" list, which is a privacy leak wearing the costume of an RSVP.
+  const event = await prisma.houseEvent.findUnique({
+    where: { id: eventId },
+    select: { housingUnitId: true, status: true },
+  })
+  if (
+    !event ||
+    event.housingUnitId !== auth.placement.housingUnitId ||
+    event.status === 'CANCELLED'
+  ) {
+    return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+  }
 
   await prisma.eventRsvp.upsert({
     where: { eventId_residentId: { eventId, residentId: auth.resident.id } },
