@@ -37,6 +37,10 @@ echo "==> verify"
 npm run verify
 
 echo "==> build (brand: aoz)"
+# A developer shell (direnv / .env) exports NODE_ENV=development. `next build`
+# then prerenders with "Cannot read properties of null (reading 'useContext')"
+# and the CSP includes 'unsafe-eval'. Pin production for this process only.
+export NODE_ENV=production
 rm -rf .next/standalone .next/static
 NEXT_PUBLIC_BRAND=aoz npm run build
 
@@ -58,9 +62,13 @@ code=$(curl -s -o /dev/null -w '%{http_code}' "$URL/api/health")
 
 # Assert on CONTENT, never on liveness: a restart that silently failed on a
 # busy port still answers 200 — from the OLD process.
-curl -s "$URL/login" | grep -q 'AOZ Begleitung' || {
+html=$(curl -s "$URL/login")
+echo "$html" | grep -q 'AOZ Begleitung' || {
   echo "live page does not carry the AOZ brand — stale build?"; exit 1;
 }
+echo "$html" | grep -q 'fleetcrown.orangecat.ch/widget.js' || {
+  echo "live page does not carry the FleetCrown widget — stale build?"; exit 1;
+}
 doors=$(curl -s "$URL/api/auth/demo" | grep -o '"id"' | wc -l)
-echo "    health 200, AOZ brand present, $doors demo doors offered"
+echo "    health 200, AOZ brand present, widget snippet present, $doors demo doors offered"
 echo "==> done: $URL"
