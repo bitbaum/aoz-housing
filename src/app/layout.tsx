@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
+import Script from 'next/script'
 import { APP_LABELS } from '@/lib/constants/labels'
 import { ToastContainer } from '@/components/ui/Toast'
 import './globals.css'
@@ -89,6 +90,12 @@ export default function RootLayout({
       <body className="min-h-screen bg-ui-canvas text-ui-text font-sans">
         {children}
         <ToastContainer />
+        {/* Token is a literal so next build cannot tree-shake the Script away. */}
+        <Script
+          src="https://fleetcrown.orangecat.ch/widget.js"
+          strategy="afterInteractive"
+          data-fc-project="fcw_757c716fede237047d988f8d715a144d"
+        />
       </body>
     </html>
   )
