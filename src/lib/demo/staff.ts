@@ -10,10 +10,43 @@
 
 import type { PrismaClient } from '@prisma/client'
 import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
+import { demoStaffDoors } from './roles'
 
 export interface DemoStaffAccount {
   id: string
   code: string
+}
+
+/**
+ * One demo account per staff role, so a visitor can see the product as each of
+ * them without an account.
+ *
+ * This is the whole point of the exercise: the app a Jobcoach uses and the app
+ * Leitung uses are not the same app — different nav, different boards,
+ * different permissions — and a demo with one staff door shows a fifth of the
+ * product while implying it is all of it.
+ *
+ * Every account is upserted `active: true` and stripped of any claimed
+ * credentials, exactly like the Leitung one: registration is open on any
+ * unclaimed code, so a drive-by visitor could otherwise attach their own email
+ * and password to a demo door and lock out everyone after them.
+ */
+export async function upsertDemoStaffRoles(prisma: PrismaClient): Promise<DemoStaffAccount[]> {
+  const accounts: DemoStaffAccount[] = []
+
+  for (const door of demoStaffDoors()) {
+    const user = await prisma.user.upsert({
+      where: { code: door.code },
+      update: { name: door.name, role: door.role, active: true },
+      create: { code: door.code, name: door.name, role: door.role },
+      select: { id: true },
+    })
+
+    await prisma.account.deleteMany({ where: { userId: user.id } })
+    accounts.push({ id: user.id, code: door.code })
+  }
+
+  return accounts
 }
 
 /**

@@ -83,7 +83,9 @@ export const LOGIN_LABELS = {
     // The person's term comes from the brand, like their code prefix does —
     // this line used to say "Bewohner:in", a third gendering convention beside
     // the gender star used everywhere else in the product.
-    description: `Ohne Konto testen — Sie sehen das echte Produkt, genau so, wie es ${BRAND.clientTermPlural} nutzen.`,
+    // Names the choice, because the choice is the point: the product looks
+    // different for every role, and the visitor picks which one to stand in.
+    description: `Ohne Konto, ein Klick: Sie sehen das echte Produkt aus der Sicht der Rolle, die Sie wählen — auch als ${BRAND.clientTerm}.`,
     staff: `${BRAND.shortName}-Verwaltung`,
     resident: `Als ${BRAND.clientTerm} ausprobieren`,
   },

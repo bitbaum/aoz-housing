@@ -52,7 +52,11 @@ const AOZ_FEATURES: BrandFeatures = {
   householdMoney: false,
   householdVotes: false,
   householdPrimaryNav: false,
-  codeFirstLogin: true,
+  // Email and password open first. A code is still a valid door — every issued
+  // code keeps working and the toggle is one tap away — but leading with a
+  // form that demands a string nobody can guess makes the product look shut to
+  // anyone arriving without a piece of paper.
+  codeFirstLogin: false,
   matchingFastDefault: true,
 }
 
@@ -217,7 +221,14 @@ export const BRANDS: Record<BrandId, Brand> = {
   },
 }
 
-export const DEFAULT_BRAND_ID: BrandId = 'aozh'
+/**
+ * AOZ is the default: the product IS the AOZ tool, and anything that has not
+ * been told otherwise should say so. The neutral `aozh` badge was the default
+ * while the product was being pitched under a placeholder name, and the effect
+ * was that every un-configured surface — a local build, a preview, a new
+ * deployment — introduced a THIRD name into a product that already had two.
+ */
+export const DEFAULT_BRAND_ID: BrandId = 'aoz'
 
 /**
  * Every code prefix any brand has ever issued.

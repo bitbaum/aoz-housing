@@ -24,7 +24,7 @@ import {
   DEMO_UNIT_CODE_PREFIX,
 } from './config'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
-import { upsertDemoStaff } from './staff'
+import { upsertDemoStaff, upsertDemoStaffRoles } from './staff'
 import { syncOrgRules } from '../governance/sync-org-rules'
 
 export interface DemoWorldResetSummary extends DemoSeedSummary {
@@ -79,6 +79,11 @@ export async function resetDemoWorld(prisma: PrismaClient): Promise<DemoWorldRes
   await syncOrgRules(prisma)
   // Before the seed: it assigns this account the care seats on every demo
   // resident, so the account has to exist first.
+  // Deliberately the SINGLE configured door, not the per-role set. This scope
+  // exists for instances where the demo world lives alongside a real flat, and
+  // minting five staff accounts there would hand anonymous visitors four more
+  // ways into real residents' records. The per-role doors are a dedicated-demo
+  // feature and are created only by the full reset.
   const demoStaff = await upsertDemoStaff(prisma)
   const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
 

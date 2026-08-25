@@ -34,6 +34,25 @@ describe('a language is only offered when it is finished', () => {
     expect(availableLocales().map((locale) => locale.id)).toContain(DEFAULT_LOCALE)
   })
 
+  it('keeps offering every language that has already been finished', () => {
+    // The check above can only fail for a language that is STILL offered — a
+    // dictionary that falls below 100% stops being offered, so the assertion
+    // skips it and reports green. That makes "add keys to German, forget one
+    // language" a silent removal of that language from the product, which is
+    // precisely the change most likely to cause it.
+    //
+    // So the offered set is pinned. Adding a language means adding it here on
+    // purpose; losing one fails loudly, naming the language that regressed.
+    expect(availableLocales().map((locale) => locale.id).sort()).toEqual([
+      'ar',
+      'de',
+      'en',
+      'fr',
+      'ru',
+      'uk',
+    ])
+  })
+
   it('warns the reader about every language nobody has vouched for', () => {
     // The honesty half. Offering a language is not the same as standing behind
     // it, and the reader is the person best placed to judge — so they are told,

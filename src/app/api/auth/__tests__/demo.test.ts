@@ -45,6 +45,18 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
+// A door is offered only when its ACCOUNT exists, so the endpoint reads the
+// database. Config presence proves nothing now that codes are derived: it
+// would offer five buttons on an instance where the seed never ran.
+const mockUserFindMany = jest.fn()
+const mockResidentFindUnique = jest.fn()
+jest.mock('@/lib/db', () => ({
+  prisma: {
+    user: { findMany: (...args: unknown[]) => mockUserFindMany(...args) },
+    resident: { findUnique: (...args: unknown[]) => mockResidentFindUnique(...args) },
+  },
+}))
+
 // --- Import after mocks ---
 import { POST, GET } from '../demo/route'
 
@@ -82,6 +94,11 @@ describe('POST /api/auth/demo', () => {
       type: 'staff',
       user: STAFF_USER,
     })
+    // Every staff door's account exists unless a test says otherwise.
+    mockUserFindMany.mockImplementation(async (args: { where: { code: { in: string[] } } }) =>
+      args.where.code.in.map((code) => ({ code }))
+    )
+    mockResidentFindUnique.mockResolvedValue({ id: 'demo-resident-id' })
   })
 
   afterEach(() => {
@@ -90,9 +107,50 @@ describe('POST /api/auth/demo', () => {
 
   describe('validation and configuration', () => {
     it('rejects an unknown role', async () => {
+      // 404, not 400: "no such role" and "that door is not on offer here" are
+      // the same fact to the caller, and answering them differently would tell
+      // a prober which roles exist.
       const response = await POST(createDemoRequest({ role: 'superadmin' }))
-      expect(response.status).toBe(400)
+      expect(response.status).toBe(404)
       expect(mockLoginByCode).not.toHaveBeenCalled()
+    })
+
+    it('opens a door for every staff role, not just one', async () => {
+      // The reason this endpoint changed: the product a Jobcoach sees and the
+      // product Leitung sees are different applications.
+      const response = await GET()
+      const body = await response.json()
+      const ids = body.data.doors.map((door: { id: string }) => door.id)
+
+      expect(ids).toEqual(
+        expect.arrayContaining([
+          'ADMIN',
+          'BETREUUNG',
+          'SOZIALARBEIT',
+          'JOBCOACH',
+          'FREIWILLIGENARBEIT',
+          'resident',
+        ])
+      )
+    })
+
+    it('offers no door whose account is missing', async () => {
+      // The rule the old version stated and this one keeps: a button appears
+      // only when pressing it can succeed.
+      mockUserFindMany.mockResolvedValue([])
+      mockResidentFindUnique.mockResolvedValue(null)
+
+      const response = await GET()
+      const body = await response.json()
+
+      expect(body.data.doors).toEqual([])
+    })
+
+    it('still answers the old role=staff identifier', async () => {
+      // Old clients and bookmarks send it; breaking them would retire a door
+      // that worked yesterday for no reason the user could act on.
+      const response = await POST(createDemoRequest({ role: 'staff' }))
+      expect(response.status).toBe(200)
     })
 
     it('returns 404 when demo access is disabled', async () => {
@@ -102,11 +160,25 @@ describe('POST /api/auth/demo', () => {
       expect(mockLoginByCode).not.toHaveBeenCalled()
     })
 
-    it('returns 404 when the code for the requested role is not configured', async () => {
-      delete process.env.DEMO_STAFF_CODE
-      const response = await POST(createDemoRequest({ role: 'staff' }))
+    it('returns 404 when the account behind the requested door is missing', async () => {
+      // What closes a door is now the ACCOUNT, not an env var: codes are
+      // derived, so unsetting `DEMO_STAFF_CODE` only changes which code the
+      // Leitung door uses. An instance where the seed never ran must still
+      // offer nothing rather than five buttons that all answer "invalid code".
+      mockUserFindMany.mockResolvedValue([])
+
+      const response = await POST(createDemoRequest({ role: 'ADMIN' }))
+
       expect(response.status).toBe(404)
       expect(mockLoginByCode).not.toHaveBeenCalled()
+    })
+
+    it('keeps the legacy env code as the Leitung door when one is set', async () => {
+      // A deployment already running DEMO_STAFF_CODE has that code in
+      // circulation; retiring it silently would break the door people know.
+      await POST(createDemoRequest({ role: 'ADMIN' }))
+
+      expect(mockLoginByCode).toHaveBeenCalledWith(STAFF_CODE, expect.any(String))
     })
   })
 
@@ -174,15 +246,29 @@ describe('POST /api/auth/demo', () => {
   })
 
   describe('GET availability (drives the login page buttons)', () => {
-    it('reports both roles when both are configured', async () => {
+    it('reports both kinds of door when the accounts are there', async () => {
       const body = await (await GET()).json()
-      expect(body).toEqual({ success: true, data: { staff: true, resident: true } })
+      expect(body.success).toBe(true)
+      expect(body.data.staff).toBe(true)
+      expect(body.data.resident).toBe(true)
     })
 
-    it('hides the staff door when no dedicated staff code is configured', async () => {
-      delete process.env.DEMO_STAFF_CODE
+    it('gives every door a label a person can read', async () => {
+      // A button reading "FREIWILLIGENARBEIT" is a database value on screen.
       const body = await (await GET()).json()
-      expect(body.data).toEqual({ staff: false, resident: true })
+      const labels = body.data.doors.map((door: { label: string }) => door.label)
+
+      expect(labels).toEqual(expect.arrayContaining(['Leitung', 'Betreuung', 'Jobcoach']))
+      expect(labels.every((label: string) => label === label.trim() && label.length > 0)).toBe(true)
+      expect(labels).not.toContain('FREIWILLIGENARBEIT')
+    })
+
+    it('hides the staff doors when their accounts are gone', async () => {
+      mockUserFindMany.mockResolvedValue([])
+      const body = await (await GET()).json()
+
+      expect(body.data.staff).toBe(false)
+      expect(body.data.resident).toBe(true)
     })
 
     it('resident stays available without an env code (scope default resolves one)', async () => {
@@ -194,7 +280,7 @@ describe('POST /api/auth/demo', () => {
     it('reports nothing when demo access is disabled', async () => {
       process.env.DEMO_ACCESS_ENABLED = 'false'
       const body = await (await GET()).json()
-      expect(body.data).toEqual({ staff: false, resident: false })
+      expect(body.data).toEqual({ doors: [], staff: false, resident: false })
     })
   })
 })

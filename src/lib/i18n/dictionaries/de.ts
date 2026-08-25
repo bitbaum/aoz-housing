@@ -36,6 +36,7 @@ export const de = {
   'nav.transfer': 'Verlegung',
   'nav.help': 'Hilfe',
   'nav.learning': 'Lernen',
+  'nav.opportunities': 'Einsatzplätze',
   'nav.logout': 'Abmelden',
   'nav.more': 'Mehr',
   'nav.moreTitle': 'Alles im Überblick',
@@ -240,6 +241,47 @@ export const de = {
   'learning.evidenceSaved': 'Nachweis gespeichert — dein Team sieht den Eintrag.',
   'learning.evidenceSaveError': 'Speichern fehlgeschlagen. Bitte Eingaben prüfen und erneut versuchen.',
 
+  // Einsatzplätze. The stage, the permit rule and the kind are translated
+  // rather than left in German like the staff-side enums: where your own
+  // application stands, and whether a place is open to you at all, is the
+  // whole point of the page for the person least likely to read German.
+  'opportunities.title': 'Einsatzplätze',
+  'opportunities.subtitle':
+    'Freiwilligenarbeit und gemeinnützige Einsätze in der Nähe. Dein Team begleitet dich dabei.',
+  'opportunities.yours': 'Deine Einsätze',
+  'opportunities.yoursEmpty': 'Du bist noch bei keinem Einsatz dabei.',
+  'opportunities.open': 'Offene Plätze',
+  'opportunities.openEmpty':
+    'Gerade ist kein Platz ausgeschrieben. Dein Team meldet sich, sobald es einen gibt.',
+  'opportunities.express': 'Ich habe Interesse',
+  'opportunities.withdraw': 'Interesse zurückziehen',
+  'opportunities.seatsFree': 'Freie Plätze:',
+  'opportunities.seatsFull': 'Zurzeit besetzt',
+  'opportunities.germanLevel': 'Deutsch',
+  'opportunities.perWeek': 'Std./Woche',
+  'opportunities.okInterest': 'Notiert — dein Team meldet sich bei dir.',
+  'opportunities.okWithdrawn': 'Dein Interesse wurde zurückgezogen.',
+  'opportunities.errorUnavailable': 'Dieser Platz ist gerade nicht verfügbar.',
+  'opportunities.errorFull': 'Dieser Platz ist inzwischen besetzt.',
+  'opportunities.errorLocked':
+    'Dein Team hat diese Bewerbung schon aufgenommen. Sprich mit deinem Team, wenn sich etwas geändert hat.',
+  'opportunities.errorFailed': 'Das hat nicht geklappt. Bitte versuche es später noch einmal.',
+  'opportunities.evidenceHint':
+    'Sobald du startest, wird der Einsatz automatisch als Nachweis gespeichert.',
+  'opportunities.toLearning': 'Zu deinen Nachweisen',
+  'opportunities.kindVolunteering': 'Freiwilligenarbeit',
+  'opportunities.kindCommunity': 'Gemeinnütziger Einsatz',
+  'opportunities.permitNone': 'Keine Bewilligung nötig',
+  'opportunities.permitNotifies': 'Meldeverfahren durch die Organisation',
+  'opportunities.permitRequired': 'Bewilligung erforderlich',
+  'opportunities.stageInterested': 'Interessiert',
+  'opportunities.stageApplied': 'Beworben',
+  'opportunities.stageInterview': 'Gespräch',
+  'opportunities.stageAccepted': 'Zugesagt',
+  'opportunities.stageStarted': 'Gestartet',
+  'opportunities.stageEnded': 'Beendet',
+  'opportunities.stageDeclined': 'Abgesagt',
+
   'care.title': 'Dein Team',
   'care.subtitle': 'Wer für dich zuständig ist — Wohnen, Sozialarbeit, Jobcoach, Freiwilligenarbeit.',
   'care.empty': 'Noch niemand zugewiesen. Die Betreuung trägt das Team ein.',
@@ -350,6 +392,18 @@ export const de = {
   'activities.dashboardCta': 'Alle Angebote ansehen',
   'activities.allCategories': 'Alle Kategorien',
   'activities.website': 'Website öffnen',
+  // The category and the price are the two things a resident filters on, and
+  // both used to render from the German staff config inside an otherwise
+  // translated page. German stays pinned to that config by test.
+  'activities.categorySport': 'Sport',
+  'activities.categoryLanguage': 'Sprache',
+  'activities.categoryCulture': 'Kultur',
+  'activities.categoryCommunity': 'Gemeinschaft',
+  'activities.categoryFamily': 'Familie',
+  'activities.categorySupport': 'Unterstützung',
+  'activities.costFree': 'Kostenlos',
+  'activities.costReduced': 'Vergünstigt',
+  'activities.costPaid': 'Kostenpflichtig',
 
   // Expenses card
   'expenses.dashboardTitle': 'Gemeinsame Ausgaben',

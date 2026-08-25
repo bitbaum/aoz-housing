@@ -10,7 +10,7 @@ import type {
   OpportunityKindId,
   OpportunityStatusId,
 } from '@/lib/config/opportunities'
-import { isActiveStage, occupiesSeat } from '@/lib/opportunities/pipeline'
+import { isActiveStage, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
 
 /** Rows that reach the UI carry `displayName`, never a bare code. */
 const APPLICATION_INCLUDE = {
@@ -132,6 +132,48 @@ export async function listApplicationsForResident(residentId: string) {
     orderBy: [{ stageChangedAt: 'desc' }],
   })
 }
+
+/**
+ * What ONE resident may see: the places on offer, and their own threads.
+ *
+ * The seat count is folded in here and the `applications` rows are dropped
+ * before returning, deliberately. A resident needs to know whether a place is
+ * still free; they have no business knowing WHO is in it. Returning the rows
+ * and "just not rendering them" is the same mistake as selecting a password
+ * hash and not printing it — the payload is the leak, not the JSX.
+ */
+export async function residentOpportunityBoard(residentId: string) {
+  const [mine, published] = await Promise.all([
+    prisma.opportunityApplication.findMany({
+      where: { residentId },
+      include: { opportunity: true },
+      orderBy: [{ stageChangedAt: 'desc' }],
+    }),
+    prisma.opportunity.findMany({
+      where: { status: 'PUBLISHED' },
+      include: { applications: { select: { stage: true } } },
+      orderBy: [{ startsAt: 'asc' }, { updatedAt: 'desc' }],
+    }),
+  ])
+
+  const attached = new Set(mine.map((application) => application.opportunityId))
+
+  const open = published
+    .filter((opportunity) => !attached.has(opportunity.id))
+    .map(({ applications, ...opportunity }) => ({
+      ...opportunity,
+      seatsLeft: openSeats(opportunity, applications.map((a) => a.stage as ApplicationStageId)),
+    }))
+    // Places someone can still take come first; a full one stays visible rather
+    // than vanishing, so "it was here yesterday" has an answer on the page.
+    .sort((a, b) => Number(a.seatsLeft === 0) - Number(b.seatsLeft === 0))
+
+  return { mine, open }
+}
+
+export type ResidentOpportunityBoard = Awaited<ReturnType<typeof residentOpportunityBoard>>
+export type ResidentApplicationRow = ResidentOpportunityBoard['mine'][number]
+export type ResidentOpenRow = ResidentOpportunityBoard['open'][number]
 
 export type OpportunityListRow = Awaited<ReturnType<typeof listOpportunities>>[number]
 export type OpportunityDetail = NonNullable<Awaited<ReturnType<typeof getOpportunityDetail>>>
