@@ -35,9 +35,9 @@ export const uk: Dictionary = {
   'nav.moreTitle': 'Усе разом',
   'nav.closeMore': 'Закрити меню',
 
-  'navGroup.living': 'Житло',
+  'navGroup.living': 'Проживання',
   'navGroup.community': 'Спільнота',
-  'navGroup.concerns': 'Мої звернення',
+  'navGroup.concerns': 'Звернення',
   'navGroup.integration': 'Інтеграція',
   'navGroup.account': 'Мій акаунт',
 

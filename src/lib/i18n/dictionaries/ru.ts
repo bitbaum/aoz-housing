@@ -47,9 +47,9 @@ export const ru: Dictionary = {
   'nav.closeMore': 'Закрыть меню',
   'nav.accountMenu': 'Аккаунт',
 
-  'navGroup.living': 'Жильё',
+  'navGroup.living': 'Проживание',
   'navGroup.community': 'Сообщество',
-  'navGroup.concerns': 'Мои обращения',
+  'navGroup.concerns': 'Обращения',
   'navGroup.integration': 'Интеграция',
   'navGroup.account': 'Мой аккаунт',
 
@@ -178,7 +178,7 @@ export const ru: Dictionary = {
   'marketplace.statusClaimed': 'Забронировано',
   'marketplace.statusClosed': 'Завершено',
   'marketplace.natureGoods': 'Вещи',
-  'marketplace.natureService': 'Помощь',
+  'marketplace.natureService': 'Взаимопомощь',
   'marketplace.kindOfferHelp': 'Предлагаю помощь',
   'marketplace.kindNeedHelp': 'Ищу помощь',
   'marketplace.claimTake': 'Я заберу',

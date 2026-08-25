@@ -37,7 +37,7 @@ export const ar: Dictionary = {
   'nav.closeMore': 'إغلاق القائمة',
   'nav.accountMenu': 'الحساب',
 
-  'navGroup.living': 'السكن',
+  'navGroup.living': 'الإقامة',
   'navGroup.community': 'الحياة المشتركة',
   'navGroup.concerns': 'طلباتي',
   'navGroup.integration': 'الاندماج',

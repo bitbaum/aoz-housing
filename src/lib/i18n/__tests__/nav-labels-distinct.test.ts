@@ -68,6 +68,38 @@ describe('every navigation label names exactly one place', () => {
     }
   )
 
+  /**
+   * And the rule ACROSS the two levels, which is the one that got away.
+   *
+   * The two checks above compare headings to headings and labels to labels, so
+   * both were green while the Russian sidebar rendered
+   *
+   *     Жильё
+   *       Задачи · Жильё · Заявка на переезд
+   *
+   * — a group named exactly like one of its own children, live, in the
+   * language the reporter was reading. Same in Ukrainian and Arabic for
+   * housing, and in Russian and Ukrainian for "Мои обращения" inside a group
+   * of the same name. All six were introduced by translating group headings
+   * without ever comparing them against the items they sit above.
+   *
+   * A menu where a parent repeats a child gives the reader nothing to choose
+   * by, which is the whole failure this file exists to prevent — it was simply
+   * being checked on one axis instead of two.
+   */
+  it.each(availableLocales().map((locale) => locale.id))(
+    '%s never names a group after something inside it',
+    (id) => {
+      const t = createTranslator(id)
+
+      const collisions = PORTAL_NAV_ITEMS.filter(
+        (item) => t(`navGroup.${item.group}` as MessageKey) === t(portalNavMessageKey(item))
+      ).map((item) => `"${t(portalNavMessageKey(item))}" is both the ${item.group} heading and ${item.href}`)
+
+      expect({ id, collisions }).toEqual({ id, collisions: [] })
+    }
+  )
+
   it('would catch two entries sharing a word', () => {
     // Proves the comparison rather than trusting it — a version of this test
     // that read the KEYS instead of the rendered labels would pass on the very
