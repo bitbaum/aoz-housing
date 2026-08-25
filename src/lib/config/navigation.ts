@@ -3,6 +3,7 @@
  */
 
 import { LEARNING_AREA_NAME } from './learning'
+import { OPPORTUNITY_AREA_NAME } from './opportunities'
 
 import {
   Home,
@@ -31,6 +32,7 @@ import {
   GraduationCap,
   ShoppingBag,
   HandHeart,
+  Handshake,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BRAND, isAozSurface, type BrandFeatures } from '@/lib/config/brand'
@@ -63,6 +65,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   shop: ShoppingBag,
   event: CalendarClock,
   volunteer: HandHeart,
+  opportunities: Handshake,
 }
 
 export interface NavItem {
@@ -206,6 +209,16 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   // navigating somewhere new when it only moved a tab. The page owns its
   // boards; the nav owns the destination.
   { href: '/learning', icon: 'learning', label: LEARNING_AREA_NAME, permission: 'learning:read' },
+  // A sibling destination, not a tab of the one above. `/learning` is the
+  // record of what people have DONE; this is the directory of what they could
+  // do next, and the pipeline of who is going. Different question, different
+  // page — the same reason the learning dropdown was collapsed into one entry.
+  {
+    href: '/opportunities',
+    icon: 'opportunities',
+    label: OPPORTUNITY_AREA_NAME,
+    permission: 'opportunities:read',
+  },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
 ]
 

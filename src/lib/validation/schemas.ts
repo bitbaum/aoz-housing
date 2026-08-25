@@ -68,6 +68,17 @@ import {
   SPOT_STATUS_LABELS,
   MEDICAL_DOC_TYPE_LABELS,
 } from '@/lib/config/placement-spots'
+import {
+  APPLICATION_STAGE_LABELS,
+  OPPORTUNITY_KIND_LABELS,
+  OPPORTUNITY_STATUS_LABELS,
+  PERMIT_REQUIREMENT_LABELS,
+  type ApplicationStageId,
+  type OpportunityKindId,
+  type OpportunityStatusId,
+  type PermitRequirementId,
+} from '@/lib/config/opportunities'
+import { CEFR_LEVELS } from '@/lib/config/learning'
 
 // =============================================================================
 // HELPER: Derive Zod enum from config/labels with proper typing
@@ -403,6 +414,74 @@ export const ActivityInputSchema = z.object({
 
 export const ActivityUpdateSchema = ActivityInputSchema.extend({
   id: z.string().cuid(),
+})
+
+// =============================================================================
+// OPPORTUNITY SCHEMAS
+// =============================================================================
+
+export const OpportunityKindSchema = enumFromKeys<OpportunityKindId>(OPPORTUNITY_KIND_LABELS)
+export const OpportunityStatusSchema = enumFromKeys<OpportunityStatusId>(OPPORTUNITY_STATUS_LABELS)
+export const PermitRequirementSchema = enumFromKeys<PermitRequirementId>(PERMIT_REQUIREMENT_LABELS)
+export const ApplicationStageSchema = enumFromKeys<ApplicationStageId>(APPLICATION_STAGE_LABELS)
+
+// An empty select must mean "no level required", not a validation error. The
+// browser submits '' for an unselected option, and z.enum would reject it.
+const optionalCefrSchema = z
+  .string()
+  .optional()
+  .nullable()
+  .transform((value) => (value ? value : null))
+  .refine((value) => value === null || (CEFR_LEVELS as readonly string[]).includes(value), {
+    message: 'Ungültiges Sprachniveau',
+  })
+
+const optionalPositiveIntSchema = z
+  .string()
+  .optional()
+  .nullable()
+  .transform((value) => (value && value.trim() !== '' ? Number(value) : null))
+  .refine((value) => value === null || (Number.isInteger(value) && value > 0), {
+    message: 'Bitte eine ganze Zahl grösser als 0 angeben',
+  })
+
+export const OpportunityInputSchema = z.object({
+  kind: OpportunityKindSchema,
+  title: z.string().min(1, 'Titel ist erforderlich').max(160),
+  description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
+  organisation: z.string().min(1, 'Organisation ist erforderlich').max(200),
+  location: z.string().max(300).optional().nullable(),
+  schedule: z.string().max(300).optional().nullable(),
+  hoursPerWeek: optionalPositiveIntSchema,
+  seats: optionalPositiveIntSchema,
+  germanLevel: optionalCefrSchema,
+  permitRequirement: PermitRequirementSchema.default('NONE' as PermitRequirementId),
+  requirementNote: z.string().max(500).optional().nullable(),
+  contactName: z.string().max(200).optional().nullable(),
+  contactEmail: z.string().email('Bitte eine gültige E-Mail angeben').max(200).optional().nullable().or(z.literal('').transform(() => null)),
+  contactPhone: z.string().max(80).optional().nullable(),
+  website: z.string().url('Bitte eine gültige URL angeben').max(500).optional().nullable().or(z.literal('').transform(() => null)),
+  status: OpportunityStatusSchema.default('DRAFT' as OpportunityStatusId),
+  startsAt: optionalDateSchema,
+  endsAt: optionalDateSchema,
+})
+
+export const OpportunityUpdateSchema = OpportunityInputSchema.extend({
+  id: z.string().cuid(),
+})
+
+export const ApplicationCreateSchema = z.object({
+  opportunityId: z.string().cuid(),
+  residentId: z.string().cuid(),
+  note: z.string().max(500).optional().nullable(),
+})
+
+export const ApplicationStageChangeSchema = z.object({
+  applicationId: z.string().cuid(),
+  stage: ApplicationStageSchema,
+  // Captured at the moment an engagement ENDS, because that is the only point
+  // anyone knows the total. hoursPerWeek is a rate and must never be used here.
+  hours: optionalPositiveIntSchema,
 })
 
 // =============================================================================

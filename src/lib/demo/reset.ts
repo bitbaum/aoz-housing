@@ -24,11 +24,14 @@ import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { syncOrgRules } from '../governance/sync-org-rules'
 import { upsertDemoStaff } from './staff'
 import { wipeAllExceptKeepList } from './wipe'
+import { seedOpportunities } from '../seed/opportunities'
 
 export interface DemoResetSummary extends DemoSeedSummary {
   tablesWiped: number
   demoStaffCode: string | null
   orgRulesSynced: boolean
+  opportunities: number
+  opportunityApplications: number
 }
 
 export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSummary> {
@@ -41,6 +44,19 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
 
   const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
 
+  // The opportunity directory is org-wide, so it is seeded HERE and never in
+  // the scoped reset: this path truncated the database first, which makes an
+  // unscoped resident query correct and makes invented listings impossible to
+  // confuse with a real coach's. See lib/seed/opportunities.ts.
+  const demoResidents = await prisma.resident.findMany({
+    select: { id: true },
+    orderBy: { code: 'asc' },
+  })
+  const opportunities = await seedOpportunities(prisma, {
+    residentIds: demoResidents.map((resident) => resident.id),
+    staffId: demoStaff?.id ?? null,
+  })
+
   await syncOrgRules(prisma)
 
   return {
@@ -48,5 +64,7 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
     tablesWiped,
     demoStaffCode: demoStaff?.code ?? null,
     orgRulesSynced: true,
+    opportunities: opportunities.opportunities,
+    opportunityApplications: opportunities.applications,
   }
 }

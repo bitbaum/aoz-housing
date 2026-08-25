@@ -34,6 +34,7 @@ export const STAFF_ROUTES = [
   '/marketplace',
   '/matching',
   '/messages',
+  '/opportunities',
   '/placements',
   '/residents',
   '/rules',
