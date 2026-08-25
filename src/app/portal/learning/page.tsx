@@ -15,7 +15,7 @@ import {
   type LearningKindId,
   type LearningStatusId,
 } from '@/lib/config/learning'
-import { ACTIVITY_COST_LABELS } from '@/lib/config/activities'
+import { activityCostLabel } from '@/lib/i18n/activity-labels'
 
 export const metadata: Metadata = { title: 'Lernen' }
 export const dynamic = 'force-dynamic'
@@ -165,7 +165,7 @@ export default async function PortalLearningPage() {
                 <p className="font-medium text-ui-text">{offer.title}</p>
                 <p className="text-sm text-ui-muted mt-1">{offer.description}</p>
                 <p className="text-xs text-ui-muted mt-2">
-                  {ACTIVITY_COST_LABELS[offer.cost]}
+                  {activityCostLabel(t, offer.cost)}
                   {offer.schedule ? ` · ${offer.schedule}` : ''}
                   {offer.location ? ` · ${offer.location}` : ''}
                 </p>

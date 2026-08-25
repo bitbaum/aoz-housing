@@ -8,14 +8,24 @@ import { PortalUrlFeedback } from '@/components/portal/PortalUrlFeedback'
 import { PortalNav } from '@/components/portal/PortalNav'
 import { PortalSidebar } from '@/components/portal/PortalSidebar'
 import { PortalTabBar } from '@/components/portal/PortalTabBar'
+import { BRAND } from '@/lib/config/brand'
 import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
 import { prisma } from '@/lib/db'
 import { residentUnreadCount } from '@/lib/messaging/queries'
 
+/**
+ * The portal names itself from the brand, not from a literal.
+ *
+ * This said "Bewohnerportal" — a fourth name for the portal, beside
+ * `BRAND.portalName`, the translated `portalTitleKey` the nav renders, and the
+ * product name the root layout appends. A Russian-speaking resident's tab read
+ * "Bewohnerportal | WG Zuhause": two German words for one place, neither of
+ * them the name the page itself was showing them.
+ */
 export const metadata: Metadata = {
   title: {
-    template: '%s | Bewohnerportal',
-    default: 'Bewohnerportal',
+    template: `%s | ${BRAND.portalName}`,
+    default: BRAND.portalName,
   },
 }
 

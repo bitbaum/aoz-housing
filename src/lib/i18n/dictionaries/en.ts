@@ -526,6 +526,16 @@ export const en: Dictionary = {
   'empty.filtered': 'Nothing matches your current filters.',
   'empty.clearFilters': 'Clear filters',
 
+  'activities.categorySport': 'Sport',
+  'activities.categoryLanguage': 'Language',
+  'activities.categoryCulture': 'Culture',
+  'activities.categoryCommunity': 'Community',
+  'activities.categoryFamily': 'Family',
+  'activities.categorySupport': 'Support',
+  'activities.costFree': 'Free',
+  'activities.costReduced': 'Reduced price',
+  'activities.costPaid': 'Paid',
+
   'nav.opportunities': 'Opportunities',
   'opportunities.title': 'Opportunities',
   'opportunities.subtitle':

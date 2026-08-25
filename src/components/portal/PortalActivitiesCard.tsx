@@ -4,9 +4,9 @@ import { getRequestTranslator } from '@/lib/i18n/request'
 import {
   ACTIVITY_CATEGORY_ICONS,
   ACTIVITY_COST_BADGES,
-  ACTIVITY_COST_LABELS,
   type ActivityRecord,
 } from '@/lib/config/activities'
+import { activityCostLabel } from '@/lib/i18n/activity-labels'
 
 type PortalActivitiesCardProps = {
   activities: ActivityRecord[]
@@ -41,7 +41,7 @@ export async function PortalActivitiesCard({ activities }: PortalActivitiesCardP
                   <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
                 </div>
                 <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
-                  {ACTIVITY_COST_LABELS[activity.cost]}
+                  {activityCostLabel(t, activity.cost)}
                 </span>
               </div>
             )

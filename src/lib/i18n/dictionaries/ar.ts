@@ -533,6 +533,16 @@ export const ar: Dictionary = {
   'empty.filtered': 'لا يوجد شيء يطابق اختيارك.',
   'empty.clearFilters': 'إزالة الفلاتر',
 
+  'activities.categorySport': 'رياضة',
+  'activities.categoryLanguage': 'لغة',
+  'activities.categoryCulture': 'ثقافة',
+  'activities.categoryCommunity': 'مجتمع',
+  'activities.categoryFamily': 'عائلة',
+  'activities.categorySupport': 'دعم',
+  'activities.costFree': 'مجاني',
+  'activities.costReduced': 'بسعر مخفض',
+  'activities.costPaid': 'مدفوع',
+
   'nav.opportunities': 'فرص المشاركة',
   'opportunities.title': 'فرص المشاركة',
   'opportunities.subtitle':

@@ -392,6 +392,18 @@ export const de = {
   'activities.dashboardCta': 'Alle Angebote ansehen',
   'activities.allCategories': 'Alle Kategorien',
   'activities.website': 'Website öffnen',
+  // The category and the price are the two things a resident filters on, and
+  // both used to render from the German staff config inside an otherwise
+  // translated page. German stays pinned to that config by test.
+  'activities.categorySport': 'Sport',
+  'activities.categoryLanguage': 'Sprache',
+  'activities.categoryCulture': 'Kultur',
+  'activities.categoryCommunity': 'Gemeinschaft',
+  'activities.categoryFamily': 'Familie',
+  'activities.categorySupport': 'Unterstützung',
+  'activities.costFree': 'Kostenlos',
+  'activities.costReduced': 'Vergünstigt',
+  'activities.costPaid': 'Kostenpflichtig',
 
   // Expenses card
   'expenses.dashboardTitle': 'Gemeinsame Ausgaben',

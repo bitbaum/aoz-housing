@@ -52,7 +52,7 @@ describe('brand presets', () => {
         householdMoney: false,
         householdVotes: false,
         householdPrimaryNav: false,
-        codeFirstLogin: true,
+        codeFirstLogin: false,
         matchingFastDefault: true,
       },
     })

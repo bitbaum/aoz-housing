@@ -2,14 +2,14 @@ import Link from 'next/link'
 import { MapPin, Phone, Clock, ExternalLink } from 'lucide-react'
 import {
   ACTIVITY_CATEGORY_ICONS,
-  ACTIVITY_CATEGORY_LABELS,
+  ACTIVITY_CATEGORY_VALUES,
   ACTIVITY_COST_BADGES,
-  ACTIVITY_COST_LABELS,
   type ActivityCategory,
 } from '@/lib/config/activities'
 import { listActivities } from '@/lib/data/activities'
 import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { getRequestTranslator } from '@/lib/i18n/request'
+import { activityCategoryOptions, activityCostLabel } from '@/lib/i18n/activity-labels'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,9 +20,10 @@ type Props = {
 export default async function ActivitiesPage({ searchParams }: Props) {
   const { category } = await searchParams
   const { t } = await getRequestTranslator()
-  const selectedCategory = category && category in ACTIVITY_CATEGORY_LABELS
-    ? category as ActivityCategory
-    : undefined
+  const selectedCategory =
+    category && (ACTIVITY_CATEGORY_VALUES as readonly string[]).includes(category)
+      ? (category as ActivityCategory)
+      : undefined
   const now = new Date()
 
   const activities = await listActivities({
@@ -46,8 +47,8 @@ export default async function ActivitiesPage({ searchParams }: Props) {
         <CategoryLink href="/portal/activities" active={!selectedCategory}>
           {t('activities.allCategories')}
         </CategoryLink>
-        {Object.entries(ACTIVITY_CATEGORY_LABELS).map(([value, label]) => {
-          const Icon = ACTIVITY_CATEGORY_ICONS[value as ActivityCategory]
+        {activityCategoryOptions(t, ACTIVITY_CATEGORY_VALUES).map(({ value, label }) => {
+          const Icon = ACTIVITY_CATEGORY_ICONS[value]
           return (
             <CategoryLink
               key={value}
@@ -85,7 +86,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
                     <h2 className="font-semibold text-ui-text">{activity.title}</h2>
                   </div>
                   <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]}`}>
-                    {ACTIVITY_COST_LABELS[activity.cost]}
+                    {activityCostLabel(t, activity.cost)}
                   </span>
                 </div>
 

@@ -535,6 +535,16 @@ export const fr: Dictionary = {
   'empty.filtered': 'Rien ne correspond à ta sélection.',
   'empty.clearFilters': 'Réinitialiser les filtres',
 
+  'activities.categorySport': 'Sport',
+  'activities.categoryLanguage': 'Langue',
+  'activities.categoryCulture': 'Culture',
+  'activities.categoryCommunity': 'Communauté',
+  'activities.categoryFamily': 'Famille',
+  'activities.categorySupport': 'Soutien',
+  'activities.costFree': 'Gratuit',
+  'activities.costReduced': 'Tarif réduit',
+  'activities.costPaid': 'Payant',
+
   'nav.opportunities': 'Engagements',
   'opportunities.title': 'Engagements',
   'opportunities.subtitle':
