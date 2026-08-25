@@ -72,6 +72,26 @@ echo "==> ship"
 # launch.sh is excluded: the box's copy pins PORT and the env file path.
 rsync -az --delete --exclude launch.sh .next/standalone/ "$BOX:$APP_DIR/"
 
+echo "==> migrate the demo database"
+# This step did not exist, and its absence is invisible until a schema change
+# lands: the app ships, restarts, answers 200, and every page touching the
+# changed table returns a server error. That is exactly what happened —
+# `contactNote` and `claimedAt` reached the CODE and never the demo DATABASE,
+# so /portal/marketplace 500'd while this script printed success.
+#
+# The real instance's CD runs migrations; this one is a second app on the same
+# box and has to do it itself. Postgres here only accepts 127.0.0.1, so the
+# migration runs ON the box against its own loopback.
+#
+# The prisma version comes from THIS repo's package.json rather than being
+# written here or resolved to `latest` on the box: the migration format has to
+# match the client the build was compiled against, and a floating `latest` makes
+# the deploy depend on the day it ran.
+PRISMA_VERSION=$(node -p "require('./package.json').devDependencies.prisma")
+rsync -az --delete prisma/ "$BOX:/opt/aoz-demo/prisma/"
+ssh "$BOX" "cd /opt/aoz-demo && set -a && . ./shared/.env && set +a && npx --yes prisma@${PRISMA_VERSION#^} migrate deploy --schema prisma/schema.prisma" \
+  || { echo "migration failed — NOT restarting into a schema the code cannot use"; exit 1; }
+
 echo "==> restart"
 ssh "$BOX" "chown -R ubuntu:ubuntu $APP_DIR && systemctl restart aoz-demo-app"
 
@@ -90,5 +110,36 @@ echo "$html" | grep -q 'fleetcrown.orangecat.ch/widget.js' || {
   echo "live page does not carry the FleetCrown widget — stale build?"; exit 1;
 }
 doors=$(curl -s "$URL/api/auth/demo" | grep -o '"id"' | wc -l)
+
+# Walk through a demo door and read a real page behind it.
+#
+# Everything above this line passed while /portal/marketplace was returning a
+# server error: /api/health touches one trivial query, /login is anonymous, and
+# the door list is config. All three were incapable of failing on the thing that
+# was actually broken — a missing column — so the script reported success on a
+# demo whose main board was dead.
+#
+# A Next.js server error does not change the status code of an already-streaming
+# RSC response; it appears in the payload as an error digest. So the check reads
+# the body and refuses that, rather than trusting 200.
+COOKIES=$(mktemp)
+trap 'rm -f "$ENV_FILE" "$COOKIES"' EXIT
+curl -s -c "$COOKIES" -X POST "$URL/api/auth/demo" \
+  -H 'Content-Type: application/json' -d '{"role":"resident"}' -o /dev/null \
+  || { echo "could not open the resident demo door"; exit 1; }
+
+for path in /portal /portal/marketplace /portal/events /portal/reports; do
+  body=$(curl -s -b "$COOKIES" "$URL$path")
+  case "$body" in
+    *'"digest"'*)
+      echo "SERVER ERROR rendering $path — the page 500'd inside the stream"
+      echo "  (a missing migration looks exactly like this)"
+      exit 1
+      ;;
+  esac
+  [ ${#body} -gt 2000 ] || { echo "$path rendered almost nothing"; exit 1; }
+done
+
 echo "    health 200, AOZ brand present, widget snippet present, $doors demo doors offered"
+echo "    portal pages render behind a demo door: /portal, marketplace, events, reports"
 echo "==> done: $URL"
