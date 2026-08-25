@@ -85,6 +85,7 @@ export const fr: Dictionary = {
   'safety.emergency':
     'En cas d’urgence : appelle le 112 ou contacte l’administration du logement',
 
+  'placement.none': 'Tu n’as pas encore de logement. Dès que tu seras attribué·e, tu verras ici ce qui se passe dans ta maison.',
   'help.title': 'Aide et FAQ',
   'help.subtitle': 'Réponses et contact — en cas de danger, d’abord les numéros d’urgence.',
   'help.faqTitle': 'Questions fréquentes',
@@ -215,6 +216,13 @@ export const fr: Dictionary = {
   'events.categorySocial': 'Convivial',
   'events.categoryCulture': 'Culture',
   'events.categorySupport': 'Soutien',
+  'events.upcoming': 'À venir',
+  'events.past': 'Passé',
+  'events.emptyUpcoming': 'Rien de prévu. Proposez quelque chose.',
+  'events.attendees': 'Présents',
+  'events.noAttendees': 'Personne n’a encore répondu oui.',
+  'events.yourAnswer': 'Votre réponse',
+  'events.createdBy': 'Par',
 
   'dashboard.welcome': 'Bon retour',
   'dashboard.subtitle': 'Ici tu vois comment ça se passe dans ton logement.',
@@ -259,6 +267,11 @@ export const fr: Dictionary = {
   'preferences.subtitle': 'Ces informations nous aident à trouver des colocataires adaptés',
   'decisions.title': 'Décisions de la maison',
   'decisions.noPlacement': 'Une fois logé·e, tu peux participer aux décisions ici.',
+  'decisions.subtitle': 'Sur de nombreux sujets, la maison décide elle-même.',
+  'decisions.phaseDiscussion': 'Discussion',
+  'decisions.phaseVoting': 'Vote',
+  'decisions.days': 'jours',
+  'decisions.tooFewVoters': 'Trop peu de personnes vivent ici en ce moment pour un vote. Tu peux quand même soumettre des propositions — l’équipe en discutera avec vous.',
 
   'activities.dashboardTitle': 'Activités et cours',
   'activities.dashboardSubtitle': 'Recommandations pour toi.',

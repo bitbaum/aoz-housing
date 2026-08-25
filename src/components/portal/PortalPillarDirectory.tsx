@@ -23,7 +23,10 @@ export function PortalPillarDirectory({ t }: { t: (key: MessageKey) => string })
   return (
     <section className="mt-8">
       <h2 className="eyebrow mb-3">{t('dashboard.allAreas')}</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+      {/* Two columns at tablet, four at desktop — the group count grew from
+          three to four, and a hardcoded `sm:grid-cols-3` left the fourth card
+          alone on its own row. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {PORTAL_SIDEBAR_GROUPS.map((group) => {
           const grouped = items.filter((item) => item.group === group)
           if (grouped.length === 0) return null

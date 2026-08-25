@@ -6,6 +6,7 @@ import { getRuleBook, getUnitProposals, getUnitResidentIds } from '@/lib/governa
 import { advanceDueProposals } from '@/lib/governance/lifecycle'
 import { openTopics } from '@/lib/governance/rules'
 import { canHoldVote, tallyVotes } from '@/lib/governance/voting'
+import { PageHeader, PageShell } from '@/components/ui/Page'
 import { ProposalList } from '@/components/governance/ProposalList'
 import { NewProposalForm } from '@/components/governance/NewProposalForm'
 import { DECISION_TIMING } from '@/lib/config/decisions'
@@ -31,14 +32,9 @@ export default async function PortalDecisionsPage() {
   const placement = resident.placements[0]
   if (!placement) {
     return (
-      <div>
-        <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">
-          {t('decisions.title')}
-        </h1>
-        <p className="text-ui-muted">
-          {t('decisions.noPlacement')}
-        </p>
-      </div>
+      <PageShell>
+        <PageHeader title={t('decisions.title')} description={t('decisions.noPlacement')} />
+      </PageShell>
     )
   }
 
@@ -82,22 +78,33 @@ export default async function PortalDecisionsPage() {
   }))
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-xl font-bold text-ui-text sm:text-2xl">
-          {t('decisions.title')}
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-ui-muted">
-          Bei vielen Themen entscheidet ihr im Haus selbst. Ein Vorschlag wird zuerst{' '}
-          {DECISION_TIMING.discussionDays} Tage besprochen, danach kann {DECISION_TIMING.votingDays}{' '}
-          Tage lang abgestimmt werden.
-        </p>
-      </header>
+    <PageShell>
+      <PageHeader title={t('decisions.title')} description={t('decisions.subtitle')} />
+
+      {/* The two windows as DATA rather than as a sentence with numbers baked
+          into it. The translator has no interpolation, so the old prose could
+          not be translated at all and stayed German on every locale — a
+          resident reading the portal in Ukrainian was told, in German, how
+          long they had to vote. Rendering the figures beside their labels also
+          matches how every other number in this product is shown. */}
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ui-muted">
+        <div className="flex items-center gap-2">
+          <dt className="eyebrow">{t('decisions.phaseDiscussion')}</dt>
+          <dd className="numeric text-ui-text">
+            {DECISION_TIMING.discussionDays} {t('decisions.days')}
+          </dd>
+        </div>
+        <div className="flex items-center gap-2">
+          <dt className="eyebrow">{t('decisions.phaseVoting')}</dt>
+          <dd className="numeric text-ui-text">
+            {DECISION_TIMING.votingDays} {t('decisions.days')}
+          </dd>
+        </div>
+      </dl>
 
       {!votingPossible && (
         <p className="rounded-md bg-ui-subtle p-3 text-sm text-ui-muted">
-          In diesem Haus wohnen zurzeit zu wenige Personen für eine Abstimmung. Vorschläge kannst du
-          trotzdem einreichen — die Betreuung bespricht sie mit euch.
+          {t('decisions.tooFewVoters')}
         </p>
       )}
 
@@ -114,6 +121,6 @@ export default async function PortalDecisionsPage() {
       />
 
       <ProposalList proposals={decorated} />
-    </div>
+    </PageShell>
   )
 }

@@ -208,9 +208,16 @@ export default async function PortalMarketplacePage({ searchParams }: Props) {
         ))}
       </nav>
 
-      <MarketplacePostForm action={submitCreatePost} />
+      {/* Without a placement the create action has no unit to file a post
+          under and returns an error the page throws away — so the form looked
+          normal, accepted a post, and did nothing at all. Say so instead. */}
+      {posts ? (
+        <MarketplacePostForm action={submitCreatePost} />
+      ) : (
+        <EmptyState title={t('placement.none')} />
+      )}
 
-      {own.length === 0 && open.length === 0 ? (
+      {!posts ? null : own.length === 0 && open.length === 0 ? (
         <EmptyState title={t('marketplace.emptyOpen')} />
       ) : (
         <>

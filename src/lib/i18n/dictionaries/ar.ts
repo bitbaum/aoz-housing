@@ -84,6 +84,7 @@ export const ar: Dictionary = {
 
   'safety.emergency': 'في حالات الطوارئ: اتصل بالرقم 112 أو تواصل مع إدارة السكن',
 
+  'placement.none': 'ليس لديك سكن بعد. بمجرد تحديد سكنك، سترى هنا ما يجري في بيتك.',
   'help.title': 'مساعدة وأسئلة',
   'help.subtitle': 'إجابات وجهات اتصال — عند الخطر استخدم أرقام الطوارئ أولاً.',
   'help.faqTitle': 'أسئلة متكررة',
@@ -213,6 +214,13 @@ export const ar: Dictionary = {
   'events.categorySocial': 'لقاء اجتماعي',
   'events.categoryCulture': 'ثقافة',
   'events.categorySupport': 'دعم',
+  'events.upcoming': 'قادم',
+  'events.past': 'انتهى',
+  'events.emptyUpcoming': 'لا يوجد شيء مخطط. اقترح شيئًا بنفسك.',
+  'events.attendees': 'سيحضرون',
+  'events.noAttendees': 'لم يوافق أحد بعد.',
+  'events.yourAnswer': 'إجابتك',
+  'events.createdBy': 'من',
 
   'dashboard.welcome': 'مرحباً بعودتك',
   'dashboard.subtitle': 'هنا ترى كيف تسير الأمور في سكنك.',
@@ -257,6 +265,11 @@ export const ar: Dictionary = {
   'preferences.subtitle': 'هذه المعلومات تساعدنا على إيجاد شركاء سكن مناسبين',
   'decisions.title': 'قرارات المنزل',
   'decisions.noPlacement': 'بعد تخصيص السكن يمكنك المشاركة في القرارات هنا.',
+  'decisions.subtitle': 'في مواضيع كثيرة، يقرر البيت بنفسه.',
+  'decisions.phaseDiscussion': 'نقاش',
+  'decisions.phaseVoting': 'تصويت',
+  'decisions.days': 'أيام',
+  'decisions.tooFewVoters': 'عدد المقيمين هنا حاليًا أقل من أن يسمح بتصويت. يمكنك مع ذلك تقديم اقتراح — وسيناقشه فريق المرافقة معكم.',
 
   'activities.dashboardTitle': 'الأنشطة والدورات',
   'activities.dashboardSubtitle': 'توصيات لك.',

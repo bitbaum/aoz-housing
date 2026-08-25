@@ -82,6 +82,7 @@ export const uk: Dictionary = {
 
   'safety.emergency': 'У разі надзвичайної ситуації: телефонуйте 112 або зверніться до адміністрації',
 
+  'placement.none': 'У тебе ще немає помешкання. Щойно тебе поселять, тут буде видно, що відбувається у твоєму домі.',
   'help.title': 'Допомога та поширені питання',
   'help.subtitle': 'Відповіді та контакти — у небезпеці спочатку номери екстреної допомоги.',
   'help.faqTitle': 'Часті запитання',
@@ -212,6 +213,13 @@ export const uk: Dictionary = {
   'events.categorySocial': 'Зустріч',
   'events.categoryCulture': 'Культура',
   'events.categorySupport': 'Підтримка',
+  'events.upcoming': 'Попереду',
+  'events.past': 'Минуле',
+  'events.emptyUpcoming': 'Нічого не заплановано. Запропонуй щось сам.',
+  'events.attendees': 'Будуть',
+  'events.noAttendees': 'Поки ніхто не погодився.',
+  'events.yourAnswer': 'Твоя відповідь',
+  'events.createdBy': 'Від',
 
   'dashboard.welcome': 'З поверненням',
   'dashboard.subtitle': 'Тут ти бачиш, як справи у твоєму житлі.',
@@ -256,6 +264,11 @@ export const uk: Dictionary = {
   'preferences.subtitle': 'Ці дані допомагають нам знайти відповідних сусідів',
   'decisions.title': 'Рішення в будинку',
   'decisions.noPlacement': 'Коли тебе поселять, тут можна брати участь у рішеннях.',
+  'decisions.subtitle': 'Багато питань дім вирішує сам.',
+  'decisions.phaseDiscussion': 'Обговорення',
+  'decisions.phaseVoting': 'Голосування',
+  'decisions.days': 'днів',
+  'decisions.tooFewVoters': 'Зараз тут живе замало людей для голосування. Ти все одно можеш подати пропозицію — команда супроводу обговорить її з вами.',
 
   'activities.dashboardTitle': 'Заняття та курси',
   'activities.dashboardSubtitle': 'Рекомендації для тебе.',

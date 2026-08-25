@@ -4,6 +4,7 @@ import { ArrowRight, Check, X } from 'lucide-react'
 import { BRAND } from '@/lib/config/brand'
 import { MARKETING_COPY } from '@/lib/constants/labels'
 import { NAV_ICONS } from '@/lib/config/navigation'
+import { productSurfaces } from '@/lib/config/product-surface'
 import { getAllPosts } from '@/lib/blog/posts'
 import { formatCalendarDateLong } from '@/lib/utils/formatting'
 import { BLOG_LABELS } from '@/lib/constants/labels'
@@ -42,6 +43,10 @@ export default function LandingPage() {
       <Problems />
       <Steps />
       <Features />
+      {/* Directly after the pillars: the pillars say what the product is FOR,
+          this says what is actually in it — and unlike the pillars it cannot
+          fall behind, because it reads the product's own navigation. */}
+      <Surface />
       <Science />
       <Ethics />
       <ProductDocs />
@@ -233,36 +238,69 @@ function FromTheBlog({ posts }: { posts: ReturnType<typeof getAllPosts> }) {
   )
 }
 
-function ProductDocs() {
-  const links = [
-    {
-      href: '/roadmap',
-      title: 'Roadmap',
-      body: 'Wohin sich das Produkt entwickelt und welche Prinzipien die Richtung bestimmen.',
-    },
-    {
-      href: '/changelog',
-      title: 'Changelog',
-      body: 'Was bereits im Produkt angekommen ist und wie sich die Plattform konkret verändert.',
-    },
-    {
-      href: '/blog',
-      title: 'Blog',
-      body: 'Hintergründe zu Entscheidungen, Forschung, Produktlogik und technischer Umsetzung.',
-    },
-  ]
+/**
+ * Everything the product contains, read off its own navigation.
+ *
+ * Nothing here is typed out. A section added to the menu appears; one removed
+ * disappears. That is the whole point — the previous answer to "what is in
+ * it?" was four hand-written abstractions that had been true a long time ago,
+ * while the product had since grown a marketplace, house events, votes, shared
+ * expenses, a learning record and a placement directory and said none of it.
+ */
+function Surface() {
+  const surfaces = productSurfaces()
 
   return (
     <section className="py-14 sm:py-20 border-b border-ui-border">
-      <p className="eyebrow">Nachvollziehbarkeit</p>
+      <p className="eyebrow">{C.surfaceEyebrow}</p>
       <h2 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-heading text-ui-text max-w-2xl text-balance">
-        Produktdenken, Fortschritt und wissenschaftliche Grundlage sind öffentlich lesbar.
+        {C.surfaceTitle}
+      </h2>
+      <p className="mt-4 text-ui-muted max-w-2xl leading-relaxed">{C.surfaceBody}</p>
+
+      <div className="mt-8 space-y-8">
+        {surfaces.map((surface) => (
+          <div key={surface.title}>
+            <h3 className="eyebrow">{surface.title}</h3>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-ui-border border border-ui-border rounded-lg overflow-hidden">
+              {surface.areas.map((area) => (
+                <div key={area.title} className="bg-ui-surface p-5">
+                  <h4 className="font-semibold text-ui-text">{area.title}</h4>
+                  <ul className="mt-2 space-y-1">
+                    {area.entries.map((entry) => (
+                      <li key={entry} className="text-sm text-ui-muted">
+                        {entry}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ProductDocs() {
+  // Hrefs are structure, so they stay in the component; the words are copy, so
+  // they live with the rest of the copy. They used to be a literal typed into
+  // the middle of this file, three sections below a comment insisting that
+  // marketing copy belongs in MARKETING_COPY.
+  const hrefs = ['/roadmap', '/changelog', '/blog']
+
+  return (
+    <section className="py-14 sm:py-20 border-b border-ui-border">
+      <p className="eyebrow">{C.docsEyebrow}</p>
+      <h2 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-heading text-ui-text max-w-2xl text-balance">
+        {C.docsTitle}
       </h2>
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} className="card-hover">
-            <h3 className="font-semibold text-ui-text">{link.title}</h3>
-            <p className="mt-2 text-sm text-ui-muted leading-relaxed">{link.body}</p>
+        {C.docs.map((doc, index) => (
+          <Link key={hrefs[index]} href={hrefs[index]} className="card-hover">
+            <h3 className="font-semibold text-ui-text">{doc.title}</h3>
+            <p className="mt-2 text-sm text-ui-muted leading-relaxed">{doc.body}</p>
           </Link>
         ))}
       </div>

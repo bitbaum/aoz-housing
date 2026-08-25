@@ -121,7 +121,13 @@ describe('resetDemoData', () => {
 
     // The staff account is upserted BEFORE the seed and handed to it: the
     // care seats it assigns cannot point at a row that does not exist yet.
-    expect(mockSeedDemoData).toHaveBeenCalledWith(prisma, { careStaffId: 'demo-user' })
+    expect(mockSeedDemoData).toHaveBeenCalledWith(prisma, {
+      careStaffId: 'demo-user',
+      // Full scope owns the whole database, so it may also create content no
+      // demo prefix reaches — and truncate it next time round. The scoped
+      // reset must NOT pass this; `scoped-reset.test.ts` holds that end.
+      siteWideContent: true,
+    })
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { code: 'AOZH-DEMO01' },
       update: { name: 'Demo-Zugang', active: true },

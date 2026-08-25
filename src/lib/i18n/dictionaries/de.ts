@@ -101,6 +101,7 @@ export const de = {
   // Safety copy. Translated last and reviewed hardest — this is the text that
   // has to be right at three in the morning.
   'safety.emergency': 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
+  'placement.none': 'Du hast noch keine Unterkunft. Sobald du zugeteilt bist, siehst du hier, was in deinem Haus läuft.',
 
   'help.title': 'Hilfe & FAQ',
   'help.subtitle': 'Antworten und Kontakt — bei Gefahr zuerst die Notfallnummern.',
@@ -367,6 +368,13 @@ export const de = {
   'events.categorySocial': 'Geselliges',
   'events.categoryCulture': 'Kultur',
   'events.categorySupport': 'Unterstützung',
+  'events.upcoming': 'Kommt',
+  'events.past': 'Vorbei',
+  'events.emptyUpcoming': 'Nichts geplant. Schlag selbst etwas vor.',
+  'events.attendees': 'Dabei',
+  'events.noAttendees': 'Noch niemand hat zugesagt.',
+  'events.yourAnswer': 'Deine Antwort',
+  'events.createdBy': 'Von',
 
   // Portal dashboard
   'dashboard.welcome': 'Willkommen zurück',
@@ -412,6 +420,11 @@ export const de = {
   'preferences.subtitle': 'Diese Angaben helfen uns, passende Mitbewohner zu finden',
   'decisions.title': 'Beschlüsse im Haus',
   'decisions.noPlacement': 'Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.',
+  'decisions.subtitle': 'Bei vielen Themen entscheidet ihr im Haus selbst.',
+  'decisions.phaseDiscussion': 'Besprechung',
+  'decisions.phaseVoting': 'Abstimmung',
+  'decisions.days': 'Tage',
+  'decisions.tooFewVoters': 'In diesem Haus wohnen zurzeit zu wenige Personen für eine Abstimmung. Vorschläge kannst du trotzdem einreichen — die Betreuung bespricht sie mit euch.',
 
   // Activities card
   'activities.dashboardTitle': 'Aktivitäten & Kurse',

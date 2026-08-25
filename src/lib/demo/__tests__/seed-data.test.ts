@@ -14,6 +14,7 @@ import {
   resolveDemoResidentCode,
 } from '../config'
 import type { PrismaClient } from '@prisma/client'
+import { natureOfKind } from '../../config/marketplace'
 
 interface Recorded {
   unitCodes: string[]
@@ -30,6 +31,12 @@ interface Recorded {
   residentNamesByCode: Record<string, string | null>
   /** Every residentId that received a learning record. */
   learningResidentIds: string[]
+  /** Marketplace posts, so both halves of the board can be asserted. */
+  marketplaceKinds: string[]
+  /** House events, so the tour is checked for something upcoming AND past. */
+  eventStartsAt: Date[]
+  /** External activities — only the FULL reset scope may create these. */
+  activityCategories: string[]
 }
 
 function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
@@ -45,6 +52,9 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     residentIdsByCode: {},
     residentNamesByCode: {},
     learningResidentIds: [],
+    marketplaceKinds: [],
+    eventStartsAt: [],
+    activityCategories: [],
   }
   let id = 0
 
@@ -104,6 +114,11 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     // The integration pillar (lib/seed/integration-evidence.ts).
     learningRecord: model((d) => recorded.learningResidentIds.push(d.residentId as string)),
     careAssignment: model(),
+    // Gemeinschaft: the board, the calendar and the external catalogue.
+    marketplacePost: model((d) => recorded.marketplaceKinds.push(d.kind as string)),
+    houseEvent: model((d) => recorded.eventStartsAt.push(d.startsAt as Date)),
+    eventRsvp: model(),
+    activity: model((d) => recorded.activityCategories.push(d.category as string)),
     houseRule: {
       ...model((d) => recorded.unitRuleTitles.push(d.title as string)),
       findUnique: jest.fn(() => Promise.resolve({ id: 'org-night-quiet' })),
@@ -189,6 +204,56 @@ describe('seedDemoData', () => {
     await seedDemoData(prisma)
     expect(recorded.maintenanceStatuses).toContain('OPEN')
     expect(recorded.maintenanceStatuses).toContain('COMPLETED')
+  })
+
+  it('fills BOTH halves of the marketplace, so the service side is not invisible', async () => {
+    // A demo showing only furniture teaches a visitor that the board handles
+    // objects — which is precisely the belief the service half exists to end.
+    const { prisma, recorded } = createPrismaMock()
+    await seedDemoData(prisma)
+
+    const halves = recorded.marketplaceKinds.map((kind) => natureOfKind(kind as never))
+    expect({
+      goods: halves.includes('GOODS'),
+      services: halves.includes('SERVICE'),
+    }).toEqual({ goods: true, services: true })
+  })
+
+  it('seeds an event that has not happened yet AND one that has', async () => {
+    // Only past events means an empty "Kommt" section and no RSVP to press;
+    // only future ones means the "Vorbei" record never appears at all.
+    const { prisma, recorded } = createPrismaMock()
+    await seedDemoData(prisma)
+    const now = Date.now()
+
+    expect({
+      upcoming: recorded.eventStartsAt.some((date) => date.getTime() > now),
+      past: recorded.eventStartsAt.some((date) => date.getTime() < now),
+    }).toEqual({ upcoming: true, past: true })
+  })
+
+  it('creates NO external activity under the default (scoped) options', async () => {
+    // The safety property. An Activity has no unit and no code, so a reset that
+    // deletes by demo prefix can never reach one. On an instance sharing a
+    // database with a real flat they would accumulate nightly and show real
+    // residents invented offers with invented phone numbers.
+    const { prisma, recorded } = createPrismaMock()
+    await seedDemoData(prisma)
+
+    expect(recorded.activityCategories).toEqual([])
+  })
+
+  it('creates the activity catalogue only when the caller owns the whole database', async () => {
+    const { prisma, recorded } = createPrismaMock()
+    await seedDemoData(prisma, { siteWideContent: true })
+
+    // One per category, so every position in the portal's filter row returns
+    // something — a filter landing on "Keine Ergebnisse" reads as broken, not
+    // as empty.
+    expect(new Set(recorded.activityCategories).size).toBe(
+      recorded.activityCategories.length
+    )
+    expect(recorded.activityCategories.length).toBeGreaterThanOrEqual(6)
   })
 
   it('gives the DEMO LOGIN an answered report — a reply to a roommate proves nothing', async () => {

@@ -77,6 +77,7 @@ export const en: Dictionary = {
   'language.machineNotice': 'This translation has not yet been checked by a native speaker.',
 
   'safety.emergency': 'In an emergency: call 112 or contact the housing office',
+  'placement.none': 'You have no housing unit yet. Once you are placed, this is where you will see what is going on in your house.',
 
   'help.title': 'Help & FAQ',
   'help.subtitle': 'Answers and contact — in danger, use the emergency numbers first.',
@@ -297,6 +298,13 @@ export const en: Dictionary = {
   'events.categorySocial': 'Social',
   'events.categoryCulture': 'Culture',
   'events.categorySupport': 'Support',
+  'events.upcoming': 'Coming up',
+  'events.past': 'Past',
+  'events.emptyUpcoming': 'Nothing planned. Suggest something yourself.',
+  'events.attendees': 'Going',
+  'events.noAttendees': 'Nobody has said yes yet.',
+  'events.yourAnswer': 'Your answer',
+  'events.createdBy': 'By',
 
   'dashboard.welcome': 'Welcome back',
   'dashboard.subtitle': 'Here you can see how things are going in your accommodation.',
@@ -341,6 +349,11 @@ export const en: Dictionary = {
   'preferences.subtitle': 'This information helps us find suitable housemates',
   'decisions.title': 'House decisions',
   'decisions.noPlacement': 'Once you are assigned accommodation, you can take part in decisions here.',
+  'decisions.subtitle': 'On many topics the house decides for itself.',
+  'decisions.phaseDiscussion': 'Discussion',
+  'decisions.phaseVoting': 'Voting',
+  'decisions.days': 'days',
+  'decisions.tooFewVoters': 'Too few people live here right now for a vote. You can still submit proposals — staff will discuss them with you.',
 
   'activities.dashboardTitle': 'Activities & Courses',
   'activities.dashboardSubtitle': 'Recommendations for you.',

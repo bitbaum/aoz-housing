@@ -94,6 +94,7 @@ export const ru: Dictionary = {
 
   'safety.emergency': 'В экстренном случае: звони 112 или свяжись с администрацией дома',
 
+  'placement.none': 'У тебя ещё нет жилья. Как только тебя поселят, здесь будет видно, что происходит в твоём доме.',
   'help.title': 'Помощь и частые вопросы',
   'help.subtitle': 'Ответы и контакты — при опасности сначала номера экстренных служб.',
   'help.faqTitle': 'Частые вопросы',
@@ -224,6 +225,13 @@ export const ru: Dictionary = {
   'events.categorySocial': 'Встреча',
   'events.categoryCulture': 'Культура',
   'events.categorySupport': 'Поддержка',
+  'events.upcoming': 'Впереди',
+  'events.past': 'Прошедшие',
+  'events.emptyUpcoming': 'Ничего не запланировано. Предложи что-нибудь сам.',
+  'events.attendees': 'Придут',
+  'events.noAttendees': 'Пока никто не согласился.',
+  'events.yourAnswer': 'Твой ответ',
+  'events.createdBy': 'От',
 
   'dashboard.welcome': 'С возвращением',
   'dashboard.subtitle': 'Здесь вы видите, как дела в вашем жилище.',
@@ -268,6 +276,11 @@ export const ru: Dictionary = {
   'preferences.subtitle': 'Эти данные помогают нам подобрать подходящих соседей',
   'decisions.title': 'Решения в доме',
   'decisions.noPlacement': 'Когда вам назначат жильё, здесь можно участвовать в решениях.',
+  'decisions.subtitle': 'Многие вопросы дом решает сам.',
+  'decisions.phaseDiscussion': 'Обсуждение',
+  'decisions.phaseVoting': 'Голосование',
+  'decisions.days': 'дней',
+  'decisions.tooFewVoters': 'Сейчас здесь живёт слишком мало людей для голосования. Ты всё равно можешь подать предложение — сопровождение обсудит его с вами.',
 
   'activities.dashboardTitle': 'Занятия и курсы',
   'activities.dashboardSubtitle': 'Рекомендации для вас.',
