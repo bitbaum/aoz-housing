@@ -33,10 +33,10 @@ export const so: Dictionary = {
   'nav.moreTitle': 'Wax walba hal jeeg',
   'nav.closeMore': 'Xir liiska',
 
-  'navGroup.living': 'Nolosha iyo guriyaha',
-  'navGroup.together': 'Wada shaqaynta',
-  'navGroup.concerns': 'Arrimo iyo fursado',
-  'navGroup.integration': 'Dhaqanka iyo shaqada',
+  'navGroup.living': 'Guriga',
+  'navGroup.community': 'Bulshada',
+  'navGroup.concerns': 'Codsiyadayda',
+  'navGroup.integration': 'Isdhexgalka',
   'navGroup.account': 'Akoonkayga',
 
   'reports.title': 'Warbixinnadaada',

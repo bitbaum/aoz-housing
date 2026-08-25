@@ -43,6 +43,18 @@ export interface DemoSeedOptions {
    * colleague who would then appear in every real "zuständig" picker.
    */
   careStaffId?: string | null
+  /**
+   * May the seed create rows that are NOT scoped to a demo unit or a demo
+   * resident? Default false.
+   *
+   * The external activity catalogue has no unit and no code, so the scoped
+   * reset — which deletes by demo PREFIX, never by table — has no handle on
+   * it. Seeding it under `unit` scope would leave rows accumulating nightly
+   * beside a real flat's data, showing real residents invented offers with
+   * invented phone numbers. Same rule, same reason as the per-role demo doors:
+   * anything the scoped reset cannot clean up belongs to the full reset only.
+   */
+  siteWideContent?: boolean
 }
 
 export async function seedDemoData(
@@ -1257,6 +1269,7 @@ export async function seedDemoData(
   // LIVING TOGETHER (Unit 5) — chores, decisions and maintenance
   // ========================================================================
   await seedDemoGovernance(prisma, {
+    siteWideContent: options.siteWideContent ?? false,
     unitId: unit5.id,
     demoResidentId: fatima.id,
     roommateIds: [yasmin.id, amira.id, sara.id],

@@ -32,6 +32,17 @@ describe('PortalSidebar', () => {
     }
   })
 
+  it('pins the overview outside the groups', () => {
+    // The way home must not depend on which accordion happens to be open — it
+    // used to be the first child of "Alltag", so a resident reading their
+    // learning record had to expand a different section to get back.
+    const { container } = render(<PortalSidebar />)
+
+    const overview = container.querySelector('a[href="/portal"]')
+    expect(overview).toBeInTheDocument()
+    expect(overview?.closest('details')).toBeNull()
+  })
+
   it('does not list apartment, roommates, or account pages', () => {
     const { container } = render(<PortalSidebar />)
 

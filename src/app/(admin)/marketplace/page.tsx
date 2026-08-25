@@ -51,6 +51,9 @@ export default async function MarketplaceAdminPage() {
                         {MARKETPLACE_ADMIN_LABELS.status[post.status]}
                       </span>
                       <span className="chip chip-neutral">
+                        {MARKETPLACE_ADMIN_LABELS.nature[post.nature]}
+                      </span>
+                      <span className="chip chip-neutral">
                         {MARKETPLACE_ADMIN_LABELS.kind[post.kind]}
                       </span>
                       {post.hiddenByStaff ? (

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { requireStaffAuth } from '@/lib/auth'
+import { requireStaffAuth, requirePermission } from '@/lib/auth'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import {
@@ -43,7 +43,7 @@ function normalizeActivityData<T extends {
 }
 
 export async function createActivity(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('activities:write')
   const data = validateFormData(ActivityInputSchema, formData)
 
   let activity
@@ -70,7 +70,7 @@ export async function createActivity(formData: FormData): Promise<void> {
 }
 
 export async function updateActivity(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('activities:write')
   const data = validateFormData(ActivityUpdateSchema, formData)
   const { id, ...updateData } = data
 
@@ -97,7 +97,7 @@ export async function updateActivity(formData: FormData): Promise<void> {
 }
 
 export async function publishActivity(activityId: string): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('activities:write')
   try {
     await setActivityStatus(activityId, 'PUBLISHED', user.id)
 
@@ -118,7 +118,7 @@ export async function publishActivity(activityId: string): Promise<void> {
 }
 
 export async function archiveActivity(activityId: string): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('activities:write')
   try {
     await setActivityStatus(activityId, 'ARCHIVED', user.id)
 

@@ -11,7 +11,6 @@ import {
   portalSidebarItems,
 } from '@/lib/config/navigation'
 import { BRAND } from '@/lib/config/brand'
-import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { portalNavMessageKey, isPortalPathActive } from '@/lib/utils/portal-nav'
 import { createTranslator } from '@/lib/i18n'
 import { de } from '@/lib/i18n/dictionaries/de'
@@ -136,21 +135,26 @@ describe('the mobile tab bar', () => {
     }
 
     for (const group of PORTAL_NAV_GROUP_ORDER) {
-      expect(PORTAL_LABELS.navGroups[group]).toBeTruthy()
+      // Against the DICTIONARY, because that is what renders. The sidebar
+      // resolves its heading with `t(\`navGroup.${group}\` as MessageKey)`, and
+      // a cast is not a check: a group id with no key renders an EMPTY heading,
+      // silently, since the German fallback misses too. This is the only thing
+      // standing between that cast and a blank accordion.
+      expect({ group, heading: de[`navGroup.${group}` as keyof typeof de] })
+        .toEqual({ group, heading: expect.any(String) })
       expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) })
         .toEqual({ group, items: true })
     }
   })
 
-  it('lists sidebar destinations in living → together → opportunities', () => {
+  it('lists sidebar destinations in the declared group order', () => {
     const items = portalSidebarItems()
     const groups = items.map((item: { group: string }) => item.group)
     const seen: string[] = []
     for (const group of groups) {
       if (seen[seen.length - 1] !== group) seen.push(group)
     }
-    expect(seen).toEqual(['living', 'together', 'integration'])
-    expect(items[0]?.href).toBe('/portal')
+    expect(seen).toEqual(['living', 'community', 'concerns', 'integration'])
   })
 })
 

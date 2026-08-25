@@ -185,12 +185,15 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     ],
   },
   {
-    label: 'Alltag',
+    // Named "Gemeinschaft" on BOTH sides of the product, matching the portal
+    // group of the same name. Staff and residents talking about the same
+    // surface with two different words is how a shared vocabulary rots — and
+    // "Alltag" had stopped describing the contents anyway.
+    label: 'Gemeinschaft',
     items: [
       { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Rotation', permission: 'housing:read' },
-      { href: '/marketplace', icon: 'shop', label: 'Marktplatz', desc: 'Geben, Leihen, Suchen', permission: 'marketplace:read' },
+      { href: '/marketplace', icon: 'shop', label: 'Marktplatz', desc: 'Sachen & Hilfe unter Klient*innen', permission: 'marketplace:read' },
       { href: '/events', icon: 'event', label: 'Veranstaltungen', desc: 'Hausversammlungen & Events', permission: 'events:read' },
-      { href: '/activities', icon: 'heart', label: 'Aktivitäten', desc: 'Externe Angebote fürs Portal', permission: 'residents:write' },
     ],
   },
   {
@@ -234,6 +237,18 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
         desc: 'Freiwilligenarbeit & Einsätze',
         permission: 'opportunities:read',
       },
+      // Moved out of "Alltag": a curated catalogue of external sport, language,
+      // culture and family offers is the integration domain, not the daily
+      // running of a house. It reads on `activities:read` rather than
+      // `residents:write`, which had shut out precisely the two roles whose job
+      // this is — JOBCOACH and FREIWILLIGENARBEIT.
+      {
+        href: '/activities',
+        icon: 'heart',
+        label: 'Aktivitäten',
+        desc: 'Externe Angebote fürs Portal',
+        permission: 'activities:read',
+      },
     ],
   },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
@@ -261,11 +276,46 @@ export function visibleMegaMenuGroups(role: StaffRole): MegaMenuGroup[] {
 // PORTAL NAV (resident-facing)
 // =============================================================================
 
-export type PortalNavGroup = 'living' | 'together' | 'integration' | 'account'
+/**
+ * The resident portal's information architecture.
+ *
+ * THE RULE, and it is the whole reason this was rewritten: **a group is named
+ * for what it IS, never for what you DO there.** A verb heading breaks the day
+ * its verb is feature-flagged away, silently, with everything still green.
+ *
+ * That is not hypothetical — it shipped. The group was called "Zusammen
+ * entscheiden" and held Regeln, Nachrichten, Melden and Meine Meldungen,
+ * because `householdVotes: false` on the AOZ brand removed Abstimmen, the one
+ * item that justified the name, and the heading stayed. A resident on the AOZ
+ * deployment opened a menu that offered to let them decide together and found
+ * nothing to decide.
+ *
+ * Two more had drifted the same way by content rather than by flag:
+ * "Integration & Beruf" held the flea market and house parties, and "Alltag"
+ * held housing administration (browse units, request a transfer).
+ *
+ * So each group now answers one question a resident actually arrives with:
+ *   living      — the roof over my head and running this household
+ *   community   — the people I live with
+ *   concerns    — I raised something; where did it go
+ *   integration — where I am going next
+ *   account     — me and this app
+ *
+ * `portal-nav-groups.test.ts` holds the line: every group must survive every
+ * brand's feature flags with at least two items, because a one-item accordion
+ * is a link wearing a hat.
+ */
+export type PortalNavGroup =
+  | 'living'
+  | 'community'
+  | 'concerns'
+  | 'integration'
+  | 'account'
 
 export const PORTAL_NAV_GROUP_ORDER: readonly PortalNavGroup[] = [
   'living',
-  'together',
+  'community',
+  'concerns',
   'integration',
   'account',
 ]
@@ -295,30 +345,46 @@ export const PORTAL_NAV_HIDDEN_ROUTES = ['/portal/apartment', '/portal/roommates
 /** Sidebar / Mehr sheet: the work of living here. Account lives in the header. */
 export const PORTAL_SIDEBAR_GROUPS: readonly PortalNavGroup[] = [
   'living',
-  'together',
+  'community',
+  'concerns',
   'integration',
 ]
 
+/**
+ * Destinations the sidebar pins above the groups instead of filing inside one.
+ *
+ * "Übersicht" is where every group sends you back to; burying it as the first
+ * child of "Wohnen" made the way home depend on which accordion happened to be
+ * open. It keeps its `group` for the pillar directory and the tab bar — this
+ * list only changes where the SIDEBAR draws it.
+ */
+export const PORTAL_SIDEBAR_PINNED: readonly string[] = ['/portal']
+
 export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
-  // Alltag & Wohnen — daily life, housing management, shared tasks
+  // Wohnen — the roof over my head, and running this household.
   { href: '/portal', labelKey: 'overview', icon: 'home', primary: true, tab: 1, aozTab: 1, group: 'living' },
   { href: '/portal/chores', labelKey: 'chores', icon: 'calendar', primary: true, tab: 2, group: 'living' },
   { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living', requiresFeature: 'householdMoney' },
-  { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'living' },
   { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'living' },
   { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'living' },
-  // Miteinander — shared rules, governance, communication, reporting
-  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, aozTab: 3, group: 'together' },
-  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'together', requiresFeature: 'householdVotes' },
-  { href: '/portal/messages', labelKey: 'messages', icon: 'message', primary: true, group: 'together' },
-  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, aozTab: 2, group: 'together' },
-  { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'together' },
-  // Integration & Beruf — language, job coaching, volunteering
+  // Gemeinschaft — the people I live with. A noun, so losing `decisions` to a
+  // brand flag leaves the heading true instead of leaving it a broken promise.
+  { href: '/portal/events', labelKey: 'events', icon: 'event', group: 'community' },
+  { href: '/portal/marketplace', labelKey: 'marketplace', icon: 'shop', group: 'community' },
+  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, aozTab: 3, group: 'community' },
+  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'community', requiresFeature: 'householdVotes' },
+  // Anliegen — I raised something; where did it go. Messages belong here and
+  // not under "community": the thread is with STAFF, not with the household.
+  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, aozTab: 2, group: 'concerns' },
+  { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
+  { href: '/portal/messages', labelKey: 'messages', icon: 'message', primary: true, group: 'concerns' },
+  // Integration — where I am going next. Activities (sport, language, culture,
+  // family support) are external offers that build a life here, which is this
+  // question and not "Alltag".
   { href: '/portal/learning', labelKey: 'learning', icon: 'learning', primary: true, tab: 4, group: 'integration' },
   { href: '/portal/opportunities', labelKey: 'opportunities', icon: 'opportunities', group: 'integration' },
-  { href: '/portal/marketplace', labelKey: 'marketplace', icon: 'shop', group: 'integration' },
-  { href: '/portal/events', labelKey: 'events', icon: 'event', group: 'integration' },
-  // Account — profile and settings
+  { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'integration' },
+  // Mein Konto — me and this app.
   { href: '/portal/profile', labelKey: 'profile', icon: 'settings', group: 'account' },
   { href: '/portal/preferences', labelKey: 'preferences', icon: 'wrench', group: 'account' },
   { href: '/portal/help', labelKey: 'help', icon: 'help', aozTab: 4, group: 'account' },

@@ -50,6 +50,12 @@ const daysAgoThisMonth = (days: number): Date => {
 }
 
 export interface DemoGovernanceContext {
+  /**
+   * May this seed create rows outside the demo unit? The activity catalogue is
+   * the only such content, and the scoped reset cannot delete it — @see
+   * DemoSeedOptions.siteWideContent.
+   */
+  siteWideContent: boolean
   /** The success unit — the one the demo resident lives in. */
   unitId: string
   /** The demo resident (Fatima) — deliberately left without a vote to cast. */
@@ -74,7 +80,7 @@ export async function seedDemoGovernance(
   prisma: PrismaClient,
   ctx: DemoGovernanceContext
 ): Promise<void> {
-  const { unitId, demoResidentId, roommateIds } = ctx
+  const { unitId, demoResidentId, roommateIds, siteWideContent } = ctx
   const [yasmin, amira, sara] = roommateIds
   const voters = roommateIds.length + 1
 
@@ -389,5 +395,236 @@ export async function seedDemoGovernance(
       resolution: 'Leuchtmittel und Starter ersetzt. Bitte melden, falls es erneut flackert.',
       createdAt: daysAgo(9),
     },
+  })
+
+  // ==========================================================================
+  // MARKETPLACE — both halves of the board
+  // ==========================================================================
+  // Three more pages rendered empty in the demo, and an empty page reads as a
+  // missing feature. The SERVICE half especially: an exchange of half an hour
+  // is the whole reason the board stopped being a giveaway shelf, and a visitor
+  // who only sees furniture concludes that is all it does.
+  //
+  // The states are deliberately mixed — open, claimed, closed — because a board
+  // where nothing has ever been taken does not demonstrate a handover.
+  await prisma.marketplacePost.createMany({
+    data: [
+      {
+        housingUnitId: unitId,
+        postedById: yasmin,
+        title: 'Wasserkocher',
+        description: 'Funktioniert einwandfrei, ich habe jetzt zwei. Wer mag?',
+        kind: 'GIVE_AWAY',
+        category: 'KITCHEN',
+        status: 'OPEN',
+        contactNote: 'Zimmer 2, meistens ab 18 Uhr da.',
+        createdAt: daysAgo(2),
+      },
+      {
+        housingUnitId: unitId,
+        postedById: amira,
+        title: 'Koffer für eine Woche',
+        description: 'Ich brauche einen grossen Koffer für eine Reise Ende Monat.',
+        kind: 'WANTED',
+        category: 'OTHER',
+        status: 'OPEN',
+        createdAt: daysAgo(4),
+      },
+      {
+        housingUnitId: unitId,
+        postedById: sara,
+        title: 'Briefe auf Deutsch erklären',
+        description:
+          'Ich kann Deutsch und Arabisch. Wenn ein Brief von einer Behörde kommt, lese ich ihn mit dir zusammen durch.',
+        kind: 'OFFER_HELP',
+        category: 'PAPERWORK',
+        status: 'OPEN',
+        contactNote: 'Klopf einfach, Zimmer 4.',
+        createdAt: daysAgo(6),
+      },
+      {
+        housingUnitId: unitId,
+        postedById: demoResidentId,
+        title: 'Schrank in den 3. Stock tragen',
+        description: 'Zu zweit ist es in zehn Minuten erledigt. Samstagvormittag würde mir passen.',
+        kind: 'NEED_HELP',
+        category: 'MOVING',
+        status: 'CLAIMED',
+        claimedById: yasmin,
+        claimedAt: daysAgo(1),
+        createdAt: daysAgo(3),
+      },
+      {
+        housingUnitId: unitId,
+        postedById: yasmin,
+        title: 'Kinderkleider Grösse 98',
+        description: 'Zwei Jacken und vier Pullover, alles gewaschen.',
+        kind: 'GIVE_AWAY',
+        category: 'KIDS',
+        status: 'CLOSED',
+        claimedById: amira,
+        claimedAt: daysAgo(9),
+        closedAt: daysAgo(8),
+        createdAt: daysAgo(11),
+      },
+    ],
+  })
+
+  // ==========================================================================
+  // HOUSE EVENTS — one past, one imminent, one further out
+  // ==========================================================================
+  // The RSVP counts are uneven and the demo resident has deliberately NOT
+  // answered the next one, so the visitor has a decision to make rather than a
+  // finished record to read.
+  const houseMeeting = await prisma.houseEvent.create({
+    data: {
+      housingUnitId: unitId,
+      createdByResidentId: yasmin,
+      title: 'Hausversammlung',
+      description:
+        'Wir besprechen die Ruhezeiten und den Putzplan für den nächsten Monat. Bringt eure Themen mit.',
+      category: 'HOUSE_MEETING',
+      location: 'Gemeinschaftsraum',
+      startsAt: daysAhead(3),
+      status: 'PUBLISHED',
+      createdAt: daysAgo(2),
+    },
+  })
+
+  await prisma.eventRsvp.createMany({
+    data: [
+      { eventId: houseMeeting.id, residentId: yasmin, status: 'GOING' },
+      { eventId: houseMeeting.id, residentId: amira, status: 'GOING' },
+      { eventId: houseMeeting.id, residentId: sara, status: 'MAYBE' },
+    ],
+  })
+
+  const cooking = await prisma.houseEvent.create({
+    data: {
+      housingUnitId: unitId,
+      createdByResidentId: amira,
+      title: 'Zusammen kochen',
+      description: 'Jede*r bringt etwas aus der eigenen Küche mit. Kinder sind willkommen.',
+      category: 'SOCIAL',
+      location: 'Küche',
+      startsAt: daysAhead(10),
+      status: 'PUBLISHED',
+      createdAt: daysAgo(1),
+    },
+  })
+
+  await prisma.eventRsvp.createMany({
+    data: [
+      { eventId: cooking.id, residentId: amira, status: 'GOING' },
+      { eventId: cooking.id, residentId: demoResidentId, status: 'GOING' },
+    ],
+  })
+
+  const pastEvent = await prisma.houseEvent.create({
+    data: {
+      housingUnitId: unitId,
+      createdByResidentId: sara,
+      title: 'Frühlingsputz im Hof',
+      description: 'Zwei Stunden, dann Kaffee. Handschuhe sind vorhanden.',
+      category: 'SOCIAL',
+      location: 'Innenhof',
+      startsAt: daysAgo(14),
+      status: 'PUBLISHED',
+      createdAt: daysAgo(21),
+    },
+  })
+
+  await prisma.eventRsvp.createMany({
+    data: [
+      { eventId: pastEvent.id, residentId: sara, status: 'GOING' },
+      { eventId: pastEvent.id, residentId: yasmin, status: 'GOING' },
+      { eventId: pastEvent.id, residentId: demoResidentId, status: 'GOING' },
+      { eventId: pastEvent.id, residentId: amira, status: 'DECLINED' },
+    ],
+  })
+
+  // ==========================================================================
+  // ACTIVITIES — the external catalogue
+  // ==========================================================================
+  // Not unit-scoped: these are offers in the city, curated by staff, and the
+  // portal's own page filters by category. One per category, so the filter row
+  // a visitor presses actually returns something in every position — a filter
+  // that lands on "Keine Ergebnisse" reads as a broken feature, not an empty one.
+  //
+  // Which is also exactly why they are gated. Having no unit and no code, they
+  // are invisible to a reset that deletes by demo prefix, so on an instance
+  // sharing a database with a real flat they would pile up nightly and show
+  // real residents invented offers with invented phone numbers.
+  if (!siteWideContent) return
+
+  await prisma.activity.createMany({
+    data: [
+      {
+        title: 'Offenes Fussballtraining',
+        description:
+          'Jeden Mittwoch, alle Niveaus, keine Anmeldung nötig. Fussballschuhe können vor Ort geliehen werden.',
+        category: 'SPORT',
+        cost: 'FREE',
+        location: 'Sportanlage Heerenschürli, Zürich',
+        schedule: 'Mittwoch 18:00–20:00',
+        status: 'PUBLISHED',
+        highlight: true,
+      },
+      {
+        title: 'Deutsch-Konversation im Quartiertreff',
+        description:
+          'Zwanglos Deutsch sprechen mit Freiwilligen. Einsteigen ist jederzeit möglich, auch mit wenig Vorkenntnissen.',
+        category: 'LANGUAGE',
+        cost: 'FREE',
+        location: 'Quartiertreff Hirslanden',
+        schedule: 'Dienstag und Donnerstag, 14:00–16:00',
+        status: 'PUBLISHED',
+        highlight: true,
+      },
+      {
+        title: 'Museum für Gestaltung — Eintritt mit KulturLegi',
+        description:
+          'Mit der KulturLegi ist der Eintritt stark vergünstigt. Ausstellungen wechseln alle paar Monate.',
+        category: 'CULTURE',
+        cost: 'REDUCED',
+        costNote: 'CHF 6 statt CHF 12 mit KulturLegi',
+        location: 'Ausstellungsstrasse 60, Zürich',
+        website: 'https://museum-gestaltung.ch',
+        status: 'PUBLISHED',
+      },
+      {
+        title: 'Nachbarschaftscafé',
+        description:
+          'Kaffee, Kuchen und Leute aus dem Quartier. Ein guter Ort, um jemanden kennenzulernen.',
+        category: 'COMMUNITY',
+        cost: 'FREE',
+        location: 'Gemeinschaftszentrum Witikon',
+        schedule: 'Jeden Freitagnachmittag',
+        status: 'PUBLISHED',
+      },
+      {
+        title: 'Spielgruppe für Kinder von 2 bis 5',
+        description:
+          'Betreute Spielgruppe am Vormittag. Die Eltern können bleiben oder etwas erledigen.',
+        category: 'FAMILY',
+        cost: 'REDUCED',
+        costNote: 'Nach Einkommen abgestuft; frag bei der Betreuung nach',
+        location: 'Familienzentrum Zürich Ost',
+        schedule: 'Montag bis Donnerstag, 9:00–11:30',
+        phone: '044 000 00 00',
+        status: 'PUBLISHED',
+      },
+      {
+        title: 'Rechtsberatung für Asylsuchende',
+        description:
+          'Kostenlose und vertrauliche Beratung zu Verfahren und Fristen. Dolmetschen kann organisiert werden.',
+        category: 'SUPPORT',
+        cost: 'FREE',
+        location: 'Beratungsstelle Zürich',
+        schedule: 'Montag 13:00–17:00, ohne Voranmeldung',
+        phone: '044 000 00 01',
+        status: 'PUBLISHED',
+      },
+    ],
   })
 }

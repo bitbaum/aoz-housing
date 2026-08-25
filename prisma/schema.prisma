@@ -1384,11 +1384,27 @@ model MarketplacePost {
   title       String
   description String
   kind        MarketplacePostKind
-  category    MarketplacePostCategory @default(OTHER)
+  /// A category id from `lib/config/marketplace.ts`, NOT a database enum.
+  /// Vocabulary belongs in config — adding "Fahrrad" must be one line, never a
+  /// migration — the same rule the shared-expense categories follow. `kind`
+  /// stays an enum next door because it is behaviour, not vocabulary: it
+  /// decides who claims from whom, so a new one means new code anyway.
+  category String @default("OTHER")
+
+  /// How to reach the poster, in their own words ("Zimmer 3, abends").
+  ///
+  /// The product has no resident-to-resident messaging — a thread belongs to
+  /// one resident and the other side is always staff. So without this the
+  /// board could match two people and then strand them: claimed, and no way to
+  /// arrange the handover. Shown ONLY to the person who claimed and to staff,
+  /// never on the open listing, because a phone number readable by every
+  /// resident of every unit is not what someone means when they write one.
+  contactNote String?
 
   status      MarketplacePostStatus @default(OPEN)
   claimedBy   Resident?             @relation("MarketplacePostClaimedBy", fields: [claimedById], references: [id], onDelete: SetNull)
   claimedById String?
+  claimedAt   DateTime?
   closedAt    DateTime?
 
   // Staff moderation
@@ -1399,19 +1415,28 @@ model MarketplacePost {
   @@index([postedById])
 }
 
+/// What is being exchanged, and in which direction.
+///
+/// The first three move an OBJECT; the last two move somebody's TIME. Both
+/// halves matter: the thing people in a shared house pass around most is not a
+/// toaster but half an hour — translating a letter, watching a child, carrying
+/// a wardrobe — and none of it was recorded anywhere, so the one person who
+/// could help never heard that anyone needed it.
+///
+/// Direction is why this is an enum and not a label: on a GIVE_AWAY the poster
+/// holds the thing and the other person takes it; on a WANTED or a NEED_HELP
+/// the poster is the one asking, and answering means offering. The button has
+/// to say different words, so the code has to branch, so the database may as
+/// well refuse a value the code cannot handle.
+///
+/// There is deliberately no price anywhere near this model. @see
+/// lib/config/marketplace.ts for why paid work must stay in `Opportunity`.
 enum MarketplacePostKind {
   GIVE_AWAY
   LEND
   WANTED
-}
-
-enum MarketplacePostCategory {
-  FURNITURE
-  KITCHEN
-  CLOTHING
-  ELECTRONICS
-  KIDS
-  OTHER
+  OFFER_HELP
+  NEED_HELP
 }
 
 enum MarketplacePostStatus {

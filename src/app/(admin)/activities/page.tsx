@@ -24,7 +24,7 @@ type Props = {
 }
 
 export default async function ActivitiesAdminPage({ searchParams }: Props) {
-  await requirePermission('residents:write')
+  await requirePermission('activities:read')
   const { status } = await searchParams
   const statusFilter = status && status in ACTIVITY_STATUS_LABELS ? status as ActivityStatus : undefined
 

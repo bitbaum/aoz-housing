@@ -1,6 +1,9 @@
-import { PORTAL_NAV_ITEMS } from '@/lib/config/navigation'
+import {
+  PORTAL_NAV_ITEMS,
+  PORTAL_NAV_GROUP_ORDER,
+} from '@/lib/config/navigation'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
-import { availableLocales, createTranslator } from '@/lib/i18n'
+import { availableLocales, createTranslator, type MessageKey } from '@/lib/i18n'
 
 /**
  * Two destinations may not share a name.
@@ -35,6 +38,35 @@ describe('every navigation label names exactly one place', () => {
 
     expect({ id, collisions }).toEqual({ id, collisions: [] })
   })
+
+  /**
+   * The same rule one level up, because the same bug was there and nobody had
+   * looked: `navGroup.integration` was a VERBATIM copy of `navGroup.concerns`
+   * in French, Ukrainian, Arabic and Turkish, and a near-copy in Persian and
+   * Tigrinya. Those readers opened the sidebar and found two accordions with
+   * identical headings — while the item labels inside them, which is all the
+   * check above compared, were perfectly distinct.
+   *
+   * A heading is a destination too. It is the thing you read FIRST.
+   */
+  it.each(availableLocales().map((locale) => locale.id))(
+    '%s gives every sidebar group its own heading',
+    (id) => {
+      const t = createTranslator(id)
+
+      const byHeading = new Map<string, string[]>()
+      for (const group of PORTAL_NAV_GROUP_ORDER) {
+        const heading = t(`navGroup.${group}` as MessageKey)
+        byHeading.set(heading, [...(byHeading.get(heading) ?? []), group])
+      }
+
+      const collisions = Array.from(byHeading.entries())
+        .filter(([, groups]) => groups.length > 1)
+        .map(([heading, groups]) => `"${heading}" → ${groups.join(' + ')}`)
+
+      expect({ id, collisions }).toEqual({ id, collisions: [] })
+    }
+  )
 
   it('would catch two entries sharing a word', () => {
     // Proves the comparison rather than trusting it — a version of this test

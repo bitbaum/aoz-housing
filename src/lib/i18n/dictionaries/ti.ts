@@ -30,10 +30,10 @@ export const ti: Dictionary = {
   'nav.closeMore': 'ዝርዝር ዕጸው',
   'nav.accountMenu': 'ሕሳብ',
 
-  'navGroup.living': 'መዓልታዊ',
-  'navGroup.together': 'ብሓባር ውሳነ',
-  'navGroup.concerns': 'ሕቶታትን ኣቕርቦትን',
-  'navGroup.integration': 'ሕቶታት',
+  'navGroup.living': 'መንበሪ',
+  'navGroup.community': 'ማሕበረሰብ',
+  'navGroup.concerns': 'ጥርዓናተይ',
+  'navGroup.integration': 'ውህደት',
   'navGroup.account': 'ሕሳበይ',
 
   'reports.title': 'ዜናታትካ',

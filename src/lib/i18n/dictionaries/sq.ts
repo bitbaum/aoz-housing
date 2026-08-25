@@ -30,10 +30,10 @@ export const sq: Dictionary = {
   'nav.moreTitle': 'Gjithçka me një vështrim',
   'nav.closeMore': 'Mbyll menynë',
 
-  'navGroup.living': 'Jeta e përditshme dhe strehimi',
-  'navGroup.together': 'Bashkë',
-  'navGroup.concerns': 'Çështje dhe oferta',
-  'navGroup.integration': 'Integrimi dhe puna',
+  'navGroup.living': 'Banimi',
+  'navGroup.community': 'Bashkësia',
+  'navGroup.concerns': 'Kërkesat e mia',
+  'navGroup.integration': 'Integrimi',
   'navGroup.account': 'Llogaria ime',
 
   'reports.title': 'Raportimet e tua',
