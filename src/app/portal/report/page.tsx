@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = { title: 'Problem melden' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.report') }
+}
 import { ReportForm } from './ReportForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
-import { getRequestTranslator } from '@/lib/i18n/request'
 import { contactFallbackSentence } from '@/lib/contact/fallback'
 
 export const dynamic = 'force-dynamic'

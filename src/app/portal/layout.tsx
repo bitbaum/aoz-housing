@@ -14,19 +14,31 @@ import { prisma } from '@/lib/db'
 import { residentUnreadCount } from '@/lib/messaging/queries'
 
 /**
- * The portal names itself from the brand, not from a literal.
+ * The portal names itself in the reader's language.
  *
  * This said "Bewohnerportal" — a fourth name for the portal, beside
  * `BRAND.portalName`, the translated `portalTitleKey` the nav renders, and the
  * product name the root layout appends. A Russian-speaking resident's tab read
  * "Bewohnerportal | WG Zuhause": two German words for one place, neither of
  * them the name the page itself was showing them.
+ *
+ * Reading the brand fixed the DUPLICATION but not the LANGUAGE: a static
+ * `metadata` export is evaluated once, so the tab kept saying "Mein Bereich"
+ * above a page rendered in Russian. `generateMetadata` runs per request, which
+ * is what lets the title resolve through the same translator and the same
+ * `portalTitleKey` the navigation already uses — one name for this place, in
+ * whatever language the reader chose.
  */
-export const metadata: Metadata = {
-  title: {
-    template: `%s | ${BRAND.portalName}`,
-    default: BRAND.portalName,
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  const portalName = t(BRAND.portalTitleKey)
+
+  return {
+    title: {
+      template: `%s | ${portalName}`,
+      default: portalName,
+    },
+  }
 }
 
 export default async function PortalLayout({

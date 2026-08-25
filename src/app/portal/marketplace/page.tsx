@@ -10,7 +10,10 @@ import {
   type MarketplacePostSummary,
 } from '@/lib/actions/marketplace'
 
-export const metadata: Metadata = { title: 'Marktplatz' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.marketplace') }
+}
 export const dynamic = 'force-dynamic'
 
 const STATUS_BADGE: Record<string, string> = {

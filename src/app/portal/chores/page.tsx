@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
-export const metadata: Metadata = { title: 'Aufgaben' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.chores') }
+}
 import { ChoreList } from '@/components/portal/ChoreList'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 import { requireResidentCookie } from '@/lib/portal-auth'

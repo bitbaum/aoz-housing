@@ -11,7 +11,10 @@ import {
   cancelEvent,
 } from '@/lib/actions/events'
 
-export const metadata: Metadata = { title: 'Veranstaltungen' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.events') }
+}
 export const dynamic = 'force-dynamic'
 
 async function submitCreateEvent(formData: FormData): Promise<void> {

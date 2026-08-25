@@ -1,10 +1,14 @@
 import type { Metadata } from 'next'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 
 // The portal's name is the brand's decision, not this file's — the tab used to
 // say "Mein Bereich" while the nav in the same page said "Mein Zuhause".
-export const metadata: Metadata = { title: PORTAL_LABELS.title }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.overview') }
+}
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 import { SatisfactionRating } from '@/components/portal/SatisfactionRating'
@@ -22,7 +26,6 @@ import { PortalExpensesCard } from '@/components/portal/PortalExpensesCard'
 import { ResidentAvatar } from '@/components/portal/ResidentAvatar'
 import { residentName } from '@/lib/utils/resident-name'
 import { mergeResidentReports } from '@/lib/reports/resident-reports'
-import { getRequestTranslator } from '@/lib/i18n/request'
 import { getCareTeam, listUpcomingResidentAppointments } from '@/lib/actions/care'
 import { CareTeamCard } from '@/components/residents/CareTeamCard'
 import { PortalAppointmentsCard } from '@/components/portal/PortalAppointmentsCard'

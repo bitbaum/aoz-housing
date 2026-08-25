@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getRequestTranslator } from '@/lib/i18n/request'
 import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireResidentCookie } from '@/lib/portal-auth'
@@ -12,8 +13,10 @@ import {
 import { createTranslator, resolveLocale, LOCALE_COOKIE } from '@/lib/i18n'
 import { cookies, headers } from 'next/headers'
 
-export const metadata: Metadata = { title: 'Nachrichten' }
-
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.messages') }
+}
 export const dynamic = 'force-dynamic'
 
 /**

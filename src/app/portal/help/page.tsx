@@ -5,8 +5,10 @@ import { getRequestTranslator } from '@/lib/i18n/request'
 import { ORG_CONTACT, ORG_CONTACT_CHANNELS } from '@/lib/config/organization'
 import type { MessageKey } from '@/lib/i18n'
 
-export const metadata: Metadata = { title: 'Hilfe' }
-
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.help') }
+}
 const FAQ_KEYS: { q: MessageKey; a: MessageKey }[] = [
   { q: 'help.faq.placement.q', a: 'help.faq.placement.a' },
   { q: 'help.faq.preferences.q', a: 'help.faq.preferences.a' },

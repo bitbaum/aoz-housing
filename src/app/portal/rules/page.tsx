@@ -10,7 +10,10 @@ import { BRAND } from '@/lib/config/brand'
 import { ORG_ENFORCEMENT } from '@/lib/config/organization'
 import { getRequestTranslator } from '@/lib/i18n/request'
 
-export const metadata: Metadata = { title: 'Hausregeln' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getRequestTranslator()
+  return { title: t('nav.rules') }
+}
 export const dynamic = 'force-dynamic'
 
 export default async function PortalRulesPage() {
