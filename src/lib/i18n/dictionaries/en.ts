@@ -27,7 +27,7 @@ export const en: Dictionary = {
   'nav.closeMore': 'Close menu',
   'nav.accountMenu': 'Account',
 
-  'navGroup.living': 'Housing',
+  'navGroup.living': 'Household',
   'navGroup.community': 'Community',
   'navGroup.concerns': 'My Concerns',
   'navGroup.integration': 'Integration',
