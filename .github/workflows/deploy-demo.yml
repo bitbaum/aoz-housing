@@ -1,0 +1,95 @@
+name: Deploy AOZ demo
+
+# The real flat (aoz-wohnen.orangecat.ch) is push-to-master CD. The AOZ-branded
+# pitch instance at aoz.orangecat.ch is a second build of this repo
+# (NEXT_PUBLIC_BRAND is inlined at build time). A laptop `next build` cannot
+# fetch Google Fonts from this environment, so the named procedure is this
+# workflow — same ship steps as scripts/deploy-demo.sh, run where fonts work.
+#
+# It does not touch /opt/aoz-wohnen or aoz_wohnen.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  deploy-demo:
+    name: aoz-demo → bitbaum
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: aoz-demo-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Require deploy key
+        env:
+          SSH_KEY: ${{ secrets.HETZNER_SSH_PRIVATE_KEY }}
+        run: |
+          if [ -z "$SSH_KEY" ]; then
+            echo "::error::HETZNER_SSH_PRIVATE_KEY is not set — cannot ship aoz-demo."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.HETZNER_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H 167.233.22.31 >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Pull demo runtime env from the box
+        run: |
+          set -euo pipefail
+          scp ubuntu@167.233.22.31:/opt/aoz-demo/shared/.env .env.production.local
+          # Brand is the reason this is a separate build. Pin it even if the
+          # box env drifts — a WG-branded binary on aoz.orangecat.ch is a lie.
+          grep -q '^NEXT_PUBLIC_BRAND=' .env.production.local \
+            && sed -i 's/^NEXT_PUBLIC_BRAND=.*/NEXT_PUBLIC_BRAND=aoz/' .env.production.local \
+            || echo 'NEXT_PUBLIC_BRAND=aoz' >> .env.production.local
+
+      - run: npm ci
+
+      - name: Build AOZ brand
+        env:
+          NODE_ENV: production
+        run: npm run build
+
+      - name: Assemble standalone bundle
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+
+      - name: Ship
+        run: |
+          set -euo pipefail
+          rsync -az --delete --exclude launch.sh \
+            .next/standalone/ ubuntu@167.233.22.31:/opt/aoz-demo/app/
+          ssh ubuntu@167.233.22.31 \
+            'sudo chown -R ubuntu:ubuntu /opt/aoz-demo/app && sudo systemctl restart aoz-demo-app'
+
+      - name: Verify live
+        run: |
+          set -euo pipefail
+          sleep 8
+          code=$(curl -s -o /dev/null -w '%{http_code}' https://aoz.orangecat.ch/api/health)
+          [ "$code" = "200" ] || { echo "health check failed: $code"; exit 1; }
+          html=$(curl -s https://aoz.orangecat.ch/login)
+          echo "$html" | grep -q 'AOZ Begleitung' || {
+            echo "live page does not carry the AOZ brand — stale build?"
+            exit 1
+          }
+          echo "$html" | grep -q 'fleetcrown.orangecat.ch/widget.js' || {
+            echo "live page does not carry the FleetCrown widget — stale build?"
+            exit 1
+          }
+          echo "health 200, AOZ brand present, widget snippet present"

@@ -64,3 +64,17 @@ describe('a failed deploy is retried', () => {
     expect(yml).toMatch(/deploy_workflow:\s*deploy\.yml/)
   })
 })
+
+describe('the AOZ demo build cannot leak the developer NODE_ENV', () => {
+  it('pins NODE_ENV=production in the demo deploy script', () => {
+    const sh = read('scripts/deploy-demo.sh')
+    expect(sh).toMatch(/export NODE_ENV=production/)
+  })
+
+  it('ships the demo from GitHub Actions, not a laptop next/font fetch', () => {
+    const yml = read('.github/workflows/deploy-demo.yml')
+    expect(yml).toMatch(/NEXT_PUBLIC_BRAND=aoz/)
+    expect(yml).toMatch(/\/opt\/aoz-demo\/app/)
+    expect(yml).toMatch(/aoz\.orangecat\.ch/)
+  })
+})
