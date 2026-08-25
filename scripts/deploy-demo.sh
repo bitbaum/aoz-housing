@@ -36,6 +36,26 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 echo "==> verify"
 npm run verify
 
+echo "==> pull the box's env for the build"
+# The BOX holds the runtime env; this build has to be made with it, not with
+# whatever happens to be in the shell. `next build` runs with NODE_ENV=production
+# and the app refuses to load without SESSION_SECRET and DATABASE_URL, so a
+# build started anywhere those are absent dies at page-data collection with an
+# error that reads like a code fault and is not one.
+#
+# "Anywhere" very much includes a git WORKTREE: `.env` is gitignored, so it
+# exists in the main checkout and in none of the worktrees agents actually work
+# in — the script ran fine for whoever wrote it and failed for the next person
+# on the same commit. Pulling from the box removes the question.
+ENV_FILE=$(mktemp)
+trap 'rm -f "$ENV_FILE"' EXIT
+ssh "$BOX" 'cat /opt/aoz-demo/shared/.env' > "$ENV_FILE"
+[ -s "$ENV_FILE" ] || { echo "could not read the box env — refusing to build blind"; exit 1; }
+set -a
+# shellcheck disable=SC1090
+. "$ENV_FILE"
+set +a
+
 echo "==> build (brand: aoz)"
 # A developer shell (direnv / .env) exports NODE_ENV=development. `next build`
 # then prerenders with "Cannot read properties of null (reading 'useContext')"
