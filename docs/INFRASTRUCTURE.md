@@ -79,8 +79,14 @@ Local development uses a **local** Postgres and `.env.example` as the template (
 
 All AI surfaces share one provider chain in `src/lib/ai/provider.ts`:
 
-1. **`GROQ_API_KEY`** — free, fleet default (`openai/gpt-oss-120b` or whatever `GROQ_MODEL` names)
-2. **`OPENROUTER_API_KEY`** — fallback when Groq is down or rate-limited (`OPENROUTER_MODEL`, default `openai/gpt-oss-20b:free`)
+1. **`GROQ_API_KEY`** — free, fleet default
+2. **`OPENROUTER_API_KEY`** — fallback when Groq is down or rate-limited
+
+Which model each vendor gets comes from `ai-kit`, not from this app. `GROQ_MODEL`
+and `OPENROUTER_MODEL` exist as overrides and are unset by default — setting one
+pins this app to an id that will one day be retired, and it will not fall back
+past it. The fleet audit (`dotfiles/scripts/ci/model-pin-audit.mjs`) asks both
+vendors daily whether the ids still exist.
 
 Surfaces:
 

@@ -30,17 +30,24 @@ const envSchema = z.object({
   // AI: whichever key is set decides the provider (Groq wins if both are).
   // See src/lib/ai/provider.ts.
   //
-  // A pinned free model is a scheduled outage, not a constant. Groq retired the
-  // whole llama-3.x family; this default pointed at `llama-3.3-70b-versatile`
-  // and every AI surface (staff chat + "Aus Text ausfüllen") answered 404 while
-  // the key was perfectly valid, so the app reported "nicht konfiguriert" for a
-  // configuration that was correct. Re-probe before trusting this id, and see
-  // dotfiles/SHARED.md `ai-ration` for the chain that removes the single point
-  // of failure entirely.
+  // NO DEFAULT MODEL HERE, deliberately. `ai-kit` already carries the model
+  // list, re-probed against the live catalogues, and `provider.ts` feeds these
+  // vars to `chainFrom` as a STARTING POINT.
+  //
+  // A default defeats that entirely. `chainFrom` falls back to the chain only
+  // when it is given nothing; a `.default()` is never nothing, so the app's own
+  // copy of the id won on every request and the maintained list was dead code.
+  // That is how this file shipped a fallback that could not fall back: the
+  // OpenRouter default below read `openai/gpt-oss-20b:free`, retired since, so
+  // the second vendor — the one reached precisely when Groq is down and nobody
+  // is watching — answered 404 by construction.
+  //
+  // Undefined means "use the maintained chain". Set the var only to force a
+  // specific model, and expect to be the one who notices when it is retired.
   GROQ_API_KEY: z.string().optional(),
-  GROQ_MODEL: z.string().default('openai/gpt-oss-120b'),
+  GROQ_MODEL: z.string().optional(),
   OPENROUTER_API_KEY: z.string().optional(),
-  OPENROUTER_MODEL: z.string().default('openai/gpt-oss-20b:free'),
+  OPENROUTER_MODEL: z.string().optional(),
   BREVO_API_KEY: z.string().optional(),
 
   // Sentry (build-time)
