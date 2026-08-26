@@ -276,6 +276,12 @@ export const HOUSING_LIST_LABELS = {
   wheelchairTitle: 'Rollstuhlgerecht',
   buildingGroup: (code: string) => `Gebäude ${code}`,
   ungroupedBuilding: 'Weitere Unterkünfte',
+  /**
+   * German has a singular. The card rendered a hardcoded `{n} Konflikte` and
+   * so said "1 Konflikte" on the live housing list — on the badge whose whole
+   * job is to make one conflict noticeable.
+   */
+  conflictCount: (n: number) => (n === 1 ? '1 Konflikt' : `${n} Konflikte`),
 } as const
 
 export const BED_GRID_LABELS = {
