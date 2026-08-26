@@ -54,17 +54,26 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
         </h2>
         <p className="mt-3 text-ui-muted max-w-prose">{MARKETING_COPY.subline}</p>
 
-        <ul className="mt-6 space-y-3">
-          {MARKETING_COPY.features.slice(0, 4).map((feature) => (
-            <li key={feature.title} className="flex gap-3">
-              <span
-                className="mt-2 w-1.5 h-1.5 rounded-full bg-brand-primary shrink-0"
-                aria-hidden="true"
-              />
-              <span className="text-sm text-ui-text">
-                <span className="font-medium">{feature.title}</span>
-                <span className="text-ui-muted"> — {feature.body}</span>
-              </span>
+        {/*
+          TITLES ONLY, AND ALL OF THEM.
+
+          This list used to render `features.slice(0, 4)` WITH each feature's
+          body — roughly two hundred words of dense German beside a login form,
+          which nobody reads and which buries the form it is meant to support.
+
+          The slice made it worse than merely long: features 5 and 6 are the two
+          that are not about housing ("Antworten, die ankommen",
+          "Nachvollziehbar für alle"), so the cut-off silently rendered the
+          product as more room-focused than it is. A fixed slice over a list that
+          grows drops whatever was added last, without failing.
+
+          Titles carry the breadth in a glance; the landing page is one click
+          away for anyone who wants the bodies.
+        */}
+        <ul className="mt-6 flex flex-wrap gap-x-2 gap-y-2">
+          {MARKETING_COPY.features.map((feature) => (
+            <li key={feature.title} className="chip-neutral">
+              {feature.title}
             </li>
           ))}
         </ul>
