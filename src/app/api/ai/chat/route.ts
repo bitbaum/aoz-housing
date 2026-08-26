@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { consumeRateLimit } from '@/lib/auth/rate-limit'
 import { hasAIProvider } from '@/lib/ai/provider'
+import { AI_NOT_CONFIGURED, userFacingAIError } from '@/lib/ai/errors'
 import { runStaffChat } from '@/lib/ai/staff-chat'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -16,10 +17,10 @@ const requestSchema = z.object({
 export async function POST(request: Request) {
   if (!hasAIProvider()) {
     return NextResponse.json(
-      {
-        error:
-          'KI-Assistent nicht konfiguriert. Bitte GROQ_API_KEY oder OPENROUTER_API_KEY setzen (siehe docs/INFRASTRUCTURE.md).',
-      },
+      // The reader is a caseworker, not an operator. Naming environment
+      // variables and a repo path tells them to do something they cannot do,
+      // in a language the rest of the screen is not written in.
+      { error: AI_NOT_CONFIGURED },
       { status: 503 }
     )
   }
@@ -68,12 +69,15 @@ export async function POST(request: Request) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'done' })}\n\n`))
       } catch (err) {
         logger.errorWithCause('AI chat failed', err)
-        const message =
-          err instanceof Error && err.message
-            ? err.message
-            : 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.'
+        // NEVER `err.message` here. That is what rendered
+        // `groq chat failed (429): {"error":{"message":"Rate limit reached …
+        // in organization \`org_01jy…\`"}}` into a German staff UI — an
+        // unreadable blob AND an internal organisation id, shown to anyone
+        // who can open the assistant. @see lib/ai/errors.ts
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: 'error', message })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({ type: 'error', message: userFacingAIError(err) })}\n\n`
+          )
         )
       } finally {
         controller.close()

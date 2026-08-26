@@ -28,6 +28,7 @@
     "@prisma/client": "^5.17.0",
     "@sentry/nextjs": "^10.55.0",
     "@types/bcryptjs": "^2.4.6",
+    "ai-ration": "github:maonakamoto/ai-ration#v0.2.1",
     "bcryptjs": "^3.0.3",
     "bip-kit": "^0.1.0",
     "clsx": "^2.1.1",

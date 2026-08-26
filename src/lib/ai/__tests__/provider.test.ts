@@ -47,9 +47,12 @@ describe('which provider a completion uses', () => {
     const { getAIProvider, hasAIProvider, completeText } = await loadProvider({})
     expect(getAIProvider()).toBeNull()
     expect(hasAIProvider()).toBe(false)
+    // The chain is empty rather than "one provider that is null": with no key
+    // there is no vendor to ask, which is a different fact from a vendor that
+    // refused. `userFacingAIError` turns it into the configuration message.
     await expect(
       completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
-    ).rejects.toThrow(/GROQ_API_KEY or OPENROUTER_API_KEY/)
+    ).rejects.toThrow(/every configured AI provider failed/)
   })
 })
 
@@ -69,7 +72,12 @@ describe('the Groq call', () => {
     expect((init.headers as Record<string, string>).Authorization).toBe('Bearer gsk_test')
   })
 
-  it('surfaces the provider error body when the call fails', async () => {
+  it('carries the provider body on the error for LOGS, not in the message', async () => {
+    // This test used to assert the opposite — that the body appeared in
+    // `error.message` — and that assertion is exactly how the vendor's JSON,
+    // organisation id included, ended up rendered in the staff UI. The body
+    // must still be reachable for `logger.errorWithCause`, just not by
+    // anything that formats a response. @see lib/ai/errors.ts
     const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
@@ -77,9 +85,19 @@ describe('the Groq call', () => {
       text: async () => 'model_decommissioned',
     } as Response)
 
-    await expect(
-      completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
-    ).rejects.toThrow(/400.*model_decommissioned/)
+    const failure = await completeText({
+      system: 's',
+      prompt: 'p',
+      maxTokens: 10,
+      temperature: 0,
+    }).catch((error: unknown) => error)
+
+    const { AIChainExhaustedError } = await import('@/lib/ai/errors')
+    expect(failure).toBeInstanceOf(AIChainExhaustedError)
+
+    const last = (failure as InstanceType<typeof AIChainExhaustedError>).last
+    expect(last?.body).toBe('model_decommissioned')
+    expect(last?.message).not.toContain('model_decommissioned')
   })
 })
 

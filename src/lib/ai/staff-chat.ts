@@ -1,5 +1,6 @@
 import { BRAND } from '@/lib/config/brand'
-import { getAIProviderConfig, type AIProvider } from '@/lib/ai/provider'
+import { withProviderFallback, type AIProvider, type AIProviderConfig } from '@/lib/ai/provider'
+import { AIProviderError } from '@/lib/ai/errors'
 import { executeStaffChatTool, STAFF_CHAT_TOOLS } from '@/lib/ai/staff-chat-tools'
 
 export const STAFF_CHAT_SYSTEM_PROMPT = `Du bist ein KI-Assistent für das ${BRAND.productName} System.
@@ -49,7 +50,7 @@ function parseToolArguments(raw: string): unknown {
 
 async function chatCompletion(
   provider: AIProvider,
-  config: NonNullable<Awaited<ReturnType<typeof getAIProviderConfig>>>,
+  config: AIProviderConfig,
   messages: OpenAIMessage[]
 ): Promise<{ message: OpenAIMessage; finishReason: string | null }> {
   const res = await fetch(config.url, {
@@ -66,8 +67,10 @@ async function chatCompletion(
   })
 
   if (!res.ok) {
+    // Raw body onto the error for logging only — interpolating it into the
+    // message is what put Groq's organisation id on a caseworker's screen.
     const detail = await res.text().catch(() => '')
-    throw new Error(`${provider} chat failed (${res.status}): ${detail.slice(0, 500)}`)
+    throw new AIProviderError(provider, res.status, detail)
   }
 
   const body = (await res.json()) as {
@@ -90,18 +93,28 @@ async function chatCompletion(
  * (Groq → OpenRouter) via OpenAI-compatible chat completions.
  */
 export async function runStaffChat(turns: StaffChatTurn[]): Promise<string> {
-  const config = await getAIProviderConfig()
-  if (!config) {
-    throw new Error('No AI provider configured (set GROQ_API_KEY or OPENROUTER_API_KEY)')
-  }
+  // The whole tool-use loop runs against ONE provider. Switching vendors
+  // mid-conversation would carry a half-finished tool exchange — assistant
+  // `tool_calls` already pushed, their `tool` results not yet — to a model that
+  // never issued those calls. So the fallback wraps the entire loop: a failure
+  // anywhere in it restarts cleanly on the next vendor.
+  return withProviderFallback(async (config) => {
+    const messages: OpenAIMessage[] = [
+      { role: 'system', content: STAFF_CHAT_SYSTEM_PROMPT },
+      ...turns.map((t) => ({ role: t.role, content: t.content })),
+    ]
 
-  const messages: OpenAIMessage[] = [
-    { role: 'system', content: STAFF_CHAT_SYSTEM_PROMPT },
-    ...turns.map((t) => ({ role: t.role, content: t.content })),
-  ]
+    return runChatLoop(config.provider, config, messages)
+  })
+}
 
+async function runChatLoop(
+  provider: AIProvider,
+  config: Parameters<typeof chatCompletion>[1],
+  messages: OpenAIMessage[]
+): Promise<string> {
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
-    const { message, finishReason } = await chatCompletion(config.provider, config, messages)
+    const { message, finishReason } = await chatCompletion(provider, config, messages)
 
     if (
       message.role === 'assistant' &&

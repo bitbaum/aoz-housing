@@ -63,7 +63,11 @@ describe('POST /api/ai/chat', () => {
 
     expect(res.status).toBe(503)
     const body = await res.json()
-    expect(body.error).toMatch(/GROQ_API_KEY|OPENROUTER_API_KEY/)
+    // German, and addressed to the caseworker reading it. It used to name
+    // GROQ_API_KEY, OPENROUTER_API_KEY and docs/INFRASTRUCTURE.md — telling a
+    // social worker to edit an env file they have no access to.
+    expect(body.error).toMatch(/nicht eingerichtet/)
+    expect(body.error).not.toMatch(/API_KEY|docs\//)
   })
 
   test('returns 401 when user is not authenticated', async () => {
@@ -124,15 +128,38 @@ describe('POST /api/ai/chat', () => {
     expect(mockRunStaffChat).toHaveBeenCalledWith(VALID_BODY.messages)
   })
 
-  test('streams error event when runStaffChat throws', async () => {
+  test('streams a readable German error, never the vendor body', async () => {
     mockHasAIProvider.mockReturnValue(true)
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
-    mockRunStaffChat.mockRejectedValue(new Error('Groq chat failed (429): rate limit'))
+
+    // The real thing Groq returns, organisation id and all.
+    const { AIProviderError } = await import('@/lib/ai/errors')
+    mockRunStaffChat.mockRejectedValue(
+      new AIProviderError(
+        'groq',
+        429,
+        JSON.stringify({
+          error: {
+            message:
+              'Rate limit reached for model `openai/gpt-oss-120b` in organization ' +
+              '`org_01jy16rk1yffks8jdsmfn4s7rj` on tokens per minute (TPM): Limit 8000. ' +
+              'Please try again in 13.17s.',
+            type: 'tokens',
+            code: 'rate_limit_exceeded',
+          },
+        })
+      )
+    )
 
     const res = await POST(makeRequest(VALID_BODY))
     const text = await readStream(res)
 
     expect(text).toContain('"type":"error"')
-    expect(text).toContain('429')
+    // This assertion used to be `toContain('429')`, which is precisely how the
+    // vendor's JSON — including the org id — reached a caseworker's screen.
+    expect(text).toMatch(/ausgelastet/)
+    expect(text).not.toContain('org_01jy16rk1yffks8jdsmfn4s7rj')
+    expect(text).not.toContain('gpt-oss-120b')
+    expect(text).not.toContain('TPM')
   })
 })
