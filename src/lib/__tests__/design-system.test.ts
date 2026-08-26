@@ -212,7 +212,13 @@ describe('the organisation name is never hardcoded in UI copy', () => {
       .split('\n')
       .filter((line) => /\bAOZ\b/.test(line))
       // `aoz-theme` and JWT_ISSUER are deliberate non-branding identifiers.
-      .filter((line) => !/aoz-theme|aoz-housing/.test(line))
+      // So is `freeChain('AOZ')`: that argument is an ENV-VAR PREFIX, naming
+      // AOZ_GROQ_MODELS / AOZ_OPENROUTER_DAILY_TOKENS. Same class as the theme
+      // key and the JWT issuer — an operator-facing identifier that must stay
+      // stable across a re-badge, never a word any user reads. The rule this
+      // gate enforces is about UI COPY; matching the bare token would push the
+      // next person to rename an env var to satisfy a lint.
+      .filter((line) => !/aoz-theme|aoz-housing|freeChain\('AOZ'\)/.test(line))
 
     expect(offenders).toEqual([])
   })

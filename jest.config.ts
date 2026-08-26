@@ -18,7 +18,10 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.spec.ts',
       ],
       // jose v6, @fleet/ai-forms, bip-kit ship ESM or TS entry — transform through ts-jest
-      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit))'],
+      // ai-ration is ESM-only ("type": "module", no require condition), like
+      // every other entry here. Jest runs CJS, so it must be transformed
+      // rather than required.
+      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit|ai-ration))'],
       transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.js$': 'ts-jest',
@@ -38,7 +41,10 @@ const config: Config = {
         '<rootDir>/src/**/__tests__/**/*.spec.tsx',
       ],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.components.ts'],
-      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit))'],
+      // ai-ration is ESM-only ("type": "module", no require condition), like
+      // every other entry here. Jest runs CJS, so it must be transformed
+      // rather than required.
+      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit|ai-ration))'],
       transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
         '^.+\\.js$': ['ts-jest', { tsconfig: { allowJs: true, jsx: 'react-jsx' } }],
