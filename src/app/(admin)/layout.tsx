@@ -6,7 +6,7 @@ import { ArrowRightLeft } from 'lucide-react'
 import { MobileNav } from '@/components/layout/MobileNav'
 import { AdminUrlFeedback } from '@/components/admin/AdminUrlFeedback'
 import { UserMenu } from '@/components/layout/UserMenu'
-import { AdminMegaMenu } from '@/components/layout/AdminHeader'
+import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { APP_LABELS, PAGE_TITLES } from '@/lib/constants/labels'
@@ -42,15 +42,17 @@ export default async function AdminLayout({
       <AdminUrlFeedback />
       <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
 
-      {/* Single sticky bar — logo + megamenu + secondary links + actions.
-          x.ai-style: one row of chrome instead of stacking a brand bar on
-          top of a megamenu strip. Total chrome ≈ 56px on desktop. */}
-      <header className="chrome-bar sticky top-0 hidden md:block">
-        <div className="max-w-screen-2xl mx-auto px-6">
+      {/* The header carries IDENTITY, not destinations.
+          Navigation moved into AdminSidebar: 20 destinations across 5 groups
+          never fit a row, and the megamenu needed a scroll container, fade
+          cues and viewport-anchored panels to pretend otherwise. What is left
+          here is the brand, the theme switch and who you are signed in as —
+          three things, which is what a 56px row can actually hold. */}
+      <header className="chrome-bar sticky top-0 z-30 hidden md:block">
+        <div className="px-6">
           <div className="flex items-center justify-between gap-6 h-14">
             <div className="flex items-center gap-6 min-w-0">
               <Logo href="/" size="md" />
-              <AdminMegaMenu groups={megaMenuGroups} />
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <ThemeToggle />
@@ -74,6 +76,7 @@ export default async function AdminLayout({
 
       <div className="flex min-h-[calc(100vh-56px)]">
         <MobileNav groups={megaMenuGroups} systemLinks={systemLinks} />
+        <AdminSidebar groups={megaMenuGroups} />
         {/* min-w-0: a flex item defaults to min-width:auto, which means it
             cannot shrink below its content's intrinsic width. Any wide child
             anywhere on an admin page — an unwrapped row, a scrollable tab
