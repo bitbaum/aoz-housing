@@ -81,6 +81,51 @@ describe('the landing page invents no evidence', () => {
   })
 })
 
+describe('a heading may not count its own list', () => {
+  /**
+   * `featuresTitle` read "Vier Pfeiler für Fachpersonen und Klient*innen."
+   * while `features` held six entries, three lines below it in the same file.
+   *
+   * Nothing could have caught that: a number spelled out in prose is just
+   * prose, so adding a feature type-checks, lints and renders — the heading
+   * simply starts lying. This gate reads the number word out of the heading and
+   * compares it to the list it introduces, which turns the whole class from
+   * "someone has to notice" into "it does not ship".
+   */
+  const NUMBER_WORDS: Record<string, number> = {
+    zwei: 2, drei: 3, vier: 4, fünf: 5, sechs: 6,
+    sieben: 7, acht: 8, neun: 9, zehn: 10,
+  }
+
+  const HEADING_OF: { heading: keyof MarketingCopy; list: keyof MarketingCopy }[] = [
+    { heading: 'problemTitle', list: 'problems' },
+    { heading: 'howTitle', list: 'steps' },
+    { heading: 'featuresTitle', list: 'features' },
+    { heading: 'scienceTitle', list: 'science' },
+  ]
+
+  it.each(brandIds)('%s states no count its list contradicts', (id) => {
+    const copy = MARKETING_COPY_BY_BRAND[id]
+    const wrong: string[] = []
+
+    for (const { heading, list } of HEADING_OF) {
+      const text = copy[heading] as string
+      const actual = (copy[list] as unknown[]).length
+
+      for (const [word, claimed] of Object.entries(NUMBER_WORDS)) {
+        // Word boundary, case-insensitive: "Vier" opens the sentence, and
+        // "viermal" is not a count of the list.
+        if (!new RegExp(`\\b${word}\\b`, 'i').test(text)) continue
+        if (claimed !== actual) {
+          wrong.push(`${heading} says "${word}" (${claimed}) but ${list} has ${actual}`)
+        }
+      }
+    }
+
+    expect({ id, wrong }).toEqual({ id, wrong: [] })
+  })
+})
+
 describe('Swiss German spelling', () => {
   it.each(brandIds)('%s never uses ß', (id) => {
     // Swiss German has no ß. It is the single most common slip in this repo's

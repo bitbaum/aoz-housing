@@ -101,10 +101,13 @@ export interface MarketingCopy {
 
 /** The pitch register: an organisation deciding whether to use this. */
 const PLACEMENT_COPY: MarketingCopy = {
-  eyebrow: 'Wohnen, Alltag, Integration, Begleitung',
-  headline: 'Die ganze Begleitung an einem Ort — nicht nur das Zimmer.',
+  eyebrow: 'Für Fachpersonen und Klient*innen',
+  headline: 'Die ganze Begleitung an einem Ort.',
+  // Short on purpose. This line also renders beside the login form, where a
+  // paragraph is a wall of text — and a hero that needs sixty words to say what
+  // the product is has not decided what the product is.
   subline:
-    'Ein Zimmer zuteilen ist der erste Tag, nicht die Aufgabe. Dieses Produkt trägt auch alles, was danach kommt: den Alltag im Haus, die Regeln, die das Haus sich selbst gibt, Aufgaben und Ausgaben, was weitergegeben und wo geholfen wird, Kurse und Nachweise, Einsatzplätze — und die Fachpersonen, die das koordinieren, sehen denselben Verlauf wie die Klient*innen.',
+    'Wohnen, Alltag im Haus, Gemeinschaft und Integration in einem Verlauf — Fachpersonen und Klient*innen sehen denselben Stand.',
   ctaPrimary: 'Produkt ansehen',
   ctaSecondary: 'Anmelden',
   ctaNote: 'Kein Konto nötig. Sie sehen das echte Produkt mit Beispieldaten.',
@@ -133,22 +136,30 @@ const PLACEMENT_COPY: MarketingCopy = {
       title: 'Stabilität sichern',
       body: 'Housing, Sicherheit, Vorfälle, Transfers und Regeln bilden die belastbare Basis. Ohne Stabilität trägt keine Integration.',
     },
+    // German, like the rest of the page. "Capability / Participation / Guidance"
+    // survived an earlier sweep that fixed the same three English abstractions
+    // in `features` and missed this list — on a page written for Swiss social
+    // services, in a product whose own rule is that UI text is German.
     {
-      title: 'Capability sichtbar machen',
-      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktschritte werden als evidenzbasierter Verlauf erfasst, nicht als lose Notizen.',
+      title: 'Fähigkeiten sichtbar machen',
+      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktschritte werden als belegter Verlauf erfasst, nicht als lose Notizen.',
     },
     {
-      title: 'Participation fördern',
-      body: 'Freiwilligenarbeit, Aktivitäten, soziale Teilhabe und Alltagsorientierung werden als echte Fortschrittssignale sichtbar gemacht.',
+      title: 'Teilhabe fördern',
+      body: 'Freiwilligenarbeit, Aktivitäten und Alltagsorientierung werden als echte Fortschrittssignale sichtbar gemacht.',
     },
     {
-      title: 'Guidance schliessen',
+      title: 'Begleitung abschliessen',
       body: 'Boards, Follow-ups, Nachrichten und nächste Schritte führen Fachpersonen zurück in eine klare Handlung statt in offene Schleifen.',
     },
   ],
 
   featuresEyebrow: 'Im Produkt',
-  featuresTitle: 'Vier Pfeiler für Fachpersonen und Klient*innen.',
+  // No number in this heading. It said "Vier Pfeiler" while the list below it
+  // had six, because a count written into prose does not move when the list
+  // does — and the two sat three lines apart in the same file. Pinned by
+  // `marketing-copy.test.ts` ("a heading may not count its own list").
+  featuresTitle: 'Was das Produkt für Fachpersonen und Klient*innen kann.',
   // German, not English. "Stability / Capability / Participation / Guidance"
   // were four abstract nouns in the wrong language on a page written for Swiss
   // social services, and none of them named a thing you could go and press.

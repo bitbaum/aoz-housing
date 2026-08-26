@@ -40,13 +40,24 @@ export default function LandingPage() {
   return (
     <div className="-my-8 sm:-my-12">
       <Hero />
+      {/*
+        WHAT IT DOES COMES BEFORE WHY IT EXISTS.
+
+        This page used to open Hero → Problems → Steps and only reach the
+        features fifth, with the full inventory sixth. A reader who wanted to
+        know what the software actually contains had to get through three
+        sections of prose about fragmentation first — so the product read as
+        narrower than it is, and the half that is not housing (Gemeinschaft,
+        Integration, Begleitung) was the half nobody scrolled to.
+
+        `Surface` follows immediately because it is the one section that cannot
+        fall behind the product: it reads the navigation, so it grows when the
+        product does.
+      */}
+      <Features />
+      <Surface />
       <Problems />
       <Steps />
-      <Features />
-      {/* Directly after the pillars: the pillars say what the product is FOR,
-          this says what is actually in it — and unlike the pillars it cannot
-          fall behind, because it reads the product's own navigation. */}
-      <Surface />
       <Science />
       <Ethics />
       <ProductDocs />
