@@ -22,6 +22,19 @@ jest.mock('@/lib/utils', () => ({
     percent >= 90 ? 'bg-status-error' : percent >= 70 ? 'bg-status-warning' : 'bg-status-success',
 }))
 
+/*
+ * The label constants are NOT mocked, deliberately.
+ *
+ * They used to be — the same object hand-copied into two `jest.mock` factories,
+ * one for the barrel and one for `labels`. Both copies had already drifted
+ * (neither carried `buildingGroup` or `ungroupedBuilding`), and the drift was
+ * invisible because a test that asserts on its own fixture always agrees with
+ * it. Adding `conflictCount` to the real object turned that silent staleness
+ * into a crash, which is the good outcome: these are pure strings with no
+ * side effects, so mocking them buys nothing and guarantees a second source of
+ * truth for exactly the values the component exists to render.
+ */
+
 jest.mock('@/lib/constants/labels/housing', () => ({
   HOUSING_STATUS_LABELS: {
     AVAILABLE: 'Verfügbar',
@@ -31,33 +44,7 @@ jest.mock('@/lib/constants/labels/housing', () => ({
   },
 }))
 
-jest.mock('@/lib/constants', () => ({
-  HOUSING_LIST_LABELS: {
-    searchPlaceholder: 'Unterkunft suchen...',
-    statusFilter: 'Status',
-    allStatus: 'Alle Status',
-    emptyDefault: 'Noch keine Unterkünfte vorhanden',
-    emptyFiltered: 'Keine Unterkünfte für diese Filter',
-    filterReset: 'Filter zurücksetzen',
-    createHousingFirst: 'Erste Unterkunft erfassen',
-    occupancy: 'Belegung',
-    wheelchairTitle: 'Rollstuhlgerecht',
-  },
-}))
 
-jest.mock('@/lib/constants/labels', () => ({
-  HOUSING_LIST_LABELS: {
-    searchPlaceholder: 'Unterkunft suchen...',
-    statusFilter: 'Status',
-    allStatus: 'Alle Status',
-    emptyDefault: 'Noch keine Unterkünfte vorhanden',
-    emptyFiltered: 'Keine Unterkünfte für diese Filter',
-    filterReset: 'Filter zurücksetzen',
-    createHousingFirst: 'Erste Unterkunft erfassen',
-    occupancy: 'Belegung',
-    wheelchairTitle: 'Rollstuhlgerecht',
-  },
-}))
 
 // --- Tests for the resident-chosen name ---
 
@@ -160,6 +147,16 @@ describe('HousingList', () => {
     const units = [makeUnit({ id: 'u1', incidentCount: 3 })]
     render(<HousingList units={units} />)
     expect(screen.getByText(/3 Konflikte/)).toBeInTheDocument()
+  })
+
+  it('says "1 Konflikt", not "1 Konflikte"', () => {
+    // The value the badge exists for, and the only one the old hardcoded
+    // `{n} Konflikte` got wrong. It read "1 Konflikte" on the live housing
+    // list while the test above — written for n = 3 — stayed green.
+    const units = [makeUnit({ id: 'u1', incidentCount: 1 })]
+    render(<HousingList units={units} />)
+    expect(screen.getByText('1 Konflikt')).toBeInTheDocument()
+    expect(screen.queryByText(/1 Konflikte/)).not.toBeInTheDocument()
   })
 
   it('hides conflict text when incidentCount === 0', () => {

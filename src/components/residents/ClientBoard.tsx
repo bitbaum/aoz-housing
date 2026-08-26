@@ -36,7 +36,7 @@ import {
   GENDER_LABELS_SHORT,
   getLabel,
 } from '@/lib/constants'
-import { SUPPORT_LEVEL_LABELS } from '@/lib/constants/labels/residents'
+import { SUPPORT_LEVEL_LABELS, CLIENT_BOARD_LABELS } from '@/lib/constants/labels/residents'
 import { CARE_ROLE_LABELS, type CareRoleId } from '@/lib/config/care'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 import { EmptyState } from '@/components/ui/Page'
@@ -377,7 +377,7 @@ function ClientCard({
         <div className="mt-auto pt-2 border-t border-ui-border">
           <span className="inline-flex items-center gap-1 text-xs text-score-medium">
             <AlertTriangle className="w-3 h-3 shrink-0" aria-hidden />
-            {client.incidentCount} Vorfall{client.incidentCount !== 1 ? 'fälle' : ''} (30T)
+            {CLIENT_BOARD_LABELS.incidentCount(client.incidentCount)}
           </span>
         </div>
       )}

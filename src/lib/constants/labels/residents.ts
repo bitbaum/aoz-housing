@@ -167,6 +167,24 @@ export const RESIDENT_STAT_LABELS = {
   unplaced: 'Unplatziert',
 } as const
 
+export const CLIENT_BOARD_LABELS = {
+  /**
+   * German plurals are not suffixes.
+   *
+   * The board built this one by appending: `Vorfall` + (n !== 1 ? 'fälle' :
+   * '') — which reads correctly at n = 1 and says "3 VorfallFÄLLE" at every
+   * other number. The umlaut is the giveaway: the plural of `Vorfall` changes
+   * the stem to `Vorfäll-`, so no suffix bolted onto the singular can ever
+   * produce it. That is true of a large share of German nouns, which is why
+   * the whole idiom is banned by `german-plurals.test.ts` rather than fixed
+   * here one noun at a time.
+   *
+   * `(30T)` is the window the count covers, kept because the number is
+   * meaningless without it.
+   */
+  incidentCount: (n: number) => (n === 1 ? '1 Vorfall (30T)' : `${n} Vorfälle (30T)`),
+} as const
+
 // Satisfaction
 export const SATISFACTION_EMOJIS = ['😞', '😕', '😐', '🙂', '😊']
 

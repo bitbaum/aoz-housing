@@ -3,6 +3,10 @@
  * Kept framework-agnostic for easy testing.
  */
 
+// Deliberately the only import here, and deliberately a module that carries no
+// landing COPY: this file is loaded by middleware on the edge.
+import { LANDING_ROUTES } from '@/lib/config/public-locales'
+
 // Routes that require staff authentication.
 //
 // This list must cover EVERY page under `src/app/(admin)/`. It had drifted to
@@ -87,9 +91,15 @@ export const PUBLIC_ROUTES = [
   '/blog',
   '/changelog',
   '/roadmap',
-  // The landing page. `/` rewrites here for anonymous visitors, so it must be
-  // reachable without a session — and it is also a real URL of its own.
-  '/willkommen',
+  // The landing page, in every language it comes in. `/` rewrites to the
+  // German one for anonymous visitors, so it must be reachable without a
+  // session — and each is also a real URL of its own.
+  //
+  // Spread from the locale list rather than typed out: a language added there
+  // and forgotten here renders a finished page that middleware bounces to the
+  // login form. Not hypothetical — `public-routes-reachable.test.ts` failed on
+  // exactly that when `/[lang]/willkommen` was added.
+  ...LANDING_ROUTES,
   '/api/auth',
   '/api/health',
   '/api/cron',

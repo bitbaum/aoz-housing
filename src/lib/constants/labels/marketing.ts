@@ -1,426 +1,174 @@
 import { BRAND, type BrandId } from '@/lib/config/brand'
-import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
-import { RESEARCH_SOURCES } from '@/lib/config/algorithm-docs'
+import { LOCALES, type Locale } from '@/lib/i18n/locales'
+import {
+  PUBLIC_LOCALE_IDS,
+  PUBLIC_DEFAULT_LOCALE,
+  type PublicLocaleId,
+} from '@/lib/config/public-locales'
+import { marketingDe } from './marketing.de'
+import { marketingEn } from './marketing.en'
+import { marketingFr } from './marketing.fr'
+import type { MarketingCopy, MarketingRegisters } from './marketing-types'
 
-// Counted from the same config the algorithm runs on — a marketing page that
-// hand-writes "27 Faktoren" starts lying the day a factor is added.
-const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter((f) => f.weight > 0).length
-const SOURCE_COUNT = RESEARCH_SOURCES.length
+export type { MarketingCopy, MarketingSection, MarketingFeature } from './marketing-types'
 
 /**
  * The public landing page — the only surface that speaks to someone who has
- * never logged in.
+ * never logged in — in every language it is written in.
  *
- * WHY THE COPY IS PER BRAND. The product ships in two registers and they are
- * not interchangeable. `aoz`/`aozh` are shown to an organisation deciding
- * whether to place people with software; `wg` runs in a real shared flat where
- * nobody is "placed" by a "system" and the reader is a person who lives there.
- * The same landing page for both would be wrong for at least one of them.
+ * TWO AXES, AND THEY ARE DIFFERENT KINDS OF THING.
  *
- * WHY IT IS A `Record<BrandId, …>` AND NOT A LOOKUP WITH A FALLBACK. A new
- * brand must not silently inherit somebody else's pitch — the compiler asks for
- * its copy instead.
+ * BRAND is a build-time fact. One deployment is one brand, `NEXT_PUBLIC_BRAND`
+ * is inlined at build, and a reader cannot switch it. It selects the REGISTER:
+ * `aoz`/`aozh` address an organisation deciding whether to place people with
+ * software; `wg` runs in a real shared flat where nobody is "placed" by a
+ * "system". The same page for both would be wrong for at least one of them.
  *
- * WHAT IS DELIBERATELY ABSENT: numbers. No "30% fewer conflicts", no residents
- * housed, no hours saved. This product is measured by a pilot that has not
- * reported yet, and a landing page that invents its own evidence is the one
- * thing that would disqualify it in front of the people being asked to trust
- * it with vulnerable residents. Everything claimed here is a description of
- * what the software does, which is checkable by pressing the demo button.
+ * LOCALE is a per-request fact, chosen by the reader from the URL. It selects
+ * the LANGUAGE within that register.
+ *
+ * Conflating them is what makes landing-page i18n rot: a `Record<BrandId,
+ * string>` cannot hold three languages, and a `Record<LocaleId, string>` cannot
+ * hold two registers, so whichever axis got modelled second ends up hand-copied
+ * into the first.
+ *
+ * WHY THE PUBLIC PAGE DOES NOT USE THE PORTAL'S COOKIE. `src/lib/i18n/` picks
+ * the resident portal's language from a cookie, which is right there: the
+ * portal is behind a session and already dynamic. The public group is not —
+ * `(public)/layout.tsx` touches no cookie and no database on purpose, which is
+ * what keeps every page under it statically prerenderable AND makes it
+ * structurally incapable of leaking resident data. Reading a cookie here would
+ * spend both of those to gain nothing a URL does not already give: `/fr/...`
+ * is linkable, shareable and indexable, and a cookie is none of the three.
+ * The two mechanisms are different because the two constraints are different.
  */
 
-export interface MarketingSection {
-  title: string
-  body: string
+/** Which register this brand speaks. Build-time, one per deployment. */
+const REGISTER_BY_BRAND: Record<BrandId, keyof MarketingRegisters> = {
+  aoz: 'placement',
+  aozh: 'placement',
+  wg: 'household',
 }
 
-export interface MarketingFeature {
-  title: string
-  body: string
-  /** Key into NAV_ICONS — features reuse the navigation's icon set. */
-  icon: string
+/**
+ * Which languages this page comes in, and where each lives, are NOT declared
+ * here — `config/public-locales.ts` owns them, because middleware needs the
+ * same facts and must not import a line of this file's prose to get them.
+ * Re-exported so a caller who wants the copy and the list has one import.
+ *
+ * Listing a language there does not offer it. `publicLocales()` below offers
+ * the ones whose copy is actually complete — same rule as the portal's
+ * `offeredLocales(isComplete)`, for the same reason: half a page in your
+ * language and half in German is worse than all of it in German, because you
+ * cannot tell which parts you are missing.
+ */
+export {
+  PUBLIC_LOCALE_IDS,
+  PUBLIC_DEFAULT_LOCALE,
+  isPublicLocale,
+  landingPath,
+  type PublicLocaleId,
+} from '@/lib/config/public-locales'
+
+const REGISTERS_BY_LOCALE: Record<PublicLocaleId, MarketingRegisters> = {
+  de: marketingDe,
+  en: marketingEn,
+  fr: marketingFr,
 }
 
-export interface MarketingCopy {
-  /** Small line above the headline. */
-  eyebrow: string
-  headline: string
-  subline: string
-  ctaPrimary: string
-  ctaSecondary: string
-  ctaNote: string
+/**
+ * Is this language's landing copy actually finished, for THIS brand?
+ *
+ * Computed from the copy rather than declared as a boolean, so a half-written
+ * language cannot be listed by editing a flag — the list follows the work.
+ * Per brand, because a brand ships one register and only that register's
+ * completeness can affect what its readers see: an untranslated `household`
+ * register must not withhold French from an `aoz` deployment that has it.
+ *
+ * "Finished" is measured against the German copy, which is the base every
+ * other language is translated from: same keys, same list lengths, and no
+ * blank strings standing in for a sentence. Comparing list LENGTHS matters as
+ * much as keys — a French page with four of the six features is not missing a
+ * key anywhere, it is just quietly a smaller product.
+ */
+export function isPublicCopyComplete(
+  locale: PublicLocaleId,
+  brand: BrandId = BRAND.id
+): boolean {
+  const register = REGISTER_BY_BRAND[brand]
+  const base = marketingDe[register]
+  const candidate = REGISTERS_BY_LOCALE[locale]?.[register]
 
-  problemEyebrow: string
-  problemTitle: string
-  problems: MarketingSection[]
+  if (!candidate) return false
 
-  howEyebrow: string
-  howTitle: string
-  steps: MarketingSection[]
+  return (Object.keys(base) as (keyof MarketingCopy)[]).every((key) => {
+    const expected = base[key]
+    const actual = candidate[key]
 
-  featuresEyebrow: string
-  featuresTitle: string
-  features: MarketingFeature[]
+    if (Array.isArray(expected)) {
+      // `neverTracked` is string[]; the others are object lists. Both only need
+      // the same number of entries, each non-empty — the words are the
+      // translator's business, the shape is not.
+      return (
+        Array.isArray(actual) &&
+        actual.length === expected.length &&
+        actual.every((entry) =>
+          typeof entry === 'string'
+            ? entry.trim() !== ''
+            : Object.values(entry).every((v) => typeof v === 'string' && v.trim() !== '')
+        )
+      )
+    }
 
-  scienceEyebrow: string
-  scienceTitle: string
-  scienceBody: string
-  /** The load-bearing design decisions of the matching science, stated plainly. */
-  science: MarketingSection[]
+    // `surfaceStaffNote` is empty on the German page by design — there is
+    // nothing to explain when the menu below it is already German. So an empty
+    // base string means the key is optional for everyone.
+    if (typeof expected === 'string' && expected.trim() === '') return typeof actual === 'string'
 
-  ethicsEyebrow: string
-  ethicsTitle: string
-  ethicsBody: string
-  /** Things the system refuses to record. Stated as a promise, kept as code. */
-  neverTracked: string[]
-
-  blogEyebrow: string
-  blogTitle: string
-  blogLink: string
-
-  /**
-   * The section that lists what the product actually contains.
-   *
-   * Only the FRAME lives here — the eyebrow, the heading, the line under it.
-   * The contents come from `lib/config/product-surface.ts`, which reads the
-   * navigation, so this section grows when the product does instead of when
-   * somebody remembers to edit a paragraph.
-   */
-  surfaceEyebrow: string
-  surfaceTitle: string
-  surfaceBody: string
-
-  /** The three public product documents, as cards. */
-  docsEyebrow: string
-  docsTitle: string
-  docs: MarketingSection[]
-
-  closingTitle: string
-  closingBody: string
+    return typeof actual === 'string' && actual.trim() !== ''
+  })
 }
 
-/** The pitch register: an organisation deciding whether to use this. */
-const PLACEMENT_COPY: MarketingCopy = {
-  eyebrow: 'Für Fachpersonen und Klient*innen',
-  headline: 'Die ganze Begleitung an einem Ort.',
-  // Short on purpose. This line also renders beside the login form, where a
-  // paragraph is a wall of text — and a hero that needs sixty words to say what
-  // the product is has not decided what the product is.
-  subline:
-    'Wohnen, Alltag im Haus, Gemeinschaft und Integration in einem Verlauf — Fachpersonen und Klient*innen sehen denselben Stand.',
-  ctaPrimary: 'Produkt ansehen',
-  ctaSecondary: 'Anmelden',
-  ctaNote: 'Kein Konto nötig. Sie sehen das echte Produkt mit Beispieldaten.',
-
-  problemEyebrow: 'Das Problem',
-  problemTitle: 'Integration scheitert oft an Fragmentierung, nicht an fehlendem Willen.',
-  problems: [
-    {
-      title: 'Stabilität und Fortschritt laufen getrennt',
-      body: 'Housing, Sprache, Arbeit, Teilhabe und Betreuungsschritte liegen oft in verschiedenen Listen, Köpfen und Postfächern. Niemand sieht schnell genug, was als Nächstes zählt.',
-    },
-    {
-      title: 'Instabilität frisst Betreuungszeit',
-      body: 'Konflikte, ungeklärte Transfers, verpasste Rückmeldungen und offene Follow-ups binden Fachpersonen genau dort, wo sie eigentlich begleiten sollten.',
-    },
-    {
-      title: 'Evidenz bleibt zu oft folgenlos',
-      body: 'Kurse, Sprachtests, Qualifikationen oder freiwilliges Engagement werden dokumentiert, aber nicht konsequent in Prioritäten, Boards und nächste Schritte übersetzt.',
-    },
-  ],
-
-  howEyebrow: 'So funktioniert es',
-  howTitle: 'Vier Arbeitsbereiche, ein gemeinsamer Verlauf.',
-  steps: [
-    {
-      title: 'Stabilität sichern',
-      body: 'Housing, Sicherheit, Vorfälle, Transfers und Regeln bilden die belastbare Basis. Ohne Stabilität trägt keine Integration.',
-    },
-    // German, like the rest of the page. "Capability / Participation / Guidance"
-    // survived an earlier sweep that fixed the same three English abstractions
-    // in `features` and missed this list — on a page written for Swiss social
-    // services, in a product whose own rule is that UI text is German.
-    {
-      title: 'Fähigkeiten sichtbar machen',
-      body: 'Sprache, Kurse, Qualifikationen und Arbeitsmarktschritte werden als belegter Verlauf erfasst, nicht als lose Notizen.',
-    },
-    {
-      title: 'Teilhabe fördern',
-      body: 'Freiwilligenarbeit, Aktivitäten und Alltagsorientierung werden als echte Fortschrittssignale sichtbar gemacht.',
-    },
-    {
-      title: 'Begleitung abschliessen',
-      body: 'Boards, Follow-ups, Nachrichten und nächste Schritte führen Fachpersonen zurück in eine klare Handlung statt in offene Schleifen.',
-    },
-  ],
-
-  featuresEyebrow: 'Im Produkt',
-  // No number in this heading. It said "Vier Pfeiler" while the list below it
-  // had six, because a count written into prose does not move when the list
-  // does — and the two sat three lines apart in the same file. Pinned by
-  // `marketing-copy.test.ts` ("a heading may not count its own list").
-  featuresTitle: 'Was das Produkt für Fachpersonen und Klient*innen kann.',
-  // German, not English. "Stability / Capability / Participation / Guidance"
-  // were four abstract nouns in the wrong language on a page written for Swiss
-  // social services, and none of them named a thing you could go and press.
-  features: [
-    {
-      icon: 'building',
-      title: 'Stabilität im Wohnen',
-      body: 'Unterkünfte, Platzierung, Verlegungen, Wartung und Vorfälle in einem Verlauf — mit einem Matching, das erklärt, warum es diese Kombination vorschlägt.',
-    },
-    {
-      icon: 'vote',
-      title: 'Das Haus regelt seinen Alltag',
-      body: 'Hausregeln mit Versionen und Bestätigung, Vorschläge und Abstimmungen, Aufgaben mit Fairness-Bilanz, geteilte Ausgaben auf den Rappen genau.',
-    },
-    {
-      icon: 'shop',
-      title: 'Nachbarschaft, die trägt',
-      body: 'Ein Marktplatz für Sachen und für Hilfe, Veranstaltungen im Haus mit Zusagen, und ein Verzeichnis der Angebote im Quartier.',
-    },
-    {
-      icon: 'learning',
-      title: 'Weiterkommen',
-      body: 'Sprache, Kurse und Qualifikationen als belegter Verlauf, dazu Einsatzplätze und Freiwilligenarbeit mit Bewerbungsstand.',
-    },
-    {
-      icon: 'message',
-      title: 'Antworten, die ankommen',
-      body: 'Meldungen gehen an die Stelle, die etwas tun kann, und die Antwort kommt zurück. Care Team, Nachrichten und Follow-ups halten die Zuständigkeit sichtbar.',
-    },
-    {
-      icon: 'chart',
-      title: 'Nachvollziehbar für alle',
-      body: 'Jede Platzierung ist protokolliert, jeder Score zerlegbar, jedes Abstimmungsergebnis mit der damals gültigen Regel erklärbar.',
-    },
-  ],
-
-  scienceEyebrow: 'Wissenschaftliche Grundlage',
-  scienceTitle: `Keine Meinung, sondern Methode: ${FACTOR_COUNT} Matching-Faktoren — und Alltagsmechanik nach dokumentierten Befunden.`,
-  scienceBody:
-    `Jeder Kompatibilitätsfaktor stützt sich auf mindestens eine publizierte Studie — Schweizer Forschung zuerst (unter anderem BFH/HSLU 2024 mit 1'000 Gastfamilien), internationale Studien zur Validierung, insgesamt ${SOURCE_COUNT} Quellen. Und die Mechanik jenseits des Matchings folgt denselben Massstäben: vom Eigenanteil-Bias beim Putzplan bis zur Regel, dass Sicherheit nie zur Abstimmung steht. Die vollständige Methodik samt Quellenverzeichnis ist im Produkt für alle Fachpersonen einsehbar — und in der Demo für Sie.`,
-  science: [
-    {
-      title: 'Sauberkeit ist eine Richtung, kein Durchschnitt',
-      body: 'Gemessen wird, wessen Erwartung an die anderen unerfüllt bleibt — nicht die Differenz zweier Zahlen. Ordentlich-aber-gelassen neben unordentlich ergibt keinen Konflikt; zwei gleich Unordentliche, von denen eine*r viel erwartet, sehr wohl.',
-    },
-    {
-      title: 'Das schwierigste Paar bestimmt die Bewertung',
-      body: 'Ein Haushalt wird nach seiner konfliktreichsten Paarung bewertet, nie nach dem Durchschnitt — der Durchschnitt versteckt genau die Paarung, die später die Vorfälle produziert.',
-    },
-    {
-      title: 'Harte Anforderungen werden nicht verrechnet',
-      body: 'Rollstuhlzugang, Rauchen, Schutzbedürfnis Einzelzimmer: Was nicht erfüllbar ist, wird nicht von guten Teilwerten schöngerechnet, sondern blockiert die Platzierung.',
-    },
-    {
-      title: 'Jede Zahl ist erklärbar',
-      body: 'Jeder Score zerlegt sich in benannte Faktoren mit Gewicht und Evidenzstärke, und Warnungen sagen, wer sich woran stören wird. Entscheidungen bleiben bei den Fachpersonen — begründbar gegenüber Team und Klient*innen.',
-    },
-    {
-      title: 'Fairness ist eine Bilanz, kein Ranking',
-      body: 'Wer aufräumt, überschätzt den eigenen Anteil — ein dokumentierter Bias, kein Charakterfehler. Der Aufgabenplan zeigt deshalb, wer wie viel getragen hat, statt Erinnerung gegen Erinnerung antreten zu lassen.',
-    },
-    {
-      title: 'Sicherheit steht nie zur Abstimmung',
-      body: 'Haushalte entscheiden über ihren Alltag selbst — aber eine Mehrheit kann die Sicherheit einer Minderheit nicht wegstimmen. Solche Themen gehen immer an die Fachpersonen, und jedes Abstimmungsergebnis bleibt mit der damals gültigen Regel erklärbar.',
-    },
-  ],
-
-  ethicsEyebrow: 'Grenzen',
-  ethicsTitle: 'Was diese Software über Menschen nicht wissen will.',
-  ethicsBody:
-    'Das System dient Menschen in einer verletzlichen Lage. Erfasst wird ausschliesslich, was fürs Zusammenleben nötig ist — und was nicht erfasst wird, lässt sich auch nicht gegen jemanden verwenden.',
-  neverTracked: [
-    'Medizinische Diagnosen',
-    'Aufenthaltsstatus oder Dossierdetails',
-    'Religion und politische Überzeugung',
-    'Persönliche Geschichte ohne Wohnbezug',
-  ],
-
-  blogEyebrow: 'Blog und Produktdokumente',
-  blogTitle: 'Warum das Produkt so gebaut ist und wie es sich weiterentwickelt.',
-  blogLink: 'Alle Beiträge lesen',
-
-  surfaceEyebrow: 'Im Produkt enthalten',
-  surfaceTitle: 'Beide Seiten, vollständig — so wie sie im Menü stehen.',
-  surfaceBody:
-    'Diese Liste ist nicht abgetippt, sondern die Navigation des Produkts selbst. Kommt ein Bereich dazu, steht er hier. Verschwindet einer, verschwindet er auch hier.',
-
-  docsEyebrow: 'Nachvollziehbarkeit',
-  docsTitle: 'Produktdenken, Fortschritt und wissenschaftliche Grundlage sind öffentlich lesbar.',
-  docs: [
-    {
-      title: 'Roadmap',
-      body: 'Wohin sich das Produkt entwickelt und welche Prinzipien die Richtung bestimmen.',
-    },
-    {
-      title: 'Changelog',
-      body: 'Was bereits im Produkt angekommen ist und wie sich die Plattform konkret verändert.',
-    },
-    {
-      title: 'Blog',
-      body: 'Hintergründe zu Entscheidungen, Forschung, Produktlogik und technischer Umsetzung.',
-    },
-  ],
-
-  closingTitle: 'Sehen Sie es sich an.',
-  closingBody:
-    'Die Demo ist das echte Produkt mit Beispieldaten — Verwaltung, Begleitung und Bewohner*innen-Portal. Blog, Roadmap und Changelog machen die Produktentscheidungen nachvollziehbar.',
+/**
+ * The languages this deployment's landing page may be read in, in the order
+ * they are offered. Always at least German, which is complete by definition.
+ */
+export function publicLocales(brand: BrandId = BRAND.id): Locale[] {
+  return PUBLIC_LOCALE_IDS.filter((id) => isPublicCopyComplete(id, brand)).map(
+    (id) => LOCALES[id]
+  )
 }
 
-/** The household register: the people who actually live in the flat. */
-const HOUSEHOLD_COPY: MarketingCopy = {
-  eyebrow: 'Gemeinsam wohnen',
-  headline: 'Die Wohnung, auf die ihr euch einigen könnt.',
-  subline:
-    'Wer hat den Abfall rausgebracht, wer hat das WC-Papier bezahlt, und ab wann ist es zu laut? Alles an einem Ort — damit es nicht jedes Mal von vorn ausgehandelt wird.',
-  ctaPrimary: 'Ausprobieren',
-  ctaSecondary: 'Anmelden',
-  ctaNote: 'Kein Konto nötig. Du siehst das echte Produkt mit Beispieldaten.',
-
-  problemEyebrow: 'Warum',
-  problemTitle: 'Streit in einer WG ist selten ein Streit über die Sache.',
-  problems: [
-    {
-      title: 'Alle glauben, sie machen mehr',
-      body: 'Man erinnert sich an die eigene Arbeit besser als an die der anderen. Das ist normal — und es reicht, damit sich alle ungerecht behandelt fühlen.',
-    },
-    {
-      title: 'Abmachungen verschwinden',
-      body: 'Was im Flur besprochen wurde, gilt genau so lange, bis sich zwei Leute unterschiedlich daran erinnern.',
-    },
-    {
-      title: 'Geld macht es persönlich',
-      body: 'Kleine Beträge, die niemand aufschreibt, werden zu einem Gefühl darüber, wer sich wie verhält.',
-    },
-  ],
-
-  howEyebrow: 'So läuft es',
-  howTitle: 'Aufschreiben, abmachen, nachschauen.',
-  steps: [
-    {
-      title: 'Aufgaben festhalten',
-      body: 'Putzen, Abfall, Einkauf. Wer es gemacht hat, steht da — nicht nur, wer dran gewesen wäre.',
-    },
-    {
-      title: 'Ausgaben teilen',
-      body: 'Ausgabe eintragen, Anteile werden berechnet. Der Kontostand sagt, wer wem was schuldet.',
-    },
-    {
-      title: 'Gemeinsam entscheiden',
-      body: 'Vorschlag einbringen, alle stimmen ab, das Ergebnis ist die Hausregel. Nachlesbar, mit Datum.',
-    },
-    {
-      title: 'Melden, was kaputt ist',
-      body: 'Der tropfende Wasserhahn geht an die Verwaltung, der Konflikt an die Betreuung. Ihr seht die Antwort.',
-    },
-  ],
-
-  featuresEyebrow: 'Drin',
-  featuresTitle: 'Was ihr benutzen könnt.',
-  features: [
-    {
-      icon: 'wallet',
-      title: 'Geteilte Ausgaben',
-      body: 'Wer hat was bezahlt, wer schuldet wem. Auf den Rappen genau, mit dem kürzesten Ausgleichsweg.',
-    },
-    {
-      icon: 'calendar',
-      title: 'Aufgaben und Fairness',
-      body: 'Der Putzplan als Bilanz statt als Rangliste: sichtbar, wer wie viel getragen hat.',
-    },
-    {
-      icon: 'scroll',
-      title: 'Hausregeln',
-      body: 'Was in dieser Wohnung gilt, an einem Ort — und jede Änderung wird allen neu vorgelegt.',
-    },
-    {
-      icon: 'vote',
-      title: 'Abstimmen',
-      body: 'Vorschläge, Fristen, Ergebnis mit Begründung. Sicherheit wird nie zur Abstimmung gestellt.',
-    },
-    {
-      icon: 'building',
-      title: 'Eure Wohnung',
-      body: 'Ein Name, den ihr wählt, die Zimmer und wer hier wohnt. Mit Foto, wenn ihr wollt.',
-    },
-    {
-      icon: 'alert',
-      title: 'Melden',
-      body: 'Schaden oder Konflikt — landet bei der Stelle, die etwas tun kann, und die Antwort kommt zurück.',
-    },
-  ],
-
-  scienceEyebrow: 'Warum das funktioniert',
-  scienceTitle: 'Hinter den Regeln steckt Forschung, kein Bauchgefühl.',
-  scienceBody:
-    'WG-Konflikte sind gut erforscht: Wer aufräumt, überschätzt den eigenen Anteil; Abmachungen ohne Datum zerfallen; Sauberkeitsstreit entsteht aus enttäuschten Erwartungen, nicht aus Unterschieden an sich. Die App ist um diese Befunde herum gebaut.',
-  science: [
-    {
-      title: 'Alle glauben, sie machen mehr — messbar',
-      body: 'Der dokumentierte Eigenanteil-Bias ist der Grund, weshalb der Putzplan eine Bilanz ist: sichtbar, wer wie viel getragen hat, statt Erinnerung gegen Erinnerung.',
-    },
-    {
-      title: 'Sauberkeit ist eine Richtung',
-      body: 'Es zählt, wessen Erwartung unerfüllt bleibt — nicht wer «ordentlicher» ist. Deshalb fragt die App nach eigenem Standard, Erwartung an andere und Toleranz, nicht nach einer Note.',
-    },
-    {
-      title: 'Abmachungen brauchen ein Datum',
-      body: 'Was im Flur besprochen wurde, gilt bis zur nächsten Erinnerungslücke. Beschlüsse mit Frist, Ergebnis und Begründung halten — und Sicherheit wird nie zur Abstimmung gestellt.',
-    },
-  ],
-
-  ethicsEyebrow: 'Privatsphäre',
-  ethicsTitle: 'Was die App über euch nicht wissen will.',
-  ethicsBody:
-    'Standardmässig habt ihr nicht einmal einen Namen in der App — euer Code genügt. Name, Foto und Text sind freiwillig, und Fotos sehen nur ihr und eure Mitbewohnenden.',
-  neverTracked: [
-    'Medizinische Diagnosen',
-    'Aufenthaltsstatus oder Dossierdetails',
-    'Religion und politische Überzeugung',
-    'Persönliche Geschichte ohne Wohnbezug',
-  ],
-
-  blogEyebrow: 'Technik-Blog',
-  blogTitle: 'Warum das Produkt so gebaut ist, wie es ist.',
-  blogLink: 'Alle Beiträge lesen',
-
-  surfaceEyebrow: 'Alles drin',
-  surfaceTitle: 'Was ihr in der App findet — genau so wie im Menü.',
-  surfaceBody:
-    'Diese Liste ist nicht abgetippt, sondern das Menü der App selbst. Kommt etwas dazu, steht es hier.',
-
-  docsEyebrow: 'Zum Nachlesen',
-  docsTitle: 'Wie die App entstanden ist und was als Nächstes kommt.',
-  docs: [
-    {
-      title: 'Roadmap',
-      body: 'Woran gerade gearbeitet wird und was als Nächstes dazukommt.',
-    },
-    {
-      title: 'Changelog',
-      body: 'Was sich zuletzt geändert hat, mit Datum.',
-    },
-    {
-      title: 'Blog',
-      body: 'Warum die App so funktioniert, wie sie funktioniert.',
-    },
-  ],
-
-  closingTitle: 'Schau es dir an.',
-  closingBody:
-    'Die Demo ist das echte Produkt mit Beispieldaten — du siehst genau das, was die Bewohnenden sehen.',
+/** Landing copy for one language, in this deployment's register. */
+export function marketingCopy(
+  locale: PublicLocaleId,
+  brand: BrandId = BRAND.id
+): MarketingCopy {
+  const register = REGISTER_BY_BRAND[brand]
+  // Falls back to German rather than to a blank page. Unreachable through the
+  // router — `generateStaticParams` only emits offered locales — but a fallback
+  // that renders readable German is the right failure for a public page.
+  return isPublicCopyComplete(locale, brand)
+    ? REGISTERS_BY_LOCALE[locale][register]
+    : marketingDe[register]
 }
 
-const MARKETING_BY_BRAND: Record<BrandId, MarketingCopy> = {
-  aoz: PLACEMENT_COPY,
-  aozh: PLACEMENT_COPY,
-  wg: HOUSEHOLD_COPY,
-}
-
-/** Landing copy for the brand this deployment runs under. */
-export const MARKETING_COPY: MarketingCopy = MARKETING_BY_BRAND[BRAND.id]
+/**
+ * Landing copy for the brand this deployment runs under, in German.
+ *
+ * The login/register/reset pages read this. They are NOT in the public route
+ * group and are not translated yet, so they get the language the rest of their
+ * chrome is in. When they are translated they should call `marketingCopy()`
+ * with their own locale instead of widening this const.
+ */
+export const MARKETING_COPY: MarketingCopy = marketingCopy(PUBLIC_DEFAULT_LOCALE)
 
 /** Exported for the test that checks every brand has its own complete pitch. */
-export const MARKETING_COPY_BY_BRAND = MARKETING_BY_BRAND
+export const MARKETING_COPY_BY_BRAND: Record<BrandId, MarketingCopy> = {
+  aoz: marketingDe[REGISTER_BY_BRAND.aoz],
+  aozh: marketingDe[REGISTER_BY_BRAND.aozh],
+  wg: marketingDe[REGISTER_BY_BRAND.wg],
+}
+
+/** Exported for the test that checks every language says the same thing. */
+export const MARKETING_REGISTERS_BY_LOCALE = REGISTERS_BY_LOCALE

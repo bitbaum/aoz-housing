@@ -143,7 +143,7 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
         {recentConflicts > 0 ? (
           <span className="inline-flex items-center gap-1 text-status-warning-text">
             <ShieldAlert className="h-4 w-4" />
-            {recentConflicts} Konflikte
+            {HOUSING_LIST_LABELS.conflictCount(recentConflicts)}
           </span>
         ) : null}
       </div>
