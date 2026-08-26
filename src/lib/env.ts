@@ -29,8 +29,16 @@ const envSchema = z.object({
   // Optional integrations
   // AI: whichever key is set decides the provider (Groq wins if both are).
   // See src/lib/ai/provider.ts.
+  //
+  // A pinned free model is a scheduled outage, not a constant. Groq retired the
+  // whole llama-3.x family; this default pointed at `llama-3.3-70b-versatile`
+  // and every AI surface (staff chat + "Aus Text ausfüllen") answered 404 while
+  // the key was perfectly valid, so the app reported "nicht konfiguriert" for a
+  // configuration that was correct. Re-probe before trusting this id, and see
+  // dotfiles/SHARED.md `ai-ration` for the chain that removes the single point
+  // of failure entirely.
   GROQ_API_KEY: z.string().optional(),
-  GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
+  GROQ_MODEL: z.string().default('openai/gpt-oss-120b'),
   OPENROUTER_API_KEY: z.string().optional(),
   OPENROUTER_MODEL: z.string().default('openai/gpt-oss-20b:free'),
   BREVO_API_KEY: z.string().optional(),

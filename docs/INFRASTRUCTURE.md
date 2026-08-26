@@ -79,7 +79,7 @@ Local development uses a **local** Postgres and `.env.example` as the template (
 
 All AI surfaces share one provider chain in `src/lib/ai/provider.ts`:
 
-1. **`GROQ_API_KEY`** — free, fleet default (`llama-3.3-70b-versatile` or whatever `GROQ_MODEL` names)
+1. **`GROQ_API_KEY`** — free, fleet default (`openai/gpt-oss-120b` or whatever `GROQ_MODEL` names)
 2. **`OPENROUTER_API_KEY`** — fallback when Groq is down or rate-limited (`OPENROUTER_MODEL`, default `openai/gpt-oss-20b:free`)
 
 Surfaces:
