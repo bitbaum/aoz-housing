@@ -53,13 +53,36 @@ export function PublicLanguageSwitcher() {
             // `aria-current` rather than a visual-only highlight: the current
             // language has to be announced, not just coloured.
             aria-current={isCurrent ? 'page' : undefined}
+            // The accessible name is ALWAYS the endonym, whatever the viewport
+            // shows. A screen-reader user on a phone should hear "Français",
+            // not "F R".
+            aria-label={locale.endonym}
             className={
               isCurrent
-                ? 'btn-ghost text-sm px-2 text-ui-text font-semibold'
-                : 'btn-ghost text-sm px-2 text-ui-muted'
+                ? 'btn-ghost text-sm px-1.5 sm:px-2 text-ui-text font-semibold'
+                : 'btn-ghost text-sm px-1.5 sm:px-2 text-ui-muted'
             }
           >
-            {locale.endonym}
+            {/*
+              Two-character code on a phone, endonym from `sm:` up.
+
+              Not a style preference — three full endonyms ("Deutsch",
+              "English", "Français") are ~109px of text, and the public header
+              had about 15px of slack at 390px. Shipping them unconditionally
+              pushed the document to 484px in a 390px viewport, i.e. the whole
+              page scrolled sideways. Measured on the deployed site, not
+              guessed.
+
+              The code is `aria-hidden` because `aria-label` above already
+              carries the real name; without that a screen reader would read
+              both.
+            */}
+            <span className="sm:hidden" aria-hidden="true">
+              {locale.id.toUpperCase()}
+            </span>
+            <span className="hidden sm:inline" aria-hidden="true">
+              {locale.endonym}
+            </span>
           </Link>
         )
       })}

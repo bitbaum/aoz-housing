@@ -67,3 +67,61 @@ test.describe('Mobile Responsiveness', () => {
     await expect(page.locator('#email')).toBeVisible()
   })
 })
+
+/**
+ * The PUBLIC pages, which nothing here used to measure.
+ *
+ * Every check above visits an admin page or /login. The landing page — the one
+ * surface a stranger sees, and the one most likely to be opened on a phone from
+ * a link — was never measured at any width. So when the language switcher added
+ * three full endonyms ("Deutsch", "English", "Français", ~109px) to a header
+ * that had roughly 15px of slack, the document went to 484px inside a 390px
+ * viewport and the whole page scrolled sideways. 190 unit suites and this very
+ * spec were green; it was found by opening the deployed page at 390px.
+ *
+ * 390px rather than 375px on purpose: it is the iPhone 12/13/14 width, the most
+ * common phone viewport, and a check that only ever runs at 375 leaves the
+ * band between them untested.
+ *
+ * `documentElement.scrollWidth`, not `body.scrollWidth`: the body can sit
+ * inside its own bounds while a sticky header overflows the document, so the
+ * body measure can read clean on exactly this bug.
+ */
+test.describe('Public pages on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  // Every language the landing page ships in, including the ones the switcher
+  // itself widens the header with. Hardcoded rather than imported so this fails
+  // loudly if a language is added without anyone measuring it.
+  const LANDING_PATHS = ['/willkommen', '/en/willkommen', '/fr/willkommen']
+
+  for (const path of LANDING_PATHS) {
+    test(`${path} does not scroll sideways at 390px`, async ({ page }) => {
+      await page.goto(path)
+      await page.waitForLoadState('domcontentloaded')
+
+      const { doc, viewport } = await page.evaluate(() => ({
+        doc: document.documentElement.scrollWidth,
+        viewport: window.innerWidth,
+      }))
+
+      // Reported as an object so a failure says BY HOW MUCH and on which page,
+      // rather than "484 is not <= 391".
+      expect({ path, overflowPx: Math.max(0, doc - viewport - 1) })
+        .toEqual({ path, overflowPx: 0 })
+    })
+  }
+
+  test('the language switcher stays reachable and keeps its real names', async ({ page }) => {
+    await page.goto('/fr/willkommen')
+    await page.waitForLoadState('domcontentloaded')
+
+    const nav = page.locator('nav[aria-label*="Sprache"]')
+    await expect(nav).toBeVisible()
+
+    // The visible label shrinks to a code on a phone; the ACCESSIBLE name must
+    // not. A screen-reader user should hear "Français", never "F R".
+    await expect(nav.getByRole('link', { name: 'Français' })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Deutsch' })).toHaveAttribute('href', '/willkommen')
+  })
+})
