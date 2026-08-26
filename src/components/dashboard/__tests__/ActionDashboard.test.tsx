@@ -66,6 +66,8 @@ const BASE_PROPS = {
   learningInProgressCount: 0,
   learningRecentCompletions: 0,
   upcomingEventsCount: 0,
+  activeStaffCount: 4,
+  neverSignedInStaffCount: 0,
   // Fixed strings, because they are now computed on the server and passed in.
   // The component no longer reads a clock, which is what makes its output the
   // same in the container and in the browser.
@@ -166,10 +168,26 @@ describe('ActionDashboard', () => {
 
   // ── QuickStats row ────────────────────────────────────────────────────────
 
-  it('renders all 6 QuickStat tiles for ADMIN', () => {
+  it('renders all 7 QuickStat tiles for ADMIN', () => {
+    // 7 since the Leitung-only team tile landed. Betreuung gets 6 — that
+    // difference is the point, and it is asserted in config/dashboard.test.ts.
     render(<ActionDashboard {...BASE_PROPS} />)
-    expect(screen.getAllByTestId('quick-stat')).toHaveLength(6)
+    expect(screen.getAllByTestId('quick-stat')).toHaveLength(7)
   })
+
+  it('gives BETREUUNG one tile fewer — no team health', () => {
+    render(<ActionDashboard {...BASE_PROPS} role="BETREUUNG" />)
+    const stats = screen.getAllByTestId('quick-stat')
+
+    expect(stats).toHaveLength(6)
+    expect(stats.some((s) => s.textContent?.includes('Team'))).toBe(false)
+  })
+
+  // The team tile's SUBTEXT ("n Konten waren noch nie angemeldet") is not
+  // assertable here: this suite mocks QuickStat down to `label: value`, so no
+  // subtext reaches the DOM whatever the props say. The wording itself is a
+  // pure label function and is pinned in the labels test instead — asserting
+  // it through a mock that cannot render it would test the mock.
 
   it('renders only the learning stat for JOBCOACH', () => {
     render(<ActionDashboard {...BASE_PROPS} role="JOBCOACH" learningInProgressCount={4} />)

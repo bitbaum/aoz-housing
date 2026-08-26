@@ -48,6 +48,13 @@ export const DASHBOARD_LABELS = {
       : `${n} Abschlüsse in ${LEARNING_PULSE_WINDOW_DAYS} Tagen`,
   statEvents: 'Veranstaltungen',
   statPlannedSuffix: 'geplant',
+  // Leitung only — the one stat Betreuung does not see.
+  statTeam: 'Team',
+  statTeamSuffix: 'aktiv',
+  statTeamNeverSignedIn: (n: number) =>
+    n === 1
+      ? '1 Konto war noch nie angemeldet'
+      : `${n} Konten waren noch nie angemeldet`,
 
   tileCheckIns: 'Check-ins durchführen',
   tilePlaceResidents: 'Klient*innen platzieren',

@@ -37,6 +37,23 @@ export const DASHBOARD_SECTIONS = {
   learning: 'learning:read',
   /** Upcoming published events. */
   events: 'events:read',
+  /**
+   * Team health — staff accounts, and how many have never signed in.
+   *
+   * THE ONLY SECTION LEITUNG SEES AND BETREUUNG DOES NOT, and that is the
+   * point. `BETREUUNG: [...OPERATIONAL]` while ADMIN is `[...OPERATIONAL, +5]`,
+   * and every one of those five (`users:manage`, `system:configure`,
+   * `import:write`, `opportunities:write`, `activities:write`) was a PAGE
+   * permission that no dashboard section mapped to. So the two roles rendered
+   * byte-identical dashboards — the mechanism for differentiating them existed
+   * and simply had nothing keyed to it.
+   *
+   * Gated on `users:manage` rather than invented: it reports on the thing only
+   * Leitung can actually act on. A provisioned staff code nobody has ever used
+   * is invisible everywhere else in the product, and it is precisely the kind
+   * of loose end the person managing the team is responsible for.
+   */
+  team: 'users:manage',
 } as const satisfies Record<string, StaffPermission>
 
 export type DashboardSection = keyof typeof DASHBOARD_SECTIONS

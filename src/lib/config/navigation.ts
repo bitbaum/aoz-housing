@@ -146,12 +146,13 @@ export type MegaMenuGroup =
 // — "Konflikte" is also the more accurate name for what this group actually
 // holds (incidents, house rules), not general social-work administration.
 //
-// The bar itself never needs a magic item-count budget to "fit": every entry
-// carries `shrink-0` (never compressed), and the <nav> in AdminMegaMenu
-// scrolls its own overflow (`.scroll-fade` in globals.css, with a JS-driven
-// edge-fade affordance so an overflow is visibly discoverable, not a silent
-// dead end) instead of spilling into the user menu — see AdminHeader.tsx.
-// Add a mission area here without checking whether it "fits" a viewport.
+// There is no item-count budget to "fit". These render as a vertical panel
+// (`AdminSidebar`), so the budget is the page's height and the panel scrolls
+// itself. Add a mission area here without checking whether it fits a viewport.
+//
+// This used to be a horizontal megamenu, and the note here explained the
+// scroll container and edge-fade affordance that kept a ROW from spilling into
+// the user menu. That whole apparatus is gone; a column does not need it.
 export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/', icon: 'home', label: 'Dashboard', permission: 'dashboard:read' },
   {
