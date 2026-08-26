@@ -1,6 +1,6 @@
 'use client'
 
-import { Bed, Clock, Check, Wrench, Smile, GraduationCap, CalendarClock } from 'lucide-react'
+import { Bed, Clock, Check, Wrench, Smile, GraduationCap, CalendarClock, Users } from 'lucide-react'
 import { urgencyForGoodStreak, urgencyForOpenCount } from '@/lib/config/urgency'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import {
@@ -66,6 +66,12 @@ interface ActionDashboardProps {
   learningRecentCompletions: number
   upcomingEventsCount: number
 
+  // Team health — rendered only under `users:manage`, i.e. Leitung. See
+  // DASHBOARD_SECTIONS.team for why this is the section that finally makes
+  // Leitung's dashboard differ from Betreuung's.
+  activeStaffCount: number
+  neverSignedInStaffCount: number
+
   /**
    * Computed on the server and passed in, NOT derived here. This component is
    * server-rendered as well as hydrated, and `new Date()` means UTC in the
@@ -115,6 +121,8 @@ export function ActionDashboard({
   learningInProgressCount,
   learningRecentCompletions,
   upcomingEventsCount,
+  activeStaffCount,
+  neverSignedInStaffCount,
   greeting,
   todayLabel,
 }: ActionDashboardProps) {
@@ -263,6 +271,24 @@ export function ActionDashboard({
             href="/events"
             urgency="neutral"
             icon={<CalendarClock className="w-5 h-5" />}
+          />
+        )}
+        {show('team') && (
+          <QuickStat
+            label={DASHBOARD_LABELS.statTeam}
+            value={activeStaffCount}
+            suffix={` ${DASHBOARD_LABELS.statTeamSuffix}`}
+            href="/settings"
+            // `attention` only when something is actually loose. A team with
+            // every account in use is not a warning, and a permanently amber
+            // tile is one nobody reads.
+            urgency={neverSignedInStaffCount > 0 ? 'attention' : 'neutral'}
+            icon={<Users className="w-5 h-5" />}
+            subtext={
+              neverSignedInStaffCount > 0
+                ? DASHBOARD_LABELS.statTeamNeverSignedIn(neverSignedInStaffCount)
+                : undefined
+            }
           />
         )}
       </div>

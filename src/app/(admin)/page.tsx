@@ -70,6 +70,8 @@ export default async function AdminDashboard() {
     learningInProgressCount,
     learningRecentCompletions,
     upcomingEventsCount,
+    activeStaffCount,
+    neverSignedInStaffCount,
   ] = await Promise.all([
     prisma.resident.count(),
     // Only used to pick the first setup step, which requires housing:write —
@@ -162,6 +164,13 @@ export default async function AdminDashboard() {
       ? prisma.houseEvent.count({
           where: { status: 'PUBLISHED', startsAt: { gte: now } },
         })
+      : 0,
+    show('team') ? prisma.user.count({ where: { active: true } }) : 0,
+    // Provisioned and never used. A staff code that was issued but never
+    // signed in with is invisible everywhere else in the product — it is not
+    // an error, it is an unfinished handover, and only Leitung can close it.
+    show('team')
+      ? prisma.user.count({ where: { active: true, lastLoginAt: null } })
       : 0,
   ])
 
@@ -344,6 +353,8 @@ export default async function AdminDashboard() {
       learningInProgressCount={learningInProgressCount}
       learningRecentCompletions={learningRecentCompletions}
       upcomingEventsCount={upcomingEventsCount}
+      activeStaffCount={activeStaffCount}
+      neverSignedInStaffCount={neverSignedInStaffCount}
       greeting={buildGreeting(DASHBOARD_LABELS[GREETING_BY_DAY_PART[dayPartAt(now)]], user)}
       todayLabel={formatWeekdayDate(now)}
     />
