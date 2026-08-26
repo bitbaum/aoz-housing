@@ -13,7 +13,7 @@
  * with one key configured, "picks the first configured provider" and "falls
  * back to the second" are the same observable behaviour.
  *
- * The chain now comes from `ai-ration`, which the fleet already uses for
+ * The chain now comes from `ai-kit`, which the fleet already uses for
  * exactly this and which the shared inventory names as the answer to sixteen
  * hand-rolled provider clients. It is headless — it supplies the ordering, the
  * free-tier model lists and the 429 taxonomy; we keep the fetch.
@@ -28,12 +28,9 @@
  * - `runStaffChat` — streaming staff assistant (/api/ai/chat)
  */
 
-import { freeChain, usableChain, chainFrom } from 'ai-ration'
+import { freeChain, usableChain, chainFrom } from 'ai-kit'
 import { BRAND } from '@/lib/config/brand'
 import { AIChainExhaustedError, AIProviderError, shouldTryNextProvider } from './errors'
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
 export type AIProvider = 'groq' | 'openrouter'
 
@@ -79,38 +76,22 @@ export interface AIProviderConfig {
 }
 
 /**
- * Resolved endpoint + model for the active provider.
+ * Resolved endpoint + model for the FIRST provider in the chain.
+ *
+ * @deprecated use `getAIProviderConfigs` — this returns one link and therefore
+ * cannot fall back. Kept because it is exported.
+ *
+ * It used to build that config by hand, reading `env.GROQ_MODEL` /
+ * `env.OPENROUTER_MODEL` directly. That made it a second, divergent answer to
+ * "which model do we call" — and the divergence was not theoretical: it read
+ * the raw env pin while `getAIProviderConfigs` read the pin through
+ * `chainFrom`. Delegating leaves exactly one code path that decides a model.
+ *
  * Returns null when neither GROQ_API_KEY nor OPENROUTER_API_KEY is set.
  */
 export async function getAIProviderConfig(): Promise<AIProviderConfig | null> {
-  const provider = getAIProvider()
-  if (!provider) return null
-
-  const { env } = await import('@/lib/env')
-
-  if (provider === 'groq') {
-    return {
-      provider,
-      url: GROQ_API_URL,
-      headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      model: env.GROQ_MODEL,
-    }
-  }
-
-  return {
-    provider,
-    url: OPENROUTER_API_URL,
-    headers: {
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': env.NEXT_PUBLIC_APP_URL ?? 'https://aoz.orangecat.ch',
-      'X-Title': BRAND.productName,
-    },
-    model: env.OPENROUTER_MODEL,
-  }
+  const [first] = await getAIProviderConfigs()
+  return first ?? null
 }
 
 /**

@@ -19,12 +19,12 @@
  * status code, a `type` and a `code`; only the body tells them apart, and they
  * need OPPOSITE responses. Telling someone "gleich nochmal versuchen" when the
  * daily budget is gone invites the one retry guaranteed to fail for the next
- * hour. `ai-ration` already owns that distinction, is already the fleet's
+ * hour. `ai-kit` already owns that distinction, is already the fleet's
  * answer to it, and is headless — it supplies the decision and we keep the
  * fetch. @see SHARED.md ("AI provider client — 16 copies")
  */
 
-import { classifyRateLimit, rateLimitMessage, retryAfterSeconds } from 'ai-ration'
+import { classifyRateLimit, rateLimitMessage, retryAfterSeconds } from 'ai-kit'
 
 /**
  * A provider call that failed, carrying the raw body for the LOG only.

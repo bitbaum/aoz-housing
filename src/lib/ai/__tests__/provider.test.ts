@@ -56,6 +56,68 @@ describe('which provider a completion uses', () => {
   })
 })
 
+/**
+ * Where the model id comes from when nobody names one.
+ *
+ * This is the regression that took the OpenRouter half of the chain down. The
+ * env schema gave both model vars a `.default()`, so `chainFrom` — which falls
+ * back to the maintained chain only when it is given NOTHING — was never given
+ * nothing. The app's own copy of the id won on every request and ai-kit's
+ * re-probed list was dead code. When `openai/gpt-oss-20b:free` was retired,
+ * the second vendor answered 404 by construction: the exact vendor reached
+ * only when the first one is down and nobody is watching.
+ *
+ * A `.default()` reads as a harmless convenience in review, which is why the
+ * absence needs a test rather than a comment.
+ */
+describe('where the model id comes from', () => {
+  const okResponse = {
+    ok: true,
+    json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+  } as Response
+
+  async function modelSentTo(env: Record<string, string | undefined>) {
+    const { completeText } = await loadProvider(env)
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(okResponse)
+    await completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    return JSON.parse(init.body as string).model as string
+  }
+
+  it('asks ai-kit when GROQ_MODEL is unset, rather than a default in this repo', async () => {
+    const model = await modelSentTo({ GROQ_API_KEY: 'gsk_test' })
+
+    expect(model).toBeTruthy()
+    // The llama-3.x family is exactly what Groq retired. If this app ever
+    // carries its own default again, that is the id it would drift back to.
+    expect(model).not.toMatch(/^llama-3/)
+  })
+
+  it('asks ai-kit when OPENROUTER_MODEL is unset', async () => {
+    const model = await modelSentTo({ OPENROUTER_API_KEY: 'sk-or-test' })
+
+    expect(model).toBeTruthy()
+    // The retired id this repo used to default to.
+    expect(model).not.toBe('openai/gpt-oss-20b:free')
+  })
+
+  it('still honours an explicit override, so forcing a model remains possible', async () => {
+    // The escape hatch is the reason these vars exist at all. Removing the
+    // default must not remove the override.
+    const model = await modelSentTo({ GROQ_API_KEY: 'gsk_test', GROQ_MODEL: 'pinned-on-purpose' })
+    expect(model).toBe('pinned-on-purpose')
+  })
+
+  it('does not send one vendor\'s model id to the other vendor', async () => {
+    // A model name only means something at the vendor that publishes it.
+    const model = await modelSentTo({
+      OPENROUTER_API_KEY: 'sk-or-test',
+      GROQ_MODEL: 'openai/gpt-oss-120b',
+    })
+    expect(model).not.toBe('openai/gpt-oss-120b')
+  })
+})
+
 describe('the Groq call', () => {
   const okResponse = (content: string) =>
     ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) }) as Response
