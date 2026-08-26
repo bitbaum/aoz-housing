@@ -20,6 +20,8 @@ export const ERROR_MESSAGES = {
 
   // ─── Account (register, email login, password reset) ───────────
   AUTH_CODE_REQUIRED: 'Code erforderlich',
+  AUTH_HOUSEHOLD_NAME_REQUIRED: 'Bitte gib deiner Wohnung einen Namen',
+  AUTH_HOUSEHOLD_NAME_TOO_LONG: 'Der Name ist zu lang (max. 80 Zeichen)',
   AUTH_EMAIL_INVALID: 'Gültige E-Mail-Adresse erforderlich',
   AUTH_PASSWORD_TOO_SHORT: 'Passwort muss mindestens 8 Zeichen haben',
   AUTH_PASSWORD_TOO_LONG: 'Passwort darf höchstens 72 Zeichen haben',

@@ -54,6 +54,9 @@ describe('brand presets', () => {
         householdPrimaryNav: false,
         codeFirstLogin: false,
         matchingFastDefault: true,
+        // Safeguarding, not preference: AOZ provisions every identity through
+        // intake. @see auth/__tests__/household-aoz-gate.test.ts
+        selfServeHousehold: false,
       },
     })
   })

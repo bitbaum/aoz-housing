@@ -46,6 +46,23 @@ export interface BrandFeatures {
   codeFirstLogin: boolean
   /** Open matching in compact Top-3 mode. */
   matchingFastDefault: boolean
+  /**
+   * Sign up with no code at all and create your own household.
+   *
+   * OFF for AOZ, and that is a safeguarding decision rather than a preference.
+   * On an AOZ deployment every identity arrives through intake or a staff
+   * invite, and the database holds real asylum seekers' records; a public door
+   * that mints identities into it is precisely the thing that must not exist.
+   *
+   * ON for WG, where the deployment IS a flat and the person signing up is the
+   * one who lives there. Note what the flow may create even then: a RESIDENT in
+   * the household it just made, never a staff user. Staff permissions are
+   * global — `requirePermission` checks a role, not a household — so a
+   * self-serve staff account would be able to read every resident in the
+   * database. The portal is unit-scoped (`getPortalAuth`), which is why the
+   * self-serve door opens onto it and nowhere else.
+   */
+  selfServeHousehold: boolean
 }
 
 const AOZ_FEATURES: BrandFeatures = {
@@ -58,6 +75,9 @@ const AOZ_FEATURES: BrandFeatures = {
   // anyone arriving without a piece of paper.
   codeFirstLogin: false,
   matchingFastDefault: true,
+  // See the field docs: a public identity-minting door into a database of
+  // asylum seekers' records is not a feature this brand may have.
+  selfServeHousehold: false,
 }
 
 const WG_FEATURES: BrandFeatures = {
@@ -66,6 +86,9 @@ const WG_FEATURES: BrandFeatures = {
   householdPrimaryNav: true,
   codeFirstLogin: false,
   matchingFastDefault: false,
+  // A WG deployment IS one flat, and the person signing up lives in it. This
+  // is what makes the product usable without an administrator to issue codes.
+  selfServeHousehold: true,
 }
 
 export interface Brand {
