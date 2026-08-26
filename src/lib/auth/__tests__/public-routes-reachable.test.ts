@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from 'fs'
 import { join, dirname, relative, sep } from 'path'
 import { PUBLIC_ROUTES, matchesRoute } from '@/lib/auth/route-boundaries'
+import { PREFIXED_LOCALE_IDS } from '@/lib/config/public-locales'
 
 /**
  * "Public" has to mean the page actually renders for a signed-out visitor.
@@ -94,8 +95,30 @@ describe('declared public routes are actually public', () => {
     const publicPages = pages.filter(page => page.file.includes(`${sep}(public)${sep}`))
 
     for (const page of publicPages) {
-      const declared = PUBLIC_ROUTES.some(route => matchesRoute(page.url, route))
-      expect({ page: page.url, declared }).toEqual({ page: page.url, declared: true })
+      for (const url of concreteUrls(page.url)) {
+        const declared = PUBLIC_ROUTES.some(route => matchesRoute(url, route))
+        expect({ page: url, declared }).toEqual({ page: url, declared: true })
+      }
     }
   })
 })
+
+/**
+ * A page file's URL is a TEMPLATE; middleware sees concrete paths.
+ *
+ * `matchesRoute` is a literal prefix test, and it must stay one — it is what
+ * middleware uses to decide whether a request needs a session, and teaching it
+ * to match `[lang]` against anything would widen a live auth boundary to fix a
+ * test. So the expansion belongs here instead: `/[lang]/willkommen` is compared
+ * as `/en/willkommen` and `/fr/willkommen`, which are the URLs that actually
+ * get requested.
+ *
+ * Most dynamic pages need no expansion because a declared parent already covers
+ * them by prefix (`/blog/[slug]` sits under `/blog`). `[lang]` is the first
+ * segment that is itself the FIRST segment, so nothing above it can cover it —
+ * which is exactly why this test caught it.
+ */
+function concreteUrls(templateUrl: string): string[] {
+  if (!templateUrl.includes('[lang]')) return [templateUrl]
+  return PREFIXED_LOCALE_IDS.map(locale => templateUrl.replace('[lang]', locale))
+}

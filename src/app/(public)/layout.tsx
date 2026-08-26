@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { PublicLanguageSwitcher } from '@/components/marketing/PublicLanguageSwitcher'
 import { BLOG_LABELS } from '@/lib/constants/labels'
 
 /**
@@ -34,6 +35,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               </nav>
             </div>
             <div className="flex items-center gap-1">
+              {/*
+                Renders itself only on pages that HAVE other languages — see the
+                component. It is a client component, but it reads the pathname
+                and nothing else: no cookie, no session, so the promise above
+                about this layout staying prerenderable still holds.
+              */}
+              <PublicLanguageSwitcher />
               <ThemeToggle />
               <Link href="/login" className="btn-ghost text-sm">
                 {BLOG_LABELS.toApp}

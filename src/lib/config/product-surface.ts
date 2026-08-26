@@ -14,12 +14,18 @@
  * router's own files. Ship a page, add it to the nav, and the landing page
  * says so. The same rule the factor count in `marketing.ts` already follows.
  *
- * German only, deliberately: this reads the German dictionary directly because
- * the landing copy it feeds is German. The RESIDENT portal is translated; the
- * pitch to a Swiss organisation is not.
+ * WHICH HALF IS TRANSLATED, AND WHY ONLY ONE. The resident column follows the
+ * reader's language, because the resident portal genuinely is translated and
+ * these are its real menu entries in that language. The staff column stays
+ * German in every language, because the staff interface IS German
+ * (`i18n/locales.ts`) — translating those names on a French landing page would
+ * describe a product that does not exist. The landing page says so out loud
+ * (`surfaceStaffNote`) rather than leaving a French reader to guess whether the
+ * German is a gap or a fact.
  */
 
-import { de } from '@/lib/i18n/dictionaries/de'
+import { createTranslator } from '@/lib/i18n'
+import { DEFAULT_LOCALE, type LocaleId } from '@/lib/i18n/locales'
 import { visibleMegaMenuGroups, visiblePortalNavItems } from './navigation'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
 import { BRAND } from './brand'
@@ -57,7 +63,8 @@ export function staffSurface(): SurfaceArea[] {
 }
 
 /** The resident side, filtered by this brand's features — same as they get. */
-export function residentSurface(): SurfaceArea[] {
+export function residentSurface(locale: LocaleId = DEFAULT_LOCALE): SurfaceArea[] {
+  const t = createTranslator(locale)
   const items = visiblePortalNavItems()
   const seen: string[] = []
   for (const item of items) {
@@ -66,23 +73,40 @@ export function residentSurface(): SurfaceArea[] {
 
   return seen
     .map((group) => ({
-      title: de[`navGroup.${group}` as keyof typeof de] as string,
+      // Same `as MessageKey` cast the sidebar itself resolves headings through.
+      // A cast is not a check, which is why `portal-nav-groups.test.ts` gates
+      // the group list against the dictionaries directly.
+      title: t(`navGroup.${group}` as Parameters<typeof t>[0]),
       entries: items
         .filter((item) => item.group === group)
-        .map((item) => de[portalNavMessageKey(item)]),
+        .map((item) => t(portalNavMessageKey(item))),
     }))
     .filter((area) => area.entries.length > 0)
 }
 
-/** Both halves of the product, named the way each audience meets them. */
-export function productSurfaces(): ProductSurface[] {
+/**
+ * Both halves of the product, named the way each audience meets them.
+ *
+ * The two column TITLES do not translate: "Verwaltung" is what the staff side
+ * is called, and `BRAND.portalName` is a name this brand chose ("Mein
+ * Bereich"). Names of things inside the product travel like the brand does —
+ * a French reader looking for the staff interface will find it called
+ * Verwaltung when they get there.
+ */
+export function productSurfaces(locale: LocaleId = DEFAULT_LOCALE): ProductSurface[] {
   return [
     { title: 'Verwaltung', areas: staffSurface() },
-    { title: BRAND.portalName, areas: residentSurface() },
+    { title: BRAND.portalName, areas: residentSurface(locale) },
   ]
 }
 
-/** How many destinations the product offers in total. Counted, never claimed. */
+/**
+ * How many destinations the product offers in total. Counted, never claimed.
+ *
+ * Language-independent by construction: it counts entries, and every language
+ * has the same ones. Taking a locale would invite a page to report a different
+ * product size in French.
+ */
 export function surfaceDestinationCount(): number {
   return productSurfaces().reduce(
     (total, surface) =>
