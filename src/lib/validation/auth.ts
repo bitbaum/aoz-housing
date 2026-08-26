@@ -25,6 +25,27 @@ export const registerSchema = z.object({
   password: passwordField,
 })
 
+/**
+ * Self-serve onboarding: no code, because there is nobody to have issued one.
+ *
+ * `code` is absent rather than optional. The two flows do different things —
+ * one CLAIMS an identity that already exists, the other CREATES a household —
+ * and a single schema with an optional code would let a request carry both and
+ * leave the route to decide which won. @see auth/household.ts
+ */
+export const createHouseholdSchema = z.object({
+  email: emailField,
+  password: passwordField,
+  householdName: z
+    .string()
+    .trim()
+    .min(1, ERROR_MESSAGES.AUTH_HOUSEHOLD_NAME_REQUIRED)
+    .max(80, ERROR_MESSAGES.AUTH_HOUSEHOLD_NAME_TOO_LONG),
+  // Optional on purpose: the code is the identity, a name is a courtesy. The
+  // privacy default of this product is that residents have no name at all.
+  displayName: z.string().trim().max(80).optional(),
+})
+
 export const emailLoginSchema = z.object({
   email: emailField,
   password: z.string().min(1),

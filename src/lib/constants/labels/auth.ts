@@ -107,6 +107,27 @@ export const REGISTER_LABELS = {
   successBothRoles: 'Codes verknüpft — Sie sind für beide Rollen angemeldet.',
   hasAccount: 'Bereits ein Konto?',
   loginLink: 'Anmelden',
+
+  // --- Self-serve household (WG brand only; see BRAND.features.selfServeHousehold)
+  // Duzen, not siezen: the rest of this block sietzt because it addresses AOZ
+  // staff and clients. This door only ever opens on a WG deployment, where the
+  // reader is someone setting up their own flat.
+  modeCodeTab: 'Ich habe einen Code',
+  modeHouseholdTab: 'Neue Wohnung',
+  householdSubtitle: 'Erstelle eine Wohnung und lade deine Mitbewohner*innen später dazu ein.',
+  householdNameLabel: 'Name der Wohnung',
+  householdNamePlaceholder: 'z. B. Singapur',
+  householdNameHint: 'Frei wählbar — so heisst eure Wohnung in der App.',
+  displayNameLabel: 'Dein Name (optional)',
+  displayNameHint: 'Kannst du leer lassen. Ohne Namen erscheint dein Code.',
+  householdSubmit: 'Wohnung erstellen',
+  householdSubmitting: 'Wohnung wird erstellt...',
+  householdSuccess: 'Wohnung erstellt — du bist angemeldet.',
+  // Shown once and never again: this is the other way back in, and after this
+  // screen nothing in the product ever displays it.
+  householdCodeTitle: 'Dein persönlicher Code',
+  householdCodeHint:
+    'Notiere ihn dir. Du kannst dich damit auch ohne E-Mail und Passwort anmelden.',
 } as const
 
 export const FORGOT_PASSWORD_LABELS = {

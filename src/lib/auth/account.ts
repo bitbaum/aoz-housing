@@ -112,8 +112,13 @@ async function findIdentityByCode(code: string): Promise<CodeIdentity | null> {
   return null
 }
 
-/** Fire-and-forget verification email; claiming must not fail on it. */
-async function sendVerificationEmail(accountId: string, email: string): Promise<void> {
+/**
+ * Fire-and-forget verification email; claiming must not fail on it.
+ *
+ * Exported for the self-serve household flow, which creates an account the
+ * same way and owes the same verification mail. @see auth/household.ts
+ */
+export async function sendVerificationEmail(accountId: string, email: string): Promise<void> {
   try {
     const raw = await createAuthToken(accountId, 'VERIFY_EMAIL')
     const { subject, html } = verifyEmailEmail({
