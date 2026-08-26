@@ -1,0 +1,52 @@
+{
+  "name": "fitfoot",
+  "version": "2.0.0",
+  "private": true,
+  "description": "FitFoot - Swiss sustainable footwear, sold and managed on our own platform",
+  "scripts": {
+    "dev": "next dev -p 3005",
+    "build": "next build",
+    "start": "next start -p 3005",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:studio": "drizzle-kit studio",
+    "verify": "npm run typecheck && npm run lint && npm run test"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
+    "jose": "^5.9.6",
+    "next": "^16.3.1",
+    "pg": "^8.13.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^26.2.0",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "9.39.5",
+    "eslint-config-next": "^16.3.1",
+    "jest": "^30.4.2",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.3.3",
+    "ts-jest": "^29.4.12",
+    "tsx": "^4.19.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
