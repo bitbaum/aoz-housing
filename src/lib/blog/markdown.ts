@@ -18,7 +18,7 @@ const POSTS_DIR = 'docs/blog'
  * Pinned to `master` rather than a commit: the post links to the *current*
  * roadmap, not the roadmap as it stood the day the post shipped.
  */
-const REPO_FILE_BASE = 'https://github.com/maonakamoto/aoz-housing/blob/master/'
+const REPO_FILE_BASE = 'https://github.com/catomean/aoz-housing/blob/master/'
 
 /** Any link target ending in `.md`, with an optional `#fragment`. */
 const MARKDOWN_LINK = /\]\(([^)\s]+\.md)(#[^)]*)?\)/g

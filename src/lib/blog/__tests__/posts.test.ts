@@ -114,7 +114,7 @@ describe('blog markdown rendering', () => {
     // repo and 404s on the web, so it resolves to where the file is published.
     const html = renderMarkdown('the [roadmap](../ROADMAP.md)')
 
-    expect(html).toContain('href="https://github.com/maonakamoto/aoz-housing/blob/master/docs/ROADMAP.md"')
+    expect(html).toContain('href="https://github.com/catomean/aoz-housing/blob/master/docs/ROADMAP.md"')
   })
 
   it('never serves a real post with a link to a .md file', () => {

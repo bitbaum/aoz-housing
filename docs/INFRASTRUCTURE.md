@@ -39,7 +39,7 @@ Do not:
 ## How code reaches the box
 
 Push to `master` → `.github/workflows/deploy.yml` → reusable
-`maonakamoto/fleetcrown/.github/workflows/selfhost-deploy.yml`.
+`catomean/fleetcrown/.github/workflows/selfhost-deploy.yml`.
 
 That pipeline waits for this commit's CI, pulls `/opt/aoz-wohnen/shared/.env`
 from the box (the box stays env SSOT), runs `prisma migrate deploy` against
@@ -54,7 +54,7 @@ reconciler the box stayed on the 16 Aug release.
 Manual rebuild (brand switch, stuck job):
 
 ```bash
-gh workflow run deploy.yml -R maonakamoto/aoz-housing
+gh workflow run deploy.yml -R catomean/aoz-housing
 ```
 
 Uncommitted work on a laptop is not in production. Neither is a branch that is not `master`.
@@ -99,7 +99,7 @@ Surfaces:
 
 Production SSOT: copy `GROQ_API_KEY` and/or `OPENROUTER_API_KEY` from the same place as the other OrangeCat apps into `/opt/aoz-wohnen/shared/.env`. Without at least one key, both endpoints answer 503 with an explicit message.
 
-The `@fleet/ai-forms` package (github:maonakamoto/ai-forms) is the shared form-fill engine — field registry stays server-side, keys stay in the host app. Extracting/publishing it further is optional product work; this repo already consumes it.
+The `@fleet/ai-forms` package (github:catomean/ai-forms) is the shared form-fill engine — field registry stays server-side, keys stay in the host app. Extracting/publishing it further is optional product work; this repo already consumes it.
 
 ## Languages (so this is not re-litigated)
 

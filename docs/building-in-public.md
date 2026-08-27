@@ -14,6 +14,6 @@ AOZ ships the BiP triad on the public site:
 | Roadmap | `/roadmap` | `docs/ROADMAP.md` |
 | Changelog | `/changelog` | `CHANGELOG.md` |
 
-Shared **parser / types / video allowlist**: npm [`bip-kit`](https://github.com/maonakamoto/bip-kit) via `src/lib/bip.ts`. HTML rendering stays on `marked` until a full block renderer is worth the swap.
+Shared **parser / types / video allowlist**: npm [`bip-kit`](https://github.com/catomean/bip-kit) via `src/lib/bip.ts`. HTML rendering stays on `marked` until a full block renderer is worth the swap.
 
 Company voice only — not resident UGC. Studio programme: FleetCrown `docs/architecture/building-in-public-ssot.md`.

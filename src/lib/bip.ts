@@ -4,7 +4,7 @@
  * AOZ keeps `marked` for HTML rendering (repo-linked posts). bip-kit is the
  * SSOT for block parsing / video allowlist / roadmap·changelog types.
  * @see docs/building-in-public.md
- * @see https://github.com/maonakamoto/bip-kit
+ * @see https://github.com/catomean/bip-kit
  */
 export {
   parseContentBlocks,
