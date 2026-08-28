@@ -365,7 +365,10 @@ describe('createQuickCheckIn', () => {
         safetyFeeling: null,
         improvements: null,
         positives: null,
-        collectedBy: null,
+        // The staff member who entered it. This assertion previously read
+        // `null` and so pinned the bug in place: a caseworker's estimate was
+        // stored indistinguishably from the resident's own answer.
+        collectedBy: 'staff-1',
         isAnonymous: false,
       },
     })
@@ -448,6 +451,40 @@ describe('createQuickCheckIn', () => {
       success: false,
       error: ERROR_MESSAGES.SAVE_ERROR,
     })
+  })
+
+  /**
+   * The gate for the class, not the instance.
+   *
+   * `collectedBy` is the only field separating "the resident said this" from
+   * "a caseworker estimated it on their behalf", and both feed
+   * Placement.satisfactionRating and the ROI analytics. A staff-authenticated
+   * path that leaves it null erases that distinction silently — nothing throws,
+   * nothing renders wrong, the number is just quietly a different kind of fact.
+   * So assert the property rather than one call's arguments.
+   */
+  it('never writes a null collector on a staff-authenticated path', async () => {
+    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+      residentId: 'res-1',
+      status: 'ACTIVE',
+    })
+    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
+    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+
+    for (const score of [1, 2, 3, 4, 5]) {
+      await createQuickCheckIn({
+        placementId: 'pl-1',
+        overallSatisfaction: score,
+        checkInType: 'REGULAR',
+        weekNumber: 1,
+      })
+    }
+
+    const calls = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
+    expect(calls).toHaveLength(5)
+    for (const [arg] of calls) {
+      expect(arg.data.collectedBy).toBe('staff-1')
+    }
   })
 })
 
