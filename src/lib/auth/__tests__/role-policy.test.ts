@@ -30,7 +30,11 @@ describe('role policy smoke checks', () => {
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(25)
+    // The count is the point: it makes a permission added to ADMIN a
+    // deliberate edit here rather than something that arrives by inheritance.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(27)
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:read')
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:write')

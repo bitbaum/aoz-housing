@@ -60,9 +60,27 @@ const OPERATIONAL = [
   'activities:read',
 ] as const
 
+/**
+ * Career documents — a CV, a certificate, a reference someone can show an
+ * employer.
+ *
+ * Deliberately NOT part of OPERATIONAL, which BETREUUNG inherits whole.
+ * Housing operations is running a house: keys, quiet hours, who is in which
+ * room. Someone's CV is not a housing fact, and this product's rule everywhere
+ * else is the minimum access the work requires. The roles whose work is
+ * literally about what a person can show an employer get it; the role that
+ * runs the building does not.
+ *
+ * Leitung gets both, as it gets everything.
+ */
+const CAREER_DOCUMENTS_READ = 'documents:read'
+const CAREER_DOCUMENTS_WRITE = 'documents:write'
+
 export const ROLE_PERMISSIONS = {
   ADMIN: [
     ...OPERATIONAL,
+    CAREER_DOCUMENTS_READ,
+    CAREER_DOCUMENTS_WRITE,
     'users:manage',
     'system:configure',
     'import:write',
@@ -87,6 +105,8 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:read',
     'activities:write',
+    CAREER_DOCUMENTS_READ,
+    CAREER_DOCUMENTS_WRITE,
   ],
   JOBCOACH: [
     'dashboard:read',
@@ -97,6 +117,8 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:read',
     'activities:write',
+    CAREER_DOCUMENTS_READ,
+    CAREER_DOCUMENTS_WRITE,
   ],
   FREIWILLIGENARBEIT: [
     'dashboard:read',
@@ -111,6 +133,9 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:read',
     'activities:write',
+    // Read only: a volunteering coordinator may need to see a reference
+    // before placing someone, but the CV is the job coach's working document.
+    CAREER_DOCUMENTS_READ,
   ],
 } as const
 
