@@ -588,7 +588,7 @@ export const ar: Dictionary = {
   'nav.opportunities': 'فرص المشاركة',
   'opportunities.title': 'فرص المشاركة',
   'opportunities.subtitle':
-    'عمل تطوعي وخدمة مجتمعية قريبة منك. فريقك يرافقك في ذلك.',
+    'وظائف وتدريب مهني وعمل تطوعي وخدمة مجتمعية قريبة منك. فريقك يرافقك في ذلك.',
   'opportunities.yours': 'طلباتك',
   'opportunities.yoursEmpty': 'لم تتقدم إلى أي فرصة بعد.',
   'opportunities.open': 'أماكن متاحة',

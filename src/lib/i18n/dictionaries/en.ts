@@ -581,7 +581,7 @@ export const en: Dictionary = {
   'nav.opportunities': 'Opportunities',
   'opportunities.title': 'Opportunities',
   'opportunities.subtitle':
-    'Volunteering and community work nearby. Your team supports you with it.',
+    'Jobs, internships, volunteering and community work nearby. Your team supports you with it.',
   'opportunities.yours': 'Your applications',
   'opportunities.yoursEmpty': 'You have not applied for anything yet.',
   'opportunities.open': 'Open places',

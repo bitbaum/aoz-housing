@@ -590,7 +590,7 @@ export const fr: Dictionary = {
   'nav.opportunities': 'Engagements',
   'opportunities.title': 'Engagements',
   'opportunities.subtitle':
-    'Bénévolat et missions d’intérêt général près de chez vous. Votre équipe vous accompagne.',
+    'Emplois, stages, bénévolat et missions d’intérêt général près de chez vous. Votre équipe vous accompagne.',
   'opportunities.yours': 'Vos candidatures',
   'opportunities.yoursEmpty': 'Vous ne participez encore à aucun engagement.',
   'opportunities.open': 'Places disponibles',
