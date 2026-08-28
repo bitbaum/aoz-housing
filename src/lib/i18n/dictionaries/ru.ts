@@ -150,6 +150,7 @@ export const ru: Dictionary = {
   'care.appointments': 'Встречи',
   'care.appointmentsEmpty': 'Нет запланированных встреч.',
 
+  'marketplace.yoursTitle': 'Твои объявления',
   'marketplace.title': 'Барахолка',
   'marketplace.subtitle': 'Передавай вещи и помогай другим — в своей квартире и за её пределами.',
   'marketplace.ownUnit': 'Твоя квартира',

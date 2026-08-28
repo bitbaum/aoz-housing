@@ -13,6 +13,7 @@ import {
   claimMarketplacePost,
   createMarketplacePost,
   deleteMarketplacePost,
+  listMyMarketplacePosts,
   listPortalMarketplacePosts,
   releaseMarketplaceClaim,
   reopenMarketplacePost,
@@ -330,5 +331,54 @@ describe('reading the board', () => {
     const result = await listPortalMarketplacePosts('SERVICE')
 
     expect(result?.own.map((post) => post.id)).toEqual(['help'])
+  })
+})
+
+/**
+ * The dashboard card exists because the board never told anyone anything.
+ *
+ * Posting, claiming and releasing all work; not one of them notifies. So a
+ * resident could offer a wardrobe, someone could claim it, and the first
+ * person would learn about it only by happening to reopen the marketplace —
+ * with `contactNote`, the entire mechanism for arranging the handover, sitting
+ * on a page nobody was sent to.
+ */
+describe('your own posts, for the dashboard', () => {
+  it('asks only for your own posts that are still live', async () => {
+    mockPrisma.marketplacePost.findMany.mockResolvedValue([])
+
+    await listMyMarketplacePosts()
+
+    const [args] = mockPrisma.marketplacePost.findMany.mock.calls[0]
+    expect(args.where).toEqual({
+      postedById: ME,
+      hiddenByStaff: false,
+      status: { in: ['OPEN', 'CLAIMED'] },
+    })
+  })
+
+  it('carries the contact note, which is the point of the card', async () => {
+    mockPrisma.marketplacePost.findMany.mockResolvedValue([
+      row({
+        postedById: ME,
+        status: 'CLAIMED',
+        claimedBy: { code: 'RES-BBB', displayName: 'Ihor' },
+        claimedById: OTHER,
+      }),
+    ])
+
+    const [post] = await listMyMarketplacePosts()
+
+    expect(post.status).toBe('CLAIMED')
+    expect(post.claimedByName).toBe('Ihor')
+    // You are the poster, so the handover details are yours to see.
+    expect(post.contactNote).toBe('Zimmer 2, abends')
+  })
+
+  it('returns nothing rather than throwing when nobody is signed in', async () => {
+    mockAuth.mockResolvedValue(null as unknown as Awaited<ReturnType<typeof getPortalAuth>>)
+
+    await expect(listMyMarketplacePosts()).resolves.toEqual([])
+    expect(mockPrisma.marketplacePost.findMany).not.toHaveBeenCalled()
   })
 })

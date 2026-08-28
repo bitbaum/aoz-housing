@@ -17,6 +17,8 @@ import { PortalQuickActions } from '@/components/portal/PortalQuickActions'
 import { PortalPendingChores } from '@/components/portal/PortalPendingChores'
 import { PortalRoommatesCard } from '@/components/portal/PortalRoommatesCard'
 import { PortalReportsCard } from '@/components/portal/PortalReportsCard'
+import { PortalMarketplaceCard } from '@/components/portal/PortalMarketplaceCard'
+import { listMyMarketplacePosts } from '@/lib/actions/marketplace'
 import { PortalMaintenanceCard } from '@/components/portal/PortalMaintenanceCard'
 import { PortalActivitiesCard } from '@/components/portal/PortalActivitiesCard'
 import { listActivities } from '@/lib/data/activities'
@@ -120,7 +122,7 @@ export default async function ResidentPortal() {
   const myReports = allReports.slice(0, DISPLAY_LIMITS.portalIncidentPreview)
 
   const now = new Date()
-  const [pendingChores, compatibilityScores, highlightedActivities, expenseData, careSeats, upcomingAppointments] = await Promise.all([
+  const [pendingChores, compatibilityScores, highlightedActivities, expenseData, careSeats, upcomingAppointments, myMarketplacePosts] = await Promise.all([
     currentPlacement
       ? prisma.householdTask.findMany({
           where: {
@@ -159,6 +161,7 @@ export default async function ResidentPortal() {
       : Promise.resolve(null),
     getCareTeam(resident.id),
     listUpcomingResidentAppointments(resident.id),
+    listMyMarketplacePosts(),
   ])
 
   return (
@@ -242,6 +245,10 @@ export default async function ResidentPortal() {
         {expenseData && (
           <PortalExpensesCard myBalance={expenseData.balances[resident.id] ?? 0} />
         )}
+
+        {/* Your own marketplace posts, and whether anyone answered them. The
+            board had no way of telling you a claim had happened. */}
+        <PortalMarketplaceCard posts={myMarketplacePosts} />
 
         {/* Recent Reports */}
         <PortalReportsCard reports={myReports} totalCount={allReports.length} />

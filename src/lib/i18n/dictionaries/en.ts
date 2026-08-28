@@ -223,6 +223,7 @@ export const en: Dictionary = {
   'care.appointments': 'Appointments',
   'care.appointmentsEmpty': 'No appointments planned.',
 
+  'marketplace.yoursTitle': 'Your posts',
   'marketplace.title': 'Marketplace',
   'marketplace.subtitle': 'Pass things on and lend a hand — in your housing unit and beyond.',
   'marketplace.ownUnit': 'Your unit',

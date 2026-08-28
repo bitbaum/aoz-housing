@@ -293,6 +293,7 @@ export const de = {
   'care.appointments': 'Termine',
   'care.appointmentsEmpty': 'Keine Termine geplant.',
 
+  'marketplace.yoursTitle': 'Deine Inserate',
   'marketplace.title': 'Marktplatz',
   'marketplace.subtitle': 'Sachen weitergeben und einander helfen — in deiner Unterkunft und darüber hinaus.',
   'marketplace.ownUnit': 'Deine Unterkunft',

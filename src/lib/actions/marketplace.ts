@@ -108,6 +108,38 @@ export async function listPortalMarketplacePosts(nature?: MarketplaceNature): Pr
   }
 }
 
+/**
+ * What the reader themselves has posted — for the portal dashboard.
+ *
+ * The board works end to end and tells nobody anything: someone claims your
+ * wardrobe and you find out only if you happen to reopen the marketplace,
+ * because there is no notification, no email, and the dashboard did not
+ * mention the marketplace at all. `contactNote` — the entire mechanism by
+ * which two people who matched arrange the handover — therefore sat on a page
+ * nobody was sent to.
+ *
+ * Closed posts are excluded: a finished giveaway is not something the reader
+ * has to do anything about, and a dashboard card is for what is still open.
+ */
+export async function listMyMarketplacePosts(): Promise<MarketplacePostSummary[]> {
+  const auth = await getPortalAuth()
+  if (!auth) return []
+
+  const rows = await prisma.marketplacePost.findMany({
+    where: {
+      postedById: auth.resident.id,
+      hiddenByStaff: false,
+      status: { in: ['OPEN', 'CLAIMED'] },
+    },
+    include: POST_INCLUDE,
+    // Claimed first: a post someone answered is the one needing the reader's
+    // attention, and it is what this card exists to surface.
+    orderBy: [{ status: 'desc' }, { createdAt: 'desc' }],
+  })
+
+  return rows.map((row) => mapPost(row, { canSeeContact: true }))
+}
+
 export async function listStaffMarketplacePosts(): Promise<MarketplacePostSummary[]> {
   const rows = await prisma.marketplacePost.findMany({
     include: POST_INCLUDE,

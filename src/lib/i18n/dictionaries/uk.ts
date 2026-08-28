@@ -138,6 +138,7 @@ export const uk: Dictionary = {
   'care.appointments': 'Зустрічі',
   'care.appointmentsEmpty': 'Немає запланованих зустрічей.',
 
+  'marketplace.yoursTitle': 'Твої оголошення',
   'marketplace.title': 'Дошка оголошень',
   'marketplace.subtitle': 'Передавай речі й допомагай іншим — у своїй квартирі та поза нею.',
   'marketplace.ownUnit': 'Твоя квартира',
