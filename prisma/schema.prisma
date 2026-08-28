@@ -890,7 +890,11 @@ model User {
   name String
 
   // Role & Status
-  role        StaffRole @default(ADMIN)
+  /// Least privilege by default. This defaulted to ADMIN — so any row created
+  /// without naming a role became Leitung, the widest role in the product.
+  /// Every caller sets it explicitly (seed-admin, invites, the demo doors), so
+  /// nothing relies on the default; it existed only to be forgotten.
+  role        StaffRole @default(BETREUUNG)
   active      Boolean   @default(true)
   lastLoginAt DateTime?
 

@@ -2,27 +2,41 @@ import { BRAND } from '@/lib/config/brand'
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { hasPermission, isStaffRole, type StaffRole } from '@/lib/auth/role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
 import { logger } from '@/lib/logger'
 import { Prisma } from '@prisma/client'
 
 /**
- * Staff user provisioning (admin-only).
- * Creates a new staff user with an AOZ code.
+ * Staff user provisioning (Leitung only).
+ * Creates a new staff user with a code.
  *
- * POST { name: string, code?: string }
+ * POST { name: string, code?: string, role?: StaffRole }
  * - If code is not provided, one is generated.
- * - Requires authenticated admin session.
+ * - If role is not provided, the new account gets the LEAST privilege
+ *   (BETREUUNG), never the most. Same rule as /api/auth/invite.
+ * - Requires `users:manage`.
  */
 
 export async function POST(request: NextRequest) {
-  // Only admins can create new staff users
   const currentUser = await getCurrentUser()
   if (!currentUser) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.AUTH_REQUIRED },
       { status: 401 }
+    )
+  }
+
+  // The docstring said "admin-only" and the code checked only that you were
+  // signed in. Combined with the hardcoded ADMIN role below, any authenticated
+  // staff member — a Jobcoach, a Freiwilligenarbeit coordinator — could mint
+  // themselves a Leitung account. /api/auth/invite has always checked this;
+  // the two provisioning paths simply disagreed.
+  if (!hasPermission(currentUser.role, 'users:manage')) {
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
+      { status: 403 }
     )
   }
 
@@ -36,7 +50,23 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { name, code: requestedCode } = body as { name?: string; code?: string }
+  const { name, code: requestedCode, role: rawRole } = body as {
+    name?: string
+    code?: string
+    role?: string
+  }
+
+  // Least privilege by default. This used to be hardcoded to 'ADMIN', which is
+  // why all 23 staff accounts in production are Leitung: every account this
+  // endpoint ever created got the widest role in the product, and the role
+  // system therefore had no subjects to differentiate.
+  if (rawRole !== undefined && !isStaffRole(rawRole)) {
+    return NextResponse.json(
+      { success: false, error: 'Ungültige Rolle' },
+      { status: 400 }
+    )
+  }
+  const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     return NextResponse.json(
@@ -86,7 +116,7 @@ export async function POST(request: NextRequest) {
       data: {
         code,
         name: name.trim(),
-        role: 'ADMIN',
+        role,
         active: true,
       },
       select: { id: true, code: true, name: true, role: true },

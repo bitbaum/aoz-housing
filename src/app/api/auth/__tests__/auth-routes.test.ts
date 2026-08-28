@@ -235,11 +235,14 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
   test('creates staff user with provided code', async () => {
     mockUserFindUnique.mockResolvedValue(null) // code not taken
+    // No role in the request, so the new account gets the NARROWEST one.
+    // This previously expected ADMIN, pinning in place the behaviour that made
+    // every one of the 23 staff accounts in production a Leitung.
     mockUserCreate.mockResolvedValue({
       id: 'new-1',
       code: `${BRAND.codePrefix}CUSTOM`,
       name: 'New Staff',
-      role: 'ADMIN',
+      role: 'BETREUUNG',
     })
 
     const req = createJsonRequest(
@@ -254,14 +257,14 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     expect(body.success).toBe(true)
     expect(body.user.code).toBe(`${BRAND.codePrefix}CUSTOM`)
     expect(body.user.name).toBe('New Staff')
-    expect(body.user.role).toBe('ADMIN')
+    expect(body.user.role).toBe('BETREUUNG')
 
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           code: `${BRAND.codePrefix}CUSTOM`,
           name: 'New Staff',
-          role: 'ADMIN',
+          role: 'BETREUUNG',
           active: true,
         }),
       })
