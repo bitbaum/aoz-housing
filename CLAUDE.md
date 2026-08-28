@@ -734,9 +734,27 @@ it is half an hour. Translating a letter, watching a child, carrying a wardrobe.
 **There is no price field and there must never be one.** The people using this
 hold permits that constrain paid work, and a neighbour-help board where one
 resident quotes another turns into informal employment nobody has checked,
-inside a population that cannot afford to have that go wrong. Paid and formal
-work keeps its own channel with its own permit gate — `Opportunity` — and the
-separation between the two IS the safeguard.
+inside a population that cannot afford to have that go wrong.
+
+⚠️ **The other half of that safeguard does not exist yet, and this file used to
+claim it did.** It said paid and formal work "keeps its own channel with its
+own permit gate — `Opportunity`". `Opportunity` has exactly two kinds,
+`VOLUNTEERING` and `COMMUNITY_SERVICE`; there is no kind an employment can be
+filed under, so the channel is empty by construction. `PermitRequirement`
+(`NONE` / `EMPLOYER_NOTIFIES` / `PERMIT_REQUIRED`) is plainly designed for
+employment and currently only ever decorates unpaid volunteering — the one case
+where it cannot matter. Meanwhile `JOBCOACH`, the `JOB` care domain and the
+`job_goal` / `work_status` attributes all ship, so the role exists and the
+object its work is about does not.
+
+The marketplace's no-price rule stands on its own and is not weakened by this.
+But do not read the sentence above as "jobs are handled elsewhere" — nothing is
+handling them. Adding an employment kind is a live decision: it means this
+product starts listing paid work to people whose permits constrain it, and if
+it is taken, `permitRequirement` must stop defaulting to `NONE` for those
+kinds — enforced by a test, not by a convention. Choosing NOT to take it is
+equally defensible — but then this paragraph, not the old one, is the honest
+description.
 
 - **`kind` is an enum, `category` is config.** Not the same kind of thing: a
   category is vocabulary (adding "Fahrrad" is one line, never a migration — same
