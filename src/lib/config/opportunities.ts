@@ -9,11 +9,54 @@
  * @see src/lib/opportunities/pipeline.ts for the stage logic itself.
  */
 
-import { HeartHandshake, Users } from 'lucide-react'
+import { Briefcase, GraduationCap, HeartHandshake, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export const OPPORTUNITY_KINDS = ['VOLUNTEERING', 'COMMUNITY_SERVICE'] as const
+export const OPPORTUNITY_KINDS = [
+  'VOLUNTEERING',
+  'COMMUNITY_SERVICE',
+  'EMPLOYMENT',
+  'INTERNSHIP',
+] as const
 export type OpportunityKindId = (typeof OPPORTUNITY_KINDS)[number]
+
+/**
+ * The kinds that are WORK, and therefore raise a question about authorisation.
+ *
+ * Not "paid" — an unpaid Praktikum raises the same question, so the test is
+ * whether the person is working for an organisation, not whether money moves.
+ * Volunteering and community service sit outside this deliberately: they are
+ * unpaid by definition, which is what makes them open to everyone.
+ */
+export const WORK_OPPORTUNITY_KINDS = ['EMPLOYMENT', 'INTERNSHIP'] as const
+export type WorkOpportunityKindId = (typeof WORK_OPPORTUNITY_KINDS)[number]
+
+export function isWorkKind(kind: string): kind is WorkOpportunityKindId {
+  return (WORK_OPPORTUNITY_KINDS as readonly string[]).includes(kind)
+}
+
+/**
+ * A work listing may not claim that no authorisation is needed.
+ *
+ * `permitRequirement` defaults to `NONE`, which renders to a resident as
+ * "Keine Bewilligung nötig". On unpaid volunteering that is true and useful.
+ * On a job it is a legal claim about that person's situation which this
+ * product cannot make and must never make by DEFAULT — and the people using it
+ * hold permits that constrain work, so a wrong reassurance here costs the
+ * resident, not us.
+ *
+ * So for work kinds the listing has to state an actual route —
+ * `EMPLOYER_NOTIFIES` or `PERMIT_REQUIRED` — and a coach who does not know
+ * which cannot publish. That is the intended outcome: the unknown case belongs
+ * with Sozialarbeit before it reaches a resident, not on a board.
+ */
+export function permitRequirementIsStated(
+  kind: string,
+  permitRequirement: string
+): boolean {
+  if (!isWorkKind(kind)) return true
+  return permitRequirement === 'EMPLOYER_NOTIFIES' || permitRequirement === 'PERMIT_REQUIRED'
+}
 
 export const OPPORTUNITY_STATUSES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const
 export type OpportunityStatusId = (typeof OPPORTUNITY_STATUSES)[number]
@@ -42,11 +85,15 @@ export const OPPORTUNITY_AREA_NAME = 'Einsatzplätze'
 export const OPPORTUNITY_KIND_LABELS: Record<OpportunityKindId, string> = {
   VOLUNTEERING: 'Freiwilligenarbeit',
   COMMUNITY_SERVICE: 'Gemeinnütziger Einsatz',
+  EMPLOYMENT: 'Arbeitsstelle',
+  INTERNSHIP: 'Praktikum',
 }
 
 export const OPPORTUNITY_KIND_ICONS: Record<OpportunityKindId, LucideIcon> = {
   VOLUNTEERING: HeartHandshake,
   COMMUNITY_SERVICE: Users,
+  EMPLOYMENT: Briefcase,
+  INTERNSHIP: GraduationCap,
 }
 
 export const OPPORTUNITY_STATUS_LABELS: Record<OpportunityStatusId, string> = {

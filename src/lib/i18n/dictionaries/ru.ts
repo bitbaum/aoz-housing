@@ -623,6 +623,8 @@ export const ru: Dictionary = {
   'opportunities.toLearning': 'К твоим подтверждениям',
   'opportunities.kindVolunteering': 'Волонтёрство',
   'opportunities.kindCommunity': 'Общественно полезная работа',
+  'opportunities.kindEmployment': 'Работа',
+  'opportunities.kindInternship': 'Стажировка',
   'opportunities.permitNone': 'Разрешение не требуется',
   'opportunities.permitNotifies': 'Организация подаёт уведомление сама',
   'opportunities.permitRequired': 'Требуется разрешение',

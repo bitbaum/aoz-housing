@@ -611,6 +611,8 @@ export const uk: Dictionary = {
   'opportunities.toLearning': 'До твоїх підтверджень',
   'opportunities.kindVolunteering': 'Волонтерство',
   'opportunities.kindCommunity': 'Суспільно корисна праця',
+  'opportunities.kindEmployment': 'Робота',
+  'opportunities.kindInternship': 'Стажування',
   'opportunities.permitNone': 'Дозвіл не потрібен',
   'opportunities.permitNotifies': 'Організація сама подає повідомлення',
   'opportunities.permitRequired': 'Потрібен дозвіл',
