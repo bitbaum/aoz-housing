@@ -41,7 +41,7 @@ import { CARE_ROLE_LABELS, type CareRoleId } from '@/lib/config/care'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 import { EmptyState } from '@/components/ui/Page'
 import type { StaffRole } from '@/lib/auth/role-policy'
-import { ROLE_DOMAIN } from '@/lib/config/care-role-domain'
+import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -292,7 +292,7 @@ function ClientCard({
   client: ClientBoardItem
   viewerRole: StaffRole
 }) {
-  const domain = ROLE_DOMAIN[viewerRole]
+  const domain = STAFF_ROLE_CARE_DOMAIN[viewerRole]
   const placement = client.placements[0]
   const isVeryOverdue =
     client.daysSinceCheckIn !== null &&

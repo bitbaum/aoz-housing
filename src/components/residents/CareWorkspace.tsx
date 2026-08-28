@@ -21,6 +21,16 @@ interface CareWorkspaceProps {
   residentId: string
   attributes: CareAttributeValue[]
   appointments: CareAppointment[]
+  /**
+   * The seats this viewer works — and therefore the only ones rendered.
+   *
+   * The workspace used to map over CARE_ROLES and pass the writable set down
+   * as an edit flag, so every staff member READ all four domains and merely
+   * could not type in three of them. A job coach opening any client saw
+   * Housing's "Schlüssel: fehlt" and Sozialarbeit's "Nächster Schritt" — notes
+   * another discipline wrote about a person, on a page he opened to do a
+   * different job. Leitung still receives all four here.
+   */
   writableDomains: CareRoleId[]
 }
 
@@ -30,20 +40,25 @@ export function CareWorkspace({
   appointments,
   writableDomains,
 }: CareWorkspaceProps) {
+  // Ordered by CARE_ROLES rather than by the caller's array, so the panels sit
+  // in the same order for everyone who sees more than one.
+  const domains = CARE_ROLES.filter((domain) => writableDomains.includes(domain))
+
+  if (domains.length === 0) return null
+
   return (
     <div className="card">
       <h2 className="text-lg font-semibold text-ui-text">{CARE_LABELS.workspaceTitle}</h2>
-      <p className="text-sm text-ui-muted mt-1 mb-6">{CARE_LABELS.workspaceSubtitle}</p>
+      <p className="text-sm text-ui-muted mt-1 mb-6">{CARE_LABELS.workspaceSubtitle(domains)}</p>
 
       <div className="space-y-6">
-        {CARE_ROLES.map((domain) => (
+        {domains.map((domain) => (
           <DomainPanel
             key={domain}
             residentId={residentId}
             domain={domain}
             attributes={attributes.filter((item) => item.domain === domain)}
             appointments={appointments.filter((item) => item.domain === domain)}
-            canWrite={writableDomains.includes(domain)}
           />
         ))}
       </div>
@@ -56,13 +71,11 @@ function DomainPanel({
   domain,
   attributes,
   appointments,
-  canWrite,
 }: {
   residentId: string
   domain: CareRoleId
   attributes: CareAttributeValue[]
   appointments: CareAppointment[]
-  canWrite: boolean
 }) {
   const byKey = new Map(attributes.map((item) => [item.key, item.value]))
   const upcoming = appointments.filter((item) => item.status === 'SCHEDULED')
@@ -90,11 +103,7 @@ function DomainPanel({
         </span>
       </summary>
       <div className="px-4 pb-4">
-        {canWrite ? (
-          <AttributeForm residentId={residentId} domain={domain} values={byKey} />
-        ) : (
-          <AttributeReadout domain={domain} values={byKey} />
-        )}
+        <AttributeForm residentId={residentId} domain={domain} values={byKey} />
 
         <div className="mt-6">
           <h4 className="text-sm font-medium text-ui-text mb-3">{CARE_LABELS.appointments}</h4>
@@ -103,41 +112,19 @@ function DomainPanel({
           ) : (
             <ul className="space-y-3">
               {upcoming.map((item) => (
-                <AppointmentRow key={item.id} item={item} canWrite={canWrite} />
+                <AppointmentRow key={item.id} item={item} canWrite />
               ))}
+              {/* A past appointment is a record, not a plan: nobody re-decides
+                  whether a meeting that already happened is going to happen. */}
               {past.map((item) => (
                 <AppointmentRow key={item.id} item={item} canWrite={false} />
               ))}
             </ul>
           )}
-          {canWrite && <AppointmentForm residentId={residentId} domain={domain} />}
+          <AppointmentForm residentId={residentId} domain={domain} />
         </div>
       </div>
     </details>
-  )
-}
-
-function AttributeReadout({
-  domain,
-  values,
-}: {
-  domain: CareRoleId
-  values: Map<string, string>
-}) {
-  const defs = CARE_ATTRIBUTE_CATALOG[domain]
-  const filled = defs.filter((def) => values.get(def.key))
-  if (filled.length === 0) {
-    return <p className="text-sm text-ui-muted">{CARE_LABELS.empty}</p>
-  }
-  return (
-    <dl className="space-y-2">
-      {filled.map((def) => (
-        <div key={def.key}>
-          <dt className="text-xs text-ui-muted">{def.label}</dt>
-          <dd className="text-sm text-ui-text whitespace-pre-wrap">{optionLabel(domain, def.key, values.get(def.key) || '')}</dd>
-        </div>
-      ))}
-    </dl>
   )
 }
 
@@ -272,9 +259,4 @@ function AppointmentRow({ item, canWrite }: { item: CareAppointment; canWrite: b
       )}
     </li>
   )
-}
-
-function optionLabel(domain: CareRoleId, key: string, value: string): string {
-  const def = CARE_ATTRIBUTE_CATALOG[domain].find((item) => item.key === key)
-  return def?.options?.find((option) => option.value === value)?.label || value
 }

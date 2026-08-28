@@ -135,7 +135,16 @@ export async function createQuickCheckIn(
           safetyFeeling: null,
           improvements: null,
           positives: null,
-          collectedBy: null,
+          // Who entered it, never null on a staff path.
+          //
+          // This was hardcoded to null while `user` sat two lines up, which
+          // erased the one distinction the column exists to record: whether
+          // the resident said this or a caseworker estimated it on their
+          // behalf. Both then flowed into Placement.satisfactionRating and the
+          // analytics charts — the numbers the AOZ pilot is judged on — as the
+          // same kind of fact. Rows written before this fix stay null and
+          // honestly mean "unknown".
+          collectedBy: user.id,
           isAnonymous: false,
         },
       })
