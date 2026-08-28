@@ -248,7 +248,7 @@ export const de = {
   // whole point of the page for the person least likely to read German.
   'opportunities.title': 'Einsatzplätze',
   'opportunities.subtitle':
-    'Freiwilligenarbeit und gemeinnützige Einsätze in der Nähe. Dein Team begleitet dich dabei.',
+    'Arbeit, Praktika, Freiwilligenarbeit und gemeinnützige Einsätze in der Nähe. Dein Team begleitet dich dabei.',
   'opportunities.yours': 'Deine Einsätze',
   'opportunities.yoursEmpty': 'Du bist noch bei keinem Einsatz dabei.',
   'opportunities.open': 'Offene Plätze',

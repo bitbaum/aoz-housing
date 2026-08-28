@@ -587,7 +587,7 @@ export const uk: Dictionary = {
   'nav.opportunities': 'Залучення',
   'opportunities.title': 'Залучення',
   'opportunities.subtitle':
-    'Волонтерство та суспільно корисна праця поруч. Твоя команда супроводжує тебе в цьому.',
+    'Робота, стажування, волонтерство та суспільно корисна праця поруч. Твоя команда супроводжує тебе в цьому.',
   'opportunities.yours': 'Твої заявки',
   'opportunities.yoursEmpty': 'Ти ще нікуди не подавав або не подавала заявку.',
   'opportunities.open': 'Вільні місця',
