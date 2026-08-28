@@ -4,7 +4,13 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
 import { requirePermission } from '@/lib/auth'
-import { CHECK_IN_TYPE_LABELS, CHECKIN_FORM_LABELS, UI_LABELS } from '@/lib/constants'
+import {
+  CHECK_IN_TYPE_LABELS,
+  CHECKIN_FORM_LABELS,
+  SATISFACTION_EMOJIS,
+  SATISFACTION_LABELS,
+  UI_LABELS,
+} from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
 import { weeksBetween } from '@/lib/utils'
 import { residentName } from '@/lib/utils/resident-name'
@@ -147,10 +153,11 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
                     className="sr-only peer"
                   />
                   <div className="text-center p-3 rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary/10 hover:bg-ui-subtle transition-colors">
-                    <div className="text-2xl mb-1">
-                      {score === 1 ? '😢' : score === 2 ? '😕' : score === 3 ? '😐' : score === 4 ? '🙂' : '😊'}
+                    <div className="text-2xl mb-1" aria-hidden="true">
+                      {SATISFACTION_EMOJIS[score - 1]}
                     </div>
                     <div className="text-sm font-medium">{score}</div>
+                    <div className="sr-only">{SATISFACTION_LABELS[score - 1]}</div>
                   </div>
                 </label>
               ))}

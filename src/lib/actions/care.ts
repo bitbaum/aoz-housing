@@ -14,6 +14,8 @@ import {
   type CareRoleId,
 } from '@/lib/config/care'
 import { fromDatetimeLocalInput } from '@/lib/utils/local-time'
+import { weeksBetween } from '@/lib/utils'
+import { logAudit } from '@/lib/audit'
 import type { AppointmentStatus, CareRole } from '@prisma/client'
 
 export type CareSeat = {
@@ -278,14 +280,76 @@ export async function setAppointmentStatus(formData: FormData): Promise<{ succes
 
   const appointment = await prisma.appointment.findUnique({
     where: { id },
-    select: { residentId: true, domain: true },
+    select: { residentId: true, domain: true, checkIn: { select: { id: true } } },
   })
   if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   if (!canWriteCareDomain(user.role, appointment.domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
+  // How the person was doing, asked in the course of this appointment.
+  //
+  // Optional on purpose. The alternative — a required field on every
+  // completion — buys a number for every meeting by making some of them
+  // guesses, and a guessed score is worse than a missing one because it is
+  // indistinguishable from an answer. Silence stays silence.
+  const rating = parseSatisfaction(formData.get('overallSatisfaction'))
+  const concerns = String(formData.get('concerns') || '').trim()
+
   await prisma.appointment.update({ where: { id }, data: { status } })
+
+  if (status === 'COMPLETED' && rating !== null && !appointment.checkIn) {
+    // The check-in hangs off a placement, so someone with no active placement
+    // can still have appointments — they just have nothing to attach a
+    // reading to. Completing the appointment must not fail because of that.
+    const placement = await prisma.placement.findFirst({
+      where: { residentId: appointment.residentId, status: 'ACTIVE' },
+      select: { id: true, startDate: true },
+    })
+
+    if (placement) {
+      await prisma.$transaction(async (tx) => {
+        await tx.satisfactionCheckIn.create({
+          data: {
+            placementId: placement.id,
+            appointmentId: id,
+            checkInType: 'AD_HOC',
+            weekNumber: weeksBetween(placement.startDate),
+            overallSatisfaction: rating,
+            concerns: concerns || null,
+            collectedByUserId: user.id,
+            isAnonymous: false,
+          },
+        })
+        await tx.placement.update({
+          where: { id: placement.id },
+          data: { satisfactionRating: rating },
+        })
+      })
+
+      await logAudit({
+        action: 'CREATE',
+        entity: 'CHECK_IN',
+        entityId: id,
+        userId: user.id,
+        changes: {
+          type: 'APPOINTMENT',
+          appointmentId: id,
+          domain: appointment.domain,
+          overallSatisfaction: rating,
+          hasConcerns: !!concerns,
+        },
+      })
+    }
+  }
+
   revalidateResident(appointment.residentId)
   return { success: true }
+}
+
+/** 1–5, or null for "not asked". Anything else is not a reading. */
+function parseSatisfaction(raw: FormDataEntryValue | null): number | null {
+  const value = Number(String(raw ?? ''))
+  if (!Number.isInteger(value) || value < 1 || value > 5) return null
+  return value
 }

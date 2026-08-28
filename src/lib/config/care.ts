@@ -218,4 +218,15 @@ export const CARE_LABELS = {
   appointmentNotesHint: 'Keine Diagnosen, keine Verfahrensdetails.',
   markDone: 'Stattgefunden',
   markCancel: 'Absagen',
+
+  // Closing an appointment is the one moment staff have actually spoken with
+  // the person, so it is the only honest place to record how they are doing.
+  // The scale used to sit on the client page permanently, with no interaction
+  // attached to it.
+  checkInLegend: 'Wie geht es der Person zurzeit?',
+  checkInHint:
+    'Optional — nur erfassen, wenn ihr im Termin darüber gesprochen habt. Keine Einschätzung ins Blaue.',
+  checkInConcerns: 'Was beschäftigt sie?',
+  checkInNotAsked: 'Nicht besprochen',
+  completeSubmit: 'Termin abschliessen',
 } as const
