@@ -77,6 +77,7 @@ model Resident {
   displayName String?
   bio         String?
   photo       ResidentPhoto?
+  documents   ResidentDocument[]
 
   /// Who may see displayName, bio and photo. Staff always can — they have to
   /// be able to identify the person they are supporting. This governs what
@@ -164,6 +165,53 @@ model ResidentPhoto {
   data       Bytes
   mimeType   String
   updatedAt  DateTime @updatedAt
+}
+
+/// Career evidence a resident can show an employer — a CV, a certificate, a
+/// reference. Added because a job coach had nowhere to put a CV: the role, the
+/// JOB care domain and the job_goal attribute all shipped while the artefact
+/// the work revolves around could not be attached to anyone.
+///
+/// Deliberately NOT a general document store. What may go here is bounded by
+/// DOCUMENT_CATEGORIES in lib/config/documents.ts, and the rules CLAUDE.md
+/// already sets still hold: no medical documents, no asylum paperwork, no
+/// permit scans. This must not become the place those accumulate.
+model ResidentDocument {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  residentId String
+
+  /// A category id from lib/config/documents.ts, NOT a database enum — the
+  /// same rule the marketplace categories follow. Vocabulary is config;
+  /// adding "Diplom" must be one line, never a migration.
+  category String @default("OTHER")
+
+  title     String
+  fileName  String
+  mimeType  String
+  sizeBytes Int
+
+  /// SetNull, not Cascade: losing a staff account must not delete a resident's
+  /// CV. The person who uploaded it is metadata about the file, not its owner.
+  uploadedBy       User?   @relation("DocumentUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  uploadedByUserId String?
+
+  blob ResidentDocumentBlob?
+
+  @@index([residentId, createdAt])
+}
+
+/// The bytes, in their own table so they never ride along on a list query.
+/// Same reason ResidentPhoto is separate: a document list renders titles and
+/// dates, and pulling megabytes to render a filename is the kind of cost that
+/// only shows up once the table is full.
+model ResidentDocumentBlob {
+  documentId String           @id
+  document   ResidentDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  data       Bytes
 }
 
 /// A conversation between one resident and the staff team.
@@ -910,6 +958,7 @@ model User {
   opportunitiesUpdated  Opportunity[]            @relation("OpportunityUpdatedBy")
   applicationsSupported OpportunityApplication[] @relation("ApplicationSupportedBy")
   checkInsCollected     SatisfactionCheckIn[]    @relation("CheckInCollectedBy")
+  documentsUploaded     ResidentDocument[]       @relation("DocumentUploadedBy")
   // Login credentials (email + password) live on Account, never here.
   account               Account?
 

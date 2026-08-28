@@ -35,6 +35,8 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'opportunities:write': `${OPPORTUNITY_AREA_NAME} erfassen und Personen zuordnen`,
   'activities:read': 'externe Aktivitäten ansehen',
   'activities:write': 'externe Aktivitäten erfassen und veröffentlichen',
+  'documents:read': 'Lebenslauf, Zeugnisse und Referenzen einsehen',
+  'documents:write': 'Lebenslauf, Zeugnisse und Referenzen hinzufügen und entfernen',
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',
   'system:configure': 'Systemeinstellungen ändern',
   'import:write': 'Daten importieren',

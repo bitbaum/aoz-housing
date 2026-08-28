@@ -18,6 +18,7 @@ import {
   LearningRecordsCard,
   CareTeamCard,
   CareWorkspace,
+  ResidentDocumentsCard,
 } from '@/components/residents'
 import type { UnitCompatibilityData } from '@/components/residents/TransferRecommendations'
 import { calculateCompatibility } from '@/lib/compatibility/scoring'
@@ -44,6 +45,7 @@ import { residentInitials, residentName } from '@/lib/utils/resident-name'
 import { getCurrentUser, hasPermission } from '@/lib/auth'
 import { getCareTeam, listAssignableStaff, listCareAttributes, listResidentAppointments } from '@/lib/actions/care'
 import { writableCareDomains } from '@/lib/config/care'
+import { listResidentDocuments } from '@/lib/actions/documents'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
@@ -71,9 +73,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const canWritePlacements = staff ? hasPermission(staff.role, 'placements:write') : false
   const canWriteIncidents = staff ? hasPermission(staff.role, 'incidents:write') : false
   const canWriteLearning = staff ? hasPermission(staff.role, 'learning:write') : false
+  const canReadDocuments = staff ? hasPermission(staff.role, 'documents:read') : false
+  const canWriteDocuments = staff ? hasPermission(staff.role, 'documents:write') : false
 
   // resident and availableUnits are independent — fetch in parallel
-  const [resident, availableUnits, careSeats, assignableStaff, careAttributes, careAppointments] = await Promise.all([
+  const [resident, availableUnits, careSeats, assignableStaff, careAttributes, careAppointments, documents] = await Promise.all([
     prisma.resident.findUnique({
       where: { id },
       include: {
@@ -134,6 +138,9 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     listAssignableStaff(),
     listCareAttributes(id),
     listResidentAppointments(id),
+    // Only fetched when the viewer may see them — the list is cheap, but
+    // "fetch then hide" is how a payload leaks what the markup conceals.
+    canReadDocuments ? listResidentDocuments(id) : Promise.resolve([]),
   ])
 
   if (!resident) {
@@ -464,6 +471,14 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             title="Betreuungsteam"
             empty="Noch niemand zugewiesen."
           />
+
+          {canReadDocuments && (
+            <ResidentDocumentsCard
+              residentId={resident.id}
+              documents={documents}
+              canWrite={canWriteDocuments}
+            />
+          )}
 
           <CareWorkspace
             residentId={resident.id}
