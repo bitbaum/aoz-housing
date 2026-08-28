@@ -804,8 +804,39 @@ model SatisfactionCheckIn {
   positives    String? // What's working well?
 
   // Meta
-  collectedBy String? // Caseworker or self-reported
+  /// Free text, typed by whoever fills the full form ("Team Nord", a name).
+  /// It is a note, not an identifier, and must never be read as one.
+  collectedBy String?
+
+  /// The signed-in staff member who recorded this. Null means self-reported:
+  /// the resident rated their own week in the portal.
+  ///
+  /// Separate from `collectedBy` because that field is prose a human types and
+  /// this one is a foreign key. They were briefly the same column, which made
+  /// it hold either a typed name or a user id with no way to tell which — a
+  /// column that means two things answers neither question.
+  ///
+  /// SetNull, not Cascade: removing a staff account must not delete the record
+  /// of what a resident said.
+  collectedByUser   User?   @relation("CheckInCollectedBy", fields: [collectedByUserId], references: [id], onDelete: SetNull)
+  collectedByUserId String?
+
   isAnonymous Boolean @default(false)
+
+  /// The appointment this was collected in, when it was collected in one.
+  ///
+  /// Staff used to rate a resident's mood from an always-present widget on the
+  /// client page, detached from any interaction — so the record said what
+  /// someone felt but never when, or in the course of what. `collectedBy`
+  /// answers "who typed it"; this answers "on what occasion", which is the
+  /// half that makes the number interpretable later.
+  ///
+  /// Nullable because the two other paths are legitimate and stay: the
+  /// resident's own portal rating, and the full form a caseworker fills in
+  /// deliberately. Unique because an appointment is one conversation — a
+  /// second reading of the same meeting is a correction, not a new fact.
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  appointmentId String?      @unique
 
   @@index([placementId])
   @@index([checkInType])
@@ -874,6 +905,7 @@ model User {
   opportunitiesCreated  Opportunity[]            @relation("OpportunityCreatedBy")
   opportunitiesUpdated  Opportunity[]            @relation("OpportunityUpdatedBy")
   applicationsSupported OpportunityApplication[] @relation("ApplicationSupportedBy")
+  checkInsCollected     SatisfactionCheckIn[]    @relation("CheckInCollectedBy")
   // Login credentials (email + password) live on Account, never here.
   account               Account?
 
@@ -1918,6 +1950,10 @@ model Appointment {
   location String?
   notes    String?
   status   AppointmentStatus @default(SCHEDULED)
+
+  /// Set when staff recorded how the person was doing while closing this
+  /// appointment. Absent on an appointment nobody was asked in.
+  checkIn SatisfactionCheckIn?
 
   @@index([residentId, startsAt])
   @@index([staffId, startsAt])

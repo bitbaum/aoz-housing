@@ -16,6 +16,7 @@ import {
 } from '@/lib/actions/care'
 import { ChevronDown } from 'lucide-react'
 import { formatZurichDateTime } from '@/lib/utils/local-time'
+import { SATISFACTION_EMOJIS, SATISFACTION_LABELS } from '@/lib/constants'
 
 interface CareWorkspaceProps {
   residentId: string
@@ -240,14 +241,67 @@ function AppointmentRow({ item, canWrite }: { item: CareAppointment; canWrite: b
       </p>
       {item.notes && <p className="text-sm text-ui-muted mt-1 whitespace-pre-wrap">{item.notes}</p>}
       {canWrite && item.status === 'SCHEDULED' && (
-        <div className="flex flex-wrap gap-2 mt-3">
-          <form action={setStatus}>
-            <input type="hidden" name="id" value={item.id} />
-            <input type="hidden" name="status" value="COMPLETED" />
-            <button type="submit" className="btn-secondary min-h-[44px] text-sm">
+        <div className="mt-3 space-y-2">
+          {/* Closing the appointment is where a check-in belongs: it is the one
+              moment staff have actually spoken with the person. The scale used
+              to sit on the client page permanently, so a score could be
+              recorded for someone nobody had talked to. */}
+          <details>
+            <summary className="btn-secondary inline-flex min-h-[44px] cursor-pointer items-center text-sm list-none [&::-webkit-details-marker]:hidden">
               {CARE_LABELS.markDone}
-            </button>
-          </form>
+            </summary>
+            <form action={setStatus} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={item.id} />
+              <input type="hidden" name="status" value="COMPLETED" />
+
+              <fieldset>
+                <legend className="label">{CARE_LABELS.checkInLegend}</legend>
+                <p className="text-xs text-ui-muted mb-2">{CARE_LABELS.checkInHint}</p>
+                <div className="flex flex-wrap gap-2">
+                  {SATISFACTION_EMOJIS.map((emoji, index) => {
+                    const value = index + 1
+                    const inputId = `checkin-${item.id}-${value}`
+                    return (
+                      <label key={value} htmlFor={inputId} className="cursor-pointer">
+                        <input
+                          type="radio"
+                          id={inputId}
+                          name="overallSatisfaction"
+                          value={value}
+                          className="sr-only peer"
+                        />
+                        <span
+                          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-ui-border text-2xl peer-checked:border-brand-primary peer-checked:bg-brand-primary/8 peer-focus-visible:outline peer-focus-visible:outline-2"
+                          title={SATISFACTION_LABELS[index]}
+                        >
+                          <span aria-hidden="true">{emoji}</span>
+                          <span className="sr-only">{SATISFACTION_LABELS[index]}</span>
+                        </span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </fieldset>
+
+              <div>
+                <label htmlFor={`checkin-concerns-${item.id}`} className="label">
+                  {CARE_LABELS.checkInConcerns}
+                </label>
+                <textarea
+                  id={`checkin-concerns-${item.id}`}
+                  name="concerns"
+                  rows={2}
+                  className="input"
+                />
+                <p className="text-xs text-ui-muted mt-1">{CARE_LABELS.appointmentNotesHint}</p>
+              </div>
+
+              <button type="submit" className="btn-primary min-h-[44px] text-sm">
+                {CARE_LABELS.completeSubmit}
+              </button>
+            </form>
+          </details>
+
           <form action={setStatus}>
             <input type="hidden" name="id" value={item.id} />
             <input type="hidden" name="status" value="CANCELLED" />

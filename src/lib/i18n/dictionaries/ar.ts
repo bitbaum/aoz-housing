@@ -139,6 +139,7 @@ export const ar: Dictionary = {
   'care.appointments': 'المواعيد',
   'care.appointmentsEmpty': 'لا مواعيد مخططة.',
 
+  'marketplace.yoursTitle': 'إعلاناتك',
   'marketplace.title': 'السوق',
   'marketplace.subtitle': 'مرّر الأغراض وقدّم يد العون — داخل سكنك وخارجه.',
   'marketplace.ownUnit': 'سكنك',

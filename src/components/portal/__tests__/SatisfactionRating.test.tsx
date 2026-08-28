@@ -5,15 +5,11 @@ import { de } from '@/lib/i18n/dictionaries/de'
 
 // --- Mocks ---
 
+// The scale itself comes from the real module. Restating the faces here made
+// this a second definition that could agree with itself while disagreeing with
+// what ships — a mock that drifts from its subject tests nothing.
 jest.mock('@/lib/constants', () => ({
-  SATISFACTION_EMOJIS: ['😞', '😕', '😐', '🙂', '😊'],
-  SATISFACTION_LABELS: [
-    'Sehr unzufrieden',
-    'Unzufrieden',
-    'Neutral',
-    'Zufrieden',
-    'Sehr zufrieden',
-  ],
+  ...jest.requireActual('@/lib/constants'),
   SATISFACTION_SURVEY_LABELS: {
     saveFailed: 'Speichern fehlgeschlagen. Bitte erneut versuchen.',
     day: 'Tag',

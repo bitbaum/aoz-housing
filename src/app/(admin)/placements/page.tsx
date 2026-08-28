@@ -15,7 +15,7 @@ import {
 
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
-import { PlacementCheckIn } from '@/components/placements/PlacementCheckIn'
+import { PlacementCheckInStatus } from '@/components/placements/PlacementCheckInStatus'
 
 export const metadata: Metadata = { title: 'Platzierungen' }
 import {
@@ -356,13 +356,11 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
           {/* Check-in Status for Active Placements */}
           {placement.status === 'ACTIVE' && (
-            <PlacementCheckIn
+            <PlacementCheckInStatus
               placementId={placement.id}
               isOverdue={isCheckInOverdue}
               daysSinceCheckIn={daysSinceCheckIn}
               lastSatisfaction={lastCheckIn?.overallSatisfaction ?? null}
-              weeksSinceStart={Math.floor(daysSinceStart / 7)}
-              checkInCount={placement.checkIns.length}
             />
           )}
 

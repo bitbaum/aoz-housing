@@ -16,6 +16,16 @@ export function SatisfactionChart({
   satisfactionCounts,
   lowSatisfactionCount,
 }: Props) {
+  // The face for the average, taken from the same scale everyone else renders.
+  // This was a three-branch ternary spelling out its own faces, in a file that
+  // already imported the scale — so the dashboard could disagree with the form
+  // that produced the numbers it was summarising.
+  const average = avgSatisfaction === null ? null : Number.parseFloat(avgSatisfaction)
+  const averageFace =
+    average === null || Number.isNaN(average)
+      ? null
+      : SATISFACTION_EMOJIS[Math.min(SATISFACTION_EMOJIS.length, Math.max(1, Math.round(average))) - 1]
+
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
@@ -34,8 +44,7 @@ export function SatisfactionChart({
         <>
           <div className="flex items-center gap-4 mb-6 p-4 bg-ui-subtle rounded-lg">
             <div className="text-4xl" aria-hidden="true">
-              {avgSatisfaction && parseFloat(avgSatisfaction) >= 4 ? '🙂' :
-               avgSatisfaction && parseFloat(avgSatisfaction) >= 3 ? '😐' : '😕'}
+              {averageFace}
             </div>
             <div>
               <p className="text-xl sm:text-2xl font-bold text-ui-text">{avgSatisfaction}/5</p>

@@ -45,7 +45,12 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
           concerns: data.concerns || null,
           improvements: data.improvements || null,
           positives: data.positives || null,
+          // Prose the caseworker typed, and the account that submitted it.
+          // Two fields because they answer different questions: the form lets
+          // someone record that a colleague or a team collected the answer,
+          // which is not the same fact as who was signed in.
           collectedBy: data.collectedBy || null,
+          collectedByUserId: user.id,
           isAnonymous: data.isAnonymous ?? false,
         },
       })
@@ -83,107 +88,18 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
   redirect(`/residents/${placement.residentId}?checkin=true`)
 }
 
-/**
- * Quick check-in - minimal data collection for fast feedback
- * Used by the inline QuickCheckIn component
+/*
+ * `createQuickCheckIn` lived here: a one-call check-in used by two always-on
+ * staff widgets — an emoji strip on the client page and another in every row
+ * of the placements table. Both let a caseworker record how a resident felt
+ * without having spoken to them, and both auto-submitted the happy end of the
+ * scale while only routing 1-3 to a real form, which biased the input toward
+ * pleasant answers.
+ *
+ * Recording a reading now happens where a conversation happened: closing an
+ * appointment (lib/actions/care.ts) or the full form below. Deleted rather
+ * than left unused, so nothing can quietly mount it again.
  */
-interface QuickCheckInInput {
-  placementId: string
-  overallSatisfaction: number
-  roommateRelations?: number | null
-  concerns?: string
-  checkInType: 'INITIAL' | 'REGULAR' | 'AD_HOC' | 'EXIT'
-  weekNumber: number
-}
-
-export async function createQuickCheckIn(
-  input: QuickCheckInInput
-): Promise<{ success: boolean; error?: string }> {
-  const user = await requirePermission('residents:write')
-  try {
-    const placement = await prisma.placement.findUnique({
-      where: { id: input.placementId },
-      select: { residentId: true, status: true },
-    })
-
-    if (!placement) {
-      return { success: false, error: ERROR_MESSAGES.PLACEMENT_NOT_FOUND }
-    }
-
-    if (placement.status !== 'ACTIVE') {
-      return { success: false, error: ERROR_MESSAGES.PLACEMENT_NOT_ACTIVE }
-    }
-
-    // Validate satisfaction score
-    if (input.overallSatisfaction < 1 || input.overallSatisfaction > 5) {
-      return { success: false, error: ERROR_MESSAGES.INVALID_SATISFACTION_VALUE }
-    }
-
-    // Wrap both writes in a transaction so a partial failure can't leave
-    // the placement's cached rating out of sync with its check-in history.
-    const checkIn = await prisma.$transaction(async (tx) => {
-      const created = await tx.satisfactionCheckIn.create({
-        data: {
-          placementId: input.placementId,
-          checkInType: input.checkInType,
-          weekNumber: input.weekNumber,
-          overallSatisfaction: input.overallSatisfaction,
-          roommateRelations: input.roommateRelations ?? null,
-          concerns: input.concerns || null,
-          // Quick check-ins don't collect these - use full form for detailed data
-          facilitySatisfaction: null,
-          safetyFeeling: null,
-          improvements: null,
-          positives: null,
-          // Who entered it, never null on a staff path.
-          //
-          // This was hardcoded to null while `user` sat two lines up, which
-          // erased the one distinction the column exists to record: whether
-          // the resident said this or a caseworker estimated it on their
-          // behalf. Both then flowed into Placement.satisfactionRating and the
-          // analytics charts — the numbers the AOZ pilot is judged on — as the
-          // same kind of fact. Rows written before this fix stay null and
-          // honestly mean "unknown".
-          collectedBy: user.id,
-          isAnonymous: false,
-        },
-      })
-
-      // Update placement satisfaction rating with latest overall
-      await tx.placement.update({
-        where: { id: input.placementId },
-        data: {
-          satisfactionRating: input.overallSatisfaction,
-        },
-      })
-
-      return created
-    })
-
-    await logAudit({
-      action: 'CREATE',
-      entity: 'CHECK_IN',
-      entityId: checkIn.id,
-      userId: user.id,
-      changes: {
-        type: 'QUICK',
-        placementId: input.placementId,
-        overallSatisfaction: input.overallSatisfaction,
-        roommateRelations: input.roommateRelations,
-        hasConcerns: !!input.concerns,
-      },
-    })
-
-    revalidatePath('/placements')
-    revalidatePath('/residents')
-    revalidatePath(`/residents/${placement.residentId}`)
-
-    return { success: true }
-  } catch (error) {
-    logger.errorWithCause('Quick check-in failed', error)
-    return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
-  }
-}
 
 export async function getPlacementCheckIns(placementId: string) {
   await requirePermission('residents:read')

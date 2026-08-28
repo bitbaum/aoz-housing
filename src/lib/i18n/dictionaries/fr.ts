@@ -141,6 +141,7 @@ export const fr: Dictionary = {
   'care.appointments': 'Rendez-vous',
   'care.appointmentsEmpty': 'Aucun rendez-vous prévu.',
 
+  'marketplace.yoursTitle': 'Vos annonces',
   'marketplace.title': 'Marché',
   'marketplace.subtitle': 'Transmettre des objets et se donner un coup de main — dans ton logement et au-delà.',
   'marketplace.ownUnit': 'Ton logement',

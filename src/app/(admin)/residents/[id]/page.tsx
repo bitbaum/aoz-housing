@@ -9,7 +9,6 @@ import {
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
 import {
   PlacementActions,
-  QuickCheckIn,
   SatisfactionHistory,
   ResidentProfileSidebar,
   ResidentIncidents,
@@ -144,19 +143,10 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const currentPlacement = resident.placements.find((p) => p.status === 'ACTIVE')
   const pastPlacements = resident.placements.filter((p) => p.status !== 'ACTIVE')
 
-  // Fetch check-ins for quick check-in component (placed residents only)
-  let checkInCount = 0
-  let lastSatisfaction: number | undefined
-  let weeksSinceStart = 0
-
-  if (currentPlacement) {
-    const checkIns = await getPlacementCheckIns(currentPlacement.id)
-    checkInCount = checkIns.length
-    if (checkIns.length > 0) {
-      lastSatisfaction = checkIns[0].overallSatisfaction
-    }
-    weeksSinceStart = weeksBetween(currentPlacement.startDate)
-  }
+  // The check-in prefetch that used to live here fed only the always-on
+  // satisfaction widget. With capture moved into closing an appointment, it
+  // was a database round-trip on every client page whose result nothing read.
+  // SatisfactionHistory below loads its own.
 
   // For unplaced residents: calculate compatible matches
   let compatibleUnits: { unit: HousingUnit; fitScore: number; residents: number }[] = []
@@ -378,21 +368,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                   )}
                 </div>
 
-                {/* Quick Check-in - Primary action for case workers */}
-                {canWriteResidents && (
-                  <div className="pt-4 border-t border-ui-border">
-                    <h3 className="text-sm font-medium text-ui-muted mb-3">
-                      {RESIDENT_DETAIL_LABELS.quickCheckin}
-                    </h3>
-                    <QuickCheckIn
-                      placementId={currentPlacement.id}
-                      residentId={resident.id}
-                      checkInCount={checkInCount}
-                      weeksSinceStart={weeksSinceStart}
-                      lastSatisfaction={lastSatisfaction}
-                    />
-                  </div>
-                )}
+                {/* A satisfaction scale used to sit here permanently, so a
+                    caseworker could record how someone felt without having
+                    spoken to them. Recording it now belongs to closing an
+                    appointment (see CareWorkspace); reading the history stays
+                    here, in SatisfactionHistory below. */}
 
                 {/* Actions Section - Client Component */}
                 <PlacementActions
