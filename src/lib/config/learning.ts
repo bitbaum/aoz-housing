@@ -19,6 +19,11 @@ export const LEARNING_KINDS = [
   'QUALIFICATION',
   'VOLUNTEERING',
   'COMMUNITY_SERVICE',
+  // Work. Present here because a started OpportunityApplication becomes a
+  // LearningRecord of the SAME kind with no translation table, so every
+  // OpportunityKind must be a LearningKind. Pinned by opportunity-kinds.test.ts.
+  'EMPLOYMENT',
+  'INTERNSHIP',
 ] as const
 export type LearningKindId = (typeof LEARNING_KINDS)[number]
 
@@ -29,6 +34,10 @@ export const ACHIEVEMENT_KINDS = [
   'QUALIFICATION',
   'VOLUNTEERING',
   'COMMUNITY_SERVICE',
+  // A job held or a Praktikum completed is evidence of the same sort as a
+  // certificate: something the person did, which the next placement can read.
+  'EMPLOYMENT',
+  'INTERNSHIP',
 ] as const
 
 export function isAchievementRecord(record: {
@@ -74,7 +83,10 @@ export type LearningBoardId = (typeof LEARNING_BOARD_IDS)[number]
 export function boardKinds(board: LearningBoardId): readonly LearningKindId[] {
   switch (board) {
     case 'job':
-      return ['LANGUAGE_TEST', 'COURSE', 'QUALIFICATION']
+      // The job coach's board now holds the two kinds their work is actually
+      // about. It previously showed only language tests, courses and
+      // qualifications — the preparation, never the placement.
+      return ['LANGUAGE_TEST', 'COURSE', 'QUALIFICATION', 'EMPLOYMENT', 'INTERNSHIP']
     case 'volunteering':
       return ['VOLUNTEERING', 'COMMUNITY_SERVICE']
     case 'overview':
@@ -96,6 +108,8 @@ export const LEARNING_KIND_LABELS: Record<LearningKindId, string> = {
   QUALIFICATION: 'Abschluss / Nachweis',
   VOLUNTEERING: 'Freiwilligenarbeit',
   COMMUNITY_SERVICE: 'Gemeinnützige Arbeit',
+  EMPLOYMENT: 'Arbeitsstelle',
+  INTERNSHIP: 'Praktikum',
 }
 
 export const LEARNING_STATUS_LABELS: Record<LearningStatusId, string> = {

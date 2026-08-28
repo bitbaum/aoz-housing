@@ -20,7 +20,16 @@ describe('learning records', () => {
   })
 
   it('maps job and volunteering boards to the right evidence kinds', () => {
-    expect(boardKinds('job')).toEqual(['LANGUAGE_TEST', 'COURSE', 'QUALIFICATION'])
+    // The job board previously held only the preparation — language tests,
+    // courses, qualifications — and none of the placements, because no kind
+    // existed for a job or a Praktikum. Both now belong on the coach's board.
+    expect(boardKinds('job')).toEqual([
+      'LANGUAGE_TEST',
+      'COURSE',
+      'QUALIFICATION',
+      'EMPLOYMENT',
+      'INTERNSHIP',
+    ])
     expect(boardKinds('volunteering')).toEqual(['VOLUNTEERING', 'COMMUNITY_SERVICE'])
   })
 

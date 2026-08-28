@@ -17,7 +17,7 @@ import {
   validateFormData,
 } from '@/lib/validation'
 import { evidenceForStartedApplication } from '@/lib/opportunities/pipeline'
-import type { OpportunityStatusId } from '@/lib/config/opportunities'
+import { permitRequirementIsStated, type OpportunityStatusId } from '@/lib/config/opportunities'
 
 function revalidateOpportunity(opportunityId?: string) {
   revalidatePath('/opportunities')
@@ -95,6 +95,25 @@ export async function updateOpportunity(formData: FormData): Promise<void> {
 
 async function setStatus(opportunityId: string, status: OpportunityStatusId): Promise<void> {
   const user = await requirePermission('opportunities:write')
+
+  // The same rule the form enforces, applied to the button that skips the
+  // form. Publishing from a list view never runs OpportunityInputSchema, so
+  // without this a work listing saved as a draft with permitRequirement NONE
+  // could go live one click later still claiming no authorisation is needed —
+  // the gate would exist and be trivially walked around.
+  if (status === 'PUBLISHED') {
+    const existing = await prisma.opportunity.findUnique({
+      where: { id: opportunityId },
+      select: { kind: true, permitRequirement: true },
+    })
+    if (!existing) throw new Error('Einsatzplatz nicht gefunden')
+    if (!permitRequirementIsStated(existing.kind, existing.permitRequirement)) {
+      throw new Error(
+        'Für Arbeitsstellen und Praktika muss der Bewilligungsweg angegeben sein, ' +
+          'bevor der Eintrag veröffentlicht wird.'
+      )
+    }
+  }
 
   try {
     await prisma.opportunity.update({

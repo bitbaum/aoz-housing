@@ -605,6 +605,8 @@ export const en: Dictionary = {
   'opportunities.toLearning': 'To your records',
   'opportunities.kindVolunteering': 'Volunteering',
   'opportunities.kindCommunity': 'Community service',
+  'opportunities.kindEmployment': 'Job',
+  'opportunities.kindInternship': 'Internship',
   'opportunities.permitNone': 'No permit needed',
   'opportunities.permitNotifies': 'The organisation registers the placement',
   'opportunities.permitRequired': 'Permit required',

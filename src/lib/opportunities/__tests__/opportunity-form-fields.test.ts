@@ -13,7 +13,7 @@
 
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { OpportunityInputSchema, OpportunityUpdateSchema } from '@/lib/validation'
+import { OpportunityFieldsSchema } from '@/lib/validation'
 
 const COMPONENT = join(
   process.cwd(),
@@ -43,13 +43,17 @@ describe('OpportunityFormFields', () => {
 
   it.each(submittedFieldNames())('«%s» is a key the schema keeps', (field) => {
     // `id` only exists on the update schema; every other field is on both.
+    // The exported schemas are ZodEffects (they carry the work-permit rule),
+    // which has no `.shape` — introspect the plain field object instead.
     const shape =
-      field === 'id' ? OpportunityUpdateSchema.shape : OpportunityInputSchema.shape
+      field === 'id'
+        ? { ...OpportunityFieldsSchema.shape, id: true }
+        : OpportunityFieldsSchema.shape
     expect(Object.keys(shape)).toContain(field)
   })
 
   it('offers a control for every required field, so nothing is unfillable', () => {
-    const required = Object.entries(OpportunityInputSchema.shape)
+    const required = Object.entries(OpportunityFieldsSchema.shape)
       .filter(([, schema]) => !schema.isOptional())
       .map(([key]) => key)
 

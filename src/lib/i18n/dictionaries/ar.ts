@@ -612,6 +612,8 @@ export const ar: Dictionary = {
   'opportunities.toLearning': 'إلى إثباتاتك',
   'opportunities.kindVolunteering': 'عمل تطوعي',
   'opportunities.kindCommunity': 'خدمة مجتمعية',
+  'opportunities.kindEmployment': 'وظيفة',
+  'opportunities.kindInternship': 'تدريب مهني',
   'opportunities.permitNone': 'لا حاجة إلى تصريح',
   'opportunities.permitNotifies': 'المنظمة تقوم بالإبلاغ بنفسها',
   'opportunities.permitRequired': 'التصريح مطلوب',

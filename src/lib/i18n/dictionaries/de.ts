@@ -272,6 +272,8 @@ export const de = {
   'opportunities.toLearning': 'Zu deinen Nachweisen',
   'opportunities.kindVolunteering': 'Freiwilligenarbeit',
   'opportunities.kindCommunity': 'Gemeinnütziger Einsatz',
+  'opportunities.kindEmployment': 'Arbeitsstelle',
+  'opportunities.kindInternship': 'Praktikum',
   'opportunities.permitNone': 'Keine Bewilligung nötig',
   'opportunities.permitNotifies': 'Meldeverfahren durch die Organisation',
   'opportunities.permitRequired': 'Bewilligung erforderlich',

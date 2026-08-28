@@ -9,8 +9,11 @@ import { OPPORTUNITY_AREA_NAME } from '@/lib/config/opportunities'
 
 export const OPPORTUNITIES_ADMIN_LABELS = {
   pageTitle: OPPORTUNITY_AREA_NAME,
+  // Names all four kinds. It listed only the two unpaid ones, which was
+  // accurate until work became something this board can hold — the same shape
+  // as a nav group keeping its name after its contents changed.
   pageDescription:
-    'Freiwilligenarbeit und gemeinnützige Einsätze — wo es Plätze gibt und wer gerade wohin unterwegs ist.',
+    'Arbeitsstellen, Praktika, Freiwilligenarbeit und gemeinnützige Einsätze — wo es Plätze gibt und wer gerade wohin unterwegs ist.',
   newAction: 'Einsatzplatz',
   createTitle: 'Einsatzplatz erfassen',
   createDescription:
@@ -48,6 +51,10 @@ export const OPPORTUNITIES_ADMIN_LABELS = {
   germanLevel: 'Deutsch (GER)',
   germanLevelAny: 'Kein Niveau vorausgesetzt',
   permitRequirement: 'Bewilligung',
+  permitRequirementWorkHint:
+    'Bei Arbeitsstellen und Praktika muss ein Bewilligungsweg angegeben sein — ' +
+    '«keine Bewilligung nötig» ist dort keine gültige Angabe. Solange das offen ' +
+    'ist, als Entwurf speichern.',
   requirementNote: 'Hinweis zu den Voraussetzungen',
   organisation: 'Organisation',
   location: 'Ort',

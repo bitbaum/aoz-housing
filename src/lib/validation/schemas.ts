@@ -76,6 +76,7 @@ import {
   type ApplicationStageId,
   type OpportunityKindId,
   type OpportunityStatusId,
+  permitRequirementIsStated,
   type PermitRequirementId,
 } from '@/lib/config/opportunities'
 import { CEFR_LEVELS } from '@/lib/config/learning'
@@ -445,7 +446,14 @@ const optionalPositiveIntSchema = z
     message: 'Bitte eine ganze Zahl grösser als 0 angeben',
   })
 
-export const OpportunityInputSchema = z.object({
+/**
+ * The field shape, before the cross-field rule below wraps it.
+ *
+ * Exported because `.superRefine` returns a ZodEffects, which has no `.shape` —
+ * so anything introspecting the field list (the form-parity test) needs the
+ * plain object. Validate with the exported schemas, never with this.
+ */
+export const OpportunityFieldsSchema = z.object({
   kind: OpportunityKindSchema,
   title: z.string().min(1, 'Titel ist erforderlich').max(160),
   description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
@@ -466,9 +474,42 @@ export const OpportunityInputSchema = z.object({
   endsAt: optionalDateSchema,
 })
 
-export const OpportunityUpdateSchema = OpportunityInputSchema.extend({
+/**
+ * A work listing may not go out claiming that no authorisation is needed.
+ *
+ * `permitRequirement` defaults to NONE, which a resident reads as "Keine
+ * Bewilligung nötig". On unpaid volunteering that is true. On a job it is a
+ * legal claim about that person's situation, and this product must never make
+ * it BY DEFAULT — the people using it hold permits that constrain work, and a
+ * wrong reassurance costs them, not us.
+ *
+ * Applied at PUBLISH rather than at save, so a coach can draft a listing while
+ * they are still finding out. If they never find out, it stays a draft, which
+ * is the right outcome: the unknown case belongs with Sozialarbeit before it
+ * reaches a resident.
+ */
+function requireStatedPermitForWork(
+  value: { kind: string; status: string; permitRequirement: string },
+  ctx: z.RefinementCtx
+): void {
+  if (value.status !== 'PUBLISHED') return
+  if (permitRequirementIsStated(value.kind, value.permitRequirement)) return
+
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ['permitRequirement'],
+    message:
+      'Für Arbeitsstellen und Praktika muss der Bewilligungsweg angegeben sein — ' +
+      'Meldeverfahren oder Bewilligung erforderlich. Sonst als Entwurf speichern ' +
+      'und mit der Sozialarbeit klären.',
+  })
+}
+
+export const OpportunityInputSchema = OpportunityFieldsSchema.superRefine(requireStatedPermitForWork)
+
+export const OpportunityUpdateSchema = OpportunityFieldsSchema.extend({
   id: z.string().cuid(),
-})
+}).superRefine(requireStatedPermitForWork)
 
 export const ApplicationCreateSchema = z.object({
   opportunityId: z.string().cuid(),

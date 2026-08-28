@@ -614,6 +614,8 @@ export const fr: Dictionary = {
   'opportunities.toLearning': 'Vers vos justificatifs',
   'opportunities.kindVolunteering': 'Bénévolat',
   'opportunities.kindCommunity': 'Mission d’intérêt général',
+  'opportunities.kindEmployment': 'Emploi',
+  'opportunities.kindInternship': 'Stage',
   'opportunities.permitNone': 'Aucune autorisation nécessaire',
   'opportunities.permitNotifies': 'L’organisation effectue l’annonce',
   'opportunities.permitRequired': 'Autorisation requise',

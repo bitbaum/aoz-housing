@@ -24,6 +24,8 @@ import type {
 const KIND_KEYS: Record<OpportunityKindId, MessageKey> = {
   VOLUNTEERING: 'opportunities.kindVolunteering',
   COMMUNITY_SERVICE: 'opportunities.kindCommunity',
+  EMPLOYMENT: 'opportunities.kindEmployment',
+  INTERNSHIP: 'opportunities.kindInternship',
 }
 
 const PERMIT_KEYS: Record<PermitRequirementId, MessageKey> = {

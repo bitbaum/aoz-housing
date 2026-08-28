@@ -191,6 +191,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>
+            {/* The rule is enforced on the server for both publish paths. It is
+                stated here too so a coach meets it while filling the form
+                rather than as a rejection after pressing Veröffentlichen. */}
+            <span className="block text-xs text-ui-muted">{L.permitRequirementWorkHint}</span>
           </label>
 
           <label className="space-y-1.5 md:col-span-2">

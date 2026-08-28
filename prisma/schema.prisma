@@ -1887,6 +1887,11 @@ enum LearningKind {
   QUALIFICATION
   VOLUNTEERING
   COMMUNITY_SERVICE
+  // Kept in step with OpportunityKind: a started application becomes a
+  // LearningRecord of the SAME kind with no translation table, so every
+  // OpportunityKind must exist here too. Pinned by opportunity-kinds.test.ts.
+  EMPLOYMENT
+  INTERNSHIP
 }
 
 enum LearningStatus {
@@ -2087,6 +2092,12 @@ model OpportunityApplication {
 enum OpportunityKind {
   VOLUNTEERING
   COMMUNITY_SERVICE
+  // Work. Distinct from the two above because they are unpaid by definition
+  // and these are not, which changes what the law asks of the person taking
+  // them — see WORK_OPPORTUNITY_KINDS in lib/config/opportunities.ts and the
+  // authorization rule it carries.
+  EMPLOYMENT
+  INTERNSHIP
 }
 
 // What the place needs, in the only three shapes that change what a resident
