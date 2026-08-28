@@ -19,7 +19,7 @@ import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { getCurrentUser, requirePermission } from '@/lib/auth'
 import { hasPermission, type StaffPermission } from '@/lib/auth/role-policy'
 import { getMyResidentIds } from '@/lib/actions/care'
-import { ROLE_DOMAIN } from '@/lib/config/care-role-domain'
+import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +41,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   // Get current user for "my clients" filter and role-contextual content
   const currentUser = await getCurrentUser()
   const viewerRole = currentUser?.role ?? 'BETREUUNG'
-  const viewerDomain = ROLE_DOMAIN[viewerRole] ?? null
+  const viewerDomain = STAFF_ROLE_CARE_DOMAIN[viewerRole] ?? null
 
   // The NAV is permission-filtered; the PAGES were not, so a Jobcoach was
   // offered "+ Klient*in", "Matching starten", export and the CSV importer —

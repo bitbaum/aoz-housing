@@ -21,6 +21,23 @@ export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMI
   VOLUNTEERING: 'FREIWILLIGENARBEIT',
 }
 
+/**
+ * The same mapping read the other way: which seat a staff role works in.
+ *
+ * DERIVED, never written out. This used to be a second hand-maintained literal
+ * in `config/care-role-domain.ts` — the inverse of the map above, with nothing
+ * deriving it and no test comparing the two. Adding a fifth seat could update
+ * one file and ship green, and a role would then write into a domain the other
+ * half of the app believed belonged to someone else.
+ *
+ * ADMIN is absent on purpose. Leitung works every seat, so it has no single
+ * domain, and a caller asking "which one is theirs?" must handle that rather
+ * than be handed an arbitrary answer.
+ */
+export const STAFF_ROLE_CARE_DOMAIN: Partial<Record<StaffRole, CareRoleId>> = Object.fromEntries(
+  CARE_ROLES.map((domain) => [CARE_DOMAIN_STAFF_ROLE[domain], domain])
+)
+
 export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {
   HOUSING: 'Wohnen / Betreuung',
   SOCIAL: 'Sozialarbeit',
@@ -168,8 +185,19 @@ export function writableCareDomains(staffRole: StaffRole): CareRoleId[] {
 export const CARE_LABELS = {
   title: 'Betreuungsteam',
   workspaceTitle: 'Begleitung',
-  workspaceSubtitle:
-    'Wohnen, Sozialarbeit, Jobcoach und Freiwilligenarbeit — dieselben vier Sitze, Termine und was für die Arbeit nützt.',
+  /**
+   * Names the seats actually on the page.
+   *
+   * This was a fixed sentence — "Wohnen, Sozialarbeit, Jobcoach und
+   * Freiwilligenarbeit — dieselben vier Sitze" — printed above a workspace
+   * that now renders only the seats the viewer works. A heading naming items
+   * the page does not contain is the same failure as the portal group called
+   * "Zusammen entscheiden" that held nothing to decide: the list changed, the
+   * name stayed, and every check remained green. Deriving it from the rendered
+   * domains means it cannot go stale.
+   */
+  workspaceSubtitle: (domains: readonly CareRoleId[]): string =>
+    `${domains.map((domain) => CARE_ROLE_LABELS[domain]).join(' · ')} — Termine und was für die Arbeit nützt.`,
   portalTitle: 'Dein Team',
   portalSubtitle: 'Die Menschen, die für dich zuständig sind.',
   empty: 'Noch niemand zugewiesen.',
