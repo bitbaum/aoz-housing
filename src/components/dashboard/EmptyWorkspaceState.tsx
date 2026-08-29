@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Sprout } from 'lucide-react'
 import { setupCta } from '@/lib/config/dashboard'
-import type { StaffRole } from '@/lib/auth/role-policy'
+import type { StaffCapabilities } from '@/lib/auth/role-policy'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 /**
@@ -18,13 +18,13 @@ import { DASHBOARD_LABELS } from '@/lib/constants/labels'
  * the signed-in role is actually allowed to take.
  */
 export function EmptyWorkspaceState({
-  role,
+  viewer,
   housingUnitCount,
 }: {
-  role: StaffRole
+  viewer: StaffCapabilities
   housingUnitCount: number
 }) {
-  const cta = setupCta(role, { housingUnitCount })
+  const cta = setupCta(viewer, { housingUnitCount })
 
   return (
     <section className="card p-5 sm:p-6">

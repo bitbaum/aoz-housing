@@ -189,8 +189,8 @@ describe('upsertDemoStaff', () => {
     expect(await upsertDemoStaff(prisma)).toEqual({ id: 'demo-user', code: 'WG-DEMO01' })
     expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
-      update: { name: 'Demo-Zugang', active: true },
-      create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN' },
+      update: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
+      create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
       select: { id: true },
     })
   })

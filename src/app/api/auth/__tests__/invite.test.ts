@@ -79,6 +79,8 @@ const ADMIN_USER = {
   id: 'user-1',
   name: 'Admin',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 // --- Tests ---

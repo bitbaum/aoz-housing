@@ -30,7 +30,7 @@ export const NO_ACCESS_LABELS = {
   yourRole: 'Ihre Rolle',
   whoCan: 'Diese Rollen können das',
   /** Named so nobody has to guess whom to ask. */
-  askHint: 'Wenden Sie sich an die Leitung, wenn Sie den Zugriff brauchen.',
+  askHint: 'Wenden Sie sich an die Person, die diese Instanz verwaltet, wenn Sie den Zugriff brauchen.',
   backToDashboard: 'Zum Dashboard',
   /** NOT "Erneut versuchen": retrying a permission boundary never works. */
   retryIsPointless: 'Erneutes Laden ändert daran nichts — es ist kein Fehler.',

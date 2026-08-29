@@ -68,13 +68,13 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const query = await searchParams
 
   const staff = await getCurrentUser()
-  const canReadHousing = staff ? hasPermission(staff.role, 'housing:read') : false
-  const canWriteResidents = staff ? hasPermission(staff.role, 'residents:write') : false
-  const canWritePlacements = staff ? hasPermission(staff.role, 'placements:write') : false
-  const canWriteIncidents = staff ? hasPermission(staff.role, 'incidents:write') : false
-  const canWriteLearning = staff ? hasPermission(staff.role, 'learning:write') : false
-  const canReadDocuments = staff ? hasPermission(staff.role, 'documents:read') : false
-  const canWriteDocuments = staff ? hasPermission(staff.role, 'documents:write') : false
+  const canReadHousing = staff ? hasPermission(staff, 'housing:read') : false
+  const canWriteResidents = staff ? hasPermission(staff, 'residents:write') : false
+  const canWritePlacements = staff ? hasPermission(staff, 'placements:write') : false
+  const canWriteIncidents = staff ? hasPermission(staff, 'incidents:write') : false
+  const canWriteLearning = staff ? hasPermission(staff, 'learning:write') : false
+  const canReadDocuments = staff ? hasPermission(staff, 'documents:read') : false
+  const canWriteDocuments = staff ? hasPermission(staff, 'documents:write') : false
 
   // resident and availableUnits are independent — fetch in parallel
   const [resident, availableUnits, careSeats, assignableStaff, careAttributes, careAppointments, documents] = await Promise.all([
@@ -467,7 +467,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             seats={careSeats}
             staffOptions={assignableStaff}
             canWrite={false}
-            writableDomains={staff ? writableCareDomains(staff.role) : []}
+            writableDomains={staff ? writableCareDomains(staff) : []}
             title="Betreuungsteam"
             empty="Noch niemand zugewiesen."
           />
@@ -484,7 +484,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             residentId={resident.id}
             attributes={careAttributes}
             appointments={careAppointments}
-            writableDomains={staff ? writableCareDomains(staff.role) : []}
+            writableDomains={staff ? writableCareDomains(staff) : []}
           />
 
           {/* Placement History */}

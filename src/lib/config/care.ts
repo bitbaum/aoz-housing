@@ -8,7 +8,7 @@
  * or an asylum status.
  */
 
-import type { StaffRole } from '@/lib/auth/role-policy'
+import type { StaffCapabilities, StaffRole } from '@/lib/auth/role-policy'
 
 export const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB', 'VOLUNTEERING'] as const
 export type CareRoleId = (typeof CARE_ROLES)[number]
@@ -196,13 +196,21 @@ export function isCatalogKey(domain: CareRoleId, key: string): boolean {
   return CARE_ATTRIBUTE_CATALOG[domain].some((item) => item.key === key)
 }
 
-export function canWriteCareDomain(staffRole: StaffRole, domain: CareRoleId): boolean {
-  if (staffRole === 'ADMIN') return true
-  return CARE_DOMAIN_STAFF_ROLE[domain] === staffRole
+/**
+ * May this person work this seat?
+ *
+ * Asks the SCOPE, not the role name. It used to special-case `role === 'ADMIN'`,
+ * which is why "a Betreuerin who also covers every seat" could only be
+ * expressed by making her an administrator. Now the axis that means breadth is
+ * the axis that answers.
+ */
+export function canWriteCareDomain(viewer: StaffCapabilities, domain: CareRoleId): boolean {
+  if (viewer.scope === 'ALL_DOMAINS') return true
+  return CARE_DOMAIN_STAFF_ROLE[domain] === viewer.role
 }
 
-export function writableCareDomains(staffRole: StaffRole): CareRoleId[] {
-  return CARE_ROLES.filter((domain) => canWriteCareDomain(staffRole, domain))
+export function writableCareDomains(viewer: StaffCapabilities): CareRoleId[] {
+  return CARE_ROLES.filter((domain) => canWriteCareDomain(viewer, domain))
 }
 
 export const CARE_LABELS = {

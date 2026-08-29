@@ -67,6 +67,8 @@ const STAFF_USER = {
   email: 'admin@aoz.ch',
   name: 'Test Admin',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 // --- Tests ---

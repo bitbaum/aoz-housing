@@ -992,11 +992,55 @@ signed in": it sets every cookie the account's identities call for and reports
 switch. A deactivated staff identity grants nothing but must **not** cost the
 person their resident access — they are different roles.
 
-**Staff roles.** `ADMIN` in the database and JWT is **Leitung** — the name is
-kept so live tokens and User rows keep working. The other roles are
-`BETREUUNG` (daily housing ops), `SOZIALARBEIT` (people, incidents, learning),
-and `JOBCOACH` (learning and resident read). Permissions: `src/lib/auth/role-policy.ts`.
-Nav, invites, export/import and the algorithm page follow those permissions.
+### Staff: three facts, never one
+
+A staff member is described by **three orthogonal fields**, and mixing them is
+the mistake this section exists to prevent:
+
+| Field | Answers | Values |
+|---|---|---|
+| `User.role` | which CARE DOMAIN am I staffed for? | `BETREUUNG` · `SOZIALARBEIT` · `JOBCOACH` · `FREIWILLIGENARBEIT` |
+| `User.scope` | whose files may I open? | `OWN_DOMAIN` · `ALL_DOMAINS` |
+| `User.isSystemAdmin` | may I reconfigure the product? | boolean |
+
+`role` maps 1:1 onto `CareRole`, and that bijection is DERIVED
+(`STAFF_ROLE_CARE_DOMAIN`), never restated.
+
+**Why it is split.** AOZ runs three people and the old single enum could not
+describe them. Franziska Heimhuber is a **Betreuerin who also sees every
+client**; the only way to say that was `ADMIN`, which erased that housing is
+her domain *and* handed her the settings page as a side effect. Simon Binder
+(Jobcoach) and Sandra (Freiwilligenarbeit) work one domain each. **There is no
+Leitung.**
+
+```
+Franziska  BETREUUNG          + ALL_DOMAINS
+Simon      JOBCOACH           + OWN_DOMAIN
+Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
+```
+
+Rules that follow, all enforced by `role-policy.test.ts`:
+
+- **`ADMIN` is retired.** It survives in the enum ONLY so live JWTs and
+  existing rows resolve; `/api/auth/register` refuses to mint a new one, and
+  `ASSIGNABLE_STAFF_ROLES` excludes it. The migration gave every existing
+  ADMIN row `ALL_DOMAINS + isSystemAdmin`, so nobody's access changed.
+- **No role grants a system permission.** `users:manage`, `system:configure`
+  and `import:write` live in `SYSTEM_ADMIN_PERMISSIONS` and are granted by
+  `isSystemAdmin` alone — not even by oversight over every domain.
+- **`hasPermission` takes the SUBJECT, not a role.** A bare role can no longer
+  answer "may they?", and the type makes that impossible to forget.
+- **`scope` and `isSystemAdmin` are read from the ROW on every request, never
+  from the JWT.** Privileges in a token go stale: revoking oversight would not
+  take effect until expiry, which with sliding refresh is indefinitely — the
+  same failure the `active` re-check already prevents. `getCurrentUser` fetches
+  that row anyway.
+- **Care seats follow `scope`, not the role name.** `canWriteCareDomain` used
+  to special-case `role === 'ADMIN'`; that special case is what made "a
+  Betreuerin who covers every seat" unexpressible.
+
+Permissions: `src/lib/auth/role-policy.ts`. Nav, invites, export/import and the
+algorithm page follow them.
 
 One email namespace across the whole product, because there is exactly one
 `Account.email` unique index; email login can never guess which table you meant.

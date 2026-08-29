@@ -9,7 +9,7 @@ import {
   workspaceState,
   type DashboardSection,
 } from '@/lib/config/dashboard'
-import type { StaffRole } from '@/lib/auth/role-policy'
+import type { StaffCapabilities, StaffRole } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
 import { residentName } from '@/lib/utils/resident-name'
@@ -34,7 +34,7 @@ import type {
 
 interface ActionDashboardProps {
   /** Gates which sections render — @see lib/config/dashboard.ts */
-  role: StaffRole
+  viewer: StaffCapabilities
 
   // Core stats
   occupiedBeds: number
@@ -103,7 +103,7 @@ function formatDaysAgo(date: Date): string {
 // =============================================================================
 
 export function ActionDashboard({
-  role,
+  viewer,
   residentCount,
   housingUnitCount,
   occupiedBeds,
@@ -126,7 +126,8 @@ export function ActionDashboard({
   greeting,
   todayLabel,
 }: ActionDashboardProps) {
-  const show = (section: DashboardSection) => sectionVisible(role, section)
+  const role = viewer.role
+  const show = (section: DashboardSection) => sectionVisible(viewer, section)
   const freeBeds = totalBeds - occupiedBeds
   const onTimeCheckIns = totalPlacements - overdueCheckIns.length
 
@@ -138,7 +139,7 @@ export function ActionDashboard({
     freeBeds,
     problemUnits,
     proposalsAwaitingStaff,
-    role,
+    viewer,
   })
 
   // Count total issues — every queue that waits on a staff answer, not just
@@ -188,13 +189,13 @@ export function ActionDashboard({
           ACTION, so when there is none it has nothing to say and yields to
           the block that carries the actual numbers. */}
       {state === 'empty' ? (
-        <EmptyWorkspaceState role={role} housingUnitCount={housingUnitCount} />
+        <EmptyWorkspaceState viewer={viewer} housingUnitCount={housingUnitCount} />
       ) : state === 'quiet' ? (
         <AllClearState
           freeBeds={show('occupancy') ? freeBeds : null}
           conflictFreeDays={show('incidents') ? conflictFreeDays : null}
-          ctaHref={fallbackCta(role).href}
-          ctaLabel={DASHBOARD_LABELS[fallbackCta(role).labelKey]}
+          ctaHref={fallbackCta(viewer).href}
+          ctaLabel={DASHBOARD_LABELS[fallbackCta(viewer).labelKey]}
         />
       ) : (
         <HeroAction action={primaryAction} />

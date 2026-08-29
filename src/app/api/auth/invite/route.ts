@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  if (!hasPermission(currentUser.role, 'users:manage')) {
+  if (!hasPermission(currentUser, 'users:manage')) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
       { status: 403 }

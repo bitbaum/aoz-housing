@@ -28,7 +28,7 @@ async function submitCancelEvent(formData: FormData): Promise<void> {
 export default async function EventsAdminPage() {
   await requirePermission('events:read')
   const staff = await getCurrentUser()
-  const canWriteEvents = !!staff && hasPermission(staff.role, 'events:write')
+  const canWriteEvents = !!staff && hasPermission(staff, 'events:write')
   const [events, units] = await Promise.all([
     listStaffEvents(),
     prisma.housingUnit.findMany({ select: { id: true, code: true }, orderBy: { code: 'asc' } }),

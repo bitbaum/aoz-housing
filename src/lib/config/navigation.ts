@@ -36,7 +36,12 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { BRAND, isAozSurface, type BrandFeatures } from '@/lib/config/brand'
-import { hasPermission, type StaffPermission, type StaffRole } from '@/lib/auth/role-policy'
+import {
+  hasPermission,
+  type StaffCapabilities,
+  type StaffPermission,
+  type StaffRole,
+} from '@/lib/auth/role-policy'
 
 export const NAV_ICONS: Record<string, LucideIcon> = {
   home: Home,
@@ -97,9 +102,9 @@ export const SYSTEM_LINKS: NavItem[] = [
   { href: '/portal/help', icon: 'help', label: 'Hilfe' },
 ]
 
-export function visibleSystemLinks(role: StaffRole): NavItem[] {
+export function visibleSystemLinks(viewer: StaffCapabilities): NavItem[] {
   return SYSTEM_LINKS.filter(
-    (item) => !item.permission || hasPermission(role, item.permission)
+    (item) => !item.permission || hasPermission(viewer, item.permission)
   )
 }
 
@@ -255,19 +260,19 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
 ]
 
-function itemVisible(item: MegaMenuDropdownItem, role: StaffRole): boolean {
-  if (item.permission && !hasPermission(role, item.permission)) return false
+function itemVisible(item: MegaMenuDropdownItem, viewer: StaffCapabilities): boolean {
+  if (item.permission && !hasPermission(viewer, item.permission)) return false
   if (item.feature && !BRAND.features[item.feature]) return false
   return true
 }
 
-export function visibleMegaMenuGroups(role: StaffRole): MegaMenuGroup[] {
+export function visibleMegaMenuGroups(viewer: StaffCapabilities): MegaMenuGroup[] {
   return MEGAMENU_GROUPS.flatMap((group): MegaMenuGroup[] => {
     if ('href' in group) {
-      if (group.permission && !hasPermission(role, group.permission)) return []
+      if (group.permission && !hasPermission(viewer, group.permission)) return []
       return [group]
     }
-    const items = group.items.filter((item) => itemVisible(item, role))
+    const items = group.items.filter((item) => itemVisible(item, viewer))
     if (items.length === 0) return []
     return [{ ...group, items }]
   })

@@ -24,7 +24,7 @@ beforeEach(() => {
 
 describe('AdminSidebar', () => {
   it('renders every destination an ADMIN can reach, with no interaction', () => {
-    const groups = visibleMegaMenuGroups('ADMIN')
+    const groups = visibleMegaMenuGroups({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true })
     render(<AdminSidebar groups={groups} />)
 
     const expected = groups.flatMap((group) =>
@@ -38,7 +38,7 @@ describe('AdminSidebar', () => {
   it('shows a narrower role only what its permissions allow', () => {
     // JOBCOACH may not read housing or incidents. A nav that offered them
     // would end at /kein-zugriff — a dead end dressed as a destination.
-    const groups = visibleMegaMenuGroups('JOBCOACH')
+    const groups = visibleMegaMenuGroups({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false })
     render(<AdminSidebar groups={groups} />)
 
     expect(screen.queryByText('Unterkünfte')).toBeNull()
@@ -48,7 +48,7 @@ describe('AdminSidebar', () => {
 
   it('marks the current page, and only the current page', () => {
     mockPathname = '/incidents'
-    render(<AdminSidebar groups={visibleMegaMenuGroups('ADMIN')} />)
+    render(<AdminSidebar groups={visibleMegaMenuGroups({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true })} />)
 
     const current = screen.getAllByRole('link').filter(
       (link) => link.getAttribute('aria-current') === 'page'
@@ -60,7 +60,7 @@ describe('AdminSidebar', () => {
 
   it('opens the group holding the current page', () => {
     mockPathname = '/incidents'
-    const { container } = render(<AdminSidebar groups={visibleMegaMenuGroups('ADMIN')} />)
+    const { container } = render(<AdminSidebar groups={visibleMegaMenuGroups({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true })} />)
 
     const open = Array.from(container.querySelectorAll('details[open]'))
     // Exactly one — arriving on a page must not expand the whole tree.
@@ -71,7 +71,7 @@ describe('AdminSidebar', () => {
   it('does not wrap a single destination in a one-item accordion', () => {
     // Dashboard and Nachrichten are links, not groups. An accordion holding
     // one item is a link wearing a hat.
-    const { container } = render(<AdminSidebar groups={visibleMegaMenuGroups('ADMIN')} />)
+    const { container } = render(<AdminSidebar groups={visibleMegaMenuGroups({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true })} />)
 
     const oneItemGroups = Array.from(container.querySelectorAll('details')).filter(
       (d) => d.querySelectorAll('li').length === 1

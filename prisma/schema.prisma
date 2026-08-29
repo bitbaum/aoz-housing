@@ -942,7 +942,23 @@ model User {
   /// without naming a role became Leitung, the widest role in the product.
   /// Every caller sets it explicitly (seed-admin, invites, the demo doors), so
   /// nothing relies on the default; it existed only to be forgotten.
+  /// WHICH CARE DOMAIN this person is staffed for — one fact, nothing else.
+  /// Breadth of view lives in `scope`; product administration in
+  /// `isSystemAdmin`. Those were all one enum, which is why "a Betreuerin who
+  /// also sees everything" was unexpressible without making her an admin.
   role        StaffRole @default(BETREUUNG)
+
+  /// How far this person can see. Orthogonal to `role`: the real Betreuerin
+  /// at AOZ works the housing domain AND sees every client, and a job coach
+  /// works one domain and sees only that.
+  scope       StaffScope @default(OWN_DOMAIN)
+
+  /// May configure the product: invite staff, change settings, import data.
+  /// NOT implied by seeing everything — reading every file and reconfiguring
+  /// the system are different jobs, and conflating them is what forced every
+  /// oversight grant to also hand over the settings page.
+  isSystemAdmin Boolean @default(false)
+
   active      Boolean   @default(true)
   lastLoginAt DateTime?
 
@@ -1026,12 +1042,32 @@ model AuthToken {
   @@index([accountId, purpose])
 }
 
+/// How wide a staff member's view is. Deliberately NOT part of StaffRole:
+/// role answers "what work do I do", this answers "whose files may I open",
+/// and one person can vary either independently of the other.
+enum StaffScope {
+  /// Only the care domain their role is staffed for.
+  OWN_DOMAIN
+  /// Every domain, every client.
+  ALL_DOMAINS
+}
+
+/// The care domain a staff member is staffed for. ONE fact per value — each
+/// maps 1:1 onto a CareRole, and that bijection is derived, never restated.
+///
+/// AOZ runs three people: a Betreuerin who also sees everything (BETREUUNG +
+/// ALL_DOMAINS), a job coach (JOBCOACH), and a volunteering coordinator
+/// (FREIWILLIGENARBEIT). There is no Leitung.
 enum StaffRole {
-  ADMIN // Leitung — full access. Name kept so live JWTs and existing rows keep working.
-  BETREUUNG // Daily housing ops: place, incidents, maintenance
-  SOZIALARBEIT // People, incidents, learning — no housing writes, no algorithm
-  JOBCOACH // Learning and resident read — no placements
-  FREIWILLIGENARBEIT // Volunteering coordination — resident read, learning + marketplace/events own-domain writes, no housing/placement writes
+  /// DEPRECATED. Retained ONLY so live JWTs and existing rows keep resolving;
+  /// no new account may be created with it. What it used to mean is now two
+  /// separate facts — `User.scope` and `User.isSystemAdmin` — because "sees
+  /// everything" and "can reconfigure the product" are different jobs.
+  ADMIN
+  BETREUUNG // Housing and daily living: placements, incidents, maintenance
+  SOZIALARBEIT // People and learning — no housing writes
+  JOBCOACH // Work, training and the documents that go with them
+  FREIWILLIGENARBEIT // Volunteering, the marketplace and house events
 }
 
 model AuditLog {

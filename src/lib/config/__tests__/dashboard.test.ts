@@ -13,25 +13,29 @@ import {
   setupCta,
   type DashboardSection,
 } from '../dashboard'
-import { ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
+import { ROLE_PERMISSIONS, STAFF_ROLES, WIDEST_CAPABILITIES, hasPermission } from '@/lib/auth/role-policy'
 import { DASHBOARD_LABELS } from '@/lib/constants/labels'
 
 const ALL_SECTIONS = Object.keys(DASHBOARD_SECTIONS) as DashboardSection[]
 
 function visibleSections(role: (typeof STAFF_ROLES)[number]): DashboardSection[] {
-  return ALL_SECTIONS.filter((s) => sectionVisible(role, s))
+  return ALL_SECTIONS.filter((s) => sectionVisible({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, s))
 }
 
 describe('DASHBOARD_SECTIONS', () => {
-  it('every section permission exists in the ADMIN permission set (superset)', () => {
-    const adminPerms = ROLE_PERMISSIONS.ADMIN as readonly string[]
+  it('every section permission is held by the widest account', () => {
+    // Not "is in ROLE_PERMISSIONS.ADMIN" any more: the team section maps to
+    // users:manage, which no ROLE grants. It is held by whoever administers
+    // the instance, which is a property of the person.
     for (const permission of Object.values(DASHBOARD_SECTIONS)) {
-      expect(adminPerms).toContain(permission)
+      expect(hasPermission(WIDEST_CAPABILITIES, permission)).toBe(true)
     }
   })
 
-  it('ADMIN (Leitung) sees every section', () => {
-    expect(visibleSections('ADMIN')).toEqual(ALL_SECTIONS)
+  it('the widest account sees every section', () => {
+    expect(ALL_SECTIONS.filter((s) => sectionVisible(WIDEST_CAPABILITIES, s))).toEqual(
+      ALL_SECTIONS
+    )
   })
 
   it('BETREUUNG sees the operational sections but not team health', () => {
@@ -46,21 +50,26 @@ describe('DASHBOARD_SECTIONS', () => {
     )
   })
 
-  it('Leitung and Betreuung do not render the same dashboard', () => {
-    // Stated as its own case on purpose: the property that matters is the
-    // DIFFERENCE, and a future permission edit that re-merges them should fail
-    // on a test that says so, not on an incidental list comparison.
-    const leitung = visibleSections('ADMIN')
-    const betreuung = visibleSections('BETREUUNG')
+  it('administration, not the role, is what adds the team section', () => {
+    // The difference used to be Leitung-vs-Betreuung. It is now the axis that
+    // actually decides it: the SAME role with and without administration.
+    // Franziska is a Betreuerin who sees everything; whether she also manages
+    // accounts is a separate question, and this is where that shows.
+    const plain = ALL_SECTIONS.filter((s) =>
+      sectionVisible({ role: 'BETREUUNG', scope: 'ALL_DOMAINS', isSystemAdmin: false }, s)
+    )
+    const administering = ALL_SECTIONS.filter((s) =>
+      sectionVisible({ role: 'BETREUUNG', scope: 'ALL_DOMAINS', isSystemAdmin: true }, s)
+    )
 
-    expect(leitung).not.toEqual(betreuung)
-    expect(leitung.filter((s) => !betreuung.includes(s))).toEqual(['team'])
+    expect(plain).not.toEqual(administering)
+    expect(administering.filter((s) => !plain.includes(s))).toEqual(['team'])
   })
 
   it('team health is visible to exactly the roles that can manage users', () => {
     // Gated on what the role can ACT on, not on seniority. A section reporting
     // unfinished handovers to someone who cannot finish them is noise.
-    const canSeeTeam = STAFF_ROLES.filter((role) => sectionVisible(role, 'team'))
+    const canSeeTeam = STAFF_ROLES.filter((role) => sectionVisible({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'team'))
     const canManageUsers = STAFF_ROLES.filter((role) =>
       (ROLE_PERMISSIONS[role] as readonly string[]).includes('users:manage')
     )
@@ -116,19 +125,19 @@ describe('team health wording', () => {
 describe('fallbackCta', () => {
   it('resolves for every role (last entry is readable by all staff)', () => {
     for (const role of STAFF_ROLES) {
-      expect(fallbackCta(role)).toBeDefined()
+      expect(fallbackCta({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false })).toBeDefined()
     }
   })
 
   it('offers resident intake to roles that can create residents', () => {
-    expect(fallbackCta('ADMIN').href).toBe('/residents/new')
-    expect(fallbackCta('BETREUUNG').href).toBe('/residents/new')
-    expect(fallbackCta('SOZIALARBEIT').href).toBe('/residents/new')
+    expect(fallbackCta({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true }).href).toBe('/residents/new')
+    expect(fallbackCta({ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href).toBe('/residents/new')
+    expect(fallbackCta({ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href).toBe('/residents/new')
   })
 
   it('offers learning to coaching roles without residents:write', () => {
-    expect(fallbackCta('JOBCOACH').href).toBe('/learning')
-    expect(fallbackCta('FREIWILLIGENARBEIT').href).toBe('/learning')
+    expect(fallbackCta({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href).toBe('/learning')
+    expect(fallbackCta({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }).href).toBe('/learning')
   })
 
   it('final fallback is gated on a permission every role holds', () => {
@@ -155,21 +164,21 @@ describe('fallbackCta', () => {
   })
 
   it('starts setup at housing while there is none', () => {
-    expect(setupCta('ADMIN', { housingUnitCount: 0 })?.href).toBe('/housing/new')
+    expect(setupCta({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true }, { housingUnitCount: 0 })?.href).toBe('/housing/new')
   })
 
   it('moves setup to resident intake once housing exists', () => {
-    expect(setupCta('ADMIN', { housingUnitCount: 3 })?.href).toBe('/residents/new')
+    expect(setupCta({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true }, { housingUnitCount: 3 })?.href).toBe('/residents/new')
   })
 
   it('sends roles that cannot create housing straight to resident intake', () => {
     // Sozialarbeit holds residents:write but not housing:write.
-    expect(setupCta('SOZIALARBEIT', { housingUnitCount: 0 })?.href).toBe('/residents/new')
+    expect(setupCta({ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }, { housingUnitCount: 0 })?.href).toBe('/residents/new')
   })
 
   it('offers no setup step to a role that may create neither', () => {
     // Any button here would land on /kein-zugriff — the dead end PR #88 removed.
-    expect(setupCta('JOBCOACH', { housingUnitCount: 0 })).toBeNull()
-    expect(setupCta('FREIWILLIGENARBEIT', { housingUnitCount: 2 })).toBeNull()
+    expect(setupCta({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }, { housingUnitCount: 0 })).toBeNull()
+    expect(setupCta({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }, { housingUnitCount: 2 })).toBeNull()
   })
 })

@@ -37,7 +37,7 @@ function firstParam(value?: string | string[]): string {
 
 export default async function OpportunitiesPage({ searchParams }: Props) {
   const staff = await requirePermission('opportunities:read')
-  const canWrite = hasPermission(staff.role, 'opportunities:write')
+  const canWrite = hasPermission(staff, 'opportunities:write')
   const params = await searchParams
 
   const statusParam = firstParam(params.status)

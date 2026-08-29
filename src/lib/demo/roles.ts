@@ -53,6 +53,24 @@ export function demoStaffCodeFor(role: StaffRole): string {
   return `${BRAND.codePrefix}DEMO${ROLE_TOKEN[role]}`
 }
 
+/**
+ * How much each demo door sees, stated rather than implied by its role name.
+ *
+ * The Leitung door is the "sees everything" one, and since role, scope and
+ * administration were separated that has to be SAID: a bare `role: 'ADMIN'`
+ * row now takes the column defaults — own domain, no administration — which
+ * would leave that door with no care seats at all and no settings page. The
+ * shape below is Franziska's: one domain of record, oversight over the rest.
+ */
+export function demoStaffReachFor(role: StaffRole): {
+  scope: 'OWN_DOMAIN' | 'ALL_DOMAINS'
+  isSystemAdmin: boolean
+} {
+  return role === 'ADMIN'
+    ? { scope: 'ALL_DOMAINS', isSystemAdmin: true }
+    : { scope: 'OWN_DOMAIN', isSystemAdmin: false }
+}
+
 /** Display name for the upserted account, so staff lists never show a bare code. */
 export function demoStaffNameFor(role: StaffRole): string {
   return `Demo ${ROLE_TOKEN[role]}`

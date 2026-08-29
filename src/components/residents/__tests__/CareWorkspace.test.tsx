@@ -2,7 +2,7 @@ import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { CareWorkspace } from '../CareWorkspace'
 import { CARE_ROLES, CARE_ROLE_LABELS, writableCareDomains } from '@/lib/config/care'
-import { STAFF_ROLES } from '@/lib/auth/role-policy'
+import { ASSIGNABLE_STAFF_ROLES, type StaffRole } from '@/lib/auth/role-policy'
 
 /**
  * The workspace is an access boundary, not a form with some disabled inputs.
@@ -27,23 +27,23 @@ jest.mock('lucide-react', () => ({
   ChevronDown: () => <span data-testid="chevron" />,
 }))
 
-function renderFor(role: Parameters<typeof writableCareDomains>[0]) {
+function renderFor(role: StaffRole) {
   return render(
     <CareWorkspace
       residentId="res-1"
       attributes={[]}
       appointments={[]}
-      writableDomains={writableCareDomains(role)}
+      writableDomains={writableCareDomains({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false })}
     />
   )
 }
 
 describe('CareWorkspace domain boundary', () => {
-  it.each(STAFF_ROLES.map((role) => [role]))(
+  it.each(ASSIGNABLE_STAFF_ROLES.map((role) => [role]))(
     '%s is shown their own seats and no others',
     (role) => {
       renderFor(role)
-      const own = writableCareDomains(role)
+      const own = writableCareDomains({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false })
 
       for (const domain of CARE_ROLES) {
         const heading = CARE_ROLE_LABELS[domain]
@@ -65,8 +65,22 @@ describe('CareWorkspace domain boundary', () => {
     expect(screen.queryByRole('heading', { name: CARE_ROLE_LABELS.VOLUNTEERING })).toBeNull()
   })
 
-  it('still gives Leitung all four seats', () => {
-    renderFor('ADMIN')
+  it('gives a viewer with oversight all four seats — whatever their role', () => {
+    // This is Franziska: a Betreuerin who also covers every seat. It used to
+    // require the ADMIN role, which erased the fact that housing is her
+    // domain. Breadth is now its own axis, so the role stays true.
+    render(
+      <CareWorkspace
+        residentId="res-1"
+        attributes={[]}
+        appointments={[]}
+        writableDomains={writableCareDomains({
+          role: 'BETREUUNG',
+          scope: 'ALL_DOMAINS',
+          isSystemAdmin: false,
+        })}
+      />
+    )
 
     for (const domain of CARE_ROLES) {
       expect(

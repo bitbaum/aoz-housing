@@ -78,6 +78,8 @@ const STAFF_USER = {
   email: '',
   name: 'Demo-Zugang',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 describe('POST /api/auth/demo', () => {

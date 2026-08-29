@@ -26,6 +26,8 @@ const STAFF_USER = {
   name: 'Test Mitarbeiter',
   email: 'test@aoz.ch',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 const VALID_BODY = {

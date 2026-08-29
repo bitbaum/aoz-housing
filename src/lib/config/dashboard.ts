@@ -12,7 +12,12 @@
  * one mapping, two readers, so they can never disagree.
  */
 
-import { hasPermission, type StaffPermission, type StaffRole } from '@/lib/auth/role-policy'
+import {
+  hasPermission,
+  type StaffCapabilities,
+  type StaffPermission,
+  type StaffRole,
+} from '@/lib/auth/role-policy'
 
 export const DASHBOARD_SECTIONS = {
   /** Free-beds stat. */
@@ -58,8 +63,8 @@ export const DASHBOARD_SECTIONS = {
 
 export type DashboardSection = keyof typeof DASHBOARD_SECTIONS
 
-export function sectionVisible(role: StaffRole, section: DashboardSection): boolean {
-  return hasPermission(role, DASHBOARD_SECTIONS[section])
+export function sectionVisible(viewer: StaffCapabilities, section: DashboardSection): boolean {
+  return hasPermission(viewer, DASHBOARD_SECTIONS[section])
 }
 
 /**
@@ -79,9 +84,9 @@ export const DASHBOARD_FALLBACK_CTAS: readonly {
   { permission: 'dashboard:read', href: '/analytics', labelKey: 'actionViewStats' },
 ]
 
-export function fallbackCta(role: StaffRole): (typeof DASHBOARD_FALLBACK_CTAS)[number] {
+export function fallbackCta(viewer: StaffCapabilities): (typeof DASHBOARD_FALLBACK_CTAS)[number] {
   // dashboard:read is in every role, so the find can never miss.
-  return DASHBOARD_FALLBACK_CTAS.find((cta) => hasPermission(role, cta.permission))!
+  return DASHBOARD_FALLBACK_CTAS.find((cta) => hasPermission(viewer, cta.permission))!
 }
 
 /**
@@ -124,15 +129,15 @@ export interface SetupStep {
 }
 
 export function setupCta(
-  role: StaffRole,
+  viewer: StaffCapabilities,
   { housingUnitCount }: { housingUnitCount: number }
 ): SetupStep | null {
   // Housing first, but only while there is none: residents are placed INTO
   // units, so an instance with no unit cannot complete an intake.
-  if (housingUnitCount === 0 && hasPermission(role, 'housing:write')) {
+  if (housingUnitCount === 0 && hasPermission(viewer, 'housing:write')) {
     return { href: '/housing/new', labelKey: 'setupCreateHousing' }
   }
-  if (hasPermission(role, 'residents:write')) {
+  if (hasPermission(viewer, 'residents:write')) {
     return { href: '/residents/new', labelKey: 'setupCreateResident' }
   }
   return null

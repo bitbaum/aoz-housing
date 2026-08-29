@@ -17,7 +17,12 @@ import { LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { getCurrentUser, requirePermission } from '@/lib/auth'
-import { hasPermission, type StaffPermission } from '@/lib/auth/role-policy'
+import {
+  NARROWEST_CAPABILITIES,
+  hasPermission,
+  type StaffCapabilities,
+  type StaffPermission,
+} from '@/lib/auth/role-policy'
 import { getMyResidentIds } from '@/lib/actions/care'
 import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
 
@@ -40,7 +45,10 @@ export default async function ResidentsListPage({ searchParams }: Props) {
 
   // Get current user for "my clients" filter and role-contextual content
   const currentUser = await getCurrentUser()
-  const viewerRole = currentUser?.role ?? 'BETREUUNG'
+  // Narrowest subject for the render between session expiry and the redirect
+  // that replaces it — showing less is the safe direction to be wrong in.
+  const viewer: StaffCapabilities = currentUser ?? NARROWEST_CAPABILITIES
+  const viewerRole = viewer.role
   const viewerDomain = STAFF_ROLE_CARE_DOMAIN[viewerRole] ?? null
 
   // The NAV is permission-filtered; the PAGES were not, so a Jobcoach was
@@ -49,7 +57,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   // "Etwas ist schiefgelaufen … erneut versuchen", so the app looked broken
   // rather than out of scope. Offering an action is a promise; these are the
   // ones the role can actually keep.
-  const can = (permission: StaffPermission) => hasPermission(viewerRole, permission)
+  const can = (permission: StaffPermission) => hasPermission(viewer, permission)
 
   const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
     prisma.resident.findMany({
