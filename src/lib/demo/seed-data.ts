@@ -34,6 +34,7 @@ export interface DemoSeedSummary {
   demoResidentCode: string
   learningRecords: number
   careAssignments: number
+  appointments: number
 }
 
 export interface DemoSeedOptions {
@@ -1316,5 +1317,6 @@ export async function seedDemoData(
     demoResidentCode,
     learningRecords: integration.records,
     careAssignments: integration.careAssignments,
+    appointments: integration.appointments,
   }
 }
