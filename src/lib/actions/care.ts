@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
+import { getPortalAuth } from '@/lib/portal-auth'
 import { hasPermission, isStaffRole, type StaffRole } from '@/lib/auth/role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import {
@@ -10,6 +11,7 @@ import {
   CARE_ROLES,
   canWriteCareDomain,
   isCatalogKey,
+  CARE_LABELS,
   type AppointmentStatusId,
   type CareRoleId,
 } from '@/lib/config/care'
@@ -38,8 +40,18 @@ export type CareAppointment = {
   location: string | null
   notes: string | null
   status: AppointmentStatusId
-  staffId: string
-  staffName: string
+  /**
+   * Null on a request nobody has picked up yet.
+   *
+   * REQUIRED rather than optional, for the same reason `displayName` is: a
+   * missing field would mean "the query did not ask", and an unclaimed
+   * appointment means "nobody has taken this". Those are different facts and
+   * the UI has to tell them apart.
+   */
+  staffId: string | null
+  staffName: string | null
+  residentNote: string | null
+  staffNote: string | null
 }
 
 export type CareAttributeValue = {
@@ -127,15 +139,38 @@ export async function listResidentAppointments(residentId: string): Promise<Care
   return rows.map(mapAppointment)
 }
 
+/**
+ * What the resident needs to see about their own appointments.
+ *
+ * Not just confirmed future ones. A request they made and a decision that came
+ * back are both things they are waiting on, and filtering to SCHEDULED would
+ * make a decline vanish the instant staff made it — the exact bug the transfer
+ * page had, where filtering to PENDING meant every approval and denial
+ * disappeared from the resident's view along with the staff note explaining it.
+ *
+ * Cancellations fade after a fortnight: long enough to be read, short enough
+ * that the list stays about what is coming rather than what fell through.
+ */
 export async function listUpcomingResidentAppointments(
   residentId: string,
   now = new Date()
 ): Promise<CareAppointment[]> {
+  const answeredSince = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+
   const rows = await prisma.appointment.findMany({
-    where: { residentId, status: 'SCHEDULED', startsAt: { gte: now } },
+    where: {
+      residentId,
+      OR: [
+        { status: 'SCHEDULED', startsAt: { gte: now } },
+        // An open request, whenever it was for — an unanswered ask does not
+        // stop mattering because the date the resident suggested has passed.
+        { status: 'REQUESTED' },
+        { status: 'CANCELLED', updatedAt: { gte: answeredSince } },
+      ],
+    },
     include: { staff: { select: { id: true, name: true } } },
     orderBy: { startsAt: 'asc' },
-    take: 8,
+    take: 12,
   })
   return rows.map(mapAppointment)
 }
@@ -148,7 +183,9 @@ function mapAppointment(row: {
   location: string | null
   notes: string | null
   status: AppointmentStatus
-  staff: { id: string; name: string }
+  residentNote: string | null
+  staffNote: string | null
+  staff: { id: string; name: string } | null
 }): CareAppointment {
   return {
     id: row.id,
@@ -158,8 +195,10 @@ function mapAppointment(row: {
     location: row.location,
     notes: row.notes,
     status: row.status as AppointmentStatusId,
-    staffId: row.staff.id,
-    staffName: row.staff.name,
+    staffId: row.staff?.id ?? null,
+    staffName: row.staff?.name ?? null,
+    residentNote: row.residentNote,
+    staffNote: row.staffNote,
   }
 }
 
@@ -352,4 +391,193 @@ function parseSatisfaction(raw: FormDataEntryValue | null): number | null {
   const value = Number(String(raw ?? ''))
   if (!Number.isInteger(value) || value < 1 || value > 5) return null
   return value
+}
+
+// ===========================================================================
+// REQUESTING A MEETING — the resident's half
+// ===========================================================================
+
+/**
+ * A resident asks for a meeting.
+ *
+ * Appointments were the one surface a resident could not write to. They can
+ * record an expense, claim a chore, file a report and request a transfer — but
+ * "when can I talk to the person responsible for me" had no answer here, and
+ * the product's reply was: wait to be told.
+ *
+ * Shaped like TransferRequest, deliberately: the resident initiates, staff
+ * decide with a note, and the resident reads the outcome. The last part is the
+ * one that gets forgotten — a decision stored and never rendered is the same
+ * as no decision.
+ *
+ * The resident proposes a time rather than leaving it open. An unanswered
+ * request with no time attached gives staff nothing to accept, and gives the
+ * resident nothing to plan around.
+ */
+export async function requestAppointment(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const auth = await getPortalAuth()
+  if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
+
+  const domain = parseDomain(formData.get('domain'))
+  const startsAt = fromDatetimeLocalInput(String(formData.get('startsAt') || ''))
+  const note = String(formData.get('residentNote') || '').trim()
+
+  if (!domain || !startsAt) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+
+  // A time in the past is a typo, not a wish, and it would sort out of the
+  // upcoming list the moment it was created — invisible to everyone.
+  if (startsAt.getTime() <= Date.now()) {
+    return { success: false, error: CARE_LABELS.requestPastTime }
+  }
+
+  // One open request per seat. Without this a resident who taps twice, or who
+  // is not sure the first one worked, fills a coach's queue with duplicates of
+  // the same ask — and nothing in the UI told them the first had landed.
+  const existing = await prisma.appointment.findFirst({
+    where: { residentId: auth.resident.id, domain, status: 'REQUESTED' },
+    select: { id: true },
+  })
+  if (existing) return { success: false, error: CARE_LABELS.requestDuplicate }
+
+  // Whoever holds the seat, if anyone does. Null is a real state: on a
+  // deployment where the care team is not assigned yet, the request is still
+  // worth making and lands unclaimed rather than being refused.
+  const assigned = await prisma.careAssignment.findUnique({
+    where: { residentId_role: { residentId: auth.resident.id, role: domain } },
+    select: { staffId: true },
+  })
+
+  await prisma.appointment.create({
+    data: {
+      residentId: auth.resident.id,
+      staffId: assigned?.staffId ?? null,
+      domain,
+      title: CARE_LABELS.requestTitle,
+      startsAt,
+      status: 'REQUESTED',
+      residentNote: note || null,
+    },
+  })
+
+  revalidateResident(auth.resident.id)
+  return { success: true }
+}
+
+/**
+ * Staff answer a request: take it, or decline it with a reason.
+ *
+ * Accepting assigns the answering staff member — including on a request that
+ * arrived unclaimed — and may move the time, because the resident proposed one
+ * and staff are the ones who know what is possible.
+ */
+export async function respondToAppointmentRequest(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const user = await getCurrentUser()
+  if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
+
+  const id = String(formData.get('id') || '')
+  const decision = String(formData.get('decision') || '')
+  const note = String(formData.get('staffNote') || '').trim()
+
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+    select: { residentId: true, domain: true, status: true },
+  })
+  if (!appointment || appointment.status !== 'REQUESTED') {
+    return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+  }
+  if (!canWriteCareDomain(user.role, appointment.domain)) {
+    return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
+  }
+
+  if (decision === 'DECLINE') {
+    // A refusal without a reason is the thing this product keeps promising not
+    // to do. The resident reads this sentence, so it is required.
+    if (note.length < 3) return { success: false, error: CARE_LABELS.declineNeedsReason }
+
+    await prisma.appointment.update({
+      where: { id },
+      data: { status: 'CANCELLED', staffNote: note, staffId: user.id },
+    })
+  } else if (decision === 'ACCEPT') {
+    const proposed = fromDatetimeLocalInput(String(formData.get('startsAt') || ''))
+
+    await prisma.appointment.update({
+      where: { id },
+      data: {
+        status: 'SCHEDULED',
+        // The answering colleague takes it, which is also how an unclaimed
+        // request gets an owner.
+        staffId: user.id,
+        ...(proposed ? { startsAt: proposed } : {}),
+        staffNote: note || null,
+      },
+    })
+  } else {
+    return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+  }
+
+  await logAudit({
+    action: 'UPDATE',
+    entity: 'RESIDENT',
+    entityId: appointment.residentId,
+    userId: user.id,
+    changes: { type: 'APPOINTMENT_REQUEST', appointmentId: id, decision },
+  })
+
+  revalidateResident(appointment.residentId)
+  return { success: true }
+}
+
+/**
+ * Move an appointment, keeping the appointment.
+ *
+ * There was no way to do this: changing a time meant cancelling and creating a
+ * new row. The resident's card did not say "moved to Tuesday", it said the
+ * meeting was cancelled and then a different one appeared — the worst
+ * available message for someone waiting on the person responsible for them.
+ */
+export async function rescheduleAppointment(
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const user = await getCurrentUser()
+  if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
+
+  const id = String(formData.get('id') || '')
+  const startsAt = fromDatetimeLocalInput(String(formData.get('startsAt') || ''))
+  const note = String(formData.get('staffNote') || '').trim()
+  if (!id || !startsAt) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+
+  const appointment = await prisma.appointment.findUnique({
+    where: { id },
+    select: { residentId: true, domain: true, status: true },
+  })
+  if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+  if (!canWriteCareDomain(user.role, appointment.domain)) {
+    return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
+  }
+  // A meeting that already happened, or was called off, is a record. Moving it
+  // would rewrite what took place rather than change a plan.
+  if (appointment.status !== 'SCHEDULED' && appointment.status !== 'REQUESTED') {
+    return { success: false, error: CARE_LABELS.rescheduleClosed }
+  }
+
+  await prisma.appointment.update({
+    where: { id },
+    data: { startsAt, staffNote: note || null },
+  })
+
+  await logAudit({
+    action: 'UPDATE',
+    entity: 'RESIDENT',
+    entityId: appointment.residentId,
+    userId: user.id,
+    changes: { type: 'APPOINTMENT_RESCHEDULED', appointmentId: id },
+  })
+
+  revalidateResident(appointment.residentId)
+  return { success: true }
 }

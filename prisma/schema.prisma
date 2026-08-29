@@ -1985,6 +1985,10 @@ model CareAssignment {
 }
 
 enum AppointmentStatus {
+  /// A resident asked for a meeting and nobody has answered yet. First in the
+  /// list because it is where an appointment now begins when the resident
+  /// starts it — staff-created ones still open at SCHEDULED.
+  REQUESTED
   SCHEDULED
   COMPLETED
   CANCELLED
@@ -1998,8 +2002,17 @@ model Appointment {
 
   resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
   residentId String
-  staff      User     @relation(fields: [staffId], references: [id], onDelete: Restrict)
-  staffId    String
+
+  /// Null while a REQUESTED appointment is still unclaimed.
+  ///
+  /// A resident asking for a meeting does not know who will take it, and on a
+  /// deployment where nobody holds the care seat yet there is no one to name.
+  /// Requiring a staff member here would have made the request feature dead on
+  /// arrival for exactly the residents who need it — the same deadlock that
+  /// killed caseload scoping. Null means "nobody has picked this up".
+  staff   User?   @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  staffId String?
+
   domain     CareRole
 
   title    String
@@ -2009,6 +2022,15 @@ model Appointment {
   notes    String?
   status   AppointmentStatus @default(SCHEDULED)
 
+  /// What the resident asked for, in their words, when they requested it.
+  /// Null on an appointment staff scheduled themselves.
+  residentNote String?
+
+  /// The answer the resident reads: why a time moved, or why a request was
+  /// declined. Same rule as TransferRequest.staffNotes — a decision stored and
+  /// never rendered is the same as no decision.
+  staffNote String?
+
   /// Set when staff recorded how the person was doing while closing this
   /// appointment. Absent on an appointment nobody was asked in.
   checkIn SatisfactionCheckIn?
@@ -2016,6 +2038,7 @@ model Appointment {
   @@index([residentId, startsAt])
   @@index([staffId, startsAt])
   @@index([status])
+  @@index([status, domain])
 }
 
 // Domain-scoped facts for staff work. Keys come from CARE_ATTRIBUTE_CATALOG —

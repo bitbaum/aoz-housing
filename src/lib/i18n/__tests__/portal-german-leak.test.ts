@@ -41,7 +41,6 @@ const KNOWN_LEAKS: readonly string[] = [
   'src/app/portal/page.tsx',
   'src/app/portal/preferences/PreferencesForm.tsx',
   'src/app/portal/transfer/page.tsx',
-  'src/components/portal/PortalAppointmentsCard.tsx',
   'src/components/portal/PortalMaintenanceCard.tsx',
   'src/components/portal/PortalNav.tsx',
   'src/components/portal/PortalRoommatesCard.tsx',
