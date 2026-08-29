@@ -221,6 +221,7 @@ export default async function ResidentPortal() {
 
       <div className="mb-6">
         <PortalAppointmentsCard
+          canRequest
           title={t('care.appointments')}
           empty={t('care.appointmentsEmpty')}
           appointments={upcomingAppointments}

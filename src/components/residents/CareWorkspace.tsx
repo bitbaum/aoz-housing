@@ -11,6 +11,8 @@ import {
 import type { CareAppointment, CareAttributeValue } from '@/lib/actions/care'
 import {
   createAppointment,
+  respondToAppointmentRequest,
+  rescheduleAppointment,
   saveCareAttributes,
   setAppointmentStatus,
 } from '@/lib/actions/care'
@@ -79,8 +81,13 @@ function DomainPanel({
   appointments: CareAppointment[]
 }) {
   const byKey = new Map(attributes.map((item) => [item.key, item.value]))
+  // Requests first: they are the only ones waiting on this staff member, and
+  // an ask buried under next week's calendar is an ask nobody answers.
+  const requests = appointments.filter((item) => item.status === 'REQUESTED')
   const upcoming = appointments.filter((item) => item.status === 'SCHEDULED')
-  const past = appointments.filter((item) => item.status !== 'SCHEDULED')
+  const past = appointments.filter(
+    (item) => item.status !== 'SCHEDULED' && item.status !== 'REQUESTED'
+  )
   const hasContent =
     attributes.some((item) => item.value?.trim()) || appointments.length > 0
 
@@ -108,7 +115,18 @@ function DomainPanel({
 
         <div className="mt-6">
           <h4 className="text-sm font-medium text-ui-text mb-3">{CARE_LABELS.appointments}</h4>
-          {upcoming.length === 0 && past.length === 0 ? (
+          {requests.length > 0 && (
+            <div className="mb-4">
+              <p className="eyebrow mb-2">{CARE_LABELS.requestsHeading}</p>
+              <ul className="space-y-3">
+                {requests.map((item) => (
+                  <AppointmentRow key={item.id} item={item} canWrite />
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {upcoming.length === 0 && past.length === 0 && requests.length === 0 ? (
             <p className="text-sm text-ui-muted">{CARE_LABELS.appointmentsEmpty}</p>
           ) : (
             <ul className="space-y-3">
@@ -230,16 +248,100 @@ function AppointmentRow({ item, canWrite }: { item: CareAppointment; canWrite: b
     await setAppointmentStatus(formData)
   }
 
+  async function respond(formData: FormData): Promise<void> {
+    await respondToAppointmentRequest(formData)
+  }
+
+  async function move(formData: FormData): Promise<void> {
+    await rescheduleAppointment(formData)
+  }
+
+  const isRequest = item.status === 'REQUESTED'
+
   return (
     <li className="border border-ui-border rounded-md p-3">
       <p className="font-medium text-ui-text">{item.title}</p>
       <p className="text-sm text-ui-muted">
         {formatZurichDateTime(item.startsAt)}
         {item.location ? ` · ${item.location}` : ''}
-        {` · ${item.staffName}`}
+        {/* Null on a request nobody has taken. Saying so beats a stray
+            separator with nothing after it. */}
+        {` · ${item.staffName ?? CARE_LABELS.requestUnclaimed}`}
         {` · ${APPOINTMENT_STATUS_LABELS[item.status]}`}
       </p>
       {item.notes && <p className="text-sm text-ui-muted mt-1 whitespace-pre-wrap">{item.notes}</p>}
+
+      {/* What the resident asked for, in their words. Without it a coach is
+          answering a time slot rather than a person. */}
+      {item.residentNote && (
+        <p className="text-sm text-ui-text mt-2 whitespace-pre-wrap border-l-2 border-brand-secondary pl-3">
+          {item.residentNote}
+        </p>
+      )}
+
+      {canWrite && isRequest && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          <details>
+            <summary className="btn-primary inline-flex min-h-[44px] cursor-pointer items-center text-sm list-none [&::-webkit-details-marker]:hidden">
+              {CARE_LABELS.accept}
+            </summary>
+            <form action={respond} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={item.id} />
+              <input type="hidden" name="decision" value="ACCEPT" />
+              <div>
+                <label htmlFor={`accept-when-${item.id}`} className="label">
+                  {CARE_LABELS.newTimeLabel}
+                </label>
+                {/* Blank keeps the time the resident proposed. Prefilling it
+                    would make "confirm what they asked for" look like a change. */}
+                <input
+                  id={`accept-when-${item.id}`}
+                  name="startsAt"
+                  type="datetime-local"
+                  className="input"
+                />
+              </div>
+              <div>
+                <label htmlFor={`accept-note-${item.id}`} className="label">
+                  {CARE_LABELS.staffNoteLabel}
+                </label>
+                <input id={`accept-note-${item.id}`} name="staffNote" className="input" />
+              </div>
+              <button type="submit" className="btn-primary min-h-[44px] text-sm">
+                {CARE_LABELS.accept}
+              </button>
+            </form>
+          </details>
+
+          <details>
+            <summary className="btn-secondary inline-flex min-h-[44px] cursor-pointer items-center text-sm list-none [&::-webkit-details-marker]:hidden">
+              {CARE_LABELS.decline}
+            </summary>
+            <form action={respond} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={item.id} />
+              <input type="hidden" name="decision" value="DECLINE" />
+              <div>
+                <label htmlFor={`decline-note-${item.id}`} className="label">
+                  {CARE_LABELS.staffNoteLabel}
+                </label>
+                {/* Required: the resident reads this sentence, and a refusal
+                    with no reason is the thing this product keeps promising
+                    not to do. */}
+                <input
+                  id={`decline-note-${item.id}`}
+                  name="staffNote"
+                  required
+                  minLength={3}
+                  className="input"
+                />
+              </div>
+              <button type="submit" className="btn-danger min-h-[44px] text-sm">
+                {CARE_LABELS.decline}
+              </button>
+            </form>
+          </details>
+        </div>
+      )}
       {canWrite && item.status === 'SCHEDULED' && (
         <div className="mt-3 space-y-2">
           {/* Closing the appointment is where a check-in belongs: it is the one
@@ -298,6 +400,39 @@ function AppointmentRow({ item, canWrite }: { item: CareAppointment; canWrite: b
 
               <button type="submit" className="btn-primary min-h-[44px] text-sm">
                 {CARE_LABELS.completeSubmit}
+              </button>
+            </form>
+          </details>
+
+          <details>
+            <summary className="btn-secondary inline-flex min-h-[44px] cursor-pointer items-center text-sm list-none [&::-webkit-details-marker]:hidden">
+              {CARE_LABELS.reschedule}
+            </summary>
+            {/* Moving a meeting used to mean cancelling it and creating another
+                one. The resident's card did not say "moved to Tuesday" — it
+                said the meeting was called off, then a different one appeared. */}
+            <form action={move} className="mt-3 space-y-3">
+              <input type="hidden" name="id" value={item.id} />
+              <div>
+                <label htmlFor={`move-when-${item.id}`} className="label">
+                  {CARE_LABELS.newTimeLabel}
+                </label>
+                <input
+                  id={`move-when-${item.id}`}
+                  name="startsAt"
+                  type="datetime-local"
+                  required
+                  className="input"
+                />
+              </div>
+              <div>
+                <label htmlFor={`move-note-${item.id}`} className="label">
+                  {CARE_LABELS.staffNoteLabel}
+                </label>
+                <input id={`move-note-${item.id}`} name="staffNote" className="input" />
+              </div>
+              <button type="submit" className="btn-primary min-h-[44px] text-sm">
+                {CARE_LABELS.reschedule}
               </button>
             </form>
           </details>

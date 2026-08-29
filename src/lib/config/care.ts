@@ -45,14 +45,37 @@ export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {
   VOLUNTEERING: 'Freiwilligenarbeit',
 }
 
-export const APPOINTMENT_STATUSES = ['SCHEDULED', 'COMPLETED', 'CANCELLED', 'NO_SHOW'] as const
+/**
+ * Must match the `AppointmentStatus` enum in schema.prisma exactly.
+ *
+ * `mapAppointment` casts the database value into this union, and a cast is not
+ * a check: a status present in the database and missing here renders its label
+ * as `undefined` — a blank where a state should be, with tsc, ESLint and the
+ * page all green. Pinned by appointment-statuses.test.ts.
+ */
+export const APPOINTMENT_STATUSES = [
+  'REQUESTED',
+  'SCHEDULED',
+  'COMPLETED',
+  'CANCELLED',
+  'NO_SHOW',
+] as const
 export type AppointmentStatusId = (typeof APPOINTMENT_STATUSES)[number]
 
 export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatusId, string> = {
+  REQUESTED: 'Angefragt',
   SCHEDULED: 'Geplant',
   COMPLETED: 'Stattgefunden',
   CANCELLED: 'Abgesagt',
   NO_SHOW: 'Nicht erschienen',
+}
+
+export const APPOINTMENT_STATUS_BADGES: Record<AppointmentStatusId, string> = {
+  REQUESTED: 'badge-pending',
+  SCHEDULED: 'badge-active',
+  COMPLETED: 'badge-ended',
+  CANCELLED: 'badge-ended',
+  NO_SHOW: 'badge-alert',
 }
 
 export type CareAttributeKind = 'text' | 'textarea' | 'select'
@@ -229,4 +252,18 @@ export const CARE_LABELS = {
   checkInConcerns: 'Was beschäftigt sie?',
   checkInNotAsked: 'Nicht besprochen',
   completeSubmit: 'Termin abschliessen',
+
+  // Requests — the resident's half, answered on the staff side.
+  requestTitle: 'Gesprächswunsch',
+  requestPastTime: 'Bitte einen Zeitpunkt in der Zukunft wählen.',
+  requestDuplicate: 'Für diesen Bereich ist bereits eine Anfrage offen.',
+  declineNeedsReason: 'Bitte kurz begründen — die Person liest diese Antwort.',
+  rescheduleClosed: 'Ein vergangener oder abgesagter Termin kann nicht verschoben werden.',
+  requestsHeading: 'Gesprächswünsche',
+  requestUnclaimed: 'Noch niemand zuständig',
+  accept: 'Annehmen',
+  decline: 'Ablehnen',
+  reschedule: 'Verschieben',
+  staffNoteLabel: 'Antwort an die Person',
+  newTimeLabel: 'Neuer Zeitpunkt',
 } as const
