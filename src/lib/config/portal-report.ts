@@ -45,7 +45,10 @@ export type ReportLocation = (typeof REPORT_LOCATIONS)[number]
 export const REPORT_MAINTENANCE_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const
 export const REPORT_CONFLICT_SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const
 
-export const MAINTENANCE_SEVERITY_ICONS: Record<(typeof REPORT_MAINTENANCE_SEVERITIES)[number], string> = {
+export const MAINTENANCE_SEVERITY_ICONS: Record<
+  (typeof REPORT_MAINTENANCE_SEVERITIES)[number],
+  string
+> = {
   LOW: '🟢',
   MEDIUM: '🟡',
   HIGH: '🟠',

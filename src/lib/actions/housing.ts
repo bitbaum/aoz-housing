@@ -3,11 +3,7 @@
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import {
-  validateFormData,
-  HousingUnitInputSchema,
-  HousingUnitUpdateSchema,
-} from '@/lib/validation'
+import { validateFormData, HousingUnitInputSchema, HousingUnitUpdateSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
@@ -76,7 +72,9 @@ export async function updateHousingUnit(formData: FormData): Promise<void> {
   redirect(`/housing/${id}`)
 }
 
-export async function archiveHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
+export async function archiveHousingUnit(
+  housingUnitId: string,
+): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('housing:write')
   try {
     const unit = await prisma.housingUnit.findUnique({
@@ -114,7 +112,9 @@ export async function archiveHousingUnit(housingUnitId: string): Promise<{ succe
   }
 }
 
-export async function restoreHousingUnit(housingUnitId: string): Promise<{ success: boolean; error?: string }> {
+export async function restoreHousingUnit(
+  housingUnitId: string,
+): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('housing:write')
   try {
     const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })
@@ -150,7 +150,7 @@ function isTestOrDemoCode(code: string): boolean {
 export async function hardDeleteHousingUnitProtected(
   housingUnitId: string,
   confirmation: string,
-  reason: string
+  reason: string,
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
   const user = await requirePermission('housing:write')
   try {
@@ -159,7 +159,10 @@ export async function hardDeleteHousingUnitProtected(
     }
 
     if (!reason || reason.trim().length < 10) {
-      return { success: false, error: 'Bitte einen aussagekräftigen Grund angeben (mind. 10 Zeichen)' }
+      return {
+        success: false,
+        error: 'Bitte einen aussagekräftigen Grund angeben (mind. 10 Zeichen)',
+      }
     }
 
     const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })

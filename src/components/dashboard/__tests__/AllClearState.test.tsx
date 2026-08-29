@@ -4,8 +4,18 @@ import { AllClearState, QuickActionsBar } from '../AllClearState'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -60,7 +70,10 @@ describe('AllClearState', () => {
 
   it('links the CTA to the given href', () => {
     render(<AllClearState freeBeds={2} conflictFreeDays={3} {...CTA} />)
-    expect(screen.getByRole('link', { name: 'Neuen Bewohner erfassen' })).toHaveAttribute('href', '/residents/new')
+    expect(screen.getByRole('link', { name: 'Neuen Bewohner erfassen' })).toHaveAttribute(
+      'href',
+      '/residents/new',
+    )
   })
 
   it('renders a role-specific CTA when given one', () => {
@@ -70,11 +83,11 @@ describe('AllClearState', () => {
         conflictFreeDays={null}
         ctaHref="/learning?board=overview"
         ctaLabel="Lernen & Kurse öffnen"
-      />
+      />,
     )
     expect(screen.getByRole('link', { name: 'Lernen & Kurse öffnen' })).toHaveAttribute(
       'href',
-      '/learning?board=overview'
+      '/learning?board=overview',
     )
   })
 
@@ -102,7 +115,7 @@ describe('QuickActionsBar', () => {
   it('renders all 5 quick action links', () => {
     render(<QuickActionsBar unplacedCount={0} freeBeds={0} />)
     const links = screen.getAllByRole('link')
-    const hrefs = links.map(l => l.getAttribute('href'))
+    const hrefs = links.map((l) => l.getAttribute('href'))
     expect(hrefs).toContain('/residents/new')
     expect(hrefs).toContain('/housing/new')
     expect(hrefs).toContain('/matching')

@@ -110,9 +110,13 @@ async function main() {
   if (createdStaff) {
     console.log('New staff code created. Register it with the SAME email as the resident account.')
   } else if (resident.account?.userId || resident.account) {
-    console.log('Staff identity is on the same login as the resident. Sign in once, switch in the nav.')
+    console.log(
+      'Staff identity is on the same login as the resident. Sign in once, switch in the nav.',
+    )
   } else {
-    console.log('No resident Account yet. Register the resident code, then this staff code, with one email.')
+    console.log(
+      'No resident Account yet. Register the resident code, then this staff code, with one email.',
+    )
   }
   console.log(`Empty care seats filled: ${seatsFilled}`)
 }

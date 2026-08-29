@@ -34,7 +34,10 @@ export async function POST(request: NextRequest) {
   try {
     staff = await requireStaffAuth()
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   let unitId: string
@@ -44,7 +47,10 @@ export async function POST(request: NextRequest) {
 
     const unit = staffCreateTaskSchema.safeParse({ housingUnitId: formData.get('housingUnitId') })
     if (!unit.success) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
     unitId = unit.data.housingUnitId
 
@@ -56,7 +62,10 @@ export async function POST(request: NextRequest) {
     if (err instanceof ValidationError) {
       return NextResponse.json({ success: false, error: err.message }, { status: 400 })
     }
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -68,7 +77,10 @@ export async function POST(request: NextRequest) {
       select: { id: true, code: true },
     })
     if (!unit) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     const task = await prisma.householdTask.create({
@@ -97,6 +109,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: task })
   } catch (error) {
     logger.errorWithCause('Failed to create household task as staff', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_CREATE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_CREATE_ERROR },
+      { status: 500 },
+    )
   }
 }

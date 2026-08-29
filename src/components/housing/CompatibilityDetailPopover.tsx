@@ -4,7 +4,11 @@ import { useEffect, forwardRef } from 'react'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils'
-import { COMPATIBILITY_DIMENSION_LABELS, MATCHING_LABELS, COMPATIBILITY_MATRIX_LABELS } from '@/lib/constants'
+import {
+  COMPATIBILITY_DIMENSION_LABELS,
+  MATCHING_LABELS,
+  COMPATIBILITY_MATRIX_LABELS,
+} from '@/lib/constants'
 import { SCORE_BG_COLORS, getScoreLevel } from '@/lib/config/thresholds'
 import type { ResidentBasic } from '@/lib/types'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
@@ -30,9 +34,10 @@ export interface CompatibilityDetailPopoverProps {
   onClose: () => void
 }
 
-export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, CompatibilityDetailPopoverProps>(
-  function CompatibilityDetailPopover({ resident1, resident2, score, position, onClose }, ref) {
-
+export const CompatibilityDetailPopover = forwardRef<
+  HTMLDivElement,
+  CompatibilityDetailPopoverProps
+>(function CompatibilityDetailPopover({ resident1, resident2, score, position, onClose }, ref) {
   useEffect(() => {
     const el = (ref as React.RefObject<HTMLDivElement>)?.current
     if (el) {
@@ -68,19 +73,11 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
       <div className="px-4 py-3 border-b border-ui-border bg-ui-subtle rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="avatar-sm font-bold">
-              {residentInitials(resident1)}
-            </div>
+            <div className="avatar-sm font-bold">{residentInitials(resident1)}</div>
             <span className="text-ui-muted">↔</span>
-            <div className="avatar-sm font-bold">
-              {residentInitials(resident2)}
-            </div>
+            <div className="avatar-sm font-bold">{residentInitials(resident2)}</div>
           </div>
-          <button
-            onClick={onClose}
-            className="btn-icon"
-            aria-label="Schliessen"
-          >
+          <button onClick={onClose} className="btn-icon" aria-label="Schliessen">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -92,13 +89,12 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
           <>
             {/* Overall Score */}
             <div className="text-center mb-4">
-              <span
-                className={`text-3xl font-bold ${getScoreColorClass(score.overallScore)}`}
-              >
+              <span className={`text-3xl font-bold ${getScoreColorClass(score.overallScore)}`}>
                 {score.overallScore}%
               </span>
               <p className="text-sm text-ui-muted mt-1">
-                {getScoreLabel(score.overallScore)} {COMPATIBILITY_MATRIX_LABELS.compatibilitySuffix}
+                {getScoreLabel(score.overallScore)}{' '}
+                {COMPATIBILITY_MATRIX_LABELS.compatibilitySuffix}
               </p>
             </div>
 
@@ -137,7 +133,9 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
             {/* Strengths */}
             {score.strengths && score.strengths.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-medium text-ui-muted mb-1">{MATCHING_LABELS.strengths}</p>
+                <p className="text-xs font-medium text-ui-muted mb-1">
+                  {MATCHING_LABELS.strengths}
+                </p>
                 <ul className="space-y-1">
                   {score.strengths.slice(0, 2).map((s, i) => (
                     <li key={i} className="text-sm text-status-success-text flex items-start gap-1">
@@ -161,8 +159,8 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
                         c.severity === 'BLOCKING'
                           ? 'text-status-error-text'
                           : c.severity === 'HIGH'
-                          ? 'text-status-warning-text'
-                          : 'text-status-warning-text'
+                            ? 'text-status-warning-text'
+                            : 'text-status-warning-text'
                       }`}
                     >
                       <span>⚠</span>
@@ -176,9 +174,7 @@ export const CompatibilityDetailPopover = forwardRef<HTMLDivElement, Compatibili
         ) : (
           <div className="text-center py-4">
             <p className="text-ui-muted mb-2">{COMPATIBILITY_MATRIX_LABELS.noScore}</p>
-            <p className="text-xs text-ui-muted">
-              {COMPATIBILITY_MATRIX_LABELS.noScoreDesc}
-            </p>
+            <p className="text-xs text-ui-muted">{COMPATIBILITY_MATRIX_LABELS.noScoreDesc}</p>
           </div>
         )}
       </div>

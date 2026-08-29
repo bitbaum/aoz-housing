@@ -51,7 +51,10 @@ import { POST } from '../login/route'
 
 // --- Helpers ---
 
-function createJsonRequest(body: Record<string, unknown>, headers?: Record<string, string>): NextRequest {
+function createJsonRequest(
+  body: Record<string, unknown>,
+  headers?: Record<string, string>,
+): NextRequest {
   return new NextRequest('http://localhost:3001/api/auth/login', {
     method: 'POST',
     body: JSON.stringify(body),
@@ -82,10 +85,7 @@ describe('POST /api/auth/login', () => {
     mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
-    const req = createJsonRequest(
-      { code: 'AOZ-ABC123' },
-      { 'x-forwarded-for': '10.0.0.1' }
-    )
+    const req = createJsonRequest({ code: 'AOZ-ABC123' }, { 'x-forwarded-for': '10.0.0.1' })
     const res = await POST(req)
     const body = await res.json()
 
@@ -102,10 +102,7 @@ describe('POST /api/auth/login', () => {
   test('returns resident data on successful resident login', async () => {
     mockLoginByCode.mockResolvedValue({ success: true, type: 'resident', code: 'RES-XYZ789' })
 
-    const req = createJsonRequest(
-      { code: 'RES-XYZ789' },
-      { 'x-forwarded-for': '10.0.0.2' }
-    )
+    const req = createJsonRequest({ code: 'RES-XYZ789' }, { 'x-forwarded-for': '10.0.0.2' })
     const res = await POST(req)
     const body = await res.json()
 
@@ -119,7 +116,7 @@ describe('POST /api/auth/login', () => {
     expect(mockCookieSet).toHaveBeenCalledWith(
       'resident_code',
       'RES-XYZ789',
-      expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' })
+      expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/' }),
     )
   })
 
@@ -129,10 +126,7 @@ describe('POST /api/auth/login', () => {
       error: 'Ungültiger Code',
     })
 
-    const req = createJsonRequest(
-      { code: 'AOZ-WRONG1' },
-      { 'x-forwarded-for': '10.0.0.3' }
-    )
+    const req = createJsonRequest({ code: 'AOZ-WRONG1' }, { 'x-forwarded-for': '10.0.0.3' })
     const res = await POST(req)
     const body = await res.json()
 
@@ -182,10 +176,7 @@ describe('POST /api/auth/login', () => {
   test('returns 429 when rate limited', async () => {
     mockCheckRateLimit.mockReturnValue({ allowed: false, retryAfter: 120 })
 
-    const req = createJsonRequest(
-      { code: 'AOZ-ABC123' },
-      { 'x-forwarded-for': '10.0.0.5' }
-    )
+    const req = createJsonRequest({ code: 'AOZ-ABC123' }, { 'x-forwarded-for': '10.0.0.5' })
     const res = await POST(req)
     const body = await res.json()
 
@@ -198,10 +189,7 @@ describe('POST /api/auth/login', () => {
   test('returns 500 on unexpected server error', async () => {
     mockLoginByCode.mockRejectedValue(new Error('Database connection failed'))
 
-    const req = createJsonRequest(
-      { code: 'AOZ-ABC123' },
-      { 'x-forwarded-for': '10.0.0.6' }
-    )
+    const req = createJsonRequest({ code: 'AOZ-ABC123' }, { 'x-forwarded-for': '10.0.0.6' })
     const res = await POST(req)
     const body = await res.json()
 
@@ -226,7 +214,7 @@ describe('POST /api/auth/login', () => {
 
     const req = createJsonRequest(
       { code: 'AOZ-ABC123' },
-      { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' }
+      { 'x-forwarded-for': '192.168.1.1, 10.0.0.1' },
     )
     await POST(req)
 
@@ -238,10 +226,7 @@ describe('POST /api/auth/login', () => {
     mockLoginByCode.mockResolvedValue({ success: true, type: 'staff', user: STAFF_USER })
     mockSetSessionCookie.mockResolvedValue(undefined)
 
-    const req = createJsonRequest(
-      { code: 'AOZ-ABC123' },
-      { 'x-real-ip': '172.16.0.1' }
-    )
+    const req = createJsonRequest({ code: 'AOZ-ABC123' }, { 'x-real-ip': '172.16.0.1' })
     await POST(req)
 
     expect(mockLoginByCode).toHaveBeenCalledWith('AOZ-ABC123', '172.16.0.1')

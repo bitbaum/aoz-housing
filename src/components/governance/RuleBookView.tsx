@@ -116,8 +116,8 @@ export function RuleBookView({
           </h2>
           <Card>
             <p className="mb-3 text-sm text-ui-muted">
-              Diese Hausregeln gehören zu einem {BRAND.orgName}-Thema, das nicht mehr gültig ist. Die Betreuung
-              sollte sie überprüfen.
+              Diese Hausregeln gehören zu einem {BRAND.orgName}-Thema, das nicht mehr gültig ist.
+              Die Betreuung sollte sie überprüfen.
             </p>
             <ul className="space-y-3">
               {ruleBook.orphanedUnitRules.map((rule) => (
@@ -135,7 +135,8 @@ export function RuleBookView({
       {ruleBook.sections.length === 0 && (
         <Card>
           <p className="text-sm text-ui-muted">
-            Es sind noch keine Regeln erfasst. Die Betreuung kann den {BRAND.orgName}-Regelkatalog laden.
+            Es sind noch keine Regeln erfasst. Die Betreuung kann den {BRAND.orgName}-Regelkatalog
+            laden.
           </p>
         </Card>
       )}

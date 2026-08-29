@@ -72,7 +72,9 @@ function mapEvent(row: {
     status: row.status,
     housingUnitId: row.housingUnit.id,
     housingUnitCode: row.housingUnit.code,
-    createdByName: row.createdByStaff?.name ?? (row.createdByResident ? residentName(row.createdByResident) : null),
+    createdByName:
+      row.createdByStaff?.name ??
+      (row.createdByResident ? residentName(row.createdByResident) : null),
     createdByResidentId: row.createdByResident?.id ?? null,
     rsvps: row.rsvps.map((rsvp) => ({
       residentId: rsvp.residentId,
@@ -129,7 +131,7 @@ export async function listStaffEvents(): Promise<HouseEventSummary[]> {
 }
 
 export async function createEventAsResident(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -160,7 +162,7 @@ export async function createEventAsResident(
 }
 
 export async function createEventAsStaff(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -194,7 +196,9 @@ export async function createEventAsStaff(
   return { success: true }
 }
 
-export async function rsvpToEvent(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function rsvpToEvent(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
@@ -228,7 +232,9 @@ export async function rsvpToEvent(formData: FormData): Promise<{ success: boolea
   return { success: true }
 }
 
-export async function cancelEvent(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function cancelEvent(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const id = String(formData.get('id') || '')
   const event = await prisma.houseEvent.findUnique({
     where: { id },

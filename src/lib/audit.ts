@@ -12,14 +12,7 @@ import { logger } from '@/lib/logger'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 export type AuditAction =
-  | 'CREATE'
-  | 'UPDATE'
-  | 'DELETE'
-  | 'END'
-  | 'TRANSFER'
-  | 'RESOLVE'
-  | 'ARCHIVE'
-  | 'RESTORE'
+  'CREATE' | 'UPDATE' | 'DELETE' | 'END' | 'TRANSFER' | 'RESOLVE' | 'ARCHIVE' | 'RESTORE'
 
 export type AuditEntity =
   | 'RESIDENT'

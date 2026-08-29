@@ -18,7 +18,9 @@ test.describe('Incident detail and follow-up', () => {
     await expect(page.locator('input[name="date"]')).toBeVisible()
 
     // Submit button
-    await expect(page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i }),
+    ).toBeVisible()
   })
 
   test('incident detail page loads with data', async ({ page }) => {
@@ -42,8 +44,15 @@ test.describe('Incident detail and follow-up', () => {
 
       // Follow-up section is shown for unresolved incidents,
       // resolved incidents show resolution info instead
-      const hasFollowUpForm = await page.locator('input[name="action"]').isVisible().catch(() => false)
-      const hasResolutionInfo = await page.getByText(/Gelöst|Lösung/i).first().isVisible().catch(() => false)
+      const hasFollowUpForm = await page
+        .locator('input[name="action"]')
+        .isVisible()
+        .catch(() => false)
+      const hasResolutionInfo = await page
+        .getByText(/Gelöst|Lösung/i)
+        .first()
+        .isVisible()
+        .catch(() => false)
 
       expect(hasFollowUpForm || hasResolutionInfo).toBe(true)
     }
@@ -64,7 +73,7 @@ test.describe('Incident detail and follow-up', () => {
 
     // Fill required selects but leave description empty
     const housingSelect = page.locator('select[name="housingUnitId"]')
-    const hasOptions = await housingSelect.locator('option').count() > 1
+    const hasOptions = (await housingSelect.locator('option').count()) > 1
 
     if (hasOptions) {
       await housingSelect.selectOption({ index: 1 })

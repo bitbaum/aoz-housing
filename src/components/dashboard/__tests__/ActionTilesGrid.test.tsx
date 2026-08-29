@@ -4,8 +4,18 @@ import { ActionTile } from '../ActionTilesGrid'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -75,7 +85,10 @@ describe('ActionTile', () => {
 
   it('"Alle anzeigen" link points to allHref', () => {
     render(<ActionTile {...BASE} count={5} />)
-    expect(screen.getByRole('link', { name: /Alle 5 anzeigen/ })).toHaveAttribute('href', '/placements?overdue=1')
+    expect(screen.getByRole('link', { name: /Alle 5 anzeigen/ })).toHaveAttribute(
+      'href',
+      '/placements?overdue=1',
+    )
   })
 
   // Colour follows MEANING now. A tile is not orange because it is about

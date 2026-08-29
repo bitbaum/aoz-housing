@@ -36,7 +36,9 @@ function unitRule(overrides: Partial<RuleLike> & { id: string }): RuleLike {
 
 describe('checkUnitLegislation', () => {
   it('refuses a house rule under a non-negotiable AOZ rule', () => {
-    const check = checkUnitLegislation(orgRule({ id: 'r1', delegation: 'FIXED', title: 'Keine Gewalt' }))
+    const check = checkUnitLegislation(
+      orgRule({ id: 'r1', delegation: 'FIXED', title: 'Keine Gewalt' }),
+    )
 
     expect(check.allowed).toBe(false)
     // The refusal must explain itself in the resident's own language.
@@ -60,7 +62,7 @@ describe('checkUnitLegislation', () => {
 
   it('refuses to attach a house rule to an archived AOZ rule', () => {
     const check = checkUnitLegislation(
-      orgRule({ id: 'r4', delegation: 'UNIT_DECIDES', status: 'ARCHIVED' })
+      orgRule({ id: 'r4', delegation: 'UNIT_DECIDES', status: 'ARCHIVED' }),
     )
 
     expect(check.allowed).toBe(false)
@@ -80,13 +82,13 @@ describe('resolveProposalStatus', () => {
 
   it('routes an advisory decision to staff even when residents agreed', () => {
     expect(resolveProposalStatus('ACCEPTED', 'RESIDENT_ADVISORY', false)).toBe(
-      'NEEDS_STAFF_CONFIRMATION'
+      'NEEDS_STAFF_CONFIRMATION',
     )
   })
 
   it('routes a binding decision to staff when the topic claims to strengthen an AOZ rule', () => {
     expect(resolveProposalStatus('ACCEPTED', 'RESIDENT_BINDING', true)).toBe(
-      'NEEDS_STAFF_CONFIRMATION'
+      'NEEDS_STAFF_CONFIRMATION',
     )
   })
 
@@ -103,7 +105,12 @@ describe('resolveProposalStatus', () => {
 describe('buildRuleBook', () => {
   const rules = [
     orgRule({ id: 'safety', category: 'SAFETY', delegation: 'FIXED', title: 'Keine Gewalt' }),
-    orgRule({ id: 'quiet', category: 'NOISE', delegation: 'UNIT_MAY_STRENGTHEN', title: 'Nachtruhe' }),
+    orgRule({
+      id: 'quiet',
+      category: 'NOISE',
+      delegation: 'UNIT_MAY_STRENGTHEN',
+      title: 'Nachtruhe',
+    }),
     orgRule({ id: 'kitchen', category: 'KITCHEN', delegation: 'UNIT_DECIDES', title: 'Küche' }),
   ]
 

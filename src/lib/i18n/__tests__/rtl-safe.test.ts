@@ -37,9 +37,7 @@ function walk(dir: string): string[] {
   })
 }
 
-const portalFiles = PORTAL_DIRS.flatMap((dir) =>
-  statSync(dir).isDirectory() ? walk(dir) : []
-)
+const portalFiles = PORTAL_DIRS.flatMap((dir) => (statSync(dir).isDirectory() ? walk(dir) : []))
 
 describe('the portal is direction-agnostic', () => {
   it('finds the portal source files', () => {
@@ -58,7 +56,7 @@ describe('the portal is direction-agnostic', () => {
         .map(({ line, number }) => `${number}: ${line}`)
 
       expect(offenders).toEqual([])
-    }
+    },
   )
 
   it('would catch a physical utility', () => {

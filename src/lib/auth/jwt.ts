@@ -33,7 +33,9 @@ const tokenPayloadSchema = z
 /**
  * Create a signed JWT token
  */
-export async function createToken(payload: Omit<TokenPayload, 'iat' | 'exp' | 'iss'>): Promise<string> {
+export async function createToken(
+  payload: Omit<TokenPayload, 'iat' | 'exp' | 'iss'>,
+): Promise<string> {
   const secret = new TextEncoder().encode(AUTH_CONFIG.jwt.secret)
 
   const token = await new SignJWT(payload)

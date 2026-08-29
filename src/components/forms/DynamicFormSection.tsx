@@ -24,25 +24,21 @@ export function DynamicFormSection({
   disabledFields = [],
 }: DynamicFormSectionProps) {
   // Separate boolean fields for inline rendering
-  const booleanFactors = factors.filter(f => f.type === 'boolean')
-  const otherFactors = factors.filter(f => f.type !== 'boolean')
+  const booleanFactors = factors.filter((f) => f.type === 'boolean')
+  const otherFactors = factors.filter((f) => f.type !== 'boolean')
 
   // Group non-boolean factors into grid (2 columns for basic info, single column for others)
   const useGrid = section.id === 'basic' || section.id === 'capacity'
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">
-        {section.label}
-      </h2>
-      {section.description && (
-        <p className="text-sm text-ui-muted mb-4">{section.description}</p>
-      )}
+      <h2 className="text-lg font-semibold text-ui-text mb-4">{section.label}</h2>
+      {section.description && <p className="text-sm text-ui-muted mb-4">{section.description}</p>}
 
       {/* Non-boolean fields */}
       {otherFactors.length > 0 && (
         <div className={useGrid ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : 'space-y-4'}>
-          {otherFactors.map(factor => (
+          {otherFactors.map((factor) => (
             <div
               key={factor.id}
               className={factor.id === 'address' || factor.id === 'notes' ? 'md:col-span-2' : ''}
@@ -60,7 +56,7 @@ export function DynamicFormSection({
       {/* Boolean fields rendered inline */}
       {booleanFactors.length > 0 && (
         <div className={`flex flex-wrap gap-6 ${otherFactors.length > 0 ? 'mt-4' : ''}`}>
-          {booleanFactors.map(factor => (
+          {booleanFactors.map((factor) => (
             <DynamicFormField
               key={factor.id}
               factor={factor}

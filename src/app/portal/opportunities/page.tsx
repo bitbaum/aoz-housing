@@ -53,7 +53,8 @@ export default async function PortalOpportunitiesPage({ searchParams }: Props) {
     searchParams,
   ])
 
-  const okKey = params.ok && params.ok in OK_KEYS ? OK_KEYS[params.ok as keyof typeof OK_KEYS] : null
+  const okKey =
+    params.ok && params.ok in OK_KEYS ? OK_KEYS[params.ok as keyof typeof OK_KEYS] : null
   const errorKey =
     params.error && params.error in ERROR_KEYS
       ? ERROR_KEYS[params.error as keyof typeof ERROR_KEYS]

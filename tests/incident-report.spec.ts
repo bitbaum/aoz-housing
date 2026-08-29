@@ -4,13 +4,14 @@ import { openEmailLoginForm } from './helpers'
 // storageState from playwright.config handles staff auth
 
 test.describe('Incident reporting flow', () => {
-
   test('new incident form loads', async ({ page }) => {
     await page.goto('/incidents/new')
 
     // Form elements present
     await expect(page.locator('select[name="housingUnitId"]')).toBeVisible()
-    await expect(page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i })).toBeVisible()
+    await expect(
+      page.getByRole('button', { name: /Speichern|Melden|Vorfall erfassen/i }),
+    ).toBeVisible()
   })
 
   test('incident list shows existing incidents', async ({ page }) => {

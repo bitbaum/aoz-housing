@@ -22,7 +22,13 @@
 // through ts-node, which does not resolve tsconfig path aliases.
 import { BRAND } from './brand'
 
-import type { DecisionMode, ProposalStatus, RuleCategory, VoteChoice, VoteThreshold } from '@prisma/client'
+import type {
+  DecisionMode,
+  ProposalStatus,
+  RuleCategory,
+  VoteChoice,
+  VoteThreshold,
+} from '@prisma/client'
 
 // =============================================================================
 // WHO DECIDES — per rule category
@@ -63,10 +69,8 @@ export const DECISION_MODE_IS_VOTED: Record<DecisionMode, boolean> = {
 }
 
 export const DECISION_MODE_DESCRIPTIONS: Record<DecisionMode, string> = {
-  RESIDENT_BINDING:
-    'Die Bewohnenden stimmen ab. Das Ergebnis gilt direkt als Hausregel.',
-  RESIDENT_ADVISORY:
-    `Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den ${BRAND.orgName}-Regeln und dem Mietrecht vereinbar ist.`,
+  RESIDENT_BINDING: 'Die Bewohnenden stimmen ab. Das Ergebnis gilt direkt als Hausregel.',
+  RESIDENT_ADVISORY: `Die Bewohnenden stimmen ab. Die Betreuung prüft danach nur, ob das Ergebnis mit den ${BRAND.orgName}-Regeln und dem Mietrecht vereinbar ist.`,
   STAFF_ONLY:
     'Bei Sicherheit und Respekt wird nicht abgestimmt — diese Regeln schützen Einzelne und dürfen nicht überstimmt werden. Vorschläge sind trotzdem willkommen und werden beantwortet.',
 }

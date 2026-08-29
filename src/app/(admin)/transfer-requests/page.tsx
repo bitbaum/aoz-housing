@@ -6,7 +6,12 @@ import { PageHeader } from '@/components/ui/Page'
 import { formatRelativeDate } from '@/lib/utils'
 import { requirePermission } from '@/lib/auth'
 import { TransferActions } from './TransferActions'
-import { TRANSFER_REQUEST_STATUS_LABELS, TRANSFER_ACTION_LABELS, UI_LABELS, PAGE_TITLES } from '@/lib/constants'
+import {
+  TRANSFER_REQUEST_STATUS_LABELS,
+  TRANSFER_ACTION_LABELS,
+  UI_LABELS,
+  PAGE_TITLES,
+} from '@/lib/constants'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
 
 export const metadata: Metadata = { title: PAGE_TITLES.transferRequests }
@@ -27,9 +32,9 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
   ])
   const counts = {
     all: allRequests.length,
-    pending: allRequests.filter(r => r.status === 'PENDING').length,
-    approved: allRequests.filter(r => r.status === 'APPROVED').length,
-    denied: allRequests.filter(r => r.status === 'DENIED').length,
+    pending: allRequests.filter((r) => r.status === 'PENDING').length,
+    approved: allRequests.filter((r) => r.status === 'APPROVED').length,
+    denied: allRequests.filter((r) => r.status === 'DENIED').length,
   }
 
   return (
@@ -77,7 +82,10 @@ export default async function TransferRequestsPage({ searchParams }: Props) {
               : TRANSFER_ACTION_LABELS.emptyOther}
           </p>
           {statusFilter !== 'PENDING' && (
-            <Link href="/transfer-requests?status=PENDING" className="btn-outline mt-4 inline-flex min-h-[44px] items-center">
+            <Link
+              href="/transfer-requests?status=PENDING"
+              className="btn-outline mt-4 inline-flex min-h-[44px] items-center"
+            >
               {TRANSFER_ACTION_LABELS.filterReset}
             </Link>
           )}
@@ -124,9 +132,7 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-ui-text">
-              {residentName(request.resident)}
-            </h3>
+            <h3 className="font-semibold text-ui-text">{residentName(request.resident)}</h3>
             <span className={STATUS_BADGE[request.status] || 'badge'}>
               {STATUS_LABEL[request.status] || request.status}
             </span>
@@ -134,10 +140,16 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
           <p className="text-sm text-ui-muted">
             {formatRelativeDate(request.createdAt)}
             {request.currentPlacement?.housingUnit && (
-              <> · {TRANSFER_ACTION_LABELS.fromUnit} {request.currentPlacement.housingUnit.code}</>
+              <>
+                {' '}
+                · {TRANSFER_ACTION_LABELS.fromUnit} {request.currentPlacement.housingUnit.code}
+              </>
             )}
             {request.targetUnit && (
-              <> · {TRANSFER_ACTION_LABELS.toUnit} {request.targetUnit.code}</>
+              <>
+                {' '}
+                · {TRANSFER_ACTION_LABELS.toUnit} {request.targetUnit.code}
+              </>
             )}
           </p>
         </div>
@@ -147,7 +159,8 @@ function TransferRequestCard({ request }: { request: TransferRequestData }) {
 
       {request.staffNotes && (
         <div className="p-2 bg-ui-subtle rounded text-sm text-ui-muted mb-3">
-          <span className="font-medium">{TRANSFER_ACTION_LABELS.noteLabel}</span> {request.staffNotes}
+          <span className="font-medium">{TRANSFER_ACTION_LABELS.noteLabel}</span>{' '}
+          {request.staffNotes}
         </div>
       )}
 

@@ -36,9 +36,7 @@ afterEach(() => {
 describe('FormValidationUX', () => {
   it('renders null — no DOM output from component', () => {
     setupDOM()
-    const { container } = render(
-      <FormValidationUX formId="test-form" summaryId="test-summary" />
-    )
+    const { container } = render(<FormValidationUX formId="test-form" summaryId="test-summary" />)
     expect(container.firstChild).toBeNull()
   })
 
@@ -223,9 +221,7 @@ describe('FormValidationUX', () => {
   describe('cleanup on unmount', () => {
     it('removes invalid listener so events have no effect after unmount', () => {
       const { input, summary } = setupDOM()
-      const { unmount } = render(
-        <FormValidationUX formId="test-form" summaryId="test-summary" />
-      )
+      const { unmount } = render(<FormValidationUX formId="test-form" summaryId="test-summary" />)
 
       unmount()
 
@@ -240,9 +236,7 @@ describe('FormValidationUX', () => {
     it('removes input listener so events have no effect after unmount', () => {
       const { form, input } = setupDOM()
       const spy = jest.spyOn(form, 'checkValidity').mockReturnValue(true)
-      const { unmount } = render(
-        <FormValidationUX formId="test-form" summaryId="test-summary" />
-      )
+      const { unmount } = render(<FormValidationUX formId="test-form" summaryId="test-summary" />)
 
       unmount()
 

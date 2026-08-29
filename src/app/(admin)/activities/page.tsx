@@ -26,7 +26,8 @@ type Props = {
 export default async function ActivitiesAdminPage({ searchParams }: Props) {
   await requirePermission('activities:read')
   const { status } = await searchParams
-  const statusFilter = status && status in ACTIVITY_STATUS_LABELS ? status as ActivityStatus : undefined
+  const statusFilter =
+    status && status in ACTIVITY_STATUS_LABELS ? (status as ActivityStatus) : undefined
 
   const [total, published, drafts, highlighted, activities] = await Promise.all([
     countActivities(),
@@ -42,23 +43,31 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
         title={ACTIVITIES_ADMIN_LABELS.pageTitle}
         description={ACTIVITIES_ADMIN_LABELS.pageDescription}
         actions={
-          <ButtonLink href="/activities/new">
-          {ACTIVITIES_ADMIN_LABELS.newAction}
-          </ButtonLink>
+          <ButtonLink href="/activities/new">{ACTIVITIES_ADMIN_LABELS.newAction}</ButtonLink>
         }
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label={ACTIVITIES_ADMIN_LABELS.statTotal} value={total} />
-        <StatCard label={ACTIVITIES_ADMIN_LABELS.statLive} value={published} trend={published > 0 ? 'good' : undefined} />
+        <StatCard
+          label={ACTIVITIES_ADMIN_LABELS.statLive}
+          value={published}
+          trend={published > 0 ? 'good' : undefined}
+        />
         <StatCard label={ACTIVITIES_ADMIN_LABELS.statDrafts} value={drafts} />
         <StatCard label={ACTIVITIES_ADMIN_LABELS.statHighlighted} value={highlighted} />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <FilterLink href="/activities" active={!statusFilter}>{ACTIVITIES_ADMIN_LABELS.all}</FilterLink>
+        <FilterLink href="/activities" active={!statusFilter}>
+          {ACTIVITIES_ADMIN_LABELS.all}
+        </FilterLink>
         {Object.entries(ACTIVITY_STATUS_LABELS).map(([value, label]) => (
-          <FilterLink key={value} href={`/activities?status=${value}`} active={statusFilter === value}>
+          <FilterLink
+            key={value}
+            href={`/activities?status=${value}`}
+            active={statusFilter === value}
+          >
             {label}
           </FilterLink>
         ))}
@@ -84,15 +93,24 @@ export default async function ActivitiesAdminPage({ searchParams }: Props) {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <Icon className="h-4 w-4 text-brand-primary" />
-                        <Link href={`/activities/${activity.id}/edit`} className="font-semibold text-ui-text hover:text-brand-primary">
+                        <Link
+                          href={`/activities/${activity.id}/edit`}
+                          className="font-semibold text-ui-text hover:text-brand-primary"
+                        >
                           {activity.title}
                         </Link>
                         <span className={`badge ${ACTIVITY_STATUS_BADGES[activity.status]}`}>
                           {ACTIVITY_STATUS_LABELS[activity.status]}
                         </span>
-                        {activity.highlight ? <span className="badge badge-info">{ACTIVITIES_ADMIN_LABELS.portalBadge}</span> : null}
+                        {activity.highlight ? (
+                          <span className="badge badge-info">
+                            {ACTIVITIES_ADMIN_LABELS.portalBadge}
+                          </span>
+                        ) : null}
                       </div>
-                      <p className="mt-1 line-clamp-2 text-sm text-ui-muted">{activity.description}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-ui-muted">
+                        {activity.description}
+                      </p>
                       <div className="mt-2 flex flex-wrap gap-2 text-xs text-ui-muted">
                         <span>{ACTIVITY_CATEGORY_LABELS[activity.category]}</span>
                         <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]}`}>
@@ -129,9 +147,7 @@ function FilterLink({
     <Link
       href={href}
       className={`min-h-[40px] rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-        active
-          ? 'bg-ui-text text-ui-inverse'
-          : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
+        active ? 'bg-ui-text text-ui-inverse' : 'bg-ui-subtle text-ui-muted hover:bg-ui-border'
       }`}
     >
       {children}

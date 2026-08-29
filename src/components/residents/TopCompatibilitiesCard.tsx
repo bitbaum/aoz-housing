@@ -31,9 +31,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
             className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg"
           >
             <div className="flex items-center gap-3">
-              <div className="avatar-sm">
-                {residentInitials(assessment.comparedWith)}
-              </div>
+              <div className="avatar-sm">{residentInitials(assessment.comparedWith)}</div>
               <Link
                 href={`/residents/${assessment.comparedWithId}`}
                 className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary"
@@ -43,7 +41,7 @@ export function TopCompatibilitiesCard({ assessments }: TopCompatibilitiesCardPr
             </div>
             <div
               className={`px-3 py-1 rounded-sm text-sm font-medium ${getScoreBgClass(
-                assessment.overallScore
+                assessment.overallScore,
               )}`}
             >
               {Math.round(assessment.overallScore)}%

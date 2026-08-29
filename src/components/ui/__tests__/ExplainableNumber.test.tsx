@@ -22,9 +22,21 @@ jest.mock('@/lib/constants/labels', () => ({
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, 'aria-label': ariaLabel }: {
-    href: string; children?: React.ReactNode; className?: string; 'aria-label'?: string
-  }) => <a href={href} className={className} aria-label={ariaLabel}>{children}</a>,
+  default: ({
+    href,
+    children,
+    className,
+    'aria-label': ariaLabel,
+  }: {
+    href: string
+    children?: React.ReactNode
+    className?: string
+    'aria-label'?: string
+  }) => (
+    <a href={href} className={className} aria-label={ariaLabel}>
+      {children}
+    </a>
+  ),
 }))
 
 // --- Helpers ---
@@ -39,9 +51,7 @@ function makeExplanation(overrides: Partial<NumberExplanation> = {}): NumberExpl
 }
 
 function renderNumber(value: string | number = 42, overrides: Partial<NumberExplanation> = {}) {
-  return render(
-    <ExplainableNumber value={value} explanation={makeExplanation(overrides)} />
-  )
+  return render(<ExplainableNumber value={value} explanation={makeExplanation(overrides)} />)
 }
 
 // =============================================================================
@@ -158,7 +168,12 @@ describe('ExplainableNumber (open)', () => {
   })
 
   it('shows data points when provided', () => {
-    open({ dataPoints: [{ label: 'Belegt', value: 8 }, { label: 'Gesamt', value: 10 }] })
+    open({
+      dataPoints: [
+        { label: 'Belegt', value: 8 },
+        { label: 'Gesamt', value: 10 },
+      ],
+    })
     expect(screen.getByText('Datenpunkte')).toBeInTheDocument()
     expect(screen.getByText('Belegt')).toBeInTheDocument()
     expect(screen.getByText('8')).toBeInTheDocument()
@@ -247,7 +262,10 @@ describe('ExplainableMetric', () => {
 
   it('renders an anchor link when href provided', () => {
     render(<ExplainableMetric {...BASE} href="/housing" />)
-    expect(screen.getByRole('link', { name: /Belegung.*Details/ })).toHaveAttribute('href', '/housing')
+    expect(screen.getByRole('link', { name: /Belegung.*Details/ })).toHaveAttribute(
+      'href',
+      '/housing',
+    )
   })
 
   it('does not render anchor link when no href', () => {

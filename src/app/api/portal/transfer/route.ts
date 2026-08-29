@@ -10,14 +10,20 @@ export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const body = await request.json()
   const parsed = CreateTransferRequestSchema.safeParse(body)
 
   if (!parsed.success) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   const { reason, targetUnitId } = parsed.data
@@ -32,17 +38,26 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+      { status: 404 },
+    )
   }
 
   const placement = resident.placements[0]
   if (!placement) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_NO_PLACEMENT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_NO_PLACEMENT },
+      { status: 400 },
+    )
   }
 
   // Prevent duplicate pending requests
   if (resident.transferRequests.length > 0) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_ALREADY_PENDING }, { status: 409 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_ALREADY_PENDING },
+      { status: 409 },
+    )
   }
 
   try {
@@ -98,6 +113,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id: transferRequest.id })
   } catch (error) {
     logger.errorWithCause('Failed to create transfer request', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_CREATE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TRANSFER_REQUEST_CREATE_ERROR },
+      { status: 500 },
+    )
   }
 }

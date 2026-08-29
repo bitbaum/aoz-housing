@@ -24,22 +24,23 @@ export function SatisfactionChart({
   const averageFace =
     average === null || Number.isNaN(average)
       ? null
-      : SATISFACTION_EMOJIS[Math.min(SATISFACTION_EMOJIS.length, Math.max(1, Math.round(average))) - 1]
+      : SATISFACTION_EMOJIS[
+          Math.min(SATISFACTION_EMOJIS.length, Math.max(1, Math.round(average))) - 1
+        ]
 
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-ui-text">
-          Zufriedenheit ({days} Tage)
-        </h2>
-        <Link href="/placements" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
+        <h2 className="text-lg font-semibold text-ui-text">Zufriedenheit ({days} Tage)</h2>
+        <Link
+          href="/placements"
+          className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline"
+        >
           Alle Check-ins
         </Link>
       </div>
       {totalCheckIns === 0 ? (
-        <p className="text-ui-muted text-center py-8">
-          Keine Check-ins in diesem Zeitraum
-        </p>
+        <p className="text-ui-muted text-center py-8">Keine Check-ins in diesem Zeitraum</p>
       ) : (
         <>
           <div className="flex items-center gap-4 mb-6 p-4 bg-ui-subtle rounded-lg">
@@ -60,13 +61,18 @@ export function SatisfactionChart({
           <div className="space-y-2">
             {satisfactionCounts.map((count, index) => (
               <div key={index} className="flex items-center gap-3">
-                <span className="w-8 text-lg text-center" aria-hidden="true">{SATISFACTION_EMOJIS[index]}</span>
+                <span className="w-8 text-lg text-center" aria-hidden="true">
+                  {SATISFACTION_EMOJIS[index]}
+                </span>
                 <div className="flex-1">
                   <div className="h-4 bg-ui-border rounded-sm overflow-hidden">
                     <div
                       className={`h-full ${
-                        index >= 3 ? 'bg-status-success' :
-                        index === 2 ? 'bg-status-warning' : 'bg-status-error'
+                        index >= 3
+                          ? 'bg-status-success'
+                          : index === 2
+                            ? 'bg-status-warning'
+                            : 'bg-status-error'
                       }`}
                       style={{ width: `${totalCheckIns > 0 ? (count / totalCheckIns) * 100 : 0}%` }}
                     />

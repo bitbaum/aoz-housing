@@ -14,14 +14,16 @@ jest.mock('@/lib/constants', () => ({
 
 // --- Helpers ---
 
-function renderDialog(overrides: {
-  onConfirm?: () => Promise<void> | void
-  title?: string
-  message?: string
-  confirmLabel?: string
-  cancelLabel?: string
-  variant?: 'primary' | 'danger'
-} = {}) {
+function renderDialog(
+  overrides: {
+    onConfirm?: () => Promise<void> | void
+    title?: string
+    message?: string
+    confirmLabel?: string
+    cancelLabel?: string
+    variant?: 'primary' | 'danger'
+  } = {},
+) {
   const props = {
     title: overrides.title ?? 'Aktion bestätigen',
     message: overrides.message ?? 'Möchten Sie fortfahren?',
@@ -33,7 +35,7 @@ function renderDialog(overrides: {
   return render(
     <ConfirmDialog {...props}>
       <button>Auslösen</button>
-    </ConfirmDialog>
+    </ConfirmDialog>,
   )
 }
 
@@ -126,7 +128,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('supports synchronous onConfirm (no await)', async () => {
-    const onConfirm = jest.fn()  // sync, returns undefined
+    const onConfirm = jest.fn() // sync, returns undefined
     renderDialog({ onConfirm })
     openDialog()
     fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))

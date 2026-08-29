@@ -90,12 +90,16 @@ export function ConfirmDialog({
           >
             {/* Header */}
             <div className="px-6 py-4 border-b border-ui-border">
-              <h3 id={titleId} className="text-lg font-semibold text-ui-text">{title}</h3>
+              <h3 id={titleId} className="text-lg font-semibold text-ui-text">
+                {title}
+              </h3>
             </div>
 
             {/* Content */}
             <div className="px-6 py-4">
-              <p id={messageId} className="text-ui-muted">{message}</p>
+              <p id={messageId} className="text-ui-muted">
+                {message}
+              </p>
             </div>
 
             {/* Actions */}

@@ -18,16 +18,17 @@ import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { PlacementCheckInStatus } from '@/components/placements/PlacementCheckInStatus'
 
 export const metadata: Metadata = { title: 'Platzierungen' }
-import {
-  daysSinceCeil,
-  getStatusBadgeClass,
-  formatDate,
-} from '@/lib/utils'
+import { daysSinceCeil, getStatusBadgeClass, formatDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
 import { requirePermission } from '@/lib/auth'
-import { RESIDENT_NAME_SELECT, residentInitials, residentName, type NamedResident } from '@/lib/utils/resident-name'
+import {
+  RESIDENT_NAME_SELECT,
+  residentInitials,
+  residentName,
+  type NamedResident,
+} from '@/lib/utils/resident-name'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,11 +46,12 @@ export default async function PlacementsListPage({ searchParams }: Props) {
 
   const [placements, statusGroups, avgSatisfactionAgg, conflictEndsCount] = await Promise.all([
     prisma.placement.findMany({
-      where: statusFilter === 'active'
-        ? { status: 'ACTIVE' }
-        : statusFilter === 'ended'
-        ? { status: { not: 'ACTIVE' } }
-        : undefined,
+      where:
+        statusFilter === 'active'
+          ? { status: 'ACTIVE' }
+          : statusFilter === 'ended'
+            ? { status: { not: 'ACTIVE' } }
+            : undefined,
       select: {
         id: true,
         status: true,
@@ -113,19 +115,19 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   }
 
   const filteredPlacements = placements.filter((placement) => {
-    const matchesQuery = !query ||
+    const matchesQuery =
+      !query ||
       residentName(placement.resident).toLowerCase().includes(query) ||
       placement.resident.code.toLowerCase().includes(query) ||
       placement.housingUnit.code.toLowerCase().includes(query) ||
       placement.housingUnit.address.toLowerCase().includes(query)
 
     const lastCheckIn = placement.checkIns?.[0]
-    const daysSinceCheckIn = lastCheckIn
-      ? daysSinceCeil(lastCheckIn.createdAt)
-      : null
+    const daysSinceCheckIn = lastCheckIn ? daysSinceCeil(lastCheckIn.createdAt) : null
     const supportLevel = placement.resident.supportLevel || 'STANDARD'
     const checkInIntervalDays = getCheckInInterval(supportLevel)
-    const isOverdue = placement.status === 'ACTIVE' &&
+    const isOverdue =
+      placement.status === 'ACTIVE' &&
       (daysSinceCheckIn === null
         ? daysSinceCeil(placement.startDate) > checkInIntervalDays
         : daysSinceCheckIn > checkInIntervalDays)
@@ -179,8 +181,13 @@ export default async function PlacementsListPage({ searchParams }: Props) {
           </label>
         </div>
         <div className="mt-3 flex items-center gap-2">
-          <button type="submit" className="btn-outline text-sm">{PLACEMENT_LIST_LABELS.filterApply}</button>
-          <Link href={`/placements?status=${statusFilter}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
+          <button type="submit" className="btn-outline text-sm">
+            {PLACEMENT_LIST_LABELS.filterApply}
+          </button>
+          <Link
+            href={`/placements?status=${statusFilter}`}
+            className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted"
+          >
             {PLACEMENT_LIST_LABELS.filterReset}
           </Link>
         </div>
@@ -236,10 +243,10 @@ export default async function PlacementsListPage({ searchParams }: Props) {
             {hasActiveFilters
               ? 'Keine Platzierungen passen zu den aktuellen Filtern.'
               : statusFilter === 'active'
-              ? PLACEMENT_LIST_LABELS.emptyActive
-              : statusFilter === 'ended'
-              ? PLACEMENT_LIST_LABELS.emptyEnded
-              : PLACEMENT_LIST_LABELS.emptyAll}
+                ? PLACEMENT_LIST_LABELS.emptyActive
+                : statusFilter === 'ended'
+                  ? PLACEMENT_LIST_LABELS.emptyEnded
+                  : PLACEMENT_LIST_LABELS.emptyAll}
           </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             {hasActiveFilters ? (
@@ -289,15 +296,16 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
 
   // Check-in status for active placements
   const lastCheckIn = placement.checkIns?.[0]
-  const daysSinceCheckIn = lastCheckIn
-    ? daysSinceCeil(lastCheckIn.createdAt)
-    : null
+  const daysSinceCheckIn = lastCheckIn ? daysSinceCeil(lastCheckIn.createdAt) : null
 
   // Check-in frequency based on support level (from resident)
   const supportLevel = placement.resident.supportLevel || 'STANDARD'
   const checkInIntervalDays = getCheckInInterval(supportLevel)
-  const isCheckInOverdue = placement.status === 'ACTIVE' &&
-    (daysSinceCheckIn === null ? daysSinceStart > checkInIntervalDays : daysSinceCheckIn > checkInIntervalDays)
+  const isCheckInOverdue =
+    placement.status === 'ACTIVE' &&
+    (daysSinceCheckIn === null
+      ? daysSinceStart > checkInIntervalDays
+      : daysSinceCheckIn > checkInIntervalDays)
 
   return (
     <div
@@ -309,9 +317,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
         <div className="flex flex-wrap items-center gap-4 min-w-0">
           {/* Resident */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="avatar shrink-0">
-              {residentInitials(placement.resident)}
-            </div>
+            <div className="avatar shrink-0">{residentInitials(placement.resident)}</div>
             <div className="min-w-0">
               <Link
                 href={`/residents/${placement.residentId}`}
@@ -337,9 +343,7 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
             >
               {placement.housingUnit.code}
             </Link>
-            <p className="text-sm text-ui-muted">
-              {placement.housingUnit.address}
-            </p>
+            <p className="text-sm text-ui-muted">{placement.housingUnit.address}</p>
           </div>
         </div>
 
@@ -347,10 +351,13 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
           {/* Duration */}
           <div className="text-left sm:text-right">
             <p className="text-xs text-ui-muted">
-              {placement.status === 'ACTIVE' ? PLACEMENT_LIST_LABELS.since : PLACEMENT_LIST_LABELS.duration}
+              {placement.status === 'ACTIVE'
+                ? PLACEMENT_LIST_LABELS.since
+                : PLACEMENT_LIST_LABELS.duration}
             </p>
             <p className="font-medium text-ui-text">
-              {totalDuration} {totalDuration === 1 ? PLACEMENT_LIST_LABELS.day : PLACEMENT_LIST_LABELS.days}
+              {totalDuration}{' '}
+              {totalDuration === 1 ? PLACEMENT_LIST_LABELS.day : PLACEMENT_LIST_LABELS.days}
             </p>
           </div>
 
@@ -397,14 +404,22 @@ function PlacementRow({ placement }: { placement: PlacementRowData }) {
       {/* Concerns Alert */}
       {lastCheckIn?.concerns && (
         <div className="mt-3 p-2 bg-status-warning/10 rounded text-sm text-status-warning-text border-t border-status-warning/15">
-          {PLACEMENT_LIST_LABELS.concerns} {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}{lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
+          {PLACEMENT_LIST_LABELS.concerns}{' '}
+          {lastCheckIn.concerns.slice(0, DISPLAY_LIMITS.emailSummary)}
+          {lastCheckIn.concerns.length > DISPLAY_LIMITS.emailSummary ? '...' : ''}
         </div>
       )}
 
       {/* Dates */}
       <div className="flex items-center gap-4 mt-3 text-sm text-ui-muted border-t border-ui-border pt-3">
-        <span>{PLACEMENT_LIST_LABELS.dateStart} {formatDate(placement.startDate)}</span>
-        {placement.endDate && <span>{PLACEMENT_LIST_LABELS.dateEnd} {formatDate(placement.endDate)}</span>}
+        <span>
+          {PLACEMENT_LIST_LABELS.dateStart} {formatDate(placement.startDate)}
+        </span>
+        {placement.endDate && (
+          <span>
+            {PLACEMENT_LIST_LABELS.dateEnd} {formatDate(placement.endDate)}
+          </span>
+        )}
       </div>
     </div>
   )

@@ -3,7 +3,11 @@
  */
 
 import type { Resident, HousingUnit, Placement, PlacementSpot } from '@prisma/client'
-import type { ApartmentProfile, ApartmentCompatibility, CompatibilityScore } from '@/lib/compatibility/types'
+import type {
+  ApartmentProfile,
+  ApartmentCompatibility,
+  CompatibilityScore,
+} from '@/lib/compatibility/types'
 import type { UnitMetrics } from '@/lib/analytics/unit-metrics'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 import type { RoomFit } from '@/lib/compatibility/room-fit'

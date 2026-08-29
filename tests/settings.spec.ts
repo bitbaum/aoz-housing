@@ -9,7 +9,9 @@ test.describe('Settings page', () => {
     await page.goto('/settings')
 
     // Page heading
-    await expect(page.getByRole('heading', { name: /Einstellungen/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Einstellungen/i })).toBeVisible({
+      timeout: 15_000,
+    })
 
     // Invite form section
     await expect(page.getByRole('heading', { name: /Mitarbeiter einladen/i })).toBeVisible()
@@ -49,8 +51,10 @@ test.describe('Settings page', () => {
 
     // Browser HTML5 validation or our error message
     const hasError =
-      await page.locator('[role="alert"]').isVisible().catch(() => false) ||
-      await page.locator('#invite-name:invalid').count() > 0
+      (await page
+        .locator('[role="alert"]')
+        .isVisible()
+        .catch(() => false)) || (await page.locator('#invite-name:invalid').count()) > 0
 
     expect(hasError).toBe(true)
   })

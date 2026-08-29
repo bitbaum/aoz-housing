@@ -10,12 +10,18 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 export async function POST(request: NextRequest) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const parsed = CreateExpenseSchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
   const data = parsed.data
 
@@ -31,7 +37,7 @@ export async function POST(request: NextRequest) {
     if (!memberIds.has(paidById) || !participantIds.every((id) => memberIds.has(id))) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.EXPENSE_MEMBER_INVALID },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -65,6 +71,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: expense })
   } catch (error) {
     logger.errorWithCause('Failed to create expense', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.EXPENSE_CREATE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.EXPENSE_CREATE_ERROR },
+      { status: 500 },
+    )
   }
 }

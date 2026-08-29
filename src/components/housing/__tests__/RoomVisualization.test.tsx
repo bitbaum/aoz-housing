@@ -7,14 +7,29 @@ import type { HousingSpot, HousingPlacement } from '../types'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
 jest.mock('@/lib/config/placement-spots', () => ({
   SPOT_TYPE_ICONS: { BED: '🛏️', PRIVATE_ROOM: '🚪', STUDIO: '🏠', ROOM: '🚿' },
-  SPOT_STATUS_LABELS: { AVAILABLE: 'Verfügbar', OCCUPIED: 'Belegt', MAINTENANCE: 'Wartung', CLOSED: 'Geschlossen' },
+  SPOT_STATUS_LABELS: {
+    AVAILABLE: 'Verfügbar',
+    OCCUPIED: 'Belegt',
+    MAINTENANCE: 'Wartung',
+    CLOSED: 'Geschlossen',
+  },
 }))
 
 jest.mock('@/lib/constants/labels', () => ({
@@ -31,17 +46,36 @@ jest.mock('@/lib/constants/labels', () => ({
 }))
 
 jest.mock('../BedGrid', () => ({
-  BedGrid: ({ spots, onBedClick }: { spots: HousingSpot[]; onBedClick?: (spot: HousingSpot) => void }) => (
+  BedGrid: ({
+    spots,
+    onBedClick,
+  }: {
+    spots: HousingSpot[]
+    onBedClick?: (spot: HousingSpot) => void
+  }) => (
     <div data-testid="bed-grid" data-count={spots.length}>
-      {spots.map(s => (
+      {spots.map((s) => (
         <button key={s.id} onClick={() => onBedClick?.(s)} data-testid={`bed-${s.id}`}>
           {s.code}
         </button>
       ))}
     </div>
   ),
-  BedGridSummary: ({ occupied, available, unavailable }: { occupied: number; available: number; unavailable: number }) => (
-    <div data-testid="bed-grid-summary" data-occupied={occupied} data-available={available} data-unavailable={unavailable} />
+  BedGridSummary: ({
+    occupied,
+    available,
+    unavailable,
+  }: {
+    occupied: number
+    available: number
+    unavailable: number
+  }) => (
+    <div
+      data-testid="bed-grid-summary"
+      data-occupied={occupied}
+      data-available={available}
+      data-unavailable={unavailable}
+    />
   ),
 }))
 
@@ -98,7 +132,7 @@ describe('RoomVisualization', () => {
     render(<RoomVisualization spots={[]} housingUnitId={UNIT_ID} />)
     expect(screen.getByRole('link', { name: 'Plätze hinzufügen' })).toHaveAttribute(
       'href',
-      `/housing/${UNIT_ID}/spots/new`
+      `/housing/${UNIT_ID}/spots/new`,
     )
   })
 
@@ -124,7 +158,12 @@ describe('RoomVisualization', () => {
 
   it('shows occupancy count in room header', () => {
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
-    const bed1 = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', placements: [makePlacement('res1')] })
+    const bed1 = makeSpot({
+      id: 'b1',
+      type: 'BED',
+      parentSpotId: 'r1',
+      placements: [makePlacement('res1')],
+    })
     const bed2 = makeSpot({ id: 'b2', type: 'BED', parentSpotId: 'r1', placements: [] })
     render(<RoomVisualization spots={[room, bed1, bed2]} housingUnitId={UNIT_ID} />)
     expect(screen.getByText(/1\/2 belegt/)).toBeInTheDocument()
@@ -153,8 +192,19 @@ describe('RoomVisualization', () => {
 
   it('passes BedGridSummary with correct occupied/available counts', () => {
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
-    const occupied = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', placements: [makePlacement('r1')] })
-    const available = makeSpot({ id: 'b2', type: 'BED', parentSpotId: 'r1', status: 'AVAILABLE', placements: [] })
+    const occupied = makeSpot({
+      id: 'b1',
+      type: 'BED',
+      parentSpotId: 'r1',
+      placements: [makePlacement('r1')],
+    })
+    const available = makeSpot({
+      id: 'b2',
+      type: 'BED',
+      parentSpotId: 'r1',
+      status: 'AVAILABLE',
+      placements: [],
+    })
     render(<RoomVisualization spots={[room, occupied, available]} housingUnitId={UNIT_ID} />)
     const summary = screen.getByTestId('bed-grid-summary')
     expect(summary).toHaveAttribute('data-occupied', '1')
@@ -207,7 +257,12 @@ describe('RoomVisualization', () => {
   })
 
   it('ignores non-ACTIVE placements for occupied check', () => {
-    const spot = makeSpot({ id: 's1', type: 'PRIVATE_ROOM', status: 'AVAILABLE', placements: [makePlacement('abc', 'ENDED')] })
+    const spot = makeSpot({
+      id: 's1',
+      type: 'PRIVATE_ROOM',
+      status: 'AVAILABLE',
+      placements: [makePlacement('abc', 'ENDED')],
+    })
     render(<RoomVisualization spots={[spot]} housingUnitId={UNIT_ID} />)
     // Should show available, not occupied
     expect(screen.getByText('Frei')).toBeInTheDocument()
@@ -260,7 +315,7 @@ describe('RoomVisualization', () => {
         spots={[room, bed]}
         housingUnitId={UNIT_ID}
         onAvailableBedClick={onBedClick}
-      />
+      />,
     )
     fireEvent.click(screen.getByTestId('bed-b1'))
     expect(onBedClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'b1' }))
@@ -271,11 +326,7 @@ describe('RoomVisualization', () => {
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
     const bed = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', code: 'B1' })
     render(
-      <RoomVisualization
-        spots={[room, bed]}
-        housingUnitId={UNIT_ID}
-        onPlaceResident={onPlace}
-      />
+      <RoomVisualization spots={[room, bed]} housingUnitId={UNIT_ID} onPlaceResident={onPlace} />,
     )
     fireEvent.click(screen.getByTestId('bed-b1'))
     expect(onPlace).toHaveBeenCalledWith('b1')
@@ -299,7 +350,12 @@ describe('RoomVisualization', () => {
 
   it('shows 50% occupancy when half beds occupied', () => {
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
-    const b1 = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', placements: [makePlacement('r1')] })
+    const b1 = makeSpot({
+      id: 'b1',
+      type: 'BED',
+      parentSpotId: 'r1',
+      placements: [makePlacement('r1')],
+    })
     const b2 = makeSpot({ id: 'b2', type: 'BED', parentSpotId: 'r1', placements: [] })
     render(<RoomVisualization spots={[room, b1, b2]} housingUnitId={UNIT_ID} useBedGrid={false} />)
     expect(screen.getByText('50%')).toBeInTheDocument()
@@ -307,8 +363,18 @@ describe('RoomVisualization', () => {
 
   it('shows 100% occupancy when all beds occupied', () => {
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
-    const b1 = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', placements: [makePlacement('r1')] })
-    const b2 = makeSpot({ id: 'b2', type: 'BED', parentSpotId: 'r1', placements: [makePlacement('r2')] })
+    const b1 = makeSpot({
+      id: 'b1',
+      type: 'BED',
+      parentSpotId: 'r1',
+      placements: [makePlacement('r1')],
+    })
+    const b2 = makeSpot({
+      id: 'b2',
+      type: 'BED',
+      parentSpotId: 'r1',
+      placements: [makePlacement('r2')],
+    })
     render(<RoomVisualization spots={[room, b1, b2]} housingUnitId={UNIT_ID} useBedGrid={false} />)
     expect(screen.getByText('100%')).toBeInTheDocument()
   })

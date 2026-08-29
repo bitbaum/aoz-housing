@@ -107,29 +107,34 @@ beforeEach(() => {
   // Echoes the id that was asked for, the way the real query does — a fixed id
   // would make "am I looking at my own profile" false for everyone.
   mockResidentFindUnique.mockImplementation((args: { where: { id: string } }) =>
-    Promise.resolve({ id: args.where.id, profileVisibility: 'ROOMMATES' })
+    Promise.resolve({ id: args.where.id, profileVisibility: 'ROOMMATES' }),
   )
   mockResidentUpdate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'georgy', code: 'RES-GEO001', ...(args.data as object) })
+    Promise.resolve({ id: 'georgy', code: 'RES-GEO001', ...(args.data as object) }),
   )
   mockUnitUpdate.mockImplementation((args: { data: { nickname: string | null } }) =>
-    Promise.resolve({ id: 'unit-1', nickname: args.data.nickname })
+    Promise.resolve({ id: 'unit-1', nickname: args.data.nickname }),
   )
 })
 
 describe('PATCH /api/portal/profile', () => {
   it('returns 401 without a session', async () => {
     mockGetPortalResident.mockResolvedValue(null)
-    const response = await patchProfile(jsonRequest('/api/portal/profile', { displayName: 'Georgy' }))
+    const response = await patchProfile(
+      jsonRequest('/api/portal/profile', { displayName: 'Georgy' }),
+    )
     expect(response.status).toBe(401)
   })
 
   it('updates displayName and bio', async () => {
     const response = await patchProfile(
-      jsonRequest('/api/portal/profile', { displayName: '  Georgy ', bio: 'Zimmer 1' })
+      jsonRequest('/api/portal/profile', { displayName: '  Georgy ', bio: 'Zimmer 1' }),
     )
     expect(response.status).toBe(200)
-    expect(mockResidentUpdate.mock.calls[0][0].data).toEqual({ displayName: 'Georgy', bio: 'Zimmer 1' })
+    expect(mockResidentUpdate.mock.calls[0][0].data).toEqual({
+      displayName: 'Georgy',
+      bio: 'Zimmer 1',
+    })
   })
 
   it('clears a field when the empty string is sent', async () => {
@@ -144,7 +149,7 @@ describe('PATCH /api/portal/profile', () => {
 
   it('rejects an over-long displayName', async () => {
     const response = await patchProfile(
-      jsonRequest('/api/portal/profile', { displayName: 'x'.repeat(100) })
+      jsonRequest('/api/portal/profile', { displayName: 'x'.repeat(100) }),
     )
     expect(response.status).toBe(400)
     expect(mockResidentUpdate).not.toHaveBeenCalled()
@@ -273,7 +278,9 @@ describe('GET /api/portal/residents/[id]/photo', () => {
 
 describe('PATCH /api/portal/apartment', () => {
   it('sets the nickname for the own unit', async () => {
-    const response = await patchApartment(jsonRequest('/api/portal/apartment', { nickname: 'Singapur' }))
+    const response = await patchApartment(
+      jsonRequest('/api/portal/apartment', { nickname: 'Singapur' }),
+    )
     expect(response.status).toBe(200)
     expect(mockUnitUpdate.mock.calls[0][0]).toMatchObject({
       where: { id: 'unit-1' },
@@ -288,7 +295,9 @@ describe('PATCH /api/portal/apartment', () => {
 
   it('returns 401 without a placement-backed session', async () => {
     mockGetPortalAuth.mockResolvedValue(null)
-    const response = await patchApartment(jsonRequest('/api/portal/apartment', { nickname: 'Singapur' }))
+    const response = await patchApartment(
+      jsonRequest('/api/portal/apartment', { nickname: 'Singapur' }),
+    )
     expect(response.status).toBe(401)
     expect(mockUnitUpdate).not.toHaveBeenCalled()
   })

@@ -47,7 +47,7 @@ beforeEach(() => {
   mockRequireStaffAuth.mockResolvedValue({ id: 'staff-1', name: 'M. Keller', role: 'ADMIN' })
   mockUnitFindUnique.mockResolvedValue({ id: 'unit-1', code: 'DEMO-U05' })
   mockTaskCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'task-1', ...(args.data as object) })
+    Promise.resolve({ id: 'task-1', ...(args.data as object) }),
   )
 })
 
@@ -68,7 +68,7 @@ describe('POST /api/chores (staff)', () => {
     expect(mockTaskCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ housingUnitId: 'unit-1', title: 'Küche putzen' }),
-      })
+      }),
     )
   })
 
@@ -80,7 +80,7 @@ describe('POST /api/chores (staff)', () => {
     await post(VALID)
 
     expect(mockTaskCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ createdByStaff: 'M. Keller' }) })
+      expect.objectContaining({ data: expect.objectContaining({ createdByStaff: 'M. Keller' }) }),
     )
   })
 
@@ -127,7 +127,7 @@ describe('POST /api/chores (staff)', () => {
         action: 'CREATE',
         entity: 'HOUSEHOLD_TASK',
         changes: expect.objectContaining({ unit: 'DEMO-U05', createdBy: 'M. Keller' }),
-      })
+      }),
     )
   })
 })

@@ -6,16 +6,8 @@
  * into a place where reports disappear.
  */
 
-import {
-  mergeResidentReports,
-  fromIncident,
-  fromMaintenanceRequest,
-} from '../resident-reports'
-import {
-  isMaintenanceType,
-  maintenanceCategoryFor,
-  maintenancePriorityFor,
-} from '../routing'
+import { mergeResidentReports, fromIncident, fromMaintenanceRequest } from '../resident-reports'
+import { isMaintenanceType, maintenanceCategoryFor, maintenancePriorityFor } from '../routing'
 
 const incident = (over: Partial<Parameters<typeof fromIncident>[0]> = {}) => ({
   id: 'inc-1',
@@ -68,14 +60,18 @@ describe('mergeResidentReports', () => {
     const merged = mergeResidentReports(
       [],
       [maintenance({ status: 'COMPLETED', resolution: 'Dichtung ersetzt.' })],
-      10
+      10,
     )
     expect(merged[0].answer).toBe('Dichtung ersetzt.')
     expect(merged[0].isDone).toBe(true)
   })
 
   it('puts unanswered reports first — that is what the resident came for', () => {
-    const done = maintenance({ id: 'mr-done', status: 'COMPLETED', createdAt: new Date('2026-08-13T10:00:00Z') })
+    const done = maintenance({
+      id: 'mr-done',
+      status: 'COMPLETED',
+      createdAt: new Date('2026-08-13T10:00:00Z'),
+    })
     const open = incident({ id: 'inc-open', date: new Date('2026-08-01T10:00:00Z') })
     const merged = mergeResidentReports([open], [done], 10)
     expect(merged.map((r) => r.id)).toEqual(['inc-open', 'mr-done'])
@@ -101,7 +97,7 @@ describe('mergeResidentReports', () => {
     const merged = mergeResidentReports(
       [incident({ id: 'a' }), incident({ id: 'b' })],
       [maintenance({ id: 'c' }), maintenance({ id: 'd' })],
-      3
+      3,
     )
     expect(merged).toHaveLength(3)
   })
@@ -118,7 +114,7 @@ describe('mergeResidentReports', () => {
   it('returns every report when no limit is given', () => {
     const merged = mergeResidentReports(
       [incident({ id: 'a' }), incident({ id: 'b' }), incident({ id: 'c' })],
-      [maintenance({ id: 'd' }), maintenance({ id: 'e' }), maintenance({ id: 'f' })]
+      [maintenance({ id: 'd' }), maintenance({ id: 'e' }), maintenance({ id: 'f' })],
     )
 
     expect(merged).toHaveLength(6)

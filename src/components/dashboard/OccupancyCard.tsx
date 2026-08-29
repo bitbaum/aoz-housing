@@ -33,14 +33,14 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">{DASHBOARD_LABELS.sectionOccupancy}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
+        {DASHBOARD_LABELS.sectionOccupancy}
+      </h2>
 
       {/* Progress bar visualization */}
       <Link href="/housing" className="block mb-4 group">
         <div className="flex items-baseline gap-2 mb-2">
-          <span className={`text-3xl font-bold ${occupancyTextColor}`}>
-            {occupancyPercent}%
-          </span>
+          <span className={`text-3xl font-bold ${occupancyTextColor}`}>{occupancyPercent}%</span>
           <span className="text-ui-muted text-sm">{DASHBOARD_LABELS.occupancyOccupied}</span>
         </div>
         <div className="meter-lg">
@@ -50,7 +50,11 @@ export function OccupancyCard({ occupiedBeds, totalBeds, unitStatus }: Occupancy
           />
         </div>
         <p className="text-sm text-ui-muted mt-2 group-hover:text-ui-muted">
-          {occupiedBeds} {DASHBOARD_LABELS.occupancyOf} {totalBeds} {DASHBOARD_LABELS.occupancyPlaces} • <span className="font-medium">{freeBeds} {DASHBOARD_LABELS.occupancyFree}</span>
+          {occupiedBeds} {DASHBOARD_LABELS.occupancyOf} {totalBeds}{' '}
+          {DASHBOARD_LABELS.occupancyPlaces} •{' '}
+          <span className="font-medium">
+            {freeBeds} {DASHBOARD_LABELS.occupancyFree}
+          </span>
         </p>
       </Link>
 

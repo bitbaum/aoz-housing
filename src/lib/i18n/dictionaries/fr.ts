@@ -72,9 +72,9 @@ export const fr: Dictionary = {
   'action.close': 'Fermer',
   'action.showAll': 'Tout afficher',
   'error.generic': "Une erreur s'est produite. Veuillez reessayer.",
-  'error.accountNotFound':
-    'Ton compte est introuvable. Contacte ta personne de suivi.',
-  'error.portalMessage': "Une erreur s'est produite lors du chargement du portail. Veuillez reessayer.",
+  'error.accountNotFound': 'Ton compte est introuvable. Contacte ta personne de suivi.',
+  'error.portalMessage':
+    "Une erreur s'est produite lors du chargement du portail. Veuillez reessayer.",
   'error.portalHome': "Retour a l'apercu",
 
   'language.label': 'Langue',
@@ -82,10 +82,10 @@ export const fr: Dictionary = {
   'language.machineNotice':
     'Cette traduction n’a pas encore été vérifiée par une personne de langue maternelle.',
 
-  'safety.emergency':
-    'En cas d’urgence : appelle le 112 ou contacte l’administration du logement',
+  'safety.emergency': 'En cas d’urgence : appelle le 112 ou contacte l’administration du logement',
 
-  'placement.none': 'Tu n’as pas encore de logement. Dès que tu seras attribué·e, tu verras ici ce qui se passe dans ta maison.',
+  'placement.none':
+    'Tu n’as pas encore de logement. Dès que tu seras attribué·e, tu verras ici ce qui se passe dans ta maison.',
   'help.title': 'Aide et FAQ',
   'help.subtitle': 'Réponses et contact — en cas de danger, d’abord les numéros d’urgence.',
   'help.faqTitle': 'Questions fréquentes',
@@ -96,9 +96,11 @@ export const fr: Dictionary = {
   'help.faq.placement.a':
     'Nous tenons compte du sommeil, du bruit, de la propreté et des langues. Plus tes réponses sont précises, meilleur est le placement.',
   'help.faq.preferences.q': 'Puis-je modifier mes informations ?',
-  'help.faq.preferences.a': 'Oui, sous Paramètres. Les changements valent pour les placements futurs.',
+  'help.faq.preferences.a':
+    'Oui, sous Paramètres. Les changements valent pour les placements futurs.',
   'help.faq.conflict.q': 'Que se passe-t-il en cas de conflit ?',
-  'help.faq.conflict.a': 'Utilise « Signaler » dans le portail. L’équipe prend chaque signalement au sérieux.',
+  'help.faq.conflict.a':
+    'Utilise « Signaler » dans le portail. L’équipe prend chaque signalement au sérieux.',
   'help.faq.transfer.q': 'Puis-je demander un déménagement ?',
   'help.faq.transfer.a': 'Oui, via Transfert ou ta personne de suivi.',
   'help.faq.privacy.q': 'Mes données sont-elles protégées ?',
@@ -153,7 +155,8 @@ export const fr: Dictionary = {
 
   'marketplace.yoursTitle': 'Vos annonces',
   'marketplace.title': 'Marché',
-  'marketplace.subtitle': 'Transmettre des objets et se donner un coup de main — dans ton logement et au-delà.',
+  'marketplace.subtitle':
+    'Transmettre des objets et se donner un coup de main — dans ton logement et au-delà.',
   'marketplace.ownUnit': 'Ton logement',
   'marketplace.otherUnits': 'Autres logements',
   'marketplace.empty': "Aucune annonce pour l'instant.",
@@ -197,9 +200,11 @@ export const fr: Dictionary = {
   'marketplace.categoryPaperwork': 'Papiers et courrier',
   'marketplace.filterAll': 'Tout',
   'marketplace.openOnly': 'Uniquement les annonces ouvertes des autres logements.',
-  'marketplace.noMoney': 'Entraide entre voisins, sans rémunération. Les missions rémunérées sont dans Missions.',
+  'marketplace.noMoney':
+    'Entraide entre voisins, sans rémunération. Les missions rémunérées sont dans Missions.',
   'marketplace.formContact': 'Comment vous joindre ?',
-  'marketplace.formContactHint': 'Visible uniquement par la personne qui accepte et par l’équipe. Exemple : chambre 3, le soir.',
+  'marketplace.formContactHint':
+    'Visible uniquement par la personne qui accepte et par l’équipe. Exemple : chambre 3, le soir.',
   'marketplace.contactLabel': 'Contact',
   'marketplace.release': 'Finalement non',
   'marketplace.reopen': 'Rouvrir',
@@ -209,7 +214,8 @@ export const fr: Dictionary = {
   'marketplace.postedAgo': 'Publié',
 
   'events.title': 'Événements',
-  'events.subtitle': "Réunions de maison et moments partagés — réponds, ou crée toi-même un événement.",
+  'events.subtitle':
+    'Réunions de maison et moments partagés — réponds, ou crée toi-même un événement.',
   'events.empty': 'Aucun événement prévu.',
   'events.createNew': 'Nouvel événement',
   'events.formTitle': 'Titre',
@@ -249,12 +255,12 @@ export const fr: Dictionary = {
   'dashboard.smokingAllowed': 'Fumer autorisé',
   'dashboard.noSmoking': 'Interdiction de fumer',
   'dashboard.petsAllowed': 'Animaux autorisés',
-  'dashboard.noPets': 'Pas d\'animaux',
+  'dashboard.noPets': "Pas d'animaux",
   'dashboard.roommates': 'Colocataires',
-  'dashboard.noHousingContact': 'Aucun logement assigné pour l\'instant.',
+  'dashboard.noHousingContact': "Aucun logement assigné pour l'instant.",
   'dashboard.myReports': 'Mes signalements',
   'dashboard.newReport': 'Nouveau signalement',
-  'dashboard.noReports': 'Aucun signalement pour l\'instant.',
+  'dashboard.noReports': "Aucun signalement pour l'instant.",
   'dashboard.quickChores': 'Tâches',
   'dashboard.taskSingular': 'tâche',
   'dashboard.taskPlural': 'tâches',
@@ -270,7 +276,8 @@ export const fr: Dictionary = {
   'dashboard.onboarding.step3': 'Explorer le logement',
   'dashboard.onboarding.step4': 'Rencontrer les colocataires',
   'dashboard.onboarding.completePreferences': 'Indiquer les préférences',
-  'dashboard.onboarding.completePreferencesHint': 'Pour que nous puissions te proposer le bon logement.',
+  'dashboard.onboarding.completePreferencesHint':
+    'Pour que nous puissions te proposer le bon logement.',
   'dashboard.onboarding.browseHousing': 'Explorer le logement',
   'dashboard.onboarding.browseHousingHint': 'Voir où tu es hébergé·e.',
 
@@ -282,7 +289,8 @@ export const fr: Dictionary = {
   'decisions.phaseDiscussion': 'Discussion',
   'decisions.phaseVoting': 'Vote',
   'decisions.days': 'jours',
-  'decisions.tooFewVoters': 'Trop peu de personnes vivent ici en ce moment pour un vote. Tu peux quand même soumettre des propositions — l’équipe en discutera avec vous.',
+  'decisions.tooFewVoters':
+    'Trop peu de personnes vivent ici en ce moment pour un vote. Tu peux quand même soumettre des propositions — l’équipe en discutera avec vous.',
 
   'activities.dashboardTitle': 'Activités et cours',
   'activities.dashboardSubtitle': 'Recommandations pour toi.',
@@ -295,8 +303,8 @@ export const fr: Dictionary = {
   'expenses.dashboardCta': 'Gérer les dépenses',
   'expenses.dashboardBalance': 'Ton solde',
   'expenses.balanceSettled': 'Tout est réglé',
-  'expenses.balancePositive': 'On te doit de l\'argent',
-  'expenses.balanceNegative': 'Tu dois de l\'argent',
+  'expenses.balancePositive': "On te doit de l'argent",
+  'expenses.balanceNegative': "Tu dois de l'argent",
 
   'reports.showAllCount': 'Afficher tous les signalements',
 
@@ -305,12 +313,12 @@ export const fr: Dictionary = {
   'satisfaction.privacyNote': 'Tes informations restent confidentielles.',
   'satisfaction.thankYouTitle': 'Merci pour ton retour !',
   'satisfaction.thankYouMessage': 'Nous avons bien reçu ton retour.',
-  'satisfaction.concernsForwarded': 'Tes préoccupations ont été transmises à l\'équipe.',
-  'satisfaction.today': 'Aujourd\'hui',
+  'satisfaction.concernsForwarded': "Tes préoccupations ont été transmises à l'équipe.",
+  'satisfaction.today': "Aujourd'hui",
   'satisfaction.lastFeedback': 'Dernier retour',
   'satisfaction.newFeedback': 'Donner un nouveau retour',
 
-  'reports.backToOverview': 'Retour à l\'aperçu',
+  'reports.backToOverview': "Retour à l'aperçu",
   'reports.emptyAction': 'Signaler un problème',
   'reports.openSection': 'Ouverts',
   'reports.doneSection': 'Résolus',
@@ -320,20 +328,21 @@ export const fr: Dictionary = {
   'report.categoryConflictDesc': 'Problèmes avec des colocataires ou voisins',
   'report.titleMaintenance': 'Signaler un problème technique',
   'report.titleConflict': 'Signaler un conflit',
-  'report.conflictSubtitle': 'Pour les problèmes avec des colocataires. Ton signalement est traité confidentiellement.',
+  'report.conflictSubtitle':
+    'Pour les problèmes avec des colocataires. Ton signalement est traité confidentiellement.',
   'report.typeLabel': 'Type de problème',
   'report.conflictTypeLabel': 'Type de conflit',
   'report.selectPlaceholder': 'Choisis…',
   'report.locationLabel': 'Où est le problème ?',
   'report.involvedLabel': 'Personne concernée (optionnel)',
   'report.involvedPlaceholder': 'Je préfère ne pas dire',
-  'report.involvedExternal': 'Quelqu\'un de l\'extérieur',
+  'report.involvedExternal': "Quelqu'un de l'extérieur",
   'report.confidentialNote': 'Cette information reste confidentielle',
   'report.descriptionLabel': 'Description',
-  'report.conflictDescriptionLabel': 'Qu\'est-ce qui s\'est passé ?',
+  'report.conflictDescriptionLabel': "Qu'est-ce qui s'est passé ?",
   'report.descriptionPlaceholder': 'Décris le problème le plus précisément possible…',
   'report.conflictDescriptionPlaceholder': 'Décris la situation…',
-  'report.dateLabel': 'Quand cela s\'est-il passé ?',
+  'report.dateLabel': "Quand cela s'est-il passé ?",
   'report.severityLabel': 'Urgence',
   'report.conflictSeverityLabel': 'À quel point est-ce grave pour toi ?',
   'report.mediationLabel': 'Je souhaite une médiation avec la gestion',
@@ -346,7 +355,8 @@ export const fr: Dictionary = {
   'report.nextStep1': 'Ton signalement est enregistré et visible par l’équipe.',
   'report.nextStep2': 'L’équipe le priorise selon l’urgence.',
   'report.nextStep3': 'En cas de questions ou d’urgence, l’équipe te contacte.',
-  'report.successTip': 'Astuce : sous « Mes signalements » tu vois si un signalement est ouvert ou résolu.',
+  'report.successTip':
+    'Astuce : sous « Mes signalements » tu vois si un signalement est ouvert ou résolu.',
   'report.errorGeneric': 'Envoi impossible. Réessaie.',
   'report.quickTitle': 'Signalement rapide',
   'report.quickSubtitle': 'Cas typiques en un clic',
@@ -359,11 +369,13 @@ export const fr: Dictionary = {
   'report.transparency.after': 'Les cas urgents sont traités en priorité.',
   'report.transparency.seeMine': 'Voir tes signalements précédents',
   'report.template.urgentRepair.label': 'Réparation urgente',
-  'report.template.urgentRepair.description': 'Défaut urgent : quoi, depuis quand, et qu’est-ce qui est limité ?',
+  'report.template.urgentRepair.description':
+    'Défaut urgent : quoi, depuis quand, et qu’est-ce qui est limité ?',
   'report.template.noise.label': 'Bruit',
   'report.template.noise.description': 'Bruit : moment, fréquence et ce que tu as déjà tenté.',
   'report.template.safety.label': 'Sécurité',
-  'report.template.safety.description': 'Risque, personnes impliquées et ce qui est nécessaire tout de suite.',
+  'report.template.safety.description':
+    'Risque, personnes impliquées et ce qui est nécessaire tout de suite.',
   'report.maintenanceType.PLUMBING': 'Sanitaire (WC, douche, robinets)',
   'report.maintenanceType.ELECTRICAL': 'Électricité (lumière, prises)',
   'report.maintenanceType.HEATING_COOLING': 'Chauffage / climatisation',
@@ -395,7 +407,7 @@ export const fr: Dictionary = {
   'report.severity.interpersonal.MEDIUM.label': 'Pénible',
   'report.severity.interpersonal.MEDIUM.desc': 'Affecte mon quotidien',
   'report.severity.interpersonal.HIGH.label': 'Très pénible',
-  'report.severity.interpersonal.HIGH.desc': 'J\'ai besoin de soutien',
+  'report.severity.interpersonal.HIGH.desc': "J'ai besoin de soutien",
   'report.severity.interpersonal.CRITICAL.label': 'Insupportable',
   'report.severity.interpersonal.CRITICAL.desc': 'Aide urgente nécessaire',
   'contact.fallbackLead': 'Contacte ta personne de suivi — pour les dégâts :',
@@ -459,7 +471,8 @@ export const fr: Dictionary = {
   'expenses.splitAll': 'all',
   'expenses.statementExpenses': 'Expenses',
   'expenses.statementNet': 'Balance',
-  'expenses.statementNetHint': 'Balance = paid minus share. Positive means they fronted money for others this month.',
+  'expenses.statementNetHint':
+    'Balance = paid minus share. Positive means they fronted money for others this month.',
   'expenses.statementPaid': 'Paid',
   'expenses.statementPerson': 'Person',
   'expenses.statementShare': 'Share',
@@ -479,7 +492,8 @@ export const fr: Dictionary = {
   'housingBrowse.elevator': 'Lift',
   'housingBrowse.emptyUnit': 'No residents yet — you would be the first!',
   'housingBrowse.groundFloor': 'Ground floor',
-  'housingBrowse.noMatches': 'No suitable accommodation available right now. Please contact your support team.',
+  'housingBrowse.noMatches':
+    'No suitable accommodation available right now. Please contact your support team.',
   'housingBrowse.noSmoking': 'Non-smoking',
   'housingBrowse.petsAllowed': 'Pets allowed',
   'housingBrowse.privateKitchen': 'Private kitchen',
@@ -516,7 +530,8 @@ export const fr: Dictionary = {
   'preferences.field.sleepSchedule': 'Sleep schedule',
   'preferences.field.smoking': 'Smoking',
   'preferences.field.socialStyle': 'Social preference',
-  'preferences.hint.additionalPrefsPlaceholder': 'e.g. \'I work night shifts\', \'I am allergic to cats\'...',
+  'preferences.hint.additionalPrefsPlaceholder':
+    "e.g. 'I work night shifts', 'I am allergic to cats'...",
   'preferences.hint.chaosTolerance': 'How well can you live with mess?',
   'preferences.hint.cleanlinessExpectation': 'How tidy should others be?',
   'preferences.hint.cleanlinessPractice': 'How tidy do you keep your own space?',
@@ -525,7 +540,8 @@ export const fr: Dictionary = {
   'preferences.hint.noiseTolerance': 'How sensitive are you to noise?',
   'preferences.hint.privacyNeed': 'How much private space do you need?',
   'preferences.hint.roommatePrefs': 'Optional: any special wishes for housemates?',
-  'preferences.privacyMessage': 'Your information is only used to find suitable housemates. It is not shared with third parties. You can change or delete your data anytime.',
+  'preferences.privacyMessage':
+    'Your information is only used to find suitable housemates. It is not shared with third parties. You can change or delete your data anytime.',
   'preferences.privacyTitle': 'Privacy',
   'preferences.saveButton': 'Enregistrer les paramètres',
   'preferences.saveTip': 'Tip: Save below when you are done. Changes only apply after saving.',
@@ -539,7 +555,8 @@ export const fr: Dictionary = {
   'preferences.unsavedChanges': 'Unsaved changes.',
   'profile.bioLabel': 'About me',
   'profile.bioPlaceholder': 'e.g. I like cooking and get up early.',
-  'profile.codeHint': 'The code stays your login. Name, photo and text are optional and can be changed anytime.',
+  'profile.codeHint':
+    'The code stays your login. Name, photo and text are optional and can be changed anytime.',
   'profile.codeLabel': 'Your login code',
   'profile.displayNameLabel': 'Name',
   'profile.displayNamePlaceholder': 'e.g. Georgy',
@@ -559,13 +576,15 @@ export const fr: Dictionary = {
   'profile.visibilityHint.RESIDENTS': 'Residents in other flats too.',
   'profile.visibilityHint.ROOMMATES': 'People you live with.',
   'profile.visibilityLabel': 'Who can see your profile?',
-  'profile.visibilityStaffNote': 'Support staff always see your profile — they need to know who they are supporting.',
+  'profile.visibilityStaffNote':
+    'Support staff always see your profile — they need to know who they are supporting.',
   'profile.visibleTo': 'Visible to your housemates and staff.',
   'transfer.currentUnit': 'Current accommodation',
   'transfer.decidedOn': 'Decided on',
   'transfer.decisionTitle': 'Response to your request',
   'transfer.noPlacement': 'You have not been assigned accommodation yet.',
-  'transfer.pendingMessage': 'Your transfer request is being processed. You will be notified when there is news.',
+  'transfer.pendingMessage':
+    'Your transfer request is being processed. You will be notified when there is news.',
   'transfer.pendingTitle': 'Request submitted',
   'transfer.reasonLabel': 'Why do you want to transfer?',
   'transfer.reasonPlaceholder': 'Describe the reason for your transfer request...',

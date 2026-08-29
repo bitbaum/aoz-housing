@@ -46,8 +46,8 @@ const LANGUAGE_OVERLAP_THRESHOLD = 0
 const AGE_ORDER = ['YOUNG_ADULT', 'ADULT', 'MIDDLE_AGED', 'SENIOR'] as const
 
 function ageDistance(a: string, b: string): number {
-  const idxA = AGE_ORDER.indexOf(a as typeof AGE_ORDER[number])
-  const idxB = AGE_ORDER.indexOf(b as typeof AGE_ORDER[number])
+  const idxA = AGE_ORDER.indexOf(a as (typeof AGE_ORDER)[number])
+  const idxB = AGE_ORDER.indexOf(b as (typeof AGE_ORDER)[number])
   if (idxA === -1 || idxB === -1) return 0
   return Math.abs(idxA - idxB)
 }
@@ -80,9 +80,7 @@ export function validateScoreForDiscrimination(
   // ── Check 1: Language-only low score ───────────────────────────────
   // If social dimension is the only low one and residents share no languages,
   // the low score may be driven entirely by language barrier.
-  const sharedLanguages = resident1.languages.filter(l =>
-    resident2.languages.includes(l)
-  )
+  const sharedLanguages = resident1.languages.filter((l) => resident2.languages.includes(l))
 
   if (
     sharedLanguages.length <= LANGUAGE_OVERLAP_THRESHOLD &&
@@ -92,7 +90,8 @@ export function validateScoreForDiscrimination(
   ) {
     warnings.push({
       type: 'LANGUAGE_ONLY',
-      message: 'Tiefe Bewertung basiert hauptsächlich auf fehlender gemeinsamer Sprache. Andere Faktoren zeigen gute Kompatibilität.',
+      message:
+        'Tiefe Bewertung basiert hauptsächlich auf fehlender gemeinsamer Sprache. Andere Faktoren zeigen gute Kompatibilität.',
       detail: `Low score (${score.overall}) driven by language barrier only. Lifestyle=${score.lifestyle}, Practical=${score.practical}, Social=${score.social}. Shared languages: ${sharedLanguages.length}`,
     })
   }
@@ -109,7 +108,8 @@ export function validateScoreForDiscrimination(
   ) {
     warnings.push({
       type: 'AGE_ONLY',
-      message: 'Tiefe Bewertung basiert hauptsächlich auf Altersunterschied. Prüfen Sie, ob andere Kompatibilitätsfaktoren berücksichtigt wurden.',
+      message:
+        'Tiefe Bewertung basiert hauptsächlich auf Altersunterschied. Prüfen Sie, ob andere Kompatibilitätsfaktoren berücksichtigt wurden.',
       detail: `Low score (${score.overall}) may be driven by age gap (${resident1.ageRange} vs ${resident2.ageRange}, distance=${ageDist}). Other dimensions are acceptable.`,
     })
   }
@@ -124,9 +124,9 @@ export function validateScoreForDiscrimination(
   const avgDimension = dimensions.reduce((s, d) => s + d.score, 0) / dimensions.length
 
   for (const dim of dimensions) {
-    const othersAvg = dimensions
-      .filter(d => d.name !== dim.name)
-      .reduce((s, d) => s + d.score, 0) / (dimensions.length - 1)
+    const othersAvg =
+      dimensions.filter((d) => d.name !== dim.name).reduce((s, d) => s + d.score, 0) /
+      (dimensions.length - 1)
 
     if (dim.score < othersAvg - DIMENSION_GAP_THRESHOLD && dim.score < 30) {
       warnings.push({
@@ -141,7 +141,8 @@ export function validateScoreForDiscrimination(
   if (score.overall < 20 && warnings.length === 0) {
     warnings.push({
       type: 'EXTREME_GAP',
-      message: 'Sehr tiefe Kompatibilitätsbewertung. Bitte prüfen Sie die Einzelfaktoren vor einer Entscheidung.',
+      message:
+        'Sehr tiefe Kompatibilitätsbewertung. Bitte prüfen Sie die Einzelfaktoren vor einer Entscheidung.',
       detail: `Extremely low score (${score.overall}) without specific pattern. Manual review recommended.`,
     })
   }

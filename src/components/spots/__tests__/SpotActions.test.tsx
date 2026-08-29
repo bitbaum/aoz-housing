@@ -11,11 +11,14 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       args[0].includes('Invalid value for prop') &&
       args[1] === '`action`'
-    ) return
+    )
+      return
     originalConsoleError(...args)
   }
 })
-afterAll(() => { console.error = originalConsoleError })
+afterAll(() => {
+  console.error = originalConsoleError
+})
 
 // --- Mocks ---
 
@@ -147,7 +150,7 @@ describe('SpotActions', () => {
   it('renders the ConfirmDialog with the correct delete message', () => {
     render(<SpotActions spot={AVAILABLE_SPOT} housingUnitId={UNIT_ID} />)
     expect(screen.getByTestId('confirm-message')).toHaveTextContent(
-      'Dieser Platz wird unwiderruflich gelöscht.'
+      'Dieser Platz wird unwiderruflich gelöscht.',
     )
   })
 

@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { EMPTY_STATE_LABELS, RESIDENT_LIST_LABELS, UI_LABELS, RESIDENT_STATUS_LABELS, RESIDENT_STAT_LABELS } from '@/lib/constants'
+import {
+  EMPTY_STATE_LABELS,
+  RESIDENT_LIST_LABELS,
+  UI_LABELS,
+  RESIDENT_STATUS_LABELS,
+  RESIDENT_STAT_LABELS,
+} from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Klient*innen' }
 import { getDateDaysAgo, daysSinceCeil } from '@/lib/utils'
@@ -54,13 +60,19 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
     prisma.resident.findMany({
       where: {
-        ...(view === 'active' ? { status: { in: ['ACTIVE', 'PLACED'] } } : view === 'archived' ? { status: 'EXITED' } : {}),
-        ...(q ? {
-          OR: [
-            { code: { contains: q, mode: 'insensitive' } },
-            { displayName: { contains: q, mode: 'insensitive' } },
-          ],
-        } : {}),
+        ...(view === 'active'
+          ? { status: { in: ['ACTIVE', 'PLACED'] } }
+          : view === 'archived'
+            ? { status: 'EXITED' }
+            : {}),
+        ...(q
+          ? {
+              OR: [
+                { code: { contains: q, mode: 'insensitive' } },
+                { displayName: { contains: q, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
       },
       select: {
         ...RESIDENT_NAME_SELECT,
@@ -140,8 +152,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   // assigned caseload. A Leitung/admin with no assignments used to land on an
   // empty "Keine Klient*innen zugewiesen" board while 24 real clients sat one
   // click away behind "Alle" — an empty page as the default view of a full list.
-  const filter: 'mine' | 'all' =
-    filterParam ?? (myResidentIdSet.size > 0 ? 'mine' : 'all')
+  const filter: 'mine' | 'all' = filterParam ?? (myResidentIdSet.size > 0 ? 'mine' : 'all')
 
   // Compute check-in status and assemble ClientBoardItem for each resident
   const clientBoardItems: ClientBoardItem[] = (residents as any[]).map((r) => {
@@ -168,8 +179,9 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       createdAt: r.createdAt,
       placements: r.placements ?? [],
       careSeats: r.careAssignments ?? [],
-      careAttributes: (r.careAttributes ?? [])
-        .filter((a: { domain: string }) => !viewerDomain || a.domain === viewerDomain),
+      careAttributes: (r.careAttributes ?? []).filter(
+        (a: { domain: string }) => !viewerDomain || a.domain === viewerDomain,
+      ),
       incidentCount: r._count?.incidentsAsSubject ?? 0,
       daysSinceCheckIn,
       checkInIntervalDays: intervalDays,
@@ -206,9 +218,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
               </ButtonLink>
             )}
             {can('residents:write') && (
-              <ButtonLink href="/residents/new">
-                {RESIDENT_LIST_LABELS.addResident}
-              </ButtonLink>
+              <ButtonLink href="/residents/new">{RESIDENT_LIST_LABELS.addResident}</ButtonLink>
             )}
           </>
         }
@@ -246,9 +256,24 @@ export default async function ResidentsListPage({ searchParams }: Props) {
           </Link>
         </div>
         <TabLinkGroup label={UI_LABELS.filterNav}>
-          <TabLink href={`/residents?view=active${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label="Aktiv" count={stats.active + stats.placed} active={view === 'active'} />
-          <TabLink href={`/residents?view=archived${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
-          <TabLink href={`/residents?view=all${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
+          <TabLink
+            href={`/residents?view=active${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label="Aktiv"
+            count={stats.active + stats.placed}
+            active={view === 'active'}
+          />
+          <TabLink
+            href={`/residents?view=archived${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label={UI_LABELS.archived}
+            count={stats.archived}
+            active={view === 'archived'}
+          />
+          <TabLink
+            href={`/residents?view=all${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label={UI_LABELS.all}
+            count={stats.total}
+            active={view === 'all'}
+          />
         </TabLinkGroup>
       </Toolbar>
 
@@ -258,9 +283,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
             <p className="font-medium text-ui-text">
               {stats.unplaced} {RESIDENT_LIST_LABELS.unplacedBannerSuffix}
             </p>
-            <p className="text-sm text-ui-muted">
-              {RESIDENT_LIST_LABELS.unplacedBannerDesc}
-            </p>
+            <p className="text-sm text-ui-muted">{RESIDENT_LIST_LABELS.unplacedBannerDesc}</p>
           </div>
           <ButtonLink href="/matching" variant="secondary">
             {RESIDENT_LIST_LABELS.startMatching}
@@ -296,17 +319,20 @@ export default async function ResidentsListPage({ searchParams }: Props) {
                 {RESIDENT_LIST_LABELS.filterReset}
               </ButtonLink>
             ) : view !== 'archived' && can('residents:write') ? (
-              <ButtonLink href="/residents/new">
-                {RESIDENT_LIST_LABELS.emptyFirst}
-              </ButtonLink>
+              <ButtonLink href="/residents/new">{RESIDENT_LIST_LABELS.emptyFirst}</ButtonLink>
             ) : null
           }
         />
       ) : layout === 'list' ? (
-        <ResidentsList residents={(residents as any[]).map(r => ({
-          ...r,
-          incidentCount: r._count?.incidentsAsSubject ?? 0,
-        }))} canWrite={viewerRole === 'ADMIN' || viewerRole === 'BETREUUNG' || viewerRole === 'SOZIALARBEIT'} />
+        <ResidentsList
+          residents={(residents as any[]).map((r) => ({
+            ...r,
+            incidentCount: r._count?.incidentsAsSubject ?? 0,
+          }))}
+          canWrite={
+            viewerRole === 'ADMIN' || viewerRole === 'BETREUUNG' || viewerRole === 'SOZIALARBEIT'
+          }
+        />
       ) : (
         <ClientBoard
           clients={sortedBoardItems}

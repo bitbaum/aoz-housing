@@ -5,11 +5,7 @@ import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Plätze verwalten' }
 import { createSpot, createMultipleSpots } from '@/lib/actions'
-import {
-  SPOT_TYPE_LABELS,
-  SPOT_TYPE_ICONS,
-  SPOT_STATUS_LABELS,
-} from '@/lib/config/placement-spots'
+import { SPOT_TYPE_LABELS, SPOT_TYPE_ICONS, SPOT_STATUS_LABELS } from '@/lib/config/placement-spots'
 import { SpotActions } from '@/components/spots/SpotActions'
 import { HOUSING_SPOTS_LABELS } from '@/lib/constants'
 import { residentName, type NamedResident } from '@/lib/utils/resident-name'
@@ -62,9 +58,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
 
   // Separate containers (rooms) from standalone spots
   const rooms = unit.spots.filter((s) => s.type === 'ROOM')
-  const standaloneSpots = unit.spots.filter(
-    (s) => s.type !== 'ROOM' && !s.parentSpotId
-  )
+  const standaloneSpots = unit.spots.filter((s) => s.type !== 'ROOM' && !s.parentSpotId)
 
   return (
     <div>
@@ -78,12 +72,16 @@ export default async function SpotManagementPage({ params, searchParams }: Props
               {HOUSING_SPOTS_LABELS.backLink}
             </Link>
             <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
-              {isNewUnit ? HOUSING_SPOTS_LABELS.titleNew : HOUSING_SPOTS_LABELS.titleManage}: {unit.code}
+              {isNewUnit ? HOUSING_SPOTS_LABELS.titleNew : HOUSING_SPOTS_LABELS.titleManage}:{' '}
+              {unit.code}
             </h1>
             <p className="text-ui-muted">{unit.address}</p>
           </div>
           {isNewUnit && unit.spots.length > 0 && (
-            <Link href={`/housing/${id}`} className="btn-primary min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto">
+            <Link
+              href={`/housing/${id}`}
+              className="btn-primary min-h-[44px] inline-flex items-center justify-center w-full sm:w-auto"
+            >
               {HOUSING_SPOTS_LABELS.doneBtn}
             </Link>
           )}
@@ -100,21 +98,32 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 {HOUSING_SPOTS_LABELS.welcomeTitle}
               </h2>
               <p className="text-sm text-status-info-text mb-4">
-                {HOUSING_SPOTS_LABELS.welcomeDescPre}<strong>{unit.code}</strong>{HOUSING_SPOTS_LABELS.welcomeDescPost}
+                {HOUSING_SPOTS_LABELS.welcomeDescPre}
+                <strong>{unit.code}</strong>
+                {HOUSING_SPOTS_LABELS.welcomeDescPost}
               </p>
 
               {/* Hierarchy Explanation */}
               <div className="bg-ui-surface p-4 rounded-lg border border-status-info/25 mb-4">
-                <p className="text-sm font-semibold text-ui-muted mb-2">{HOUSING_SPOTS_LABELS.hierarchyTitle}</p>
+                <p className="text-sm font-semibold text-ui-muted mb-2">
+                  {HOUSING_SPOTS_LABELS.hierarchyTitle}
+                </p>
                 <div className="flex items-center gap-2 text-sm text-ui-muted">
-                  <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBuilding}</span>
+                  <span className="px-2 py-1 bg-status-info/15 text-status-info-text rounded font-medium">
+                    {HOUSING_SPOTS_LABELS.hierarchyBuilding}
+                  </span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyRoom}</span>
+                  <span className="px-2 py-1 bg-status-success/15 text-status-success-text rounded font-medium">
+                    {HOUSING_SPOTS_LABELS.hierarchyRoom}
+                  </span>
                   <span>→</span>
-                  <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">{HOUSING_SPOTS_LABELS.hierarchyBeds}</span>
+                  <span className="px-2 py-1 bg-status-warning/15 text-status-warning-text rounded font-medium">
+                    {HOUSING_SPOTS_LABELS.hierarchyBeds}
+                  </span>
                 </div>
                 <p className="text-xs text-ui-muted mt-2">
-                  {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}<br/>
+                  {HOUSING_SPOTS_LABELS.hierarchyRoomDesc}
+                  <br />
                   {HOUSING_SPOTS_LABELS.hierarchyBedDesc}
                 </p>
               </div>
@@ -124,7 +133,11 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
                   <span className="avatar-sm h-6 w-6 bg-brand-secondary text-2xs">1</span>
                   <span className="text-status-info-text">
-                    {HOUSING_SPOTS_LABELS.step1}<code className="bg-ui-surface px-1 rounded">{HOUSING_SPOTS_LABELS.step1Code}</code>{HOUSING_SPOTS_LABELS.step1Close}
+                    {HOUSING_SPOTS_LABELS.step1}
+                    <code className="bg-ui-surface px-1 rounded">
+                      {HOUSING_SPOTS_LABELS.step1Code}
+                    </code>
+                    {HOUSING_SPOTS_LABELS.step1Close}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
@@ -133,7 +146,9 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-status-info/15 rounded-lg">
                   <span className="avatar-sm h-6 w-6 bg-brand-secondary text-2xs">3</span>
-                  <span className="text-status-info-text">&quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken</span>
+                  <span className="text-status-info-text">
+                    &quot;{HOUSING_SPOTS_LABELS.createRoomBtn}&quot; klicken
+                  </span>
                 </div>
               </div>
             </div>
@@ -145,7 +160,9 @@ export default async function SpotManagementPage({ params, searchParams }: Props
       <div className="card mb-6">
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-ui-text">
-            {isNewUnit && unit.spots.length === 0 ? HOUSING_SPOTS_LABELS.addTitleNew : HOUSING_SPOTS_LABELS.addTitle}
+            {isNewUnit && unit.spots.length === 0
+              ? HOUSING_SPOTS_LABELS.addTitleNew
+              : HOUSING_SPOTS_LABELS.addTitle}
           </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -156,9 +173,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 {HOUSING_SPOTS_LABELS.roomGroupTitle}
               </h3>
             </div>
-            <p className="text-xs text-ui-muted mb-4">
-              {HOUSING_SPOTS_LABELS.roomGroupDesc}
-            </p>
+            <p className="text-xs text-ui-muted mb-4">{HOUSING_SPOTS_LABELS.roomGroupDesc}</p>
             <form action={createMultipleSpots} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -229,13 +244,9 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           {/* Add Single Spot */}
           <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
             <div className="mb-3">
-              <h3 className="font-semibold text-ui-text">
-                {HOUSING_SPOTS_LABELS.singleTitle}
-              </h3>
+              <h3 className="font-semibold text-ui-text">{HOUSING_SPOTS_LABELS.singleTitle}</h3>
             </div>
-            <p className="text-xs text-ui-muted mb-4">
-              {HOUSING_SPOTS_LABELS.singleDesc}
-            </p>
+            <p className="text-xs text-ui-muted mb-4">{HOUSING_SPOTS_LABELS.singleDesc}</p>
             <form action={createSpot} className="space-y-3">
               <input type="hidden" name="housingUnitId" value={id} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -253,9 +264,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                   <label className="label">{HOUSING_SPOTS_LABELS.typeLabel}</label>
                   <select name="type" required className="input">
                     <option value="BED">{SPOT_TYPE_LABELS.BED}</option>
-                    <option value="PRIVATE_ROOM">
-                      {SPOT_TYPE_LABELS.PRIVATE_ROOM}
-                    </option>
+                    <option value="PRIVATE_ROOM">{SPOT_TYPE_LABELS.PRIVATE_ROOM}</option>
                     <option value="STUDIO">{SPOT_TYPE_LABELS.STUDIO}</option>
                   </select>
                 </div>
@@ -319,17 +328,12 @@ export default async function SpotManagementPage({ params, searchParams }: Props
           <div className="space-y-4">
             {/* Rooms with beds */}
             {rooms.map((room) => (
-              <div
-                key={room.id}
-                className="border border-ui-border rounded-lg overflow-hidden"
-              >
+              <div key={room.id} className="border border-ui-border rounded-lg overflow-hidden">
                 <div className="bg-ui-subtle px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{SPOT_TYPE_ICONS.ROOM}</span>
                     <div>
-                      <h4 className="font-medium text-ui-text">
-                        {room.label || room.code}
-                      </h4>
+                      <h4 className="font-medium text-ui-text">{room.label || room.code}</h4>
                       <p className="text-sm text-ui-muted">
                         {room.squareMeters && `${room.squareMeters}m² · `}
                         {room.childSpots?.length || 0} Betten
@@ -341,12 +345,7 @@ export default async function SpotManagementPage({ params, searchParams }: Props
                 </div>
                 <div className="p-4 space-y-2">
                   {room.childSpots?.map((bed) => (
-                    <SpotRow
-                      key={bed.id}
-                      spot={bed}
-                      housingUnitId={id}
-                      compact
-                    />
+                    <SpotRow key={bed.id} spot={bed} housingUnitId={id} compact />
                   ))}
                 </div>
               </div>
@@ -407,9 +406,7 @@ function SpotRow({
         <span className={compact ? 'text-lg' : 'text-xl'}>{icon}</span>
         <div>
           <div className="flex items-center gap-2">
-            <span
-              className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}
-            >
+            <span className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}>
               {spot.label || spot.code}
             </span>
             {spot.requiresMedicalDocs && (

@@ -9,14 +9,20 @@ jest.mock('@/lib/constants', () => ({
 }))
 
 jest.mock('@/components/residents/TransferRecommendations', () => ({
-  TransferRecommendations: ({ eligibleUnits, selectedUnitId, onUnitSelect }: {
+  TransferRecommendations: ({
+    eligibleUnits,
+    selectedUnitId,
+    onUnitSelect,
+  }: {
     eligibleUnits: { id: string; code: string }[]
     selectedUnitId: string
     onUnitSelect: (id: string) => void
   }) => (
     <div data-testid="transfer-recommendations">
-      {eligibleUnits.map(u => (
-        <button key={u.id} onClick={() => onUnitSelect(u.id)}>{u.code}</button>
+      {eligibleUnits.map((u) => (
+        <button key={u.id} onClick={() => onUnitSelect(u.id)}>
+          {u.code}
+        </button>
       ))}
       <span data-testid="selected">{selectedUnitId}</span>
     </div>
@@ -28,7 +34,12 @@ import type { UnitCompatibilityData } from '../TransferUnitSelector'
 
 // --- Helpers ---
 
-function makeUnit(id: string, code: string, address = 'Musterstrasse 1', spots: { type: string }[] = []) {
+function makeUnit(
+  id: string,
+  code: string,
+  address = 'Musterstrasse 1',
+  spots: { type: string }[] = [],
+) {
   return { id, code, address, spots }
 }
 
@@ -48,7 +59,7 @@ function renderSelector(overrides: {
       selectedUnitId={overrides.selectedUnitId ?? ''}
       onUnitSelect={onUnitSelect}
       unitCompatibility={overrides.unitCompatibility}
-    />
+    />,
   )
   return { onUnitSelect }
 }
@@ -79,7 +90,9 @@ describe('TransferUnitSelector — fallback select mode', () => {
 
   it('shows spot count in option label', () => {
     renderSelector({
-      eligibleUnits: [makeUnit('u1', 'HU-001', 'Hauptstrasse 1', [{ type: 'BED' }, { type: 'BED' }])],
+      eligibleUnits: [
+        makeUnit('u1', 'HU-001', 'Hauptstrasse 1', [{ type: 'BED' }, { type: 'BED' }]),
+      ],
     })
     expect(screen.getByRole('option', { name: /2 Plätze frei/ })).toBeInTheDocument()
   })
@@ -116,7 +129,7 @@ describe('TransferUnitSelector — fallback select mode', () => {
 
 describe('TransferUnitSelector — recommendation mode', () => {
   const compat: Record<string, UnitCompatibilityData> = {
-    'u1': { fitScore: 80, strengths: [], concerns: [], residents: [] },
+    u1: { fitScore: 80, strengths: [], concerns: [], residents: [] },
   }
 
   it('renders TransferRecommendations when unitCompatibility has entries', () => {

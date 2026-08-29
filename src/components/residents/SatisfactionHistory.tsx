@@ -15,9 +15,7 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
         <h2 className="text-lg font-semibold text-ui-text mb-4">
           {SATISFACTION_HISTORY_LABELS.titleEmpty}
         </h2>
-        <p className="text-ui-muted text-sm">
-          {SATISFACTION_HISTORY_LABELS.empty}
-        </p>
+        <p className="text-ui-muted text-sm">{SATISFACTION_HISTORY_LABELS.empty}</p>
       </div>
     )
   }
@@ -35,8 +33,8 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
               checkIn.overallSatisfaction >= 4
                 ? 'border-l-status-success'
                 : checkIn.overallSatisfaction >= 3
-                ? 'border-l-status-warning'
-                : 'border-l-status-error'
+                  ? 'border-l-status-warning'
+                  : 'border-l-status-error'
             }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -45,12 +43,12 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
                   {checkIn.overallSatisfaction === 1
                     ? '\u{1F622}'
                     : checkIn.overallSatisfaction === 2
-                    ? '\u{1F615}'
-                    : checkIn.overallSatisfaction === 3
-                    ? '\u{1F610}'
-                    : checkIn.overallSatisfaction === 4
-                    ? '\u{1F642}'
-                    : '\u{1F60A}'}
+                      ? '\u{1F615}'
+                      : checkIn.overallSatisfaction === 3
+                        ? '\u{1F610}'
+                        : checkIn.overallSatisfaction === 4
+                          ? '\u{1F642}'
+                          : '\u{1F60A}'}
                 </span>
                 <div>
                   <span className="font-medium text-ui-text">
@@ -63,22 +61,29 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
                   )}
                 </div>
               </div>
-              <span className="text-sm text-ui-muted">
-                {formatDate(checkIn.createdAt)}
-              </span>
+              <span className="text-sm text-ui-muted">{formatDate(checkIn.createdAt)}</span>
             </div>
 
             {/* Detailed scores if available */}
-            {(checkIn.roommateRelations || checkIn.facilitySatisfaction || checkIn.safetyFeeling) && (
+            {(checkIn.roommateRelations ||
+              checkIn.facilitySatisfaction ||
+              checkIn.safetyFeeling) && (
               <div className="flex gap-4 text-xs text-ui-muted mb-2">
                 {checkIn.roommateRelations && (
-                  <span>{SATISFACTION_HISTORY_LABELS.roommateRelations} {checkIn.roommateRelations}/5</span>
+                  <span>
+                    {SATISFACTION_HISTORY_LABELS.roommateRelations} {checkIn.roommateRelations}/5
+                  </span>
                 )}
                 {checkIn.facilitySatisfaction && (
-                  <span>{SATISFACTION_HISTORY_LABELS.facilitySatisfaction} {checkIn.facilitySatisfaction}/5</span>
+                  <span>
+                    {SATISFACTION_HISTORY_LABELS.facilitySatisfaction}{' '}
+                    {checkIn.facilitySatisfaction}/5
+                  </span>
                 )}
                 {checkIn.safetyFeeling && (
-                  <span>{SATISFACTION_HISTORY_LABELS.safetyFeeling} {checkIn.safetyFeeling}/5</span>
+                  <span>
+                    {SATISFACTION_HISTORY_LABELS.safetyFeeling} {checkIn.safetyFeeling}/5
+                  </span>
                 )}
               </div>
             )}
@@ -86,21 +91,24 @@ export async function SatisfactionHistory({ placementId }: SatisfactionHistoryPr
             {/* Concerns highlighted */}
             {checkIn.concerns && (
               <div className="text-sm text-status-error-text bg-status-error/8 p-2 rounded mt-2">
-                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.concerns}</span> {checkIn.concerns}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.concerns}</span>{' '}
+                {checkIn.concerns}
               </div>
             )}
 
             {/* Improvements */}
             {checkIn.improvements && (
               <div className="text-sm text-status-warning-text bg-status-warning/10 p-2 rounded mt-2">
-                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.improvements}</span> {checkIn.improvements}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.improvements}</span>{' '}
+                {checkIn.improvements}
               </div>
             )}
 
             {/* Positives */}
             {checkIn.positives && (
               <div className="text-sm text-status-success-text bg-status-success/10 p-2 rounded mt-2">
-                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.positives}</span> {checkIn.positives}
+                <span className="font-medium">{SATISFACTION_HISTORY_LABELS.positives}</span>{' '}
+                {checkIn.positives}
               </div>
             )}
 

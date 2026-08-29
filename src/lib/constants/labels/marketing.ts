@@ -91,10 +91,7 @@ const REGISTERS_BY_LOCALE: Record<PublicLocaleId, MarketingRegisters> = {
  * much as keys — a French page with four of the six features is not missing a
  * key anywhere, it is just quietly a smaller product.
  */
-export function isPublicCopyComplete(
-  locale: PublicLocaleId,
-  brand: BrandId = BRAND.id
-): boolean {
+export function isPublicCopyComplete(locale: PublicLocaleId, brand: BrandId = BRAND.id): boolean {
   const register = REGISTER_BY_BRAND[brand]
   const base = marketingDe[register]
   const candidate = REGISTERS_BY_LOCALE[locale]?.[register]
@@ -115,7 +112,7 @@ export function isPublicCopyComplete(
         actual.every((entry) =>
           typeof entry === 'string'
             ? entry.trim() !== ''
-            : Object.values(entry).every((v) => typeof v === 'string' && v.trim() !== '')
+            : Object.values(entry).every((v) => typeof v === 'string' && v.trim() !== ''),
         )
       )
     }
@@ -134,16 +131,11 @@ export function isPublicCopyComplete(
  * they are offered. Always at least German, which is complete by definition.
  */
 export function publicLocales(brand: BrandId = BRAND.id): Locale[] {
-  return PUBLIC_LOCALE_IDS.filter((id) => isPublicCopyComplete(id, brand)).map(
-    (id) => LOCALES[id]
-  )
+  return PUBLIC_LOCALE_IDS.filter((id) => isPublicCopyComplete(id, brand)).map((id) => LOCALES[id])
 }
 
 /** Landing copy for one language, in this deployment's register. */
-export function marketingCopy(
-  locale: PublicLocaleId,
-  brand: BrandId = BRAND.id
-): MarketingCopy {
+export function marketingCopy(locale: PublicLocaleId, brand: BrandId = BRAND.id): MarketingCopy {
   const register = REGISTER_BY_BRAND[brand]
   // Falls back to German rather than to a blank page. Unreachable through the
   // router — `generateStaticParams` only emits offered locales — but a fallback

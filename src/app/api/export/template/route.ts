@@ -20,8 +20,11 @@ export async function GET() {
   const auth = await authorizeStaff('export:read')
   if (!auth.ok) {
     return NextResponse.json(
-      { error: auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: auth.status }
+      {
+        error:
+          auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS,
+      },
+      { status: auth.status },
     )
   }
 

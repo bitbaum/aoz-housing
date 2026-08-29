@@ -132,10 +132,7 @@ describe('BedGrid', () => {
     })
 
     it('renders spot type icon for each spot', () => {
-      const spots = [
-        makeSpot({ type: 'BED' }),
-        makeSpot({ id: 'spot-2', type: 'PRIVATE_ROOM' }),
-      ]
+      const spots = [makeSpot({ type: 'BED' }), makeSpot({ id: 'spot-2', type: 'PRIVATE_ROOM' })]
       render(<BedGrid spots={spots} />)
 
       expect(screen.getByText('bed-icon')).toBeInTheDocument()
@@ -170,18 +167,14 @@ describe('BedGrid', () => {
       const spots = [makeOccupiedSpot()]
       render(<BedGrid spots={spots} />)
 
-      expect(
-        screen.getByLabelText('Platz Bett 2: belegt von RES-001')
-      ).toBeInTheDocument()
+      expect(screen.getByLabelText('Platz Bett 2: belegt von RES-001')).toBeInTheDocument()
     })
 
     it('sets correct aria-label for unavailable spot', () => {
       const spots = [makeUnavailableSpot()]
       render(<BedGrid spots={spots} />)
 
-      expect(
-        screen.getByLabelText('Platz Bett 3: nicht verfügbar')
-      ).toBeInTheDocument()
+      expect(screen.getByLabelText('Platz Bett 3: nicht verfügbar')).toBeInTheDocument()
     })
 
     it('falls back to code when label is null', () => {
@@ -328,9 +321,7 @@ describe('BedGrid', () => {
 
 describe('BedGridSummary', () => {
   it('renders nothing when total is 0', () => {
-    const { container } = render(
-      <BedGridSummary occupied={0} available={0} unavailable={0} />
-    )
+    const { container } = render(<BedGridSummary occupied={0} available={0} unavailable={0} />)
     expect(container.innerHTML).toBe('')
   })
 
@@ -341,9 +332,7 @@ describe('BedGridSummary', () => {
   })
 
   it('renders correct number of dots for small totals', () => {
-    const { container } = render(
-      <BedGridSummary occupied={2} available={1} unavailable={1} />
-    )
+    const { container } = render(<BedGridSummary occupied={2} available={1} unavailable={1} />)
 
     // 4 dots total (2 + 1 + 1), all within the 8 limit
     const dots = container.querySelectorAll('.rounded-sm')
@@ -351,18 +340,14 @@ describe('BedGridSummary', () => {
   })
 
   it('caps dots at 8 and shows overflow count', () => {
-    render(
-      <BedGridSummary occupied={5} available={3} unavailable={4} />
-    )
+    render(<BedGridSummary occupied={5} available={3} unavailable={4} />)
 
     // Total is 12, so 8 dots + "+4" text
     expect(screen.getByText('+4')).toBeInTheDocument()
   })
 
   it('uses compact styling when compact prop is true', () => {
-    const { container } = render(
-      <BedGridSummary occupied={1} available={1} compact />
-    )
+    const { container } = render(<BedGridSummary occupied={1} available={1} compact />)
 
     const dots = container.querySelectorAll('.w-3.h-3')
     expect(dots.length).toBeGreaterThan(0)

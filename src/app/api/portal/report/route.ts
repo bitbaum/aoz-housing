@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   // Derive resident and placement from cookie — never trust client-submitted IDs
@@ -37,12 +40,18 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+      { status: 404 },
+    )
   }
 
   const placement = resident.placements[0]
   if (!placement) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NO_ACTIVE_PLACEMENT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NO_ACTIVE_PLACEMENT },
+      { status: 400 },
+    )
   }
 
   let data: ReturnType<typeof validateFormData<typeof portalReportSchema>>
@@ -53,13 +62,16 @@ export async function POST(request: NextRequest) {
     if (err instanceof ValidationError) {
       return NextResponse.json({ success: false, error: err.message }, { status: 400 })
     }
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   // The maintenance board carries the location in its own column; the incident
   // table has no such field, so only that path folds it into the text.
   const locationLabel = data.location
-    ? PORTAL_LABELS.report.locations.find(l => l.value === data.location)?.label || data.location
+    ? PORTAL_LABELS.report.locations.find((l) => l.value === data.location)?.label || data.location
     : null
 
   let fullDescription = data.description
@@ -75,7 +87,11 @@ export async function POST(request: NextRequest) {
   // Validate `involvedResident` belongs to the same housing unit — prevents
   // residents from naming anyone in the system as an incident subject.
   let validatedSubjectId: string | null = null
-  if (data.involvedResident && data.involvedResident !== 'external' && data.involvedResident !== 'anonymous') {
+  if (
+    data.involvedResident &&
+    data.involvedResident !== 'external' &&
+    data.involvedResident !== 'anonymous'
+  ) {
     const candidate = await prisma.placement.findFirst({
       where: {
         residentId: data.involvedResident,
@@ -87,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (!candidate) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
-        { status: 400 }
+        { status: 400 },
       )
     }
     validatedSubjectId = candidate.residentId
@@ -131,7 +147,7 @@ export async function POST(request: NextRequest) {
         location: locationLabel,
       })
       notifyStaff(mail.subject, mail.html).catch((err) =>
-        logger.errorWithCause('Failed to send maintenance notification', err)
+        logger.errorWithCause('Failed to send maintenance notification', err),
       )
 
       return NextResponse.json({ success: true })
@@ -174,16 +190,24 @@ export async function POST(request: NextRequest) {
       type: data.type,
       severity: data.severity,
       description: fullDescription.slice(0, 500),
-      subjectCode: data.involvedResident && data.involvedResident !== 'external' && data.involvedResident !== 'anonymous'
-        ? data.involvedResident : undefined,
+      subjectCode:
+        data.involvedResident &&
+        data.involvedResident !== 'external' &&
+        data.involvedResident !== 'anonymous'
+          ? data.involvedResident
+          : undefined,
       requestedMediation: data.requestMediation ?? false,
     })
-    notifyStaff(email.subject, email.html)
-      .catch((err) => logger.errorWithCause('Failed to send incident notification', err))
+    notifyStaff(email.subject, email.html).catch((err) =>
+      logger.errorWithCause('Failed to send incident notification', err),
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to create portal incident', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.REPORT_SAVE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.REPORT_SAVE_ERROR },
+      { status: 500 },
+    )
   }
 }

@@ -252,23 +252,13 @@ export function LearningForm({
           <label htmlFor="learning-startedAt" className="label">
             {LEARNING_LABELS.startedAt}
           </label>
-          <input
-            id="learning-startedAt"
-            name="startedAt"
-            type="date"
-            className="input"
-          />
+          <input id="learning-startedAt" name="startedAt" type="date" className="input" />
         </div>
         <div>
           <label htmlFor="learning-completedAt" className="label">
             {LEARNING_LABELS.completedAt}
           </label>
-          <input
-            id="learning-completedAt"
-            name="completedAt"
-            type="date"
-            className="input"
-          />
+          <input id="learning-completedAt" name="completedAt" type="date" className="input" />
         </div>
       </div>
 

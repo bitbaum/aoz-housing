@@ -52,8 +52,7 @@ export function isPublicLocale(value: string): value is PublicLocaleId {
  * only readers that route has.
  */
 export const PREFIXED_LOCALE_IDS: PublicLocaleId[] = PUBLIC_LOCALE_IDS.filter(
-  (id): id is Exclude<PublicLocaleId, typeof PUBLIC_DEFAULT_LOCALE> =>
-    id !== PUBLIC_DEFAULT_LOCALE
+  (id): id is Exclude<PublicLocaleId, typeof PUBLIC_DEFAULT_LOCALE> => id !== PUBLIC_DEFAULT_LOCALE,
 )
 
 /**

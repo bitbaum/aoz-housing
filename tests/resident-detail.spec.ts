@@ -13,13 +13,19 @@ async function getFirstResidentHref(page: import('@playwright/test').Page): Prom
   // The board defaults to the viewer's own case load; the seeded E2E user has
   // no assignments, so content lives behind the "all" filter.
   await page.goto('/residents?filter=all')
-  const link = page.locator('a[href^="/residents/"]').filter({ hasNotText: /Bearbeiten|Edit|neu|new/i }).first()
+  const link = page
+    .locator('a[href^="/residents/"]')
+    .filter({ hasNotText: /Bearbeiten|Edit|neu|new/i })
+    .first()
   await expect(link).toBeVisible({ timeout: 15_000 })
   return (await link.getAttribute('href'))!
 }
 
 /** Navigate via the list to find a resident by code. Returns the detail href. */
-async function getResidentHrefByCode(page: import('@playwright/test').Page, code: string): Promise<string> {
+async function getResidentHrefByCode(
+  page: import('@playwright/test').Page,
+  code: string,
+): Promise<string> {
   await page.goto('/residents?filter=all')
   const link = page.locator(`a[href^="/residents/"]`).filter({ hasText: code }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
@@ -35,7 +41,9 @@ test.describe('Resident list (/residents)', () => {
     await page.goto('/residents')
 
     // level 1: the empty "mine" board renders an h2 "Keine Klient*innen zugewiesen"
-    await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { level: 1, name: /Klient\*innen/i })).toBeVisible({
+      timeout: 15_000,
+    })
     await expect(page.getByRole('link', { name: /^\+ Klient\*in$/i })).toBeVisible()
   })
 
@@ -77,7 +85,10 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     await page.goto(href)
 
     await expect(
-      page.locator('.badge, [class*="badge"]').filter({ hasText: /Platziert|Placed/i }).first()
+      page
+        .locator('.badge, [class*="badge"]')
+        .filter({ hasText: /Platziert|Placed/i })
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -87,7 +98,10 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
 
     // ZH-001 is the seeded placement for RES-001
     await expect(
-      page.locator('a[href^="/housing/"]').filter({ hasText: /ZH-001/i }).first()
+      page
+        .locator('a[href^="/housing/"]')
+        .filter({ hasText: /ZH-001/i })
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -104,9 +118,9 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     const href = await getResidentHrefByCode(page, 'RES-001')
     await page.goto(href)
 
-    await expect(
-      page.getByRole('link', { name: /^Verlegen$/i }).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /^Verlegen$/i }).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('breadcrumb links back to /residents', async ({ page }) => {
@@ -126,9 +140,9 @@ test.describe('Resident detail — placed resident (RES-001)', () => {
     const href = await getResidentHrefByCode(page, 'RES-004')
     await page.goto(href)
 
-    await expect(
-      page.getByRole('heading', { name: /Platzierungshistorie/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Platzierungshistorie/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 })
 
@@ -142,7 +156,10 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
     await page.goto(href)
 
     await expect(
-      page.locator('.badge, [class*="badge"]').filter({ hasText: /Aktiv|Active/i }).first()
+      page
+        .locator('.badge, [class*="badge"]')
+        .filter({ hasText: /Aktiv|Active/i })
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -151,9 +168,9 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
     await page.goto(href)
 
     // Unplaced residents get a "Place" / "Platzieren" button linking to /matching
-    await expect(
-      page.getByRole('link', { name: /Platzieren|Unterbringen/i }).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /Platzieren|Unterbringen/i }).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('Place button links to matching page with resident param', async ({ page }) => {
@@ -170,9 +187,9 @@ test.describe('Resident detail — unplaced resident (RES-021)', () => {
     await page.goto(href)
 
     // CompatibleMatchesCard heading
-    await expect(
-      page.getByRole('heading', { name: /Passende Optionen/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Passende Optionen/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 })
 
@@ -225,7 +242,7 @@ test.describe('Resident edit (/residents/[id]/edit)', () => {
     await page.goto(`${href}/edit`)
 
     await expect(
-      page.getByRole('button', { name: /Speichern|Aktualisieren|Änderungen/i })
+      page.getByRole('button', { name: /Speichern|Aktualisieren|Änderungen/i }),
     ).toBeVisible({ timeout: 15_000 })
   })
 

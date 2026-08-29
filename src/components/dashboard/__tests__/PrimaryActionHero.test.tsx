@@ -7,8 +7,18 @@ import type { PrimaryActionType } from '../PrimaryActionHero'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -54,12 +64,44 @@ jest.mock('@/lib/constants/labels', () => ({
 // --- Fixtures ---
 
 const EMPTY = {
-  criticalIncidents: [] as Array<{ id: string; type: string; unitCode: string; unitId: string; daysSinceCreated: number }>,
-  overdueCheckIns: [] as Array<{ id: string; residentCode: string; residentDisplayName: string | null; residentId: string; unitCode: string; daysSinceLastCheckIn: number; supportLevel: string; isVeryOverdue?: boolean }>,
-  unplacedResidents: [] as Array<{ id: string; code: string; displayName: string | null; createdAt: Date }>,
+  criticalIncidents: [] as Array<{
+    id: string
+    type: string
+    unitCode: string
+    unitId: string
+    daysSinceCreated: number
+  }>,
+  overdueCheckIns: [] as Array<{
+    id: string
+    residentCode: string
+    residentDisplayName: string | null
+    residentId: string
+    unitCode: string
+    daysSinceLastCheckIn: number
+    supportLevel: string
+    isVeryOverdue?: boolean
+  }>,
+  unplacedResidents: [] as Array<{
+    id: string
+    code: string
+    displayName: string | null
+    createdAt: Date
+  }>,
   freeBeds: 5,
-  problemUnits: [] as Array<{ id: string; code: string; incidentCount: number; problemScore: number; unresolvedCount: number; primaryIssue: string }>,
-  proposalsAwaitingStaff: [] as Array<{ id: string; title: string; unitCode: string; daysWaiting: number }>,
+  problemUnits: [] as Array<{
+    id: string
+    code: string
+    incidentCount: number
+    problemScore: number
+    unresolvedCount: number
+    primaryIssue: string
+  }>,
+  proposalsAwaitingStaff: [] as Array<{
+    id: string
+    title: string
+    unitCode: string
+    daysWaiting: number
+  }>,
   role: 'ADMIN' as const,
 }
 
@@ -72,7 +114,16 @@ function makeIncident(id = 'i1', type = 'NOISE') {
 }
 
 function makeCheckIn(id = 'c1', daysSinceLastCheckIn = 10, isVeryOverdue = false) {
-  return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'B02', daysSinceLastCheckIn, supportLevel: 'STANDARD', isVeryOverdue }
+  return {
+    id,
+    residentCode: `RES-${id}`,
+    residentDisplayName: null,
+    residentId: `rid-${id}`,
+    unitCode: 'B02',
+    daysSinceLastCheckIn,
+    supportLevel: 'STANDARD',
+    isVeryOverdue,
+  }
 }
 
 function makeResident(id = 'r1') {
@@ -80,7 +131,14 @@ function makeResident(id = 'r1') {
 }
 
 function makeProblem(id = 'p1', unresolvedCount = 2) {
-  return { id, code: `U0${id}`, incidentCount: 3, problemScore: 8, unresolvedCount, primaryIssue: 'CONFLICT' }
+  return {
+    id,
+    code: `U0${id}`,
+    incidentCount: 3,
+    problemScore: 8,
+    unresolvedCount,
+    primaryIssue: 'CONFLICT',
+  }
 }
 
 // ─── determinePrimaryAction tests ────────────────────────────────────────────
@@ -93,7 +151,10 @@ describe('determinePrimaryAction', () => {
   })
 
   it('builds critical title with count and suffix', () => {
-    const result = determinePrimaryAction({ ...EMPTY, criticalIncidents: [makeIncident('i1'), makeIncident('i2')] })
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      criticalIncidents: [makeIncident('i1'), makeIncident('i2')],
+    })
     expect(result.title).toContain('2')
     expect(result.title).toContain('kritische Vorfälle')
   })
@@ -104,7 +165,10 @@ describe('determinePrimaryAction', () => {
   })
 
   it('critical description includes incident type label and unit code', () => {
-    const result = determinePrimaryAction({ ...EMPTY, criticalIncidents: [makeIncident('i1', 'NOISE')] })
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      criticalIncidents: [makeIncident('i1', 'NOISE')],
+    })
     expect(result.description).toContain('Lärm')
     expect(result.description).toContain('A01')
   })
@@ -147,7 +211,11 @@ describe('determinePrimaryAction', () => {
   })
 
   it('does NOT return type=place when freeBeds === 0', () => {
-    const result = determinePrimaryAction({ ...EMPTY, unplacedResidents: [makeResident()], freeBeds: 0 })
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      unplacedResidents: [makeResident()],
+      freeBeds: 0,
+    })
     // Falls through to later priorities (all clear since no others)
     expect(result.type).toBe('allclear')
   })
@@ -313,7 +381,10 @@ describe('CriticalAlertBanner', () => {
 
   it('renders edit link to first incident', () => {
     render(<CriticalAlertBanner incidents={incidents} />)
-    expect(screen.getByRole('link', { name: 'Bearbeiten' })).toHaveAttribute('href', '/incidents/inc-1')
+    expect(screen.getByRole('link', { name: 'Bearbeiten' })).toHaveAttribute(
+      'href',
+      '/incidents/inc-1',
+    )
   })
 
   it('renders dismiss button with aria-label', () => {

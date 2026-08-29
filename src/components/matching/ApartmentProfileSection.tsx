@@ -1,5 +1,9 @@
 import type { Resident, Placement } from '@prisma/client'
-import type { ApartmentConflict, ApartmentProfile, ApartmentCompatibility } from '@/lib/compatibility/types'
+import type {
+  ApartmentConflict,
+  ApartmentProfile,
+  ApartmentCompatibility,
+} from '@/lib/compatibility/types'
 import {
   SLEEP_SCHEDULE_LABELS,
   SMOKING_STATUS_LABELS,
@@ -46,7 +50,8 @@ export function ApartmentProfileSection({
     <div className="mb-3 p-3 bg-brand-secondary/8 border border-brand-secondary/20 rounded-lg">
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs font-semibold text-brand-secondary uppercase">
-          {MATCHING_LABELS.apartmentProfile} ({apartmentProfile.currentResidentCount} {MATCHING_LABELS.residents})
+          {MATCHING_LABELS.apartmentProfile} ({apartmentProfile.currentResidentCount}{' '}
+          {MATCHING_LABELS.residents})
         </p>
         <span className={`text-sm font-bold ${getScoreColorClass(apartmentFit.fitScore)}`}>
           {apartmentFit.fitScore}% {MATCHING_LABELS.matching}
@@ -59,28 +64,41 @@ export function ApartmentProfileSection({
         apartmentProfile={apartmentProfile}
       />
 
-      {apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length > 0 && (
+      {apartmentFit.conflicts.filter(
+        (c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH',
+      ).length > 0 && (
         <div className="space-y-1">
           {apartmentFit.conflicts
             .filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH')
             .map((conflict: ApartmentConflict, i: number) => (
-              <p key={i} className={`text-xs ${
-                conflict.severity === 'BLOCKING' ? 'text-status-error-text font-medium' : 'text-status-warning-text'
-              }`}>
+              <p
+                key={i}
+                className={`text-xs ${
+                  conflict.severity === 'BLOCKING'
+                    ? 'text-status-error-text font-medium'
+                    : 'text-status-warning-text'
+                }`}
+              >
                 {conflict.severity === 'BLOCKING' ? '🚫' : '⚠️'} {conflict.message}
               </p>
-            ))
-          }
+            ))}
         </div>
       )}
 
-      {apartmentFit.strengths.length > 0 && apartmentFit.conflicts.filter((c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH').length === 0 && (
-        <div className="space-y-1">
-          {apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((strength: string, i: number) => (
-            <p key={i} className="text-xs text-status-success-text">✓ {strength}</p>
-          ))}
-        </div>
-      )}
+      {apartmentFit.strengths.length > 0 &&
+        apartmentFit.conflicts.filter(
+          (c: ApartmentConflict) => c.severity === 'BLOCKING' || c.severity === 'HIGH',
+        ).length === 0 && (
+          <div className="space-y-1">
+            {apartmentFit.strengths
+              .slice(0, DISPLAY_LIMITS.matchStrengths)
+              .map((strength: string, i: number) => (
+                <p key={i} className="text-xs text-status-success-text">
+                  ✓ {strength}
+                </p>
+              ))}
+          </div>
+        )}
 
       <details className="mt-2 text-xs">
         <summary className="cursor-pointer text-brand-secondary hover:text-brand-secondary-dark font-medium">
@@ -92,12 +110,22 @@ export function ApartmentProfileSection({
 
           {apartmentFit.conflicts.length > 0 && (
             <div className="mb-2">
-              <p className="font-medium text-status-error-text">{MATCHING_LABELS.conflictDeductions}</p>
+              <p className="font-medium text-status-error-text">
+                {MATCHING_LABELS.conflictDeductions}
+              </p>
               {apartmentFit.conflicts.map((c: ApartmentConflict, i: number) => (
                 <p key={i} className="ml-2">
-                  • {c.attribute}: -{c.severity === 'BLOCKING' ? 40 : c.severity === 'HIGH' ? 20 : c.severity === 'MEDIUM' ? 10 : 5}
+                  • {c.attribute}: -
+                  {c.severity === 'BLOCKING'
+                    ? 40
+                    : c.severity === 'HIGH'
+                      ? 20
+                      : c.severity === 'MEDIUM'
+                        ? 10
+                        : 5}
                   <span className="text-ui-muted ml-1">
-                    ({formatConflictValue(c.attribute, c.residentValue)} vs {formatConflictValue(c.attribute, c.apartmentAverage)})
+                    ({formatConflictValue(c.attribute, c.residentValue)} vs{' '}
+                    {formatConflictValue(c.attribute, c.apartmentAverage)})
                   </span>
                 </p>
               ))}
@@ -106,9 +134,13 @@ export function ApartmentProfileSection({
 
           {apartmentFit.strengths.length > 0 && (
             <div className="mb-2">
-              <p className="font-medium text-status-success-text">{MATCHING_LABELS.strengthBonus} +{Math.min(apartmentFit.strengths.length * 3, 20)}</p>
+              <p className="font-medium text-status-success-text">
+                {MATCHING_LABELS.strengthBonus} +{Math.min(apartmentFit.strengths.length * 3, 20)}
+              </p>
               {apartmentFit.strengths.map((s: string, i: number) => (
-                <p key={i} className="ml-2 text-status-success-text">• {s}</p>
+                <p key={i} className="ml-2 text-status-success-text">
+                  • {s}
+                </p>
               ))}
             </div>
           )}

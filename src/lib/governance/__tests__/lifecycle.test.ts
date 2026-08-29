@@ -9,7 +9,12 @@
  */
 
 import { prisma } from '@/lib/db'
-import { adoptProposal, advanceDueProposals, closeProposal, expireStaleAgreements } from '../lifecycle'
+import {
+  adoptProposal,
+  advanceDueProposals,
+  closeProposal,
+  expireStaleAgreements,
+} from '../lifecycle'
 
 jest.mock('@/lib/db', () => ({
   prisma: {
@@ -88,7 +93,7 @@ describe('closeProposal', () => {
           parentRuleId: ORG_TOPIC.id,
           adoptedByProposalId: 'p1',
         }),
-      })
+      }),
     )
   })
 
@@ -104,7 +109,7 @@ describe('closeProposal', () => {
 
   it('creates no rule when the house voted it down', async () => {
     mockProposal.findUnique.mockResolvedValue(
-      votingProposal({ votes: [{ choice: 'NO' }, { choice: 'NO' }, { choice: 'YES' }] })
+      votingProposal({ votes: [{ choice: 'NO' }, { choice: 'NO' }, { choice: 'YES' }] }),
     )
 
     const status = await closeProposal('p1')
@@ -122,9 +127,7 @@ describe('closeProposal', () => {
   })
 
   it('holds an advisory decision for staff instead of adopting it', async () => {
-    mockProposal.findUnique.mockResolvedValue(
-      votingProposal({ decisionMode: 'RESIDENT_ADVISORY' })
-    )
+    mockProposal.findUnique.mockResolvedValue(votingProposal({ decisionMode: 'RESIDENT_ADVISORY' }))
 
     expect(await closeProposal('p1')).toBe('NEEDS_STAFF_CONFIRMATION')
     expect(mockRule.create).not.toHaveBeenCalled()
@@ -134,7 +137,7 @@ describe('closeProposal', () => {
     mockProposal.findUnique.mockResolvedValue(
       votingProposal({
         parentOrgRule: { ...ORG_TOPIC, delegation: 'UNIT_MAY_STRENGTHEN' },
-      })
+      }),
     )
 
     expect(await closeProposal('p1')).toBe('NEEDS_STAFF_CONFIRMATION')
@@ -166,7 +169,7 @@ describe('closeProposal', () => {
 describe('adoptProposal', () => {
   it('archives the target rule on a repeal', async () => {
     mockProposal.findUnique.mockResolvedValue(
-      votingProposal({ type: 'REPEAL_RULE', targetRuleId: 'rule-9' })
+      votingProposal({ type: 'REPEAL_RULE', targetRuleId: 'rule-9' }),
     )
 
     await adoptProposal('p1')
@@ -175,7 +178,7 @@ describe('adoptProposal', () => {
       expect.objectContaining({
         where: { id: 'rule-9' },
         data: expect.objectContaining({ status: 'ARCHIVED' }),
-      })
+      }),
     )
   })
 
@@ -185,13 +188,13 @@ describe('adoptProposal', () => {
         type: 'AMEND_RULE',
         targetRule: { id: 'rule-9', version: 3 },
         targetRuleId: 'rule-9',
-      })
+      }),
     )
 
     await adoptProposal('p1')
 
     expect(mockRule.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ version: 4 }) })
+      expect.objectContaining({ data: expect.objectContaining({ version: 4 }) }),
     )
   })
 
@@ -225,7 +228,7 @@ describe('advanceDueProposals', () => {
     expect(mockProposal.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: 'VOTING', eligibleVoterCount: 3 }),
-      })
+      }),
     )
   })
 
@@ -250,7 +253,7 @@ describe('advanceDueProposals', () => {
     await advanceDueProposals(new Date(), 'unit-7')
 
     expect(mockProposal.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ housingUnitId: 'unit-7' }) })
+      expect.objectContaining({ where: expect.objectContaining({ housingUnitId: 'unit-7' }) }),
     )
   })
 })

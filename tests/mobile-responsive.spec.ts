@@ -51,7 +51,9 @@ test.describe('Mobile Responsiveness', () => {
     await menuTrigger.click()
 
     // Navigation links should become visible in the drawer
-    await expect(page.locator('[role="dialog"] a[href="/residents"]')).toBeVisible({ timeout: 5000 })
+    await expect(page.locator('[role="dialog"] a[href="/residents"]')).toBeVisible({
+      timeout: 5000,
+    })
   })
 
   test('login page works on mobile', async ({ page }) => {
@@ -107,8 +109,7 @@ test.describe('Public pages on a phone', () => {
 
       // Reported as an object so a failure says BY HOW MUCH and on which page,
       // rather than "484 is not <= 391".
-      expect({ path, overflowPx: Math.max(0, doc - viewport - 1) })
-        .toEqual({ path, overflowPx: 0 })
+      expect({ path, overflowPx: Math.max(0, doc - viewport - 1) }).toEqual({ path, overflowPx: 0 })
     })
   }
 

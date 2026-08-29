@@ -12,8 +12,12 @@ import { PreferencesForm } from './PreferencesForm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 
-const LANGUAGE_OPTIONS = (RESIDENT_FACTORS.languages as { options: readonly string[] }).options.filter(c => c !== 'OTHER')
-const DIET_OPTIONS = (RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }).options.filter(c => c !== 'NONE')
+const LANGUAGE_OPTIONS = (
+  RESIDENT_FACTORS.languages as { options: readonly string[] }
+).options.filter((c) => c !== 'OTHER')
+const DIET_OPTIONS = (
+  RESIDENT_FACTORS.dietaryNeeds as { options: readonly string[] }
+).options.filter((c) => c !== 'NONE')
 
 export const dynamic = 'force-dynamic'
 

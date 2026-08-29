@@ -28,7 +28,12 @@ function enumValuesFromSchema(name: string): string[] {
 
   return match[1]
     .split('\n')
-    .map((line) => line.replace(/\/\/.*$/, '').replace(/\/\/\/.*$/, '').trim())
+    .map((line) =>
+      line
+        .replace(/\/\/.*$/, '')
+        .replace(/\/\/\/.*$/, '')
+        .trim(),
+    )
     .filter((line) => line.length > 0)
 }
 
@@ -36,7 +41,7 @@ describe('appointment statuses match the database', () => {
   it('has exactly the values the schema declares', () => {
     // Sorted: declaration order is a display concern and differs legitimately.
     expect([...APPOINTMENT_STATUSES].sort()).toEqual(
-      enumValuesFromSchema('AppointmentStatus').sort()
+      enumValuesFromSchema('AppointmentStatus').sort(),
     )
   })
 

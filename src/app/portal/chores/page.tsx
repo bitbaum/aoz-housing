@@ -37,7 +37,9 @@ export default async function ChoresPage() {
   if (!placement) {
     return (
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-2">{CHORE_LABELS.pages.list}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-ui-text mb-2">
+          {CHORE_LABELS.pages.list}
+        </h1>
         <p className="text-ui-muted">{CHORE_LABELS.errors.noPlacement}</p>
       </div>
     )
@@ -61,11 +63,7 @@ export default async function ChoresPage() {
         },
         createdByResident: { select: RESIDENT_NAME_SELECT },
       },
-      orderBy: [
-        { currentStatus: 'desc' },
-        { priority: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ currentStatus: 'desc' }, { priority: 'desc' }, { createdAt: 'desc' }],
     }),
     loadChoreBalances(placement.housingUnitId),
   ])
@@ -88,11 +86,7 @@ export default async function ChoresPage() {
         </Link>
       </div>
 
-      <ChoreList
-        tasks={serializedTasks}
-        balances={balances}
-        currentResidentId={resident.id}
-      />
+      <ChoreList tasks={serializedTasks} balances={balances} currentResidentId={resident.id} />
     </div>
   )
 }

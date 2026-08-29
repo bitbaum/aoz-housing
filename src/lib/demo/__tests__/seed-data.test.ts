@@ -95,8 +95,7 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     resident: model((d, newId) => {
       recorded.residentCodes.push(d.code as string)
       recorded.residentIdsByCode[d.code as string] = newId
-      recorded.residentNamesByCode[d.code as string] =
-        (d.displayName as string | undefined) ?? null
+      recorded.residentNamesByCode[d.code as string] = (d.displayName as string | undefined) ?? null
     }),
     placementSpot: model(),
     placement: model(),
@@ -257,9 +256,7 @@ describe('seedDemoData', () => {
     // One per category, so every position in the portal's filter row returns
     // something — a filter landing on "Keine Ergebnisse" reads as broken, not
     // as empty.
-    expect(new Set(recorded.activityCategories).size).toBe(
-      recorded.activityCategories.length
-    )
+    expect(new Set(recorded.activityCategories).size).toBe(recorded.activityCategories.length)
     expect(recorded.activityCategories.length).toBeGreaterThanOrEqual(6)
   })
 

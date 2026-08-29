@@ -68,7 +68,10 @@ export default async function ActivitiesPage({ searchParams }: Props) {
           description={selectedCategory ? t('activities.noResults') : undefined}
           action={
             selectedCategory ? (
-              <Link href="/portal/activities" className="btn-outline min-h-[44px] inline-flex items-center">
+              <Link
+                href="/portal/activities"
+                className="btn-outline min-h-[44px] inline-flex items-center"
+              >
                 {t('empty.clearFilters')}
               </Link>
             ) : undefined
@@ -109,7 +112,7 @@ export default async function ActivitiesPage({ searchParams }: Props) {
                   ) : null}
                 </div>
 
-                {(activity.website || activity.phone) ? (
+                {activity.website || activity.phone ? (
                   <div className="mt-4 flex flex-wrap gap-3">
                     {activity.website ? (
                       <a

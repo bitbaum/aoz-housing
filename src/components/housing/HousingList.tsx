@@ -24,7 +24,9 @@ export interface HousingListItem {
   buildingCode?: string | null
 }
 
-function groupHousingUnits(units: HousingListItem[]): { heading: string | null; units: HousingListItem[] }[] {
+function groupHousingUnits(
+  units: HousingListItem[],
+): { heading: string | null; units: HousingListItem[] }[] {
   const hasGroups = units.some((unit) => unit.buildingCode && unit.buildingCode.trim() !== '')
   if (!hasGroups) return [{ heading: null, units }]
 
@@ -71,9 +73,7 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
       <div className="divide-y divide-ui-border">
         {groups.map((group) => (
           <div key={group.heading ?? 'all'}>
-            {group.heading && (
-              <p className="eyebrow px-4 pt-4 pb-1">{group.heading}</p>
-            )}
+            {group.heading && <p className="eyebrow px-4 pt-4 pb-1">{group.heading}</p>}
             {group.units.map((unit) => (
               <UnitRow key={unit.id} unit={unit} />
             ))}
@@ -87,9 +87,8 @@ export function HousingList({ units }: { units: HousingListItem[] }) {
 function UnitRow({ unit }: { unit: HousingListItem }) {
   const occupancy = unit.placementCount
   const totalBeds = Math.max(unit.totalBeds, 0)
-  const occupancyPercent = totalBeds > 0
-    ? Math.max(0, Math.min(100, Math.round((occupancy / totalBeds) * 100)))
-    : 0
+  const occupancyPercent =
+    totalBeds > 0 ? Math.max(0, Math.min(100, Math.round((occupancy / totalBeds) * 100))) : 0
   const recentConflicts = unit.incidentCount
 
   const statusConfig: Record<string, { label: string; class: string }> = {
@@ -122,7 +121,9 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
             <BedDouble className="h-4 w-4" />
             {HOUSING_LIST_LABELS.occupancy}
           </span>
-          <span className="font-medium text-ui-text">{occupancy}/{totalBeds}</span>
+          <span className="font-medium text-ui-text">
+            {occupancy}/{totalBeds}
+          </span>
         </div>
         <div className="meter">
           <div
@@ -135,7 +136,10 @@ function UnitRow({ unit }: { unit: HousingListItem }) {
       <div className="flex flex-wrap items-center gap-3 text-sm text-ui-muted">
         <span>{unit.totalRooms} Zimmer</span>
         {unit.wheelchairAccess ? (
-          <span className="inline-flex items-center gap-1" title={HOUSING_LIST_LABELS.wheelchairTitle}>
+          <span
+            className="inline-flex items-center gap-1"
+            title={HOUSING_LIST_LABELS.wheelchairTitle}
+          >
             <Accessibility className="h-4 w-4" />
             Barrierefrei
           </span>

@@ -24,13 +24,16 @@ interface PortalRoommatesCardProps {
   compatibilityScores: CompatibilityScore[]
 }
 
-export async function PortalRoommatesCard({ roommates, compatibilityScores }: PortalRoommatesCardProps) {
+export async function PortalRoommatesCard({
+  roommates,
+  compatibilityScores,
+}: PortalRoommatesCardProps) {
   const { t } = await getRequestTranslator()
   const preview = roommates.slice(0, DISPLAY_LIMITS.dashboardItems)
 
   function getScore(roommateId: string): number | null {
     const score = compatibilityScores.find(
-      (s) => s.residentId === roommateId || s.comparedWithId === roommateId
+      (s) => s.residentId === roommateId || s.comparedWithId === roommateId,
     )
     return score ? score.overallScore : null
   }
@@ -53,9 +56,7 @@ export async function PortalRoommatesCard({ roommates, compatibilityScores }: Po
                 )}
               </div>
               {score !== null && (
-                <span className={`badge ${getScoreBgClass(score)}`}>
-                  {getScoreLabel(score)}
-                </span>
+                <span className={`badge ${getScoreBgClass(score)}`}>{getScoreLabel(score)}</span>
               )}
             </div>
           )

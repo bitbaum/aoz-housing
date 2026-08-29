@@ -84,7 +84,9 @@ describe('each dictionary is written in its own script', () => {
 
     const offenders = (Object.keys(de) as MessageKey[])
       .map((key) => ({ key, value: dictionary[key] }))
-      .filter((entry): entry is { key: MessageKey; value: string } => typeof entry.value === 'string')
+      .filter(
+        (entry): entry is { key: MessageKey; value: string } => typeof entry.value === 'string',
+      )
       .map(({ key, value }) => ({ key, foreign: foreignCharacters(value, ALLOWED[id]) }))
       .filter(({ foreign }) => foreign.length > 0)
       .map(({ key, foreign }) => `${key}: ${foreign.join('')}`)
@@ -122,7 +124,7 @@ describe('each dictionary is written in its own script', () => {
     for (const id of LOCALE_IDS) {
       const dictionary = getDictionary(id)
       const blank = (Object.keys(de) as MessageKey[]).filter(
-        (key) => typeof dictionary[key] === 'string' && dictionary[key]!.trim() === ''
+        (key) => typeof dictionary[key] === 'string' && dictionary[key]!.trim() === '',
       )
 
       expect({ id, blank }).toEqual({ id, blank: [] })

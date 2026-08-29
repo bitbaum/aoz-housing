@@ -494,7 +494,7 @@ describe('calculateCompatibility — risk', () => {
     // disturbanceRisk = 25, * 0.15 = 3.75
     const highRiskResult = calculateCompatibility(
       makeResident({ hasNightDisturbances: true }),
-      makeResident({ id: '2', needsQuietEnvironment: true })
+      makeResident({ id: '2', needsQuietEnvironment: true }),
     )
     expect(result.risk).toBeLessThan(highRiskResult.risk)
   })
@@ -566,7 +566,7 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2', languages: ['German'] })
     const result = calculateCompatibility(a, b)
     expect(result.strengths).toEqual(
-      expect.arrayContaining([expect.stringContaining('Gemeinsame Sprache')])
+      expect.arrayContaining([expect.stringContaining('Gemeinsame Sprache')]),
     )
   })
 
@@ -598,7 +598,9 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2' })
     const result = calculateCompatibility(a, b)
     expect(result.concerns).toContain('Einer/beide benötigen Einzelzimmer')
-    expect(result.recommendations).toContain('Nur in Einheit mit verfügbarem Einzelzimmer platzieren')
+    expect(result.recommendations).toContain(
+      'Nur in Einheit mit verfügbarem Einzelzimmer platzieren',
+    )
   })
 
   it('cleanliness diff ≥ 3 → generates prediction with timeframe', () => {
@@ -606,9 +608,7 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2', cleanlinessPractice: 4 })
     const result = calculateCompatibility(a, b)
     expect(result.predictions).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Sauberkeitskonflikt'),
-      ])
+      expect.arrayContaining([expect.stringContaining('Sauberkeitskonflikt')]),
     )
   })
 
@@ -619,7 +619,7 @@ describe('calculateCompatibility — insights', () => {
     expect(result.predictions).toEqual(
       expect.arrayContaining([
         expect.stringContaining('Mittlere Wahrscheinlichkeit Sauberkeitskonflikt'),
-      ])
+      ]),
     )
   })
 
@@ -628,9 +628,7 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2', noiseTolerance: 4 })
     const result = calculateCompatibility(a, b)
     expect(result.predictions).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Lärmkonflikt'),
-      ])
+      expect.arrayContaining([expect.stringContaining('Lärmkonflikt')]),
     )
   })
 
@@ -638,9 +636,7 @@ describe('calculateCompatibility — insights', () => {
     const result = calculateCompatibility(worstMatchA, worstMatchB)
     // risk > 40 → "Regelmässige Check-ins in den ersten Wochen"
     expect(result.recommendations).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Check-in'),
-      ])
+      expect.arrayContaining([expect.stringContaining('Check-in')]),
     )
   })
 
@@ -664,7 +660,9 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2', recyclingKnowledge: 'NONE' })
     const result = calculateCompatibility(a, b)
     expect(result.concerns).toContain('Recycling-Kenntnisse sehr unterschiedlich')
-    expect(result.recommendations).toContain('Recycling-Schulung für Bewohner ohne Erfahrung einplanen')
+    expect(result.recommendations).toContain(
+      'Recycling-Schulung für Bewohner ohne Erfahrung einplanen',
+    )
   })
 
   it('intensive support → recommends intensive care', () => {
@@ -717,9 +715,7 @@ describe('calculateCompatibility — insights', () => {
     const b = makeResident({ id: '2', guestTolerance: 5 })
     const result = calculateCompatibility(a, b)
     expect(result.predictions).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining('Besucherkonflikt'),
-      ])
+      expect.arrayContaining([expect.stringContaining('Besucherkonflikt')]),
     )
   })
 })

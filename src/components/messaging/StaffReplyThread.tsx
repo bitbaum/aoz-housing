@@ -60,7 +60,7 @@ export function StaffReplyThread({
       if (!result.success) throw new Error(result.error)
 
       setMessages((current) =>
-        current.map((message) => (message.id === pending.id ? result.data.message : message))
+        current.map((message) => (message.id === pending.id ? result.data.message : message)),
       )
     } catch {
       // The text stays in the box. Clearing it optimistically would leave a
@@ -82,7 +82,10 @@ export function StaffReplyThread({
           {messages.map((message) => {
             const fromStaff = message.authorUserId !== null
             return (
-              <li key={message.id} className={fromStaff ? 'flex justify-end' : 'flex justify-start'}>
+              <li
+                key={message.id}
+                className={fromStaff ? 'flex justify-end' : 'flex justify-start'}
+              >
                 <div
                   className={`max-w-[85%] rounded-2xl border px-4 py-3 ${
                     fromStaff
@@ -93,10 +96,14 @@ export function StaffReplyThread({
                   <p className={`eyebrow ${fromStaff ? 'text-ui-on-accent/80' : ''}`}>
                     {fromStaff ? MESSAGES_LABELS.fromStaff : MESSAGES_LABELS.fromResident}
                   </p>
-                  <p className={`text-sm mt-1 whitespace-pre-line ${fromStaff ? 'text-ui-on-accent' : 'text-ui-text'}`}>
+                  <p
+                    className={`text-sm mt-1 whitespace-pre-line ${fromStaff ? 'text-ui-on-accent' : 'text-ui-text'}`}
+                  >
                     {message.body}
                   </p>
-                  <p className={`text-2xs mt-2 numeric ${fromStaff ? 'text-ui-on-accent/75' : 'text-ui-muted'}`}>
+                  <p
+                    className={`text-2xs mt-2 numeric ${fromStaff ? 'text-ui-on-accent/75' : 'text-ui-muted'}`}
+                  >
                     {formatDateTime(message.createdAt)}
                   </p>
                 </div>
@@ -107,7 +114,10 @@ export function StaffReplyThread({
         </ol>
       )}
 
-      <form onSubmit={send} className="sticky bottom-0 border-t border-ui-border bg-ui-canvas pt-3 flex flex-col gap-2">
+      <form
+        onSubmit={send}
+        className="sticky bottom-0 border-t border-ui-border bg-ui-canvas pt-3 flex flex-col gap-2"
+      >
         <textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}

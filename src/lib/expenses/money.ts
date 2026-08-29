@@ -11,7 +11,10 @@
  * Returns null for anything that is not an unambiguous non-negative amount.
  */
 export function chfToRappen(input: string): number | null {
-  const cleaned = input.trim().replace(/[’'\s]/g, '').replace(',', '.')
+  const cleaned = input
+    .trim()
+    .replace(/[’'\s]/g, '')
+    .replace(',', '.')
   if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null
   const [francs, cents = ''] = cleaned.split('.')
   const rappen = parseInt(francs, 10) * 100 + parseInt((cents + '00').slice(0, 2), 10)

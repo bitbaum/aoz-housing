@@ -47,7 +47,7 @@ describe('learning area name', () => {
   it('is the same name in the nav, the page, the dashboard and the denial page', () => {
     const navLabels = [
       ...MEGAMENU_GROUPS.flatMap((group) =>
-        'items' in group ? group.items.map((item) => item.label) : [group.label]
+        'items' in group ? group.items.map((item) => item.label) : [group.label],
       ),
       ...SYSTEM_LINKS.map((link) => link.label),
     ]

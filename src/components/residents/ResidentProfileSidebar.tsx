@@ -20,14 +20,32 @@ import { DetailRow } from '@/components/ui/Card'
 import { CollapsibleSection } from '@/components/ui/CollapsibleSection'
 
 export interface ResidentProfileSidebarProps {
-  resident: Pick<Resident,
-    | 'hasMedicalDocumentation' | 'medicalDocType' | 'roomSharingStatus'
-    | 'sleepSchedule' | 'noiseTolerance' | 'cleanlinessPractice' | 'socialStyle'
-    | 'privacyNeed' | 'smokingStatus' | 'languages' | 'culturalRegion'
-    | 'choresContribution' | 'recyclingKnowledge' | 'mobilityNeeds' | 'supportLevel'
-    | 'hasNightDisturbances' | 'needsQuietEnvironment' | 'hasSleepEquipment'
-    | 'medicalEquipment' | 'dietaryNeeds' | 'sharedBathroom' | 'sharedKitchen'
-    | 'petTolerance' | 'notes'
+  resident: Pick<
+    Resident,
+    | 'hasMedicalDocumentation'
+    | 'medicalDocType'
+    | 'roomSharingStatus'
+    | 'sleepSchedule'
+    | 'noiseTolerance'
+    | 'cleanlinessPractice'
+    | 'socialStyle'
+    | 'privacyNeed'
+    | 'smokingStatus'
+    | 'languages'
+    | 'culturalRegion'
+    | 'choresContribution'
+    | 'recyclingKnowledge'
+    | 'mobilityNeeds'
+    | 'supportLevel'
+    | 'hasNightDisturbances'
+    | 'needsQuietEnvironment'
+    | 'hasSleepEquipment'
+    | 'medicalEquipment'
+    | 'dietaryNeeds'
+    | 'sharedBathroom'
+    | 'sharedKitchen'
+    | 'petTolerance'
+    | 'notes'
   >
 }
 
@@ -42,7 +60,15 @@ function PreferenceItem({ label, value }: { label: string; value: boolean }) {
   )
 }
 
-function ScaleRow({ label, value, factorKey }: { label: string; value: number; factorKey: string }) {
+function ScaleRow({
+  label,
+  value,
+  factorKey,
+}: {
+  label: string
+  value: number
+  factorKey: string
+}) {
   const factor = RESIDENT_FACTORS[factorKey]
   const scaleFactor = factor?.type === 'scale' ? factor : null
   return (
@@ -64,15 +90,21 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
   return (
     <div className="space-y-6">
       {/* CRITICAL: Housing Authorization - Most important info at top */}
-      <div className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-status-info/40 bg-status-info/8' : 'border-ui-border'}`}>
+      <div
+        className={`card border-2 ${resident.hasMedicalDocumentation ? 'border-status-info/40 bg-status-info/8' : 'border-ui-border'}`}
+      >
         <h2 className="text-lg font-semibold text-ui-text mb-4 flex items-center gap-2">
           {'\u{1F3E0}'} {RESIDENT_PROFILE_SIDEBAR_LABELS.authCardTitle}
         </h2>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between items-center">
             <dt className="text-ui-muted">{RESIDENT_PROFILE_SIDEBAR_LABELS.authDocLabel}</dt>
-            <dd className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-status-info-text' : 'text-ui-muted'}`}>
-              {resident.hasMedicalDocumentation ? RESIDENT_PROFILE_SIDEBAR_LABELS.authDocPresent : RESIDENT_PROFILE_SIDEBAR_LABELS.authDocAbsent}
+            <dd
+              className={`font-semibold ${resident.hasMedicalDocumentation ? 'text-status-info-text' : 'text-ui-muted'}`}
+            >
+              {resident.hasMedicalDocumentation
+                ? RESIDENT_PROFILE_SIDEBAR_LABELS.authDocPresent
+                : RESIDENT_PROFILE_SIDEBAR_LABELS.authDocAbsent}
             </dd>
           </div>
           {resident.hasMedicalDocumentation && resident.medicalDocType && (
@@ -90,19 +122,29 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
             </dd>
           </div>
           <div className="pt-2 border-t border-ui-border">
-            <dt className="text-ui-muted text-xs mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.eligibleTypesLabel}</dt>
+            <dt className="text-ui-muted text-xs mb-1">
+              {RESIDENT_PROFILE_SIDEBAR_LABELS.eligibleTypesLabel}
+            </dt>
             <dd className="flex flex-wrap gap-1">
-              {getEligibleSpotTypes(resident.hasMedicalDocumentation, resident.medicalDocType).map((type) => (
-                <span
-                  key={type}
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    type === 'BED' ? 'bg-ui-subtle text-ui-muted' : 'bg-status-info/15 text-status-info-text'
-                  }`}
-                >
-                  {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}
-                  {type === 'BED' ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeBed : type === 'PRIVATE_ROOM' ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypePrivate : RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeStudio}
-                </span>
-              ))}
+              {getEligibleSpotTypes(resident.hasMedicalDocumentation, resident.medicalDocType).map(
+                (type) => (
+                  <span
+                    key={type}
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      type === 'BED'
+                        ? 'bg-ui-subtle text-ui-muted'
+                        : 'bg-status-info/15 text-status-info-text'
+                    }`}
+                  >
+                    {SPOT_TYPE_ICONS[type as keyof typeof SPOT_TYPE_ICONS]}{' '}
+                    {type === 'BED'
+                      ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeBed
+                      : type === 'PRIVATE_ROOM'
+                        ? RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypePrivate
+                        : RESIDENT_PROFILE_SIDEBAR_LABELS.spotTypeStudio}
+                  </span>
+                ),
+              )}
             </dd>
           </div>
         </dl>
@@ -158,13 +200,19 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
             </dd>
           </div>
           {resident.culturalRegion && (
-            <DetailRow label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldRegion} value={resident.culturalRegion} />
+            <DetailRow
+              label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldRegion}
+              value={resident.culturalRegion}
+            />
           )}
         </dl>
       </CollapsibleSection>
 
       {/* Household & Independence */}
-      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionHousehold} defaultOpen={false}>
+      <CollapsibleSection
+        title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionHousehold}
+        defaultOpen={false}
+      >
         <dl className="space-y-2 text-sm">
           <ScaleRow
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldChores}
@@ -210,10 +258,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
               <dt className="text-ui-muted mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldDiet}</dt>
               <dd className="flex flex-wrap gap-1">
                 {resident.dietaryNeeds.map((diet) => (
-                  <span
-                    key={diet}
-                    className="px-2 py-0.5 bg-ui-subtle rounded text-xs"
-                  >
+                  <span key={diet} className="px-2 py-0.5 bg-ui-subtle rounded text-xs">
                     {getLabel(DIET_LABELS, diet)}
                   </span>
                 ))}
@@ -224,7 +269,10 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
       </CollapsibleSection>
 
       {/* Sharing Preferences */}
-      <CollapsibleSection title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionSharing} defaultOpen={false}>
+      <CollapsibleSection
+        title={RESIDENT_PROFILE_SIDEBAR_LABELS.sectionSharing}
+        defaultOpen={false}
+      >
         <div className="space-y-2 text-sm">
           <PreferenceItem
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldSharedBathroom}
@@ -247,9 +295,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
           <h2 className="text-lg font-semibold text-ui-text mb-4">
             {RESIDENT_PROFILE_SIDEBAR_LABELS.notesTitle}
           </h2>
-          <p className="text-sm text-ui-muted whitespace-pre-wrap">
-            {resident.notes}
-          </p>
+          <p className="text-sm text-ui-muted whitespace-pre-wrap">{resident.notes}</p>
         </div>
       )}
     </div>

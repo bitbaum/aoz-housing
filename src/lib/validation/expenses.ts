@@ -11,11 +11,7 @@ import { PROFILE_LIMITS } from '@/lib/config/profile'
 
 export const ExpenseCategorySchema = z.enum(EXPENSE_CATEGORY_IDS)
 
-const AmountRappenSchema = z
-  .number()
-  .int()
-  .min(1)
-  .max(EXPENSE_LIMITS.maxAmountRappen)
+const AmountRappenSchema = z.number().int().min(1).max(EXPENSE_LIMITS.maxAmountRappen)
 
 export const CreateExpenseSchema = z.object({
   description: z.string().trim().min(1).max(EXPENSE_LIMITS.maxDescriptionLength),

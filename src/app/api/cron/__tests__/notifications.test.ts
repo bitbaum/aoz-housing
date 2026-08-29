@@ -158,7 +158,7 @@ describe('overdue incident follow-ups', () => {
         where: expect.objectContaining({
           severity: { in: ['MEDIUM', 'HIGH', 'CRITICAL'] },
         }),
-      })
+      }),
     )
   })
 

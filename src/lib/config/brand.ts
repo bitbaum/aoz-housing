@@ -263,7 +263,7 @@ export const DEFAULT_BRAND_ID: BrandId = 'aoz'
  * redactor's hardcoded /AOZ-…/ pattern would have started leaking staff codes.
  */
 export const ALL_CODE_PREFIXES: readonly string[] = Object.values(BRANDS).map(
-  (brand) => brand.codePrefix
+  (brand) => brand.codePrefix,
 )
 
 /**

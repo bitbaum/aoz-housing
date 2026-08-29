@@ -86,20 +86,16 @@ function DomainPanel({
   const requests = appointments.filter((item) => item.status === 'REQUESTED')
   const upcoming = appointments.filter((item) => item.status === 'SCHEDULED')
   const past = appointments.filter(
-    (item) => item.status !== 'SCHEDULED' && item.status !== 'REQUESTED'
+    (item) => item.status !== 'SCHEDULED' && item.status !== 'REQUESTED',
   )
-  const hasContent =
-    attributes.some((item) => item.value?.trim()) || appointments.length > 0
+  const hasContent = attributes.some((item) => item.value?.trim()) || appointments.length > 0
 
   return (
     // Four of these stack on the page. When every panel is a wall of empty
     // inputs, the page is ~2500px of form for a person with no care notes yet
     // — so an empty domain collapses to its heading and opens on demand,
     // while a domain with real content stays open.
-    <details
-      open={hasContent || undefined}
-      className="group border border-ui-border rounded-lg"
-    >
+    <details open={hasContent || undefined} className="group border border-ui-border rounded-lg">
       <summary className="flex min-h-[44px] cursor-pointer select-none list-none items-center justify-between gap-3 p-4 [&::-webkit-details-marker]:hidden">
         <h3 className="font-semibold text-ui-text">{CARE_ROLE_LABELS[domain]}</h3>
         <span className="flex items-center gap-2 text-xs text-ui-muted">
@@ -173,9 +169,20 @@ function AttributeForm({
               {def.label}
             </label>
             {def.kind === 'textarea' ? (
-              <textarea id={fieldId} name={`attr.${def.key}`} rows={2} className="input" defaultValue={current} />
+              <textarea
+                id={fieldId}
+                name={`attr.${def.key}`}
+                rows={2}
+                className="input"
+                defaultValue={current}
+              />
             ) : def.kind === 'select' ? (
-              <select id={fieldId} name={`attr.${def.key}`} className="input" defaultValue={current}>
+              <select
+                id={fieldId}
+                name={`attr.${def.key}`}
+                className="input"
+                defaultValue={current}
+              >
                 <option value="">{CARE_LABELS.unassigned}</option>
                 {(def.options || []).map((option) => (
                   <option key={option.value} value={option.value}>
@@ -184,7 +191,12 @@ function AttributeForm({
                 ))}
               </select>
             ) : (
-              <input id={fieldId} name={`attr.${def.key}`} className="input" defaultValue={current} />
+              <input
+                id={fieldId}
+                name={`attr.${def.key}`}
+                className="input"
+                defaultValue={current}
+              />
             )}
             {def.hint && <p className="text-xs text-ui-muted mt-1">{def.hint}</p>}
           </div>
@@ -214,13 +226,25 @@ function AppointmentForm({ residentId, domain }: { residentId: string; domain: C
           <label htmlFor={`appt-title-${domain}`} className="label">
             {CARE_LABELS.appointmentTitle}
           </label>
-          <input id={`appt-title-${domain}`} name="title" required minLength={2} className="input" />
+          <input
+            id={`appt-title-${domain}`}
+            name="title"
+            required
+            minLength={2}
+            className="input"
+          />
         </div>
         <div>
           <label htmlFor={`appt-when-${domain}`} className="label">
             {CARE_LABELS.appointmentWhen}
           </label>
-          <input id={`appt-when-${domain}`} name="startsAt" type="datetime-local" required className="input" />
+          <input
+            id={`appt-when-${domain}`}
+            name="startsAt"
+            type="datetime-local"
+            required
+            className="input"
+          />
         </div>
         <div>
           <label htmlFor={`appt-where-${domain}`} className="label">

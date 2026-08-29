@@ -56,15 +56,18 @@ export function InviteForm() {
     const { user, emailSent } = state.result
     return (
       <div className="space-y-4">
-        <div className="p-4 bg-status-success/10 border border-status-success/25 rounded-lg" role="status">
-          <p className="font-medium text-status-success-text mb-1">{INVITE_FORM_LABELS.successTitle}</p>
+        <div
+          className="p-4 bg-status-success/10 border border-status-success/25 rounded-lg"
+          role="status"
+        >
+          <p className="font-medium text-status-success-text mb-1">
+            {INVITE_FORM_LABELS.successTitle}
+          </p>
           <p className="text-sm text-status-success-text">
             {INVITE_FORM_LABELS.successDesc(user.name, user.email)}
           </p>
           {emailSent ? (
-            <p className="text-sm text-status-success-text mt-1">
-              {INVITE_FORM_LABELS.emailSent}
-            </p>
+            <p className="text-sm text-status-success-text mt-1">{INVITE_FORM_LABELS.emailSent}</p>
           ) : (
             <div className="mt-3 p-3 bg-ui-surface border border-status-success/25 rounded">
               <p className="text-xs text-ui-muted mb-1">{INVITE_FORM_LABELS.emailNotSent}</p>

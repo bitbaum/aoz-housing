@@ -77,13 +77,10 @@ export const createProposalSchema = z
     message: `Bitte wähle das ${BRAND.orgName}-Thema, zu dem die Hausregel gehört`,
     path: ['parentOrgRuleId'],
   })
-  .refine(
-    (data) => !['AMEND_RULE', 'REPEAL_RULE'].includes(data.type) || !!data.targetRuleId,
-    {
-      message: 'Bitte wähle die Hausregel, die geändert werden soll',
-      path: ['targetRuleId'],
-    }
-  )
+  .refine((data) => !['AMEND_RULE', 'REPEAL_RULE'].includes(data.type) || !!data.targetRuleId, {
+    message: 'Bitte wähle die Hausregel, die geändert werden soll',
+    path: ['targetRuleId'],
+  })
 
 export const castVoteSchema = z
   .object({
@@ -127,7 +124,9 @@ export const createAgreementSchema = z.object({
     .min(15, 'Bitte konkret festhalten, wer was tut — sonst lässt es sich später nicht überprüfen')
     .max(2000),
   // Two people cannot agree with themselves; an agreement needs both sides.
-  residentIds: z.array(z.string().min(1)).min(2, 'Eine Abmachung braucht mindestens zwei Beteiligte'),
+  residentIds: z
+    .array(z.string().min(1))
+    .min(2, 'Eine Abmachung braucht mindestens zwei Beteiligte'),
   reviewDate: z.coerce.date(),
   mediatorName: z.string().max(120).optional(),
 })

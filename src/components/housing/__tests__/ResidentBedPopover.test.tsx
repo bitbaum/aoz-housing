@@ -7,10 +7,20 @@ import type { HousingSpot, HousingPlacement } from '../types'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, onClick }: {
-    href: string; children: React.ReactNode; className?: string; onClick?: () => void
+  default: ({
+    href,
+    children,
+    className,
+    onClick,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+    onClick?: () => void
   }) => (
-    <a href={href} className={className} onClick={onClick}>{children}</a>
+    <a href={href} className={className} onClick={onClick}>
+      {children}
+    </a>
   ),
 }))
 
@@ -106,7 +116,7 @@ describe('ResidentBedPopover', () => {
   it('renders nothing when spot has no active placement', () => {
     const spot = makeSpot({ id: 's1', placements: [] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />
+      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -114,7 +124,7 @@ describe('ResidentBedPopover', () => {
   it('renders nothing when only ENDED placement exists', () => {
     const spot = makeSpot({ id: 's1', placements: [makePlacement('r1', 'ENDED')] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />
+      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -134,7 +144,12 @@ describe('ResidentBedPopover', () => {
   })
 
   it('falls back to spot code when label is null', () => {
-    const spot = makeSpot({ id: 's1', code: 'B-01', label: null, placements: [makePlacement('r1')] })
+    const spot = makeSpot({
+      id: 's1',
+      code: 'B-01',
+      label: null,
+      placements: [makePlacement('r1')],
+    })
     renderPopover(spot)
     expect(screen.getByText('B-01')).toBeInTheDocument()
   })
@@ -216,7 +231,7 @@ describe('ResidentBedPopover', () => {
     renderPopover(spot)
     expect(screen.getByRole('link', { name: 'Profil anzeigen →' })).toHaveAttribute(
       'href',
-      '/residents/res-99'
+      '/residents/res-99',
     )
   })
 
@@ -232,7 +247,7 @@ describe('ResidentBedPopover', () => {
   it('applies position styles from props', () => {
     const spot = makeSpot({ id: 's1', placements: [makePlacement('r1')] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={{ x: 300, y: 200 }} onClose={jest.fn()} />
+      <ResidentBedPopover spot={spot} position={{ x: 300, y: 200 }} onClose={jest.fn()} />,
     )
     const popover = container.firstChild as HTMLElement
     // left = max(8, 300 - 128) = 172

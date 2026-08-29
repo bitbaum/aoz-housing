@@ -8,10 +8,14 @@ import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 const requestSchema = z.object({
-  messages: z.array(z.object({
-    role: z.enum(['user', 'assistant']),
-    content: z.string().max(8000),
-  })).max(40),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string().max(8000),
+      }),
+    )
+    .max(40),
 })
 
 export async function POST(request: Request) {
@@ -21,7 +25,7 @@ export async function POST(request: Request) {
       // variables and a repo path tells them to do something they cannot do,
       // in a language the rest of the screen is not written in.
       { error: AI_NOT_CONFIGURED },
-      { status: 503 }
+      { status: 503 },
     )
   }
 
@@ -34,7 +38,7 @@ export async function POST(request: Request) {
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: `Zu viele Anfragen. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.` },
-      { status: 429 }
+      { status: 429 },
     )
   }
 
@@ -62,7 +66,7 @@ export async function POST(request: Request) {
         const chunks = answer.match(/\S+\s*|\s+/g) ?? [answer]
         for (const chunk of chunks) {
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ type: 'text', text: chunk })}\n\n`)
+            encoder.encode(`data: ${JSON.stringify({ type: 'text', text: chunk })}\n\n`),
           )
         }
 
@@ -76,8 +80,8 @@ export async function POST(request: Request) {
         // who can open the assistant. @see lib/ai/errors.ts
         controller.enqueue(
           encoder.encode(
-            `data: ${JSON.stringify({ type: 'error', message: userFacingAIError(err) })}\n\n`
-          )
+            `data: ${JSON.stringify({ type: 'error', message: userFacingAIError(err) })}\n\n`,
+          ),
         )
       } finally {
         controller.close()

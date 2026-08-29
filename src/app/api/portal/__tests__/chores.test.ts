@@ -121,10 +121,7 @@ const AUTH_RESULT = {
   placement: { id: 'pl-1', housingUnitId: 'hu-1' },
 }
 
-function createJsonRequest(
-  url: string,
-  body?: Record<string, unknown>
-): NextRequest {
+function createJsonRequest(url: string, body?: Record<string, unknown>): NextRequest {
   if (body) {
     return new NextRequest(url, {
       method: 'POST',
@@ -135,10 +132,7 @@ function createJsonRequest(
   return new NextRequest(url, { method: 'POST' })
 }
 
-function createFormDataRequest(
-  url: string,
-  data: Record<string, string>
-): NextRequest {
+function createFormDataRequest(url: string, data: Record<string, string>): NextRequest {
   const formData = new FormData()
   for (const [key, value] of Object.entries(data)) {
     formData.append(key, value)
@@ -196,15 +190,40 @@ describe('GET /api/portal/chores', () => {
     // Four quick bin runs vs one long shower scrub: counting rows would call
     // res-1 the bigger contributor 4:1. The balance must say the opposite.
     mockCompletionFindMany.mockResolvedValue([
-      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
-      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
-      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
-      { completedById: 'res-1', completedAt: new Date(), durationMinutes: 5, task: { estimatedMinutes: null } },
-      { completedById: 'res-2', completedAt: new Date(), durationMinutes: 40, task: { estimatedMinutes: null } },
+      {
+        completedById: 'res-1',
+        completedAt: new Date(),
+        durationMinutes: 5,
+        task: { estimatedMinutes: null },
+      },
+      {
+        completedById: 'res-1',
+        completedAt: new Date(),
+        durationMinutes: 5,
+        task: { estimatedMinutes: null },
+      },
+      {
+        completedById: 'res-1',
+        completedAt: new Date(),
+        durationMinutes: 5,
+        task: { estimatedMinutes: null },
+      },
+      {
+        completedById: 'res-1',
+        completedAt: new Date(),
+        durationMinutes: 5,
+        task: { estimatedMinutes: null },
+      },
+      {
+        completedById: 'res-2',
+        completedAt: new Date(),
+        durationMinutes: 40,
+        task: { estimatedMinutes: null },
+      },
     ])
     mockFindMany
-      .mockResolvedValueOnce(tasks)       // householdTask.findMany
-      .mockResolvedValueOnce(roommates)   // placement.findMany
+      .mockResolvedValueOnce(tasks) // householdTask.findMany
+      .mockResolvedValueOnce(roommates) // placement.findMany
 
     const res = await listChores()
     const body = await res.json()
@@ -213,8 +232,22 @@ describe('GET /api/portal/chores', () => {
     expect(body.success).toBe(true)
     expect(body.data.tasks).toEqual(tasks)
     expect(body.data.balances).toEqual([
-      { residentId: 'res-1', code: 'RES-001', displayName: null, doneMinutes: 20, shareMinutes: 30, balanceMinutes: -10 },
-      { residentId: 'res-2', code: 'RES-002', displayName: null, doneMinutes: 40, shareMinutes: 30, balanceMinutes: 10 },
+      {
+        residentId: 'res-1',
+        code: 'RES-001',
+        displayName: null,
+        doneMinutes: 20,
+        shareMinutes: 30,
+        balanceMinutes: -10,
+      },
+      {
+        residentId: 'res-2',
+        code: 'RES-002',
+        displayName: null,
+        doneMinutes: 40,
+        shareMinutes: 30,
+        balanceMinutes: 10,
+      },
     ])
   })
 
@@ -223,14 +256,21 @@ describe('GET /api/portal/chores', () => {
 
     mockCompletionFindMany.mockResolvedValue([])
     mockFindMany
-      .mockResolvedValueOnce([])  // no tasks
+      .mockResolvedValueOnce([]) // no tasks
       .mockResolvedValueOnce([{ resident: { id: 'res-3', code: 'RES-003', displayName: null } }])
 
     const res = await listChores()
     const body = await res.json()
 
     expect(body.data.balances).toEqual([
-      { residentId: 'res-3', code: 'RES-003', displayName: null, doneMinutes: 0, shareMinutes: 0, balanceMinutes: 0 },
+      {
+        residentId: 'res-3',
+        code: 'RES-003',
+        displayName: null,
+        doneMinutes: 0,
+        shareMinutes: 0,
+        balanceMinutes: 0,
+      },
     ])
   })
 
@@ -245,7 +285,12 @@ describe('GET /api/portal/chores', () => {
     lastMonth.setUTCDate(lastMonth.getUTCDate() - 5)
 
     mockCompletionFindMany.mockResolvedValue([
-      { completedById: 'res-1', completedAt: lastMonth, durationMinutes: 90, task: { estimatedMinutes: null } },
+      {
+        completedById: 'res-1',
+        completedAt: lastMonth,
+        durationMinutes: 90,
+        task: { estimatedMinutes: null },
+      },
     ])
     mockFindMany
       .mockResolvedValueOnce([])
@@ -280,7 +325,7 @@ describe('GET /api/portal/chores', () => {
     expect(mockFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { housingUnitId: 'hu-1' },
-      })
+      }),
     )
   })
 })
@@ -503,7 +548,7 @@ describe('GET /api/portal/chores/[id]', () => {
     expect(mockFindFirst).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'task-other', housingUnitId: 'hu-1' },
-      })
+      }),
     )
   })
 
@@ -519,9 +564,7 @@ describe('GET /api/portal/chores/[id]', () => {
     }
     mockFindFirst.mockResolvedValue(taskDetail)
 
-    const roommates = [
-      { resident: { id: 'res-2', code: 'RES-002' } },
-    ]
+    const roommates = [{ resident: { id: 'res-2', code: 'RES-002' } }]
     mockFindMany.mockResolvedValue(roommates)
 
     const req = new NextRequest('http://localhost:3001/api/portal/chores/task-1')
@@ -549,7 +592,7 @@ describe('GET /api/portal/chores/[id]', () => {
         where: expect.objectContaining({
           residentId: { not: 'res-1' },
         }),
-      })
+      }),
     )
   })
 
@@ -664,12 +707,14 @@ describe('POST /api/portal/chores/[id]/complete', () => {
   test('records only ticked items that are actually on the task checklist', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
-    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
-      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-    }))
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+        householdTask: { update: jest.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      }),
+    )
 
     const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complete', {
       // The middle item was never agreed by the house — a client must not be
@@ -689,19 +734,21 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     expect(mockTx.taskCompletion.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ completedItems: ['Boden gewischt'] }),
-      })
+      }),
     )
   })
 
   test('records a partial completion as partial rather than fully done', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
-    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
-      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-    }))
+    mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({
+        taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
+        householdTask: { update: jest.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      }),
+    )
 
     const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complete', {
       completedItems: ['Abfalleimer geleert'],
@@ -720,7 +767,7 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     expect(mockTx.taskCompletion.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ completedItems: ['Abfalleimer geleert'] }),
-      })
+      }),
     )
   })
 
@@ -856,10 +903,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
       return fn(tx)
     })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complete',
-      { notes: 'Alles erledigt', durationMinutes: 15 }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complete', {
+      notes: 'Alles erledigt',
+      durationMinutes: 15,
+    })
     await completeChore(req, makeParams('task-1'))
 
     // Verify the notes/duration are passed through the transaction
@@ -973,10 +1020,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
   test('returns 401 when not authenticated', async () => {
     mockGetPortalAuth.mockResolvedValue(null)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'test' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'test',
+    })
     const res = await complainChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -988,10 +1034,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
   test('returns 400 when description is missing', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: '' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: '',
+    })
     const res = await complainChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1018,10 +1063,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue(null)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Es wurde nicht geputzt' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Es wurde nicht geputzt',
+    })
     const res = await complainChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1035,10 +1079,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, category: 'CLEANING' })
     mockIncidentCreate.mockResolvedValue({ id: 'inc-1' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Küche nicht geputzt' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Küche nicht geputzt',
+    })
     const res = await complainChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1065,10 +1108,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, category: 'COOKING', title: 'Kochen' })
     mockIncidentCreate.mockResolvedValue({ id: 'inc-2' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Kochplan nicht eingehalten' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Kochplan nicht eingehalten',
+    })
     await complainChore(req, makeParams('task-1'))
 
     expect(mockIncidentCreate).toHaveBeenCalledWith({
@@ -1084,10 +1126,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, category: 'TRASH', title: 'Müll' })
     mockIncidentCreate.mockResolvedValue({ id: 'inc-3' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Müll nicht rausgebracht' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Müll nicht rausgebracht',
+    })
     await complainChore(req, makeParams('task-1'))
 
     expect(mockIncidentCreate).toHaveBeenCalledWith({
@@ -1100,10 +1141,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, category: 'MAINTENANCE', title: 'Reparatur' })
     mockIncidentCreate.mockResolvedValue({ id: 'inc-4' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Nicht repariert' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Nicht repariert',
+    })
     await complainChore(req, makeParams('task-1'))
 
     expect(mockIncidentCreate).toHaveBeenCalledWith({
@@ -1113,13 +1153,16 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
 
   test('falls back to PERSONAL_CONFLICT for unknown categories', async () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
-    mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, category: 'UNKNOWN_CATEGORY', title: 'Custom' })
+    mockFindFirst.mockResolvedValue({
+      ...SAMPLE_TASK,
+      category: 'UNKNOWN_CATEGORY',
+      title: 'Custom',
+    })
     mockIncidentCreate.mockResolvedValue({ id: 'inc-5' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Problem' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Problem',
+    })
     await complainChore(req, makeParams('task-1'))
 
     expect(mockIncidentCreate).toHaveBeenCalledWith({
@@ -1132,10 +1175,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue(SAMPLE_TASK)
     mockIncidentCreate.mockResolvedValue({ id: 'inc-audit' })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Beschwerde' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Beschwerde',
+    })
     await complainChore(req, makeParams('task-1'))
 
     expect(mockLogAudit).toHaveBeenCalledWith({
@@ -1156,10 +1198,9 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
     mockFindFirst.mockResolvedValue(SAMPLE_TASK)
     mockIncidentCreate.mockRejectedValue(new Error('DB error'))
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/complaint',
-      { description: 'Fail' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/complaint', {
+      description: 'Fail',
+    })
     const res = await complainChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1223,10 +1264,9 @@ describe('POST /api/portal/chores/[id]/attention', () => {
     mockFlagCreate.mockResolvedValue({ id: 'flag-1' })
     mockUpdate.mockResolvedValue({})
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/attention',
-      { message: 'Dringend!' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/attention', {
+      message: 'Dringend!',
+    })
     const res = await attentionChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1278,10 +1318,7 @@ describe('POST /api/portal/chores/[id]/attention', () => {
     mockFlagCreate.mockResolvedValue({ id: 'flag-3' })
     mockUpdate.mockResolvedValue({})
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/attention',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/attention', {})
     const res = await attentionChore(req, makeParams('task-1'))
 
     expect(res.status).toBe(200)
@@ -1332,10 +1369,9 @@ describe('POST /api/portal/chores/[id]/request', () => {
   test('returns 401 when not authenticated', async () => {
     mockGetPortalAuth.mockResolvedValue(null)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      { message: 'Bitte erledigen' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {
+      message: 'Bitte erledigen',
+    })
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1363,10 +1399,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue(null)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1379,10 +1412,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK, isCompleted: true })
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1401,7 +1431,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
       'http://localhost:3001/api/portal/chores/task-1/request',
       // A real cuid: the schema requires one, and the old hand-copied mock
       // was laxer than the real schema, so this path was never truly checked.
-      { requestedResidentId: 'cjld2cjxh0000qzrmn831i7rn', message: 'Bitte erledigen' }
+      { requestedResidentId: 'cjld2cjxh0000qzrmn831i7rn', message: 'Bitte erledigen' },
     )
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
@@ -1427,10 +1457,9 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockRequestCreate.mockResolvedValue({ id: 'req-2' })
     mockUpdate.mockResolvedValue({})
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      { message: 'Wer kann das machen?' }
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {
+      message: 'Wer kann das machen?',
+    })
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1454,10 +1483,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockRequestCreate.mockResolvedValue({ id: 'req-3' })
     mockUpdate.mockResolvedValue({})
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     await requestChore(req, makeParams('task-1'))
 
     expect(mockUpdate).toHaveBeenCalledWith({
@@ -1472,10 +1498,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockRequestCreate.mockResolvedValue({ id: 'req-4' })
     mockUpdate.mockResolvedValue({})
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     await requestChore(req, makeParams('task-1'))
 
     expect(mockRequestCreate).toHaveBeenCalledWith({
@@ -1490,10 +1513,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockFindFirst.mockResolvedValue(SAMPLE_TASK)
     mockRequestCreate.mockRejectedValue(new Error('DB error'))
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     const res = await requestChore(req, makeParams('task-1'))
     const body = await res.json()
 
@@ -1506,10 +1526,7 @@ describe('POST /api/portal/chores/[id]/request', () => {
     mockGetPortalAuth.mockResolvedValue(AUTH_RESULT)
     mockFindFirst.mockResolvedValue(null)
 
-    const req = createJsonRequest(
-      'http://localhost:3001/api/portal/chores/task-1/request',
-      {}
-    )
+    const req = createJsonRequest('http://localhost:3001/api/portal/chores/task-1/request', {})
     await requestChore(req, makeParams('task-1'))
 
     expect(mockFindFirst).toHaveBeenCalledWith({

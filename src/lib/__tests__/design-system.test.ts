@@ -25,7 +25,7 @@ const SRC_GLOBS = '--include=*.tsx --include=*.ts --include=*.css'
 function grepSrc(pattern: string, extraArgs = ''): string[] {
   const out = execSync(
     `grep -rEn ${extraArgs} ${SRC_GLOBS} -e ${JSON.stringify(pattern)} src || true`,
-    { encoding: 'utf8', cwd: process.cwd(), maxBuffer: 10 * 1024 * 1024 }
+    { encoding: 'utf8', cwd: process.cwd(), maxBuffer: 10 * 1024 * 1024 },
   )
   return out
     .split('\n')
@@ -62,7 +62,7 @@ describe('design tokens are defined in exactly one place', () => {
   it('has no hardcoded hex colour outside the token files', () => {
     // `bg-[#fff]`, `style={{ color: '#fff' }}` — both make a re-theme partial.
     const hits = grepSrc('#[0-9a-fA-F]{3,8}\\b').filter(
-      (line) => !HEX_ALLOWED.some((allowed) => line.startsWith(`${allowed}:`))
+      (line) => !HEX_ALLOWED.some((allowed) => line.startsWith(`${allowed}:`)),
     )
     expect(hits).toEqual([])
   })
@@ -73,7 +73,7 @@ describe('design tokens are defined in exactly one place', () => {
     const palette =
       'gray|slate|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose'
     const hits = grepSrc(
-      `\\b(bg|text|border|ring|divide|from|via|to|decoration|outline)-(${palette})-(50|[1-9]00|950)\\b`
+      `\\b(bg|text|border|ring|divide|from|via|to|decoration|outline)-(${palette})-(50|[1-9]00|950)\\b`,
     )
     expect(hits).toEqual([])
   })
@@ -82,7 +82,7 @@ describe('design tokens are defined in exactly one place', () => {
     // The modal scrim is the one legitimate use of black, and it has its own
     // `.scrim` class so all six dialogs dim by the same amount.
     const hits = grepSrc('\\b(bg|text|border|ring|divide)-(white|black)(/[0-9]+)?\\b').filter(
-      (line) => !line.startsWith('src/app/globals.css')
+      (line) => !line.startsWith('src/app/globals.css'),
     )
     expect(hits).toEqual([])
   })
@@ -110,7 +110,7 @@ describe('design tokens are defined in exactly one place', () => {
       stripComments(readFileSync(file, 'utf8'))
         .split('\n')
         .filter((line) => pattern.test(line))
-        .map((line) => `${file}: ${line.trim()}`)
+        .map((line) => `${file}: ${line.trim()}`),
     )
 
     expect(hits).toEqual([])
@@ -149,7 +149,7 @@ describe('tailwind.config.ts holds no design values of its own', () => {
     PROVIDED_BY_NEXT_FONT.forEach((name) => defined.add(name))
 
     const referenced = Array.from(
-      new Set(Array.from(config.matchAll(/var\((--[a-z0-9-]+)\)/g), (m) => m[1]))
+      new Set(Array.from(config.matchAll(/var\((--[a-z0-9-]+)\)/g), (m) => m[1])),
     )
 
     const missing = referenced.filter((name) => !defined.has(name))
@@ -181,13 +181,10 @@ describe('the AOZ palette stays restorable', () => {
   // The default (`:root`) block, up to the first nested/alternate selector.
   const rootBlock = css.slice(css.indexOf(':root {'), css.indexOf('/* ── Dark theme'))
 
-  it.each(Object.entries(ORIGINAL_AOZ_PALETTE))(
-    '%s is unchanged in :root',
-    (token, expected) => {
-      const match = rootBlock.match(new RegExp(`${token}\\s*:\\s*([^;]+);`))
-      expect(match?.[1].trim()).toBe(expected)
-    }
-  )
+  it.each(Object.entries(ORIGINAL_AOZ_PALETTE))('%s is unchanged in :root', (token, expected) => {
+    const match = rootBlock.match(new RegExp(`${token}\\s*:\\s*([^;]+);`))
+    expect(match?.[1].trim()).toBe(expected)
+  })
 })
 
 describe('the organisation name is never hardcoded in UI copy', () => {
@@ -196,10 +193,10 @@ describe('the organisation name is never hardcoded in UI copy', () => {
    * Spelled literally they survive a re-badge and the product ends up showing
    * two different organisation names at once.
    */
-  const files = execSync(
-    `grep -rl --include=*.tsx --include=*.ts -e "AOZ" src || true`,
-    { encoding: 'utf8', cwd: process.cwd() }
-  )
+  const files = execSync(`grep -rl --include=*.tsx --include=*.ts -e "AOZ" src || true`, {
+    encoding: 'utf8',
+    cwd: process.cwd(),
+  })
     .split('\n')
     .filter(Boolean)
     .filter((f) => !f.includes('__tests__'))

@@ -110,7 +110,7 @@ const PLACEMENT_COPY: MarketingCopy = {
   science: [
     {
       title: 'Cleanliness is a direction, not an average',
-      body: "What gets measured is whose expectation of the others goes unmet — not the difference between two numbers. Tidy-but-relaxed next to messy produces no friction; two equally messy people, one of whom expects a lot, very much does.",
+      body: 'What gets measured is whose expectation of the others goes unmet — not the difference between two numbers. Tidy-but-relaxed next to messy produces no friction; two equally messy people, one of whom expects a lot, very much does.',
     },
     {
       title: 'The hardest pair decides the score',

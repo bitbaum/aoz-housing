@@ -55,11 +55,9 @@ describe('GET /api/export/residents', () => {
     const response = await GET()
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('Content-Type')).toBe(
-      'text/csv; charset=utf-8'
-    )
+    expect(response.headers.get('Content-Type')).toBe('text/csv; charset=utf-8')
     expect(response.headers.get('Content-Disposition')).toMatch(
-      /^attachment; filename="bewohner-\d{4}-\d{2}-\d{2}\.csv"$/
+      /^attachment; filename="bewohner-\d{4}-\d{2}-\d{2}\.csv"$/,
     )
   })
 

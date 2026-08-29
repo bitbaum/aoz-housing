@@ -81,11 +81,11 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          DATABASE_URL: "postgresql://fake:fake@localhost:5432/fake"
-          DIRECT_URL: "postgresql://fake:fake@localhost:5432/fake"
+          DATABASE_URL: 'postgresql://fake:fake@localhost:5432/fake'
+          DIRECT_URL: 'postgresql://fake:fake@localhost:5432/fake'
           # Not a real secret: page-data collection imports auth/constants,
           # whose production fail-fast requires this to be set (>=32 chars).
-          SESSION_SECRET: "ci-build-only-dummy-0123456789abcdef"
+          SESSION_SECRET: 'ci-build-only-dummy-0123456789abcdef'
 
   e2e-tests:
     name: E2E Tests
@@ -131,8 +131,8 @@ jobs:
       - name: Initialize database schema
         run: npx prisma migrate deploy
         env:
-          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
-          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+          DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
+          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
       # Through the npm scripts, never `npx ts-node prisma/…` directly: the
       # seed imports the product's compatibility algorithm by its `@/` alias,
@@ -145,8 +145,8 @@ jobs:
           npm run prisma:seed
           npm run prisma:seed:admin
         env:
-          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
-          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
+          DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
+          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -154,10 +154,10 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         env:
-          DATABASE_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
-          DIRECT_URL: "postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test"
-          SESSION_SECRET: "ci-test-secret-not-for-production"
-          STAFF_INVITE_CODE: "0000"
+          DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
+          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
+          SESSION_SECRET: 'ci-test-secret-not-for-production'
+          STAFF_INVITE_CODE: '0000'
 
       - name: Upload E2E report
         if: always()

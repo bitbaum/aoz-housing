@@ -38,20 +38,28 @@ export default async function EditOpportunityPage({ params }: Props) {
       <form action={updateOpportunity} className="card space-y-6">
         <OpportunityFormFields opportunity={opportunity} />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn-primary">{L.save}</button>
-          <Link href={`/opportunities/${id}`} className="btn-outline">{L.cancel}</Link>
+          <button type="submit" className="btn-primary">
+            {L.save}
+          </button>
+          <Link href={`/opportunities/${id}`} className="btn-outline">
+            {L.cancel}
+          </Link>
         </div>
       </form>
 
       <div className="mt-4 flex flex-wrap gap-3">
         {opportunity.status !== 'PUBLISHED' ? (
           <form action={publish}>
-            <button type="submit" className="btn-outline">{L.publish}</button>
+            <button type="submit" className="btn-outline">
+              {L.publish}
+            </button>
           </form>
         ) : null}
         {opportunity.status !== 'ARCHIVED' ? (
           <form action={archive}>
-            <button type="submit" className="btn-outline">{L.archive}</button>
+            <button type="submit" className="btn-outline">
+              {L.archive}
+            </button>
           </form>
         ) : null}
       </div>

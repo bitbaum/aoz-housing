@@ -33,7 +33,7 @@ function makeResident(overrides: Partial<Resident> = {}): Resident {
     noiseTolerance: 3,
     cleanlinessPractice: 3,
     cleanlinessExpectation: 3,
-    chaosTolerance: 6 - (3),
+    chaosTolerance: 6 - 3,
     guestTolerance: 3,
     socialStyle: 'MODERATE',
     languages: ['German'],
@@ -145,19 +145,49 @@ describe('calculateAverageScores', () => {
     })
 
     it('highly compatible roommates score above 70', () => {
-      const resident = makeResident({ id: 'r1', code: 'RES-001', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessPractice: 3 })
-      const twin = makeResident({ id: 'r2', code: 'RES-002', sleepSchedule: 'STANDARD', noiseTolerance: 3, cleanlinessPractice: 3 })
+      const resident = makeResident({
+        id: 'r1',
+        code: 'RES-001',
+        sleepSchedule: 'STANDARD',
+        noiseTolerance: 3,
+        cleanlinessPractice: 3,
+      })
+      const twin = makeResident({
+        id: 'r2',
+        code: 'RES-002',
+        sleepSchedule: 'STANDARD',
+        noiseTolerance: 3,
+        cleanlinessPractice: 3,
+      })
       const result = calculateAverageScores(resident, [makePlacementWith(twin)])
 
       expect(result.compatibilityScore).toBeGreaterThan(70)
     })
 
     it('incompatible roommates score lower than compatible ones', () => {
-      const resident = makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 1, cleanlinessPractice: 5 })
-      const good = makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 2, cleanlinessPractice: 4 })
-      const bad = makeResident({ id: 'r3', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5, cleanlinessPractice: 1, smokingStatus: 'INDOOR_SMOKER' })
+      const resident = makeResident({
+        id: 'r1',
+        sleepSchedule: 'EARLY_BIRD',
+        noiseTolerance: 1,
+        cleanlinessPractice: 5,
+      })
+      const good = makeResident({
+        id: 'r2',
+        sleepSchedule: 'EARLY_BIRD',
+        noiseTolerance: 2,
+        cleanlinessPractice: 4,
+      })
+      const bad = makeResident({
+        id: 'r3',
+        sleepSchedule: 'NIGHT_OWL',
+        noiseTolerance: 5,
+        cleanlinessPractice: 1,
+        smokingStatus: 'INDOOR_SMOKER',
+      })
 
-      const goodScore = calculateAverageScores(resident, [makePlacementWith(good)]).compatibilityScore
+      const goodScore = calculateAverageScores(resident, [
+        makePlacementWith(good),
+      ]).compatibilityScore
       const badScore = calculateAverageScores(resident, [makePlacementWith(bad)]).compatibilityScore
 
       expect(goodScore).toBeGreaterThan(badScore)
@@ -178,14 +208,21 @@ describe('calculateAverageScores', () => {
         makePlacementWith(roommate2),
       ])
 
-      const expectedAvg = Math.round((singleResult1.compatibilityScore + singleResult2.compatibilityScore) / 2)
+      const expectedAvg = Math.round(
+        (singleResult1.compatibilityScore + singleResult2.compatibilityScore) / 2,
+      )
       expect(bothResult.compatibilityScore).toBe(expectedAvg)
     })
 
     it('averages all five score dimensions independently', () => {
       const resident = makeResident({ id: 'r-main' })
       const r1 = makeResident({ id: 'r1', code: 'RES-R1' })
-      const r2 = makeResident({ id: 'r2', code: 'RES-R2', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5 })
+      const r2 = makeResident({
+        id: 'r2',
+        code: 'RES-R2',
+        sleepSchedule: 'NIGHT_OWL',
+        noiseTolerance: 5,
+      })
 
       const s1 = calculateAverageScores(resident, [makePlacementWith(r1)])
       const s2 = calculateAverageScores(resident, [makePlacementWith(r2)])
@@ -198,12 +235,32 @@ describe('calculateAverageScores', () => {
 
     it('score with three roommates is bounded between the best and worst pairwise scores', () => {
       const resident = makeResident({ id: 'r-main', sleepSchedule: 'STANDARD' })
-      const compatible = makeResident({ id: 'r1', code: 'RES-C', sleepSchedule: 'STANDARD', noiseTolerance: 3 })
-      const incompatible = makeResident({ id: 'r2', code: 'RES-I', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5, smokingStatus: 'INDOOR_SMOKER' })
-      const neutral = makeResident({ id: 'r3', code: 'RES-N', sleepSchedule: 'STANDARD', noiseTolerance: 3 })
+      const compatible = makeResident({
+        id: 'r1',
+        code: 'RES-C',
+        sleepSchedule: 'STANDARD',
+        noiseTolerance: 3,
+      })
+      const incompatible = makeResident({
+        id: 'r2',
+        code: 'RES-I',
+        sleepSchedule: 'NIGHT_OWL',
+        noiseTolerance: 5,
+        smokingStatus: 'INDOOR_SMOKER',
+      })
+      const neutral = makeResident({
+        id: 'r3',
+        code: 'RES-N',
+        sleepSchedule: 'STANDARD',
+        noiseTolerance: 3,
+      })
 
-      const best = calculateAverageScores(resident, [makePlacementWith(compatible)]).compatibilityScore
-      const worst = calculateAverageScores(resident, [makePlacementWith(incompatible)]).compatibilityScore
+      const best = calculateAverageScores(resident, [
+        makePlacementWith(compatible),
+      ]).compatibilityScore
+      const worst = calculateAverageScores(resident, [
+        makePlacementWith(incompatible),
+      ]).compatibilityScore
       const all = calculateAverageScores(resident, [
         makePlacementWith(compatible),
         makePlacementWith(incompatible),
@@ -218,7 +275,12 @@ describe('calculateAverageScores', () => {
   describe('score bounds', () => {
     it('all scores are non-negative', () => {
       const resident = makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD', noiseTolerance: 1 })
-      const roommate = makeResident({ id: 'r2', sleepSchedule: 'NIGHT_OWL', noiseTolerance: 5, smokingStatus: 'INDOOR_SMOKER' })
+      const roommate = makeResident({
+        id: 'r2',
+        sleepSchedule: 'NIGHT_OWL',
+        noiseTolerance: 5,
+        smokingStatus: 'INDOOR_SMOKER',
+      })
       const result = calculateAverageScores(resident, [makePlacementWith(roommate)])
 
       expect(result.compatibilityScore).toBeGreaterThanOrEqual(0)

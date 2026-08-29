@@ -16,15 +16,28 @@ describe('every brand has its own landing copy', () => {
     expect(copy).toBeDefined()
 
     const required: (keyof MarketingCopy)[] = [
-      'eyebrow', 'headline', 'subline', 'ctaPrimary', 'ctaSecondary', 'ctaNote',
-      'problemTitle', 'howTitle', 'featuresTitle', 'ethicsTitle', 'ethicsBody',
-      'closingTitle', 'closingBody',
+      'eyebrow',
+      'headline',
+      'subline',
+      'ctaPrimary',
+      'ctaSecondary',
+      'ctaNote',
+      'problemTitle',
+      'howTitle',
+      'featuresTitle',
+      'ethicsTitle',
+      'ethicsBody',
+      'closingTitle',
+      'closingBody',
     ]
 
     for (const key of required) {
       const value = copy[key]
-      expect({ id, key, filled: typeof value === 'string' && value.length > 0 })
-        .toEqual({ id, key, filled: true })
+      expect({ id, key, filled: typeof value === 'string' && value.length > 0 }).toEqual({
+        id,
+        key,
+        filled: true,
+      })
     }
   })
 
@@ -40,8 +53,10 @@ describe('every brand has its own landing copy', () => {
   it.each(brandIds)('%s only uses icons that exist', (id) => {
     // An unknown key renders nothing where a feature icon should be.
     for (const feature of MARKETING_COPY_BY_BRAND[id].features) {
-      expect({ feature: feature.title, icon: Boolean(NAV_ICONS[feature.icon]) })
-        .toEqual({ feature: feature.title, icon: true })
+      expect({ feature: feature.title, icon: Boolean(NAV_ICONS[feature.icon]) }).toEqual({
+        feature: feature.title,
+        icon: true,
+      })
     }
   })
 
@@ -66,7 +81,10 @@ describe('the landing page invents no evidence', () => {
   it.each(brandIds)('%s states no statistic', (id) => {
     const copy = MARKETING_COPY_BY_BRAND[id]
     const prose = [
-      copy.headline, copy.subline, copy.ethicsBody, copy.closingBody,
+      copy.headline,
+      copy.subline,
+      copy.ethicsBody,
+      copy.closingBody,
       ...copy.problems.flatMap((s) => [s.title, s.body]),
       ...copy.steps.flatMap((s) => [s.title, s.body]),
       ...copy.features.flatMap((f) => [f.title, f.body]),
@@ -93,8 +111,15 @@ describe('a heading may not count its own list', () => {
    * "someone has to notice" into "it does not ship".
    */
   const NUMBER_WORDS: Record<string, number> = {
-    zwei: 2, drei: 3, vier: 4, fünf: 5, sechs: 6,
-    sieben: 7, acht: 8, neun: 9, zehn: 10,
+    zwei: 2,
+    drei: 3,
+    vier: 4,
+    fünf: 5,
+    sechs: 6,
+    sieben: 7,
+    acht: 8,
+    neun: 9,
+    zehn: 10,
   }
 
   const HEADING_OF: { heading: keyof MarketingCopy; list: keyof MarketingCopy }[] = [

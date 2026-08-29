@@ -39,18 +39,24 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [completingId, setCompletingId] = useState<string | null>(null)
 
-  const filteredTasks = activeCategory
-    ? tasks.filter(t => t.category === activeCategory)
-    : tasks
+  const filteredTasks = activeCategory ? tasks.filter((t) => t.category === activeCategory) : tasks
 
-  const activeTasks = filteredTasks.filter(t => !t.isCompleted)
-  const completedTasks = filteredTasks.filter(t => t.isCompleted)
+  const activeTasks = filteredTasks.filter((t) => !t.isCompleted)
+  const completedTasks = filteredTasks.filter((t) => t.isCompleted)
 
   const urgentActionTasks = activeTasks.filter(
-    t => t.currentStatus === 'NEEDS_ATTENTION' || t.currentStatus === 'REQUESTED' || t.priority === 'URGENT'
+    (t) =>
+      t.currentStatus === 'NEEDS_ATTENTION' ||
+      t.currentStatus === 'REQUESTED' ||
+      t.priority === 'URGENT',
   )
   const routineTasks = activeTasks.filter(
-    t => !(t.currentStatus === 'NEEDS_ATTENTION' || t.currentStatus === 'REQUESTED' || t.priority === 'URGENT')
+    (t) =>
+      !(
+        t.currentStatus === 'NEEDS_ATTENTION' ||
+        t.currentStatus === 'REQUESTED' ||
+        t.priority === 'URGENT'
+      ),
   )
 
   async function handleQuickComplete(taskId: string) {
@@ -74,8 +80,8 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
   }
 
   // Collect categories present in tasks
-  const categories = Object.keys(TASK_CATEGORY_LABELS).filter(cat =>
-    tasks.some(t => t.category === cat)
+  const categories = Object.keys(TASK_CATEGORY_LABELS).filter((cat) =>
+    tasks.some((t) => t.category === cat),
   )
 
   return (
@@ -93,7 +99,7 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
           >
             {CHORE_LABELS.filter.all}
           </button>
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat === activeCategory ? null : cat)}
@@ -120,12 +126,14 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
         <div className="space-y-3">
           {urgentActionTasks.length > 0 && (
             <div className="p-3 rounded-lg border border-status-warning/30 bg-status-warning/10">
-              <p className="text-sm font-medium text-status-warning-text">{CHORE_LABELS.sections.urgentNow}</p>
+              <p className="text-sm font-medium text-status-warning-text">
+                {CHORE_LABELS.sections.urgentNow}
+              </p>
               <p className="text-xs text-status-warning-text">{CHORE_LABELS.sections.urgentDesc}</p>
             </div>
           )}
 
-          {urgentActionTasks.map(task => (
+          {urgentActionTasks.map((task) => (
             <ChoreCard
               key={task.id}
               task={task}
@@ -137,7 +145,7 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
           {urgentActionTasks.length > 0 && routineTasks.length > 0 && (
             <p className="text-sm text-ui-muted pt-2">{CHORE_LABELS.sections.after}</p>
           )}
-          {routineTasks.map(task => (
+          {routineTasks.map((task) => (
             <ChoreCard
               key={task.id}
               task={task}
@@ -149,7 +157,7 @@ export function ChoreList({ tasks, balances, currentResidentId }: ChoreListProps
           {completedTasks.length > 0 && (
             <>
               <p className="text-sm text-ui-muted pt-4">{CHORE_LABELS.card.completed}</p>
-              {completedTasks.map(task => (
+              {completedTasks.map((task) => (
                 <ChoreCard
                   key={task.id}
                   task={task}

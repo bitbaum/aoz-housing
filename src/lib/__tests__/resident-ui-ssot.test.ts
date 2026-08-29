@@ -73,17 +73,22 @@ describe('toResidentUiSummary — what may reach a client component', () => {
   })
 
   it('keeps the fields the housing UI actually renders', () => {
-    for (const f of ['id', 'code', 'displayName', 'ageRange', 'gender', 'languages', 'choresContribution']) {
+    for (const f of [
+      'id',
+      'code',
+      'displayName',
+      'ageRange',
+      'gender',
+      'languages',
+      'choresContribution',
+    ]) {
       expect(f in view).toBe(true)
     }
   })
 })
 
 describe('housing/[id]/page.tsx does not pass a raw resident row to a client component', () => {
-  const page = readFileSync(
-    join(process.cwd(), 'src/app/(admin)/housing/[id]/page.tsx'),
-    'utf8',
-  )
+  const page = readFileSync(join(process.cwd(), 'src/app/(admin)/housing/[id]/page.tsx'), 'utf8')
 
   // The four client components on this page receive resident rows. Passing the
   // whole row (`p.resident` / a bare `resident`) is the leak; each must go

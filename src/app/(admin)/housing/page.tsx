@@ -5,7 +5,14 @@ import { getDateDaysAgo } from '@/lib/utils'
 import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
-import { EMPTY_STATE_LABELS, UI_LABELS, HOUSING_STATUS_LABELS, HOUSING_STAT_LABELS, PAGE_TITLES, HOUSING_LIST_LABELS } from '@/lib/constants'
+import {
+  EMPTY_STATE_LABELS,
+  UI_LABELS,
+  HOUSING_STATUS_LABELS,
+  HOUSING_STAT_LABELS,
+  PAGE_TITLES,
+  HOUSING_LIST_LABELS,
+} from '@/lib/constants'
 import { HousingList } from '@/components/housing/HousingList'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { ButtonLink } from '@/components/ui/Button'
@@ -30,15 +37,19 @@ export default async function HousingListPage({ searchParams }: Props) {
         ...(view === 'active'
           ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
           : view === 'archived'
-          ? { status: 'CLOSED' }
+            ? { status: 'CLOSED' }
+            : {}),
+        ...(q
+          ? {
+              OR: [
+                { code: { contains: q, mode: 'insensitive' } },
+                // A caseworker who hears "Casa Harmonie" must be able to type it.
+                { nickname: { contains: q, mode: 'insensitive' } },
+                { address: { contains: q, mode: 'insensitive' } },
+                { buildingCode: { contains: q, mode: 'insensitive' } },
+              ],
+            }
           : {}),
-        ...(q ? { OR: [
-          { code: { contains: q, mode: 'insensitive' } },
-          // A caseworker who hears "Casa Harmonie" must be able to type it.
-          { nickname: { contains: q, mode: 'insensitive' } },
-          { address: { contains: q, mode: 'insensitive' } },
-          { buildingCode: { contains: q, mode: 'insensitive' } },
-        ] } : {}),
       },
       select: {
         id: true,
@@ -82,27 +93,24 @@ export default async function HousingListPage({ searchParams }: Props) {
 
   const stats = {
     total: allUnits.length,
-    available: allUnits.filter(u => u.status === 'AVAILABLE').length,
-    full: allUnits.filter(u => u.status === 'FULL').length,
-    archived: allUnits.filter(u => u.status === 'CLOSED').length,
+    available: allUnits.filter((u) => u.status === 'AVAILABLE').length,
+    full: allUnits.filter((u) => u.status === 'FULL').length,
+    archived: allUnits.filter((u) => u.status === 'CLOSED').length,
     totalBeds: allUnits.reduce((sum, u) => sum + u.totalBeds, 0),
     occupiedBeds: allUnits.reduce((sum, u) => sum + u._count.placements, 0),
     visible: units.length,
   }
-  const occupancyPercent = stats.totalBeds > 0
-    ? Math.max(0, Math.min(100, Math.round((stats.occupiedBeds / stats.totalBeds) * 100)))
-    : 0
+  const occupancyPercent =
+    stats.totalBeds > 0
+      ? Math.max(0, Math.min(100, Math.round((stats.occupiedBeds / stats.totalBeds) * 100)))
+      : 0
 
   return (
     <PageShell>
       <PageHeader
         title={PAGE_TITLES.housing}
         description={`${stats.visible} sichtbar · ${stats.occupiedBeds}/${stats.totalBeds} Betten belegt`}
-        actions={
-          <ButtonLink href="/housing/new">
-            {PAGE_TITLES.newHousing}
-          </ButtonLink>
-        }
+        actions={<ButtonLink href="/housing/new">{PAGE_TITLES.newHousing}</ButtonLink>}
       />
 
       <Toolbar>
@@ -118,9 +126,24 @@ export default async function HousingListPage({ searchParams }: Props) {
           />
         </form>
         <TabLinkGroup label={UI_LABELS.filterNav}>
-          <TabLink href={`/housing?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.active} count={stats.total - stats.archived} active={view === 'active'} />
-          <TabLink href={`/housing?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.archived} count={stats.archived} active={view === 'archived'} />
-          <TabLink href={`/housing?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`} label={UI_LABELS.all} count={stats.total} active={view === 'all'} />
+          <TabLink
+            href={`/housing?view=active${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label={UI_LABELS.active}
+            count={stats.total - stats.archived}
+            active={view === 'active'}
+          />
+          <TabLink
+            href={`/housing?view=archived${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label={UI_LABELS.archived}
+            count={stats.archived}
+            active={view === 'archived'}
+          />
+          <TabLink
+            href={`/housing?view=all${q ? `&q=${encodeURIComponent(q)}` : ''}`}
+            label={UI_LABELS.all}
+            count={stats.total}
+            active={view === 'all'}
+          />
         </TabLinkGroup>
       </Toolbar>
 
@@ -147,21 +170,21 @@ export default async function HousingListPage({ searchParams }: Props) {
           action={
             q ? (
               <ButtonLink href={`/housing?view=${view}`} variant="outline">
-              {HOUSING_LIST_LABELS.filterReset}
+                {HOUSING_LIST_LABELS.filterReset}
               </ButtonLink>
-          ) : view !== 'archived' ? (
-              <ButtonLink href="/housing/new">
-              {EMPTY_STATE_LABELS.createHousingFirst}
-              </ButtonLink>
+            ) : view !== 'archived' ? (
+              <ButtonLink href="/housing/new">{EMPTY_STATE_LABELS.createHousingFirst}</ButtonLink>
             ) : null
           }
         />
       ) : (
-        <HousingList units={units.map(u => ({
-          ...u,
-          placementCount: u._count.placements,
-          incidentCount: u._count.incidents,
-        }))} />
+        <HousingList
+          units={units.map((u) => ({
+            ...u,
+            placementCount: u._count.placements,
+            incidentCount: u._count.incidents,
+          }))}
+        />
       )}
     </PageShell>
   )

@@ -9,9 +9,7 @@ describe('SelectFilter', () => {
   ]
 
   it('exposes an accessible name from its label', () => {
-    render(
-      <SelectFilter label="Status" value="all" options={options} onChange={() => {}} />
-    )
+    render(<SelectFilter label="Status" value="all" options={options} onChange={() => {}} />)
     // The (visually hidden) label is associated via htmlFor/id, so the
     // combobox resolves its accessible name from it.
     expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument()
@@ -19,9 +17,7 @@ describe('SelectFilter', () => {
 
   it('renders all options and reports changes', () => {
     const onChange = jest.fn()
-    render(
-      <SelectFilter label="Status" value="all" options={options} onChange={onChange} />
-    )
+    render(<SelectFilter label="Status" value="all" options={options} onChange={onChange} />)
     expect(screen.getByRole('option', { name: 'Alle' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Aktiv' })).toBeInTheDocument()
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'active' } })

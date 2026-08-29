@@ -86,11 +86,16 @@ const STYLES = {
 
 function severityColor(severity: string): string {
   switch (severity) {
-    case 'CRITICAL': return EMAIL_COLORS.danger
-    case 'HIGH': return EMAIL_COLORS.danger
-    case 'MEDIUM': return EMAIL_COLORS.warning
-    case 'LOW': return EMAIL_COLORS.muted
-    default: return EMAIL_COLORS.textBody
+    case 'CRITICAL':
+      return EMAIL_COLORS.danger
+    case 'HIGH':
+      return EMAIL_COLORS.danger
+    case 'MEDIUM':
+      return EMAIL_COLORS.warning
+    case 'LOW':
+      return EMAIL_COLORS.muted
+    default:
+      return EMAIL_COLORS.textBody
   }
 }
 
@@ -98,19 +103,26 @@ const severityLabel = (severity: string) => INCIDENT_SEVERITY_LABELS[severity] ?
 
 function maintenancePriorityColor(priority: string): string {
   switch (priority) {
-    case 'URGENT': return EMAIL_COLORS.danger
-    case 'HIGH': return EMAIL_COLORS.warning
-    case 'LOW': return EMAIL_COLORS.muted
-    default: return EMAIL_COLORS.textBody
+    case 'URGENT':
+      return EMAIL_COLORS.danger
+    case 'HIGH':
+      return EMAIL_COLORS.warning
+    case 'LOW':
+      return EMAIL_COLORS.muted
+    default:
+      return EMAIL_COLORS.textBody
   }
 }
 const supportLevelLabel = (level: string) => SUPPORT_LEVEL_LABELS[level] ?? level
 
 function supportLevelColor(level: string): string {
   switch (level) {
-    case 'INTENSIVE': return EMAIL_COLORS.danger
-    case 'ELEVATED': return EMAIL_COLORS.warning
-    default: return EMAIL_COLORS.textBody
+    case 'INTENSIVE':
+      return EMAIL_COLORS.danger
+    case 'ELEVATED':
+      return EMAIL_COLORS.warning
+    default:
+      return EMAIL_COLORS.textBody
   }
 }
 
@@ -132,10 +144,15 @@ function emailFooter(): string {
 
 // -- Template functions --
 
-export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subject: string; html: string } {
+export function incidentFollowUpReminder(incidents: OverdueIncident[]): {
+  subject: string
+  html: string
+} {
   const subject = `[${BRAND.productName}] ${incidents.length} überfällige Nachverfolgungen`
 
-  const rows = incidents.map(i => `
+  const rows = incidents
+    .map(
+      (i) => `
     <tr>
       <td style="${STYLES.td}">${i.id.slice(-8)}</td>
       <td style="${STYLES.td}">${escapeHtml(i.description)}</td>
@@ -143,7 +160,9 @@ export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subjec
       <td style="${STYLES.td}">${i.housingUnitCode ? escapeHtml(i.housingUnitCode) : '-'}</td>
       <td style="${STYLES.td}">${formatDate(i.nextFollowUpDate)}</td>
     </tr>
-  `).join('')
+  `,
+    )
+    .join('')
 
   const html = `
     <h2 style="${STYLES.header}">Überfällige Nachverfolgungen</h2>
@@ -168,17 +187,24 @@ export function incidentFollowUpReminder(incidents: OverdueIncident[]): { subjec
   return { subject, html }
 }
 
-export function checkInReminder(overdueResidents: OverdueResident[]): { subject: string; html: string } {
+export function checkInReminder(overdueResidents: OverdueResident[]): {
+  subject: string
+  html: string
+} {
   const subject = `[${BRAND.productName}] ${overdueResidents.length} Check-ins überfällig`
 
-  const rows = overdueResidents.map(r => `
+  const rows = overdueResidents
+    .map(
+      (r) => `
     <tr>
       <td style="${STYLES.td}">${escapeHtml(r.code)}</td>
       <td style="${STYLES.td}"><span style="color: ${supportLevelColor(r.supportLevel)}; font-weight: 600;">${supportLevelLabel(r.supportLevel)}</span></td>
       <td style="${STYLES.td}">${r.lastCheckInDate ? formatDate(r.lastCheckInDate) : 'Nie'}</td>
       <td style="${STYLES.td}">${r.daysSinceLastCheckIn} Tage</td>
     </tr>
-  `).join('')
+  `,
+    )
+    .join('')
 
   const html = `
     <h2 style="${STYLES.header}">Überfällige Check-ins</h2>
@@ -268,9 +294,10 @@ interface NewMaintenanceRequestData {
  * onto the conflict ladder — so it needs its own notification rather than being
  * announced as a "Vorfall", which would read to staff as a conflict.
  */
-export function newMaintenanceRequestNotification(
-  data: NewMaintenanceRequestData
-): { subject: string; html: string } {
+export function newMaintenanceRequestNotification(data: NewMaintenanceRequestData): {
+  subject: string
+  html: string
+} {
   const priority = MAINTENANCE_PRIORITY_LABELS[data.priority] ?? data.priority
   const category = MAINTENANCE_CATEGORY_LABELS[data.category] ?? data.category
   const subject = `[${BRAND.productName}] Neue Wartungsanfrage: ${escapeHtml(data.title)} (${priority})`
@@ -385,7 +412,10 @@ export function passwordResetEmail(data: { link: string }): { subject: string; h
   return { subject, html }
 }
 
-export function newTransferRequestNotification(data: TransferRequestData): { subject: string; html: string } {
+export function newTransferRequestNotification(data: TransferRequestData): {
+  subject: string
+  html: string
+} {
   const subject = `[${BRAND.productName}] Neue Verlegungsanfrage: ${data.residentCode}`
 
   const html = `

@@ -9,8 +9,11 @@ export async function GET() {
   const auth = await authorizeStaff('export:read')
   if (!auth.ok) {
     return NextResponse.json(
-      { error: auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: auth.status }
+      {
+        error:
+          auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS,
+      },
+      { status: auth.status },
     )
   }
 
@@ -19,10 +22,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' },
     })
 
-    const csv = generateCSV(
-      data as unknown as Record<string, unknown>[],
-      EXPORT_COLUMNS.residents
-    )
+    const csv = generateCSV(data as unknown as Record<string, unknown>[], EXPORT_COLUMNS.residents)
 
     return new NextResponse(csv, {
       headers: {

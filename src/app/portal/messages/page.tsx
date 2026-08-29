@@ -5,11 +5,7 @@ import { prisma } from '@/lib/db'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { MessageThreadView } from '@/components/portal/MessageThread'
-import {
-  getOrCreateThread,
-  loadThreadMessages,
-  markThreadRead,
-} from '@/lib/messaging/queries'
+import { getOrCreateThread, loadThreadMessages, markThreadRead } from '@/lib/messaging/queries'
 import { createTranslator, resolveLocale, LOCALE_COOKIE } from '@/lib/i18n'
 import { cookies, headers } from 'next/headers'
 
@@ -52,7 +48,11 @@ export default async function PortalMessagesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title={t('messages.title')} description={t('messages.subtitle')} backHref="/portal" />
+      <PageHeader
+        title={t('messages.title')}
+        description={t('messages.subtitle')}
+        backHref="/portal"
+      />
       <MessageThreadView initialMessages={messages} />
     </div>
   )

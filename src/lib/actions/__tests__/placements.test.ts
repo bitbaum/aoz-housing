@@ -53,12 +53,38 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest
+    .fn()
+    .mockResolvedValue({
+      id: 'staff-1',
+      email: 'admin@test.com',
+      name: 'Test Admin',
+      role: 'ADMIN' as const,
+    }),
+  requireStaffAuth: jest
+    .fn()
+    .mockResolvedValue({
+      id: 'staff-1',
+      email: 'admin@test.com',
+      name: 'Test Admin',
+      role: 'ADMIN' as const,
+    }),
+  requirePermission: jest
+    .fn()
+    .mockResolvedValue({
+      id: 'staff-1',
+      email: 'admin@test.com',
+      name: 'Test Admin',
+      role: 'ADMIN' as const,
+    }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -111,9 +137,7 @@ beforeEach(() => {
  * Configures prisma.$transaction to execute the callback with a mock tx object.
  * Each mock method on tx is configurable via the txSetup callback.
  */
-function setupTransaction(
-  txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void
-) {
+function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void) {
   const tx: Record<string, Record<string, jest.Mock>> = {
     resident: { findUnique: jest.fn(), update: jest.fn() },
     placement: { findFirst: jest.fn(), findMany: jest.fn(), create: jest.fn() },
@@ -122,9 +146,11 @@ function setupTransaction(
     compatibilityAssessment: { upsert: jest.fn() },
   }
   txSetup(tx)
-  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: (tx: unknown) => unknown) => {
-    return cb(tx)
-  })
+  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
+    async (cb: (tx: unknown) => unknown) => {
+      return cb(tx)
+    },
+  )
   return tx
 }
 
@@ -217,7 +243,7 @@ describe('createPlacement', () => {
         entity: 'PLACEMENT',
         entityId: 'pl-new',
         changes: { residentId: 'res-1', housingUnitId: 'hu-1', spotId: 'spot-1' },
-      })
+      }),
     )
   })
 
@@ -259,6 +285,13 @@ describe('auth guard', () => {
     const { requirePermission: mockRequirePermission } = require('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
-    await expect(createPlacement({ residentId: 'r1', housingUnitId: 'h1', spotId: 's1', startDate: new Date() })).rejects.toThrow('Anmeldung erforderlich')
+    await expect(
+      createPlacement({
+        residentId: 'r1',
+        housingUnitId: 'h1',
+        spotId: 's1',
+        startDate: new Date(),
+      }),
+    ).rejects.toThrow('Anmeldung erforderlich')
   })
 })

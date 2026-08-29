@@ -40,13 +40,9 @@ export const ACHIEVEMENT_KINDS = [
   'INTERNSHIP',
 ] as const
 
-export function isAchievementRecord(record: {
-  status: string
-  kind: string
-}): boolean {
+export function isAchievementRecord(record: { status: string; kind: string }): boolean {
   return (
-    record.status === 'COMPLETED' &&
-    (ACHIEVEMENT_KINDS as readonly string[]).includes(record.kind)
+    record.status === 'COMPLETED' && (ACHIEVEMENT_KINDS as readonly string[]).includes(record.kind)
   )
 }
 

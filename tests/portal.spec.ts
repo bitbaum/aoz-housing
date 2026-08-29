@@ -40,15 +40,23 @@ test.describe('Portal auth guard', () => {
   // Override storageState — empty (no staff session, no resident cookie)
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  for (const path of ['/portal/preferences', '/portal/transfer', '/portal/report', '/portal/chores']) {
+  for (const path of [
+    '/portal/preferences',
+    '/portal/transfer',
+    '/portal/report',
+    '/portal/chores',
+  ]) {
     test(`${path} redirects to /login without resident cookie`, async ({ page }) => {
       await page.goto(path)
       // Middleware redirects /portal/* → /portal → /login
       // Use pathname-exact predicate to avoid early match on /portal/sub-page URLs
-      await page.waitForURL(url => {
-        const p = new URL(url).pathname
-        return p === '/login' || p === '/portal'
-      }, { timeout: 10_000 })
+      await page.waitForURL(
+        (url) => {
+          const p = new URL(url).pathname
+          return p === '/login' || p === '/portal'
+        },
+        { timeout: 10_000 },
+      )
       const url = page.url()
       expect(url).toMatch(/\/(login|portal)(\?.*)?$/)
       expect(url).not.toContain(path)
@@ -78,16 +86,16 @@ test.describe('Portal Preferences', () => {
 
     // Sleep schedule select (from PreferencesForm)
     await expect(
-      page.locator('select[name="sleepSchedule"], input[name="sleepSchedule"]').first()
+      page.locator('select[name="sleepSchedule"], input[name="sleepSchedule"]').first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
   test('preferences form has a submit button', async ({ page }) => {
     await page.goto('/portal/preferences')
 
-    await expect(
-      page.getByRole('button', { name: /speichern|aktualisieren|senden/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: /speichern|aktualisieren|senden/i })).toBeVisible(
+      { timeout: 15_000 },
+    )
   })
 
   test('back link navigates to portal dashboard', async ({ page }) => {
@@ -120,9 +128,9 @@ test.describe('Portal Report', () => {
     await page.goto('/portal/report')
 
     // Emergency notice is always present regardless of placement status
-    await expect(
-      page.locator('text=/112|Notfall|emergency/i').first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('text=/112|Notfall|emergency/i').first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows report form for placed resident', async ({ page }) => {
@@ -130,9 +138,7 @@ test.describe('Portal Report', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
     // Category / templates first; the <form> mounts after a category is chosen.
-    await expect(
-      page.getByRole('heading', { level: 3 }).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { level: 3 }).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('shows no-placement message for unplaced resident', async ({ page }) => {
@@ -141,9 +147,9 @@ test.describe('Portal Report', () => {
 
     // No placement → informational message, no report form
     // Text: "Du hast noch keine Unterkunft zugewiesen bekommen."
-    await expect(
-      page.getByText(/keine.*unterkunft|kein.*platz|nicht platziert/i)
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/keine.*unterkunft|kein.*platz|nicht platziert/i)).toBeVisible({
+      timeout: 15_000,
+    })
   })
 })
 
@@ -168,7 +174,10 @@ test.describe('Portal Transfer', () => {
 
     // Either the form textarea is shown or the "request submitted" state.
     // PORTAL_LABELS.transfer.pendingTitle === 'Anfrage eingereicht'.
-    const hasReasonField = await page.locator('#reason').isVisible().catch(() => false)
+    const hasReasonField = await page
+      .locator('#reason')
+      .isVisible()
+      .catch(() => false)
     const hasPending = await page
       .getByRole('heading', { name: /Anfrage eingereicht/i })
       .isVisible()
@@ -182,9 +191,9 @@ test.describe('Portal Transfer', () => {
     await page.goto('/portal/transfer')
 
     // Text: "Du hast noch keine Unterkunft zugewiesen bekommen."
-    await expect(
-      page.getByText(/keine.*unterkunft|kein.*platz|nicht platziert/i)
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/keine.*unterkunft|kein.*platz|nicht platziert/i)).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('transfer form has reason field', async ({ page }) => {
@@ -222,9 +231,9 @@ test.describe('Portal Chores', () => {
   test('shows create chore button', async ({ page }) => {
     await page.goto('/portal/chores')
 
-    await expect(
-      page.getByRole('link', { name: /neu|erstellen|hinzufügen|\+/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /neu|erstellen|hinzufügen|\+/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows no-placement message for unplaced resident', async ({ page }) => {
@@ -234,9 +243,9 @@ test.describe('Portal Chores', () => {
     // No placement → chores page still loads but shows info message
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 })
     // Should show some indication there's no placement
-    await expect(
-      page.getByText(/kein.*platz|nicht platziert|keine.*unterkunft/i)
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/kein.*platz|nicht platziert|keine.*unterkunft/i)).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('create chore link points to /portal/chores/new', async ({ page }) => {

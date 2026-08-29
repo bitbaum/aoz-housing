@@ -24,7 +24,9 @@ import {
  * - Implements sliding session refresh
  */
 
-async function verifyStaffToken(token: string): Promise<{ valid: boolean; shouldRefresh: boolean; payload?: Record<string, unknown> }> {
+async function verifyStaffToken(
+  token: string,
+): Promise<{ valid: boolean; shouldRefresh: boolean; payload?: Record<string, unknown> }> {
   try {
     const secret = new TextEncoder().encode(SESSION_SECRET)
     const { payload } = await jwtVerify(token, secret, {
@@ -145,7 +147,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/health).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/health).*)'],
 }

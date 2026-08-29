@@ -51,7 +51,9 @@ jest.mock('@/lib/logger', () => ({
 
 jest.mock('@/lib/email', () => ({
   notifyStaff: jest.fn(),
-  newTransferRequestNotification: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
+  newTransferRequestNotification: jest
+    .fn()
+    .mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
 }))
 
 // --- Import after mocks ---

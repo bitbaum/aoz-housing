@@ -63,7 +63,7 @@ function monthLabelOf(monthKey: string): string {
  */
 export function monthlyStatements(
   expenses: ExpenseForStatement[],
-  memberIds: string[] = []
+  memberIds: string[] = [],
 ): MonthlyStatement[] {
   const byMonth = new Map<string, ExpenseForStatement[]>()
   for (const expense of expenses) {

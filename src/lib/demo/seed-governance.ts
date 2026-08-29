@@ -78,7 +78,7 @@ function snapshotFor(category: 'NOISE' | 'KITCHEN' | 'CLEANLINESS' | 'SAFETY', v
 
 export async function seedDemoGovernance(
   prisma: PrismaClient,
-  ctx: DemoGovernanceContext
+  ctx: DemoGovernanceContext,
 ): Promise<void> {
   const { unitId, demoResidentId, roommateIds, siteWideContent } = ctx
   const [yasmin, amira, sara] = roommateIds
@@ -162,15 +162,51 @@ export async function seedDemoGovernance(
 
   await prisma.taskCompletion.createMany({
     data: [
-      { taskId: kitchen.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(2), durationMinutes: 35, completedItems: kitchenItems },
-      { taskId: kitchen.id, completedById: yasmin, completedAt: daysAgoThisMonth(9), durationMinutes: 30, completedItems: kitchenItems },
-      { taskId: bathroom.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(4), durationMinutes: 20, completedItems: bathItems },
+      {
+        taskId: kitchen.id,
+        completedById: demoResidentId,
+        completedAt: daysAgoThisMonth(2),
+        durationMinutes: 35,
+        completedItems: kitchenItems,
+      },
+      {
+        taskId: kitchen.id,
+        completedById: yasmin,
+        completedAt: daysAgoThisMonth(9),
+        durationMinutes: 30,
+        completedItems: kitchenItems,
+      },
+      {
+        taskId: bathroom.id,
+        completedById: demoResidentId,
+        completedAt: daysAgoThisMonth(4),
+        durationMinutes: 20,
+        completedItems: bathItems,
+      },
       // A deliberately PARTIAL completion: the floor and the towels were left.
       // "Erledigt" with two items unticked is exactly the situation the
       // checklist exists to make visible instead of arguable.
-      { taskId: bathroom.id, completedById: amira, completedAt: daysAgoThisMonth(11), durationMinutes: 25, completedItems: bathItems.slice(0, 3) },
-      { taskId: trash.id, completedById: yasmin, completedAt: daysAgoThisMonth(3), durationMinutes: 10, completedItems: trashItems },
-      { taskId: trash.id, completedById: demoResidentId, completedAt: daysAgoThisMonth(10), durationMinutes: 10, completedItems: trashItems },
+      {
+        taskId: bathroom.id,
+        completedById: amira,
+        completedAt: daysAgoThisMonth(11),
+        durationMinutes: 25,
+        completedItems: bathItems.slice(0, 3),
+      },
+      {
+        taskId: trash.id,
+        completedById: yasmin,
+        completedAt: daysAgoThisMonth(3),
+        durationMinutes: 10,
+        completedItems: trashItems,
+      },
+      {
+        taskId: trash.id,
+        completedById: demoResidentId,
+        completedAt: daysAgoThisMonth(10),
+        durationMinutes: 10,
+        completedItems: trashItems,
+      },
     ],
   })
 
@@ -212,7 +248,12 @@ export async function seedDemoGovernance(
           { residentId: yasmin, choice: 'YES', castAt: daysAgo(2) },
           { residentId: amira, choice: 'YES', castAt: daysAgo(1) },
           // Sara is against; Fatima — the demo login — has not voted yet.
-          { residentId: sara, choice: 'NO', reason: 'Nach der Spätschicht schaffe ich das nicht immer.', castAt: daysAgo(1) },
+          {
+            residentId: sara,
+            choice: 'NO',
+            reason: 'Nach der Spätschicht schaffe ich das nicht immer.',
+            castAt: daysAgo(1),
+          },
         ],
       },
     },

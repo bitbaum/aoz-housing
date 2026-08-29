@@ -9,19 +9,12 @@ interface FormSectionProps {
   className?: string
 }
 
-export function FormSection({
-  title,
-  description,
-  children,
-  className = '',
-}: FormSectionProps) {
+export function FormSection({ title, description, children, className = '' }: FormSectionProps) {
   return (
     <div className={`card ${className}`}>
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{title}</h2>
-        {description && (
-          <p className="text-sm text-ui-muted mt-1">{description}</p>
-        )}
+        {description && <p className="text-sm text-ui-muted mt-1">{description}</p>}
       </div>
       <div className="space-y-4">{children}</div>
     </div>
@@ -49,11 +42,13 @@ export function FormField({
         {label}
         {required && <span className="text-status-error-text ml-1">*</span>}
       </label>
-      {description && (
-        <p className="text-xs text-ui-muted mb-2">{description}</p>
-      )}
+      {description && <p className="text-xs text-ui-muted mb-2">{description}</p>}
       {children}
-      {error && <p role="alert" className="text-xs text-status-error-text mt-1">{error}</p>}
+      {error && (
+        <p role="alert" className="text-xs text-status-error-text mt-1">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
@@ -64,9 +59,5 @@ interface FormActionsProps {
 }
 
 export function FormActions({ children, className = '' }: FormActionsProps) {
-  return (
-    <div className={`flex gap-3 pt-4 ${className}`}>
-      {children}
-    </div>
-  )
+  return <div className={`flex gap-3 pt-4 ${className}`}>{children}</div>
 }

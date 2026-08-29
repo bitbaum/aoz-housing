@@ -16,7 +16,10 @@ import { advanceDueProposals } from '@/lib/governance/lifecycle'
 export async function POST(request: NextRequest) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -24,7 +27,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -37,20 +40,32 @@ export async function POST(request: NextRequest) {
     })
 
     if (!proposal) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     // Only residents of the house that the decision affects may vote in it.
     if (proposal.housingUnitId !== auth.placement.housingUnitId) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.VOTE_NOT_ELIGIBLE }, { status: 403 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.VOTE_NOT_ELIGIBLE },
+        { status: 403 },
+      )
     }
 
     if (proposal.status === 'DISCUSSION') {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_VOTING }, { status: 409 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_VOTING },
+        { status: 409 },
+      )
     }
 
     if (proposal.status !== 'VOTING') {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_OPEN }, { status: 409 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.PROPOSAL_NOT_OPEN },
+        { status: 409 },
+      )
     }
 
     await prisma.vote.upsert({
@@ -73,6 +88,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to cast vote', error, { residentId: auth.resident.id })
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.VOTE_SAVE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.VOTE_SAVE_ERROR },
+      { status: 500 },
+    )
   }
 }

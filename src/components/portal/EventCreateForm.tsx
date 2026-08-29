@@ -34,15 +34,28 @@ export function EventCreateForm({ action }: { action: (formData: FormData) => vo
       {open ? (
         <form action={action} className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label htmlFor="ev-title" className="label">{t('events.formTitle')}</label>
+            <label htmlFor="ev-title" className="label">
+              {t('events.formTitle')}
+            </label>
             <input id="ev-title" name="title" required maxLength={120} className="input" />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="ev-description" className="label">{t('events.formDescription')}</label>
-            <textarea id="ev-description" name="description" required rows={3} maxLength={2000} className="input" />
+            <label htmlFor="ev-description" className="label">
+              {t('events.formDescription')}
+            </label>
+            <textarea
+              id="ev-description"
+              name="description"
+              required
+              rows={3}
+              maxLength={2000}
+              className="input"
+            />
           </div>
           <div>
-            <label htmlFor="ev-category" className="label">{t('events.formCategory')}</label>
+            <label htmlFor="ev-category" className="label">
+              {t('events.formCategory')}
+            </label>
             <select id="ev-category" name="category" className="input" defaultValue="SOCIAL">
               {HOUSE_EVENT_CATEGORIES.map((value) => (
                 <option key={value} value={value}>
@@ -52,12 +65,22 @@ export function EventCreateForm({ action }: { action: (formData: FormData) => vo
             </select>
           </div>
           <div>
-            <label htmlFor="ev-location" className="label">{t('events.formLocation')}</label>
+            <label htmlFor="ev-location" className="label">
+              {t('events.formLocation')}
+            </label>
             <input id="ev-location" name="location" maxLength={120} className="input" />
           </div>
           <div className="sm:col-span-2">
-            <label htmlFor="ev-startsAt" className="label">{t('events.formStartsAt')}</label>
-            <input id="ev-startsAt" name="startsAt" type="datetime-local" required className="input" />
+            <label htmlFor="ev-startsAt" className="label">
+              {t('events.formStartsAt')}
+            </label>
+            <input
+              id="ev-startsAt"
+              name="startsAt"
+              type="datetime-local"
+              required
+              className="input"
+            />
           </div>
           <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
             <button type="submit" className="btn-primary min-h-[44px] px-6">

@@ -9,10 +9,7 @@
 
 import { DynamicFormField } from './DynamicFormField'
 import type { FormFieldValue } from './DynamicFormField'
-import {
-  HOUSING_FORM_SECTIONS,
-  getHousingFactorsBySection,
-} from '@/lib/config/housing-factors'
+import { HOUSING_FORM_SECTIONS, getHousingFactorsBySection } from '@/lib/config/housing-factors'
 
 interface HousingFormFieldsProps {
   defaultValues?: Record<string, FormFieldValue>
@@ -32,8 +29,8 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
         if (factors.length === 0) return null
 
         // Determine layout based on section content
-        const hasOnlyBooleans = factors.every(f => f.type === 'boolean')
-        const hasScalesOrNumbers = factors.some(f => f.type === 'scale')
+        const hasOnlyBooleans = factors.every((f) => f.type === 'boolean')
+        const hasScalesOrNumbers = factors.some((f) => f.type === 'scale')
         const isBasicSection = section.id === 'basic'
 
         return (
@@ -72,7 +69,7 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                   {factors
-                    .filter(f => f.type === 'scale')
+                    .filter((f) => f.type === 'scale')
                     .map((factor) => (
                       <DynamicFormField
                         key={factor.id}
@@ -82,10 +79,10 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
                     ))}
                 </div>
                 {/* Booleans in a row after numbers */}
-                {factors.some(f => f.type === 'boolean') && (
+                {factors.some((f) => f.type === 'boolean') && (
                   <div className="flex flex-wrap gap-6">
                     {factors
-                      .filter(f => f.type === 'boolean')
+                      .filter((f) => f.type === 'boolean')
                       .map((factor) => (
                         <DynamicFormField
                           key={factor.id}
@@ -97,7 +94,7 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
                 )}
                 {/* Text fields after booleans */}
                 {factors
-                  .filter(f => f.type === 'text')
+                  .filter((f) => f.type === 'text')
                   .map((factor) => (
                     <DynamicFormField
                       key={factor.id}
@@ -110,7 +107,7 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
               // Standard vertical layout
               <div className="space-y-4">
                 {factors
-                  .filter(f => f.type !== 'boolean')
+                  .filter((f) => f.type !== 'boolean')
                   .map((factor) => (
                     <DynamicFormField
                       key={factor.id}
@@ -119,10 +116,10 @@ export function HousingFormFields({ defaultValues = {}, isEdit = false }: Housin
                     />
                   ))}
                 {/* Booleans in a row at the end */}
-                {factors.some(f => f.type === 'boolean') && (
+                {factors.some((f) => f.type === 'boolean') && (
                   <div className="flex flex-wrap gap-6">
                     {factors
-                      .filter(f => f.type === 'boolean')
+                      .filter((f) => f.type === 'boolean')
                       .map((factor) => (
                         <DynamicFormField
                           key={factor.id}

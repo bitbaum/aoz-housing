@@ -27,9 +27,7 @@ import { BRANDS, type BrandId } from '@/lib/config/brand'
 function itemsInGroup(brand: BrandId, group: PortalNavGroup): string[] {
   const features = BRANDS[brand].features
   return PORTAL_NAV_ITEMS.filter(
-    (item) =>
-      item.group === group &&
-      (!item.requiresFeature || features[item.requiresFeature])
+    (item) => item.group === group && (!item.requiresFeature || features[item.requiresFeature]),
   ).map((item) => item.href)
 }
 
@@ -37,31 +35,26 @@ const BRAND_IDS = Object.keys(BRANDS) as BrandId[]
 
 describe('every portal nav group survives every brand', () => {
   const cases = BRAND_IDS.flatMap((brand) =>
-    PORTAL_SIDEBAR_GROUPS.map((group) => ({ brand, group }))
+    PORTAL_SIDEBAR_GROUPS.map((group) => ({ brand, group })),
   )
 
-  it.each(cases)(
-    '$brand keeps at least two destinations under $group',
-    ({ brand, group }) => {
-      // Two, not one: a group with a single child is a link wearing a hat, and
-      // it is also one flag away from being an empty accordion.
-      const hrefs = itemsInGroup(brand, group).filter(
-        (href) => !PORTAL_SIDEBAR_PINNED.includes(href)
-      )
-      expect({ brand, group, count: hrefs.length, hrefs }).toEqual({
-        brand,
-        group,
-        count: expect.any(Number),
-        hrefs: expect.arrayContaining([]),
-      })
-      expect(hrefs.length).toBeGreaterThanOrEqual(2)
-    }
-  )
+  it.each(cases)('$brand keeps at least two destinations under $group', ({ brand, group }) => {
+    // Two, not one: a group with a single child is a link wearing a hat, and
+    // it is also one flag away from being an empty accordion.
+    const hrefs = itemsInGroup(brand, group).filter((href) => !PORTAL_SIDEBAR_PINNED.includes(href))
+    expect({ brand, group, count: hrefs.length, hrefs }).toEqual({
+      brand,
+      group,
+      count: expect.any(Number),
+      hrefs: expect.arrayContaining([]),
+    })
+    expect(hrefs.length).toBeGreaterThanOrEqual(2)
+  })
 
   it('files every item under a group that the sidebar or the account menu draws', () => {
     const drawn = new Set<string>([...PORTAL_SIDEBAR_GROUPS, 'account'])
     const orphans = PORTAL_NAV_ITEMS.filter((item) => !drawn.has(item.group)).map(
-      (item) => item.href
+      (item) => item.href,
     )
     expect(orphans).toEqual([])
   })
@@ -69,13 +62,13 @@ describe('every portal nav group survives every brand', () => {
   it('declares each group exactly once, in one order', () => {
     expect(PORTAL_NAV_GROUP_ORDER).toEqual(
       PORTAL_NAV_GROUP_ORDER.filter(
-        (group, index) => PORTAL_NAV_GROUP_ORDER.indexOf(group) === index
-      )
+        (group, index) => PORTAL_NAV_GROUP_ORDER.indexOf(group) === index,
+      ),
     )
     // The sidebar draws a subset of the declared order, in that order — so a
     // group cannot be reordered in one place and not the other.
     expect(PORTAL_SIDEBAR_GROUPS).toEqual(
-      PORTAL_NAV_GROUP_ORDER.filter((group) => PORTAL_SIDEBAR_GROUPS.includes(group))
+      PORTAL_NAV_GROUP_ORDER.filter((group) => PORTAL_SIDEBAR_GROUPS.includes(group)),
     )
   })
 

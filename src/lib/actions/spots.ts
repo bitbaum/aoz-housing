@@ -147,7 +147,9 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       throw new Error(ERROR_MESSAGES.SPOT_CODE_EXISTS)
     }
-    logger.errorWithCause('Failed to create multiple spots', error, { housingUnitId: data.housingUnitId })
+    logger.errorWithCause('Failed to create multiple spots', error, {
+      housingUnitId: data.housingUnitId,
+    })
     throw new Error(ERROR_MESSAGES.SPOTS_BATCH_CREATE_ERROR)
   }
 

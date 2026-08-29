@@ -53,7 +53,7 @@ describe('nothing from the vendor reaches the user', () => {
     expect(LEAKS.filter((leak) => message.includes(leak))).toEqual([])
     // And it is not empty or English-by-accident.
     expect(message.startsWith('Der KI-Assistent') || message.startsWith('Das Tagesbudget')).toBe(
-      true
+      true,
     )
   })
 })

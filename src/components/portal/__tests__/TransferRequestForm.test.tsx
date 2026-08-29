@@ -74,7 +74,7 @@ describe('TransferRequestForm', () => {
       <TransferRequestForm
         currentUnit={{ code: 'C03', address: 'Hauptstrasse 10' }}
         availableUnits={[]}
-      />
+      />,
     )
 
     expect(screen.getByText('Aktuelle Unterkunft')).toBeInTheDocument()
@@ -144,7 +144,9 @@ describe('TransferRequestForm', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Anfrage gesendet')).toBeInTheDocument()
-      expect(screen.getByText('Deine Verlegungsanfrage wurde erfolgreich eingereicht.')).toBeInTheDocument()
+      expect(
+        screen.getByText('Deine Verlegungsanfrage wurde erfolgreich eingereicht.'),
+      ).toBeInTheDocument()
     })
 
     expect(screen.queryByLabelText('Warum möchtest du verlegt werden?')).not.toBeInTheDocument()
@@ -177,7 +179,9 @@ describe('TransferRequestForm', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
     await waitFor(() => {
-      expect(screen.getByText('Ein Fehler ist aufgetreten. Bitte erneut versuchen.')).toBeInTheDocument()
+      expect(
+        screen.getByText('Ein Fehler ist aufgetreten. Bitte erneut versuchen.'),
+      ).toBeInTheDocument()
     })
   })
 

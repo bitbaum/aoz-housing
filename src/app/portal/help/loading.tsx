@@ -7,7 +7,7 @@ export default function HelpLoading() {
       <SkeletonText className="h-8 w-32" />
       <SkeletonText className="h-4 w-72" />
       <div className="card space-y-3">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <SkeletonText key={i} className="h-12 w-full" />
         ))}
       </div>

@@ -33,7 +33,7 @@ const adminRoutes = readdirSync(ADMIN_DIR, { withFileTypes: true })
 /** Every destination the staff nav offers, megamenu plus system links. */
 const navHrefs: string[] = [
   ...MEGAMENU_GROUPS.flatMap((group) =>
-    'href' in group ? [group.href] : group.items.map((item) => item.href)
+    'href' in group ? [group.href] : group.items.map((item) => item.href),
   ),
   ...SYSTEM_LINKS.map((link) => link.href),
 ]

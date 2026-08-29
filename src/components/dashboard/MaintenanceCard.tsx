@@ -64,7 +64,9 @@ export function MaintenanceCard({
       ) : (
         <div className="py-6 text-center">
           <span className="text-status-success text-2xl block mb-2">✓</span>
-          <p className="text-status-success-text text-sm font-medium">{MAINTENANCE_CARD_LABELS.allDone}</p>
+          <p className="text-status-success-text text-sm font-medium">
+            {MAINTENANCE_CARD_LABELS.allDone}
+          </p>
         </div>
       )}
 

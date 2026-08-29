@@ -46,7 +46,9 @@ function StageSelector({ application }: { application: ApplicationRow }) {
           <span className="block text-xs font-medium text-ui-text">{L.changeStage}</span>
           <select name="stage" defaultValue={application.stage} className="input">
             {APPLICATION_STAGES.map((stage) => (
-              <option key={stage} value={stage}>{APPLICATION_STAGE_LABELS[stage]}</option>
+              <option key={stage} value={stage}>
+                {APPLICATION_STAGE_LABELS[stage]}
+              </option>
             ))}
           </select>
         </label>
@@ -54,7 +56,9 @@ function StageSelector({ application }: { application: ApplicationRow }) {
           <span className="block text-xs font-medium text-ui-text">{L.hoursOnEnd}</span>
           <input name="hours" type="number" min={1} className="input" />
         </label>
-        <button type="submit" className="btn-outline min-h-[44px]">{L.save}</button>
+        <button type="submit" className="btn-outline min-h-[44px]">
+          {L.save}
+        </button>
       </form>
     </details>
   )
@@ -95,7 +99,9 @@ function ApplicantControls({ application }: { application: ApplicationRow }) {
         <form action={changeApplicationStage}>
           <input type="hidden" name="applicationId" value={application.id} />
           <input type="hidden" name="stage" value="DECLINED" />
-          <button type="submit" className="btn-ghost min-h-[44px]">{L.decline}</button>
+          <button type="submit" className="btn-ghost min-h-[44px]">
+            {L.decline}
+          </button>
         </form>
       </div>
       <StageSelector application={application} />

@@ -30,7 +30,7 @@ export function hashAuthToken(raw: string): string {
  */
 export async function createAuthToken(
   accountId: string,
-  purpose: AuthTokenPurpose
+  purpose: AuthTokenPurpose,
 ): Promise<string> {
   const raw = randomBytes(32).toString('hex')
 
@@ -54,7 +54,7 @@ export async function createAuthToken(
  */
 export async function consumeAuthToken(
   raw: string,
-  purpose: AuthTokenPurpose
+  purpose: AuthTokenPurpose,
 ): Promise<string | null> {
   const token = await prisma.authToken.findUnique({
     where: { tokenHash: hashAuthToken(raw) },

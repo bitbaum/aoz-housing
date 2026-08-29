@@ -26,7 +26,7 @@ export function ScaleInput({
   const levels = Array.from({ length: max - min + 1 }, (_, i) => min + i)
   const currentValue = value ?? defaultValue
 
-  const descriptionId = (minLabel || maxLabel) ? `${name}-scale-desc` : undefined
+  const descriptionId = minLabel || maxLabel ? `${name}-scale-desc` : undefined
 
   return (
     <div>

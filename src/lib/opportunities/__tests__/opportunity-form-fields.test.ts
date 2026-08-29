@@ -20,7 +20,7 @@ const COMPONENT = join(
   'src',
   'components',
   'opportunities',
-  'OpportunityFormFields.tsx'
+  'OpportunityFormFields.tsx',
 )
 
 function submittedFieldNames(): string[] {

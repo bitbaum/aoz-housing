@@ -24,7 +24,7 @@ async function calculateCompatibilityForUnit(unitCode?: string) {
   console.log(`Found ${units.length} housing unit(s)`)
 
   for (const unit of units) {
-    const residents = unit.placements.map(p => p.resident)
+    const residents = unit.placements.map((p) => p.resident)
 
     if (residents.length < 2) {
       console.log(`\n${unit.code}: Only ${residents.length} resident(s), skipping`)

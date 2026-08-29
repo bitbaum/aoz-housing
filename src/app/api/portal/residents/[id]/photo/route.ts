@@ -23,7 +23,10 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
   const resident = staff ? null : await getPortalResident()
 
   if (!staff && !resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -32,7 +35,10 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
       select: { id: true, profileVisibility: true },
     })
     if (!subject) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     let viewer: ProfileViewer
@@ -54,18 +60,24 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
                   },
                 },
                 select: { id: true },
-              })
+              }),
             )
       viewer = { kind: 'resident', residentId: resident!.id, sharesUnit }
     }
 
     if (!canSeeProfile(viewer, subject)) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     const photo = await prisma.residentPhoto.findUnique({ where: { residentId: params.id } })
     if (!photo) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     return new NextResponse(new Uint8Array(photo.data), {
@@ -81,6 +93,9 @@ export async function GET(_request: NextRequest, { params }: { params: { id: str
     })
   } catch (error) {
     logger.errorWithCause('Failed to serve resident photo', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SESSION_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
+      { status: 500 },
+    )
   }
 }

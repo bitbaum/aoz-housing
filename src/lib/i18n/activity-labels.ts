@@ -48,7 +48,7 @@ export function activityCostLabel(t: Translator, cost: ActivityCost): string {
 /** Category filter options, translated, in the order the config declares them. */
 export function activityCategoryOptions(
   t: Translator,
-  categories: readonly ActivityCategory[]
+  categories: readonly ActivityCategory[],
 ): { value: ActivityCategory; label: string }[] {
   return categories.map((value) => ({ value, label: activityCategoryLabel(t, value) }))
 }

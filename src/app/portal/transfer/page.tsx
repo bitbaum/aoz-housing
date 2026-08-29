@@ -108,7 +108,9 @@ export default async function TransferPage() {
                     {TRANSFER_REQUEST_STATUS_LABELS[decidedRequest.status]}
                   </h2>
                 </div>
-                <span className={decidedRequest.status === 'DENIED' ? 'chip-error' : 'chip-success'}>
+                <span
+                  className={decidedRequest.status === 'DENIED' ? 'chip-error' : 'chip-success'}
+                >
                   {TRANSFER_REQUEST_STATUS_LABELS[decidedRequest.status]}
                 </span>
               </div>
@@ -133,10 +135,14 @@ export default async function TransferPage() {
           )}
 
           <TransferRequestForm
-            currentUnit={placement.housingUnit ? {
-              code: placement.housingUnit.code,
-              address: placement.housingUnit.address,
-            } : undefined}
+            currentUnit={
+              placement.housingUnit
+                ? {
+                    code: placement.housingUnit.code,
+                    address: placement.housingUnit.address,
+                  }
+                : undefined
+            }
             availableUnits={availableUnits}
           />
         </div>

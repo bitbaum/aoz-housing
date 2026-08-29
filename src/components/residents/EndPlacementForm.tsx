@@ -2,7 +2,13 @@
 
 import { endPlacement } from '@/lib/actions'
 import { SubmitButton } from '@/components/ui'
-import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, COMPATIBILITY_GAP_LABELS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
+import {
+  END_REASON_LABELS,
+  END_REASON_DESCRIPTIONS,
+  COMPATIBILITY_GAP_LABELS,
+  PLACEMENT_ACTIONS_LABELS,
+  UI_LABELS,
+} from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { formatDate } from '@/lib/utils'
 
@@ -33,7 +39,9 @@ export function EndPlacementForm({
   onClose,
 }: EndPlacementFormProps) {
   const endSummary = selectedEndReason
-    ? PLACEMENT_ACTIONS_LABELS.endSummaryWithReason(END_REASON_LABELS[selectedEndReason] || selectedEndReason)
+    ? PLACEMENT_ACTIONS_LABELS.endSummaryWithReason(
+        END_REASON_LABELS[selectedEndReason] || selectedEndReason,
+      )
     : PLACEMENT_ACTIONS_LABELS.endSummaryEmpty
 
   return (
@@ -55,14 +63,18 @@ export function EndPlacementForm({
       <input type="hidden" name="residentId" value={residentId} />
 
       <div className="p-3 bg-status-error/15 rounded text-sm text-status-error-text">
-        <strong>{PLACEMENT_ACTIONS_LABELS.endWarningTitle}</strong> {PLACEMENT_ACTIONS_LABELS.endWarning}
+        <strong>{PLACEMENT_ACTIONS_LABELS.endWarningTitle}</strong>{' '}
+        {PLACEMENT_ACTIONS_LABELS.endWarning}
       </div>
 
       <div>
         <label className="label">{PLACEMENT_ACTIONS_LABELS.endReasonLabel}</label>
         <div className="space-y-2">
           {Object.entries(END_REASON_LABELS).map(([key, label]) => (
-            <label key={key} className="flex items-start gap-3 p-2 rounded hover:bg-status-error/10 cursor-pointer">
+            <label
+              key={key}
+              className="flex items-start gap-3 p-2 rounded hover:bg-status-error/10 cursor-pointer"
+            >
               <input
                 type="radio"
                 name="endReason"
@@ -73,9 +85,7 @@ export function EndPlacementForm({
               />
               <div>
                 <span className="font-medium text-ui-text">{label}</span>
-                <p className="text-xs text-ui-muted">
-                  {END_REASON_DESCRIPTIONS[key]}
-                </p>
+                <p className="text-xs text-ui-muted">{END_REASON_DESCRIPTIONS[key]}</p>
               </div>
             </label>
           ))}
@@ -86,7 +96,9 @@ export function EndPlacementForm({
         <div className="p-4 bg-status-warning/10 rounded-lg border border-status-warning/25 space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-status-warning text-lg">📊</span>
-            <h5 className="font-medium text-status-warning-text">{PLACEMENT_ACTIONS_LABELS.conflictAnalysisTitle}</h5>
+            <h5 className="font-medium text-status-warning-text">
+              {PLACEMENT_ACTIONS_LABELS.conflictAnalysisTitle}
+            </h5>
           </div>
           <p className="text-sm text-status-warning-text mb-3">
             {PLACEMENT_ACTIONS_LABELS.conflictAnalysisDesc}
@@ -116,9 +128,15 @@ export function EndPlacementForm({
                 />
                 <span className="text-sm text-ui-muted">
                   {PLACEMENT_ACTIONS_LABELS.conflictPredictableYes}
-                  {initialCompatibilityScore !== null && initialCompatibilityScore !== undefined && initialCompatibilityScore < 60 && (
-                    <span className="text-status-warning ml-1">{PLACEMENT_ACTIONS_LABELS.conflictScoreHint(Math.round(initialCompatibilityScore))}</span>
-                  )}
+                  {initialCompatibilityScore !== null &&
+                    initialCompatibilityScore !== undefined &&
+                    initialCompatibilityScore < 60 && (
+                      <span className="text-status-warning ml-1">
+                        {PLACEMENT_ACTIONS_LABELS.conflictScoreHint(
+                          Math.round(initialCompatibilityScore),
+                        )}
+                      </span>
+                    )}
                 </span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
@@ -128,7 +146,9 @@ export function EndPlacementForm({
                   value="false"
                   className="accent-status-warning"
                 />
-                <span className="text-sm text-ui-muted">{PLACEMENT_ACTIONS_LABELS.conflictNoPredictable}</span>
+                <span className="text-sm text-ui-muted">
+                  {PLACEMENT_ACTIONS_LABELS.conflictNoPredictable}
+                </span>
               </label>
             </div>
             <p className="text-xs text-ui-muted mt-1">
@@ -143,7 +163,8 @@ export function EndPlacementForm({
                 <option value="">{PLACEMENT_ACTIONS_LABELS.noLinkedIncident}</option>
                 {recentIncidents.map((incident) => (
                   <option key={incident.id} value={incident.id}>
-                    {formatDate(incident.date)} - {incident.type}: {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
+                    {formatDate(incident.date)} - {incident.type}:{' '}
+                    {incident.description.slice(0, DISPLAY_LIMITS.descriptionPreview)}...
                   </option>
                 ))}
               </select>

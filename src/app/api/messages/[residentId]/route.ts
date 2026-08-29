@@ -33,7 +33,10 @@ export async function GET(_request: NextRequest, { params }: { params: { residen
   try {
     staff = await requireStaffAuth()
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -44,7 +47,10 @@ export async function GET(_request: NextRequest, { params }: { params: { residen
     return NextResponse.json({ success: true, data: { messages } })
   } catch (error) {
     logger.errorWithCause('Failed to load staff message thread', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SESSION_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
+      { status: 500 },
+    )
   }
 }
 
@@ -53,18 +59,27 @@ export async function POST(request: NextRequest, { params }: { params: { residen
   try {
     staff = await requireStaffAuth()
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   let body: string
   try {
     const parsed = replySchema.safeParse(await request.json())
     if (!parsed.success || !isSendableBody(parsed.data.body)) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
     body = parsed.data.body
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -87,6 +102,9 @@ export async function POST(request: NextRequest, { params }: { params: { residen
     return NextResponse.json({ success: true, data: { message } })
   } catch (error) {
     logger.errorWithCause('Failed to send staff message', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SESSION_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
+      { status: 500 },
+    )
   }
 }

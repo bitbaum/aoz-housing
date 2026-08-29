@@ -49,29 +49,28 @@ export function PlacementPanel({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="scrim z-40 transition-opacity"
-        onClick={onClose}
-      />
+      <div className="scrim z-40 transition-opacity" onClick={onClose} />
 
       {/* Panel */}
       <div className="fixed inset-y-0 right-0 w-full max-w-md bg-ui-surface border-l border-ui-border shadow-overlay z-50 flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 border-b border-ui-border flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-ui-text">
-              {PLACEMENT_PANEL_LABELS.title}
-            </h2>
-            <p className="text-sm text-ui-muted">
-              {spot.label || spot.code}
-            </p>
+            <h2 className="text-lg font-semibold text-ui-text">{PLACEMENT_PANEL_LABELS.title}</h2>
+            <p className="text-sm text-ui-muted">{spot.label || spot.code}</p>
           </div>
           <button
             onClick={onClose}
             className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md text-ui-muted hover:text-ui-muted hover:bg-ui-subtle"
             aria-label={UI_LABELS.close}
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -81,9 +80,7 @@ export function PlacementPanel({
         <div className="flex-1 overflow-y-auto p-6">
           {compatibleResidents.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-ui-muted mb-4">
-                {PLACEMENT_PANEL_LABELS.noResidents}
-              </p>
+              <p className="text-ui-muted mb-4">{PLACEMENT_PANEL_LABELS.noResidents}</p>
               <Link href="/residents/new" className="btn-primary text-sm">
                 {PLACEMENT_PANEL_LABELS.addResident}
               </Link>
@@ -108,10 +105,7 @@ export function PlacementPanel({
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-ui-border">
-          <Link
-            href={`/matching?unit=${housingUnitId}`}
-            className="btn-outline w-full text-center"
-          >
+          <Link href={`/matching?unit=${housingUnitId}`} className="btn-outline w-full text-center">
             {PLACEMENT_PANEL_LABELS.advancedMatching}
           </Link>
         </div>
@@ -133,7 +127,9 @@ function ResidentRow({
 }) {
   const { resident, fitScore, strengths, concerns } = match
   const hasBlockingConcerns = concerns.some(
-    (c) => c === PLACEMENT_CONCERN_LABELS.wheelchairRequired || c === PLACEMENT_CONCERN_LABELS.groundFloorRequired
+    (c) =>
+      c === PLACEMENT_CONCERN_LABELS.wheelchairRequired ||
+      c === PLACEMENT_CONCERN_LABELS.groundFloorRequired,
   )
 
   const borderColor = hasBlockingConcerns
@@ -157,9 +153,7 @@ function ResidentRow({
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="avatar flex-shrink-0">
-            {residentInitials(resident)}
-          </div>
+          <div className="avatar flex-shrink-0">{residentInitials(resident)}</div>
           <div className="min-w-0">
             <Link
               href={`/residents/${resident.id}`}
@@ -169,7 +163,10 @@ function ResidentRow({
             </Link>
             <p className="text-sm text-ui-muted truncate">
               {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-              {resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+              {resident.languages
+                ?.slice(0, DISPLAY_LIMITS.languagePreview)
+                .map((l) => getLabel(LANGUAGE_LABELS, l))
+                .join(', ')}
             </p>
           </div>
         </div>
@@ -206,14 +203,10 @@ function ResidentRow({
 
       {/* Concerns or strengths */}
       {concerns.length > 0 && !hasBlockingConcerns && (
-        <p className="text-xs text-status-warning-text mt-2">
-          ⚠️ {concerns[0]}
-        </p>
+        <p className="text-xs text-status-warning-text mt-2">⚠️ {concerns[0]}</p>
       )}
       {concerns.length === 0 && strengths.length > 0 && (
-        <p className="text-xs text-status-success-text mt-2">
-          ✓ {strengths[0]}
-        </p>
+        <p className="text-xs text-status-success-text mt-2">✓ {strengths[0]}</p>
       )}
     </div>
   )

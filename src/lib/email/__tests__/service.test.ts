@@ -86,9 +86,7 @@ describe('sendEmail', () => {
   })
 
   it('retries on 429 and succeeds on the second attempt', async () => {
-    mockFetch
-      .mockResolvedValueOnce(errorResponse(429))
-      .mockResolvedValueOnce(okResponse())
+    mockFetch.mockResolvedValueOnce(errorResponse(429)).mockResolvedValueOnce(okResponse())
     const result = await runWithTimers(sendEmail(['a@b.ch'], 'Subj', '<p>hi</p>'))
     expect(result).toBe(true)
     expect(mockFetch).toHaveBeenCalledTimes(2)
@@ -102,9 +100,7 @@ describe('sendEmail', () => {
   })
 
   it('retries on a thrown network error then recovers', async () => {
-    mockFetch
-      .mockRejectedValueOnce(new Error('ECONNRESET'))
-      .mockResolvedValueOnce(okResponse())
+    mockFetch.mockRejectedValueOnce(new Error('ECONNRESET')).mockResolvedValueOnce(okResponse())
     const result = await runWithTimers(sendEmail(['a@b.ch'], 'Subj', '<p>hi</p>'))
     expect(result).toBe(true)
     expect(mockFetch).toHaveBeenCalledTimes(2)

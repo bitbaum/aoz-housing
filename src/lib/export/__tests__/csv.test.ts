@@ -32,9 +32,7 @@ describe('generateCSV', () => {
       { key: 'description', header: 'Beschreibung' },
     ]
 
-    const data = [
-      { name: 'Müller', description: 'Strasse 42, Zürich' },
-    ]
+    const data = [{ name: 'Müller', description: 'Strasse 42, Zürich' }]
 
     const csv = generateCSV(data, columns)
     const lines = csv.split('\r\n')
@@ -58,8 +56,7 @@ describe('generateCSV', () => {
       {
         key: 'languages',
         header: 'Sprachen',
-        transform: (v: unknown) =>
-          Array.isArray(v) ? v.join(', ') : String(v || ''),
+        transform: (v: unknown) => (Array.isArray(v) ? v.join(', ') : String(v || '')),
       },
       {
         key: 'createdAt',
@@ -91,10 +88,7 @@ describe('generateCSV', () => {
       { name: 'Alice', status: null },
     ]
 
-    const csv = generateCSV(
-      data as unknown as Record<string, unknown>[],
-      basicColumns
-    )
+    const csv = generateCSV(data as unknown as Record<string, unknown>[], basicColumns)
     const lines = csv.split('\r\n')
 
     expect(lines[1]).toBe(',')
@@ -102,8 +96,8 @@ describe('generateCSV', () => {
   })
 
   it('passes the full row to transform functions', () => {
-    const transformFn = jest.fn((_value: unknown, row: Record<string, unknown>) =>
-      `${row.first} ${row.last}`
+    const transformFn = jest.fn(
+      (_value: unknown, row: Record<string, unknown>) => `${row.first} ${row.last}`,
     )
 
     const columns: ExportColumn[] = [
@@ -121,9 +115,7 @@ describe('generateCSV', () => {
   })
 
   it('handles commas and quotes in data values', () => {
-    const data = [
-      { name: 'Smith, John', status: 'Has "special" chars' },
-    ]
+    const data = [{ name: 'Smith, John', status: 'Has "special" chars' }]
 
     const csv = generateCSV(data, basicColumns)
     const lines = csv.split('\r\n')
@@ -141,22 +133,15 @@ describe('generateCSV', () => {
         header: 'Datum',
         transform: (v: unknown) => {
           if (v instanceof Date) return v.toISOString().split('T')[0]
-          if (typeof v === 'string' && v)
-            return new Date(v).toISOString().split('T')[0]
+          if (typeof v === 'string' && v) return new Date(v).toISOString().split('T')[0]
           return ''
         },
       },
     ]
 
-    const data = [
-      { date: '2024-03-15T12:00:00.000Z' },
-      { date: null },
-    ]
+    const data = [{ date: '2024-03-15T12:00:00.000Z' }, { date: null }]
 
-    const csv = generateCSV(
-      data as unknown as Record<string, unknown>[],
-      columns
-    )
+    const csv = generateCSV(data as unknown as Record<string, unknown>[], columns)
     const lines = csv.split('\r\n')
 
     expect(lines[1]).toBe('2024-03-15')

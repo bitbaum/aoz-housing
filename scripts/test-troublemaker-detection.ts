@@ -73,10 +73,7 @@ async function main() {
   // Get stats for Carlos
   const stats = await prisma.incident.findMany({
     where: {
-      OR: [
-        { reportedById: carlos.id },
-        { subjectId: carlos.id },
-      ],
+      OR: [{ reportedById: carlos.id }, { subjectId: carlos.id }],
     },
     include: {
       reportedBy: { select: { code: true } },
@@ -85,8 +82,8 @@ async function main() {
   })
 
   console.log(`\n📈 Carlos (${carlos.code}) incident statistics:`)
-  console.log(`   Reported by him: ${stats.filter(i => i.reportedById === carlos.id).length}`)
-  console.log(`   About him: ${stats.filter(i => i.subjectId === carlos.id).length}`)
+  console.log(`   Reported by him: ${stats.filter((i) => i.reportedById === carlos.id).length}`)
+  console.log(`   About him: ${stats.filter((i) => i.subjectId === carlos.id).length}`)
   console.log(`   Total incidents: ${stats.length}`)
 
   console.log(`\n⚠️  Carlos should now show a WARNING in the UI (3+ incidents as subject)`)

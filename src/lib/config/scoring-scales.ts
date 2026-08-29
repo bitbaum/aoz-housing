@@ -70,23 +70,23 @@ export const PRACTICAL_SCALES = {
  */
 export const DIMENSION_WEIGHTS = {
   lifestyle: {
-    sleepSchedule: 35,   // #1 conflict trigger (PMC cortisol study)
-    cleanliness: 30,     // #1-2 conflict trigger (Kansas State/ASU)
-    noiseTolerance: 25,  // Top-5 trigger (Brunnenhof, GdW)
-    guestTolerance: 10,  // Top-5 trigger (national survey, 31k students)
+    sleepSchedule: 35, // #1 conflict trigger (PMC cortisol study)
+    cleanliness: 30, // #1-2 conflict trigger (Kansas State/ASU)
+    noiseTolerance: 25, // Top-5 trigger (Brunnenhof, GdW)
+    guestTolerance: 10, // Top-5 trigger (national survey, 31k students)
   },
   social: {
-    language: 35,        // "Central factor" (BFH)
-    privacyNeed: 30,     // "Critical" (BFH-HSLU 2024)
-    socialStyle: 25,     // Big Five support (IJIP)
-    conflictStyle: 10,   // Agreeableness effect (IJIP, PMC 2024)
+    language: 35, // "Central factor" (BFH)
+    privacyNeed: 30, // "Critical" (BFH-HSLU 2024)
+    socialStyle: 25, // Big Five support (IJIP)
+    conflictStyle: 10, // Agreeableness effect (IJIP, PMC 2024)
   },
   practical: {
-    smoking: 45,         // Non-negotiable (Wuppertal Institut)
-    sharedSpaces: 25,    // Functional requirement
-    chores: 15,          // Moderate evidence (Kansas State)
-    pets: 10,            // Lower conflict evidence
-    dietary: 5,          // Minimal conflict evidence
+    smoking: 45, // Non-negotiable (Wuppertal Institut)
+    sharedSpaces: 25, // Functional requirement
+    chores: 15, // Moderate evidence (Kansas State)
+    pets: 10, // Lower conflict evidence
+    dietary: 5, // Minimal conflict evidence
   },
 } as const
 

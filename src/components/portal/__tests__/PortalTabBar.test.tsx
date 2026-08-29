@@ -3,11 +3,7 @@ import { de } from '@/lib/i18n/dictionaries/de'
 import type { MessageKey } from '@/lib/i18n/dictionaries/de'
 import { render, screen, fireEvent, within } from '@testing-library/react'
 import { PortalTabBar } from '../PortalTabBar'
-import {
-  PORTAL_SIDEBAR_GROUPS,
-  portalSidebarItems,
-  portalTabItems,
-} from '@/lib/config/navigation'
+import { PORTAL_SIDEBAR_GROUPS, portalSidebarItems, portalTabItems } from '@/lib/config/navigation'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
@@ -19,9 +15,20 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, ...rest }: {
-    href: string; children: React.ReactNode; className?: string
-  }) => <a href={href} className={className} {...rest}>{children}</a>,
+  default: ({
+    href,
+    children,
+    className,
+    ...rest
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className} {...rest}>
+      {children}
+    </a>
+  ),
 }))
 
 jest.mock('@/lib/constants/labels', () => jest.requireActual('@/lib/constants/labels'))
@@ -54,7 +61,9 @@ describe('PortalTabBar', () => {
     mockPathname = second.href
     const { container } = renderBar()
 
-    expect(container.querySelector(`a[href="${second.href}"][aria-current="page"]`)).toBeInTheDocument()
+    expect(
+      container.querySelector(`a[href="${second.href}"][aria-current="page"]`),
+    ).toBeInTheDocument()
   })
 
   it('keeps the tab marked on a detail page below it', () => {
@@ -64,13 +73,15 @@ describe('PortalTabBar', () => {
     mockPathname = `${second.href}/abc`
     const { container } = renderBar()
 
-    expect(container.querySelector(`a[href="${second.href}"][aria-current="page"]`)).toBeInTheDocument()
+    expect(
+      container.querySelector(`a[href="${second.href}"][aria-current="page"]`),
+    ).toBeInTheDocument()
   })
 
   it('marks "Mehr" when the open page lives in the sheet', () => {
     const tabs = portalTabItems()
     const sheetPage = portalSidebarItems().find(
-      (item) => !tabs.some((tab) => tab.href === item.href)
+      (item) => !tabs.some((tab) => tab.href === item.href),
     )
     if (!sheetPage) return
     mockPathname = sheetPage.href
@@ -123,8 +134,10 @@ describe('PortalTabBar', () => {
     const sheet = screen.getByRole('dialog')
 
     for (const item of portalSidebarItems()) {
-      expect({ href: item.href, present: Boolean(sheet.querySelector(`a[href="${item.href}"]`)) })
-        .toEqual({ href: item.href, present: true })
+      expect({
+        href: item.href,
+        present: Boolean(sheet.querySelector(`a[href="${item.href}"]`)),
+      }).toEqual({ href: item.href, present: true })
     }
   })
 
@@ -155,7 +168,9 @@ describe('PortalTabBar', () => {
     openSheet()
     const sheet = screen.getByRole('dialog')
 
-    expect(within(sheet).queryByRole('combobox', { name: 'Sprache wechseln' })).not.toBeInTheDocument()
+    expect(
+      within(sheet).queryByRole('combobox', { name: 'Sprache wechseln' }),
+    ).not.toBeInTheDocument()
     expect(within(sheet).queryByRole('button', { name: 'Shqip' })).not.toBeInTheDocument()
   })
 })

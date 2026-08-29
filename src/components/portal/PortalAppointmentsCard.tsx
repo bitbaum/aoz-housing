@@ -54,9 +54,7 @@ export async function PortalAppointmentsCard({
             <li key={item.id} className="flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium text-ui-text">{item.title}</span>
-                <span className="chip chip-neutral">
-                  {appointmentStatusLabel(t, item.status)}
-                </span>
+                <span className="chip chip-neutral">{appointmentStatusLabel(t, item.status)}</span>
               </div>
               <span className="text-sm text-ui-muted">
                 {formatZurichDateTime(item.startsAt)}

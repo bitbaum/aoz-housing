@@ -24,7 +24,7 @@ const APP_DIR = join(process.cwd(), 'src', 'app')
 const AUTH_READS = ['getCurrentUser', 'getPortalAuth', 'requireStaffAuth', 'requireResidentAuth']
 
 function walk(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) return walk(full)
     return entry.name === 'page.tsx' ? [full] : []
@@ -35,7 +35,7 @@ function walk(dir: string): string[] {
 function urlPathOf(pageFile: string): string {
   const segments = relative(APP_DIR, dirname(pageFile))
     .split(sep)
-    .filter(segment => segment !== '' && !segment.startsWith('('))
+    .filter((segment) => segment !== '' && !segment.startsWith('('))
   return `/${segments.join('/')}`.replace(/\/$/, '') || '/'
 }
 
@@ -52,11 +52,11 @@ function ancestorLayouts(pageFile: string): string[] {
   return layouts
 }
 
-const pages = walk(APP_DIR).map(file => ({ file, url: urlPathOf(file) }))
+const pages = walk(APP_DIR).map((file) => ({ file, url: urlPathOf(file) }))
 
 describe('declared public routes are actually public', () => {
   // API routes guard themselves inside the handler and have no layout chain.
-  const publicPageRoutes = PUBLIC_ROUTES.filter(route => !route.startsWith('/api/'))
+  const publicPageRoutes = PUBLIC_ROUTES.filter((route) => !route.startsWith('/api/'))
 
   it('finds pages for the declared public routes', () => {
     // Guards the walker itself: if the traversal broke, every assertion below
@@ -64,8 +64,8 @@ describe('declared public routes are actually public', () => {
     expect(pages.length).toBeGreaterThan(20)
   })
 
-  it.each(publicPageRoutes)('%s does not live in the staff-gated (admin) group', route => {
-    const matching = pages.filter(page => matchesRoute(page.url, route))
+  it.each(publicPageRoutes)('%s does not live in the staff-gated (admin) group', (route) => {
+    const matching = pages.filter((page) => matchesRoute(page.url, route))
 
     for (const page of matching) {
       expect(page.file).not.toContain(`${sep}(admin)${sep}`)
@@ -73,7 +73,7 @@ describe('declared public routes are actually public', () => {
   })
 
   it('every page in the (public) group is wrapped only by non-gating layouts', () => {
-    const publicPages = pages.filter(page => page.file.includes(`${sep}(public)${sep}`))
+    const publicPages = pages.filter((page) => page.file.includes(`${sep}(public)${sep}`))
     expect(publicPages.length).toBeGreaterThan(0)
 
     for (const page of publicPages) {
@@ -82,8 +82,9 @@ describe('declared public routes are actually public', () => {
         for (const read of AUTH_READS) {
           // Asserted as an object so a failure names the layout and the call
           // it found, rather than reporting `true !== false`.
-          expect({ layout: relative(APP_DIR, layout), read, gates: source.includes(read) })
-            .toEqual({ layout: relative(APP_DIR, layout), read, gates: false })
+          expect({ layout: relative(APP_DIR, layout), read, gates: source.includes(read) }).toEqual(
+            { layout: relative(APP_DIR, layout), read, gates: false },
+          )
         }
       }
     }
@@ -92,11 +93,11 @@ describe('declared public routes are actually public', () => {
   it('every page in the (public) group is declared in PUBLIC_ROUTES', () => {
     // The closed side of the rule. Without it a new anonymous page could ship
     // without ever being named as a public surface.
-    const publicPages = pages.filter(page => page.file.includes(`${sep}(public)${sep}`))
+    const publicPages = pages.filter((page) => page.file.includes(`${sep}(public)${sep}`))
 
     for (const page of publicPages) {
       for (const url of concreteUrls(page.url)) {
-        const declared = PUBLIC_ROUTES.some(route => matchesRoute(url, route))
+        const declared = PUBLIC_ROUTES.some((route) => matchesRoute(url, route))
         expect({ page: url, declared }).toEqual({ page: url, declared: true })
       }
     }
@@ -120,5 +121,5 @@ describe('declared public routes are actually public', () => {
  */
 function concreteUrls(templateUrl: string): string[] {
   if (!templateUrl.includes('[lang]')) return [templateUrl]
-  return PREFIXED_LOCALE_IDS.map(locale => templateUrl.replace('[lang]', locale))
+  return PREFIXED_LOCALE_IDS.map((locale) => templateUrl.replace('[lang]', locale))
 }

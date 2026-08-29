@@ -47,7 +47,9 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
       },
     })
   } catch (error) {
-    logger.errorWithCause('Failed to create maintenance request', error, { housingUnitId: data.housingUnitId })
+    logger.errorWithCause('Failed to create maintenance request', error, {
+      housingUnitId: data.housingUnitId,
+    })
     throw new Error(ERROR_MESSAGES.MAINTENANCE_CREATE_ERROR)
   }
 
@@ -96,7 +98,9 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
     revalidatePath(`/maintenance/${data.requestId}`)
     revalidatePath(`/housing/${request.housingUnitId}`)
   } catch (error) {
-    logger.errorWithCause('Failed to update maintenance status', error, { requestId: data.requestId })
+    logger.errorWithCause('Failed to update maintenance status', error, {
+      requestId: data.requestId,
+    })
     throw new Error(ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR)
   }
 }

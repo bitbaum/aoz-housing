@@ -91,12 +91,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const household = roommatePlacements.map(p => p.resident)
+  const household = roommatePlacements.map((p) => p.resident)
   // The request dropdown asks someone ELSE to take this on.
-  const roommates = household.filter(r => r.id !== resident.id)
+  const roommates = household.filter((r) => r.id !== resident.id)
 
   const turnResidentId = currentTurnResidentId(task.rotationResidentIds, task._count.completions)
-  const turnResident = household.find(r => r.id === turnResidentId)
+  const turnResident = household.find((r) => r.id === turnResidentId)
   const isMyTurn = turnResidentId === resident.id
 
   const icon = TASK_CATEGORY_ICONS[task.category] || '📋'
@@ -107,8 +107,10 @@ export default async function ChoreDetailPage({ params }: PageProps) {
   const priorityLabel = TASK_PRIORITY_LABELS[task.priority] || task.priority
   const priorityColor = TASK_PRIORITY_COLORS[task.priority] || TASK_PRIORITY_COLORS.NORMAL
 
-  const activeFlags = task.attentionFlags.filter(f => !f.isResolved)
-  const activeRequests = task.requests.filter(r => r.status === 'PENDING' || r.status === 'ACCEPTED')
+  const activeFlags = task.attentionFlags.filter((f) => !f.isResolved)
+  const activeRequests = task.requests.filter(
+    (r) => r.status === 'PENDING' || r.status === 'ACCEPTED',
+  )
 
   return (
     <div>
@@ -122,22 +124,16 @@ export default async function ChoreDetailPage({ params }: PageProps) {
       {/* Header */}
       <div className="card mb-6">
         <div className="flex items-start gap-3 mb-4">
-          <span className="text-3xl" aria-hidden="true">{icon}</span>
+          <span className="text-3xl" aria-hidden="true">
+            {icon}
+          </span>
           <div className="flex-1">
             <h1 className="text-xl font-bold text-ui-text">{task.title}</h1>
             <div className="flex flex-wrap gap-2 mt-2">
-              <span className="chip-neutral">
-                {categoryLabel}
-              </span>
-              <span className="chip-neutral">
-                {typeLabel}
-              </span>
-              <span className={`chip ${statusColor}`}>
-                {statusLabel}
-              </span>
-              <span className={`chip ${priorityColor}`}>
-                {priorityLabel}
-              </span>
+              <span className="chip-neutral">{categoryLabel}</span>
+              <span className="chip-neutral">{typeLabel}</span>
+              <span className={`chip ${statusColor}`}>{statusLabel}</span>
+              <span className={`chip ${priorityColor}`}>{priorityLabel}</span>
             </div>
           </div>
         </div>
@@ -151,7 +147,9 @@ export default async function ChoreDetailPage({ params }: PageProps) {
 
         {task.instructions && (
           <div className="mb-3">
-            <h3 className="text-sm font-medium text-ui-muted">{CHORE_LABELS.detail.instructions}</h3>
+            <h3 className="text-sm font-medium text-ui-muted">
+              {CHORE_LABELS.detail.instructions}
+            </h3>
             <p className="text-sm text-ui-muted mt-1 whitespace-pre-line">{task.instructions}</p>
           </div>
         )}
@@ -166,9 +164,11 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           ) : (
             <>
               <ul className="mt-2 space-y-1">
-                {task.checklist.map(item => (
+                {task.checklist.map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm text-ui-text">
-                    <span className="text-ui-muted mt-0.5" aria-hidden="true">☐</span>
+                    <span className="text-ui-muted mt-0.5" aria-hidden="true">
+                      ☐
+                    </span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -180,17 +180,17 @@ export default async function ChoreDetailPage({ params }: PageProps) {
 
         <div className="flex flex-wrap gap-4 text-sm text-ui-muted">
           {task.scheduleHuman && (
-            <span>📅 {CHORE_LABELS.detail.schedule}: {task.scheduleHuman}</span>
+            <span>
+              📅 {CHORE_LABELS.detail.schedule}: {task.scheduleHuman}
+            </span>
           )}
           {task.estimatedMinutes && (
-            <span>⏱️ ~{task.estimatedMinutes} {CHORE_LABELS.detail.minutes}</span>
+            <span>
+              ⏱️ ~{task.estimatedMinutes} {CHORE_LABELS.detail.minutes}
+            </span>
           )}
-          {task.createdByResident && (
-            <span>👤 {residentName(task.createdByResident)}</span>
-          )}
-          {task.createdByStaff && (
-            <span>👤 {task.createdByStaff}</span>
-          )}
+          {task.createdByResident && <span>👤 {residentName(task.createdByResident)}</span>}
+          {task.createdByStaff && <span>👤 {task.createdByStaff}</span>}
         </div>
       </div>
 
@@ -232,8 +232,11 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           <p className="text-sm text-ui-muted">{CHORE_LABELS.detail.noHistory}</p>
         ) : (
           <div className="space-y-3">
-            {task.completions.map(c => (
-              <div key={c.id} className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg">
+            {task.completions.map((c) => (
+              <div
+                key={c.id}
+                className="flex items-start justify-between p-3 bg-status-success/10 rounded-lg"
+              >
                 <div>
                   <p className="text-sm font-medium text-ui-text">{residentName(c.completedBy)}</p>
                   {/* What was actually ticked. A partial completion stays
@@ -241,7 +244,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                       which is what lets the next person see what was left. */}
                   {c.completedItems.length > 0 && (
                     <ul className="mt-1 space-y-0.5">
-                      {c.completedItems.map(item => (
+                      {c.completedItems.map((item) => (
                         <li key={item} className="text-sm text-ui-muted">
                           ✓ {item}
                         </li>
@@ -253,7 +256,9 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                 <div className="text-end">
                   <p className="text-sm text-ui-muted">{formatDate(c.completedAt)}</p>
                   {c.durationMinutes && (
-                    <p className="text-sm text-ui-muted">{c.durationMinutes} {CHORE_LABELS.detail.minutes}</p>
+                    <p className="text-sm text-ui-muted">
+                      {c.durationMinutes} {CHORE_LABELS.detail.minutes}
+                    </p>
                   )}
                 </div>
               </div>
@@ -267,11 +272,14 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         <div className="card mb-6">
           <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.activeRequests}</h2>
           <div className="space-y-3">
-            {activeRequests.map(r => (
+            {activeRequests.map((r) => (
               <div key={r.id} className="p-3 bg-brand-primary/8 rounded-lg">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-ui-text">
-                    {residentName(r.requestedBy)} → {r.requestedResident ? residentName(r.requestedResident) : CHORE_LABELS.request.broadcast}
+                    {residentName(r.requestedBy)} →{' '}
+                    {r.requestedResident
+                      ? residentName(r.requestedResident)
+                      : CHORE_LABELS.request.broadcast}
                   </p>
                   <span className="chip bg-brand-primary/10 text-brand-primary">
                     {REQUEST_STATUS_LABELS[r.status]}
@@ -289,11 +297,9 @@ export default async function ChoreDetailPage({ params }: PageProps) {
         <div className="card mb-6">
           <h2 className="font-semibold text-ui-text mb-3">{CHORE_LABELS.detail.attentionFlags}</h2>
           <div className="space-y-3">
-            {activeFlags.map(f => (
+            {activeFlags.map((f) => (
               <div key={f.id} className="p-3 bg-status-warning/10 rounded-lg">
-                <p className="text-sm font-medium text-ui-text">
-                  ⚠️ {residentName(f.flaggedBy)}
-                </p>
+                <p className="text-sm font-medium text-ui-text">⚠️ {residentName(f.flaggedBy)}</p>
                 {f.message && <p className="text-sm text-ui-muted mt-1">{f.message}</p>}
                 <p className="text-sm text-ui-muted mt-1">{formatDate(f.createdAt)}</p>
               </div>

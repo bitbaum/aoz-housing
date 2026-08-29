@@ -149,11 +149,7 @@ describe('DangerZone', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
 
     await waitFor(() => expect(onDelete).toHaveBeenCalledTimes(1))
-    expect(onDelete).toHaveBeenCalledWith(
-      'entity-1',
-      'DELETE',
-      'Längerer Grund für Löschung',
-    )
+    expect(onDelete).toHaveBeenCalledWith('entity-1', 'DELETE', 'Längerer Grund für Löschung')
   })
 
   it('shows success message after successful delete', async () => {
@@ -286,7 +282,8 @@ describe('DangerZone', () => {
   // ── State reset between attempts ─────────────────────────────────────────
 
   it('clears previous feedback when a new delete attempt starts', async () => {
-    const onDelete = jest.fn()
+    const onDelete = jest
+      .fn()
       .mockResolvedValueOnce({ success: false, error: 'Erster Fehler' })
       .mockResolvedValueOnce({ success: true })
 
@@ -301,8 +298,7 @@ describe('DangerZone', () => {
     // Second attempt succeeds — error must clear before success shows
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
     await waitFor(() =>
-      expect(screen.getByRole('status')).toHaveTextContent('Erfolgreich gelöscht')
+      expect(screen.getByRole('status')).toHaveTextContent('Erfolgreich gelöscht'),
     )
   })
 })
-

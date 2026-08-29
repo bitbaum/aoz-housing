@@ -30,7 +30,9 @@ export function UnitRulesSection({ ruleBook, coverage, unitCode }: UnitRulesSect
             Regeln in {unitCode}
           </h2>
           <p className="mt-1 text-sm text-ui-muted">
-            {ruleBook.totalUnitRules === 1 ? '1 eigene Hausregel' : `${ruleBook.totalUnitRules} eigene Hausregeln`}
+            {ruleBook.totalUnitRules === 1
+              ? '1 eigene Hausregel'
+              : `${ruleBook.totalUnitRules} eigene Hausregeln`}
             {' · '}
             {open.length === 1 ? '1 Thema noch offen' : `${open.length} Themen noch offen`}
           </p>
@@ -47,9 +49,7 @@ export function UnitRulesSection({ ruleBook, coverage, unitCode }: UnitRulesSect
             : 'bg-status-success/10 text-status-success-text'
         }`}
       >
-        <p className="font-medium">
-          Regelkenntnis: {coverage.coveragePercent}% bestätigt
-        </p>
+        <p className="font-medium">Regelkenntnis: {coverage.coveragePercent}% bestätigt</p>
         <p className="mt-1 leading-6">
           {coverage.residentsWithGaps.length === 0
             ? 'Alle Bewohnenden haben alle Regeln gelesen und bestätigt.'

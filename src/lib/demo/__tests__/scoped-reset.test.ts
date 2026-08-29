@@ -164,7 +164,7 @@ describe('resetDemoWorld', () => {
     // Activity has no unit and no code, which is exactly that.
     expect(mockSeedDemoData).toHaveBeenCalledWith(
       expect.anything(),
-      expect.not.objectContaining({ siteWideContent: true })
+      expect.not.objectContaining({ siteWideContent: true }),
     )
     expect(summary).toEqual({
       ...SEED_SUMMARY,
@@ -201,7 +201,7 @@ describe('upsertDemoStaff', () => {
     await upsertDemoStaff(prisma)
     // A visitor-claimed email/password on the demo door must not outlive the
     // reset — otherwise the next tester cannot get in.
-    expect((raw.account.deleteMany as jest.Mock)).toHaveBeenCalledWith({
+    expect(raw.account.deleteMany as jest.Mock).toHaveBeenCalledWith({
       where: { userId: 'demo-user' },
     })
   })

@@ -129,10 +129,10 @@ export async function updateMediationTime(formData: FormData): Promise<void> {
 }
 
 export interface ResidentIncidentStats {
-  reported: number      // Incidents this person reported
-  asSubject: number     // Incidents where this person was the subject/cause
-  involved: number      // Incidents where they were involved
-  total: number         // Total unique incidents
+  reported: number // Incidents this person reported
+  asSubject: number // Incidents where this person was the subject/cause
+  involved: number // Incidents where they were involved
+  total: number // Total unique incidents
 }
 
 export async function getResidentIncidentStats(residentId: string): Promise<ResidentIncidentStats> {

@@ -11,11 +11,14 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       args[0].includes('Invalid value for prop') &&
       args[1] === '`action`'
-    ) return
+    )
+      return
     originalConsoleError(...args)
   }
 })
-afterAll(() => { console.error = originalConsoleError })
+afterAll(() => {
+  console.error = originalConsoleError
+})
 
 // --- Mocks ---
 
@@ -112,14 +115,16 @@ describe('EndPlacementForm', () => {
   it('renders hidden inputs with correct placementId and residentId', () => {
     const { container } = renderForm()
     const hidden = container.querySelectorAll('input[type="hidden"]')
-    const values = Array.from(hidden).map(el => (el as HTMLInputElement).value)
+    const values = Array.from(hidden).map((el) => (el as HTMLInputElement).value)
     expect(values).toContain('placement-abc')
     expect(values).toContain('resident-xyz')
   })
 
   it('renders submit button', () => {
     renderForm()
-    expect(screen.getByRole('button', { name: 'Platzierung endgültig beenden' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Platzierung endgültig beenden' }),
+    ).toBeInTheDocument()
   })
 
   // ── Callbacks ───────────────────────────────────────────────────────────
@@ -147,9 +152,7 @@ describe('EndPlacementForm', () => {
 
   it('shows the reason-based summary when a reason is selected', () => {
     renderForm({ selectedEndReason: 'NATURAL' })
-    expect(
-      screen.getByText(/Platzierung wird beendet \(Regulär\)/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Platzierung wird beendet \(Regulär\)/)).toBeInTheDocument()
   })
 
   // ── Conflict section ────────────────────────────────────────────────────

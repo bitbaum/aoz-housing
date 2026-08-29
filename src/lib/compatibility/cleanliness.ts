@@ -44,7 +44,7 @@ export interface DirectionalFriction {
  */
 export function frictionBetween(
   observer: CleanlinessProfile,
-  subject: CleanlinessProfile
+  subject: CleanlinessProfile,
 ): DirectionalFriction {
   // Only unmet expectation creates friction. Someone cleaner than I require
   // does not bother me — a symmetric absolute difference gets this wrong.
@@ -80,7 +80,7 @@ export interface CleanlinessPairResult {
  */
 export function scoreCleanlinessPair(
   a: CleanlinessProfile,
-  b: CleanlinessProfile
+  b: CleanlinessProfile,
 ): CleanlinessPairResult {
   const aTowardB = frictionBetween(a, b)
   const bTowardA = frictionBetween(b, a)
@@ -154,7 +154,7 @@ export interface CleanlinessGroupResult {
  */
 export function scoreCleanlinessAgainstGroup(
   candidate: CleanlinessProfile,
-  existing: CleanlinessProfile[]
+  existing: CleanlinessProfile[],
 ): CleanlinessGroupResult {
   if (existing.length === 0) {
     return { score: 100, botheredByCandidate: 0, candidateBothered: false }
@@ -164,10 +164,10 @@ export function scoreCleanlinessAgainstGroup(
 
   const score = Math.min(...pairs.map((p) => p.score))
   const botheredByCandidate = pairs.filter(
-    (p) => p.direction === 'B_BOTHERED_BY_A' || p.direction === 'MUTUAL'
+    (p) => p.direction === 'B_BOTHERED_BY_A' || p.direction === 'MUTUAL',
   ).length
   const candidateBothered = pairs.some(
-    (p) => p.direction === 'A_BOTHERED_BY_B' || p.direction === 'MUTUAL'
+    (p) => p.direction === 'A_BOTHERED_BY_B' || p.direction === 'MUTUAL',
   )
 
   let note: string | undefined
@@ -176,7 +176,8 @@ export function scoreCleanlinessAgainstGroup(
   } else if (botheredByCandidate > 0) {
     note = `Sauberkeit: ${botheredByCandidate} von ${existing.length} Personen werden sich voraussichtlich stören`
   } else if (candidateBothered) {
-    note = 'Sauberkeit: die neue Person wird die Wohnung voraussichtlich als zu unordentlich empfinden'
+    note =
+      'Sauberkeit: die neue Person wird die Wohnung voraussichtlich als zu unordentlich empfinden'
   }
 
   return { score, botheredByCandidate, candidateBothered, note }

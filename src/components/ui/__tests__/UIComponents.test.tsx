@@ -15,7 +15,9 @@ jest.mock('next/link', () => ({
   // the a11y attributes under test (that is how the aria-current regression
   // would have slipped past).
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...rest}>{children}</a>
+    <a href={href} {...rest}>
+      {children}
+    </a>
   ),
 }))
 
@@ -87,7 +89,10 @@ describe('Tabs', () => {
 
   it('sets aria-controls to tabpanel-<id>', () => {
     render(<Tabs tabs={TABS} activeTab="overview" onChange={jest.fn()} />)
-    expect(screen.getByRole('tab', { name: 'Übersicht' })).toHaveAttribute('aria-controls', 'tabpanel-overview')
+    expect(screen.getByRole('tab', { name: 'Übersicht' })).toHaveAttribute(
+      'aria-controls',
+      'tabpanel-overview',
+    )
   })
 })
 
@@ -163,7 +168,7 @@ describe('TabLinkGroup', () => {
     render(
       <TabLinkGroup label="Filter">
         <TabLink href="/a" label="A" />
-      </TabLinkGroup>
+      </TabLinkGroup>,
     )
     expect(screen.getByRole('navigation', { name: 'Filter' })).toBeInTheDocument()
   })
@@ -226,7 +231,9 @@ describe('SelectFilter', () => {
   it('calls onChange with selected value', () => {
     const onChange = jest.fn()
     render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={onChange} />)
-    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), { target: { value: 'ENDED' } })
+    fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), {
+      target: { value: 'ENDED' },
+    })
     expect(onChange).toHaveBeenCalledWith('ENDED')
   })
 })
@@ -270,7 +277,12 @@ describe('SearchInput', () => {
 
 describe('FilterBar', () => {
   it('renders children', () => {
-    render(<FilterBar><span>Filter A</span><span>Filter B</span></FilterBar>)
+    render(
+      <FilterBar>
+        <span>Filter A</span>
+        <span>Filter B</span>
+      </FilterBar>,
+    )
     expect(screen.getByText('Filter A')).toBeInTheDocument()
     expect(screen.getByText('Filter B')).toBeInTheDocument()
   })
@@ -282,44 +294,76 @@ describe('FilterBar', () => {
 
 describe('CollapsibleSection', () => {
   it('renders the title', () => {
-    render(<CollapsibleSection title="Mein Abschnitt"><p>Inhalt</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Mein Abschnitt">
+        <p>Inhalt</p>
+      </CollapsibleSection>,
+    )
     expect(screen.getByText('Mein Abschnitt')).toBeInTheDocument()
   })
 
   it('shows content by default (defaultOpen=true)', () => {
-    render(<CollapsibleSection title="Test"><p>Sichtbar</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test">
+        <p>Sichtbar</p>
+      </CollapsibleSection>,
+    )
     expect(screen.getByText('Sichtbar')).toBeInTheDocument()
   })
 
   it('hides content when defaultOpen=false', () => {
-    render(<CollapsibleSection title="Test" defaultOpen={false}><p>Versteckt</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test" defaultOpen={false}>
+        <p>Versteckt</p>
+      </CollapsibleSection>,
+    )
     expect(screen.queryByText('Versteckt')).not.toBeInTheDocument()
   })
 
   it('toggle button has aria-expanded=true when open', () => {
-    render(<CollapsibleSection title="Test"><p>X</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test">
+        <p>X</p>
+      </CollapsibleSection>,
+    )
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true')
   })
 
   it('toggle button has aria-expanded=false when closed', () => {
-    render(<CollapsibleSection title="Test" defaultOpen={false}><p>X</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test" defaultOpen={false}>
+        <p>X</p>
+      </CollapsibleSection>,
+    )
     expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'false')
   })
 
   it('clicking toggle closes open section', () => {
-    render(<CollapsibleSection title="Test"><p>Inhalt</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test">
+        <p>Inhalt</p>
+      </CollapsibleSection>,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.queryByText('Inhalt')).not.toBeInTheDocument()
   })
 
   it('clicking toggle opens closed section', () => {
-    render(<CollapsibleSection title="Test" defaultOpen={false}><p>Inhalt</p></CollapsibleSection>)
+    render(
+      <CollapsibleSection title="Test" defaultOpen={false}>
+        <p>Inhalt</p>
+      </CollapsibleSection>,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Inhalt')).toBeInTheDocument()
   })
 
   it('content div id is derived from title', () => {
-    const { container } = render(<CollapsibleSection title="Mein Abschnitt"><p>X</p></CollapsibleSection>)
+    const { container } = render(
+      <CollapsibleSection title="Mein Abschnitt">
+        <p>X</p>
+      </CollapsibleSection>,
+    )
     expect(container.querySelector('#section-mein-abschnitt')).toBeInTheDocument()
   })
 })
@@ -344,27 +388,37 @@ describe('ToastContainer', () => {
 
   it('shows a success toast after showToast call', () => {
     render(<ToastContainer />)
-    act(() => { showToast('success', 'Gespeichert!') })
+    act(() => {
+      showToast('success', 'Gespeichert!')
+    })
     expect(screen.getByText('Gespeichert!')).toBeInTheDocument()
   })
 
   it('shows an error toast', () => {
     render(<ToastContainer />)
-    act(() => { showToast('error', 'Fehler!') })
+    act(() => {
+      showToast('error', 'Fehler!')
+    })
     expect(screen.getByText('Fehler!')).toBeInTheDocument()
   })
 
   it('shows an info toast', () => {
     render(<ToastContainer />)
-    act(() => { showToast('info', 'Hinweis') })
+    act(() => {
+      showToast('info', 'Hinweis')
+    })
     expect(screen.getByText('Hinweis')).toBeInTheDocument()
   })
 
   it('auto-removes toast after 4 seconds', () => {
     render(<ToastContainer />)
-    act(() => { showToast('success', 'Temporär') })
+    act(() => {
+      showToast('success', 'Temporär')
+    })
     expect(screen.getByText('Temporär')).toBeInTheDocument()
-    act(() => { jest.advanceTimersByTime(4000) })
+    act(() => {
+      jest.advanceTimersByTime(4000)
+    })
     expect(screen.queryByText('Temporär')).not.toBeInTheDocument()
   })
 
@@ -380,7 +434,9 @@ describe('ToastContainer', () => {
 
   it('has aria-live=polite region', () => {
     render(<ToastContainer />)
-    act(() => { showToast('success', 'Test') })
+    act(() => {
+      showToast('success', 'Test')
+    })
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite')
   })
 })

@@ -21,24 +21,21 @@ export async function PortalReportsCard({ reports, totalCount }: PortalReportsCa
     <div className="card" id={RESIDENT_REPORTS_ANCHOR}>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{t('dashboard.myReports')}</h2>
-        <Link href="/portal/report" className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline">
+        <Link
+          href="/portal/report"
+          className="inline-flex items-center min-h-[44px] px-1 text-sm text-brand-primary hover:underline"
+        >
           {t('dashboard.newReport')}
         </Link>
       </div>
 
       {reports.length === 0 ? (
-        <p className="text-ui-muted text-center py-6">
-          {t('dashboard.noReports')}
-        </p>
+        <p className="text-ui-muted text-center py-6">{t('dashboard.noReports')}</p>
       ) : (
         <>
           <div className="space-y-3">
             {reports.map((report) => (
-              <ResidentReportItem
-                key={`${report.kind}-${report.id}`}
-                report={report}
-                truncate
-              />
+              <ResidentReportItem key={`${report.kind}-${report.id}`} report={report} truncate />
             ))}
           </div>
 
@@ -48,9 +45,7 @@ export async function PortalReportsCard({ reports, totalCount }: PortalReportsCa
             href="/portal/reports"
             className="mt-4 inline-flex items-center min-h-[44px] text-sm text-brand-primary hover:underline"
           >
-            {hasMore
-              ? `${t('reports.showAllCount')} (${totalCount})`
-              : t('reports.showAll')}
+            {hasMore ? `${t('reports.showAllCount')} (${totalCount})` : t('reports.showAll')}
           </Link>
         </>
       )}

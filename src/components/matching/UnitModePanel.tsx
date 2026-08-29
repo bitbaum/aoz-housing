@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
-  const freeSpots = selectedUnit.spots?.filter(s => s.status === 'AVAILABLE').length ?? 0
+  const freeSpots = selectedUnit.spots?.filter((s) => s.status === 'AVAILABLE').length ?? 0
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -68,14 +68,14 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
             <div
               key={match.resident.id}
               className={`p-3 border rounded-lg ${
-                match.concerns.length > 0 ? 'border-score-low/25 bg-score-low/8' : 'border-ui-border'
+                match.concerns.length > 0
+                  ? 'border-score-low/25 bg-score-low/8'
+                  : 'border-ui-border'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="avatar">
-                    {residentInitials(match.resident)}
-                  </div>
+                  <div className="avatar">{residentInitials(match.resident)}</div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
@@ -85,7 +85,10 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                     </Link>
                     <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                      {match.resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                      {match.resident.languages
+                        .slice(0, DISPLAY_LIMITS.languagePreview)
+                        .map((l: string) => getLabel(LANGUAGE_LABELS, l))
+                        .join(', ')}
                     </p>
                   </div>
                 </div>
@@ -104,15 +107,21 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
               {match.concerns.length > 0 && (
                 <div className="mt-2 pt-2 border-t border-status-warning/30">
                   {match.concerns.map((c: string, i: number) => (
-                    <p key={i} className="text-xs text-status-warning-text">⚠️ {c}</p>
+                    <p key={i} className="text-xs text-status-warning-text">
+                      ⚠️ {c}
+                    </p>
                   ))}
                 </div>
               )}
               {match.apartmentFit.strengths.length > 0 && match.concerns.length === 0 && (
                 <div className="mt-2 pt-2 border-t border-ui-border">
-                  {match.apartmentFit.strengths.slice(0, DISPLAY_LIMITS.matchStrengths).map((s: string, i: number) => (
-                    <p key={i} className="text-xs text-status-success-text">✓ {s}</p>
-                  ))}
+                  {match.apartmentFit.strengths
+                    .slice(0, DISPLAY_LIMITS.matchStrengths)
+                    .map((s: string, i: number) => (
+                      <p key={i} className="text-xs text-status-success-text">
+                        ✓ {s}
+                      </p>
+                    ))}
                 </div>
               )}
             </div>

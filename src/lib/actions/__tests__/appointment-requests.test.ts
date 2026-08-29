@@ -11,17 +11,18 @@
  */
 
 import { prisma } from '@/lib/db'
-import {
-  requestAppointment,
-  respondToAppointmentRequest,
-  rescheduleAppointment,
-} from '../care'
+import { requestAppointment, respondToAppointmentRequest, rescheduleAppointment } from '../care'
 import { CARE_LABELS } from '@/lib/config/care'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 jest.mock('@/lib/db', () => ({
   prisma: {
-    appointment: { create: jest.fn(), findUnique: jest.fn(), findFirst: jest.fn(), update: jest.fn() },
+    appointment: {
+      create: jest.fn(),
+      findUnique: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
     careAssignment: { findUnique: jest.fn() },
   },
 }))
@@ -56,7 +57,7 @@ const YESTERDAY = new Date(Date.now() - 24 * 60 * 60 * 1000)
 function localInput(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-    date.getHours()
+    date.getHours(),
   )}:${pad(date.getMinutes())}`
 }
 
@@ -73,7 +74,7 @@ beforeEach(() => {
 describe('a resident asks for a meeting', () => {
   it('creates a REQUESTED appointment routed to whoever holds the seat', async () => {
     const result = await requestAppointment(
-      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW), residentNote: 'Brief vom Amt' })
+      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW), residentNote: 'Brief vom Amt' }),
     )
 
     expect(result.success).toBe(true)
@@ -90,9 +91,7 @@ describe('a resident asks for a meeting', () => {
     // deadlock that killed caseload scoping.
     p.careAssignment.findUnique.mockResolvedValue(null)
 
-    const result = await requestAppointment(
-      form({ domain: 'JOB', startsAt: localInput(TOMORROW) })
-    )
+    const result = await requestAppointment(form({ domain: 'JOB', startsAt: localInput(TOMORROW) }))
 
     expect(result.success).toBe(true)
     expect(p.appointment.create.mock.calls[0][0].data.staffId).toBeNull()
@@ -100,7 +99,7 @@ describe('a resident asks for a meeting', () => {
 
   it('refuses a time in the past, which would be invisible the moment it saved', async () => {
     const result = await requestAppointment(
-      form({ domain: 'SOCIAL', startsAt: localInput(YESTERDAY) })
+      form({ domain: 'SOCIAL', startsAt: localInput(YESTERDAY) }),
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.requestPastTime })
@@ -113,7 +112,7 @@ describe('a resident asks for a meeting', () => {
     p.appointment.findFirst.mockResolvedValue({ id: 'existing' })
 
     const result = await requestAppointment(
-      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW) })
+      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW) }),
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.requestDuplicate })
@@ -124,7 +123,7 @@ describe('a resident asks for a meeting', () => {
     mockPortalAuth.mockResolvedValue(null)
 
     const result = await requestAppointment(
-      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW) })
+      form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW) }),
     )
 
     expect(result.success).toBe(false)
@@ -158,7 +157,7 @@ describe('staff answer the request', () => {
 
   it('declining REQUIRES a reason the resident will read', async () => {
     const result = await respondToAppointmentRequest(
-      form({ id: 'a1', decision: 'DECLINE', staffNote: '' })
+      form({ id: 'a1', decision: 'DECLINE', staffNote: '' }),
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.declineNeedsReason })
@@ -167,7 +166,7 @@ describe('staff answer the request', () => {
 
   it('a decline carries its reason onto the record', async () => {
     await respondToAppointmentRequest(
-      form({ id: 'a1', decision: 'DECLINE', staffNote: 'Diese Woche voll, nächste geht.' })
+      form({ id: 'a1', decision: 'DECLINE', staffNote: 'Diese Woche voll, nächste geht.' }),
     )
 
     const [args] = p.appointment.update.mock.calls[0]
@@ -207,7 +206,7 @@ describe('moving a meeting keeps the meeting', () => {
     })
 
     await rescheduleAppointment(
-      form({ id: 'a1', startsAt: localInput(TOMORROW), staffNote: 'Eine Stunde später.' })
+      form({ id: 'a1', startsAt: localInput(TOMORROW), staffNote: 'Eine Stunde später.' }),
     )
 
     const [args] = p.appointment.update.mock.calls[0]
@@ -227,13 +226,11 @@ describe('moving a meeting keeps the meeting', () => {
         status,
       })
 
-      const result = await rescheduleAppointment(
-        form({ id: 'a1', startsAt: localInput(TOMORROW) })
-      )
+      const result = await rescheduleAppointment(form({ id: 'a1', startsAt: localInput(TOMORROW) }))
 
       expect(result).toEqual({ success: false, error: CARE_LABELS.rescheduleClosed })
       expect(p.appointment.update).not.toHaveBeenCalled()
-    }
+    },
   )
 
   it('refuses a staff member who does not work that seat', async () => {
@@ -243,9 +240,7 @@ describe('moving a meeting keeps the meeting', () => {
       status: 'SCHEDULED',
     })
 
-    const result = await rescheduleAppointment(
-      form({ id: 'a1', startsAt: localInput(TOMORROW) })
-    )
+    const result = await rescheduleAppointment(form({ id: 'a1', startsAt: localInput(TOMORROW) }))
 
     expect(result).toEqual({ success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS })
   })

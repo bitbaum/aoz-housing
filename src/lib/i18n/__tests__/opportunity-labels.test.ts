@@ -64,9 +64,10 @@ describe('every offered language actually carries these strings', () => {
     'opportunities.seatsFree',
     'opportunities.seatsFull',
     ...OPPORTUNITY_KINDS.map(
-      (kind) => (kind === 'VOLUNTEERING'
-        ? 'opportunities.kindVolunteering'
-        : 'opportunities.kindCommunity') as MessageKey
+      (kind) =>
+        (kind === 'VOLUNTEERING'
+          ? 'opportunities.kindVolunteering'
+          : 'opportunities.kindCommunity') as MessageKey,
     ),
     'opportunities.permitNone',
     'opportunities.permitNotifies',

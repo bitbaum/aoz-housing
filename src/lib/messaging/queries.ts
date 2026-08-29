@@ -124,7 +124,7 @@ export async function staffInbox() {
   return threads
     .map((thread) => {
       const waiting = thread.messages.filter(
-        (message) => message.authorResidentId !== null && message.readAt === null
+        (message) => message.authorResidentId !== null && message.readAt === null,
       )
       const lastMessage = thread.messages[thread.messages.length - 1]
 

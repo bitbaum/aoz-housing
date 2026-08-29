@@ -37,7 +37,8 @@ export function ThemeToggle({ className = '' }: { className?: string }) {
   }
 
   const Icon = mode === 'dark' ? Moon : mode === 'light' ? Sun : Monitor
-  const label = mode === 'dark' ? 'Dunkles Design' : mode === 'light' ? 'Helles Design' : 'Systemdesign'
+  const label =
+    mode === 'dark' ? 'Dunkles Design' : mode === 'light' ? 'Helles Design' : 'Systemdesign'
 
   return (
     <Button

@@ -7,14 +7,22 @@ import { createProposalSchema } from '@/lib/validation/governance'
 import { getUnitProposals, getEligibleVoterCount } from '@/lib/governance/queries'
 import { advanceDueProposals } from '@/lib/governance/lifecycle'
 import { checkUnitLegislation } from '@/lib/governance/rules'
-import { buildPolicySnapshot, canHoldVote, computeSchedule, tallyVotes } from '@/lib/governance/voting'
+import {
+  buildPolicySnapshot,
+  canHoldVote,
+  computeSchedule,
+  tallyVotes,
+} from '@/lib/governance/voting'
 import { CATEGORY_DECISION_MODE, CATEGORY_THRESHOLD } from '@/lib/config/decisions'
 
 /** Proposals for this resident's house, with a live tally for each. */
 export async function GET() {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -56,7 +64,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -64,7 +75,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -73,9 +84,14 @@ export async function POST(request: NextRequest) {
 
     let parentOrgRuleId: string | null = null
     if (parsed.data.type === 'ADD_RULE' && parsed.data.parentOrgRuleId) {
-      const parent = await prisma.houseRule.findUnique({ where: { id: parsed.data.parentOrgRuleId } })
+      const parent = await prisma.houseRule.findUnique({
+        where: { id: parsed.data.parentOrgRuleId },
+      })
       if (!parent) {
-        return NextResponse.json({ success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND }, { status: 404 })
+        return NextResponse.json(
+          { success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND },
+          { status: 404 },
+        )
       }
 
       const check = checkUnitLegislation(parent)
@@ -93,7 +109,10 @@ export async function POST(request: NextRequest) {
         select: { id: true },
       })
       if (!target) {
-        return NextResponse.json({ success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND }, { status: 404 })
+        return NextResponse.json(
+          { success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND },
+          { status: 404 },
+        )
       }
     }
 
@@ -136,7 +155,7 @@ export async function POST(request: NextRequest) {
     logger.errorWithCause('Failed to create proposal', error, { residentId: auth.resident.id })
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.PROPOSAL_CREATE_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

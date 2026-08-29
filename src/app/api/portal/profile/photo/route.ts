@@ -9,21 +9,33 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 export async function POST(request: NextRequest) {
   const resident = await getPortalResident()
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
     const formData = await request.formData().catch(() => null)
     const file = formData?.get('photo')
     if (!(file instanceof Blob)) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
 
     if (!isAllowedPhotoMimeType(file.type)) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.PHOTO_TYPE_INVALID }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.PHOTO_TYPE_INVALID },
+        { status: 400 },
+      )
     }
     if (file.size === 0 || file.size > PHOTO_LIMITS.maxBytes) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.PHOTO_TOO_LARGE }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.PHOTO_TOO_LARGE },
+        { status: 400 },
+      )
     }
 
     const data = Buffer.from(await file.arrayBuffer())
@@ -44,14 +56,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to upload resident photo', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.PHOTO_UPLOAD_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.PHOTO_UPLOAD_ERROR },
+      { status: 500 },
+    )
   }
 }
 
 export async function DELETE() {
   const resident = await getPortalResident()
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -67,6 +85,9 @@ export async function DELETE() {
     return NextResponse.json({ success: true })
   } catch (error) {
     logger.errorWithCause('Failed to delete resident photo', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.PHOTO_DELETE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.PHOTO_DELETE_ERROR },
+      { status: 500 },
+    )
   }
 }

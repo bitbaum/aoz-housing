@@ -67,8 +67,7 @@ export const en: Dictionary = {
   'action.close': 'Close',
   'action.showAll': 'Show all',
   'error.generic': 'Something went wrong. Please try again.',
-  'error.accountNotFound':
-    'Your account was not found. Please contact your support worker.',
+  'error.accountNotFound': 'Your account was not found. Please contact your support worker.',
   'error.portalMessage': 'An error occurred while loading the portal. Please try again.',
   'error.portalHome': 'Back to overview',
 
@@ -77,7 +76,8 @@ export const en: Dictionary = {
   'language.machineNotice': 'This translation has not yet been checked by a native speaker.',
 
   'safety.emergency': 'In an emergency: call 112 or contact the housing office',
-  'placement.none': 'You have no housing unit yet. Once you are placed, this is where you will see what is going on in your house.',
+  'placement.none':
+    'You have no housing unit yet. Once you are placed, this is where you will see what is going on in your house.',
 
   'help.title': 'Help & FAQ',
   'help.subtitle': 'Answers and contact — in danger, use the emergency numbers first.',
@@ -137,7 +137,8 @@ export const en: Dictionary = {
   'report.nextStep1': 'Your report is saved and visible to the team.',
   'report.nextStep2': 'The team prioritises by urgency.',
   'report.nextStep3': 'If they need more information or it is urgent, staff will contact you.',
-  'report.successTip': 'Tip: under “My reports” on the dashboard you can see whether a report is open or resolved.',
+  'report.successTip':
+    'Tip: under “My reports” on the dashboard you can see whether a report is open or resolved.',
   'report.errorGeneric': 'Could not send the report. Please try again.',
   'report.quickTitle': 'Quick report',
   'report.quickSubtitle': 'Prefill typical cases with one tap',
@@ -279,9 +280,11 @@ export const en: Dictionary = {
   'marketplace.categoryPaperwork': 'Forms & letters',
   'marketplace.filterAll': 'Everything',
   'marketplace.openOnly': 'Only open listings from other housing units.',
-  'marketplace.noMoney': 'Neighbourly help, never paid work. Paid placements live under Opportunities.',
+  'marketplace.noMoney':
+    'Neighbourly help, never paid work. Paid placements live under Opportunities.',
   'marketplace.formContact': 'How can you be reached?',
-  'marketplace.formContactHint': 'Seen only by the person who takes it, and by staff. For example: room 3, evenings.',
+  'marketplace.formContactHint':
+    'Seen only by the person who takes it, and by staff. For example: room 3, evenings.',
   'marketplace.contactLabel': 'Contact',
   'marketplace.release': 'Never mind',
   'marketplace.reopen': 'Reopen',
@@ -359,12 +362,14 @@ export const en: Dictionary = {
   'housing.subtitle': 'Accommodation that matches your preferences',
   'preferences.subtitle': 'This information helps us find suitable housemates',
   'decisions.title': 'House decisions',
-  'decisions.noPlacement': 'Once you are assigned accommodation, you can take part in decisions here.',
+  'decisions.noPlacement':
+    'Once you are assigned accommodation, you can take part in decisions here.',
   'decisions.subtitle': 'On many topics the house decides for itself.',
   'decisions.phaseDiscussion': 'Discussion',
   'decisions.phaseVoting': 'Voting',
   'decisions.days': 'days',
-  'decisions.tooFewVoters': 'Too few people live here right now for a vote. You can still submit proposals — staff will discuss them with you.',
+  'decisions.tooFewVoters':
+    'Too few people live here right now for a vote. You can still submit proposals — staff will discuss them with you.',
 
   'activities.dashboardTitle': 'Activities & Courses',
   'activities.dashboardSubtitle': 'Recommendations for you.',
@@ -450,7 +455,8 @@ export const en: Dictionary = {
   'expenses.splitAll': 'all',
   'expenses.statementExpenses': 'Expenses',
   'expenses.statementNet': 'Balance',
-  'expenses.statementNetHint': 'Balance = paid minus share. Positive means they fronted money for others this month.',
+  'expenses.statementNetHint':
+    'Balance = paid minus share. Positive means they fronted money for others this month.',
   'expenses.statementPaid': 'Paid',
   'expenses.statementPerson': 'Person',
   'expenses.statementShare': 'Share',
@@ -470,7 +476,8 @@ export const en: Dictionary = {
   'housingBrowse.elevator': 'Lift',
   'housingBrowse.emptyUnit': 'No residents yet — you would be the first!',
   'housingBrowse.groundFloor': 'Ground floor',
-  'housingBrowse.noMatches': 'No suitable accommodation available right now. Please contact your support team.',
+  'housingBrowse.noMatches':
+    'No suitable accommodation available right now. Please contact your support team.',
   'housingBrowse.noSmoking': 'Non-smoking',
   'housingBrowse.petsAllowed': 'Pets allowed',
   'housingBrowse.privateKitchen': 'Private kitchen',
@@ -507,7 +514,8 @@ export const en: Dictionary = {
   'preferences.field.sleepSchedule': 'Sleep schedule',
   'preferences.field.smoking': 'Smoking',
   'preferences.field.socialStyle': 'Social preference',
-  'preferences.hint.additionalPrefsPlaceholder': 'e.g. \'I work night shifts\', \'I am allergic to cats\'...',
+  'preferences.hint.additionalPrefsPlaceholder':
+    "e.g. 'I work night shifts', 'I am allergic to cats'...",
   'preferences.hint.chaosTolerance': 'How well can you live with mess?',
   'preferences.hint.cleanlinessExpectation': 'How tidy should others be?',
   'preferences.hint.cleanlinessPractice': 'How tidy do you keep your own space?',
@@ -516,7 +524,8 @@ export const en: Dictionary = {
   'preferences.hint.noiseTolerance': 'How sensitive are you to noise?',
   'preferences.hint.privacyNeed': 'How much private space do you need?',
   'preferences.hint.roommatePrefs': 'Optional: any special wishes for housemates?',
-  'preferences.privacyMessage': 'Your information is only used to find suitable housemates. It is not shared with third parties. You can change or delete your data anytime.',
+  'preferences.privacyMessage':
+    'Your information is only used to find suitable housemates. It is not shared with third parties. You can change or delete your data anytime.',
   'preferences.privacyTitle': 'Privacy',
   'preferences.saveButton': 'Save settings',
   'preferences.saveTip': 'Tip: Save below when you are done. Changes only apply after saving.',
@@ -530,7 +539,8 @@ export const en: Dictionary = {
   'preferences.unsavedChanges': 'Unsaved changes.',
   'profile.bioLabel': 'About me',
   'profile.bioPlaceholder': 'e.g. I like cooking and get up early.',
-  'profile.codeHint': 'The code stays your login. Name, photo and text are optional and can be changed anytime.',
+  'profile.codeHint':
+    'The code stays your login. Name, photo and text are optional and can be changed anytime.',
   'profile.codeLabel': 'Your login code',
   'profile.displayNameLabel': 'Name',
   'profile.displayNamePlaceholder': 'e.g. Georgy',
@@ -550,13 +560,15 @@ export const en: Dictionary = {
   'profile.visibilityHint.RESIDENTS': 'Residents in other flats too.',
   'profile.visibilityHint.ROOMMATES': 'People you live with.',
   'profile.visibilityLabel': 'Who can see your profile?',
-  'profile.visibilityStaffNote': 'Support staff always see your profile — they need to know who they are supporting.',
+  'profile.visibilityStaffNote':
+    'Support staff always see your profile — they need to know who they are supporting.',
   'profile.visibleTo': 'Visible to your housemates and staff.',
   'transfer.currentUnit': 'Current accommodation',
   'transfer.decidedOn': 'Decided on',
   'transfer.decisionTitle': 'Response to your request',
   'transfer.noPlacement': 'You have not been assigned accommodation yet.',
-  'transfer.pendingMessage': 'Your transfer request is being processed. You will be notified when there is news.',
+  'transfer.pendingMessage':
+    'Your transfer request is being processed. You will be notified when there is news.',
   'transfer.pendingTitle': 'Request submitted',
   'transfer.reasonLabel': 'Why do you want to transfer?',
   'transfer.reasonPlaceholder': 'Describe the reason for your transfer request...',

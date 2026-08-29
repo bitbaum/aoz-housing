@@ -5,13 +5,13 @@ import { portalTaskRequestSchema } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const { id } = await params
@@ -22,12 +22,18 @@ export async function POST(
     const body = await request.json()
     const parsed = portalTaskRequestSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
     requestedResidentId = parsed.data.requestedResidentId
     message = parsed.data.message
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -36,11 +42,17 @@ export async function POST(
     })
 
     if (!task) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     if (task.isCompleted) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED },
+        { status: 400 },
+      )
     }
 
     // Validate requestedResidentId is a roommate (same housing unit) — prevents
@@ -57,7 +69,7 @@ export async function POST(
       if (!roommate) {
         return NextResponse.json(
           { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
-          { status: 400 }
+          { status: 400 },
         )
       }
     }
@@ -83,6 +95,9 @@ export async function POST(
     return NextResponse.json({ success: true, data: taskRequest })
   } catch (error) {
     logger.errorWithCause('Failed to create task request', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_REQUEST_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_REQUEST_ERROR },
+      { status: 500 },
+    )
   }
 }

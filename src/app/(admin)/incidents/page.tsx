@@ -14,11 +14,7 @@ import {
 } from '@/lib/constants'
 
 export const metadata: Metadata = { title: 'Vorfälle' }
-import {
-  getSeverityBorderClass,
-  getSeverityDotClass,
-  formatRelativeDate,
-} from '@/lib/utils'
+import { getSeverityBorderClass, getSeverityDotClass, formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
@@ -167,7 +163,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
       {stats.critical > 0 && (
         <div className="mb-6 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-status-error shrink-0" aria-label={UI_LABELS.warning} />
+            <AlertTriangle
+              className="w-6 h-6 text-status-error shrink-0"
+              aria-label={UI_LABELS.warning}
+            />
             <div>
               <p className="font-semibold text-status-error-text">
                 {stats.critical} {INCIDENT_PAGE_LABELS.criticalAlertSuffix}
@@ -186,9 +185,17 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           label={UI_LABELS.open}
           value={stats.open}
           trend={stats.open > 0 ? 'warning' : 'neutral'}
-          href={statusFilter === 'open' ? '/incidents' : `/incidents?status=open${categoryFilter !== 'all' ? `&category=${categoryFilter}` : ''}`}
+          href={
+            statusFilter === 'open'
+              ? '/incidents'
+              : `/incidents?status=open${categoryFilter !== 'all' ? `&category=${categoryFilter}` : ''}`
+          }
         />
-        <StatCard label={INCIDENT_SEVERITY_LABELS.CRITICAL} value={stats.critical} trend={stats.critical > 0 ? 'warning' : 'neutral'} />
+        <StatCard
+          label={INCIDENT_SEVERITY_LABELS.CRITICAL}
+          value={stats.critical}
+          trend={stats.critical > 0 ? 'warning' : 'neutral'}
+        />
         <StatCard label={INCIDENT_CATEGORY_LABELS.INTERPERSONAL} value={stats.interpersonal} />
         <StatCard label={INCIDENT_CATEGORY_LABELS.SAFETY} value={stats.safety} />
       </div>
@@ -236,8 +243,10 @@ export default async function IncidentsListPage({ searchParams }: Props) {
             {statusFilter === 'open' && categoryFilter === 'all'
               ? INCIDENT_PAGE_LABELS.noIncidentsOpen
               : categoryFilter !== 'all'
-              ? INCIDENT_PAGE_LABELS.noIncidentsCategory(getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter))
-              : INCIDENT_PAGE_LABELS.noIncidents}
+                ? INCIDENT_PAGE_LABELS.noIncidentsCategory(
+                    getLabel(INCIDENT_CATEGORY_LABELS, categoryFilter),
+                  )
+                : INCIDENT_PAGE_LABELS.noIncidents}
           </p>
           {statusFilter === 'open' ? (
             <Link href="/incidents" className="btn-outline">
@@ -279,27 +288,34 @@ interface IncidentRowData {
 
 function IncidentRow({ incident }: { incident: IncidentRowData }) {
   const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
-  const isOverdue = incident.nextFollowUpDate && new Date(incident.nextFollowUpDate) < new Date() && !incident.resolvedAt
+  const isOverdue =
+    incident.nextFollowUpDate &&
+    new Date(incident.nextFollowUpDate) < new Date() &&
+    !incident.resolvedAt
 
   return (
     <Link
       href={`/incidents/${incident.id}`}
       className={`card p-4 border-l-4 ${getSeverityBorderClass(
-        incident.severity
+        incident.severity,
       )} block transition-colors`}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4 min-w-0">
-          <span className="text-2xl shrink-0" role="img" aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}>{categoryIcon}</span>
+          <span
+            className="text-2xl shrink-0"
+            role="img"
+            aria-label={INCIDENT_CATEGORY_LABELS[incident.category] || 'Vorfall'}
+          >
+            {categoryIcon}
+          </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-semibold text-ui-text">
                 {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
               </h3>
               <span
-                className={`w-2 h-2 rounded-full ${getSeverityDotClass(
-                  incident.severity
-                )}`}
+                className={`w-2 h-2 rounded-full ${getSeverityDotClass(incident.severity)}`}
                 title={getLabel(INCIDENT_SEVERITY_LABELS, incident.severity)}
               />
               {isOverdue && (
@@ -312,15 +328,15 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   {incident._count.followUps} Follow-ups
                 </span>
               )}
-              {incident.category === 'INTERPERSONAL' && !incident.resolvedAt && !incident.mediationMinutes && (
-                <span className="chip-info inline-flex items-center gap-1">
-                  <Timer className="w-3 h-3" aria-hidden="true" /> Mediationszeit fehlt
-                </span>
-              )}
+              {incident.category === 'INTERPERSONAL' &&
+                !incident.resolvedAt &&
+                !incident.mediationMinutes && (
+                  <span className="chip-info inline-flex items-center gap-1">
+                    <Timer className="w-3 h-3" aria-hidden="true" /> Mediationszeit fehlt
+                  </span>
+                )}
             </div>
-            <p className="text-sm text-ui-muted mt-1 line-clamp-2">
-              {incident.description}
-            </p>
+            <p className="text-sm text-ui-muted mt-1 line-clamp-2">{incident.description}</p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
               <span className="hover:text-brand-primary inline-flex items-center gap-1">
                 <Home className="w-3.5 h-3.5" aria-hidden="true" /> {incident.housingUnit.code}
@@ -330,7 +346,8 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   className="hover:text-brand-primary inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.reportedByTitle}
                 >
-                  <Megaphone className="w-3.5 h-3.5" aria-hidden="true" /> {residentName(incident.reportedBy)}
+                  <Megaphone className="w-3.5 h-3.5" aria-hidden="true" />{' '}
+                  {residentName(incident.reportedBy)}
                 </span>
               )}
               {incident.subject && (
@@ -338,7 +355,8 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
                   className="hover:text-brand-primary font-medium inline-flex items-center gap-1"
                   title={INCIDENT_PAGE_LABELS.subjectTitle}
                 >
-                  <User className="w-3.5 h-3.5" aria-hidden="true" /> {residentName(incident.subject)}
+                  <User className="w-3.5 h-3.5" aria-hidden="true" />{' '}
+                  {residentName(incident.subject)}
                 </span>
               )}
               <span>{formatRelativeDate(incident.date)}</span>
@@ -363,4 +381,3 @@ function IncidentRow({ incident }: { incident: IncidentRowData }) {
     </Link>
   )
 }
-

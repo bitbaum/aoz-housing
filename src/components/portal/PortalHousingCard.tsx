@@ -22,7 +22,11 @@ interface PortalHousingCardProps {
   roommatesCount: number
 }
 
-export async function PortalHousingCard({ placement, housingUnit, roommatesCount }: PortalHousingCardProps) {
+export async function PortalHousingCard({
+  placement,
+  housingUnit,
+  roommatesCount,
+}: PortalHousingCardProps) {
   const { t } = await getRequestTranslator()
 
   return (
@@ -38,29 +42,23 @@ export async function PortalHousingCard({ placement, housingUnit, roommatesCount
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
-        <InfoBox
-          label={t('dashboard.moveIn')}
-          value={formatDate(placement.startDate)}
-        />
-        <InfoBox
-          label={t('dashboard.rooms')}
-          value={`${housingUnit?.totalRooms || 0}`}
-        />
-        <InfoBox
-          label={t('dashboard.roommatesCount')}
-          value={`${roommatesCount}`}
-        />
+        <InfoBox label={t('dashboard.moveIn')} value={formatDate(placement.startDate)} />
+        <InfoBox label={t('dashboard.rooms')} value={`${housingUnit?.totalRooms || 0}`} />
+        <InfoBox label={t('dashboard.roommatesCount')} value={`${roommatesCount}`} />
         <InfoBox
           label={t('dashboard.compatibility')}
-          value={placement.compatibilityScore
-            ? `${Math.round(placement.compatibilityScore)}%`
-            : '--'}
+          value={
+            placement.compatibilityScore ? `${Math.round(placement.compatibilityScore)}%` : '--'
+          }
         />
       </div>
 
       {/* House Rules Summary */}
       <div className="pt-4 border-t border-ui-border">
-        <Link href="/portal/rules" className="inline-flex items-center min-h-[44px] text-sm text-brand-primary hover:underline">
+        <Link
+          href="/portal/rules"
+          className="inline-flex items-center min-h-[44px] text-sm text-brand-primary hover:underline"
+        >
           {t('dashboard.houseRules')}
         </Link>
         <div className="flex flex-wrap gap-3 text-sm">
@@ -69,18 +67,22 @@ export async function PortalHousingCard({ placement, housingUnit, roommatesCount
               {t('dashboard.quietHours')}: {housingUnit.quietHours}
             </span>
           )}
-          <span className={`px-3 py-1 rounded-sm ${
-            housingUnit?.smokingAllowed
-              ? 'bg-status-success/15 text-status-success-text'
-              : 'bg-status-error/10 text-status-error-text'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-sm ${
+              housingUnit?.smokingAllowed
+                ? 'bg-status-success/15 text-status-success-text'
+                : 'bg-status-error/10 text-status-error-text'
+            }`}
+          >
             {housingUnit?.smokingAllowed ? t('dashboard.smokingAllowed') : t('dashboard.noSmoking')}
           </span>
-          <span className={`px-3 py-1 rounded-sm ${
-            housingUnit?.petsAllowed
-              ? 'bg-status-success/15 text-status-success-text'
-              : 'bg-ui-subtle text-ui-muted'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-sm ${
+              housingUnit?.petsAllowed
+                ? 'bg-status-success/15 text-status-success-text'
+                : 'bg-ui-subtle text-ui-muted'
+            }`}
+          >
             {housingUnit?.petsAllowed ? t('dashboard.petsAllowed') : t('dashboard.noPets')}
           </span>
         </div>
@@ -106,12 +108,8 @@ export async function PortalOnboardingCard({ preferencesCompleted }: PortalOnboa
 
   return (
     <div className="card mb-6 py-6">
-      <h2 className="text-lg font-semibold text-ui-text mb-1">
-        {t('dashboard.onboarding.title')}
-      </h2>
-      <p className="text-ui-muted text-sm mb-6">
-        {t('dashboard.onboarding.subtitle')}
-      </p>
+      <h2 className="text-lg font-semibold text-ui-text mb-1">{t('dashboard.onboarding.title')}</h2>
+      <p className="text-ui-muted text-sm mb-6">{t('dashboard.onboarding.subtitle')}</p>
 
       {/* Progress timeline */}
       <div className="space-y-4 mb-6">
@@ -122,29 +120,44 @@ export async function PortalOnboardingCard({ preferencesCompleted }: PortalOnboa
           return (
             <div key={label} className="flex items-start gap-3">
               <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
-                  done
-                    ? 'bg-status-success/15 text-status-success-text'
-                    : isActive
-                      ? 'bg-brand-primary/10 text-brand-primary ring-2 ring-brand-primary'
-                      : 'bg-ui-subtle text-ui-muted'
-                }`}>
+                <div
+                  className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
+                    done
+                      ? 'bg-status-success/15 text-status-success-text'
+                      : isActive
+                        ? 'bg-brand-primary/10 text-brand-primary ring-2 ring-brand-primary'
+                        : 'bg-ui-subtle text-ui-muted'
+                  }`}
+                >
                   {done ? (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   ) : (
                     <span className="text-sm font-medium">{i + 1}</span>
                   )}
                 </div>
                 {i < steps.length - 1 && (
-                  <div className={`w-0.5 h-6 mt-1 ${done ? 'bg-status-success/30' : 'bg-ui-border'}`} />
+                  <div
+                    className={`w-0.5 h-6 mt-1 ${done ? 'bg-status-success/30' : 'bg-ui-border'}`}
+                  />
                 )}
               </div>
               <div className="pt-1">
-                <p className={`text-sm font-medium ${
-                  done ? 'text-status-success-text' : isActive ? 'text-brand-primary' : 'text-ui-muted'
-                }`}>
+                <p
+                  className={`text-sm font-medium ${
+                    done
+                      ? 'text-status-success-text'
+                      : isActive
+                        ? 'text-brand-primary'
+                        : 'text-ui-muted'
+                  }`}
+                >
                   {label}
                 </p>
               </div>
@@ -166,14 +179,13 @@ export async function PortalOnboardingCard({ preferencesCompleted }: PortalOnboa
         >
           {preferencesCompleted
             ? t('dashboard.onboarding.browseHousing')
-            : t('dashboard.onboarding.completePreferences')} →
+            : t('dashboard.onboarding.completePreferences')}{' '}
+          →
         </Link>
       </div>
 
       {/* Contact info */}
-      <p className="text-sm text-ui-muted mt-4">
-        {t('dashboard.noHousingContact')}
-      </p>
+      <p className="text-sm text-ui-muted mt-4">{t('dashboard.noHousingContact')}</p>
     </div>
   )
 }

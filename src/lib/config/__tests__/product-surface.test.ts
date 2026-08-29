@@ -59,7 +59,7 @@ describe('the landing page describes the product it ships with', () => {
     const summed = productSurfaces().reduce(
       (total, surface) =>
         total + surface.areas.reduce((count, area) => count + area.entries.length, 0),
-      0
+      0,
     )
     expect(surfaceDestinationCount()).toBe(summed)
     expect(summed).toBeGreaterThan(0)

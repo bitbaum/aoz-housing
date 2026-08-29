@@ -1,6 +1,18 @@
 export { endPlacement, transferPlacement } from './placements'
-export { createResident, updateResident, archiveResident, restoreResident, hardDeleteResidentProtected } from './residents'
-export { createHousingUnit, updateHousingUnit, archiveHousingUnit, restoreHousingUnit, hardDeleteHousingUnitProtected } from './housing'
+export {
+  createResident,
+  updateResident,
+  archiveResident,
+  restoreResident,
+  hardDeleteResidentProtected,
+} from './residents'
+export {
+  createHousingUnit,
+  updateHousingUnit,
+  archiveHousingUnit,
+  restoreHousingUnit,
+  hardDeleteHousingUnitProtected,
+} from './housing'
 export {
   createCheckInFromForm,
   getPlacementCheckIns,
@@ -17,12 +29,7 @@ export {
   getIncidentsNeedingFollowUp,
   clearFollowUpReminder,
 } from './incidents'
-export {
-  createSpot,
-  updateSpot,
-  deleteSpot,
-  createMultipleSpots,
-} from './spots'
+export { createSpot, updateSpot, deleteSpot, createMultipleSpots } from './spots'
 export {
   createMaintenanceRequest,
   updateMaintenanceStatus,
@@ -30,12 +37,7 @@ export {
   getMaintenanceStats,
   getHousingUnitMaintenance,
 } from './maintenance'
-export {
-  createActivity,
-  updateActivity,
-  publishActivity,
-  archiveActivity,
-} from './activities'
+export { createActivity, updateActivity, publishActivity, archiveActivity } from './activities'
 export {
   createOpportunity,
   updateOpportunity,

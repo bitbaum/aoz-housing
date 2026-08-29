@@ -59,13 +59,7 @@ export function ResidentsList({
   )
 }
 
-function ResidentRow({
-  resident,
-  canWrite,
-}: {
-  resident: ResidentListItem
-  canWrite: boolean
-}) {
+function ResidentRow({ resident, canWrite }: { resident: ResidentListItem; canWrite: boolean }) {
   const currentPlacement = resident.placements[0]
   const languages = resident.languages
     .slice(0, 3)
@@ -84,7 +78,8 @@ function ResidentRow({
               {residentName(resident)}
             </span>
             <span className="block truncate text-sm text-ui-muted">
-              {getLabel(AGE_RANGE_LABELS, resident.ageRange)} · {getLabel(GENDER_LABELS_SHORT, resident.gender)}
+              {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
+              {getLabel(GENDER_LABELS_SHORT, resident.gender)}
             </span>
           </span>
         </div>
@@ -126,7 +121,11 @@ function ResidentRow({
             </span>
           ) : null}
         </div>
-        <ResidentCardActions residentId={resident.id} status={resident.status} canWrite={canWrite} />
+        <ResidentCardActions
+          residentId={resident.id}
+          status={resident.status}
+          canWrite={canWrite}
+        />
       </div>
     </div>
   )

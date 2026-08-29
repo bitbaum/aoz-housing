@@ -10,7 +10,10 @@ import { acknowledgeAllSchema } from '@/lib/validation/governance'
 export async function GET() {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -45,13 +48,19 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
     const parsed = acknowledgeAllSchema.safeParse(await request.json())
     if (!parsed.success) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
 
     // Only rules that actually bind this resident — an acknowledgement of
@@ -79,7 +88,7 @@ export async function POST(request: NextRequest) {
     logger.errorWithCause('Failed to acknowledge rules', error, { residentId: auth.resident.id })
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.RULE_ACKNOWLEDGE_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

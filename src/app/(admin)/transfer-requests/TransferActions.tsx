@@ -40,7 +40,9 @@ export function TransferActions({ requestId, residentId }: TransferActionsProps)
     // matching for this resident, otherwise the loop ends in a dead end.
     return (
       <div className="flex flex-wrap items-center gap-3">
-        <p role="status" className="text-sm text-status-success-text font-medium">{L.success}</p>
+        <p role="status" className="text-sm text-status-success-text font-medium">
+          {L.success}
+        </p>
         {lastAction === 'approve' && (
           <Link
             href={`/matching?resident=${residentId}`}
@@ -64,7 +66,9 @@ export function TransferActions({ requestId, residentId }: TransferActionsProps)
       />
 
       {result?.error && (
-        <p role="alert" className="text-sm text-status-error-text">{result.error}</p>
+        <p role="alert" className="text-sm text-status-error-text">
+          {result.error}
+        </p>
       )}
 
       <div className="flex gap-2">

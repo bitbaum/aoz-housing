@@ -44,7 +44,9 @@ function openMenu() {
 // --- Tests ---
 
 describe('HousingCardActions', () => {
-  beforeAll(() => { jest.spyOn(window, 'alert').mockImplementation(() => {}) })
+  beforeAll(() => {
+    jest.spyOn(window, 'alert').mockImplementation(() => {})
+  })
   afterAll(() => jest.restoreAllMocks())
   afterEach(() => jest.clearAllMocks())
 

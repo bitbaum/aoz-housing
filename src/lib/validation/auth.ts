@@ -7,11 +7,7 @@ import { z } from 'zod'
 import { PASSWORD_MIN_LENGTH } from '@/lib/auth/passwords'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-const emailField = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .email(ERROR_MESSAGES.AUTH_EMAIL_INVALID)
+const emailField = z.string().trim().toLowerCase().email(ERROR_MESSAGES.AUTH_EMAIL_INVALID)
 
 const passwordField = z
   .string()

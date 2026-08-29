@@ -109,7 +109,8 @@ export const PORTAL_LABELS = {
       code_required: 'Bitte Code eingeben',
       invalid_code: 'Code nicht gefunden',
       rate_limited: 'Zu viele Versuche. Bitte warte eine Minute.',
-      account_not_found: 'Dein Konto wurde nicht gefunden. Bitte wende dich an deine Betreuungsperson.',
+      account_not_found:
+        'Dein Konto wurde nicht gefunden. Bitte wende dich an deine Betreuungsperson.',
     },
   },
   report: {
@@ -143,7 +144,8 @@ export const PORTAL_LABELS = {
     successMessage: 'Wir kümmern uns darum. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
     errorGeneric: 'Meldung konnte nicht gesendet werden. Bitte erneut versuchen.',
     emergencyTitle: 'Bei Notfällen',
-    emergencyMessage: 'Bei akuter Gefahr oder medizinischen Notfällen rufe sofort 112 an. Diese Meldung ist nicht für Notfälle gedacht.',
+    emergencyMessage:
+      'Bei akuter Gefahr oder medizinischen Notfällen rufe sofort 112 an. Diese Meldung ist nicht für Notfälle gedacht.',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     noPlacementContact: CONTACT_FALLBACK_SENTENCE,
     maintenanceTypes: [
@@ -194,15 +196,18 @@ export const PORTAL_LABELS = {
     templates: {
       urgentRepair: {
         label: '🔧 Dringende Reparatur',
-        description: 'Dringender Defekt: Was ist kaputt, seit wann, und was ist aktuell eingeschränkt?',
+        description:
+          'Dringender Defekt: Was ist kaputt, seit wann, und was ist aktuell eingeschränkt?',
       },
       noise: {
         label: '🔊 Lärmkonflikt',
-        description: 'Lärmbelastung: Zeitpunkt, Häufigkeit und eigene Versuche zur Klärung kurz dokumentieren.',
+        description:
+          'Lärmbelastung: Zeitpunkt, Häufigkeit und eigene Versuche zur Klärung kurz dokumentieren.',
       },
       safety: {
         label: '🚨 Sicherheit',
-        description: 'Sicherheitsbedenken: Risiko, Beteiligte und was sofort benötigt wird klar beschreiben.',
+        description:
+          'Sicherheitsbedenken: Risiko, Beteiligte und was sofort benötigt wird klar beschreiben.',
       },
     },
     transparency: {
@@ -221,7 +226,8 @@ export const PORTAL_LABELS = {
       'Das Team priorisiert den Fall nach Dringlichkeit.',
       'Bei Rückfragen oder bei hoher Priorität meldet sich die Betreuung zeitnah.',
     ],
-    successTip: 'Tipp: Unter "Meine Meldungen" im Dashboard siehst du, ob ein Bericht offen oder gelöst ist.',
+    successTip:
+      'Tipp: Unter "Meine Meldungen" im Dashboard siehst du, ob ein Bericht offen oder gelöst ist.',
   },
   preferences: {
     saving: 'Wird gespeichert...',
@@ -230,8 +236,10 @@ export const PORTAL_LABELS = {
     successMessage: 'Deine Präferenzen wurden aktualisiert.',
     errorGeneric: 'Einstellungen konnten nicht gespeichert werden. Bitte erneut versuchen.',
     privacyTitle: 'Datenschutz',
-    privacyMessage: 'Deine Angaben werden nur verwendet, um passende Mitbewohner zu finden. Sie werden nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit ändern oder löschen lassen.',
-    saveTip: 'Tipp: Speichere unten, sobald du fertig bist. Änderungen sind erst nach dem Speichern aktiv.',
+    privacyMessage:
+      'Deine Angaben werden nur verwendet, um passende Mitbewohner zu finden. Sie werden nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit ändern oder löschen lassen.',
+    saveTip:
+      'Tipp: Speichere unten, sobald du fertig bist. Änderungen sind erst nach dem Speichern aktiv.',
     unsavedChanges: 'Nicht gespeicherte Änderungen vorhanden.',
     confirmDiscard: 'Änderungen verwerfen?',
     confirmDiscardBody: 'Nicht gespeicherte Eingaben gehen verloren.',
@@ -273,7 +281,8 @@ export const PORTAL_LABELS = {
       languages: 'Welche Sprachen sprichst du?',
       roommatePrefs: 'Optional: Hast du besondere Wünsche für deine Mitbewohner?',
       culturalPref: 'Dies ist nur eine Präferenz, keine Garantie',
-      additionalPrefsPlaceholder: "z.B. 'Ich arbeite Nachtschicht', 'Ich habe Allergien gegen Katzen'...",
+      additionalPrefsPlaceholder:
+        "z.B. 'Ich arbeite Nachtschicht', 'Ich habe Allergien gegen Katzen'...",
     },
   },
   satisfaction: {
@@ -295,14 +304,10 @@ export const PORTAL_LABELS = {
     onboarding: {
       title: 'Dein Profil ist erstellt',
       subtitle: 'Wir suchen die passende Unterkunft für dich',
-      steps: [
-        'Profil erstellt',
-        'Einstellungen vervollständigen',
-        'Unterkunft suchen',
-        'Einzug',
-      ],
+      steps: ['Profil erstellt', 'Einstellungen vervollständigen', 'Unterkunft suchen', 'Einzug'],
       completePreferences: 'Einstellungen vervollständigen',
-      completePreferencesHint: 'Je mehr wir über dich wissen, desto besser können wir passende Mitbewohner finden.',
+      completePreferencesHint:
+        'Je mehr wir über dich wissen, desto besser können wir passende Mitbewohner finden.',
       browseHousing: 'Verfügbare Unterkünfte ansehen',
       browseHousingHint: 'Sieh dir Unterkünfte an, die zu deinen Präferenzen passen.',
       preferencesComplete: 'Einstellungen gespeichert',
@@ -337,7 +342,8 @@ export const PORTAL_LABELS = {
       strengths: 'Passt gut',
       concerns: 'Beachten',
       emptyUnit: 'Noch keine Bewohner — du wärst die erste Person!',
-      noMatches: 'Aktuell keine passenden Unterkünfte verfügbar. Bitte kontaktiere dein Betreuungsteam.',
+      noMatches:
+        'Aktuell keine passenden Unterkünfte verfügbar. Bitte kontaktiere dein Betreuungsteam.',
       contactHint: 'Interessiert? Sprich mit deinem Betreuungsteam über diese Unterkunft.',
       features: {
         sharedKitchen: 'Gemeinschaftsküche',
@@ -376,7 +382,8 @@ export const PORTAL_LABELS = {
   },
   landing: {
     hero: `Willkommen bei ${BRAND.portalName}`,
-    heroSubtitle: 'Hier findest du alles rund um deine Unterkunft — Mitbewohner, Meldungen und Einstellungen an einem Ort.',
+    heroSubtitle:
+      'Hier findest du alles rund um deine Unterkunft — Mitbewohner, Meldungen und Einstellungen an einem Ort.',
     features: [
       {
         icon: '🏠',
@@ -418,7 +425,8 @@ export const PORTAL_LABELS = {
     submit: 'Anfrage senden',
     submitting: 'Wird gesendet...',
     pendingTitle: 'Anfrage eingereicht',
-    pendingMessage: 'Deine Verlegungsanfrage wird vom Team bearbeitet. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
+    pendingMessage:
+      'Deine Verlegungsanfrage wird vom Team bearbeitet. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     successTitle: 'Anfrage gesendet',
     successMessage: 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
@@ -454,40 +462,58 @@ export const PORTAL_LABELS = {
     faqs: [
       {
         question: 'Wie funktioniert die Zimmerverteilung?',
-        answer: 'Wir berücksichtigen verschiedene Faktoren wie Schlafrhythmus, Lärmtoleranz und Sprachkenntnisse, um passende Mitbewohner zu finden. Je genauer deine Angaben, desto besser können wir dich platzieren.',
+        answer:
+          'Wir berücksichtigen verschiedene Faktoren wie Schlafrhythmus, Lärmtoleranz und Sprachkenntnisse, um passende Mitbewohner zu finden. Je genauer deine Angaben, desto besser können wir dich platzieren.',
       },
       {
         question: 'Kann ich meine Präferenzen ändern?',
-        answer: 'Ja, du kannst deine Präferenzen jederzeit unter "Einstellungen" aktualisieren. Änderungen werden bei zukünftigen Platzierungen berücksichtigt.',
+        answer:
+          'Ja, du kannst deine Präferenzen jederzeit unter "Einstellungen" aktualisieren. Änderungen werden bei zukünftigen Platzierungen berücksichtigt.',
       },
       {
         question: 'Was passiert bei einem Konflikt mit Mitbewohnern?',
-        answer: 'Bitte melde Probleme über "Problem melden" im Portal. Wir nehmen alle Meldungen ernst und suchen gemeinsam nach Lösungen.',
+        answer:
+          'Bitte melde Probleme über "Problem melden" im Portal. Wir nehmen alle Meldungen ernst und suchen gemeinsam nach Lösungen.',
       },
       {
         question: 'Wie lange dauert eine Platzierung?',
-        answer: 'Die Dauer hängt von deiner individuellen Situation ab. Wir informieren dich über voraussichtliche Zeiträume und mögliche Änderungen.',
+        answer:
+          'Die Dauer hängt von deiner individuellen Situation ab. Wir informieren dich über voraussichtliche Zeiträume und mögliche Änderungen.',
       },
       {
         question: 'Kann ich einen Umzug beantragen?',
-        answer: 'Bei berechtigten Gründen kannst du einen Umzug beantragen. Sprich mit deiner Betreuungsperson oder nutze das Meldeformular.',
+        answer:
+          'Bei berechtigten Gründen kannst du einen Umzug beantragen. Sprich mit deiner Betreuungsperson oder nutze das Meldeformular.',
       },
       {
         question: 'Was bedeuten die Kompatibilitätswerte?',
-        answer: 'Die Werte zeigen, wie gut du voraussichtlich mit anderen Bewohnern zusammenpasst. Hohe Werte bedeuten ähnliche Präferenzen bei Schlaf, Sauberkeit und Sozialverhalten.',
+        answer:
+          'Die Werte zeigen, wie gut du voraussichtlich mit anderen Bewohnern zusammenpasst. Hohe Werte bedeuten ähnliche Präferenzen bei Schlaf, Sauberkeit und Sozialverhalten.',
       },
       {
         question: 'Werden meine Daten geschützt?',
-        answer: 'Ja, deine Daten werden nur zur Zimmerzuteilung verwendet und nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit einsehen oder löschen lassen.',
+        answer:
+          'Ja, deine Daten werden nur zur Zimmerzuteilung verwendet und nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit einsehen oder löschen lassen.',
       },
       {
         question: 'An wen wende ich mich bei technischen Problemen?',
-        answer: 'Bei technischen Problemen mit dem Portal wende dich bitte an die unten stehenden Kontakte oder sprich deine Betreuungsperson an.',
+        answer:
+          'Bei technischen Problemen mit dem Portal wende dich bitte an die unten stehenden Kontakte oder sprich deine Betreuungsperson an.',
       },
     ],
     quickLinks: [
-      { href: '/portal/preferences', icon: '⚙️', title: 'Einstellungen', desc: 'Präferenzen anpassen' },
-      { href: '/portal/report', icon: '📝', title: 'Problem melden', desc: 'Vorfall oder Anliegen' },
+      {
+        href: '/portal/preferences',
+        icon: '⚙️',
+        title: 'Einstellungen',
+        desc: 'Präferenzen anpassen',
+      },
+      {
+        href: '/portal/report',
+        icon: '📝',
+        title: 'Problem melden',
+        desc: 'Vorfall oder Anliegen',
+      },
     ],
   },
   roommates: {
@@ -495,10 +521,26 @@ export const PORTAL_LABELS = {
     aloneMessage: 'Du hast die Unterkunft für dich allein',
     tipsTitle: 'Tipps für das Zusammenleben',
     tips: [
-      { icon: '🗣️', title: 'Kommunikation', desc: 'Sprich Probleme frühzeitig an, bevor sie grösser werden' },
-      { icon: '🤝', title: 'Respekt', desc: 'Respektiere die Privatsphäre und Ruhezeiten deiner Mitbewohner' },
-      { icon: '🧹', title: 'Sauberkeit', desc: 'Halte gemeinsame Räume sauber und räume nach dir auf' },
-      { icon: '📅', title: 'Absprachen', desc: 'Trefft klare Vereinbarungen über Küche, Bad und Gemeinschaftsräume' },
+      {
+        icon: '🗣️',
+        title: 'Kommunikation',
+        desc: 'Sprich Probleme frühzeitig an, bevor sie grösser werden',
+      },
+      {
+        icon: '🤝',
+        title: 'Respekt',
+        desc: 'Respektiere die Privatsphäre und Ruhezeiten deiner Mitbewohner',
+      },
+      {
+        icon: '🧹',
+        title: 'Sauberkeit',
+        desc: 'Halte gemeinsame Räume sauber und räume nach dir auf',
+      },
+      {
+        icon: '📅',
+        title: 'Absprachen',
+        desc: 'Trefft klare Vereinbarungen über Küche, Bad und Gemeinschaftsräume',
+      },
     ],
     conflictTitle: 'Bei Konflikten',
     conflictSteps: [
@@ -513,7 +555,8 @@ export const PORTAL_LABELS = {
     isSmoker: 'Raucher',
     noPlacement: 'Du hast noch keine Unterkunft zugewiesen bekommen.',
     noPlacementContact: CONTACT_FALLBACK_SENTENCE,
-    roommateCount: (n: number) => n === 1 ? 'Du wohnst mit 1 Person zusammen' : `Du wohnst mit ${n} Personen zusammen`,
+    roommateCount: (n: number) =>
+      n === 1 ? 'Du wohnst mit 1 Person zusammen' : `Du wohnst mit ${n} Personen zusammen`,
     ageYears: 'Jahre',
     scoreLevels: {
       excellent: 'Sehr gut',
@@ -543,8 +586,7 @@ export const PORTAL_LABELS = {
      * The confirm needs its own sentence — reusing `suggestedPays` here put the
      * AMOUNT in the subject slot and asked "CHF 16.65 zahlt an Fatima?".
      */
-    markPaidConfirm: (amount: string, name: string) =>
-      `${amount} an ${name} als bezahlt erfassen?`,
+    markPaidConfirm: (amount: string, name: string) => `${amount} an ${name} als bezahlt erfassen?`,
     addTitle: 'Ausgabe erfassen',
     descriptionLabel: 'Beschreibung',
     descriptionPlaceholder: 'z.B. Wocheneinkauf',
@@ -608,7 +650,8 @@ export const PORTAL_LABELS = {
     title: 'Dein Profil',
     subtitle: 'Zeig deinen Mitbewohnern, wer du bist — alles freiwillig',
     codeLabel: 'Dein Login-Code',
-    codeHint: 'Der Code bleibt dein Login. Name, Foto und Text sind freiwillig und jederzeit änderbar.',
+    codeHint:
+      'Der Code bleibt dein Login. Name, Foto und Text sind freiwillig und jederzeit änderbar.',
     displayNameLabel: 'Name',
     displayNamePlaceholder: 'z.B. Georgy',
     bioLabel: 'Über mich',
@@ -627,7 +670,8 @@ export const PORTAL_LABELS = {
      * the fact that the people supporting them can always see it.
      */
     visibilityLabel: 'Wer sieht dein Profil?',
-    visibilityStaffNote: 'Die Betreuung sieht dein Profil immer — sie muss wissen, wen sie unterstützt.',
+    visibilityStaffNote:
+      'Die Betreuung sieht dein Profil immer — sie muss wissen, wen sie unterstützt.',
     visibilityOptions: {
       PRIVATE: 'Nur ich',
       ROOMMATES: 'Meine Mitbewohnenden',
@@ -641,7 +685,8 @@ export const PORTAL_LABELS = {
   },
   error: {
     title: 'Etwas ist schiefgelaufen',
-    message: 'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+    message:
+      'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
     retry: 'Erneut versuchen',
     home: 'Zur Startseite',
   },

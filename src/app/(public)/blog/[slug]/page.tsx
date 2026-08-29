@@ -13,7 +13,7 @@ export const dynamic = 'force-static'
 export const dynamicParams = false
 
 export function generateStaticParams() {
-  return getAllPosts().map(post => ({ slug: post.slug }))
+  return getAllPosts().map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({
@@ -38,11 +38,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const post = getPostBySlug(slug)
   if (!post) notFound()
@@ -51,7 +47,8 @@ export default async function BlogPostPage({
     <article>
       <header className="mb-8 pb-8 border-b border-ui-border">
         <p className="eyebrow numeric">
-          {BLOG_LABELS.published} <time dateTime={post.date}>{formatCalendarDateLong(post.date)}</time>
+          {BLOG_LABELS.published}{' '}
+          <time dateTime={post.date}>{formatCalendarDateLong(post.date)}</time>
         </p>
         <h1 className="text-3xl sm:text-4xl font-semibold text-ui-text mt-2">{post.title}</h1>
       </header>

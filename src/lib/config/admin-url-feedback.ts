@@ -1,5 +1,9 @@
 import { INCIDENT_PAGE_LABELS } from '@/lib/constants/labels/incidents'
-import { RESIDENT_DETAIL_LABELS, HOUSING_SPOTS_LABELS, INCIDENT_DETAIL_LABELS } from '@/lib/constants/labels/ui'
+import {
+  RESIDENT_DETAIL_LABELS,
+  HOUSING_SPOTS_LABELS,
+  INCIDENT_DETAIL_LABELS,
+} from '@/lib/constants/labels/ui'
 
 export type AdminFeedbackKind = 'success' | 'error'
 

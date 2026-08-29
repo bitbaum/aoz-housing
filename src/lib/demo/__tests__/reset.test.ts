@@ -77,7 +77,7 @@ describe('resetDemoData', () => {
 
     expect(mockSeedOpportunities).toHaveBeenCalledWith(
       prisma,
-      expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' })
+      expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' }),
     )
     expect(summary.opportunities).toBe(5)
     expect(summary.opportunityApplications).toBe(10)

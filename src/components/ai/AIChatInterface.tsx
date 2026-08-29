@@ -9,7 +9,6 @@ interface Message {
   content: string
 }
 
-
 export function AIChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -56,7 +55,7 @@ export function AIChatInterface() {
       if (!response.ok) {
         let message = `HTTP ${response.status}`
         try {
-          const body = await response.json() as { error?: string }
+          const body = (await response.json()) as { error?: string }
           if (body.error) message = body.error
         } catch {
           // keep fallback status message
@@ -100,17 +99,15 @@ export function AIChatInterface() {
       if (!accumulated.trim()) {
         accumulated = 'Keine Antwort erhalten. Bitte Anfrage präzisieren oder erneut versuchen.'
       }
-      setMessages(prev => [...prev, { role: 'assistant', content: accumulated }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: accumulated }])
     } catch (err) {
       if ((err as Error).name === 'AbortError') return
-      const message = err instanceof Error && err.message
-        ? err.message
-        : 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.'
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.'
       setError(message)
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: message },
-      ])
+      setMessages((prev) => [...prev, { role: 'assistant', content: message }])
     } finally {
       if (abortRef.current === controller) abortRef.current = null
       setStreaming(false)
@@ -141,7 +138,7 @@ export function AIChatInterface() {
               <p className="text-sm text-ui-muted mt-1">{AI_ASSISTANT_LABELS.componentSubtitle}</p>
             </div>
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">
-              {AI_SUGGESTED_QUESTIONS.map(q => (
+              {AI_SUGGESTED_QUESTIONS.map((q) => (
                 <button
                   key={q}
                   onClick={() => sendMessage(q)}
@@ -193,14 +190,14 @@ export function AIChatInterface() {
           <textarea
             ref={textareaRef}
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={UI_LABELS.aiChatPlaceholder}
             rows={1}
             disabled={streaming}
             className="flex-1 resize-none input py-2.5 text-sm min-h-[44px] max-h-32 overflow-y-auto disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ height: 'auto' }}
-            onInput={e => {
+            onInput={(e) => {
               const el = e.currentTarget
               el.style.height = 'auto'
               el.style.height = `${Math.min(el.scrollHeight, 128)}px`
@@ -212,7 +209,11 @@ export function AIChatInterface() {
             className="btn btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={UI_LABELS.sendMessage}
           >
-            {streaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {streaming ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
             <span className="hidden sm:inline">{UI_LABELS.aiChatSend}</span>
           </button>
         </div>
@@ -226,11 +227,14 @@ function MessageBubble({ message }: { message: Message }) {
 
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
-      <div className={`icon-container-sm flex-shrink-0 ${isUser ? 'bg-brand-secondary/10' : 'bg-brand-primary/10'}`}>
-        {isUser
-          ? <User className="w-4 h-4 text-brand-secondary" />
-          : <Bot className="w-4 h-4 text-brand-primary" />
-        }
+      <div
+        className={`icon-container-sm flex-shrink-0 ${isUser ? 'bg-brand-secondary/10' : 'bg-brand-primary/10'}`}
+      >
+        {isUser ? (
+          <User className="w-4 h-4 text-brand-secondary" />
+        ) : (
+          <Bot className="w-4 h-4 text-brand-primary" />
+        )}
       </div>
       <div
         className={`flex-1 min-w-0 rounded-lg px-4 py-3 text-sm ${

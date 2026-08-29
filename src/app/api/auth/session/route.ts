@@ -10,7 +10,7 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
-        { status: 401 }
+        { status: 401 },
       )
     }
 
@@ -27,7 +27,7 @@ export async function GET() {
     logger.errorWithCause('Session check failed', error)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

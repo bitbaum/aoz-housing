@@ -47,10 +47,7 @@ export async function getUnitRules(housingUnitId: string): Promise<RuleLike[]> {
 
 /** The merged two-tier rule book for one housing unit. */
 export async function getRuleBook(housingUnitId: string): Promise<RuleBook> {
-  const [orgRules, unitRules] = await Promise.all([
-    getOrgRules(),
-    getUnitRules(housingUnitId),
-  ])
+  const [orgRules, unitRules] = await Promise.all([getOrgRules(), getUnitRules(housingUnitId)])
   return buildRuleBook(orgRules, unitRules)
 }
 
@@ -59,7 +56,10 @@ export async function getRuleBook(housingUnitId: string): Promise<RuleBook> {
  * the people its rules bind. An active placement is one that has started and
  * has not ended.
  */
-export async function getUnitResidentIds(housingUnitId: string, now = new Date()): Promise<string[]> {
+export async function getUnitResidentIds(
+  housingUnitId: string,
+  now = new Date(),
+): Promise<string[]> {
   const placements = await prisma.placement.findMany({
     where: {
       housingUnitId,
@@ -83,7 +83,7 @@ export async function getEligibleVoterCount(housingUnitId: string): Promise<numb
 /** Rules this resident has not yet seen at their current version. */
 export async function getOutstandingRules(
   residentId: string,
-  housingUnitId: string
+  housingUnitId: string,
 ): Promise<OutstandingRule[]> {
   const book = await getRuleBook(housingUnitId)
   const bindingRules = [

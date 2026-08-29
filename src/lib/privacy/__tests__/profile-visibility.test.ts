@@ -22,8 +22,10 @@ const anonymous: ProfileViewer = { kind: 'anonymous' }
 describe('who may see a profile', () => {
   it('never shows anything to someone signed out', () => {
     for (const visibility of PROFILE_VISIBILITY_OPTIONS) {
-      expect({ visibility, seen: canSeeProfile(anonymous, subject(visibility)) })
-        .toEqual({ visibility, seen: false })
+      expect({ visibility, seen: canSeeProfile(anonymous, subject(visibility)) }).toEqual({
+        visibility,
+        seen: false,
+      })
     }
   })
 
@@ -32,8 +34,10 @@ describe('who may see a profile', () => {
     // name to the person they support is worse at supporting them, and they
     // already hold far more sensitive data than a self-written bio.
     for (const visibility of PROFILE_VISIBILITY_OPTIONS) {
-      expect({ visibility, seen: canSeeProfile(staff, subject(visibility)) })
-        .toEqual({ visibility, seen: true })
+      expect({ visibility, seen: canSeeProfile(staff, subject(visibility)) }).toEqual({
+        visibility,
+        seen: true,
+      })
     }
   })
 
@@ -113,8 +117,9 @@ describe('redacting a row', () => {
   })
 
   it('leaves the row untouched for someone allowed to see it', () => {
-    expect(redactProfile({ ...row, profileVisibility: 'ROOMMATES' }, roommate).displayName)
-      .toBe('Fatima')
+    expect(redactProfile({ ...row, profileVisibility: 'ROOMMATES' }, roommate).displayName).toBe(
+      'Fatima',
+    )
   })
 
   it('leaves the row untouched for staff', () => {
@@ -124,7 +129,11 @@ describe('redacting a row', () => {
   it('does not invent fields the row never had', () => {
     // Adding `bio: null` to a row that carries no bio would break the shape a
     // caller's `select` promised.
-    const slim = { id: 'r-subject', displayName: 'Fatima', profileVisibility: 'PRIVATE' as ProfileVisibility }
+    const slim = {
+      id: 'r-subject',
+      displayName: 'Fatima',
+      profileVisibility: 'PRIVATE' as ProfileVisibility,
+    }
     expect('bio' in redactProfile(slim, roommate)).toBe(false)
   })
 })

@@ -83,9 +83,7 @@ function rendersResidentCode(line: string): boolean {
 }
 
 function componentFiles(): string[] {
-  return globSync('**/*.tsx', { cwd: SRC, absolute: true }).filter(
-    (f) => !f.includes('__tests__')
-  )
+  return globSync('**/*.tsx', { cwd: SRC, absolute: true }).filter((f) => !f.includes('__tests__'))
 }
 
 describe('resident display-name SSOT', () => {
@@ -133,9 +131,7 @@ describe('resident display-name SSOT', () => {
   })
 
   it('keeps the opt-out marker meaningful — it must be used sparingly', () => {
-    const marked = componentFiles().filter((f) =>
-      readFileSync(f, 'utf8').includes(OPT_OUT)
-    )
+    const marked = componentFiles().filter((f) => readFileSync(f, 'utf8').includes(OPT_OUT))
     // If this trips, the exception has become the rule: check whether those
     // screens really mean to show a login code.
     expect(marked.length).toBeLessThanOrEqual(6)

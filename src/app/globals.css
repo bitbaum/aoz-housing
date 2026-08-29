@@ -32,16 +32,16 @@
      Canvas and surface are both pure white: cards are separated by their
      border, not by floating above a tinted background. That is the single
      biggest visual difference from the old theme. */
-  --color-ui-canvas:        255 255 255;
-  --color-ui-surface:       255 255 255;
-  --color-ui-elevated:      255 255 255;
-  --color-ui-subtle:        246 246 246;
-  --color-ui-border:        226 226 226;
+  --color-ui-canvas: 255 255 255;
+  --color-ui-surface: 255 255 255;
+  --color-ui-elevated: 255 255 255;
+  --color-ui-subtle: 246 246 246;
+  --color-ui-border: 226 226 226;
   --color-ui-border-strong: 168 168 168;
-  --color-ui-text:          10 10 10;
-  --color-ui-muted:         112 112 112;
-  --color-ui-inverse:       255 255 255;
-  --color-ui-on-accent:     255 255 255;
+  --color-ui-text: 10 10 10;
+  --color-ui-muted: 112 112 112;
+  --color-ui-inverse: 255 255 255;
+  --color-ui-on-accent: 255 255 255;
 
   /* ── Brand palette ────────────────────────────────────────────────────────
      THE ORIGINAL AOZ PALETTE, BYTE-FOR-BYTE. Do not edit these values.
@@ -50,30 +50,30 @@
      palette — the brief was to keep AOZ's colours and change the design
      language — so it adds no override block at all. A future brand that wants
      different colours adds `:root[data-brand='<id>']` below. */
-  --color-brand-primary:        230 57 70;
-  --color-brand-primary-light:  236 80 92;
-  --color-brand-primary-dark:   186 34 46;
+  --color-brand-primary: 230 57 70;
+  --color-brand-primary-light: 236 80 92;
+  --color-brand-primary-dark: 186 34 46;
   /* Hover step for fills that rest on primary-dark: white on primary itself
      is 4.17:1 (under the 4.5 AA floor), so text-bearing fills rest on
      primary-dark (6.26:1) and darken further on hover instead of lightening
      back under the floor. */
   --color-brand-primary-darker: 150 27 37;
-  --color-brand-secondary:      25 82 82;
-  --color-brand-secondary-light:45 112 112;
+  --color-brand-secondary: 25 82 82;
+  --color-brand-secondary-light: 45 112 112;
   --color-brand-secondary-dark: 17 55 55;
-  --color-brand-accent:         235 244 243;
-  --color-brand-accent-light:   245 249 249;
-  --color-brand-accent-dark:    198 222 220;
-  --color-brand-background:     247 247 248;
-  --color-brand-surface:        255 255 255;
+  --color-brand-accent: 235 244 243;
+  --color-brand-accent-light: 245 249 249;
+  --color-brand-accent-dark: 198 222 220;
+  --color-brand-background: 247 247 248;
+  --color-brand-surface: 255 255 255;
 
   /* ── Geometry ─────────────────────────────────────────────────────────────
      Near-square. `rounded-lg` is the workhorse across the app (200+ uses), so
      pinning it at 4px re-skins the entire product from this one line. */
-  --radius-sm:  2px;
-  --radius-md:  3px;
-  --radius-lg:  4px;
-  --radius-xl:  6px;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
   --radius-2xl: 8px;
 
   /* ── Typography ───────────────────────────────────────────────────────────
@@ -81,10 +81,10 @@
      gap between the two is what makes the hierarchy read as deliberate. */
   --tracking-display: -0.032em;
   --tracking-heading: -0.02em;
-  --tracking-tight:   -0.01em;
-  --tracking-normal:  0em;
-  --tracking-wide:    0.02em;
-  --tracking-label:   0.08em;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+  --tracking-label: 0.08em;
   --tracking-eyebrow: 0.14em;
 
   /* ── Focus ────────────────────────────────────────────────────────────────
@@ -104,35 +104,35 @@
 
   /* ── Compatibility score (5-tier) ─────────────────────────────────────── */
   --color-score-excellent: 34 197 94;
-  --color-score-good:      132 204 22;
-  --color-score-medium:    245 158 11;
-  --color-score-low:       249 115 22;
-  --color-score-critical:  239 68 68;
-  --color-score-contrast:  10 10 10;
+  --color-score-good: 132 204 22;
+  --color-score-medium: 245 158 11;
+  --color-score-low: 249 115 22;
+  --color-score-critical: 239 68 68;
+  --color-score-contrast: 10 10 10;
 
   /* Dark readable shades, for score text on tinted backgrounds. */
   --color-score-excellent-text: 22 163 74;
-  --color-score-good-text:      5 150 105;
-  --color-score-medium-text:    202 138 4;
-  --color-score-low-text:       234 88 12;
-  --color-score-critical-text:  220 38 38;
+  --color-score-good-text: 5 150 105;
+  --color-score-medium-text: 202 138 4;
+  --color-score-low-text: 234 88 12;
+  --color-score-critical-text: 220 38 38;
 
   /* ── Incident severity ────────────────────────────────────────────────── */
-  --color-severity-low:      156 163 175;
-  --color-severity-medium:   251 191 36;
-  --color-severity-high:     249 115 22;
+  --color-severity-low: 156 163 175;
+  --color-severity-medium: 251 191 36;
+  --color-severity-high: 249 115 22;
   --color-severity-critical: 239 68 68;
 
   /* ── Status ───────────────────────────────────────────────────────────── */
   --color-status-success: 34 197 94;
   --color-status-warning: 245 158 11;
-  --color-status-error:   239 68 68;
-  --color-status-info:    59 130 246;
+  --color-status-error: 239 68 68;
+  --color-status-info: 59 130 246;
 
   --color-status-success-text: 21 128 61;
   --color-status-warning-text: 180 83 9;
-  --color-status-error-text:   185 28 28;
-  --color-status-info-text:    29 78 216;
+  --color-status-error-text: 185 28 28;
+  --color-status-info-text: 29 78 216;
 }
 
 /* ── Dark theme ─────────────────────────────────────────────────────────────
@@ -141,72 +141,72 @@
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --color-ui-canvas:        0 0 0;
-  --color-ui-surface:       10 10 10;
-  --color-ui-elevated:      20 20 20;
-  --color-ui-subtle:        20 20 20;
-  --color-ui-border:        38 38 38;
+  --color-ui-canvas: 0 0 0;
+  --color-ui-surface: 10 10 10;
+  --color-ui-elevated: 20 20 20;
+  --color-ui-subtle: 20 20 20;
+  --color-ui-border: 38 38 38;
   --color-ui-border-strong: 82 82 82;
-  --color-ui-text:          250 250 250;
-  --color-ui-muted:         161 161 161;
-  --color-ui-inverse:       10 10 10;
-  --color-ui-on-accent:     255 255 255;
+  --color-ui-text: 250 250 250;
+  --color-ui-muted: 161 161 161;
+  --color-ui-inverse: 10 10 10;
+  --color-ui-on-accent: 255 255 255;
 
   --color-brand-background: 0 0 0;
-  --color-brand-surface:    10 10 10;
-  --color-brand-accent:      18 32 32;
-  --color-brand-accent-light:23 43 43;
+  --color-brand-surface: 10 10 10;
+  --color-brand-accent: 18 32 32;
+  --color-brand-accent-light: 23 43 43;
   --color-brand-accent-dark: 36 73 73;
 
   --color-score-contrast: 10 10 10;
 
   --color-score-excellent-text: 134 239 172;
-  --color-score-good-text:      190 242 100;
-  --color-score-medium-text:    253 186 116;
-  --color-score-low-text:       251 146 60;
-  --color-score-critical-text:  252 165 165;
-  --color-status-success-text:  134 239 172;
-  --color-status-warning-text:  253 186 116;
-  --color-status-error-text:    252 165 165;
-  --color-status-info-text:     147 197 253;
+  --color-score-good-text: 190 242 100;
+  --color-score-medium-text: 253 186 116;
+  --color-score-low-text: 251 146 60;
+  --color-score-critical-text: 252 165 165;
+  --color-status-success-text: 134 239 172;
+  --color-status-warning-text: 253 186 116;
+  --color-status-error-text: 252 165 165;
+  --color-status-info-text: 147 197 253;
 
-  --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.10);
+  --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
 
-    --color-ui-canvas:        0 0 0;
-    --color-ui-surface:       10 10 10;
-    --color-ui-elevated:      20 20 20;
-    --color-ui-subtle:        20 20 20;
-    --color-ui-border:        38 38 38;
+    --color-ui-canvas: 0 0 0;
+    --color-ui-surface: 10 10 10;
+    --color-ui-elevated: 20 20 20;
+    --color-ui-subtle: 20 20 20;
+    --color-ui-border: 38 38 38;
     --color-ui-border-strong: 82 82 82;
-    --color-ui-text:          250 250 250;
-    --color-ui-muted:         161 161 161;
-    --color-ui-inverse:       10 10 10;
-    --color-ui-on-accent:     255 255 255;
+    --color-ui-text: 250 250 250;
+    --color-ui-muted: 161 161 161;
+    --color-ui-inverse: 10 10 10;
+    --color-ui-on-accent: 255 255 255;
 
     --color-brand-background: 0 0 0;
-    --color-brand-surface:    10 10 10;
-    --color-brand-accent:      18 32 32;
-    --color-brand-accent-light:23 43 43;
+    --color-brand-surface: 10 10 10;
+    --color-brand-accent: 18 32 32;
+    --color-brand-accent-light: 23 43 43;
     --color-brand-accent-dark: 36 73 73;
 
     --color-score-contrast: 10 10 10;
 
     --color-score-excellent-text: 134 239 172;
-    --color-score-good-text:      190 242 100;
-    --color-score-medium-text:    253 186 116;
-    --color-score-low-text:       251 146 60;
-    --color-score-critical-text:  252 165 165;
-    --color-status-success-text:  134 239 172;
-    --color-status-warning-text:  253 186 116;
-    --color-status-error-text:    252 165 165;
-    --color-status-info-text:     147 197 253;
+    --color-score-good-text: 190 242 100;
+    --color-score-medium-text: 253 186 116;
+    --color-score-low-text: 251 146 60;
+    --color-score-critical-text: 252 165 165;
+    --color-status-success-text: 134 239 172;
+    --color-status-warning-text: 253 186 116;
+    --color-status-error-text: 252 165 165;
+    --color-status-info-text: 147 197 253;
 
-    --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.10);
+    --shadow-overlay: 0 8px 24px -6px rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.1);
   }
 }
 
@@ -219,13 +219,26 @@
 
   /* Headings carry the display tracking. Set once here so no component has to
      remember it, and so a change to the type feel is a one-line edit. */
-  h1 { letter-spacing: var(--tracking-display); }
-  h2, h3 { letter-spacing: var(--tracking-heading); }
-  h4, h5, h6 { letter-spacing: var(--tracking-tight); }
+  h1 {
+    letter-spacing: var(--tracking-display);
+  }
+  h2,
+  h3 {
+    letter-spacing: var(--tracking-heading);
+  }
+  h4,
+  h5,
+  h6 {
+    letter-spacing: var(--tracking-tight);
+  }
 
   /* Tabular figures everywhere numbers appear in running text, so digits keep
      a constant width and columns of data do not jitter between renders. */
-  table, dd, output { font-variant-numeric: tabular-nums; }
+  table,
+  dd,
+  output {
+    font-variant-numeric: tabular-nums;
+  }
 
   /* Global visible focus indicator — safety net for any interactive element
      that is not using a project focus ring (btn variants, input, btn-icon). */
@@ -238,7 +251,9 @@
 
 /* Respect prefers-reduced-motion across the entire app (WCAG 2.3.3). */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -258,27 +273,26 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 @layer components {
+  /* ── Typographic primitives ─────────────────────────────────────────────── */
 
-/* ── Typographic primitives ─────────────────────────────────────────────── */
-
-/* Uppercase micro-label. The signature move of this design language: it marks
+  /* Uppercase micro-label. The signature move of this design language: it marks
    what a number or section IS, without competing with the value itself. */
-.eyebrow {
-  @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted break-words;
-}
+  .eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted break-words;
+  }
 
-/* Anything the eye has to compare down a column: counts, scores, codes, dates.
+  /* Anything the eye has to compare down a column: counts, scores, codes, dates.
    Mono + tabular figures keep digits aligned; tight tracking keeps it compact. */
-.numeric {
-  @apply font-mono tabular-nums tracking-tight;
-}
+  .numeric {
+    @apply font-mono tabular-nums tracking-tight;
+  }
 
-/* Big number in a stat block — the one place type gets to be loud. */
-.metric {
-  @apply numeric text-3xl font-semibold leading-none text-ui-text;
-}
+  /* Big number in a stat block — the one place type gets to be loud. */
+  .metric {
+    @apply numeric text-3xl font-semibold leading-none text-ui-text;
+  }
 
-/* Long-form prose rendered from markdown (the engineering blog). The app has
+  /* Long-form prose rendered from markdown (the engineering blog). The app has
    no other running-text surface, so this is the one place element selectors
    are the right tool: the HTML comes from a markdown renderer and cannot carry
    classes. Everything below still resolves to design tokens.
@@ -287,181 +301,193 @@
    fire twenty times a page and stop meaning "this is the action that matters",
    which is the whole basis of rationing it — so a link is an underline that
    picks up the brand only on hover. */
-.prose-post {
-  @apply text-ui-text leading-relaxed;
-}
-.prose-post > * + * { @apply mt-5; }
-.prose-post h2 {
-  @apply text-xl sm:text-2xl font-semibold text-ui-text mt-10 pt-1;
-}
-.prose-post h3 {
-  @apply text-base sm:text-lg font-semibold text-ui-text mt-8;
-}
-.prose-post a {
-  @apply underline underline-offset-2 decoration-ui-border-strong
+  .prose-post {
+    @apply text-ui-text leading-relaxed;
+  }
+  .prose-post > * + * {
+    @apply mt-5;
+  }
+  .prose-post h2 {
+    @apply text-xl sm:text-2xl font-semibold text-ui-text mt-10 pt-1;
+  }
+  .prose-post h3 {
+    @apply text-base sm:text-lg font-semibold text-ui-text mt-8;
+  }
+  .prose-post a {
+    @apply underline underline-offset-2 decoration-ui-border-strong
          hover:text-brand-primary hover:decoration-brand-primary transition-colors;
-}
-.prose-post strong { @apply font-semibold text-ui-text; }
-.prose-post ul { @apply list-disc pl-5 space-y-1.5; }
-.prose-post ol { @apply list-decimal pl-5 space-y-1.5; }
-.prose-post blockquote {
-  @apply border-l-2 border-ui-border-strong pl-4 text-ui-muted;
-}
-.prose-post hr { @apply border-ui-border my-10; }
-.prose-post code {
-  @apply font-mono text-sm bg-ui-subtle border border-ui-border rounded-sm px-1 py-0.5;
-}
-/* The block form owns its own frame, so the inline chrome is stripped back off
+  }
+  .prose-post strong {
+    @apply font-semibold text-ui-text;
+  }
+  .prose-post ul {
+    @apply list-disc pl-5 space-y-1.5;
+  }
+  .prose-post ol {
+    @apply list-decimal pl-5 space-y-1.5;
+  }
+  .prose-post blockquote {
+    @apply border-l-2 border-ui-border-strong pl-4 text-ui-muted;
+  }
+  .prose-post hr {
+    @apply border-ui-border my-10;
+  }
+  .prose-post code {
+    @apply font-mono text-sm bg-ui-subtle border border-ui-border rounded-sm px-1 py-0.5;
+  }
+  /* The block form owns its own frame, so the inline chrome is stripped back off
    the <code> inside it rather than double-drawn. */
-.prose-post pre {
-  @apply bg-ui-subtle border border-ui-border rounded-lg p-4 overflow-x-auto text-sm;
-}
-.prose-post pre code {
-  @apply bg-transparent border-0 p-0 text-sm;
-}
-/* Tables scroll inside their own frame: a wide table must never be the reason
+  .prose-post pre {
+    @apply bg-ui-subtle border border-ui-border rounded-lg p-4 overflow-x-auto text-sm;
+  }
+  .prose-post pre code {
+    @apply bg-transparent border-0 p-0 text-sm;
+  }
+  /* Tables scroll inside their own frame: a wide table must never be the reason
    the page itself scrolls sideways on a phone. */
-.prose-post table {
-  @apply block w-max max-w-full overflow-x-auto text-sm border-collapse;
-}
-.prose-post thead th {
-  @apply eyebrow text-left align-bottom border-b border-ui-border-strong pb-2 pr-4;
-}
-.prose-post tbody td {
-  @apply align-top border-b border-ui-border py-2.5 pr-4;
-}
-.prose-post tbody tr:last-child td { @apply border-b-0; }
+  .prose-post table {
+    @apply block w-max max-w-full overflow-x-auto text-sm border-collapse;
+  }
+  .prose-post thead th {
+    @apply eyebrow text-left align-bottom border-b border-ui-border-strong pb-2 pr-4;
+  }
+  .prose-post tbody td {
+    @apply align-top border-b border-ui-border py-2.5 pr-4;
+  }
+  .prose-post tbody tr:last-child td {
+    @apply border-b-0;
+  }
 
-/* ── Surfaces ───────────────────────────────────────────────────────────── */
+  /* ── Surfaces ───────────────────────────────────────────────────────────── */
 
-/* min-w-0: a card is routinely a flex/grid item (stat grids, list rows). Without
+  /* min-w-0: a card is routinely a flex/grid item (stat grids, list rows). Without
    it, a card defaults to min-width:auto and cannot shrink below the intrinsic
    width of its content — an unbreakable label then forces the whole grid track,
    and the page, wider than the viewport instead of wrapping inside the card. */
-.card {
-  @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5 min-w-0;
-}
+  .card {
+    @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5 min-w-0;
+  }
 
-/* Hover affordance is a border and fill change, never a shadow — a card must
+  /* Hover affordance is a border and fill change, never a shadow — a card must
    not appear to lift off a flat surface. */
-.card-hover {
-  @apply card block hover:border-ui-border-strong hover:bg-ui-subtle transition-colors duration-150 cursor-pointer;
-}
+  .card-hover {
+    @apply card block hover:border-ui-border-strong hover:bg-ui-subtle transition-colors duration-150 cursor-pointer;
+  }
 
-/* Content that genuinely floats above other content (menus, popovers,
+  /* Content that genuinely floats above other content (menus, popovers,
    dialogs). The only place a shadow is allowed. */
-.overlay-panel {
-  @apply bg-ui-elevated border border-ui-border rounded-lg shadow-overlay;
-}
+  .overlay-panel {
+    @apply bg-ui-elevated border border-ui-border rounded-lg shadow-overlay;
+  }
 
-/* The dimming layer behind a modal or drawer. One definition — it used to be
+  /* The dimming layer behind a modal or drawer. One definition — it used to be
    spelled six different ways (bg-black/40 through /60), which is six chances
    for the app to look subtly inconsistent depending on which dialog opened.
    Callers add their own z-index; stacking is the caller's concern, not the
    scrim's. */
-.scrim {
-  @apply fixed inset-0 bg-black/50;
-}
+  .scrim {
+    @apply fixed inset-0 bg-black/50;
+  }
 
-/* Full-bleed app chrome: hairline underline over a blurred translucent fill.
+  /* Full-bleed app chrome: hairline underline over a blurred translucent fill.
    Deliberately sets no `position` — the admin and portal headers are sticky
    while the mobile bar is fixed, and baking one in would force callers to
    fight it with a competing position utility (whichever Tailwind happens to
    emit last would win, which is not a thing to rely on). */
-.chrome-bar {
-  @apply bg-ui-canvas/85 backdrop-blur-md border-b border-ui-border z-40;
-}
+  .chrome-bar {
+    @apply bg-ui-canvas/85 backdrop-blur-md border-b border-ui-border z-40;
+  }
 
-/* A row whose content length is config-driven (nav groups, filter chips) must
+  /* A row whose content length is config-driven (nav groups, filter chips) must
    never be the reason the chrome around it breaks — same principle as
    `.prose-post table` below: it scrolls inside its own frame instead of
    overflowing into a sibling. Hides the scrollbar so a fully-loaded row (an
    ADMIN with every permission) still reads as a normal bar, not a scroll
    affordance, while a narrower one (fewer permissions, a narrower window)
    quietly gains the ability to scroll instead of clipping or overlapping. */
-.scroll-fade {
-  @apply overflow-x-auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.scroll-fade::-webkit-scrollbar {
-  display: none;
-}
+  .scroll-fade {
+    @apply overflow-x-auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scroll-fade::-webkit-scrollbar {
+    display: none;
+  }
 
-/* ── Buttons ────────────────────────────────────────────────────────────────
+  /* ── Buttons ────────────────────────────────────────────────────────────────
    NOTE on naming (historical, do not "fix" without a sweep): `.btn-primary` is
    the NEUTRAL near-black button used as the default action everywhere, and
    `.btn-secondary` is the BRAND-COLOURED one used for emphasis. 121 files rely
    on this. */
-.btn {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
          text-sm font-medium tracking-tight min-h-[44px]
          transition-colors duration-150
          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ui-canvas
          disabled:opacity-40 disabled:pointer-events-none;
-}
+  }
 
-.btn-primary {
-  @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/30;
-}
+  .btn-primary {
+    @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/30;
+  }
 
-.btn-secondary {
-  @apply btn bg-brand-primary-dark text-ui-on-accent hover:bg-brand-primary-darker focus:ring-brand-primary/40;
-}
+  .btn-secondary {
+    @apply btn bg-brand-primary-dark text-ui-on-accent hover:bg-brand-primary-darker focus:ring-brand-primary/40;
+  }
 
-.btn-outline {
-  @apply btn border border-ui-border bg-ui-surface text-ui-text
+  .btn-outline {
+    @apply btn border border-ui-border bg-ui-surface text-ui-text
          hover:bg-ui-subtle hover:border-ui-border-strong focus:ring-ui-text/25;
-}
+  }
 
-.btn-ghost {
-  @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-ui-text/25;
-}
+  .btn-ghost {
+    @apply btn text-ui-muted hover:bg-ui-subtle hover:text-ui-text focus:ring-ui-text/25;
+  }
 
-.btn-danger {
-  @apply btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/40;
-}
+  .btn-danger {
+    @apply btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/40;
+  }
 
-.btn-warning {
-  @apply btn bg-status-warning text-ui-on-accent hover:bg-status-warning/90 focus:ring-status-warning/40;
-}
+  .btn-warning {
+    @apply btn bg-status-warning text-ui-on-accent hover:bg-status-warning/90 focus:ring-status-warning/40;
+  }
 
-/* Icon-only square — keeps the 44px target without text-sized padding. */
-.btn-icon {
-  @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md
+  /* Icon-only square — keeps the 44px target without text-sized padding. */
+  .btn-icon {
+    @apply inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-md
          text-ui-muted hover:bg-ui-subtle hover:text-ui-text
          focus:outline-none focus:ring-2 focus:ring-ui-text/25 transition-colors;
-}
+  }
 
-/* ── Forms ──────────────────────────────────────────────────────────────── */
+  /* ── Forms ──────────────────────────────────────────────────────────────── */
 
-.input {
-  @apply w-full px-3 py-2.5 min-h-[44px] rounded-md
+  .input {
+    @apply w-full px-3 py-2.5 min-h-[44px] rounded-md
          border border-ui-border bg-ui-surface text-ui-text
          placeholder:text-ui-muted/60
          focus:outline-none focus:border-ui-text focus:ring-1 focus:ring-ui-text
          transition-colors duration-150;
-}
+  }
 
-.label {
-  @apply block text-xs font-medium tracking-wide text-ui-muted mb-1.5;
-}
+  .label {
+    @apply block text-xs font-medium tracking-wide text-ui-muted mb-1.5;
+  }
 
-/* ── Navigation ─────────────────────────────────────────────────────────────
+  /* ── Navigation ─────────────────────────────────────────────────────────────
    Shared by the desktop megamenu, the mobile drawer and the portal nav. The
    active state is a brand-coloured marker, not a filled pill — colour marks
    position, it does not decorate. */
-.nav-item {
-  @apply inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
+  .nav-item {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
          text-ui-muted hover:text-ui-text hover:bg-ui-subtle
          transition-colors duration-150 whitespace-nowrap;
-}
+  }
 
-.nav-item-active {
-  @apply nav-item text-ui-text bg-ui-subtle;
-}
+  .nav-item-active {
+    @apply nav-item text-ui-text bg-ui-subtle;
+  }
 
-/* ── Bottom tab bar (portal, mobile) ────────────────────────────────────────
+  /* ── Bottom tab bar (portal, mobile) ────────────────────────────────────────
    A phone needs its main destinations permanently on screen. Behind a
    hamburger, every move costs a tap to open, a list to read and a tap to
    choose — so residents stopped looking and the pages may as well not exist.
@@ -470,124 +496,177 @@
    text, not by a filled pill: the bar sits under the thumb on every screen, so
    a filled brand block would put the loudest colour in the product permanently
    in view and leave nothing to say "this is the action that matters". */
-.tab-bar {
-  @apply fixed inset-x-0 bottom-0 z-40 flex items-stretch
+  .tab-bar {
+    @apply fixed inset-x-0 bottom-0 z-40 flex items-stretch
          border-t border-ui-border bg-ui-surface/95 backdrop-blur;
-  /* Clears the iOS home indicator — without it the last row of tabs sits under
+    /* Clears the iOS home indicator — without it the last row of tabs sits under
      the gesture bar and the taps land on the OS instead of the app. */
-  padding-bottom: env(safe-area-inset-bottom);
-}
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 
-.tab-item {
-  @apply flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 py-2
+  .tab-item {
+    @apply flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 py-2
          text-2xs font-medium text-ui-muted transition-colors duration-150
          border-t-2 border-transparent;
-}
+  }
 
-.tab-item-active {
-  @apply tab-item text-ui-text border-t-brand-primary;
-}
+  .tab-item-active {
+    @apply tab-item text-ui-text border-t-brand-primary;
+  }
 
-/* ── Tables ─────────────────────────────────────────────────────────────── */
+  /* ── Tables ─────────────────────────────────────────────────────────────── */
 
-.table {
-  @apply min-w-full divide-y divide-ui-border;
-}
+  .table {
+    @apply min-w-full divide-y divide-ui-border;
+  }
 
-.table th {
-  @apply px-4 py-3 bg-ui-subtle text-left eyebrow;
-}
+  .table th {
+    @apply px-4 py-3 bg-ui-subtle text-left eyebrow;
+  }
 
-.table td {
-  @apply px-4 py-4 whitespace-nowrap text-sm text-ui-text;
-}
+  .table td {
+    @apply px-4 py-4 whitespace-nowrap text-sm text-ui-text;
+  }
 
-/* ── Badges (outline) & chips (tinted fill) ─────────────────────────────────
+  /* ── Badges (outline) & chips (tinted fill) ─────────────────────────────────
    Both are near-square now; the fill is what distinguishes them, not the
    corner radius. Uppercase micro-type makes them read as machine states
    rather than prose. */
-.badge {
-  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+  .badge {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
          uppercase tracking-label ring-1 bg-ui-surface;
-}
+  }
 
-/* Colours come from the status tokens, never Tailwind's raw palette — "success
+  /* Colours come from the status tokens, never Tailwind's raw palette — "success
    is green" must have exactly one definition, and the *-text tokens already
    carry the readable dark-mode shade, so no `dark:` variant is needed here. */
-.badge-active  { @apply badge text-status-success-text ring-status-success/40; }
-.badge-success { @apply badge text-status-success-text ring-status-success/40; }
-.badge-pending { @apply badge text-status-warning-text ring-status-warning/40; }
-.badge-info    { @apply badge text-status-info-text ring-status-info/40; }
-.badge-ended   { @apply badge text-ui-muted ring-ui-border; }
-.badge-alert   { @apply badge text-status-error-text ring-status-error/40; }
+  .badge-active {
+    @apply badge text-status-success-text ring-status-success/40;
+  }
+  .badge-success {
+    @apply badge text-status-success-text ring-status-success/40;
+  }
+  .badge-pending {
+    @apply badge text-status-warning-text ring-status-warning/40;
+  }
+  .badge-info {
+    @apply badge text-status-info-text ring-status-info/40;
+  }
+  .badge-ended {
+    @apply badge text-ui-muted ring-ui-border;
+  }
+  .badge-alert {
+    @apply badge text-status-error-text ring-status-error/40;
+  }
 
-.chip {
-  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+  .chip {
+    @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
          uppercase tracking-label;
-}
-.chip-success { @apply chip bg-status-success/15 text-status-success-text; }
-.chip-warning { @apply chip bg-status-warning/15 text-status-warning-text; }
-.chip-error   { @apply chip bg-status-error/15 text-status-error-text; }
-.chip-info    { @apply chip bg-status-info/15 text-status-info-text; }
-.chip-neutral { @apply chip bg-ui-subtle text-ui-muted ring-1 ring-ui-border; }
+  }
+  .chip-success {
+    @apply chip bg-status-success/15 text-status-success-text;
+  }
+  .chip-warning {
+    @apply chip bg-status-warning/15 text-status-warning-text;
+  }
+  .chip-error {
+    @apply chip bg-status-error/15 text-status-error-text;
+  }
+  .chip-info {
+    @apply chip bg-status-info/15 text-status-info-text;
+  }
+  .chip-neutral {
+    @apply chip bg-ui-subtle text-ui-muted ring-1 ring-ui-border;
+  }
 
-/* ── Alerts ─────────────────────────────────────────────────────────────── */
+  /* ── Alerts ─────────────────────────────────────────────────────────────── */
 
-.alert {
-  @apply p-3 rounded-md text-sm flex items-start gap-2 ring-1;
-}
-.alert-error   { @apply alert bg-status-error/10 text-status-error-text ring-status-error/25; }
-.alert-success { @apply alert bg-status-success/10 text-status-success-text ring-status-success/25; }
-.alert-warning { @apply alert bg-status-warning/10 text-status-warning-text ring-status-warning/25; }
-.alert-info    { @apply alert bg-status-info/10 text-status-info-text ring-status-info/25; }
+  .alert {
+    @apply p-3 rounded-md text-sm flex items-start gap-2 ring-1;
+  }
+  .alert-error {
+    @apply alert bg-status-error/10 text-status-error-text ring-status-error/25;
+  }
+  .alert-success {
+    @apply alert bg-status-success/10 text-status-success-text ring-status-success/25;
+  }
+  .alert-warning {
+    @apply alert bg-status-warning/10 text-status-warning-text ring-status-warning/25;
+  }
+  .alert-info {
+    @apply alert bg-status-info/10 text-status-info-text ring-status-info/25;
+  }
 
-/* ── Avatars ────────────────────────────────────────────────────────────────
+  /* ── Avatars ────────────────────────────────────────────────────────────────
    Square, not circular — the geometry of the system is square, and initials
    are data like any other. */
-.avatar {
-  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+  .avatar {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-md
          bg-brand-primary text-ui-on-accent font-semibold text-sm select-none;
-}
-.avatar-sm { @apply avatar w-8 h-8 text-xs; }
-.avatar-lg { @apply avatar w-12 h-12 text-base; }
+  }
+  .avatar-sm {
+    @apply avatar w-8 h-8 text-xs;
+  }
+  .avatar-lg {
+    @apply avatar w-12 h-12 text-base;
+  }
 
-/* ── Meters ─────────────────────────────────────────────────────────────────
+  /* ── Meters ─────────────────────────────────────────────────────────────────
    Occupancy, capacity, score and fairness bars. Square-ended, because a
    rounded cap misreports the value at both ends — at 3% the pill is all cap
    and reads as more than nothing. Used with an inner `.meter-fill`. */
-.meter {
-  @apply relative w-full h-1.5 rounded-sm bg-ui-border overflow-hidden;
-}
-.meter-lg { @apply meter h-2.5; }
-.meter-fill {
-  @apply h-full rounded-sm bg-brand-primary transition-[width] duration-300;
-}
+  .meter {
+    @apply relative w-full h-1.5 rounded-sm bg-ui-border overflow-hidden;
+  }
+  .meter-lg {
+    @apply meter h-2.5;
+  }
+  .meter-fill {
+    @apply h-full rounded-sm bg-brand-primary transition-[width] duration-300;
+  }
 
-/* ── Icon containers ────────────────────────────────────────────────────── */
+  /* ── Icon containers ────────────────────────────────────────────────────── */
 
-.icon-container {
-  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+  .icon-container {
+    @apply inline-flex items-center justify-center w-10 h-10 rounded-md
          bg-ui-subtle text-ui-muted ring-1 ring-ui-border;
-}
-.icon-container-sm { @apply icon-container w-8 h-8; }
-.icon-container-lg { @apply icon-container w-12 h-12; }
+  }
+  .icon-container-sm {
+    @apply icon-container w-8 h-8;
+  }
+  .icon-container-lg {
+    @apply icon-container w-12 h-12;
+  }
 
-/* ── Score indicators ───────────────────────────────────────────────────── */
+  /* ── Score indicators ───────────────────────────────────────────────────── */
 
-.score-excellent { @apply bg-score-excellent text-ui-on-accent; }
-.score-good      { @apply bg-score-good text-ui-on-accent; }
-.score-medium    { @apply bg-score-medium text-score-contrast; }
-.score-low       { @apply bg-score-low text-ui-on-accent; }
-.score-critical  { @apply bg-score-critical text-ui-on-accent; }
-/* Legacy aliases */
-.score-moderate  { @apply bg-score-medium text-score-contrast; }
-.score-poor      { @apply bg-score-critical text-ui-on-accent; }
+  .score-excellent {
+    @apply bg-score-excellent text-ui-on-accent;
+  }
+  .score-good {
+    @apply bg-score-good text-ui-on-accent;
+  }
+  .score-medium {
+    @apply bg-score-medium text-score-contrast;
+  }
+  .score-low {
+    @apply bg-score-low text-ui-on-accent;
+  }
+  .score-critical {
+    @apply bg-score-critical text-ui-on-accent;
+  }
+  /* Legacy aliases */
+  .score-moderate {
+    @apply bg-score-medium text-score-contrast;
+  }
+  .score-poor {
+    @apply bg-score-critical text-ui-on-accent;
+  }
 
-.explainable-number {
-  @apply cursor-pointer underline decoration-dotted underline-offset-4
+  .explainable-number {
+    @apply cursor-pointer underline decoration-dotted underline-offset-4
          decoration-ui-muted/60 hover:decoration-brand-primary;
-}
-
+  }
 }
 
 /* ── Skip-to-content link — visible only when focused via keyboard. ──────── */
@@ -612,28 +691,48 @@
 }
 
 /* ── Safe-area utilities for iOS home-indicator overlap on fixed bottom bars ── */
-.pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
-.mb-safe { margin-bottom: max(0px, env(safe-area-inset-bottom)); }
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.mb-safe {
+  margin-bottom: max(0px, env(safe-area-inset-bottom));
+}
 
 /* ── Animations ─────────────────────────────────────────────────────────── */
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slide-in-from-top {
-  from { transform: translateX(-50%) translateY(-4px); }
-  to { transform: translateX(-50%) translateY(0); }
+  from {
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .animate-in {
-  animation: fade-in 0.15s ease-out, slide-in-from-top 0.15s ease-out;
+  animation:
+    fade-in 0.15s ease-out,
+    slide-in-from-top 0.15s ease-out;
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-slide-up {

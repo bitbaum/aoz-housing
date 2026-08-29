@@ -11,11 +11,7 @@
  * Everything else (forms, labels, compatibility) auto-generates from this config.
  */
 
-import type {
-  CompatibilityFactorDef,
-  DimensionConfig,
-  FormSectionConfig,
-} from './types'
+import type { CompatibilityFactorDef, DimensionConfig, FormSectionConfig } from './types'
 
 // =============================================================================
 // DIMENSIONS (for compatibility scoring)
@@ -37,13 +33,13 @@ export const RESIDENT_DIMENSIONS: DimensionConfig[] = [
   {
     id: 'practical',
     label: 'Praktisches',
-    weight: 0.20,
+    weight: 0.2,
     description: 'Rauchen, Ernährung, Ausstattung',
   },
   {
     id: 'requirements',
     label: 'Anforderungen',
-    weight: 0.20,
+    weight: 0.2,
     description: 'Harte Anforderungen die erfüllt sein müssen',
   },
 ]
@@ -57,7 +53,12 @@ export const RESIDENT_FORM_SECTIONS: FormSectionConfig[] = [
   { id: 'lifestyle', label: 'Lebensstil', order: 2 },
   { id: 'social', label: 'Soziales', order: 3 },
   { id: 'practical', label: 'Praktisches', order: 4 },
-  { id: 'household', label: 'Haushalt', description: 'Gemeinschaftliche Aufgaben und Abfall', order: 5 },
+  {
+    id: 'household',
+    label: 'Haushalt',
+    description: 'Gemeinschaftliche Aufgaben und Abfall',
+    order: 5,
+  },
   { id: 'health', label: 'Unterstützungsbedarf', order: 6 },
   { id: 'preferences', label: 'Präferenzen', order: 7 },
   { id: 'notes', label: 'Notizen', order: 8 },
@@ -224,7 +225,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Ist mir egal',
     highLabel: 'Sehr ordentlich',
     dimension: 'lifestyle',
-    weight: 0.10,
+    weight: 0.1,
     rule: 'SIMILAR_IS_BETTER',
   },
 
@@ -259,7 +260,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Lieber keine Besucher',
     highLabel: 'Besucher willkommen',
     dimension: 'lifestyle',
-    weight: 0.10,
+    weight: 0.1,
     rule: 'SIMILAR_IS_BETTER',
   },
 
@@ -298,7 +299,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     lowLabel: 'Offen',
     highLabel: 'Viel Privatsphäre',
     dimension: 'social',
-    weight: 0.30,
+    weight: 0.3,
     rule: 'SIMILAR_IS_BETTER',
   },
 
@@ -360,7 +361,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     },
     default: 'COOPERATIVE',
     dimension: 'social',
-    weight: 0.10,
+    weight: 0.1,
     rule: 'SAME_IS_BETTER',
   },
 
@@ -585,7 +586,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     trueLabel: 'Ja',
     falseLabel: 'Nein',
     dimension: 'practical',
-    weight: 0.10,
+    weight: 0.1,
     rule: 'MUST_ALLOW',
     housingField: 'petsAllowed',
   },
@@ -646,7 +647,7 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
 /** Get factors for a specific form section */
 export function getFactorsBySection(sectionId: string): CompatibilityFactorDef[] {
   return Object.values(RESIDENT_FACTORS)
-    .filter(f => f.formSection === sectionId)
+    .filter((f) => f.formSection === sectionId)
     .sort((a, b) => a.formOrder - b.formOrder)
 }
 
@@ -664,10 +665,10 @@ export function getFactorValueLabel(factorId: string, value: string | string[]):
     return factor.optionLabels[value as string] || String(value)
   }
   if (factor.type === 'multi' && Array.isArray(value)) {
-    return value.map(v => factor.optionLabels[v] || v).join(', ')
+    return value.map((v) => factor.optionLabels[v] || v).join(', ')
   }
   if (factor.type === 'boolean') {
-    return value ? (factor.trueLabel || 'Ja') : (factor.falseLabel || 'Nein')
+    return value ? factor.trueLabel || 'Ja' : factor.falseLabel || 'Nein'
   }
   return String(value)
 }

@@ -1,6 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { join } from 'path'
-import { dayPartAt, formatWeekdayDate, APP_TIME_ZONE, fromDatetimeLocalInput, toDatetimeLocalInput } from '@/lib/utils/local-time'
+import {
+  dayPartAt,
+  formatWeekdayDate,
+  APP_TIME_ZONE,
+  fromDatetimeLocalInput,
+  toDatetimeLocalInput,
+} from '@/lib/utils/local-time'
 
 /**
  * The bug: a `'use client'` component is ALSO rendered on the server, so
@@ -77,8 +83,8 @@ describe('no dashboard component reads a clock during render', () => {
 
   it.each(
     readdirSync(DASHBOARD_DIR).filter(
-      (name) => name.endsWith('.tsx') && statSync(join(DASHBOARD_DIR, name)).isFile()
-    )
+      (name) => name.endsWith('.tsx') && statSync(join(DASHBOARD_DIR, name)).isFile(),
+    ),
   )('%s takes the time as a prop instead of reading it', (name) => {
     const source = readFileSync(join(DASHBOARD_DIR, name), 'utf8')
     const lines = source.split('\n')
@@ -90,7 +96,7 @@ describe('no dashboard component reads a clock during render', () => {
           // Comments explaining the rule are not violations of it.
           !line.startsWith('*') &&
           !line.startsWith('//') &&
-          (/new Date\(\s*\)/.test(line) || /Date\.now\(\s*\)/.test(line))
+          (/new Date\(\s*\)/.test(line) || /Date\.now\(\s*\)/.test(line)),
       )
       .map(({ line, number }) => `${name}:${number} ${line}`)
 

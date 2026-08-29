@@ -36,7 +36,10 @@ export const APPLICATION_PIPELINE = [
   'ENDED',
 ] as const satisfies readonly ApplicationStageId[]
 
-export const TERMINAL_STAGES = ['ENDED', 'DECLINED'] as const satisfies readonly ApplicationStageId[]
+export const TERMINAL_STAGES = [
+  'ENDED',
+  'DECLINED',
+] as const satisfies readonly ApplicationStageId[]
 
 /** The learning category every opportunity-generated record is filed under. */
 export const OPPORTUNITY_EVIDENCE_CATEGORY = 'community'
@@ -84,7 +87,7 @@ export function occupiesSeat(stage: ApplicationStageId): boolean {
  */
 export function openSeats(
   opportunity: Pick<OpportunityRecord, 'seats'>,
-  stages: readonly ApplicationStageId[]
+  stages: readonly ApplicationStageId[],
 ): number | null {
   if (opportunity.seats === null || opportunity.seats === undefined) return null
   const taken = stages.filter(occupiesSeat).length
@@ -94,7 +97,7 @@ export function openSeats(
 /** True once a listing can take nobody else. Unstated capacity is never full. */
 export function isFull(
   opportunity: Pick<OpportunityRecord, 'seats'>,
-  stages: readonly ApplicationStageId[]
+  stages: readonly ApplicationStageId[],
 ): boolean {
   return openSeats(opportunity, stages) === 0
 }
@@ -124,7 +127,7 @@ export interface GeneratedEvidence {
  */
 export function evidenceForStartedApplication(
   opportunity: Pick<OpportunityRecord, 'kind' | 'title' | 'organisation'>,
-  startedAt: Date
+  startedAt: Date,
 ): GeneratedEvidence {
   return {
     kind: opportunity.kind,

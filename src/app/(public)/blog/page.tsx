@@ -29,13 +29,11 @@ export default function BlogIndexPage() {
         <p className="text-sm text-ui-muted">{BLOG_LABELS.empty}</p>
       ) : (
         <ul className="space-y-4">
-          {posts.map(post => (
+          {posts.map((post) => (
             <li key={post.slug}>
               <Link href={`/blog/${post.slug}`} className="card-hover">
                 <p className="eyebrow numeric">{formatCalendarDateLong(post.date)}</p>
-                <h2 className="text-lg sm:text-xl font-semibold text-ui-text mt-1">
-                  {post.title}
-                </h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-ui-text mt-1">{post.title}</h2>
                 <p className="text-sm text-ui-muted mt-2 line-clamp-3">{post.excerpt}</p>
               </Link>
             </li>

@@ -20,9 +20,7 @@ interface SpotActionsProps {
 
 export function SpotActions({ spot, housingUnitId }: SpotActionsProps) {
   const deleteFormRef = useRef<HTMLFormElement>(null)
-  const hasActivePlacement = spot.placements?.some(
-    (p) => p.status === 'ACTIVE'
-  )
+  const hasActivePlacement = spot.placements?.some((p) => p.status === 'ACTIVE')
 
   const handleDelete = async () => {
     deleteFormRef.current?.requestSubmit()

@@ -94,11 +94,16 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       <div className="card mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-ui-text">{INCIDENT_PAGE_LABELS.quickCapture}</h2>
+            <h2 className="text-base font-semibold text-ui-text">
+              {INCIDENT_PAGE_LABELS.quickCapture}
+            </h2>
             <p className="text-sm text-ui-muted">{INCIDENT_PAGE_LABELS.quickSubtitle}</p>
           </div>
           {params.quick && (
-            <Link href={`/incidents/new?${queryBase.toString()}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
+            <Link
+              href={`/incidents/new?${queryBase.toString()}`}
+              className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted"
+            >
               {INCIDENT_PAGE_LABELS.resetPreset}
             </Link>
           )}
@@ -146,7 +151,9 @@ export default async function NewIncidentPage({ searchParams }: Props) {
       <form action={createIncident} className="space-y-6">
         {/* Location & Attribution */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-4">{INCIDENT_PAGE_LABELS.sectionLocation}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
+            {INCIDENT_PAGE_LABELS.sectionLocation}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldUnit}</label>
@@ -166,11 +173,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             </div>
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldReporter}</label>
-              <select
-                name="reportedById"
-                defaultValue={params.reporter || ''}
-                className="input"
-              >
+              <select name="reportedById" defaultValue={params.reporter || ''} className="input">
                 <option value="">{INCIDENT_PAGE_LABELS.fieldReporterUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
@@ -182,11 +185,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
             </div>
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldSubject}</label>
-              <select
-                name="subjectId"
-                defaultValue={params.subject || ''}
-                className="input"
-              >
+              <select name="subjectId" defaultValue={params.subject || ''} className="input">
                 <option value="">{INCIDENT_PAGE_LABELS.fieldSubjectUnknown}</option>
                 {residents.map((resident) => (
                   <option key={resident.id} value={resident.id}>
@@ -220,9 +219,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                       className="sr-only peer"
                     />
                     <div className="p-4 text-center rounded-lg border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary/5 transition-colors">
-                      <span className="text-2xl">
-                        {INCIDENT_CATEGORY_ICONS[key] || '💬'}
-                      </span>
+                      <span className="text-2xl">{INCIDENT_CATEGORY_ICONS[key] || '💬'}</span>
                       <p className="font-medium text-ui-text mt-2">
                         {INCIDENT_CATEGORY_LABELS[key]}
                       </p>
@@ -232,7 +229,12 @@ export default async function NewIncidentPage({ searchParams }: Props) {
               </div>
               <p className="text-xs text-ui-muted mt-2">
                 {INCIDENT_PAGE_LABELS.maintenanceHint}{' '}
-                <Link href="/maintenance/new" className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline">{INCIDENT_PAGE_LABELS.maintenanceHintLink}</Link>
+                <Link
+                  href="/maintenance/new"
+                  className="inline-flex items-center py-2 -my-2 text-brand-primary hover:underline"
+                >
+                  {INCIDENT_PAGE_LABELS.maintenanceHintLink}
+                </Link>
               </p>
             </div>
 
@@ -275,9 +277,7 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 <div
                   className={`p-4 text-center rounded-lg border-2 border-ui-border transition-colors ${getSeverityRadioClass(key)}`}
                 >
-                  <div
-                    className={`w-4 h-4 rounded-full mx-auto ${getSeverityDotClass(key)}`}
-                  />
+                  <div className={`w-4 h-4 rounded-full mx-auto ${getSeverityDotClass(key)}`} />
                   <p className="font-medium text-ui-text mt-2">{label}</p>
                 </div>
               </label>
@@ -287,7 +287,9 @@ export default async function NewIncidentPage({ searchParams }: Props) {
 
         {/* Details */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-4">{INCIDENT_PAGE_LABELS.sectionDetails}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-4">
+            {INCIDENT_PAGE_LABELS.sectionDetails}
+          </h2>
           <div className="space-y-4">
             <div>
               <label className="label">{INCIDENT_PAGE_LABELS.fieldDate}</label>
@@ -321,7 +323,9 @@ export default async function NewIncidentPage({ searchParams }: Props) {
                 placeholder="0"
                 className="input"
               />
-              <p className="text-xs text-ui-muted mt-1">{INCIDENT_PAGE_LABELS.fieldMediationMinutesHint}</p>
+              <p className="text-xs text-ui-muted mt-1">
+                {INCIDENT_PAGE_LABELS.fieldMediationMinutesHint}
+              </p>
             </div>
           </div>
         </div>
@@ -331,7 +335,10 @@ export default async function NewIncidentPage({ searchParams }: Props) {
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_PAGE_LABELS.submit}
           </SubmitButton>
-          <Link href="/incidents" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+          <Link
+            href="/incidents"
+            className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
+          >
             {UI_LABELS.cancel}
           </Link>
         </div>

@@ -48,9 +48,14 @@ export default async function ReportPage() {
 
   const currentPlacement = resident.placements[0]
   const housingUnit = currentPlacement?.housingUnit
-  const roommates = housingUnit?.placements
-    .filter(p => p.residentId !== resident.id)
-    .map(p => ({ id: p.resident.id, code: p.resident.code, displayName: p.resident.displayName })) || []
+  const roommates =
+    housingUnit?.placements
+      .filter((p) => p.residentId !== resident.id)
+      .map((p) => ({
+        id: p.resident.id,
+        code: p.resident.code,
+        displayName: p.resident.displayName,
+      })) || []
 
   return (
     <div>
@@ -75,9 +80,7 @@ export default async function ReportPage() {
       {/* Emergency Notice */}
       <div className="mt-8 p-4 bg-status-error/8 border border-status-error/25 rounded-lg">
         <h3 className="font-medium text-status-error-text mb-2">{t('report.emergencyTitle')}</h3>
-        <p className="text-sm text-status-error-text">
-          {t('report.emergencyMessage')}
-        </p>
+        <p className="text-sm text-status-error-text">{t('report.emergencyMessage')}</p>
       </div>
     </div>
   )
