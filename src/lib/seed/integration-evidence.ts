@@ -334,7 +334,31 @@ export interface IntegrationSeedContext {
 export interface IntegrationSeedSummary {
   records: number
   careAssignments: number
+  appointments: number
 }
+
+/**
+ * Appointments, in the two states a visitor needs to see.
+ *
+ * Recording how someone is doing now happens ONLY when staff close an
+ * appointment — the always-on scale that used to sit on the client page and in
+ * the placements table is gone. So a demo world with no appointments
+ * demonstrates no check-in at all, and a visitor meets four empty care panels
+ * and concludes the care team does nothing. That is the same failure the chore
+ * and proposal seeds exist to prevent.
+ *
+ * The timing is load-bearing, exactly as it is for the seeded proposal. One
+ * appointment is BACKDATED and already COMPLETED with its check-in attached, so
+ * the history and the attribution are visible on arrival. The other is
+ * SCHEDULED a day out, so the visitor can close it themselves and watch the
+ * reading appear — the equivalent of the deciding vote left uncast.
+ */
+const APPOINTMENT_SCRIPT = [
+  { domain: 'JOB', past: 'Standortgespräch Arbeit', next: 'Bewerbung durchgehen' },
+  { domain: 'SOCIAL', past: 'Erstgespräch Sozialarbeit', next: 'Anschlusslösung besprechen' },
+  { domain: 'HOUSING', past: 'Ankommen in der Wohnung', next: 'Wohnsituation nachfragen' },
+  { domain: 'VOLUNTEERING', past: 'Einsatz nachbesprochen', next: 'Neuen Einsatz suchen' },
+] as const
 
 /**
  * The four care seats.
@@ -395,5 +419,80 @@ export async function seedIntegrationEvidence(
     careAssignments = result.count
   }
 
-  return { records: payloads.length, careAssignments }
+  // ---------------------------------------------------------------------
+  // Appointments — see APPOINTMENT_SCRIPT for why both states are seeded.
+  // Guarded by the same staffId rule as the care seats: with no staff account
+  // there is nobody to hold the appointment, and inventing one would put a
+  // fake colleague in front of a real user.
+  // ---------------------------------------------------------------------
+  let appointments = 0
+  if (ctx.staffId) {
+    const staffId = ctx.staffId
+
+    // The check-in hangs off a placement, so only a placed resident can carry
+    // the completed half. Everyone still gets the scheduled one.
+    const placements = await prisma.placement.findMany({
+      where: { residentId: { in: residents.map((r) => r.id) }, status: 'ACTIVE' },
+      select: { id: true, residentId: true, startDate: true },
+    })
+    const placementByResident = new Map(placements.map((p) => [p.residentId, p]))
+
+    for (let index = 0; index < residents.length; index += 1) {
+      const resident = residents[index]
+      const script = APPOINTMENT_SCRIPT[index % APPOINTMENT_SCRIPT.length]
+
+      const upcoming = await prisma.appointment.create({
+        data: {
+          residentId: resident.id,
+          staffId,
+          domain: script.domain,
+          title: script.next,
+          // A day out, so it is still upcoming however late in the day the
+          // visitor arrives — the demo world is rebuilt nightly.
+          startsAt: daysAhead(1),
+          status: 'SCHEDULED',
+        },
+      })
+      appointments += 1
+      void upcoming
+
+      const placement = placementByResident.get(resident.id)
+      if (!placement) continue
+
+      const held = await prisma.appointment.create({
+        data: {
+          residentId: resident.id,
+          staffId,
+          domain: script.domain,
+          title: script.past,
+          startsAt: daysAgo(6 + (index % 5)),
+          status: 'COMPLETED',
+        },
+      })
+      appointments += 1
+
+      // The reading this product now produces: attached to the conversation it
+      // came from, and attributed to the account that recorded it. A demo that
+      // showed a score with neither would be demonstrating the old behaviour.
+      await prisma.satisfactionCheckIn.create({
+        data: {
+          placementId: placement.id,
+          appointmentId: held.id,
+          checkInType: 'AD_HOC',
+          weekNumber: Math.max(
+            0,
+            Math.floor((Date.now() - placement.startDate.getTime()) / (7 * DAY_MS))
+          ),
+          // Deliberately not all 5s: an even record shows nothing, the same
+          // reason the seeded chore history is uneven.
+          overallSatisfaction: 3 + (index % 3),
+          concerns: index % 3 === 0 ? 'Sucht eine Anschlusslösung für den Winter.' : null,
+          collectedByUserId: staffId,
+          isAnonymous: false,
+        },
+      })
+    }
+  }
+
+  return { records: payloads.length, careAssignments, appointments }
 }

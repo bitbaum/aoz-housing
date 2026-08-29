@@ -22,6 +22,7 @@ interface Recorded {
   expenses: Array<{ amountRappen: number; shares: { create: Array<{ amountRappen: number }> } }>
   taskTitles: string[]
   proposalStatuses: string[]
+  appointmentStatuses: string[]
   maintenanceStatuses: string[]
   maintenance: Array<{ status: string; resolution?: string | null; reportedById?: string }>
   unitRuleTitles: string[]
@@ -46,6 +47,7 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     expenses: [],
     taskTitles: [],
     proposalStatuses: [],
+    appointmentStatuses: [],
     maintenanceStatuses: [],
     maintenance: [],
     unitRuleTitles: [],
@@ -114,6 +116,11 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     // The integration pillar (lib/seed/integration-evidence.ts).
     learningRecord: model((d) => recorded.learningResidentIds.push(d.residentId as string)),
     careAssignment: model(),
+    // Appointments, and the reading a completed one carries. Absent from
+    // this mock the seed threw on `appointment.create` — which is the mock
+    // telling the truth: the seed genuinely writes these now.
+    appointment: model((d) => recorded.appointmentStatuses.push(d.status as string)),
+    satisfactionCheckIn: model(),
     // Gemeinschaft: the board, the calendar and the external catalogue.
     marketplacePost: model((d) => recorded.marketplaceKinds.push(d.kind as string)),
     houseEvent: model((d) => recorded.eventStartsAt.push(d.startsAt as Date)),
@@ -313,6 +320,28 @@ describe('seedDemoData', () => {
     const summary = await seedDemoData(prisma, { careStaffId: 'demo-staff' })
 
     expect(summary.careAssignments).toBeGreaterThan(0)
+  })
+
+  it('seeds an appointment already held AND one still to hold', async () => {
+    // Recording a check-in now happens ONLY when staff close an appointment.
+    // A demo world without them therefore demonstrates no check-in at all, and
+    // a visitor meets four empty care panels — the same failure the chore and
+    // proposal seeds exist to prevent. COMPLETED shows what the feature
+    // produces; SCHEDULED is the one the visitor gets to close themselves.
+    const { prisma, recorded } = createPrismaMock()
+    const summary = await seedDemoData(prisma, { careStaffId: 'demo-staff' })
+
+    expect(summary.appointments).toBeGreaterThan(0)
+    expect(recorded.appointmentStatuses).toContain('COMPLETED')
+    expect(recorded.appointmentStatuses).toContain('SCHEDULED')
+  })
+
+  it('seeds no appointments without a staff account to hold them', async () => {
+    const { prisma, recorded } = createPrismaMock()
+    const summary = await seedDemoData(prisma)
+
+    expect(summary.appointments).toBe(0)
+    expect(recorded.appointmentStatuses).toHaveLength(0)
   })
 
   it('invents no colleague when the deployment has no demo staff door', async () => {

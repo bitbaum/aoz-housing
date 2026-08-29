@@ -9,7 +9,7 @@
  * and that panel is the first thing a Jobcoach looks at.
  */
 
-import { evidenceForResident } from '../integration-evidence'
+import { evidenceForResident, seedIntegrationEvidence } from '../integration-evidence'
 import { LEARNING_PULSE_WINDOW_DAYS } from '../../config/learning'
 
 const germanSpeaker = {
@@ -164,5 +164,137 @@ describe('evidenceForResident', () => {
 
     expect(sources).toContain('STAFF')
     expect(sources).toContain('RESIDENT')
+  })
+})
+
+/**
+ * Appointments in the demo world.
+ *
+ * Since check-in capture moved into closing an appointment, a demo world with
+ * no appointments demonstrates NO check-in at all — the visitor meets four
+ * empty care panels and concludes the care team does nothing. That was a real
+ * regression: two seeded, visible surfaces were removed and the replacement
+ * was invisible here.
+ */
+describe('seeded appointments', () => {
+  function makePrisma() {
+    const created: Record<string, Record<string, unknown>[]> = { appointment: [], checkIn: [] }
+    return {
+      created,
+      client: {
+        resident: {
+          findMany: jest.fn(async () => [
+            { id: 'r1', languages: ['German'], ageRange: 'ADULT', choresContribution: 4 },
+            { id: 'r2', languages: ['Tigrinya'], ageRange: 'ADULT', choresContribution: 2 },
+          ]),
+        },
+        learningRecord: { createMany: jest.fn(async () => ({ count: 0 })) },
+        careAssignment: { createMany: jest.fn(async () => ({ count: 8 })) },
+        placement: {
+          // Only r1 is placed, so only r1 can carry a reading.
+          findMany: jest.fn(async () => [
+            { id: 'p1', residentId: 'r1', startDate: new Date('2026-01-01') },
+          ]),
+        },
+        appointment: {
+          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
+            created.appointment.push(args.data)
+            return { id: `appt-${created.appointment.length}`, ...args.data }
+          }),
+        },
+        satisfactionCheckIn: {
+          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
+            created.checkIn.push(args.data)
+            return { id: 'ci-1' }
+          }),
+        },
+      },
+    }
+  }
+
+  it('creates no appointments when the deployment has no staff account', async () => {
+    const { client, created } = makePrisma()
+
+    // Same rule the care seats follow: with nobody to hold the appointment,
+    // inventing a colleague would put a fake name in a real "zuständig" picker.
+    const summary = await seedIntegrationEvidence(client as never, {
+      residentIds: ['r1', 'r2'],
+      staffId: null,
+    })
+
+    expect(summary.appointments).toBe(0)
+    expect(created.appointment).toHaveLength(0)
+    expect(created.checkIn).toHaveLength(0)
+  })
+
+  it('seeds both states, so the feature is visible AND touchable', async () => {
+    const { client, created } = makePrisma()
+
+    await seedIntegrationEvidence(client as never, {
+      residentIds: ['r1', 'r2'],
+      staffId: 'staff-1',
+    })
+
+    const statuses = created.appointment.map((a) => a.status as string)
+    // One already held, so the history and the attribution are visible on
+    // arrival; one still open, so the visitor can close it themselves.
+    expect(statuses).toContain('COMPLETED')
+    expect(statuses).toContain('SCHEDULED')
+  })
+
+  it('puts the scheduled one in the future and the held one in the past', async () => {
+    const { client, created } = makePrisma()
+    const now = Date.now()
+
+    await seedIntegrationEvidence(client as never, {
+      residentIds: ['r1', 'r2'],
+      staffId: 'staff-1',
+    })
+
+    for (const appt of created.appointment) {
+      const startsAt = appt.startsAt as Date
+      if (appt.status === 'SCHEDULED') {
+        // A backdated "upcoming" appointment is filtered out of the portal's
+        // list, and the visitor never sees the thing they were meant to click.
+        expect(startsAt.getTime()).toBeGreaterThan(now)
+      } else {
+        expect(startsAt.getTime()).toBeLessThan(now)
+      }
+    }
+  })
+
+  it('attaches every seeded reading to its appointment and to the account', async () => {
+    const { client, created } = makePrisma()
+
+    await seedIntegrationEvidence(client as never, {
+      residentIds: ['r1', 'r2'],
+      staffId: 'staff-1',
+    })
+
+    expect(created.checkIn.length).toBeGreaterThan(0)
+    for (const checkIn of created.checkIn) {
+      // A seeded score with neither link nor collector would demonstrate the
+      // behaviour this product deliberately removed.
+      expect(checkIn.appointmentId).toBeTruthy()
+      expect(checkIn.collectedByUserId).toBe('staff-1')
+      expect(checkIn.overallSatisfaction as number).toBeGreaterThanOrEqual(1)
+      expect(checkIn.overallSatisfaction as number).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('skips the held appointment for a resident with no active placement', async () => {
+    // A check-in hangs off a placement. r2 has none, so it gets the scheduled
+    // appointment only — never a reading with nothing to attach to.
+    const { client, created } = makePrisma()
+
+    await seedIntegrationEvidence(client as never, {
+      residentIds: ['r1', 'r2'],
+      staffId: 'staff-1',
+    })
+
+    const forR2 = created.appointment.filter((a) => a.residentId === 'r2')
+    expect(forR2).toHaveLength(1)
+    expect(forR2[0].status).toBe('SCHEDULED')
+    expect(created.checkIn).toHaveLength(1)
   })
 })
