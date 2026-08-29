@@ -26,7 +26,10 @@ import { LOCALES } from '@/lib/i18n/locales'
 import { BRANDS, type BrandId } from '@/lib/config/brand'
 
 const BRAND_IDS = Object.keys(BRANDS) as BrandId[]
-const REGISTERS = ['placement', 'household'] as const satisfies readonly (keyof MarketingRegisters)[]
+const REGISTERS = [
+  'placement',
+  'household',
+] as const satisfies readonly (keyof MarketingRegisters)[]
 const NON_DEFAULT = PUBLIC_LOCALE_IDS.filter((id) => id !== PUBLIC_DEFAULT_LOCALE)
 
 describe('which languages the landing page offers', () => {
@@ -108,8 +111,11 @@ describe('completeness is measured, not declared', () => {
   it('accepts the copy as actually written', () => {
     for (const locale of PUBLIC_LOCALE_IDS) {
       for (const register of REGISTERS) {
-        expect({ locale, register, ok: isSatisfied(MARKETING_REGISTERS_BY_LOCALE[locale], register) })
-          .toEqual({ locale, register, ok: true })
+        expect({
+          locale,
+          register,
+          ok: isSatisfied(MARKETING_REGISTERS_BY_LOCALE[locale], register),
+        }).toEqual({ locale, register, ok: true })
       }
     }
   })
@@ -200,8 +206,11 @@ describe('every language describes the SAME product', () => {
       const mine = MARKETING_REGISTERS_BY_LOCALE[locale][register].headline
       for (const other of PUBLIC_LOCALE_IDS) {
         if (other === locale) continue
-        expect({ locale, other, same: mine === MARKETING_REGISTERS_BY_LOCALE[other][register].headline })
-          .toEqual({ locale, other, same: false })
+        expect({
+          locale,
+          other,
+          same: mine === MARKETING_REGISTERS_BY_LOCALE[other][register].headline,
+        }).toEqual({ locale, other, same: false })
       }
     }
   })
@@ -293,7 +302,7 @@ describe('where each language lives', () => {
 describe('marketingCopy', () => {
   it('returns the asked-for language when it is complete', () => {
     expect(marketingCopy('fr', 'aoz').headline).toBe(
-      MARKETING_REGISTERS_BY_LOCALE.fr.placement.headline
+      MARKETING_REGISTERS_BY_LOCALE.fr.placement.headline,
     )
   })
 

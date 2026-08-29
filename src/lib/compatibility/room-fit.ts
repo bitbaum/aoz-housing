@@ -38,7 +38,7 @@ export interface RoomFit {
 export function roommatesForSpot(
   spot: OccupiedSpot,
   allSpots: OccupiedSpot[],
-  excludeResidentId?: string
+  excludeResidentId?: string,
 ): Resident[] {
   if (spot.type === 'PRIVATE_ROOM' || spot.type === 'STUDIO' || spot.type === 'ROOM') {
     return []
@@ -46,21 +46,19 @@ export function roommatesForSpot(
 
   const siblings = spot.parentSpotId
     ? allSpots.filter(
-        (s) => s.parentSpotId === spot.parentSpotId && s.id !== spot.id && s.type === 'BED'
+        (s) => s.parentSpotId === spot.parentSpotId && s.id !== spot.id && s.type === 'BED',
       )
     : []
 
   return siblings.flatMap((s) =>
-    s.placements
-      .map((p) => p.resident)
-      .filter((r) => r.id !== excludeResidentId)
+    s.placements.map((p) => p.resident).filter((r) => r.id !== excludeResidentId),
   )
 }
 
 export function scoreRoomFit(
   newResident: Resident,
   spot: OccupiedSpot,
-  allSpots: OccupiedSpot[]
+  allSpots: OccupiedSpot[],
 ): RoomFit {
   const roommates = roommatesForSpot(spot, allSpots, newResident.id)
   if (roommates.length === 0) {
@@ -76,7 +74,7 @@ export function scoreRoomFit(
 
   const incoming = toResidentProfile(newResident)
   const pairwise = roommates.map((roommate) =>
-    calculateCompatibility(incoming, toResidentProfile(roommate))
+    calculateCompatibility(incoming, toResidentProfile(roommate)),
   )
   const worst = pairwise.reduce((min, s) => (s.overall < min.overall ? s : min))
 
@@ -95,13 +93,8 @@ export function scoreRoomFit(
  * that Zimmer. Empty rooms sort below a good roommate match but above a
  * blocking one — vacancy is not 100% compatibility.
  */
-export function bestRoomFit(
-  newResident: Resident,
-  spots: OccupiedSpot[]
-): RoomFit | null {
-  const assignable = spots.filter(
-    (s) => s.status === 'AVAILABLE' && s.type !== 'ROOM'
-  )
+export function bestRoomFit(newResident: Resident, spots: OccupiedSpot[]): RoomFit | null {
+  const assignable = spots.filter((s) => s.status === 'AVAILABLE' && s.type !== 'ROOM')
   if (assignable.length === 0) return null
 
   const fits = assignable.map((spot) => scoreRoomFit(newResident, spot, spots))

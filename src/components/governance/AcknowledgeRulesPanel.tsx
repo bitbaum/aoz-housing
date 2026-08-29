@@ -47,7 +47,9 @@ export function AcknowledgeRulesPanel({ rules }: { rules: OutstandingRule[] }) {
       aria-labelledby="ack-heading"
     >
       <h2 id="ack-heading" className="font-semibold text-ui-text">
-        {rules.length === 1 ? 'Eine Regel ist neu für dich' : `${rules.length} Regeln sind neu für dich`}
+        {rules.length === 1
+          ? 'Eine Regel ist neu für dich'
+          : `${rules.length} Regeln sind neu für dich`}
       </h2>
       <p className="mt-1 text-sm text-ui-muted">
         Bitte lies sie durch und bestätige. So weiss jede und jeder im Haus, was gilt — das
@@ -66,7 +68,9 @@ export function AcknowledgeRulesPanel({ rules }: { rules: OutstandingRule[] }) {
               <span className="text-sm font-medium text-ui-text">
                 {rule.title}
                 {rule.isAmendment && (
-                  <span className="ml-2 badge bg-status-info/15 text-status-info-text">Geändert</span>
+                  <span className="ml-2 badge bg-status-info/15 text-status-info-text">
+                    Geändert
+                  </span>
                 )}
               </span>
               <span aria-hidden="true" className="text-ui-muted">

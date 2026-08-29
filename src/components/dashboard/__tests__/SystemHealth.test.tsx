@@ -6,8 +6,18 @@ import { SystemHealth } from '../SystemHealth'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -35,10 +45,14 @@ const BASE_PROPS = {
   openMaintenanceCount: 0,
 }
 
-function renderHealth(overrides: Partial<typeof BASE_PROPS & {
-  worstUnit?: { code: string; id: string; conflicts: number }
-  oldestTicketDays?: number
-}> = {}) {
+function renderHealth(
+  overrides: Partial<
+    typeof BASE_PROPS & {
+      worstUnit?: { code: string; id: string; conflicts: number }
+      oldestTicketDays?: number
+    }
+  > = {},
+) {
   return render(<SystemHealth {...BASE_PROPS} {...overrides} />)
 }
 
@@ -78,7 +92,10 @@ describe('SystemHealth', () => {
 
   it('shows worst-unit link when worstUnit is provided and has conflicts', () => {
     renderHealth({ worstUnit: { code: 'A01', id: 'unit-1', conflicts: 3 } })
-    expect(screen.getByRole('link', { name: /A01: 3 Konflikte/ })).toHaveAttribute('href', '/housing/unit-1')
+    expect(screen.getByRole('link', { name: /A01: 3 Konflikte/ })).toHaveAttribute(
+      'href',
+      '/housing/unit-1',
+    )
   })
 
   it('shows "Keine Brennpunkte" when worstUnit is not provided', () => {
@@ -145,7 +162,10 @@ describe('SystemHealth', () => {
 
   it('shows oldest ticket link when openMaintenanceCount > 0 and oldestTicketDays provided', () => {
     renderHealth({ openMaintenanceCount: 3, oldestTicketDays: 12 })
-    expect(screen.getByRole('link', { name: 'Älteste: 12 Tage →' })).toHaveAttribute('href', '/maintenance')
+    expect(screen.getByRole('link', { name: 'Älteste: 12 Tage →' })).toHaveAttribute(
+      'href',
+      '/maintenance',
+    )
   })
 
   it('shows "Alles erledigt" when openMaintenanceCount === 0', () => {

@@ -38,60 +38,54 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   const periodStart = getDateDaysAgo(days)
   const ninetyDaysAgo = getDateDaysAgo(90)
 
-  const [
-    residents,
-    units,
-    placements,
-    recentPlacements,
-    recentIncidents,
-    checkIns,
-  ] = await Promise.all([
-    prisma.resident.findMany({
-      where: { status: { in: ['ACTIVE', 'PLACED'] } },
-    }),
-    prisma.housingUnit.findMany({
-      include: { placements: { where: { status: 'ACTIVE' } } },
-    }),
-    prisma.placement.findMany({
-      where: { status: 'ACTIVE' },
-      include: {
-        resident: true,
-        housingUnit: true,
-        checkIns: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
+  const [residents, units, placements, recentPlacements, recentIncidents, checkIns] =
+    await Promise.all([
+      prisma.resident.findMany({
+        where: { status: { in: ['ACTIVE', 'PLACED'] } },
+      }),
+      prisma.housingUnit.findMany({
+        include: { placements: { where: { status: 'ACTIVE' } } },
+      }),
+      prisma.placement.findMany({
+        where: { status: 'ACTIVE' },
+        include: {
+          resident: true,
+          housingUnit: true,
+          checkIns: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
         },
-      },
-    }),
-    prisma.placement.findMany({
-      where: { startDate: { gte: ninetyDaysAgo } },
-      include: {
-        housingUnit: true,
-        resident: true,
-        checkIns: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
+      }),
+      prisma.placement.findMany({
+        where: { startDate: { gte: ninetyDaysAgo } },
+        include: {
+          housingUnit: true,
+          resident: true,
+          checkIns: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
         },
-      },
-      orderBy: { startDate: 'desc' },
-    }),
-    prisma.incident.findMany({
-      where: {
-        date: { gte: periodStart },
-        category: 'INTERPERSONAL', // Only conflicts, not maintenance
-      },
-      include: { housingUnit: true },
-    }),
-    prisma.satisfactionCheckIn.findMany({
-      where: { createdAt: { gte: periodStart } },
-      include: {
-        placement: {
-          include: { resident: true, housingUnit: true },
+        orderBy: { startDate: 'desc' },
+      }),
+      prisma.incident.findMany({
+        where: {
+          date: { gte: periodStart },
+          category: 'INTERPERSONAL', // Only conflicts, not maintenance
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-  ])
+        include: { housingUnit: true },
+      }),
+      prisma.satisfactionCheckIn.findMany({
+        where: { createdAt: { gte: periodStart } },
+        include: {
+          placement: {
+            include: { resident: true, housingUnit: true },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ])
 
   // Get all ended placements for end reason analysis (including conflict analysis fields)
   const [endedPlacements, missionKPIs, algorithmAccuracy, systemConfig] = await Promise.all([
@@ -135,60 +129,72 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   })
   const totalCheckIns = checkIns.length
   const lowSatisfactionCheckIns = checkIns.filter((c) => c.overallSatisfaction <= 2)
-  const avgSatisfaction = totalCheckIns > 0
-    ? (checkIns.reduce((sum, c) => sum + c.overallSatisfaction, 0) / totalCheckIns).toFixed(1)
-    : null
+  const avgSatisfaction =
+    totalCheckIns > 0
+      ? (checkIns.reduce((sum, c) => sum + c.overallSatisfaction, 0) / totalCheckIns).toFixed(1)
+      : null
 
   // Conflict analysis
   const conflictEnds = endedPlacements.filter((p) => p.endReason === 'CONFLICT').length
-  const conflictRate = endedPlacements.length > 0
-    ? Math.round((conflictEnds / endedPlacements.length) * 100)
-    : 0
+  const conflictRate =
+    endedPlacements.length > 0 ? Math.round((conflictEnds / endedPlacements.length) * 100) : 0
 
   const unresolvedIncidents = recentIncidents.filter((i) => !i.resolvedAt)
 
   // Incident type breakdown (conflicts only)
-  const incidentsByType = recentIncidents.reduce((acc, i) => {
-    acc[i.type] = (acc[i.type] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const incidentsByType = recentIncidents.reduce(
+    (acc, i) => {
+      acc[i.type] = (acc[i.type] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   const topIncidentTypes = Object.entries(incidentsByType)
     .sort((a, b) => b[1] - a[1])
     .slice(0, DISPLAY_LIMITS.topIncidentTypes)
 
   // End reason breakdown
-  const endsByReason = endedPlacements.reduce((acc, p) => {
-    if (p.endReason) {
-      acc[p.endReason] = (acc[p.endReason] || 0) + 1
-    }
-    return acc
-  }, {} as Record<string, number>)
+  const endsByReason = endedPlacements.reduce(
+    (acc, p) => {
+      if (p.endReason) {
+        acc[p.endReason] = (acc[p.endReason] || 0) + 1
+      }
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   // Conflict gap analysis (only placements that ended due to CONFLICT with gap data)
   const conflictPlacements = endedPlacements.filter(
-    (p) => p.endReason === 'CONFLICT' && p.conflictGap
+    (p) => p.endReason === 'CONFLICT' && p.conflictGap,
   )
-  const conflictsByGap = conflictPlacements.reduce((acc, p) => {
-    if (p.conflictGap) {
-      acc[p.conflictGap] = (acc[p.conflictGap] || 0) + 1
-    }
-    return acc
-  }, {} as Record<string, number>)
+  const conflictsByGap = conflictPlacements.reduce(
+    (acc, p) => {
+      if (p.conflictGap) {
+        acc[p.conflictGap] = (acc[p.conflictGap] || 0) + 1
+      }
+      return acc
+    },
+    {} as Record<string, number>,
+  )
 
   // Predictability analysis
   const predictableConflicts = conflictPlacements.filter((p) => p.wasPredictable === true)
   const unpredictableConflicts = conflictPlacements.filter((p) => p.wasPredictable === false)
   const lowScoreConflicts = conflictPlacements.filter(
-    (p) => p.compatibilityScore !== null && p.compatibilityScore < 60
+    (p) => p.compatibilityScore !== null && p.compatibilityScore < 60,
   )
 
   // Units with most conflicts (30 days)
-  const incidentsByUnit = recentIncidents.reduce((acc, i) => {
-    acc[i.housingUnitId] = acc[i.housingUnitId] || { count: 0, unit: i.housingUnit }
-    acc[i.housingUnitId].count++
-    return acc
-  }, {} as Record<string, { count: number; unit: { id: string; code: string; address: string } }>)
+  const incidentsByUnit = recentIncidents.reduce(
+    (acc, i) => {
+      acc[i.housingUnitId] = acc[i.housingUnitId] || { count: 0, unit: i.housingUnit }
+      acc[i.housingUnitId].count++
+      return acc
+    },
+    {} as Record<string, { count: number; unit: { id: string; code: string; address: string } }>,
+  )
 
   const hotspotUnits = Object.values(incidentsByUnit)
     .sort((a, b) => b.count - a.count)
@@ -199,9 +205,7 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{PAGE_TITLES.analytics}</h1>
-          <p className="text-ui-muted">
-            {DASHBOARD_LABELS.analyticsPageSubtitle}
-          </p>
+          <p className="text-ui-muted">{DASHBOARD_LABELS.analyticsPageSubtitle}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <a
@@ -265,7 +269,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           </h2>
           {hotspotUnits.length === 0 ? (
             <div className="text-center py-8">
-              <span className="text-3xl mb-2 block" aria-hidden="true">✓</span>
+              <span className="text-3xl mb-2 block" aria-hidden="true">
+                ✓
+              </span>
               <p className="text-ui-muted">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
             </div>
           ) : (
@@ -282,7 +288,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-status-warning-text">{count}</p>
-                    <p className="text-xs text-ui-muted">{DASHBOARD_LABELS.analyticsConflictCountLabel}</p>
+                    <p className="text-xs text-ui-muted">
+                      {DASHBOARD_LABELS.analyticsConflictCountLabel}
+                    </p>
                   </div>
                 </Link>
               ))}
@@ -355,8 +363,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
                             reason === 'CONFLICT'
                               ? 'bg-status-error'
                               : reason === 'NATURAL'
-                              ? 'bg-status-success'
-                              : 'bg-status-warning'
+                                ? 'bg-status-success'
+                                : 'bg-status-warning'
                           }`}
                           style={{
                             width: `${(count / endedPlacements.length) * 100}%`,
@@ -409,7 +417,9 @@ function MetricCard({
   const content = (
     <div className={href ? 'card-hover' : 'card'}>
       <p className="text-sm text-ui-muted">{label}</p>
-      <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-ui-text'}`}>
+      <p
+        className={`text-3xl font-bold mt-1 ${highlight ? 'text-status-warning-text' : 'text-ui-text'}`}
+      >
         {value}
       </p>
       {subtitle && (

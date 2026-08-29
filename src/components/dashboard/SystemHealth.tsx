@@ -32,7 +32,9 @@ export function SystemHealth({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {/* Conflicts - actual number */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-status-success' : totalConflicts <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
+          <div
+            className={`text-3xl font-bold ${totalConflicts === 0 ? 'text-status-success' : totalConflicts <= 3 ? 'text-status-warning' : 'text-status-error'}`}
+          >
             {totalConflicts}
           </div>
           <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.conflictsThirtyDays}</p>
@@ -50,18 +52,20 @@ export function SystemHealth({
 
         {/* Capacity - actual beds */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}>
+          <div
+            className={`text-3xl font-bold ${freeBeds >= 5 ? 'text-status-success' : freeBeds >= 2 ? 'text-status-warning' : 'text-status-error'}`}
+          >
             {freeBeds}
           </div>
           <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.bedsFree}</p>
-          <p className="text-xs text-ui-muted mt-2">
-            {SYSTEM_HEALTH_LABELS.ofTotal(totalBeds)}
-          </p>
+          <p className="text-xs text-ui-muted mt-2">{SYSTEM_HEALTH_LABELS.ofTotal(totalBeds)}</p>
         </div>
 
         {/* Maintenance - actual tickets */}
         <div className="text-center">
-          <div className={`text-3xl font-bold ${openMaintenanceCount === 0 ? 'text-status-success' : openMaintenanceCount <= 3 ? 'text-status-warning' : 'text-status-error'}`}>
+          <div
+            className={`text-3xl font-bold ${openMaintenanceCount === 0 ? 'text-status-success' : openMaintenanceCount <= 3 ? 'text-status-warning' : 'text-status-error'}`}
+          >
             {openMaintenanceCount}
           </div>
           <p className="text-sm text-ui-muted mt-1">{SYSTEM_HEALTH_LABELS.maintenanceOpen}</p>

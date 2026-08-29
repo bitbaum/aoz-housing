@@ -32,10 +32,7 @@ import {
   TriangleAlert,
   CheckCircle2,
 } from 'lucide-react'
-import {
-  GENDER_LABELS_SHORT,
-  getLabel,
-} from '@/lib/constants'
+import { GENDER_LABELS_SHORT, getLabel } from '@/lib/constants'
 import { SUPPORT_LEVEL_LABELS, CLIENT_BOARD_LABELS } from '@/lib/constants/labels/residents'
 import { CARE_ROLE_LABELS, type CareRoleId } from '@/lib/config/care'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
@@ -107,7 +104,9 @@ function SupportBadge({ level }: { level: string }) {
   }
   const cls = variants[level] ?? variants.STANDARD
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium border ${cls}`}>
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium border ${cls}`}
+    >
       {SUPPORT_LEVEL_LABELS[level] ?? level}
     </span>
   )
@@ -156,7 +155,9 @@ function CheckInChip({
     return (
       <span className="inline-flex items-center gap-1 text-xs text-score-good">
         <Clock className="w-3 h-3 shrink-0" />
-        {compact ? `in ${daysUntilDue}T` : `Fällig in ${daysUntilDue} Tag${daysUntilDue !== 1 ? 'en' : ''}`}
+        {compact
+          ? `in ${daysUntilDue}T`
+          : `Fällig in ${daysUntilDue} Tag${daysUntilDue !== 1 ? 'en' : ''}`}
       </span>
     )
   }
@@ -193,11 +194,17 @@ function RoleContextLine({
     return (
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ui-muted">
         {workStatus && (
-          <span className={`font-medium ${workStatus === 'employed' ? 'text-score-good' : 'text-ui-text'}`}>
+          <span
+            className={`font-medium ${workStatus === 'employed' ? 'text-score-good' : 'text-ui-text'}`}
+          >
             {statusLabel[workStatus] ?? workStatus}
           </span>
         )}
-        {jobGoal && <span className="truncate max-w-[120px]" title={jobGoal}>{jobGoal}</span>}
+        {jobGoal && (
+          <span className="truncate max-w-[120px]" title={jobGoal}>
+            {jobGoal}
+          </span>
+        )}
         {german && german !== 'none' && (
           <span className="inline-flex items-center gap-0.5">
             <BookOpen className="w-3 h-3" />
@@ -223,11 +230,17 @@ function RoleContextLine({
     return (
       <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ui-muted">
         {status && (
-          <span className={`font-medium ${status === 'active' ? 'text-score-good' : 'text-ui-text'}`}>
+          <span
+            className={`font-medium ${status === 'active' ? 'text-score-good' : 'text-ui-text'}`}
+          >
             {statusLabel[status] ?? status}
           </span>
         )}
-        {interest && <span className="truncate max-w-[140px]" title={interest}>{interest}</span>}
+        {interest && (
+          <span className="truncate max-w-[140px]" title={interest}>
+            {interest}
+          </span>
+        )}
         {!status && !interest && (
           <span className="text-ui-muted/60 italic">Noch keine Angaben</span>
         )}
@@ -238,7 +251,9 @@ function RoleContextLine({
   if (domain === 'SOCIAL') {
     const nextStep = attr('next_step')
     return nextStep ? (
-      <p className="text-xs text-ui-muted truncate" title={nextStep}>{nextStep}</p>
+      <p className="text-xs text-ui-muted truncate" title={nextStep}>
+        {nextStep}
+      </p>
     ) : (
       <p className="text-xs text-ui-muted/60 italic">Kein Nächster Schritt erfasst</p>
     )
@@ -285,30 +300,22 @@ function CareTeamChips({ seats }: { seats: ClientBoardItem['careSeats'] }) {
 
 // ─── Main card ─────────────────────────────────────────────────────────────
 
-function ClientCard({
-  client,
-  viewerRole,
-}: {
-  client: ClientBoardItem
-  viewerRole: StaffRole
-}) {
+function ClientCard({ client, viewerRole }: { client: ClientBoardItem; viewerRole: StaffRole }) {
   const domain = STAFF_ROLE_CARE_DOMAIN[viewerRole]
   const placement = client.placements[0]
   const isVeryOverdue =
-    client.daysSinceCheckIn !== null &&
-    client.daysSinceCheckIn > client.checkInIntervalDays + 14
+    client.daysSinceCheckIn !== null && client.daysSinceCheckIn > client.checkInIntervalDays + 14
   const isOverdue =
-    client.daysSinceCheckIn !== null &&
-    client.daysSinceCheckIn > client.checkInIntervalDays
+    client.daysSinceCheckIn !== null && client.daysSinceCheckIn > client.checkInIntervalDays
   const isUnhoused = !placement && client.status === 'ACTIVE'
 
   const borderCls = isVeryOverdue
     ? 'border-score-critical/50 hover:border-score-critical'
     : isOverdue
-    ? 'border-score-medium/40 hover:border-score-medium'
-    : isUnhoused
-    ? 'border-status-warning/40 hover:border-status-warning'
-    : 'border-ui-border hover:border-brand-primary/40'
+      ? 'border-score-medium/40 hover:border-score-medium'
+      : isUnhoused
+        ? 'border-status-warning/40 hover:border-status-warning'
+        : 'border-ui-border hover:border-brand-primary/40'
 
   const avatarCls = isVeryOverdue
     ? 'bg-score-critical/10 text-score-critical'
@@ -335,7 +342,10 @@ function ClientCard({
           {/* Without a chosen name, residentName() already shows the code —
               repeating it as a subtitle printed the same string twice. */}
           {client.displayName && (
-            <p className="font-mono text-[11px] text-ui-muted">{/* resident-code-intentional */}{client.code}</p>
+            <p className="font-mono text-[11px] text-ui-muted">
+              {/* resident-code-intentional */}
+              {client.code}
+            </p>
           )}
         </div>
         <SupportBadge level={client.supportLevel} />
@@ -365,9 +375,7 @@ function ClientCard({
       )}
 
       {/* ── Row 4: Role-specific context (Jobcoach / Volunteering / Social next step) ── */}
-      {domain && domain !== 'HOUSING' && (
-        <RoleContextLine client={client} domain={domain} />
-      )}
+      {domain && domain !== 'HOUSING' && <RoleContextLine client={client} domain={domain} />}
 
       {/* ── Row 5: Care team chips ── */}
       <CareTeamChips seats={client.careSeats} />
@@ -409,14 +417,26 @@ function FilterBar({
   const allHref = `${baseHref}${baseHref.includes('?') ? '&' : '?'}filter=all`
 
   return (
-    <div className="flex items-center gap-2 flex-wrap" role="group" aria-label="Klient*innen filtern">
-      <Link href={mineHref} className={chip(filter === 'mine')} aria-current={filter === 'mine' ? 'true' : undefined}>
+    <div
+      className="flex items-center gap-2 flex-wrap"
+      role="group"
+      aria-label="Klient*innen filtern"
+    >
+      <Link
+        href={mineHref}
+        className={chip(filter === 'mine')}
+        aria-current={filter === 'mine' ? 'true' : undefined}
+      >
         Meine Klient*innen
         <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-ui-on-accent/20 px-1.5 text-xs">
           {myCount}
         </span>
       </Link>
-      <Link href={allHref} className={chip(filter === 'all')} aria-current={filter === 'all' ? 'true' : undefined}>
+      <Link
+        href={allHref}
+        className={chip(filter === 'all')}
+        aria-current={filter === 'all' ? 'true' : undefined}
+      >
         Alle
         <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-ui-on-accent/20 px-1.5 text-xs">
           {allCount}
@@ -428,12 +448,7 @@ function FilterBar({
 
 // ─── Board root ────────────────────────────────────────────────────────────
 
-export function ClientBoard({
-  clients,
-  viewerRole,
-  filter,
-  baseHref,
-}: ClientBoardProps) {
+export function ClientBoard({ clients, viewerRole, filter, baseHref }: ClientBoardProps) {
   const myClients = clients.filter((c) => c.isMyClient)
   const shown = filter === 'mine' ? myClients : clients
 
@@ -448,7 +463,9 @@ export function ClientBoard({
 
       {shown.length === 0 ? (
         <EmptyState
-          title={filter === 'mine' ? 'Keine Klient*innen zugewiesen' : 'Keine Klient*innen gefunden'}
+          title={
+            filter === 'mine' ? 'Keine Klient*innen zugewiesen' : 'Keine Klient*innen gefunden'
+          }
           description={
             filter === 'mine'
               ? 'Es sind noch keine Klient*innen Ihrer Fürsorge zugewiesen.'

@@ -5,13 +5,13 @@ import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const { id } = await params
@@ -44,7 +44,10 @@ export async function GET(
     })
 
     if (!task) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     // Get roommates for request form
@@ -63,12 +66,15 @@ export async function GET(
       success: true,
       data: {
         task,
-        roommates: roommates.map(p => p.resident),
+        roommates: roommates.map((p) => p.resident),
         currentResidentId: auth.resident.id,
       },
     })
   } catch (error) {
     logger.errorWithCause('Failed to get household task detail', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_LOAD_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_LOAD_ERROR },
+      { status: 500 },
+    )
   }
 }

@@ -79,13 +79,13 @@ export async function GET(request: Request) {
 
     if (overdueIncidents.length > 0) {
       const template = incidentFollowUpReminder(
-        overdueIncidents.map(i => ({
+        overdueIncidents.map((i) => ({
           id: i.id,
           description: i.description.slice(0, DISPLAY_LIMITS.emailSummary),
           severity: i.severity,
           housingUnitCode: i.housingUnit.code,
           nextFollowUpDate: i.nextFollowUpDate!,
-        }))
+        })),
       )
       const sent = await notifyStaff(template.subject, template.html)
       if (sent) results.incidents = overdueIncidents.length
@@ -104,7 +104,7 @@ export async function GET(request: Request) {
     })
 
     const overdueResidents = activePlacements
-      .map(p => {
+      .map((p) => {
         const lastCheckIn = p.checkIns[0]?.createdAt || p.startDate
         const daysSince = daysBetween(lastCheckIn)
         const threshold = getCheckInInterval(p.resident.supportLevel)
@@ -116,7 +116,7 @@ export async function GET(request: Request) {
           isOverdue: daysSince > threshold,
         }
       })
-      .filter(r => r.isOverdue)
+      .filter((r) => r.isOverdue)
 
     if (overdueResidents.length > 0) {
       const template = checkInReminder(overdueResidents)
@@ -148,7 +148,7 @@ export async function GET(request: Request) {
     results.proposalsClosed = lifecycle.closed
     results.agreementsExpired = await expireStaleAgreements(
       new Date(),
-      AGREEMENT_CONFIG.expiryGraceDays
+      AGREEMENT_CONFIG.expiryGraceDays,
     )
   } catch (error) {
     logger.errorWithCause('Cron notification error', error)

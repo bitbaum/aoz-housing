@@ -6,8 +6,18 @@ import { OccupancyCard } from '../OccupancyCard'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -46,11 +56,7 @@ const BASE_UNIT_STATUS = { available: 3, full: 1, maintenance: 0, closed: 0 }
 
 function renderCard(occupiedBeds: number, totalBeds: number, unitStatus = BASE_UNIT_STATUS) {
   return render(
-    <OccupancyCard
-      occupiedBeds={occupiedBeds}
-      totalBeds={totalBeds}
-      unitStatus={unitStatus}
-    />
+    <OccupancyCard occupiedBeds={occupiedBeds} totalBeds={totalBeds} unitStatus={unitStatus} />,
   )
 }
 
@@ -133,17 +139,25 @@ describe('OccupancyCard', () => {
   it('links the occupancy bar to /housing', () => {
     renderCard(5, 10)
     const links = screen.getAllByRole('link', { name: /60%|belegt/ })
-    const housingLinks = screen.getAllByRole('link').filter(l => l.getAttribute('href') === '/housing')
+    const housingLinks = screen
+      .getAllByRole('link')
+      .filter((l) => l.getAttribute('href') === '/housing')
     expect(housingLinks.length).toBeGreaterThanOrEqual(1)
   })
 
   it('links "Alle Unterkünfte" to /housing', () => {
     renderCard(5, 10)
-    expect(screen.getByRole('link', { name: /Alle Unterkünfte/ })).toHaveAttribute('href', '/housing')
+    expect(screen.getByRole('link', { name: /Alle Unterkünfte/ })).toHaveAttribute(
+      'href',
+      '/housing',
+    )
   })
 
   it('links the available status row to /housing?status=AVAILABLE', () => {
     renderCard(5, 10)
-    expect(screen.getByRole('link', { name: /Verfügbar/ })).toHaveAttribute('href', '/housing?status=AVAILABLE')
+    expect(screen.getByRole('link', { name: /Verfügbar/ })).toHaveAttribute(
+      'href',
+      '/housing?status=AVAILABLE',
+    )
   })
 })

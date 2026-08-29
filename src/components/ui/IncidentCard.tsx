@@ -31,14 +31,16 @@ export function IncidentCard({
   showResident = false,
   compact = false,
 }: IncidentCardProps) {
-  const categoryIcon = incident.category === 'MAINTENANCE' ? '🔧' :
-                       incident.category === 'SAFETY' ? '⚠️' : '💬'
+  const categoryIcon =
+    incident.category === 'MAINTENANCE' ? '🔧' : incident.category === 'SAFETY' ? '⚠️' : '💬'
 
   const typeLabel = INCIDENT_TYPE_LABELS[incident.type] || incident.type
 
   if (compact) {
     return (
-      <div className={`p-3 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+      <div
+        className={`p-3 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}
+      >
         <div className="flex items-start justify-between">
           <div>
             <p className="font-medium text-ui-text text-sm">{typeLabel}</p>
@@ -51,7 +53,9 @@ export function IncidentCard({
           <div className="text-right">
             <p className="text-xs text-ui-muted">{formatRelativeDate(incident.date)}</p>
             {!incident.resolvedAt && (
-              <Badge variant="pending" className="text-xs">{UI_LABELS.open}</Badge>
+              <Badge variant="pending" className="text-xs">
+                {UI_LABELS.open}
+              </Badge>
             )}
           </div>
         </div>
@@ -60,7 +64,9 @@ export function IncidentCard({
   }
 
   return (
-    <div className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+    <div
+      className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}
+    >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
           <span className="text-lg">{categoryIcon}</span>

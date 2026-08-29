@@ -34,7 +34,7 @@ function renderFor(role: Parameters<typeof writableCareDomains>[0]) {
       attributes={[]}
       appointments={[]}
       writableDomains={writableCareDomains(role)}
-    />
+    />,
   )
 }
 
@@ -53,7 +53,7 @@ describe('CareWorkspace domain boundary', () => {
           expect(screen.queryByRole('heading', { name: heading })).not.toBeInTheDocument()
         }
       }
-    }
+    },
   )
 
   it('shows a job coach exactly one seat, and not the housing or social ones', () => {
@@ -69,15 +69,13 @@ describe('CareWorkspace domain boundary', () => {
     renderFor('ADMIN')
 
     for (const domain of CARE_ROLES) {
-      expect(
-        screen.getByRole('heading', { name: CARE_ROLE_LABELS[domain] })
-      ).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: CARE_ROLE_LABELS[domain] })).toBeInTheDocument()
     }
   })
 
   it('renders nothing at all rather than an empty card when no seat is readable', () => {
     const { container } = render(
-      <CareWorkspace residentId="res-1" attributes={[]} appointments={[]} writableDomains={[]} />
+      <CareWorkspace residentId="res-1" attributes={[]} appointments={[]} writableDomains={[]} />,
     )
 
     // An empty "Begleitung" card with a dangling subtitle reads as a broken

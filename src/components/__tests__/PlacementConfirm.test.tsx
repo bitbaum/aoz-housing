@@ -38,7 +38,11 @@ const BASE_PROPS = {
   formData: { residentId: 'res-1', spotId: 'spot-1' },
 }
 
-function renderConfirm(overrides: Partial<typeof BASE_PROPS & { spotLabel?: string; conflicts?: string[]; disabled?: boolean }> = {}) {
+function renderConfirm(
+  overrides: Partial<
+    typeof BASE_PROPS & { spotLabel?: string; conflicts?: string[]; disabled?: boolean }
+  > = {},
+) {
   return render(<PlacementConfirm {...BASE_PROPS} {...overrides} />)
 }
 
@@ -61,7 +65,7 @@ describe('PlacementConfirm', () => {
   it('shows low-compat label when fit score < 50', () => {
     renderConfirm({ fitScore: 40, hasConflicts: false })
     expect(
-      screen.getByRole('button', { name: 'Platzieren (niedrige Kompatibilität)' })
+      screen.getByRole('button', { name: 'Platzieren (niedrige Kompatibilität)' }),
     ).toBeInTheDocument()
   })
 
@@ -81,7 +85,9 @@ describe('PlacementConfirm', () => {
 
   it('does not show the modal before trigger is clicked', () => {
     renderConfirm()
-    expect(screen.queryByRole('heading', { name: 'Platzierung bestätigen' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Platzierung bestätigen' }),
+    ).not.toBeInTheDocument()
   })
 
   // ── Modal opens and shows summary ─────────────────────────────────────────
@@ -159,7 +165,9 @@ describe('PlacementConfirm', () => {
     renderConfirm()
     openModal()
     fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
-    expect(screen.queryByRole('heading', { name: 'Platzierung bestätigen' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Platzierung bestätigen' }),
+    ).not.toBeInTheDocument()
   })
 
   it('does NOT call action when cancel is clicked', () => {
@@ -191,7 +199,9 @@ describe('PlacementConfirm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Jetzt platzieren' }))
 
     await waitFor(() =>
-      expect(screen.queryByRole('heading', { name: 'Platzierung bestätigen' })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('heading', { name: 'Platzierung bestätigen' }),
+      ).not.toBeInTheDocument(),
     )
   })
 
@@ -200,6 +210,8 @@ describe('PlacementConfirm', () => {
   it('does not open the modal when the trigger is blocked (hasConflicts=true)', () => {
     renderConfirm({ hasConflicts: true })
     fireEvent.click(screen.getByRole('button', { name: 'Blockiert' }))
-    expect(screen.queryByRole('heading', { name: 'Platzierung bestätigen' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: 'Platzierung bestätigen' }),
+    ).not.toBeInTheDocument()
   })
 })

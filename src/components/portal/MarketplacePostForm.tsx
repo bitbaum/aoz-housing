@@ -51,7 +51,9 @@ export function MarketplacePostForm({ action }: { action: (formData: FormData) =
       {open ? (
         <form action={action} className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <label htmlFor="mp-kind" className="label">{t('marketplace.formKind')}</label>
+            <label htmlFor="mp-kind" className="label">
+              {t('marketplace.formKind')}
+            </label>
             <select
               id="mp-kind"
               name="kind"
@@ -63,7 +65,7 @@ export function MarketplacePostForm({ action }: { action: (formData: FormData) =
               {MARKETPLACE_NATURES.map((group) => (
                 <optgroup key={group} label={t(MARKETPLACE_NATURE_LABEL_KEYS[group])}>
                   {MARKETPLACE_KIND_VALUES.filter(
-                    (value) => MARKETPLACE_KINDS[value].nature === group
+                    (value) => MARKETPLACE_KINDS[value].nature === group,
                   ).map((value) => (
                     <option key={value} value={value}>
                       {t(MARKETPLACE_KINDS[value].labelKey)}
@@ -75,20 +77,39 @@ export function MarketplacePostForm({ action }: { action: (formData: FormData) =
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="mp-title" className="label">{t('marketplace.formTitle')}</label>
+            <label htmlFor="mp-title" className="label">
+              {t('marketplace.formTitle')}
+            </label>
             <input id="mp-title" name="title" required maxLength={120} className="input" />
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="mp-description" className="label">{t('marketplace.formDescription')}</label>
-            <textarea id="mp-description" name="description" required rows={3} maxLength={2000} className="input" />
+            <label htmlFor="mp-description" className="label">
+              {t('marketplace.formDescription')}
+            </label>
+            <textarea
+              id="mp-description"
+              name="description"
+              required
+              rows={3}
+              maxLength={2000}
+              className="input"
+            />
           </div>
 
           <div>
-            <label htmlFor="mp-category" className="label">{t('marketplace.formCategory')}</label>
+            <label htmlFor="mp-category" className="label">
+              {t('marketplace.formCategory')}
+            </label>
             {/* Keyed on the nature so switching between halves resets the
                 choice rather than carrying a now-invalid value across. */}
-            <select key={nature} id="mp-category" name="category" className="input" defaultValue="OTHER">
+            <select
+              key={nature}
+              id="mp-category"
+              name="category"
+              className="input"
+              defaultValue="OTHER"
+            >
               {categories.map((value) => (
                 <option key={value} value={value}>
                   {t(MARKETPLACE_CATEGORY_LABEL_KEYS[value])}
@@ -98,7 +119,9 @@ export function MarketplacePostForm({ action }: { action: (formData: FormData) =
           </div>
 
           <div>
-            <label htmlFor="mp-contact" className="label">{t('marketplace.formContact')}</label>
+            <label htmlFor="mp-contact" className="label">
+              {t('marketplace.formContact')}
+            </label>
             <input id="mp-contact" name="contactNote" maxLength={200} className="input" />
             <p className="mt-1 text-xs text-ui-muted">{t('marketplace.formContactHint')}</p>
           </div>

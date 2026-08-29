@@ -33,7 +33,7 @@ interface ResidentIssue {
 
 function detectProblems(
   residents: ResidentSummary[],
-  scores: CompatibilityScore[]
+  scores: CompatibilityScore[],
 ): ResidentIssue[] {
   if (residents.length < 2) return []
 
@@ -65,25 +65,37 @@ function detectProblems(
 
     // Calculate average compatibility with others
     const relevantScores = scores.filter(
-      s => s.residentId === resident.id || s.comparedWithId === resident.id
+      (s) => s.residentId === resident.id || s.comparedWithId === resident.id,
     )
-    const avgCompatibility = relevantScores.length > 0
-      ? Math.round(relevantScores.reduce((s, sc) => s + sc.overallScore, 0) / relevantScores.length)
-      : 100
+    const avgCompatibility =
+      relevantScores.length > 0
+        ? Math.round(
+            relevantScores.reduce((s, sc) => s + sc.overallScore, 0) / relevantScores.length,
+          )
+        : 100
 
     // Check for scale outliers (more than 1.5 away from average)
     if (Math.abs(resident.cleanlinessPractice - avgCleanliness) > 1.5) {
-      const direction = resident.cleanlinessPractice < avgCleanliness ? PROBLEM_DETECTION_LABELS.lowerCleanliness : PROBLEM_DETECTION_LABELS.higherCleanliness
+      const direction =
+        resident.cleanlinessPractice < avgCleanliness
+          ? PROBLEM_DETECTION_LABELS.lowerCleanliness
+          : PROBLEM_DETECTION_LABELS.higherCleanliness
       residentIssues.push(PROBLEM_DETECTION_LABELS.scaleCleanliness(direction))
     }
 
     if (Math.abs(resident.noiseTolerance - avgNoiseTolerance) > 1.5) {
-      const direction = resident.noiseTolerance > avgNoiseTolerance ? PROBLEM_DETECTION_LABELS.higherNoiseTolerance : PROBLEM_DETECTION_LABELS.lowerNoiseTolerance
+      const direction =
+        resident.noiseTolerance > avgNoiseTolerance
+          ? PROBLEM_DETECTION_LABELS.higherNoiseTolerance
+          : PROBLEM_DETECTION_LABELS.lowerNoiseTolerance
       residentIssues.push(PROBLEM_DETECTION_LABELS.scaleNoise(direction))
     }
 
     if (Math.abs(resident.privacyNeed - avgPrivacyNeed) > 1.5) {
-      const direction = resident.privacyNeed > avgPrivacyNeed ? PROBLEM_DETECTION_LABELS.higherPrivacy : PROBLEM_DETECTION_LABELS.lowerPrivacy
+      const direction =
+        resident.privacyNeed > avgPrivacyNeed
+          ? PROBLEM_DETECTION_LABELS.higherPrivacy
+          : PROBLEM_DETECTION_LABELS.lowerPrivacy
       residentIssues.push(PROBLEM_DETECTION_LABELS.scalePrivacy(direction))
     }
 
@@ -115,7 +127,9 @@ function detectProblems(
 
       // Add low compatibility as an issue if applicable
       if (avgCompatibility < 70) {
-        residentIssues.unshift(`${PROBLEM_DETECTION_LABELS.avgCompatibilityOnly} ${avgCompatibility}%`)
+        residentIssues.unshift(
+          `${PROBLEM_DETECTION_LABELS.avgCompatibilityOnly} ${avgCompatibility}%`,
+        )
       }
 
       issues.push({
@@ -149,7 +163,9 @@ export function ProblemDetectionCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">✓</span>
           <div>
-            <h2 className="text-lg font-semibold text-status-success-text">{PROBLEM_DETECTION_LABELS.noProblems}</h2>
+            <h2 className="text-lg font-semibold text-status-success-text">
+              {PROBLEM_DETECTION_LABELS.noProblems}
+            </h2>
             <p className="text-sm text-status-success-text">
               {PROBLEM_DETECTION_LABELS.noProblemsDesc}
             </p>
@@ -164,10 +180,13 @@ export function ProblemDetectionCard({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="text-xl">⚠️</span>
-          <h2 className="text-lg font-semibold text-ui-text">{PROBLEM_DETECTION_LABELS.problemsDetected}</h2>
+          <h2 className="text-lg font-semibold text-ui-text">
+            {PROBLEM_DETECTION_LABELS.problemsDetected}
+          </h2>
         </div>
         <span className="text-sm text-ui-muted">
-          {problems.length} {problems.length === 1 ? 'Klient*in' : 'Klient*innen'} {PROBLEM_DETECTION_LABELS.adaptationIssues}
+          {problems.length} {problems.length === 1 ? 'Klient*in' : 'Klient*innen'}{' '}
+          {PROBLEM_DETECTION_LABELS.adaptationIssues}
         </span>
       </div>
 
@@ -198,7 +217,8 @@ interface ProblemResidentRowProps {
 function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps) {
   const { resident, avgCompatibility, issues, severity } = problem
 
-  const borderColor = severity === 'critical' ? 'border-status-error/25' : 'border-status-warning/25'
+  const borderColor =
+    severity === 'critical' ? 'border-status-error/25' : 'border-status-warning/25'
   const bgColor = severity === 'critical' ? 'bg-status-error/8' : 'bg-status-warning/10'
   const iconColor = severity === 'critical' ? 'text-status-error' : 'text-status-warning'
 
@@ -207,9 +227,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-start gap-3">
-          <div className="avatar font-bold flex-shrink-0">
-            {residentInitials(resident)}
-          </div>
+          <div className="avatar font-bold flex-shrink-0">{residentInitials(resident)}</div>
           <div>
             <div className="flex items-center gap-2">
               <Link
@@ -225,7 +243,14 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
             <p className="text-sm text-ui-muted">
               {resident.ageRange && getLabel(AGE_RANGE_LABELS, resident.ageRange)}
               {resident.languages && resident.languages.length > 0 && (
-                <> · {resident.languages.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}</>
+                <>
+                  {' '}
+                  ·{' '}
+                  {resident.languages
+                    .slice(0, DISPLAY_LIMITS.languagePreview)
+                    .map((l: string) => getLabel(LANGUAGE_LABELS, l))
+                    .join(', ')}
+                </>
               )}
             </p>
 
@@ -246,7 +271,9 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
           <Link
             href={`/matching?resident=${resident.id}&transfer=1`}
             className={`btn-primary text-sm whitespace-nowrap ${
-              severity === 'critical' ? 'bg-status-error hover:bg-status-error/90' : 'bg-status-warning hover:bg-status-warning/90'
+              severity === 'critical'
+                ? 'bg-status-error hover:bg-status-error/90'
+                : 'bg-status-warning hover:bg-status-warning/90'
             }`}
           >
             {PROBLEM_DETECTION_LABELS.relocate}

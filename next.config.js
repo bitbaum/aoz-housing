@@ -4,9 +4,7 @@ const isDev = process.env.NODE_ENV === 'development'
 
 // Production CSP omits 'unsafe-eval'. Development adds it back because
 // webpack's dev server uses eval() for HMR source maps.
-const scriptSrc = isDev
-  ? "'self' 'unsafe-inline' 'unsafe-eval'"
-  : "'self' 'unsafe-inline'"
+const scriptSrc = isDev ? "'self' 'unsafe-inline' 'unsafe-eval'" : "'self' 'unsafe-inline'"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -21,7 +19,10 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
-          { key: 'Content-Security-Policy', value: `default-src 'self'; script-src ${scriptSrc} https://fleetcrown.orangecat.ch; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.sentry.io https://fleetcrown.orangecat.ch; frame-ancestors 'self'` },
+          {
+            key: 'Content-Security-Policy',
+            value: `default-src 'self'; script-src ${scriptSrc} https://fleetcrown.orangecat.ch; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.sentry.io https://fleetcrown.orangecat.ch; frame-ancestors 'self'`,
+          },
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],

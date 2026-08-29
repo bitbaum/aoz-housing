@@ -49,7 +49,11 @@ import {
 } from '@/lib/utils/resident-name'
 import { toResidentUiSummary, type ResidentUiSummary } from '@/lib/housing/resident-ui'
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
   const { id } = await params
   // Selects the nickname too, so the browser tab says what the residents call
   // the place. Selecting only `code` here is the exact under-selection that
@@ -114,39 +118,37 @@ export default async function HousingDetailPage({ params }: Props) {
   }
 
   // Get compatibility assessments between current residents
-  const residentIds = unit.placements.map(p => p.residentId)
-  const compatibilityScores = residentIds.length > 1
-    ? await prisma.compatibilityAssessment.findMany({
-        where: {
-          residentId: { in: residentIds },
-          comparedWithId: { in: residentIds },
-        },
-      })
-    : []
+  const residentIds = unit.placements.map((p) => p.residentId)
+  const compatibilityScores =
+    residentIds.length > 1
+      ? await prisma.compatibilityAssessment.findMany({
+          where: {
+            residentId: { in: residentIds },
+            comparedWithId: { in: residentIds },
+          },
+        })
+      : []
 
   // Calculate harmony status using shared utility
-  const avgCompatibility = compatibilityScores.length > 0
-    ? compatibilityScores.reduce((sum, s) => sum + s.overallScore, 0) / compatibilityScores.length
-    : 70
-  const recentConflicts = unit.incidents.filter((i: { category: string; date: Date | string }) =>
-    i.category === 'INTERPERSONAL' &&
-    new Date(i.date) > getDateDaysAgo(30)
+  const avgCompatibility =
+    compatibilityScores.length > 0
+      ? compatibilityScores.reduce((sum, s) => sum + s.overallScore, 0) / compatibilityScores.length
+      : 70
+  const recentConflicts = unit.incidents.filter(
+    (i: { category: string; date: Date | string }) =>
+      i.category === 'INTERPERSONAL' && new Date(i.date) > getDateDaysAgo(30),
   ).length
   const harmonyStatus = getHarmonyStatus(avgCompatibility, recentConflicts)
 
   // Split incidents by category
   const interpersonalIncidents = unit.incidents.filter(
-    i => i.category === 'INTERPERSONAL' || i.category === 'SAFETY'
+    (i) => i.category === 'INTERPERSONAL' || i.category === 'SAFETY',
   )
-  const maintenanceIncidents = unit.incidents.filter(
-    i => i.category === 'MAINTENANCE'
-  )
+  const maintenanceIncidents = unit.incidents.filter((i) => i.category === 'MAINTENANCE')
 
   // Analyze frequent subjects (troublemaker detection)
-  const subjectCounts: Record<
-    string,
-    { code: string; displayName: string | null; count: number }
-  > = {}
+  const subjectCounts: Record<string, { code: string; displayName: string | null; count: number }> =
+    {}
   for (const incident of unit.incidents) {
     if (incident.subject) {
       const id = incident.subjectId!
@@ -162,13 +164,18 @@ export default async function HousingDetailPage({ params }: Props) {
   }
   const frequentSubjects = Object.entries(subjectCounts)
     .map(([id, data]) => ({ id, ...data }))
-    .filter(s => s.count >= 2)
+    .filter((s) => s.count >= 2)
     .sort((a, b) => b.count - a.count)
 
   const occupancy = unit.placements.length
 
   // Calculate who fits in this unit (only if there's space)
-  let compatibleResidents: { resident: ResidentUiSummary; fitScore: number; strengths: string[]; concerns: string[] }[] = []
+  let compatibleResidents: {
+    resident: ResidentUiSummary
+    fitScore: number
+    strengths: string[]
+    concerns: string[]
+  }[] = []
   const hasAvailableSpace = unit.placements.length < unit.totalBeds
 
   if (hasAvailableSpace) {
@@ -182,15 +189,15 @@ export default async function HousingDetailPage({ params }: Props) {
 
     if (unplacedResidents.length > 0) {
       // Calculate apartment profile from current residents
-      const currentResidents = unit.placements.map(p => p.resident)
+      const currentResidents = unit.placements.map((p) => p.resident)
       const apartmentProfile = calculateApartmentProfile(
-        currentResidents.map(r => toResidentProfile(r))
+        currentResidents.map((r) => toResidentProfile(r)),
       )
       apartmentProfile.unitId = unit.id
 
       // Calculate fit for each unplaced resident
       compatibleResidents = unplacedResidents
-        .map(resident => {
+        .map((resident) => {
           const residentProfile = toResidentProfile(resident)
           const fit = calculateApartmentFit(residentProfile, apartmentProfile)
 
@@ -209,10 +216,14 @@ export default async function HousingDetailPage({ params }: Props) {
             concerns,
           }
         })
-        .filter(m => !m.concerns.some(c =>
-          c === PLACEMENT_CONCERN_LABELS.wheelchairRequired ||
-          c === PLACEMENT_CONCERN_LABELS.groundFloorRequired
-        ))
+        .filter(
+          (m) =>
+            !m.concerns.some(
+              (c) =>
+                c === PLACEMENT_CONCERN_LABELS.wheelchairRequired ||
+                c === PLACEMENT_CONCERN_LABELS.groundFloorRequired,
+            ),
+        )
         .sort((a, b) => b.fitScore - a.fitScore)
         .slice(0, DISPLAY_LIMITS.topResidents)
     }
@@ -229,10 +240,7 @@ export default async function HousingDetailPage({ params }: Props) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <Link
-              href="/housing"
-              className="text-ui-muted hover:text-ui-muted"
-            >
+            <Link href="/housing" className="text-ui-muted hover:text-ui-muted">
               {PAGE_TITLES.housing}
             </Link>
             <span className="text-ui-muted">/</span>
@@ -319,7 +327,7 @@ export default async function HousingDetailPage({ params }: Props) {
                       key={placement.id}
                       placement={placement}
                       compatibilityScores={compatibilityScores}
-                      otherResidentIds={residentIds.filter(id => id !== placement.residentId)}
+                      otherResidentIds={residentIds.filter((id) => id !== placement.residentId)}
                     />
                   ))}
                 </div>
@@ -330,14 +338,14 @@ export default async function HousingDetailPage({ params }: Props) {
           {/* Apartment Profile Card */}
           {unit.placements.length > 0 && (
             <ApartmentProfileCard
-              residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
+              residents={unit.placements.map((p) => toResidentUiSummary(p.resident))}
             />
           )}
 
           {/* Problem Detection Card */}
           {unit.placements.length > 1 && (
             <ProblemDetectionCard
-              residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
+              residents={unit.placements.map((p) => toResidentUiSummary(p.resident))}
               compatibilityScores={compatibilityScores}
               housingUnitId={unit.id}
             />
@@ -359,7 +367,7 @@ export default async function HousingDetailPage({ params }: Props) {
                 {COMPATIBILITY_MATRIX_LABELS.heading}
               </h2>
               <CompatibilityMatrixInteractive
-                residents={unit.placements.map(p => toResidentUiSummary(p.resident))}
+                residents={unit.placements.map((p) => toResidentUiSummary(p.resident))}
                 scores={compatibilityScores}
               />
             </div>
@@ -367,11 +375,7 @@ export default async function HousingDetailPage({ params }: Props) {
 
           {/* House rules — this unit's own rules, under the AOZ rules they
               specialise, plus how much of the book the residents have read. */}
-          <UnitRulesSection
-            ruleBook={ruleBook}
-            coverage={ruleCoverage}
-            unitCode={unit.code}
-          />
+          <UnitRulesSection ruleBook={ruleBook} coverage={ruleCoverage} unitCode={unit.code} />
 
           {/* Incidents */}
           <UnitIncidentSection
@@ -394,9 +398,7 @@ export default async function HousingDetailPage({ params }: Props) {
 
 function HarmonyBadge({ status }: { status: HarmonyStatus }) {
   return (
-    <span className={`badge ${getHarmonyColorClass(status)}`}>
-      {HARMONY_STATUS_LABELS[status]}
-    </span>
+    <span className={`badge ${getHarmonyColorClass(status)}`}>{HARMONY_STATUS_LABELS[status]}</span>
   )
 }
 
@@ -431,23 +433,25 @@ function ResidentCard({
   compatibilityScores: CompatibilityAssessment[]
   otherResidentIds: string[]
 }) {
-  const avgScore = otherResidentIds.length > 0
-    ? Math.round(
-        compatibilityScores
-          .filter(s =>
-            (s.residentId === placement.residentId && otherResidentIds.includes(s.comparedWithId)) ||
-            (s.comparedWithId === placement.residentId && otherResidentIds.includes(s.residentId))
-          )
-          .reduce((sum, s) => sum + s.overallScore, 0) / Math.max(1, otherResidentIds.length)
-      )
-    : null
+  const avgScore =
+    otherResidentIds.length > 0
+      ? Math.round(
+          compatibilityScores
+            .filter(
+              (s) =>
+                (s.residentId === placement.residentId &&
+                  otherResidentIds.includes(s.comparedWithId)) ||
+                (s.comparedWithId === placement.residentId &&
+                  otherResidentIds.includes(s.residentId)),
+            )
+            .reduce((sum, s) => sum + s.overallScore, 0) / Math.max(1, otherResidentIds.length),
+        )
+      : null
 
   return (
     <div className="flex items-center justify-between p-4 bg-ui-subtle rounded-lg">
       <div className="flex items-center gap-4">
-        <div className="avatar">
-          {residentInitials(placement.resident)}
-        </div>
+        <div className="avatar">{residentInitials(placement.resident)}</div>
         <div>
           <p className="font-medium text-ui-text">{residentName(placement.resident)}</p>
           <p className="text-sm text-ui-muted">

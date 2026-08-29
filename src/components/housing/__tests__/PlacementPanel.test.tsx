@@ -7,8 +7,18 @@ import type { CompatibleResident, HousingSpot } from '../types'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -185,7 +195,9 @@ describe('PlacementPanel', () => {
   it('shows age label and languages for the resident', () => {
     renderPanel({
       compatibleResidents: [
-        makeResident({ resident: { ...makeResident().resident, ageRange: 'ADULT', languages: ['DE', 'EN'] } }),
+        makeResident({
+          resident: { ...makeResident().resident, ageRange: 'ADULT', languages: ['DE', 'EN'] },
+        }),
       ],
     })
     expect(screen.getByText(/26-40/)).toBeInTheDocument()
@@ -234,9 +246,7 @@ describe('PlacementPanel', () => {
 
   it('shows "Blockiert" badge instead of place button when resident has blocking concern', () => {
     renderPanel({
-      compatibleResidents: [
-        makeResident({ concerns: ['Benötigt Rollstuhlzugang'] }),
-      ],
+      compatibleResidents: [makeResident({ concerns: ['Benötigt Rollstuhlzugang'] })],
     })
     expect(screen.getByText('Blockiert')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Platzieren' })).not.toBeInTheDocument()
@@ -246,9 +256,7 @@ describe('PlacementPanel', () => {
 
   it('shows concern warning text when concern is non-blocking', () => {
     renderPanel({
-      compatibleResidents: [
-        makeResident({ concerns: ['Raucher in Nichtraucher-Einheit'] }),
-      ],
+      compatibleResidents: [makeResident({ concerns: ['Raucher in Nichtraucher-Einheit'] })],
     })
     expect(screen.getByText(/Raucher in Nichtraucher-Einheit/)).toBeInTheDocument()
     // Place button should still be visible

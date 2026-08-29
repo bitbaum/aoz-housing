@@ -40,7 +40,9 @@ if (typeof setInterval !== 'undefined' && process.env.NODE_ENV !== 'test') {
  * Check if an IP/identifier is rate limited
  * Returns { allowed: true } or { allowed: false, retryAfter: seconds }
  */
-export function checkRateLimit(identifier: string): { allowed: true } | { allowed: false; retryAfter: number } {
+export function checkRateLimit(
+  identifier: string,
+): { allowed: true } | { allowed: false; retryAfter: number } {
   const now = Date.now()
   const entry = loginAttempts.get(identifier)
 
@@ -57,7 +59,9 @@ export function checkRateLimit(identifier: string): { allowed: true } | { allowe
 
   // Still within window, check attempts
   if (entry.attempts >= AUTH_CONFIG.rateLimit.maxAttempts) {
-    const retryAfter = Math.ceil((AUTH_CONFIG.rateLimit.windowMs - (now - entry.firstAttempt)) / 1000)
+    const retryAfter = Math.ceil(
+      (AUTH_CONFIG.rateLimit.windowMs - (now - entry.firstAttempt)) / 1000,
+    )
     return { allowed: false, retryAfter }
   }
 
@@ -100,7 +104,7 @@ export function clearLoginAttempts(identifier: string): void {
  * no second call to forget.
  */
 export function consumeRateLimit(
-  identifier: string
+  identifier: string,
 ): { allowed: true } | { allowed: false; retryAfter: number } {
   const result = checkRateLimit(identifier)
   if (result.allowed) {

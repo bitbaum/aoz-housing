@@ -42,7 +42,7 @@ describe('DASHBOARD_SECTIONS', () => {
     // extra permissions were all page-level, so nothing on the dashboard could
     // tell the two apart.
     expect(visibleSections('BETREUUNG')).toEqual(
-      ALL_SECTIONS.filter((section) => section !== 'team')
+      ALL_SECTIONS.filter((section) => section !== 'team'),
     )
   })
 
@@ -62,7 +62,7 @@ describe('DASHBOARD_SECTIONS', () => {
     // unfinished handovers to someone who cannot finish them is noise.
     const canSeeTeam = STAFF_ROLES.filter((role) => sectionVisible(role, 'team'))
     const canManageUsers = STAFF_ROLES.filter((role) =>
-      (ROLE_PERMISSIONS[role] as readonly string[]).includes('users:manage')
+      (ROLE_PERMISSIONS[role] as readonly string[]).includes('users:manage'),
     )
 
     expect(canSeeTeam).toEqual(canManageUsers)
@@ -100,12 +100,8 @@ describe('team health wording', () => {
   // Lives here rather than in ActionDashboard.test.tsx, which mocks QuickStat
   // down to `label: value` and so cannot render a subtext at all.
   it('is singular for one account and plural beyond', () => {
-    expect(DASHBOARD_LABELS.statTeamNeverSignedIn(1)).toBe(
-      '1 Konto war noch nie angemeldet'
-    )
-    expect(DASHBOARD_LABELS.statTeamNeverSignedIn(3)).toBe(
-      '3 Konten waren noch nie angemeldet'
-    )
+    expect(DASHBOARD_LABELS.statTeamNeverSignedIn(1)).toBe('1 Konto war noch nie angemeldet')
+    expect(DASHBOARD_LABELS.statTeamNeverSignedIn(3)).toBe('3 Konten waren noch nie angemeldet')
   })
 
   it('uses Swiss German — no ß anywhere in the dashboard labels', () => {

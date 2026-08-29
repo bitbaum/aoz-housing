@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  RESIDENT_DIMENSIONS,
-  RESIDENT_FACTORS,
-} from '@/lib/config/resident-factors'
+import { RESIDENT_DIMENSIONS, RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import {
   RESEARCH_SOURCES,
   EVIDENCE_STRENGTH_CONFIG,
@@ -14,7 +11,7 @@ import {
 // Derived Constants from Config (SSOT)
 // =============================================================================
 
-export const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter(f => f.weight > 0).length
+export const FACTOR_COUNT = Object.values(RESIDENT_FACTORS).filter((f) => f.weight > 0).length
 export const DIMENSION_COUNT = RESIDENT_DIMENSIONS.length
 export const SOURCE_COUNT = RESEARCH_SOURCES.length
 
@@ -24,18 +21,18 @@ export const SOURCE_COUNT = RESEARCH_SOURCES.length
 
 export function getFactorsByDimension(dimensionId: string) {
   return Object.values(RESIDENT_FACTORS)
-    .filter(f => f.dimension === dimensionId && f.weight > 0)
+    .filter((f) => f.dimension === dimensionId && f.weight > 0)
     .sort((a, b) => b.weight - a.weight)
 }
 
 export function getDimensionRationale(
   dimensionId: string,
   factorCount: number,
-  strongEvidenceCount: number
+  strongEvidenceCount: number,
 ): string {
   const rationales: Record<string, string> = {
     lifestyle:
-      'Höchstes Gewicht: Schlafrhythmus und Sauberkeit haben die stärkste experimentelle Evidenz als Konfliktauslöser (RCT-Studien, n=3\'098). v2.0: erhöht von 30% auf 35%.',
+      "Höchstes Gewicht: Schlafrhythmus und Sauberkeit haben die stärkste experimentelle Evidenz als Konfliktauslöser (RCT-Studien, n=3'098). v2.0: erhöht von 30% auf 35%.",
     social:
       'Kommunikation (Sprache) und Privatsphäre sind durch BFH-HSLU 2024 (1\'000 Familien) als "kritisch" bestätigt. Stabile Gewichtung bei 25%.',
     practical:
@@ -51,8 +48,18 @@ export function getDimensionRationale(
 
 export function formatDate(isoDate: string): string {
   const months = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    'Januar',
+    'Februar',
+    'März',
+    'April',
+    'Mai',
+    'Juni',
+    'Juli',
+    'August',
+    'September',
+    'Oktober',
+    'November',
+    'Dezember',
   ]
   const [year, month, day] = isoDate.split('-').map(Number)
   return `${day}. ${months[month - 1]} ${year}`
@@ -69,11 +76,7 @@ export function EvidenceStrengthBadge({ strength }: { strength: EvidenceStrength
     yellow: 'bg-status-warning/15 text-status-warning-text',
     gray: 'bg-ui-subtle text-ui-muted',
   }
-  return (
-    <span className={`chip ${colorClasses[config.color]}`}>
-      {config.label}
-    </span>
-  )
+  return <span className={`chip ${colorClasses[config.color]}`}>{config.label}</span>
 }
 
 export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }) {
@@ -94,7 +97,15 @@ export function EvidenceStrengthBar({ strength }: { strength: EvidenceStrength }
   )
 }
 
-export function FactStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+export function FactStat({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode
+  value: string
+  label: string
+}) {
   return (
     <div className="bg-ui-inverse/10 rounded-lg p-4">
       <div className="flex items-center gap-2 text-ui-inverse/70 mb-1">{icon}</div>
@@ -121,9 +132,7 @@ export function ProcessStep({
         {icon}
       </div>
       <div className="flex items-center justify-center gap-2 mb-2">
-        <span className="avatar-sm h-6 w-6 text-2xs">
-          {number}
-        </span>
+        <span className="avatar-sm h-6 w-6 text-2xs">{number}</span>
         <h3 className="font-semibold text-ui-text">{title}</h3>
       </div>
       <p className="text-sm text-ui-muted">{description}</p>

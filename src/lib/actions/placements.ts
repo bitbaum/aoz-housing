@@ -4,11 +4,7 @@ import { prisma } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import {
-  validateFormData,
-  EndPlacementSchema,
-  TransferPlacementSchema,
-} from '@/lib/validation'
+import { validateFormData, EndPlacementSchema, TransferPlacementSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { calculateCompatibility, saveBidirectionalAssessment } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
@@ -25,7 +21,9 @@ interface CreatePlacementInput {
   notes?: string
 }
 
-export async function createPlacement(input: CreatePlacementInput): Promise<{ success: boolean; placementId?: string; error?: string }> {
+export async function createPlacement(
+  input: CreatePlacementInput,
+): Promise<{ success: boolean; placementId?: string; error?: string }> {
   const user = await requirePermission('placements:write')
   const { residentId, housingUnitId, spotId, startDate, notes } = input
 
@@ -135,7 +133,11 @@ export async function createPlacement(input: CreatePlacementInput): Promise<{ su
 
     return { success: true, placementId: placement.id }
   } catch (error) {
-    logger.errorWithCause('Failed to create placement', error, { residentId, housingUnitId, spotId })
+    logger.errorWithCause('Failed to create placement', error, {
+      residentId,
+      housingUnitId,
+      spotId,
+    })
     const message = error instanceof Error ? error.message : 'Failed to create placement'
     return { success: false, error: message }
   }
@@ -150,7 +152,7 @@ export async function endPlacement(formData: FormData): Promise<void> {
     notes,
     conflictGap,
     wasPredictable,
-    relatedIncidentId
+    relatedIncidentId,
   } = validateFormData(EndPlacementSchema, formData)
 
   try {
@@ -231,10 +233,10 @@ export async function endPlacement(formData: FormData): Promise<void> {
     })
   } catch (error) {
     // Re-throw known validation errors from transaction
-    if (error instanceof Error && (
-      error.message.includes('not found') ||
-      error.message.includes('not active')
-    )) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('not found') || error.message.includes('not active'))
+    ) {
       throw error
     }
     logger.errorWithCause('Failed to end placement', error, { placementId, residentId })
@@ -254,121 +256,121 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     targetHousingUnitId,
     targetSpotId,
     transferReason,
-    notes
+    notes,
   } = validateFormData(TransferPlacementSchema, formData)
 
   let fromHousingUnitId: string
   try {
     fromHousingUnitId = await prisma.$transaction(async (tx) => {
-    // 1. Get current placement to access spot
-    const currentPlacement = await tx.placement.findUnique({
-      where: { id: currentPlacementId },
-      include: { spot: true },
-    })
-
-    if (!currentPlacement) {
-      throw new Error('Current placement not found')
-    }
-    if (currentPlacement.status !== 'ACTIVE') {
-      throw new Error('Only active placements can be transferred')
-    }
-
-    // 2. Validate target spot is available
-    const targetSpot = await tx.placementSpot.findUnique({ where: { id: targetSpotId } })
-    if (!targetSpot || targetSpot.status !== 'AVAILABLE') {
-      throw new Error('Target spot is not available')
-    }
-
-    // 3. End current placement with TRANSFERRED status
-    await tx.placement.update({
-      where: { id: currentPlacementId },
-      data: {
-        status: 'TRANSFERRED',
-        endDate: new Date(),
-        endReason: transferReason,
-        outcomeNotes: notes || undefined,
-      },
-    })
-
-    // 4. Free up the old spot
-    if (currentPlacement.spotId) {
-      await tx.placementSpot.update({
-        where: { id: currentPlacement.spotId },
-        data: { status: 'AVAILABLE' },
+      // 1. Get current placement to access spot
+      const currentPlacement = await tx.placement.findUnique({
+        where: { id: currentPlacementId },
+        include: { spot: true },
       })
-    }
 
-    // 5. Calculate compatibility scores with existing residents at target
-    const resident = await tx.resident.findUnique({ where: { id: residentId } })
-    if (!resident) throw new Error('Resident not found')
-
-    const targetResidents = await tx.placement.findMany({
-      where: { housingUnitId: targetHousingUnitId, status: 'ACTIVE' },
-      include: { resident: true },
-    })
-
-    const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
-      calculateAverageScores(resident, targetResidents)
-
-    // 6. Create bidirectional CompatibilityAssessment records for target unit
-    if (targetResidents.length > 0) {
-      const residentProfile = toResidentProfile(resident)
-
-      for (const existingPlacement of targetResidents) {
-        const otherProfile = toResidentProfile(existingPlacement.resident)
-        const score = calculateCompatibility(residentProfile, otherProfile)
-        await saveBidirectionalAssessment(tx, residentId, existingPlacement.residentId, score)
+      if (!currentPlacement) {
+        throw new Error('Current placement not found')
       }
-    }
+      if (currentPlacement.status !== 'ACTIVE') {
+        throw new Error('Only active placements can be transferred')
+      }
 
-    // 7. Create new placement at target with calculated scores
-    await tx.placement.create({
-      data: {
-        residentId,
-        housingUnitId: targetHousingUnitId,
-        spotId: targetSpotId,
-        startDate: new Date(),
-        status: 'ACTIVE',
-        compatibilityScore,
-        lifestyleScore,
-        socialScore,
-        practicalScore,
-        riskScore,
-        placementNotes: `Verlegt von ${currentPlacement.housingUnitId}. ${notes || ''}`.trim(),
-      },
-    })
+      // 2. Validate target spot is available
+      const targetSpot = await tx.placementSpot.findUnique({ where: { id: targetSpotId } })
+      if (!targetSpot || targetSpot.status !== 'AVAILABLE') {
+        throw new Error('Target spot is not available')
+      }
 
-    // 8. Mark new spot as occupied
-    await tx.placementSpot.update({
-      where: { id: targetSpotId },
-      data: { status: 'OCCUPIED' },
-    })
+      // 3. End current placement with TRANSFERRED status
+      await tx.placement.update({
+        where: { id: currentPlacementId },
+        data: {
+          status: 'TRANSFERRED',
+          endDate: new Date(),
+          endReason: transferReason,
+          outcomeNotes: notes || undefined,
+        },
+      })
 
-    // 9. Update housing unit statuses
-    const oldUnit = await tx.housingUnit.findUnique({
-      where: { id: currentPlacement.housingUnitId },
-    })
-    if (oldUnit?.status === 'FULL') {
-      await tx.housingUnit.update({
+      // 4. Free up the old spot
+      if (currentPlacement.spotId) {
+        await tx.placementSpot.update({
+          where: { id: currentPlacement.spotId },
+          data: { status: 'AVAILABLE' },
+        })
+      }
+
+      // 5. Calculate compatibility scores with existing residents at target
+      const resident = await tx.resident.findUnique({ where: { id: residentId } })
+      if (!resident) throw new Error('Resident not found')
+
+      const targetResidents = await tx.placement.findMany({
+        where: { housingUnitId: targetHousingUnitId, status: 'ACTIVE' },
+        include: { resident: true },
+      })
+
+      const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
+        calculateAverageScores(resident, targetResidents)
+
+      // 6. Create bidirectional CompatibilityAssessment records for target unit
+      if (targetResidents.length > 0) {
+        const residentProfile = toResidentProfile(resident)
+
+        for (const existingPlacement of targetResidents) {
+          const otherProfile = toResidentProfile(existingPlacement.resident)
+          const score = calculateCompatibility(residentProfile, otherProfile)
+          await saveBidirectionalAssessment(tx, residentId, existingPlacement.residentId, score)
+        }
+      }
+
+      // 7. Create new placement at target with calculated scores
+      await tx.placement.create({
+        data: {
+          residentId,
+          housingUnitId: targetHousingUnitId,
+          spotId: targetSpotId,
+          startDate: new Date(),
+          status: 'ACTIVE',
+          compatibilityScore,
+          lifestyleScore,
+          socialScore,
+          practicalScore,
+          riskScore,
+          placementNotes: `Verlegt von ${currentPlacement.housingUnitId}. ${notes || ''}`.trim(),
+        },
+      })
+
+      // 8. Mark new spot as occupied
+      await tx.placementSpot.update({
+        where: { id: targetSpotId },
+        data: { status: 'OCCUPIED' },
+      })
+
+      // 9. Update housing unit statuses
+      const oldUnit = await tx.housingUnit.findUnique({
         where: { id: currentPlacement.housingUnitId },
-        data: { status: 'AVAILABLE' },
       })
-    }
+      if (oldUnit?.status === 'FULL') {
+        await tx.housingUnit.update({
+          where: { id: currentPlacement.housingUnitId },
+          data: { status: 'AVAILABLE' },
+        })
+      }
 
-    const newUnit = await tx.housingUnit.findUnique({
-      where: { id: targetHousingUnitId },
-      include: {
-        spots: { where: { status: 'AVAILABLE', type: { not: 'ROOM' } } },
-      },
-    })
-    if (newUnit && newUnit.spots.length === 0) {
-      await tx.housingUnit.update({
+      const newUnit = await tx.housingUnit.findUnique({
         where: { id: targetHousingUnitId },
-        data: { status: 'FULL' },
+        include: {
+          spots: { where: { status: 'AVAILABLE', type: { not: 'ROOM' } } },
+        },
       })
-    }
+      if (newUnit && newUnit.spots.length === 0) {
+        await tx.housingUnit.update({
+          where: { id: targetHousingUnitId },
+          data: { status: 'FULL' },
+        })
+      }
 
-    return currentPlacement.housingUnitId
+      return currentPlacement.housingUnitId
     })
 
     await logAudit({
@@ -387,15 +389,20 @@ export async function transferPlacement(formData: FormData): Promise<void> {
     })
   } catch (error) {
     // Re-throw known validation errors from transaction
-    if (error instanceof Error && (
-      error.message.includes('not found') ||
-      error.message.includes('not active') ||
-      error.message.includes('not available') ||
-      error.message.includes('cannot be transferred')
-    )) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('not found') ||
+        error.message.includes('not active') ||
+        error.message.includes('not available') ||
+        error.message.includes('cannot be transferred'))
+    ) {
       throw error
     }
-    logger.errorWithCause('Failed to transfer placement', error, { currentPlacementId, residentId, targetHousingUnitId })
+    logger.errorWithCause('Failed to transfer placement', error, {
+      currentPlacementId,
+      residentId,
+      targetHousingUnitId,
+    })
     throw new Error(ERROR_MESSAGES.TRANSFER_ERROR)
   }
 

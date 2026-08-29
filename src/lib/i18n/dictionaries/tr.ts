@@ -100,7 +100,8 @@ export const tr: Dictionary = {
   'help.faq.placement.a':
     'Uyku, gürültü, temizlik ve dilleri dikkate alırız. Yanıtların ne kadar doğruysa yerleştirme o kadar iyi olur.',
   'help.faq.preferences.q': 'Bilgilerimi değiştirebilir miyim?',
-  'help.faq.preferences.a': 'Evet, Ayarlar altında. Değişiklikler sonraki yerleştirmeler için geçerlidir.',
+  'help.faq.preferences.a':
+    'Evet, Ayarlar altında. Değişiklikler sonraki yerleştirmeler için geçerlidir.',
   'help.faq.conflict.q': 'Çatışmada ne yapmalıyım?',
   'help.faq.conflict.a': 'Portalde «Bildir»i kullan. Ekip her bildirimi ciddiye alır.',
   'help.faq.transfer.q': 'Taşınma isteyebilir miyim?',
@@ -172,7 +173,8 @@ export const tr: Dictionary = {
   'marketplace.statusClosed': 'Kapandı',
 
   'events.title': 'Etkinlikler',
-  'events.subtitle': 'Ev toplantıları ve ortak buluşmalar — katılımını bildir ya da kendin bir etkinlik oluştur.',
+  'events.subtitle':
+    'Ev toplantıları ve ortak buluşmalar — katılımını bildir ya da kendin bir etkinlik oluştur.',
   'events.empty': 'Henüz planlanmış etkinlik yok.',
   'events.createNew': 'Yeni etkinlik',
   'events.formTitle': 'Başlık',

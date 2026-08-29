@@ -28,7 +28,7 @@ export async function GET() {
         latencyMs: Date.now() - started,
         timestamp: new Date().toISOString(),
       },
-      { status: 503 }
+      { status: 503 },
     )
   }
 }

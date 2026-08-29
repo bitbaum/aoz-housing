@@ -9,7 +9,13 @@ import { fallbackCta } from '@/lib/config/dashboard'
 import type { StaffRole } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { residentName } from '@/lib/utils/resident-name'
-import type { CriticalIncident, OverdueCheckIn, UnplacedResident, ProblemUnit, ProposalAwaitingStaff } from './types'
+import type {
+  CriticalIncident,
+  OverdueCheckIn,
+  UnplacedResident,
+  ProblemUnit,
+  ProposalAwaitingStaff,
+} from './types'
 
 // =============================================================================
 // Types
@@ -58,7 +64,9 @@ export function determinePrimaryAction({
   }
 
   // Priority 2: Very overdue check-ins (using config threshold)
-  const veryOverdue = overdueCheckIns.filter(c => c.isVeryOverdue || c.daysSinceLastCheckIn > VERY_OVERDUE_THRESHOLD_DAYS + 28)
+  const veryOverdue = overdueCheckIns.filter(
+    (c) => c.isVeryOverdue || c.daysSinceLastCheckIn > VERY_OVERDUE_THRESHOLD_DAYS + 28,
+  )
   if (veryOverdue.length > 0) {
     return {
       type: 'checkin',
@@ -98,7 +106,7 @@ export function determinePrimaryAction({
   }
 
   // Priority 5: Problem units with unresolved incidents
-  const unitsWithUnresolved = problemUnits.filter(u => u.unresolvedCount > 0)
+  const unitsWithUnresolved = problemUnits.filter((u) => u.unresolvedCount > 0)
   if (unitsWithUnresolved.length > 0) {
     const topUnit = unitsWithUnresolved[0]
     return {
@@ -228,8 +236,12 @@ export function CriticalAlertBanner({ incidents }: { incidents: CriticalIncident
       <div className="flex items-center gap-3">
         <AlertTriangle className="w-6 h-6 shrink-0" />
         <div>
-          <span className="font-bold">{incidents.length} {DASHBOARD_LABELS.alertCriticalAttentionSuffix}</span>
-          <span className="ml-2 opacity-80">• {incidentLabel} in {incidents[0].unitCode}</span>
+          <span className="font-bold">
+            {incidents.length} {DASHBOARD_LABELS.alertCriticalAttentionSuffix}
+          </span>
+          <span className="ml-2 opacity-80">
+            • {incidentLabel} in {incidents[0].unitCode}
+          </span>
         </div>
       </div>
       <div className="flex items-center gap-2 self-end sm:self-auto">

@@ -54,7 +54,20 @@ export interface MissionKPIs {
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MONTHS_DE = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+const MONTHS_DE = [
+  'Jan',
+  'Feb',
+  'Mär',
+  'Apr',
+  'Mai',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Dez',
+]
 
 function formatMonth(date: Date): string {
   return zurichMonthKey(date)
@@ -146,7 +159,10 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
     if (incidentsByMonth.has(key)) {
       incidentsByMonth.set(key, (incidentsByMonth.get(key) || 0) + 1)
       if (incident.mediationMinutes) {
-        mediationMinutesByMonth.set(key, (mediationMinutesByMonth.get(key) || 0) + incident.mediationMinutes)
+        mediationMinutesByMonth.set(
+          key,
+          (mediationMinutesByMonth.get(key) || 0) + incident.mediationMinutes,
+        )
       }
     }
   }
@@ -181,15 +197,23 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, value]) => {
       const [y, m] = month.split('-').map(Number)
-      return { month, label: formatMonthLabel(new Date(y, m - 1)), value: Math.round(value / 60 * 10) / 10 }
+      return {
+        month,
+        label: formatMonthLabel(new Date(y, m - 1)),
+        value: Math.round((value / 60) * 10) / 10,
+      }
     })
 
   // Average weekly mediation hours: total minutes in period ÷ weeks in period ÷ 60
-  const totalMediationMinutes = Array.from(mediationMinutesByMonth.values()).reduce((s, v) => s + v, 0)
+  const totalMediationMinutes = Array.from(mediationMinutesByMonth.values()).reduce(
+    (s, v) => s + v,
+    0,
+  )
   const weeksInPeriod = months * 4.33
-  const avgMediationHoursPerWeek = totalMediationMinutes > 0
-    ? Math.round((totalMediationMinutes / weeksInPeriod / 60) * 10) / 10
-    : null
+  const avgMediationHoursPerWeek =
+    totalMediationMinutes > 0
+      ? Math.round((totalMediationMinutes / weeksInPeriod / 60) * 10) / 10
+      : null
 
   // ── Current month stats ────────────────────────────────────────────
 
@@ -199,19 +223,30 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
 
   // Averages (excluding current incomplete month)
   const completedMonths = incidentsPerMonth.slice(0, -1)
-  const avgIncidents = completedMonths.length > 0
-    ? Math.round(completedMonths.reduce((s, d) => s + d.value, 0) / completedMonths.length * 10) / 10
-    : 0
-  const avgRelocations = completedMonths.length > 0
-    ? Math.round(conflictRelocationsPerMonth.slice(0, -1).reduce((s, d) => s + d.value, 0) / completedMonths.length * 10) / 10
-    : 0
+  const avgIncidents =
+    completedMonths.length > 0
+      ? Math.round(
+          (completedMonths.reduce((s, d) => s + d.value, 0) / completedMonths.length) * 10,
+        ) / 10
+      : 0
+  const avgRelocations =
+    completedMonths.length > 0
+      ? Math.round(
+          (conflictRelocationsPerMonth.slice(0, -1).reduce((s, d) => s + d.value, 0) /
+            completedMonths.length) *
+            10,
+        ) / 10
+      : 0
 
   // ── Placement decision time ────────────────────────────────────────
 
   // Map: residentId → earliest placement startDate
   const firstPlacementMap = new Map<string, Date>()
   for (const p of placements) {
-    if (!firstPlacementMap.has(p.residentId) || new Date(p.startDate) < firstPlacementMap.get(p.residentId)!) {
+    if (
+      !firstPlacementMap.has(p.residentId) ||
+      new Date(p.startDate) < firstPlacementMap.get(p.residentId)!
+    ) {
       firstPlacementMap.set(p.residentId, new Date(p.startDate))
     }
   }
@@ -223,7 +258,8 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
   for (const r of residents) {
     const firstPlacement = firstPlacementMap.get(r.id)
     if (firstPlacement) {
-      const days = (firstPlacement.getTime() - new Date(r.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+      const days =
+        (firstPlacement.getTime() - new Date(r.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       if (days >= 0) {
         placementTimes.push(days)
         if (new Date(r.createdAt) >= thirtyDaysAgo) {
@@ -233,12 +269,16 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
     }
   }
 
-  const avgPlacementTime = placementTimes.length > 0
-    ? Math.round(placementTimes.reduce((s, d) => s + d, 0) / placementTimes.length * 10) / 10
-    : null
-  const recentPlacementTime = recentPlacementTimes.length > 0
-    ? Math.round(recentPlacementTimes.reduce((s, d) => s + d, 0) / recentPlacementTimes.length * 10) / 10
-    : null
+  const avgPlacementTime =
+    placementTimes.length > 0
+      ? Math.round((placementTimes.reduce((s, d) => s + d, 0) / placementTimes.length) * 10) / 10
+      : null
+  const recentPlacementTime =
+    recentPlacementTimes.length > 0
+      ? Math.round(
+          (recentPlacementTimes.reduce((s, d) => s + d, 0) / recentPlacementTimes.length) * 10,
+        ) / 10
+      : null
 
   // ── Conflict trend ─────────────────────────────────────────────────
 
@@ -246,12 +286,14 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
   const recentMonths = incidentsPerMonth.slice(-3)
   const previousMonths = incidentsPerMonth.slice(-6, -3)
 
-  const recentAvg = recentMonths.length > 0
-    ? recentMonths.reduce((s, d) => s + d.value, 0) / recentMonths.length
-    : 0
-  const previousAvg = previousMonths.length > 0
-    ? previousMonths.reduce((s, d) => s + d.value, 0) / previousMonths.length
-    : 0
+  const recentAvg =
+    recentMonths.length > 0
+      ? recentMonths.reduce((s, d) => s + d.value, 0) / recentMonths.length
+      : 0
+  const previousAvg =
+    previousMonths.length > 0
+      ? previousMonths.reduce((s, d) => s + d.value, 0) / previousMonths.length
+      : 0
 
   let trend: 'improving' | 'stable' | 'worsening'
   let trendDetail: string

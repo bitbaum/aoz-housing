@@ -64,9 +64,7 @@ export function PlacementHistoryCard({ placements }: PlacementHistoryCardProps) 
               )}
               <p className="text-sm text-ui-muted">
                 {formatDate(placement.startDate)} -{' '}
-                {placement.endDate
-                  ? formatDate(placement.endDate)
-                  : PLACEMENT_HISTORY_LABELS.today}
+                {placement.endDate ? formatDate(placement.endDate) : PLACEMENT_HISTORY_LABELS.today}
               </p>
             </div>
             <div className="text-right">

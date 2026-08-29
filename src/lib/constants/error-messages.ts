@@ -33,8 +33,7 @@ export const ERROR_MESSAGES = {
     'Mit dieser E-Mail-Adresse ist bereits ein Zugang dieser Art verknüpft.',
   AUTH_LINK_PASSWORD_MISMATCH:
     'Für diese E-Mail-Adresse existiert bereits ein Konto. Geben Sie das Passwort dieses Kontos ein, um den Code damit zu verknüpfen.',
-  AUTH_RESET_TOKEN_INVALID:
-    'Dieser Link ist ungültig oder abgelaufen. Fordern Sie einen neuen an.',
+  AUTH_RESET_TOKEN_INVALID: 'Dieser Link ist ungültig oder abgelaufen. Fordern Sie einen neuen an.',
   AUTH_EMAIL_NOT_CONFIGURED:
     'E-Mail-Versand ist auf dieser Installation nicht eingerichtet. Bitte wenden Sie sich an die Verwaltung.',
 
@@ -140,8 +139,7 @@ export const ERROR_MESSAGES = {
   RULE_SAVE_ERROR: 'Regel konnte nicht gespeichert werden',
   RULE_ACKNOWLEDGE_ERROR: 'Bestätigung konnte nicht gespeichert werden',
   RULE_SYNC_ERROR: `${BRAND.orgName}-Regeln konnten nicht abgeglichen werden`,
-  ORG_RULE_IMMUTABLE:
-    `Diese ${BRAND.orgName}-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden`,
+  ORG_RULE_IMMUTABLE: `Diese ${BRAND.orgName}-Regel ist nicht verhandelbar und kann nicht durch einen Hausbeschluss geändert werden`,
 
   // ─── Proposals / voting ────────────────────────────────────────
   PROPOSAL_NOT_FOUND: 'Vorschlag nicht gefunden',

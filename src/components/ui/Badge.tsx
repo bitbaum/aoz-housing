@@ -19,11 +19,7 @@ export function Badge({ children, variant = 'active', className = '' }: BadgePro
     custom: '',
   }
 
-  return (
-    <span className={`badge ${variantClasses[variant]} ${className}`}>
-      {children}
-    </span>
-  )
+  return <span className={`badge ${variantClasses[variant]} ${className}`}>{children}</span>
 }
 
 interface StatusBadgeProps {
@@ -33,9 +29,5 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, labels }: StatusBadgeProps) {
   const label = labels?.[status] || status
-  return (
-    <span className={`badge ${getStatusBadgeClass(status)}`}>
-      {label}
-    </span>
-  )
+  return <span className={`badge ${getStatusBadgeClass(status)}`}>{label}</span>
 }

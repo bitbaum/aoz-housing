@@ -40,10 +40,10 @@ export default async function PortalLearningPage() {
   const achievements = resident.learningRecords.filter(isAchievementRecord)
   const inProgress = resident.learningRecords.filter((record) => record.status === 'IN_PROGRESS')
   const selfLogged = resident.learningRecords.filter(
-    (record) => record.recordedBy === 'RESIDENT' && !isAchievementRecord(record)
+    (record) => record.recordedBy === 'RESIDENT' && !isAchievementRecord(record),
   )
   const staffAssigned = resident.learningRecords.filter(
-    (record) => record.recordedBy === 'STAFF' && !isAchievementRecord(record)
+    (record) => record.recordedBy === 'STAFF' && !isAchievementRecord(record),
   )
 
   return (
@@ -63,7 +63,10 @@ export default async function PortalLearningPage() {
           <EmptyState
             title={t('learning.achievementsEmpty')}
             action={
-              <Link href="#learning-evidence" className="btn-outline min-h-[44px] inline-flex items-center">
+              <Link
+                href="#learning-evidence"
+                className="btn-outline min-h-[44px] inline-flex items-center"
+              >
                 {LEARNING_LABELS.add}
               </Link>
             }
@@ -148,7 +151,10 @@ export default async function PortalLearningPage() {
       <section className="mb-8">
         <div className="flex items-baseline justify-between gap-3 mb-3">
           <h2 className="text-lg font-semibold text-ui-text">{t('learning.offers')}</h2>
-          <Link href="/portal/activities" className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center">
+          <Link
+            href="/portal/activities"
+            className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center"
+          >
             {t('nav.activities')}
           </Link>
         </div>
@@ -156,7 +162,10 @@ export default async function PortalLearningPage() {
           <EmptyState
             title={t('learning.offersEmpty')}
             action={
-              <Link href="/portal/activities" className="btn-outline min-h-[44px] inline-flex items-center">
+              <Link
+                href="/portal/activities"
+                className="btn-outline min-h-[44px] inline-flex items-center"
+              >
                 {t('nav.activities')}
               </Link>
             }

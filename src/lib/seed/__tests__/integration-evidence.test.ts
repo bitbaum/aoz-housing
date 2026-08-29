@@ -46,7 +46,7 @@ describe('evidenceForResident', () => {
       // board's "kein Deutsch-Test" panel listed every single resident.
       const records = evidenceForResident({ ...germanSpeaker, languages: [spelling] }, 0)
       expect(records.some((r) => r.kind === 'LANGUAGE_TEST')).toBe(true)
-    }
+    },
   )
 
   it('gives someone who speaks no German a course instead of a test', () => {
@@ -68,11 +68,8 @@ describe('evidenceForResident', () => {
     // position 20 of 25 seventy days into the past. The seeded database
     // reported ONE recent completion where four existed.
     for (let index = 0; index < 40; index++) {
-      const test = evidenceForResident(germanSpeaker, index).find(
-        (r) => r.kind === 'LANGUAGE_TEST'
-      )
-      const daysAgo =
-        (Date.now() - (test?.completedAt?.getTime() ?? 0)) / (24 * 60 * 60 * 1000)
+      const test = evidenceForResident(germanSpeaker, index).find((r) => r.kind === 'LANGUAGE_TEST')
+      const daysAgo = (Date.now() - (test?.completedAt?.getTime() ?? 0)) / (24 * 60 * 60 * 1000)
 
       expect(daysAgo).toBeLessThan(LEARNING_PULSE_WINDOW_DAYS)
       expect(daysAgo).toBeGreaterThan(0)
@@ -118,8 +115,8 @@ describe('evidenceForResident', () => {
       [0, 1, 2, 3].map(
         (index) =>
           evidenceForResident(germanSpeaker, index).find((r) => r.category === 'vocational')
-            ?.title ?? ''
-      )
+            ?.title ?? '',
+      ),
     )
 
     expect(titles.size).toBeGreaterThan(1)
@@ -130,9 +127,7 @@ describe('evidenceForResident', () => {
       for (const profile of [germanSpeaker, noGerman]) {
         for (const record of evidenceForResident(profile, index)) {
           if (record.startedAt && record.completedAt) {
-            expect(record.completedAt.getTime()).toBeGreaterThanOrEqual(
-              record.startedAt.getTime()
-            )
+            expect(record.completedAt.getTime()).toBeGreaterThanOrEqual(record.startedAt.getTime())
           }
         }
       }
@@ -144,8 +139,8 @@ describe('evidenceForResident', () => {
     // looks broken.
     const statuses = new Set(
       [0, 1, 2, 3, 4, 5].flatMap((index) =>
-        evidenceForResident(germanSpeaker, index).map((r) => r.status)
-      )
+        evidenceForResident(germanSpeaker, index).map((r) => r.status),
+      ),
     )
 
     expect(statuses).toContain('COMPLETED')
@@ -158,8 +153,8 @@ describe('evidenceForResident', () => {
     // one source.
     const sources = new Set(
       [0, 1, 2].flatMap((index) =>
-        evidenceForResident(germanSpeaker, index).map((r) => r.recordedBy)
-      )
+        evidenceForResident(germanSpeaker, index).map((r) => r.recordedBy),
+      ),
     )
 
     expect(sources).toContain('STAFF')

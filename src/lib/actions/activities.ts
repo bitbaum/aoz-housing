@@ -5,11 +5,7 @@ import { redirect } from 'next/navigation'
 import { requireStaffAuth, requirePermission } from '@/lib/auth'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
-import {
-  ActivityInputSchema,
-  ActivityUpdateSchema,
-  validateFormData,
-} from '@/lib/validation'
+import { ActivityInputSchema, ActivityUpdateSchema, validateFormData } from '@/lib/validation'
 import {
   createActivityRecord,
   setActivityStatus,
@@ -25,13 +21,15 @@ function revalidateActivityPaths(activityId?: string) {
   }
 }
 
-function normalizeActivityData<T extends {
-  costNote?: string | null
-  location?: string | null
-  website?: string | null
-  phone?: string | null
-  schedule?: string | null
-}>(data: T) {
+function normalizeActivityData<
+  T extends {
+    costNote?: string | null
+    location?: string | null
+    website?: string | null
+    phone?: string | null
+    schedule?: string | null
+  },
+>(data: T) {
   return {
     ...data,
     costNote: data.costNote ?? null,

@@ -32,7 +32,10 @@ let capturedParseCall: {
 jest.mock('papaparse', () => ({
   __esModule: true,
   default: {
-    parse: (file: File, config: { complete: (r: { data: unknown[] }) => void; error: () => void }) => {
+    parse: (
+      file: File,
+      config: { complete: (r: { data: unknown[] }) => void; error: () => void },
+    ) => {
       capturedParseCall = { file, config }
     },
   },
@@ -103,7 +106,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     expect(screen.getByText(/Vorschau/)).toBeInTheDocument()
     expect(screen.getByRole('columnheader', { name: 'name' })).toBeInTheDocument()
@@ -114,7 +119,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     expect(screen.getByText('Alice')).toBeInTheDocument()
     expect(screen.getByText('Bob')).toBeInTheDocument()
@@ -124,7 +131,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     expect(screen.getByRole('button', { name: 'Importieren' })).toBeInTheDocument()
   })
@@ -133,7 +142,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseError() })
+    act(() => {
+      triggerParseError()
+    })
 
     expect(screen.getByText('CSV konnte nicht gelesen werden')).toBeInTheDocument()
   })
@@ -144,13 +155,17 @@ describe('CSVImport', () => {
 
     // First file: parse error
     fireFileChange(input, makeFile('bad.csv'))
-    act(() => { triggerParseError() })
+    act(() => {
+      triggerParseError()
+    })
     expect(screen.getByText('CSV konnte nicht gelesen werden')).toBeInTheDocument()
 
     // Second file: successful parse
     capturedParseCall = null
     fireFileChange(input, makeFile('good.csv'))
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     expect(screen.queryByText('CSV konnte nicht gelesen werden')).not.toBeInTheDocument()
   })
@@ -165,7 +180,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
@@ -185,7 +202,9 @@ describe('CSVImport', () => {
     const input = container.querySelector('input[type="file"]') as HTMLElement
     const csvFile = makeFile('upload.csv')
     fireFileChange(input, csvFile)
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
@@ -197,18 +216,22 @@ describe('CSVImport', () => {
   it('shows the importing label while the request is in flight', async () => {
     let resolve!: (v: { json: () => Promise<object> }) => void
     global.fetch = jest.fn().mockReturnValue(
-      new Promise((r) => { resolve = r as typeof resolve })
+      new Promise((r) => {
+        resolve = r as typeof resolve
+      }),
     )
 
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Importiere...' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Importiere...' })).toBeInTheDocument(),
     )
     expect(screen.getByRole('button', { name: 'Importiere...' })).toBeDisabled()
 
@@ -227,7 +250,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -243,7 +268,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -258,7 +285,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -280,7 +309,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -297,7 +328,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -318,7 +351,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText(/Ergebnis/))
@@ -333,7 +368,9 @@ describe('CSVImport', () => {
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement
     fireFileChange(input, makeFile())
-    act(() => { triggerParseComplete(PREVIEW_ROWS) })
+    act(() => {
+      triggerParseComplete(PREVIEW_ROWS)
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => screen.getByText('Import fehlgeschlagen'))

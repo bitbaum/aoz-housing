@@ -11,12 +11,18 @@ export async function PATCH(request: NextRequest) {
   // between placements.
   const resident = await getPortalResident()
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const parsed = UpdateProfileSchema.safeParse(await request.json().catch(() => null))
   if (!parsed.success) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
   const data = parsed.data
 
@@ -53,6 +59,9 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true, data: updated })
   } catch (error) {
     logger.errorWithCause('Failed to update resident profile', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.PROFILE_UPDATE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.PROFILE_UPDATE_ERROR },
+      { status: 500 },
+    )
   }
 }

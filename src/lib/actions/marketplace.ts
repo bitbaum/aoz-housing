@@ -43,16 +43,13 @@ export type MarketplacePostSummary = {
 }
 
 function parseKind(value: FormDataEntryValue | null): MarketplacePostKind | null {
-  return typeof value === 'string' &&
-    (MARKETPLACE_KIND_VALUES as string[]).includes(value)
+  return typeof value === 'string' && (MARKETPLACE_KIND_VALUES as string[]).includes(value)
     ? (value as MarketplacePostKind)
     : null
 }
 
 function parseCategory(value: FormDataEntryValue | null): string {
-  return typeof value === 'string' && MARKETPLACE_CATEGORY_VALUES.includes(value)
-    ? value
-    : 'OTHER'
+  return typeof value === 'string' && MARKETPLACE_CATEGORY_VALUES.includes(value) ? value : 'OTHER'
 }
 
 function revalidateMarketplace() {
@@ -96,15 +93,13 @@ export async function listPortalMarketplacePosts(nature?: MarketplaceNature): Pr
         // Contact details reach the two people the handover is between, and
         // nobody else. Computed here, once, from the reader's identity.
         canSeeContact: row.postedById === mine || row.claimedById === mine,
-      })
+      }),
     )
     .filter((post) => !nature || post.nature === nature)
 
   return {
     own: mapped.filter((post) => post.housingUnitId === unitId),
-    open: mapped.filter(
-      (post) => post.housingUnitId !== unitId && post.status === 'OPEN'
-    ),
+    open: mapped.filter((post) => post.housingUnitId !== unitId && post.status === 'OPEN'),
   }
 }
 
@@ -167,7 +162,7 @@ function mapPost(
     postedById: string
     claimedById: string | null
   },
-  viewer: { canSeeContact: boolean }
+  viewer: { canSeeContact: boolean },
 ): MarketplacePostSummary {
   return {
     id: row.id,
@@ -191,7 +186,7 @@ function mapPost(
 }
 
 export async function createMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -229,7 +224,7 @@ export async function createMarketplacePost(
 }
 
 export async function claimMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -270,7 +265,7 @@ export async function claimMarketplacePost(
  * offer for everybody. Releasing puts it back where it was.
  */
 export async function releaseMarketplaceClaim(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -282,8 +277,7 @@ export async function releaseMarketplaceClaim(
   }
   // The poster may also release — a claimer who never turned up should not be
   // able to hold an item hostage indefinitely.
-  const mayRelease =
-    post.claimedById === auth.resident.id || post.postedById === auth.resident.id
+  const mayRelease = post.claimedById === auth.resident.id || post.postedById === auth.resident.id
   if (!mayRelease) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
@@ -298,7 +292,7 @@ export async function releaseMarketplaceClaim(
 }
 
 export async function closeMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -320,7 +314,7 @@ export async function closeMarketplacePost(
 
 /** The handover fell through, or the thing came back. Poster only. */
 export async function reopenMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -350,7 +344,7 @@ export async function reopenMarketplacePost(
  * arrangement without telling them, so a claimed post can only be closed.
  */
 export async function deleteMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -369,7 +363,7 @@ export async function deleteMarketplacePost(
 }
 
 export async function hideMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -391,7 +385,7 @@ export async function hideMarketplacePost(
 }
 
 export async function unhideMarketplacePost(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }

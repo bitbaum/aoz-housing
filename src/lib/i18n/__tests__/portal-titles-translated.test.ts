@@ -20,7 +20,7 @@ import { readFileSync } from 'fs'
 function portalPagesWithStaticTitle(): string[] {
   const out = execSync(
     `grep -rlE "^export const metadata" --include=page.tsx --include=layout.tsx src/app/portal || true`,
-    { encoding: 'utf8', cwd: process.cwd() }
+    { encoding: 'utf8', cwd: process.cwd() },
   )
   return out
     .split('\n')
@@ -46,7 +46,7 @@ describe('portal tabs are translated', () => {
   it('the pages that have a title resolve it through the translator', () => {
     const withTitle = execSync(
       `grep -rl "generateMetadata" --include=page.tsx --include=layout.tsx src/app/portal || true`,
-      { encoding: 'utf8', cwd: process.cwd() }
+      { encoding: 'utf8', cwd: process.cwd() },
     )
       .split('\n')
       .filter(Boolean)
@@ -55,7 +55,7 @@ describe('portal tabs are translated', () => {
     // `generateMetadata` returning a German literal would pass the check above
     // while changing nothing for the reader.
     const notTranslated = withTitle.filter(
-      (file) => !readFileSync(file, 'utf8').includes('getRequestTranslator')
+      (file) => !readFileSync(file, 'utf8').includes('getRequestTranslator'),
     )
 
     expect(withTitle.length).toBeGreaterThan(8)

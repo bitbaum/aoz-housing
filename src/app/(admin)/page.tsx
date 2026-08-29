@@ -9,16 +9,14 @@ import { dayPartAt, formatWeekdayDate, type DayPart } from '@/lib/utils/local-ti
 import { getCurrentUser } from '@/lib/auth'
 
 /** Which greeting belongs to which part of the day. */
-const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 'greetingEvening'> = {
-  morning: 'greetingMorning',
-  day: 'greetingDay',
-  evening: 'greetingEvening',
-}
+const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 'greetingEvening'> =
+  {
+    morning: 'greetingMorning',
+    day: 'greetingDay',
+    evening: 'greetingEvening',
+  }
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
-import {
-  getCheckInInterval,
-  VERY_OVERDUE_THRESHOLD_DAYS,
-} from '@/lib/config/checkin-intervals'
+import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import {
   PROBLEM_DETECTION,
   INCIDENT_SEVERITY_WEIGHTS,
@@ -149,9 +147,7 @@ export default async function AdminDashboard() {
         })
       : [],
     show('proposals') ? getProposalsAwaitingStaff() : [],
-    show('learning')
-      ? prisma.learningRecord.count({ where: { status: 'IN_PROGRESS' } })
-      : 0,
+    show('learning') ? prisma.learningRecord.count({ where: { status: 'IN_PROGRESS' } }) : 0,
     show('learning')
       ? prisma.learningRecord.count({
           where: {
@@ -169,9 +165,7 @@ export default async function AdminDashboard() {
     // Provisioned and never used. A staff code that was issued but never
     // signed in with is invisible everywhere else in the product — it is not
     // an error, it is an unfinished handover, and only Leitung can close it.
-    show('team')
-      ? prisma.user.count({ where: { active: true, lastLoginAt: null } })
-      : 0,
+    show('team') ? prisma.user.count({ where: { active: true, lastLoginAt: null } }) : 0,
   ])
 
   // =============================================================================
@@ -228,8 +222,8 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   const unplacedResidents = residents
-    .filter(r => r.status === 'ACTIVE')
-    .map(r => ({
+    .filter((r) => r.status === 'ACTIVE')
+    .map((r) => ({
       id: r.id,
       code: r.code,
       displayName: r.displayName,
@@ -242,8 +236,8 @@ export default async function AdminDashboard() {
   // =============================================================================
 
   const criticalIncidents = recentIncidents
-    .filter(i => i.severity === 'CRITICAL' && !i.resolvedAt)
-    .map(i => ({
+    .filter((i) => i.severity === 'CRITICAL' && !i.resolvedAt)
+    .map((i) => ({
       id: i.id,
       type: i.type,
       unitCode: i.housingUnit?.code || 'Unbekannt',
@@ -255,7 +249,7 @@ export default async function AdminDashboard() {
   // Conflict-free Days (Interpersonal incidents only)
   // =============================================================================
 
-  const interpersonalIncidents = recentIncidents.filter(i => i.category === 'INTERPERSONAL')
+  const interpersonalIncidents = recentIncidents.filter((i) => i.category === 'INTERPERSONAL')
   let conflictFreeDays: number = PROBLEM_DETECTION.recentIncidentsDays
 
   if (interpersonalIncidents.length > 0) {
@@ -271,13 +265,16 @@ export default async function AdminDashboard() {
   // Element-level type: `typeof recentIncidents` is now a union with the
   // empty-array branch of the role-gated fetch, and pushing into a union of
   // arrays collapses to never.
-  const unitIncidentMap = new Map<string, {
-    code: string
-    incidentCount: number
-    problemScore: number
-    recentIncidents: (typeof recentIncidents)[number][]
-    unresolvedCount: number
-  }>()
+  const unitIncidentMap = new Map<
+    string,
+    {
+      code: string
+      incidentCount: number
+      problemScore: number
+      recentIncidents: (typeof recentIncidents)[number][]
+      unresolvedCount: number
+    }
+  >()
 
   for (const incident of interpersonalIncidents) {
     const unitId = incident.housingUnitId
@@ -290,7 +287,8 @@ export default async function AdminDashboard() {
     }
 
     existing.incidentCount++
-    existing.problemScore += INCIDENT_SEVERITY_WEIGHTS[incident.severity as keyof typeof INCIDENT_SEVERITY_WEIGHTS] || 1
+    existing.problemScore +=
+      INCIDENT_SEVERITY_WEIGHTS[incident.severity as keyof typeof INCIDENT_SEVERITY_WEIGHTS] || 1
     existing.recentIncidents.push(incident)
     if (!incident.resolvedAt) {
       existing.unresolvedCount++
@@ -361,10 +359,7 @@ export default async function AdminDashboard() {
   )
 }
 
-function buildGreeting(
-  greeting: string,
-  user: Awaited<ReturnType<typeof getCurrentUser>>
-): string {
+function buildGreeting(greeting: string, user: Awaited<ReturnType<typeof getCurrentUser>>): string {
   if (!user) return greeting
 
   const raw = user.name?.trim() || user.email?.split('@')[0]?.trim() || ''
@@ -374,8 +369,7 @@ function buildGreeting(
   if (/^admin$/i.test(cleaned)) return greeting
 
   const firstToken = cleaned.split(/\s+/)[0]
-  const pretty =
-    firstToken.charAt(0).toUpperCase() + firstToken.slice(1)
+  const pretty = firstToken.charAt(0).toUpperCase() + firstToken.slice(1)
 
   return `${greeting}, ${pretty}`
 }

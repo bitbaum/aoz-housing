@@ -33,7 +33,8 @@ const mockTx = {
 const mockTransaction = jest.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx))
 jest.mock('@/lib/db', () => ({
   prisma: {
-    $transaction: (...args: unknown[]) => mockTransaction(...args as [(tx: typeof mockTx) => Promise<unknown>]),
+    $transaction: (...args: unknown[]) =>
+      mockTransaction(...(args as [(tx: typeof mockTx) => Promise<unknown>])),
   },
 }))
 
@@ -74,8 +75,7 @@ function createRequest(formData: FormData): Request {
   })
 }
 
-const VALID_CSV_ROW =
-  'RES-TEST,ADULT,MALE,SINGLE,STANDARD,3,4,MODERATE,NON_SMOKER,NONE,"de,en"'
+const VALID_CSV_ROW = 'RES-TEST,ADULT,MALE,SINGLE,STANDARD,3,4,MODERATE,NON_SMOKER,NONE,"de,en"'
 const CSV_HEADER =
   'code,ageRange,gender,familyStatus,sleepSchedule,noiseTolerance,cleanlinessPractice,socialStyle,smokingStatus,mobilityNeeds,languages'
 
@@ -161,28 +161,32 @@ describe('POST /api/import/residents', () => {
 
     // Verify bulk insert was called with the validated row payload
     expect(mockResidentCreateMany).toHaveBeenCalledWith({
-      data: [expect.objectContaining({
-        code: 'RES-TEST',
-        ageRange: 'ADULT',
-        gender: 'MALE',
-        status: 'ACTIVE',
-        privacyNeed: 3,
-        guestTolerance: 3,
-        languages: ['de', 'en'],
-      })],
+      data: [
+        expect.objectContaining({
+          code: 'RES-TEST',
+          ageRange: 'ADULT',
+          gender: 'MALE',
+          status: 'ACTIVE',
+          privacyNeed: 3,
+          guestTolerance: 3,
+          languages: ['de', 'en'],
+        }),
+      ],
       skipDuplicates: true,
     })
 
     // The route now also writes AuditLog rows inside the transaction plus a
     // single summary logAudit() afterwards.
     expect(mockAuditLogCreateMany).toHaveBeenCalledWith({
-      data: [expect.objectContaining({
-        action: 'CREATE',
-        entity: 'RESIDENT',
-        entityId: 'new-res-1',
-        userId: 'user-1',
-        changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
-      })],
+      data: [
+        expect.objectContaining({
+          action: 'CREATE',
+          entity: 'RESIDENT',
+          entityId: 'new-res-1',
+          userId: 'user-1',
+          changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
+        }),
+      ],
     })
     expect(mockLogAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -191,7 +195,7 @@ describe('POST /api/import/residents', () => {
         entityId: 'CSV_IMPORT_BATCH',
         userId: 'user-1',
         changes: { source: 'CSV_IMPORT', count: 1 },
-      })
+      }),
     )
   })
 
@@ -270,10 +274,12 @@ describe('POST /api/import/residents', () => {
     await POST(request)
 
     expect(mockResidentCreateMany).toHaveBeenCalledWith({
-      data: [expect.objectContaining({
-        noiseTolerance: 3,
-        cleanlinessPractice: 4,
-      })],
+      data: [
+        expect.objectContaining({
+          noiseTolerance: 3,
+          cleanlinessPractice: 4,
+        }),
+      ],
       skipDuplicates: true,
     })
   })

@@ -26,17 +26,15 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-ui-text">
-            {WHO_FITS_HERE_LABELS.heading}
-          </h2>
+          <h2 className="text-lg font-semibold text-ui-text">{WHO_FITS_HERE_LABELS.heading}</h2>
           <p className="text-sm text-ui-muted">
-            {availableSpaces} {availableSpaces === 1 ? WHO_FITS_HERE_LABELS.spaceCountSingular : WHO_FITS_HERE_LABELS.spaceCountPlural}
+            {availableSpaces}{' '}
+            {availableSpaces === 1
+              ? WHO_FITS_HERE_LABELS.spaceCountSingular
+              : WHO_FITS_HERE_LABELS.spaceCountPlural}
           </p>
         </div>
-        <Link
-          href={`/matching?unit=${unitId}`}
-          className="btn-outline text-sm"
-        >
+        <Link href={`/matching?unit=${unitId}`} className="btn-outline text-sm">
           {WHO_FITS_HERE_LABELS.showAll}
         </Link>
       </div>
@@ -60,14 +58,12 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                   match.concerns.length > 0
                     ? 'border-status-warning/25 bg-status-warning/10'
                     : isGoodFit
-                    ? 'border-status-success/25 bg-status-success/10'
-                    : 'border-ui-border bg-ui-subtle'
+                      ? 'border-status-success/25 bg-status-success/10'
+                      : 'border-ui-border bg-ui-subtle'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="avatar">
-                    {residentInitials(match.resident)}
-                  </div>
+                  <div className="avatar">{residentInitials(match.resident)}</div>
                   <div>
                     <Link
                       href={`/residents/${match.resident.id}`}
@@ -77,7 +73,10 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                     </Link>
                     <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                      {match.resident.languages?.slice(0, DISPLAY_LIMITS.languagePreview).map((l: string) => getLabel(LANGUAGE_LABELS, l)).join(', ')}
+                      {match.resident.languages
+                        ?.slice(0, DISPLAY_LIMITS.languagePreview)
+                        .map((l: string) => getLabel(LANGUAGE_LABELS, l))
+                        .join(', ')}
                     </p>
                     {match.strengths.length > 0 && match.concerns.length === 0 && (
                       <p className="text-xs text-status-success-text mt-0.5">
@@ -85,9 +84,7 @@ export function WhoFitsHereCard({ unitId, availableSpaces, compatibleResidents }
                       </p>
                     )}
                     {match.concerns.length > 0 && (
-                      <p className="text-xs text-status-warning-text mt-0.5">
-                        {match.concerns[0]}
-                      </p>
+                      <p className="text-xs text-status-warning-text mt-0.5">{match.concerns[0]}</p>
                     )}
                   </div>
                 </div>

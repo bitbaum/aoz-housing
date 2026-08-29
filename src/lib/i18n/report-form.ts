@@ -46,11 +46,7 @@ export function buildReportFormLabels(t: Translator) {
     successTitle: t('report.successTitle'),
     successMessage: t('report.successMessage'),
     nextStepsTitle: t('report.nextStepsTitle'),
-    nextSteps: [
-      t('report.nextStep1'),
-      t('report.nextStep2'),
-      t('report.nextStep3'),
-    ],
+    nextSteps: [t('report.nextStep1'), t('report.nextStep2'), t('report.nextStep3')],
     successTip: t('report.successTip'),
     errorGeneric: t('report.errorGeneric'),
     quickTitle: t('report.quickTitle'),
@@ -91,17 +87,12 @@ export function buildReportFormLabels(t: Translator) {
         desc: t(key(`report.severity.interpersonal.${value}.desc`)),
       })),
     },
-  templates: REPORT_TEMPLATES.map((template) => ({
-    ...template,
-    icon:
-      template.key === 'maintenance-urgent'
-        ? '🔧'
-        : template.key === 'noise'
-          ? '🔊'
-          : '🚨',
-    label: t(key(template.labelKey)),
-    description: t(key(template.descriptionKey)),
-  })),
+    templates: REPORT_TEMPLATES.map((template) => ({
+      ...template,
+      icon: template.key === 'maintenance-urgent' ? '🔧' : template.key === 'noise' ? '🔊' : '🚨',
+      label: t(key(template.labelKey)),
+      description: t(key(template.descriptionKey)),
+    })),
   }
 }
 

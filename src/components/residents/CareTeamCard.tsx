@@ -55,7 +55,10 @@ export function CareTeamCard({
             }
             return (
               <li key={role}>
-                <form action={submitSeat} className="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-2 items-center">
+                <form
+                  action={submitSeat}
+                  className="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-2 items-center"
+                >
                   <input type="hidden" name="residentId" value={residentId} />
                   <input type="hidden" name="role" value={role} />
                   <label htmlFor={`care-${role}`} className="text-sm font-medium text-ui-text">

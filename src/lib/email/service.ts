@@ -30,7 +30,7 @@ export async function sendEmail(to: string[], subject: string, html: string): Pr
       const response = await fetch(RESEND_API_URL, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${EMAIL_CONFIG.apiKey}`,
+          Authorization: `Bearer ${EMAIL_CONFIG.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({

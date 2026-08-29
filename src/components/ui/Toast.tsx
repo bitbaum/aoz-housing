@@ -27,22 +27,24 @@ export function ToastContainer() {
 
   const addToast = useCallback((type: ToastType, message: string) => {
     const id = ++toastId
-    setToasts(prev => [...prev, { id, type, message }])
+    setToasts((prev) => [...prev, { id, type, message }])
     setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id))
+      setToasts((prev) => prev.filter((t) => t.id !== id))
     }, 4000)
   }, [])
 
   useEffect(() => {
     addToastExternal = addToast
-    return () => { addToastExternal = null }
+    return () => {
+      addToastExternal = null
+    }
   }, [addToast])
 
   if (toasts.length === 0) return null
 
   return (
     <div className="fixed bottom-4 right-4 z-50 space-y-2" aria-live="polite" role="status">
-      {toasts.map(toast => (
+      {toasts.map((toast) => (
         <div
           key={toast.id}
           className={`px-4 py-3 rounded-lg shadow-overlay border text-sm font-medium animate-slide-up max-w-sm ${

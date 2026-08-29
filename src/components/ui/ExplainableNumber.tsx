@@ -108,11 +108,7 @@ export function ExplainableNumber({
                 <span>{sourceLabel}</span>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="btn-icon"
-              aria-label="Schliessen"
-            >
+            <button onClick={() => setIsOpen(false)} className="btn-icon" aria-label="Schliessen">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -148,7 +144,9 @@ export function ExplainableNumber({
           {/* Interpretation */}
           {explanation.interpretation && (
             <div className="pt-3 border-t border-ui-border">
-              <p className="text-xs text-ui-muted mb-1">{EXPLAINABLE_NUMBER_LABELS.interpretation}</p>
+              <p className="text-xs text-ui-muted mb-1">
+                {EXPLAINABLE_NUMBER_LABELS.interpretation}
+              </p>
               <p className="text-sm text-ui-muted">{explanation.interpretation}</p>
             </div>
           )}

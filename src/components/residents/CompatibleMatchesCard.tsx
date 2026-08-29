@@ -32,14 +32,14 @@ export function CompatibleMatchesCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">
-        Passende Optionen
-      </h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">Passende Optionen</h2>
 
       {/* Compatible Units */}
       {compatibleUnits.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-ui-muted mb-3">{COMPATIBLE_MATCHES_LABELS.unitsTitle}</h3>
+          <h3 className="text-sm font-medium text-ui-muted mb-3">
+            {COMPATIBLE_MATCHES_LABELS.unitsTitle}
+          </h3>
           <div className="space-y-2">
             {compatibleUnits.map(({ unit, fitScore, residents }) => (
               <Link
@@ -50,7 +50,9 @@ export function CompatibleMatchesCard({
                 <div>
                   <p className="font-medium text-ui-text">{unit.code}</p>
                   <p className="text-xs text-ui-muted">
-                    {residents === 0 ? COMPATIBLE_MATCHES_LABELS.emptyUnit : COMPATIBLE_MATCHES_LABELS.residentCount(residents)}
+                    {residents === 0
+                      ? COMPATIBLE_MATCHES_LABELS.emptyUnit
+                      : COMPATIBLE_MATCHES_LABELS.residentCount(residents)}
                   </p>
                 </div>
                 <span className={`text-sm font-bold ${getScoreColorClass(fitScore)}`}>
@@ -65,7 +67,9 @@ export function CompatibleMatchesCard({
       {/* Compatible Unplaced Residents */}
       {compatibleResidents.length > 0 && (
         <div>
-          <h3 className="text-sm font-medium text-ui-muted mb-3">{COMPATIBLE_MATCHES_LABELS.residentsTitle}</h3>
+          <h3 className="text-sm font-medium text-ui-muted mb-3">
+            {COMPATIBLE_MATCHES_LABELS.residentsTitle}
+          </h3>
           <div className="space-y-2">
             {compatibleResidents.map(({ resident: other, score }) => (
               <Link
@@ -74,9 +78,7 @@ export function CompatibleMatchesCard({
                 className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
               >
                 <div className="flex items-center gap-3">
-                  <div className="avatar-sm">
-                    {residentInitials(other)}
-                  </div>
+                  <div className="avatar-sm">{residentInitials(other)}</div>
                   <div>
                     <p className="font-medium text-ui-text">{residentName(other)}</p>
                     <p className="text-xs text-ui-muted">
@@ -90,9 +92,7 @@ export function CompatibleMatchesCard({
               </Link>
             ))}
           </div>
-          <p className="text-xs text-ui-muted mt-3">
-            {COMPATIBLE_MATCHES_LABELS.desc}
-          </p>
+          <p className="text-xs text-ui-muted mt-3">{COMPATIBLE_MATCHES_LABELS.desc}</p>
         </div>
       )}
     </div>

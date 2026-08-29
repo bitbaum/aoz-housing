@@ -6,9 +6,21 @@ import type { ResidentHouseholdProfile } from '@/lib/types'
 // --- Mocks ---
 
 jest.mock('@/lib/constants', () => ({
-  SLEEP_SCHEDULE_LABELS: { EARLY_BIRD: 'Frühaufsteher', NIGHT_OWL: 'Nachtmensch', FLEXIBLE: 'Flexibel' },
-  SOCIAL_STYLE_LABELS: { INTROVERTED: 'Introvertiert', EXTROVERTED: 'Extrovertiert', MODERATE: 'Moderat' },
-  SMOKING_STATUS_LABELS: { NON_SMOKER: 'Nichtraucher', SMOKER: 'Raucher', OUTSIDE_ONLY: 'Nur draussen' },
+  SLEEP_SCHEDULE_LABELS: {
+    EARLY_BIRD: 'Frühaufsteher',
+    NIGHT_OWL: 'Nachtmensch',
+    FLEXIBLE: 'Flexibel',
+  },
+  SOCIAL_STYLE_LABELS: {
+    INTROVERTED: 'Introvertiert',
+    EXTROVERTED: 'Extrovertiert',
+    MODERATE: 'Moderat',
+  },
+  SMOKING_STATUS_LABELS: {
+    NON_SMOKER: 'Nichtraucher',
+    SMOKER: 'Raucher',
+    OUTSIDE_ONLY: 'Nur draussen',
+  },
   LANGUAGE_LABELS: { de: 'Deutsch', en: 'Englisch', ar: 'Arabisch' },
   APARTMENT_PROFILE_LABELS: {
     title: 'Wohnungsprofil',
@@ -45,7 +57,9 @@ jest.mock('@/lib/config/resident-factors', () => ({
 
 // --- Helpers ---
 
-function makeResident(overrides: Partial<ResidentHouseholdProfile> & { id: string }): ResidentHouseholdProfile {
+function makeResident(
+  overrides: Partial<ResidentHouseholdProfile> & { id: string },
+): ResidentHouseholdProfile {
   return {
     id: overrides.id,
     code: overrides.code ?? `RES-${overrides.id}`,
@@ -79,40 +93,54 @@ describe('ApartmentProfileCard', () => {
   // ── Resident count and summary ────────────────────────────────────────────
 
   it('shows resident count in summary', () => {
-    render(<ApartmentProfileCard residents={[makeResident({ id: 'r1' }), makeResident({ id: 'r2' })]} />)
+    render(
+      <ApartmentProfileCard residents={[makeResident({ id: 'r1' }), makeResident({ id: 'r2' })]} />,
+    )
     expect(screen.getByText(/2 Bewohner/)).toBeInTheDocument()
   })
 
   it('shows dominant sleep schedule label in summary', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' }),
-      makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' }),
+          makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD' }),
+        ]}
+      />,
+    )
     // Label appears in both summary and categorical section
     expect(screen.getAllByText(/Frühaufsteher/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows dominant social style label in summary', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', socialStyle: 'INTROVERTED' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard residents={[makeResident({ id: 'r1', socialStyle: 'INTROVERTED' })]} />,
+    )
     // Label appears in both summary and categorical section
     expect(screen.getAllByText(/Introvertiert/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('shows "· Nichtraucher" when all residents are non-smokers', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
-      makeResident({ id: 'r2', smokingStatus: 'NON_SMOKER' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
+          makeResident({ id: 'r2', smokingStatus: 'NON_SMOKER' }),
+        ]}
+      />,
+    )
     expect(screen.getByText(/Nichtraucher/)).toBeInTheDocument()
   })
 
   it('hides non-smokers label when any resident smokes', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
-      makeResident({ id: 'r2', smokingStatus: 'OUTDOOR_SMOKER' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
+          makeResident({ id: 'r2', smokingStatus: 'OUTDOOR_SMOKER' }),
+        ]}
+      />,
+    )
     // The summary "· Nichtraucher" should not appear
     const summaryParagraph = screen.getByText(/Bewohner/)
     expect(summaryParagraph.textContent).not.toContain('· Nichtraucher')
@@ -122,19 +150,27 @@ describe('ApartmentProfileCard', () => {
 
   it('shows harmony score', () => {
     // Identical residents → zero std dev → score 100
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
-      makeResident({ id: 'r2', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
+          makeResident({ id: 'r2', cleanlinessPractice: 3, noiseTolerance: 3, privacyNeed: 3 }),
+        ]}
+      />,
+    )
     expect(screen.getByText('100%')).toBeInTheDocument()
   })
 
   it('displays lower harmony score when residents differ significantly', () => {
     // Max spread (1 and 5) → std dev = 2, avgStdDev = 2, score = max(0, 100 - 2*25) = 50
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessPractice: 1, noiseTolerance: 1, privacyNeed: 1 }),
-      makeResident({ id: 'r2', cleanlinessPractice: 5, noiseTolerance: 5, privacyNeed: 5 }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', cleanlinessPractice: 1, noiseTolerance: 1, privacyNeed: 1 }),
+          makeResident({ id: 'r2', cleanlinessPractice: 5, noiseTolerance: 5, privacyNeed: 5 }),
+        ]}
+      />,
+    )
     expect(screen.getByText('50%')).toBeInTheDocument()
   })
 
@@ -149,10 +185,14 @@ describe('ApartmentProfileCard', () => {
   })
 
   it('shows average scale value rounded to 1dp', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessPractice: 2 }),
-      makeResident({ id: 'r2', cleanlinessPractice: 4 }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', cleanlinessPractice: 2 }),
+          makeResident({ id: 'r2', cleanlinessPractice: 4 }),
+        ]}
+      />,
+    )
     // Average = 3.0 → displayed as "3.0"
     expect(screen.getAllByText('3.0').length).toBeGreaterThanOrEqual(1)
   })
@@ -164,11 +204,15 @@ describe('ApartmentProfileCard', () => {
   })
 
   it('shows outlier warning for residents > 1.5 away from average', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-LOW' }),
-      makeResident({ id: 'r2', cleanlinessPractice: 3 }),
-      makeResident({ id: 'r3', cleanlinessPractice: 3 }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-LOW' }),
+          makeResident({ id: 'r2', cleanlinessPractice: 3 }),
+          makeResident({ id: 'r3', cleanlinessPractice: 3 }),
+        ]}
+      />,
+    )
     // avg ≈ 2.33; 1 - 2.33 = -1.33 → not > 1.5 → no outlier
     // Let's use a more extreme case: [1, 1, 5] avg = 2.33; 5 - 2.33 = 2.67 > 1.5
     // But we can't easily test the exact text here without rerendering, so just check component renders without crash
@@ -176,11 +220,15 @@ describe('ApartmentProfileCard', () => {
   })
 
   it('shows outlier warning code for extreme value', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-001' }),
-      makeResident({ id: 'r2', cleanlinessPractice: 1, code: 'RES-002' }),
-      makeResident({ id: 'r3', cleanlinessPractice: 5, code: 'RES-003' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', cleanlinessPractice: 1, code: 'RES-001' }),
+          makeResident({ id: 'r2', cleanlinessPractice: 1, code: 'RES-002' }),
+          makeResident({ id: 'r3', cleanlinessPractice: 5, code: 'RES-003' }),
+        ]}
+      />,
+    )
     // avg = 7/3 ≈ 2.33; RES-003 value 5 → |5 - 2.33| = 2.67 > 1.5 → outlier
     expect(screen.getByText(/RES-003/)).toBeInTheDocument()
   })
@@ -188,16 +236,24 @@ describe('ApartmentProfileCard', () => {
   // ── Categorical sections ──────────────────────────────────────────────────
 
   it('renders sleep schedule section header', () => {
-    render(<ApartmentProfileCard residents={[makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' })]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' })]}
+      />,
+    )
     expect(screen.getByText('Schlafrhythmus')).toBeInTheDocument()
   })
 
   it('renders sleep schedule entries with count', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' }),
-      makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD' }),
-      makeResident({ id: 'r3', sleepSchedule: 'NIGHT_OWL' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', sleepSchedule: 'EARLY_BIRD' }),
+          makeResident({ id: 'r2', sleepSchedule: 'EARLY_BIRD' }),
+          makeResident({ id: 'r3', sleepSchedule: 'NIGHT_OWL' }),
+        ]}
+      />,
+    )
     // EARLY_BIRD appears twice in sleep schedule section
     const earlyBirdEntries = screen.getAllByText('Frühaufsteher')
     expect(earlyBirdEntries.length).toBeGreaterThanOrEqual(1)
@@ -211,62 +267,64 @@ describe('ApartmentProfileCard', () => {
   // ── Languages section ─────────────────────────────────────────────────────
 
   it('shows languages section when residents have languages', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', languages: ['de', 'en'] }),
-    ]} />)
+    render(
+      <ApartmentProfileCard residents={[makeResident({ id: 'r1', languages: ['de', 'en'] })]} />,
+    )
     expect(screen.getByText('Sprachen')).toBeInTheDocument()
     expect(screen.getByText(/Deutsch/)).toBeInTheDocument()
     expect(screen.getByText(/Englisch/)).toBeInTheDocument()
   })
 
   it('shows language with count badge', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', languages: ['de'] }),
-      makeResident({ id: 'r2', languages: ['de'] }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', languages: ['de'] }),
+          makeResident({ id: 'r2', languages: ['de'] }),
+        ]}
+      />,
+    )
     expect(screen.getByText(/Deutsch \(2\)/)).toBeInTheDocument()
   })
 
   it('hides languages section when no languages set', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', languages: [] }),
-    ]} />)
+    render(<ApartmentProfileCard residents={[makeResident({ id: 'r1', languages: [] })]} />)
     expect(screen.queryByText('Sprachen')).not.toBeInTheDocument()
   })
 
   // ── Smoker warning ────────────────────────────────────────────────────────
 
   it('shows smoker warning when not all residents are non-smokers', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
-      makeResident({ id: 'r2', smokingStatus: 'OUTDOOR_SMOKER' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[
+          makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
+          makeResident({ id: 'r2', smokingStatus: 'OUTDOOR_SMOKER' }),
+        ]}
+      />,
+    )
     expect(screen.getByText(/Raucher in der Wohnung/)).toBeInTheDocument()
   })
 
   it('hides smoker warning when all residents are non-smokers', () => {
-    render(<ApartmentProfileCard residents={[
-      makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' }),
-    ]} />)
+    render(
+      <ApartmentProfileCard
+        residents={[makeResident({ id: 'r1', smokingStatus: 'NON_SMOKER' })]}
+      />,
+    )
     expect(screen.queryByText(/Raucher in der Wohnung/)).not.toBeInTheDocument()
   })
 
   // ── showDetails=false ─────────────────────────────────────────────────────
 
   it('hides scale metrics when showDetails=false', () => {
-    render(<ApartmentProfileCard
-      residents={[makeResident({ id: 'r1' })]}
-      showDetails={false}
-    />)
+    render(<ApartmentProfileCard residents={[makeResident({ id: 'r1' })]} showDetails={false} />)
     expect(screen.queryByText('Sauberkeit')).not.toBeInTheDocument()
     expect(screen.queryByText('Schlafrhythmus')).not.toBeInTheDocument()
   })
 
   it('still shows summary when showDetails=false', () => {
-    render(<ApartmentProfileCard
-      residents={[makeResident({ id: 'r1' })]}
-      showDetails={false}
-    />)
+    render(<ApartmentProfileCard residents={[makeResident({ id: 'r1' })]} showDetails={false} />)
     expect(screen.getByText(/1 Bewohner/)).toBeInTheDocument()
   })
 })

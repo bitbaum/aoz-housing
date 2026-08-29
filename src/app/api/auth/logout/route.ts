@@ -11,7 +11,7 @@ export async function POST() {
     logger.errorWithCause('Logout failed', error)
     return NextResponse.json(
       { success: false, error: 'Ein Fehler ist aufgetreten' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

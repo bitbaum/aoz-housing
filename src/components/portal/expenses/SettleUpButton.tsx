@@ -48,7 +48,12 @@ export function SettleUpButton({ toResidentId, toName, amountRappen }: SettleUpB
 
   return (
     <span className="shrink-0">
-      <button type="button" onClick={handleClick} disabled={submitting} className="btn-outline text-sm">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={submitting}
+        className="btn-outline text-sm"
+      >
         {submitting ? t('action.saving') : L.markPaid}
       </button>
       {error && <span className="block text-xs text-status-error-text mt-1">{error}</span>}

@@ -197,9 +197,7 @@ function RegisterForm() {
                   maxLength={80}
                   className="input"
                 />
-                <p className="mt-1.5 text-xs text-ui-muted">
-                  {REGISTER_LABELS.householdNameHint}
-                </p>
+                <p className="mt-1.5 text-xs text-ui-muted">{REGISTER_LABELS.householdNameHint}</p>
               </div>
               <div>
                 <label htmlFor="displayName" className="label">

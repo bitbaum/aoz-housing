@@ -1,16 +1,10 @@
 'use client'
 
-import {
-  ChevronDown,
-  ChevronUp,
-} from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { RESIDENT_DIMENSIONS } from '@/lib/config/resident-factors'
 import { FACTOR_SCIENCE } from '@/lib/config/algorithm-docs'
 import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants'
-import {
-  getFactorsByDimension,
-  EvidenceStrengthBadge,
-} from './shared'
+import { getFactorsByDimension, EvidenceStrengthBadge } from './shared'
 
 export function DimensionsTab({
   expandedDimension,
@@ -21,11 +15,9 @@ export function DimensionsTab({
 }) {
   return (
     <div className="space-y-4">
-      <p className="text-ui-muted mb-4">
-        {ALGORITHM_OVERVIEW_LABELS.dimensionsIntro}
-      </p>
+      <p className="text-ui-muted mb-4">{ALGORITHM_OVERVIEW_LABELS.dimensionsIntro}</p>
 
-      {RESIDENT_DIMENSIONS.map(dim => {
+      {RESIDENT_DIMENSIONS.map((dim) => {
         const factors = getFactorsByDimension(dim.id)
         const isExpanded = expandedDimension === dim.id
 
@@ -50,7 +42,9 @@ export function DimensionsTab({
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                <span className="text-xs sm:text-sm text-ui-muted">{ALGORITHM_OVERVIEW_LABELS.factorsCount(factors.length)}</span>
+                <span className="text-xs sm:text-sm text-ui-muted">
+                  {ALGORITHM_OVERVIEW_LABELS.factorsCount(factors.length)}
+                </span>
                 <span className="px-3 py-1 rounded-sm text-sm font-bold bg-ui-subtle text-ui-muted">
                   {Math.round(dim.weight * 100)}%
                 </span>
@@ -65,7 +59,7 @@ export function DimensionsTab({
             {isExpanded && (
               <div id={`dimension-${dim.id}`} className="p-4 pt-0 border-t border-ui-border">
                 <div className="space-y-3 mt-4">
-                  {factors.map(factor => {
+                  {factors.map((factor) => {
                     const science = FACTOR_SCIENCE[factor.id]
                     return (
                       <div key={factor.id} className="bg-ui-subtle rounded-lg p-4">

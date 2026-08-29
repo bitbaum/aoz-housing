@@ -54,23 +54,31 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
   }
 
   // Numeric averages
-  const avgNoiseTolerance = average(residents.map(r => r.noiseTolerance))
-  const avgCleanlinessLevel = average(residents.map(r => r.cleanlinessPractice))
-  const avgPrivacyNeed = average(residents.map(r => r.privacyNeed))
-  const avgChoresContribution = average(residents.map(r => r.choresContribution))
+  const avgNoiseTolerance = average(residents.map((r) => r.noiseTolerance))
+  const avgCleanlinessLevel = average(residents.map((r) => r.cleanlinessPractice))
+  const avgPrivacyNeed = average(residents.map((r) => r.privacyNeed))
+  const avgChoresContribution = average(residents.map((r) => r.choresContribution))
 
   // Enum distributions and dominants
-  const ALL_SLEEP_SCHEDULES: readonly SleepSchedule[] = ['EARLY_BIRD', 'STANDARD', 'NIGHT_OWL', 'IRREGULAR']
-  const sleepScheduleDistribution = distribution(residents.map(r => r.sleepSchedule), ALL_SLEEP_SCHEDULES)
-  const dominantSleepSchedule = findMode(residents.map(r => r.sleepSchedule))
-  const dominantSocialStyle = findMode(residents.map(r => r.socialStyle))
-  const dominantSmokingStatus = findMode(residents.map(r => r.smokingStatus))
+  const ALL_SLEEP_SCHEDULES: readonly SleepSchedule[] = [
+    'EARLY_BIRD',
+    'STANDARD',
+    'NIGHT_OWL',
+    'IRREGULAR',
+  ]
+  const sleepScheduleDistribution = distribution(
+    residents.map((r) => r.sleepSchedule),
+    ALL_SLEEP_SCHEDULES,
+  )
+  const dominantSleepSchedule = findMode(residents.map((r) => r.sleepSchedule))
+  const dominantSocialStyle = findMode(residents.map((r) => r.socialStyle))
+  const dominantSmokingStatus = findMode(residents.map((r) => r.smokingStatus))
 
   // Language overlap — for a single resident, their languages ARE the common languages
   // (the new resident needs to share at least one with them to communicate)
   const languageCounts: Record<string, number> = {}
-  residents.forEach(r => {
-    r.languages.forEach(lang => {
+  residents.forEach((r) => {
+    r.languages.forEach((lang) => {
       languageCounts[lang] = (languageCounts[lang] || 0) + 1
     })
   })
@@ -81,8 +89,8 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
     .sort((a, b) => languageCounts[b] - languageCounts[a])
 
   // Boolean percentages
-  const needsQuietCount = residents.filter(r => r.needsQuietEnvironment).length
-  const nightDisturbancesCount = residents.filter(r => r.hasNightDisturbances).length
+  const needsQuietCount = residents.filter((r) => r.needsQuietEnvironment).length
+  const nightDisturbancesCount = residents.filter((r) => r.hasNightDisturbances).length
   const percentNeedsQuiet = (needsQuietCount / residents.length) * 100
   const percentHasNightDisturbances = (nightDisturbancesCount / residents.length) * 100
 
@@ -92,7 +100,7 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
     isEmpty: false,
     avgNoiseTolerance,
     avgCleanlinessLevel,
-    cleanlinessProfiles: residents.map(r => ({
+    cleanlinessProfiles: residents.map((r) => ({
       cleanlinessPractice: r.cleanlinessPractice,
       cleanlinessExpectation: r.cleanlinessExpectation,
       chaosTolerance: r.chaosTolerance,
@@ -114,7 +122,7 @@ export function calculateApartmentProfile(residents: ResidentProfile[]): Apartme
  */
 export function calculateApartmentFit(
   newResident: ResidentProfile,
-  apartmentProfile: ApartmentProfile
+  apartmentProfile: ApartmentProfile,
 ): ApartmentCompatibility {
   const conflicts: ApartmentConflict[] = []
   const strengths: string[] = []
@@ -164,7 +172,7 @@ export function calculateApartmentFit(
     // clear conflict, which is hard to see from incident reports alone.
     if (hasDoubleStandard(newResident)) {
       warnings.push(
-        'Erwartet mehr Ordnung von anderen, als sie/er selbst hält — Putzplan im Haus früh klären'
+        'Erwartet mehr Ordnung von anderen, als sie/er selbst hält — Putzplan im Haus früh klären',
       )
     }
   }
@@ -220,13 +228,19 @@ export function calculateApartmentFit(
   // Check sleep schedule compatibility
   if (apartmentProfile.dominantSleepSchedule) {
     const isConflicting =
-      (newResident.sleepSchedule === 'EARLY_BIRD' && apartmentProfile.dominantSleepSchedule === 'NIGHT_OWL') ||
-      (newResident.sleepSchedule === 'NIGHT_OWL' && apartmentProfile.dominantSleepSchedule === 'EARLY_BIRD')
+      (newResident.sleepSchedule === 'EARLY_BIRD' &&
+        apartmentProfile.dominantSleepSchedule === 'NIGHT_OWL') ||
+      (newResident.sleepSchedule === 'NIGHT_OWL' &&
+        apartmentProfile.dominantSleepSchedule === 'EARLY_BIRD')
 
     if (isConflicting) {
-      const dominantPercent = apartmentProfile.sleepScheduleDistribution[apartmentProfile.dominantSleepSchedule]
+      const dominantPercent =
+        apartmentProfile.sleepScheduleDistribution[apartmentProfile.dominantSleepSchedule]
       const residentSleepLabel = getLabel(SLEEP_SCHEDULE_LABELS, newResident.sleepSchedule)
-      const apartmentSleepLabel = getLabel(SLEEP_SCHEDULE_LABELS, apartmentProfile.dominantSleepSchedule)
+      const apartmentSleepLabel = getLabel(
+        SLEEP_SCHEDULE_LABELS,
+        apartmentProfile.dominantSleepSchedule,
+      )
       if (dominantPercent >= 70) {
         conflicts.push({
           attribute: 'sleepSchedule',
@@ -245,12 +259,17 @@ export function calculateApartmentFit(
         })
       }
     } else if (newResident.sleepSchedule === apartmentProfile.dominantSleepSchedule) {
-      strengths.push(`Passender Schlafrhythmus (${getLabel(SLEEP_SCHEDULE_LABELS, newResident.sleepSchedule)})`)
+      strengths.push(
+        `Passender Schlafrhythmus (${getLabel(SLEEP_SCHEDULE_LABELS, newResident.sleepSchedule)})`,
+      )
     }
   }
 
   // Check quiet environment needs vs night disturbances
-  if (newResident.needsQuietEnvironment && apartmentProfile.percentHasNightDisturbances >= APARTMENT_THRESHOLDS.nightDisturbances.HIGH) {
+  if (
+    newResident.needsQuietEnvironment &&
+    apartmentProfile.percentHasNightDisturbances >= APARTMENT_THRESHOLDS.nightDisturbances.HIGH
+  ) {
     conflicts.push({
       attribute: 'quietEnvironment',
       severity: 'HIGH',
@@ -258,13 +277,16 @@ export function calculateApartmentFit(
       residentValue: 'Braucht Ruhe',
       apartmentAverage: `${apartmentProfile.percentHasNightDisturbances.toFixed(0)}% Störungen`,
     })
-  } else if (newResident.needsQuietEnvironment && apartmentProfile.percentHasNightDisturbances < 20) {
+  } else if (
+    newResident.needsQuietEnvironment &&
+    apartmentProfile.percentHasNightDisturbances < 20
+  ) {
     strengths.push('Ruhige Umgebung vorhanden')
   }
 
   // Check language overlap
-  const sharedLanguages = newResident.languages.filter(lang =>
-    apartmentProfile.commonLanguages.includes(lang)
+  const sharedLanguages = newResident.languages.filter((lang) =>
+    apartmentProfile.commonLanguages.includes(lang),
   )
   if (sharedLanguages.length > 0) {
     strengths.push(`Gemeinsame Sprache: ${sharedLanguages.join(', ')}`)
@@ -274,7 +296,10 @@ export function calculateApartmentFit(
 
   // Check smoking compatibility
   if (apartmentProfile.dominantSmokingStatus) {
-    if (newResident.smokingStatus === 'NON_SMOKER' && apartmentProfile.dominantSmokingStatus !== 'NON_SMOKER') {
+    if (
+      newResident.smokingStatus === 'NON_SMOKER' &&
+      apartmentProfile.dominantSmokingStatus !== 'NON_SMOKER'
+    ) {
       conflicts.push({
         attribute: 'smokingStatus',
         severity: 'MEDIUM',
@@ -283,17 +308,23 @@ export function calculateApartmentFit(
         apartmentAverage: apartmentProfile.dominantSmokingStatus,
       })
     } else if (newResident.smokingStatus === apartmentProfile.dominantSmokingStatus) {
-      strengths.push(`Übereinstimmender Rauchstatus (${getLabel(SMOKING_STATUS_LABELS, newResident.smokingStatus)})`)
+      strengths.push(
+        `Übereinstimmender Rauchstatus (${getLabel(SMOKING_STATUS_LABELS, newResident.smokingStatus)})`,
+      )
     }
   }
 
   // Check social style compatibility
   if (apartmentProfile.dominantSocialStyle) {
     if (newResident.socialStyle === apartmentProfile.dominantSocialStyle) {
-      strengths.push(`Ähnlicher Sozialstil (${getLabel(SOCIAL_STYLE_LABELS, newResident.socialStyle)})`)
+      strengths.push(
+        `Ähnlicher Sozialstil (${getLabel(SOCIAL_STYLE_LABELS, newResident.socialStyle)})`,
+      )
     } else if (
-      (newResident.socialStyle === 'INTROVERTED' && apartmentProfile.dominantSocialStyle === 'EXTROVERTED') ||
-      (newResident.socialStyle === 'EXTROVERTED' && apartmentProfile.dominantSocialStyle === 'INTROVERTED')
+      (newResident.socialStyle === 'INTROVERTED' &&
+        apartmentProfile.dominantSocialStyle === 'EXTROVERTED') ||
+      (newResident.socialStyle === 'EXTROVERTED' &&
+        apartmentProfile.dominantSocialStyle === 'INTROVERTED')
     ) {
       conflicts.push({
         attribute: 'socialStyle',
@@ -324,21 +355,18 @@ export function calculateApartmentFit(
 function calculateFitScore(
   conflicts: ApartmentConflict[],
   strengths: string[],
-  residentCount: number
+  residentCount: number,
 ): number {
   const { penalties, bonuses } = FIT_SCORE_CONFIG
   let score = 100
 
   // Deduct points for conflicts using config values
-  conflicts.forEach(conflict => {
+  conflicts.forEach((conflict) => {
     score -= penalties[conflict.severity] ?? 0
   })
 
   // Add bonus for strengths (capped)
-  const strengthBonus = Math.min(
-    strengths.length * bonuses.perStrength,
-    bonuses.maxStrengthBonus
-  )
+  const strengthBonus = Math.min(strengths.length * bonuses.perStrength, bonuses.maxStrengthBonus)
   score += strengthBonus
 
   // Slight bonus for joining a smaller group (easier integration)
@@ -366,7 +394,7 @@ function findMode<T extends string>(values: T[]): T | null {
   if (values.length === 0) return null
 
   const counts: Record<string, number> = {}
-  values.forEach(v => {
+  values.forEach((v) => {
     counts[v] = (counts[v] || 0) + 1
   })
 
@@ -399,7 +427,7 @@ function distribution<T extends string>(values: T[], allKeys?: readonly T[]): Re
   if (values.length === 0) return percentages as Record<T, number>
 
   const counts: Record<string, number> = {}
-  values.forEach(v => {
+  values.forEach((v) => {
     counts[v] = (counts[v] || 0) + 1
   })
 

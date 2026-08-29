@@ -18,7 +18,10 @@ export async function ensureStaffLogin(page: Page) {
   if (page.url().includes('/login')) {
     await openCodeLoginForm(page)
     await page.locator('#code').fill(STAFF_CODE)
-    await page.locator('form').getByRole('button', { name: /^Anmelden$/i }).click()
+    await page
+      .locator('form')
+      .getByRole('button', { name: /^Anmelden$/i })
+      .click()
     await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30000 })
   }
 }
@@ -144,7 +147,7 @@ export async function findAdminNavLink(page: Page, href: string): Promise<Locato
  * asserting is the one users actually experience — they land on the 404 page.
  */
 export async function expectNotFoundPage(page: Page) {
-  await expect(
-    page.getByRole('heading', { name: /Seite nicht gefunden/i })
-  ).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: /Seite nicht gefunden/i })).toBeVisible({
+    timeout: 15_000,
+  })
 }

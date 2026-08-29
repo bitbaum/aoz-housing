@@ -52,13 +52,12 @@ export function PortalTabBar({ messageUnreadCount = 0 }: { messageUnreadCount?: 
   const onTabPage = tabItems.some((item) => isPortalPathActive(pathname, item.href))
   const onAccountPage = portalAccountItems().some((item) => isPortalPathActive(pathname, item.href))
   const moreActive = moreOpen || (!onTabPage && !onAccountPage)
-  const showMoreUnread = messageUnreadCount > 0 && !tabItems.some((item) => item.labelKey === 'messages')
+  const showMoreUnread =
+    messageUnreadCount > 0 && !tabItems.some((item) => item.labelKey === 'messages')
 
   return (
     <>
-      {moreOpen && (
-        <div className="scrim z-40 lg:hidden" onClick={close} aria-hidden="true" />
-      )}
+      {moreOpen && <div className="scrim z-40 lg:hidden" onClick={close} aria-hidden="true" />}
 
       <div
         id="portal-more-sheet"

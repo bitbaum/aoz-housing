@@ -25,7 +25,7 @@ describe('computeBalances', () => {
     const balances = computeBalances(
       [expense('georgy', 3000, ['ihor', 'misha', 'alex'])],
       [],
-      MEMBERS
+      MEMBERS,
     )
     expect(balances.get('georgy')).toBe(3000)
     expect(balances.get('ihor')).toBe(-1000)
@@ -35,7 +35,7 @@ describe('computeBalances', () => {
     const balances = computeBalances(
       [expense('georgy', 4000)],
       [{ fromId: 'ihor', toId: 'georgy', amountRappen: 1000 }],
-      MEMBERS
+      MEMBERS,
     )
     expect(balances.get('ihor')).toBe(0)
     expect(balances.get('georgy')).toBe(2000)
@@ -67,7 +67,7 @@ describe('simplifyDebts', () => {
     const balances = computeBalances(
       [expense('georgy', 4000), expense('ihor', 2000), expense('misha', 1000)],
       [],
-      MEMBERS
+      MEMBERS,
     )
     const transfers = simplifyDebts(balances)
     expect(transfers.length).toBeLessThanOrEqual(MEMBERS.length - 1)

@@ -51,7 +51,7 @@ describe('which provider a completion uses', () => {
     // there is no vendor to ask, which is a different fact from a vendor that
     // refused. `userFacingAIError` turns it into the configuration message.
     await expect(
-      completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
+      completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 }),
     ).rejects.toThrow(/every configured AI provider failed/)
   })
 })
@@ -108,7 +108,7 @@ describe('where the model id comes from', () => {
     expect(model).toBe('pinned-on-purpose')
   })
 
-  it('does not send one vendor\'s model id to the other vendor', async () => {
+  it("does not send one vendor's model id to the other vendor", async () => {
     // A model name only means something at the vendor that publishes it.
     const model = await modelSentTo({
       OPENROUTER_API_KEY: 'sk-or-test',
@@ -123,10 +123,18 @@ describe('the Groq call', () => {
     ({ ok: true, json: async () => ({ choices: [{ message: { content } }] }) }) as Response
 
   it('sends the system prompt and returns the text', async () => {
-    const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test', GROQ_MODEL: 'test-model' })
+    const { completeText } = await loadProvider({
+      GROQ_API_KEY: 'gsk_test',
+      GROQ_MODEL: 'test-model',
+    })
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(okResponse('{"values":{}}'))
 
-    const text = await completeText({ system: 'sys', prompt: 'user text', maxTokens: 64, temperature: 0.2 })
+    const text = await completeText({
+      system: 'sys',
+      prompt: 'user text',
+      maxTokens: 64,
+      temperature: 0.2,
+    })
 
     expect(text).toBe('{"values":{}}')
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]

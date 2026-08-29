@@ -109,8 +109,7 @@ export const fa: Dictionary = {
   'learning.title': 'یادگیری تو',
   'learning.subtitle': 'گواهی، دوره و داوطلبی — خودت می‌توانی بنویسی چه می‌کنی.',
   'learning.achievements': 'دستاوردها',
-  'learning.achievementsEmpty':
-    'هنوز دستاوردی نیست. آزمون، دوره و داوطلبی تمام‌شده اینجا می‌آید.',
+  'learning.achievementsEmpty': 'هنوز دستاوردی نیست. آزمون، دوره و داوطلبی تمام‌شده اینجا می‌آید.',
   'learning.inProgress': 'در جریان',
   'learning.offers': 'دوره‌ها و پیشنهادها',
   'learning.offersEmpty': 'الان پیشنهاد یادگیری نیست. فعالیت‌ها را ببین.',

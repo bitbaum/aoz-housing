@@ -14,9 +14,20 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, ...rest }: {
-    href: string; children: React.ReactNode; className?: string
-  }) => <a href={href} className={className} {...rest}>{children}</a>,
+  default: ({
+    href,
+    children,
+    className,
+    ...rest
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className} {...rest}>
+      {children}
+    </a>
+  ),
 }))
 
 describe('PortalSidebar', () => {

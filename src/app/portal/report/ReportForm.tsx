@@ -168,7 +168,8 @@ export function ReportForm({ roommates }: Props) {
                   : ''
               }`}
             >
-              {template.icon ? `${template.icon} ` : ''}{template.label}
+              {template.icon ? `${template.icon} ` : ''}
+              {template.label}
             </button>
           ))}
         </div>
@@ -177,11 +178,8 @@ export function ReportForm({ roommates }: Props) {
       <div className="mb-6 p-3 rounded-lg border border-ui-border bg-ui-subtle">
         <h3 className="text-sm font-semibold text-ui-text mb-1">{R.transparency.title}</h3>
         <p className="text-xs text-ui-muted">
-          {R.transparency.before}{' '}
-          <strong>{R.transparency.open}</strong>{' '}
-          {R.transparency.middle}{' '}
-          <strong>{R.transparency.resolved}</strong>{' '}
-          {R.transparency.after}
+          {R.transparency.before} <strong>{R.transparency.open}</strong> {R.transparency.middle}{' '}
+          <strong>{R.transparency.resolved}</strong> {R.transparency.after}
         </p>
         <Link
           href={`/portal#${RESIDENT_REPORTS_ANCHOR}`}
@@ -334,7 +332,9 @@ export function ReportForm({ roommates }: Props) {
               </label>
               <div
                 className={`grid gap-2 sm:gap-3 ${
-                  category === 'MAINTENANCE' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'
+                  category === 'MAINTENANCE'
+                    ? 'grid-cols-2 sm:grid-cols-4'
+                    : 'grid-cols-2 sm:grid-cols-4'
                 }`}
               >
                 {R.severityOptions[category].map((sev) => (
@@ -355,9 +355,7 @@ export function ReportForm({ roommates }: Props) {
                       >
                         {sev.label}
                       </span>
-                      {'desc' in sev && (
-                        <span className="text-xs text-ui-muted">{sev.desc}</span>
-                      )}
+                      {'desc' in sev && <span className="text-xs text-ui-muted">{sev.desc}</span>}
                     </div>
                   </label>
                 ))}

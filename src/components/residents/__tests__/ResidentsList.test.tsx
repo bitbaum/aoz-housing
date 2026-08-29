@@ -6,8 +6,18 @@ import { ResidentsList, type ResidentListItem } from '../ResidentsList'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -76,11 +86,16 @@ describe('ResidentsList', () => {
 
   it('renders link to resident profile', () => {
     render(<ResidentsList residents={[makeResident({ id: 'res-abc', code: 'RES-ABC' })]} />)
-    expect(screen.getByRole('link', { name: /RES-ABC/ })).toHaveAttribute('href', '/residents/res-abc')
+    expect(screen.getByRole('link', { name: /RES-ABC/ })).toHaveAttribute(
+      'href',
+      '/residents/res-abc',
+    )
   })
 
   it('shows age and gender', () => {
-    render(<ResidentsList residents={[makeResident({ id: 'r1', ageRange: 'ADULT', gender: 'MALE' })]} />)
+    render(
+      <ResidentsList residents={[makeResident({ id: 'r1', ageRange: 'ADULT', gender: 'MALE' })]} />,
+    )
     expect(screen.getByText(/26-40/)).toBeInTheDocument()
     expect(screen.getByText(/M/)).toBeInTheDocument()
   })
@@ -126,10 +141,14 @@ describe('ResidentsList', () => {
   })
 
   it('renders multiple resident cards', () => {
-    render(<ResidentsList residents={[
-      makeResident({ id: 'r1', code: 'RES-001' }),
-      makeResident({ id: 'r2', code: 'RES-002' }),
-    ]} />)
+    render(
+      <ResidentsList
+        residents={[
+          makeResident({ id: 'r1', code: 'RES-001' }),
+          makeResident({ id: 'r2', code: 'RES-002' }),
+        ]}
+      />,
+    )
     expect(screen.getByText('RES-001')).toBeInTheDocument()
     expect(screen.getByText('RES-002')).toBeInTheDocument()
   })

@@ -25,21 +25,21 @@ import {
 import type { MarketplacePostKind } from '@prisma/client'
 
 const kindLabels = Object.fromEntries(
-  MARKETPLACE_KIND_VALUES.map((kind) => [kind, de[MARKETPLACE_KINDS[kind].labelKey]])
+  MARKETPLACE_KIND_VALUES.map((kind) => [kind, de[MARKETPLACE_KINDS[kind].labelKey]]),
 ) as Record<MarketplacePostKind, string>
 
 const categoryLabels = Object.fromEntries(
   MARKETPLACE_CATEGORY_VALUES.map((category) => [
     category,
     de[MARKETPLACE_CATEGORY_LABEL_KEYS[category]],
-  ])
+  ]),
 ) as Record<string, string>
 
 const natureLabels = Object.fromEntries(
   (Object.keys(MARKETPLACE_NATURE_LABEL_KEYS) as MarketplaceNature[]).map((nature) => [
     nature,
     de[MARKETPLACE_NATURE_LABEL_KEYS[nature]],
-  ])
+  ]),
 ) as Record<MarketplaceNature, string>
 
 export const MARKETPLACE_ADMIN_LABELS = {

@@ -38,9 +38,7 @@ function statusBadge(status: string): string {
 }
 
 function sourceLabel(source: ResidentOrStaff): string {
-  return source === 'RESIDENT'
-    ? LEARNING_LABELS.sourceResident
-    : LEARNING_LABELS.sourceStaff
+  return source === 'RESIDENT' ? LEARNING_LABELS.sourceResident : LEARNING_LABELS.sourceStaff
 }
 
 export function IntegrationBoard({ records, emptyLabel, emptyAction }: IntegrationBoardProps) {
@@ -77,7 +75,10 @@ export function IntegrationBoard({ records, emptyLabel, emptyAction }: Integrati
                 </div>
                 <h3 className="font-semibold text-ui-text truncate">{record.title}</h3>
                 <p className="text-sm text-ui-muted mt-1">
-                  <Link href={`/residents/${record.resident.id}`} className="font-medium hover:underline text-ui-text">
+                  <Link
+                    href={`/residents/${record.resident.id}`}
+                    className="font-medium hover:underline text-ui-text"
+                  >
                     {residentName(record.resident)}
                   </Link>
                   {/* resident-code-intentional — staff often identify dossiers by login code */}
@@ -104,14 +105,17 @@ export function IntegrationBoard({ records, emptyLabel, emptyAction }: Integrati
                 <div>
                   <p className="text-xs text-ui-muted">{LEARNING_LABELS.category}</p>
                   <p className="text-ui-text">
-                    {LEARNING_CATEGORY_LABELS[record.category as LearningCategoryId] || record.category}
+                    {LEARNING_CATEGORY_LABELS[record.category as LearningCategoryId] ||
+                      record.category}
                   </p>
                 </div>
               )}
               {record.cefrLevel && (
                 <div>
                   <p className="text-xs text-ui-muted">{LEARNING_LABELS.cefr}</p>
-                  <p className="text-ui-text">{record.languageCode || '—'} {record.cefrLevel}</p>
+                  <p className="text-ui-text">
+                    {record.languageCode || '—'} {record.cefrLevel}
+                  </p>
                 </div>
               )}
               {record.hours != null && (

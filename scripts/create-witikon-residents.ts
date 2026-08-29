@@ -6,7 +6,20 @@
  * - SOC: Data creation separated from business logic
  */
 
-import { PrismaClient, AgeRange, Gender, FamilyStatus, SleepSchedule, SocialStyle, SmokingStatus, MobilityNeed, RecyclingKnowledge, RoomSharingStatus, SupportLevel, ResidentStatus } from '@prisma/client'
+import {
+  PrismaClient,
+  AgeRange,
+  Gender,
+  FamilyStatus,
+  SleepSchedule,
+  SocialStyle,
+  SmokingStatus,
+  MobilityNeed,
+  RecyclingKnowledge,
+  RoomSharingStatus,
+  SupportLevel,
+  ResidentStatus,
+} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -23,7 +36,7 @@ async function main() {
       noiseTolerance: 1, // Very low tolerance
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5), // Very clean
+      chaosTolerance: 6 - 5, // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High need
       languages: ['AR', 'EN'],
@@ -40,7 +53,7 @@ async function main() {
       noiseTolerance: 5, // High tolerance
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3), // Average
+      chaosTolerance: 6 - 3, // Average
       socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low need
       languages: ['ES', 'EN'],
@@ -57,7 +70,7 @@ async function main() {
       noiseTolerance: 3, // Medium
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4), // Clean
+      chaosTolerance: 6 - 4, // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['RU'],
@@ -74,7 +87,7 @@ async function main() {
       noiseTolerance: 1, // Very low
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5), // Very clean
+      chaosTolerance: 6 - 5, // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['SO'],
@@ -92,7 +105,7 @@ async function main() {
       noiseTolerance: 5, // High
       cleanlinessPractice: 2,
       cleanlinessExpectation: 2,
-      chaosTolerance: 6 - (2), // Messy
+      chaosTolerance: 6 - 2, // Messy
       socialStyle: 'EXTROVERTED' as SocialStyle,
       privacyNeed: 1, // Low
       languages: ['PT'],
@@ -109,7 +122,7 @@ async function main() {
       noiseTolerance: 3, // Medium
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4), // Clean
+      chaosTolerance: 6 - 4, // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['AR'],
@@ -126,13 +139,13 @@ async function main() {
       noiseTolerance: 2, // Low
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4), // Clean
+      chaosTolerance: 6 - 4, // Clean
       socialStyle: 'MODERATE' as SocialStyle,
       privacyNeed: 3, // Medium
       languages: ['EN'],
       smokingStatus: 'NON_SMOKER' as SmokingStatus,
       dietaryNeeds: [],
-      name: 'John O\'Brien - teacher, structured',
+      name: "John O'Brien - teacher, structured",
     },
     {
       code: 'WIT-008',
@@ -143,7 +156,7 @@ async function main() {
       noiseTolerance: 1, // Very low
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5), // Very clean
+      chaosTolerance: 6 - 5, // Very clean
       socialStyle: 'INTROVERTED' as SocialStyle,
       privacyNeed: 5, // High
       languages: ['JA'],
@@ -158,7 +171,7 @@ async function main() {
 
     // Check if already exists
     const exists = await prisma.resident.findUnique({
-      where: { code: data.code }
+      where: { code: data.code },
     })
 
     if (exists) {
@@ -183,7 +196,7 @@ async function main() {
         hasNightDisturbances: false,
         needsQuietEnvironment: data.noiseTolerance <= 2,
         hasSleepEquipment: false,
-      }
+      },
     })
 
     console.log(`  ✓ Created ${resident.code} - ${name}`)

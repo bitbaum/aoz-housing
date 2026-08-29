@@ -1,7 +1,4 @@
-import {
-  PORTAL_NAV_ITEMS,
-  PORTAL_NAV_GROUP_ORDER,
-} from '@/lib/config/navigation'
+import { PORTAL_NAV_ITEMS, PORTAL_NAV_GROUP_ORDER } from '@/lib/config/navigation'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
 import { availableLocales, createTranslator, type MessageKey } from '@/lib/i18n'
 
@@ -65,7 +62,7 @@ describe('every navigation label names exactly one place', () => {
         .map(([heading, groups]) => `"${heading}" → ${groups.join(' + ')}`)
 
       expect({ id, collisions }).toEqual({ id, collisions: [] })
-    }
+    },
   )
 
   /**
@@ -93,11 +90,14 @@ describe('every navigation label names exactly one place', () => {
       const t = createTranslator(id)
 
       const collisions = PORTAL_NAV_ITEMS.filter(
-        (item) => t(`navGroup.${item.group}` as MessageKey) === t(portalNavMessageKey(item))
-      ).map((item) => `"${t(portalNavMessageKey(item))}" is both the ${item.group} heading and ${item.href}`)
+        (item) => t(`navGroup.${item.group}` as MessageKey) === t(portalNavMessageKey(item)),
+      ).map(
+        (item) =>
+          `"${t(portalNavMessageKey(item))}" is both the ${item.group} heading and ${item.href}`,
+      )
 
       expect({ id, collisions }).toEqual({ id, collisions: [] })
-    }
+    },
   )
 
   it('would catch two entries sharing a word', () => {

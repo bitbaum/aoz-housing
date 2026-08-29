@@ -51,7 +51,7 @@ function parseToolArguments(raw: string): unknown {
 async function chatCompletion(
   provider: AIProvider,
   config: AIProviderConfig,
-  messages: OpenAIMessage[]
+  messages: OpenAIMessage[],
 ): Promise<{ message: OpenAIMessage; finishReason: string | null }> {
   const res = await fetch(config.url, {
     method: 'POST',
@@ -111,7 +111,7 @@ export async function runStaffChat(turns: StaffChatTurn[]): Promise<string> {
 async function runChatLoop(
   provider: AIProvider,
   config: Parameters<typeof chatCompletion>[1],
-  messages: OpenAIMessage[]
+  messages: OpenAIMessage[],
 ): Promise<string> {
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
     const { message, finishReason } = await chatCompletion(provider, config, messages)
@@ -129,7 +129,7 @@ async function runChatLoop(
       for (const call of message.tool_calls ?? []) {
         const result = await executeStaffChatTool(
           call.function.name,
-          parseToolArguments(call.function.arguments)
+          parseToolArguments(call.function.arguments),
         )
         messages.push({
           role: 'tool',

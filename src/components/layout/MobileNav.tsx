@@ -77,13 +77,7 @@ export function MobileNav({
       </header>
 
       {/* Backdrop */}
-      {isOpen && (
-        <div
-          className="scrim z-40 md:hidden"
-          onClick={handleClose}
-          aria-hidden="true"
-        />
-      )}
+      {isOpen && <div className="scrim z-40 md:hidden" onClick={handleClose} aria-hidden="true" />}
 
       {/* Slide-out drawer */}
       <div
@@ -140,7 +134,7 @@ export function MobileNav({
                 active={isActive(group.href)}
                 onClick={handleClose}
               />
-            )
+            ),
           )}
           <div className="mt-3 pt-3 border-t border-ui-border">
             {systemLinks.map((item) => (

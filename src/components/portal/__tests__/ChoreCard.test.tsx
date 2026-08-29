@@ -6,9 +6,21 @@ import { ChoreCard } from '../ChoreCard'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, title }: {
-    href: string; children: React.ReactNode; className?: string; title?: string
-  }) => <a href={href} className={className} title={title}>{children}</a>,
+  default: ({
+    href,
+    children,
+    className,
+    title,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+    title?: string
+  }) => (
+    <a href={href} className={className} title={title}>
+      {children}
+    </a>
+  ),
 }))
 
 jest.mock('@/lib/config/household-tasks', () => ({
@@ -58,7 +70,10 @@ const BASE_TASK = {
   priority: 'NORMAL',
   isCompleted: false,
   taskType: 'RECURRING',
-  completions: [] as Array<{ completedAt: string; completedBy: { code: string; displayName: string | null } }>,
+  completions: [] as Array<{
+    completedAt: string
+    completedBy: { code: string; displayName: string | null }
+  }>,
   attentionFlags: [] as Array<{ id: string }>,
   requests: [] as Array<{ id: string }>,
 }
@@ -66,7 +81,7 @@ const BASE_TASK = {
 function renderCard(taskOverrides = {}, isCompleting = false, onQuickComplete = jest.fn()) {
   const task = { ...BASE_TASK, ...taskOverrides }
   return render(
-    <ChoreCard task={task} onQuickComplete={onQuickComplete} isCompleting={isCompleting} />
+    <ChoreCard task={task} onQuickComplete={onQuickComplete} isCompleting={isCompleting} />,
   )
 }
 
@@ -77,7 +92,10 @@ describe('ChoreCard', () => {
 
   it('renders a link to the task detail page', () => {
     renderCard()
-    expect(screen.getByRole('link', { name: /Küche putzen/ })).toHaveAttribute('href', '/portal/chores/task-1')
+    expect(screen.getByRole('link', { name: /Küche putzen/ })).toHaveAttribute(
+      'href',
+      '/portal/chores/task-1',
+    )
   })
 
   it('displays the task title', () => {
@@ -141,7 +159,9 @@ describe('ChoreCard', () => {
 
   it('shows formatted last completion date and code', () => {
     renderCard({
-      completions: [{ completedAt: '2024-01-15', completedBy: { code: 'RES-001', displayName: null } }],
+      completions: [
+        { completedAt: '2024-01-15', completedBy: { code: 'RES-001', displayName: null } },
+      ],
     })
     expect(screen.getByText(/formatted:2024-01-15.*RES-001/)).toBeInTheDocument()
   })
@@ -181,7 +201,7 @@ describe('ChoreCard', () => {
     renderCard({ currentStatus: 'NEEDS_ATTENTION', isCompleted: false })
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
     const links = screen.getAllByRole('link')
-    const detailsLink = links.find(l => l.textContent === 'Details')
+    const detailsLink = links.find((l) => l.textContent === 'Details')
     expect(detailsLink).toBeDefined()
     expect(detailsLink).toHaveAttribute('href', '/portal/chores/task-1')
   })
@@ -190,7 +210,7 @@ describe('ChoreCard', () => {
     renderCard({ currentStatus: 'REQUESTED', isCompleted: false })
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
     const links = screen.getAllByRole('link')
-    const detailsLink = links.find(l => l.textContent === 'Details')
+    const detailsLink = links.find((l) => l.textContent === 'Details')
     expect(detailsLink).toBeDefined()
   })
 

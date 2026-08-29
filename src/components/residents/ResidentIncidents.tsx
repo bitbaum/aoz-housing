@@ -6,10 +6,7 @@ import {
   UI_LABELS,
   getLabel,
 } from '@/lib/constants'
-import {
-  getSeverityBorderClass,
-  formatRelativeDate,
-} from '@/lib/utils'
+import { getSeverityBorderClass, formatRelativeDate } from '@/lib/utils'
 import { INCIDENT_THRESHOLDS, getIncidentLevel, INCIDENT_BG_COLORS } from '@/lib/config/thresholds'
 
 type IncidentWithUnit = Incident & { housingUnit: HousingUnit }
@@ -53,27 +50,23 @@ export function ResidentIncidents({
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-ui-subtle rounded-lg">
             <p className="text-sm text-ui-muted">{RESIDENT_INCIDENTS_LABELS.reportedLabel}</p>
-            <p className="text-xl sm:text-2xl font-bold text-ui-text">
-              {incidentsReportedCount}
-            </p>
-            <p className="text-xs text-ui-muted mt-1">
-              {RESIDENT_INCIDENTS_LABELS.reportedDesc}
-            </p>
+            <p className="text-xl sm:text-2xl font-bold text-ui-text">{incidentsReportedCount}</p>
+            <p className="text-xs text-ui-muted mt-1">{RESIDENT_INCIDENTS_LABELS.reportedDesc}</p>
           </div>
           <div className={`p-4 rounded-lg ${INCIDENT_BG_COLORS[subjectLevel]}`}>
             <p className="text-sm text-ui-muted">{RESIDENT_INCIDENTS_LABELS.subjectLabel}</p>
-            <p className={`text-2xl font-bold ${
-              subjectLevel === 'severe'
-                ? 'text-status-error-text'
-                : subjectLevel !== 'none'
-                  ? 'text-status-warning-text'
-                  : 'text-ui-text'
-            }`}>
+            <p
+              className={`text-2xl font-bold ${
+                subjectLevel === 'severe'
+                  ? 'text-status-error-text'
+                  : subjectLevel !== 'none'
+                    ? 'text-status-warning-text'
+                    : 'text-ui-text'
+              }`}
+            >
               {incidentsAsSubject.length}
             </p>
-            <p className="text-xs text-ui-muted mt-1">
-              {RESIDENT_INCIDENTS_LABELS.subjectDesc}
-            </p>
+            <p className="text-xs text-ui-muted mt-1">{RESIDENT_INCIDENTS_LABELS.subjectDesc}</p>
           </div>
         </div>
       </div>
@@ -94,16 +87,14 @@ export function ResidentIncidents({
           )}
         </div>
         {incidentsAsSubject.length === 0 ? (
-          <p className="text-ui-muted text-center py-8">
-            {RESIDENT_INCIDENTS_LABELS.noIncidents}
-          </p>
+          <p className="text-ui-muted text-center py-8">{RESIDENT_INCIDENTS_LABELS.noIncidents}</p>
         ) : (
           <div className="space-y-3">
             {incidentsAsSubject.map((incident) => (
               <div
                 key={incident.id}
                 className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(
-                  incident.severity
+                  incident.severity,
                 )}`}
               >
                 <div className="flex items-start justify-between">
@@ -111,12 +102,9 @@ export function ResidentIncidents({
                     <p className="font-medium text-ui-text">
                       {getLabel(INCIDENT_TYPE_LABELS, incident.type)}
                     </p>
+                    <p className="text-sm text-ui-muted mt-1">{incident.description}</p>
                     <p className="text-sm text-ui-muted mt-1">
-                      {incident.description}
-                    </p>
-                    <p className="text-sm text-ui-muted mt-1">
-                      {incident.housingUnit.code} ·{' '}
-                      {formatRelativeDate(incident.date)}
+                      {incident.housingUnit.code} · {formatRelativeDate(incident.date)}
                     </p>
                   </div>
                   {incident.resolvedAt ? (

@@ -2,13 +2,17 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { X } from 'lucide-react'
-import {
-  getScoreLevel,
-  SCORE_THRESHOLDS,
-} from '@/lib/config/thresholds'
+import { getScoreLevel, SCORE_THRESHOLDS } from '@/lib/config/thresholds'
 import { getScoreColorClass, getScoreLabel } from '@/lib/utils/formatting'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
-import { SCORE_TYPE_LABELS, SCORE_LEVEL_EXPLANATIONS, SCORE_EXPLANATION_LABELS, COMPATIBILITY_SCORE_LABELS, MATCHING_LABELS, UI_LABELS } from '@/lib/constants/labels'
+import {
+  SCORE_TYPE_LABELS,
+  SCORE_LEVEL_EXPLANATIONS,
+  SCORE_EXPLANATION_LABELS,
+  COMPATIBILITY_SCORE_LABELS,
+  MATCHING_LABELS,
+  UI_LABELS,
+} from '@/lib/constants/labels'
 
 /**
  * Factor impacting a score
@@ -89,8 +93,8 @@ export function ScoreExplanation({
     return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen])
 
-  const positiveFactors = factors.filter(f => f.impact === 'positive')
-  const negativeFactors = factors.filter(f => f.impact === 'negative')
+  const positiveFactors = factors.filter((f) => f.impact === 'positive')
+  const negativeFactors = factors.filter((f) => f.impact === 'negative')
 
   if (!showDetails) {
     // Simple inline display
@@ -130,15 +134,9 @@ export function ScoreExplanation({
               <h3 className="font-semibold text-ui-text">
                 {SCORE_TYPE_LABELS[type]}: {score}%
               </h3>
-              <span className={`text-sm font-medium ${colorClass}`}>
-                {levelLabel}
-              </span>
+              <span className={`text-sm font-medium ${colorClass}`}>{levelLabel}</span>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="btn-icon"
-              aria-label="Schliessen"
-            >
+            <button onClick={() => setIsOpen(false)} className="btn-icon" aria-label="Schliessen">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -195,8 +193,11 @@ export function ScoreExplanation({
           {/* Threshold reference */}
           <div className="mt-3 pt-3 border-t border-ui-border">
             <p className="text-xs text-ui-muted">
-              {SCORE_EXPLANATION_LABELS.scale} {'>='}{SCORE_THRESHOLDS.excellent} {COMPATIBILITY_SCORE_LABELS.excellent.toLowerCase()},{' '}
-              {'>='}{SCORE_THRESHOLDS.good} {COMPATIBILITY_SCORE_LABELS.good.toLowerCase()}, {'>='}{SCORE_THRESHOLDS.moderate} {COMPATIBILITY_SCORE_LABELS.moderate.toLowerCase()}
+              {SCORE_EXPLANATION_LABELS.scale} {'>='}
+              {SCORE_THRESHOLDS.excellent} {COMPATIBILITY_SCORE_LABELS.excellent.toLowerCase()},{' '}
+              {'>='}
+              {SCORE_THRESHOLDS.good} {COMPATIBILITY_SCORE_LABELS.good.toLowerCase()}, {'>='}
+              {SCORE_THRESHOLDS.moderate} {COMPATIBILITY_SCORE_LABELS.moderate.toLowerCase()}
             </p>
           </div>
         </div>
@@ -222,8 +223,8 @@ export function ScoreExplanationBadge({
   const level = getScoreLevel(score)
 
   const hasFactors = factors.length > 0
-  const positiveCount = factors.filter(f => f.impact === 'positive').length
-  const negativeCount = factors.filter(f => f.impact === 'negative').length
+  const positiveCount = factors.filter((f) => f.impact === 'positive').length
+  const negativeCount = factors.filter((f) => f.impact === 'negative').length
 
   const tooltipContent = hasFactors
     ? `${positiveCount > 0 ? `+${positiveCount} ${MATCHING_LABELS.strengths}` : ''}${positiveCount > 0 && negativeCount > 0 ? ', ' : ''}${negativeCount > 0 ? `-${negativeCount} ${MATCHING_LABELS.challenges}` : ''}`

@@ -9,13 +9,7 @@ import { fa } from './dictionaries/fa'
 import { ti } from './dictionaries/ti'
 import { sq } from './dictionaries/sq'
 import { so } from './dictionaries/so'
-import {
-  DEFAULT_LOCALE,
-  LOCALES,
-  isLocaleId,
-  offeredLocales,
-  type LocaleId,
-} from './locales'
+import { DEFAULT_LOCALE, LOCALES, isLocaleId, offeredLocales, type LocaleId } from './locales'
 
 export type { MessageKey, Dictionary }
 export * from './locales'
@@ -129,19 +123,21 @@ export function resolveLocale({
 function parseAcceptLanguage(header?: string | null): string[] {
   if (!header) return []
 
-  return header
-    .split(',')
-    .map((part) => {
-      const [tag, ...params] = part.trim().split(';')
-      const q = params
-        .map((param) => /^q=([\d.]+)$/.exec(param.trim())?.[1])
-        .find((value): value is string => value !== undefined)
+  return (
+    header
+      .split(',')
+      .map((part) => {
+        const [tag, ...params] = part.trim().split(';')
+        const q = params
+          .map((param) => /^q=([\d.]+)$/.exec(param.trim())?.[1])
+          .find((value): value is string => value !== undefined)
 
-      return { tag: tag.trim(), q: q === undefined ? 1 : Number(q) }
-    })
-    .filter((entry) => entry.tag !== '' && !Number.isNaN(entry.q))
-    // Sort is stable in every engine this runs on, so equal weights keep the
-    // order the browser sent — which is itself the browser's preference.
-    .sort((a, b) => b.q - a.q)
-    .map((entry) => entry.tag)
+        return { tag: tag.trim(), q: q === undefined ? 1 : Number(q) }
+      })
+      .filter((entry) => entry.tag !== '' && !Number.isNaN(entry.q))
+      // Sort is stable in every engine this runs on, so equal weights keep the
+      // order the browser sent — which is itself the browser's preference.
+      .sort((a, b) => b.q - a.q)
+      .map((entry) => entry.tag)
+  )
 }

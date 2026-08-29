@@ -65,7 +65,9 @@ export function TaskSection({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{DASHBOARD_LABELS.sectionTasks}</h2>
         {allClear && (
-          <span className="text-sm text-status-success font-medium">{DASHBOARD_LABELS.allClearAllDone}</span>
+          <span className="text-sm text-status-success font-medium">
+            {DASHBOARD_LABELS.allClearAllDone}
+          </span>
         )}
       </div>
 
@@ -87,11 +89,17 @@ export function TaskSection({
               />
             ))}
             {criticalIncidents.length > 3 && (
-              <MoreItems count={criticalIncidents.length - 3} href="/incidents?severity=CRITICAL&resolved=false" />
+              <MoreItems
+                count={criticalIncidents.length - 3}
+                href="/incidents?severity=CRITICAL&resolved=false"
+              />
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon={<AlertTriangle className="w-5 h-5" />} title={DASHBOARD_LABELS.taskNoCritical} />
+          <CompletedCategory
+            icon={<AlertTriangle className="w-5 h-5" />}
+            title={DASHBOARD_LABELS.taskNoCritical}
+          />
         )}
 
         {/* Overdue Check-ins */}
@@ -115,7 +123,10 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon={<AlertCircle className="w-5 h-5" />} title={DASHBOARD_LABELS.taskAllCheckInsCurrent} />
+          <CompletedCategory
+            icon={<AlertCircle className="w-5 h-5" />}
+            title={DASHBOARD_LABELS.taskAllCheckInsCurrent}
+          />
         )}
 
         {/* Unplaced Residents */}
@@ -139,7 +150,10 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon={<Home className="w-5 h-5" />} title={DASHBOARD_LABELS.taskAllPlaced} />
+          <CompletedCategory
+            icon={<Home className="w-5 h-5" />}
+            title={DASHBOARD_LABELS.taskAllPlaced}
+          />
         )}
 
         {/* Overdue Maintenance */}
@@ -163,7 +177,10 @@ export function TaskSection({
             )}
           </TaskCategory>
         ) : (
-          <CompletedCategory icon={<Wrench className="w-5 h-5" />} title={DASHBOARD_LABELS.taskMaintenanceCurrent} />
+          <CompletedCategory
+            icon={<Wrench className="w-5 h-5" />}
+            title={DASHBOARD_LABELS.taskMaintenanceCurrent}
+          />
         )}
       </div>
     </div>
@@ -200,16 +217,11 @@ function TaskCategory({ icon, title, href, variant, children }: TaskCategoryProp
           <span className={`inline-flex items-center ${textStyles[variant]}`}>{icon}</span>
           <span className={`font-medium ${textStyles[variant]}`}>{title}</span>
         </div>
-        <Link
-          href={href}
-          className={`text-sm ${textStyles[variant]} hover:underline`}
-        >
+        <Link href={href} className={`text-sm ${textStyles[variant]} hover:underline`}>
           {DASHBOARD_LABELS.showAllLink} →
         </Link>
       </div>
-      <div className="space-y-2">
-        {children}
-      </div>
+      <div className="space-y-2">{children}</div>
     </div>
   )
 }
@@ -247,12 +259,8 @@ function TaskItem({ href, primary, secondary }: TaskItemProps) {
 
 function MoreItems({ count, href }: { count: number; href: string }) {
   return (
-    <Link
-      href={href}
-      className="block text-center py-2 text-sm text-ui-muted hover:text-ui-text"
-    >
+    <Link href={href} className="block text-center py-2 text-sm text-ui-muted hover:text-ui-text">
       + {count} {DASHBOARD_LABELS.showMoreSuffix}
     </Link>
   )
 }
-

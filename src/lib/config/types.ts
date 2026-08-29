@@ -10,21 +10,21 @@
 // =============================================================================
 
 export type FactorType =
-  | 'enum'        // Single selection from options
-  | 'scale'       // 1-5 numeric scale
-  | 'boolean'     // Yes/No toggle
-  | 'multi'       // Multiple selection (checkboxes)
-  | 'text'        // Free text input
+  | 'enum' // Single selection from options
+  | 'scale' // 1-5 numeric scale
+  | 'boolean' // Yes/No toggle
+  | 'multi' // Multiple selection (checkboxes)
+  | 'text' // Free text input
 
 export type CompatibilityRule =
-  | 'SAME_IS_BETTER'           // Same values score higher (e.g., sleep schedule)
-  | 'SIMILAR_IS_BETTER'        // Closer values score higher (e.g., cleanliness 1-5)
-  | 'OVERLAP_IS_BETTER'        // More overlap scores higher (e.g., languages)
-  | 'MUST_MATCH'               // Hard requirement - must match or fail
-  | 'MUST_ALLOW'               // Housing must allow resident need (e.g., smoking)
-  | 'MUST_HAVE'                // Housing must have feature (e.g., wheelchair access)
-  | 'HIGHER_TOLERANCE_BETTER'  // Higher housing tolerance = more compatible
-  | 'NONE'                     // No compatibility impact (display only)
+  | 'SAME_IS_BETTER' // Same values score higher (e.g., sleep schedule)
+  | 'SIMILAR_IS_BETTER' // Closer values score higher (e.g., cleanliness 1-5)
+  | 'OVERLAP_IS_BETTER' // More overlap scores higher (e.g., languages)
+  | 'MUST_MATCH' // Hard requirement - must match or fail
+  | 'MUST_ALLOW' // Housing must allow resident need (e.g., smoking)
+  | 'MUST_HAVE' // Housing must have feature (e.g., wheelchair access)
+  | 'HIGHER_TOLERANCE_BETTER' // Higher housing tolerance = more compatible
+  | 'NONE' // No compatibility impact (display only)
 
 // =============================================================================
 // FACTOR DEFINITIONS
@@ -82,11 +82,7 @@ export interface TextFactorDef extends BaseFactorDef {
 }
 
 export type FactorDef =
-  | EnumFactorDef
-  | ScaleFactorDef
-  | BooleanFactorDef
-  | MultiFactorDef
-  | TextFactorDef
+  EnumFactorDef | ScaleFactorDef | BooleanFactorDef | MultiFactorDef | TextFactorDef
 
 // =============================================================================
 // COMPATIBILITY FACTOR (extends base with scoring info)

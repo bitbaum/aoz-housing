@@ -54,8 +54,10 @@ export const END_REASON_DESCRIPTIONS: Record<string, string> = {
 
 export const HOUSING_DANGER_ZONE_LABELS = {
   title: 'Danger Zone — Hard-Delete',
-  description: 'Nur für Test-/Demo-Unterkünfte. Diese Aktion ist endgültig und entfernt den Datensatz.',
-  notEligible: 'Dieser Unterkunfts-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
+  description:
+    'Nur für Test-/Demo-Unterkünfte. Diese Aktion ist endgültig und entfernt den Datensatz.',
+  notEligible:
+    'Dieser Unterkunfts-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
   blockerReportTitle: 'Blocker-Report:',
   noDetails: 'Keine Details',
   copyReport: 'Report kopieren',

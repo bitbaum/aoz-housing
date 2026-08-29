@@ -11,12 +11,7 @@
  * events own-domain writes, no housing/placement writes.
  */
 
-export type StaffRole =
-  | 'ADMIN'
-  | 'BETREUUNG'
-  | 'SOZIALARBEIT'
-  | 'JOBCOACH'
-  | 'FREIWILLIGENARBEIT'
+export type StaffRole = 'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH' | 'FREIWILLIGENARBEIT'
 
 export const STAFF_ROLES: readonly StaffRole[] = [
   'ADMIN',

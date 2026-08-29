@@ -29,7 +29,7 @@ describe('UrlFeedbackToast', () => {
     render(
       <UrlFeedbackToast
         errors={[{ code: 'account_not_found', message: 'Konto nicht gefunden' }]}
-      />
+      />,
     )
 
     await waitFor(() => {
@@ -41,11 +41,7 @@ describe('UrlFeedbackToast', () => {
   it('shows success toast and strips param', async () => {
     ;(useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams('created=true'))
 
-    render(
-      <UrlFeedbackToast
-        success={[{ param: 'created', message: 'Gespeichert' }]}
-      />
-    )
+    render(<UrlFeedbackToast success={[{ param: 'created', message: 'Gespeichert' }]} />)
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith('success', 'Gespeichert')

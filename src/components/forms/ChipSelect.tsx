@@ -44,9 +44,7 @@ export function ChipSelect({
   return (
     <div className="flex flex-wrap gap-2">
       {options.map((option) => {
-        const isSelected = isControlled
-          ? selectedValues?.includes(option.value)
-          : undefined
+        const isSelected = isControlled ? selectedValues?.includes(option.value) : undefined
 
         return (
           <label key={option.value} className="cursor-pointer">
@@ -54,15 +52,9 @@ export function ChipSelect({
               type={multiple ? 'checkbox' : 'radio'}
               name={name}
               value={option.value}
-              defaultChecked={
-                !isControlled ? defaultValues.includes(option.value) : undefined
-              }
+              defaultChecked={!isControlled ? defaultValues.includes(option.value) : undefined}
               checked={isSelected}
-              onChange={
-                onChange
-                  ? (e) => handleChange(option.value, e.target.checked)
-                  : undefined
-              }
+              onChange={onChange ? (e) => handleChange(option.value, e.target.checked) : undefined}
               className="sr-only peer"
             />
             <div className="px-4 py-2.5 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm min-h-[44px] flex items-center">

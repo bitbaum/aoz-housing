@@ -72,7 +72,8 @@ jest.mock('@/lib/constants', () => ({
     transferTitle: 'Bewohner verlegen',
     endTitle: 'Platzierung beenden',
     conflictAnalysisTitle: 'Konfliktanalyse',
-    conflictAnalysisDesc: 'Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.',
+    conflictAnalysisDesc:
+      'Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.',
     conflictCauseLabel: 'Hauptursache des Konflikts *',
     conflictPredictableLabel: 'War der Konflikt vorhersehbar?',
     conflictAlgorithmLabel: 'Hätte der Algorithmus diesen Konflikt vorhersagen können?',
@@ -101,7 +102,8 @@ jest.mock('@/lib/constants', () => ({
     transferReasonHint: 'Wählen Sie den Hauptgrund für die Verlegung',
     summaryLabel: 'Zusammenfassung:',
     endWarningTitle: 'Achtung:',
-    endWarning: 'Diese Aktion beendet die aktuelle Platzierung. Der Bewohner wird als nicht platziert markiert.',
+    endWarning:
+      'Diese Aktion beendet die aktuelle Platzierung. Der Bewohner wird als nicht platziert markiert.',
     endReasonLabel: 'Grund *',
     conflictPredictableYes: 'Ja',
     conflictScoreHint: (score: number) => `(Score war ${score}%)`,
@@ -129,10 +131,7 @@ jest.mock('../TransferRecommendations', () => ({
     eligibleUnits: Array<{ id: string; code: string }>
     onUnitSelect: (id: string) => void
   }) => (
-    <select
-      aria-label="Ziel-Unterkunft auswählen"
-      onChange={(e) => onUnitSelect(e.target.value)}
-    >
+    <select aria-label="Ziel-Unterkunft auswählen" onChange={(e) => onUnitSelect(e.target.value)}>
       <option value="">Auswählen</option>
       {eligibleUnits.map((u) => (
         <option key={u.id} value={u.id}>
@@ -194,7 +193,9 @@ describe('PlacementActions', () => {
     fireEvent.click(screen.getByRole('button', { name: /Beenden/i }))
 
     expect(screen.getByText(/Platzierung beenden/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Platzierung endgültig beenden/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Platzierung endgültig beenden/i }),
+    ).toBeInTheDocument()
   })
 
   test('clicking Verlegen hides Beenden form if open', () => {

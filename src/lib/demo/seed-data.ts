@@ -18,11 +18,7 @@
  */
 
 import type { PrismaClient } from '@prisma/client'
-import {
-  resolveDemoResidentCode,
-  DEMO_RESIDENT_CODE_PREFIX,
-  DEMO_UNIT_CODE_PREFIX,
-} from './config'
+import { resolveDemoResidentCode, DEMO_RESIDENT_CODE_PREFIX, DEMO_UNIT_CODE_PREFIX } from './config'
 import { seedDemoGovernance } from './seed-governance'
 import { seedIntegrationEvidence } from '../seed/integration-evidence'
 
@@ -60,7 +56,7 @@ export interface DemoSeedOptions {
 
 export async function seedDemoData(
   prisma: PrismaClient,
-  options: DemoSeedOptions = {}
+  options: DemoSeedOptions = {},
 ): Promise<DemoSeedSummary> {
   // The portal demo logs in as Fatima: PLACED, in the zero-conflict success
   // unit, so a visitor sees roommates, rules and chores — not an empty shell.
@@ -94,7 +90,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE',
       languages: ['Arabic', 'German', 'English'],
       culturalRegion: 'Middle East',
@@ -129,7 +125,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE',
       languages: ['Arabic', 'German'],
       culturalRegion: 'Middle East',
@@ -164,7 +160,7 @@ export async function seedDemoData(
       noiseTolerance: 4,
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       socialStyle: 'EXTROVERTED',
       languages: ['Arabic', 'English'],
       culturalRegion: 'Middle East',
@@ -199,7 +195,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED',
       languages: ['Arabic', 'French', 'English'],
       culturalRegion: 'North Africa',
@@ -235,7 +231,7 @@ export async function seedDemoData(
       noiseTolerance: 5,
       cleanlinessPractice: 1,
       cleanlinessExpectation: 1,
-      chaosTolerance: 6 - (1),
+      chaosTolerance: 6 - 1,
       socialStyle: 'EXTROVERTED',
       languages: ['Italian', 'English'],
       culturalRegion: 'Europe',
@@ -270,7 +266,7 @@ export async function seedDemoData(
       noiseTolerance: 5,
       cleanlinessPractice: 2,
       cleanlinessExpectation: 2,
-      chaosTolerance: 6 - (2),
+      chaosTolerance: 6 - 2,
       socialStyle: 'MODERATE',
       languages: ['Russian', 'English'],
       culturalRegion: 'Eastern Europe',
@@ -305,7 +301,7 @@ export async function seedDemoData(
       noiseTolerance: 4,
       cleanlinessPractice: 2,
       cleanlinessExpectation: 2,
-      chaosTolerance: 6 - (2),
+      chaosTolerance: 6 - 2,
       socialStyle: 'EXTROVERTED',
       languages: ['Ukrainian', 'Russian'],
       culturalRegion: 'Eastern Europe',
@@ -340,7 +336,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED',
       languages: ['Russian', 'German'],
       culturalRegion: 'Eastern Europe',
@@ -378,7 +374,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE',
       languages: ['Arabic', 'French', 'German'],
       culturalRegion: 'North Africa',
@@ -413,7 +409,7 @@ export async function seedDemoData(
       noiseTolerance: 4,
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       socialStyle: 'MODERATE',
       languages: ['Arabic', 'German'],
       culturalRegion: 'Middle East',
@@ -448,7 +444,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'INTROVERTED',
       languages: ['Turkish', 'German', 'English'],
       culturalRegion: 'Middle East',
@@ -484,7 +480,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       socialStyle: 'MODERATE',
       languages: ['Spanish', 'English'],
       culturalRegion: 'Latin America',
@@ -519,7 +515,7 @@ export async function seedDemoData(
       noiseTolerance: 4,
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       socialStyle: 'EXTROVERTED',
       languages: ['English', 'French'],
       culturalRegion: 'Sub-Saharan Africa',
@@ -555,7 +551,7 @@ export async function seedDemoData(
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE',
       languages: ['Arabic', 'German'],
       culturalRegion: 'Middle East',
@@ -591,7 +587,7 @@ export async function seedDemoData(
       noiseTolerance: 2,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED',
       languages: ['Spanish', 'English'],
       culturalRegion: 'Latin America',
@@ -611,16 +607,15 @@ export async function seedDemoData(
       hasSleepEquipment: false,
       supportLevel: 'ELEVATED',
       status: 'ACTIVE', // UNPLACED
-      notes: 'Previously transferred 3 times due to cleanliness conflicts. Needs quiet, clean environment.',
+      notes:
+        'Previously transferred 3 times due to cleanliness conflicts. Needs quiet, clean environment.',
       hasMedicalDocumentation: false,
     },
   })
 
-
   // ========================================================================
   // HOUSING UNITS
   // ========================================================================
-
 
   // UNIT 5 - THE SUCCESS STORY
   const unit5 = await prisma.housingUnit.create({
@@ -759,84 +754,214 @@ export async function seedDemoData(
     },
   })
 
-
   // ========================================================================
   // PLACEMENT SPOTS
   // ========================================================================
 
-
   // Unit 5 spots (all occupied)
   const unit5Bed1 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit5.id, code: 'R1-B1', label: 'Room 1 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit5.id,
+      code: 'R1-B1',
+      label: 'Room 1 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit5Bed2 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit5.id, code: 'R1-B2', label: 'Room 1 - Bed 2', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit5.id,
+      code: 'R1-B2',
+      label: 'Room 1 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit5Bed3 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit5.id, code: 'R2-B1', label: 'Room 2 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit5.id,
+      code: 'R2-B1',
+      label: 'Room 2 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit5Bed4 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit5.id, code: 'R2-B2', label: 'Room 2 - Bed 2', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit5.id,
+      code: 'R2-B2',
+      label: 'Room 2 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
 
   // Unit 12 spots
   const unit12Bed1 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit12.id, code: 'R1-B1', label: 'Room 1 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit12.id,
+      code: 'R1-B1',
+      label: 'Room 1 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit12Bed2 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit12.id, code: 'R1-B2', label: 'Room 1 - Bed 2', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit12.id,
+      code: 'R1-B2',
+      label: 'Room 1 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit12Bed3 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit12.id, code: 'R2-B1', label: 'Room 2 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit12.id,
+      code: 'R2-B1',
+      label: 'Room 2 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit12Room3 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit12.id, code: 'R3', label: 'Private Room 3', type: 'PRIVATE_ROOM', capacity: 1, status: 'OCCUPIED', requiresMedicalDocs: true }
+    data: {
+      housingUnitId: unit12.id,
+      code: 'R3',
+      label: 'Private Room 3',
+      type: 'PRIVATE_ROOM',
+      capacity: 1,
+      status: 'OCCUPIED',
+      requiresMedicalDocs: true,
+    },
   })
   const unit12Bed5 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit12.id, code: 'R2-B2', label: 'Room 2 - Bed 2', type: 'BED', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit12.id,
+      code: 'R2-B2',
+      label: 'Room 2 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
 
   // Unit 7 spots (one available for Ahmed!)
   const unit7Bed1 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit7.id, code: 'R1-B1', label: 'Room 1 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit7.id,
+      code: 'R1-B1',
+      label: 'Room 1 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit7Bed2 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit7.id, code: 'R1-B2', label: 'Room 1 - Bed 2', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit7.id,
+      code: 'R1-B2',
+      label: 'Room 1 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit7Bed3 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit7.id, code: 'R2-B1', label: 'Room 2 - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit7.id,
+      code: 'R2-B1',
+      label: 'Room 2 - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit7Bed4 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit7.id, code: 'R2-B2', label: 'Room 2 - Bed 2', type: 'BED', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit7.id,
+      code: 'R2-B2',
+      label: 'Room 2 - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
 
   // Unit 3 spots (all empty)
   await prisma.placementSpot.create({
-    data: { housingUnitId: unit3.id, code: 'R1', label: 'Private Room 1', type: 'PRIVATE_ROOM', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit3.id,
+      code: 'R1',
+      label: 'Private Room 1',
+      type: 'PRIVATE_ROOM',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
   await prisma.placementSpot.create({
-    data: { housingUnitId: unit3.id, code: 'R2', label: 'Private Room 2', type: 'PRIVATE_ROOM', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit3.id,
+      code: 'R2',
+      label: 'Private Room 2',
+      type: 'PRIVATE_ROOM',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
   await prisma.placementSpot.create({
-    data: { housingUnitId: unit3.id, code: 'R3', label: 'Private Room 3', type: 'PRIVATE_ROOM', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit3.id,
+      code: 'R3',
+      label: 'Private Room 3',
+      type: 'PRIVATE_ROOM',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
 
   // Unit 9 spots
   const unit9Bed1 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit9.id, code: 'R1-B1', label: 'Shared Room - Bed 1', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit9.id,
+      code: 'R1-B1',
+      label: 'Shared Room - Bed 1',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   const unit9Bed2 = await prisma.placementSpot.create({
-    data: { housingUnitId: unit9.id, code: 'R1-B2', label: 'Shared Room - Bed 2', type: 'BED', capacity: 1, status: 'OCCUPIED' }
+    data: {
+      housingUnitId: unit9.id,
+      code: 'R1-B2',
+      label: 'Shared Room - Bed 2',
+      type: 'BED',
+      capacity: 1,
+      status: 'OCCUPIED',
+    },
   })
   await prisma.placementSpot.create({
-    data: { housingUnitId: unit9.id, code: 'R2', label: 'Private Room', type: 'PRIVATE_ROOM', capacity: 1, status: 'AVAILABLE' }
+    data: {
+      housingUnitId: unit9.id,
+      code: 'R2',
+      label: 'Private Room',
+      type: 'PRIVATE_ROOM',
+      capacity: 1,
+      status: 'AVAILABLE',
+    },
   })
-
 
   // ========================================================================
   // PLACEMENTS
   // ========================================================================
-
 
   const sixMonthsAgo = new Date()
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
@@ -860,8 +985,9 @@ export async function seedDemoData(
       socialScore: 92,
       practicalScore: 87,
       riskScore: 12,
-      placementNotes: 'Apartment Fit: 88%\n\nStrong match - similar cultural background and lifestyle preferences.',
-    }
+      placementNotes:
+        'Apartment Fit: 88%\n\nStrong match - similar cultural background and lifestyle preferences.',
+    },
   })
 
   await prisma.placement.create({
@@ -876,8 +1002,9 @@ export async function seedDemoData(
       socialScore: 90,
       practicalScore: 84,
       riskScore: 15,
-      placementNotes: 'Apartment Fit: 85%\n\nExcellent language match with Fatima (both Arabic speakers).',
-    }
+      placementNotes:
+        'Apartment Fit: 85%\n\nExcellent language match with Fatima (both Arabic speakers).',
+    },
   })
 
   await prisma.placement.create({
@@ -892,8 +1019,9 @@ export async function seedDemoData(
       socialScore: 88,
       practicalScore: 81,
       riskScore: 18,
-      placementNotes: 'Apartment Fit: 82%\n\nGood fit with existing residents. Slightly more extroverted but compatible.',
-    }
+      placementNotes:
+        'Apartment Fit: 82%\n\nGood fit with existing residents. Slightly more extroverted but compatible.',
+    },
   })
 
   await prisma.placement.create({
@@ -908,8 +1036,9 @@ export async function seedDemoData(
       socialScore: 85,
       practicalScore: 75,
       riskScore: 21,
-      placementNotes: 'Apartment Fit: 79%\n\nHighly clean, might set good example. Needs quiet which aligns with unit culture.',
-    }
+      placementNotes:
+        'Apartment Fit: 79%\n\nHighly clean, might set good example. Needs quiet which aligns with unit culture.',
+    },
   })
 
   // Unit 12 placements (PROBLEM - low compatibility, conflicts expected)
@@ -926,7 +1055,7 @@ export async function seedDemoData(
       practicalScore: 48,
       riskScore: 62,
       placementNotes: 'Apartment Fit: 45%\n\nSuboptimal match - significant lifestyle differences.',
-    }
+    },
   })
 
   await prisma.placement.create({
@@ -941,8 +1070,9 @@ export async function seedDemoData(
       socialScore: 48,
       practicalScore: 45,
       riskScore: 58,
-      placementNotes: 'Apartment Fit: 42%\n\nLanguage barrier with Marco. Both low on chores contribution.',
-    }
+      placementNotes:
+        'Apartment Fit: 42%\n\nLanguage barrier with Marco. Both low on chores contribution.',
+    },
   })
 
   await prisma.placement.create({
@@ -958,7 +1088,7 @@ export async function seedDemoData(
       practicalScore: 50,
       riskScore: 52,
       placementNotes: 'Apartment Fit: 48%\n\nBetter than existing residents but still suboptimal.',
-    }
+    },
   })
 
   await prisma.placement.create({
@@ -973,8 +1103,9 @@ export async function seedDemoData(
       socialScore: 35,
       practicalScore: 30,
       riskScore: 78,
-      placementNotes: 'Apartment Fit: 28%\n\nVery poor match - extremely clean person in messy unit. High conflict risk.',
-    }
+      placementNotes:
+        'Apartment Fit: 28%\n\nVery poor match - extremely clean person in messy unit. High conflict risk.',
+    },
   })
 
   // Unit 7 placements (GOOD - ready for Ahmed)
@@ -991,7 +1122,7 @@ export async function seedDemoData(
       practicalScore: 80,
       riskScore: 18,
       placementNotes: 'Apartment Fit: 82%\n\nGood foundational resident for unit.',
-    }
+    },
   })
 
   await prisma.placement.create({
@@ -1007,7 +1138,7 @@ export async function seedDemoData(
       practicalScore: 78,
       riskScore: 20,
       placementNotes: 'Apartment Fit: 80%\n\nStrong language match with Habib.',
-    }
+    },
   })
 
   await prisma.placement.create({
@@ -1022,8 +1153,9 @@ export async function seedDemoData(
       socialScore: 80,
       practicalScore: 74,
       riskScore: 24,
-      placementNotes: 'Apartment Fit: 76%\n\nGood addition. Similar early bird schedule with Habib.',
-    }
+      placementNotes:
+        'Apartment Fit: 76%\n\nGood addition. Similar early bird schedule with Habib.',
+    },
   })
 
   // Unit 9 placements
@@ -1040,7 +1172,7 @@ export async function seedDemoData(
       practicalScore: 67,
       riskScore: 33,
       placementNotes: 'Apartment Fit: 68%\n\nModerate match.',
-    }
+    },
   })
 
   await prisma.placement.create({
@@ -1056,9 +1188,8 @@ export async function seedDemoData(
       practicalScore: 71,
       riskScore: 28,
       placementNotes: 'Apartment Fit: 72%\n\nGood addition to unit.',
-    }
+    },
   })
-
 
   // ============================================================================
   // INCIDENTS - Demonstrate patterns (Unit 5=success, Unit 12=problems)
@@ -1073,12 +1204,13 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'CLEANLINESS_DISPUTE',
       date: new Date(Date.now() - 85 * 24 * 60 * 60 * 1000), // 85 days ago
-      description: 'Sauberkeitskonflikt: Marco beschwert sich über unordentliche Gemeinschaftsbereiche. Dmitri und Petro lassen Geschirr ungespült.',
+      description:
+        'Sauberkeitskonflikt: Marco beschwert sich über unordentliche Gemeinschaftsbereiche. Dmitri und Petro lassen Geschirr ungespült.',
       severity: 'MEDIUM',
       resolvedAt: new Date(Date.now() - 83 * 24 * 60 * 60 * 1000),
       resolution: 'Hausordnung besprochen. Putzplan erstellt.',
       reportedById: marco.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
@@ -1086,7 +1218,7 @@ export async function seedDemoData(
       { incidentId: incident1.id, residentId: marco.id, role: 'INVOLVED' },
       { incidentId: incident1.id, residentId: dmitri.id, role: 'INVOLVED' },
       { incidentId: incident1.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Week 3: Noise complaint (night owl vs introverted needs privacy)
@@ -1096,19 +1228,20 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
       date: new Date(Date.now() - 78 * 24 * 60 * 60 * 1000), // 78 days ago
-      description: 'Lärmbelästigung: Alexei beschwert sich über nächtlichen Lärm von Petro (23:00-02:00 Uhr). Beeinflusst seinen Schlaf.',
+      description:
+        'Lärmbelästigung: Alexei beschwert sich über nächtlichen Lärm von Petro (23:00-02:00 Uhr). Beeinflusst seinen Schlaf.',
       severity: 'HIGH',
       resolvedAt: new Date(Date.now() - 76 * 24 * 60 * 60 * 1000),
       resolution: 'Ruhezeiten nach 22:00 Uhr vereinbart. Petro zugestimmt.',
       reportedById: alexei.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
     data: [
       { incidentId: incident2.id, residentId: alexei.id, role: 'INVOLVED' },
       { incidentId: incident2.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Week 4: Cleanliness escalation (difference of 3 levels)
@@ -1118,10 +1251,11 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'CLEANLINESS_DISPUTE',
       date: new Date(Date.now() - 70 * 24 * 60 * 60 * 1000), // 70 days ago
-      description: 'Schwerer Sauberkeitskonflikt: Alexei (sehr sauber) kann nicht mit Dmitri und Petro (beide Sauberkeit Level 2) zusammenleben. Küche nicht gereinigt seit 5 Tagen.',
+      description:
+        'Schwerer Sauberkeitskonflikt: Alexei (sehr sauber) kann nicht mit Dmitri und Petro (beide Sauberkeit Level 2) zusammenleben. Küche nicht gereinigt seit 5 Tagen.',
       severity: 'HIGH',
       // No reportedById = staff reported
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
@@ -1129,7 +1263,7 @@ export async function seedDemoData(
       { incidentId: incident3.id, residentId: alexei.id, role: 'INVOLVED' },
       { incidentId: incident3.id, residentId: dmitri.id, role: 'INVOLVED' },
       { incidentId: incident3.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Week 6: Chores conflict (low contribution causing tension)
@@ -1139,19 +1273,20 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
       date: new Date(Date.now() - 56 * 24 * 60 * 60 * 1000), // 56 days ago
-      description: 'Hausarbeitskonflikt: Petro (Beitrag Level 1) beteiligt sich nicht an Reinigungsarbeiten. Marco übernimmt alle Aufgaben.',
+      description:
+        'Hausarbeitskonflikt: Petro (Beitrag Level 1) beteiligt sich nicht an Reinigungsarbeiten. Marco übernimmt alle Aufgaben.',
       severity: 'MEDIUM',
       resolvedAt: new Date(Date.now() - 52 * 24 * 60 * 60 * 1000),
       resolution: 'Rotierender Putzplan mit klaren Zuständigkeiten eingeführt.',
       reportedById: marco.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
     data: [
       { incidentId: incident4.id, residentId: marco.id, role: 'INVOLVED' },
       { incidentId: incident4.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Week 9: Recycling dispute (knowledge gap causing issues)
@@ -1161,12 +1296,13 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
       date: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000), // 35 days ago
-      description: 'Recycling-Fehler: Dmitri und Petro (keine Recycling-Kenntnisse) werfen alles in den Restmüll. Alexei frustriert.',
+      description:
+        'Recycling-Fehler: Dmitri und Petro (keine Recycling-Kenntnisse) werfen alles in den Restmüll. Alexei frustriert.',
       severity: 'LOW',
       resolvedAt: new Date(Date.now() - 33 * 24 * 60 * 60 * 1000),
       resolution: 'Recycling-Schulung durchgeführt. Infografik in Küche aufgehängt.',
       reportedById: alexei.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
@@ -1174,7 +1310,7 @@ export async function seedDemoData(
       { incidentId: incident5.id, residentId: alexei.id, role: 'INVOLVED' },
       { incidentId: incident5.id, residentId: dmitri.id, role: 'INVOLVED' },
       { incidentId: incident5.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Week 11: Recent noise complaint (pattern continues)
@@ -1184,17 +1320,18 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
       date: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // 14 days ago
-      description: 'Erneute Lärmbelästigung: Petro hält sich nicht an vereinbarte Ruhezeiten. Alexei erwägt Umzug.',
+      description:
+        'Erneute Lärmbelästigung: Petro hält sich nicht an vereinbarte Ruhezeiten. Alexei erwägt Umzug.',
       severity: 'HIGH',
       reportedById: alexei.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
     data: [
       { incidentId: incident6.id, residentId: alexei.id, role: 'INVOLVED' },
       { incidentId: incident6.id, residentId: petro.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // Unit 5 - SUCCESS STORY: 0 incidents over 6 months (no incidents to create)
@@ -1207,19 +1344,20 @@ export async function seedDemoData(
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
       date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000), // 45 days ago
-      description: 'Kleine Meinungsverschiedenheit über Küchennutzungszeiten. Schnell gelöst durch Kompromiss.',
+      description:
+        'Kleine Meinungsverschiedenheit über Küchennutzungszeiten. Schnell gelöst durch Kompromiss.',
       severity: 'LOW',
       resolvedAt: new Date(Date.now() - 44 * 24 * 60 * 60 * 1000),
       resolution: 'Nutzungsplan erstellt. Beide Parteien zufrieden.',
       reportedById: elena.id,
-    }
+    },
   })
 
   await prisma.incidentInvolvement.createMany({
     data: [
       { incidentId: incident7.id, residentId: elena.id, role: 'INVOLVED' },
       { incidentId: incident7.id, residentId: grace.id, role: 'INVOLVED' },
-    ]
+    ],
   })
 
   // ========================================================================

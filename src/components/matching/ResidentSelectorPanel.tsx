@@ -1,7 +1,13 @@
 import Link from 'next/link'
 import type { Resident } from '@prisma/client'
 import type { ResidentWithPlacement } from '@/lib/matching/types'
-import { AGE_RANGE_LABELS, LANGUAGE_LABELS, EMPTY_STATE_LABELS, MATCHING_LABELS, getLabel } from '@/lib/constants'
+import {
+  AGE_RANGE_LABELS,
+  LANGUAGE_LABELS,
+  EMPTY_STATE_LABELS,
+  MATCHING_LABELS,
+  getLabel,
+} from '@/lib/constants'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
@@ -37,7 +43,9 @@ export function ResidentSelectorPanel({
             placeholder={MATCHING_LABELS.searchPlaceholder}
             className="input flex-1"
           />
-          <button type="submit" className="btn-outline text-sm min-h-[44px]">{MATCHING_LABELS.search}</button>
+          <button type="submit" className="btn-outline text-sm min-h-[44px]">
+            {MATCHING_LABELS.search}
+          </button>
         </div>
         {params.resident && <input type="hidden" name="resident" value={params.resident} />}
         {params.unit && <input type="hidden" name="unit" value={params.unit} />}
@@ -50,8 +58,8 @@ export function ResidentSelectorPanel({
             {totalResidentCount === 0
               ? EMPTY_STATE_LABELS.noResidentsAtAll
               : residentQuery
-              ? MATCHING_LABELS.noResidentsFound
-              : EMPTY_STATE_LABELS.allResidentsPlaced}
+                ? MATCHING_LABELS.noResidentsFound
+                : EMPTY_STATE_LABELS.allResidentsPlaced}
           </p>
           {totalResidentCount === 0 && (
             <Link href="/residents/new" className="btn-outline mt-4 inline-block">
@@ -77,9 +85,7 @@ export function ResidentSelectorPanel({
                 href={`/residents/${resident.id}`}
                 className="flex items-center gap-3 flex-1 hover:opacity-80"
               >
-                <div className="avatar-sm">
-                  {residentInitials(resident)}
-                </div>
+                <div className="avatar-sm">{residentInitials(resident)}</div>
                 <div>
                   <p className="inline-flex items-center py-2 -my-2 font-medium text-ui-text hover:text-brand-primary">
                     {residentName(resident)}
@@ -101,7 +107,9 @@ export function ResidentSelectorPanel({
                     : 'bg-ui-subtle text-ui-muted hover:bg-brand-primary hover:text-ui-on-accent'
                 }`}
               >
-                {params.resident === resident.id ? MATCHING_LABELS.selected : MATCHING_LABELS.matching}
+                {params.resident === resident.id
+                  ? MATCHING_LABELS.selected
+                  : MATCHING_LABELS.matching}
               </Link>
             </div>
           ))}
@@ -114,10 +122,11 @@ export function ResidentSelectorPanel({
           <h3 className="text-md font-semibold text-ui-muted mb-3">
             {MATCHING_LABELS.placedResidents} ({placedResidents.length})
           </h3>
-          <p className="text-xs text-ui-muted mb-3">
-            {MATCHING_LABELS.selectForAnalysis}
-          </p>
-          <section aria-label={MATCHING_LABELS.placedResidents} className="space-y-2 max-h-64 overflow-y-auto">
+          <p className="text-xs text-ui-muted mb-3">{MATCHING_LABELS.selectForAnalysis}</p>
+          <section
+            aria-label={MATCHING_LABELS.placedResidents}
+            className="space-y-2 max-h-64 overflow-y-auto"
+          >
             {placedResidents.map((resident) => (
               <div
                 key={resident.id}
@@ -131,13 +140,9 @@ export function ResidentSelectorPanel({
                   href={`/residents/${resident.id}`}
                   className="flex items-center gap-2 flex-1 hover:opacity-80"
                 >
-                  <div className="avatar-sm w-7 h-7 bg-ui-muted">
-                    {residentInitials(resident)}
-                  </div>
+                  <div className="avatar-sm w-7 h-7 bg-ui-muted">{residentInitials(resident)}</div>
                   <div>
-                    <p className="text-sm font-medium text-ui-muted">
-                      {residentName(resident)}
-                    </p>
+                    <p className="text-sm font-medium text-ui-muted">{residentName(resident)}</p>
                     <p className="text-xs text-ui-muted">
                       {resident.placements[0]?.housingUnit?.code || MATCHING_LABELS.placed}
                     </p>

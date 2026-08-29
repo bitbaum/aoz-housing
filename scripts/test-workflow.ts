@@ -3,7 +3,20 @@
  * Tests: Housing creation, spots, residents, placements, incidents
  */
 
-import { PrismaClient, AgeRange, Gender, FamilyStatus, SleepSchedule, SocialStyle, SmokingStatus, MobilityNeed, HousingStatus, SpotType, SpotStatus, MedicalDocType } from '@prisma/client'
+import {
+  PrismaClient,
+  AgeRange,
+  Gender,
+  FamilyStatus,
+  SleepSchedule,
+  SocialStyle,
+  SmokingStatus,
+  MobilityNeed,
+  HousingStatus,
+  SpotType,
+  SpotStatus,
+  MedicalDocType,
+} from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -155,7 +168,7 @@ async function main() {
       noiseTolerance: 1,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED' as SocialStyle,
       languages: ['ar', 'en'],
       culturalRegion: 'Middle East',
@@ -174,7 +187,7 @@ async function main() {
       noiseTolerance: 5,
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       socialStyle: 'EXTROVERTED' as SocialStyle,
       languages: ['es', 'en'],
       culturalRegion: 'Latin America',
@@ -193,7 +206,7 @@ async function main() {
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE' as SocialStyle,
       languages: ['ru'],
       culturalRegion: 'Eastern Europe',
@@ -212,7 +225,7 @@ async function main() {
       noiseTolerance: 1,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED' as SocialStyle,
       languages: ['so'],
       culturalRegion: 'East Africa',
@@ -234,7 +247,7 @@ async function main() {
       noiseTolerance: 5,
       cleanlinessPractice: 2,
       cleanlinessExpectation: 2,
-      chaosTolerance: 6 - (2),
+      chaosTolerance: 6 - 2,
       socialStyle: 'EXTROVERTED' as SocialStyle,
       languages: ['pt'],
       culturalRegion: 'South America',
@@ -253,7 +266,7 @@ async function main() {
       noiseTolerance: 3,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE' as SocialStyle,
       languages: ['ar'],
       culturalRegion: 'Middle East',
@@ -272,7 +285,7 @@ async function main() {
       noiseTolerance: 2,
       cleanlinessPractice: 4,
       cleanlinessExpectation: 4,
-      chaosTolerance: 6 - (4),
+      chaosTolerance: 6 - 4,
       socialStyle: 'MODERATE' as SocialStyle,
       languages: ['en'],
       culturalRegion: 'Western Europe',
@@ -291,7 +304,7 @@ async function main() {
       noiseTolerance: 1,
       cleanlinessPractice: 5,
       cleanlinessExpectation: 5,
-      chaosTolerance: 6 - (5),
+      chaosTolerance: 6 - 5,
       socialStyle: 'INTROVERTED' as SocialStyle,
       languages: ['ja'],
       culturalRegion: 'East Asia',
@@ -344,8 +357,8 @@ async function main() {
   console.log(`Found ${beds.length} available beds\n`)
 
   // Place resident with medical docs in private room first
-  const privateRoomResident = createdResidents.find(r => r.hasMedicalDocumentation)!
-  const privateRoom = beds.find(b => b.requiresMedicalDocs)!
+  const privateRoomResident = createdResidents.find((r) => r.hasMedicalDocumentation)!
+  const privateRoom = beds.find((b) => b.requiresMedicalDocs)!
 
   const placement1 = await prisma.placement.create({
     data: {
@@ -368,8 +381,8 @@ async function main() {
   console.log(`✅ Placed ${privateRoomResident.code} in ${privateRoom.code} (private room)`)
 
   // Place remaining 7 residents in regular beds
-  const regularResidents = createdResidents.filter(r => !r.hasMedicalDocumentation)
-  const regularBeds = beds.filter(b => !b.requiresMedicalDocs)
+  const regularResidents = createdResidents.filter((r) => !r.hasMedicalDocumentation)
+  const regularBeds = beds.filter((b) => !b.requiresMedicalDocs)
 
   for (let i = 0; i < regularResidents.length; i++) {
     const resident = regularResidents[i]

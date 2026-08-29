@@ -50,8 +50,7 @@ export interface AccountIdentities {
 }
 
 export type AccountResult =
-  | { success: true; identities: AccountIdentities }
-  | { success: false; error: string }
+  { success: true; identities: AccountIdentities } | { success: false; error: string }
 
 const ACCOUNT_WITH_IDENTITIES = {
   id: true,
@@ -90,8 +89,7 @@ function toIdentities(account: AccountRow): AccountIdentities {
 }
 
 type CodeIdentity =
-  | { kind: 'staff'; id: string; active: boolean }
-  | { kind: 'resident'; id: string }
+  { kind: 'staff'; id: string; active: boolean } | { kind: 'resident'; id: string }
 
 /** Resolve a login code to the identity it names. */
 async function findIdentityByCode(code: string): Promise<CodeIdentity | null> {
@@ -192,7 +190,10 @@ export async function registerAccount(input: {
       await sendVerificationEmail(accountForEmail.id, email)
     }
 
-    return { success: true, identities: toIdentities(await loadAccount({ id: accountForEmail.id })) }
+    return {
+      success: true,
+      identities: toIdentities(await loadAccount({ id: accountForEmail.id })),
+    }
   }
 
   // --- Finish this identity's own unclaimed account, or create one ---
@@ -256,7 +257,7 @@ export async function loginWithEmail(input: {
  * link that will never arrive is a silent lockout, so that is a loud error.
  */
 export async function requestPasswordReset(
-  email: string
+  email: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!EMAIL_CONFIG.enabled) {
     return { success: false, error: ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED }
@@ -281,7 +282,7 @@ export async function requestPasswordReset(
  */
 export async function resetPassword(
   rawToken: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<{ success: boolean; error?: string }> {
   const accountId = await consumeAuthToken(rawToken, 'RESET_PASSWORD')
   if (!accountId) return { success: false, error: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID }

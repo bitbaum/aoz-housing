@@ -52,7 +52,7 @@ const KNOWN_LEAKS: readonly string[] = [
 function portalFilesImportingLabelMaps(): string[] {
   const out = execSync(
     `grep -rlE "_LABELS" --include=*.tsx --include=*.ts src/app/portal src/components/portal || true`,
-    { encoding: 'utf8', cwd: process.cwd() }
+    { encoding: 'utf8', cwd: process.cwd() },
   )
   return out
     .split('\n')

@@ -95,6 +95,6 @@ describe('role policy smoke checks', () => {
   })
 
   test('canRoleAccess rejects when ADMIN is not in allowlist', () => {
-    expect(canRoleAccess([] as unknown as ('ADMIN')[], 'ADMIN')).toBe(false)
+    expect(canRoleAccess([] as unknown as 'ADMIN'[], 'ADMIN')).toBe(false)
   })
 })

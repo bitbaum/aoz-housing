@@ -89,7 +89,8 @@ export const de = {
   'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
   'error.accountNotFound':
     'Dein Konto wurde nicht gefunden. Bitte wende dich an deine Betreuungsperson.',
-  'error.portalMessage': 'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte erneut versuchen.',
+  'error.portalMessage':
+    'Beim Laden der Portalseite ist ein Fehler aufgetreten. Bitte erneut versuchen.',
   'error.portalHome': 'Zur Startseite',
 
   // The language picker itself
@@ -101,7 +102,8 @@ export const de = {
   // Safety copy. Translated last and reviewed hardest — this is the text that
   // has to be right at three in the morning.
   'safety.emergency': 'Bei Notfällen: 112 oder Hausverwaltung kontaktieren',
-  'placement.none': 'Du hast noch keine Unterkunft. Sobald du zugeteilt bist, siehst du hier, was in deinem Haus läuft.',
+  'placement.none':
+    'Du hast noch keine Unterkunft. Sobald du zugeteilt bist, siehst du hier, was in deinem Haus läuft.',
 
   'help.title': 'Hilfe & FAQ',
   'help.subtitle': 'Antworten und Kontakt — bei Gefahr zuerst die Notfallnummern.',
@@ -116,11 +118,9 @@ export const de = {
   'help.faq.preferences.a':
     'Ja, unter Einstellungen. Änderungen gelten für künftige Platzierungen.',
   'help.faq.conflict.q': 'Was passiert bei einem Konflikt?',
-  'help.faq.conflict.a':
-    'Melde das über «Melden» im Portal. Das Team nimmt jede Meldung ernst.',
+  'help.faq.conflict.a': 'Melde das über «Melden» im Portal. Das Team nimmt jede Meldung ernst.',
   'help.faq.transfer.q': 'Kann ich einen Umzug beantragen?',
-  'help.faq.transfer.a':
-    'Ja, über «Verlegung» oder deine Betreuungsperson.',
+  'help.faq.transfer.a': 'Ja, über «Verlegung» oder deine Betreuungsperson.',
   'help.faq.privacy.q': 'Werden meine Daten geschützt?',
   'help.faq.privacy.a':
     'Ja. Nur Wohnpräferenzen, keine Diagnosen, kein Asylstatus. Du kannst deine Daten einsehen lassen.',
@@ -130,7 +130,8 @@ export const de = {
   'report.title': 'Problem melden',
   'report.subtitle': 'Technisches Problem oder Konflikt — das Team sieht die Meldung.',
   'report.emergencyTitle': 'Akute Gefahr?',
-  'report.emergencyMessage': 'Bei Notfällen: 112. Notfall ausserhalb der Bürozeiten: 044 415 63 30.',
+  'report.emergencyMessage':
+    'Bei Notfällen: 112. Notfall ausserhalb der Bürozeiten: 044 415 63 30.',
   'report.noPlacement': 'Du hast noch keine Unterkunft. Melde dich bei der Betreuung.',
   'report.categoryMaintenance': 'Technisches Problem',
   'report.categoryMaintenanceDesc': 'Defekte Geräte, Wasserschäden, Heizung etc.',
@@ -138,7 +139,8 @@ export const de = {
   'report.categoryConflictDesc': 'Probleme mit Mitbewohnern oder Nachbarn',
   'report.titleMaintenance': 'Technisches Problem melden',
   'report.titleConflict': 'Konflikt melden',
-  'report.conflictSubtitle': 'Bei Problemen mit Mitbewohnern. Deine Meldung wird vertraulich behandelt.',
+  'report.conflictSubtitle':
+    'Bei Problemen mit Mitbewohnern. Deine Meldung wird vertraulich behandelt.',
   'report.typeLabel': 'Art des Problems',
   'report.conflictTypeLabel': 'Art des Konflikts',
   'report.selectPlaceholder': 'Bitte auswählen...',
@@ -159,12 +161,14 @@ export const de = {
   'report.submitConflict': 'Konflikt melden',
   'report.submitting': 'Wird gesendet...',
   'report.successTitle': 'Meldung eingegangen',
-  'report.successMessage': 'Wir kümmern uns darum. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
+  'report.successMessage':
+    'Wir kümmern uns darum. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
   'report.nextStepsTitle': 'Was passiert als Nächstes?',
   'report.nextStep1': 'Dein Bericht ist gespeichert und für das Team sichtbar.',
   'report.nextStep2': 'Das Team priorisiert den Fall nach Dringlichkeit.',
   'report.nextStep3': 'Bei Rückfragen oder bei hoher Priorität meldet sich die Betreuung zeitnah.',
-  'report.successTip': 'Tipp: Unter «Meine Meldungen» im Dashboard siehst du, ob ein Bericht offen oder gelöst ist.',
+  'report.successTip':
+    'Tipp: Unter «Meine Meldungen» im Dashboard siehst du, ob ein Bericht offen oder gelöst ist.',
   'report.errorGeneric': 'Meldung konnte nicht gesendet werden. Bitte erneut versuchen.',
   'report.quickTitle': 'Schnell melden',
   'report.quickSubtitle': 'Typische Fälle mit einem Klick vorbefüllen',
@@ -240,7 +244,8 @@ export const de = {
   'learning.offersEmpty': 'Gerade keine Lernangebote. Schau unter Aktivitäten nach.',
   'learning.hours': 'Stunden',
   'learning.evidenceSaved': 'Nachweis gespeichert — dein Team sieht den Eintrag.',
-  'learning.evidenceSaveError': 'Speichern fehlgeschlagen. Bitte Eingaben prüfen und erneut versuchen.',
+  'learning.evidenceSaveError':
+    'Speichern fehlgeschlagen. Bitte Eingaben prüfen und erneut versuchen.',
 
   // Einsatzplätze. The stage, the permit rule and the kind are translated
   // rather than left in German like the staff-side enums: where your own
@@ -286,7 +291,8 @@ export const de = {
   'opportunities.stageDeclined': 'Abgesagt',
 
   'care.title': 'Dein Team',
-  'care.subtitle': 'Wer für dich zuständig ist — Wohnen, Sozialarbeit, Jobcoach, Freiwilligenarbeit.',
+  'care.subtitle':
+    'Wer für dich zuständig ist — Wohnen, Sozialarbeit, Jobcoach, Freiwilligenarbeit.',
   'care.empty': 'Noch niemand zugewiesen. Die Betreuung trägt das Team ein.',
   'care.housing': 'Wohnen / Betreuung',
   'care.social': 'Sozialarbeit',
@@ -307,7 +313,8 @@ export const de = {
 
   'marketplace.yoursTitle': 'Deine Inserate',
   'marketplace.title': 'Marktplatz',
-  'marketplace.subtitle': 'Sachen weitergeben und einander helfen — in deiner Unterkunft und darüber hinaus.',
+  'marketplace.subtitle':
+    'Sachen weitergeben und einander helfen — in deiner Unterkunft und darüber hinaus.',
   'marketplace.ownUnit': 'Deine Unterkunft',
   'marketplace.otherUnits': 'Andere Unterkünfte',
   'marketplace.empty': 'Noch keine Meldungen.',
@@ -351,9 +358,11 @@ export const de = {
   'marketplace.categoryPaperwork': 'Formulare & Post',
   'marketplace.filterAll': 'Alles',
   'marketplace.openOnly': 'Nur offene Einträge aus anderen Unterkünften.',
-  'marketplace.noMoney': 'Nachbarschaftshilfe ohne Bezahlung. Für bezahlte Einsätze gibt es Einsatzplätze.',
+  'marketplace.noMoney':
+    'Nachbarschaftshilfe ohne Bezahlung. Für bezahlte Einsätze gibt es Einsatzplätze.',
   'marketplace.formContact': 'Wie erreicht man dich?',
-  'marketplace.formContactHint': 'Sehen nur die Person, die übernimmt, und die Betreuung. Zum Beispiel: Zimmer 3, abends.',
+  'marketplace.formContactHint':
+    'Sehen nur die Person, die übernimmt, und die Betreuung. Zum Beispiel: Zimmer 3, abends.',
   'marketplace.contactLabel': 'Kontakt',
   'marketplace.release': 'Doch nicht',
   'marketplace.reopen': 'Wieder öffnen',
@@ -363,7 +372,8 @@ export const de = {
   'marketplace.postedAgo': 'Eingetragen',
 
   'events.title': 'Veranstaltungen',
-  'events.subtitle': 'Hausversammlungen und gemeinsame Anlässe — sag zu, ab, oder erstelle selbst einen Termin.',
+  'events.subtitle':
+    'Hausversammlungen und gemeinsame Anlässe — sag zu, ab, oder erstelle selbst einen Termin.',
   'events.empty': 'Noch keine Veranstaltungen geplant.',
   'events.createNew': 'Neue Veranstaltung',
   'events.formTitle': 'Titel',
@@ -425,19 +435,22 @@ export const de = {
   'dashboard.onboarding.step3': 'Unterkunft erkunden',
   'dashboard.onboarding.step4': 'Mitbewohnende kennenlernen',
   'dashboard.onboarding.completePreferences': 'Präferenzen angeben',
-  'dashboard.onboarding.completePreferencesHint': 'Damit wir dir die passende Unterkunft zeigen können.',
+  'dashboard.onboarding.completePreferencesHint':
+    'Damit wir dir die passende Unterkunft zeigen können.',
   'dashboard.onboarding.browseHousing': 'Unterkunft erkunden',
   'dashboard.onboarding.browseHousingHint': 'Sieh dir an, wo du untergebracht bist.',
 
   'housing.subtitle': 'Unterkünfte, die zu deinen Einstellungen passen',
   'preferences.subtitle': 'Diese Angaben helfen uns, passende Mitbewohner zu finden',
   'decisions.title': 'Beschlüsse im Haus',
-  'decisions.noPlacement': 'Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.',
+  'decisions.noPlacement':
+    'Sobald du einer Unterkunft zugeteilt bist, kannst du hier mitentscheiden.',
   'decisions.subtitle': 'Bei vielen Themen entscheidet ihr im Haus selbst.',
   'decisions.phaseDiscussion': 'Besprechung',
   'decisions.phaseVoting': 'Abstimmung',
   'decisions.days': 'Tage',
-  'decisions.tooFewVoters': 'In diesem Haus wohnen zurzeit zu wenige Personen für eine Abstimmung. Vorschläge kannst du trotzdem einreichen — die Betreuung bespricht sie mit euch.',
+  'decisions.tooFewVoters':
+    'In diesem Haus wohnen zurzeit zu wenige Personen für eine Abstimmung. Vorschläge kannst du trotzdem einreichen — die Betreuung bespricht sie mit euch.',
 
   // Activities card
   'activities.dashboardTitle': 'Aktivitäten & Kurse',
@@ -520,7 +533,8 @@ export const de = {
   'expenses.descriptionPlaceholder': 'z.B. Wocheneinkauf',
   'expenses.each': 'je',
   'expenses.empty': 'Noch keine Ausgaben erfasst',
-  'expenses.emptyHint': 'Erfasse den ersten gemeinsamen Einkauf, damit alle den Überblick behalten.',
+  'expenses.emptyHint':
+    'Erfasse den ersten gemeinsamen Einkauf, damit alle den Überblick behalten.',
   'expenses.historyTitle': 'Alle Ausgaben',
   'expenses.markPaid': 'Als bezahlt erfassen',
   'expenses.markPaidConfirm': '«0» an «1» als bezahlt erfassen?',
@@ -538,7 +552,8 @@ export const de = {
   'expenses.splitAll': 'alle',
   'expenses.statementExpenses': 'Ausgaben',
   'expenses.statementNet': 'Saldo',
-  'expenses.statementNetHint': 'Saldo = bezahlt minus Anteil. Plus heisst: hat in diesem Monat für andere vorgestreckt.',
+  'expenses.statementNetHint':
+    'Saldo = bezahlt minus Anteil. Plus heisst: hat in diesem Monat für andere vorgestreckt.',
   'expenses.statementPaid': 'Bezahlt',
   'expenses.statementPerson': 'Person',
   'expenses.statementShare': 'Anteil',
@@ -553,12 +568,14 @@ export const de = {
   'expenses.you': 'Du',
   'housingBrowse.compatibility': 'Kompatibilität',
   'housingBrowse.concerns': 'Beachten',
-  'housingBrowse.contactHint': 'Interessiert? Sprich mit deinem Betreuungsteam über diese Unterkunft.',
+  'housingBrowse.contactHint':
+    'Interessiert? Sprich mit deinem Betreuungsteam über diese Unterkunft.',
   'housingBrowse.currentRoommates': 'Aktuelle Bewohner',
   'housingBrowse.elevator': 'Aufzug',
   'housingBrowse.emptyUnit': 'Noch keine Bewohner — du wärst die erste Person!',
   'housingBrowse.groundFloor': 'Erdgeschoss',
-  'housingBrowse.noMatches': 'Aktuell keine passenden Unterkünfte verfügbar. Bitte kontaktiere dein Betreuungsteam.',
+  'housingBrowse.noMatches':
+    'Aktuell keine passenden Unterkünfte verfügbar. Bitte kontaktiere dein Betreuungsteam.',
   'housingBrowse.noSmoking': 'Nichtraucher',
   'housingBrowse.petsAllowed': 'Haustiere erlaubt',
   'housingBrowse.privateKitchen': 'Eigene Küche',
@@ -576,7 +593,8 @@ export const de = {
   'preferences.confirmDiscard': 'Änderungen verwerfen?',
   'preferences.confirmDiscardBody': 'Nicht gespeicherte Eingaben gehen verloren.',
   'preferences.confirmDiscardConfirm': 'Verwerfen',
-  'preferences.errorGeneric': 'Einstellungen konnten nicht gespeichert werden. Bitte erneut versuchen.',
+  'preferences.errorGeneric':
+    'Einstellungen konnten nicht gespeichert werden. Bitte erneut versuchen.',
   'preferences.field.additionalPrefs': 'Zusätzliche Wünsche',
   'preferences.field.chaosTolerance': 'Toleranz für Unordnung',
   'preferences.field.cleanlinessExpectation': 'Erwartung an andere',
@@ -597,7 +615,8 @@ export const de = {
   'preferences.field.sleepSchedule': 'Schlafrhythmus',
   'preferences.field.smoking': 'Rauchen',
   'preferences.field.socialStyle': 'Soziale Präferenz',
-  'preferences.hint.additionalPrefsPlaceholder': 'z.B. \'Ich arbeite Nachtschicht\', \'Ich habe Allergien gegen Katzen\'...',
+  'preferences.hint.additionalPrefsPlaceholder':
+    "z.B. 'Ich arbeite Nachtschicht', 'Ich habe Allergien gegen Katzen'...",
   'preferences.hint.chaosTolerance': 'Wie gut kannst du mit Unordnung leben?',
   'preferences.hint.cleanlinessExpectation': 'Wie ordentlich sollten die anderen sein?',
   'preferences.hint.cleanlinessPractice': 'Wie ordentlich hältst du deinen eigenen Bereich?',
@@ -606,10 +625,12 @@ export const de = {
   'preferences.hint.noiseTolerance': 'Wie empfindlich bist du gegenüber Geräuschen?',
   'preferences.hint.privacyNeed': 'Wie viel Rückzugsort brauchst du?',
   'preferences.hint.roommatePrefs': 'Optional: Hast du besondere Wünsche für deine Mitbewohner?',
-  'preferences.privacyMessage': 'Deine Angaben werden nur verwendet, um passende Mitbewohner zu finden. Sie werden nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit ändern oder löschen lassen.',
+  'preferences.privacyMessage':
+    'Deine Angaben werden nur verwendet, um passende Mitbewohner zu finden. Sie werden nicht an Dritte weitergegeben. Du kannst deine Daten jederzeit ändern oder löschen lassen.',
   'preferences.privacyTitle': 'Datenschutz',
   'preferences.saveButton': 'Einstellungen speichern',
-  'preferences.saveTip': 'Tipp: Speichere unten, sobald du fertig bist. Änderungen sind erst nach dem Speichern aktiv.',
+  'preferences.saveTip':
+    'Tipp: Speichere unten, sobald du fertig bist. Änderungen sind erst nach dem Speichern aktiv.',
   'preferences.saving': 'Wird gespeichert...',
   'preferences.section.lifestyle': 'Lebensstil',
   'preferences.section.practical': 'Praktisches',
@@ -620,7 +641,8 @@ export const de = {
   'preferences.unsavedChanges': 'Nicht gespeicherte Änderungen vorhanden.',
   'profile.bioLabel': 'Über mich',
   'profile.bioPlaceholder': 'z.B. Ich koche gern und stehe früh auf.',
-  'profile.codeHint': 'Der Code bleibt dein Login. Name, Foto und Text sind freiwillig und jederzeit änderbar.',
+  'profile.codeHint':
+    'Der Code bleibt dein Login. Name, Foto und Text sind freiwillig und jederzeit änderbar.',
   'profile.codeLabel': 'Dein Login-Code',
   'profile.displayNameLabel': 'Name',
   'profile.displayNamePlaceholder': 'z.B. Georgy',
@@ -640,13 +662,15 @@ export const de = {
   'profile.visibilityHint.RESIDENTS': 'Auch Bewohnende aus anderen Wohnungen.',
   'profile.visibilityHint.ROOMMATES': 'Die Leute, mit denen du zusammenwohnst.',
   'profile.visibilityLabel': 'Wer sieht dein Profil?',
-  'profile.visibilityStaffNote': 'Die Betreuung sieht dein Profil immer — sie muss wissen, wen sie unterstützt.',
+  'profile.visibilityStaffNote':
+    'Die Betreuung sieht dein Profil immer — sie muss wissen, wen sie unterstützt.',
   'profile.visibleTo': 'Sichtbar für deine Mitbewohner und die Verwaltung.',
   'transfer.currentUnit': 'Aktuelle Unterkunft',
   'transfer.decidedOn': 'Entschieden am',
   'transfer.decisionTitle': 'Antwort auf deine Anfrage',
   'transfer.noPlacement': 'Du hast noch keine Unterkunft zugewiesen bekommen.',
-  'transfer.pendingMessage': 'Deine Verlegungsanfrage wird vom Team bearbeitet. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
+  'transfer.pendingMessage':
+    'Deine Verlegungsanfrage wird vom Team bearbeitet. Du wirst benachrichtigt, sobald es Neuigkeiten gibt.',
   'transfer.pendingTitle': 'Anfrage eingereicht',
   'transfer.reasonLabel': 'Warum möchtest du verlegt werden?',
   'transfer.reasonPlaceholder': 'Beschreibe den Grund für deinen Verlegungswunsch...',
@@ -656,8 +680,10 @@ export const de = {
   'transfer.subtitle': 'Möchtest du in eine andere Unterkunft wechseln?',
   'transfer.successMessage': 'Deine Verlegungsanfrage wurde erfolgreich eingereicht.',
   'transfer.successNextStep1': 'Die Betreuung sieht deine Anfrage im Team-Posteingang.',
-  'transfer.successNextStep2': 'Bei Rückfragen oder bei einem Entscheid meldet sich das Team bei dir.',
-  'transfer.successNextStep3': 'Wenn sich deine Situation ändert, kannst du zusätzlich eine Nachricht schreiben.',
+  'transfer.successNextStep2':
+    'Bei Rückfragen oder bei einem Entscheid meldet sich das Team bei dir.',
+  'transfer.successNextStep3':
+    'Wenn sich deine Situation ändert, kannst du zusätzlich eine Nachricht schreiben.',
   'transfer.successNextStepsTitle': 'Wie geht es weiter?',
   'transfer.successTitle': 'Anfrage gesendet',
   'transfer.successToMessages': 'Nachricht an die Betreuung',

@@ -3,11 +3,7 @@
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import {
-  validateFormData,
-  ResidentInputSchema,
-  ResidentUpdateSchema,
-} from '@/lib/validation'
+import { validateFormData, ResidentInputSchema, ResidentUpdateSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
@@ -49,7 +45,9 @@ export async function createResident(formData: FormData): Promise<void> {
   redirect(`/matching?resident=${resident.id}&new=1`)
 }
 
-export async function exitResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+export async function exitResident(
+  residentId: string,
+): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
@@ -116,7 +114,9 @@ export async function updateResident(formData: FormData): Promise<void> {
   redirect(`/residents/${id}`)
 }
 
-export async function archiveResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+export async function archiveResident(
+  residentId: string,
+): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
@@ -154,7 +154,9 @@ export async function archiveResident(residentId: string): Promise<{ success: bo
   }
 }
 
-export async function restoreResident(residentId: string): Promise<{ success: boolean; error?: string }> {
+export async function restoreResident(
+  residentId: string,
+): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
     const resident = await prisma.resident.findUnique({
@@ -198,7 +200,7 @@ function isTestOrDemoCode(code: string): boolean {
 export async function hardDeleteResidentProtected(
   residentId: string,
   confirmation: string,
-  reason: string
+  reason: string,
 ): Promise<{ success: boolean; error?: string; blockerReport?: Record<string, number> }> {
   const user = await requirePermission('residents:write')
   try {
@@ -207,7 +209,10 @@ export async function hardDeleteResidentProtected(
     }
 
     if (!reason || reason.trim().length < 10) {
-      return { success: false, error: 'Bitte einen aussagekräftigen Grund angeben (mind. 10 Zeichen)' }
+      return {
+        success: false,
+        error: 'Bitte einen aussagekräftigen Grund angeben (mind. 10 Zeichen)',
+      }
     }
 
     const resident = await prisma.resident.findUnique({ where: { id: residentId } })
@@ -219,7 +224,14 @@ export async function hardDeleteResidentProtected(
       return { success: false, error: 'Hard-Delete nur für Test-/Demo-Klient*innen erlaubt' }
     }
 
-    const [placements, incidentsReported, incidentsAsSubject, involvements, maintenanceRequests, assessments] = await Promise.all([
+    const [
+      placements,
+      incidentsReported,
+      incidentsAsSubject,
+      involvements,
+      maintenanceRequests,
+      assessments,
+    ] = await Promise.all([
       prisma.placement.count({ where: { residentId } }),
       prisma.incident.count({ where: { reportedById: residentId } }),
       prisma.incident.count({ where: { subjectId: residentId } }),
@@ -232,7 +244,15 @@ export async function hardDeleteResidentProtected(
       }),
     ])
 
-    if (placements + incidentsReported + incidentsAsSubject + involvements + maintenanceRequests + assessments > 0) {
+    if (
+      placements +
+        incidentsReported +
+        incidentsAsSubject +
+        involvements +
+        maintenanceRequests +
+        assessments >
+      0
+    ) {
       return {
         success: false,
         error: 'Hard-Delete blockiert: Klient*in hat verknüpfte Historie',

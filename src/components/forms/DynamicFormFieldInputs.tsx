@@ -51,7 +51,8 @@ export function TextField({
     id: factor.id,
     name: factor.id,
     value: value ?? '',
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      onChange(e.target.value),
     placeholder: factor.placeholder,
     disabled,
     required: factor.required,
@@ -66,7 +67,9 @@ export function TextField({
         <AiMarker show={aiTouched} />
       </label>
       {factor.description && (
-        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">
+          {factor.description}
+        </p>
       )}
       {isTextareaFactor(factor) ? (
         <textarea {...shared} rows={4} className="input" />
@@ -104,7 +107,9 @@ export function EnumField({
         <AiMarker show={aiTouched} />
       </label>
       {factor.description && (
-        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
+        <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">
+          {factor.description}
+        </p>
       )}
       <select
         id={factor.id}
@@ -149,7 +154,9 @@ export function ScaleField({
           <AiMarker show={aiTouched} />
         </label>
         {factor.description && (
-          <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">{factor.description}</p>
+          <p id={`${factor.id}-desc`} className="text-xs text-ui-muted mb-2">
+            {factor.description}
+          </p>
         )}
         <input
           id={factor.id}
@@ -180,16 +187,15 @@ export function ScaleField({
         {factor.required && ' *'}
         <AiMarker show={aiTouched} />
       </legend>
-      {factor.description && (
-        <p className="text-xs text-ui-muted mb-2">{factor.description}</p>
-      )}
+      {factor.description && <p className="text-xs text-ui-muted mb-2">{factor.description}</p>}
       <div className="flex gap-2">
         {range.map((level) => {
-          const ariaLabel = level === factor.min && factor.lowLabel
-            ? `${level} – ${factor.lowLabel}`
-            : level === factor.max && factor.highLabel
-              ? `${level} – ${factor.highLabel}`
-              : String(level)
+          const ariaLabel =
+            level === factor.min && factor.lowLabel
+              ? `${level} – ${factor.lowLabel}`
+              : level === factor.max && factor.highLabel
+                ? `${level} – ${factor.highLabel}`
+                : String(level)
           return (
             <label key={level} className="flex-1 cursor-pointer">
               <input
@@ -242,9 +248,7 @@ export function BooleanField({
         disabled={disabled}
       />
       <span className="text-sm text-ui-muted">{factor.label}</span>
-      {factor.description && (
-        <span className="text-xs text-ui-muted">({factor.description})</span>
-      )}
+      {factor.description && <span className="text-xs text-ui-muted">({factor.description})</span>}
       <AiMarker show={aiTouched} />
     </label>
   )
@@ -270,9 +274,7 @@ export function MultiField({
         {factor.required && ' *'}
         <AiMarker show={aiTouched} />
       </legend>
-      {factor.description && (
-        <p className="text-xs text-ui-muted mb-2">{factor.description}</p>
-      )}
+      {factor.description && <p className="text-xs text-ui-muted mb-2">{factor.description}</p>}
       <div className="flex flex-wrap gap-2">
         {factor.options.map((opt) => (
           <label key={opt} className="cursor-pointer">
@@ -282,11 +284,7 @@ export function MultiField({
               value={opt}
               checked={selected.includes(opt)}
               onChange={(e) =>
-                onChange(
-                  e.target.checked
-                    ? [...selected, opt]
-                    : selected.filter((v) => v !== opt)
-                )
+                onChange(e.target.checked ? [...selected, opt] : selected.filter((v) => v !== opt))
               }
               className="sr-only peer"
               disabled={disabled}

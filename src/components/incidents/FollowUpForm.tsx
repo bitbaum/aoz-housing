@@ -51,7 +51,10 @@ export function FollowUpForm({
             <p className="text-xs text-ui-muted">{FOLLOW_UP_FORM_LABELS.quickTemplatesHint}</p>
           </div>
           {activeTemplate && (
-            <Link href={`/incidents/${incidentId}`} className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted">
+            <Link
+              href={`/incidents/${incidentId}`}
+              className="inline-flex items-center min-h-[44px] px-1 text-sm text-ui-muted hover:text-ui-muted"
+            >
               {FOLLOW_UP_FORM_LABELS.resetTemplate}
             </Link>
           )}
@@ -96,13 +99,18 @@ export function FollowUpForm({
         </div>
       </div>
 
-      <h3 className="font-medium text-ui-text mb-2">
-        {FOLLOW_UP_FORM_LABELS.title}
-      </h3>
+      <h3 className="font-medium text-ui-text mb-2">{FOLLOW_UP_FORM_LABELS.title}</h3>
       <form id="incident-followup-form" action={addFollowUp} className="space-y-4">
         <input type="hidden" name="incidentId" value={incidentId} />
-        <div id="incident-followup-validation-summary" className="hidden alert-error" role="alert" />
-        <FormValidationUX formId="incident-followup-form" summaryId="incident-followup-validation-summary" />
+        <div
+          id="incident-followup-validation-summary"
+          className="hidden alert-error"
+          role="alert"
+        />
+        <FormValidationUX
+          formId="incident-followup-form"
+          summaryId="incident-followup-validation-summary"
+        />
 
         <div>
           <label className="label">{FOLLOW_UP_FORM_LABELS.actionLabel}</label>
@@ -152,11 +160,7 @@ export function FollowUpForm({
           </div>
           <div>
             <label className="label">{FOLLOW_UP_FORM_LABELS.nextFollowUpLabel}</label>
-            <input
-              type="date"
-              name="scheduledNextDate"
-              className="input"
-            />
+            <input type="date" name="scheduledNextDate" className="input" />
           </div>
           <div>
             <label className="label">{FOLLOW_UP_FORM_LABELS.priorityLabel}</label>

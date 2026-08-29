@@ -44,13 +44,7 @@ export function PortalNav({ hasStaffAccess }: PortalNavProps) {
   )
 }
 
-function AccountMenu({
-  hasStaffAccess,
-  label,
-}: {
-  hasStaffAccess?: boolean
-  label: string
-}) {
+function AccountMenu({ hasStaffAccess, label }: { hasStaffAccess?: boolean; label: string }) {
   const t = useT()
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)

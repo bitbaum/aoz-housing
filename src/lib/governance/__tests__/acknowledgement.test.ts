@@ -25,7 +25,7 @@ describe('outstandingForResident', () => {
     const outstanding = outstandingForResident(
       rules,
       [{ ruleId: 'a', residentId: 'r1', ruleVersion: 1 }],
-      'r1'
+      'r1',
     )
 
     expect(outstanding.map((o) => o.rule.id)).toEqual(['b', 'c'])
@@ -38,7 +38,7 @@ describe('outstandingForResident', () => {
     const outstanding = outstandingForResident(
       amended,
       [{ ruleId: 'a', residentId: 'r1', ruleVersion: 1 }],
-      'r1'
+      'r1',
     )
 
     expect(outstanding).toHaveLength(1)
@@ -50,7 +50,7 @@ describe('outstandingForResident', () => {
     const outstanding = outstandingForResident(
       [rule('a')],
       [{ ruleId: 'a', residentId: 'someone-else', ruleVersion: 1 }],
-      'r1'
+      'r1',
     )
 
     expect(outstanding).toHaveLength(1)
@@ -60,7 +60,7 @@ describe('outstandingForResident', () => {
     const outstanding = outstandingForResident(
       [rule('a', 2)],
       [{ ruleId: 'a', residentId: 'r1', ruleVersion: 3 }],
-      'r1'
+      'r1',
     )
 
     expect(outstanding).toHaveLength(0)
@@ -77,7 +77,7 @@ describe('unitCoverage', () => {
         { ruleId: 'b', residentId: 'r1', ruleVersion: 1 },
         { ruleId: 'a', residentId: 'r2', ruleVersion: 1 },
       ],
-      ['r1', 'r2']
+      ['r1', 'r2'],
     )
 
     expect(coverage.requiredAcknowledgements).toBe(4)
@@ -91,7 +91,7 @@ describe('unitCoverage', () => {
     const coverage = unitCoverage(
       [rule('a')],
       [{ ruleId: 'a', residentId: 'r1', ruleVersion: 1 }],
-      ['r1']
+      ['r1'],
     )
 
     expect(coverage.coveragePercent).toBe(100)

@@ -77,10 +77,7 @@ export default async function PortalMarketplacePage({ searchParams }: Props) {
     ? (requested as MarketplaceNature)
     : undefined
 
-  const [auth, posts] = await Promise.all([
-    getPortalAuth(),
-    listPortalMarketplacePosts(nature),
-  ])
+  const [auth, posts] = await Promise.all([getPortalAuth(), listPortalMarketplacePosts(nature)])
   const me = auth?.resident.id ?? null
 
   function ActionButton({
@@ -122,11 +119,19 @@ export default async function PortalMarketplacePage({ searchParams }: Props) {
         <p className="mt-1 text-sm text-ui-muted">{post.description}</p>
 
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ui-muted">
-          <span>{t(MARKETPLACE_CATEGORY_LABEL_KEYS[post.category] ?? 'marketplace.categoryOther')}</span>
-          <span>{t('marketplace.postedBy')}: {post.postedByName}</span>
-          <span className="numeric">{t('marketplace.postedAgo')}: {formatZurichDateTime(post.createdAt)}</span>
+          <span>
+            {t(MARKETPLACE_CATEGORY_LABEL_KEYS[post.category] ?? 'marketplace.categoryOther')}
+          </span>
+          <span>
+            {t('marketplace.postedBy')}: {post.postedByName}
+          </span>
+          <span className="numeric">
+            {t('marketplace.postedAgo')}: {formatZurichDateTime(post.createdAt)}
+          </span>
           {post.claimedByName ? (
-            <span>{t('marketplace.claimedBy')}: {post.claimedByName}</span>
+            <span>
+              {t('marketplace.claimedBy')}: {post.claimedByName}
+            </span>
           ) : null}
         </div>
 
@@ -134,8 +139,7 @@ export default async function PortalMarketplacePage({ searchParams }: Props) {
             server drops it from the payload for everyone else. */}
         {post.contactNote ? (
           <p className="mt-2 rounded-md bg-ui-subtle px-3 py-2 text-sm text-ui-text">
-            <span className="eyebrow">{t('marketplace.contactLabel')}</span>{' '}
-            {post.contactNote}
+            <span className="eyebrow">{t('marketplace.contactLabel')}</span> {post.contactNote}
           </p>
         ) : null}
 

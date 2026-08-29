@@ -250,7 +250,10 @@ function FromTheBlog({ c, posts }: CopyProps & { posts: ReturnType<typeof getAll
         ))}
       </ul>
 
-      <Link href="/blog" className="mt-5 inline-flex items-center gap-2 text-sm text-ui-text hover:text-brand-primary transition-colors">
+      <Link
+        href="/blog"
+        className="mt-5 inline-flex items-center gap-2 text-sm text-ui-text hover:text-brand-primary transition-colors"
+      >
         {c.blogLink}
         <ArrowRight className="w-4 h-4" aria-hidden="true" />
       </Link>
@@ -284,9 +287,7 @@ function Surface({ c, locale }: CopyProps & { locale: PublicLocaleId }) {
       </h2>
       <p className="mt-4 text-ui-muted max-w-2xl leading-relaxed">{c.surfaceBody}</p>
       {c.surfaceStaffNote && (
-        <p className="mt-3 text-sm text-ui-muted max-w-2xl leading-relaxed">
-          {c.surfaceStaffNote}
-        </p>
+        <p className="mt-3 text-sm text-ui-muted max-w-2xl leading-relaxed">{c.surfaceStaffNote}</p>
       )}
 
       <div className="mt-8 space-y-8">

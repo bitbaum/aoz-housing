@@ -126,7 +126,7 @@ describe('download filenames cannot break the header', () => {
     // ordinary punctuation, so this pins what must SURVIVE, not only what must
     // not.
     expect(safeDownloadName('Lebenslauf (2026) - Müller.pdf')).toBe(
-      'Lebenslauf (2026) - Müller.pdf'
+      'Lebenslauf (2026) - Müller.pdf',
     )
     expect(safeDownloadName('Сертификат.pdf')).toBe('Сертификат.pdf')
   })

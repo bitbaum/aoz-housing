@@ -6,8 +6,18 @@ import { TaskSection } from '../TaskSection'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -46,7 +56,16 @@ function makeIncident(id: string) {
 }
 
 function makeCheckIn(id: string) {
-  return { id, residentCode: `RES-${id}`, residentId: `rid-${id}`, weekNumber: 12, unitCode: 'B02', unitId: `unit-${id}`, daysSinceLastCheckIn: 10, supportLevel: 'STANDARD' }
+  return {
+    id,
+    residentCode: `RES-${id}`,
+    residentId: `rid-${id}`,
+    weekNumber: 12,
+    unitCode: 'B02',
+    unitId: `unit-${id}`,
+    daysSinceLastCheckIn: 10,
+    supportLevel: 'STANDARD',
+  }
 }
 
 function makeResident(id: string) {
@@ -82,7 +101,9 @@ describe('TaskSection', () => {
   // ── Critical incidents ────────────────────────────────────────────────────
 
   it('shows critical incident count and suffix when present', () => {
-    render(<TaskSection {...EMPTY_PROPS} criticalIncidents={[makeIncident('i1'), makeIncident('i2')]} />)
+    render(
+      <TaskSection {...EMPTY_PROPS} criticalIncidents={[makeIncident('i1'), makeIncident('i2')]} />,
+    )
     expect(screen.getByText(/2 kritische Vorfälle offen/)).toBeInTheDocument()
   })
 
@@ -93,13 +114,20 @@ describe('TaskSection', () => {
 
   it('renders each critical incident as a link to /incidents/<id>', () => {
     render(<TaskSection {...EMPTY_PROPS} criticalIncidents={[makeIncident('inc-1')]} />)
-    expect(screen.getByRole('link', { name: /Konflikt/ })).toHaveAttribute('href', '/incidents/inc-1')
+    expect(screen.getByRole('link', { name: /Konflikt/ })).toHaveAttribute(
+      'href',
+      '/incidents/inc-1',
+    )
   })
 
   it('links the critical category header to /incidents?severity=CRITICAL', () => {
     render(<TaskSection {...EMPTY_PROPS} criticalIncidents={[makeIncident('i1')]} />)
     const links = screen.getAllByRole('link')
-    const headerLink = links.find(l => l.getAttribute('href') === '/incidents?severity=CRITICAL&resolved=false' && l.textContent?.includes('Alle'))
+    const headerLink = links.find(
+      (l) =>
+        l.getAttribute('href') === '/incidents?severity=CRITICAL&resolved=false' &&
+        l.textContent?.includes('Alle'),
+    )
     expect(headerLink).toBeDefined()
   })
 
@@ -129,7 +157,10 @@ describe('TaskSection', () => {
 
   it('renders each check-in as a link to /residents/<residentId>', () => {
     render(<TaskSection {...EMPTY_PROPS} overdueCheckIns={[makeCheckIn('c1')]} />)
-    expect(screen.getByRole('link', { name: /RES-c1/ })).toHaveAttribute('href', '/residents/rid-c1')
+    expect(screen.getByRole('link', { name: /RES-c1/ })).toHaveAttribute(
+      'href',
+      '/residents/rid-c1',
+    )
   })
 
   it('shows "+N weitere" when more than 3 overdue check-ins', () => {
@@ -175,13 +206,18 @@ describe('TaskSection', () => {
 
   it('renders each maintenance ticket as a link to /maintenance/<id>', () => {
     render(<TaskSection {...EMPTY_PROPS} overdueMaintenance={[makeMaintenance('m1')]} />)
-    expect(screen.getByRole('link', { name: /Ticket m1/ })).toHaveAttribute('href', '/maintenance/m1')
+    expect(screen.getByRole('link', { name: /Ticket m1/ })).toHaveAttribute(
+      'href',
+      '/maintenance/m1',
+    )
   })
 
   it('links overdue maintenance header to /maintenance', () => {
     render(<TaskSection {...EMPTY_PROPS} overdueMaintenance={[makeMaintenance('m1')]} />)
     const links = screen.getAllByRole('link')
-    const headerLink = links.find(l => l.getAttribute('href') === '/maintenance' && l.textContent?.includes('Alle'))
+    const headerLink = links.find(
+      (l) => l.getAttribute('href') === '/maintenance' && l.textContent?.includes('Alle'),
+    )
     expect(headerLink).toBeDefined()
   })
 

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   if (!currentUser) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.AUTH_REQUIRED },
-      { status: 401 }
+      { status: 401 },
     )
   }
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   if (!hasPermission(currentUser.role, 'users:manage')) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: 403 }
+      { status: 403 },
     )
   }
 
@@ -46,11 +46,15 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
-  const { name, code: requestedCode, role: rawRole } = body as {
+  const {
+    name,
+    code: requestedCode,
+    role: rawRole,
+  } = body as {
     name?: string
     code?: string
     role?: string
@@ -61,17 +65,14 @@ export async function POST(request: NextRequest) {
   // endpoint ever created got the widest role in the product, and the role
   // system therefore had no subjects to differentiate.
   if (rawRole !== undefined && !isStaffRole(rawRole)) {
-    return NextResponse.json(
-      { success: false, error: 'Ungültige Rolle' },
-      { status: 400 }
-    )
+    return NextResponse.json({ success: false, error: 'Ungültige Rolle' }, { status: 400 })
   }
   const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     return NextResponse.json(
       { success: false, error: 'Name ist erforderlich (mindestens 2 Zeichen)' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
   if (code && !code.startsWith(BRAND.codePrefix)) {
     return NextResponse.json(
       { success: false, error: `Code muss mit ${BRAND.codePrefix} beginnen` },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
     if (!code) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.CODE_GENERATION_ERROR },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }
@@ -107,7 +108,7 @@ export async function POST(request: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { success: false, error: 'Dieser Code ist bereits vergeben' },
-      { status: 409 }
+      { status: 409 },
     )
   }
 
@@ -131,15 +132,12 @@ export async function POST(request: NextRequest) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json(
         { success: false, error: 'Dieser Code ist bereits vergeben' },
-        { status: 409 }
+        { status: 409 },
       )
     }
     // Don't log the freshly-minted login code — it would leak working
     // credentials into log aggregation / error-tracking dashboards.
     logger.errorWithCause('Failed to create staff user', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SAVE_ERROR }, { status: 500 })
   }
 }

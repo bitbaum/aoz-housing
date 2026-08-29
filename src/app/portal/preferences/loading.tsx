@@ -6,7 +6,7 @@ export default function PreferencesLoading() {
       <SkeletonText className="h-4 w-32" />
       <SkeletonText className="h-8 w-48" />
       <SkeletonText className="h-4 w-64" />
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className="card space-y-4">
           <SkeletonText className="h-6 w-32" />
           <SkeletonText className="h-10 w-full" />

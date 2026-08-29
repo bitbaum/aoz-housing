@@ -34,7 +34,7 @@ export default async function globalSetup(config: FullConfig) {
     const body = await loginRes.text()
     throw new Error(
       `E2E global setup: login failed (${loginRes.status()}). ` +
-      `Ensure DB is seeded with code "${staffCode}". Response: ${body}`
+        `Ensure DB is seeded with code "${staffCode}". Response: ${body}`,
     )
   }
 

@@ -65,8 +65,9 @@ export const DEMO_RESIDENT_CODE_PREFIX = `${RESIDENT_CODE_PREFIX}DEMO`
  * A cleanup that silently stops covering old rows is worse than no cleanup,
  * because the summary still says it succeeded.
  */
-export const ALL_DEMO_RESIDENT_CODE_PREFIXES: readonly string[] =
-  ALL_RESIDENT_CODE_PREFIXES.map((prefix) => `${prefix}DEMO`)
+export const ALL_DEMO_RESIDENT_CODE_PREFIXES: readonly string[] = ALL_RESIDENT_CODE_PREFIXES.map(
+  (prefix) => `${prefix}DEMO`,
+)
 
 /**
  * Every demo housing unit's code carries this prefix. It is what makes the

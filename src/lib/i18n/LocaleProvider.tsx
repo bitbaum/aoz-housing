@@ -29,7 +29,7 @@ export function LocaleProvider({
 }) {
   const value = useMemo<LocaleContextValue>(
     () => ({ locale: LOCALES[locale], t: createTranslator(locale) }),
-    [locale]
+    [locale],
   )
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>

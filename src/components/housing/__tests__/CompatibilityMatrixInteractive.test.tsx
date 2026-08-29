@@ -9,8 +9,18 @@ import type { ResidentBasic } from '@/lib/types'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -35,16 +45,27 @@ jest.mock('@/lib/constants', () => ({
 // Stub the popover — forwardRef so popoverRef.current attaches for outside-click tests
 jest.mock('../CompatibilityDetailPopover', () => ({
   CompatibilityDetailPopover: React.forwardRef(function PopoverStub(
-    { resident1, resident2, score, onClose }: {
+    {
+      resident1,
+      resident2,
+      score,
+      onClose,
+    }: {
       resident1: { code: string }
       resident2: { code: string }
       score: { overallScore: number } | null
       onClose: () => void
     },
-    ref: React.Ref<HTMLDivElement>
+    ref: React.Ref<HTMLDivElement>,
   ) {
     return (
-      <div ref={ref} data-testid="popover" data-r1={resident1.code} data-r2={resident2.code} data-score={score?.overallScore ?? 'null'}>
+      <div
+        ref={ref}
+        data-testid="popover"
+        data-r1={resident1.code}
+        data-r2={resident2.code}
+        data-score={score?.overallScore ?? 'null'}
+      >
         <button onClick={onClose}>close-popover</button>
       </div>
     )
@@ -73,7 +94,7 @@ describe('CompatibilityMatrixInteractive', () => {
   it('renders resident codes as column headers with links', () => {
     render(<CompatibilityMatrixInteractive residents={[R1, R2]} scores={[]} />)
     const links = screen.getAllByRole('link', { name: 'RES-001' })
-    expect(links.some(l => l.getAttribute('href') === '/residents/r1')).toBe(true)
+    expect(links.some((l) => l.getAttribute('href') === '/residents/r1')).toBe(true)
   })
 
   it('renders resident codes as row headers with links', () => {
@@ -111,7 +132,9 @@ describe('CompatibilityMatrixInteractive', () => {
 
   it('"?" button has no-score aria-label', () => {
     render(<CompatibilityMatrixInteractive residents={[R1, R2]} scores={[]} />)
-    expect(screen.getByRole('button', { name: /Keine Bewertung: RES-001 und RES-002/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Keine Bewertung: RES-001 und RES-002/ }),
+    ).toBeInTheDocument()
   })
 
   it('finds score by reversed pair direction', () => {
@@ -217,17 +240,15 @@ describe('CompatibilityMatrixInteractive', () => {
 
   it('renders desktop click hint', () => {
     render(<CompatibilityMatrixInteractive residents={[]} scores={[]} />)
-    expect(screen.getByText('Auf eine Zelle klicken für Kompatibilitätsdetails')).toBeInTheDocument()
+    expect(
+      screen.getByText('Auf eine Zelle klicken für Kompatibilitätsdetails'),
+    ).toBeInTheDocument()
   })
 
   // ── 3-resident matrix ─────────────────────────────────────────────────────
 
   it('renders correct number of score cells for 3 residents', () => {
-    const scores = [
-      makeScore('r1', 'r2', 80),
-      makeScore('r1', 'r3', 65),
-      makeScore('r2', 'r3', 72),
-    ]
+    const scores = [makeScore('r1', 'r2', 80), makeScore('r1', 'r3', 65), makeScore('r2', 'r3', 72)]
     render(<CompatibilityMatrixInteractive residents={[R1, R2, R3]} scores={scores} />)
     // Each score appears in 2 symmetric cells
     expect(screen.getAllByText('80').length).toBeGreaterThanOrEqual(1)

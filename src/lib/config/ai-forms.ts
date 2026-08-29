@@ -75,7 +75,11 @@ export function factorToFieldSpec(factor: CompatibilityFactorDef): FieldSpec {
     case 'scale':
       return { ...base, type: 'number', min: factor.min, max: factor.max, hint: scaleHint(factor) }
     case 'boolean':
-      return { ...base, type: 'boolean', ...(factor.description ? { hint: factor.description } : {}) }
+      return {
+        ...base,
+        type: 'boolean',
+        ...(factor.description ? { hint: factor.description } : {}),
+      }
     case 'text':
       return {
         ...base,
@@ -126,7 +130,7 @@ export const RESIDENT_INTAKE_FIELDS: readonly FieldSpec[] = [...RESIDENT_FORM_SE
  * never sees medical documentation" true rather than merely intended.
  */
 export function residentIntakeInitialValues(
-  saved: Record<string, unknown> = {}
+  saved: Record<string, unknown> = {},
 ): Record<string, unknown> {
   const values: Record<string, unknown> = {}
   for (const factor of Object.values(RESIDENT_FACTORS)) {

@@ -98,7 +98,9 @@ function redactValue(value: unknown): unknown {
   return value
 }
 
-function redactContext(ctx: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+function redactContext(
+  ctx: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
   if (!ctx) return ctx
   return redactValue(ctx) as Record<string, unknown>
 }

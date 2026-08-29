@@ -30,7 +30,7 @@ function makeFormData(data: Record<string, string | string[]>): FormData {
   const fd = new FormData()
   for (const [key, value] of Object.entries(data)) {
     if (Array.isArray(value)) {
-      value.forEach(v => fd.append(`${key}[]`, v))
+      value.forEach((v) => fd.append(`${key}[]`, v))
     } else {
       fd.append(key, value)
     }
@@ -467,8 +467,16 @@ describe('MaintenanceRequestInputSchema', () => {
 
   it('accepts all maintenance categories', () => {
     const categories = [
-      'PLUMBING', 'ELECTRICAL', 'HEATING_COOLING', 'APPLIANCE',
-      'STRUCTURAL', 'PEST_CONTROL', 'SECURITY', 'CLEANING', 'EXTERIOR', 'OTHER',
+      'PLUMBING',
+      'ELECTRICAL',
+      'HEATING_COOLING',
+      'APPLIANCE',
+      'STRUCTURAL',
+      'PEST_CONTROL',
+      'SECURITY',
+      'CLEANING',
+      'EXTERIOR',
+      'OTHER',
     ]
     for (const category of categories) {
       const result = MaintenanceRequestInputSchema.safeParse({

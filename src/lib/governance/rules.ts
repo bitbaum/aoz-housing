@@ -105,7 +105,7 @@ export function checkUnitLegislation(orgRule: RuleLike): LegislationCheck {
 export function resolveProposalStatus(
   outcome: VoteOutcome,
   decisionMode: DecisionMode,
-  requiresStaffConfirmation: boolean
+  requiresStaffConfirmation: boolean,
 ): ProposalStatus {
   if (outcome === 'NO_QUORUM') return 'EXPIRED'
   if (outcome === 'BLOCKED') return 'REJECTED'

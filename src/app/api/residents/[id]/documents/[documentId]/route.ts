@@ -34,7 +34,7 @@ import { safeDownloadName } from '@/lib/config/documents'
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string; documentId: string } }
+  { params }: { params: { id: string; documentId: string } },
 ) {
   const staff = await getCurrentUser()
   const resident = staff ? null : await getPortalResident()
@@ -42,13 +42,13 @@ export async function GET(
   if (!staff && !resident) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
-      { status: 401 }
+      { status: 401 },
     )
   }
 
   const notFound = NextResponse.json(
     { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
-    { status: 404 }
+    { status: 404 },
   )
 
   try {
@@ -90,7 +90,7 @@ export async function GET(
     logger.errorWithCause('Failed to serve resident document', error)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

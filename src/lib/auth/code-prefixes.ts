@@ -15,11 +15,7 @@
  * and is already in the client bundle via the navigation config.
  */
 
-import {
-  ALL_RESIDENT_CODE_PREFIXES,
-  BRAND,
-  LEGACY_RESIDENT_CODE_PREFIXES,
-} from '../config/brand'
+import { ALL_RESIDENT_CODE_PREFIXES, BRAND, LEGACY_RESIDENT_CODE_PREFIXES } from '../config/brand'
 
 /**
  * Prefix on NEWLY ISSUED client/resident login codes, for the brand this

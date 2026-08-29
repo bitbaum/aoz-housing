@@ -6,8 +6,18 @@ import { DashboardMetrics } from '../DashboardMetrics'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -117,9 +127,10 @@ describe('DashboardMetrics', () => {
 
   it('links overdue check-ins tile to the correct filtered URL', () => {
     renderMetrics()
-    expect(
-      screen.getByRole('link', { name: /Check-ins überfällig/ })
-    ).toHaveAttribute('href', '/placements?status=active&overdue=1')
+    expect(screen.getByRole('link', { name: /Check-ins überfällig/ })).toHaveAttribute(
+      'href',
+      '/placements?status=active&overdue=1',
+    )
   })
 
   it('applies success colour when overdueCheckIns === 0', () => {
@@ -142,6 +153,9 @@ describe('DashboardMetrics', () => {
 
   it('links incidents tile to /incidents', () => {
     renderMetrics()
-    expect(screen.getByRole('link', { name: /Offene Vorfälle/ })).toHaveAttribute('href', '/incidents')
+    expect(screen.getByRole('link', { name: /Offene Vorfälle/ })).toHaveAttribute(
+      'href',
+      '/incidents',
+    )
   })
 })

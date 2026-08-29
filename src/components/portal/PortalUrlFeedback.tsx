@@ -11,9 +11,7 @@ export function PortalUrlFeedback() {
   return (
     <UrlFeedbackToast
       success={[{ param: 'created', message: CHORE_LABELS.success.created }]}
-      errors={[
-        { code: 'account_not_found', message: t('error.accountNotFound') },
-      ]}
+      errors={[{ code: 'account_not_found', message: t('error.accountNotFound') }]}
     />
   )
 }

@@ -69,9 +69,7 @@ function HousingCard({
         <div className="min-w-0">
           <h3 className="font-semibold text-ui-text truncate">{result.address}</h3>
           <p className="text-sm text-ui-muted">
-            {result.isEmpty
-              ? L.emptyUnit
-              : `${result.currentResidentCount} ${L.currentRoommates}`}
+            {result.isEmpty ? L.emptyUnit : `${result.currentResidentCount} ${L.currentRoommates}`}
             {' · '}
             {result.availableSpots} {L.spots}
           </p>
@@ -90,7 +88,9 @@ function HousingCard({
           <FeaturePill>{L.features.noSmoking}</FeaturePill>
         )}
         {result.features.petsAllowed && <FeaturePill>{L.features.petsAllowed}</FeaturePill>}
-        {result.features.wheelchairAccess && <FeaturePill>{L.features.wheelchairAccess}</FeaturePill>}
+        {result.features.wheelchairAccess && (
+          <FeaturePill>{L.features.wheelchairAccess}</FeaturePill>
+        )}
         {result.features.groundFloor && <FeaturePill>{L.features.groundFloor}</FeaturePill>}
         {result.features.elevator && <FeaturePill>{L.features.elevator}</FeaturePill>}
       </div>

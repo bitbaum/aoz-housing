@@ -311,12 +311,11 @@ export const HOUSING_FACTORS: Record<string, HousingFactorDef> = {
 /** Get factors for a specific form section */
 export function getHousingFactorsBySection(sectionId: string): HousingFactorDef[] {
   return Object.values(HOUSING_FACTORS)
-    .filter(f => f.formSection === sectionId)
+    .filter((f) => f.formSection === sectionId)
     .sort((a, b) => a.formOrder - b.formOrder)
 }
 
 /** Get factors for a specific category */
 export function getHousingFactorsByCategory(category: string): HousingFactorDef[] {
-  return Object.values(HOUSING_FACTORS)
-    .filter(f => f.category === category)
+  return Object.values(HOUSING_FACTORS).filter((f) => f.category === category)
 }

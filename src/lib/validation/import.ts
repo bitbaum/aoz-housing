@@ -24,12 +24,10 @@ export const ResidentImportSchema = z.object({
   socialStyle: SocialStyleSchema,
   smokingStatus: SmokingStatusSchema,
   mobilityNeeds: MobilityNeedSchema,
-  languages: z
-    .string()
-    .transform((s) =>
-      s
-        .split(',')
-        .map((l) => l.trim())
-        .filter(Boolean)
-    ),
+  languages: z.string().transform((s) =>
+    s
+      .split(',')
+      .map((l) => l.trim())
+      .filter(Boolean),
+  ),
 })

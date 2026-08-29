@@ -9,17 +9,9 @@
 import type { VoteChoice, VoteThreshold } from '@prisma/client'
 // Relative rather than the usual '@/' alias: the demo seed reaches this module
 // through ts-node, which does not resolve tsconfig path aliases.
-import {
-  DECISION_TIMING,
-  THRESHOLD_APPROVAL_PERCENT,
-  THRESHOLD_LABELS,
-} from '../config/decisions'
+import { DECISION_TIMING, THRESHOLD_APPROVAL_PERCENT, THRESHOLD_LABELS } from '../config/decisions'
 
-export type VoteOutcome =
-  | 'ACCEPTED'
-  | 'REJECTED'
-  | 'NO_QUORUM'
-  | 'BLOCKED' // Consensus required and someone vetoed
+export type VoteOutcome = 'ACCEPTED' | 'REJECTED' | 'NO_QUORUM' | 'BLOCKED' // Consensus required and someone vetoed
 
 export interface TallyInput {
   votes: { choice: VoteChoice; reason?: string | null }[]
@@ -106,8 +98,7 @@ export function tallyVotes(input: TallyInput): TallyResult {
     return {
       ...base,
       outcome: 'NO_QUORUM',
-      explanation:
-        `Alle ${castVotes} abgegebenen Stimmen waren Enthaltungen — es wurde keine Entscheidung getroffen.`,
+      explanation: `Alle ${castVotes} abgegebenen Stimmen waren Enthaltungen — es wurde keine Entscheidung getroffen.`,
     }
   }
 
@@ -135,9 +126,7 @@ export function tallyVotes(input: TallyInput): TallyResult {
   return {
     ...base,
     outcome: accepted ? 'ACCEPTED' : 'REJECTED',
-    explanation: accepted
-      ? `Angenommen. ${numbers} ${rule}`
-      : `Abgelehnt. ${numbers} ${rule}`,
+    explanation: accepted ? `Angenommen. ${numbers} ${rule}` : `Abgelehnt. ${numbers} ${rule}`,
   }
 }
 

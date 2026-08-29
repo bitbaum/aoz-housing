@@ -88,8 +88,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
     return acc
   }, {})
   const totalRequests = statusGroups.reduce((sum, g) => sum + g._count._all, 0)
-  const activeCount =
-    totalRequests - (statusCounts.COMPLETED ?? 0) - (statusCounts.CANCELLED ?? 0)
+  const activeCount = totalRequests - (statusCounts.COMPLETED ?? 0) - (statusCounts.CANCELLED ?? 0)
 
   const stats = {
     total: totalRequests,
@@ -122,7 +121,10 @@ export default async function MaintenancePage({ searchParams }: Props) {
             <span className="text-2xl">🚨</span>
             <div>
               <p className="font-semibold text-status-error-text">
-                {stats.urgent} {stats.urgent > 1 ? MAINTENANCE_PAGE_LABELS.urgentAlertSuffix : MAINTENANCE_PAGE_LABELS.urgentAlertSuffixSingular}
+                {stats.urgent}{' '}
+                {stats.urgent > 1
+                  ? MAINTENANCE_PAGE_LABELS.urgentAlertSuffix
+                  : MAINTENANCE_PAGE_LABELS.urgentAlertSuffixSingular}
               </p>
             </div>
           </div>
@@ -131,9 +133,17 @@ export default async function MaintenancePage({ searchParams }: Props) {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <StatCard label={MAINTENANCE_STATUS_LABELS.OPEN} value={stats.open} trend={stats.open > 0 ? 'warning' : 'neutral'} />
+        <StatCard
+          label={MAINTENANCE_STATUS_LABELS.OPEN}
+          value={stats.open}
+          trend={stats.open > 0 ? 'warning' : 'neutral'}
+        />
         <StatCard label={MAINTENANCE_STATUS_LABELS.IN_PROGRESS} value={stats.inProgress} />
-        <StatCard label={MAINTENANCE_PRIORITY_LABELS.URGENT} value={stats.urgent} trend={stats.urgent > 0 ? 'warning' : 'neutral'} />
+        <StatCard
+          label={MAINTENANCE_PRIORITY_LABELS.URGENT}
+          value={stats.urgent}
+          trend={stats.urgent > 0 ? 'warning' : 'neutral'}
+        />
         <StatCard label={MAINTENANCE_STAT_LABELS.completedThisMonth} value={stats.completed} />
       </div>
 
@@ -176,9 +186,7 @@ export default async function MaintenancePage({ searchParams }: Props) {
       {/* Request List */}
       {requests.length === 0 ? (
         <div className="card text-center py-12">
-          <p className="text-ui-muted mb-4">
-            {MAINTENANCE_PAGE_LABELS.noRequests}
-          </p>
+          <p className="text-ui-muted mb-4">{MAINTENANCE_PAGE_LABELS.noRequests}</p>
           <Link href="/maintenance/new" className="btn-primary">
             {MAINTENANCE_PAGE_LABELS.createRequest}
           </Link>
@@ -233,9 +241,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
                 {getLabel(MAINTENANCE_PRIORITY_LABELS, request.priority)}
               </span>
             </div>
-            <p className="text-sm text-ui-muted mt-1 line-clamp-2">
-              {request.description}
-            </p>
+            <p className="text-sm text-ui-muted mt-1 line-clamp-2">{request.description}</p>
             <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-ui-muted">
               <Link
                 href={`/housing/${request.housingUnitId}`}
@@ -243,9 +249,7 @@ function RequestRow({ request }: { request: RequestRowData }) {
               >
                 🏠 {request.housingUnit.code}
               </Link>
-              {request.spot && (
-                <span>{request.spot.label || request.spot.code}</span>
-              )}
+              {request.spot && <span>{request.spot.label || request.spot.code}</span>}
               {request.location && <span>📍 {request.location}</span>}
               {request.reportedBy && (
                 <Link
@@ -281,7 +285,10 @@ function QuickActions({ request }: { request: Pick<RequestRowData, 'id' | 'statu
   return (
     <div className="flex items-center gap-2">
       {request.status === 'OPEN' && (
-        <form action={assignMaintenanceRequest} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+        <form
+          action={assignMaintenanceRequest}
+          className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"
+        >
           <input type="hidden" name="requestId" value={request.id} />
           <input
             type="text"

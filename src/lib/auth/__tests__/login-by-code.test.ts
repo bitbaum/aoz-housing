@@ -64,9 +64,9 @@ describe('loginByCode — staff routing', () => {
       expect(result).toMatchObject({ success: true, type: 'staff' })
       // Looked up by the exact string — a prefix never rewrites a code.
       expect(mockUserFindUnique).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { code: `${prefix}ADMIN1` } })
+        expect.objectContaining({ where: { code: `${prefix}ADMIN1` } }),
       )
-    }
+    },
   )
 
   it('still admits the original seeded AOZ admin after the AOZH rebrand', async () => {

@@ -194,7 +194,7 @@ describe('SatisfactionRating', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'Speichern fehlgeschlagen. Bitte erneut versuchen.'
+        'Speichern fehlgeschlagen. Bitte erneut versuchen.',
       )
     })
     // Form stays visible
@@ -210,7 +210,7 @@ describe('SatisfactionRating', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'Speichern fehlgeschlagen. Bitte erneut versuchen.'
+        'Speichern fehlgeschlagen. Bitte erneut versuchen.',
       )
     })
   })

@@ -6,8 +6,18 @@ import { ConflictCard } from '../ConflictCard'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -33,19 +43,21 @@ jest.mock('@/lib/config/thresholds', () => ({
 
 // --- Helpers ---
 
-function renderCard(overrides: {
-  activeConflicts?: number
-  recentConflicts?: number
-  hotspotUnits?: Array<{ id: string; code: string; conflicts: number; occupancy: string }>
-  oldestConflictDays?: number
-} = {}) {
+function renderCard(
+  overrides: {
+    activeConflicts?: number
+    recentConflicts?: number
+    hotspotUnits?: Array<{ id: string; code: string; conflicts: number; occupancy: string }>
+    oldestConflictDays?: number
+  } = {},
+) {
   return render(
     <ConflictCard
       activeConflicts={overrides.activeConflicts ?? 0}
       recentConflicts={overrides.recentConflicts ?? 0}
       hotspotUnits={overrides.hotspotUnits ?? []}
       oldestConflictDays={overrides.oldestConflictDays}
-    />
+    />,
   )
 }
 
@@ -169,6 +181,9 @@ describe('ConflictCard', () => {
 
   it('renders the view-all link to /incidents', () => {
     renderCard()
-    expect(screen.getByRole('link', { name: 'Alle Vorfälle →' })).toHaveAttribute('href', '/incidents')
+    expect(screen.getByRole('link', { name: 'Alle Vorfälle →' })).toHaveAttribute(
+      'href',
+      '/incidents',
+    )
   })
 })

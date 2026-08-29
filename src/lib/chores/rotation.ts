@@ -30,7 +30,7 @@
  */
 export function currentTurnResidentId(
   rotationResidentIds: string[],
-  completionCount: number
+  completionCount: number,
 ): string | null {
   if (rotationResidentIds.length === 0) return null
 
@@ -44,7 +44,7 @@ export function currentTurnResidentId(
 export function isResidentsTurn(
   rotationResidentIds: string[],
   completionCount: number,
-  residentId: string
+  residentId: string,
 ): boolean {
   return currentTurnResidentId(rotationResidentIds, completionCount) === residentId
 }

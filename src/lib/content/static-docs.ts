@@ -19,7 +19,10 @@ function parseDoc(markdown: string): StaticDoc {
 
   return {
     title: lines[titleIndex].slice(2).trim(),
-    body: lines.slice(titleIndex + 1).join('\n').trim(),
+    body: lines
+      .slice(titleIndex + 1)
+      .join('\n')
+      .trim(),
   }
 }
 

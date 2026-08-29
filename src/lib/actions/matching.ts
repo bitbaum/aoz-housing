@@ -45,7 +45,9 @@ function buildPlacementRationale(
 
   if (roommateCount > 0) {
     parts.push('')
-    parts.push(`Kompatibilität: ${roommateCount} Mitbewohner, Ø ${scores.compatibilityScore}% Score`)
+    parts.push(
+      `Kompatibilität: ${roommateCount} Mitbewohner, Ø ${scores.compatibilityScore}% Score`,
+    )
   } else {
     parts.push('')
     parts.push('Kompatibilität: Keine Mitbewohner (leere Einheit)')
@@ -77,157 +79,160 @@ export async function placeResident(formData: FormData) {
     throw new Error(ERROR_MESSAGES.INVALID_INPUT_DATA)
   }
 
-  const {
-    residentId,
-    housingUnitId,
-    spotId,
-    notes,
-  } = validatedData
+  const { residentId, housingUnitId, spotId, notes } = validatedData
 
   // Execute all placement operations in a transaction to ensure atomicity
   let placement
   try {
     placement = await prisma.$transaction(async (tx) => {
-    // 1. Check if spot is still available (prevents double-booking)
-    if (spotId) {
-      const spot = await tx.placementSpot.findUnique({
-        where: { id: spotId },
+      // 1. Check if spot is still available (prevents double-booking)
+      if (spotId) {
+        const spot = await tx.placementSpot.findUnique({
+          where: { id: spotId },
+          include: { placements: { where: { status: 'ACTIVE' } } },
+        })
+
+        if (!spot) {
+          throw new Error(ERROR_MESSAGES.SPOT_NOT_FOUND_P)
+        }
+
+        if (spot.status !== 'AVAILABLE') {
+          throw new Error(ERROR_MESSAGES.SPOT_NOT_AVAILABLE_ANYMORE)
+        }
+
+        if (spot.placements.length > 0) {
+          throw new Error(ERROR_MESSAGES.SPOT_ALREADY_OCCUPIED)
+        }
+      }
+
+      // 2. Check if resident is still unplaced
+      const resident = await tx.resident.findUnique({
+        where: { id: residentId },
         include: { placements: { where: { status: 'ACTIVE' } } },
       })
 
-      if (!spot) {
-        throw new Error(ERROR_MESSAGES.SPOT_NOT_FOUND_P)
+      if (!resident) {
+        throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND_P)
       }
 
-      if (spot.status !== 'AVAILABLE') {
-        throw new Error(ERROR_MESSAGES.SPOT_NOT_AVAILABLE_ANYMORE)
+      if (resident.placements.length > 0) {
+        throw new Error(ERROR_MESSAGES.RESIDENT_ALREADY_PLACED)
       }
 
-      if (spot.placements.length > 0) {
-        throw new Error(ERROR_MESSAGES.SPOT_ALREADY_OCCUPIED)
+      // 3. Fetch existing active placements in the unit for score calculation
+      const existingPlacements = await tx.placement.findMany({
+        where: { housingUnitId, status: 'ACTIVE' },
+        include: { resident: true },
+      })
+
+      // 4. Server-side blocking conflict check (never trust client)
+      const residentProfile = toResidentProfile(resident)
+      const existingProfiles = existingPlacements.map((p) => toResidentProfile(p.resident))
+      const apartmentProfile = calculateApartmentProfile(existingProfiles)
+      const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
+      const apartmentFitScore = apartmentFit.fitScore
+
+      const hasBlockingConflicts = apartmentFit.conflicts.some((c) => c.severity === 'BLOCKING')
+      if (hasBlockingConflicts) {
+        const blockingDetails = apartmentFit.conflicts
+          .filter((c) => c.severity === 'BLOCKING')
+          .map((c) => c.message)
+          .join('; ')
+        throw new Error(
+          `Placement blockiert: ${blockingDetails}. ` +
+            'Bitte wählen Sie eine besser passende Unterkunft.',
+        )
       }
-    }
 
-    // 2. Check if resident is still unplaced
-    const resident = await tx.resident.findUnique({
-      where: { id: residentId },
-      include: { placements: { where: { status: 'ACTIVE' } } },
-    })
+      // 5. Calculate scores server-side
+      const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
+        calculateAverageScores(resident, existingPlacements)
 
-    if (!resident) {
-      throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND_P)
-    }
+      // 6. Collect strengths/concerns for structured rationale
+      const allStrengths: string[] = []
+      const allConcerns: string[] = []
 
-    if (resident.placements.length > 0) {
-      throw new Error(ERROR_MESSAGES.RESIDENT_ALREADY_PLACED)
-    }
+      if (existingPlacements.length > 0) {
+        for (const existingPlacement of existingPlacements) {
+          const otherProfile = toResidentProfile(existingPlacement.resident)
+          const score = calculateCompatibility(residentProfile, otherProfile)
 
-    // 3. Fetch existing active placements in the unit for score calculation
-    const existingPlacements = await tx.placement.findMany({
-      where: { housingUnitId, status: 'ACTIVE' },
-      include: { resident: true },
-    })
+          // Collect insights
+          score.strengths?.forEach((s) => {
+            if (!allStrengths.includes(s)) allStrengths.push(s)
+          })
+          score.concerns?.forEach((c) => {
+            if (!allConcerns.includes(c)) allConcerns.push(c)
+          })
 
-    // 4. Server-side blocking conflict check (never trust client)
-    const residentProfile = toResidentProfile(resident)
-    const existingProfiles = existingPlacements.map(p => toResidentProfile(p.resident))
-    const apartmentProfile = calculateApartmentProfile(existingProfiles)
-    const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
-    const apartmentFitScore = apartmentFit.fitScore
+          await saveBidirectionalAssessment(tx, residentId, existingPlacement.residentId, score)
+        }
+      }
 
-    const hasBlockingConflicts = apartmentFit.conflicts.some(c => c.severity === 'BLOCKING')
-    if (hasBlockingConflicts) {
-      const blockingDetails = apartmentFit.conflicts
-        .filter(c => c.severity === 'BLOCKING')
-        .map(c => c.message)
-        .join('; ')
-      throw new Error(
-        `Placement blockiert: ${blockingDetails}. ` +
-        'Bitte wählen Sie eine besser passende Unterkunft.'
+      // 6. Build structured placement rationale
+      const placementNotes = buildPlacementRationale(
+        apartmentFitScore,
+        { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore },
+        allStrengths,
+        allConcerns,
+        existingPlacements.length,
+        notes,
       )
-    }
 
-    // 5. Calculate scores server-side
-    const { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore } =
-      calculateAverageScores(resident, existingPlacements)
+      // 7. Create placement with server-computed scores
+      const newPlacement = await tx.placement.create({
+        data: {
+          residentId,
+          housingUnitId,
+          spotId,
+          startDate: new Date(),
+          status: 'ACTIVE',
+          compatibilityScore,
+          lifestyleScore,
+          socialScore,
+          practicalScore,
+          riskScore,
+          placementNotes,
+        },
+      })
 
-    // 6. Collect strengths/concerns for structured rationale
-    const allStrengths: string[] = []
-    const allConcerns: string[] = []
-
-    if (existingPlacements.length > 0) {
-      for (const existingPlacement of existingPlacements) {
-        const otherProfile = toResidentProfile(existingPlacement.resident)
-        const score = calculateCompatibility(residentProfile, otherProfile)
-
-        // Collect insights
-        score.strengths?.forEach((s) => {
-          if (!allStrengths.includes(s)) allStrengths.push(s)
+      // 8. Update spot status if assigned
+      if (spotId) {
+        await tx.placementSpot.update({
+          where: { id: spotId },
+          data: { status: 'OCCUPIED' },
         })
-        score.concerns?.forEach((c) => {
-          if (!allConcerns.includes(c)) allConcerns.push(c)
-        })
-
-        await saveBidirectionalAssessment(tx, residentId, existingPlacement.residentId, score)
       }
-    }
 
-    // 6. Build structured placement rationale
-    const placementNotes = buildPlacementRationale(
-      apartmentFitScore,
-      { compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore },
-      allStrengths,
-      allConcerns,
-      existingPlacements.length,
-      notes,
-    )
+      // 9. Update resident status
+      await tx.resident.update({
+        where: { id: residentId },
+        data: { status: 'PLACED' },
+      })
 
-    // 7. Create placement with server-computed scores
-    const newPlacement = await tx.placement.create({
-      data: {
-        residentId,
-        housingUnitId,
-        spotId,
-        startDate: new Date(),
-        status: 'ACTIVE',
+      // 10. Check if unit is now full and update status
+      const unit = await tx.housingUnit.findUnique({
+        where: { id: housingUnitId },
+        include: { placements: { where: { status: 'ACTIVE' } } },
+      })
+
+      // placements already includes the newly created one (same transaction)
+      if (unit && unit.placements.length >= unit.totalBeds) {
+        await tx.housingUnit.update({
+          where: { id: housingUnitId },
+          data: { status: 'FULL' },
+        })
+      }
+
+      return {
+        placement: newPlacement,
         compatibilityScore,
         lifestyleScore,
         socialScore,
         practicalScore,
         riskScore,
-        placementNotes,
-      },
-    })
-
-    // 8. Update spot status if assigned
-    if (spotId) {
-      await tx.placementSpot.update({
-        where: { id: spotId },
-        data: { status: 'OCCUPIED' },
-      })
-    }
-
-    // 9. Update resident status
-    await tx.resident.update({
-      where: { id: residentId },
-      data: { status: 'PLACED' },
-    })
-
-    // 10. Check if unit is now full and update status
-    const unit = await tx.housingUnit.findUnique({
-      where: { id: housingUnitId },
-      include: { placements: { where: { status: 'ACTIVE' } } },
-    })
-
-    // placements already includes the newly created one (same transaction)
-    if (unit && unit.placements.length >= unit.totalBeds) {
-      await tx.housingUnit.update({
-        where: { id: housingUnitId },
-        data: { status: 'FULL' },
-      })
-    }
-
-      return { placement: newPlacement, compatibilityScore, lifestyleScore, socialScore, practicalScore, riskScore, apartmentFitScore }
+        apartmentFitScore,
+      }
     })
 
     // AUDIT LOG: Record placement for compliance and debugging
@@ -253,12 +258,13 @@ export async function placeResident(formData: FormData) {
     })
   } catch (error) {
     // Re-throw known validation errors (from inside transaction)
-    if (error instanceof Error && (
-      error.message.includes('nicht gefunden') ||
-      error.message.includes('nicht mehr verfügbar') ||
-      error.message.includes('bereits') ||
-      error.message.includes('blockiert')
-    )) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('nicht gefunden') ||
+        error.message.includes('nicht mehr verfügbar') ||
+        error.message.includes('bereits') ||
+        error.message.includes('blockiert'))
+    ) {
       throw error
     }
     logger.errorWithCause('Failed to place resident', error, { residentId, housingUnitId, spotId })

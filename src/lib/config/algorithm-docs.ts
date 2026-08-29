@@ -60,7 +60,7 @@ export const RESEARCH_SOURCES: ResearchSource[] = [
     year: 2024,
     region: 'CH',
     keyFindings: [
-      'Grösste Schweizer Studie: 1\'000 Gastfamilien + 24 Tiefeninterviews',
+      "Grösste Schweizer Studie: 1'000 Gastfamilien + 24 Tiefeninterviews",
       'Professionelles Matching reduziert Konflikte signifikant',
       'Ausreichende persönliche Rückzugsräume als "kritisch" identifiziert',
       'Nicht übereinstimmende Erwartungen sind der #1 Grund für Scheitern',
@@ -123,7 +123,7 @@ export const RESEARCH_SOURCES: ResearchSource[] = [
     keyFindings: [
       'Signifikanter Zusammenhang zwischen Mitbewohner-Verhalten und Schlafqualität',
       'Schlafregeln und Augenmasken als effektive Interventionen',
-      'Cluster-randomisierte kontrollierte Studie (n=3\'098)',
+      "Cluster-randomisierte kontrollierte Studie (n=3'098)",
     ],
     evidenceStrength: 'strong',
   },
@@ -225,7 +225,7 @@ export const RESEARCH_SOURCES: ResearchSource[] = [
   },
   {
     id: 'national-roommate-survey',
-    title: 'National Student Roommate Conflict Survey (31\'500 Studierende)',
+    title: "National Student Roommate Conflict Survey (31'500 Studierende)",
     publication: 'National Student Housing Survey',
     region: 'INT',
     keyFindings: [
@@ -261,7 +261,7 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     researchFindings: [
       'Schlafentzug erhöht Cortisol um 72% während Konflikten (βz=0.72) und reduziert positive Affekte um 129% (βz=-1.29)',
       'Störungen nach dem Schlafengehen sind der #1 Grund für Schlafmangel in geteilten Zimmern',
-      'Mitbewohner-Verhalten hat signifikanten Einfluss auf Schlafqualität (cluster-randomisierte Studie, n=3\'098)',
+      "Mitbewohner-Verhalten hat signifikanten Einfluss auf Schlafqualität (cluster-randomisierte Studie, n=3'098)",
     ],
     sourceIds: ['pmc-sleep-intervention', 'pmc-sleep-conflict'],
     dataCollectionMethod:
@@ -269,7 +269,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'Wichtig für Asylunterkünfte mit geteilten Zimmern. Schichtarbeiter (z.B. in Reinigung) haben oft unregelmässige Zeiten.',
     evidenceStrength: 'strong',
-    evidenceNote: 'Experimentelle Evidenz: RCT-Studien belegen kausalen Zusammenhang zwischen Schlaf und Konfliktverhalten.',
+    evidenceNote:
+      'Experimentelle Evidenz: RCT-Studien belegen kausalen Zusammenhang zwischen Schlaf und Konfliktverhalten.',
   },
 
   cleanlinessPractice: {
@@ -281,13 +282,18 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
       '#1-2 meistgenannter Konfliktauslöser über alle Studien hinweg',
       'Extreme Fälle führen zu Schimmel, Maden und Gesundheitsrisiken (JPHSC)',
     ],
-    sourceIds: ['sciencedaily-cleaning', 'wuppertal-gemeinschaftswohnen', 'jphsc-negative-roommates'],
+    sourceIds: [
+      'sciencedaily-cleaning',
+      'wuppertal-gemeinschaftswohnen',
+      'jphsc-negative-roommates',
+    ],
     dataCollectionMethod:
       'Skala 1-5 bei der Aufnahme: "Wie wichtig ist Ihnen Ordnung und Sauberkeit?" von Entspannt bis Sehr ordentlich.',
     swissContext:
       'Schweizer Recycling-System (Glas, PET, Alu, Papier) erfordert besonderes Wissen. Wir erfassen auch Recycling-Erfahrung separat.',
     evidenceStrength: 'strong',
-    evidenceNote: 'Konsistente Ergebnisse über mehrere Studien und Kulturkreise. Survey-Daten von >31\'500 Teilnehmenden.',
+    evidenceNote:
+      "Konsistente Ergebnisse über mehrere Studien und Kulturkreise. Survey-Daten von >31'500 Teilnehmenden.",
   },
 
   noiseTolerance: {
@@ -304,7 +310,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     dataCollectionMethod:
       'Skala 1-5: "Wie empfindlich sind Sie gegenüber Geräuschen?" von Sehr empfindlich bis Sehr tolerant.',
     evidenceStrength: 'moderate',
-    evidenceNote: 'Mehrere Beobachtungsstudien und Umfragen. Keine experimentelle Evidenz, aber konsistente Muster.',
+    evidenceNote:
+      'Mehrere Beobachtungsstudien und Umfragen. Keine experimentelle Evidenz, aber konsistente Muster.',
   },
 
   guestTolerance: {
@@ -312,7 +319,7 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     whyItMatters:
       'Unterschiedliche Einstellungen zu Besuchern sind ein häufiger Konfliktauslöser. Manche Klient*innen schätzen Ruhe und Privatsphäre, andere empfangen gerne Gäste.',
     researchFindings: [
-      'Top-5 Konfliktauslöser in nationaler Umfrage (31\'500 Studierende)',
+      "Top-5 Konfliktauslöser in nationaler Umfrage (31'500 Studierende)",
       '~48% berichten von häufigen/gelegentlichen Konflikten, Besucher als häufiger Grund',
       '"Menschen mitbringen, bei denen man sich unwohl fühlt" als typische Beschwerde',
     ],
@@ -322,7 +329,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'In Asylunterkünften können Besuche durch externe Personen Sicherheitsbedenken auslösen. Klare Besucherregeln sind wichtig.',
     evidenceStrength: 'moderate',
-    evidenceNote: 'Konsistente Umfrageergebnisse. Grosse Stichprobe (31\'500), aber primär aus studentischem Kontext.',
+    evidenceNote:
+      "Konsistente Umfrageergebnisse. Grosse Stichprobe (31'500), aber primär aus studentischem Kontext.",
   },
 
   languages: {
@@ -340,7 +348,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'Deutsch oder Englisch als Lingua Franca wichtig. Wir priorisieren Überlappung bei mindestens einer Sprache.',
     evidenceStrength: 'strong',
-    evidenceNote: 'Mehrere Schweizer und internationale Studien bestätigen. BFH-HSLU mit 1\'000 Gastfamilien besonders relevant.',
+    evidenceNote:
+      "Mehrere Schweizer und internationale Studien bestätigen. BFH-HSLU mit 1'000 Gastfamilien besonders relevant.",
   },
 
   socialStyle: {
@@ -356,7 +365,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     dataCollectionMethod:
       'Einfachauswahl: "Wie viel Kontakt mit Mitbewohnern wünschen Sie?" mit Optionen Introvertiert, Ausgeglichen, Extrovertiert.',
     evidenceStrength: 'moderate',
-    evidenceNote: 'Big Five-Forschung belegt Zusammenhang. Operationalisierung als 3-Punkte-Skala verliert Differenzierungsfähigkeit.',
+    evidenceNote:
+      'Big Five-Forschung belegt Zusammenhang. Operationalisierung als 3-Punkte-Skala verliert Differenzierungsfähigkeit.',
   },
 
   privacyNeed: {
@@ -374,7 +384,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'Für Asylsuchende mit Flucht-Trauma oft besonders wichtig. BFH-HSLU bestätigt: Privatheit ist kritisch für geflüchtete Familien.',
     evidenceStrength: 'strong',
-    evidenceNote: 'BFH-HSLU 2024 (1\'000 Familien) liefert starke Schweizer Evidenz. Durch internationale Studien bestätigt.',
+    evidenceNote:
+      "BFH-HSLU 2024 (1'000 Familien) liefert starke Schweizer Evidenz. Durch internationale Studien bestätigt.",
   },
 
   conflictStyle: {
@@ -392,7 +403,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'Bei kulturell diversen Wohngruppen besonders relevant. Verschiedene Kulturen haben unterschiedliche Konfliktlösungsmodi.',
     evidenceStrength: 'moderate',
-    evidenceNote: 'Gut dokumentierte Zusammenhänge in Big Five-Forschung und kulturvergleichenden Studien. 3-Punkte-Skala ist Vereinfachung.',
+    evidenceNote:
+      'Gut dokumentierte Zusammenhänge in Big Five-Forschung und kulturvergleichenden Studien. 3-Punkte-Skala ist Vereinfachung.',
   },
 
   smokingStatus: {
@@ -410,7 +422,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'In Schweizer Unterkünften oft Rauchverbot in Innenräumen. Gesetzliches Indoor-Rauchverbot in den meisten Kantonen.',
     evidenceStrength: 'strong',
-    evidenceNote: 'Nicht-verhandelbar per Gesundheitsrecht und Hausordnung. Starker Expertenkonsens trotz weniger formaler Studien.',
+    evidenceNote:
+      'Nicht-verhandelbar per Gesundheitsrecht und Hausordnung. Starker Expertenkonsens trotz weniger formaler Studien.',
   },
 
   choresContribution: {
@@ -428,7 +441,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'Schweizer Recycling-System erfordert aktive Beteiligung. Kombiniert mit Recycling-Wissens-Erfassung.',
     evidenceStrength: 'moderate',
-    evidenceNote: 'Survey-basierte Evidenz. Konsistente Ergebnisse aber weniger spezifisch als bei Sleep/Cleanliness.',
+    evidenceNote:
+      'Survey-basierte Evidenz. Konsistente Ergebnisse aber weniger spezifisch als bei Sleep/Cleanliness.',
   },
 
   roomSharingStatus: {
@@ -445,7 +459,8 @@ export const FACTOR_SCIENCE: Record<string, FactorScientificBasis> = {
     swissContext:
       'NEEDS_PRIVATE wird als harte Anforderung behandelt – System blockiert Platzierung wenn nicht erfüllbar.',
     evidenceStrength: 'strong',
-    evidenceNote: 'Schweizer Studien und klinische Evidenz. BFH-HSLU bestätigt Kritikalität für Geflüchtete.',
+    evidenceNote:
+      'Schweizer Studien und klinische Evidenz. BFH-HSLU bestätigt Kritikalität für Geflüchtete.',
   },
 }
 
@@ -538,15 +553,19 @@ export const ALGORITHM_VERSIONS: AlgorithmVersion[] = [
 // EVIDENCE STRENGTH LABELS
 // =============================================================================
 
-export const EVIDENCE_STRENGTH_CONFIG: Record<EvidenceStrength, {
-  label: string
-  color: string
-  description: string
-}> = {
+export const EVIDENCE_STRENGTH_CONFIG: Record<
+  EvidenceStrength,
+  {
+    label: string
+    color: string
+    description: string
+  }
+> = {
   strong: {
     label: 'Stark',
     color: 'green',
-    description: 'Mehrere Studien, experimentelle oder grosse Umfrage-Evidenz, Schweizer Bestätigung',
+    description:
+      'Mehrere Studien, experimentelle oder grosse Umfrage-Evidenz, Schweizer Bestätigung',
   },
   moderate: {
     label: 'Moderat',
@@ -574,8 +593,8 @@ export const RESEARCH_METHODOLOGY = [
   {
     type: 'Grosse Umfrage',
     strength: 'strong' as EvidenceStrength,
-    description: 'Studien mit 1\'000+ Teilnehmenden und systematischer Methodik',
-    example: 'BFH-HSLU 2024: 1\'000 Gastfamilien + 24 Tiefeninterviews',
+    description: "Studien mit 1'000+ Teilnehmenden und systematischer Methodik",
+    example: "BFH-HSLU 2024: 1'000 Gastfamilien + 24 Tiefeninterviews",
   },
   {
     type: 'Beobachtungsstudie',
@@ -596,11 +615,11 @@ export const RESEARCH_METHODOLOGY = [
 // =============================================================================
 
 export function getSourceById(id: string): ResearchSource | undefined {
-  return RESEARCH_SOURCES.find(s => s.id === id)
+  return RESEARCH_SOURCES.find((s) => s.id === id)
 }
 
 export function getSourcesByRegion(region: 'CH' | 'DE' | 'INT'): ResearchSource[] {
-  return RESEARCH_SOURCES.filter(s => s.region === region)
+  return RESEARCH_SOURCES.filter((s) => s.region === region)
 }
 
 export function getFactorScience(factorId: string): FactorScientificBasis | undefined {

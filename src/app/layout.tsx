@@ -60,11 +60,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const themeScript = `
     (() => {
       try {
@@ -79,11 +75,7 @@ export default function RootLayout({
   `
 
   return (
-    <html
-      lang="de"
-      className={`${inter.variable} ${mono.variable}`}
-      data-brand={BRAND.id}
-    >
+    <html lang="de" className={`${inter.variable} ${mono.variable}`} data-brand={BRAND.id}>
       <head>
         <script id="theme-init" dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

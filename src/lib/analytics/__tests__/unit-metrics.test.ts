@@ -111,9 +111,7 @@ describe('calculateUnitMetrics', () => {
   it('throws when unit is not found', async () => {
     ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
 
-    await expect(calculateUnitMetrics('nonexistent')).rejects.toThrow(
-      'Unit nonexistent not found'
-    )
+    await expect(calculateUnitMetrics('nonexistent')).rejects.toThrow('Unit nonexistent not found')
   })
 
   // ---------------------------------------------------------------------------
@@ -165,7 +163,7 @@ describe('calculateUnitMetrics', () => {
     it('rounds conflict rate to 1 decimal place', async () => {
       // 7 incidents / 6 = 1.1666... -> 1.2
       const incidents = Array.from({ length: 7 }, (_, i) =>
-        makeIncident(`2025-05-${String(i + 1).padStart(2, '0')}`)
+        makeIncident(`2025-05-${String(i + 1).padStart(2, '0')}`),
       )
       setupDefaultMocks({ incidents })
 
@@ -195,10 +193,7 @@ describe('calculateUnitMetrics', () => {
     })
 
     it('returns 0 when no incidents are recent', async () => {
-      const incidents = [
-        makeIncident('2025-03-01'),
-        makeIncident('2025-02-01'),
-      ]
+      const incidents = [makeIncident('2025-03-01'), makeIncident('2025-02-01')]
       setupDefaultMocks({ incidents })
 
       const result = await calculateUnitMetrics('unit-1')
@@ -216,7 +211,7 @@ describe('calculateUnitMetrics', () => {
     // First call is totalConflicts, subsequent calls are incident-free month checks
     ;(mockPrisma.incident.count as jest.Mock)
       .mockResolvedValueOnce(42) // totalConflicts
-      .mockResolvedValue(0)     // incident-free months loop
+      .mockResolvedValue(0) // incident-free months loop
 
     const result = await calculateUnitMetrics('unit-1')
 
@@ -481,16 +476,11 @@ describe('calculateUnitMetrics', () => {
       const placements = [
         makePlacement({
           id: 'p-1',
-          checkIns: [
-            { overallSatisfaction: 4 },
-            { overallSatisfaction: 5 },
-          ],
+          checkIns: [{ overallSatisfaction: 4 }, { overallSatisfaction: 5 }],
         }),
         makePlacement({
           id: 'p-2',
-          checkIns: [
-            { overallSatisfaction: 3 },
-          ],
+          checkIns: [{ overallSatisfaction: 3 }],
         }),
       ]
       setupDefaultMocks({ placements })
@@ -595,7 +585,7 @@ describe('calculateUnitMetrics', () => {
     it('returns CRITICAL when conflictRate >= 3', async () => {
       // 18 incidents / 6 = 3.0
       const incidents = Array.from({ length: 18 }, (_, i) =>
-        makeIncident(`2025-05-${String((i % 28) + 1).padStart(2, '0')}`)
+        makeIncident(`2025-05-${String((i % 28) + 1).padStart(2, '0')}`),
       )
       setupDefaultMocks({ incidents })
 
@@ -607,7 +597,7 @@ describe('calculateUnitMetrics', () => {
     it('returns HIGH when conflictRate >= 2', async () => {
       // 12 incidents / 6 = 2.0
       const incidents = Array.from({ length: 12 }, (_, i) =>
-        makeIncident(`2025-05-${String((i % 28) + 1).padStart(2, '0')}`)
+        makeIncident(`2025-05-${String((i % 28) + 1).padStart(2, '0')}`),
       )
       setupDefaultMocks({ incidents })
 
@@ -636,7 +626,7 @@ describe('calculateUnitMetrics', () => {
     it('returns MEDIUM when conflictRate >= 1', async () => {
       // 6 incidents / 6 = 1.0
       const incidents = Array.from({ length: 6 }, (_, i) =>
-        makeIncident(`2025-05-${String(i + 1).padStart(2, '0')}`)
+        makeIncident(`2025-05-${String(i + 1).padStart(2, '0')}`),
       )
       setupDefaultMocks({ incidents })
 
@@ -647,10 +637,7 @@ describe('calculateUnitMetrics', () => {
 
     it('returns MEDIUM when recentConflicts >= 2 even if conflictRate < 1', async () => {
       // 2 incidents in last 30 days -> conflictRate = 2/6 = 0.33, recentConflicts = 2
-      const incidents = [
-        makeIncident('2025-07-10'),
-        makeIncident('2025-07-12'),
-      ]
+      const incidents = [makeIncident('2025-07-10'), makeIncident('2025-07-12')]
       setupDefaultMocks({ incidents })
 
       const result = await calculateUnitMetrics('unit-1')
@@ -720,9 +707,9 @@ describe('calculateUnitMetrics', () => {
       // 1 incident in last 30 days, 2 incidents in 30-60 day window
       // -> recentConflicts=1 < previousMonthConflicts=2 -> "Verbesserung"
       const incidents = [
-        makeIncident('2025-07-10'),    // recent (after June 15)
-        makeIncident('2025-06-01'),    // 30-60 day window (before June 15, after May 16)
-        makeIncident('2025-05-20'),    // 30-60 day window (before June 15, after May 16)
+        makeIncident('2025-07-10'), // recent (after June 15)
+        makeIncident('2025-06-01'), // 30-60 day window (before June 15, after May 16)
+        makeIncident('2025-05-20'), // 30-60 day window (before June 15, after May 16)
       ]
       setupDefaultMocks({ incidents })
       ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
@@ -744,12 +731,12 @@ describe('calculateUnitMetrics', () => {
       // 3 incidents in last 30 days, 3 in previous window (so not "Verbesserung")
       // recentConflicts=3 > 2 -> "Kritisch"
       const incidents = [
-        makeIncident('2025-07-10'),  // recent
-        makeIncident('2025-07-11'),  // recent
-        makeIncident('2025-07-12'),  // recent
-        makeIncident('2025-06-01'),  // 30-60 day window (before June 15)
-        makeIncident('2025-05-20'),  // 30-60 day window
-        makeIncident('2025-05-25'),  // 30-60 day window
+        makeIncident('2025-07-10'), // recent
+        makeIncident('2025-07-11'), // recent
+        makeIncident('2025-07-12'), // recent
+        makeIncident('2025-06-01'), // 30-60 day window (before June 15)
+        makeIncident('2025-05-20'), // 30-60 day window
+        makeIncident('2025-05-25'), // 30-60 day window
       ]
       setupDefaultMocks({ incidents })
       ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(10) // totalConflicts
@@ -767,8 +754,8 @@ describe('calculateUnitMetrics', () => {
       // 8 incidents total in 6 months -> conflictRate = 1.3
       // Only 1 within last 30 days, 1 in 30-60 day window (not "Verbesserung")
       const incidents = [
-        makeIncident('2025-07-01'),  // recent
-        makeIncident('2025-06-01'),  // 30-60 day window
+        makeIncident('2025-07-01'), // recent
+        makeIncident('2025-06-01'), // 30-60 day window
         makeIncident('2025-05-01'),
         makeIncident('2025-04-01'),
         makeIncident('2025-03-01'),
@@ -870,7 +857,7 @@ describe('calculateUnitMetrics', () => {
     ]
 
     ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(
-      makeUnit({ placements, incidents, totalBeds: 3 })
+      makeUnit({ placements, incidents, totalBeds: 3 }),
     )
     ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(8) // totalConflicts
     ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
@@ -880,15 +867,15 @@ describe('calculateUnitMetrics', () => {
 
     const result = await calculateUnitMetrics('unit-1')
 
-    expect(result.conflictRate).toBe(0.3)          // 2/6 = 0.333 -> 0.3
+    expect(result.conflictRate).toBe(0.3) // 2/6 = 0.333 -> 0.3
     expect(result.recentConflicts).toBe(1)
     expect(result.totalConflicts).toBe(8)
-    expect(result.avgPlacementDuration).toBe(106)   // (181+31)/2 = 106
-    expect(result.successRate).toBe(50)             // 1/2 = 50%
-    expect(result.turnoverRate).toBe(50)            // 1/2 = 50%
+    expect(result.avgPlacementDuration).toBe(106) // (181+31)/2 = 106
+    expect(result.successRate).toBe(50) // 1/2 = 50%
+    expect(result.turnoverRate).toBe(50) // 1/2 = 50%
     expect(result.currentOccupancy).toBe(1)
-    expect(result.occupancyRate).toBe(33)           // 1/3 = 33.33 -> 33
-    expect(result.avgSatisfaction).toBe(3.5)        // (4+5+2+3)/4 = 3.5
+    expect(result.occupancyRate).toBe(33) // 1/3 = 33.33 -> 33
+    expect(result.avgSatisfaction).toBe(3.5) // (4+5+2+3)/4 = 3.5
     expect(result.incidentFreeMonths).toBe(0)
     expect(result.riskLevel).toBe('LOW')
     expect(result.label).toBe('Normal')
@@ -968,8 +955,8 @@ describe('getSimilarPlacementSuccessRate', () => {
     expect(mockPrisma.placement.findMany).toHaveBeenCalledWith({
       where: {
         compatibilityScore: {
-          gte: 60,  // 75 - 15
-          lte: 90,  // 75 + 15
+          gte: 60, // 75 - 15
+          lte: 90, // 75 + 15
         },
         endDate: { not: null },
       },
@@ -984,8 +971,8 @@ describe('getSimilarPlacementSuccessRate', () => {
     expect(mockPrisma.placement.findMany).toHaveBeenCalledWith({
       where: {
         compatibilityScore: {
-          gte: 70,  // 80 - 10
-          lte: 90,  // 80 + 10
+          gte: 70, // 80 - 10
+          lte: 90, // 80 + 10
         },
         endDate: { not: null },
       },
@@ -1018,7 +1005,7 @@ describe('getSimilarPlacementSuccessRate', () => {
     const result = await getSimilarPlacementSuccessRate(75)
 
     expect(result).toEqual({
-      successRate: 33,           // 1/3 = 33.33 -> 33
+      successRate: 33, // 1/3 = 33.33 -> 33
       totalPlacements: 3,
       successfulPlacements: 1,
     })

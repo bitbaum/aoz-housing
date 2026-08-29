@@ -67,7 +67,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
         backLabel={L.detailBack}
         actions={
           canWrite ? (
-            <ButtonLink href={`/opportunities/${id}/edit`} variant="outline">{L.edit}</ButtonLink>
+            <ButtonLink href={`/opportunities/${id}/edit`} variant="outline">
+              {L.edit}
+            </ButtonLink>
           ) : undefined
         }
       />
@@ -106,7 +108,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
             {PERMIT_REQUIREMENT_LABELS[opportunity.permitRequirement]}
           </span>
           <span className="chip chip-neutral">
-            {opportunity.germanLevel ? `${L.germanLevel} ${opportunity.germanLevel}` : L.germanLevelAny}
+            {opportunity.germanLevel
+              ? `${L.germanLevel} ${opportunity.germanLevel}`
+              : L.germanLevelAny}
           </span>
         </div>
         <p className="mt-3 text-sm text-ui-muted">
@@ -117,7 +121,10 @@ export default async function OpportunityDetailPage({ params }: Props) {
         ) : null}
       </section>
 
-      {opportunity.contactName || opportunity.contactEmail || opportunity.contactPhone || opportunity.website ? (
+      {opportunity.contactName ||
+      opportunity.contactEmail ||
+      opportunity.contactPhone ||
+      opportunity.website ? (
         <section className="card">
           <SectionHeader title={L.sectionContact} />
           <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -164,7 +171,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
                     className="input"
                   />
                 </label>
-                <button type="submit" className="btn-primary min-h-[44px]">{L.save}</button>
+                <button type="submit" className="btn-primary min-h-[44px]">
+                  {L.save}
+                </button>
               </form>
             )}
           </div>

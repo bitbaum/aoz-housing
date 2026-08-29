@@ -15,9 +15,21 @@ const mockRouter = { push: jest.fn(), refresh: jest.fn() }
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className, onClick }: {
-    href: string; children: React.ReactNode; className?: string; onClick?: () => void
-  }) => <a href={href} className={className} onClick={onClick}>{children}</a>,
+  default: ({
+    href,
+    children,
+    className,
+    onClick,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+    onClick?: () => void
+  }) => (
+    <a href={href} className={className} onClick={onClick}>
+      {children}
+    </a>
+  ),
 }))
 
 // --- Config/constants mocks ---
@@ -83,7 +95,10 @@ describe('MobileNav', () => {
 
   it('hamburger has aria-expanded=false initially', () => {
     render(<MobileNav />)
-    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
   })
 
   it('drawer is hidden initially (translate-x-full)', () => {
@@ -102,7 +117,10 @@ describe('MobileNav', () => {
   it('hamburger has aria-expanded=true when open', () => {
     render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
-    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Menü öffnen' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
   })
 
   it('shows close button when drawer is open', () => {
@@ -256,7 +274,10 @@ describe('UserMenu', () => {
   it('toggle button has aria-expanded=true when open', () => {
     render(<UserMenu user={BASE_USER} />)
     fireEvent.click(screen.getByRole('button', { name: 'Benutzermenü' }))
-    expect(screen.getByRole('button', { name: 'Benutzermenü' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Benutzermenü' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
   })
 
   it('closes dropdown on outside mousedown', () => {
@@ -281,7 +302,10 @@ describe('UserMenu', () => {
   it('portal link points to /portal', () => {
     render(<UserMenu user={BASE_USER} hasPortalAccess />)
     fireEvent.click(screen.getByRole('button', { name: 'Benutzermenü' }))
-    expect(screen.getByRole('link', { name: 'Zum Portal wechseln' })).toHaveAttribute('href', '/portal')
+    expect(screen.getByRole('link', { name: 'Zum Portal wechseln' })).toHaveAttribute(
+      'href',
+      '/portal',
+    )
   })
 
   it('shows logout button', () => {
@@ -338,7 +362,7 @@ const row = (
   code: string,
   doneMinutes: number,
   shareMinutes: number,
-  extra: { residentId?: string; displayName?: string | null } = {}
+  extra: { residentId?: string; displayName?: string | null } = {},
 ) => ({
   residentId: extra.residentId ?? code,
   code,
@@ -374,7 +398,7 @@ describe('ChoreBalanceSummary', () => {
     render(
       <ChoreBalanceSummary
         balances={[row('RES-001', 60, 30, { displayName: 'Fatima' }), row('RES-002', 0, 30)]}
-      />
+      />,
     )
     expect(screen.getByText('Fatima')).toBeInTheDocument()
     expect(screen.queryByText('RES-001')).not.toBeInTheDocument()
@@ -385,7 +409,7 @@ describe('ChoreBalanceSummary', () => {
       <ChoreBalanceSummary
         balances={[row('RES-001', 60, 30, { residentId: 'me' }), row('RES-002', 0, 30)]}
         currentResidentId="me"
-      />
+      />,
     )
     expect(screen.getByText('Du')).toBeInTheDocument()
   })
@@ -395,10 +419,10 @@ describe('ChoreBalanceSummary', () => {
     // would paint his bar full and imply a winner; scaling to imbalance keeps
     // the whole panel visibly near-even.
     const { container } = render(
-      <ChoreBalanceSummary balances={[row('RES-001', 105, 100), row('RES-002', 95, 100)]} />
+      <ChoreBalanceSummary balances={[row('RES-001', 105, 100), row('RES-002', 95, 100)]} />,
     )
     const widths = Array.from(container.querySelectorAll('[style*="width"]')).map(
-      b => (b as HTMLElement).style.width
+      (b) => (b as HTMLElement).style.width,
     )
     // Half-width max: each side of centre can only ever fill 50% of the track.
     expect(widths).toEqual(['50%', '50%'])
@@ -406,7 +430,7 @@ describe('ChoreBalanceSummary', () => {
 
   it('draws no rank, medal or position number', () => {
     const { container } = render(
-      <ChoreBalanceSummary balances={[row('RES-001', 90, 30), row('RES-002', 0, 30)]} />
+      <ChoreBalanceSummary balances={[row('RES-001', 90, 30), row('RES-002', 0, 30)]} />,
     )
     expect(container.textContent).not.toMatch(/[🥇🏆]|\b1\.\s|\bPlatz\b/)
   })

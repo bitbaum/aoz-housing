@@ -23,7 +23,15 @@ export interface ActionTileProps {
   allHref: string
 }
 
-export function ActionTile({ title, count, description, href, urgency, items, allHref }: ActionTileProps) {
+export function ActionTile({
+  title,
+  count,
+  description,
+  href,
+  urgency,
+  items,
+  allHref,
+}: ActionTileProps) {
   return (
     <div className={`card ${URGENCY_BORDER_CLASS[urgency]}`}>
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -44,7 +52,9 @@ export function ActionTile({ title, count, description, href, urgency, items, al
           </h3>
           <p className="text-sm text-ui-muted">{description}</p>
         </div>
-        <span className={`numeric px-2 py-1 rounded-sm text-sm font-semibold shrink-0 ${URGENCY_BADGE_CLASS[urgency]}`}>
+        <span
+          className={`numeric px-2 py-1 rounded-sm text-sm font-semibold shrink-0 ${URGENCY_BADGE_CLASS[urgency]}`}
+        >
           {count}
         </span>
       </div>
@@ -60,7 +70,9 @@ export function ActionTile({ title, count, description, href, urgency, items, al
               <span className="font-medium text-ui-text text-sm">{item.label}</span>
               <span className="text-ui-muted text-sm ml-2">{item.sublabel}</span>
             </div>
-            <span className="text-ui-muted shrink-0" aria-hidden="true">→</span>
+            <span className="text-ui-muted shrink-0" aria-hidden="true">
+              →
+            </span>
           </Link>
         ))}
       </div>

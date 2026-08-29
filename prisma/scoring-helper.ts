@@ -45,10 +45,7 @@ export interface SeedScoreResult {
  * columns are named that way; the NUMBERS come from the product.
  */
 export function calculateScore(resident1: Resident, resident2: Resident): SeedScoreResult {
-  const score = calculateCompatibility(
-    toResidentProfile(resident1),
-    toResidentProfile(resident2)
-  )
+  const score = calculateCompatibility(toResidentProfile(resident1), toResidentProfile(resident2))
 
   return {
     compatibilityScore: score.overall,

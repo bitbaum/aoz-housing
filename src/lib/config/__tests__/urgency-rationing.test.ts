@@ -38,7 +38,7 @@ function paintedSurfaces(source: string): string[] {
       (classes) =>
         // `(?![-/\w])` keeps tinted `/10`–`/15` fills out: those are badges.
         /bg-status-(error|warning|success|info)(?![-/\w])/.test(classes) &&
-        /\bcard\b|\bp-[5-9]\b|\bpy-(?:8|10|12)\b/.test(classes)
+        /\bcard\b|\bp-[5-9]\b|\bpy-(?:8|10|12)\b/.test(classes),
     )
     .map((classes) => classes.trim())
 }
@@ -95,8 +95,7 @@ describe('dashboard components do not pick their own colours', () => {
     for (const { file, source } of dashboardSources()) {
       const paletteProp = /\bcolor[=:]\s*['"](orange|blue|green|yellow|red|gray)['"]/.exec(source)
 
-      expect({ file, paletteProp: paletteProp?.[0] ?? null })
-        .toEqual({ file, paletteProp: null })
+      expect({ file, paletteProp: paletteProp?.[0] ?? null }).toEqual({ file, paletteProp: null })
     }
   })
 
@@ -113,7 +112,7 @@ describe('dashboard components do not pick their own colours', () => {
      * and it is the one thing on the page that must win.
      */
     const offenders = dashboardSources().flatMap(({ file, source }) =>
-      paintedSurfaces(source).map((classes) => `${file}: ${classes}`)
+      paintedSurfaces(source).map((classes) => `${file}: ${classes}`),
     )
 
     expect(offenders).toEqual([])
@@ -135,8 +134,11 @@ describe('dashboard components do not pick their own colours', () => {
     const counter = 'className="absolute -top-1.5 bg-status-error rounded-full w-5 h-5"'
     const tinted = 'className="card bg-status-success/10 border-status-success/25"'
 
-    expect([...paintedSurfaces(dot), ...paintedSurfaces(counter), ...paintedSurfaces(tinted)])
-      .toEqual([])
+    expect([
+      ...paintedSurfaces(dot),
+      ...paintedSurfaces(counter),
+      ...paintedSurfaces(tinted),
+    ]).toEqual([])
   })
 
   it('does not animate an alert forever', () => {
@@ -144,8 +146,7 @@ describe('dashboard components do not pick their own colours', () => {
     // vestibular and attention disorders, and it made the page read as alarmed
     // rather than making one item stand out.
     for (const { file, source } of dashboardSources()) {
-      expect({ file, pulses: source.includes('animate-pulse') })
-        .toEqual({ file, pulses: false })
+      expect({ file, pulses: source.includes('animate-pulse') }).toEqual({ file, pulses: false })
     }
   })
 })

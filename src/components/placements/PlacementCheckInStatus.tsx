@@ -33,9 +33,7 @@ export function PlacementCheckInStatus({
 
   return (
     <div className={`px-3 py-2 rounded-lg text-right ${isOverdue ? 'bg-status-warning/10' : ''}`}>
-      <p
-        className={`text-xs ${isOverdue ? 'text-status-warning font-medium' : 'text-ui-muted'}`}
-      >
+      <p className={`text-xs ${isOverdue ? 'text-status-warning font-medium' : 'text-ui-muted'}`}>
         {isOverdue ? PLACEMENT_LIST_LABELS.checkInOverdue : 'Check-in'}
       </p>
 

@@ -37,14 +37,24 @@ export function UnitSidebar({ unit }: Props) {
           />
           <DetailRow
             label={UNIT_SIDEBAR_LABELS.kitchenLabel}
-            value={unit.privateKitchen ? UNIT_SIDEBAR_LABELS.kitchenPrivate : unit.sharedKitchen ? UNIT_SIDEBAR_LABELS.kitchenShared : UNIT_SIDEBAR_LABELS.kitchenNone}
+            value={
+              unit.privateKitchen
+                ? UNIT_SIDEBAR_LABELS.kitchenPrivate
+                : unit.sharedKitchen
+                  ? UNIT_SIDEBAR_LABELS.kitchenShared
+                  : UNIT_SIDEBAR_LABELS.kitchenNone
+            }
           />
           <DetailRow
             label={UNIT_SIDEBAR_LABELS.accessLabel}
             value={
-              unit.wheelchairAccess ? UNIT_SIDEBAR_LABELS.accessWheelchair :
-              unit.groundFloor ? UNIT_SIDEBAR_LABELS.accessGroundFloor :
-              unit.elevator ? UNIT_SIDEBAR_LABELS.accessElevator : UNIT_SIDEBAR_LABELS.accessLimited
+              unit.wheelchairAccess
+                ? UNIT_SIDEBAR_LABELS.accessWheelchair
+                : unit.groundFloor
+                  ? UNIT_SIDEBAR_LABELS.accessGroundFloor
+                  : unit.elevator
+                    ? UNIT_SIDEBAR_LABELS.accessElevator
+                    : UNIT_SIDEBAR_LABELS.accessLimited
             }
           />
         </dl>
@@ -60,8 +70,11 @@ export function UnitSidebar({ unit }: Props) {
           <RuleItem label={UNIT_SIDEBAR_LABELS.petsLabel} allowed={unit.petsAllowed} />
           {unit.quietHours && (
             <div className="flex items-center gap-2 text-ui-muted">
-              <span className="text-status-info-text" aria-hidden="true">🌙</span>
-              {UNIT_SIDEBAR_LABELS.quietHoursPrefix}{unit.quietHours}
+              <span className="text-status-info-text" aria-hidden="true">
+                🌙
+              </span>
+              {UNIT_SIDEBAR_LABELS.quietHoursPrefix}
+              {unit.quietHours}
             </div>
           )}
         </div>
@@ -73,8 +86,14 @@ export function UnitSidebar({ unit }: Props) {
           {UNIT_SIDEBAR_LABELS.locationTitle}
         </h2>
         <div className="space-y-2 text-sm">
-          <LocationItem label={UNIT_SIDEBAR_LABELS.locationPT} available={unit.nearPublicTransport} />
-          <LocationItem label={UNIT_SIDEBAR_LABELS.locationHealth} available={unit.nearHealthServices} />
+          <LocationItem
+            label={UNIT_SIDEBAR_LABELS.locationPT}
+            available={unit.nearPublicTransport}
+          />
+          <LocationItem
+            label={UNIT_SIDEBAR_LABELS.locationHealth}
+            available={unit.nearHealthServices}
+          />
           <LocationItem label={UNIT_SIDEBAR_LABELS.locationSchools} available={unit.nearSchools} />
         </div>
       </div>
@@ -85,9 +104,7 @@ export function UnitSidebar({ unit }: Props) {
           <h2 className="text-lg font-semibold text-ui-text mb-4">
             {UNIT_SIDEBAR_LABELS.notesTitle}
           </h2>
-          <p className="text-sm text-ui-muted whitespace-pre-wrap">
-            {unit.notes}
-          </p>
+          <p className="text-sm text-ui-muted whitespace-pre-wrap">{unit.notes}</p>
         </div>
       )}
     </div>
@@ -111,7 +128,8 @@ function LocationItem({ label, available }: { label: string; available: boolean 
       <span className={available ? 'text-status-success-text' : 'text-ui-muted'}>
         {available ? '✓' : '○'}
       </span>
-      {label} {available ? UNIT_SIDEBAR_LABELS.locationNearby : UNIT_SIDEBAR_LABELS.locationNotNearby}
+      {label}{' '}
+      {available ? UNIT_SIDEBAR_LABELS.locationNearby : UNIT_SIDEBAR_LABELS.locationNotNearby}
     </div>
   )
 }

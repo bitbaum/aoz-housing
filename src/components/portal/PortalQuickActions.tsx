@@ -10,19 +10,20 @@ interface PortalQuickActionsProps {
 export async function PortalQuickActions({ pendingChoresCount }: PortalQuickActionsProps) {
   const { t } = await getRequestTranslator()
 
-  const primary = pendingChoresCount > 0
-    ? {
-        href: '/portal/chores',
-        title: t('dashboard.quickChores'),
-        description: `${pendingChoresCount} ${pendingChoresCount === 1 ? t('dashboard.taskSingular') : t('dashboard.taskPlural')}`,
-        icon: ClipboardCheck,
-      }
-    : {
-        href: '/portal/preferences',
-        title: t('dashboard.quickPreferences'),
-        description: t('dashboard.nextDesc'),
-        icon: Settings2,
-      }
+  const primary =
+    pendingChoresCount > 0
+      ? {
+          href: '/portal/chores',
+          title: t('dashboard.quickChores'),
+          description: `${pendingChoresCount} ${pendingChoresCount === 1 ? t('dashboard.taskSingular') : t('dashboard.taskPlural')}`,
+          icon: ClipboardCheck,
+        }
+      : {
+          href: '/portal/preferences',
+          title: t('dashboard.quickPreferences'),
+          description: t('dashboard.nextDesc'),
+          icon: Settings2,
+        }
 
   const PrimaryIcon = primary.icon
   const secondaryActions = [

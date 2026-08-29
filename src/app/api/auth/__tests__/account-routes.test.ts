@@ -43,7 +43,13 @@ jest.mock('@/lib/auth/rate-limit', () => ({
 }))
 
 jest.mock('@/lib/logger', () => ({
-  logger: { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    errorWithCause: jest.fn(),
+  },
 }))
 
 // --- Import after mocks ---
@@ -93,9 +99,7 @@ describe('POST /api/auth/signup', () => {
       },
     })
 
-    const response = await signupPost(
-      jsonRequest('/api/auth/signup', { ...VALID, code: 'AOZ-X' })
-    )
+    const response = await signupPost(jsonRequest('/api/auth/signup', { ...VALID, code: 'AOZ-X' }))
     expect((await response.json()).type).toBe('staff')
     expect(mockSetSessionCookie).toHaveBeenCalledWith({
       id: 'u1',
@@ -138,7 +142,7 @@ describe('POST /api/auth/signup', () => {
         code: 'res-abc123',
         email: '  Ihor@Example.CH ',
         password: 'secret-password',
-      })
+      }),
     )
     expect(mockRegisterAccount).toHaveBeenCalledWith({
       code: 'RES-ABC123',
@@ -149,7 +153,7 @@ describe('POST /api/auth/signup', () => {
 
   it('rejects a too-short password with the German message', async () => {
     const response = await signupPost(
-      jsonRequest('/api/auth/signup', { ...VALID, password: 'short' })
+      jsonRequest('/api/auth/signup', { ...VALID, password: 'short' }),
     )
     const body = await response.json()
     expect(response.status).toBe(400)
@@ -179,7 +183,7 @@ describe('POST /api/auth/forgot-password', () => {
   it('returns generic success', async () => {
     mockRequestPasswordReset.mockResolvedValue({ success: true })
     const response = await forgotPost(
-      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' })
+      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' }),
     )
     expect(await response.json()).toEqual({ success: true })
     expect(mockRequestPasswordReset).toHaveBeenCalledWith('g@example.ch')
@@ -191,7 +195,7 @@ describe('POST /api/auth/forgot-password', () => {
       error: ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED,
     })
     const response = await forgotPost(
-      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' })
+      jsonRequest('/api/auth/forgot-password', { email: 'g@example.ch' }),
     )
     expect(response.status).toBe(503)
     expect((await response.json()).error).toBe(ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED)
@@ -199,7 +203,7 @@ describe('POST /api/auth/forgot-password', () => {
 
   it('rejects an invalid email shape', async () => {
     const response = await forgotPost(
-      jsonRequest('/api/auth/forgot-password', { email: 'not-an-email' })
+      jsonRequest('/api/auth/forgot-password', { email: 'not-an-email' }),
     )
     expect(response.status).toBe(400)
     expect(mockRequestPasswordReset).not.toHaveBeenCalled()
@@ -210,7 +214,7 @@ describe('POST /api/auth/reset-password', () => {
   it('resets with a valid token', async () => {
     mockResetPassword.mockResolvedValue({ success: true })
     const response = await resetPost(
-      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' })
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' }),
     )
     expect(await response.json()).toEqual({ success: true })
     expect(mockResetPassword).toHaveBeenCalledWith('tok', 'new-password-1')
@@ -222,14 +226,14 @@ describe('POST /api/auth/reset-password', () => {
       error: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID,
     })
     const response = await resetPost(
-      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' })
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'new-password-1' }),
     )
     expect(response.status).toBe(400)
   })
 
   it('enforces the password policy before touching the token', async () => {
     const response = await resetPost(
-      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'short' })
+      jsonRequest('/api/auth/reset-password', { token: 'tok', password: 'short' }),
     )
     expect(response.status).toBe(400)
     expect(mockResetPassword).not.toHaveBeenCalled()
@@ -270,7 +274,7 @@ describe('POST /api/auth/login with email credentials', () => {
     })
 
     const response = await loginPost(
-      jsonRequest('/api/auth/login', { email: 'ihor@example.ch', password: 'pw-123456' })
+      jsonRequest('/api/auth/login', { email: 'ihor@example.ch', password: 'pw-123456' }),
     )
     const body = await response.json()
 
@@ -285,7 +289,7 @@ describe('POST /api/auth/login with email credentials', () => {
       error: ERROR_MESSAGES.INVALID_CREDENTIALS,
     })
     const response = await loginPost(
-      jsonRequest('/api/auth/login', { email: 'x@example.ch', password: 'wrong' })
+      jsonRequest('/api/auth/login', { email: 'x@example.ch', password: 'wrong' }),
     )
     expect(response.status).toBe(401)
     expect((await response.json()).error).toBe(ERROR_MESSAGES.INVALID_CREDENTIALS)

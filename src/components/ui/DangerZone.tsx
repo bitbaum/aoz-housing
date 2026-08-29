@@ -68,14 +68,10 @@ export function DangerZone({
       <h2 id={ariaId} className="text-base sm:text-lg font-semibold text-status-error-text">
         {labels.title}
       </h2>
-      <p className="text-sm text-status-error-text mt-1 leading-relaxed">
-        {labels.description}
-      </p>
+      <p className="text-sm text-status-error-text mt-1 leading-relaxed">{labels.description}</p>
 
       {!isEligibleCode && (
-        <p className="mt-3 text-sm text-status-error-text">
-          {labels.notEligible}
-        </p>
+        <p className="mt-3 text-sm text-status-error-text">{labels.notEligible}</p>
       )}
 
       {feedback && (
@@ -95,8 +91,7 @@ export function DangerZone({
       {blockerReport && (
         <div className="mt-3 p-3 rounded text-sm bg-status-warning/10 text-status-warning-text border border-status-warning/30">
           <p>
-            <strong>{labels.blockerReportTitle}</strong>{' '}
-            {blockerText || labels.noDetails}
+            <strong>{labels.blockerReportTitle}</strong> {blockerText || labels.noDetails}
           </p>
           <button
             type="button"
@@ -134,7 +129,9 @@ export function DangerZone({
       <button
         type="button"
         className="mt-3 w-full sm:w-auto bg-status-error text-ui-on-accent px-4 py-3 rounded-lg text-sm min-h-[44px] hover:bg-status-error/90 disabled:opacity-50"
-        disabled={!isEligibleCode || isPending || confirmation !== 'DELETE' || reason.trim().length < 10}
+        disabled={
+          !isEligibleCode || isPending || confirmation !== 'DELETE' || reason.trim().length < 10
+        }
         onClick={() => {
           setFeedback(null)
           setBlockerReport(null)

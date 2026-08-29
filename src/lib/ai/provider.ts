@@ -159,7 +159,7 @@ export async function getAIProviderConfigs(): Promise<AIProviderConfig[]> {
  * window, so asking the next vendor only wastes its budget too.
  */
 export async function withProviderFallback<T>(
-  attempt: (config: AIProviderConfig) => Promise<T>
+  attempt: (config: AIProviderConfig) => Promise<T>,
 ): Promise<T> {
   const configs = await getAIProviderConfigs()
   if (configs.length === 0) throw new AIChainExhaustedError(null)
@@ -181,7 +181,7 @@ export async function withProviderFallback<T>(
 
 async function completeWithOpenAICompat(
   config: AIProviderConfig,
-  input: CompletionInput
+  input: CompletionInput,
 ): Promise<string> {
   const res = await fetch(config.url, {
     method: 'POST',

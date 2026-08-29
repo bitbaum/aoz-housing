@@ -28,8 +28,12 @@ export default async function NewActivityPage() {
       <form action={createActivity} className="card space-y-6">
         <ActivityFormFields />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn btn-primary">{ACTIVITIES_ADMIN_LABELS.save}</button>
-          <Link href="/activities" className="btn btn-outline">{ACTIVITIES_ADMIN_LABELS.cancel}</Link>
+          <button type="submit" className="btn btn-primary">
+            {ACTIVITIES_ADMIN_LABELS.save}
+          </button>
+          <Link href="/activities" className="btn btn-outline">
+            {ACTIVITIES_ADMIN_LABELS.cancel}
+          </Link>
         </div>
       </form>
     </div>

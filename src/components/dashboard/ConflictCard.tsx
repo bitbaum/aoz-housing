@@ -36,7 +36,9 @@ export function ConflictCard({
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">{ALGORITHM_ACCURACY_LABELS.conflictCardTitle}</h2>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
+        {ALGORITHM_ACCURACY_LABELS.conflictCardTitle}
+      </h2>
 
       {/* Main stat */}
       <Link href="/incidents?category=INTERPERSONAL" className="block mb-4 group">
@@ -44,7 +46,9 @@ export function ConflictCard({
           <span className={`text-3xl font-bold ${getConflictColor(activeConflicts)}`}>
             {activeConflicts}
           </span>
-          <span className="text-ui-muted text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardActiveSuffix}</span>
+          <span className="text-ui-muted text-sm">
+            {ALGORITHM_ACCURACY_LABELS.conflictCardActiveSuffix}
+          </span>
         </div>
         {oldestConflictDays !== undefined && activeConflicts > 0 && (
           <p className="text-sm text-ui-muted mt-1 group-hover:text-ui-muted">
@@ -56,7 +60,9 @@ export function ConflictCard({
       {/* Hotspot units */}
       {hasHotspots && (
         <div className="border-t border-ui-border pt-4 mt-4">
-          <p className="text-sm font-medium text-ui-muted mb-3">{ALGORITHM_ACCURACY_LABELS.conflictCardHotspots}</p>
+          <p className="text-sm font-medium text-ui-muted mb-3">
+            {ALGORITHM_ACCURACY_LABELS.conflictCardHotspots}
+          </p>
           <div className="space-y-2">
             {hotspotUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map((unit) => (
               <Link
@@ -66,7 +72,9 @@ export function ConflictCard({
               >
                 <div>
                   <span className="font-medium text-ui-text text-sm">{unit.code}</span>
-                  <span className="text-ui-muted text-sm ml-2">{unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}</span>
+                  <span className="text-ui-muted text-sm ml-2">
+                    {unit.occupancy} {ALGORITHM_ACCURACY_LABELS.conflictCardOccupied}
+                  </span>
                 </div>
                 <span className="text-sm text-status-warning font-medium">
                   {ALGORITHM_ACCURACY_LABELS.conflictCardConflictCount(unit.conflicts)}
@@ -82,7 +90,9 @@ export function ConflictCard({
         <div className="flex items-center justify-between text-sm">
           <span className="text-ui-muted">{ALGORITHM_ACCURACY_LABELS.conflictCardLast7Days}</span>
           <span className={recentConflicts === 0 ? 'text-status-success' : 'text-ui-text'}>
-            {recentConflicts === 0 ? ALGORITHM_ACCURACY_LABELS.conflictCardNoneNew : ALGORITHM_ACCURACY_LABELS.conflictCardNewCount(recentConflicts)}
+            {recentConflicts === 0
+              ? ALGORITHM_ACCURACY_LABELS.conflictCardNoneNew
+              : ALGORITHM_ACCURACY_LABELS.conflictCardNewCount(recentConflicts)}
           </span>
         </div>
       </div>
@@ -91,7 +101,9 @@ export function ConflictCard({
       {!hasConflicts && (
         <div className="py-4 text-center">
           <span className="text-status-success text-2xl block mb-2">✓</span>
-          <p className="text-status-success-text text-sm">{ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}</p>
+          <p className="text-status-success-text text-sm">
+            {ALGORITHM_ACCURACY_LABELS.conflictCardAllClear}
+          </p>
         </div>
       )}
 

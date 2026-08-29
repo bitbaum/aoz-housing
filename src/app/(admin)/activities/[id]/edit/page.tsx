@@ -35,12 +35,16 @@ export default async function EditActivityPage({ params }: Props) {
             <>
               {activity.status !== 'PUBLISHED' ? (
                 <form action={publishActivity.bind(null, activity.id)}>
-                  <button type="submit" className="btn btn-outline text-sm">{ACTIVITIES_ADMIN_LABELS.publish}</button>
+                  <button type="submit" className="btn btn-outline text-sm">
+                    {ACTIVITIES_ADMIN_LABELS.publish}
+                  </button>
                 </form>
               ) : null}
               {activity.status !== 'ARCHIVED' ? (
                 <form action={archiveActivity.bind(null, activity.id)}>
-                  <button type="submit" className="btn btn-outline text-sm">{ACTIVITIES_ADMIN_LABELS.archive}</button>
+                  <button type="submit" className="btn btn-outline text-sm">
+                    {ACTIVITIES_ADMIN_LABELS.archive}
+                  </button>
                 </form>
               ) : null}
             </>
@@ -51,8 +55,12 @@ export default async function EditActivityPage({ params }: Props) {
       <form action={updateActivity} className="card space-y-6">
         <ActivityFormFields activity={activity} />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn btn-primary">{ACTIVITIES_ADMIN_LABELS.save}</button>
-          <Link href="/activities" className="btn btn-outline">{ACTIVITIES_ADMIN_LABELS.cancel}</Link>
+          <button type="submit" className="btn btn-primary">
+            {ACTIVITIES_ADMIN_LABELS.save}
+          </button>
+          <Link href="/activities" className="btn btn-outline">
+            {ACTIVITIES_ADMIN_LABELS.cancel}
+          </Link>
         </div>
       </form>
     </div>

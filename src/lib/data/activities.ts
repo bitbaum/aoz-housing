@@ -38,14 +38,16 @@ export async function getActivityById(id: string): Promise<ActivityRecord | null
   return rows[0] ? mapActivity(rows[0]) : null
 }
 
-export async function listActivities(options: {
-  status?: ActivityStatus
-  category?: ActivityCategory
-  publishedOnly?: boolean
-  highlightedOnly?: boolean
-  activeOn?: Date
-  take?: number
-} = {}): Promise<ActivityRecord[]> {
+export async function listActivities(
+  options: {
+    status?: ActivityStatus
+    category?: ActivityCategory
+    publishedOnly?: boolean
+    highlightedOnly?: boolean
+    activeOn?: Date
+    take?: number
+  } = {},
+): Promise<ActivityRecord[]> {
   const where: Prisma.Sql[] = []
 
   if (options.publishedOnly) {
@@ -66,12 +68,10 @@ export async function listActivities(options: {
     where.push(Prisma.sql`("endsAt" IS NULL OR "endsAt" >= ${options.activeOn})`)
   }
 
-  const whereClause = where.length > 0
-    ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}`
-    : Prisma.empty
-  const limitClause = typeof options.take === 'number'
-    ? Prisma.sql`LIMIT ${options.take}`
-    : Prisma.empty
+  const whereClause =
+    where.length > 0 ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}` : Prisma.empty
+  const limitClause =
+    typeof options.take === 'number' ? Prisma.sql`LIMIT ${options.take}` : Prisma.empty
 
   return prisma.$queryRaw<ActivityRecord[]>`
     SELECT *
@@ -82,10 +82,12 @@ export async function listActivities(options: {
   `
 }
 
-export async function countActivities(options: {
-  status?: ActivityStatus
-  highlightedPublished?: boolean
-} = {}): Promise<number> {
+export async function countActivities(
+  options: {
+    status?: ActivityStatus
+    highlightedPublished?: boolean
+  } = {},
+): Promise<number> {
   const where: Prisma.Sql[] = []
   if (options.status) {
     where.push(Prisma.sql`"status" = ${options.status}::"ActivityStatus"`)
@@ -93,9 +95,8 @@ export async function countActivities(options: {
   if (options.highlightedPublished) {
     where.push(Prisma.sql`"status" = 'PUBLISHED'::"ActivityStatus" AND "highlight" = true`)
   }
-  const whereClause = where.length > 0
-    ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}`
-    : Prisma.empty
+  const whereClause =
+    where.length > 0 ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}` : Prisma.empty
   const rows = await prisma.$queryRaw<Array<{ count: bigint }>>`
     SELECT COUNT(*)::bigint AS count
     FROM "Activity"
@@ -122,7 +123,10 @@ export async function createActivityRecord(data: ActivityWriteData): Promise<Act
   return rows[0]
 }
 
-export async function updateActivityRecord(id: string, data: ActivityWriteData): Promise<ActivityRecord> {
+export async function updateActivityRecord(
+  id: string,
+  data: ActivityWriteData,
+): Promise<ActivityRecord> {
   const rows = await prisma.$queryRaw<ActivityRecord[]>`
     UPDATE "Activity"
     SET
@@ -147,7 +151,11 @@ export async function updateActivityRecord(id: string, data: ActivityWriteData):
   return rows[0]
 }
 
-export async function setActivityStatus(id: string, status: ActivityStatus, userId: string): Promise<void> {
+export async function setActivityStatus(
+  id: string,
+  status: ActivityStatus,
+  userId: string,
+): Promise<void> {
   await prisma.$executeRaw`
     UPDATE "Activity"
     SET

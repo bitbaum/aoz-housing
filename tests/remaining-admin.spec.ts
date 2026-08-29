@@ -12,16 +12,18 @@ test.describe('AI Assistant (/ai-assistant)', () => {
   test('page loads with heading and subtitle', async ({ page }) => {
     await page.goto('/ai-assistant')
 
-    await expect(page.getByRole('heading', { name: /KI-Assistent/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /KI-Assistent/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows suggested question buttons in empty state', async ({ page }) => {
     await page.goto('/ai-assistant')
 
     // AIChatInterface renders suggested question buttons before any message is sent
-    await expect(
-      page.getByRole('button').filter({ hasText: /.+/ }).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button').filter({ hasText: /.+/ }).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('textarea is present and enabled', async ({ page }) => {
@@ -36,7 +38,9 @@ test.describe('AI Assistant (/ai-assistant)', () => {
     await page.goto('/ai-assistant')
 
     // The send button (aria-label: Nachricht senden) is disabled on empty input
-    const sendBtn = page.locator('button[aria-label="Nachricht senden"], button:has([data-testid="send-icon"])').first()
+    const sendBtn = page
+      .locator('button[aria-label="Nachricht senden"], button:has([data-testid="send-icon"])')
+      .first()
     await expect(sendBtn).toBeVisible({ timeout: 15_000 })
     await expect(sendBtn).toBeDisabled()
   })
@@ -48,7 +52,9 @@ test.describe('AI Assistant (/ai-assistant)', () => {
     await expect(textarea).toBeVisible({ timeout: 15_000 })
     await textarea.fill('Wie viele Bewohner gibt es?')
 
-    const sendBtn = page.locator('button[aria-label="Nachricht senden"], button:has([data-testid="send-icon"])').first()
+    const sendBtn = page
+      .locator('button[aria-label="Nachricht senden"], button:has([data-testid="send-icon"])')
+      .first()
     await expect(sendBtn).toBeEnabled()
   })
 
@@ -74,7 +80,7 @@ test.describe('Algorithm (/algorithm)', () => {
 
     // AlgorithmContent renders a heading about the algorithm
     await expect(
-      page.getByRole('heading', { name: /Algorithmus|Kompatibilität/i }).first()
+      page.getByRole('heading', { name: /Algorithmus|Kompatibilität/i }).first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -83,7 +89,14 @@ test.describe('Algorithm (/algorithm)', () => {
 
     // 5 tabs: Overview, Science, Dimensions, Collection, Technical
     await expect(
-      page.getByRole('tab').or(page.getByRole('button').filter({ hasText: /Überblick|Wissenschaft|Faktoren|Erhebung|Technisch/i })).first()
+      page
+        .getByRole('tab')
+        .or(
+          page
+            .getByRole('button')
+            .filter({ hasText: /Überblick|Wissenschaft|Faktoren|Erhebung|Technisch/i }),
+        )
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -91,9 +104,9 @@ test.describe('Algorithm (/algorithm)', () => {
     await page.goto('/algorithm')
 
     // OverviewTab shows dimension counts, factor counts, etc.
-    await expect(
-      page.getByText(/Faktoren|Dimensionen|Gewichtung/i).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/Faktoren|Dimensionen|Gewichtung/i).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('accessible from the header nav', async ({ page }) => {
@@ -114,9 +127,9 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
   test('page loads with heading', async ({ page }) => {
     await page.goto('/transfer-requests')
 
-    await expect(
-      page.getByRole('heading', { name: /Verlegungsanfragen/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Verlegungsanfragen/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows status tabs (Pending, Approved, Denied, All)', async ({ page }) => {
@@ -160,9 +173,10 @@ test.describe('Transfer Requests (/transfer-requests)', () => {
 
     // TransferActions renders approve/deny buttons for PENDING requests
     await expect(
-      page.getByRole('button', { name: /Genehmigen|Approve|Zustimmen/i }).or(
-        page.getByRole('button', { name: /Ablehnen|Deny/i })
-      ).first()
+      page
+        .getByRole('button', { name: /Genehmigen|Approve|Zustimmen/i })
+        .or(page.getByRole('button', { name: /Ablehnen|Deny/i }))
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 

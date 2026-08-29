@@ -7,13 +7,13 @@ import { logger } from '@/lib/logger'
 import { CHORE_COMPLAINT_INCIDENT_MAP } from '@/lib/config/household-tasks'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const { id } = await params
@@ -23,11 +23,21 @@ export async function POST(
     const body = await request.json()
     const parsed = portalTaskComplaintSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json({ success: false, error: parsed.error.flatten().fieldErrors.description?.[0] || ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            parsed.error.flatten().fieldErrors.description?.[0] || ERROR_MESSAGES.INVALID_INPUT,
+        },
+        { status: 400 },
+      )
     }
     description = parsed.data.description
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -36,7 +46,10 @@ export async function POST(
     })
 
     if (!task) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND },
+        { status: 404 },
+      )
     }
 
     // Map chore category to incident type. The map is typed against the Prisma
@@ -72,6 +85,9 @@ export async function POST(
     return NextResponse.json({ success: true, data: { incidentId: incident.id } })
   } catch (error) {
     logger.errorWithCause('Failed to create task complaint incident', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_COMPLAINT_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_COMPLAINT_ERROR },
+      { status: 500 },
+    )
   }
 }

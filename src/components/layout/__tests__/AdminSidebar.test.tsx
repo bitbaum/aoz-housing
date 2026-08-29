@@ -28,7 +28,7 @@ describe('AdminSidebar', () => {
     render(<AdminSidebar groups={groups} />)
 
     const expected = groups.flatMap((group) =>
-      'items' in group ? group.items.map((i) => i.label) : [group.label]
+      'items' in group ? group.items.map((i) => i.label) : [group.label],
     )
 
     const missing = expected.filter((label) => screen.queryAllByText(label).length === 0)
@@ -50,9 +50,9 @@ describe('AdminSidebar', () => {
     mockPathname = '/incidents'
     render(<AdminSidebar groups={visibleMegaMenuGroups('ADMIN')} />)
 
-    const current = screen.getAllByRole('link').filter(
-      (link) => link.getAttribute('aria-current') === 'page'
-    )
+    const current = screen
+      .getAllByRole('link')
+      .filter((link) => link.getAttribute('aria-current') === 'page')
 
     expect(current).toHaveLength(1)
     expect(current[0]).toHaveAttribute('href', '/incidents')
@@ -74,7 +74,7 @@ describe('AdminSidebar', () => {
     const { container } = render(<AdminSidebar groups={visibleMegaMenuGroups('ADMIN')} />)
 
     const oneItemGroups = Array.from(container.querySelectorAll('details')).filter(
-      (d) => d.querySelectorAll('li').length === 1
+      (d) => d.querySelectorAll('li').length === 1,
     )
     expect(oneItemGroups).toEqual([])
   })

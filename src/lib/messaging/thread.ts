@@ -18,8 +18,7 @@ export const MESSAGE_BODY_MAX_LENGTH = 4000
 
 /** Who is writing or reading. Mirrors the two identities the product has. */
 export type MessageParty =
-  | { kind: 'resident'; residentId: string }
-  | { kind: 'staff'; userId: string }
+  { kind: 'resident'; residentId: string } | { kind: 'staff'; userId: string }
 
 export interface MessageRow {
   id: string

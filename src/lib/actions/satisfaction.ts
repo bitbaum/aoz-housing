@@ -3,10 +3,7 @@
 import { prisma } from '@/lib/db'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import {
-  validateFormData,
-  SatisfactionCheckInInputSchema,
-} from '@/lib/validation'
+import { validateFormData, SatisfactionCheckInInputSchema } from '@/lib/validation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'

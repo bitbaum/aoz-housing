@@ -3,14 +3,19 @@ import { join } from 'path'
 import { getAllPosts, getPostBySlug } from '@/lib/blog/posts'
 import { renderMarkdown } from '@/lib/blog/markdown'
 
-jest.mock('marked', () => ({
-  Marked: class {
-    parse(input: string) {
-      if (input.includes('|---|')) return '<table><thead><tr><th>a</th><th>b</th></tr></thead></table>'
-      return input.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
-    }
-  },
-}), { virtual: true })
+jest.mock(
+  'marked',
+  () => ({
+    Marked: class {
+      parse(input: string) {
+        if (input.includes('|---|'))
+          return '<table><thead><tr><th>a</th><th>b</th></tr></thead></table>'
+        return input.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+      }
+    },
+  }),
+  { virtual: true },
+)
 
 const BLOG_DIR = join(process.cwd(), 'docs', 'blog')
 
@@ -18,21 +23,25 @@ const posts = getAllPosts()
 
 describe('blog posts', () => {
   it('reads every markdown file in docs/blog', () => {
-    const files = readdirSync(BLOG_DIR).filter(name => name.endsWith('.md') && name !== 'README.md')
+    const files = readdirSync(BLOG_DIR).filter(
+      (name) => name.endsWith('.md') && name !== 'README.md',
+    )
 
     expect(posts).toHaveLength(files.length)
     expect(posts.length).toBeGreaterThan(0)
   })
 
   it('orders newest first', () => {
-    const dates = posts.map(post => post.date)
+    const dates = posts.map((post) => post.date)
     expect([...dates].sort((a, b) => b.localeCompare(a))).toEqual(dates)
   })
 
   it('gives every post a title, a date and a body', () => {
     for (const post of posts) {
-      expect({ slug: post.slug, hasTitle: post.title.length > 0 })
-        .toEqual({ slug: post.slug, hasTitle: true })
+      expect({ slug: post.slug, hasTitle: post.title.length > 0 }).toEqual({
+        slug: post.slug,
+        hasTitle: true,
+      })
       expect(post.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
       expect(post.body.length).toBeGreaterThan(200)
     }
@@ -41,7 +50,7 @@ describe('blog posts', () => {
   it('keeps slugs unique', () => {
     // The slug drops the date prefix, so two posts published on different days
     // under the same name would collide on one URL and silently hide one.
-    const slugs = posts.map(post => post.slug)
+    const slugs = posts.map((post) => post.slug)
     expect(new Set(slugs).size).toBe(slugs.length)
   })
 
@@ -54,8 +63,10 @@ describe('blog posts', () => {
       const raw = readFileSync(join(BLOG_DIR, post.filename), 'utf8')
       const dateline = /^\*(\d{4}-\d{2}-\d{2})\*$/m.exec(raw)
 
-      expect({ file: post.filename, dateline: dateline?.[1] })
-        .toEqual({ file: post.filename, dateline: post.date })
+      expect({ file: post.filename, dateline: dateline?.[1] }).toEqual({
+        file: post.filename,
+        dateline: post.date,
+      })
     }
   })
 
@@ -80,8 +91,10 @@ describe('blog posts', () => {
     const readme = readFileSync(join(BLOG_DIR, 'README.md'), 'utf8')
 
     for (const post of posts) {
-      expect({ slug: post.slug, indexed: readme.includes(post.filename) })
-        .toEqual({ slug: post.slug, indexed: true })
+      expect({ slug: post.slug, indexed: readme.includes(post.filename) }).toEqual({
+        slug: post.slug,
+        indexed: true,
+      })
     }
   })
 
@@ -114,7 +127,9 @@ describe('blog markdown rendering', () => {
     // repo and 404s on the web, so it resolves to where the file is published.
     const html = renderMarkdown('the [roadmap](../ROADMAP.md)')
 
-    expect(html).toContain('href="https://github.com/catomean/aoz-housing/blob/master/docs/ROADMAP.md"')
+    expect(html).toContain(
+      'href="https://github.com/catomean/aoz-housing/blob/master/docs/ROADMAP.md"',
+    )
   })
 
   it('never serves a real post with a link to a .md file', () => {
@@ -123,8 +138,8 @@ describe('blog markdown rendering', () => {
     for (const post of posts) {
       const html = renderMarkdown(post.body)
       const brokenLinks = Array.from(html.matchAll(/href="([^"]*\.md[^"]*)"/g))
-        .map(match => match[1])
-        .filter(href => !href.startsWith('http'))
+        .map((match) => match[1])
+        .filter((href) => !href.startsWith('http'))
 
       expect({ slug: post.slug, brokenLinks }).toEqual({ slug: post.slug, brokenLinks: [] })
     }
@@ -138,9 +153,11 @@ describe('blog markdown rendering', () => {
 
     for (const post of posts) {
       const html = renderMarkdown(post.body)
-      const missing = Array.from(html.matchAll(/href="https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/master\/([^"#]+)"/g))
-        .map(match => match[1])
-        .filter(path => !existsSync(join(repoRoot, path)))
+      const missing = Array.from(
+        html.matchAll(/href="https:\/\/github\.com\/[^/]+\/[^/]+\/blob\/master\/([^"#]+)"/g),
+      )
+        .map((match) => match[1])
+        .filter((path) => !existsSync(join(repoRoot, path)))
 
       expect({ slug: post.slug, missing }).toEqual({ slug: post.slug, missing: [] })
     }

@@ -6,10 +6,7 @@
  * must not decide.
  */
 
-import {
-  CATEGORY_DECISION_MODE,
-  DECISION_MODE_IS_VOTED,
-} from '../decisions'
+import { CATEGORY_DECISION_MODE, DECISION_MODE_IS_VOTED } from '../decisions'
 import type { DecisionMode } from '@prisma/client'
 
 describe('DECISION_MODE_IS_VOTED', () => {
@@ -24,7 +21,7 @@ describe('DECISION_MODE_IS_VOTED', () => {
 
   it('covers every decision mode the schema allows', () => {
     const modes = Object.keys(CATEGORY_DECISION_MODE).map(
-      (category) => CATEGORY_DECISION_MODE[category as keyof typeof CATEGORY_DECISION_MODE]
+      (category) => CATEGORY_DECISION_MODE[category as keyof typeof CATEGORY_DECISION_MODE],
     )
     for (const mode of modes) {
       expect(DECISION_MODE_IS_VOTED[mode]).toBeDefined()

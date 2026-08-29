@@ -15,7 +15,7 @@ const L = PORTAL_LABELS.expenses
 describe('settle-up confirmation copy', () => {
   it('asks a grammatical question, with the amount as the object', () => {
     expect(L.markPaidConfirm('CHF 16.65', 'Fatima')).toBe(
-      'CHF 16.65 an Fatima als bezahlt erfassen?'
+      'CHF 16.65 an Fatima als bezahlt erfassen?',
     )
   })
 

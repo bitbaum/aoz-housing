@@ -126,9 +126,7 @@ export const LANDING_ROUTE = '/willkommen'
  * on the wrong side of the product.
  */
 export type RootDestination =
-  | { kind: 'staff-dashboard' }
-  | { kind: 'redirect'; to: string }
-  | { kind: 'rewrite'; to: string }
+  { kind: 'staff-dashboard' } | { kind: 'redirect'; to: string } | { kind: 'rewrite'; to: string }
 
 /**
  * The parameter is `hasVALIDStaffSession`, not `hasStaffSession`, and the

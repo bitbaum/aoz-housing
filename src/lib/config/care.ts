@@ -35,7 +35,7 @@ export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMI
  * than be handed an arbitrary answer.
  */
 export const STAFF_ROLE_CARE_DOMAIN: Partial<Record<StaffRole, CareRoleId>> = Object.fromEntries(
-  CARE_ROLES.map((domain) => [CARE_DOMAIN_STAFF_ROLE[domain], domain])
+  CARE_ROLES.map((domain) => [CARE_DOMAIN_STAFF_ROLE[domain], domain]),
 )
 
 export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {

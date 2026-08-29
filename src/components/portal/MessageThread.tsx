@@ -57,7 +57,7 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
       if (!result.success) throw new Error(result.error)
 
       setMessages((current) =>
-        current.map((message) => (message.id === pending.id ? result.data.message : message))
+        current.map((message) => (message.id === pending.id ? result.data.message : message)),
       )
     } catch {
       // Put the text back in the box rather than leaving a message on screen
@@ -91,10 +91,14 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
                   <p className={`eyebrow ${mine ? 'text-ui-on-accent/80' : ''}`}>
                     {mine ? t('messages.you') : t('messages.staff')}
                   </p>
-                  <p className={`text-sm mt-1 whitespace-pre-line ${mine ? 'text-ui-on-accent' : 'text-ui-text'}`}>
+                  <p
+                    className={`text-sm mt-1 whitespace-pre-line ${mine ? 'text-ui-on-accent' : 'text-ui-text'}`}
+                  >
                     {message.body}
                   </p>
-                  <p className={`text-2xs mt-2 numeric ${mine ? 'text-ui-on-accent/75' : 'text-ui-muted'}`}>
+                  <p
+                    className={`text-2xs mt-2 numeric ${mine ? 'text-ui-on-accent/75' : 'text-ui-muted'}`}
+                  >
                     {formatDateTime(message.createdAt)}
                   </p>
                 </div>
@@ -105,7 +109,10 @@ export function MessageThreadView({ initialMessages }: { initialMessages: Messag
         </ol>
       )}
 
-      <form onSubmit={send} className="sticky bottom-0 border-t border-ui-border bg-ui-canvas pt-3 flex flex-col gap-2">
+      <form
+        onSubmit={send}
+        className="sticky bottom-0 border-t border-ui-border bg-ui-canvas pt-3 flex flex-col gap-2"
+      >
         <textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}

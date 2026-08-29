@@ -42,12 +42,11 @@ export function TransferUnitSelector({
     >
       <option value="">{UI_LABELS.selectPlaceholder}</option>
       {eligibleUnits.map((unit) => {
-        const eligibleSpots = unit.spots.filter((spot) =>
-          eligibleSpotTypes.includes(spot.type)
-        )
+        const eligibleSpots = unit.spots.filter((spot) => eligibleSpotTypes.includes(spot.type))
         return (
           <option key={unit.id} value={unit.id}>
-            {unit.code} - {unit.address} ({PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)})
+            {unit.code} - {unit.address} (
+            {PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)})
           </option>
         )
       })}

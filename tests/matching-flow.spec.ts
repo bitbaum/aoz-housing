@@ -18,7 +18,7 @@ test.describe('Matching page structure', () => {
   test('shows unplaced residents list or empty state', async ({ page }) => {
     await page.goto('/matching')
 
-    const hasResidents = await page.getByRole('link', { name: 'Passend' }).count() > 0
+    const hasResidents = (await page.getByRole('link', { name: 'Passend' }).count()) > 0
     const hasEmptyState = await page
       .getByText(/Keine Klient\*innen|Alle Klient\*innen sind platziert/i)
       .isVisible()
@@ -30,8 +30,14 @@ test.describe('Matching page structure', () => {
   test('right panel prompts to select a resident before any is chosen', async ({ page }) => {
     await page.goto('/matching')
 
-    const hasPrompt = await page.getByText(/Wählen Sie eine\*n Klient\*in/i).isVisible().catch(() => false)
-    const hasUnits = await page.getByText(/Verfügbare Unterkünfte/i).isVisible().catch(() => false)
+    const hasPrompt = await page
+      .getByText(/Wählen Sie eine\*n Klient\*in/i)
+      .isVisible()
+      .catch(() => false)
+    const hasUnits = await page
+      .getByText(/Verfügbare Unterkünfte/i)
+      .isVisible()
+      .catch(() => false)
 
     expect(hasPrompt || hasUnits).toBe(true)
   })
@@ -118,13 +124,15 @@ test.describe('Resident search / filter', () => {
   test('searching with a non-matching string shows empty state', async ({ page }) => {
     await page.goto('/matching')
 
-    const hasResidents = await page.getByRole('link', { name: 'Passend' }).count() > 0
+    const hasResidents = (await page.getByRole('link', { name: 'Passend' }).count()) > 0
     if (!hasResidents) return
 
     await page.locator('input[name="q"]').fill('XYZNONEXISTENT999')
     await page.getByRole('button', { name: 'Suchen' }).click()
 
-    await expect(page.getByText(/Keine Klient\*innen|keine.*Suche/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Keine Klient\*innen|keine.*Suche/i)).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('clearing search restores resident list', async ({ page }) => {
@@ -135,13 +143,17 @@ test.describe('Resident search / filter', () => {
 
     await page.locator('input[name="q"]').fill('XYZNONEXISTENT999')
     await page.getByRole('button', { name: 'Suchen' }).click()
-    await expect(page.getByText(/Keine Klient\*innen|keine.*Suche/i)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Keine Klient\*innen|keine.*Suche/i)).toBeVisible({
+      timeout: 10_000,
+    })
 
     await page.locator('input[name="q"]').clear()
     await page.getByRole('button', { name: 'Suchen' }).click()
 
     // Should restore original count
-    await expect(page.getByRole('link', { name: 'Passend' }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('link', { name: 'Passend' }).first()).toBeVisible({
+      timeout: 10_000,
+    })
     const restoredCount = await page.getByRole('link', { name: 'Passend' }).count()
     expect(restoredCount).toBe(initialCount)
   })
@@ -153,7 +165,9 @@ test.describe('Unit mode (who fits here)', () => {
     await expect(page.locator('h1, h2').first()).toBeVisible()
   })
 
-  test('unit mode shows "Passende Klient\*innen" panel when a valid unit is selected', async ({ page }) => {
+  test('unit mode shows "Passende Klient\*innen" panel when a valid unit is selected', async ({
+    page,
+  }) => {
     // Get a real unit ID from the housing list
     const response = await page.request.get('/api/export/units').catch(() => null)
     // Navigate to housing list to get a unit ID from the page
@@ -168,7 +182,9 @@ test.describe('Unit mode (who fits here)', () => {
     await page.goto(`/matching?unit=${unitId}`)
 
     // Unit mode panel renders
-    await expect(page.getByText(/Passende Klient\*innen|Wählen Sie/i).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/Passende Klient\*innen|Wählen Sie/i).first()).toBeVisible({
+      timeout: 10_000,
+    })
   })
 })
 
@@ -223,10 +239,10 @@ test.describe('Full placement flow', () => {
     //    list), so the assertion has to be scoped to the unplaced region.
     await page.goto('/matching')
     await expect(
-      page.getByRole('region', { name: /Unplatzierte Klient\*innen/i }).getByText(code)
+      page.getByRole('region', { name: /Unplatzierte Klient\*innen/i }).getByText(code),
     ).toHaveCount(0, { timeout: 10_000 })
     await expect(
-      page.getByRole('region', { name: /Platzierte Klient\*innen/i }).getByText(code)
+      page.getByRole('region', { name: /Platzierte Klient\*innen/i }).getByText(code),
     ).toBeVisible()
   })
 })

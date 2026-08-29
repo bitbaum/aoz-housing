@@ -93,7 +93,8 @@ export const LOGIN_LABELS = {
 
 export const REGISTER_LABELS = {
   title: 'Konto erstellen',
-  subtitle: 'Mit Ihrem Zugangscode registrieren — danach melden Sie sich mit E-Mail und Passwort an.',
+  subtitle:
+    'Mit Ihrem Zugangscode registrieren — danach melden Sie sich mit E-Mail und Passwort an.',
   codeHint: 'Der Code, den Sie von der Verwaltung oder Ihrer WG erhalten haben.',
   passwordHint: 'Mindestens 8 Zeichen.',
   submit: 'Konto erstellen',

@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  BookOpen,
-  Beaker,
-  Grid3X3,
-  Activity,
-} from 'lucide-react'
+import { BookOpen, Beaker, Grid3X3, Activity } from 'lucide-react'
 import { RESIDENT_DIMENSIONS } from '@/lib/config/resident-factors'
 import {
   FACTOR_SCIENCE,
@@ -31,9 +26,7 @@ export function ScienceTab() {
           <BookOpen className="w-5 h-5 text-brand-primary" />
           {SCIENCE_TAB_LABELS.title}
         </h2>
-        <p className="text-ui-muted">
-          {SCIENCE_TAB_LABELS.intro}
-        </p>
+        <p className="text-ui-muted">{SCIENCE_TAB_LABELS.intro}</p>
       </section>
 
       {/* Research Methodology Hierarchy */}
@@ -42,12 +35,10 @@ export function ScienceTab() {
           <Beaker className="w-5 h-5 text-ui-muted" />
           {SCIENCE_TAB_LABELS.evidenceHierarchyTitle}
         </h3>
-        <p className="text-sm text-ui-muted mb-4">
-          {SCIENCE_TAB_LABELS.evidenceHierarchyDesc}
-        </p>
+        <p className="text-sm text-ui-muted mb-4">{SCIENCE_TAB_LABELS.evidenceHierarchyDesc}</p>
 
         <div className="space-y-3">
-          {RESEARCH_METHODOLOGY.map(method => (
+          {RESEARCH_METHODOLOGY.map((method) => (
             <div
               key={method.type}
               className="border border-ui-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-start gap-3"
@@ -58,7 +49,9 @@ export function ScienceTab() {
               <div className="min-w-0">
                 <h4 className="font-medium text-ui-text">{method.type}</h4>
                 <p className="text-sm text-ui-muted mt-1">{method.description}</p>
-                <p className="text-xs text-ui-muted mt-1 italic">{SCIENCE_TAB_LABELS.examplePrefix} {method.example}</p>
+                <p className="text-xs text-ui-muted mt-1 italic">
+                  {SCIENCE_TAB_LABELS.examplePrefix} {method.example}
+                </p>
               </div>
             </div>
           ))}
@@ -71,23 +64,21 @@ export function ScienceTab() {
           <Grid3X3 className="w-5 h-5 text-ui-muted" />
           {SCIENCE_TAB_LABELS.evidenceMapTitle}
         </h3>
-        <p className="text-sm text-ui-muted mb-4">
-          {SCIENCE_TAB_LABELS.evidenceMapDesc}
-        </p>
+        <p className="text-sm text-ui-muted mb-4">{SCIENCE_TAB_LABELS.evidenceMapDesc}</p>
 
         <div className="space-y-6">
-          {RESIDENT_DIMENSIONS.map(dim => {
+          {RESIDENT_DIMENSIONS.map((dim) => {
             const factors = getFactorsByDimension(dim.id)
             // Collect all unique source IDs for this dimension
             const dimensionSourceIds = new Set<string>()
-            factors.forEach(f => {
+            factors.forEach((f) => {
               const science = FACTOR_SCIENCE[f.id]
               if (science) {
-                science.sourceIds.forEach(id => dimensionSourceIds.add(id))
+                science.sourceIds.forEach((id) => dimensionSourceIds.add(id))
               }
             })
             const dimensionSources = Array.from(dimensionSourceIds)
-              .map(id => getSourceById(id))
+              .map((id) => getSourceById(id))
               .filter((s): s is ResearchSource => s !== undefined)
 
             if (dimensionSources.length === 0) return null
@@ -98,13 +89,14 @@ export function ScienceTab() {
                   <div className="flex items-center justify-between">
                     <h4 className="font-medium text-ui-text">{dim.label}</h4>
                     <span className="text-xs text-ui-muted">
-                      {Math.round(dim.weight * 100)}{SCIENCE_TAB_LABELS.weightSuffix}
+                      {Math.round(dim.weight * 100)}
+                      {SCIENCE_TAB_LABELS.weightSuffix}
                     </span>
                   </div>
                   <p className="text-xs text-ui-muted mt-1">{dim.description}</p>
                 </div>
                 <div className="p-4 space-y-2">
-                  {dimensionSources.map(source => (
+                  {dimensionSources.map((source) => (
                     <div
                       key={source.id}
                       className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm"
@@ -136,14 +128,12 @@ export function ScienceTab() {
           <Activity className="w-5 h-5 text-ui-muted" />
           {SCIENCE_TAB_LABELS.evidencePerFactorTitle}
         </h3>
-        <p className="text-sm text-ui-muted mb-4">
-          {SCIENCE_TAB_LABELS.evidencePerFactorDesc}
-        </p>
+        <p className="text-sm text-ui-muted mb-4">{SCIENCE_TAB_LABELS.evidencePerFactorDesc}</p>
 
         <div className="space-y-6">
-          {RESIDENT_DIMENSIONS.map(dim => {
+          {RESIDENT_DIMENSIONS.map((dim) => {
             const factors = getFactorsByDimension(dim.id)
-            const factorsWithScience = factors.filter(f => FACTOR_SCIENCE[f.id])
+            const factorsWithScience = factors.filter((f) => FACTOR_SCIENCE[f.id])
             if (factorsWithScience.length === 0) return null
 
             return (
@@ -152,10 +142,10 @@ export function ScienceTab() {
                   {dim.label}
                 </h4>
                 <div className="space-y-3">
-                  {factorsWithScience.map(factor => {
+                  {factorsWithScience.map((factor) => {
                     const science = FACTOR_SCIENCE[factor.id]!
                     const sources = science.sourceIds
-                      .map(id => getSourceById(id))
+                      .map((id) => getSourceById(id))
                       .filter((s): s is ResearchSource => s !== undefined)
 
                     return (
@@ -193,14 +183,12 @@ export function ScienceTab() {
                         {/* Source citations */}
                         {sources.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-ui-border">
-                            <p className="text-xs text-ui-muted mb-1">{SCIENCE_TAB_LABELS.sourcesLabel}</p>
+                            <p className="text-xs text-ui-muted mb-1">
+                              {SCIENCE_TAB_LABELS.sourcesLabel}
+                            </p>
                             <div className="flex flex-wrap gap-1">
-                              {sources.map(source => (
-                                <span
-                                  key={source.id}
-                                  className="chip-neutral"
-                                  title={source.title}
-                                >
+                              {sources.map((source) => (
+                                <span key={source.id} className="chip-neutral" title={source.title}>
                                   {source.publication?.split('/')[0]?.trim() || source.title}
                                   {source.year ? ` (${source.year})` : ''}
                                 </span>

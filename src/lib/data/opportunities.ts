@@ -162,7 +162,10 @@ export async function residentOpportunityBoard(residentId: string) {
     .filter((opportunity) => !attached.has(opportunity.id))
     .map(({ applications, ...opportunity }) => ({
       ...opportunity,
-      seatsLeft: openSeats(opportunity, applications.map((a) => a.stage as ApplicationStageId)),
+      seatsLeft: openSeats(
+        opportunity,
+        applications.map((a) => a.stage as ApplicationStageId),
+      ),
     }))
     // Places someone can still take come first; a full one stays visible rather
     // than vanishing, so "it was here yesterday" has an answer on the page.
@@ -180,7 +183,9 @@ export type OpportunityDetail = NonNullable<Awaited<ReturnType<typeof getOpportu
 export type ApplicationRow = OpportunityDetail['applications'][number]
 
 /** Stage helpers re-exported so pages import one module, not two. */
-export function seatStages(applications: readonly { stage: ApplicationStageId }[]): ApplicationStageId[] {
+export function seatStages(
+  applications: readonly { stage: ApplicationStageId }[],
+): ApplicationStageId[] {
   return applications.map((a) => a.stage)
 }
 

@@ -48,13 +48,21 @@ jest.mock('@/lib/config/housing-factors', () => ({
     { id: 'facilities', label: 'Ausstattung', order: 2 },
   ],
   getHousingFactorsBySection: (id: string) => {
-    if (id === 'basic') return [
-      { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 },
-      { id: 'address', type: 'text', label: 'Adresse', formSection: 'basic', formOrder: 2 },
-    ]
-    if (id === 'facilities') return [
-      { id: 'wheelchair', type: 'boolean', label: 'Rollstuhlgerecht', formSection: 'facilities', formOrder: 1 },
-    ]
+    if (id === 'basic')
+      return [
+        { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 },
+        { id: 'address', type: 'text', label: 'Adresse', formSection: 'basic', formOrder: 2 },
+      ]
+    if (id === 'facilities')
+      return [
+        {
+          id: 'wheelchair',
+          type: 'boolean',
+          label: 'Rollstuhlgerecht',
+          formSection: 'facilities',
+          formOrder: 1,
+        },
+      ]
     return []
   },
 }))
@@ -62,9 +70,7 @@ jest.mock('@/lib/config/housing-factors', () => ({
 const codeFactor = { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 }
 
 jest.mock('@/lib/config/resident-factors', () => ({
-  RESIDENT_FORM_SECTIONS: [
-    { id: 'basic', label: 'Stammdaten', order: 1 },
-  ],
+  RESIDENT_FORM_SECTIONS: [{ id: 'basic', label: 'Stammdaten', order: 1 }],
   // The AI field registry and the form's starting values are both derived from
   // RESIDENT_FACTORS, so the mock has to provide it too.
   RESIDENT_FACTORS: { code: codeFactor },
@@ -129,11 +135,20 @@ describe('DynamicFormSection', () => {
   }
 
   const textFactor = (id: string): FactorDef => ({
-    id, label: `Label ${id}`, type: 'text', formSection: 'preferences', formOrder: 1,
+    id,
+    label: `Label ${id}`,
+    type: 'text',
+    formSection: 'preferences',
+    formOrder: 1,
   })
 
   const boolFactor = (id: string): FactorDef => ({
-    id, label: `Bool ${id}`, type: 'boolean', default: false, formSection: 'preferences', formOrder: 2,
+    id,
+    label: `Bool ${id}`,
+    type: 'boolean',
+    default: false,
+    formSection: 'preferences',
+    formOrder: 2,
   })
 
   it('renders section heading', () => {
@@ -153,13 +168,20 @@ describe('DynamicFormSection', () => {
   })
 
   it('renders non-boolean factors', () => {
-    render(<DynamicFormSection section={section} factors={[textFactor('field1'), textFactor('field2')]} />)
+    render(
+      <DynamicFormSection
+        section={section}
+        factors={[textFactor('field1'), textFactor('field2')]}
+      />,
+    )
     expect(screen.getByTestId('field-field1')).toBeInTheDocument()
     expect(screen.getByTestId('field-field2')).toBeInTheDocument()
   })
 
   it('renders boolean factors separately', () => {
-    render(<DynamicFormSection section={section} factors={[textFactor('txt'), boolFactor('bool1')]} />)
+    render(
+      <DynamicFormSection section={section} factors={[textFactor('txt'), boolFactor('bool1')]} />,
+    )
     expect(screen.getByTestId('field-txt')).toBeInTheDocument()
     expect(screen.getByTestId('field-bool1')).toBeInTheDocument()
   })
@@ -172,21 +194,33 @@ describe('DynamicFormSection', () => {
 
   it('passes disabled=true to field in disabledFields list', () => {
     render(
-      <DynamicFormSection section={section} factors={[textFactor('code')]} disabledFields={['code']} />
+      <DynamicFormSection
+        section={section}
+        factors={[textFactor('code')]}
+        disabledFields={['code']}
+      />,
     )
     expect(screen.getByTestId('field-code')).toHaveAttribute('data-disabled', 'true')
   })
 
   it('passes disabled=false to fields not in disabledFields', () => {
     render(
-      <DynamicFormSection section={section} factors={[textFactor('name')]} disabledFields={['code']} />
+      <DynamicFormSection
+        section={section}
+        factors={[textFactor('name')]}
+        disabledFields={['code']}
+      />,
     )
     expect(screen.getByTestId('field-name')).toHaveAttribute('data-disabled', 'false')
   })
 
   it('passes values to each field', () => {
     render(
-      <DynamicFormSection section={section} factors={[textFactor('name')]} values={{ name: 'Alice' }} />
+      <DynamicFormSection
+        section={section}
+        factors={[textFactor('name')]}
+        values={{ name: 'Alice' }}
+      />,
     )
     expect(screen.getByTestId('field-name')).toBeInTheDocument()
   })
@@ -238,12 +272,16 @@ describe('ResidentFormFields — MedicalDocumentationSection', () => {
 
   it('renders med-doc checkbox', () => {
     render(<ResidentFormFields />)
-    expect(screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ }),
+    ).toBeInTheDocument()
   })
 
   it('checkbox is unchecked when hasMedicalDocumentation not in defaultValues', () => {
     render(<ResidentFormFields />)
-    expect(screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ })).not.toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ }),
+    ).not.toBeChecked()
   })
 
   it('hides doc-type fields initially when checkbox unchecked', () => {
@@ -275,7 +313,9 @@ describe('ResidentFormFields — MedicalDocumentationSection', () => {
 
   it('checkbox is pre-checked when hasMedicalDocumentation=true in defaultValues', () => {
     render(<ResidentFormFields defaultValues={{ hasMedicalDocumentation: true }} />)
-    expect(screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ })).toBeChecked()
+    expect(
+      screen.getByRole('checkbox', { name: /Medizinische Dokumentation vorhanden/ }),
+    ).toBeChecked()
   })
 
   it('shows doc-type fields immediately when hasMedicalDocumentation=true', () => {
@@ -296,7 +336,9 @@ describe('SuccessToast', () => {
   })
 
   it('renders nothing (returns null)', () => {
-    const { container } = render(<SuccessToast triggers={[{ param: 'placed', message: 'Platziert!' }]} />)
+    const { container } = render(
+      <SuccessToast triggers={[{ param: 'placed', message: 'Platziert!' }]} />,
+    )
     expect(container).toBeEmptyDOMElement()
   })
 
@@ -326,10 +368,14 @@ describe('SuccessToast', () => {
 
   it('shows only first matching trigger toast', () => {
     mockSearchParams = new URLSearchParams('placed=true&saved=true')
-    render(<SuccessToast triggers={[
-      { param: 'placed', message: 'Platziert!' },
-      { param: 'saved', message: 'Gespeichert!' },
-    ]} />)
+    render(
+      <SuccessToast
+        triggers={[
+          { param: 'placed', message: 'Platziert!' },
+          { param: 'saved', message: 'Gespeichert!' },
+        ]}
+      />,
+    )
     expect(mockShowToast).toHaveBeenCalledTimes(1)
     expect(mockShowToast).toHaveBeenCalledWith('success', 'Platziert!')
   })

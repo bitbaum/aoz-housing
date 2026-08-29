@@ -19,7 +19,7 @@ export default function ActivitiesLoading() {
 
       {/* Activity cards */}
       <div className="space-y-4">
-        {[1, 2, 3, 4].map(i => (
+        {[1, 2, 3, 4].map((i) => (
           <div key={i} className="card space-y-3">
             <div className="flex items-center justify-between">
               <SkeletonText className="h-5 w-40" />

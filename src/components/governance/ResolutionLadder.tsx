@@ -66,8 +66,8 @@ export function ResolutionLadder({
       </h2>
       <p className="mb-4 text-sm text-ui-muted">
         Jeder Schritt endet mit einer konkreten Abmachung und einem Datum, an dem überprüft wird, ob
-        sie gehalten hat. Ein Schritt weiter heisst: die bisherige Lösung hat nicht getragen — nicht,
-        dass jemand schuld ist.
+        sie gehalten hat. Ein Schritt weiter heisst: die bisherige Lösung hat nicht getragen —
+        nicht, dass jemand schuld ist.
       </p>
 
       <ol className="space-y-2">
@@ -87,7 +87,9 @@ export function ResolutionLadder({
                   {isDone && <span aria-hidden="true">✓ </span>}
                   {def.label}
                   {isCurrent && (
-                    <span className={`ml-2 badge ${RESOLUTION_STAGE_COLORS[def.stage]}`}>Aktuell</span>
+                    <span className={`ml-2 badge ${RESOLUTION_STAGE_COLORS[def.stage]}`}>
+                      Aktuell
+                    </span>
                   )}
                 </p>
                 <span className="text-xs text-ui-muted">

@@ -125,7 +125,7 @@ export function recommendNextStep(
     resolvedAt?: Date | null
   },
   agreements: AgreementLike[],
-  now: Date
+  now: Date,
 ): NextStepRecommendation {
   const currentDef = RESOLUTION_STAGE_BY_KEY[incident.resolutionStage]
   const dueDate = addDays(incident.stageEnteredAt, currentDef.targetDays)
@@ -178,7 +178,7 @@ export function recommendNextStep(
     const overdueReview = agreements.some(
       (a) =>
         (a.status === 'ACCEPTED' || a.status === 'PROPOSED') &&
-        daysBetween(addDays(a.reviewDate, AGREEMENT_CONFIG.expiryGraceDays), now) > 0
+        daysBetween(addDays(a.reviewDate, AGREEMENT_CONFIG.expiryGraceDays), now) > 0,
     )
     return {
       ...base,
@@ -212,9 +212,9 @@ export function recommendNextStep(
 /** The next rung up, or the same stage if already at the top of the ladder. */
 export function nextRung(stage: ResolutionStage): ResolutionStage {
   const current = RESOLUTION_STAGE_BY_KEY[stage]
-  const higher = RESOLUTION_LADDER.filter((d) => d.rung > current.rung && d.stage !== 'CLOSED').sort(
-    (a, b) => a.rung - b.rung
-  )
+  const higher = RESOLUTION_LADDER.filter(
+    (d) => d.rung > current.rung && d.stage !== 'CLOSED',
+  ).sort((a, b) => a.rung - b.rung)
   return higher[0]?.stage ?? stage
 }
 

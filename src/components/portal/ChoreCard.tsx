@@ -37,20 +37,21 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
   const statusColor = TASK_STATUS_COLORS[task.currentStatus] || TASK_STATUS_COLORS.IDLE
   const statusLabel = TASK_STATUS_LABELS[task.currentStatus] || task.currentStatus
   const lastCompletion = task.completions[0]
-  const needsDecision = task.currentStatus === 'NEEDS_ATTENTION' || task.currentStatus === 'REQUESTED'
+  const needsDecision =
+    task.currentStatus === 'NEEDS_ATTENTION' || task.currentStatus === 'REQUESTED'
 
   return (
     <div className="card flex items-start gap-3 p-4">
       {/* Icon + Content */}
       <Link href={`/portal/chores/${task.id}`} className="flex items-start gap-3 flex-1 min-w-0">
-        <span className="text-2xl flex-shrink-0" aria-hidden="true">{icon}</span>
+        <span className="text-2xl flex-shrink-0" aria-hidden="true">
+          {icon}
+        </span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-ui-text truncate">{task.title}</h3>
             {task.currentStatus !== 'IDLE' && (
-              <span className={`chip ${statusColor}`}>
-                {statusLabel}
-              </span>
+              <span className={`chip ${statusColor}`}>{statusLabel}</span>
             )}
             {task.priority === 'HIGH' || task.priority === 'URGENT' ? (
               <span className={`chip ${TASK_PRIORITY_COLORS[task.priority]}`}>
@@ -71,8 +72,8 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
       </Link>
 
       {/* Quick complete button */}
-      {!task.isCompleted && (
-        needsDecision ? (
+      {!task.isCompleted &&
+        (needsDecision ? (
           <Link
             href={`/portal/chores/${task.id}`}
             className="min-h-[44px] px-3 py-2 bg-status-warning/10 text-status-warning-text hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors flex items-center"
@@ -89,8 +90,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           >
             {isCompleting ? '...' : CHORE_LABELS.done}
           </button>
-        )
-      )}
+        ))}
     </div>
   )
 }

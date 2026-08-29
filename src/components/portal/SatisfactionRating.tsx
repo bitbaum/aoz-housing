@@ -1,7 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { SATISFACTION_EMOJIS, SATISFACTION_LABELS, SATISFACTION_SURVEY_LABELS } from '@/lib/constants'
+import {
+  SATISFACTION_EMOJIS,
+  SATISFACTION_LABELS,
+  SATISFACTION_SURVEY_LABELS,
+} from '@/lib/constants'
 import { useT } from '@/lib/i18n/LocaleProvider'
 import { daysBetween } from '@/lib/utils'
 
@@ -22,9 +26,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   const [forceShowForm, setForceShowForm] = useState(false)
 
   // Determine if we should prompt (no check-in in the last 7 days)
-  const daysSinceLastCheckIn = lastCheckInDate
-    ? daysBetween(lastCheckInDate)
-    : null
+  const daysSinceLastCheckIn = lastCheckInDate ? daysBetween(lastCheckInDate) : null
   const shouldPrompt = daysSinceLastCheckIn === null || daysSinceLastCheckIn >= 7
 
   const handleRatingSelect = (newRating: number) => {
@@ -79,9 +81,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
           <h2 className="text-xl font-semibold text-status-success-text mb-2">
             {t('satisfaction.thankYouTitle')}
           </h2>
-          <p className="text-status-success-text">
-            {t('satisfaction.thankYouMessage')}
-          </p>
+          <p className="text-status-success-text">{t('satisfaction.thankYouMessage')}</p>
           {rating && rating <= 2 && submittedWithConcerns && (
             <p className="text-sm text-status-success mt-3">
               {t('satisfaction.concernsForwarded')}
@@ -95,9 +95,10 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   // Show subtle indicator if recently checked in
   if (!shouldPrompt && !rating && !forceShowForm) {
     // Format days display — "Heute" instead of "vor 0 Tagen"
-    const daysDisplay = daysSinceLastCheckIn === 0
-      ? t('satisfaction.today')
-      : `vor ${daysSinceLastCheckIn} ${daysSinceLastCheckIn === 1 ? SATISFACTION_SURVEY_LABELS.day : SATISFACTION_SURVEY_LABELS.days}`
+    const daysDisplay =
+      daysSinceLastCheckIn === 0
+        ? t('satisfaction.today')
+        : `vor ${daysSinceLastCheckIn} ${daysSinceLastCheckIn === 1 ? SATISFACTION_SURVEY_LABELS.day : SATISFACTION_SURVEY_LABELS.days}`
 
     return (
       <div className="card bg-ui-subtle">
@@ -108,9 +109,7 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
               {currentRating && (
                 <span className="text-2xl">{SATISFACTION_EMOJIS[currentRating - 1]}</span>
               )}
-              <span className="text-ui-muted">
-                {daysDisplay}
-              </span>
+              <span className="text-ui-muted">{daysDisplay}</span>
             </div>
           </div>
           <button
@@ -127,12 +126,8 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
   return (
     <div className="card border-brand-primary/20 bg-ui-surface">
       <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-ui-text mb-2">
-          {t('satisfaction.title')}
-        </h2>
-        <p className="text-ui-muted">
-          {t('satisfaction.subtitle')}
-        </p>
+        <h2 className="text-xl font-semibold text-ui-text mb-2">{t('satisfaction.title')}</h2>
+        <p className="text-ui-muted">{t('satisfaction.subtitle')}</p>
       </div>
 
       {error && (
@@ -163,18 +158,28 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
 
       {/* Labels under buttons */}
       <div className="flex justify-center gap-3 sm:gap-4 mb-4">
-        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.bad}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">
+          {SATISFACTION_SURVEY_LABELS.ratings.bad}
+        </span>
         <span className="text-xs text-ui-muted w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.okay}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">
+          {SATISFACTION_SURVEY_LABELS.ratings.okay}
+        </span>
         <span className="text-xs text-ui-muted w-14 sm:w-16 text-center"></span>
-        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">{SATISFACTION_SURVEY_LABELS.ratings.great}</span>
+        <span className="text-xs text-ui-muted w-14 sm:w-16 text-center">
+          {SATISFACTION_SURVEY_LABELS.ratings.great}
+        </span>
       </div>
 
       {/* Concerns field for low ratings */}
       {showConcernsField && rating && rating <= 2 && (
         <div className="mt-6 p-4 bg-ui-surface rounded-lg border border-status-warning/30">
-          <label htmlFor="satisfaction-concerns" className="block text-sm font-medium text-ui-muted mb-2">
-            {SATISFACTION_SURVEY_LABELS.commentPrompt} <span className="text-ui-muted">{SATISFACTION_SURVEY_LABELS.optional}</span>
+          <label
+            htmlFor="satisfaction-concerns"
+            className="block text-sm font-medium text-ui-muted mb-2"
+          >
+            {SATISFACTION_SURVEY_LABELS.commentPrompt}{' '}
+            <span className="text-ui-muted">{SATISFACTION_SURVEY_LABELS.optional}</span>
           </label>
           <textarea
             id="satisfaction-concerns"
@@ -192,7 +197,9 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
               disabled={isSubmitting}
               className="flex-1 btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? SATISFACTION_SURVEY_LABELS.submitting : SATISFACTION_SURVEY_LABELS.submit}
+              {isSubmitting
+                ? SATISFACTION_SURVEY_LABELS.submitting
+                : SATISFACTION_SURVEY_LABELS.submit}
             </button>
             <button
               onClick={() => submitCheckIn(rating, '')}
@@ -213,14 +220,14 @@ export function SatisfactionRating({ currentRating, lastCheckInDate }: Satisfact
             disabled={isSubmitting}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? SATISFACTION_SURVEY_LABELS.submitting : SATISFACTION_SURVEY_LABELS.submitFeedback}
+            {isSubmitting
+              ? SATISFACTION_SURVEY_LABELS.submitting
+              : SATISFACTION_SURVEY_LABELS.submitFeedback}
           </button>
         </div>
       )}
 
-      <p className="text-xs text-ui-muted mt-4 text-center">
-        {t('satisfaction.privacyNote')}
-      </p>
+      <p className="text-xs text-ui-muted mt-4 text-center">{t('satisfaction.privacyNote')}</p>
     </div>
   )
 }
