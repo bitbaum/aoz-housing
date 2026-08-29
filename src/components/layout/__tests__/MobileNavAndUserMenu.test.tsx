@@ -15,18 +15,23 @@ const mockRouter = { push: jest.fn(), refresh: jest.fn() }
 
 jest.mock('next/link', () => ({
   __esModule: true,
+  // Spread the rest: this mock used to forward only the four props it named,
+  // so any attribute the component set — aria-current among them — vanished
+  // before a test could see it. A mock that silently drops attributes makes
+  // accessibility regressions untestable.
   default: ({
     href,
     children,
     className,
     onClick,
+    ...rest
   }: {
     href: string
     children: React.ReactNode
     className?: string
     onClick?: () => void
-  }) => (
-    <a href={href} className={className} onClick={onClick}>
+  } & Record<string, unknown>) => (
+    <a href={href} className={className} onClick={onClick} {...rest}>
       {children}
     </a>
   ),
@@ -184,6 +189,26 @@ describe('MobileNav', () => {
     render(<MobileNav />)
     fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
     expect(screen.getByRole('link', { name: /Bewohner/ })).toHaveAttribute('href', '/residents')
+  })
+
+  it('announces the current page on the active drawer link', () => {
+    // MobileNavLink computed `active`, styled with it, and never announced it —
+    // so the highlight existed only for people who can see it. Every other nav
+    // surface in this app (AdminSidebar, PortalNav, PortalTabBar, PortalSidebar)
+    // already sets aria-current; this was the one straggler.
+    mockPathname = '/residents'
+    render(<MobileNav />)
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
+    expect(screen.getByRole('link', { name: /Bewohner/ })).toHaveAttribute('aria-current', 'page')
+    mockPathname = '/'
+  })
+
+  it('does not mark inactive drawer links as the current page', () => {
+    mockPathname = '/residents'
+    render(<MobileNav />)
+    fireEvent.click(screen.getByRole('button', { name: 'Menü öffnen' }))
+    expect(screen.getByRole('link', { name: /Unterkünfte/ })).not.toHaveAttribute('aria-current')
+    mockPathname = '/'
   })
 
   it('clicking nav link closes drawer', () => {
