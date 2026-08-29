@@ -168,6 +168,11 @@ function MobileNavLink({
     <Link
       href={item.href}
       onClick={onClick}
+      // Every other nav surface here announces the current page (AdminSidebar,
+      // PortalNav, PortalTabBar, PortalSidebar). This one computed `active`,
+      // styled with it, and never said it — so the highlight existed only for
+      // people who can see it.
+      aria-current={active ? 'page' : undefined}
       className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
     >
       {showIcon && (
