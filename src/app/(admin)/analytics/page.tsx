@@ -23,6 +23,7 @@ import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccura
 import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
+import { BRAND } from '@/lib/config/brand'
 import { requirePermission } from '@/lib/auth'
 import { hasPermission } from '@/lib/auth/role-policy'
 
@@ -113,7 +114,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         compatibilityScore: true,
       },
     }),
-    calculateMissionKPIs(6),
+    // Off-brand, this is four queries whose result nothing renders. Gating the
+    // JSX alone would still pay for them on every load of the page.
+    BRAND.features.pilotMeasurement ? calculateMissionKPIs(6) : null,
     calculateAlgorithmAccuracy(),
     getSystemConfig(),
   ])
@@ -233,10 +236,12 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* Mission KPIs */}
-      <div className="mb-6 sm:mb-8">
-        <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
-      </div>
+      {/* Mission KPIs — pilot brands only. @see BrandFeatures.pilotMeasurement */}
+      {missionKPIs && (
+        <div className="mb-6 sm:mb-8">
+          <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
+        </div>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">

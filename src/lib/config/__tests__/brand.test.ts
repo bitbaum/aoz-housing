@@ -52,8 +52,32 @@ describe('brand presets', () => {
         // Safeguarding, not preference: AOZ provisions every identity through
         // intake. @see auth/__tests__/household-aoz-gate.test.ts
         selfServeHousehold: false,
+        // There is a pilot, and it is judged on these numbers.
+        pilotMeasurement: true,
       },
     })
+  })
+
+  it('keeps the pilot evaluation instrument off the real-flat brand', () => {
+    // A WG has no baseline month and no Auftraggeber. Charting a household of
+    // four against "Ziel: -30% Konflikte" measures the residents, not a
+    // programme. @see BrandFeatures.pilotMeasurement
+    expect(BRANDS.wg.features.pilotMeasurement).toBe(false)
+    expect(BRANDS.aoz.features.pilotMeasurement).toBe(true)
+    // AOZH is the pitch badge for the same AOZ deployment, so it keeps it.
+    expect(BRANDS.aozh.features.pilotMeasurement).toBe(true)
+  })
+
+  it('gives every brand an explicit answer for every feature flag', () => {
+    // A flag added to the interface but forgotten in one preset is `undefined`,
+    // which is falsy — the feature would silently vanish for that brand with
+    // tsc, ESLint and the render all green.
+    const flags = Object.keys(BRANDS.aoz.features) as (keyof typeof BRANDS.aoz.features)[]
+    for (const id of ids) {
+      for (const flag of flags) {
+        expect(typeof BRANDS[id].features[flag]).toBe('boolean')
+      }
+    }
   })
 
   it('keeps AOZ as the rule-issuing organization on the WG product brand', () => {
