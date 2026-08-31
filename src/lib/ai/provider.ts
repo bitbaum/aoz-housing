@@ -31,6 +31,7 @@
 import { freeChain, usableChain, chainFrom } from 'ai-kit'
 import { BRAND } from '@/lib/config/brand'
 import { AIChainExhaustedError, AIProviderError, shouldTryNextProvider } from './errors'
+import { recordAIHealthFailure, recordAIHealthSuccess } from './health'
 
 export type AIProvider = 'groq' | 'openrouter'
 
@@ -162,13 +163,19 @@ export async function withProviderFallback<T>(
   attempt: (config: AIProviderConfig) => Promise<T>,
 ): Promise<T> {
   const configs = await getAIProviderConfigs()
-  if (configs.length === 0) throw new AIChainExhaustedError(null)
+  if (configs.length === 0) {
+    const error = new AIChainExhaustedError(null)
+    recordAIHealthFailure(error)
+    throw error
+  }
 
   let last: AIProviderError | null = null
 
   for (const config of configs) {
     try {
-      return await attempt(config)
+      const result = await attempt(config)
+      recordAIHealthSuccess()
+      return result
     } catch (error) {
       if (!(error instanceof AIProviderError)) throw error
       last = error
@@ -176,7 +183,9 @@ export async function withProviderFallback<T>(
     }
   }
 
-  throw new AIChainExhaustedError(last)
+  const exhausted = new AIChainExhaustedError(last)
+  recordAIHealthFailure(exhausted)
+  throw exhausted
 }
 
 async function completeWithOpenAICompat(
