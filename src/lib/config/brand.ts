@@ -63,6 +63,24 @@ export interface BrandFeatures {
    * self-serve door opens onto it and nowhere else.
    */
   selfServeHousehold: boolean
+  /**
+   * The pilot evaluation instrument: the Mission-KPI block on /analytics and
+   * the Pilot-Baseline fieldset on /settings that feeds it.
+   *
+   * ON for AOZ, because there IS a pilot and it is judged on these numbers —
+   * incidents/month, conflict relocations, mediation hours, placement time,
+   * each against a manually measured baseline with a reduction target.
+   *
+   * OFF for WG, and not merely because it is noise. A real shared flat has no
+   * baseline month, no Auftraggeber to report to, and nobody was "placed"
+   * there — so the block asks a household of four to enter how many conflicts
+   * per month they used to have, then charts their own life against a target
+   * of minus 30 percent. Measuring a pilot is a thing you do to a programme,
+   * not to the people living in it. The whole surface is unavailable rather
+   * than empty: an empty chart reads as a feature that is broken, and the
+   * settings form would still write pilot fields nothing renders.
+   */
+  pilotMeasurement: boolean
 }
 
 const AOZ_FEATURES: BrandFeatures = {
@@ -78,6 +96,8 @@ const AOZ_FEATURES: BrandFeatures = {
   // See the field docs: a public identity-minting door into a database of
   // asylum seekers' records is not a feature this brand may have.
   selfServeHousehold: false,
+  // The AOZ pilot is judged on these numbers. @see CLAUDE.md "Measuring Success"
+  pilotMeasurement: true,
 }
 
 const WG_FEATURES: BrandFeatures = {
@@ -89,6 +109,8 @@ const WG_FEATURES: BrandFeatures = {
   // A WG deployment IS one flat, and the person signing up lives in it. This
   // is what makes the product usable without an administrator to issue codes.
   selfServeHousehold: true,
+  // There is no pilot in a real WG, and no baseline month to compare against.
+  pilotMeasurement: false,
 }
 
 export interface Brand {

@@ -11,6 +11,7 @@ import {
   SYSTEM_ADMIN_LABEL,
 } from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
+import { BRAND } from '@/lib/config/brand'
 import { SubmitButton } from '@/components/ui'
 import { PageHeader } from '@/components/ui/Page'
 import { formatDate, formatDateISO } from '@/lib/utils'
@@ -123,99 +124,103 @@ export default async function SettingsPage() {
         </div>
       </div>
 
-      {/* Pilot Baseline */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-1">
-          {PILOT_BASELINE_LABELS.sectionTitle}
-        </h2>
-        <p className="text-sm text-ui-muted mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
+      {/* Pilot Baseline — pilot brands only. @see BrandFeatures.pilotMeasurement */}
+      {BRAND.features.pilotMeasurement && (
+        <div className="card">
+          <h2 className="text-lg font-semibold text-ui-text mb-1">
+            {PILOT_BASELINE_LABELS.sectionTitle}
+          </h2>
+          <p className="text-sm text-ui-muted mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
 
-        <form action={saveSystemConfig} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="label" htmlFor="pilotStartDate">
-                {PILOT_BASELINE_LABELS.startDateLabel}
-              </label>
-              <input
-                type="date"
-                id="pilotStartDate"
-                name="pilotStartDate"
-                defaultValue={pilotStartValue}
-                className="input"
-                disabled={!canConfigure}
-                readOnly={!canConfigure}
-              />
-              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
+          <form action={saveSystemConfig} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="label" htmlFor="pilotStartDate">
+                  {PILOT_BASELINE_LABELS.startDateLabel}
+                </label>
+                <input
+                  type="date"
+                  id="pilotStartDate"
+                  name="pilotStartDate"
+                  defaultValue={pilotStartValue}
+                  className="input"
+                  disabled={!canConfigure}
+                  readOnly={!canConfigure}
+                />
+                <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
+              </div>
+              <div>
+                <label className="label" htmlFor="pilotBaselineIncidentsPerMonth">
+                  {PILOT_BASELINE_LABELS.incidentsLabel}
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  id="pilotBaselineIncidentsPerMonth"
+                  name="pilotBaselineIncidentsPerMonth"
+                  min="0"
+                  step="0.1"
+                  defaultValue={systemConfig.pilotBaselineIncidentsPerMonth ?? ''}
+                  placeholder="z.B. 15"
+                  className="input"
+                  disabled={!canConfigure}
+                  readOnly={!canConfigure}
+                />
+                <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
+              </div>
+              <div>
+                <label className="label" htmlFor="pilotBaselineRelocationsPerMonth">
+                  {PILOT_BASELINE_LABELS.relocationsLabel}
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  id="pilotBaselineRelocationsPerMonth"
+                  name="pilotBaselineRelocationsPerMonth"
+                  min="0"
+                  step="0.1"
+                  defaultValue={systemConfig.pilotBaselineRelocationsPerMonth ?? ''}
+                  placeholder="z.B. 4"
+                  className="input"
+                  disabled={!canConfigure}
+                  readOnly={!canConfigure}
+                />
+                <p className="text-xs text-ui-muted mt-1">
+                  {PILOT_BASELINE_LABELS.relocationsHint}
+                </p>
+              </div>
+              <div>
+                <label className="label" htmlFor="pilotBaselineMediationHoursPerWeek">
+                  {PILOT_BASELINE_LABELS.mediationHoursLabel}
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  id="pilotBaselineMediationHoursPerWeek"
+                  name="pilotBaselineMediationHoursPerWeek"
+                  min="0"
+                  step="0.5"
+                  defaultValue={systemConfig.pilotBaselineMediationHoursPerWeek ?? ''}
+                  placeholder="z.B. 12"
+                  className="input"
+                  disabled={!canConfigure}
+                  readOnly={!canConfigure}
+                />
+                <p className="text-xs text-ui-muted mt-1">
+                  {PILOT_BASELINE_LABELS.mediationHoursHint}
+                </p>
+              </div>
             </div>
-            <div>
-              <label className="label" htmlFor="pilotBaselineIncidentsPerMonth">
-                {PILOT_BASELINE_LABELS.incidentsLabel}
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                id="pilotBaselineIncidentsPerMonth"
-                name="pilotBaselineIncidentsPerMonth"
-                min="0"
-                step="0.1"
-                defaultValue={systemConfig.pilotBaselineIncidentsPerMonth ?? ''}
-                placeholder="z.B. 15"
-                className="input"
-                disabled={!canConfigure}
-                readOnly={!canConfigure}
-              />
-              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
-            </div>
-            <div>
-              <label className="label" htmlFor="pilotBaselineRelocationsPerMonth">
-                {PILOT_BASELINE_LABELS.relocationsLabel}
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                id="pilotBaselineRelocationsPerMonth"
-                name="pilotBaselineRelocationsPerMonth"
-                min="0"
-                step="0.1"
-                defaultValue={systemConfig.pilotBaselineRelocationsPerMonth ?? ''}
-                placeholder="z.B. 4"
-                className="input"
-                disabled={!canConfigure}
-                readOnly={!canConfigure}
-              />
-              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
-            </div>
-            <div>
-              <label className="label" htmlFor="pilotBaselineMediationHoursPerWeek">
-                {PILOT_BASELINE_LABELS.mediationHoursLabel}
-              </label>
-              <input
-                type="number"
-                inputMode="numeric"
-                id="pilotBaselineMediationHoursPerWeek"
-                name="pilotBaselineMediationHoursPerWeek"
-                min="0"
-                step="0.5"
-                defaultValue={systemConfig.pilotBaselineMediationHoursPerWeek ?? ''}
-                placeholder="z.B. 12"
-                className="input"
-                disabled={!canConfigure}
-                readOnly={!canConfigure}
-              />
-              <p className="text-xs text-ui-muted mt-1">
-                {PILOT_BASELINE_LABELS.mediationHoursHint}
-              </p>
-            </div>
-          </div>
-          {canConfigure && (
-            <div>
-              <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
-                {PILOT_BASELINE_LABELS.saveButton}
-              </SubmitButton>
-            </div>
-          )}
-        </form>
-      </div>
+            {canConfigure && (
+              <div>
+                <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
+                  {PILOT_BASELINE_LABELS.saveButton}
+                </SubmitButton>
+              </div>
+            )}
+          </form>
+        </div>
+      )}
 
       {/* Email config status */}
       <div className="card">
