@@ -29,11 +29,11 @@
     "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "@fleet/ai-forms": "github:catomean/ai-forms#v0.1.0",
+    "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",
     "@prisma/client": "^5.17.0",
     "@sentry/nextjs": "^10.71.0",
     "@types/bcryptjs": "^2.4.6",
-    "ai-kit": "github:catomean/ai-kit#v0.4.0",
+    "ai-kit": "github:bitbaum/ai-kit#v0.6.2",
     "bcryptjs": "^3.0.3",
     "bip-kit": "^0.1.0",
     "clsx": "^2.1.1",

@@ -76,6 +76,7 @@ export default async function AdminDashboard() {
     upcomingEventsCount,
     activeStaffCount,
     neverSignedInStaffCount,
+    assignedResidentCount,
   ] = await Promise.all([
     prisma.resident.count(),
     // Only used to pick the first setup step, which requires housing:write —
@@ -172,6 +173,16 @@ export default async function AdminDashboard() {
     // signed in with is invisible everywhere else in the product — it is not
     // an error, it is an unfinished handover, and only Leitung can close it.
     show('team') ? prisma.user.count({ where: { active: true, lastLoginAt: null } }) : 0,
+    // How many clients sit in THIS person's care seat.
+    //
+    // null for a viewer whose reach is every domain: they have no single seat
+    // that can be empty, so "nobody is assigned to you" is not a fact about
+    // them. For a specialist it is the difference between a quiet day and an
+    // account nobody has connected to a client yet — the global count above
+    // cannot tell those apart, and reported the second as the first.
+    viewer.scope === 'ALL_DOMAINS' || !user
+      ? null
+      : prisma.careAssignment.count({ where: { staffId: user.id } }),
   ])
 
   // =============================================================================
@@ -342,6 +353,7 @@ export default async function AdminDashboard() {
       viewer={viewer}
       residentCount={residentCount}
       housingUnitCount={housingUnitCount}
+      assignedResidentCount={assignedResidentCount}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}

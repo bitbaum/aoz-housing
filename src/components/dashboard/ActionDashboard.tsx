@@ -18,6 +18,7 @@ import { QuickStat } from './QuickStatsRow'
 import { ActionTile } from './ActionTilesGrid'
 import { AllClearState } from './AllClearState'
 import { EmptyWorkspaceState } from './EmptyWorkspaceState'
+import { UnassignedWorkspaceState } from './UnassignedWorkspaceState'
 import type {
   OverdueCheckIn,
   DueSoonCheckIn,
@@ -49,6 +50,14 @@ interface ActionDashboardProps {
    */
   residentCount: number
   housingUnitCount: number
+
+  /**
+   * How many clients sit in THIS viewer's care seat, or null when the question
+   * does not apply (oversight over every domain, or an account with no single
+   * seat). Distinguishes "nothing to do" from "nobody has been assigned to
+   * you", which the global count above cannot see.
+   */
+  assignedResidentCount: number | null
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -106,6 +115,7 @@ export function ActionDashboard({
   viewer,
   residentCount,
   housingUnitCount,
+  assignedResidentCount,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -156,6 +166,7 @@ export function ActionDashboard({
   const state = workspaceState({
     residentCount,
     openTaskCount: totalIssues + problemUnits.length,
+    assignedResidentCount,
   })
 
   return (
@@ -167,11 +178,13 @@ export function ActionDashboard({
           <p className="text-ui-muted">
             {state === 'empty'
               ? DASHBOARD_LABELS.emptySummary
-              : totalIssues === 0
-                ? DASHBOARD_LABELS.allClearSummary
-                : totalIssues === 1
-                  ? DASHBOARD_LABELS.oneTaskWaiting
-                  : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
+              : state === 'unassigned'
+                ? DASHBOARD_LABELS.unassignedSummary
+                : totalIssues === 0
+                  ? DASHBOARD_LABELS.allClearSummary
+                  : totalIssues === 1
+                    ? DASHBOARD_LABELS.oneTaskWaiting
+                    : `${totalIssues} ${DASHBOARD_LABELS.tasksWaitingSuffix}`}
           </p>
         </div>
         <div className="text-right text-sm text-ui-muted">{todayLabel}</div>
@@ -188,6 +201,8 @@ export function ActionDashboard({
           the block that carries the actual numbers. */}
       {state === 'empty' ? (
         <EmptyWorkspaceState viewer={viewer} housingUnitCount={housingUnitCount} />
+      ) : state === 'unassigned' ? (
+        <UnassignedWorkspaceState />
       ) : state === 'quiet' ? (
         <AllClearState
           freeBeds={show('occupancy') ? freeBeds : null}

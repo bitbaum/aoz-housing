@@ -128,7 +128,7 @@ describe('blog markdown rendering', () => {
     const html = renderMarkdown('the [roadmap](../ROADMAP.md)')
 
     expect(html).toContain(
-      'href="https://github.com/catomean/aoz-housing/blob/master/docs/ROADMAP.md"',
+      'href="https://github.com/bitbaum/aoz-housing/blob/master/docs/ROADMAP.md"',
     )
   })
 

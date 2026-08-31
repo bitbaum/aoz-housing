@@ -25,7 +25,7 @@ Do not treat gitignored env files as SSOT. This laptop's Postgres is not
 Uncommitted work, and any branch that is not `master`, is not what residents
 see. Deploy is push to `master` → `.github/workflows/deploy.yml` (waits for
 CI, pulls box env, `prisma migrate deploy`, build, rsync). Manual:
-`gh workflow run deploy.yml -R catomean/aoz-housing`.
+`gh workflow run deploy.yml -R bitbaum/aoz-housing`.
 
 Full table: `docs/INFRASTRUCTURE.md`.
 
@@ -237,7 +237,7 @@ ssh root@167.233.22.31 \
      || echo 'NEXT_PUBLIC_BRAND=aoz' >> /opt/aoz-wohnen/shared/.env"
 
 # 2. rebuild + redeploy
-gh workflow run deploy.yml -R catomean/aoz-housing
+gh workflow run deploy.yml -R bitbaum/aoz-housing
 
 # 3. confirm what a user actually sees
 curl -s https://aoz-wohnen.orangecat.ch/login | grep -oE 'AOZH?' | sort -u
