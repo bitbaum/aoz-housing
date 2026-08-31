@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^7.10.0",
     "@sentry/nextjs": "^10.71.0",
     "@types/bcryptjs": "^2.4.6",
     "ai-kit": "github:bitbaum/ai-kit#v0.6.2",
