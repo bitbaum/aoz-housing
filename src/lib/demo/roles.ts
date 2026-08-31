@@ -20,7 +20,12 @@
  * Relative-import-safe (no '@/' aliases): reached from ts-node seeds.
  */
 
-import { STAFF_ROLES, type StaffRole } from '../auth/role-policy'
+import {
+  NARROWEST_CAPABILITIES,
+  STAFF_ROLES,
+  WIDEST_CAPABILITIES,
+  type StaffRole,
+} from '../auth/role-policy'
 import { BRAND } from '../config/brand'
 
 /**
@@ -66,9 +71,8 @@ export function demoStaffReachFor(role: StaffRole): {
   scope: 'OWN_DOMAIN' | 'ALL_DOMAINS'
   isSystemAdmin: boolean
 } {
-  return role === 'ADMIN'
-    ? { scope: 'ALL_DOMAINS', isSystemAdmin: true }
-    : { scope: 'OWN_DOMAIN', isSystemAdmin: false }
+  const { scope, isSystemAdmin } = role === 'ADMIN' ? WIDEST_CAPABILITIES : NARROWEST_CAPABILITIES
+  return { scope, isSystemAdmin }
 }
 
 /** Display name for the upserted account, so staff lists never show a bare code. */

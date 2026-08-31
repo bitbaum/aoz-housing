@@ -13,7 +13,14 @@ import type { StaffCapabilities, StaffRole } from '@/lib/auth/role-policy'
 export const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB', 'VOLUNTEERING'] as const
 export type CareRoleId = (typeof CARE_ROLES)[number]
 
-/** Which staff role owns which seat. Leitung (ADMIN) may work every seat. */
+/**
+ * Which staff role owns which seat.
+ *
+ * Working EVERY seat is no longer a role — it is `scope: 'ALL_DOMAINS'`, which
+ * any role can carry. That is what makes Franziska sayable: her domain of
+ * record is housing and she also covers the rest, a shape the old "Leitung
+ * works every seat" reading could not express without erasing her domain.
+ */
 export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMIN'>> = {
   HOUSING: 'BETREUUNG',
   SOCIAL: 'SOZIALARBEIT',
@@ -30,9 +37,10 @@ export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMI
  * one file and ship green, and a role would then write into a domain the other
  * half of the app believed belonged to someone else.
  *
- * ADMIN is absent on purpose. Leitung works every seat, so it has no single
- * domain, and a caller asking "which one is theirs?" must handle that rather
- * than be handed an arbitrary answer.
+ * ADMIN is absent on purpose. The retired all-in-one role has no single domain
+ * of its own, and a caller asking "which one is theirs?" must handle that
+ * rather than be handed an arbitrary answer. Breadth is `scope`, and it is
+ * asked about separately.
  */
 export const STAFF_ROLE_CARE_DOMAIN: Partial<Record<StaffRole, CareRoleId>> = Object.fromEntries(
   CARE_ROLES.map((domain) => [CARE_DOMAIN_STAFF_ROLE[domain], domain]),

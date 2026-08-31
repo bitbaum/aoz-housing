@@ -17,6 +17,22 @@ import { CARE_ROLES } from '../../src/lib/config/care'
 const prisma = new PrismaClient()
 const RESIDENT_NAME = process.env.OPERATOR_RESIDENT_NAME || 'Georgy'
 
+/**
+ * What "may work all three care seats" is, now that it is sayable.
+ *
+ * This script used to write `role: 'ADMIN'`, which was the only way to express
+ * breadth back when one enum meant role, reach and administration at once. It
+ * therefore also handed the operator the settings page as a side effect, and it
+ * minted a role `/api/auth/register` now refuses. Reach is `scope`; running the
+ * house is not the same as configuring the product, so `isSystemAdmin` stays
+ * false and the role stays the true one.
+ */
+const OPERATOR_CAPABILITIES = {
+  role: 'BETREUUNG',
+  scope: 'ALL_DOMAINS',
+  isSystemAdmin: false,
+} as const
+
 async function uniqueStaffCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = generateStaffCode()
@@ -50,9 +66,7 @@ async function main() {
       throw new Error('Linked staff identity is missing or inactive')
     }
     staffCode = existing.code
-    if (existing.role !== 'ADMIN') {
-      await prisma.user.update({ where: { id: existing.id }, data: { role: 'ADMIN' } })
-    }
+    await prisma.user.update({ where: { id: existing.id }, data: OPERATOR_CAPABILITIES })
   } else {
     const named = await prisma.user.findFirst({
       where: { name: resident.displayName || RESIDENT_NAME, active: true },
@@ -61,14 +75,14 @@ async function main() {
     if (named && !named.account) {
       staffId = named.id
       staffCode = named.code
-      await prisma.user.update({ where: { id: named.id }, data: { role: 'ADMIN' } })
+      await prisma.user.update({ where: { id: named.id }, data: OPERATOR_CAPABILITIES })
     } else {
       const code = await uniqueStaffCode()
       const created = await prisma.user.create({
         data: {
           code,
           name: resident.displayName || RESIDENT_NAME,
-          role: 'ADMIN',
+          ...OPERATOR_CAPABILITIES,
           active: true,
         },
       })
