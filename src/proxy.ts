@@ -54,7 +54,7 @@ function publicOrigin(request: NextRequest): string {
   return `${proto}://${host}`
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (isPublicRoute(pathname)) {

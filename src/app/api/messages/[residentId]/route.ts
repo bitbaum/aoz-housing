@@ -25,7 +25,11 @@ const replySchema = z.object({
   body: z.string().trim().min(1).max(MESSAGE_BODY_MAX_LENGTH),
 })
 
-export async function GET(_request: NextRequest, { params }: { params: { residentId: string } }) {
+export async function GET(
+  _request: NextRequest,
+  props: { params: Promise<{ residentId: string }> },
+) {
+  const params = await props.params
   // `requireStaffAuth` throws when there is no session; the middleware has
   // already turned anonymous requests away, so this is the second gate rather
   // than the first.
@@ -54,7 +58,11 @@ export async function GET(_request: NextRequest, { params }: { params: { residen
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { residentId: string } }) {
+export async function POST(
+  request: NextRequest,
+  props: { params: Promise<{ residentId: string }> },
+) {
+  const params = await props.params
   let staff
   try {
     staff = await requireStaffAuth()

@@ -121,7 +121,7 @@ export async function PortalOnboardingCard({ preferencesCompleted }: PortalOnboa
             <div key={label} className="flex items-start gap-3">
               <div className="flex flex-col items-center">
                 <div
-                  className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${
+                  className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 ${
                     done
                       ? 'bg-status-success/15 text-status-success-text'
                       : isActive

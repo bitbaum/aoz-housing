@@ -43,7 +43,6 @@ jest.mock('@/lib/auth/account', () => ({
  *    while never actually exercising it.
  */
 declare global {
-  // eslint-disable-next-line no-var
   var __selfServeHousehold: boolean
 }
 globalThis.__selfServeHousehold = true

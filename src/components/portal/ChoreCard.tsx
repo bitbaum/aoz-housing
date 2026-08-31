@@ -44,7 +44,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
     <div className="card flex items-start gap-3 p-4">
       {/* Icon + Content */}
       <Link href={`/portal/chores/${task.id}`} className="flex items-start gap-3 flex-1 min-w-0">
-        <span className="text-2xl flex-shrink-0" aria-hidden="true">
+        <span className="text-2xl shrink-0" aria-hidden="true">
           {icon}
         </span>
         <div className="flex-1 min-w-0">
@@ -85,7 +85,7 @@ export function ChoreCard({ task, onQuickComplete, isCompleting }: ChoreCardProp
           <button
             onClick={() => onQuickComplete(task.id)}
             disabled={isCompleting}
-            className="min-h-[44px] px-3 py-2 bg-status-success/10 text-status-success-text hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex-shrink-0"
+            className="min-h-[44px] px-3 py-2 bg-status-success/10 text-status-success-text hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 shrink-0"
             title={CHORE_LABELS.markDoneDirectly}
           >
             {isCompleting ? '...' : CHORE_LABELS.done}

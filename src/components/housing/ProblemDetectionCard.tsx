@@ -227,7 +227,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-start gap-3">
-          <div className="avatar font-bold flex-shrink-0">{residentInitials(resident)}</div>
+          <div className="avatar font-bold shrink-0">{residentInitials(resident)}</div>
           <div>
             <div className="flex items-center gap-2">
               <Link
@@ -258,7 +258,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
             <ul className="mt-2 space-y-1">
               {issues.map((issue, i) => (
                 <li key={i} className={`text-sm ${iconColor} flex items-start gap-1`}>
-                  <span className="flex-shrink-0">•</span>
+                  <span className="shrink-0">•</span>
                   <span>{issue}</span>
                 </li>
               ))}
@@ -267,7 +267,7 @@ function ProblemResidentRow({ problem, housingUnitId }: ProblemResidentRowProps)
         </div>
 
         {/* Right: Action button */}
-        <div className="flex flex-col gap-2 flex-shrink-0">
+        <div className="flex flex-col gap-2 shrink-0">
           <Link
             href={`/matching?resident=${resident.id}&transfer=1`}
             className={`btn-primary text-sm whitespace-nowrap ${

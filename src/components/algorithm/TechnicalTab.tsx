@@ -131,7 +131,7 @@ export function TechnicalTab() {
 
         <div className="bg-status-error/8 border border-status-error/25 rounded-lg p-4 space-y-3">
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 shrink-0" />
             <div>
               <span className="font-medium text-status-error-text">
                 {TECHNICAL_TAB_LABELS.hardRequirementsLabel}
@@ -142,7 +142,7 @@ export function TechnicalTab() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 shrink-0" />
             <div>
               <span className="font-medium text-status-error-text">
                 {TECHNICAL_TAB_LABELS.extremeDifferencesLabel}
@@ -153,7 +153,7 @@ export function TechnicalTab() {
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-status-error mt-0.5 flex-shrink-0" />
+            <XCircle className="w-5 h-5 text-status-error mt-0.5 shrink-0" />
             <div>
               <span className="font-medium text-status-error-text">
                 {TECHNICAL_TAB_LABELS.incompatibleBehaviorLabel}
@@ -222,7 +222,7 @@ export function TechnicalTab() {
               <div className="flex items-start gap-4">
                 {/* Version badge */}
                 <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${
+                  className={`shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold ${
                     versionIndex === 0
                       ? 'bg-brand-primary text-ui-on-accent'
                       : 'bg-ui-border text-ui-muted'
@@ -246,7 +246,7 @@ export function TechnicalTab() {
                   <ul className="space-y-1">
                     {version.changes.map((change, i) => (
                       <li key={i} className="text-sm text-ui-muted flex items-start gap-2">
-                        <span className="text-ui-muted mt-0.5 flex-shrink-0">-</span>
+                        <span className="text-ui-muted mt-0.5 shrink-0">-</span>
                         <span>{change}</span>
                       </li>
                     ))}

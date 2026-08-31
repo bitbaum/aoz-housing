@@ -157,7 +157,7 @@ export function AIChatInterface() {
 
         {streaming && (
           <div className="flex gap-3">
-            <div className="icon-container-sm flex-shrink-0 bg-brand-primary/10">
+            <div className="icon-container-sm shrink-0 bg-brand-primary/10">
               <Bot className="w-4 h-4 text-brand-primary" />
             </div>
             <div className="flex-1 min-w-0">
@@ -206,7 +206,7 @@ export function AIChatInterface() {
           <button
             onClick={() => sendMessage(input)}
             disabled={!input.trim() || streaming}
-            className="btn btn-primary flex-shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn btn-primary shrink-0 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label={UI_LABELS.sendMessage}
           >
             {streaming ? (
@@ -228,7 +228,7 @@ function MessageBubble({ message }: { message: Message }) {
   return (
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
       <div
-        className={`icon-container-sm flex-shrink-0 ${isUser ? 'bg-brand-secondary/10' : 'bg-brand-primary/10'}`}
+        className={`icon-container-sm shrink-0 ${isUser ? 'bg-brand-secondary/10' : 'bg-brand-primary/10'}`}
       >
         {isUser ? (
           <User className="w-4 h-4 text-brand-secondary" />

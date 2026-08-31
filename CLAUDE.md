@@ -133,7 +133,7 @@ This system serves **vulnerable populations** (asylum seekers). Every decision m
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript (strict mode) |
 | Styling | Tailwind CSS (mobile-first) |
 | Database | PostgreSQL + Prisma |

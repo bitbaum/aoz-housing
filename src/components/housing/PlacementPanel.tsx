@@ -153,7 +153,7 @@ function ResidentRow({
       <div className="flex items-start justify-between gap-4">
         {/* Left: Resident info */}
         <div className="flex items-center gap-3 min-w-0">
-          <div className="avatar flex-shrink-0">{residentInitials(resident)}</div>
+          <div className="avatar shrink-0">{residentInitials(resident)}</div>
           <div className="min-w-0">
             <Link
               href={`/residents/${resident.id}`}
@@ -172,7 +172,7 @@ function ResidentRow({
         </div>
 
         {/* Right: Score and action */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <span
             className={`text-lg font-bold ${getScoreColorClass(fitScore)}`}
             title={`${PLACEMENT_PANEL_LABELS.compatibilityTitle} ${fitScore}%`}
