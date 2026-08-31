@@ -35,14 +35,14 @@ export async function PortalActivitiesCard({ activities }: PortalActivitiesCardP
             const Icon = ACTIVITY_CATEGORY_ICONS[activity.category]
             return (
               <div key={activity.id} className="flex items-start gap-3">
-                <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-primary" />
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
                   <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">
                     {activity.description}
                   </p>
                 </div>
-                <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
+                <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} shrink-0`}>
                   {activityCostLabel(t, activity.cost)}
                 </span>
               </div>

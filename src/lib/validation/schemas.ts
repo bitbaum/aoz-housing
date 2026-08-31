@@ -743,7 +743,9 @@ export function validateFormData<T extends z.ZodTypeAny>(
           inner instanceof z.ZodOptional ||
           inner instanceof z.ZodNullable
         ) {
-          inner = inner._def.innerType
+          // instanceof narrows to the core `$ZodType`; the runtime value is a
+          // classic schema, so restore the classic type for the next check.
+          inner = inner.unwrap() as z.ZodTypeAny
         }
         if (inner instanceof z.ZodArray) {
           rawData[key] = [rawData[key]]
@@ -755,11 +757,17 @@ export function validateFormData<T extends z.ZodTypeAny>(
   const result = schema.safeParse(rawData)
 
   if (!result.success) {
-    const errors = result.error.flatten()
-    const errorMessage = Object.entries(errors.fieldErrors)
-      .map(([field, messages]) => `${field}: ${messages?.join(', ')}`)
+    // zod v4 deprecated `.flatten()` and types its fieldErrors as `{}` for
+    // generic schemas — group the issues by path ourselves instead.
+    const fieldErrors: Record<string, string[]> = {}
+    for (const issue of result.error.issues) {
+      const field = issue.path.join('.') || '_'
+      ;(fieldErrors[field] ??= []).push(issue.message)
+    }
+    const errorMessage = Object.entries(fieldErrors)
+      .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
       .join('; ')
-    throw new ValidationError(errorMessage, errors.fieldErrors)
+    throw new ValidationError(errorMessage, fieldErrors)
   }
 
   return result.data

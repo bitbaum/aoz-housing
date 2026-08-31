@@ -74,7 +74,7 @@ function HousingCard({
             {result.availableSpots} {L.spots}
           </p>
         </div>
-        <span className={`flex-shrink-0 px-3 py-1 rounded-sm text-sm font-medium ${badgeColor}`}>
+        <span className={`shrink-0 px-3 py-1 rounded-sm text-sm font-medium ${badgeColor}`}>
           {Math.round(result.fitScore)}% {L.compatibility}
         </span>
       </div>

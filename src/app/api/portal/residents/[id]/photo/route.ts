@@ -18,7 +18,8 @@ import { canSeeProfile, type ProfileViewer } from '@/lib/privacy/profile-visibil
  * Everyone refused gets a 404 rather than a 403, so the route leaks neither the
  * photo nor whether one exists.
  */
-export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params
   const staff = await getCurrentUser()
   const resident = staff ? null : await getPortalResident()
 

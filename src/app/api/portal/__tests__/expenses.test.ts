@@ -174,7 +174,7 @@ describe('DELETE /api/portal/expenses/[id]', () => {
     return deleteExpense(
       new NextRequest(`http://localhost/api/portal/expenses/${id}`, { method: 'DELETE' }),
       {
-        params: { id },
+        params: Promise.resolve({ id }),
       },
     )
   }

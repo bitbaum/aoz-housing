@@ -36,7 +36,7 @@ export async function PortalQuickActions({ pendingChoresCount }: PortalQuickActi
     <section className="mb-8 rounded-lg border border-ui-border bg-ui-surface p-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <Link href={primary.href} className="group flex min-w-0 items-start gap-3">
-          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-brand-primary text-ui-on-accent">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-brand-primary text-ui-on-accent">
             <PrimaryIcon className="h-5 w-5" />
           </span>
           <span className="min-w-0">
@@ -74,7 +74,7 @@ function SecondaryAction({
       href={href}
       className="inline-flex min-h-[44px] min-w-0 items-center justify-center gap-2 rounded-md bg-ui-subtle px-3 py-2 text-sm font-medium text-ui-muted transition-colors hover:bg-ui-border hover:text-ui-text"
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
+      <Icon className="h-4 w-4 shrink-0" />
       <span className="truncate">{label}</span>
     </Link>
   )

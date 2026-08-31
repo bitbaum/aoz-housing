@@ -190,7 +190,7 @@ export function TransferRecommendations({
                   </div>
 
                   {/* Right: Score */}
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <div className="flex flex-col items-end gap-1 shrink-0">
                     <span className={`text-xl font-bold ${getScoreColorClass(unit.fitScore)}`}>
                       {unit.fitScore}%
                     </span>

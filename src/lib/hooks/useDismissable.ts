@@ -16,7 +16,7 @@ export function useDismissable<T extends HTMLElement>(
   isOpen: boolean,
   onDismiss: () => void,
   options: { lockBody?: boolean } = {},
-): RefObject<T> {
+): RefObject<T | null> {
   const ref = useRef<T>(null)
 
   useEffect(() => {

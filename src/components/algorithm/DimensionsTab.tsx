@@ -41,7 +41,7 @@ export function DimensionsTab({
                   <p className="text-sm text-ui-muted">{dim.description}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <span className="text-xs sm:text-sm text-ui-muted">
                   {ALGORITHM_OVERVIEW_LABELS.factorsCount(factors.length)}
                 </span>

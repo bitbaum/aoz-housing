@@ -34,8 +34,9 @@ import { safeDownloadName } from '@/lib/config/documents'
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string; documentId: string } },
+  props: { params: Promise<{ id: string; documentId: string }> },
 ) {
+  const params = await props.params
   const staff = await getCurrentUser()
   const resident = staff ? null : await getPortalResident()
 

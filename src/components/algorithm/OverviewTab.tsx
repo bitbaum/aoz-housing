@@ -100,7 +100,7 @@ export function OverviewTab() {
             ]
             return (
               <div key={dim.id} className="flex items-center gap-3">
-                <span className="text-sm text-ui-muted w-28 flex-shrink-0">{dim.label}</span>
+                <span className="text-sm text-ui-muted w-28 shrink-0">{dim.label}</span>
                 <div className="flex-1 h-5 bg-ui-subtle rounded-sm overflow-hidden">
                   <div
                     className={`h-full rounded-sm ${barColors[i % barColors.length]}`}

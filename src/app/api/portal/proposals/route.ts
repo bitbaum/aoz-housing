@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const parsed = createProposalSchema.safeParse(await request.json())
     if (!parsed.success) {
       return NextResponse.json(
-        { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT },
+        { success: false, error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT },
         { status: 400 },
       )
     }

@@ -13,7 +13,7 @@ research-backed factors — but housing is the beginning, not the whole picture.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
 [![Jest](https://img.shields.io/badge/Tests-2341%20unit-green.svg)](https://jestjs.io/)
 [![Playwright](https://img.shields.io/badge/E2E-173%20tests-green.svg)](https://playwright.dev/)
 
@@ -136,7 +136,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 
 | Layer | Technology |
 |-------|------------|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript (strict mode) |
 | Database | PostgreSQL 17 on Hetzner (`aoz_wohnen`) + Prisma |
 | Styling | Tailwind CSS (mobile-first) |

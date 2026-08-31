@@ -151,7 +151,7 @@ export function ScoreExplanation({
               <div className="space-y-1">
                 {positiveFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
-                    <span className="text-status-success-text flex-shrink-0">+</span>
+                    <span className="text-status-success-text shrink-0">+</span>
                     <span className="text-ui-muted">
                       {factor.label}
                       {factor.detail && (
@@ -171,7 +171,7 @@ export function ScoreExplanation({
               <div className="space-y-1">
                 {negativeFactors.map((factor, i) => (
                   <div key={i} className="flex items-start gap-1.5 text-sm">
-                    <span className="text-status-error-text flex-shrink-0">-</span>
+                    <span className="text-status-error-text shrink-0">-</span>
                     <span className="text-ui-muted">
                       {factor.label}
                       {factor.detail && (

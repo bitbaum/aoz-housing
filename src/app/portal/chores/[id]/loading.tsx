@@ -14,7 +14,7 @@ export default function ChoreDetailLoading() {
         <div className="space-y-2">
           {Array.from({ length: 3 }, (_, i) => (
             <div key={i} className="flex gap-3">
-              <SkeletonText className="h-4 w-24 flex-shrink-0" />
+              <SkeletonText className="h-4 w-24 shrink-0" />
               <SkeletonText className="h-4 w-40" />
             </div>
           ))}

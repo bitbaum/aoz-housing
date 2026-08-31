@@ -43,7 +43,7 @@ export function ScienceTab() {
               key={method.type}
               className="border border-ui-border rounded-lg p-4 flex flex-col sm:flex-row sm:items-start gap-3"
             >
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <EvidenceStrengthBadge strength={method.strength} />
               </div>
               <div className="min-w-0">
@@ -102,12 +102,12 @@ export function ScienceTab() {
                       className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm"
                     >
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        {source.region === 'CH' && <span className="flex-shrink-0">🇨🇭</span>}
-                        {source.region === 'DE' && <span className="flex-shrink-0">🇩🇪</span>}
-                        {source.region === 'INT' && <span className="flex-shrink-0">🌍</span>}
+                        {source.region === 'CH' && <span className="shrink-0">🇨🇭</span>}
+                        {source.region === 'DE' && <span className="shrink-0">🇩🇪</span>}
+                        {source.region === 'INT' && <span className="shrink-0">🌍</span>}
                         <span className="text-ui-muted truncate">{source.title}</span>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0 pl-6 sm:pl-0">
+                      <div className="flex items-center gap-2 shrink-0 pl-6 sm:pl-0">
                         <EvidenceStrengthBadge strength={source.evidenceStrength} />
                         {source.year && (
                           <span className="text-xs text-ui-muted">{source.year}</span>
@@ -166,7 +166,7 @@ export function ScienceTab() {
                         <div className="mt-3 space-y-1">
                           {science.researchFindings.map((finding, i) => (
                             <p key={i} className="text-sm text-ui-muted flex items-start gap-2">
-                              <span className="text-brand-primary mt-0.5 flex-shrink-0">-</span>
+                              <span className="text-brand-primary mt-0.5 shrink-0">-</span>
                               <span>{finding}</span>
                             </p>
                           ))}
@@ -175,7 +175,7 @@ export function ScienceTab() {
                         {/* Swiss context */}
                         {science.swissContext && (
                           <p className="text-xs text-brand-primary mt-3 flex items-start gap-1.5 bg-status-success/10 rounded px-2 py-1.5">
-                            <span className="flex-shrink-0">🇨🇭</span>
+                            <span className="shrink-0">🇨🇭</span>
                             <span>{science.swissContext}</span>
                           </p>
                         )}

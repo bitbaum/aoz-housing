@@ -76,7 +76,7 @@ export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -112,7 +112,7 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -185,7 +185,7 @@ export async function createUnitRuleAsStaff(
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -269,7 +269,7 @@ export async function confirmProposal(input: StaffConfirmProposalInput): Promise
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -322,7 +322,7 @@ export async function advanceResolutionStage(input: AdvanceStageInput): Promise<
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -375,7 +375,7 @@ export async function createAgreement(
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 
@@ -421,7 +421,7 @@ export async function reviewAgreement(input: ReviewAgreementInput): Promise<Acti
   if (!parsed.success) {
     return {
       success: false,
-      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+      error: parsed.error.issues[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
     }
   }
 

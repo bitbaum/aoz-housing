@@ -72,7 +72,6 @@ if (!result.success) {
   if (process.env.NODE_ENV === 'production') {
     throw new Error(`Invalid environment configuration:\n${issues}`)
   } else {
-    // eslint-disable-next-line no-console
     console.warn(`[env] Invalid environment (non-fatal in development):\n${issues}`)
   }
 }

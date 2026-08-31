@@ -202,7 +202,7 @@ describe('GET /api/portal/residents/[id]/photo', () => {
 
   function get(id: string) {
     return getPhoto(new NextRequest(`http://localhost/api/portal/residents/${id}/photo`), {
-      params: { id },
+      params: Promise.resolve({ id }),
     })
   }
 

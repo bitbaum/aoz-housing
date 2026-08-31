@@ -1,6 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Tailwind v4 loads the legacy JS config explicitly. The config still holds
+   zero literal design values — it only maps utility names onto the custom
+   properties defined below, exactly as before the v4 migration. */
+@config '../../tailwind.config.ts';
+
+/* ── Tailwind v3 compatibility (v4 changed these defaults) ──────────────────
+   1. v4 defaults border/divide colour to currentColor; v3 used a light gray.
+      The system hairline is ui-border, so a bare `border` keeps meaning that.
+   2. v4 defaults buttons to cursor:default; v3 used pointer. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: rgb(var(--color-ui-border));
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    AOZH DESIGN SYSTEM — the single source of truth for every design token.
@@ -277,16 +298,22 @@
 
   /* Uppercase micro-label. The signature move of this design language: it marks
    what a number or section IS, without competing with the value itself. */
-  .eyebrow {
-    @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted break-words;
-  }
+}
 
+@utility eyebrow {
+  @apply text-2xs font-semibold uppercase tracking-eyebrow text-ui-muted break-words;
+}
+
+@layer components {
   /* Anything the eye has to compare down a column: counts, scores, codes, dates.
    Mono + tabular figures keep digits aligned; tight tracking keeps it compact. */
-  .numeric {
-    @apply font-mono tabular-nums tracking-tight;
-  }
+}
 
+@utility numeric {
+  @apply font-mono tabular-nums tracking-tight;
+}
+
+@layer components {
   /* Big number in a stat block — the one place type gets to be loud. */
   .metric {
     @apply numeric text-3xl font-semibold leading-none text-ui-text;
@@ -364,10 +391,13 @@
    it, a card defaults to min-width:auto and cannot shrink below the intrinsic
    width of its content — an unbreakable label then forces the whole grid track,
    and the page, wider than the viewport instead of wrapping inside the card. */
-  .card {
-    @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5 min-w-0;
-  }
+}
 
+@utility card {
+  @apply bg-ui-surface text-ui-text rounded-lg border border-ui-border p-4 sm:p-5 min-w-0;
+}
+
+@layer components {
   /* Hover affordance is a border and fill change, never a shadow — a card must
    not appear to lift off a flat surface. */
   .card-hover {
@@ -419,14 +449,17 @@
    the NEUTRAL near-black button used as the default action everywhere, and
    `.btn-secondary` is the BRAND-COLOURED one used for emphasis. 121 files rely
    on this. */
-  .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-md
          text-sm font-medium tracking-tight min-h-[44px]
          transition-colors duration-150
          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ui-canvas
          disabled:opacity-40 disabled:pointer-events-none;
-  }
+}
 
+@layer components {
   .btn-primary {
     @apply btn bg-ui-text text-ui-inverse hover:bg-ui-text/85 focus:ring-ui-text/30;
   }
@@ -477,12 +510,15 @@
    Shared by the desktop megamenu, the mobile drawer and the portal nav. The
    active state is a brand-coloured marker, not a filled pill — colour marks
    position, it does not decorate. */
-  .nav-item {
-    @apply inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
+}
+
+@utility nav-item {
+  @apply inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium
          text-ui-muted hover:text-ui-text hover:bg-ui-subtle
          transition-colors duration-150 whitespace-nowrap;
-  }
+}
 
+@layer components {
   .nav-item-active {
     @apply nav-item text-ui-text bg-ui-subtle;
   }
@@ -503,13 +539,15 @@
      the gesture bar and the taps land on the OS instead of the app. */
     padding-bottom: env(safe-area-inset-bottom);
   }
+}
 
-  .tab-item {
-    @apply flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 py-2
+@utility tab-item {
+  @apply flex-1 flex flex-col items-center justify-center gap-1 min-h-[56px] px-1 py-2
          text-2xs font-medium text-ui-muted transition-colors duration-150
          border-t-2 border-transparent;
-  }
+}
 
+@layer components {
   .tab-item-active {
     @apply tab-item text-ui-text border-t-brand-primary;
   }
@@ -532,11 +570,14 @@
    Both are near-square now; the fill is what distinguishes them, not the
    corner radius. Uppercase micro-type makes them read as machine states
    rather than prose. */
-  .badge {
-    @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
-         uppercase tracking-label ring-1 bg-ui-surface;
-  }
+}
 
+@utility badge {
+  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+         uppercase tracking-label ring-1 bg-ui-surface;
+}
+
+@layer components {
   /* Colours come from the status tokens, never Tailwind's raw palette — "success
    is green" must have exactly one definition, and the *-text tokens already
    carry the readable dark-mode shade, so no `dark:` variant is needed here. */
@@ -558,11 +599,14 @@
   .badge-alert {
     @apply badge text-status-error-text ring-status-error/40;
   }
+}
 
-  .chip {
-    @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
+@utility chip {
+  @apply inline-flex items-center px-1.5 py-0.5 rounded-sm text-2xs font-semibold
          uppercase tracking-label;
-  }
+}
+
+@layer components {
   .chip-success {
     @apply chip bg-status-success/15 text-status-success-text;
   }
@@ -580,10 +624,13 @@
   }
 
   /* ── Alerts ─────────────────────────────────────────────────────────────── */
+}
 
-  .alert {
-    @apply p-3 rounded-md text-sm flex items-start gap-2 ring-1;
-  }
+@utility alert {
+  @apply p-3 rounded-md text-sm flex items-start gap-2 ring-1;
+}
+
+@layer components {
   .alert-error {
     @apply alert bg-status-error/10 text-status-error-text ring-status-error/25;
   }
@@ -600,10 +647,14 @@
   /* ── Avatars ────────────────────────────────────────────────────────────────
    Square, not circular — the geometry of the system is square, and initials
    are data like any other. */
-  .avatar {
-    @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+}
+
+@utility avatar {
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
          bg-brand-primary text-ui-on-accent font-semibold text-sm select-none;
-  }
+}
+
+@layer components {
   .avatar-sm {
     @apply avatar w-8 h-8 text-xs;
   }
@@ -615,9 +666,13 @@
    Occupancy, capacity, score and fairness bars. Square-ended, because a
    rounded cap misreports the value at both ends — at 3% the pill is all cap
    and reads as more than nothing. Used with an inner `.meter-fill`. */
-  .meter {
-    @apply relative w-full h-1.5 rounded-sm bg-ui-border overflow-hidden;
-  }
+}
+
+@utility meter {
+  @apply relative w-full h-1.5 rounded-sm bg-ui-border overflow-hidden;
+}
+
+@layer components {
   .meter-lg {
     @apply meter h-2.5;
   }
@@ -626,11 +681,14 @@
   }
 
   /* ── Icon containers ────────────────────────────────────────────────────── */
+}
 
-  .icon-container {
-    @apply inline-flex items-center justify-center w-10 h-10 rounded-md
+@utility icon-container {
+  @apply inline-flex items-center justify-center w-10 h-10 rounded-md
          bg-ui-subtle text-ui-muted ring-1 ring-ui-border;
-  }
+}
+
+@layer components {
   .icon-container-sm {
     @apply icon-container w-8 h-8;
   }

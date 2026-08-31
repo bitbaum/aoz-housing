@@ -43,7 +43,8 @@ const ERROR_KEYS = {
   failed: 'opportunities.errorFailed',
 } as const
 
-export default async function PortalOpportunitiesPage({ searchParams }: Props) {
+export default async function PortalOpportunitiesPage(props: Props) {
+  const searchParams = await props.searchParams
   const resident = await getPortalResident()
   if (!resident) redirect('/login')
 
