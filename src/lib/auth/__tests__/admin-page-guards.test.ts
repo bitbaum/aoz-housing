@@ -50,10 +50,14 @@ const SESSION_IS_ENOUGH = new Set([
   // Staff<->resident message threads. Scoped per thread, not per role.
   'messages/page.tsx',
   'messages/[residentId]/page.tsx',
-  // Maintenance is the shared house-operations board.
-  'maintenance/page.tsx',
-  'maintenance/new/page.tsx',
-  'maintenance/[id]/page.tsx',
+  // Maintenance is NOT here any more. It was, on the guess that a repair board
+  // is shared house operations — and walking it in production as a
+  // Sozialarbeiter*in disproved that: the nav gates Wartung on
+  // `maintenance:read`, which she does not hold, and the page served her the
+  // board anyway with working "Neue Anfrage" / "Zuweisen" / "Abschliessen"
+  // buttons. The permission existed and only the menu honoured it. Both pages
+  // and all three server actions now enforce it.
+  //
   // Chores creation is reached from the housing board, which is gated.
   'chores/new/page.tsx',
   // Resident detail renders each care/housing section behind its own
@@ -94,10 +98,17 @@ describe('every admin page declares what it requires', () => {
     const permission = requiredPermission(page)
     const declared = SESSION_IS_ENOUGH.has(page)
 
-    // Exactly one of the two must be true. A page that both enforces a
-    // permission AND sits on the session-only list is a stale entry, and a
-    // page that does neither is the /settings hole again.
-    expect({ page, guarded: permission !== null || declared }).toEqual({ page, guarded: true })
+    // EXACTLY one, not at least one. The comment here already said "a page
+    // that both enforces a permission AND sits on the session-only list is a
+    // stale entry" while the assertion was an OR that happily allowed it —
+    // so when maintenance/* was given a real guard, the list kept claiming a
+    // session was enough for it and nothing complained. A stale exemption is
+    // how the next reader learns the wrong boundary.
+    expect({ page, guarded: permission !== null, exempt: declared }).toEqual({
+      page,
+      guarded: !declared,
+      exempt: !(permission !== null),
+    })
   })
 
   it.each(Array.from(ADMINISTRATION.entries()))(
@@ -132,6 +143,31 @@ describe('the settings page does not ship anyone a credential', () => {
 
     expect(select).not.toBeNull()
     expect(select?.[0]).not.toMatch(/\bcode:\s*true\b/)
+  })
+})
+
+describe('a client’s wellbeing history is not browsable by every role', () => {
+  /**
+   * The complaint this whole refactor started from: staff seeing the smiley
+   * scale as a property of the client rather than of an appointment they
+   * conducted. Moving CAPTURE into closing an appointment fixed half of it.
+   * READING stayed open — `SatisfactionHistory` rendered on
+   * `residents/[id]` with no permission check at all, so a Jobcoach, who
+   * holds neither `placements:read` nor `incidents:read`, got a client's full
+   * check-in history by opening their page. Verified in production
+   * 2026-08-31.
+   *
+   * Gated on `placements:read`, matching /placements and /analytics. A role
+   * without it is not cut off from someone in trouble: a check-in of 1 or 2
+   * raises a WELLBEING incident, which has its own permission.
+   */
+  it('gates SatisfactionHistory on placements:read', () => {
+    const source = fs.readFileSync(path.join(ADMIN_DIR, 'residents/[id]/page.tsx'), 'utf8')
+
+    expect(source).toMatch(
+      /canReadPlacements\s*=\s*staff\s*\?\s*hasPermission\(staff, 'placements:read'\)/,
+    )
+    expect(source).toMatch(/canReadPlacements\s*&&\s*\(?\s*<SatisfactionHistory/)
   })
 })
 

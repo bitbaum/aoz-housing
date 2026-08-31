@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { updateMaintenanceStatus } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 import { FormValidationUX } from '@/components/forms'
 import { SubmitButton } from '@/components/ui'
 import {
@@ -43,7 +44,9 @@ interface Props {
   params: Promise<{ id: string }>
 }
 
+/** One repair ticket. @see ../page.tsx for why this guard was missing. */
 export default async function MaintenanceDetailPage({ params }: Props) {
+  await requirePermission('maintenance:read')
   const { id } = await params
 
   const request = await prisma.maintenanceRequest.findUnique({

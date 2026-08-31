@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Wartungsanfragen' }
 import {
@@ -29,7 +30,27 @@ interface Props {
   searchParams: Promise<{ status?: string }>
 }
 
+/**
+ * The repair board. `maintenance:read` — the permission the NAV has always
+ * declared for this page, now actually enforced.
+ *
+ * It was not. The page had no guard at all, so every signed-in staff member
+ * could open it, and the three server actions behind its buttons check only
+ * `requireStaffAuth()`. Verified in production on 2026-08-31 as a
+ * Sozialarbeiter*in, who holds neither `maintenance:read` nor
+ * `maintenance:write`: the nav correctly hid Wartung, the URL served the whole
+ * board, and it offered "Neue Anfrage", "Zuweisen" and "Abschliessen".
+ *
+ * A permission that only the menu honours is worse than no permission, because
+ * reading `ROLE_PERMISSIONS` tells you a boundary exists. Same shape as
+ * /settings and /analytics.
+ *
+ * If other roles SHOULD be able to report a defect they noticed on a visit —
+ * plausible in distributed housing, where whoever is there is who sees it —
+ * that is a deliberate change to ROLE_PERMISSIONS, not an unguarded page.
+ */
 export default async function MaintenancePage({ searchParams }: Props) {
+  await requirePermission('maintenance:read')
   const params = await searchParams
   const statusFilter = params.status || 'active'
 

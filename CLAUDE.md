@@ -1021,18 +1021,38 @@ the mistake this section exists to prevent:
 `role` maps 1:1 onto `CareRole`, and that bijection is DERIVED
 (`STAFF_ROLE_CARE_DOMAIN`), never restated.
 
-**Why it is split.** AOZ runs three people and the old single enum could not
-describe them. Franziska Heimhuber is a **Betreuerin who also sees every
-client**; the only way to say that was `ADMIN`, which erased that housing is
-her domain *and* handed her the settings page as a side effect. Simon Binder
-(Jobcoach) and Sandra (Freiwilligenarbeit) work one domain each. **There is no
-Leitung.**
+**Why it is split.** The house this runs for has three people and the old
+single enum could not describe them. Franziska Heimhuber is a **Betreuerin who
+also sees every client**; the only way to say that was `ADMIN`, which erased
+that housing is her domain *and* handed her the settings page as a side effect.
+Simon Binder (Jobcoach) and Sandra (Freiwilligenarbeit) work one domain each.
 
 ```
 Franziska  BETREUUNG          + ALL_DOMAINS
 Simon      JOBCOACH           + OWN_DOMAIN
 Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
 ```
+
+⚠️ **This file used to say "There is no Leitung" here, as settled fact. That
+is false at AOZ and was corrected 2026-08-31.** AOZ is a ~2000-employee
+institution, and its `Pilotprojekt «Begleitung im regulären Wohnraum»` — the
+project this product is named after — was recruiting a **Programmleiter\*in**
+and a **Teamleiter\*in Betreuung** when this was checked (jobs.aoz.ch). What
+was true is narrower: *these three people* have no lead among them.
+
+The split holds up anyway, which is the point worth keeping: a
+**Teamleiter\*in Betreuung is `BETREUUNG` + `ALL_DOMAINS` + NOT
+`isSystemAdmin`** — Franziska's exact shape. Leading a care team is reach over
+that team's clients, not the right to reconfigure the product, and the three
+axes say so without a new role. Do not add a `LEITUNG` enum value for it; that
+is the mistake this section exists to prevent, and `ADMIN` is retired for
+exactly this reason.
+
+What the axes genuinely cannot express yet is a **Programmleiter\*in** over
+several teams, and a `Springer*in` who covers some sites but not others —
+both need a site/scope dimension the schema does not have (`User` has no
+relation to a `HousingUnit`; `HousingUnit.buildingCode` is a placeholder).
+Decide that before the second real apartment, not after.
 
 Rules that follow, all enforced by `role-policy.test.ts`:
 
