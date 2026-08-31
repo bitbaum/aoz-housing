@@ -65,7 +65,7 @@
     "jest-environment-jsdom": "^30.4.1",
     "postcss": "^8.5.26",
     "prettier": "3.9.6",
-    "prisma": "^5.17.0",
+    "prisma": "^7.10.0",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
