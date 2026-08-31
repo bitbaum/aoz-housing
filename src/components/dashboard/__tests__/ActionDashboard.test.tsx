@@ -59,6 +59,9 @@ const BASE_PROPS = {
   // A populated workspace with nothing urgent — the "quiet" case. Emptiness
   // is a THIRD state and is exercised separately below.
   residentCount: 15,
+  // Oversight over every domain: no single seat, so "nobody is assigned to
+  // you" is not a question that applies. Specialists are exercised below.
+  assignedResidentCount: null,
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,
@@ -440,5 +443,68 @@ describe('ActionDashboard', () => {
     render(<ActionDashboard {...EMPTY_WORKSPACE} residentCount={2} />)
     expect(screen.queryByText('Noch keine Daten erfasst')).not.toBeInTheDocument()
     expect(screen.getByTestId('all-clear-state')).toBeInTheDocument()
+  })
+
+  // ── Specialist with an empty seat ─────────────────────────────────────────
+  //
+  // The same confusion as above, one level in. `residentCount` is global on
+  // purpose — a Jobcoach must not be told the workspace is empty while 19
+  // people sit in it — but that makes a specialist nobody has been assigned to
+  // indistinguishable from a specialist who has finished. On 2026-08-31, the
+  // day the real AOZ team was created, Simon Binder and Sandra each opened
+  // their first ever session and were shown "🎉 Alles unter Kontrolle! Keine
+  // dringenden Aufgaben" over an account connected to no one.
+
+  const SPECIALIST = {
+    ...BASE_PROPS,
+    viewer: { role: 'JOBCOACH' as const, scope: 'OWN_DOMAIN' as const, isSystemAdmin: false },
+  }
+
+  it('does not congratulate a specialist nobody has been assigned to', () => {
+    render(<ActionDashboard {...SPECIALIST} assignedResidentCount={0} />)
+
+    expect(screen.queryByTestId('all-clear-state')).not.toBeInTheDocument()
+    expect(screen.queryByText('Alles unter Kontrolle heute.')).not.toBeInTheDocument()
+    expect(screen.getByText('Noch keine Klient*innen zugewiesen')).toBeInTheDocument()
+  })
+
+  it('points at where the care seat is actually filled', () => {
+    // The seat is assigned in the Betreuungsteam panel on a client's page,
+    // which is not somewhere you would guess from a dashboard.
+    render(<ActionDashboard {...SPECIALIST} assignedResidentCount={0} />)
+    expect(screen.getByRole('link', { name: 'Klient*innen öffnen' })).toHaveAttribute(
+      'href',
+      '/residents',
+    )
+  })
+
+  it('goes quiet once someone is assigned', () => {
+    render(<ActionDashboard {...SPECIALIST} assignedResidentCount={3} />)
+    expect(screen.queryByText('Noch keine Klient*innen zugewiesen')).not.toBeInTheDocument()
+    expect(screen.getByTestId('all-clear-state')).toBeInTheDocument()
+  })
+
+  it('never asks a viewer with oversight to go and get assigned', () => {
+    // null, not 0: someone who covers every domain has no single seat, so the
+    // question does not apply to them and must not be answered with a notice.
+    render(<ActionDashboard {...BASE_PROPS} assignedResidentCount={null} />)
+    expect(screen.queryByText('Noch keine Klient*innen zugewiesen')).not.toBeInTheDocument()
+    expect(screen.getByTestId('all-clear-state')).toBeInTheDocument()
+  })
+
+  it('shows real work rather than the onboarding notice', () => {
+    // A specialist can be handed a task before anyone formalises the
+    // assignment. Telling them to go and get assigned while a critical
+    // incident sits unread would be the notice actively hiding the work.
+    render(
+      <ActionDashboard
+        {...SPECIALIST}
+        assignedResidentCount={0}
+        criticalIncidents={[
+          { id: 'i1', type: 'VIOLENCE', unitCode: 'WIT-458', unitId: 'u1', daysSinceCreated: 1 },
+        ]}
+      />,
+    )
+    expect(screen.queryByText('Noch keine Klient*innen zugewiesen')).not.toBeInTheDocument()
   })
 })

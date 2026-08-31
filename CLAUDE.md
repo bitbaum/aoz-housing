@@ -199,12 +199,27 @@ The product ships under a neutral brand and can be handed to AOZ badged as AOZ.
 Neither is a fork; both are presets.
 
 ```bash
-NEXT_PUBLIC_BRAND=aoz    # hand it to AOZ — restores the AOZ wording
-NEXT_PUBLIC_BRAND=aozh   # default (neutral pitch badge)
+NEXT_PUBLIC_BRAND=aoz    # DEFAULT (`DEFAULT_BRAND_ID`), and what the live
+                         # instance runs — verified on the box 2026-08-31.
+NEXT_PUBLIC_BRAND=aozh   # neutral pitch badge
 NEXT_PUBLIC_BRAND=wg     # real shared-flat deployments — "WG Wohnen /
                          # Gemeinsam wohnen", no placement-system register.
-                         # The live instance runs this since 2026-08-13.
 ```
+
+⚠️ **This block was wrong in both halves** until 2026-08-31: it named `aozh`
+the default while `DEFAULT_BRAND_ID` has been `aoz`, and said the live instance
+ran `wg`. That combination is worse than either alone, because the brand
+decides `codePrefix`, and a maintenance script minting a staff code on a laptop
+takes the DEFAULT when `NEXT_PUBLIC_BRAND` is unset. Believing the live brand
+was `wg` while the default silently produced `AOZ-` would have read as a bug to
+go fix, and "fixing" it would have issued genuinely wrong codes. A code outlives
+the brand that issued it and cannot be re-prefixed, so this is not a cosmetic
+drift. `WG-DEMO01` is a legacy code from when the instance did run `wg`; it
+keeps working precisely because login resolves by exact string.
+
+**Check the box, never this file, before minting anything branded**, and never
+run a code-minting script without carrying the deployment's brand across —
+`ensure-aoz-team.ts` now refuses rather than guessing.
 
 AOZH ships the **same palette** as AOZ deliberately — the brief was to keep
 AOZ's colours and change only the name and the design language — so it defines
