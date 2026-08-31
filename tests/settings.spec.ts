@@ -32,12 +32,20 @@ test.describe('Settings page', () => {
     await expect(page.getByRole('button', { name: /Einladung senden/i })).toBeVisible()
   })
 
-  test('team list shows at least one staff member', async ({ page }) => {
+  test('team list names the team without showing anyone their login code', async ({ page }) => {
     await page.goto('/settings')
 
-    // At least one staff code visible, in the ACTIVE brand's format
-    const codeEl = page.locator(`text=/${BRAND.codePrefix}/`).first()
-    await expect(codeEl).toBeVisible({ timeout: 15_000 })
+    // The roster renders...
+    await expect(page.getByRole('heading', { name: /Team/i })).toBeVisible({ timeout: 15_000 })
+
+    // ...and no staff code appears on it. This assertion used to run the other
+    // way round: it REQUIRED a code to be visible, which pinned the bug in
+    // place — a staff code is the credential (`loginByCode` takes it with no
+    // password), so the page was handing every signed-in colleague everyone
+    // else's login, and the suite called that the passing state.
+    await expect(page.locator('body')).not.toContainText(
+      new RegExp(`${BRAND.codePrefix}[A-Z0-9]{4,}`),
+    )
   })
 
   test('invite form shows validation error for empty submission', async ({ page }) => {

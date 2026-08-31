@@ -1,9 +1,15 @@
 import type { Metadata } from 'next'
-import { requireStaffAuth, hasPermission } from '@/lib/auth'
+import { requirePermission, hasPermission } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { InviteForm } from './InviteForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
-import { SETTINGS_LABELS, PILOT_BASELINE_LABELS, ROLE_LABELS } from '@/lib/constants'
+import {
+  SETTINGS_LABELS,
+  PILOT_BASELINE_LABELS,
+  ROLE_LABELS,
+  SCOPE_LABELS,
+  SYSTEM_ADMIN_LABEL,
+} from '@/lib/constants'
 import { getSystemConfig, saveSystemConfig } from '@/lib/actions/config'
 import { SubmitButton } from '@/components/ui'
 import { PageHeader } from '@/components/ui/Page'
@@ -13,19 +19,43 @@ export const metadata: Metadata = { title: 'Einstellungen' }
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * Administration. `isSystemAdmin` only — and the guard is on the PAGE, not on
+ * the buttons inside it.
+ *
+ * This page used to require nothing but a session. It gated the invite form
+ * and the config fields behind permissions, which reads as careful and is not:
+ * a write gate is not a read boundary. The roster below prints every
+ * colleague's login CODE, and a staff code is not an identifier, it is the
+ * credential — `loginByCode` takes it alone, no password. So the narrowest
+ * role in the product could type /settings, read `AOZ-ADMIN1`, and sign in as
+ * the system administrator. Verified against production on 2026-08-31 as
+ * Simon Binder (JOBCOACH / OWN_DOMAIN / not an admin): the nav correctly
+ * omitted the link and the route served the page anyway.
+ *
+ * Hiding a link is not access control. The nav already asked the right
+ * question; nothing enforced the answer.
+ */
 export default async function SettingsPage() {
-  const currentUser = await requireStaffAuth()
+  const currentUser = await requirePermission('system:configure')
   const canInvite = hasPermission(currentUser, 'users:manage')
-  const canConfigure = hasPermission(currentUser, 'system:configure')
+  const canConfigure = true
 
   const [staffUsers, systemConfig] = await Promise.all([
     prisma.user.findMany({
       where: { active: true },
       select: {
         id: true,
-        code: true,
+        // Deliberately NOT selecting `code`. Even an administrator has no
+        // reason to READ a colleague's credential: they can invite, deactivate
+        // and re-issue without ever seeing it, and a code that has been looked
+        // at is a code that can be used by whoever looked. Leaving it out of
+        // the QUERY rather than out of the JSX is the point — the payload is
+        // what leaks, not the markup.
         name: true,
         role: true,
+        scope: true,
+        isSystemAdmin: true,
         lastLoginAt: true,
         account: { select: { email: true } },
       },
@@ -74,8 +104,9 @@ export default async function SettingsPage() {
               <div>
                 <p className="font-medium text-ui-text text-sm">{user.name}</p>
                 <p className="text-xs text-ui-muted">
-                  {ROLE_LABELS[user.role] || user.role} · {user.account?.email || '—'} ·{' '}
-                  <span className="font-mono">{user.code}</span>
+                  {ROLE_LABELS[user.role] || user.role} · {SCOPE_LABELS[user.scope] || user.scope}
+                  {user.isSystemAdmin ? ` · ${SYSTEM_ADMIN_LABEL}` : ''} ·{' '}
+                  {user.account?.email || '—'}
                 </p>
               </div>
               <div className="text-right">

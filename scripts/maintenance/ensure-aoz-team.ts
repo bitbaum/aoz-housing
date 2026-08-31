@@ -15,11 +15,40 @@
 
 import { PrismaClient } from '@prisma/client'
 import { AOZ_TEAM } from '../../prisma/real/aoz-team'
+import { BRAND } from '../../src/lib/config/brand'
 import { generateStaffCode } from '../../src/lib/auth/code-generation'
 import { CARE_ROLES, CARE_ROLE_LABELS, STAFF_ROLE_CARE_DOMAIN } from '../../src/lib/config/care'
 
 const prisma = new PrismaClient()
 const DRY_RUN = process.env.DRY_RUN === '1'
+
+/**
+ * A code is minted with the BRAND's prefix, and `BRAND` falls back to
+ * `DEFAULT_BRAND_ID` when `NEXT_PUBLIC_BRAND` is unset — which it always is on
+ * a laptop. So running this against a deployment without carrying that
+ * deployment's brand across mints credentials for the wrong product and says
+ * nothing: the codes still WORK, because login resolves by exact string, so
+ * there is no failure to notice. Three people would simply be holding codes
+ * branded for something else, forever, since a code outlives the brand that
+ * issued it and can never be re-prefixed.
+ *
+ * It went unnoticed the first time this ran only because the default happens
+ * to equal what production is set to. That is luck, not a guarantee — and
+ * CLAUDE.md still described the live brand as a different one, so the belief
+ * that would have "explained" the mismatch was itself wrong.
+ *
+ * So: say which deployment you are provisioning, or do not mint.
+ */
+function requireExplicitBrand(): void {
+  if (process.env.NEXT_PUBLIC_BRAND) return
+  throw new Error(
+    'NEXT_PUBLIC_BRAND is not set, so new codes would take the default brand ' +
+      `prefix ("${BRAND.codePrefix}") rather than the target deployment's. ` +
+      'Export the brand from the deployment you are provisioning, e.g.\n' +
+      "  NEXT_PUBLIC_BRAND=$(ssh root@<box> 'grep -m1 ^NEXT_PUBLIC_BRAND= " +
+      "/opt/<app>/shared/.env' | cut -d= -f2)",
+  )
+}
 
 async function uniqueStaffCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
@@ -33,6 +62,9 @@ async function uniqueStaffCode(): Promise<string> {
 
 async function main() {
   const minted: { name: string; code: string }[] = []
+  console.log(
+    `Brand: ${process.env.NEXT_PUBLIC_BRAND ?? '(unset)'} — neue Codes: ${BRAND.codePrefix}…`,
+  )
 
   for (const person of AOZ_TEAM) {
     const capabilities = {
@@ -71,7 +103,11 @@ async function main() {
       continue
     }
 
-    const code = DRY_RUN ? '<generated at run time>' : await uniqueStaffCode()
+    // Checked at the moment of minting, not at startup: a run that only
+    // UPDATES existing people needs no brand, and refusing it would be a gate
+    // that fires where there is nothing to get wrong.
+    requireExplicitBrand()
+    const code = DRY_RUN ? `${BRAND.codePrefix}<generated at run time>` : await uniqueStaffCode()
     console.log(`+ ${person.name}: ${person.role}/${person.scope}`)
     if (!DRY_RUN) {
       await prisma.user.create({

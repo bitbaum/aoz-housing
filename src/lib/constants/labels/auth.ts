@@ -13,6 +13,23 @@ export const ROLE_LABELS: Record<string, string> = {
 }
 
 /**
+ * How wide someone's view is — the second of the three facts a staff member
+ * carries, and the one a team roster actually needs to show.
+ *
+ * The roster used to print each colleague's login CODE here. A code is the
+ * credential, not an identifier, so that was every account's password on one
+ * page. What an administrator genuinely needs to know about a colleague is
+ * whose files they can open, which is this.
+ */
+export const SCOPE_LABELS: Record<string, string> = {
+  OWN_DOMAIN: 'eigener Bereich',
+  ALL_DOMAINS: 'alle Bereiche',
+}
+
+/** Marks the people who may reconfigure the product, distinct from reach. */
+export const SYSTEM_ADMIN_LABEL = 'Systemverwaltung'
+
+/**
  * The access-denied page.
  *
  * A permission denial used to surface as "Etwas ist schiefgelaufen … Bitte
