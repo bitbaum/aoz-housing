@@ -1055,9 +1055,15 @@ enum StaffScope {
 /// The care domain a staff member is staffed for. ONE fact per value — each
 /// maps 1:1 onto a CareRole, and that bijection is derived, never restated.
 ///
-/// AOZ runs three people: a Betreuerin who also sees everything (BETREUUNG +
-/// ALL_DOMAINS), a job coach (JOBCOACH), and a volunteering coordinator
-/// (FREIWILLIGENARBEIT). There is no Leitung.
+/// The house this runs for has three people: a Betreuerin who also sees
+/// everything (BETREUUNG + ALL_DOMAINS), a job coach (JOBCOACH), and a
+/// volunteering coordinator (FREIWILLIGENARBEIT).
+///
+/// This used to add "There is no Leitung." — false, corrected 2026-08-31. AOZ
+/// was recruiting a Programmleiter*in and a Teamleiter*in Betreuung for the
+/// pilot this product is named after. A Teamleiter*in needs no new enum value:
+/// it is BETREUUNG + ALL_DOMAINS + not isSystemAdmin. Adding LEITUNG here would
+/// rebuild the bundled role that ADMIN was retired for.
 enum StaffRole {
   /// DEPRECATED. Retained ONLY so live JWTs and existing rows keep resolving;
   /// no new account may be created with it. What it used to mean is now two

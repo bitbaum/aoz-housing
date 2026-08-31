@@ -10,7 +10,13 @@
  * Franziska is a Betreuerin who ALSO sees every client; the only way to say
  * that was to make her ADMIN, which erased her actual domain and handed her the
  * settings page as a side effect. Simon (Jobcoach) and Sandra
- * (Freiwilligenarbeit) work one domain each. There is no Leitung.
+ * (Freiwilligenarbeit) work one domain each.
+ *
+ * This used to end "There is no Leitung." — false, corrected 2026-08-31. AOZ
+ * was recruiting a Programmleiter*in and a Teamleiter*in Betreuung for the
+ * pilot this product is named after; only THOSE THREE PEOPLE have no lead.
+ * A Teamleiter*in is BETREUUNG + ALL_DOMAINS + not isSystemAdmin, so the split
+ * already expresses it — do NOT add a LEITUNG role for it.
  *
  * Ask each axis exactly one question and the team describes itself:
  *   Franziska  BETREUUNG          + ALL_DOMAINS

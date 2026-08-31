@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import Link from 'next/link'
 import { createMaintenanceRequest } from '@/lib/actions'
+import { requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Neue Wartungsanfrage' }
 import {
@@ -22,7 +23,9 @@ interface Props {
   searchParams: Promise<{ unit?: string; spot?: string }>
 }
 
+/** Creating a repair ticket is a write. @see ../page.tsx for why this was missing. */
 export default async function NewMaintenanceRequestPage({ searchParams }: Props) {
+  await requirePermission('maintenance:write')
   const params = await searchParams
   const preselectedUnitId = params.unit
   const preselectedSpotId = params.spot

@@ -194,6 +194,30 @@ describe('role, scope and administration are independent', () => {
     expect(ASSIGNABLE_STAFF_ROLES).toHaveLength(STAFF_ROLES.length - 1)
   })
 
+  test('a team lead is a SHAPE, not a role — no LEITUNG value may be added', () => {
+    // This file used to assert, in prose, that "there is no Leitung". That was
+    // wrong: AOZ was recruiting a Programmleiter*in and a Teamleiter*in
+    // Betreuung for the `Begleitung im regulären Wohnraum` pilot this product
+    // is named after. Only those three named people have no lead among them.
+    //
+    // The correction must not become a new enum value. Leading a care team is
+    // reach over that team's clients — `ALL_DOMAINS` — and NOT the right to
+    // reconfigure the product. That is exactly the pair `ADMIN` bundled and was
+    // retired for, so re-adding LEITUNG would rebuild the bug under a new name.
+    for (const role of STAFF_ROLES) {
+      expect(role).not.toMatch(/LEITUNG|LEAD|MANAGER/)
+    }
+
+    // The shape itself, stated once so the org fact lives in a test and not
+    // only in a comment: a Teamleiter*in Betreuung works every seat and
+    // administers nothing.
+    const teamleiterin = caps('BETREUUNG', 'ALL_DOMAINS', false)
+    expect(hasPermission(teamleiterin, 'placements:write')).toBe(true)
+    expect(hasPermission(teamleiterin, 'learning:write')).toBe(true)
+    expect(hasPermission(teamleiterin, 'users:manage')).toBe(false)
+    expect(hasPermission(teamleiterin, 'system:configure')).toBe(false)
+  })
+
   test('the narrowest subject can do less than any real one', () => {
     // It stands in for a render whose session has just expired; it used to
     // default to ADMIN, i.e. show everything.

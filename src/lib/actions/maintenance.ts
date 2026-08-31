@@ -13,10 +13,17 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES, QUERY_LIMITS } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 
+/**
+ * These used to check `requireStaffAuth()` — signed in, nothing more — while
+ * the nav gated the board on `maintenance:read`. A server action is the real
+ * boundary: guarding the page and leaving the action open just means the hole
+ * needs one more step to reach. Verified in production 2026-08-31 that a role
+ * without either maintenance permission was offered every one of these buttons.
+ */
 export async function createMaintenanceRequest(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('maintenance:write')
   const data = validateFormData(MaintenanceRequestInputSchema, formData)
 
   try {
@@ -59,7 +66,7 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
 }
 
 export async function updateMaintenanceStatus(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('maintenance:write')
   const data = validateFormData(MaintenanceStatusUpdateSchema, formData)
 
   try {
@@ -106,7 +113,7 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
 }
 
 export async function assignMaintenanceRequest(formData: FormData): Promise<void> {
-  const user = await requireStaffAuth()
+  const user = await requirePermission('maintenance:write')
   const { requestId, assignedTo } = validateFormData(AssignMaintenanceSchema, formData)
 
   try {
@@ -138,7 +145,7 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
 }
 
 export async function getMaintenanceStats() {
-  await requireStaffAuth()
+  await requirePermission('maintenance:read')
   const [open, assigned, inProgress, onHold, completedThisMonth] = await Promise.all([
     prisma.maintenanceRequest.count({ where: { status: 'OPEN' } }),
     prisma.maintenanceRequest.count({ where: { status: 'ASSIGNED' } }),
@@ -171,7 +178,7 @@ export async function getMaintenanceStats() {
 }
 
 export async function getHousingUnitMaintenance(housingUnitId: string) {
-  await requireStaffAuth()
+  await requirePermission('maintenance:read')
   return prisma.maintenanceRequest.findMany({
     where: { housingUnitId },
     include: {

@@ -78,6 +78,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const canReadHousing = staff ? hasPermission(staff, 'housing:read') : false
   const canWriteResidents = staff ? hasPermission(staff, 'residents:write') : false
   const canWritePlacements = staff ? hasPermission(staff, 'placements:write') : false
+  const canReadPlacements = staff ? hasPermission(staff, 'placements:read') : false
   const canWriteIncidents = staff ? hasPermission(staff, 'incidents:write') : false
   const canWriteLearning = staff ? hasPermission(staff, 'learning:write') : false
   const canReadDocuments = staff ? hasPermission(staff, 'documents:read') : false
@@ -467,8 +468,29 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             />
           )}
 
-          {/* Satisfaction Check-ins History */}
-          {currentPlacement && <SatisfactionHistory placementId={currentPlacement.id} />}
+          {/* Satisfaction Check-ins History — `placements:read`, the same
+              boundary /placements and /analytics use for this data.
+
+              This was ungated, so EVERY staff role saw a client's full
+              wellbeing history just by opening their page. Verified in
+              production on 2026-08-31: a Jobcoach — who holds neither
+              `placements:read` nor `incidents:read` — got "Zufriedenheits-
+              Check-ins" on any client he opened.
+
+              That is the complaint this whole refactor started from: staff
+              seeing the smiley scale as though it were a property of the
+              client rather than of an appointment they conducted. Moving
+              CAPTURE into closing an appointment (see the note above, and
+              CareWorkspace) fixed half of it and left READING open.
+
+              A role without `placements:read` is not cut off from a person in
+              trouble: a check-in of 1 or 2 already raises a WELLBEING incident
+              (api/portal/satisfaction), and incidents have their own
+              permission. The signal that needs to travel still travels; what
+              stops is browsing someone's mood history with no reason to. */}
+          {currentPlacement && canReadPlacements && (
+            <SatisfactionHistory placementId={currentPlacement.id} />
+          )}
 
           {/* Compatibility with current roommates */}
           <TopCompatibilitiesCard assessments={resident.assessments} />

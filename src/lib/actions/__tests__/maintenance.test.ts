@@ -492,11 +492,42 @@ describe('getHousingUnitMaintenance', () => {
 // =============================================================================
 
 describe('auth guard', () => {
-  it('rejects unauthenticated requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
-    mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
+  /**
+   * These asked only "is anyone signed in?", because that is all the actions
+   * checked: `requireStaffAuth()`. Meanwhile the nav gated the board on
+   * `maintenance:read`, so the permission was real to the menu and invisible
+   * to the server. Verified in production on 2026-08-31 that a
+   * Sozialarbeiter*in — holding neither maintenance permission — was served
+   * the board and offered every one of these buttons.
+   *
+   * So the assertion is now on WHICH permission, not merely that some check
+   * happened. A guard that any signed-in person passes is not a guard.
+   */
+  it('rejects a caller who lacks the permission', async () => {
+    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    mockRequirePermission.mockRejectedValueOnce(new Error('Keine Berechtigung'))
 
     const fd = new FormData()
-    await expect(createMaintenanceRequest(fd)).rejects.toThrow('Anmeldung erforderlich')
+    await expect(createMaintenanceRequest(fd)).rejects.toThrow('Keine Berechtigung')
+  })
+
+  it.each([
+    [
+      'createMaintenanceRequest',
+      () => createMaintenanceRequest(new FormData()),
+      'maintenance:write',
+    ],
+    ['getMaintenanceStats', () => getMaintenanceStats(), 'maintenance:read'],
+    ['getHousingUnitMaintenance', () => getHousingUnitMaintenance('hu-1'), 'maintenance:read'],
+  ])('%s demands %s', async (_name, call, permission) => {
+    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    mockRequirePermission.mockClear()
+
+    await call().catch(() => {
+      // The action may still fail on validation or a missing mock — irrelevant
+      // here. What matters is which permission it asked for before doing so.
+    })
+
+    expect(mockRequirePermission).toHaveBeenCalledWith(permission)
   })
 })
