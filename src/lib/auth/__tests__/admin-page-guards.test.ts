@@ -134,3 +134,40 @@ describe('the settings page does not ship anyone a credential', () => {
     expect(select?.[0]).not.toMatch(/\bcode:\s*true\b/)
   })
 })
+
+describe('the analytics page does not bypass the placements boundary', () => {
+  /**
+   * `/analytics` requires only `dashboard:read`, which every role holds —
+   * correct for the page as a whole, since most of it is aggregate pilot
+   * health (counts, rates, chart data). `RecentPlacementsTable` is the one
+   * section that is not aggregate: it names residents, links straight into
+   * their profile, and renders their satisfaction check-in emoji — the
+   * exact surface `/placements` fences off behind `placements:read`.
+   *
+   * Gating only the page and rendering that table unconditionally handed a
+   * Jobcoach or Freiwilligenarbeit viewer — who cannot open /placements
+   * directly — the identical identified data through this page instead. A
+   * boundary that exists one page over is not a boundary on this one, the
+   * same shape /settings had.
+   *
+   * Checked on the SOURCE rather than a full RSC render (this repo has no
+   * harness for that), and on both halves: the query must be conditioned on
+   * the permission, and the component must be conditioned on it too —
+   * gating only the render would still fetch the data into the process,
+   * and gating only the query without a check nearby is invisible to a
+   * reader trying to verify the boundary holds.
+   */
+  it('conditions both the query and the render on placements:read', () => {
+    const source = fs.readFileSync(path.join(ADMIN_DIR, 'analytics/page.tsx'), 'utf8')
+
+    expect(source).toMatch(
+      /canReadPlacements\s*=\s*hasPermission\(\s*currentUser,\s*'placements:read'\s*\)/,
+    )
+
+    const queryLine = source.match(/canReadPlacements\s*\n?\s*\?\s*prisma\.placement\.findMany/)
+    expect(queryLine).not.toBeNull()
+
+    const renderLine = source.match(/canReadPlacements\s*&&\s*<RecentPlacementsTable/)
+    expect(renderLine).not.toBeNull()
+  })
+})

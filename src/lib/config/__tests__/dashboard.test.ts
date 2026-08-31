@@ -219,4 +219,17 @@ describe('fallbackCta', () => {
       ),
     ).toBeNull()
   })
+
+  it('never tells a role with no setup rights to wait for a named job title', () => {
+    // This message used to say "Sobald die Leitung ... erfasst hat" — naming
+    // a role AOZ's real team does not have. Franziska/Simon/Sandra hold
+    // Betreuung/Jobcoach/Freiwilligenarbeit; ADMIN survives only as the
+    // retired system-administrator seat, not a care role anyone is staffed
+    // for. A Jobcoach or Freiwilligenarbeit account opening a genuinely empty
+    // workspace was told to wait for a person who does not exist. The line
+    // must name the CAPABILITY (housing:write / residents:write), never a
+    // job title — so it stays true for whatever the org structure is, on
+    // this deployment or the next rebrand.
+    expect(DASHBOARD_LABELS.emptyNoSetupRights).not.toMatch(/Leitung|Admin/)
+  })
 })

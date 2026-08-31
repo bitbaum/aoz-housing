@@ -24,6 +24,7 @@ import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
 import { requirePermission } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/role-policy'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +33,19 @@ interface Props {
 }
 
 export default async function AnalyticsPage({ searchParams }: Props) {
-  await requirePermission('dashboard:read')
+  const currentUser = await requirePermission('dashboard:read')
+  // Every role holds dashboard:read, so this page is the pilot-wide health
+  // report the whole team is meant to see — aggregate counts, satisfaction
+  // trend, conflict hotspots, algorithm accuracy. `RecentPlacementsTable` is
+  // not aggregate: it names residents, links straight into their profile, and
+  // renders their satisfaction check-in emoji, the exact surface this product
+  // already fenced off behind `placements:read` on the dedicated /placements
+  // page. Gating only the PAGE and rendering that table unconditionally
+  // bypassed that fence for a Jobcoach or Freiwilligenarbeit viewer, who
+  // cannot open /placements directly but could read the identical identified
+  // data here. Same class of leak /settings had: a boundary that exists one
+  // page over is not a boundary on this one.
+  const canReadPlacements = hasPermission(currentUser, 'placements:read')
   const params = await searchParams
   const days = Math.min(Math.max(Number(params.days) || 30, 7), 365)
   const periodStart = getDateDaysAgo(days)
@@ -57,18 +70,20 @@ export default async function AnalyticsPage({ searchParams }: Props) {
           },
         },
       }),
-      prisma.placement.findMany({
-        where: { startDate: { gte: ninetyDaysAgo } },
-        include: {
-          housingUnit: true,
-          resident: true,
-          checkIns: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-          },
-        },
-        orderBy: { startDate: 'desc' },
-      }),
+      canReadPlacements
+        ? prisma.placement.findMany({
+            where: { startDate: { gte: ninetyDaysAgo } },
+            include: {
+              housingUnit: true,
+              resident: true,
+              checkIns: {
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+              },
+            },
+            orderBy: { startDate: 'desc' },
+          })
+        : [],
       prisma.incident.findMany({
         where: {
           date: { gte: periodStart },
@@ -395,8 +410,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         <AlgorithmAccuracySection report={algorithmAccuracy} />
       </div>
 
-      {/* Recent Placements */}
-      <RecentPlacementsTable placements={recentPlacements} />
+      {/* Recent Placements — identified resident + satisfaction data, so this
+          follows the same boundary as /placements rather than dashboard:read. */}
+      {canReadPlacements && <RecentPlacementsTable placements={recentPlacements} />}
     </div>
   )
 }
