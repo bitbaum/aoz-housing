@@ -1,19 +1,19 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // --- Mocks ---
 
-const mockRouterRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRouterRefresh = vi.hoisted(() => vi.fn())
+vi.mock('next/navigation', () => ({
   useRouter: () => ({ refresh: mockRouterRefresh }),
 }))
 
-const mockCreatePlacement = jest.fn()
-jest.mock('@/lib/actions/placements', () => ({
+const mockCreatePlacement = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/actions/placements', () => ({
   createPlacement: (...args: unknown[]) => mockCreatePlacement(...args),
 }))
 
-jest.mock('@/components/housing/RoomVisualization', () => ({
+vi.mock('@/components/housing/RoomVisualization', () => ({
   RoomVisualization: ({
     spots,
     housingUnitId,
@@ -33,7 +33,7 @@ jest.mock('@/components/housing/RoomVisualization', () => ({
   ),
 }))
 
-jest.mock('@/components/housing/PlacementPanel', () => ({
+vi.mock('@/components/housing/PlacementPanel', () => ({
   PlacementPanel: ({
     isOpen,
     onClose,

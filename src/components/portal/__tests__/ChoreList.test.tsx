@@ -1,10 +1,11 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ChoreList } from '../ChoreList'
 
 // --- Mocks ---
 
-jest.mock('../ChoreCard', () => ({
+vi.mock('../ChoreCard', () => ({
   ChoreCard: ({
     task,
     onQuickComplete,
@@ -23,18 +24,18 @@ jest.mock('../ChoreCard', () => ({
   ),
 }))
 
-jest.mock('../ChoreBalanceSummary', () => ({
+vi.mock('../ChoreBalanceSummary', () => ({
   ChoreBalanceSummary: ({ balances }: { balances: Array<{ code: string }> }) => (
     <div data-testid="chore-balance-summary">{balances.map((b) => b.code).join(',')}</div>
   ),
 }))
 
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ refresh: mockRefresh, push: jest.fn(), replace: jest.fn() }),
+const mockRefresh = vi.hoisted(() => vi.fn())
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh: mockRefresh, push: vi.fn(), replace: vi.fn() }),
 }))
 
-jest.mock('@/lib/config/household-tasks', () => ({
+vi.mock('@/lib/config/household-tasks', () => ({
   TASK_CATEGORY_LABELS: { CLEANING: 'Reinigung', COOKING: 'Kochen' },
   TASK_CATEGORY_ICONS: { CLEANING: '🧹', COOKING: '🍳' },
   CHORE_LABELS: {
@@ -81,12 +82,12 @@ function makeTask(overrides: {
 
 describe('ChoreList', () => {
   beforeEach(() => {
-    global.fetch = jest.fn()
+    global.fetch = vi.fn()
     mockRefresh.mockClear()
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    vi.resetAllMocks()
   })
 
   // ── Empty state ───────────────────────────────────────────────────────────
@@ -209,7 +210,7 @@ describe('ChoreList', () => {
   // ── Quick complete (fetch flow) ───────────────────────────────────────────
 
   it('calls fetch with POST when quick-complete triggered', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false })
+    ;(global.fetch as Mock).mockResolvedValueOnce({ ok: false })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
     render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {
@@ -222,7 +223,7 @@ describe('ChoreList', () => {
 
   it('shows completing state while fetch is in progress', async () => {
     let resolveRequest!: (value: unknown) => void
-    ;(global.fetch as jest.Mock).mockReturnValueOnce(
+    ;(global.fetch as Mock).mockReturnValueOnce(
       new Promise((res) => {
         resolveRequest = res
       }),
@@ -238,7 +239,7 @@ describe('ChoreList', () => {
   })
 
   it('does not refresh when fetch returns non-ok response', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false })
+    ;(global.fetch as Mock).mockResolvedValueOnce({ ok: false })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
     render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {
@@ -248,7 +249,7 @@ describe('ChoreList', () => {
   })
 
   it('refreshes router when fetch returns ok', async () => {
-    ;(global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true })
+    ;(global.fetch as Mock).mockResolvedValueOnce({ ok: true })
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
     render(<ChoreList tasks={tasks} balances={[]} />)
     await act(async () => {

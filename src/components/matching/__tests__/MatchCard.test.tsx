@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { MatchCard } from '../MatchCard'
 import type { MatchResult } from '@/lib/matching/types'
@@ -8,8 +8,8 @@ import type { Resident } from '@prisma/client'
 // MOCKS
 // =============================================================================
 
-jest.mock('next/link', () => {
-  return function MockLink({
+vi.mock('next/link', () => {
+  const MockLink = function MockLink({
     children,
     href,
     className,
@@ -24,13 +24,14 @@ jest.mock('next/link', () => {
       </a>
     )
   }
+  return { default: MockLink }
 })
 
-jest.mock('@/lib/actions/matching', () => ({
-  placeResident: jest.fn(),
+vi.mock('@/lib/actions/matching', () => ({
+  placeResident: vi.fn(),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   SLEEP_SCHEDULE_LABELS: {
     EARLY_BIRD: 'Fruehaufsteher',
     STANDARD: 'Normal',
@@ -83,7 +84,7 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (labels: Record<string, string>, key: string) => labels[key] || key,
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   getScoreColorClass: (score: number) => {
     if (score >= 80) return 'text-score-excellent-text'
     if (score >= 60) return 'text-score-good-text'
@@ -93,11 +94,11 @@ jest.mock('@/lib/utils', () => ({
   },
 }))
 
-jest.mock('../HeadToHeadComparison', () => ({
+vi.mock('../HeadToHeadComparison', () => ({
   HeadToHeadComparison: () => <div data-testid="head-to-head">HeadToHead Mock</div>,
 }))
 
-jest.mock('../SpotSelection', () => ({
+vi.mock('../SpotSelection', () => ({
   SpotSelection: () => <div data-testid="spot-selection">SpotSelection Mock</div>,
 }))
 

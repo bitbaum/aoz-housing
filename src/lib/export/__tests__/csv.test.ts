@@ -96,7 +96,7 @@ describe('generateCSV', () => {
   })
 
   it('passes the full row to transform functions', () => {
-    const transformFn = jest.fn(
+    const transformFn = vi.fn(
       (_value: unknown, row: Record<string, unknown>) => `${row.first} ${row.last}`,
     )
 

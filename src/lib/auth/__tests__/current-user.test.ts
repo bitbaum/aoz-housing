@@ -6,24 +6,24 @@
  * ("Demo-Zugang") stayed signed in after being set active=false.
  */
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
+const mockCookieGet = vi.hoisted(() => vi.fn())
+vi.mock('next/headers', () => ({
   cookies: async () => ({ get: (...args: unknown[]) => mockCookieGet(...args) }),
 }))
 
-const mockVerifyToken = jest.fn()
-jest.mock('../jwt', () => ({
-  createToken: jest.fn(),
+const mockVerifyToken = vi.hoisted(() => vi.fn())
+vi.mock('../jwt', () => ({
+  createToken: vi.fn(),
   verifyToken: (...args: unknown[]) => mockVerifyToken(...args),
-  shouldRefreshToken: jest.fn(),
-  refreshToken: jest.fn(),
+  shouldRefreshToken: vi.fn(),
+  refreshToken: vi.fn(),
 }))
 
-const mockUserFindUnique = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindUnique = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: { findUnique: (...args: unknown[]) => mockUserFindUnique(...args) },
-    resident: { findUnique: jest.fn() },
+    resident: { findUnique: vi.fn() },
   },
 }))
 
@@ -32,7 +32,7 @@ import { getCurrentUser } from '../index'
 const PAYLOAD = { sub: 'user-1', email: '', name: 'Demo-Zugang', role: 'ADMIN' }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockCookieGet.mockReturnValue({ value: 'a-valid-token' })
   mockVerifyToken.mockResolvedValue(PAYLOAD)
 })

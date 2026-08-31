@@ -15,29 +15,29 @@ import { PHOTO_LIMITS } from '@/lib/config/profile'
 
 // --- Mocks ---
 
-const mockGetPortalAuth = jest.fn()
-const mockGetPortalResident = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockGetPortalAuth = vi.hoisted(() => vi.fn())
+const mockGetPortalResident = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   getPortalAuth: () => mockGetPortalAuth(),
   getPortalResident: () => mockGetPortalResident(),
 }))
 
 // The photo route asks whether the viewer is staff before it asks anything
 // else. Default: nobody is, so the resident-facing cases are unaffected.
-const mockGetCurrentUser = jest.fn().mockResolvedValue(null)
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn().mockResolvedValue(null))
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: () => mockGetCurrentUser(),
 }))
 
-const mockResidentUpdate = jest.fn()
+const mockResidentUpdate = vi.hoisted(() => vi.fn())
 // Every photo request now loads the subject's visibility setting first.
-const mockResidentFindUnique = jest.fn()
-const mockPhotoUpsert = jest.fn()
-const mockPhotoDeleteMany = jest.fn()
-const mockPhotoFindUnique = jest.fn()
-const mockPlacementFindFirst = jest.fn()
-const mockUnitUpdate = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockResidentFindUnique = vi.hoisted(() => vi.fn())
+const mockPhotoUpsert = vi.hoisted(() => vi.fn())
+const mockPhotoDeleteMany = vi.hoisted(() => vi.fn())
+const mockPhotoFindUnique = vi.hoisted(() => vi.fn())
+const mockPlacementFindFirst = vi.hoisted(() => vi.fn())
+const mockUnitUpdate = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: {
       update: (...args: unknown[]) => mockResidentUpdate(...args),
@@ -53,18 +53,18 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -98,7 +98,7 @@ function photoRequest(file: File | null): NextRequest {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockGetPortalResident.mockResolvedValue(RESIDENT)
   mockGetPortalAuth.mockResolvedValue(AUTH)
   mockGetCurrentUser.mockResolvedValue(null)

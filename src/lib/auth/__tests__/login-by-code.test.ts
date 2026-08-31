@@ -13,11 +13,11 @@
 import { BRANDS } from '@/lib/config/brand'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
-const mockUserFindUnique = jest.fn()
-const mockUserUpdate = jest.fn()
-const mockResidentFindUnique = jest.fn()
+const mockUserFindUnique = vi.hoisted(() => vi.fn())
+const mockUserUpdate = vi.hoisted(() => vi.fn())
+const mockResidentFindUnique = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: {
       findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
@@ -27,16 +27,16 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/auth/rate-limit', () => ({
+vi.mock('@/lib/auth/rate-limit', () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown',
-  recordLoginAttempt: jest.fn(),
-  clearLoginAttempts: jest.fn(),
+  recordLoginAttempt: vi.fn(),
+  clearLoginAttempts: vi.fn(),
 }))
 
-jest.mock('next/headers', () => ({ cookies: jest.fn() }))
+vi.mock('next/headers', () => ({ cookies: vi.fn() }))
 
 import { loginByCode } from '@/lib/auth'
 
@@ -49,7 +49,7 @@ const STAFF = {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockUserFindUnique.mockResolvedValue(STAFF)
   mockUserUpdate.mockResolvedValue({})
   mockResidentFindUnique.mockResolvedValue({ id: 'r1', code: 'RES-010' })

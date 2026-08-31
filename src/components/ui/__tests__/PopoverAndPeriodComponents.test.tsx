@@ -4,16 +4,16 @@
  * ScoreExplanation, ScoreExplanationBadge,
  * PeriodSelector, ErrorBoundaryUI
  */
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
 // --- Navigation mock (shared) ---
 
-const mockRouterPush = jest.fn()
+const mockRouterPush = vi.hoisted(() => vi.fn())
 let mockPathname = '/incidents'
-const mockSearchParams = new URLSearchParams()
+const mockSearchParams = vi.hoisted(() => new URLSearchParams())
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockRouterPush }),
   usePathname: () => mockPathname,
   useSearchParams: () => mockSearchParams,
@@ -21,7 +21,7 @@ jest.mock('next/navigation', () => ({
 
 // --- next/link mock ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -40,7 +40,7 @@ jest.mock('next/link', () => ({
 
 // --- Constants mocks ---
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   UI_LABELS: {
     close: 'Schliessen',
     clickForDetails: 'Klicken für Details',
@@ -82,7 +82,7 @@ jest.mock('@/lib/constants/labels', () => ({
   MATCHING_LABELS: { strengths: 'Stärken', challenges: 'Herausforderungen' },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   UI_LABELS: {
     close: 'Schliessen',
     errorTitle: 'Fehler',
@@ -91,7 +91,8 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/config/thresholds')),
   getScoreLevel: (score: number) => {
     if (score >= 80) return 'excellent'
     if (score >= 60) return 'good'
@@ -102,7 +103,7 @@ jest.mock('@/lib/config/thresholds', () => ({
   SCORE_THRESHOLDS: { excellent: 80, good: 60, moderate: 40, low: 20 },
 }))
 
-jest.mock('@/lib/utils/formatting', () => ({
+vi.mock('@/lib/utils/formatting', () => ({
   getScoreColorClass: () => 'text-score-excellent-text',
   getScoreLabel: (score: number) => {
     if (score >= 80) return 'Sehr gut'
@@ -111,7 +112,7 @@ jest.mock('@/lib/utils/formatting', () => ({
   },
 }))
 
-jest.mock('@/lib/config/ui-tokens', () => ({
+vi.mock('@/lib/config/ui-tokens', () => ({
   SCORE_TOKENS: {
     excellent: { soft: 'bg-score-excellent/15 text-score-excellent-text' },
     good: { soft: 'bg-score-good/15 text-score-good-text' },
@@ -502,50 +503,44 @@ describe('PeriodSelector', () => {
 
 describe('ErrorBoundaryUI', () => {
   it('renders error title', () => {
-    render(
-      <ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />,
-    )
+    render(<ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={vi.fn()} />)
     expect(screen.getByText('Fehler')).toBeInTheDocument()
   })
 
   it('renders description', () => {
-    render(
-      <ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />,
-    )
+    render(<ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={vi.fn()} />)
     expect(screen.getByText('Daten konnten nicht geladen werden.')).toBeInTheDocument()
   })
 
   it('renders retry button', () => {
-    render(<ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} />)
+    render(<ErrorBoundaryUI description="Fehler." onRetry={vi.fn()} />)
     expect(screen.getByRole('button', { name: 'Erneut versuchen' })).toBeInTheDocument()
   })
 
   it('calls onRetry when retry button clicked', () => {
-    const onRetry = jest.fn()
+    const onRetry = vi.fn()
     render(<ErrorBoundaryUI description="Fehler." onRetry={onRetry} />)
     fireEvent.click(screen.getByRole('button', { name: 'Erneut versuchen' }))
     expect(onRetry).toHaveBeenCalledTimes(1)
   })
 
   it('renders back link with default backHref="/"', () => {
-    render(<ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} />)
+    render(<ErrorBoundaryUI description="Fehler." onRetry={vi.fn()} />)
     expect(screen.getByRole('link')).toHaveAttribute('href', '/')
   })
 
   it('renders back link with custom backHref', () => {
-    render(<ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} backHref="/housing" />)
+    render(<ErrorBoundaryUI description="Fehler." onRetry={vi.fn()} backHref="/housing" />)
     expect(screen.getByRole('link')).toHaveAttribute('href', '/housing')
   })
 
   it('renders back link with default label', () => {
-    render(<ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} />)
+    render(<ErrorBoundaryUI description="Fehler." onRetry={vi.fn()} />)
     expect(screen.getByRole('link')).toHaveTextContent('Zum Dashboard')
   })
 
   it('renders back link with custom label', () => {
-    render(
-      <ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} backLabel="Zurück zur Liste" />,
-    )
+    render(<ErrorBoundaryUI description="Fehler." onRetry={vi.fn()} backLabel="Zurück zur Liste" />)
     expect(screen.getByRole('link')).toHaveTextContent('Zurück zur Liste')
   })
 })

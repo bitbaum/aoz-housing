@@ -7,12 +7,12 @@ import { NextRequest } from 'next/server'
 
 // --- Mocks ---
 
-const mockRegisterAccount = jest.fn()
-const mockLoginWithEmail = jest.fn()
-const mockRequestPasswordReset = jest.fn()
-const mockResetPassword = jest.fn()
-const mockVerifyEmailToken = jest.fn()
-jest.mock('@/lib/auth/account', () => ({
+const mockRegisterAccount = vi.hoisted(() => vi.fn())
+const mockLoginWithEmail = vi.hoisted(() => vi.fn())
+const mockRequestPasswordReset = vi.hoisted(() => vi.fn())
+const mockResetPassword = vi.hoisted(() => vi.fn())
+const mockVerifyEmailToken = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth/account', () => ({
   registerAccount: (...args: unknown[]) => mockRegisterAccount(...args),
   loginWithEmail: (...args: unknown[]) => mockLoginWithEmail(...args),
   requestPasswordReset: (...args: unknown[]) => mockRequestPasswordReset(...args),
@@ -20,35 +20,35 @@ jest.mock('@/lib/auth/account', () => ({
   verifyEmailToken: (...args: unknown[]) => mockVerifyEmailToken(...args),
 }))
 
-const mockSetSessionCookie = jest.fn()
-const mockLoginByCode = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockSetSessionCookie = vi.hoisted(() => vi.fn())
+const mockLoginByCode = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
   loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
 }))
 
-const mockSetResidentCookie = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockSetResidentCookie = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   setResidentCookie: (...args: unknown[]) => mockSetResidentCookie(...args),
 }))
 
-const mockConsumeRateLimit = jest.fn()
-const mockCheckRateLimit = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockConsumeRateLimit = vi.hoisted(() => vi.fn())
+const mockCheckRateLimit = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth/rate-limit', () => ({
   consumeRateLimit: (...args: unknown[]) => mockConsumeRateLimit(...args),
   checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),
-  recordLoginAttempt: jest.fn(),
-  clearLoginAttempts: jest.fn(),
+  recordLoginAttempt: vi.fn(),
+  clearLoginAttempts: vi.fn(),
   getClientIp: () => '10.0.0.1',
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -69,7 +69,7 @@ function jsonRequest(path: string, body: Record<string, unknown>): NextRequest {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockConsumeRateLimit.mockReturnValue({ allowed: true })
   mockCheckRateLimit.mockReturnValue({ allowed: true })
 })

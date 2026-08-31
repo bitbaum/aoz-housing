@@ -178,27 +178,27 @@ describe('seeded appointments', () => {
       created,
       client: {
         resident: {
-          findMany: jest.fn(async () => [
+          findMany: vi.fn(async () => [
             { id: 'r1', languages: ['German'], ageRange: 'ADULT', choresContribution: 4 },
             { id: 'r2', languages: ['Tigrinya'], ageRange: 'ADULT', choresContribution: 2 },
           ]),
         },
-        learningRecord: { createMany: jest.fn(async () => ({ count: 0 })) },
-        careAssignment: { createMany: jest.fn(async () => ({ count: 8 })) },
+        learningRecord: { createMany: vi.fn(async () => ({ count: 0 })) },
+        careAssignment: { createMany: vi.fn(async () => ({ count: 8 })) },
         placement: {
           // Only r1 is placed, so only r1 can carry a reading.
-          findMany: jest.fn(async () => [
+          findMany: vi.fn(async () => [
             { id: 'p1', residentId: 'r1', startDate: new Date('2026-01-01') },
           ]),
         },
         appointment: {
-          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
+          create: vi.fn(async (args: { data: Record<string, unknown> }) => {
             created.appointment.push(args.data)
             return { id: `appt-${created.appointment.length}`, ...args.data }
           }),
         },
         satisfactionCheckIn: {
-          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
+          create: vi.fn(async (args: { data: Record<string, unknown> }) => {
             created.checkIn.push(args.data)
             return { id: 'ci-1' }
           }),

@@ -7,7 +7,7 @@
 const ORIGINAL_ENV = process.env
 
 async function loadProvider(env: Record<string, string | undefined>) {
-  jest.resetModules()
+  vi.resetModules()
   process.env = {
     ...ORIGINAL_ENV,
     GROQ_API_KEY: undefined,
@@ -20,7 +20,7 @@ async function loadProvider(env: Record<string, string | undefined>) {
 
 afterEach(() => {
   process.env = ORIGINAL_ENV
-  jest.restoreAllMocks()
+  vi.restoreAllMocks()
 })
 
 describe('which provider a completion uses', () => {
@@ -78,7 +78,7 @@ describe('where the model id comes from', () => {
 
   async function modelSentTo(env: Record<string, string | undefined>) {
     const { completeText } = await loadProvider(env)
-    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(okResponse)
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse)
     await completeText({ system: 's', prompt: 'p', maxTokens: 10, temperature: 0 })
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     return JSON.parse(init.body as string).model as string
@@ -127,7 +127,7 @@ describe('the Groq call', () => {
       GROQ_API_KEY: 'gsk_test',
       GROQ_MODEL: 'test-model',
     })
-    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue(okResponse('{"values":{}}'))
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(okResponse('{"values":{}}'))
 
     const text = await completeText({
       system: 'sys',
@@ -149,7 +149,7 @@ describe('the Groq call', () => {
     // must still be reachable for `logger.errorWithCause`, just not by
     // anything that formats a response. @see lib/ai/errors.ts
     const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
-    jest.spyOn(global, 'fetch').mockResolvedValue({
+    vi.spyOn(global, 'fetch').mockResolvedValue({
       ok: false,
       status: 400,
       text: async () => 'model_decommissioned',
@@ -177,7 +177,7 @@ describe('the OpenRouter call', () => {
       OPENROUTER_API_KEY: 'sk-or-test',
       OPENROUTER_MODEL: 'test/openrouter-model',
     })
-    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+    const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue({
       ok: true,
       json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
     } as Response)

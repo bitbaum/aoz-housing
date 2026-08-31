@@ -8,20 +8,21 @@
  * kind of property that a later refactor could quietly undo.
  */
 
-jest.mock('@/lib/db', () => ({
+import type { Mock } from 'vitest'
+vi.mock('@/lib/db', () => ({
   prisma: {
-    account: { findUnique: jest.fn() },
-    $transaction: jest.fn(),
+    account: { findUnique: vi.fn() },
+    $transaction: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/auth/passwords', () => ({
-  hashPassword: jest.fn(async () => 'hashed'),
+vi.mock('@/lib/auth/passwords', () => ({
+  hashPassword: vi.fn(async () => 'hashed'),
   PASSWORD_MIN_LENGTH: 8,
 }))
 
-const sendVerificationEmail = jest.fn(async () => {})
-jest.mock('@/lib/auth/account', () => ({
+const sendVerificationEmail = vi.hoisted(() => vi.fn(async () => {}))
+vi.mock('@/lib/auth/account', () => ({
   sendVerificationEmail: (...args: unknown[]) => sendVerificationEmail(...(args as [])),
 }))
 
@@ -34,7 +35,7 @@ jest.mock('@/lib/auth/account', () => ({
  *    replacing the module wholesale removed the redactor's input entirely.
  *
  * 2. The switch lives on `globalThis`, not in a module-scope `const`. Jest
- *    hoists `jest.mock` factories above the file's own declarations, so a
+ *    hoists `vi.mock` factories above the file's own declarations, so a
  *    factory closing over a local `const` reads a DIFFERENT binding than the
  *    test body mutates — the override applies (tests that need `true` pass) and
  *    the mutation to `false` is silently ignored. That failure mode is
@@ -48,8 +49,8 @@ declare global {
 }
 globalThis.__selfServeHousehold = true
 
-jest.mock('@/lib/config/brand', () => {
-  const actual = jest.requireActual('@/lib/config/brand')
+vi.mock('@/lib/config/brand', async () => {
+  const actual = await vi.importActual<Record<string, unknown>>('@/lib/config/brand')
   return {
     ...actual,
     BRAND: {
@@ -64,7 +65,7 @@ jest.mock('@/lib/config/brand', () => {
   }
 })
 
-jest.mock('@/lib/auth/code-generation', () => ({
+vi.mock('@/lib/auth/code-generation', () => ({
   generateResidentCode: () => 'MB-TEST01',
 }))
 
@@ -72,8 +73,8 @@ import { prisma } from '@/lib/db'
 import { registerWithNewHousehold } from '@/lib/auth/household'
 
 const mockPrisma = prisma as unknown as {
-  account: { findUnique: jest.Mock }
-  $transaction: jest.Mock
+  account: { findUnique: Mock }
+  $transaction: Mock
 }
 
 /** Captures every table the transaction wrote, so we can assert on absence. */
@@ -88,32 +89,32 @@ function transactionSpy() {
 
   const tx = {
     housingUnit: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.housingUnit.push(data)
         return { id: 'unit-1' }
       }),
     },
     resident: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.resident.push(data)
         return { id: 'res-1', code: 'MB-TEST01' }
       }),
     },
     placement: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.placement.push(data)
         return { id: 'pl-1' }
       }),
     },
     account: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.account.push(data)
         return { id: 'acc-1' }
       }),
     },
     // Present but must never be called.
     user: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.user.push(data)
         return { id: 'user-1' }
       }),
@@ -125,7 +126,7 @@ function transactionSpy() {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   globalThis.__selfServeHousehold = true
   mockPrisma.account.findUnique.mockResolvedValue(null)
 })

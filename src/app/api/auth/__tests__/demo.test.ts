@@ -12,16 +12,16 @@ import { NextRequest } from 'next/server'
 
 // --- Mocks ---
 
-const mockLoginByCode = jest.fn()
-const mockSetSessionCookie = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockLoginByCode = vi.hoisted(() => vi.fn())
+const mockSetSessionCookie = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
   setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
 }))
 
-const mockCheckRateLimit = jest.fn()
-const mockRecordLoginAttempt = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockCheckRateLimit = vi.hoisted(() => vi.fn())
+const mockRecordLoginAttempt = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth/rate-limit', () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -30,27 +30,27 @@ jest.mock('@/lib/auth/rate-limit', () => ({
   recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
 }))
 
-const mockSetResidentCookie = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockSetResidentCookie = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   setResidentCookie: (...args: unknown[]) => mockSetResidentCookie(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 // A door is offered only when its ACCOUNT exists, so the endpoint reads the
 // database. Config presence proves nothing now that codes are derived: it
 // would offer five buttons on an instance where the seed never ran.
-const mockUserFindMany = jest.fn()
-const mockResidentFindUnique = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindMany = vi.hoisted(() => vi.fn())
+const mockResidentFindUnique = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: { findMany: (...args: unknown[]) => mockUserFindMany(...args) },
     resident: { findUnique: (...args: unknown[]) => mockResidentFindUnique(...args) },
@@ -86,7 +86,7 @@ describe('POST /api/auth/demo', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.DEMO_ACCESS_ENABLED = 'true'
     process.env.DEMO_STAFF_CODE = STAFF_CODE
     process.env.DEMO_RESIDENT_CODE = RESIDENT_CODE

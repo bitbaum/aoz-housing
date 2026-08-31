@@ -14,32 +14,33 @@
  *   3. A resident with no active placement can still have appointments closed.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { setAppointmentStatus } from '../care'
 
-jest.mock('@/lib/db', () => {
+vi.mock('@/lib/db', () => {
   // Annotated because $transaction refers to prismaMock inside its own
   // initializer, which otherwise infers as `any` under strict mode.
   const prismaMock: {
-    appointment: { findUnique: jest.Mock; update: jest.Mock }
-    placement: { findFirst: jest.Mock; update: jest.Mock }
-    satisfactionCheckIn: { create: jest.Mock }
-    $transaction: jest.Mock
+    appointment: { findUnique: Mock; update: Mock }
+    placement: { findFirst: Mock; update: Mock }
+    satisfactionCheckIn: { create: Mock }
+    $transaction: Mock
   } = {
-    appointment: { findUnique: jest.fn(), update: jest.fn() },
-    placement: { findFirst: jest.fn(), update: jest.fn() },
-    satisfactionCheckIn: { create: jest.fn() },
-    $transaction: jest.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+    appointment: { findUnique: vi.fn(), update: vi.fn() },
+    placement: { findFirst: vi.fn(), update: vi.fn() },
+    satisfactionCheckIn: { create: vi.fn() },
+    $transaction: vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
   }
   return { prisma: prismaMock }
 })
 
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }))
 
-const staff = { id: 'staff-1', name: 'Test Admin', role: 'ADMIN' as const }
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn(async () => ({
+const staff = vi.hoisted(() => ({ id: 'staff-1', name: 'Test Admin', role: 'ADMIN' as const }))
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn(async () => ({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
@@ -48,7 +49,7 @@ jest.mock('@/lib/auth', () => ({
   })),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 function completionForm(fields: Record<string, string> = {}): FormData {
   const fd = new FormData()
@@ -59,19 +60,19 @@ function completionForm(fields: Record<string, string> = {}): FormData {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue({
+  vi.clearAllMocks()
+  ;(mockPrisma.appointment.findUnique as Mock).mockResolvedValue({
     residentId: 'res-1',
     domain: 'HOUSING',
     checkIn: null,
   })
-  ;(mockPrisma.appointment.update as jest.Mock).mockResolvedValue({})
-  ;(mockPrisma.placement.findFirst as jest.Mock).mockResolvedValue({
+  ;(mockPrisma.appointment.update as Mock).mockResolvedValue({})
+  ;(mockPrisma.placement.findFirst as Mock).mockResolvedValue({
     id: 'pl-1',
     startDate: new Date('2026-01-01'),
   })
-  ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-  ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+  ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({ id: 'ci-1' })
+  ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
 })
 
 describe('completing an appointment', () => {
@@ -113,7 +114,7 @@ describe('completing an appointment', () => {
   })
 
   it('still closes the appointment when the resident has no active placement', async () => {
-    ;(mockPrisma.placement.findFirst as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.placement.findFirst as Mock).mockResolvedValue(null)
 
     const result = await setAppointmentStatus(completionForm({ overallSatisfaction: '5' }))
 
@@ -123,7 +124,7 @@ describe('completing an appointment', () => {
   })
 
   it('does not overwrite a reading already recorded for this appointment', async () => {
-    ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.appointment.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       domain: 'HOUSING',
       checkIn: { id: 'ci-existing' },

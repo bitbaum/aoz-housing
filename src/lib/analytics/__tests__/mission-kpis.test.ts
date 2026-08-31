@@ -11,11 +11,11 @@ import { calculateMissionKPIs } from '../mission-kpis'
 // MOCKS
 // =============================================================================
 
-const mockIncidentFindMany = jest.fn()
-const mockPlacementFindMany = jest.fn()
-const mockResidentFindMany = jest.fn()
+const mockIncidentFindMany = vi.hoisted(() => vi.fn())
+const mockPlacementFindMany = vi.hoisted(() => vi.fn())
+const mockResidentFindMany = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
     placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
@@ -36,16 +36,16 @@ function d(iso: string): Date {
 }
 
 beforeAll(() => {
-  jest.useFakeTimers()
-  jest.setSystemTime(NOW)
+  vi.useFakeTimers()
+  vi.setSystemTime(NOW)
 })
 
 afterAll(() => {
-  jest.useRealTimers()
+  vi.useRealTimers()
 })
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   // Default: empty DB
   mockIncidentFindMany.mockResolvedValue([])
   mockPlacementFindMany.mockResolvedValue([])

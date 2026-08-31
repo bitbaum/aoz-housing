@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { MaintenanceCard } from '../MaintenanceCard'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,7 +21,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   MAINTENANCE_CARD_LABELS: {
     title: 'Wartung & Service',
     openSuffix: 'offen',

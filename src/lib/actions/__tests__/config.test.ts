@@ -5,6 +5,7 @@
  * saveSystemConfig uses a custom parseFloat that treats empty/negative/NaN as null.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { getSystemConfig, saveSystemConfig } from '../config'
 
@@ -12,28 +13,28 @@ import { getSystemConfig, saveSystemConfig } from '../config'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     systemConfig: {
-      findUnique: jest.fn(),
-      upsert: jest.fn(),
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
     },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  requirePermission: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
     scope: 'ALL_DOMAINS' as const,
     isSystemAdmin: true,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
@@ -42,10 +43,10 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -66,7 +67,7 @@ function makeConfigFormData(overrides: Record<string, string> = {}): FormData {
 
 describe('getSystemConfig', () => {
   it('returns all nulls when no config row exists', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.systemConfig.findUnique as Mock).mockResolvedValue(null)
 
     const result = await getSystemConfig()
 
@@ -80,7 +81,7 @@ describe('getSystemConfig', () => {
 
   it('returns stored values when config exists', async () => {
     const startDate = new Date('2024-03-01')
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.systemConfig.findUnique as Mock).mockResolvedValue({
       id: 'singleton',
       pilotBaselineIncidentsPerMonth: 15,
       pilotBaselineRelocationsPerMonth: 4,
@@ -99,7 +100,7 @@ describe('getSystemConfig', () => {
   })
 
   it('returns nulls for missing optional fields in existing row', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.systemConfig.findUnique as Mock).mockResolvedValue({
       id: 'singleton',
       pilotBaselineIncidentsPerMonth: null,
       pilotBaselineRelocationsPerMonth: null,
@@ -114,7 +115,7 @@ describe('getSystemConfig', () => {
   })
 
   it('queries by singleton id', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.systemConfig.findUnique as Mock).mockResolvedValue(null)
 
     await getSystemConfig()
 
@@ -130,7 +131,7 @@ describe('getSystemConfig', () => {
 
 describe('saveSystemConfig', () => {
   it('saves valid numeric values', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '15',
@@ -157,7 +158,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('treats empty fields as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     await saveSystemConfig(new FormData())
 
@@ -174,7 +175,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('treats negative values as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '-5',
@@ -194,7 +195,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('treats non-numeric strings as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: 'abc',
@@ -214,7 +215,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('accepts zero as a valid value', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '0',
@@ -232,7 +233,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('accepts decimal values', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineMediationHoursPerWeek: '7.5',
@@ -250,7 +251,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('saves a valid pilot start date', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     const fd = makeConfigFormData({ pilotStartDate: '2024-03-01' })
 
@@ -266,7 +267,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('uses singleton upsert key', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
 
     await saveSystemConfig(new FormData())
 
@@ -276,8 +277,8 @@ describe('saveSystemConfig', () => {
   })
 
   it('revalidates settings and analytics paths', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
-    const { revalidatePath } = require('next/cache')
+    ;(mockPrisma.systemConfig.upsert as Mock).mockResolvedValue({})
+    const { revalidatePath } = await import('next/cache')
 
     await saveSystemConfig(new FormData())
 
@@ -286,7 +287,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission } = require('@/lib/auth')
+    const { requirePermission } = await import('@/lib/auth')
     requirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(saveSystemConfig(new FormData())).rejects.toThrow('Anmeldung erforderlich')

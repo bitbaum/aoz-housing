@@ -6,8 +6,8 @@
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
   authorizeStaff: async () => {
     const user = await mockGetCurrentUser()
@@ -18,10 +18,10 @@ jest.mock('@/lib/auth', () => ({
 
 // Route now uses createMany + a transaction; pre-checks existing codes via
 // findMany, and writes AuditLog entries via auditLog.createMany.
-const mockResidentFindMany = jest.fn().mockResolvedValue([])
-const mockResidentCreateMany = jest.fn().mockResolvedValue({ count: 0 })
-const mockAuditLogCreateMany = jest.fn().mockResolvedValue({ count: 0 })
-const mockTx = {
+const mockResidentFindMany = vi.hoisted(() => vi.fn().mockResolvedValue([]))
+const mockResidentCreateMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }))
+const mockAuditLogCreateMany = vi.hoisted(() => vi.fn().mockResolvedValue({ count: 0 }))
+const mockTx = vi.hoisted(() => ({
   resident: {
     findMany: mockResidentFindMany,
     createMany: mockResidentCreateMany,
@@ -29,27 +29,29 @@ const mockTx = {
   auditLog: {
     createMany: mockAuditLogCreateMany,
   },
-}
-const mockTransaction = jest.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx))
-jest.mock('@/lib/db', () => ({
+}))
+const mockTransaction = vi.hoisted(() =>
+  vi.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx)),
+)
+vi.mock('@/lib/db', () => ({
   prisma: {
     $transaction: (...args: unknown[]) =>
       mockTransaction(...(args as [(tx: typeof mockTx) => Promise<unknown>])),
   },
 }))
 
-const mockLogAudit = jest.fn()
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -90,7 +92,7 @@ const STAFF_USER = {
 
 describe('POST /api/import/residents', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns 401 when not authenticated', async () => {

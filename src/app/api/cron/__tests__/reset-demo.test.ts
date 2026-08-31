@@ -8,30 +8,30 @@
 
 // $queryRaw serves pg_try_advisory_lock + pg_advisory_unlock. Default:
 // lock acquired so the route proceeds; tests override per case.
-const mockQueryRaw = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockQueryRaw = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
   },
 }))
 
-const mockResetDemoData = jest.fn()
-jest.mock('@/lib/demo/reset', () => ({
+const mockResetDemoData = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/demo/reset', () => ({
   resetDemoData: (...args: unknown[]) => mockResetDemoData(...args),
 }))
 
-const mockResetDemoWorld = jest.fn()
-jest.mock('@/lib/demo/scoped-reset', () => ({
+const mockResetDemoWorld = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/demo/scoped-reset', () => ({
   resetDemoWorld: (...args: unknown[]) => mockResetDemoWorld(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -79,7 +79,7 @@ describe('POST /api/cron/reset-demo', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.CRON_SECRET = CRON_SECRET
     process.env.DEMO_ACCESS_ENABLED = 'true'
     delete process.env.DEMO_RESET_SCOPE

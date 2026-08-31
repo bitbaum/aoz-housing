@@ -3,7 +3,7 @@ import { join } from 'path'
 import { getAllPosts, getPostBySlug } from '@/lib/blog/posts'
 import { renderMarkdown } from '@/lib/blog/markdown'
 
-jest.mock(
+vi.mock(
   'marked',
   () => ({
     Marked: class {

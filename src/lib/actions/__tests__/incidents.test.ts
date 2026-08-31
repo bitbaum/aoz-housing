@@ -6,6 +6,7 @@
  * createIncident/addFollowUp use redirect() or are form-data-dependent.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import {
@@ -19,35 +20,35 @@ import {
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     incident: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      create: jest.fn(),
-      count: jest.fn(),
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+      count: vi.fn(),
     },
     incidentInvolvement: {
-      count: jest.fn(),
+      count: vi.fn(),
     },
     incidentFollowUp: {
-      create: jest.fn(),
+      create: vi.fn(),
     },
-    auditLog: { create: jest.fn() },
+    auditLog: { create: vi.fn() },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -57,20 +58,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -78,20 +79,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -100,11 +101,11 @@ beforeEach(() => {
 
 describe('getResidentIncidentStats', () => {
   it('returns zero counts when resident has no incidents', async () => {
-    ;(mockPrisma.incident.count as jest.Mock)
+    ;(mockPrisma.incident.count as Mock)
       .mockResolvedValueOnce(0) // reported
       .mockResolvedValueOnce(0) // as subject
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0) // involved
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([]) // unique incidents
+    ;(mockPrisma.incidentInvolvement.count as Mock).mockResolvedValue(0) // involved
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValue([]) // unique incidents
 
     const stats = await getResidentIncidentStats('res-1')
 
@@ -117,11 +118,11 @@ describe('getResidentIncidentStats', () => {
   })
 
   it('returns correct counts for a resident with mixed incident involvement', async () => {
-    ;(mockPrisma.incident.count as jest.Mock)
+    ;(mockPrisma.incident.count as Mock)
       .mockResolvedValueOnce(3) // reported
       .mockResolvedValueOnce(1) // as subject
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(2) // involved
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.incidentInvolvement.count as Mock).mockResolvedValue(2) // involved
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValue([
       { id: 'inc-1' },
       { id: 'inc-2' },
       { id: 'inc-3' },
@@ -145,7 +146,7 @@ describe('getResidentIncidentStats', () => {
 
 describe('getHousingUnitIncidentHistory', () => {
   it('returns empty data for a unit with no incidents', async () => {
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValue([])
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -186,7 +187,7 @@ describe('getHousingUnitIncidentHistory', () => {
         involvedResidents: [],
       },
     ]
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue(incidents)
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValue(incidents)
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -221,7 +222,7 @@ describe('getHousingUnitIncidentHistory', () => {
         involvedResidents: [],
       },
     ]
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue(incidents)
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValue(incidents)
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -239,7 +240,7 @@ describe('getIncidentsNeedingFollowUp', () => {
     const dueSoonIncident = { id: 'inc-soon', nextFollowUpDate: new Date() }
     const urgentIncident = { id: 'inc-urgent', followUpPriority: 'URGENT' }
 
-    ;(mockPrisma.incident.findMany as jest.Mock)
+    ;(mockPrisma.incident.findMany as Mock)
       .mockResolvedValueOnce([overdueIncident]) // overdue
       .mockResolvedValueOnce([dueSoonIncident]) // dueSoon
       .mockResolvedValueOnce([urgentIncident]) // urgent
@@ -252,7 +253,7 @@ describe('getIncidentsNeedingFollowUp', () => {
   })
 
   it('returns empty arrays when no follow-ups needed', async () => {
-    ;(mockPrisma.incident.findMany as jest.Mock)
+    ;(mockPrisma.incident.findMany as Mock)
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
@@ -271,7 +272,7 @@ describe('getIncidentsNeedingFollowUp', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     const fd = new FormData()

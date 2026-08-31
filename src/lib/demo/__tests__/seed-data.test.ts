@@ -68,13 +68,13 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
   const model = (onCreate?: (data: Record<string, unknown>, newId: string) => void) => {
     const rows: Array<Record<string, unknown>> = []
     return {
-      create: jest.fn(({ data }: { data: Record<string, unknown> }) => {
+      create: vi.fn(({ data }: { data: Record<string, unknown> }) => {
         const newId = `id-${++id}`
         rows.push({ ...data, id: newId })
         onCreate?.(data, newId)
         return Promise.resolve({ ...data, id: newId })
       }),
-      createMany: jest.fn(({ data }: { data: Array<Record<string, unknown>> }) => {
+      createMany: vi.fn(({ data }: { data: Array<Record<string, unknown>> }) => {
         // Same recording hook as `create`. Without this a model written via
         // createMany records nothing, and an assertion about it passes on an
         // empty array — green because it never looked.
@@ -85,8 +85,8 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
         }
         return Promise.resolve({ count: data.length })
       }),
-      count: jest.fn(() => Promise.resolve(0)),
-      findMany: jest.fn(() => Promise.resolve(rows)),
+      count: vi.fn(() => Promise.resolve(0)),
+      findMany: vi.fn(() => Promise.resolve(rows)),
     }
   }
 
@@ -127,7 +127,7 @@ function createPrismaMock(): { prisma: PrismaClient; recorded: Recorded } {
     activity: model((d) => recorded.activityCategories.push(d.category as string)),
     houseRule: {
       ...model((d) => recorded.unitRuleTitles.push(d.title as string)),
-      findUnique: jest.fn(() => Promise.resolve({ id: 'org-night-quiet' })),
+      findUnique: vi.fn(() => Promise.resolve({ id: 'org-night-quiet' })),
     },
   }
   return { prisma: prisma as unknown as PrismaClient, recorded }

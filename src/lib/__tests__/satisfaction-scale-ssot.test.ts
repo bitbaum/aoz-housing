@@ -34,8 +34,8 @@ function sourceFiles(): string[] {
 }
 
 describe('the satisfaction scale is defined once', () => {
-  it('no file outside the SSOT spells out a face scale', () => {
-    const fs = require('fs') as typeof import('fs')
+  it('no file outside the SSOT spells out a face scale', async () => {
+    const fs = (await import('fs')) as typeof import('fs')
     const offenders: string[] = []
 
     for (const file of sourceFiles()) {

@@ -111,28 +111,28 @@ describe('brand resolution', () => {
 
   afterEach(() => {
     process.env.NEXT_PUBLIC_BRAND = ORIGINAL
-    jest.resetModules()
+    vi.resetModules()
   })
 
-  function loadBrand(value?: string) {
-    jest.resetModules()
+  async function loadBrand(value?: string) {
+    vi.resetModules()
     if (value === undefined) delete process.env.NEXT_PUBLIC_BRAND
     else process.env.NEXT_PUBLIC_BRAND = value
-    return require('../brand').BRAND
+    return (await import('../brand')).BRAND
   }
 
-  it('re-badges to AOZ from the environment alone', () => {
-    expect(loadBrand('aoz').shortName).toBe('AOZ')
+  it('re-badges to AOZ from the environment alone', async () => {
+    expect((await loadBrand('aoz')).shortName).toBe('AOZ')
   })
 
-  it('uses the neutral brand by default', () => {
-    expect(loadBrand(undefined).id).toBe(DEFAULT_BRAND_ID)
+  it('uses the neutral brand by default', async () => {
+    expect((await loadBrand(undefined)).id).toBe(DEFAULT_BRAND_ID)
   })
 
-  it('falls back rather than crashing on an unknown brand', () => {
+  it('falls back rather than crashing on an unknown brand', async () => {
     // A typo in an env var must not take the whole app down — and neither must
     // a retired brand id left behind in a deployed .env.
-    expect(loadBrand('not-a-brand').id).toBe(DEFAULT_BRAND_ID)
-    expect(loadBrand('aoch').id).toBe(DEFAULT_BRAND_ID)
+    expect((await loadBrand('not-a-brand')).id).toBe(DEFAULT_BRAND_ID)
+    expect((await loadBrand('aoch')).id).toBe(DEFAULT_BRAND_ID)
   })
 })

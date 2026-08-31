@@ -108,7 +108,7 @@ describe('completeness is measured, not declared', () => {
     expect(isSatisfied(trimmed, 'placement')).toBe(false)
   })
 
-  it('accepts the copy as actually written', () => {
+  it('accepts the copy as actually written', async () => {
     for (const locale of PUBLIC_LOCALE_IDS) {
       for (const register of REGISTERS) {
         expect({
@@ -235,18 +235,21 @@ describe('no language invents evidence the German page does not claim', () => {
     }
   })
 
-  it.each(PUBLIC_LOCALE_IDS)('%s quotes the factor and source counts from config', (locale) => {
-    // Both numbers are interpolated in every language. If a translator typed
-    // one as a literal it would keep the value it had on the day they typed it,
-    // which is the drift the German page already guards against.
-    const { FACTOR_COUNT, SOURCE_COUNT } = jest.requireActual<
-      typeof import('@/lib/constants/labels/marketing-types')
-    >('@/lib/constants/labels/marketing-types')
+  it.each(PUBLIC_LOCALE_IDS)(
+    '%s quotes the factor and source counts from config',
+    async (locale) => {
+      // Both numbers are interpolated in every language. If a translator typed
+      // one as a literal it would keep the value it had on the day they typed it,
+      // which is the drift the German page already guards against.
+      const { FACTOR_COUNT, SOURCE_COUNT } = await vi.importActual<
+        typeof import('@/lib/constants/labels/marketing-types')
+      >('@/lib/constants/labels/marketing-types')
 
-    const placement = MARKETING_REGISTERS_BY_LOCALE[locale].placement
-    expect(placement.scienceTitle).toContain(String(FACTOR_COUNT))
-    expect(placement.scienceBody).toContain(String(SOURCE_COUNT))
-  })
+      const placement = MARKETING_REGISTERS_BY_LOCALE[locale].placement
+      expect(placement.scienceTitle).toContain(String(FACTOR_COUNT))
+      expect(placement.scienceBody).toContain(String(SOURCE_COUNT))
+    },
+  )
 })
 
 describe('Swiss German spelling holds in the German copy', () => {

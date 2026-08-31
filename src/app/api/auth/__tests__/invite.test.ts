@@ -10,14 +10,14 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockCheckRateLimit = jest.fn()
-const mockRecordLoginAttempt = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockCheckRateLimit = vi.hoisted(() => vi.fn())
+const mockRecordLoginAttempt = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth/rate-limit', () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -26,14 +26,14 @@ jest.mock('@/lib/auth/rate-limit', () => ({
   recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
 }))
 
-jest.mock('@/lib/auth/code-generation', () => ({
-  generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
+vi.mock('@/lib/auth/code-generation', () => ({
+  generateStaffCode: vi.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
-const mockAccountFindUnique = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindUnique = vi.hoisted(() => vi.fn())
+const mockUserCreate = vi.hoisted(() => vi.fn())
+const mockAccountFindUnique = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: {
       findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
@@ -46,13 +46,13 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockSendEmail = jest.fn()
-jest.mock('@/lib/email/service', () => ({
+const mockSendEmail = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/email/service', () => ({
   sendEmail: (...args: unknown[]) => mockSendEmail(...args),
 }))
 
-jest.mock('@/lib/email/templates', () => ({
-  staffInviteEmail: jest.fn(() => ({
+vi.mock('@/lib/email/templates', () => ({
+  staffInviteEmail: vi.fn(() => ({
     subject: 'Ihr AOZ Housing Zugangscode',
     html: '<p>Your code</p>',
   })),
@@ -90,7 +90,7 @@ const ADMIN_USER = {
 
 describe('POST /api/auth/invite', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
     mockUserFindUnique.mockResolvedValue(null) // code not taken

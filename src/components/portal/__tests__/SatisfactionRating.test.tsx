@@ -1,4 +1,5 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { SatisfactionRating } from '../SatisfactionRating'
 import { de } from '@/lib/i18n/dictionaries/de'
@@ -8,8 +9,10 @@ import { de } from '@/lib/i18n/dictionaries/de'
 // The scale itself comes from the real module. Restating the faces here made
 // this a second definition that could agree with itself while disagreeing with
 // what ships — a mock that drifts from its subject tests nothing.
-jest.mock('@/lib/constants', () => ({
-  ...jest.requireActual('@/lib/constants'),
+// async: vitest's importActual is async, unlike jest's requireActual,
+// so the factory has to await it.
+vi.mock('@/lib/constants', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/constants')),
   SATISFACTION_SURVEY_LABELS: {
     saveFailed: 'Speichern fehlgeschlagen. Bitte erneut versuchen.',
     day: 'Tag',
@@ -28,15 +31,15 @@ jest.mock('@/lib/constants', () => ({
 // --- Helpers ---
 
 function mockFetchSuccess() {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true } as Response)
+  global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response)
 }
 
 function mockFetchFailure() {
-  global.fetch = jest.fn().mockResolvedValue({ ok: false } as Response)
+  global.fetch = vi.fn().mockResolvedValue({ ok: false } as Response)
 }
 
 function mockFetchNetworkError() {
-  global.fetch = jest.fn().mockRejectedValue(new Error('Network error'))
+  global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 }
 
 /** Date that is 8 days in the past — triggers the prompt form. */
@@ -48,7 +51,7 @@ const RECENT_DATE = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
 
 describe('SatisfactionRating', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Prompt mode (no check-in or >= 7 days) ─────────────────────────────
@@ -226,7 +229,7 @@ describe('SatisfactionRating', () => {
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
 
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe('/api/portal/satisfaction')
     expect(options.method).toBe('POST')
     const body = JSON.parse(options.body)
@@ -246,7 +249,7 @@ describe('SatisfactionRating', () => {
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
 
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(body.rating).toBe(2)
     expect(body.concerns).toBe('Es ist sehr laut')
   })
@@ -263,7 +266,7 @@ describe('SatisfactionRating', () => {
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
 
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(body.rating).toBe(1)
     expect(body.concerns).toBeUndefined()
   })

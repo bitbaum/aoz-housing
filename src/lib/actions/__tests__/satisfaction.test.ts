@@ -7,6 +7,7 @@
  * createCheckInFromForm uses redirect() which throws, so we mock it to throw NEXT_REDIRECT.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import {
@@ -20,41 +21,41 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => {
+vi.mock('@/lib/db', () => {
   const prismaMock: {
-    placement: { findUnique: jest.Mock; update: jest.Mock }
-    satisfactionCheckIn: { create: jest.Mock; findMany: jest.Mock }
-    $transaction: jest.Mock
+    placement: { findUnique: Mock; update: Mock }
+    satisfactionCheckIn: { create: Mock; findMany: Mock }
+    $transaction: Mock
   } = {
     placement: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     satisfactionCheckIn: {
-      create: jest.fn(),
-      findMany: jest.fn(),
+      create: vi.fn(),
+      findMany: vi.fn(),
     },
     // $transaction(callback) invokes the callback with the same mock client
     // so individual model mocks (create, update) continue to be observed.
-    $transaction: jest.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+    $transaction: vi.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
   }
   return { prisma: prismaMock }
 })
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-const mockRedirect = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRedirect = vi.hoisted(() => vi.fn())
+vi.mock('next/navigation', () => ({
   redirect: (...args: unknown[]) => {
     mockRedirect(...args)
     throw new Error('NEXT_REDIRECT')
   },
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -64,20 +65,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -85,20 +86,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -142,7 +143,7 @@ describe('createCheckInFromForm', () => {
   })
 
   it('throws when placement is not found', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue(null)
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
       ERROR_MESSAGES.PLACEMENT_NOT_FOUND,
@@ -151,14 +152,14 @@ describe('createCheckInFromForm', () => {
 
   it('creates check-in and redirects on success', async () => {
     const placementStart = new Date('2025-01-01')
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       startDate: placementStart,
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow('NEXT_REDIRECT')
 
@@ -199,14 +200,14 @@ describe('createCheckInFromForm', () => {
   })
 
   it('uses provided weekNumber when given', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
 
     const fd = makeCheckInFormData({ weekNumber: '5' })
 
@@ -220,14 +221,14 @@ describe('createCheckInFromForm', () => {
   })
 
   it('includes concerns and text fields when provided', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
 
     const fd = makeCheckInFormData({
       concerns: 'Noise at night',
@@ -258,11 +259,11 @@ describe('createCheckInFromForm', () => {
   })
 
   it('throws user-facing error when prisma create fails', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.satisfactionCheckIn.create as Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
       ERROR_MESSAGES.CHECKIN_SAVE_ERROR,
@@ -290,29 +291,29 @@ describe('createCheckInFromForm', () => {
  */
 describe('who collected a check-in', () => {
   beforeEach(() => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({ id: 'ci-1' })
+    ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
   })
 
   it('always records the signed-in account, whatever the form says', async () => {
     for (const typed of ['', 'Team Nord', 'a colleague']) {
-      jest.clearAllMocks()
-      ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+      vi.clearAllMocks()
+      ;(mockPrisma.placement.findUnique as Mock).mockResolvedValue({
         residentId: 'res-1',
         startDate: new Date('2025-01-01'),
       })
-      ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-      ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+      ;(mockPrisma.satisfactionCheckIn.create as Mock).mockResolvedValue({ id: 'ci-1' })
+      ;(mockPrisma.placement.update as Mock).mockResolvedValue({})
 
       await expect(
         createCheckInFromForm(makeCheckInFormData({ collectedBy: typed })),
       ).rejects.toThrow('NEXT_REDIRECT')
 
-      const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
+      const [call] = (mockPrisma.satisfactionCheckIn.create as Mock).mock.calls
       expect(call[0].data.collectedByUserId).toBe(mockStaffUser.id)
       expect(call[0].data.collectedBy).toBe(typed || null)
     }
@@ -323,7 +324,7 @@ describe('who collected a check-in', () => {
       createCheckInFromForm(makeCheckInFormData({ collectedBy: 'Team Nord' })),
     ).rejects.toThrow('NEXT_REDIRECT')
 
-    const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
+    const [call] = (mockPrisma.satisfactionCheckIn.create as Mock).mock.calls
     // The note must never be mistaken for an identifier.
     expect(call[0].data.collectedBy).not.toBe(call[0].data.collectedByUserId)
   })
@@ -339,7 +340,7 @@ describe('getPlacementCheckIns', () => {
       { id: 'ci-1', overallSatisfaction: 4 },
       { id: 'ci-2', overallSatisfaction: 3 },
     ]
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue(mockCheckIns)
+    ;(mockPrisma.satisfactionCheckIn.findMany as Mock).mockResolvedValue(mockCheckIns)
 
     const result = await getPlacementCheckIns('pl-1')
 
@@ -351,7 +352,7 @@ describe('getPlacementCheckIns', () => {
   })
 
   it('returns empty array when no check-ins exist', async () => {
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.satisfactionCheckIn.findMany as Mock).mockResolvedValue([])
 
     const result = await getPlacementCheckIns('pl-1')
 
@@ -367,7 +368,7 @@ describe('getPlacementSatisfactionTrend', () => {
   it('returns mapped trend data', async () => {
     const date1 = new Date('2025-01-15')
     const date2 = new Date('2025-01-22')
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.satisfactionCheckIn.findMany as Mock).mockResolvedValue([
       {
         createdAt: date1,
         weekNumber: 1,
@@ -403,7 +404,7 @@ describe('getPlacementSatisfactionTrend', () => {
 
   it('handles null roommateRelations', async () => {
     const date1 = new Date('2025-01-15')
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.satisfactionCheckIn.findMany as Mock).mockResolvedValue([
       {
         createdAt: date1,
         weekNumber: 1,
@@ -418,7 +419,7 @@ describe('getPlacementSatisfactionTrend', () => {
   })
 
   it('returns empty array when no check-ins exist', async () => {
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.satisfactionCheckIn.findMany as Mock).mockResolvedValue([])
 
     const result = await getPlacementSatisfactionTrend('pl-1')
 
@@ -432,7 +433,7 @@ describe('getPlacementSatisfactionTrend', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(

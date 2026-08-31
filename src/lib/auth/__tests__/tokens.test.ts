@@ -3,20 +3,20 @@
  * invalidation of earlier tokens, and every consume failure mode.
  */
 
-const mockPrisma = {
+const mockPrisma = vi.hoisted(() => ({
   authToken: {
-    deleteMany: jest.fn(),
-    create: jest.fn(),
-    findUnique: jest.fn(),
-    update: jest.fn(),
+    deleteMany: vi.fn(),
+    create: vi.fn(),
+    findUnique: vi.fn(),
+    update: vi.fn(),
   },
-}
-jest.mock('@/lib/db', () => ({ prisma: mockPrisma }))
+}))
+vi.mock('@/lib/db', () => ({ prisma: mockPrisma }))
 
 import { createAuthToken, consumeAuthToken, hashAuthToken } from '../tokens'
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockPrisma.authToken.create.mockResolvedValue({})
   mockPrisma.authToken.deleteMany.mockResolvedValue({ count: 0 })
   mockPrisma.authToken.update.mockResolvedValue({})

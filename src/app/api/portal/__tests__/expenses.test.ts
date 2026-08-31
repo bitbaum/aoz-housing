@@ -12,18 +12,18 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetPortalAuth = jest.fn()
-const mockGetActiveUnitMembers = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockGetPortalAuth = vi.hoisted(() => vi.fn())
+const mockGetActiveUnitMembers = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   getPortalAuth: () => mockGetPortalAuth(),
   getActiveUnitMembers: (...args: unknown[]) => mockGetActiveUnitMembers(...args),
 }))
 
-const mockExpenseCreate = jest.fn()
-const mockExpenseFindUnique = jest.fn()
-const mockExpenseDelete = jest.fn()
-const mockSettlementCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockExpenseCreate = vi.hoisted(() => vi.fn())
+const mockExpenseFindUnique = vi.hoisted(() => vi.fn())
+const mockExpenseDelete = vi.hoisted(() => vi.fn())
+const mockSettlementCreate = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     expense: {
       create: (...args: unknown[]) => mockExpenseCreate(...args),
@@ -36,18 +36,18 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -82,7 +82,7 @@ function jsonRequest(url: string, method: string, body: unknown): NextRequest {
 const VALID_EXPENSE = { description: 'Wocheneinkauf', category: 'GROCERIES', amountRappen: 4000 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockGetPortalAuth.mockResolvedValue(AUTH)
   mockGetActiveUnitMembers.mockResolvedValue(MEMBERS)
   mockExpenseCreate.mockImplementation((args: { data: unknown }) =>

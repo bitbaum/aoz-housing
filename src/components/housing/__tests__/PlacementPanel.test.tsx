@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { PlacementPanel } from '../PlacementPanel'
 import type { CompatibleResident, HousingSpot } from '../types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -22,7 +22,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   AGE_RANGE_LABELS: { ADULT: '26-40', YOUNG_ADULT: '18-25' },
   LANGUAGE_LABELS: { DE: 'Deutsch', EN: 'Englisch', AR: 'Arabisch' },
   PLACEMENT_PANEL_LABELS: {
@@ -45,11 +45,12 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (map: Record<string, string>, key: string) => map[key] ?? key,
 }))
 
-jest.mock('@/lib/utils/formatting', () => ({
+vi.mock('@/lib/utils/formatting', () => ({
   getScoreColorClass: () => 'text-score-good',
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/config/thresholds')),
   DISPLAY_LIMITS: { languagePreview: 2 },
 }))
 
@@ -91,10 +92,10 @@ interface PanelOverrides {
 
 const BASE_PROPS: PanelOverrides = {
   isOpen: true,
-  onClose: jest.fn(),
+  onClose: vi.fn(),
   spot: SPOT,
   compatibleResidents: [],
-  onPlaceResident: jest.fn().mockResolvedValue(undefined),
+  onPlaceResident: vi.fn().mockResolvedValue(undefined),
   housingUnitId: 'unit-1',
 }
 
@@ -106,7 +107,7 @@ function renderPanel(overrides: PanelOverrides = {}) {
 // --- Tests ---
 
 describe('PlacementPanel', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Closed / null spot ────────────────────────────────────────────────────
 
@@ -143,14 +144,14 @@ describe('PlacementPanel', () => {
   })
 
   it('calls onClose when the close button is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     renderPanel({ onClose })
     fireEvent.click(screen.getByRole('button', { name: 'Schliessen' }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('calls onClose when the backdrop is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     const { container } = renderPanel({ onClose })
     // Backdrop is the fixed overlay div before the panel
     const backdrop = container.querySelector('.scrim')!
@@ -225,7 +226,7 @@ describe('PlacementPanel', () => {
   // ── Place action ──────────────────────────────────────────────────────────
 
   it('calls onPlaceResident with residentId and spotId when place is clicked', async () => {
-    const onPlaceResident = jest.fn().mockResolvedValue(undefined)
+    const onPlaceResident = vi.fn().mockResolvedValue(undefined)
     renderPanel({
       compatibleResidents: [makeResident()],
       onPlaceResident,
@@ -235,8 +236,8 @@ describe('PlacementPanel', () => {
   })
 
   it('calls onClose after successful placement', async () => {
-    const onClose = jest.fn()
-    const onPlaceResident = jest.fn().mockResolvedValue(undefined)
+    const onClose = vi.fn()
+    const onPlaceResident = vi.fn().mockResolvedValue(undefined)
     renderPanel({ compatibleResidents: [makeResident()], onPlaceResident, onClose })
     fireEvent.click(screen.getByRole('button', { name: 'Platzieren' }))
     await waitFor(() => expect(onClose).toHaveBeenCalled())

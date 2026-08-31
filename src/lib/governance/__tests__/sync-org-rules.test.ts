@@ -13,14 +13,14 @@ function makePrisma(existing: Record<string, unknown> = {}) {
 
   const prisma = {
     houseRule: {
-      findUnique: jest.fn(
+      findUnique: vi.fn(
         async ({ where }: { where: { key: string } }) => existing[where.key] ?? null,
       ),
-      create: jest.fn(async ({ data }: { data: unknown }) => {
+      create: vi.fn(async ({ data }: { data: unknown }) => {
         created.push(data)
         return data
       }),
-      update: jest.fn(async (args: { where: unknown; data: Record<string, unknown> }) => {
+      update: vi.fn(async (args: { where: unknown; data: Record<string, unknown> }) => {
         updated.push(args)
         return args.data
       }),

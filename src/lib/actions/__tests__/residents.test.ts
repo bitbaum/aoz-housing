@@ -5,6 +5,7 @@
  * createResident/updateResident use redirect() which throws, so they are not tested here.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import {
@@ -19,33 +20,33 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
-    placement: { count: jest.fn() },
-    incident: { count: jest.fn() },
-    incidentInvolvement: { count: jest.fn() },
-    maintenanceRequest: { count: jest.fn() },
-    compatibilityAssessment: { count: jest.fn() },
-    auditLog: { create: jest.fn() },
+    placement: { count: vi.fn() },
+    incident: { count: vi.fn() },
+    incidentInvolvement: { count: vi.fn() },
+    maintenanceRequest: { count: vi.fn() },
+    compatibilityAssessment: { count: vi.fn() },
+    auditLog: { create: vi.fn() },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -55,20 +56,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -76,20 +77,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -98,7 +99,7 @@ beforeEach(() => {
 
 describe('exitResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue(null)
 
     const result = await exitResident('nonexistent-id')
 
@@ -108,7 +109,7 @@ describe('exitResident', () => {
   })
 
   it('returns error when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
@@ -122,12 +123,12 @@ describe('exitResident', () => {
   })
 
   it('succeeds and updates status to EXITED when no active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1', status: 'EXITED' })
+    ;(mockPrisma.resident.update as Mock).mockResolvedValue({ id: 'res-1', status: 'EXITED' })
 
     const result = await exitResident('res-1')
 
@@ -147,7 +148,7 @@ describe('exitResident', () => {
   })
 
   it('returns error when prisma throws', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.resident.findUnique as Mock).mockRejectedValue(new Error('DB error'))
 
     const result = await exitResident('res-1')
 
@@ -162,7 +163,7 @@ describe('exitResident', () => {
 
 describe('archiveResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue(null)
 
     const result = await archiveResident('nonexistent-id')
 
@@ -170,7 +171,7 @@ describe('archiveResident', () => {
   })
 
   it('returns error when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
     })
@@ -182,11 +183,11 @@ describe('archiveResident', () => {
   })
 
   it('succeeds and sets status to EXITED', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    ;(mockPrisma.resident.update as Mock).mockResolvedValue({ id: 'res-1' })
 
     const result = await archiveResident('res-1')
 
@@ -211,7 +212,7 @@ describe('archiveResident', () => {
 
 describe('restoreResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue(null)
 
     const result = await restoreResident('nonexistent-id')
 
@@ -219,11 +220,11 @@ describe('restoreResident', () => {
   })
 
   it('restores to ACTIVE when no active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    ;(mockPrisma.resident.update as Mock).mockResolvedValue({ id: 'res-1' })
 
     const result = await restoreResident('res-1')
 
@@ -235,11 +236,11 @@ describe('restoreResident', () => {
   })
 
   it('restores to PLACED when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    ;(mockPrisma.resident.update as Mock).mockResolvedValue({ id: 'res-1' })
 
     const result = await restoreResident('res-1')
 
@@ -279,7 +280,7 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue(null)
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -287,7 +288,7 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error when resident is not test/demo', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
     })
@@ -299,15 +300,15 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error with blocker report when resident has linked history', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       code: 'test-resident-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(2)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.compatibilityAssessment.count as jest.Mock).mockResolvedValue(0)
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(2)
+    ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.incidentInvolvement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.maintenanceRequest.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.compatibilityAssessment.count as Mock).mockResolvedValue(0)
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -318,16 +319,16 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('succeeds for test resident with no linked history', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.resident.findUnique as Mock).mockResolvedValue({
       id: 'res-1',
       code: 'test-resident-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.compatibilityAssessment.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.resident.delete as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.incidentInvolvement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.maintenanceRequest.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.compatibilityAssessment.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.resident.delete as Mock).mockResolvedValue({ id: 'res-1' })
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -349,7 +350,7 @@ describe('hardDeleteResidentProtected', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(exitResident('test-id')).rejects.toThrow('Anmeldung erforderlich')

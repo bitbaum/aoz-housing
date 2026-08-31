@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AIChatInterface } from '../AIChatInterface'
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   UI_LABELS: {
     aiChatPlaceholder: 'Frage stellen…',
     aiChatSend: 'Senden',
@@ -16,22 +16,23 @@ jest.mock('@/lib/constants/labels', () => ({
   AI_SUGGESTED_QUESTIONS: ['Frage 1', 'Frage 2'],
 }))
 
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('lucide-react')),
   Send: () => <svg data-testid="send-icon" />,
   Bot: () => <svg data-testid="bot-icon" />,
   User: () => <svg data-testid="user-icon" />,
   Loader2: () => <svg data-testid="loader-icon" />,
 }))
 
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 
 beforeAll(() => {
   global.fetch = mockFetch
-  Element.prototype.scrollIntoView = jest.fn()
+  Element.prototype.scrollIntoView = vi.fn()
 })
 
 afterEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 function makeMockReader(chunks: string[]) {
@@ -39,7 +40,7 @@ function makeMockReader(chunks: string[]) {
   // Buffer extends Uint8Array so TextDecoder.decode(buffer) works correctly.
   let i = 0
   return {
-    read: jest.fn().mockImplementation(async () => {
+    read: vi.fn().mockImplementation(async () => {
       if (i < chunks.length) {
         return { done: false as const, value: Buffer.from(chunks[i++]) }
       }
@@ -208,7 +209,7 @@ describe('AIChatInterface — streaming', () => {
     })
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      body: { getReader: () => ({ read: jest.fn().mockReturnValue(pending) }) },
+      body: { getReader: () => ({ read: vi.fn().mockReturnValue(pending) }) },
     })
     render(<AIChatInterface />)
     await userEvent.type(screen.getByPlaceholderText('Frage stellen…'), 'Hi')
@@ -270,7 +271,7 @@ describe('AIChatInterface — streaming', () => {
     })
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      body: { getReader: () => ({ read: jest.fn().mockReturnValue(pending) }) },
+      body: { getReader: () => ({ read: vi.fn().mockReturnValue(pending) }) },
     })
     render(<AIChatInterface />)
     await userEvent.type(screen.getByPlaceholderText('Frage stellen…'), 'Hi')

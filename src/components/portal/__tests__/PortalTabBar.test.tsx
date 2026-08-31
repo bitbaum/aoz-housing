@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { de } from '@/lib/i18n/dictionaries/de'
 import type { MessageKey } from '@/lib/i18n/dictionaries/de'
 import { render, screen, fireEvent, within } from '@testing-library/react'
@@ -8,12 +8,12 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
-  useRouter: () => ({ refresh: jest.fn() }),
+  useRouter: () => ({ refresh: vi.fn() }),
 }))
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -31,7 +31,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels', () => jest.requireActual('@/lib/constants/labels'))
+vi.mock('@/lib/constants/labels', async () => await vi.importActual('@/lib/constants/labels'))
 
 function renderBar() {
   return render(<PortalTabBar />)

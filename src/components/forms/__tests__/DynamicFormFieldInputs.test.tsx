@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import {
   TextField as ControlledTextField,
@@ -37,7 +37,7 @@ const MultiField = (props: ChangeOptional<PropsOf<typeof ControlledMultiField>>)
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   UI_LABELS: { selectPlaceholder: 'Bitte wählen' },
   AI_FORM_LABELS: { aiMarker: 'KI', aiMarkerTitle: 'Von der KI ausgefüllt — bitte prüfen' },
   FORM_VALIDATION_UX_LABELS: {

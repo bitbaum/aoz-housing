@@ -7,18 +7,19 @@
  * models are wiped automatically without editing the reset.
  */
 
-const mockSeedDemoData = jest.fn()
-jest.mock('../seed-data', () => ({
+import type { Mock } from 'vitest'
+const mockSeedDemoData = vi.hoisted(() => vi.fn())
+vi.mock('../seed-data', () => ({
   seedDemoData: (...args: unknown[]) => mockSeedDemoData(...args),
 }))
 
-const mockSyncOrgRules = jest.fn()
-jest.mock('../../governance/sync-org-rules', () => ({
+const mockSyncOrgRules = vi.hoisted(() => vi.fn())
+vi.mock('../../governance/sync-org-rules', () => ({
   syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
 }))
 
-const mockSeedOpportunities = jest.fn()
-jest.mock('../../seed/opportunities', () => ({
+const mockSeedOpportunities = vi.hoisted(() => vi.fn())
+vi.mock('../../seed/opportunities', () => ({
   seedOpportunities: (...args: unknown[]) => mockSeedOpportunities(...args),
 }))
 
@@ -36,21 +37,21 @@ const SEED_SUMMARY = {
 
 function createPrismaMock(tables: string[]) {
   return {
-    $queryRaw: jest.fn().mockResolvedValue(tables.map((tablename) => ({ tablename }))),
-    $executeRawUnsafe: jest.fn().mockResolvedValue(0),
-    user: { upsert: jest.fn().mockResolvedValue({ id: 'demo-user' }) },
-    account: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
+    $queryRaw: vi.fn().mockResolvedValue(tables.map((tablename) => ({ tablename }))),
+    $executeRawUnsafe: vi.fn().mockResolvedValue(0),
+    user: { upsert: vi.fn().mockResolvedValue({ id: 'demo-user' }) },
+    account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
     // The org-wide opportunity directory is seeded from the demo residents
     // this path just created. Unscoped is correct HERE and only here: the
     // wipe above ran first, so every remaining resident is a demo resident.
     resident: {
-      findMany: jest.fn().mockResolvedValue([{ id: 'demo-resident-1' }]),
+      findMany: vi.fn().mockResolvedValue([{ id: 'demo-resident-1' }]),
     },
   } as unknown as PrismaClient & {
-    $executeRawUnsafe: jest.Mock
-    user: { upsert: jest.Mock }
-    account: { deleteMany: jest.Mock }
-    resident: { findMany: jest.Mock }
+    $executeRawUnsafe: Mock
+    user: { upsert: Mock }
+    account: { deleteMany: Mock }
+    resident: { findMany: Mock }
   }
 }
 
@@ -58,7 +59,7 @@ describe('resetDemoData', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.DEMO_STAFF_CODE = 'AOZH-DEMO01'
     mockSeedDemoData.mockResolvedValue(SEED_SUMMARY)
     mockSyncOrgRules.mockResolvedValue({ created: 0, amended: 0 })

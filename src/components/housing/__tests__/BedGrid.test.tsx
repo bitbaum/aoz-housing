@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BedGrid, BedGridSummary } from '../BedGrid'
 import type { HousingSpot } from '../types'
@@ -7,13 +7,20 @@ import type { HousingSpot } from '../types'
 // MOCKS
 // =============================================================================
 
-jest.mock('next/link', () => {
-  return function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
+vi.mock('next/link', () => {
+  const MockLink = function MockLink({
+    children,
+    href,
+  }: {
+    children: React.ReactNode
+    href: string
+  }) {
     return <a href={href}>{children}</a>
   }
+  return { default: MockLink }
 })
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', () => ({
   SPOT_TYPE_ICONS: {
     BED: 'bed-icon',
     PRIVATE_ROOM: 'room-icon',
@@ -22,7 +29,7 @@ jest.mock('@/lib/config/placement-spots', () => ({
   },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   AGE_RANGE_LABELS: {
     YOUNG_ADULT: '18-25',
     ADULT: '26-40',
@@ -187,7 +194,7 @@ describe('BedGrid', () => {
 
   describe('click handling', () => {
     it('calls onBedClick when clicking an available spot', () => {
-      const onBedClick = jest.fn()
+      const onBedClick = vi.fn()
       const spot = makeSpot()
       render(<BedGrid spots={[spot]} onBedClick={onBedClick} />)
 
@@ -196,7 +203,7 @@ describe('BedGrid', () => {
     })
 
     it('does not call onBedClick for unavailable spots', () => {
-      const onBedClick = jest.fn()
+      const onBedClick = vi.fn()
       const spots = [makeUnavailableSpot()]
       render(<BedGrid spots={spots} onBedClick={onBedClick} />)
 
@@ -205,7 +212,7 @@ describe('BedGrid', () => {
     })
 
     it('calls onOccupiedBedClick when clicking an occupied spot', () => {
-      const onOccupiedBedClick = jest.fn()
+      const onOccupiedBedClick = vi.fn()
       const spot = makeOccupiedSpot()
       render(<BedGrid spots={[spot]} onOccupiedBedClick={onOccupiedBedClick} />)
 
@@ -227,7 +234,7 @@ describe('BedGrid', () => {
 
     it('makes available spots have button role when onBedClick provided', () => {
       const spots = [makeSpot()]
-      render(<BedGrid spots={spots} onBedClick={jest.fn()} />)
+      render(<BedGrid spots={spots} onBedClick={vi.fn()} />)
 
       expect(screen.getByRole('button')).toBeInTheDocument()
     })
@@ -240,7 +247,7 @@ describe('BedGrid', () => {
     })
 
     it('supports keyboard activation with Enter key', () => {
-      const onBedClick = jest.fn()
+      const onBedClick = vi.fn()
       const spot = makeSpot()
       render(<BedGrid spots={[spot]} onBedClick={onBedClick} />)
 
@@ -250,7 +257,7 @@ describe('BedGrid', () => {
     })
 
     it('supports keyboard activation with Space key', () => {
-      const onBedClick = jest.fn()
+      const onBedClick = vi.fn()
       const spot = makeSpot()
       render(<BedGrid spots={[spot]} onBedClick={onBedClick} />)
 

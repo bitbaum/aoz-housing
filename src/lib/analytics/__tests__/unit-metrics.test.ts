@@ -5,6 +5,7 @@
  * getSimilarPlacementSuccessRate with Prisma mocked.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import {
   calculateUnitMetrics,
@@ -16,24 +17,24 @@ import {
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     housingUnit: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
     },
     incident: {
-      count: jest.fn(),
-      findMany: jest.fn().mockResolvedValue([]),
+      count: vi.fn(),
+      findMany: vi.fn().mockResolvedValue([]),
     },
     placement: {
-      count: jest.fn(),
-      findMany: jest.fn(),
+      count: vi.fn(),
+      findMany: vi.fn(),
     },
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 // =============================================================================
 // FIXED TIME
@@ -43,13 +44,13 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>
 const FIXED_NOW = new Date('2025-07-15T12:00:00.000Z')
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  jest.useFakeTimers()
-  jest.setSystemTime(FIXED_NOW)
+  vi.clearAllMocks()
+  vi.useFakeTimers()
+  vi.setSystemTime(FIXED_NOW)
 })
 
 afterEach(() => {
-  jest.useRealTimers()
+  vi.useRealTimers()
 })
 
 // =============================================================================
@@ -93,9 +94,9 @@ function makeIncident(date: string, overrides: Record<string, unknown> = {}) {
  */
 function setupDefaultMocks(unitOverrides: Record<string, unknown> = {}) {
   const unit = makeUnit(unitOverrides)
-  ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(unit)
-  ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-  ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
+  ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(unit)
+  ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
+  ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
   return unit
 }
 
@@ -109,7 +110,7 @@ describe('calculateUnitMetrics', () => {
   // ---------------------------------------------------------------------------
 
   it('throws when unit is not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(null)
 
     await expect(calculateUnitMetrics('nonexistent')).rejects.toThrow('Unit nonexistent not found')
   })
@@ -209,7 +210,7 @@ describe('calculateUnitMetrics', () => {
   it('returns totalConflicts from prisma.incident.count', async () => {
     setupDefaultMocks()
     // First call is totalConflicts, subsequent calls are incident-free month checks
-    ;(mockPrisma.incident.count as jest.Mock)
+    ;(mockPrisma.incident.count as Mock)
       .mockResolvedValueOnce(42) // totalConflicts
       .mockResolvedValue(0) // incident-free months loop
 
@@ -429,7 +430,7 @@ describe('calculateUnitMetrics', () => {
   describe('occupancy', () => {
     it('calculates occupancy rate from active placements and total beds', async () => {
       setupDefaultMocks({ totalBeds: 4 })
-      ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(3)
+      ;(mockPrisma.placement.count as Mock).mockResolvedValue(3)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -439,7 +440,7 @@ describe('calculateUnitMetrics', () => {
 
     it('returns 100 when fully occupied', async () => {
       setupDefaultMocks({ totalBeds: 2 })
-      ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(2)
+      ;(mockPrisma.placement.count as Mock).mockResolvedValue(2)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -448,7 +449,7 @@ describe('calculateUnitMetrics', () => {
 
     it('returns 0 when empty', async () => {
       setupDefaultMocks({ totalBeds: 4 })
-      ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
+      ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -538,7 +539,7 @@ describe('calculateUnitMetrics', () => {
     it('returns 12 when all months are incident-free', async () => {
       setupDefaultMocks()
       // totalConflicts = 0, then 12 months of 0 incidents
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
+      ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -549,7 +550,7 @@ describe('calculateUnitMetrics', () => {
       setupDefaultMocks()
       // Refactor: incidentFreeMonths now derives from a single findMany over
       // the last 12 months; the JS loop buckets dates by Zurich month.
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // July 2025: current month has an incident
       ])
 
@@ -559,7 +560,7 @@ describe('calculateUnitMetrics', () => {
 
     it('counts consecutive months backward until an incident is found', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-04-15'), // April: incident, break after counting 3 free
       ])
       const result = await calculateUnitMetrics('unit-1')
@@ -568,7 +569,7 @@ describe('calculateUnitMetrics', () => {
 
     it('stops counting at the first month with incidents', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-06-15'), // June: incident -> only July counted
         makeIncident('2025-05-10'), // (May also has incidents but we already broke)
       ])
@@ -668,7 +669,7 @@ describe('calculateUnitMetrics', () => {
     it('returns "Sehr stabil" when incidentFreeMonths >= 6', async () => {
       setupDefaultMocks()
       // totalConflicts = 0, all 12 months free
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
+      ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -685,8 +686,8 @@ describe('calculateUnitMetrics', () => {
      */
     it('returns "Stabil" when incidentFreeMonths is 3-5', async () => {
       setupDefaultMocks()
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-04-15'), // April incident -> 3 free months (Jul, Jun, May)
       ])
 
@@ -712,8 +713,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-20'), // 30-60 day window (before June 15, after May 16)
       ]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
       ])
 
@@ -739,8 +740,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-25'), // 30-60 day window
       ]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(10) // totalConflicts
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(10) // totalConflicts
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
       ])
 
@@ -763,10 +764,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-02-10'),
       ]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(20) // totalConflicts
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
-        makeIncident('2025-07-10'),
-      ])
+      ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(20) // totalConflicts
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -781,10 +780,8 @@ describe('calculateUnitMetrics', () => {
       // incidentFreeMonths = 0 (because current month has incidents via count mock)
       const incidents = [makeIncident('2025-04-01')]
       setupDefaultMocks({ incidents })
-      ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(1) // totalConflicts
-      ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
-        makeIncident('2025-07-10'),
-      ])
+      ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(1) // totalConflicts
+      ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -802,7 +799,7 @@ describe('calculateUnitMetrics', () => {
   describe('rounding', () => {
     it('rounds occupancyRate to integer', async () => {
       setupDefaultMocks({ totalBeds: 3 })
-      ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(1)
+      ;(mockPrisma.placement.count as Mock).mockResolvedValue(1)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -856,14 +853,14 @@ describe('calculateUnitMetrics', () => {
       makeIncident('2025-06-01'), // not recent
     ]
 
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(
       makeUnit({ placements, incidents, totalBeds: 3 }),
     )
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(8) // totalConflicts
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([
+    ;(mockPrisma.incident.count as Mock).mockResolvedValueOnce(8) // totalConflicts
+    ;(mockPrisma.incident.findMany as Mock).mockResolvedValueOnce([
       makeIncident('2025-07-10'), // July: incident -> incidentFreeMonths=0
     ])
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(1) // 1 active
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(1) // 1 active
 
     const result = await calculateUnitMetrics('unit-1')
 
@@ -888,7 +885,7 @@ describe('calculateUnitMetrics', () => {
 
 describe('calculateAllUnitMetrics', () => {
   it('returns empty array when no units match', async () => {
-    ;(mockPrisma.housingUnit.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.housingUnit.findMany as Mock).mockResolvedValue([])
 
     const result = await calculateAllUnitMetrics()
 
@@ -896,7 +893,7 @@ describe('calculateAllUnitMetrics', () => {
   })
 
   it('calls calculateUnitMetrics for each unit with AVAILABLE or FULL status', async () => {
-    ;(mockPrisma.housingUnit.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.housingUnit.findMany as Mock).mockResolvedValue([
       { id: 'unit-a' },
       { id: 'unit-b' },
     ])
@@ -905,11 +902,11 @@ describe('calculateAllUnitMetrics', () => {
     const unitA = makeUnit({ id: 'unit-a', code: 'WG-A' })
     const unitB = makeUnit({ id: 'unit-b', code: 'WG-B' })
 
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock)
+    ;(mockPrisma.housingUnit.findUnique as Mock)
       .mockResolvedValueOnce(unitA)
       .mockResolvedValueOnce(unitB)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
+    ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
 
     const result = await calculateAllUnitMetrics()
 
@@ -919,7 +916,7 @@ describe('calculateAllUnitMetrics', () => {
   })
 
   it('queries units with status AVAILABLE or FULL', async () => {
-    ;(mockPrisma.housingUnit.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.housingUnit.findMany as Mock).mockResolvedValue([])
 
     await calculateAllUnitMetrics()
 
@@ -936,7 +933,7 @@ describe('calculateAllUnitMetrics', () => {
 
 describe('getSimilarPlacementSuccessRate', () => {
   it('returns zeros when no placements found', async () => {
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue([])
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -948,7 +945,7 @@ describe('getSimilarPlacementSuccessRate', () => {
   })
 
   it('queries placements within score +/- range', async () => {
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue([])
 
     await getSimilarPlacementSuccessRate(75, 15)
 
@@ -964,7 +961,7 @@ describe('getSimilarPlacementSuccessRate', () => {
   })
 
   it('uses default range of 10', async () => {
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue([])
 
     await getSimilarPlacementSuccessRate(80)
 
@@ -1000,7 +997,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'COMPLETED',
       },
     ]
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1026,7 +1023,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'REQUEST', // not CONFLICT, so still successful
       },
     ]
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1052,7 +1049,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'CONFLICT',
       },
     ]
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1084,7 +1081,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'COMPLETED',
       },
     ]
-    ;(mockPrisma.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockPrisma.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 

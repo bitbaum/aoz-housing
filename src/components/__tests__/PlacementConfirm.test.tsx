@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { PlacementConfirm } from '../PlacementConfirm'
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   MATCHING_LABELS: {
     blocked: 'Blockiert',
     place: 'Platzieren',
@@ -34,7 +34,7 @@ const BASE_PROPS = {
   unitCode: 'A01',
   fitScore: 80,
   hasConflicts: false,
-  action: jest.fn().mockResolvedValue(undefined),
+  action: vi.fn().mockResolvedValue(undefined),
   formData: { residentId: 'res-1', spotId: 'spot-1' },
 }
 
@@ -53,7 +53,7 @@ function openModal() {
 // --- Tests ---
 
 describe('PlacementConfirm', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Trigger button labels ─────────────────────────────────────────────────
 
@@ -171,7 +171,7 @@ describe('PlacementConfirm', () => {
   })
 
   it('does NOT call action when cancel is clicked', () => {
-    const action = jest.fn()
+    const action = vi.fn()
     renderConfirm({ action })
     openModal()
     fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
@@ -181,7 +181,7 @@ describe('PlacementConfirm', () => {
   // ── Confirm calls action with formData ────────────────────────────────────
 
   it('calls action with FormData containing all formData entries', async () => {
-    const action = jest.fn().mockResolvedValue(undefined)
+    const action = vi.fn().mockResolvedValue(undefined)
     renderConfirm({ action, formData: { residentId: 'r-99', spotId: 'sp-7' } })
     openModal()
     fireEvent.click(screen.getByRole('button', { name: 'Jetzt platzieren' }))
@@ -193,7 +193,7 @@ describe('PlacementConfirm', () => {
   })
 
   it('closes the modal after confirm resolves', async () => {
-    const action = jest.fn().mockResolvedValue(undefined)
+    const action = vi.fn().mockResolvedValue(undefined)
     renderConfirm({ action })
     openModal()
     fireEvent.click(screen.getByRole('button', { name: 'Jetzt platzieren' }))

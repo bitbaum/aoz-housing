@@ -8,17 +8,18 @@
  * of the returned object is asserted directly.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { residentOpportunityBoard } from '../opportunities'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
-    opportunityApplication: { findMany: jest.fn() },
-    opportunity: { findMany: jest.fn() },
+    opportunityApplication: { findMany: vi.fn() },
+    opportunity: { findMany: vi.fn() },
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 function listing(overrides: Record<string, unknown> = {}) {
   return {
@@ -34,9 +35,9 @@ function listing(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(mockPrisma.opportunityApplication.findMany as jest.Mock).mockResolvedValue([])
-  ;(mockPrisma.opportunity.findMany as jest.Mock).mockResolvedValue([listing()])
+  vi.clearAllMocks()
+  ;(mockPrisma.opportunityApplication.findMany as Mock).mockResolvedValue([])
+  ;(mockPrisma.opportunity.findMany as Mock).mockResolvedValue([listing()])
 })
 
 describe('residentOpportunityBoard', () => {
@@ -56,7 +57,7 @@ describe('residentOpportunityBoard', () => {
   it('reports an unstated capacity as unknown, not as full', async () => {
     // `null` seats means the listing never named a number. Rendering that as
     // zero would take an open place off the board for everyone.
-    ;(mockPrisma.opportunity.findMany as jest.Mock).mockResolvedValue([listing({ seats: null })])
+    ;(mockPrisma.opportunity.findMany as Mock).mockResolvedValue([listing({ seats: null })])
 
     const { open } = await residentOpportunityBoard('res-1')
 
@@ -66,14 +67,14 @@ describe('residentOpportunityBoard', () => {
   it('only ever asks for published listings', async () => {
     await residentOpportunityBoard('res-1')
 
-    const where = (mockPrisma.opportunity.findMany as jest.Mock).mock.calls[0][0].where
+    const where = (mockPrisma.opportunity.findMany as Mock).mock.calls[0][0].where
     expect(where).toEqual({ status: 'PUBLISHED' })
   })
 
   it('drops listings the resident is already attached to', async () => {
     // Otherwise the same place appears twice — once under "your placements"
     // with a stage, and once under "open" with a button that cannot work.
-    ;(mockPrisma.opportunityApplication.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.opportunityApplication.findMany as Mock).mockResolvedValue([
       { id: 'app-1', opportunityId: 'opp-1', stage: 'INTERESTED', opportunity: listing() },
     ])
 
@@ -84,7 +85,7 @@ describe('residentOpportunityBoard', () => {
   })
 
   it('puts the places someone can still take first', async () => {
-    ;(mockPrisma.opportunity.findMany as jest.Mock).mockResolvedValue([
+    ;(mockPrisma.opportunity.findMany as Mock).mockResolvedValue([
       listing({ id: 'full', seats: 1, applications: [{ stage: 'STARTED' }] }),
       listing({ id: 'open', seats: 2, applications: [] }),
     ])
@@ -97,7 +98,7 @@ describe('residentOpportunityBoard', () => {
   it('scopes the applications it returns to the asking resident', async () => {
     await residentOpportunityBoard('res-1')
 
-    const where = (mockPrisma.opportunityApplication.findMany as jest.Mock).mock.calls[0][0].where
+    const where = (mockPrisma.opportunityApplication.findMany as Mock).mock.calls[0][0].where
     expect(where).toEqual({ residentId: 'res-1' })
   })
 })

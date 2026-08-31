@@ -11,10 +11,10 @@ import { logAudit, getEntityAuditLog, getRecentAuditLogs } from '../audit'
 // MOCKS
 // =============================================================================
 
-const mockAuditLogCreate = jest.fn()
-const mockAuditLogFindMany = jest.fn()
+const mockAuditLogCreate = vi.hoisted(() => vi.fn())
+const mockAuditLogFindMany = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     auditLog: {
       create: (...args: unknown[]) => mockAuditLogCreate(...args),
@@ -23,15 +23,15 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockGetCurrentUser = jest.fn()
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/auth', () => ({
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: () => mockGetCurrentUser(),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    errorWithCause: jest.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -41,7 +41,7 @@ jest.mock('@/lib/logger', () => ({
 
 describe('logAudit', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogCreate.mockResolvedValue({})
     mockGetCurrentUser.mockResolvedValue(null)
   })
@@ -168,7 +168,7 @@ describe('logAudit', () => {
 
 describe('getEntityAuditLog', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogFindMany.mockResolvedValue([])
   })
 
@@ -212,7 +212,7 @@ describe('getEntityAuditLog', () => {
 
 describe('getRecentAuditLogs', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogFindMany.mockResolvedValue([])
   })
 

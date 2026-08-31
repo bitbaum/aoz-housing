@@ -1,14 +1,14 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // =============================================================================
 // Shared mocks
 // =============================================================================
 
-const mockRouterReplace = jest.fn()
-const mockShowToast = jest.fn()
+const mockRouterReplace = vi.hoisted(() => vi.fn())
+const mockShowToast = vi.hoisted(() => vi.fn())
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace: mockRouterReplace }),
   usePathname: () => '/residents',
   useSearchParams: () => mockSearchParams,
@@ -16,12 +16,12 @@ jest.mock('next/navigation', () => ({
 
 let mockSearchParams = new URLSearchParams()
 
-jest.mock('@/components/ui/Toast', () => ({
+vi.mock('@/components/ui/Toast', () => ({
   showToast: (...args: unknown[]) => mockShowToast(...args),
 }))
 
 // DynamicFormField stub: renders a div showing factor id + disabled flag
-jest.mock('../DynamicFormField', () => ({
+vi.mock('../DynamicFormField', () => ({
   DynamicFormField: ({
     factor,
     disabled,
@@ -42,7 +42,7 @@ jest.mock('../DynamicFormField', () => ({
 
 // Config mocks for DynamicFormSection (props-based, no module mock needed)
 // Config mocks for HousingFormFields / ResidentFormFields
-jest.mock('@/lib/config/housing-factors', () => ({
+vi.mock('@/lib/config/housing-factors', () => ({
   HOUSING_FORM_SECTIONS: [
     { id: 'basic', label: 'Grunddaten', order: 1 },
     { id: 'facilities', label: 'Ausstattung', order: 2 },
@@ -67,9 +67,15 @@ jest.mock('@/lib/config/housing-factors', () => ({
   },
 }))
 
-const codeFactor = { id: 'code', type: 'text', label: 'Code', formSection: 'basic', formOrder: 1 }
+const codeFactor = vi.hoisted(() => ({
+  id: 'code',
+  type: 'text',
+  label: 'Code',
+  formSection: 'basic',
+  formOrder: 1,
+}))
 
-jest.mock('@/lib/config/resident-factors', () => ({
+vi.mock('@/lib/config/resident-factors', () => ({
   RESIDENT_FORM_SECTIONS: [{ id: 'basic', label: 'Stammdaten', order: 1 }],
   // The AI field registry and the form's starting values are both derived from
   // RESIDENT_FACTORS, so the mock has to provide it too.
@@ -81,7 +87,7 @@ jest.mock('@/lib/config/resident-factors', () => ({
   isEssentialFactor: () => true,
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   RESIDENT_FORM_LABELS: {
     medDocTitle: 'Medizinische Dokumentation',
     medDocDesc: 'Berechtigung für besondere Unterbringungsbedürfnisse',
@@ -105,7 +111,7 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', () => ({
   MEDICAL_DOC_TYPE_LABELS: {
     PRIVATE_ROOM: 'Einzelzimmer',
     STUDIO: 'Studio',

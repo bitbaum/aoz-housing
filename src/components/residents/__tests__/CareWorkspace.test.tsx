@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { CareWorkspace } from '../CareWorkspace'
 import { CARE_ROLES, CARE_ROLE_LABELS, writableCareDomains } from '@/lib/config/care'
@@ -17,13 +17,14 @@ import { ASSIGNABLE_STAFF_ROLES, type StaffRole } from '@/lib/auth/role-policy'
  * `CARE_ROLES.map` back type-checks, lints and looks completely fine.
  */
 
-jest.mock('@/lib/actions/care', () => ({
-  createAppointment: jest.fn(),
-  saveCareAttributes: jest.fn(),
-  setAppointmentStatus: jest.fn(),
+vi.mock('@/lib/actions/care', () => ({
+  createAppointment: vi.fn(),
+  saveCareAttributes: vi.fn(),
+  setAppointmentStatus: vi.fn(),
 }))
 
-jest.mock('lucide-react', () => ({
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('lucide-react')),
   ChevronDown: () => <span data-testid="chevron" />,
 }))
 

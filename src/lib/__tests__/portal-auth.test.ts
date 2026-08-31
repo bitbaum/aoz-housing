@@ -12,16 +12,16 @@ import { getPortalAuth } from '../portal-auth'
 // MOCKS
 // =============================================================================
 
-const mockGet = jest.fn()
-const mockCookies = jest.fn().mockResolvedValue({ get: mockGet })
+const mockGet = vi.hoisted(() => vi.fn())
+const mockCookies = vi.hoisted(() => vi.fn().mockResolvedValue({ get: mockGet }))
 
-jest.mock('next/headers', () => ({
+vi.mock('next/headers', () => ({
   cookies: () => mockCookies(),
 }))
 
-const mockResidentFindUnique = jest.fn()
+const mockResidentFindUnique = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: { findUnique: (...args: unknown[]) => mockResidentFindUnique(...args) },
   },
@@ -51,7 +51,7 @@ const RESIDENT_WITHOUT_PLACEMENT = {
 
 describe('getPortalAuth', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Cookie absent ─────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@
  * when the house actually said yes.
  */
 
+import type { Mock } from 'vitest'
 import { prisma } from '@/lib/db'
 import {
   adoptProposal,
@@ -16,27 +17,27 @@ import {
   expireStaleAgreements,
 } from '../lifecycle'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
-    proposal: { findMany: jest.fn(), findUnique: jest.fn(), updateMany: jest.fn() },
-    houseRule: { create: jest.fn(), update: jest.fn() },
-    placement: { findMany: jest.fn() },
-    conflictAgreement: { updateMany: jest.fn() },
+    proposal: { findMany: vi.fn(), findUnique: vi.fn(), updateMany: vi.fn() },
+    houseRule: { create: vi.fn(), update: vi.fn() },
+    placement: { findMany: vi.fn() },
+    conflictAgreement: { updateMany: vi.fn() },
   },
 }))
 
-jest.mock('@/lib/logger', () => ({
-  logger: { errorWithCause: jest.fn(), info: jest.fn(), warn: jest.fn() },
+vi.mock('@/lib/logger', () => ({
+  logger: { errorWithCause: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }))
 
 const mockProposal = prisma.proposal as unknown as {
-  findMany: jest.Mock
-  findUnique: jest.Mock
-  updateMany: jest.Mock
+  findMany: Mock
+  findUnique: Mock
+  updateMany: Mock
 }
-const mockRule = prisma.houseRule as unknown as { create: jest.Mock; update: jest.Mock }
-const mockPlacement = prisma.placement as unknown as { findMany: jest.Mock }
-const mockAgreement = prisma.conflictAgreement as unknown as { updateMany: jest.Mock }
+const mockRule = prisma.houseRule as unknown as { create: Mock; update: Mock }
+const mockPlacement = prisma.placement as unknown as { findMany: Mock }
+const mockAgreement = prisma.conflictAgreement as unknown as { updateMany: Mock }
 
 const ORG_TOPIC = {
   id: 'org-kitchen',
@@ -70,7 +71,7 @@ function votingProposal(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockProposal.updateMany.mockResolvedValue({ count: 1 })
   mockProposal.findMany.mockResolvedValue([])
   mockRule.create.mockResolvedValue({ id: 'new-rule' })

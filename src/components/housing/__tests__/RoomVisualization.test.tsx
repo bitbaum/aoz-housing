@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { RoomVisualization } from '../RoomVisualization'
 import type { HousingSpot, HousingPlacement } from '../types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -22,7 +22,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', () => ({
   SPOT_TYPE_ICONS: { BED: '🛏️', PRIVATE_ROOM: '🚪', STUDIO: '🏠', ROOM: '🚿' },
   SPOT_STATUS_LABELS: {
     AVAILABLE: 'Verfügbar',
@@ -32,7 +32,7 @@ jest.mock('@/lib/config/placement-spots', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   HOUSING_SPOTS_LABELS: {
     emptyRoomView: 'Keine Plätze definiert für diese Unterkunft',
     addSpotsBtn: 'Plätze hinzufügen',
@@ -45,7 +45,7 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
-jest.mock('../BedGrid', () => ({
+vi.mock('../BedGrid', () => ({
   BedGrid: ({
     spots,
     onBedClick,
@@ -286,12 +286,12 @@ describe('RoomVisualization', () => {
 
   it('shows "Platzieren" button on available top-level spot when onPlaceResident given', () => {
     const spot = makeSpot({ id: 's1', type: 'PRIVATE_ROOM', status: 'AVAILABLE' })
-    render(<RoomVisualization spots={[spot]} housingUnitId={UNIT_ID} onPlaceResident={jest.fn()} />)
+    render(<RoomVisualization spots={[spot]} housingUnitId={UNIT_ID} onPlaceResident={vi.fn()} />)
     expect(screen.getByRole('button', { name: 'Platzieren' })).toBeInTheDocument()
   })
 
   it('calls onPlaceResident with spot id when "Platzieren" clicked', () => {
-    const onPlace = jest.fn()
+    const onPlace = vi.fn()
     const spot = makeSpot({ id: 'spot-99', type: 'PRIVATE_ROOM', status: 'AVAILABLE' })
     render(<RoomVisualization spots={[spot]} housingUnitId={UNIT_ID} onPlaceResident={onPlace} />)
     fireEvent.click(screen.getByRole('button', { name: 'Platzieren' }))
@@ -307,7 +307,7 @@ describe('RoomVisualization', () => {
   // ── BedGrid click → onAvailableBedClick ───────────────────────────────────
 
   it('passes onAvailableBedClick through BedGrid stub when provided', () => {
-    const onBedClick = jest.fn()
+    const onBedClick = vi.fn()
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
     const bed = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', code: 'B1' })
     render(
@@ -322,7 +322,7 @@ describe('RoomVisualization', () => {
   })
 
   it('calls onPlaceResident via BedGrid when onAvailableBedClick not provided', () => {
-    const onPlace = jest.fn()
+    const onPlace = vi.fn()
     const room = makeSpot({ id: 'r1', type: 'ROOM' })
     const bed = makeSpot({ id: 'b1', type: 'BED', parentSpotId: 'r1', code: 'B1' })
     render(

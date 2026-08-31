@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: jest.fn(), refresh: jest.fn() }),
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   HOUSING_DANGER_ZONE_LABELS: {
     title: 'Housing Danger Zone',
     description: 'Nur für Test-Unterkünfte.',
@@ -23,8 +23,8 @@ jest.mock('@/lib/constants/labels', () => ({
   HOUSING_BLOCKER_LABELS: { placements: 'Platzierungen', incidents: 'Vorfälle' },
 }))
 
-jest.mock('@/lib/actions', () => ({
-  hardDeleteHousingUnitProtected: jest.fn().mockResolvedValue({ success: false }),
+vi.mock('@/lib/actions', () => ({
+  hardDeleteHousingUnitProtected: vi.fn().mockResolvedValue({ success: false }),
 }))
 
 import { HousingDangerZone } from '../HousingDangerZone'

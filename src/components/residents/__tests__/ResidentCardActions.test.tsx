@@ -1,23 +1,23 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ResidentCardActions } from '../ResidentCardActions'
 
 // --- Mocks ---
 
-const mockPush = jest.fn()
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.hoisted(() => vi.fn())
+const mockRefresh = vi.hoisted(() => vi.fn())
+vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
-const mockArchive = jest.fn()
-const mockRestore = jest.fn()
-jest.mock('@/lib/actions', () => ({
+const mockArchive = vi.hoisted(() => vi.fn())
+const mockRestore = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/actions', () => ({
   archiveResident: (...args: unknown[]) => mockArchive(...args),
   restoreResident: (...args: unknown[]) => mockRestore(...args),
 }))
 
-jest.mock('@/lib/config/crud-actions', () => ({
+vi.mock('@/lib/config/crud-actions', () => ({
   CRUD_ACTIONS: {
     edit: { label: 'Bearbeiten' },
     duplicate: { label: 'Duplizieren' },
@@ -31,7 +31,7 @@ jest.mock('@/lib/config/crud-actions', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   UI_LABELS: { actions: 'Aktionen' },
 }))
 
@@ -45,10 +45,10 @@ function openMenu() {
 
 describe('ResidentCardActions', () => {
   beforeAll(() => {
-    jest.spyOn(window, 'alert').mockImplementation(() => {})
+    vi.spyOn(window, 'alert').mockImplementation(() => {})
   })
-  afterAll(() => jest.restoreAllMocks())
-  afterEach(() => jest.clearAllMocks())
+  afterAll(() => vi.restoreAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Trigger renders ──────────────────────────────────────────────────────
 

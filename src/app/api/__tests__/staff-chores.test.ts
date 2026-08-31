@@ -1,24 +1,24 @@
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/chores/route'
 
-const mockRequireStaffAuth = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockRequireStaffAuth = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   requireStaffAuth: () => mockRequireStaffAuth(),
 }))
 
-const mockUnitFindUnique = jest.fn()
-const mockTaskCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUnitFindUnique = vi.hoisted(() => vi.fn())
+const mockTaskCreate = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     housingUnit: { findUnique: (...args: unknown[]) => mockUnitFindUnique(...args) },
     householdTask: { create: (...args: unknown[]) => mockTaskCreate(...args) },
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({ logAudit: (...args: unknown[]) => mockLogAudit(...args) }))
-jest.mock('@/lib/logger', () => ({
-  logger: { errorWithCause: jest.fn(), error: jest.fn(), info: jest.fn() },
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({ logAudit: (...args: unknown[]) => mockLogAudit(...args) }))
+vi.mock('@/lib/logger', () => ({
+  logger: { errorWithCause: vi.fn(), error: vi.fn(), info: vi.fn() },
 }))
 
 /**
@@ -43,7 +43,7 @@ const VALID = {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockRequireStaffAuth.mockResolvedValue({ id: 'staff-1', name: 'M. Keller', role: 'ADMIN' })
   mockUnitFindUnique.mockResolvedValue({ id: 'unit-1', code: 'DEMO-U05' })
   mockTaskCreate.mockImplementation((args: { data: unknown }) =>

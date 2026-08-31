@@ -5,13 +5,13 @@
 
 // --- Mocks ---
 
-const mockIncidentFindMany = jest.fn()
-const mockPlacementFindMany = jest.fn()
+const mockIncidentFindMany = vi.hoisted(() => vi.fn())
+const mockPlacementFindMany = vi.hoisted(() => vi.fn())
 // $queryRaw is used for pg_try_advisory_lock + pg_advisory_unlock.
 // Default mock: lock acquired so the route proceeds normally; tests can
 // override per case.
-const mockQueryRaw = jest.fn().mockResolvedValue([{ ok: true }])
-jest.mock('@/lib/db', () => ({
+const mockQueryRaw = vi.hoisted(() => vi.fn().mockResolvedValue([{ ok: true }]))
+vi.mock('@/lib/db', () => ({
   prisma: {
     incident: {
       findMany: (...args: unknown[]) => mockIncidentFindMany(...args),
@@ -23,26 +23,26 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockNotifyStaff = jest.fn()
-jest.mock('@/lib/email', () => ({
+const mockNotifyStaff = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/email', () => ({
   notifyStaff: (...args: unknown[]) => mockNotifyStaff(...args),
-  incidentFollowUpReminder: jest.fn().mockReturnValue({
+  incidentFollowUpReminder: vi.fn().mockReturnValue({
     subject: '[AOZ Housing] 1 überfällige Nachverfolgungen',
     html: '<p>test incidents</p>',
   }),
-  checkInReminder: jest.fn().mockReturnValue({
+  checkInReminder: vi.fn().mockReturnValue({
     subject: '[AOZ Housing] 1 Check-ins überfällig',
     html: '<p>test check-ins</p>',
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -65,7 +65,7 @@ function createCronRequest(authHeader?: string): Request {
 const originalEnv = process.env.CRON_SECRET
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   process.env.CRON_SECRET = CRON_SECRET
   mockIncidentFindMany.mockResolvedValue([])
   mockPlacementFindMany.mockResolvedValue([])

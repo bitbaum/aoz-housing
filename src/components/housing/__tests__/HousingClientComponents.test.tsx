@@ -1,49 +1,52 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // =============================================================================
 // Mocks shared across suites
 // =============================================================================
 
-const mockRouter = { push: jest.fn(), refresh: jest.fn() }
-jest.mock('next/navigation', () => ({
+const mockRouter = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }))
+vi.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
 }))
 
 // --- DangerZone mock (captures props for assertion) ---
 
-const MockDangerZone = jest.fn(
-  ({
-    entityType,
-    entityId,
-    entityCode,
-    redirectPath,
-    ariaId,
-  }: {
-    entityType: string
-    entityId: string
-    entityCode: string
-    redirectPath: string
-    ariaId: string
-  }) => (
-    <div
-      data-testid="danger-zone"
-      data-entity-type={entityType}
-      data-entity-id={entityId}
-      data-entity-code={entityCode}
-      data-redirect-path={redirectPath}
-      data-aria-id={ariaId}
-    />
+const MockDangerZone = vi.hoisted(() =>
+  vi.fn(
+    ({
+      entityType,
+      entityId,
+      entityCode,
+      redirectPath,
+      ariaId,
+    }: {
+      entityType: string
+      entityId: string
+      entityCode: string
+      redirectPath: string
+      ariaId: string
+    }) => (
+      <div
+        data-testid="danger-zone"
+        data-entity-type={entityType}
+        data-entity-id={entityId}
+        data-entity-code={entityCode}
+        data-redirect-path={redirectPath}
+        data-aria-id={ariaId}
+      />
+    ),
   ),
 )
 
-jest.mock('@/components/ui/DangerZone', () => ({
+vi.mock('@/components/ui/DangerZone', () => ({
   DangerZone: MockDangerZone,
 }))
 
 // --- Label mocks for HousingDangerZone ---
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   HOUSING_DANGER_ZONE_LABELS: {
     title: 'Housing Danger Zone',
     description: 'Housing delete description',
@@ -83,7 +86,7 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   DANGER_ZONE_LABELS: {
     title: 'Resident Danger Zone',
     description: 'Resident delete description',
@@ -108,9 +111,9 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/actions', () => ({
-  hardDeleteHousingUnitProtected: jest.fn(),
-  hardDeleteResidentProtected: jest.fn(),
+vi.mock('@/lib/actions', () => ({
+  hardDeleteHousingUnitProtected: vi.fn(),
+  hardDeleteResidentProtected: vi.fn(),
 }))
 
 // --- RoomVisualizationWithPlacement mocks ---
@@ -128,31 +131,33 @@ const STUB_SPOT: HousingSpot = {
   placements: [],
 }
 
-const MockPlacementPanel = jest.fn(
-  ({
-    isOpen,
-    onClose,
-    onPlaceResident,
-  }: {
-    isOpen: boolean
-    onClose: () => void
-    onPlaceResident: (residentId: string, spotId: string) => Promise<void>
-    spot: HousingSpot | null
-    compatibleResidents: unknown[]
-    housingUnitId: string
-  }) => (
-    <div data-testid={`panel-${isOpen ? 'open' : 'closed'}`}>
-      <button onClick={onClose}>Schliessen</button>
-      <button onClick={() => onPlaceResident('r1', 's1')}>Platzieren</button>
-    </div>
+const MockPlacementPanel = vi.hoisted(() =>
+  vi.fn(
+    ({
+      isOpen,
+      onClose,
+      onPlaceResident,
+    }: {
+      isOpen: boolean
+      onClose: () => void
+      onPlaceResident: (residentId: string, spotId: string) => Promise<void>
+      spot: HousingSpot | null
+      compatibleResidents: unknown[]
+      housingUnitId: string
+    }) => (
+      <div data-testid={`panel-${isOpen ? 'open' : 'closed'}`}>
+        <button onClick={onClose}>Schliessen</button>
+        <button onClick={() => onPlaceResident('r1', 's1')}>Platzieren</button>
+      </div>
+    ),
   ),
 )
 
-jest.mock('../PlacementPanel', () => ({
+vi.mock('../PlacementPanel', () => ({
   PlacementPanel: MockPlacementPanel,
 }))
 
-jest.mock('../RoomVisualization', () => ({
+vi.mock('../RoomVisualization', () => ({
   RoomVisualization: ({
     spots,
     onAvailableBedClick,
@@ -176,8 +181,8 @@ jest.mock('../RoomVisualization', () => ({
   ),
 }))
 
-jest.mock('@/lib/actions/placements', () => ({
-  createPlacement: jest.fn().mockResolvedValue({ success: true }),
+vi.mock('@/lib/actions/placements', () => ({
+  createPlacement: vi.fn().mockResolvedValue({ success: true }),
 }))
 
 // =============================================================================
@@ -296,7 +301,7 @@ describe('RoomVisualizationWithPlacement', () => {
     mockRouter.push.mockClear()
     mockRouter.refresh.mockClear()
     MockPlacementPanel.mockClear()
-    ;(createPlacement as jest.Mock).mockResolvedValue({ success: true })
+    ;(createPlacement as Mock).mockResolvedValue({ success: true })
   })
 
   it('renders RoomVisualization with spots', () => {

@@ -16,27 +16,27 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetPortalAuth = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockGetPortalAuth = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   getPortalAuth: () => mockGetPortalAuth(),
 }))
 
-const mockFindMany = jest.fn()
-const mockFindFirst = jest.fn()
-const mockCreate = jest.fn()
-const mockUpdate = jest.fn()
-const mockGroupBy = jest.fn()
-const mockCompletionFindMany = jest.fn()
-const mockIncidentCreate = jest.fn()
-const mockFlagCreate = jest.fn()
-const mockRequestCreate = jest.fn()
-const mockTransaction = jest.fn()
-const mockCompletionCreate = jest.fn()
-const mockFlagUpdateMany = jest.fn()
-const mockRequestUpdateMany = jest.fn()
-const mockTaskUpdate = jest.fn()
+const mockFindMany = vi.hoisted(() => vi.fn())
+const mockFindFirst = vi.hoisted(() => vi.fn())
+const mockCreate = vi.hoisted(() => vi.fn())
+const mockUpdate = vi.hoisted(() => vi.fn())
+const mockGroupBy = vi.hoisted(() => vi.fn())
+const mockCompletionFindMany = vi.hoisted(() => vi.fn())
+const mockIncidentCreate = vi.hoisted(() => vi.fn())
+const mockFlagCreate = vi.hoisted(() => vi.fn())
+const mockRequestCreate = vi.hoisted(() => vi.fn())
+const mockTransaction = vi.hoisted(() => vi.fn())
+const mockCompletionCreate = vi.hoisted(() => vi.fn())
+const mockFlagUpdateMany = vi.hoisted(() => vi.fn())
+const mockRequestUpdateMany = vi.hoisted(() => vi.fn())
+const mockTaskUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     householdTask: {
       findMany: (...args: unknown[]) => mockFindMany(...args),
@@ -68,35 +68,40 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockValidateFormData = jest.fn()
-const MockValidationError = class ValidationError extends Error {
-  fieldErrors: Record<string, string[] | undefined>
-  constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
-    super(message)
-    this.fieldErrors = fieldErrors
-  }
-}
+const mockValidateFormData = vi.hoisted(() => vi.fn())
+const MockValidationError = vi.hoisted(
+  () =>
+    class ValidationError extends Error {
+      fieldErrors: Record<string, string[] | undefined>
+      constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
+        super(message)
+        this.fieldErrors = fieldErrors
+      }
+    },
+)
 // Use the REAL schemas and stub only the form-data helper. A hand-copied
 // schema here would go on passing while the route silently dropped every field
 // the real schema later gained — which is exactly how two portal fields were
 // lost once already. The mock must never become a second definition.
-jest.mock('@/lib/validation/schemas', () => ({
-  ...jest.requireActual('@/lib/validation/schemas'),
+// async: vitest's importActual is async, unlike jest's requireActual,
+// so the factory has to await it.
+vi.mock('@/lib/validation/schemas', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/validation/schemas')),
   validateFormData: (...args: unknown[]) => mockValidateFormData(...args),
   ValidationError: MockValidationError,
 }))
@@ -164,7 +169,7 @@ const SAMPLE_TASK = {
 
 describe('GET /api/portal/chores', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -336,7 +341,7 @@ describe('GET /api/portal/chores', () => {
 
 describe('POST /api/portal/chores', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -510,7 +515,7 @@ describe('POST /api/portal/chores', () => {
 
 describe('GET /api/portal/chores/[id]', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -616,7 +621,7 @@ describe('GET /api/portal/chores/[id]', () => {
 
 describe('POST /api/portal/chores/[id]/complete', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -665,16 +670,16 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
         taskCompletion: {
-          create: jest.fn().mockResolvedValue(completionResult),
+          create: vi.fn().mockResolvedValue(completionResult),
         },
         householdTask: {
-          update: jest.fn().mockResolvedValue({}),
+          update: vi.fn().mockResolvedValue({}),
         },
         taskAttentionFlag: {
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+          updateMany: vi.fn().mockResolvedValue({ count: 0 }),
         },
         taskRequest: {
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+          updateMany: vi.fn().mockResolvedValue({ count: 0 }),
         },
       }
       return fn(tx)
@@ -690,10 +695,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     // Verify the transaction callback updates the task
     const txFn = mockTransaction.mock.calls[0][0]
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await txFn(mockTx)
 
@@ -709,10 +714,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
-        taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue({ id: 'comp-1' }) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }),
     )
 
@@ -724,10 +729,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     await completeChore(req, makeParams('task-1'))
 
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await mockTransaction.mock.calls[0][0](mockTx)
 
@@ -743,10 +748,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     mockFindFirst.mockResolvedValue({ ...SAMPLE_TASK })
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) =>
       fn({
-        taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue({ id: 'comp-1' }) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }),
     )
 
@@ -757,10 +762,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     expect(res.status).toBe(200)
 
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-1' }) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue({ id: 'comp-1' }) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await mockTransaction.mock.calls[0][0](mockTx)
 
@@ -778,10 +783,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     const completionResult = { id: 'comp-2' }
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }
       return fn(tx)
     })
@@ -794,10 +799,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     // Verify ONE_TIME sets isCompleted + completedAt
     const txFn = mockTransaction.mock.calls[0][0]
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await txFn(mockTx)
 
@@ -818,10 +823,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     const completionResult = { id: 'comp-3' }
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 2 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 2 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }
       return fn(tx)
     })
@@ -832,10 +837,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     // Verify flags are resolved
     const txFn = mockTransaction.mock.calls[0][0]
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 2 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 2 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await txFn(mockTx)
 
@@ -856,10 +861,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     const completionResult = { id: 'comp-4' }
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
       }
       return fn(tx)
     })
@@ -869,10 +874,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
 
     const txFn = mockTransaction.mock.calls[0][0]
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     }
     await txFn(mockTx)
 
@@ -895,10 +900,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     const completionResult = { id: 'comp-5' }
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }
       return fn(tx)
     })
@@ -912,10 +917,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     // Verify the notes/duration are passed through the transaction
     const txFn = mockTransaction.mock.calls[0][0]
     const mockTx = {
-      taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-      householdTask: { update: jest.fn().mockResolvedValue({}) },
-      taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-      taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+      taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+      householdTask: { update: vi.fn().mockResolvedValue({}) },
+      taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
     }
     await txFn(mockTx)
 
@@ -936,10 +941,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
     const completionResult = { id: 'comp-6' }
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue(completionResult) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue(completionResult) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }
       return fn(tx)
     })
@@ -961,10 +966,10 @@ describe('POST /api/portal/chores/[id]/complete', () => {
 
     mockTransaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => {
       const tx = {
-        taskCompletion: { create: jest.fn().mockResolvedValue({ id: 'comp-audit' }) },
-        householdTask: { update: jest.fn().mockResolvedValue({}) },
-        taskAttentionFlag: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
-        taskRequest: { updateMany: jest.fn().mockResolvedValue({ count: 0 }) },
+        taskCompletion: { create: vi.fn().mockResolvedValue({ id: 'comp-audit' }) },
+        householdTask: { update: vi.fn().mockResolvedValue({}) },
+        taskAttentionFlag: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        taskRequest: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       }
       return fn(tx)
     })
@@ -1014,7 +1019,7 @@ describe('POST /api/portal/chores/[id]/complete', () => {
 
 describe('POST /api/portal/chores/[id]/complaint', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -1217,7 +1222,7 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
 
 describe('POST /api/portal/chores/[id]/attention', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -1363,7 +1368,7 @@ describe('POST /api/portal/chores/[id]/attention', () => {
 
 describe('POST /api/portal/chores/[id]/request', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {

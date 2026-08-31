@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CompatibilityDetailPopover } from '../CompatibilityDetailPopover'
 import type { CompatibilityScore } from '../CompatibilityDetailPopover'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -22,13 +22,13 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   getScoreColorClass: (score: number) =>
     score >= 80 ? 'score-excellent' : score >= 60 ? 'score-good' : 'score-medium',
   getScoreLabel: (score: number) => (score >= 80 ? 'Sehr gut' : score >= 60 ? 'Gut' : 'Mittel'),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   COMPATIBILITY_DIMENSION_LABELS: {
     lifestyle: { label: 'Lebensstil', description: 'Schlaf, Lärm, Sauberkeit' },
     social: { label: 'Sozial', description: 'Sprache, Umgang' },
@@ -49,7 +49,8 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/config/thresholds')),
   SCORE_BG_COLORS: {
     excellent: 'bg-score-excellent',
     good: 'bg-score-good',
@@ -90,7 +91,7 @@ function makeScore(overrides: Partial<CompatibilityScore> = {}): CompatibilitySc
 }
 
 function renderPopover(score: CompatibilityScore | null = makeScore()) {
-  const onClose = jest.fn()
+  const onClose = vi.fn()
   render(
     <CompatibilityDetailPopover
       resident1={R1}
@@ -276,7 +277,7 @@ describe('CompatibilityDetailPopover', () => {
         resident2={R2}
         score={makeScore({ lifestyleScore: 70 })}
         position={POSITION}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
       />,
     )
     // The bar div has style width: 70%

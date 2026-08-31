@@ -6,6 +6,7 @@
  * update status atomically, create audit log).
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { getTransferRequests, approveTransferRequest, denyTransferRequest } from '../transfers'
@@ -15,38 +16,38 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     transferRequest: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      updateMany: jest.fn(),
+      findMany: vi.fn(),
+      findUnique: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -54,20 +55,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -80,7 +81,7 @@ describe('getTransferRequests', () => {
       { id: 'tr-1', status: 'PENDING', reason: 'Lärm' },
       { id: 'tr-2', status: 'APPROVED', reason: 'Platzwechsel' },
     ]
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue(mockRequests)
+    ;(mockPrisma.transferRequest.findMany as Mock).mockResolvedValue(mockRequests)
 
     const result = await getTransferRequests()
 
@@ -104,7 +105,7 @@ describe('getTransferRequests', () => {
   })
 
   it('filters by status when provided', async () => {
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.transferRequest.findMany as Mock).mockResolvedValue([])
 
     await getTransferRequests('PENDING')
 
@@ -116,7 +117,7 @@ describe('getTransferRequests', () => {
   })
 
   it('returns empty array when no requests exist', async () => {
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockPrisma.transferRequest.findMany as Mock).mockResolvedValue([])
 
     const result = await getTransferRequests()
 
@@ -132,7 +133,7 @@ describe('approveTransferRequest', () => {
   const validInput = { requestId: 'clxxxxxxxxxxxxxxxxx0001', staffNotes: 'Genehmigt' }
 
   it('approves a pending request atomically and returns success', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 1 })
 
     const result = await approveTransferRequest(validInput)
 
@@ -150,7 +151,7 @@ describe('approveTransferRequest', () => {
   })
 
   it('calls logAudit with userId on approval', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 1 })
 
     await approveTransferRequest(validInput)
 
@@ -164,8 +165,8 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns error when request is not found', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 0 })
+    ;(mockPrisma.transferRequest.findUnique as Mock).mockResolvedValue(null)
 
     const result = await approveTransferRequest(validInput)
 
@@ -174,8 +175,8 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns error when request has already been reviewed', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 0 })
+    ;(mockPrisma.transferRequest.findUnique as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0001',
     })
 
@@ -186,7 +187,7 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockRejectedValue(new Error('DB error'))
 
     const result = await approveTransferRequest(validInput)
 
@@ -202,7 +203,7 @@ describe('denyTransferRequest', () => {
   const validInput = { requestId: 'clxxxxxxxxxxxxxxxxx0002', staffNotes: 'Kein Platz verfügbar' }
 
   it('denies a pending request atomically and returns success', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 1 })
 
     const result = await denyTransferRequest(validInput)
 
@@ -220,7 +221,7 @@ describe('denyTransferRequest', () => {
   })
 
   it('calls logAudit with userId on denial', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 1 })
 
     await denyTransferRequest(validInput)
 
@@ -234,8 +235,8 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns error when request is not found', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 0 })
+    ;(mockPrisma.transferRequest.findUnique as Mock).mockResolvedValue(null)
 
     const result = await denyTransferRequest(validInput)
 
@@ -244,8 +245,8 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns error when request has already been reviewed', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockResolvedValue({ count: 0 })
+    ;(mockPrisma.transferRequest.findUnique as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0002',
     })
 
@@ -256,7 +257,7 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.transferRequest.updateMany as Mock).mockRejectedValue(new Error('DB error'))
 
     const result = await denyTransferRequest(validInput)
 
@@ -270,7 +271,7 @@ describe('denyTransferRequest', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated approve requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    const { requireStaffAuth: mockRequireStaffAuth } = await import('@/lib/auth')
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(approveTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(
@@ -279,7 +280,7 @@ describe('auth guard', () => {
   })
 
   it('rejects unauthenticated deny requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    const { requireStaffAuth: mockRequireStaffAuth } = await import('@/lib/auth')
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(denyTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(

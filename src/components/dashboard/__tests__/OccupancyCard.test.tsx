@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { OccupancyCard } from '../OccupancyCard'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,7 +21,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   DASHBOARD_LABELS: {
     sectionOccupancy: 'Belegung',
     sectionHousing: 'Unterkünfte',
@@ -37,7 +37,8 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/config/thresholds')),
   getOccupancyLevel: (percent: number) => {
     if (percent >= 90) return 'critical'
     if (percent >= 70) return 'warning'

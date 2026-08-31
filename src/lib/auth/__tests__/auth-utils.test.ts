@@ -268,8 +268,8 @@ describe('JWT Token Management', () => {
 
   // ----- shouldRefreshToken -----
   describe('shouldRefreshToken', () => {
-    beforeEach(() => jest.useFakeTimers())
-    afterEach(() => jest.useRealTimers())
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
 
     it('returns false when plenty of time remains', () => {
       const now = Math.floor(Date.now() / 1000)
@@ -344,7 +344,7 @@ describe('JWT Token Management', () => {
 
       // Advance to 30 minutes before expiry
       const advanceMs = (AUTH_CONFIG.jwt.expiresIn - 30 * 60) * 1000
-      jest.setSystemTime(Date.now() + advanceMs)
+      vi.setSystemTime(Date.now() + advanceMs)
 
       expect(shouldRefreshToken(payload)).toBe(true)
     })

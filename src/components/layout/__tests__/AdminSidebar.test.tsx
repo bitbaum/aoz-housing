@@ -12,7 +12,7 @@ import { render, screen } from '@testing-library/react'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { visibleMegaMenuGroups } from '@/lib/config/navigation'
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
 }))
 

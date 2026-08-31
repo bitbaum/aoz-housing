@@ -6,16 +6,17 @@
  * (incidents → placements → units → demo residents).
  */
 
-const mockSeedDemoData = jest.fn()
-jest.mock('../seed-data', () => ({
+import type { Mock } from 'vitest'
+const mockSeedDemoData = vi.hoisted(() => vi.fn())
+vi.mock('../seed-data', () => ({
   seedDemoData: (...args: unknown[]) => mockSeedDemoData(...args),
 }))
 
 // The catalog sync is reference-data plumbing with its own tests; stubbing it
 // keeps the assertion below about the one thing that matters here — the order
 // demo rows are deleted in.
-const mockSyncOrgRules = jest.fn()
-jest.mock('../../governance/sync-org-rules', () => ({
+const mockSyncOrgRules = vi.hoisted(() => vi.fn())
+vi.mock('../../governance/sync-org-rules', () => ({
   syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
 }))
 
@@ -31,7 +32,7 @@ import type { PrismaClient } from '@prisma/client'
 function createPrismaMock() {
   const calls: string[] = []
   const track = (name: string, result: unknown) =>
-    jest.fn(() => {
+    vi.fn(() => {
       calls.push(name)
       return Promise.resolve(result)
     })
@@ -58,7 +59,7 @@ const SEED_SUMMARY = {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   delete process.env.DEMO_RESIDENT_CODE
   delete process.env.DEMO_STAFF_CODE
   mockSeedDemoData.mockResolvedValue(SEED_SUMMARY)
@@ -100,10 +101,10 @@ describe('deleteDemoWorld', () => {
       ],
     }
 
-    expect((raw.message.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.message.deleteMany as Mock).mock.calls[0][0]).toEqual({
       where: { authorResident: demoResidentFilter },
     })
-    expect((raw.messageThread.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.messageThread.deleteMany as Mock).mock.calls[0][0]).toEqual({
       where: { resident: demoResidentFilter },
     })
   })
@@ -112,13 +113,13 @@ describe('deleteDemoWorld', () => {
     const { prisma, raw } = createPrismaMock()
     await deleteDemoWorld(prisma)
     const unitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
-    expect((raw.housingUnit.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.housingUnit.deleteMany as Mock).mock.calls[0][0]).toEqual({
       where: unitFilter,
     })
-    expect((raw.incident.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.incident.deleteMany as Mock).mock.calls[0][0]).toEqual({
       where: { housingUnit: unitFilter },
     })
-    expect((raw.placement.deleteMany as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.placement.deleteMany as Mock).mock.calls[0][0]).toEqual({
       where: { housingUnit: unitFilter },
     })
   })
@@ -127,7 +128,7 @@ describe('deleteDemoWorld', () => {
     process.env.DEMO_RESIDENT_CODE = 'RES-SPECIAL'
     const { prisma, raw } = createPrismaMock()
     await deleteDemoWorld(prisma)
-    expect((raw.resident.deleteMany as jest.Mock).mock.calls[0][0].where).toEqual({
+    expect((raw.resident.deleteMany as Mock).mock.calls[0][0].where).toEqual({
       OR: [
         ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) => ({ code: { startsWith: prefix } })),
         { code: 'RES-SPECIAL' },
@@ -178,7 +179,7 @@ describe('resetDemoWorld', () => {
     const { prisma, raw } = createPrismaMock()
     const summary = await resetDemoWorld(prisma)
     expect(summary.demoStaffCode).toBeNull()
-    expect(raw.user.upsert as jest.Mock).not.toHaveBeenCalled()
+    expect(raw.user.upsert as Mock).not.toHaveBeenCalled()
   })
 })
 
@@ -187,7 +188,7 @@ describe('upsertDemoStaff', () => {
     process.env.DEMO_STAFF_CODE = 'WG-DEMO01'
     const { prisma, raw } = createPrismaMock()
     expect(await upsertDemoStaff(prisma)).toEqual({ id: 'demo-user', code: 'WG-DEMO01' })
-    expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
+    expect((raw.user.upsert as Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
       update: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
       create: {
@@ -207,7 +208,7 @@ describe('upsertDemoStaff', () => {
     await upsertDemoStaff(prisma)
     // A visitor-claimed email/password on the demo door must not outlive the
     // reset — otherwise the next tester cannot get in.
-    expect(raw.account.deleteMany as jest.Mock).toHaveBeenCalledWith({
+    expect(raw.account.deleteMany as Mock).toHaveBeenCalledWith({
       where: { userId: 'demo-user' },
     })
   })

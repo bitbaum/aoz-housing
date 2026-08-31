@@ -5,6 +5,7 @@
  * All actions take FormData, perform Prisma operations, and call revalidatePath.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { createSpot, updateSpot, deleteSpot, createMultipleSpots } from '../spots'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -13,30 +14,30 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     placementSpot: {
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      deleteMany: jest.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      deleteMany: vi.fn(),
     },
     placement: {
-      count: jest.fn(),
+      count: vi.fn(),
     },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -46,20 +47,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -67,20 +68,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -183,7 +184,7 @@ describe('createSpot', () => {
   })
 
   it('creates a spot with required fields', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placementSpot.create as Mock).mockResolvedValue({
       id: 'spot-1',
     })
 
@@ -199,7 +200,7 @@ describe('createSpot', () => {
   })
 
   it('creates a spot with optional fields', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placementSpot.create as Mock).mockResolvedValue({
       id: 'spot-1',
     })
 
@@ -225,7 +226,7 @@ describe('createSpot', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.placementSpot.create as Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(createSpot(makeCreateSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_CREATE_ERROR,
@@ -245,7 +246,7 @@ describe('updateSpot', () => {
   })
 
   it('updates a spot with new data', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placementSpot.update as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0010',
     })
 
@@ -262,7 +263,7 @@ describe('updateSpot', () => {
   })
 
   it('sets parentSpotId to null when not provided', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placementSpot.update as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0010',
     })
 
@@ -278,7 +279,7 @@ describe('updateSpot', () => {
   })
 
   it('preserves parentSpotId when provided', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placementSpot.update as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0010',
     })
 
@@ -298,7 +299,7 @@ describe('updateSpot', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.placementSpot.update as Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(updateSpot(makeUpdateSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_UPDATE_ERROR,
@@ -318,7 +319,7 @@ describe('deleteSpot', () => {
   })
 
   it('throws when spot has active placements', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(1)
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(1)
 
     await expect(deleteSpot(makeDeleteSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_DELETE_BLOCKED,
@@ -326,9 +327,9 @@ describe('deleteSpot', () => {
   })
 
   it('deletes child spots then the spot itself when no active placements', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.deleteMany as jest.Mock).mockResolvedValue({ count: 2 })
-    ;(mockPrisma.placementSpot.delete as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.placementSpot.deleteMany as Mock).mockResolvedValue({ count: 2 })
+    ;(mockPrisma.placementSpot.delete as Mock).mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0010',
     })
 
@@ -346,9 +347,9 @@ describe('deleteSpot', () => {
   })
 
   it('throws user-facing error when prisma delete fails', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.deleteMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.placementSpot.delete as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.placementSpot.deleteMany as Mock).mockResolvedValue({ count: 0 })
+    ;(mockPrisma.placementSpot.delete as Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(deleteSpot(makeDeleteSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_DELETE_ERROR,
@@ -369,7 +370,7 @@ describe('createMultipleSpots', () => {
 
   it('creates a room and beds inside it', async () => {
     const mockRoom = { id: 'room-1' }
-    ;(mockPrisma.placementSpot.create as jest.Mock)
+    ;(mockPrisma.placementSpot.create as Mock)
       .mockResolvedValueOnce(mockRoom) // room creation
       .mockResolvedValueOnce({ id: 'bed-1' }) // bed 1
       .mockResolvedValueOnce({ id: 'bed-2' }) // bed 2
@@ -419,7 +420,7 @@ describe('createMultipleSpots', () => {
   })
 
   it('passes optional fields to room creation', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({ id: 'room-1' })
+    ;(mockPrisma.placementSpot.create as Mock).mockResolvedValue({ id: 'room-1' })
 
     const fd = makeMultipleSpotsFormData({
       roomLabel: 'Zimmer 101',
@@ -440,7 +441,7 @@ describe('createMultipleSpots', () => {
   })
 
   it('creates correct number of beds based on bedCount', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({ id: 'room-1' })
+    ;(mockPrisma.placementSpot.create as Mock).mockResolvedValue({ id: 'room-1' })
 
     const fd = makeMultipleSpotsFormData({ bedCount: '1' })
     await createMultipleSpots(fd)
@@ -450,7 +451,7 @@ describe('createMultipleSpots', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+    ;(mockPrisma.placementSpot.create as Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(createMultipleSpots(makeMultipleSpotsFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOTS_BATCH_CREATE_ERROR,
@@ -464,7 +465,7 @@ describe('createMultipleSpots', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     const fd = new FormData()

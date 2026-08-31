@@ -5,6 +5,7 @@
  * endPlacement and transferPlacement use redirect() which throws, so they are not tested here.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { createPlacement } from '../placements'
@@ -14,43 +15,43 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
-    $transaction: jest.fn(),
+    $transaction: vi.fn(),
     resident: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     placement: {
-      findFirst: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     },
     placementSpot: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     housingUnit: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
     compatibilityAssessment: {
-      upsert: jest.fn(),
+      upsert: vi.fn(),
     },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -60,20 +61,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -81,18 +82,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/compatibility', () => ({
-  calculateCompatibility: jest.fn().mockReturnValue({
+vi.mock('@/lib/compatibility', () => ({
+  calculateCompatibility: vi.fn().mockReturnValue({
     overall: 75,
     lifestyle: 80,
     social: 70,
@@ -103,12 +104,12 @@ jest.mock('@/lib/compatibility', () => ({
   }),
 }))
 
-jest.mock('@/lib/compatibility/convert', () => ({
-  toResidentProfile: jest.fn().mockReturnValue({}),
+vi.mock('@/lib/compatibility/convert', () => ({
+  toResidentProfile: vi.fn().mockReturnValue({}),
 }))
 
-jest.mock('@/lib/compatibility/placement-scores', () => ({
-  calculateAverageScores: jest.fn().mockReturnValue({
+vi.mock('@/lib/compatibility/placement-scores', () => ({
+  calculateAverageScores: vi.fn().mockReturnValue({
     compatibilityScore: 75,
     lifestyleScore: 80,
     socialScore: 70,
@@ -117,10 +118,10 @@ jest.mock('@/lib/compatibility/placement-scores', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -131,20 +132,18 @@ beforeEach(() => {
  * Configures prisma.$transaction to execute the callback with a mock tx object.
  * Each mock method on tx is configurable via the txSetup callback.
  */
-function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void) {
-  const tx: Record<string, Record<string, jest.Mock>> = {
-    resident: { findUnique: jest.fn(), update: jest.fn() },
-    placement: { findFirst: jest.fn(), findMany: jest.fn(), create: jest.fn() },
-    placementSpot: { findUnique: jest.fn(), update: jest.fn() },
-    housingUnit: { findUnique: jest.fn(), update: jest.fn() },
-    compatibilityAssessment: { upsert: jest.fn() },
+function setupTransaction(txSetup: (tx: Record<string, Record<string, Mock>>) => void) {
+  const tx: Record<string, Record<string, Mock>> = {
+    resident: { findUnique: vi.fn(), update: vi.fn() },
+    placement: { findFirst: vi.fn(), findMany: vi.fn(), create: vi.fn() },
+    placementSpot: { findUnique: vi.fn(), update: vi.fn() },
+    housingUnit: { findUnique: vi.fn(), update: vi.fn() },
+    compatibilityAssessment: { upsert: vi.fn() },
   }
   txSetup(tx)
-  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
-    async (cb: (tx: unknown) => unknown) => {
-      return cb(tx)
-    },
-  )
+  ;(mockPrisma.$transaction as Mock).mockImplementation(async (cb: (tx: unknown) => unknown) => {
+    return cb(tx)
+  })
   return tx
 }
 
@@ -276,7 +275,7 @@ describe('createPlacement', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(

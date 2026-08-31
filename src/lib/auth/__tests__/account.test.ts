@@ -5,36 +5,36 @@
  * guarantees.
  */
 
-const mockPrisma = {
-  user: { findUnique: jest.fn(), update: jest.fn() },
-  resident: { findUnique: jest.fn() },
+const mockPrisma = vi.hoisted(() => ({
+  user: { findUnique: vi.fn(), update: vi.fn() },
+  resident: { findUnique: vi.fn() },
   account: {
-    findFirst: jest.fn(),
-    findUnique: jest.fn(),
-    findUniqueOrThrow: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
+    findFirst: vi.fn(),
+    findUnique: vi.fn(),
+    findUniqueOrThrow: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
   },
-}
-jest.mock('@/lib/db', () => ({ prisma: mockPrisma }))
+}))
+vi.mock('@/lib/db', () => ({ prisma: mockPrisma }))
 
-const mockSendEmail = jest.fn()
-jest.mock('@/lib/email/service', () => ({
+const mockSendEmail = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/email/service', () => ({
   sendEmail: (...args: unknown[]) => mockSendEmail(...args),
 }))
 
-const mockEmailConfig = { enabled: true }
-jest.mock('@/lib/email/config', () => ({ EMAIL_CONFIG: mockEmailConfig }))
+const mockEmailConfig = vi.hoisted(() => ({ enabled: true }))
+vi.mock('@/lib/email/config', () => ({ EMAIL_CONFIG: mockEmailConfig }))
 
-const mockCreateAuthToken = jest.fn()
-const mockConsumeAuthToken = jest.fn()
-jest.mock('../tokens', () => ({
+const mockCreateAuthToken = vi.hoisted(() => vi.fn())
+const mockConsumeAuthToken = vi.hoisted(() => vi.fn())
+vi.mock('../tokens', () => ({
   createAuthToken: (...args: unknown[]) => mockCreateAuthToken(...args),
   consumeAuthToken: (...args: unknown[]) => mockConsumeAuthToken(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
 
 import { registerAccount, loginWithEmail, requestPasswordReset, resetPassword } from '../account'
@@ -53,7 +53,7 @@ const RESIDENT = { id: 'res-1', code: 'RES-ABC123' }
 // bcrypt at 12 rounds is deliberately slow, and slower still when the whole
 // suite runs in parallel — the cost is the security property, so these tests
 // get a real budget rather than a weakened hash.
-jest.setTimeout(60_000)
+vi.setConfig({ testTimeout: 60_000 })
 
 // Hash the one password these tests verify against exactly once; otherwise
 // every case pays for it twice.
@@ -94,7 +94,7 @@ function codeExists({ staff = false, resident = false } = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockEmailConfig.enabled = true
   codeExists()
   mockPrisma.user.update.mockResolvedValue({})

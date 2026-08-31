@@ -4,12 +4,12 @@
  * SelectFilter, SearchInput, FilterBar,
  * CollapsibleSection, ToastContainer/showToast, SubmitButton
  */
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   // Pass every prop through: a mock that cherry-picks attributes silently drops
   // the a11y attributes under test (that is how the aria-current regression
@@ -22,13 +22,15 @@ jest.mock('next/link', () => ({
 }))
 
 // useFormStatus mock — default: not pending
-const mockFormStatus = { pending: false }
-jest.mock('react-dom', () => ({
-  ...jest.requireActual('react-dom'),
+const mockFormStatus = vi.hoisted(() => ({ pending: false }))
+// async: vitest's importActual is async, unlike jest's requireActual,
+// so the factory has to await it.
+vi.mock('react-dom', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('react-dom')),
   useFormStatus: () => mockFormStatus,
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   UI_LABELS: { submitting: 'Wird gesendet...' },
 }))
 
@@ -50,45 +52,45 @@ describe('Tabs', () => {
   ]
 
   it('renders a tablist', () => {
-    render(<Tabs tabs={TABS} activeTab="overview" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="overview" onChange={vi.fn()} />)
     expect(screen.getByRole('tablist')).toBeInTheDocument()
   })
 
   it('renders each tab as a button with role=tab', () => {
-    render(<Tabs tabs={TABS} activeTab="overview" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="overview" onChange={vi.fn()} />)
     expect(screen.getAllByRole('tab').length).toBe(2)
   })
 
   it('marks the active tab as aria-selected=true', () => {
-    render(<Tabs tabs={TABS} activeTab="details" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="details" onChange={vi.fn()} />)
     expect(screen.getByRole('tab', { name: /Details/ })).toHaveAttribute('aria-selected', 'true')
   })
 
   it('marks inactive tabs as aria-selected=false', () => {
-    render(<Tabs tabs={TABS} activeTab="details" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="details" onChange={vi.fn()} />)
     expect(screen.getByRole('tab', { name: 'Übersicht' })).toHaveAttribute('aria-selected', 'false')
   })
 
   it('calls onChange with tab id when clicked', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(<Tabs tabs={TABS} activeTab="overview" onChange={onChange} />)
     fireEvent.click(screen.getByRole('tab', { name: /Details/ }))
     expect(onChange).toHaveBeenCalledWith('details')
   })
 
   it('shows count badge when count is defined', () => {
-    render(<Tabs tabs={TABS} activeTab="overview" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="overview" onChange={vi.fn()} />)
     expect(screen.getByText('3')).toBeInTheDocument()
   })
 
   it('hides count badge when count is undefined', () => {
-    render(<Tabs tabs={[{ id: 'a', label: 'A' }]} activeTab="a" onChange={jest.fn()} />)
+    render(<Tabs tabs={[{ id: 'a', label: 'A' }]} activeTab="a" onChange={vi.fn()} />)
     // No numeric badge rendered
     expect(screen.queryByText(/^\d+$/)).not.toBeInTheDocument()
   })
 
   it('sets aria-controls to tabpanel-<id>', () => {
-    render(<Tabs tabs={TABS} activeTab="overview" onChange={jest.fn()} />)
+    render(<Tabs tabs={TABS} activeTab="overview" onChange={vi.fn()} />)
     expect(screen.getByRole('tab', { name: 'Übersicht' })).toHaveAttribute(
       'aria-controls',
       'tabpanel-overview',
@@ -117,7 +119,7 @@ describe('TabButton', () => {
   })
 
   it('calls onClick when clicked', () => {
-    const onClick = jest.fn()
+    const onClick = vi.fn()
     render(<TabButton onClick={onClick}>Label</TabButton>)
     fireEvent.click(screen.getByRole('tab'))
     expect(onClick).toHaveBeenCalledTimes(1)
@@ -212,24 +214,24 @@ describe('SelectFilter', () => {
   ]
 
   it('renders a select with aria-label', () => {
-    render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={jest.fn()} />)
+    render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={vi.fn()} />)
     expect(screen.getByRole('combobox', { name: 'Status' })).toBeInTheDocument()
   })
 
   it('renders all options', () => {
-    render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={jest.fn()} />)
+    render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={vi.fn()} />)
     expect(screen.getByRole('option', { name: 'Alle' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Aktiv' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Beendet' })).toBeInTheDocument()
   })
 
   it('reflects current value', () => {
-    render(<SelectFilter label="Status" value="ACTIVE" options={OPTIONS} onChange={jest.fn()} />)
+    render(<SelectFilter label="Status" value="ACTIVE" options={OPTIONS} onChange={vi.fn()} />)
     expect(screen.getByRole('combobox', { name: 'Status' })).toHaveValue('ACTIVE')
   })
 
   it('calls onChange with selected value', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(<SelectFilter label="Status" value="" options={OPTIONS} onChange={onChange} />)
     fireEvent.change(screen.getByRole('combobox', { name: 'Status' }), {
       target: { value: 'ENDED' },
@@ -244,27 +246,27 @@ describe('SelectFilter', () => {
 
 describe('SearchInput', () => {
   it('renders a text input', () => {
-    render(<SearchInput value="" onChange={jest.fn()} />)
+    render(<SearchInput value="" onChange={vi.fn()} />)
     expect(screen.getByRole('textbox')).toBeInTheDocument()
   })
 
   it('shows provided placeholder', () => {
-    render(<SearchInput value="" onChange={jest.fn()} placeholder="Suche nach Code..." />)
+    render(<SearchInput value="" onChange={vi.fn()} placeholder="Suche nach Code..." />)
     expect(screen.getByPlaceholderText('Suche nach Code...')).toBeInTheDocument()
   })
 
   it('uses default placeholder when none given', () => {
-    render(<SearchInput value="" onChange={jest.fn()} />)
+    render(<SearchInput value="" onChange={vi.fn()} />)
     expect(screen.getByPlaceholderText('Suchen...')).toBeInTheDocument()
   })
 
   it('reflects current value', () => {
-    render(<SearchInput value="hello" onChange={jest.fn()} />)
+    render(<SearchInput value="hello" onChange={vi.fn()} />)
     expect(screen.getByRole('textbox')).toHaveValue('hello')
   })
 
   it('calls onChange with input value', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(<SearchInput value="" onChange={onChange} />)
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'abc' } })
     expect(onChange).toHaveBeenCalledWith('abc')
@@ -374,11 +376,11 @@ describe('CollapsibleSection', () => {
 
 describe('ToastContainer', () => {
   beforeEach(() => {
-    jest.useFakeTimers()
+    vi.useFakeTimers()
   })
   afterEach(() => {
-    jest.clearAllTimers()
-    jest.useRealTimers()
+    vi.clearAllTimers()
+    vi.useRealTimers()
   })
 
   it('renders nothing initially', () => {
@@ -417,7 +419,7 @@ describe('ToastContainer', () => {
     })
     expect(screen.getByText('Temporär')).toBeInTheDocument()
     act(() => {
-      jest.advanceTimersByTime(4000)
+      vi.advanceTimersByTime(4000)
     })
     expect(screen.queryByText('Temporär')).not.toBeInTheDocument()
   })

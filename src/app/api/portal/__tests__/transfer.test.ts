@@ -10,17 +10,17 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieGet = vi.hoisted(() => vi.fn())
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockResolvedValue({
     get: (name: string) => mockCookieGet(name),
   }),
 }))
 
-const mockFindUnique = jest.fn()
-const mockTransferCreate = jest.fn()
-const mockHousingUnitFindUnique = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockFindUnique = vi.hoisted(() => vi.fn())
+const mockTransferCreate = vi.hoisted(() => vi.fn())
+const mockHousingUnitFindUnique = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: {
       findUnique: (...args: unknown[]) => mockFindUnique(...args),
@@ -34,26 +34,24 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/email', () => ({
-  notifyStaff: jest.fn(),
-  newTransferRequestNotification: jest
-    .fn()
-    .mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
+vi.mock('@/lib/email', () => ({
+  notifyStaff: vi.fn(),
+  newTransferRequestNotification: vi.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
 }))
 
 // --- Import after mocks ---
@@ -99,7 +97,7 @@ const VALID_REASON = 'Ich möchte in eine ruhigere Unterkunft wechseln'
 
 describe('POST /api/portal/transfer', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when no resident_code cookie', async () => {

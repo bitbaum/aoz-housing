@@ -18,6 +18,7 @@
  * list (the action). A gate on only one of them is a gate you walk around.
  */
 
+import type { Mock } from 'vitest'
 import {
   OPPORTUNITY_KINDS,
   PERMIT_REQUIREMENTS,
@@ -31,22 +32,22 @@ import { publishOpportunity } from '@/lib/actions/opportunities'
 
 // --- the action path -------------------------------------------------------
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     opportunity: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+      findUnique: vi.fn(),
+      update: vi.fn(),
     },
   },
 }))
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('next/navigation', () => ({ redirect: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }))
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
-jest.mock('@/lib/auth', () => ({
-  requirePermission: jest.fn(async () => ({ id: 'staff-1', role: 'JOBCOACH' })),
+vi.mock('@/lib/auth', () => ({
+  requirePermission: vi.fn(async () => ({ id: 'staff-1', role: 'JOBCOACH' })),
 }))
 
 const UNPAID_KINDS = OPPORTUNITY_KINDS.filter((kind) => !isWorkKind(kind))
@@ -139,11 +140,11 @@ describe('publishing through the form', () => {
 
 describe('publishing through the button that skips the form', () => {
   const mockPrisma = prisma as unknown as {
-    opportunity: { findUnique: jest.Mock; update: jest.Mock }
+    opportunity: { findUnique: Mock; update: Mock }
   }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockPrisma.opportunity.update.mockResolvedValue({})
   })
 

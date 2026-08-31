@@ -1,30 +1,31 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, waitFor } from '@testing-library/react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { UrlFeedbackToast } from '../UrlFeedbackToast'
 import { showToast } from '../Toast'
 
-jest.mock('next/navigation', () => ({
-  useSearchParams: jest.fn(),
-  useRouter: jest.fn(),
-  usePathname: jest.fn(),
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(),
+  useRouter: vi.fn(),
+  usePathname: vi.fn(),
 }))
 
-jest.mock('../Toast', () => ({
-  showToast: jest.fn(),
+vi.mock('../Toast', () => ({
+  showToast: vi.fn(),
 }))
 
-const mockReplace = jest.fn()
+const mockReplace = vi.fn()
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(useRouter as jest.Mock).mockReturnValue({ replace: mockReplace })
-  ;(usePathname as jest.Mock).mockReturnValue('/portal')
+  vi.clearAllMocks()
+  ;(useRouter as Mock).mockReturnValue({ replace: mockReplace })
+  ;(usePathname as Mock).mockReturnValue('/portal')
 })
 
 describe('UrlFeedbackToast', () => {
   it('shows error toast and strips error param', async () => {
-    ;(useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams('error=account_not_found'))
+    ;(useSearchParams as Mock).mockReturnValue(new URLSearchParams('error=account_not_found'))
 
     render(
       <UrlFeedbackToast
@@ -39,7 +40,7 @@ describe('UrlFeedbackToast', () => {
   })
 
   it('shows success toast and strips param', async () => {
-    ;(useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams('created=true'))
+    ;(useSearchParams as Mock).mockReturnValue(new URLSearchParams('created=true'))
 
     render(<UrlFeedbackToast success={[{ param: 'created', message: 'Gespeichert' }]} />)
 

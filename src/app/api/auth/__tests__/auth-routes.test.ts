@@ -10,26 +10,26 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockClearSessionCookie = jest.fn()
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockClearSessionCookie = vi.hoisted(() => vi.fn())
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   clearSessionCookie: (...args: unknown[]) => mockClearSessionCookie(...args),
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindUnique = vi.hoisted(() => vi.fn())
+const mockUserCreate = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: {
       findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
@@ -67,7 +67,7 @@ const ADMIN_USER = {
 
 describe('POST /api/auth/logout', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('calls clearSessionCookie(true) and returns success', async () => {
@@ -105,7 +105,7 @@ describe('POST /api/auth/logout', () => {
 
 describe('GET /api/auth/session', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns current user when authenticated', async () => {
@@ -162,7 +162,7 @@ describe('GET /api/auth/session', () => {
 
 describe('POST /api/auth/register (admin-only staff provisioning)', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Default: authenticated admin
     mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
   })

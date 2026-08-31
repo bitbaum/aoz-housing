@@ -5,6 +5,7 @@
  * createHousingUnit/updateHousingUnit use redirect() which throws, so they are not tested here.
  */
 
+import type { Mock, Mocked } from 'vitest'
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { archiveHousingUnit, restoreHousingUnit, hardDeleteHousingUnitProtected } from '../housing'
@@ -14,33 +15,33 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     housingUnit: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
-    placement: { count: jest.fn() },
-    incident: { count: jest.fn() },
-    maintenanceRequest: { count: jest.fn() },
-    placementSpot: { count: jest.fn() },
-    householdTask: { count: jest.fn() },
-    auditLog: { create: jest.fn() },
+    placement: { count: vi.fn() },
+    incident: { count: vi.fn() },
+    maintenanceRequest: { count: vi.fn() },
+    placementSpot: { count: vi.fn() },
+    householdTask: { count: vi.fn() },
+    auditLog: { create: vi.fn() },
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -50,20 +51,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -71,20 +72,20 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockPrisma = prisma as Mocked<typeof prisma>
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -93,7 +94,7 @@ beforeEach(() => {
 
 describe('archiveHousingUnit', () => {
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(null)
 
     const result = await archiveHousingUnit('nonexistent-id')
 
@@ -102,7 +103,7 @@ describe('archiveHousingUnit', () => {
   })
 
   it('returns error when unit has active placements', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [{ id: 'pl-1' }],
@@ -117,7 +118,7 @@ describe('archiveHousingUnit', () => {
   })
 
   it('returns error when unit has occupied spots', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [],
@@ -131,13 +132,13 @@ describe('archiveHousingUnit', () => {
   })
 
   it('succeeds and sets status to CLOSED when no active occupancy', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [],
       spots: [],
     })
-    ;(mockPrisma.housingUnit.update as jest.Mock).mockResolvedValue({ id: 'hu-1' })
+    ;(mockPrisma.housingUnit.update as Mock).mockResolvedValue({ id: 'hu-1' })
 
     const result = await archiveHousingUnit('hu-1')
 
@@ -163,7 +164,7 @@ describe('archiveHousingUnit', () => {
 
 describe('restoreHousingUnit', () => {
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(null)
 
     const result = await restoreHousingUnit('nonexistent-id')
 
@@ -171,12 +172,12 @@ describe('restoreHousingUnit', () => {
   })
 
   it('succeeds and sets status to AVAILABLE', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       status: 'CLOSED',
     })
-    ;(mockPrisma.housingUnit.update as jest.Mock).mockResolvedValue({ id: 'hu-1' })
+    ;(mockPrisma.housingUnit.update as Mock).mockResolvedValue({ id: 'hu-1' })
 
     const result = await restoreHousingUnit('hu-1')
 
@@ -220,7 +221,7 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue(null)
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -228,7 +229,7 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error when housing unit is not test/demo', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
     })
@@ -240,15 +241,15 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error with blocker report when unit has linked history', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'test-wg-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(3)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(1)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.count as jest.Mock).mockResolvedValue(4)
-    ;(mockPrisma.householdTask.count as jest.Mock).mockResolvedValue(0)
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(3)
+    ;(mockPrisma.incident.count as Mock).mockResolvedValue(1)
+    ;(mockPrisma.maintenanceRequest.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.placementSpot.count as Mock).mockResolvedValue(4)
+    ;(mockPrisma.householdTask.count as Mock).mockResolvedValue(0)
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -261,16 +262,16 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('succeeds for test housing unit with no linked history', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    ;(mockPrisma.housingUnit.findUnique as Mock).mockResolvedValue({
       id: 'hu-1',
       code: 'demo-wg-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.householdTask.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.housingUnit.delete as jest.Mock).mockResolvedValue({ id: 'hu-1' })
+    ;(mockPrisma.placement.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.incident.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.maintenanceRequest.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.placementSpot.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.householdTask.count as Mock).mockResolvedValue(0)
+    ;(mockPrisma.housingUnit.delete as Mock).mockResolvedValue({ id: 'hu-1' })
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -292,7 +293,7 @@ describe('hardDeleteHousingUnitProtected', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = await import('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(archiveHousingUnit('test-id')).rejects.toThrow('Anmeldung erforderlich')

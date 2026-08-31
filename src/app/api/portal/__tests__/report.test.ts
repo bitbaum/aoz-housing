@@ -10,18 +10,18 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieGet = vi.hoisted(() => vi.fn())
+vi.mock('next/headers', () => ({
+  cookies: vi.fn().mockResolvedValue({
     get: (name: string) => mockCookieGet(name),
   }),
 }))
 
-const mockFindUnique = jest.fn()
-const mockIncidentCreate = jest.fn()
-const mockMaintenanceCreate = jest.fn()
-const mockPlacementFindFirst = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockFindUnique = vi.hoisted(() => vi.fn())
+const mockIncidentCreate = vi.hoisted(() => vi.fn())
+const mockMaintenanceCreate = vi.hoisted(() => vi.fn())
+const mockPlacementFindFirst = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: {
       findUnique: (...args: unknown[]) => mockFindUnique(...args),
@@ -38,31 +38,35 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
+vi.mock('@/lib/audit', () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockNotifyStaff = jest.fn().mockResolvedValue(true)
-const mockNewIncidentNotification = jest.fn().mockReturnValue({
-  subject: '[AOZ Housing] Neuer Vorfall',
-  html: '<p>test</p>',
-})
-const mockNewMaintenanceNotification = jest.fn().mockReturnValue({
-  subject: '[AOZ Housing] Neue Wartungsanfrage',
-  html: '<p>test</p>',
-})
-jest.mock('@/lib/email', () => ({
+const mockNotifyStaff = vi.hoisted(() => vi.fn().mockResolvedValue(true))
+const mockNewIncidentNotification = vi.hoisted(() =>
+  vi.fn().mockReturnValue({
+    subject: '[AOZ Housing] Neuer Vorfall',
+    html: '<p>test</p>',
+  }),
+)
+const mockNewMaintenanceNotification = vi.hoisted(() =>
+  vi.fn().mockReturnValue({
+    subject: '[AOZ Housing] Neue Wartungsanfrage',
+    html: '<p>test</p>',
+  }),
+)
+vi.mock('@/lib/email', () => ({
   notifyStaff: (...args: unknown[]) => mockNotifyStaff(...args),
   newIncidentNotification: (...args: unknown[]) => mockNewIncidentNotification(...args),
   newMaintenanceRequestNotification: (...args: unknown[]) =>
@@ -70,22 +74,25 @@ jest.mock('@/lib/email', () => ({
 }))
 
 // Mock validation — the route uses validateFormData + ValidationError
-const mockValidateFormData = jest.fn()
-const MockValidationError = class ValidationError extends Error {
-  fieldErrors: Record<string, string[] | undefined>
-  constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
-    super(message)
-    this.fieldErrors = fieldErrors
-  }
-}
-jest.mock('@/lib/validation/schemas', () => ({
+const mockValidateFormData = vi.hoisted(() => vi.fn())
+const MockValidationError = vi.hoisted(
+  () =>
+    class ValidationError extends Error {
+      fieldErrors: Record<string, string[] | undefined>
+      constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
+        super(message)
+        this.fieldErrors = fieldErrors
+      }
+    },
+)
+vi.mock('@/lib/validation/schemas', () => ({
   portalReportSchema: {},
   validateFormData: (...args: unknown[]) => mockValidateFormData(...args),
   ValidationError: MockValidationError,
 }))
 
 // Mock PORTAL_LABELS with the locations the route looks up
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   PORTAL_LABELS: {
     report: {
       locations: [
@@ -138,7 +145,7 @@ const RESIDENT_NO_PLACEMENT = {
 
 describe('POST /api/portal/report', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when no resident_code cookie', async () => {

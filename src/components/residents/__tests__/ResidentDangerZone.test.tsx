@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: jest.fn(), refresh: jest.fn() }),
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   DANGER_ZONE_LABELS: {
     title: 'Danger Zone',
     description: 'Nur für Test-Bewohner.',
@@ -30,8 +30,8 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/actions', () => ({
-  hardDeleteResidentProtected: jest.fn().mockResolvedValue({ success: false }),
+vi.mock('@/lib/actions', () => ({
+  hardDeleteResidentProtected: vi.fn().mockResolvedValue({ success: false }),
 }))
 
 import { ResidentDangerZone } from '../ResidentDangerZone'

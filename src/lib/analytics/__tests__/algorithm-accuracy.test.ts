@@ -11,10 +11,10 @@ import { calculateAlgorithmAccuracy } from '../algorithm-accuracy'
 // MOCKS
 // =============================================================================
 
-const mockPlacementFindMany = jest.fn()
-const mockIncidentFindMany = jest.fn()
+const mockPlacementFindMany = vi.hoisted(() => vi.fn())
+const mockIncidentFindMany = vi.hoisted(() => vi.fn())
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
     incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
@@ -53,7 +53,7 @@ function makePlacement(overrides: {
 
 describe('calculateAlgorithmAccuracy', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockPlacementFindMany.mockResolvedValue([])
     mockIncidentFindMany.mockResolvedValue([])
   })

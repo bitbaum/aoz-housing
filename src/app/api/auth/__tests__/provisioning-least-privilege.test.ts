@@ -18,18 +18,18 @@
 import { NextRequest } from 'next/server'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-jest.mock('@/lib/auth/code-generation', () => ({
-  generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
+vi.mock('@/lib/auth/code-generation', () => ({
+  generateStaffCode: vi.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindUnique = vi.hoisted(() => vi.fn())
+const mockUserCreate = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     user: {
       findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
@@ -38,8 +38,8 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('@/lib/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
 
 import { POST } from '../register/route'
@@ -53,7 +53,7 @@ function post(body: Record<string, unknown>): NextRequest {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockUserFindUnique.mockResolvedValue(null)
   mockUserCreate.mockResolvedValue({
     id: 'u1',

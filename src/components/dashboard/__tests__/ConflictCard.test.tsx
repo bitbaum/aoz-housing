@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ConflictCard } from '../ConflictCard'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,7 +21,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels/dashboard', () => ({
+vi.mock('@/lib/constants/labels/dashboard', () => ({
   ALGORITHM_ACCURACY_LABELS: {
     conflictCardTitle: 'Konflikte',
     conflictCardActiveSuffix: 'aktiv (30 Tage)',
@@ -37,7 +37,8 @@ jest.mock('@/lib/constants/labels/dashboard', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<Record<string, unknown>>('@/lib/config/thresholds')),
   DISPLAY_LIMITS: { dashboardItems: 3 },
 }))
 

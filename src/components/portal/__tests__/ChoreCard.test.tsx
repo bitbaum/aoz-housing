@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ChoreCard } from '../ChoreCard'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -23,7 +23,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/household-tasks', () => ({
+vi.mock('@/lib/config/household-tasks', () => ({
   TASK_CATEGORY_ICONS: { CLEANING: '🧹', OTHER: '📋' },
   TASK_STATUS_COLORS: {
     IDLE: 'bg-gray-100 text-gray-700',
@@ -52,11 +52,11 @@ jest.mock('@/lib/config/household-tasks', () => ({
   },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   UI_LABELS: { details: 'Details' },
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   formatDate: (date: string) => `formatted:${date}`,
 }))
 
@@ -78,7 +78,7 @@ const BASE_TASK = {
   requests: [] as Array<{ id: string }>,
 }
 
-function renderCard(taskOverrides = {}, isCompleting = false, onQuickComplete = jest.fn()) {
+function renderCard(taskOverrides = {}, isCompleting = false, onQuickComplete = vi.fn()) {
   const task = { ...BASE_TASK, ...taskOverrides }
   return render(
     <ChoreCard task={task} onQuickComplete={onQuickComplete} isCompleting={isCompleting} />,
@@ -174,7 +174,7 @@ describe('ChoreCard', () => {
   })
 
   it('calls onQuickComplete with task id when button clicked', () => {
-    const onQuickComplete = jest.fn()
+    const onQuickComplete = vi.fn()
     renderCard({ isCompleted: false, currentStatus: 'IDLE' }, false, onQuickComplete)
     fireEvent.click(screen.getByRole('button'))
     expect(onQuickComplete).toHaveBeenCalledWith('task-1')

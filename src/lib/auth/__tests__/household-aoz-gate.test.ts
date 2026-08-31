@@ -12,10 +12,11 @@
  * that mints identities into it must not exist — not "must be hard to reach".
  */
 
-jest.mock('@/lib/db', () => ({
+import type { Mock } from 'vitest'
+vi.mock('@/lib/db', () => ({
   prisma: {
-    account: { findUnique: jest.fn() },
-    $transaction: jest.fn(),
+    account: { findUnique: vi.fn() },
+    $transaction: vi.fn(),
   },
 }))
 
@@ -24,8 +25,8 @@ import { BRAND } from '@/lib/config/brand'
 import { registerWithNewHousehold } from '@/lib/auth/household'
 
 const mockPrisma = prisma as unknown as {
-  account: { findUnique: jest.Mock }
-  $transaction: jest.Mock
+  account: { findUnique: Mock }
+  $transaction: Mock
 }
 
 describe('self-serve household on an AOZ deployment', () => {

@@ -6,8 +6,8 @@
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
   authorizeStaff: async () => {
     const user = await mockGetCurrentUser()
@@ -16,8 +16,8 @@ jest.mock('@/lib/auth', () => ({
   },
 }))
 
-const mockResidentFindMany = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockResidentFindMany = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/db', () => ({
   prisma: {
     resident: {
       findMany: (...args: unknown[]) => mockResidentFindMany(...args),
@@ -30,7 +30,7 @@ import { GET } from '../../export/residents/route'
 
 describe('GET /api/export/residents', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns 401 when not authenticated', async () => {

@@ -10,38 +10,39 @@
  * that cancels looks — to the person waiting — like being dropped.
  */
 
+import type { Mock } from 'vitest'
 import { prisma } from '@/lib/db'
 import { requestAppointment, respondToAppointmentRequest, rescheduleAppointment } from '../care'
 import { CARE_LABELS } from '@/lib/config/care'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     appointment: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      update: jest.fn(),
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
+      update: vi.fn(),
     },
-    careAssignment: { findUnique: jest.fn() },
+    careAssignment: { findUnique: vi.fn() },
   },
 }))
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/audit', () => ({ logAudit: vi.fn() }))
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockPortalAuth = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockPortalAuth = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/portal-auth', () => ({
   getPortalAuth: (...args: unknown[]) => mockPortalAuth(...args),
 }))
 
 const p = prisma as unknown as {
-  appointment: { create: jest.Mock; findUnique: jest.Mock; findFirst: jest.Mock; update: jest.Mock }
-  careAssignment: { findUnique: jest.Mock }
+  appointment: { create: Mock; findUnique: Mock; findFirst: Mock; update: Mock }
+  careAssignment: { findUnique: Mock }
 }
 
 function form(entries: Record<string, string>): FormData {
@@ -62,7 +63,7 @@ function localInput(date: Date): string {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockPortalAuth.mockResolvedValue({ resident: { id: 'res-1' } })
   mockGetCurrentUser.mockResolvedValue({ id: 'staff-1', role: 'SOZIALARBEIT' })
   p.appointment.findFirst.mockResolvedValue(null)

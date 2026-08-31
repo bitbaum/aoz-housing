@@ -1,8 +1,8 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { AllClearState, QuickActionsBar } from '../AllClearState'
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,
@@ -19,7 +19,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   DASHBOARD_LABELS: {
     allClearTitle: 'Alles unter Kontrolle!',
     allClearConflictFreeSuffix: 'Tage ohne Konflikte.',

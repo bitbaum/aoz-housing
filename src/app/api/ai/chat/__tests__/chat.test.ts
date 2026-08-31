@@ -4,18 +4,18 @@
  * Covers: auth guard, API key guard, schema validation, and SSE streaming.
  */
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/auth', () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockHasAIProvider = jest.fn()
-jest.mock('@/lib/ai/provider', () => ({
+const mockHasAIProvider = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/ai/provider', () => ({
   hasAIProvider: (...args: unknown[]) => mockHasAIProvider(...args),
 }))
 
-const mockRunStaffChat = jest.fn()
-jest.mock('@/lib/ai/staff-chat', () => ({
+const mockRunStaffChat = vi.hoisted(() => vi.fn())
+vi.mock('@/lib/ai/staff-chat', () => ({
   runStaffChat: (...args: unknown[]) => mockRunStaffChat(...args),
 }))
 
@@ -56,7 +56,7 @@ async function readStream(res: Response): Promise<string> {
 
 describe('POST /api/ai/chat', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockHasAIProvider.mockReturnValue(false)
   })
 

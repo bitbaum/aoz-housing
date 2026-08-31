@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { ConfirmDialog } from '../ConfirmDialog'
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', () => ({
   UI_LABELS: {
     confirm: 'Bestätigen',
     cancel: 'Abbrechen',
@@ -27,7 +27,7 @@ function renderDialog(
   const props = {
     title: overrides.title ?? 'Aktion bestätigen',
     message: overrides.message ?? 'Möchten Sie fortfahren?',
-    onConfirm: overrides.onConfirm ?? jest.fn(),
+    onConfirm: overrides.onConfirm ?? vi.fn(),
     ...(overrides.confirmLabel !== undefined && { confirmLabel: overrides.confirmLabel }),
     ...(overrides.cancelLabel !== undefined && { cancelLabel: overrides.cancelLabel }),
     ...(overrides.variant !== undefined && { variant: overrides.variant }),
@@ -46,7 +46,7 @@ function openDialog() {
 // --- Tests ---
 
 describe('ConfirmDialog', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Initial state ────────────────────────────────────────────────────────
 
@@ -102,7 +102,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('does NOT call onConfirm when cancel is clicked', () => {
-    const onConfirm = jest.fn()
+    const onConfirm = vi.fn()
     renderDialog({ onConfirm })
     openDialog()
     fireEvent.click(screen.getByRole('button', { name: 'Abbrechen' }))
@@ -112,7 +112,7 @@ describe('ConfirmDialog', () => {
   // ── Confirm ──────────────────────────────────────────────────────────────
 
   it('calls onConfirm when the confirm button is clicked', async () => {
-    const onConfirm = jest.fn().mockResolvedValue(undefined)
+    const onConfirm = vi.fn().mockResolvedValue(undefined)
     renderDialog({ onConfirm })
     openDialog()
     fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
@@ -120,7 +120,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('closes the modal after onConfirm resolves', async () => {
-    const onConfirm = jest.fn().mockResolvedValue(undefined)
+    const onConfirm = vi.fn().mockResolvedValue(undefined)
     renderDialog({ onConfirm })
     openDialog()
     fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))
@@ -128,7 +128,7 @@ describe('ConfirmDialog', () => {
   })
 
   it('supports synchronous onConfirm (no await)', async () => {
-    const onConfirm = jest.fn() // sync, returns undefined
+    const onConfirm = vi.fn() // sync, returns undefined
     renderDialog({ onConfirm })
     openDialog()
     fireEvent.click(screen.getByRole('button', { name: 'Bestätigen' }))

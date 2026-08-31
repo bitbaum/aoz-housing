@@ -7,6 +7,7 @@
  * half of the board sorts into the wrong list forever. None of it throws.
  */
 
+import type { Mock, MockedFunction } from 'vitest'
 import { prisma } from '@/lib/db'
 import { getPortalAuth } from '@/lib/portal-auth'
 import {
@@ -19,34 +20,34 @@ import {
   reopenMarketplacePost,
 } from '../marketplace'
 
-jest.mock('@/lib/db', () => ({
+vi.mock('@/lib/db', () => ({
   prisma: {
     marketplacePost: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      updateMany: jest.fn(),
-      delete: jest.fn(),
+      create: vi.fn(),
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
+      delete: vi.fn(),
     },
   },
 }))
 
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/portal-auth', () => ({ getPortalAuth: jest.fn() }))
-jest.mock('@/lib/auth', () => ({ getCurrentUser: jest.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/portal-auth', () => ({ getPortalAuth: vi.fn() }))
+vi.mock('@/lib/auth', () => ({ getCurrentUser: vi.fn() }))
 
 const mockPrisma = prisma as unknown as {
   marketplacePost: {
-    create: jest.Mock
-    findUnique: jest.Mock
-    findMany: jest.Mock
-    update: jest.Mock
-    updateMany: jest.Mock
-    delete: jest.Mock
+    create: Mock
+    findUnique: Mock
+    findMany: Mock
+    update: Mock
+    updateMany: Mock
+    delete: Mock
   }
 }
-const mockAuth = getPortalAuth as jest.MockedFunction<typeof getPortalAuth>
+const mockAuth = getPortalAuth as MockedFunction<typeof getPortalAuth>
 
 const ME = 'resident-me'
 const OTHER = 'resident-other'
@@ -87,7 +88,7 @@ function row(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   signedInAsMe()
 })
 

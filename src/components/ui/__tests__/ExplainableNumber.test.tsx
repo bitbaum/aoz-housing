@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ExplainableNumber, ExplainableMetric } from '../ExplainableNumber'
 import type { NumberExplanation } from '../ExplainableNumber'
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   UI_LABELS: { close: 'Schliessen' },
   EXPLAINABLE_NUMBER_LABELS: {
     formula: 'Formel',
@@ -20,7 +20,7 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   default: ({
     href,

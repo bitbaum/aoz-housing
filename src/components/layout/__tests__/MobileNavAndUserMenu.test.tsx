@@ -1,19 +1,19 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // --- Navigation mock ---
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
   useRouter: () => mockRouter,
 }))
 
 let mockPathname = '/'
-const mockRouter = { push: jest.fn(), refresh: jest.fn() }
+const mockRouter = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }))
 
 // --- next/link mock ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', () => ({
   __esModule: true,
   // Spread the rest: this mock used to forward only the four props it named,
   // so any attribute the component set — aria-current among them — vanished
@@ -39,7 +39,7 @@ jest.mock('next/link', () => ({
 
 // --- Config/constants mocks ---
 
-jest.mock('@/lib/config/navigation', () => ({
+vi.mock('@/lib/config/navigation', () => ({
   // The drawer consumes the SAME grouped nav as the desktop megamenu — one
   // top-level link, one group (whose /new shortcut must be filtered out).
   MEGAMENU_GROUPS: [
@@ -62,7 +62,7 @@ jest.mock('@/lib/config/navigation', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', () => ({
   APP_LABELS: { tagline: 'Kompatibles Wohnen' },
   UI_LABELS: {
     menuOpen: 'Menü öffnen',
@@ -76,7 +76,7 @@ jest.mock('@/lib/constants/labels', () => ({
   ROLE_LABELS: { ADMIN: 'Administrator' },
 }))
 
-jest.mock('@/components/ui/Logo', () => ({
+vi.mock('@/components/ui/Logo', () => ({
   Logo: ({ size }: { size?: string }) => <div data-testid={`logo-${size}`} />,
 }))
 
@@ -259,7 +259,7 @@ describe('UserMenu', () => {
   beforeEach(() => {
     mockRouter.push.mockClear()
     mockRouter.refresh.mockClear()
-    global.fetch = jest.fn().mockResolvedValue({ ok: true })
+    global.fetch = vi.fn().mockResolvedValue({ ok: true })
   })
 
   it('renders toggle button with aria-label', () => {
@@ -364,7 +364,7 @@ describe('UserMenu', () => {
 // FairnessSummary
 // =============================================================================
 
-jest.mock('@/lib/config/household-tasks', () => ({
+vi.mock('@/lib/config/household-tasks', () => ({
   CHORE_LABELS: {
     balance: {
       title: 'Aufgaben-Saldo',
