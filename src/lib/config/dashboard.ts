@@ -101,18 +101,48 @@ export function fallbackCta(viewer: StaffCapabilities): (typeof DASHBOARD_FALLBA
  *
  * Emptiness is measured in PEOPLE, not units: this product exists to support
  * residents, and a workspace with buildings and nobody in them has not begun.
+ *
+ * A fourth case exists one level in, and it is the same mistake at the scale
+ * of one person rather than one database. A specialist works the clients
+ * assigned to their seat. Before anyone has been assigned, their queues are
+ * empty for a reason that has nothing to do with the work being done — yet
+ * `residentCount` counts everyone in the product, so they land in `quiet` and
+ * are told, with a party emoji, that everything is under control.
+ *
+ * Observed in production on 2026-08-31, the day the real AOZ team was
+ * created: Simon Binder (Jobcoach) and Sandra (Freiwilligenarbeit) both saw
+ * "🎉 Alles unter Kontrolle! Keine dringenden Aufgaben" on their first ever
+ * login, with nobody assigned to either of them. That is the first thing the
+ * two specialists AOZ actually employs were told by this product.
+ *
+ * `residentCount` stays global on purpose — a Jobcoach must not be told the
+ * workspace is empty while 19 people sit in it, which is why it was made
+ * global in the first place. So this is a separate axis, not a redefinition.
  */
-export type WorkspaceState = 'empty' | 'quiet' | 'busy'
+export type WorkspaceState = 'empty' | 'unassigned' | 'quiet' | 'busy'
 
 export function workspaceState({
   residentCount,
   openTaskCount,
+  assignedResidentCount = null,
 }: {
   residentCount: number
   openTaskCount: number
+  /**
+   * How many clients sit in THIS viewer's care seat, or null when the question
+   * does not apply — someone with oversight over every domain has no single
+   * seat to be empty, and the operator account is not waiting to be assigned.
+   */
+  assignedResidentCount?: number | null
 }): WorkspaceState {
   if (residentCount === 0) return 'empty'
-  return openTaskCount > 0 ? 'busy' : 'quiet'
+  if (openTaskCount > 0) return 'busy'
+  // Only when there is genuinely nothing to do: real work outranks the
+  // onboarding notice, otherwise a specialist who has been given a task but
+  // no formal assignment would be told to go and get assigned instead of
+  // seeing the task.
+  if (assignedResidentCount === 0) return 'unassigned'
+  return 'quiet'
 }
 
 /**

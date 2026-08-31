@@ -102,6 +102,19 @@ export const DASHBOARD_LABELS = {
   setupCreateHousing: 'Erste Unterkunft erfassen',
   setupCreateResident: 'Erste*n Klient*in erfassen',
 
+  /**
+   * A specialist whose seat holds nobody yet. Deliberately NOT celebratory,
+   * for the same reason `emptyTitle` is not: their queues are empty because
+   * nobody has been assigned, and "Alles unter Kontrolle" reports that as a
+   * finished day's work. Names the cause AND where to fix it, because the
+   * seat is assigned on the client's own page and nothing said so.
+   */
+  unassignedSummary: 'Ihnen ist noch niemand zugewiesen.',
+  unassignedTitle: 'Noch keine Klient*innen zugewiesen',
+  unassignedBody:
+    'Ihre Übersicht bleibt leer, bis Ihnen Klient*innen zugewiesen sind — das ist kein Fehler. Öffnen Sie eine Person und tragen Sie sich im Betreuungsteam für Ihren Bereich ein.',
+  unassignedCta: 'Klient*innen öffnen',
+
   actionNewResident: 'Neue*r Klient*in',
   actionNewUnit: 'Neue Einheit',
   actionStartMatching: 'Matching starten',
