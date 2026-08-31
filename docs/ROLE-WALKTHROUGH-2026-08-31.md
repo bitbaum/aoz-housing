@@ -140,7 +140,7 @@ the defaults.
 
 ### 3. The two specialists were congratulated on their first login
 
-**Fixed in PR #136.**
+**Fixed in PR #137.**
 
 Simon and Sandra each opened their first ever session and were shown
 **"🎉 Alles unter Kontrolle! Keine dringenden Aufgaben"** — over an account
@@ -178,6 +178,64 @@ and "fix", issuing genuinely wrong codes to three real people.
 A code outlives the brand that issued it and cannot be re-prefixed.
 `ensure-aoz-team.ts` now refuses to mint unless the deployment's brand is
 carried across, rather than guessing.
+
+### 5. `/analytics` handed the smiley-faces problem to every role through a side door
+
+**Fixed in PR #140.**
+
+Signed in as Sandra (`FREIWILLIGENARBEIT` / `OWN_DOMAIN`) and opened
+`/analytics` — reachable to her because it requires only `dashboard:read`,
+which every role holds, correctly, since most of the page is aggregate pilot
+health (occupancy rate, satisfaction trend, conflict hotspots, algorithm
+accuracy). One section is not aggregate: `RecentPlacementsTable` names
+residents, links straight into their profile, and renders their satisfaction
+check-in emoji — the exact surface `/placements` fences off behind
+`placements:read`, which Sandra does not hold and never could reach directly.
+
+Gating only the page and rendering that table unconditionally bypassed the
+fence entirely. This is the identical concern that opened this whole
+refactor — *"the employee sees smiley faces like they are client? really?"*
+— resurfacing through a page the earlier fix never touched: the boundary was
+built for `/placements`, and `/analytics` independently queried and rendered
+the same underlying data without checking it.
+
+Fixed on both halves, same discipline as `/settings`: the **query** is
+conditioned on `placements:read`, not just the render — an unconditional
+query still puts the data in the process even if the JSX hides it. Verified
+live as Sandra: the section is now absent, not empty.
+
+Class closed by extending `admin-page-guards.test.ts` to check both halves
+are conditioned, mutation-proven against the exact shape that shipped.
+
+---
+
+## Deeper passes (Sandra, and the resident portal past the overview)
+
+Marketplace, events, and Einsatzplätze all render correctly for Sandra with
+the boundaries intended — no create-listing affordance on the marketplace
+(residents post, staff moderate), an inline event-creation form scoped to
+`events:write`, and the Einsatzplätze empty state correctly offering a create
+button rather than a false "nothing to do here."
+
+Signed back in as Fatima and exercised, rather than just observed:
+
+- **Chores** — the fairness panel deliberately shows actual minutes rather
+  than a ranking ("Fast alle überschätzen den eigenen Anteil...").
+- **Expenses** — the balance math checks out exactly: four residents' balances
+  sum to zero, and the settle-up plan (`simplifyDebts`) nets to precisely each
+  person's balance.
+- **Marketplace claim** — clicked "Ich nehme es" on a real listing; it moved
+  to ÜBERNOMMEN with "Übernommen von: Fatima" immediately.
+- **Decisions/voting** — cast a vote on a live ballot; the tally moved from
+  3/4 to 4/4 and the UI correctly offered to change the vote while voting is
+  open. The `STAFF_ONLY` gate held too: "Zweiter Schlüssel für den Veloraum"
+  showed "Die Betreuung entscheidet", never a vote threshold.
+- **Reports** — "Meine Meldungen" showed both an open report and a resolved
+  one carrying the staff's actual answer, confirming the
+  `mergeResidentReports()` fix holds live, not just in tests.
+
+No new defects found in this pass — the resident-facing side held up under
+actual use, not just inspection.
 
 ---
 
