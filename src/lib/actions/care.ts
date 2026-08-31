@@ -4,7 +4,12 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { getPortalAuth } from '@/lib/portal-auth'
-import { hasPermission, isStaffRole, type StaffRole } from '@/lib/auth/role-policy'
+import {
+  hasPermission,
+  isStaffRole,
+  type StaffCapabilities,
+  type StaffRole,
+} from '@/lib/auth/role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import {
   APPOINTMENT_STATUSES,
@@ -72,9 +77,9 @@ export async function getMyResidentIds(staffId: string): Promise<string[]> {
   return assignments.map((a) => a.residentId)
 }
 
-function canWriteAnyCare(role: string): boolean {
-  if (!isStaffRole(role)) return false
-  return hasPermission(role, 'residents:write') || hasPermission(role, 'learning:write')
+function canWriteAnyCare(user: StaffCapabilities): boolean {
+  if (!isStaffRole(user.role)) return false
+  return hasPermission(user, 'residents:write') || hasPermission(user, 'learning:write')
 }
 
 function parseDomain(value: FormDataEntryValue | null): CareRole | null {
@@ -207,7 +212,7 @@ export async function saveCareSeat(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
-  if (!canWriteAnyCare(user.role)) {
+  if (!canWriteAnyCare(user)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -217,7 +222,7 @@ export async function saveCareSeat(
   if (!residentId || !role) {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
-  if (!canWriteCareDomain(user.role as StaffRole, role)) {
+  if (!canWriteCareDomain(user, role)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -252,7 +257,7 @@ export async function saveCareAttributes(
   if (!residentId || !domain) {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
-  if (!canWriteCareDomain(user.role, domain)) {
+  if (!canWriteCareDomain(user, domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -289,7 +294,7 @@ export async function createAppointment(
   if (!residentId || !domain || title.length < 2 || !startsAt) {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
-  if (!canWriteCareDomain(user.role, domain)) {
+  if (!canWriteCareDomain(user, domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -330,7 +335,7 @@ export async function setAppointmentStatus(
     select: { residentId: true, domain: true, checkIn: { select: { id: true } } },
   })
   if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
-  if (!canWriteCareDomain(user.role, appointment.domain)) {
+  if (!canWriteCareDomain(user, appointment.domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -497,7 +502,7 @@ export async function respondToAppointmentRequest(
   if (!appointment || appointment.status !== 'REQUESTED') {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
-  if (!canWriteCareDomain(user.role, appointment.domain)) {
+  if (!canWriteCareDomain(user, appointment.domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -564,7 +569,7 @@ export async function rescheduleAppointment(
     select: { residentId: true, domain: true, status: true },
   })
   if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
-  if (!canWriteCareDomain(user.role, appointment.domain)) {
+  if (!canWriteCareDomain(user, appointment.domain)) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
   // A meeting that already happened, or was called off, is a record. Moving it

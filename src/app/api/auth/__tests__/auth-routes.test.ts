@@ -59,6 +59,8 @@ const ADMIN_USER = {
   email: 'admin@aoz.ch',
   name: 'Test Admin',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 // --- Tests ---
@@ -114,7 +116,14 @@ describe('GET /api/auth/session', () => {
 
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(body.user).toEqual(ADMIN_USER)
+    // The endpoint returns an explicit allow-list; scope and isSystemAdmin
+    // are deliberately not part of it.
+    expect(body.user).toEqual({
+      id: ADMIN_USER.id,
+      email: ADMIN_USER.email,
+      name: ADMIN_USER.name,
+      role: ADMIN_USER.role,
+    })
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -268,7 +277,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
       id: 'new-2',
       code: `${BRAND.codePrefix}GEN001`,
       name: 'Auto Code',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', { name: 'Auto Code' })
@@ -336,7 +345,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
       id: 'new-3',
       code: `${BRAND.codePrefix}LOWER1`,
       name: 'Lower',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
@@ -361,7 +370,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
       id: 'new-4',
       code: `${BRAND.codePrefix}TRIM01`,
       name: 'Trimmed Name',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {

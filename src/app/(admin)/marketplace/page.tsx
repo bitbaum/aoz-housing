@@ -30,7 +30,7 @@ async function submitUnhide(formData: FormData): Promise<void> {
 export default async function MarketplaceAdminPage() {
   await requirePermission('marketplace:read')
   const staff = await getCurrentUser()
-  const canModerate = !!staff && hasPermission(staff.role, 'marketplace:moderate')
+  const canModerate = !!staff && hasPermission(staff, 'marketplace:moderate')
   const posts = await listStaffMarketplacePosts()
 
   return (

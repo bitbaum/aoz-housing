@@ -6,7 +6,7 @@ import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight, Vote } fr
 import { URGENCY_BADGE_CLASS, URGENCY_BORDER_CLASS, type Urgency } from '@/lib/config/urgency'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { fallbackCta } from '@/lib/config/dashboard'
-import type { StaffRole } from '@/lib/auth/role-policy'
+import type { StaffCapabilities } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { residentName } from '@/lib/utils/resident-name'
 import type {
@@ -41,7 +41,7 @@ export function determinePrimaryAction({
   freeBeds,
   problemUnits,
   proposalsAwaitingStaff,
-  role,
+  viewer,
 }: {
   criticalIncidents: CriticalIncident[]
   overdueCheckIns: OverdueCheckIn[]
@@ -49,7 +49,7 @@ export function determinePrimaryAction({
   freeBeds: number
   problemUnits: ProblemUnit[]
   proposalsAwaitingStaff: ProposalAwaitingStaff[]
-  role: StaffRole
+  viewer: StaffCapabilities
 }): PrimaryActionType {
   // Priority 1: Critical incidents
   if (criticalIncidents.length > 0) {
@@ -145,7 +145,7 @@ export function determinePrimaryAction({
 
   // All clear! Offer the first action this role may actually perform —
   // /residents/new is a 403 for a Jobcoach. @see lib/config/dashboard.ts
-  const cta = fallbackCta(role)
+  const cta = fallbackCta(viewer)
   return {
     type: 'allclear',
     title: DASHBOARD_LABELS.allClearAllDone,

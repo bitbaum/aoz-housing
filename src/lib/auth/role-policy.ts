@@ -1,14 +1,21 @@
 /**
- * Staff roles and what each one may do.
+ * Who may do what — three orthogonal facts, never one.
  *
- * ADMIN is Leitung: the name is kept so live JWTs and existing User rows
- * keep working. The UI says "Leitung".
+ * `role`          WHICH CARE DOMAIN a person is staffed for. 1:1 with CareRole.
+ * `scope`         HOW WIDE their view is: their own domain, or all of them.
+ * `isSystemAdmin` MAY THEY RECONFIGURE the product: invite staff, settings,
+ *                 import. Not implied by seeing everything.
  *
- * BETREUUNG — daily housing ops (place, incidents, maintenance).
- * SOZIALARBEIT — people and learning; no housing writes.
- * JOBCOACH — learning and resident read; no placements.
- * FREIWILLIGENARBEIT — volunteering coordination; learning + marketplace/
- * events own-domain writes, no housing/placement writes.
+ * These were a single enum, and the real AOZ team could not be described by it.
+ * Franziska is a Betreuerin who ALSO sees every client; the only way to say
+ * that was to make her ADMIN, which erased her actual domain and handed her the
+ * settings page as a side effect. Simon (Jobcoach) and Sandra
+ * (Freiwilligenarbeit) work one domain each. There is no Leitung.
+ *
+ * Ask each axis exactly one question and the team describes itself:
+ *   Franziska  BETREUUNG          + ALL_DOMAINS
+ *   Simon      JOBCOACH           + OWN_DOMAIN
+ *   Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
  */
 
 export type StaffRole = 'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH' | 'FREIWILLIGENARBEIT'
@@ -24,6 +31,51 @@ export const STAFF_ROLES: readonly StaffRole[] = [
 export function isStaffRole(value: string): value is StaffRole {
   return (STAFF_ROLES as readonly string[]).includes(value)
 }
+
+/**
+ * Roles a NEW account may be given.
+ *
+ * ADMIN is excluded: it is the old all-in-one value, kept only so live JWTs
+ * and existing rows keep resolving. Anything it used to grant is now `scope`
+ * and `isSystemAdmin`, which can be given to any role.
+ */
+export const ASSIGNABLE_STAFF_ROLES: readonly StaffRole[] = STAFF_ROLES.filter(
+  (role) => role !== 'ADMIN',
+)
+
+export const STAFF_SCOPES = ['OWN_DOMAIN', 'ALL_DOMAINS'] as const
+export type StaffScopeId = (typeof STAFF_SCOPES)[number]
+
+export function isStaffScope(value: string): value is StaffScopeId {
+  return (STAFF_SCOPES as readonly string[]).includes(value)
+}
+
+/**
+ * Everything a permission question needs about the person asking.
+ *
+ * A bare role is no longer enough to answer "may they?", so the type makes
+ * that impossible to forget: every call site must hand over the whole subject.
+ * The compiler finds them, which is the same reason `displayName` is required
+ * rather than optional on resident-shaped types.
+ */
+export interface StaffCapabilities {
+  role: StaffRole
+  scope: StaffScopeId
+  isSystemAdmin: boolean
+}
+
+/**
+ * Configuring the product. Held by NOBODY unless explicitly granted.
+ *
+ * Kept out of ROLE_PERMISSIONS on purpose: no care domain implies the right to
+ * invite colleagues or import a spreadsheet, and bundling them is what made
+ * every oversight grant also a systems grant.
+ */
+export const SYSTEM_ADMIN_PERMISSIONS = [
+  'users:manage',
+  'system:configure',
+  'import:write',
+] as const
 
 const OPERATIONAL = [
   'dashboard:read',
@@ -72,13 +124,12 @@ const CAREER_DOCUMENTS_READ = 'documents:read'
 const CAREER_DOCUMENTS_WRITE = 'documents:write'
 
 export const ROLE_PERMISSIONS = {
+  // Legacy. Equivalent to BETREUUNG; what made it special now lives in `scope`
+  // and `isSystemAdmin`, which the migration set on every existing ADMIN row.
   ADMIN: [
     ...OPERATIONAL,
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
-    'users:manage',
-    'system:configure',
-    'import:write',
     'opportunities:write',
     'activities:write',
   ],
@@ -134,13 +185,66 @@ export const ROLE_PERMISSIONS = {
   ],
 } as const
 
-export type StaffPermission = (typeof ROLE_PERMISSIONS)[StaffRole][number]
+export type StaffPermission =
+  (typeof ROLE_PERMISSIONS)[StaffRole][number] | (typeof SYSTEM_ADMIN_PERMISSIONS)[number]
+
+/**
+ * The narrowest possible subject, derived rather than named.
+ *
+ * Used only where a page renders in the instant between session expiry and the
+ * redirect that replaces it. That render previously defaulted to ADMIN — it
+ * showed EVERYTHING to a session that had just ended. Showing the least is the
+ * safe direction to be wrong in.
+ */
+export const NARROWEST_CAPABILITIES: StaffCapabilities = {
+  role: ASSIGNABLE_STAFF_ROLES.reduce((a, b) =>
+    ROLE_PERMISSIONS[a].length <= ROLE_PERMISSIONS[b].length ? a : b,
+  ),
+  scope: 'OWN_DOMAIN',
+  isSystemAdmin: false,
+}
+
+/**
+ * The widest real account: sees every domain and may configure the product.
+ *
+ * Note it does NOT use the legacy ADMIN role — that is the point of the split.
+ * "Widest" is now a combination anyone can be given, not a role only one
+ * person can hold.
+ */
+export const WIDEST_CAPABILITIES: StaffCapabilities = {
+  role: 'BETREUUNG',
+  scope: 'ALL_DOMAINS',
+  isSystemAdmin: true,
+}
 
 export function canRoleAccess(allowedRoles: StaffRole[], currentRole: StaffRole): boolean {
   return allowedRoles.includes(currentRole)
 }
 
-export function hasPermission(role: StaffRole, permission: string): boolean {
-  const permissions = ROLE_PERMISSIONS[role] as readonly string[]
-  return permissions.includes(permission)
+function grantsPermission(role: StaffRole, permission: string): boolean {
+  return (ROLE_PERMISSIONS[role] as readonly string[]).includes(permission)
+}
+
+/**
+ * May this person do this?
+ *
+ * Each axis answers its own question and nothing else:
+ *  - a system permission is granted by `isSystemAdmin` ALONE, never by a role;
+ *  - ALL_DOMAINS works every seat, so it holds every domain's verbs;
+ *  - otherwise the answer is their own domain's verbs.
+ */
+export function hasPermission(subject: StaffCapabilities, permission: string): boolean {
+  if ((SYSTEM_ADMIN_PERMISSIONS as readonly string[]).includes(permission)) {
+    return subject.isSystemAdmin
+  }
+
+  if (grantsPermission(subject.role, permission)) return true
+
+  // Seeing every domain means working every seat — a Betreuerin covering the
+  // whole house records learning and reads a CV like the coach would.
+  if (subject.scope === 'ALL_DOMAINS') {
+    return STAFF_ROLES.some((role) => grantsPermission(role, permission))
+  }
+
+  return false
 }

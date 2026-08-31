@@ -10,7 +10,7 @@
 
 import type { PrismaClient } from '@prisma/client'
 import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
-import { demoStaffDoors } from './roles'
+import { demoStaffDoors, demoStaffReachFor } from './roles'
 
 export interface DemoStaffAccount {
   id: string
@@ -35,10 +35,14 @@ export async function upsertDemoStaffRoles(prisma: PrismaClient): Promise<DemoSt
   const accounts: DemoStaffAccount[] = []
 
   for (const door of demoStaffDoors()) {
+    // Reach is set on UPDATE too, not only create: a door seeded before the
+    // role/scope split carries the old column defaults, and a demo door with
+    // no care seats renders an empty workspace to every visitor.
+    const reach = demoStaffReachFor(door.role)
     const user = await prisma.user.upsert({
       where: { code: door.code },
-      update: { name: door.name, role: door.role, active: true },
-      create: { code: door.code, name: door.name, role: door.role },
+      update: { name: door.name, role: door.role, active: true, ...reach },
+      create: { code: door.code, name: door.name, role: door.role, ...reach },
       select: { id: true },
     })
 
@@ -60,8 +64,13 @@ export async function upsertDemoStaff(prisma: PrismaClient): Promise<DemoStaffAc
 
   const user = await prisma.user.upsert({
     where: { code: demoStaffCode },
-    update: { name: DEMO_STAFF_NAME, active: true },
-    create: { code: demoStaffCode, name: DEMO_STAFF_NAME, role: 'ADMIN' },
+    update: { name: DEMO_STAFF_NAME, active: true, ...demoStaffReachFor('ADMIN') },
+    create: {
+      code: demoStaffCode,
+      name: DEMO_STAFF_NAME,
+      role: 'ADMIN',
+      ...demoStaffReachFor('ADMIN'),
+    },
     select: { id: true },
   })
 

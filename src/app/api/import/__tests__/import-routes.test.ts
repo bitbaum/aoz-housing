@@ -84,6 +84,8 @@ const STAFF_USER = {
   email: 'staff@aoz.ch',
   name: 'Staff',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 describe('POST /api/import/residents', () => {

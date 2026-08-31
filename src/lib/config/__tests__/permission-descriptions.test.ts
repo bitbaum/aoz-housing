@@ -11,6 +11,7 @@ import {
   PERMISSION_DESCRIPTIONS,
   isKnownPermission,
   rolesWithPermission,
+  isSystemAdminPermission,
 } from '../permission-descriptions'
 import { ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
 
@@ -38,14 +39,22 @@ describe('permission descriptions', () => {
   })
 
   it('derives who holds a permission from the policy, not a hand-list', () => {
-    expect(rolesWithPermission('users:manage')).toEqual(['ADMIN'])
+    // No ROLE grants users:manage any more — it belongs to whoever administers
+    // the instance, which is a property of the person, not of their job.
+    expect(rolesWithPermission('users:manage')).toEqual([])
+    expect(isSystemAdminPermission('users:manage')).toBe(true)
+    expect(isSystemAdminPermission('residents:read')).toBe(false)
     // Every role can read the dashboard, so every role must appear here.
     expect(rolesWithPermission('dashboard:read').sort()).toEqual([...STAFF_ROLES].sort())
   })
 
-  it('names at least one role for every permission — or the page says "ask nobody"', () => {
+  it('every permission is reachable by SOMEBODY — a role, or an administrator', () => {
+    // "Ask nobody" is the failure this guards. A system permission is answered
+    // by isSystemAdminPermission rather than by naming a role.
     for (const permission of ALL_PERMISSIONS) {
-      expect(rolesWithPermission(permission).length).toBeGreaterThan(0)
+      const reachable =
+        rolesWithPermission(permission).length > 0 || isSystemAdminPermission(permission)
+      expect(reachable).toBe(true)
     }
   })
 

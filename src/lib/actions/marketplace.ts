@@ -367,7 +367,7 @@ export async function hideMarketplacePost(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
-  if (!hasPermission(user.role, 'marketplace:moderate')) {
+  if (!hasPermission(user, 'marketplace:moderate')) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -389,7 +389,7 @@ export async function unhideMarketplacePost(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
-  if (!hasPermission(user.role, 'marketplace:moderate')) {
+  if (!hasPermission(user, 'marketplace:moderate')) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 

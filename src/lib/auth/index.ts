@@ -20,7 +20,13 @@ import {
   type TokenPayload,
 } from './jwt'
 import { recordLoginAttempt, clearLoginAttempts } from './rate-limit'
-import { canRoleAccess, hasPermission, type StaffPermission, type StaffRole } from './role-policy'
+import {
+  canRoleAccess,
+  hasPermission,
+  type StaffCapabilities,
+  type StaffPermission,
+  type StaffRole,
+} from './role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Re-export types
@@ -29,7 +35,16 @@ export type { StaffRole, StaffPermission }
 export { hasPermission, canRoleAccess, STAFF_ROLES, isStaffRole } from './role-policy'
 
 // Types for auth
-export interface AuthUser {
+/**
+ * The signed-in staff member, with everything a permission question needs.
+ *
+ * `scope` and `isSystemAdmin` are read from the DATABASE on every request, not
+ * from the JWT. Privileges in a token go stale: revoking someone's oversight
+ * would not take effect until the token expired, and with sliding refresh that
+ * is indefinitely — the same failure the `active` re-check already exists to
+ * prevent. The row is fetched anyway for that check, so this costs nothing.
+ */
+export interface AuthUser extends StaffCapabilities {
   id: string
   email: string // JWT still carries email (may be empty string for code-only users)
   name: string
@@ -64,7 +79,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   // until token expiry — with sliding refresh, indefinitely.
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { active: true },
+    select: { active: true, scope: true, isSystemAdmin: true },
   })
   if (!user?.active) return null
 
@@ -73,6 +88,9 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     email: payload.email,
     name: payload.name,
     role: payload.role,
+    // From the row, never the token — see the AuthUser docstring.
+    scope: user.scope,
+    isSystemAdmin: user.isSystemAdmin,
   }
 }
 
@@ -178,7 +196,7 @@ export async function requirePermission(permission: StaffPermission): Promise<Au
     redirect('/login')
   }
 
-  if (!hasPermission(user.role, permission)) {
+  if (!hasPermission(user, permission)) {
     redirect(`/kein-zugriff?needs=${encodeURIComponent(permission)}`)
   }
 
@@ -194,7 +212,7 @@ export async function authorizeStaff(
 ): Promise<{ ok: true; user: AuthUser } | { ok: false; status: 401 | 403 }> {
   const user = await getCurrentUser()
   if (!user) return { ok: false, status: 401 }
-  if (!hasPermission(user.role, permission)) return { ok: false, status: 403 }
+  if (!hasPermission(user, permission)) return { ok: false, status: 403 }
   return { ok: true, user }
 }
 
@@ -228,6 +246,8 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         id: true,
         name: true,
         role: true,
+        scope: true,
+        isSystemAdmin: true,
         active: true,
         // Contact email lives on the account (may be absent for code-only staff).
         account: { select: { email: true } },
@@ -253,6 +273,8 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         email: user.account?.email || '',
         name: user.name,
         role: user.role,
+        scope: user.scope,
+        isSystemAdmin: user.isSystemAdmin,
       },
     }
   }
@@ -290,7 +312,12 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
 /**
  * Create session cookie with JWT token
  */
-export async function setSessionCookie(user: AuthUser): Promise<void> {
+export async function setSessionCookie(
+  // Only what the TOKEN carries. Scope and isSystemAdmin are deliberately
+  // absent: privileges in a token go stale, and these are read from the row on
+  // every request instead.
+  user: Pick<AuthUser, 'id' | 'email' | 'name' | 'role'>,
+): Promise<void> {
   const token = await createToken({
     sub: user.id,
     email: user.email,

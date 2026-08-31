@@ -11,6 +11,7 @@
 import { PrismaClient } from '@prisma/client'
 // Relative, not '@/': this runs under ts-node, which does not apply tsconfig paths.
 import { BRAND } from '../src/lib/config/brand'
+import { WIDEST_CAPABILITIES } from '../src/lib/auth/role-policy'
 
 const prisma = new PrismaClient()
 
@@ -63,11 +64,20 @@ async function main() {
 
   // Create admin user. No password: the account is deliberately unclaimed, so
   // the first sign-in proves mailbox control via /forgot-password.
+  //
+  // Reach is SPREAD from the SSOT, never restated here. This row used to say
+  // `role: 'ADMIN'` and nothing else, which was complete while ADMIN meant all
+  // three things at once. Once they became separate columns, the same line
+  // produced a bootstrap admin holding the column DEFAULTS — own domain, no
+  // administration — so a freshly seeded instance had no system administrator
+  // and an unreachable settings page. The migration only backfilled rows that
+  // already existed; seeding is the other way an admin is born, and it was not
+  // updated. Spreading the SSOT means a third axis cannot repeat this.
   const admin = await prisma.user.create({
     data: {
       code: ADMIN_CODE,
       name: ADMIN_NAME,
-      role: 'ADMIN',
+      ...WIDEST_CAPABILITIES,
       active: true,
       account: { create: { email: ADMIN_EMAIL.toLowerCase() } },
     },

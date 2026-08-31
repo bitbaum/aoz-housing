@@ -1,44 +1,75 @@
-import { canRoleAccess, hasPermission, ROLE_PERMISSIONS, STAFF_ROLES } from '@/lib/auth/role-policy'
+import {
+  ASSIGNABLE_STAFF_ROLES,
+  NARROWEST_CAPABILITIES,
+  SYSTEM_ADMIN_PERMISSIONS,
+  canRoleAccess,
+  hasPermission,
+  ROLE_PERMISSIONS,
+  STAFF_ROLES,
+  type StaffCapabilities,
+  type StaffRole,
+  type StaffScopeId,
+} from '@/lib/auth/role-policy'
+
+/**
+ * A subject to ask permission questions about.
+ *
+ * Defaults mirror a NEW account: one domain, no oversight, no administration.
+ * `legacyAdmin()` is what the migration made of every pre-split ADMIN row, so
+ * the tests can prove that behaviour did not change for anyone who already
+ * existed.
+ */
+function caps(
+  role: StaffRole,
+  scope: StaffScopeId = 'OWN_DOMAIN',
+  isSystemAdmin = false,
+): StaffCapabilities {
+  return { role, scope, isSystemAdmin }
+}
+
+const legacyAdmin = () => caps('ADMIN', 'ALL_DOMAINS', true)
 
 describe('role policy smoke checks', () => {
   test('ADMIN has all operational permissions', () => {
-    expect(hasPermission('ADMIN', 'dashboard:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'residents:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'residents:write')).toBe(true)
-    expect(hasPermission('ADMIN', 'housing:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'housing:write')).toBe(true)
-    expect(hasPermission('ADMIN', 'placements:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'placements:write')).toBe(true)
-    expect(hasPermission('ADMIN', 'incidents:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'incidents:write')).toBe(true)
-    expect(hasPermission('ADMIN', 'maintenance:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'maintenance:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'dashboard:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'residents:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'residents:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'housing:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'housing:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'placements:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'placements:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'incidents:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'incidents:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'maintenance:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'maintenance:write')).toBe(true)
   })
 
   test('ADMIN has high-impact permissions', () => {
-    expect(hasPermission('ADMIN', 'users:manage')).toBe(true)
-    expect(hasPermission('ADMIN', 'system:configure')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'users:manage')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'system:configure')).toBe(true)
   })
 
   test('ADMIN has export and import permissions', () => {
-    expect(hasPermission('ADMIN', 'export:read')).toBe(true)
-    expect(hasPermission('ADMIN', 'import:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'export:read')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'import:write')).toBe(true)
   })
 
   test('unknown permissions are rejected', () => {
-    expect(hasPermission('ADMIN', 'nonexistent:action')).toBe(false)
+    expect(hasPermission(legacyAdmin(), 'nonexistent:action')).toBe(false)
   })
 
   test('ROLE_PERMISSIONS.ADMIN contains exactly the expected permissions', () => {
     // The count is the point: it makes a permission added to ADMIN a
     // deliberate edit here rather than something that arrives by inheritance.
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(27)
+    // 24, not 27: users:manage, system:configure and import:write moved OUT of
+    // every role and into SYSTEM_ADMIN_PERMISSIONS, which only `isSystemAdmin`
+    // grants. No role implies the right to reconfigure the product.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(24)
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('opportunities:write')
-    expect(ROLE_PERMISSIONS.ADMIN).toContain('import:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('learning:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('marketplace:read')
@@ -52,42 +83,42 @@ describe('role policy smoke checks', () => {
     // kitchen table. A directory only the integration roles can open is a
     // directory nobody mentions.
     for (const role of STAFF_ROLES) {
-      expect(hasPermission(role, 'opportunities:read')).toBe(true)
+      expect(hasPermission(caps(role), 'opportunities:read')).toBe(true)
     }
   })
 
   test('curating the directory belongs to the integration roles', () => {
-    expect(hasPermission('JOBCOACH', 'opportunities:write')).toBe(true)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'opportunities:write')).toBe(true)
-    expect(hasPermission('SOZIALARBEIT', 'opportunities:write')).toBe(true)
-    expect(hasPermission('ADMIN', 'opportunities:write')).toBe(true)
+    expect(hasPermission(caps('JOBCOACH'), 'opportunities:write')).toBe(true)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'opportunities:write')).toBe(true)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'opportunities:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'opportunities:write')).toBe(true)
     // Betreuung reads it but does not maintain it — the one role where read
     // and write genuinely differ, which is why the permission is split at all.
-    expect(hasPermission('BETREUUNG', 'opportunities:write')).toBe(false)
+    expect(hasPermission(caps('BETREUUNG'), 'opportunities:write')).toBe(false)
   })
 
   test('JOBCOACH can record learning and cannot place residents', () => {
-    expect(hasPermission('JOBCOACH', 'learning:write')).toBe(true)
-    expect(hasPermission('JOBCOACH', 'residents:read')).toBe(true)
-    expect(hasPermission('JOBCOACH', 'placements:write')).toBe(false)
-    expect(hasPermission('JOBCOACH', 'users:manage')).toBe(false)
+    expect(hasPermission(caps('JOBCOACH'), 'learning:write')).toBe(true)
+    expect(hasPermission(caps('JOBCOACH'), 'residents:read')).toBe(true)
+    expect(hasPermission(caps('JOBCOACH'), 'placements:write')).toBe(false)
+    expect(hasPermission(caps('JOBCOACH'), 'users:manage')).toBe(false)
   })
 
   test('SOZIALARBEIT can work with people and learning, not housing writes', () => {
-    expect(hasPermission('SOZIALARBEIT', 'residents:write')).toBe(true)
-    expect(hasPermission('SOZIALARBEIT', 'learning:write')).toBe(true)
-    expect(hasPermission('SOZIALARBEIT', 'housing:write')).toBe(false)
-    expect(hasPermission('SOZIALARBEIT', 'system:configure')).toBe(false)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'residents:write')).toBe(true)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'learning:write')).toBe(true)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'housing:write')).toBe(false)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'system:configure')).toBe(false)
   })
 
   test('FREIWILLIGENARBEIT can moderate marketplace and coordinate events, not place residents', () => {
-    expect(hasPermission('FREIWILLIGENARBEIT', 'residents:read')).toBe(true)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'learning:write')).toBe(true)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'marketplace:moderate')).toBe(true)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'events:write')).toBe(true)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'placements:write')).toBe(false)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'housing:write')).toBe(false)
-    expect(hasPermission('FREIWILLIGENARBEIT', 'users:manage')).toBe(false)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'residents:read')).toBe(true)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'learning:write')).toBe(true)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'marketplace:moderate')).toBe(true)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'events:write')).toBe(true)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'placements:write')).toBe(false)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'housing:write')).toBe(false)
+    expect(hasPermission(caps('FREIWILLIGENARBEIT'), 'users:manage')).toBe(false)
   })
 
   test('canRoleAccess matches ADMIN against allowlist', () => {
@@ -96,5 +127,79 @@ describe('role policy smoke checks', () => {
 
   test('canRoleAccess rejects when ADMIN is not in allowlist', () => {
     expect(canRoleAccess([] as unknown as 'ADMIN'[], 'ADMIN')).toBe(false)
+  })
+})
+
+/**
+ * The three axes, and that each answers ONLY its own question.
+ *
+ * They were one enum, and the real AOZ team could not be described by it:
+ * Franziska is a Betreuerin who ALSO sees every client, and saying so meant
+ * making her ADMIN — which erased her domain and handed her the settings page.
+ */
+describe('role, scope and administration are independent', () => {
+  const franziska = caps('BETREUUNG', 'ALL_DOMAINS')
+  const simon = caps('JOBCOACH')
+  const sandra = caps('FREIWILLIGENARBEIT')
+
+  test('a system permission is granted by isSystemAdmin ALONE, never by a role', () => {
+    for (const permission of SYSTEM_ADMIN_PERMISSIONS) {
+      for (const role of STAFF_ROLES) {
+        // Not even with oversight over every domain.
+        expect(hasPermission(caps(role, 'ALL_DOMAINS'), permission)).toBe(false)
+        expect(hasPermission(caps(role, 'OWN_DOMAIN', true), permission)).toBe(true)
+      }
+    }
+  })
+
+  test('seeing every domain grants every domain’s verbs', () => {
+    // Franziska covers the whole house, so she records learning and reads a CV
+    // the way the coach would — without being an administrator.
+    expect(hasPermission(franziska, 'learning:write')).toBe(true)
+    expect(hasPermission(franziska, 'documents:read')).toBe(true)
+    expect(hasPermission(franziska, 'opportunities:write')).toBe(true)
+    expect(hasPermission(franziska, 'users:manage')).toBe(false)
+    expect(hasPermission(franziska, 'system:configure')).toBe(false)
+  })
+
+  test('one domain grants only that domain’s verbs', () => {
+    expect(hasPermission(simon, 'learning:write')).toBe(true)
+    expect(hasPermission(simon, 'placements:write')).toBe(false)
+    expect(hasPermission(simon, 'housing:write')).toBe(false)
+
+    expect(hasPermission(sandra, 'marketplace:moderate')).toBe(true)
+    expect(hasPermission(sandra, 'documents:write')).toBe(false)
+    expect(hasPermission(sandra, 'placements:write')).toBe(false)
+  })
+
+  test('scope changes breadth without changing the role', () => {
+    // The same person, the same job, one axis moved.
+    expect(hasPermission(caps('JOBCOACH'), 'housing:write')).toBe(false)
+    expect(hasPermission(caps('JOBCOACH', 'ALL_DOMAINS'), 'housing:write')).toBe(true)
+    expect(caps('JOBCOACH', 'ALL_DOMAINS').role).toBe('JOBCOACH')
+  })
+
+  test('the migrated legacy ADMIN keeps exactly what ADMIN used to mean', () => {
+    // Every pre-split row was given ALL_DOMAINS + isSystemAdmin, so nobody who
+    // already existed lost or gained anything on the day this shipped.
+    for (const permission of SYSTEM_ADMIN_PERMISSIONS) {
+      expect(hasPermission(legacyAdmin(), permission)).toBe(true)
+    }
+    expect(hasPermission(legacyAdmin(), 'housing:write')).toBe(true)
+    expect(hasPermission(legacyAdmin(), 'documents:write')).toBe(true)
+  })
+
+  test('a new account may not be given the retired all-in-one role', () => {
+    expect(ASSIGNABLE_STAFF_ROLES).not.toContain('ADMIN')
+    expect(ASSIGNABLE_STAFF_ROLES).toHaveLength(STAFF_ROLES.length - 1)
+  })
+
+  test('the narrowest subject can do less than any real one', () => {
+    // It stands in for a render whose session has just expired; it used to
+    // default to ADMIN, i.e. show everything.
+    expect(NARROWEST_CAPABILITIES.scope).toBe('OWN_DOMAIN')
+    expect(NARROWEST_CAPABILITIES.isSystemAdmin).toBe(false)
+    expect(hasPermission(NARROWEST_CAPABILITIES, 'users:manage')).toBe(false)
+    expect(hasPermission(NARROWEST_CAPABILITIES, 'placements:write')).toBe(false)
   })
 })

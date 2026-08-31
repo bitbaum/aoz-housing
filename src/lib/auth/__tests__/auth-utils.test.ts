@@ -27,6 +27,8 @@ const SAMPLE_PAYLOAD = {
   email: 'test@aoz.ch',
   name: 'Test User',
   role: 'ADMIN' as const,
+  scope: 'ALL_DOMAINS' as const,
+  isSystemAdmin: true,
 }
 
 /** Base64url encode a buffer or string. */

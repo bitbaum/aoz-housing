@@ -66,7 +66,12 @@ beforeEach(() => {
 describe('staff provisioning', () => {
   it('refuses a caller who may not manage users', async () => {
     // The narrowest role, which is exactly who this used to let through.
-    mockGetCurrentUser.mockResolvedValue({ id: 'u9', role: 'JOBCOACH' })
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u9',
+      role: 'JOBCOACH',
+      scope: 'OWN_DOMAIN',
+      isSystemAdmin: false,
+    })
 
     const response = await POST(post({ name: 'Neue Person' }))
 
@@ -84,7 +89,12 @@ describe('staff provisioning', () => {
   })
 
   it('gives an unspecified role the NARROWEST role, never Leitung', async () => {
-    mockGetCurrentUser.mockResolvedValue({ id: 'u1', role: 'ADMIN' })
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
 
     await POST(post({ name: 'Neue Person' }))
 
@@ -94,17 +104,77 @@ describe('staff provisioning', () => {
     expect(args.data.role).not.toBe('ADMIN')
   })
 
-  it('still allows Leitung to be granted when it is asked for explicitly', async () => {
-    mockGetCurrentUser.mockResolvedValue({ id: 'u1', role: 'ADMIN' })
+  it('refuses the retired all-in-one role even when asked for explicitly', async () => {
+    // ADMIN is still a valid enum value so existing rows and live JWTs resolve,
+    // but nothing may mint a new one: what it granted is now `scope` and
+    // `isSystemAdmin`, which can be given to any role.
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
 
-    await POST(post({ name: 'Neue Person', role: 'ADMIN' }))
+    const response = await POST(post({ name: 'Neue Person', role: 'ADMIN' }))
+
+    expect(response.status).toBe(400)
+    expect(mockUserCreate).not.toHaveBeenCalled()
+  })
+
+  it('defaults BOTH new axes to the narrow answer', async () => {
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
+
+    await POST(post({ name: 'Neue Person' }))
 
     const [args] = mockUserCreate.mock.calls[0]
-    expect(args.data.role).toBe('ADMIN')
+    expect(args.data.scope).toBe('OWN_DOMAIN')
+    expect(args.data.isSystemAdmin).toBe(false)
+  })
+
+  it('can describe Franziska: a Betreuerin who also sees everything', async () => {
+    // The shape that was unexpressible before — her domain is housing AND she
+    // sees every client, without being handed the settings page.
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
+
+    await POST(post({ name: 'Franziska Heimhuber', role: 'BETREUUNG', scope: 'ALL_DOMAINS' }))
+
+    const [args] = mockUserCreate.mock.calls[0]
+    expect(args.data.role).toBe('BETREUUNG')
+    expect(args.data.scope).toBe('ALL_DOMAINS')
+    expect(args.data.isSystemAdmin).toBe(false)
+  })
+
+  it('ignores a non-boolean isSystemAdmin rather than coercing it true', async () => {
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
+
+    await POST(post({ name: 'Neue Person', isSystemAdmin: 'yes' }))
+
+    const [args] = mockUserCreate.mock.calls[0]
+    expect(args.data.isSystemAdmin).toBe(false)
   })
 
   it('rejects a role it does not recognise rather than falling back', async () => {
-    mockGetCurrentUser.mockResolvedValue({ id: 'u1', role: 'ADMIN' })
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u1',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
 
     const response = await POST(post({ name: 'Neue Person', role: 'SUPERUSER' }))
 
@@ -113,7 +183,12 @@ describe('staff provisioning', () => {
   })
 
   it('keeps the error generic enough not to confirm anything', async () => {
-    mockGetCurrentUser.mockResolvedValue({ id: 'u9', role: 'SOZIALARBEIT' })
+    mockGetCurrentUser.mockResolvedValue({
+      id: 'u9',
+      role: 'SOZIALARBEIT',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: false,
+    })
 
     const response = await POST(post({ name: 'Neue Person' }))
     const body = await response.json()

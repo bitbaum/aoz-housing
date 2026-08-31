@@ -47,7 +47,7 @@ function Detail({ label, value }: { label: string; value: string | null | undefi
 
 export default async function OpportunityDetailPage({ params }: Props) {
   const staff = await requirePermission('opportunities:read')
-  const canWrite = hasPermission(staff.role, 'opportunities:write')
+  const canWrite = hasPermission(staff, 'opportunities:write')
   const { id } = await params
 
   const opportunity = await getOpportunityDetail(id)

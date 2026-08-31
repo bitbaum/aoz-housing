@@ -24,7 +24,11 @@ import { BRANDS, type BrandId } from '@/lib/config/brand'
  */
 describe('the landing page describes the product it ships with', () => {
   it('lists every staff area the widest role can reach', () => {
-    const expected = visibleMegaMenuGroups('ADMIN')
+    const expected = visibleMegaMenuGroups({
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
       .filter((group) => 'items' in group)
       .map((group) => ('items' in group ? group.label : ''))
 

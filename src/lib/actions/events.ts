@@ -166,7 +166,7 @@ export async function createEventAsStaff(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
-  if (!hasPermission(user.role, 'events:write')) {
+  if (!hasPermission(user, 'events:write')) {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
@@ -243,7 +243,7 @@ export async function cancelEvent(
   if (!event) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
   const staffUser = await getCurrentUser()
-  if (staffUser && hasPermission(staffUser.role, 'events:write')) {
+  if (staffUser && hasPermission(staffUser, 'events:write')) {
     await prisma.houseEvent.update({ where: { id }, data: { status: 'CANCELLED' } })
     revalidateEvents()
     return { success: true }

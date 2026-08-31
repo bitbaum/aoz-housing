@@ -48,7 +48,7 @@ describe('GET /api/export/residents', () => {
       id: 'user-1',
       email: 'staff@aoz.ch',
       name: 'Staff',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
     mockResidentFindMany.mockResolvedValue([])
 
@@ -66,7 +66,7 @@ describe('GET /api/export/residents', () => {
       id: 'user-1',
       email: 'staff@aoz.ch',
       name: 'Staff',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
     mockResidentFindMany.mockResolvedValue([
       {
@@ -111,7 +111,7 @@ describe('GET /api/export/residents', () => {
       id: 'user-1',
       email: 'staff@aoz.ch',
       name: 'Staff',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
     mockResidentFindMany.mockResolvedValue([])
 
@@ -129,7 +129,7 @@ describe('GET /api/export/residents', () => {
       id: 'user-1',
       email: 'staff@aoz.ch',
       name: 'Staff',
-      role: 'ADMIN',
+      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
     mockResidentFindMany.mockResolvedValue([])
 

@@ -15,8 +15,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
   const currentUser = await requireStaffAuth()
-  const canInvite = hasPermission(currentUser.role, 'users:manage')
-  const canConfigure = hasPermission(currentUser.role, 'system:configure')
+  const canInvite = hasPermission(currentUser, 'users:manage')
+  const canConfigure = hasPermission(currentUser, 'system:configure')
 
   const [staffUsers, systemConfig] = await Promise.all([
     prisma.user.findMany({

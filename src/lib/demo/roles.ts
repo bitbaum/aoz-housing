@@ -20,7 +20,12 @@
  * Relative-import-safe (no '@/' aliases): reached from ts-node seeds.
  */
 
-import { STAFF_ROLES, type StaffRole } from '../auth/role-policy'
+import {
+  NARROWEST_CAPABILITIES,
+  STAFF_ROLES,
+  WIDEST_CAPABILITIES,
+  type StaffRole,
+} from '../auth/role-policy'
 import { BRAND } from '../config/brand'
 
 /**
@@ -51,6 +56,23 @@ export function demoStaffCodeFor(role: StaffRole): string {
     if (configured) return configured
   }
   return `${BRAND.codePrefix}DEMO${ROLE_TOKEN[role]}`
+}
+
+/**
+ * How much each demo door sees, stated rather than implied by its role name.
+ *
+ * The Leitung door is the "sees everything" one, and since role, scope and
+ * administration were separated that has to be SAID: a bare `role: 'ADMIN'`
+ * row now takes the column defaults — own domain, no administration — which
+ * would leave that door with no care seats at all and no settings page. The
+ * shape below is Franziska's: one domain of record, oversight over the rest.
+ */
+export function demoStaffReachFor(role: StaffRole): {
+  scope: 'OWN_DOMAIN' | 'ALL_DOMAINS'
+  isSystemAdmin: boolean
+} {
+  const { scope, isSystemAdmin } = role === 'ADMIN' ? WIDEST_CAPABILITIES : NARROWEST_CAPABILITIES
+  return { scope, isSystemAdmin }
 }
 
 /** Display name for the upserted account, so staff lists never show a bare code. */

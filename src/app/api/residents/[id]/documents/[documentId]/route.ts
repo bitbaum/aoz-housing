@@ -53,7 +53,7 @@ export async function GET(
 
   try {
     if (staff) {
-      if (!isStaffRole(staff.role) || !hasPermission(staff.role, 'documents:read')) {
+      if (!isStaffRole(staff.role) || !hasPermission(staff, 'documents:read')) {
         return notFound
       }
     } else if (resident!.id !== params.id) {

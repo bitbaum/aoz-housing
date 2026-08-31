@@ -30,11 +30,15 @@ jest.mock('@/lib/auth', () => ({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
+    scope: 'ALL_DOMAINS' as const,
+    isSystemAdmin: true,
   }),
   requireStaffAuth: jest.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
+    scope: 'ALL_DOMAINS' as const,
+    isSystemAdmin: true,
   }),
 }))
 

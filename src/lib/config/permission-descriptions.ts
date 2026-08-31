@@ -8,7 +8,11 @@
  * a human-readable name.
  */
 
-import { ROLE_PERMISSIONS, type StaffPermission } from '@/lib/auth/role-policy'
+import {
+  SYSTEM_ADMIN_PERMISSIONS,
+  ROLE_PERMISSIONS,
+  type StaffPermission,
+} from '@/lib/auth/role-policy'
 import { LEARNING_AREA_NAME } from './learning'
 import { OPPORTUNITY_AREA_NAME } from './opportunities'
 
@@ -51,6 +55,17 @@ export function rolesWithPermission(permission: string): string[] {
   return Object.entries(ROLE_PERMISSIONS)
     .filter(([, permissions]) => (permissions as readonly string[]).includes(permission))
     .map(([role]) => role)
+}
+
+/**
+ * Is this something only a system administrator can do?
+ *
+ * These three are held by a PERSON, not by a role — `User.isSystemAdmin` —
+ * so no list of roles can answer "who do I ask". The page has to say
+ * "whoever administers this instance" instead of naming a role nobody holds.
+ */
+export function isSystemAdminPermission(permission: string): boolean {
+  return (SYSTEM_ADMIN_PERMISSIONS as readonly string[]).includes(permission)
 }
 
 /** Type guard so a hand-typed query string cannot index the record blindly. */

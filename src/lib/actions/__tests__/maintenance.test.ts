@@ -57,30 +57,24 @@ const mockStaffUser = {
 }
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest
-    .fn()
-    .mockResolvedValue({
-      id: 'staff-1',
-      email: 'admin@test.com',
-      name: 'Test Admin',
-      role: 'ADMIN' as const,
-    }),
-  requireStaffAuth: jest
-    .fn()
-    .mockResolvedValue({
-      id: 'staff-1',
-      email: 'admin@test.com',
-      name: 'Test Admin',
-      role: 'ADMIN' as const,
-    }),
-  requirePermission: jest
-    .fn()
-    .mockResolvedValue({
-      id: 'staff-1',
-      email: 'admin@test.com',
-      name: 'Test Admin',
-      role: 'ADMIN' as const,
-    }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({

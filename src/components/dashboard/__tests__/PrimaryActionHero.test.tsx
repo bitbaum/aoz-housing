@@ -102,7 +102,7 @@ const EMPTY = {
     unitCode: string
     daysWaiting: number
   }>,
-  role: 'ADMIN' as const,
+  viewer: { role: 'ADMIN' as const, scope: 'ALL_DOMAINS' as const, isSystemAdmin: true },
 }
 
 function makeProposal(id = 'pr1', title = 'Ruhezeiten ab 21 Uhr') {
@@ -297,7 +297,10 @@ describe('determinePrimaryAction', () => {
   })
 
   it('allclear CTA falls back to learning for JOBCOACH (no residents:write)', () => {
-    const result = determinePrimaryAction({ ...EMPTY, role: 'JOBCOACH' })
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      viewer: { role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+    })
     expect(result.type).toBe('allclear')
     expect(result.href).toBe('/learning')
     expect(result.buttonText).toBe('Lernen & Kurse öffnen')

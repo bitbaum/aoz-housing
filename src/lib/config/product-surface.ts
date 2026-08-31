@@ -27,6 +27,7 @@
 import { createTranslator } from '@/lib/i18n'
 import { DEFAULT_LOCALE, type LocaleId } from '@/lib/i18n/locales'
 import { visibleMegaMenuGroups, visiblePortalNavItems } from './navigation'
+import { WIDEST_CAPABILITIES } from '@/lib/auth/role-policy'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
 import { BRAND } from './brand'
 
@@ -43,15 +44,16 @@ export interface ProductSurface {
 }
 
 /**
- * The staff side, as the role that sees all of it.
+ * The staff side, as the account that sees all of it.
  *
- * ADMIN rather than a union of every role: a union would list a destination no
- * single person can reach, which is a less true description of the product
- * than the widest real account.
+ * The widest REAL account rather than a union of every role: a union would list
+ * a destination no single person can reach, which is a less true description of
+ * the product. Since role, scope and administration were separated, "widest" is
+ * a combination anyone can be given rather than a role only one person holds.
  */
 export function staffSurface(): SurfaceArea[] {
   return (
-    visibleMegaMenuGroups('ADMIN')
+    visibleMegaMenuGroups(WIDEST_CAPABILITIES)
       .map((group) =>
         'items' in group
           ? { title: group.label, entries: group.items.map((item) => item.label) }

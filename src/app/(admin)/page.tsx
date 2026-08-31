@@ -25,7 +25,11 @@ import {
 import { sectionVisible, type DashboardSection } from '@/lib/config/dashboard'
 import { LEARNING_PULSE_WINDOW_DAYS } from '@/lib/config/learning'
 import { getProposalsAwaitingStaff } from '@/lib/governance/queries'
-import type { StaffRole } from '@/lib/auth/role-policy'
+import {
+  NARROWEST_CAPABILITIES,
+  type StaffCapabilities,
+  type StaffRole,
+} from '@/lib/auth/role-policy'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,11 +37,13 @@ export default async function AdminDashboard() {
   const now = new Date()
   const user = await getCurrentUser()
 
-  // Middleware guards this route, so `user` is only null in the moment
-  // between session expiry and redirect; defaulting to ADMIN there matches
-  // the old show-everything behavior for that dying render.
-  const role: StaffRole = user?.role ?? 'ADMIN'
-  const show = (section: DashboardSection) => sectionVisible(role, section)
+  // Middleware guards this route, so `user` is only null in the moment between
+  // session expiry and the redirect that replaces this render. It used to
+  // default to ADMIN there — showing EVERYTHING to a session that had just
+  // ended. The narrowest subject is the safe direction to be wrong in.
+  const viewer: StaffCapabilities = user ?? NARROWEST_CAPABILITIES
+  const role: StaffRole = viewer.role
+  const show = (section: DashboardSection) => sectionVisible(viewer, section)
 
   // Fetch only what this role's dashboard renders (config/dashboard.ts is
   // the SSOT for that mapping) — a Jobcoach's dashboard runs the learning
@@ -333,7 +339,7 @@ export default async function AdminDashboard() {
 
   return (
     <ActionDashboard
-      role={role}
+      viewer={viewer}
       residentCount={residentCount}
       housingUnitCount={housingUnitCount}
       occupiedBeds={occupiedBeds}

@@ -1,7 +1,12 @@
 import { prisma } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
-import { hasPermission, isStaffRole, type StaffRole } from '@/lib/auth/role-policy'
+import {
+  NARROWEST_CAPABILITIES,
+  hasPermission,
+  isStaffRole,
+  type StaffRole,
+} from '@/lib/auth/role-policy'
 import { sendEmail } from '@/lib/email/service'
 import { staffInviteEmail } from '@/lib/email/templates'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -38,7 +43,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  if (!hasPermission(currentUser.role, 'users:manage')) {
+  if (!hasPermission(currentUser, 'users:manage')) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
       { status: 403 },
@@ -120,6 +125,12 @@ export async function POST(request: NextRequest) {
         code,
         name: name.trim(),
         role,
+        // Stated, not inherited from the column defaults. An invited colleague
+        // gets their own domain and administers nothing until someone widens
+        // that deliberately — same answer the defaults give, but written down,
+        // so a future change to the defaults cannot quietly widen every invite.
+        scope: NARROWEST_CAPABILITIES.scope,
+        isSystemAdmin: NARROWEST_CAPABILITIES.isSystemAdmin,
         active: true,
         account: { create: { email: email.toLowerCase() } },
       },

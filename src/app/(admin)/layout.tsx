@@ -30,8 +30,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/login')
   }
 
-  const megaMenuGroups = visibleMegaMenuGroups(user.role)
-  const systemLinks = visibleSystemLinks(user.role)
+  const megaMenuGroups = visibleMegaMenuGroups(user)
+  const systemLinks = visibleSystemLinks(user)
 
   return (
     <>
