@@ -21,12 +21,12 @@
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
-    "prisma:seed:admin": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed-admin.ts",
+    "prisma:seed:admin": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' prisma/seed-admin.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "prisma": {
-    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\",\"types\":[\"node\"]} prisma/seed.ts"
   },
   "dependencies": {
     "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",
