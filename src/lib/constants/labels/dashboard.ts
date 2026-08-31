@@ -96,9 +96,21 @@ export const DASHBOARD_LABELS = {
   emptySummary: 'Noch nichts erfasst.',
   emptyBody:
     'Diese Übersicht zeigt Aufgaben, sobald es Klient*innen gibt. Zurzeit ist die Datenbank leer — das ist kein Fehler, sondern der Startpunkt.',
-  /** For roles that may not create anything: no button, just the reason. */
+  /**
+   * For roles that may not create anything: no button, just the reason.
+   *
+   * Names the CAPABILITY (housing:write / residents:write), never a job
+   * title. This used to say "die Leitung" — a role AOZ's real team does not
+   * have (Franziska/Simon/Sandra are Betreuung/Jobcoach/Freiwilligenarbeit,
+   * and ADMIN survives only as the retired system-administrator seat). A
+   * Jobcoach or Freiwilligenarbeit person opening a genuinely empty
+   * workspace would be told to wait for someone who does not exist at this
+   * organisation. `setupCta` is what actually decides who has the button;
+   * this line must stay generic enough to be true for whatever the org
+   * structure is, on this deployment or the next rebrand.
+   */
   emptyNoSetupRights:
-    'Sobald die Leitung Unterkünfte und Klient*innen erfasst hat, erscheint hier Ihre Arbeit.',
+    'Sobald jemand mit Zugriff auf Unterkünfte oder Klient*innen die ersten Daten erfasst hat, erscheint hier Ihre Arbeit.',
   setupCreateHousing: 'Erste Unterkunft erfassen',
   setupCreateResident: 'Erste*n Klient*in erfassen',
 

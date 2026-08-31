@@ -185,13 +185,29 @@ carried across, rather than guessing.
 
 Recorded rather than fixed, because each is a decision rather than a defect.
 
-- **"Leitung" survives in the UI** — the demo door is labelled Leitung and
-  `ROLE_LABELS.ADMIN` still reads "Leitung", a role AOZ does not have. The
-  enum value must stay so live sessions and existing rows resolve; the visible
-  wording need not.
+- **"Leitung" survives in the UI, and one instance of it was a real leak.**
+  Reviewed on 2026-08-31: the settings roster and the demo door both label an
+  account "Leitung" whenever `role === 'ADMIN'` — that's a true statement
+  about the enum value on the row (`ROLE_LABELS.ADMIN`), not a claim that AOZ
+  employs someone with that title, so both were left alone.
+
+  `emptyNoSetupRights` was different — it told a Jobcoach or Freiwilligenarbeit
+  account opening a genuinely empty workspace to wait for **"die Leitung"** to
+  enter the first housing and clients. That names a person who does not exist
+  at AOZ (Franziska/Simon/Sandra hold Betreuung/Jobcoach/Freiwilligenarbeit;
+  ADMIN survives only as the retired system-administrator seat). Fixed to name
+  the CAPABILITY instead of a job title — "jemand mit Zugriff auf Unterkünfte
+  oder Klient*innen" — so it stays true regardless of who is actually staffed,
+  on this deployment or after a rebrand.
 - **The all-clear phrase appears twice** on a quiet dashboard — once in the
-  greeting line and once as the panel headline. Smaller than the duplication
-  `ActionDashboard` already fixed, but the same shape.
+  greeting line ("Alles unter Kontrolle heute.") and once as the panel
+  headline ("Alles unter Kontrolle!"). Reviewed on 2026-08-31 and left as-is:
+  unlike the empty/unassigned bugs, both instances state a TRUE fact — this is
+  stylistic (small muted line, then a celebratory card), not misleading. The
+  header subtitle is symmetric across all four workspace states and the
+  panel's own heading is needed for the same structural reason
+  `EmptyWorkspaceState` and `UnassignedWorkspaceState` each have one; removing
+  either loses something. Worth a copy pass later, not a fix.
 - **`residents/[id]` has no page-level permission**, gating each section
   individually instead. Listed in the session-is-enough set so the choice is
   written down.
