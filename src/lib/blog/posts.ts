@@ -45,15 +45,13 @@ export interface BlogPost {
 function parsePost(filename: string, raw: string): BlogPost {
   const match = FILENAME_PATTERN.exec(filename)
   if (!match) {
-    throw new Error(
-      `Blog post "${filename}" does not follow the YYYY-MM-DD-slug.md convention.`
-    )
+    throw new Error(`Blog post "${filename}" does not follow the YYYY-MM-DD-slug.md convention.`)
   }
   const [, date, slug] = match
 
   const lines = raw.split('\n')
 
-  const titleIndex = lines.findIndex(line => line.startsWith('# '))
+  const titleIndex = lines.findIndex((line) => line.startsWith('# '))
   if (titleIndex === -1) {
     throw new Error(`Blog post "${filename}" has no "# Title" heading.`)
   }
@@ -64,7 +62,7 @@ function parsePost(filename: string, raw: string): BlogPost {
   // shown twice. Only the one directly under the title is treated as the
   // dateline; an emphasised line further down is ordinary prose.
   const rest = lines.slice(titleIndex + 1)
-  const datelineIndex = rest.findIndex(line => line.trim() !== '')
+  const datelineIndex = rest.findIndex((line) => line.trim() !== '')
   const isDateline =
     datelineIndex !== -1 && /^\*\d{4}-\d{2}-\d{2}\*$/.test(rest[datelineIndex].trim())
 
@@ -80,7 +78,7 @@ function parsePost(filename: string, raw: string): BlogPost {
  */
 function firstParagraph(body: string): string {
   const blocks = body.split(/\n\s*\n/)
-  const prose = blocks.find(block => {
+  const prose = blocks.find((block) => {
     const trimmed = block.trim()
     return trimmed.length > 0 && !/^[#>|\-*`]/.test(trimmed)
   })
@@ -95,13 +93,15 @@ function firstParagraph(body: string): string {
 
 /** Every post, newest first. Ties break on slug so the order is deterministic. */
 export function getAllPosts(): BlogPost[] {
-  const files = readdirSync(BLOG_DIR).filter(name => FILENAME_PATTERN.test(name))
+  const files = readdirSync(BLOG_DIR).filter((name) => FILENAME_PATTERN.test(name))
 
   return files
-    .map(name => parsePost(name, readFileSync(join(BLOG_DIR, name), 'utf8')))
-    .sort((a, b) => (a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date)))
+    .map((name) => parsePost(name, readFileSync(join(BLOG_DIR, name), 'utf8')))
+    .sort((a, b) =>
+      a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date),
+    )
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
-  return getAllPosts().find(post => post.slug === slug) ?? null
+  return getAllPosts().find((post) => post.slug === slug) ?? null
 }

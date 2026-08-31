@@ -46,7 +46,7 @@ async function main() {
   })
   if (existing && existing.placements.length > 0) {
     console.error(
-      `✋ ${REAL_APARTMENT.unit.code} already has ${existing.placements.length} active placements — refusing to seed twice.`
+      `✋ ${REAL_APARTMENT.unit.code} already has ${existing.placements.length} active placements — refusing to seed twice.`,
     )
     process.exit(1)
   }

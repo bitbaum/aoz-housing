@@ -64,11 +64,7 @@ export function BedGrid({
   }, [selectedSpot])
 
   if (spots.length === 0) {
-    return (
-      <div className="text-sm text-ui-muted text-center py-2">
-        {BED_GRID_LABELS.noSpots}
-      </div>
-    )
+    return <div className="text-sm text-ui-muted text-center py-2">{BED_GRID_LABELS.noSpots}</div>
   }
 
   const gridSize = 'w-11 h-11'
@@ -111,12 +107,16 @@ export function BedGrid({
               onClick={(e) => handleBedClick(spot, e)}
               role={isAvailableClickable || isOccupiedClickable ? 'button' : undefined}
               tabIndex={isAvailableClickable || isOccupiedClickable ? 0 : undefined}
-              onKeyDown={isAvailableClickable || isOccupiedClickable ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleBedClick(spot, e as unknown as React.MouseEvent)
-                }
-              } : undefined}
+              onKeyDown={
+                isAvailableClickable || isOccupiedClickable
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleBedClick(spot, e as unknown as React.MouseEvent)
+                      }
+                    }
+                  : undefined
+              }
               className={`
                 ${gridSize}
                 border-2 rounded-md
@@ -128,14 +128,20 @@ export function BedGrid({
               `}
               aria-label={
                 status === 'occupied' && activePlacement
-                  ? BED_GRID_LABELS.ariaOccupied(spot.label || spot.code, activePlacement.resident.code)
+                  ? BED_GRID_LABELS.ariaOccupied(
+                      spot.label || spot.code,
+                      activePlacement.resident.code,
+                    )
                   : status === 'available'
                     ? BED_GRID_LABELS.ariaAvailable(spot.label || spot.code)
                     : BED_GRID_LABELS.ariaUnavailable(spot.label || spot.code)
               }
               title={
                 status === 'occupied' && activePlacement
-                  ? BED_GRID_LABELS.titleOccupied(spot.label || spot.code, activePlacement.resident.code)
+                  ? BED_GRID_LABELS.titleOccupied(
+                      spot.label || spot.code,
+                      activePlacement.resident.code,
+                    )
                   : status === 'available'
                     ? BED_GRID_LABELS.titleAvailable(spot.label || spot.code)
                     : BED_GRID_LABELS.titleUnavailable(spot.label || spot.code)
@@ -215,9 +221,7 @@ export function BedGridSummary({
             />
           )
         })}
-        {total > 8 && (
-          <span className={`${fontSize} text-ui-muted ml-1`}>+{total - 8}</span>
-        )}
+        {total > 8 && <span className={`${fontSize} text-ui-muted ml-1`}>+{total - 8}</span>}
       </div>
       <span className={`${fontSize} text-ui-muted`}>
         {available} {BED_GRID_LABELS.freeSuffix}

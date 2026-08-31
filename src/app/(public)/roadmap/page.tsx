@@ -19,12 +19,16 @@ export default function PublicRoadmapPage() {
         <p className="eyebrow">Produkt-Roadmap</p>
         <h1 className="mt-2 text-3xl sm:text-4xl font-semibold text-ui-text">{roadmap.title}</h1>
         <p className="mt-3 text-ui-muted max-w-2xl">
-          Die öffentliche Sicht auf Prioritäten, Richtung und die wissenschaftliche
-          Grundlage hinter der Produktentwicklung.
+          Die öffentliche Sicht auf Prioritäten, Richtung und die wissenschaftliche Grundlage hinter
+          der Produktentwicklung.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link href="/blog" className="btn-outline">Blog</Link>
-          <Link href="/changelog" className="btn-outline">Changelog</Link>
+          <Link href="/blog" className="btn-outline">
+            Blog
+          </Link>
+          <Link href="/changelog" className="btn-outline">
+            Changelog
+          </Link>
         </div>
       </header>
 

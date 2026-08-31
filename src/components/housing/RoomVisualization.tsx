@@ -1,10 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import {
-  SPOT_TYPE_ICONS,
-  SPOT_STATUS_LABELS,
-} from '@/lib/config/placement-spots'
+import { SPOT_TYPE_ICONS, SPOT_STATUS_LABELS } from '@/lib/config/placement-spots'
 import { HOUSING_SPOTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants/labels'
 import { BedGrid, BedGridSummary } from './BedGrid'
 import type { HousingSpot } from './types'
@@ -35,9 +32,7 @@ export function RoomVisualization({
 }: RoomVisualizationProps) {
   // Separate containers (ROOMs) from assignable spots
   const containers = spots.filter((s) => s.type === 'ROOM')
-  const assignableTopLevel = spots.filter(
-    (s) => s.type !== 'ROOM' && !s.parentSpotId
-  )
+  const assignableTopLevel = spots.filter((s) => s.type !== 'ROOM' && !s.parentSpotId)
 
   // Build hierarchy: attach child spots to their parent containers
   const containersWithChildren = containers.map((container) => ({
@@ -48,13 +43,8 @@ export function RoomVisualization({
   if (spots.length === 0) {
     return (
       <div className="card text-center py-8">
-        <p className="text-ui-muted mb-4">
-          {HOUSING_SPOTS_LABELS.emptyRoomView}
-        </p>
-        <Link
-          href={`/housing/${housingUnitId}/spots/new`}
-          className="btn-primary"
-        >
+        <p className="text-ui-muted mb-4">{HOUSING_SPOTS_LABELS.emptyRoomView}</p>
+        <Link href={`/housing/${housingUnitId}/spots/new`} className="btn-primary">
           {HOUSING_SPOTS_LABELS.addSpotsBtn}
         </Link>
       </div>
@@ -78,11 +68,7 @@ export function RoomVisualization({
       {assignableTopLevel.length > 0 && (
         <div className="space-y-2">
           {assignableTopLevel.map((spot) => (
-            <SpotCard
-              key={spot.id}
-              spot={spot}
-              onPlaceResident={onPlaceResident}
-            />
+            <SpotCard key={spot.id} spot={spot} onPlaceResident={onPlaceResident} />
           ))}
         </div>
       )}
@@ -102,11 +88,11 @@ function RoomContainer({
   useBedGrid?: boolean
 }) {
   const childSpots = room.childSpots || []
-  const occupiedCount = childSpots.filter(
-    (s) => s.placements.some((p) => p.status === 'ACTIVE')
+  const occupiedCount = childSpots.filter((s) =>
+    s.placements.some((p) => p.status === 'ACTIVE'),
   ).length
   const availableCount = childSpots.filter(
-    (s) => s.status === 'AVAILABLE' && !s.placements.some((p) => p.status === 'ACTIVE')
+    (s) => s.status === 'AVAILABLE' && !s.placements.some((p) => p.status === 'ACTIVE'),
   ).length
   const unavailableCount = childSpots.length - occupiedCount - availableCount
 
@@ -125,9 +111,7 @@ function RoomContainer({
         <div className="flex items-center gap-3">
           <span className="text-xl">{SPOT_TYPE_ICONS.ROOM}</span>
           <div>
-            <h4 className="font-medium text-ui-text">
-              {room.label || room.code}
-            </h4>
+            <h4 className="font-medium text-ui-text">{room.label || room.code}</h4>
             <p className="text-sm text-ui-muted">
               {room.squareMeters && `${room.squareMeters}m² · `}
               {occupiedCount}/{childSpots.length} belegt
@@ -148,23 +132,13 @@ function RoomContainer({
       {/* Beds in this room */}
       <div className="p-4">
         {childSpots.length === 0 ? (
-          <p className="text-sm text-ui-muted text-center py-2">
-            Keine Betten definiert
-          </p>
+          <p className="text-sm text-ui-muted text-center py-2">Keine Betten definiert</p>
         ) : useBedGrid ? (
-          <BedGrid
-            spots={childSpots}
-            onBedClick={handleBedClick}
-          />
+          <BedGrid spots={childSpots} onBedClick={handleBedClick} />
         ) : (
           <div className="space-y-2">
             {childSpots.map((bed) => (
-              <SpotCard
-                key={bed.id}
-                spot={bed}
-                compact
-                onPlaceResident={onPlaceResident}
-              />
+              <SpotCard key={bed.id} spot={bed} compact onPlaceResident={onPlaceResident} />
             ))}
           </div>
         )}
@@ -203,9 +177,7 @@ function SpotCard({
         <span className={compact ? 'text-lg' : 'text-xl'}>{icon}</span>
         <div>
           <div className="flex items-center gap-2">
-            <span
-              className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}
-            >
+            <span className={`font-medium ${compact ? 'text-sm' : ''} text-ui-text`}>
               {spot.label || spot.code}
             </span>
             {spot.requiresMedicalDocs && (
@@ -237,10 +209,7 @@ function SpotCard({
           <>
             <span className="badge badge-success text-xs">{HOUSING_SPOTS_LABELS.available}</span>
             {onPlaceResident && (
-              <button
-                onClick={() => onPlaceResident(spot.id)}
-                className="btn-primary text-xs"
-              >
+              <button onClick={() => onPlaceResident(spot.id)} className="btn-primary text-xs">
                 {PLACEMENT_PANEL_LABELS.place}
               </button>
             )}
@@ -253,13 +222,7 @@ function SpotCard({
   )
 }
 
-function OccupancyIndicator({
-  occupied,
-  total,
-}: {
-  occupied: number
-  total: number
-}) {
+function OccupancyIndicator({ occupied, total }: { occupied: number; total: number }) {
   const percentage = total > 0 ? (occupied / total) * 100 : 0
 
   return (

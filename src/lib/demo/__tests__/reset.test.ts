@@ -77,7 +77,7 @@ describe('resetDemoData', () => {
 
     expect(mockSeedOpportunities).toHaveBeenCalledWith(
       prisma,
-      expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' })
+      expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' }),
     )
     expect(summary.opportunities).toBe(5)
     expect(summary.opportunityApplications).toBe(10)
@@ -131,7 +131,13 @@ describe('resetDemoData', () => {
     expect(prisma.user.upsert).toHaveBeenCalledWith({
       where: { code: 'AOZH-DEMO01' },
       update: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
-      create: { code: 'AOZH-DEMO01', name: 'Demo-Zugang', role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
+      create: {
+        code: 'AOZH-DEMO01',
+        name: 'Demo-Zugang',
+        role: 'ADMIN',
+        scope: 'ALL_DOMAINS',
+        isSystemAdmin: true,
+      },
       select: { id: true },
     })
     // A visitor-claimed account on the demo code must not outlive the reset.

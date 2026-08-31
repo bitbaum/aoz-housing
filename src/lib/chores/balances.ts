@@ -88,7 +88,7 @@ export function completionMinutes(completion: CompletionForBalance): number {
  */
 export function computeChoreBalances(
   completions: CompletionForBalance[],
-  memberIds: string[] = []
+  memberIds: string[] = [],
 ): ChoreBalance[] {
   const doneByResident = new Map<string, number>()
   for (const id of memberIds) doneByResident.set(id, 0)
@@ -99,7 +99,7 @@ export function computeChoreBalances(
     totalMinutes += minutes
     doneByResident.set(
       completion.completedById,
-      (doneByResident.get(completion.completedById) ?? 0) + minutes
+      (doneByResident.get(completion.completedById) ?? 0) + minutes,
     )
   }
 
@@ -113,12 +113,12 @@ export function computeChoreBalances(
   // is the cheap decentralised approximation, which is why TaskRequest exists.
   const shareMinutes = totalMinutes / participants
 
-  const seeded = memberIds.filter(id => doneByResident.has(id))
+  const seeded = memberIds.filter((id) => doneByResident.has(id))
   const extras = Array.from(doneByResident.keys())
-    .filter(id => !memberIds.includes(id))
+    .filter((id) => !memberIds.includes(id))
     .sort()
 
-  return [...seeded, ...extras].map(residentId => {
+  return [...seeded, ...extras].map((residentId) => {
     const doneMinutes = doneByResident.get(residentId) ?? 0
     return {
       residentId,

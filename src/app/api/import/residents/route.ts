@@ -15,8 +15,11 @@ export async function POST(request: Request) {
   const auth = await authorizeStaff('import:write')
   if (!auth.ok) {
     return NextResponse.json(
-      { error: auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: auth.status }
+      {
+        error:
+          auth.status === 401 ? 'Nicht authentifiziert' : ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS,
+      },
+      { status: auth.status },
     )
   }
   const user = auth.user
@@ -24,16 +27,13 @@ export async function POST(request: Request) {
   const formData = await request.formData()
   const file = formData.get('file') as File | null
   if (!file) {
-    return NextResponse.json(
-      { error: 'Keine Datei hochgeladen' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Keine Datei hochgeladen' }, { status: 400 })
   }
 
   if (file.size > MAX_CSV_BYTES) {
     return NextResponse.json(
       { error: `Datei zu gross (max ${MAX_CSV_BYTES / 1024 / 1024} MB)` },
-      { status: 413 }
+      { status: 413 },
     )
   }
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         error: 'CSV-Parsing fehlgeschlagen',
         details: parsed.errors.slice(0, 5),
       },
-      { status: 400 }
+      { status: 400 },
     )
   }
 

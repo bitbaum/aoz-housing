@@ -25,24 +25,18 @@ export default async function NewHousingPage() {
         <h1 className="text-xl sm:text-2xl font-bold text-ui-text mt-2">
           {HOUSING_NEW_LABELS.title}
         </h1>
-        <p className="text-ui-muted">
-          {HOUSING_NEW_LABELS.subtitle}
-        </p>
+        <p className="text-ui-muted">{HOUSING_NEW_LABELS.subtitle}</p>
       </div>
 
       {/* Process Indicator */}
       <div className="mb-6 flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="avatar-sm">
-            1
-          </div>
+          <div className="avatar-sm">1</div>
           <span className="text-sm font-medium text-ui-text">{HOUSING_NEW_LABELS.step1Label}</span>
         </div>
         <div className="flex-1 h-0.5 bg-ui-border" />
         <div className="flex items-center gap-2">
-          <div className="avatar-sm bg-ui-border text-ui-muted">
-            2
-          </div>
+          <div className="avatar-sm bg-ui-border text-ui-muted">2</div>
           <span className="text-sm text-ui-muted">{HOUSING_NEW_LABELS.step2Label}</span>
         </div>
       </div>
@@ -55,7 +49,10 @@ export default async function NewHousingPage() {
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {HOUSING_NEW_LABELS.submit}
           </SubmitButton>
-          <Link href="/housing" className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+          <Link
+            href="/housing"
+            className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
+          >
             {UI_LABELS.cancel}
           </Link>
         </div>

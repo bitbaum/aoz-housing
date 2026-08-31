@@ -8,11 +8,7 @@
 
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
-import {
-  getTransferRequests,
-  approveTransferRequest,
-  denyTransferRequest,
-} from '../transfers'
+import { getTransferRequests, approveTransferRequest, denyTransferRequest } from '../transfers'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // =============================================================================
@@ -38,9 +34,24 @@ jest.mock('@/lib/audit', () => ({
 }))
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -100,7 +111,7 @@ describe('getTransferRequests', () => {
     expect(mockPrisma.transferRequest.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { status: 'PENDING' },
-      })
+      }),
     )
   })
 
@@ -175,9 +186,7 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(
-      new Error('DB error')
-    )
+    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const result = await approveTransferRequest(validInput)
 
@@ -247,9 +256,7 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(
-      new Error('DB error')
-    )
+    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const result = await denyTransferRequest(validInput)
 
@@ -266,17 +273,17 @@ describe('auth guard', () => {
     const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
-    await expect(
-      approveTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })
-    ).rejects.toThrow('Anmeldung erforderlich')
+    await expect(approveTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(
+      'Anmeldung erforderlich',
+    )
   })
 
   it('rejects unauthenticated deny requests', async () => {
     const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
-    await expect(
-      denyTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })
-    ).rejects.toThrow('Anmeldung erforderlich')
+    await expect(denyTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(
+      'Anmeldung erforderlich',
+    )
   })
 })

@@ -90,14 +90,10 @@ export const MARKETPLACE_KINDS: Record<MarketplacePostKind, MarketplaceKindConfi
   },
 }
 
-export const MARKETPLACE_KIND_VALUES = Object.keys(
-  MARKETPLACE_KINDS
-) as MarketplacePostKind[]
+export const MARKETPLACE_KIND_VALUES = Object.keys(MARKETPLACE_KINDS) as MarketplacePostKind[]
 
 export function kindsOfNature(nature: MarketplaceNature): MarketplacePostKind[] {
-  return MARKETPLACE_KIND_VALUES.filter(
-    (kind) => MARKETPLACE_KINDS[kind].nature === nature
-  )
+  return MARKETPLACE_KIND_VALUES.filter((kind) => MARKETPLACE_KINDS[kind].nature === nature)
 }
 
 export function natureOfKind(kind: MarketplacePostKind): MarketplaceNature {
@@ -158,7 +154,7 @@ export const MARKETPLACE_CATEGORY_LABEL_KEYS: Record<string, MessageKey> = {
 
 /** Every category any nature offers, deduplicated. */
 export const MARKETPLACE_CATEGORY_VALUES: readonly string[] = MARKETPLACE_NATURES.flatMap(
-  (nature) => MARKETPLACE_CATEGORIES[nature]
+  (nature) => MARKETPLACE_CATEGORIES[nature],
 ).filter((value, index, all) => all.indexOf(value) === index)
 
 /**

@@ -22,7 +22,7 @@ import { readFileSync } from 'fs'
 function pagesNamingTheBrandInTitle(): string[] {
   const out = execSync(
     `grep -rlE "title: .*(BRAND\\.productName|APP_LABELS\\.name)" --include=page.tsx --include=layout.tsx src/app || true`,
-    { encoding: 'utf8', cwd: process.cwd() }
+    { encoding: 'utf8', cwd: process.cwd() },
   )
   return out.split('\n').filter(Boolean).sort()
 }
@@ -51,6 +51,6 @@ describe('page titles do not print the product name twice', () => {
       const titleBlock = /title:\s*\{[^}]*absolute\s*:/.test(source)
 
       expect({ file, usesAbsolute: titleBlock }).toEqual({ file, usesAbsolute: true })
-    }
+    },
   )
 })

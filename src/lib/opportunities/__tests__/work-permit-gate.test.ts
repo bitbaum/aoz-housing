@@ -29,7 +29,6 @@ import { OpportunityInputSchema } from '@/lib/validation'
 import { prisma } from '@/lib/db'
 import { publishOpportunity } from '@/lib/actions/opportunities'
 
-
 // --- the action path -------------------------------------------------------
 
 jest.mock('@/lib/db', () => ({
@@ -96,15 +95,13 @@ describe('publishing through the form', () => {
   it.each([...WORK_OPPORTUNITY_KINDS])(
     'refuses to publish a %s with no stated authorisation route',
     (kind) => {
-      const result = OpportunityInputSchema.safeParse(
-        draft({ kind, permitRequirement: 'NONE' })
-      )
+      const result = OpportunityInputSchema.safeParse(draft({ kind, permitRequirement: 'NONE' }))
 
       expect(result.success).toBe(false)
       if (!result.success) {
         expect(result.error.issues.some((i) => i.path.includes('permitRequirement'))).toBe(true)
       }
-    }
+    },
   )
 
   it('refuses when the field is simply absent, which is how a default bites', () => {
@@ -117,7 +114,7 @@ describe('publishing through the form', () => {
   it.each([...WORK_OPPORTUNITY_KINDS])('accepts a %s that states a route', (kind) => {
     expect(
       OpportunityInputSchema.safeParse(draft({ kind, permitRequirement: 'PERMIT_REQUIRED' }))
-        .success
+        .success,
     ).toBe(true)
   })
 
@@ -126,16 +123,15 @@ describe('publishing through the form', () => {
     // progress. What they must not be able to do is put it in front of a
     // resident. Blocking the draft too would just push the record elsewhere.
     expect(
-      OpportunityInputSchema.safeParse(
-        draft({ status: 'DRAFT', permitRequirement: 'NONE' })
-      ).success
+      OpportunityInputSchema.safeParse(draft({ status: 'DRAFT', permitRequirement: 'NONE' }))
+        .success,
     ).toBe(true)
   })
 
   it('leaves unpaid listings publishable with NONE, as before', () => {
     for (const kind of UNPAID_KINDS) {
       expect(
-        OpportunityInputSchema.safeParse(draft({ kind, permitRequirement: 'NONE' })).success
+        OpportunityInputSchema.safeParse(draft({ kind, permitRequirement: 'NONE' })).success,
       ).toBe(true)
     }
   })
@@ -161,7 +157,7 @@ describe('publishing through the button that skips the form', () => {
 
       await expect(publishOpportunity('opp-1')).rejects.toThrow(/Bewilligungsweg/)
       expect(mockPrisma.opportunity.update).not.toHaveBeenCalled()
-    }
+    },
   )
 
   it('publishes a work listing once a route is stated', async () => {
@@ -173,7 +169,7 @@ describe('publishing through the button that skips the form', () => {
     await publishOpportunity('opp-1')
 
     expect(mockPrisma.opportunity.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'opp-1' } })
+      expect.objectContaining({ where: { id: 'opp-1' } }),
     )
   })
 

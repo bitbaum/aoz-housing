@@ -7,11 +7,7 @@ import {
   type CleanlinessProfile,
 } from '../cleanliness'
 
-function profile(
-  practice: number,
-  expectation: number,
-  tolerance: number
-): CleanlinessProfile {
+function profile(practice: number, expectation: number, tolerance: number): CleanlinessProfile {
   return {
     cleanlinessPractice: practice,
     cleanlinessExpectation: expectation,

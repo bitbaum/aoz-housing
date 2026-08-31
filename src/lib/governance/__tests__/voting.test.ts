@@ -18,7 +18,11 @@ const majority = {
 
 describe('tallyVotes', () => {
   it('accepts a proposal that clears quorum and threshold', () => {
-    const result = tallyVotes({ votes: votes({ YES: 6, NO: 2 }), eligibleVoterCount: 10, ...majority })
+    const result = tallyVotes({
+      votes: votes({ YES: 6, NO: 2 }),
+      eligibleVoterCount: 10,
+      ...majority,
+    })
 
     expect(result.outcome).toBe('ACCEPTED')
     expect(result.approvalAchievedPercent).toBe(75)
@@ -150,7 +154,7 @@ describe('computeSchedule', () => {
     expect(votingEndsAt.getTime()).toBeGreaterThan(discussionEndsAt.getTime())
 
     const votingDays = Math.round(
-      (votingEndsAt.getTime() - discussionEndsAt.getTime()) / (24 * 60 * 60 * 1000)
+      (votingEndsAt.getTime() - discussionEndsAt.getTime()) / (24 * 60 * 60 * 1000),
     )
     expect(votingDays).toBe(DECISION_TIMING.votingDays)
   })

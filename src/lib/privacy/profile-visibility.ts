@@ -62,11 +62,7 @@ export function canSeeProfile(viewer: ProfileViewer, subject: ProfileSubject): b
 }
 
 /** The options a resident chooses between, in the order they are offered. */
-export const PROFILE_VISIBILITY_OPTIONS: ProfileVisibility[] = [
-  'PRIVATE',
-  'ROOMMATES',
-  'RESIDENTS',
-]
+export const PROFILE_VISIBILITY_OPTIONS: ProfileVisibility[] = ['PRIVATE', 'ROOMMATES', 'RESIDENTS']
 
 /**
  * Strip the profile off a row the viewer may not see it on.
@@ -82,7 +78,12 @@ export const PROFILE_VISIBILITY_OPTIONS: ProfileVisibility[] = [
  * a card identifying nobody.
  */
 export function redactProfile<
-  T extends { id: string; profileVisibility: ProfileVisibility; displayName: string | null; bio?: string | null },
+  T extends {
+    id: string
+    profileVisibility: ProfileVisibility
+    displayName: string | null
+    bio?: string | null
+  },
 >(row: T, viewer: ProfileViewer): T {
   if (canSeeProfile(viewer, row)) return row
 

@@ -33,18 +33,7 @@
  * dictionary is incomplete, and an unvouched locale must carry the notice.
  */
 
-export type LocaleId =
-  | 'de'
-  | 'en'
-  | 'fr'
-  | 'uk'
-  | 'ru'
-  | 'ar'
-  | 'fa'
-  | 'ti'
-  | 'tr'
-  | 'sq'
-  | 'so'
+export type LocaleId = 'de' | 'en' | 'fr' | 'uk' | 'ru' | 'ar' | 'fa' | 'ti' | 'tr' | 'sq' | 'so'
 
 export type TextDirection = 'ltr' | 'rtl'
 

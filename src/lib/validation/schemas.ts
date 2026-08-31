@@ -141,8 +141,12 @@ export const FollowUpPrioritySchema = enumFromKeys<FollowUpPriority>(FOLLOW_UP_P
 export const InvolvementRoleSchema = enumFromKeys<InvolvementRole>(INVOLVEMENT_ROLE_LABELS)
 
 // Maintenance - derived from labels
-export const MaintenanceCategorySchema = enumFromKeys<MaintenanceCategory>(MAINTENANCE_CATEGORY_LABELS)
-export const MaintenancePrioritySchema = enumFromKeys<MaintenancePriority>(MAINTENANCE_PRIORITY_LABELS)
+export const MaintenanceCategorySchema = enumFromKeys<MaintenanceCategory>(
+  MAINTENANCE_CATEGORY_LABELS,
+)
+export const MaintenancePrioritySchema = enumFromKeys<MaintenancePriority>(
+  MAINTENANCE_PRIORITY_LABELS,
+)
 export const MaintenanceStatusSchema = enumFromKeys<MaintenanceStatus>(MAINTENANCE_STATUS_LABELS)
 
 // Check-in - derived from labels
@@ -206,9 +210,12 @@ export const ResidentInputSchema = z.object({
   supportLevel: SupportLevelSchema.default('STANDARD' as SupportLevel),
   hasMedicalDocumentation: z.coerce.boolean().default(false),
   medicalDocType: MedicalDocTypeSchema.optional().nullable(),
-  medicalDocDate: z.string().optional().nullable()
+  medicalDocDate: z
+    .string()
+    .optional()
+    .nullable()
     .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
-    .transform((val) => val ? new Date(val) : null),
+    .transform((val) => (val ? new Date(val) : null)),
   medicalDocNotes: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
 })
@@ -331,7 +338,8 @@ export const IncidentInputSchema = z.object({
   type: IncidentTypeSchema,
   severity: IncidentSeveritySchema,
   description: z.string().min(1, 'Beschreibung ist erforderlich'),
-  date: z.string()
+  date: z
+    .string()
     .refine((val) => !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
     .transform((val) => new Date(val)),
   mediationMinutes: z.coerce.number().int().min(0).optional().nullable(),
@@ -353,9 +361,12 @@ export const FollowUpInputSchema = z.object({
   notes: z.string().optional().nullable(),
   outcome: z.string().optional().nullable(),
   staffName: z.string().optional().nullable(),
-  scheduledNextDate: z.string().optional().nullable()
+  scheduledNextDate: z
+    .string()
+    .optional()
+    .nullable()
     .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
-    .transform((val) => val ? new Date(val) : null),
+    .transform((val) => (val ? new Date(val) : null)),
   followUpPriority: FollowUpPrioritySchema.optional().nullable(),
 })
 
@@ -393,9 +404,12 @@ export const AssignMaintenanceSchema = z.object({
 // ACTIVITY SCHEMAS
 // =============================================================================
 
-const optionalDateSchema = z.string().optional().nullable()
+const optionalDateSchema = z
+  .string()
+  .optional()
+  .nullable()
   .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' })
-  .transform((val) => val ? new Date(val) : null)
+  .transform((val) => (val ? new Date(val) : null))
 
 export const ActivityInputSchema = z.object({
   title: z.string().min(1, 'Titel ist erforderlich').max(160),
@@ -466,9 +480,21 @@ export const OpportunityFieldsSchema = z.object({
   permitRequirement: PermitRequirementSchema.default('NONE' as PermitRequirementId),
   requirementNote: z.string().max(500).optional().nullable(),
   contactName: z.string().max(200).optional().nullable(),
-  contactEmail: z.string().email('Bitte eine gültige E-Mail angeben').max(200).optional().nullable().or(z.literal('').transform(() => null)),
+  contactEmail: z
+    .string()
+    .email('Bitte eine gültige E-Mail angeben')
+    .max(200)
+    .optional()
+    .nullable()
+    .or(z.literal('').transform(() => null)),
   contactPhone: z.string().max(80).optional().nullable(),
-  website: z.string().url('Bitte eine gültige URL angeben').max(500).optional().nullable().or(z.literal('').transform(() => null)),
+  website: z
+    .string()
+    .url('Bitte eine gültige URL angeben')
+    .max(500)
+    .optional()
+    .nullable()
+    .or(z.literal('').transform(() => null)),
   status: OpportunityStatusSchema.default('DRAFT' as OpportunityStatusId),
   startsAt: optionalDateSchema,
   endsAt: optionalDateSchema,
@@ -490,7 +516,7 @@ export const OpportunityFieldsSchema = z.object({
  */
 function requireStatedPermitForWork(
   value: { kind: string; status: string; permitRequirement: string },
-  ctx: z.RefinementCtx
+  ctx: z.RefinementCtx,
 ): void {
   if (value.status !== 'PUBLISHED') return
   if (permitRequirementIsStated(value.kind, value.permitRequirement)) return
@@ -505,7 +531,9 @@ function requireStatedPermitForWork(
   })
 }
 
-export const OpportunityInputSchema = OpportunityFieldsSchema.superRefine(requireStatedPermitForWork)
+export const OpportunityInputSchema = OpportunityFieldsSchema.superRefine(
+  requireStatedPermitForWork,
+)
 
 export const OpportunityUpdateSchema = OpportunityFieldsSchema.extend({
   id: z.string().cuid(),
@@ -558,9 +586,13 @@ export const portalReportSchema = z.object({
   severity: IncidentSeveritySchema,
   description: z.string().min(1, 'Beschreibung ist erforderlich').max(2000),
   location: z.string().max(200).optional(),
-  incidentDate: z.string().optional()
+  incidentDate: z
+    .string()
+    .optional()
     .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' }),
-  involvedResident: z.union([z.literal('external'), z.literal('anonymous'), z.string().cuid()]).optional(),
+  involvedResident: z
+    .union([z.literal('external'), z.literal('anonymous'), z.string().cuid()])
+    .optional(),
   requestMediation: z.coerce.boolean().default(false),
 })
 
@@ -632,11 +664,14 @@ export const portalCreateTaskSchema = z.object({
   // not a second definition of what a checklist is.
   checklist: z
     .preprocess(
-      value =>
+      (value) =>
         typeof value === 'string'
-          ? value.split('\n').map(line => line.trim()).filter(Boolean)
+          ? value
+              .split('\n')
+              .map((line) => line.trim())
+              .filter(Boolean)
           : value,
-      z.array(z.string().min(1).max(120)).max(20)
+      z.array(z.string().min(1).max(120)).max(20),
     )
     .optional(),
 })
@@ -676,7 +711,7 @@ export type ActionResult<T = void> =
  */
 export function validateFormData<T extends z.ZodTypeAny>(
   schema: T,
-  formData: FormData
+  formData: FormData,
 ): z.output<T> {
   // Convert FormData to object
   const rawData: Record<string, unknown> = {}
@@ -733,7 +768,7 @@ export function validateFormData<T extends z.ZodTypeAny>(
 export class ValidationError extends Error {
   constructor(
     message: string,
-    public fieldErrors: Record<string, string[] | undefined>
+    public fieldErrors: Record<string, string[] | undefined>,
   ) {
     super(message)
     this.name = 'ValidationError'

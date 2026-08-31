@@ -7,24 +7,33 @@ import type { CompatibilityScore } from '../CompatibilityDetailPopover'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
 jest.mock('@/lib/utils', () => ({
   getScoreColorClass: (score: number) =>
     score >= 80 ? 'score-excellent' : score >= 60 ? 'score-good' : 'score-medium',
-  getScoreLabel: (score: number) =>
-    score >= 80 ? 'Sehr gut' : score >= 60 ? 'Gut' : 'Mittel',
+  getScoreLabel: (score: number) => (score >= 80 ? 'Sehr gut' : score >= 60 ? 'Gut' : 'Mittel'),
 }))
 
 jest.mock('@/lib/constants', () => ({
   COMPATIBILITY_DIMENSION_LABELS: {
     lifestyle: { label: 'Lebensstil', description: 'Schlaf, Lärm, Sauberkeit' },
-    social:    { label: 'Sozial',     description: 'Sprache, Umgang' },
-    practical: { label: 'Praktisch',  description: 'Rauchen, Küche' },
-    risk:      { label: 'Risiko',     description: 'Konfliktpotenzial' },
+    social: { label: 'Sozial', description: 'Sprache, Umgang' },
+    practical: { label: 'Praktisch', description: 'Rauchen, Küche' },
+    risk: { label: 'Risiko', description: 'Konfliktpotenzial' },
   },
   MATCHING_LABELS: {
     strengths: 'Stärken',
@@ -54,8 +63,20 @@ jest.mock('@/lib/config/thresholds', () => ({
 
 // --- Helpers ---
 
-const R1 = { id: 'res-1', code: 'RES-001', displayName: null, ageRange: 'ADULT' as const, languages: ['de'] }
-const R2 = { id: 'res-2', code: 'RES-002', displayName: null, ageRange: 'ADULT' as const, languages: ['en'] }
+const R1 = {
+  id: 'res-1',
+  code: 'RES-001',
+  displayName: null,
+  ageRange: 'ADULT' as const,
+  languages: ['de'],
+}
+const R2 = {
+  id: 'res-2',
+  code: 'RES-002',
+  displayName: null,
+  ageRange: 'ADULT' as const,
+  languages: ['en'],
+}
 const POSITION = { x: 200, y: 100 }
 
 function makeScore(overrides: Partial<CompatibilityScore> = {}): CompatibilityScore {
@@ -77,7 +98,7 @@ function renderPopover(score: CompatibilityScore | null = makeScore()) {
       score={score}
       position={POSITION}
       onClose={onClose}
-    />
+    />,
   )
   return { onClose }
 }
@@ -96,7 +117,7 @@ describe('CompatibilityDetailPopover', () => {
     renderPopover()
     expect(screen.getByRole('dialog')).toHaveAttribute(
       'aria-label',
-      'Kompatibilität: RES-001 und RES-002'
+      'Kompatibilität: RES-001 und RES-002',
     )
   })
 
@@ -118,13 +139,13 @@ describe('CompatibilityDetailPopover', () => {
   it('renders footer link to resident1 profile', () => {
     renderPopover()
     const links = screen.getAllByRole('link', { name: 'RES-001' })
-    expect(links.some(l => l.getAttribute('href') === '/residents/res-1')).toBe(true)
+    expect(links.some((l) => l.getAttribute('href') === '/residents/res-1')).toBe(true)
   })
 
   it('renders footer link to resident2 profile', () => {
     renderPopover()
     const links = screen.getAllByRole('link', { name: 'RES-002' })
-    expect(links.some(l => l.getAttribute('href') === '/residents/res-2')).toBe(true)
+    expect(links.some((l) => l.getAttribute('href') === '/residents/res-2')).toBe(true)
   })
 
   // ── With score: overall ───────────────────────────────────────────────────
@@ -210,13 +231,15 @@ describe('CompatibilityDetailPopover', () => {
   })
 
   it('shows at most 2 conflicts', () => {
-    renderPopover(makeScore({
-      conflicts: [
-        { message: 'C1', severity: 'HIGH' },
-        { message: 'C2', severity: 'HIGH' },
-        { message: 'C3', severity: 'HIGH' },
-      ],
-    }))
+    renderPopover(
+      makeScore({
+        conflicts: [
+          { message: 'C1', severity: 'HIGH' },
+          { message: 'C2', severity: 'HIGH' },
+          { message: 'C3', severity: 'HIGH' },
+        ],
+      }),
+    )
     expect(screen.getByText('C1')).toBeInTheDocument()
     expect(screen.getByText('C2')).toBeInTheDocument()
     expect(screen.queryByText('C3')).not.toBeInTheDocument()
@@ -254,10 +277,10 @@ describe('CompatibilityDetailPopover', () => {
         score={makeScore({ lifestyleScore: 70 })}
         position={POSITION}
         onClose={jest.fn()}
-      />
+      />,
     )
     // The bar div has style width: 70%
     const bars = container.querySelectorAll('[style*="width"]')
-    expect(Array.from(bars).some(el => (el as HTMLElement).style.width === '70%')).toBe(true)
+    expect(Array.from(bars).some((el) => (el as HTMLElement).style.width === '70%')).toBe(true)
   })
 })

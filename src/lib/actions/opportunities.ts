@@ -110,7 +110,7 @@ async function setStatus(opportunityId: string, status: OpportunityStatusId): Pr
     if (!permitRequirementIsStated(existing.kind, existing.permitRequirement)) {
       throw new Error(
         'Für Arbeitsstellen und Praktika muss der Bewilligungsweg angegeben sein, ' +
-          'bevor der Eintrag veröffentlicht wird.'
+          'bevor der Eintrag veröffentlicht wird.',
       )
     }
   }
@@ -310,7 +310,13 @@ async function recordInterest(opportunityId: string, residentId: string): Promis
   // Neither is on the board, so arriving here means a stale page or a guessed
   // id — either way, nobody gets attached to a place that is not on offer.
   if (!opportunity || opportunity.status !== 'PUBLISHED') return 'error=unavailable'
-  if (isFull(opportunity, opportunity.applications.map((a) => a.stage))) return 'error=full'
+  if (
+    isFull(
+      opportunity,
+      opportunity.applications.map((a) => a.stage),
+    )
+  )
+    return 'error=full'
 
   try {
     await prisma.opportunityApplication.create({

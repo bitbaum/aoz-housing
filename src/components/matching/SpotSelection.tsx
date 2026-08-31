@@ -21,28 +21,27 @@ interface Props {
 export function SpotSelection({ spots, resident, match }: Props) {
   const eligibleTypes = getEligibleSpotTypes(
     resident.hasMedicalDocumentation,
-    resident.medicalDocType
+    resident.medicalDocType,
   )
 
   const availableSpots = spots.filter(
-    (spot) => spot.placements.length === 0 && spot.status === 'AVAILABLE'
+    (spot) => spot.placements.length === 0 && spot.status === 'AVAILABLE',
   )
 
-  const eligibleSpots = availableSpots.filter((spot) =>
-    eligibleTypes.includes(spot.type) &&
-    (!spot.requiresMedicalDocs || resident.hasMedicalDocumentation)
+  const eligibleSpots = availableSpots.filter(
+    (spot) =>
+      eligibleTypes.includes(spot.type) &&
+      (!spot.requiresMedicalDocs || resident.hasMedicalDocumentation),
   )
   const ineligibleSpots = availableSpots.filter(
     (spot) =>
       !eligibleTypes.includes(spot.type) ||
-      (spot.requiresMedicalDocs && !resident.hasMedicalDocumentation)
+      (spot.requiresMedicalDocs && !resident.hasMedicalDocumentation),
   )
 
   if (availableSpots.length === 0) {
     return (
-      <p className="text-sm text-ui-muted text-center py-2">
-        {MATCHING_LABELS.noSpotsAvailable}
-      </p>
+      <p className="text-sm text-ui-muted text-center py-2">{MATCHING_LABELS.noSpotsAvailable}</p>
     )
   }
 
@@ -60,9 +59,9 @@ export function SpotSelection({ spots, resident, match }: Props) {
       )}
 
       {eligibleSpots.map((spot) => {
-        const hasBlockingConflicts = match.apartmentFit?.conflicts.some(
-          (c: ApartmentConflict) => c.severity === 'BLOCKING'
-        ) || false
+        const hasBlockingConflicts =
+          match.apartmentFit?.conflicts.some((c: ApartmentConflict) => c.severity === 'BLOCKING') ||
+          false
         const fitScore = match.apartmentFit?.fitScore || 100
         const spotName = spot.label || spot.code
 
@@ -71,22 +70,14 @@ export function SpotSelection({ spots, resident, match }: Props) {
             <input type="hidden" name="residentId" value={resident.id} />
             <input type="hidden" name="housingUnitId" value={match.unit.id} />
             <input type="hidden" name="spotId" value={spot.id} />
-            <input
-              type="hidden"
-              name="apartmentFitScore"
-              value={fitScore}
-            />
-            <input
-              type="hidden"
-              name="hasBlockingConflicts"
-              value={String(hasBlockingConflicts)}
-            />
+            <input type="hidden" name="apartmentFitScore" value={fitScore} />
+            <input type="hidden" name="hasBlockingConflicts" value={String(hasBlockingConflicts)} />
             <div className="flex-1 flex items-center gap-2 p-2 border border-score-excellent/20 rounded-lg bg-score-excellent/8">
-              <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+              <span aria-hidden="true">
+                {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}
+              </span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-ui-text">
-                  {spotName}
-                </p>
+                <p className="text-sm font-medium text-ui-text">{spotName}</p>
                 <p className="text-xs text-ui-muted">
                   {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]}
                 </p>
@@ -95,20 +86,20 @@ export function SpotSelection({ spots, resident, match }: Props) {
             <button
               type="submit"
               className={`btn-primary text-sm px-3 ${
-                hasBlockingConflicts
-                  ? 'opacity-50 cursor-not-allowed bg-ui-muted'
-                  : ''
+                hasBlockingConflicts ? 'opacity-50 cursor-not-allowed bg-ui-muted' : ''
               }`}
               disabled={hasBlockingConflicts}
-              aria-label={hasBlockingConflicts
-                ? `${spotName} ${MATCHING_LABELS.blocked.toLowerCase()}`
-                : `${residentName(resident)} in ${spotName} ${MATCHING_LABELS.place.toLowerCase()}`}
+              aria-label={
+                hasBlockingConflicts
+                  ? `${spotName} ${MATCHING_LABELS.blocked.toLowerCase()}`
+                  : `${residentName(resident)} in ${spotName} ${MATCHING_LABELS.place.toLowerCase()}`
+              }
             >
               {hasBlockingConflicts
                 ? MATCHING_LABELS.blocked
                 : fitScore < 50
-                ? MATCHING_LABELS.placeLowCompat
-                : MATCHING_LABELS.place}
+                  ? MATCHING_LABELS.placeLowCompat
+                  : MATCHING_LABELS.place}
             </button>
           </form>
         )
@@ -122,7 +113,9 @@ export function SpotSelection({ spots, resident, match }: Props) {
           <div className="mt-2 space-y-1 pl-2">
             {ineligibleSpots.map((spot) => (
               <div key={spot.id} className="flex items-center gap-2 opacity-50">
-                <span aria-hidden="true">{SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}</span>
+                <span aria-hidden="true">
+                  {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}
+                </span>
                 <span>{spot.label || spot.code}</span>
                 <span className="text-status-warning-text">
                   {spot.requiresMedicalDocs && !resident.hasMedicalDocumentation

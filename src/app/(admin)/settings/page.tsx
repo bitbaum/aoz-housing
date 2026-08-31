@@ -45,20 +45,18 @@ export default async function SettingsPage() {
       <PageHeader title={SETTINGS_LABELS.title} description={SETTINGS_LABELS.subtitle} />
 
       {canInvite && (
-      <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-1">{SETTINGS_LABELS.inviteTitle}</h2>
-        <p className="text-sm text-ui-muted mb-4">
-          {SETTINGS_LABELS.inviteSubtitle}
-        </p>
+        <div className="card">
+          <h2 className="text-lg font-semibold text-ui-text mb-1">{SETTINGS_LABELS.inviteTitle}</h2>
+          <p className="text-sm text-ui-muted mb-4">{SETTINGS_LABELS.inviteSubtitle}</p>
 
-        {!emailEnabled && (
-          <div className="mb-4 alert-warning" role="alert" aria-live="polite">
-            {SETTINGS_LABELS.emailWarning}
-          </div>
-        )}
+          {!emailEnabled && (
+            <div className="mb-4 alert-warning" role="alert" aria-live="polite">
+              {SETTINGS_LABELS.emailWarning}
+            </div>
+          )}
 
-        <InviteForm />
-      </div>
+          <InviteForm />
+        </div>
       )}
 
       {/* Current team */}
@@ -96,13 +94,17 @@ export default async function SettingsPage() {
 
       {/* Pilot Baseline */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-1">{PILOT_BASELINE_LABELS.sectionTitle}</h2>
+        <h2 className="text-lg font-semibold text-ui-text mb-1">
+          {PILOT_BASELINE_LABELS.sectionTitle}
+        </h2>
         <p className="text-sm text-ui-muted mb-4">{PILOT_BASELINE_LABELS.sectionDesc}</p>
 
         <form action={saveSystemConfig} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="label" htmlFor="pilotStartDate">{PILOT_BASELINE_LABELS.startDateLabel}</label>
+              <label className="label" htmlFor="pilotStartDate">
+                {PILOT_BASELINE_LABELS.startDateLabel}
+              </label>
               <input
                 type="date"
                 id="pilotStartDate"
@@ -115,7 +117,9 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.startDateHint}</p>
             </div>
             <div>
-              <label className="label" htmlFor="pilotBaselineIncidentsPerMonth">{PILOT_BASELINE_LABELS.incidentsLabel}</label>
+              <label className="label" htmlFor="pilotBaselineIncidentsPerMonth">
+                {PILOT_BASELINE_LABELS.incidentsLabel}
+              </label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -132,7 +136,9 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.incidentsHint}</p>
             </div>
             <div>
-              <label className="label" htmlFor="pilotBaselineRelocationsPerMonth">{PILOT_BASELINE_LABELS.relocationsLabel}</label>
+              <label className="label" htmlFor="pilotBaselineRelocationsPerMonth">
+                {PILOT_BASELINE_LABELS.relocationsLabel}
+              </label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -149,7 +155,9 @@ export default async function SettingsPage() {
               <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.relocationsHint}</p>
             </div>
             <div>
-              <label className="label" htmlFor="pilotBaselineMediationHoursPerWeek">{PILOT_BASELINE_LABELS.mediationHoursLabel}</label>
+              <label className="label" htmlFor="pilotBaselineMediationHoursPerWeek">
+                {PILOT_BASELINE_LABELS.mediationHoursLabel}
+              </label>
               <input
                 type="number"
                 inputMode="numeric"
@@ -163,25 +171,31 @@ export default async function SettingsPage() {
                 disabled={!canConfigure}
                 readOnly={!canConfigure}
               />
-              <p className="text-xs text-ui-muted mt-1">{PILOT_BASELINE_LABELS.mediationHoursHint}</p>
+              <p className="text-xs text-ui-muted mt-1">
+                {PILOT_BASELINE_LABELS.mediationHoursHint}
+              </p>
             </div>
           </div>
           {canConfigure && (
-          <div>
-            <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
-              {PILOT_BASELINE_LABELS.saveButton}
-            </SubmitButton>
-          </div>
+            <div>
+              <SubmitButton className="btn-primary min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
+                {PILOT_BASELINE_LABELS.saveButton}
+              </SubmitButton>
+            </div>
           )}
         </form>
       </div>
 
       {/* Email config status */}
       <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-4">{SETTINGS_LABELS.emailConfigTitle}</h2>
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
+          {SETTINGS_LABELS.emailConfigTitle}
+        </h2>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-status-success' : 'bg-ui-border-strong'}`} />
+            <span
+              className={`w-2 h-2 rounded-full ${emailEnabled ? 'bg-status-success' : 'bg-ui-border-strong'}`}
+            />
             <span className="text-ui-muted">
               {emailEnabled ? SETTINGS_LABELS.brevoConnected : SETTINGS_LABELS.brevoNotConfigured}
             </span>
@@ -190,12 +204,15 @@ export default async function SettingsPage() {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-status-success" />
               <span className="text-ui-muted">
-                {SETTINGS_LABELS.senderPrefix} {EMAIL_CONFIG.fromName} &lt;{EMAIL_CONFIG.fromAddress}&gt;
+                {SETTINGS_LABELS.senderPrefix} {EMAIL_CONFIG.fromName} &lt;
+                {EMAIL_CONFIG.fromAddress}&gt;
               </span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-status-success' : 'bg-ui-border-strong'}`} />
+            <span
+              className={`w-2 h-2 rounded-full ${EMAIL_CONFIG.staffRecipients.length > 0 ? 'bg-status-success' : 'bg-ui-border-strong'}`}
+            />
             <span className="text-ui-muted">
               {SETTINGS_LABELS.notificationsPrefix}{' '}
               {EMAIL_CONFIG.staffRecipients.length > 0
@@ -204,9 +221,7 @@ export default async function SettingsPage() {
             </span>
           </div>
           {!emailEnabled && (
-            <p className="text-ui-muted text-xs mt-2">
-              {SETTINGS_LABELS.addBrevoHint}
-            </p>
+            <p className="text-ui-muted text-xs mt-2">{SETTINGS_LABELS.addBrevoHint}</p>
           )}
         </div>
       </div>

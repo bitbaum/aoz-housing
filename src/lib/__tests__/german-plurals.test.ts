@@ -65,7 +65,7 @@ describe('German plurals are never built by concatenation', () => {
 
   it('no component appends a plural suffix to a German word', () => {
     const offenders = TSX_FILES.filter((file) =>
-      APPENDED_PLURAL.test(readFileSync(file, 'utf8'))
+      APPENDED_PLURAL.test(readFileSync(file, 'utf8')),
     ).map((file) => relative(SRC, file))
 
     expect(offenders).toEqual([])

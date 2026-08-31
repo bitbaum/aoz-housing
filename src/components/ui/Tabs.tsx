@@ -20,7 +20,10 @@ interface TabsProps {
 
 export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
   return (
-    <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
+    <div
+      className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1"
+      role="tablist"
+    >
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -37,9 +40,7 @@ export function Tabs({ tabs, activeTab, onChange }: TabsProps) {
         >
           {tab.label}
           {tab.count !== undefined && (
-            <span className="ml-2 text-xs bg-ui-subtle px-2 py-0.5 rounded-md">
-              {tab.count}
-            </span>
+            <span className="ml-2 text-xs bg-ui-subtle px-2 py-0.5 rounded-md">{tab.count}</span>
           )}
         </button>
       ))}
@@ -76,7 +77,10 @@ interface StaticTabsProps {
 
 export function StaticTabs({ children }: StaticTabsProps) {
   return (
-    <div className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1" role="tablist">
+    <div
+      className="flex gap-1 overflow-x-auto rounded-lg border border-ui-border bg-ui-surface p-1"
+      role="tablist"
+    >
       {children}
     </div>
   )
@@ -138,7 +142,9 @@ export function TabLink({ href, label, count, active = false }: TabLinkProps) {
     >
       {label}
       {count !== undefined && (
-        <span className={`ml-2 rounded-md px-2 py-0.5 text-xs ${active ? 'bg-ui-inverse/10' : 'bg-ui-subtle'}`}>
+        <span
+          className={`ml-2 rounded-md px-2 py-0.5 text-xs ${active ? 'bg-ui-inverse/10' : 'bg-ui-subtle'}`}
+        >
           {count}
         </span>
       )}
@@ -158,12 +164,7 @@ interface TabPanelProps {
 
 export function TabPanel({ id, children, className = '' }: TabPanelProps) {
   return (
-    <div
-      role="tabpanel"
-      id={`tabpanel-${id}`}
-      aria-labelledby={`tab-${id}`}
-      className={className}
-    >
+    <div role="tabpanel" id={`tabpanel-${id}`} aria-labelledby={`tab-${id}`} className={className}>
       {children}
     </div>
   )

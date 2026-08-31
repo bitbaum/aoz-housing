@@ -33,7 +33,7 @@ export function dayPartAt(now: Date, timeZone: string = APP_TIME_ZONE): DayPart 
       timeZone,
       hour: 'numeric',
       hour12: false,
-    }).format(now)
+    }).format(now),
   )
 
   if (hour < 12) return 'morning'
@@ -44,7 +44,7 @@ export function dayPartAt(now: Date, timeZone: string = APP_TIME_ZONE): DayPart 
 export function formatWeekdayDate(
   now: Date,
   locale = 'de-CH',
-  timeZone: string = APP_TIME_ZONE
+  timeZone: string = APP_TIME_ZONE,
 ): string {
   return new Intl.DateTimeFormat(locale, {
     timeZone,

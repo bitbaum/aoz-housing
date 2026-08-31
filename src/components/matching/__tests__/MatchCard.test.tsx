@@ -286,9 +286,7 @@ describe('MatchCard', () => {
     it('shows no-conflicts message for empty units', () => {
       render(<MatchCard match={makeMatch()} resident={mockResident} />)
 
-      expect(
-        screen.getByText(/Keine Mitbewohner - keine Konflikte/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Keine Mitbewohner - keine Konflikte/)).toBeInTheDocument()
     })
   })
 
@@ -403,9 +401,7 @@ describe('MatchCard', () => {
 
       render(<MatchCard match={match} resident={mockResident} />)
 
-      expect(
-        screen.getByText(/Unterschiedlicher Schlafrhythmus/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Unterschiedlicher Schlafrhythmus/)).toBeInTheDocument()
     })
 
     it('limits displayed concerns to 3 and shows overflow count', () => {
@@ -420,13 +416,7 @@ describe('MatchCard', () => {
               practical: 40,
               risk: 50,
               strengths: [],
-              concerns: [
-                'Concern 1',
-                'Concern 2',
-                'Concern 3',
-                'Concern 4',
-                'Concern 5',
-              ],
+              concerns: ['Concern 1', 'Concern 2', 'Concern 3', 'Concern 4', 'Concern 5'],
               recommendations: [],
             },
           },
@@ -455,9 +445,7 @@ describe('MatchCard', () => {
         unitConcerns: ['Rollstuhl-Zugang nicht vorhanden'],
       })
 
-      const { container } = render(
-        <MatchCard match={match} resident={mockResident} />
-      )
+      const { container } = render(<MatchCard match={match} resident={mockResident} />)
 
       // Check that the concern has red coloring
       const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
@@ -626,9 +614,7 @@ describe('MatchCard', () => {
 
       render(<MatchCard match={match} resident={mockResident} />)
 
-      expect(
-        screen.getByText(/Keine historischen Daten/)
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Keine historischen Daten/)).toBeInTheDocument()
     })
   })
 })

@@ -139,7 +139,7 @@ describe('ActionMenu', () => {
 
   it('renders a separator between edit/duplicate and delete when all three are present', () => {
     const { container } = render(
-      <ActionMenu onEdit={jest.fn()} onDuplicate={jest.fn()} onDelete={jest.fn()} />
+      <ActionMenu onEdit={jest.fn()} onDuplicate={jest.fn()} onDelete={jest.fn()} />,
     )
     openMenu()
     // Separator is a <div> with border-t
@@ -170,7 +170,7 @@ describe('ActionMenu', () => {
       <div>
         <ActionMenu onEdit={jest.fn()} />
         <button>Outside</button>
-      </div>
+      </div>,
     )
     openMenu()
     expect(screen.getByRole('menu')).toBeInTheDocument()
@@ -184,7 +184,7 @@ describe('ActionMenu', () => {
     render(<ActionMenu onEdit={jest.fn()} />)
     expect(screen.getByRole('button', { name: 'Aktionen' })).toHaveAttribute(
       'aria-expanded',
-      'false'
+      'false',
     )
   })
 
@@ -193,7 +193,7 @@ describe('ActionMenu', () => {
     openMenu()
     expect(screen.getByRole('button', { name: 'Aktionen' })).toHaveAttribute(
       'aria-expanded',
-      'true'
+      'true',
     )
   })
 })

@@ -18,7 +18,12 @@ import type { PrismaClient } from '@prisma/client'
  * - AlgorithmWeight    — tuned scoring config, not seed data
  * - SystemConfig       — operator configuration, not seed data
  */
-export const KEEP_TABLES = new Set(['_prisma_migrations', 'User', 'AlgorithmWeight', 'SystemConfig'])
+export const KEEP_TABLES = new Set([
+  '_prisma_migrations',
+  'User',
+  'AlgorithmWeight',
+  'SystemConfig',
+])
 
 /** Truncate every public table except the keep-list. Returns the wiped count. */
 export async function wipeAllExceptKeepList(prisma: PrismaClient): Promise<number> {
@@ -32,7 +37,7 @@ export async function wipeAllExceptKeepList(prisma: PrismaClient): Promise<numbe
     // PascalCase names Prisma creates. CASCADE clears FK order concerns —
     // none of the kept tables reference a wiped one.
     await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE ${wipe.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`
+      `TRUNCATE TABLE ${wipe.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`,
     )
   }
 

@@ -85,11 +85,7 @@ describe('TransferRecommendations', () => {
 
   test('shows empty state when no eligible units', () => {
     render(
-      <TransferRecommendations
-        {...BASE_PROPS}
-        eligibleUnits={[]}
-        onUnitSelect={onUnitSelect}
-      />
+      <TransferRecommendations {...BASE_PROPS} eligibleUnits={[]} onUnitSelect={onUnitSelect} />,
     )
 
     expect(screen.getByText(/Keine Unterkünfte/i)).toBeInTheDocument()
@@ -98,8 +94,8 @@ describe('TransferRecommendations', () => {
   test('renders unit list sorted by fit score', () => {
     const units = [makeUnit('u1', 'HU-001'), makeUnit('u2', 'HU-002')]
     const unitCompatibility = {
-      'u1': { fitScore: 60, strengths: [], concerns: [], residents: [] },
-      'u2': { fitScore: 85, strengths: [], concerns: [], residents: [] },
+      u1: { fitScore: 60, strengths: [], concerns: [], residents: [] },
+      u2: { fitScore: 85, strengths: [], concerns: [], residents: [] },
     }
 
     render(
@@ -108,14 +104,17 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     // Use font-semibold code elements specifically (not address strings)
-    const unitCodeEls = screen.getAllByRole('button').map(btn => {
-      const codeEl = btn.querySelector('.font-semibold')
-      return codeEl?.textContent
-    }).filter(Boolean)
+    const unitCodeEls = screen
+      .getAllByRole('button')
+      .map((btn) => {
+        const codeEl = btn.querySelector('.font-semibold')
+        return codeEl?.textContent
+      })
+      .filter(Boolean)
 
     // HU-002 (85%) should appear before HU-001 (60%) after sorting
     expect(unitCodeEls[0]).toBe('HU-002')
@@ -125,7 +124,7 @@ describe('TransferRecommendations', () => {
   test('shows fit scores for each unit', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': { fitScore: 75, strengths: [], concerns: [], residents: [] },
+      u1: { fitScore: 75, strengths: [], concerns: [], residents: [] },
     }
 
     render(
@@ -134,7 +133,7 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     expect(screen.getByText('75%')).toBeInTheDocument()
@@ -143,7 +142,7 @@ describe('TransferRecommendations', () => {
   test('shows "Empfohlen" badge for top excellent unit', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': { fitScore: 90, strengths: [], concerns: [], residents: [] },
+      u1: { fitScore: 90, strengths: [], concerns: [], residents: [] },
     }
 
     render(
@@ -152,7 +151,7 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     expect(screen.getByText('Empfohlen')).toBeInTheDocument()
@@ -162,11 +161,7 @@ describe('TransferRecommendations', () => {
     const units = [makeUnit('u1', 'HU-001')]
 
     render(
-      <TransferRecommendations
-        {...BASE_PROPS}
-        eligibleUnits={units}
-        onUnitSelect={onUnitSelect}
-      />
+      <TransferRecommendations {...BASE_PROPS} eligibleUnits={units} onUnitSelect={onUnitSelect} />,
     )
 
     fireEvent.click(screen.getByText('HU-001').closest('button')!)
@@ -176,7 +171,7 @@ describe('TransferRecommendations', () => {
   test('shows "Leer" label for empty units', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': { fitScore: 70, strengths: [], concerns: [], residents: [] },
+      u1: { fitScore: 70, strengths: [], concerns: [], residents: [] },
     }
 
     render(
@@ -185,7 +180,7 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     expect(screen.getByText(/Leer - keine Mitbewohner/i)).toBeInTheDocument()
@@ -194,7 +189,7 @@ describe('TransferRecommendations', () => {
   test('shows resident codes for occupied units', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': {
+      u1: {
         fitScore: 70,
         strengths: [],
         concerns: [],
@@ -210,7 +205,7 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     expect(screen.getByText(/RES-001 \(75%\)/)).toBeInTheDocument()
@@ -219,11 +214,13 @@ describe('TransferRecommendations', () => {
   test('shows expand/collapse button for occupied units', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': {
+      u1: {
         fitScore: 70,
         strengths: [],
         concerns: [],
-        residents: [{ id: 'r1', code: 'RES-001', displayName: null, compatibilityScore: 75, keyFactors: [] }],
+        residents: [
+          { id: 'r1', code: 'RES-001', displayName: null, compatibilityScore: 75, keyFactors: [] },
+        ],
       },
     }
 
@@ -233,7 +230,7 @@ describe('TransferRecommendations', () => {
         eligibleUnits={units}
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     expect(screen.getByText(/Details zu Mitbewohnern anzeigen/i)).toBeInTheDocument()
@@ -244,11 +241,7 @@ describe('TransferRecommendations', () => {
     const units = Array.from({ length: 6 }, (_, i) => makeUnit(`u${i}`, `HU-00${i}`))
 
     render(
-      <TransferRecommendations
-        {...BASE_PROPS}
-        eligibleUnits={units}
-        onUnitSelect={onUnitSelect}
-      />
+      <TransferRecommendations {...BASE_PROPS} eligibleUnits={units} onUnitSelect={onUnitSelect} />,
     )
 
     expect(screen.getByText(/weitere Unterkünfte anzeigen/i)).toBeInTheDocument()
@@ -258,11 +251,7 @@ describe('TransferRecommendations', () => {
     const units = [makeUnit('u1', 'HU-001')]
 
     render(
-      <TransferRecommendations
-        {...BASE_PROPS}
-        eligibleUnits={units}
-        onUnitSelect={onUnitSelect}
-      />
+      <TransferRecommendations {...BASE_PROPS} eligibleUnits={units} onUnitSelect={onUnitSelect} />,
     )
 
     expect(screen.getByText('50%')).toBeInTheDocument()
@@ -281,7 +270,7 @@ describe('TransferUnitSelector', () => {
   test('renders rich view when compatibility data provided', () => {
     const units = [makeUnit('u1', 'HU-001')]
     const unitCompatibility = {
-      'u1': { fitScore: 80, strengths: [], concerns: [], residents: [] },
+      u1: { fitScore: 80, strengths: [], concerns: [], residents: [] },
     }
 
     render(
@@ -291,7 +280,7 @@ describe('TransferUnitSelector', () => {
         selectedUnitId=""
         onUnitSelect={onUnitSelect}
         unitCompatibility={unitCompatibility}
-      />
+      />,
     )
 
     // Rich view renders score
@@ -307,7 +296,7 @@ describe('TransferUnitSelector', () => {
         eligibleSpotTypes={['BED']}
         selectedUnitId=""
         onUnitSelect={onUnitSelect}
-      />
+      />,
     )
 
     // Simple dropdown

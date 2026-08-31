@@ -154,7 +154,7 @@ export function calculateBedCapacity(sqm: number): number {
  */
 export function getEligibleSpotTypes(
   hasMedicalDocs: boolean,
-  medicalDocType?: MedicalDocTypeKey | null
+  medicalDocType?: MedicalDocTypeKey | null,
 ): SpotTypeKey[] {
   // Everyone can be placed in a bed
   const eligible: SpotTypeKey[] = ['BED']
@@ -174,6 +174,6 @@ export function getEligibleSpotTypes(
  */
 export function getAssignableSpotTypes(): SpotTypeKey[] {
   return (Object.keys(SPOT_TYPE_CONFIG) as SpotTypeKey[]).filter(
-    (key) => !SPOT_TYPE_CONFIG[key].isContainer
+    (key) => !SPOT_TYPE_CONFIG[key].isContainer,
   )
 }

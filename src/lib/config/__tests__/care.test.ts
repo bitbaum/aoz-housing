@@ -63,14 +63,40 @@ describe('the workspace subtitle names the seats actually shown', () => {
 
 describe('care domains', () => {
   it('lets Leitung work every seat, and each specialist only their own', () => {
-    expect(writableCareDomains({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: false })).toEqual([...CARE_ROLES])
-    expect(writableCareDomains({ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false })).toEqual(['HOUSING'])
-    expect(writableCareDomains({ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false })).toEqual(['SOCIAL'])
-    expect(writableCareDomains({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false })).toEqual(['JOB'])
-    expect(writableCareDomains({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false })).toEqual(['VOLUNTEERING'])
-    expect(canWriteCareDomain({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'HOUSING')).toBe(false)
-    expect(canWriteCareDomain({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'VOLUNTEERING')).toBe(true)
-    expect(canWriteCareDomain({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: false }, 'JOB')).toBe(true)
+    expect(
+      writableCareDomains({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: false }),
+    ).toEqual([...CARE_ROLES])
+    expect(
+      writableCareDomains({ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }),
+    ).toEqual(['HOUSING'])
+    expect(
+      writableCareDomains({ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }),
+    ).toEqual(['SOCIAL'])
+    expect(
+      writableCareDomains({ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }),
+    ).toEqual(['JOB'])
+    expect(
+      writableCareDomains({
+        role: 'FREIWILLIGENARBEIT',
+        scope: 'OWN_DOMAIN',
+        isSystemAdmin: false,
+      }),
+    ).toEqual(['VOLUNTEERING'])
+    expect(
+      canWriteCareDomain(
+        { role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'HOUSING',
+      ),
+    ).toBe(false)
+    expect(
+      canWriteCareDomain(
+        { role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'VOLUNTEERING',
+      ),
+    ).toBe(true)
+    expect(
+      canWriteCareDomain({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: false }, 'JOB'),
+    ).toBe(true)
   })
 
   it('keeps catalog keys unique per domain, so a form field cannot collide', () => {

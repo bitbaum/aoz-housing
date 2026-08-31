@@ -61,18 +61,12 @@ export function UserMenu({ user, hasPortalAccess, systemLinks = SYSTEM_LINKS }: 
       </button>
 
       {isOpen && (
-        <div
-          className="absolute right-0 mt-2 w-56 overlay-panel py-1 z-50"
-        >
+        <div className="absolute right-0 mt-2 w-56 overlay-panel py-1 z-50">
           {/* User identity panel */}
           <div className="px-4 py-3 border-b border-ui-border">
             <p className="text-sm font-medium text-ui-text">{user.name}</p>
-            {user.email && (
-              <p className="text-xs text-ui-muted truncate">{user.email}</p>
-            )}
-            <p className="text-xs text-brand-primary mt-1">
-              {ROLE_LABELS[user.role] || user.role}
-            </p>
+            {user.email && <p className="text-xs text-ui-muted truncate">{user.email}</p>}
+            <p className="text-xs text-brand-primary mt-1">{ROLE_LABELS[user.role] || user.role}</p>
           </div>
 
           {/* System destinations — SSOT in lib/config/navigation (SYSTEM_LINKS),
@@ -98,7 +92,7 @@ export function UserMenu({ user, hasPortalAccess, systemLinks = SYSTEM_LINKS }: 
             <Link
               href="/portal"
               onClick={() => setIsOpen(false)}
-    className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
+              className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle flex items-center gap-2 min-h-[44px]"
             >
               <ArrowRightLeft className="w-4 h-4" aria-hidden="true" />
               {UI_LABELS.switchToPortal}
@@ -108,7 +102,7 @@ export function UserMenu({ user, hasPortalAccess, systemLinks = SYSTEM_LINKS }: 
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
-className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-h-[44px]"
+            className="w-full px-4 py-3 text-left text-sm text-ui-muted hover:text-ui-text hover:bg-ui-subtle disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-h-[44px]"
           >
             <LogOut className="w-4 h-4" aria-hidden="true" />
             {isLoggingOut ? UI_LABELS.loggingOut : UI_LABELS.logout}

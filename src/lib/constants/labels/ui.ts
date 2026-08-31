@@ -54,16 +54,26 @@ export const UI_LABELS = {
   errorToDashboard: 'Zum Dashboard',
   // Error boundaries — page-specific descriptions
   errorGenericDesc: 'Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
-  errorHousingDesc: 'Beim Laden der Unterkunftsdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorResidentsDesc: 'Beim Laden der Klient*innen-Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorIncidentsDesc: 'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorMaintenanceDesc: 'Beim Laden der Wartungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorAnalyticsDesc: 'Beim Laden der Analysedaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorMatchingDesc: 'Beim Laden des Matchings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorAlgorithmDesc: 'Beim Laden der Algorithmus-Dokumentation ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorChoresDesc: 'Beim Laden der Haushaltsaufgaben ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorTransferRequestsDesc: 'Beim Laden der Verlegungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
-  errorPlacementsDesc: 'Beim Laden der Platzierungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorHousingDesc:
+    'Beim Laden der Unterkunftsdaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorResidentsDesc:
+    'Beim Laden der Klient*innen-Daten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorIncidentsDesc:
+    'Beim Laden der Vorfälle ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorMaintenanceDesc:
+    'Beim Laden der Wartungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorAnalyticsDesc:
+    'Beim Laden der Analysedaten ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorMatchingDesc:
+    'Beim Laden des Matchings ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorAlgorithmDesc:
+    'Beim Laden der Algorithmus-Dokumentation ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorChoresDesc:
+    'Beim Laden der Haushaltsaufgaben ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorTransferRequestsDesc:
+    'Beim Laden der Verlegungsanfragen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+  errorPlacementsDesc:
+    'Beim Laden der Platzierungen ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
 } as const
 
 export const FOLLOW_UP_FORM_LABELS = {
@@ -130,8 +140,10 @@ export const INCIDENT_SIDEBAR_LABELS = {
 
 export const DANGER_ZONE_LABELS = {
   title: 'Danger Zone — Hard-Delete',
-  description: 'Nur für Test-/Demo-Klient*innen. Diese Aktion ist endgültig und entfernt den Datensatz.',
-  notTestResident: 'Dieser Klient*innen-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
+  description:
+    'Nur für Test-/Demo-Klient*innen. Diese Aktion ist endgültig und entfernt den Datensatz.',
+  notTestResident:
+    'Dieser Klient*innen-Code ist nicht als Test/Demo markiert. Hard-Delete ist gesperrt.',
   blockerReport: 'Blocker-Report:',
   noDetails: 'Keine Details',
   copiedToClipboard: 'Blocker-Report in Zwischenablage kopiert',
@@ -335,7 +347,8 @@ export const PILOT_BASELINE_LABELS = {
   relocationsLabel: 'Konflikt-Umzüge pro Monat (vor System)',
   relocationsHint: 'Durchschnittliche Anzahl Umzüge wegen Unverträglichkeit pro Monat (Phase 1)',
   mediationHoursLabel: 'Mediationsstunden pro Woche (vor System)',
-  mediationHoursHint: 'Durchschnittlich aufgewendete Stunden für Konfliktmediation pro Woche (Phase 1)',
+  mediationHoursHint:
+    'Durchschnittlich aufgewendete Stunden für Konfliktmediation pro Woche (Phase 1)',
   saveButton: 'Baseline speichern',
   saveSuccess: 'Baseline gespeichert',
   notSet: 'Nicht erfasst',
@@ -343,13 +356,14 @@ export const PILOT_BASELINE_LABELS = {
     direction === 'down'
       ? `${pct}% weniger als Baseline`
       : direction === 'up'
-      ? `${pct}% mehr als Baseline`
-      : 'Unverändert zur Baseline',
+        ? `${pct}% mehr als Baseline`
+        : 'Unverändert zur Baseline',
   baselineLabel: 'Baseline',
   currentLabel: 'Aktuell',
   targetLabel: 'Ziel',
   progressLabel: 'Fortschritt',
-  noBaselineHint: 'Keine Baseline konfiguriert. Gehen Sie zu Einstellungen, um Vorher-Werte einzutragen.',
+  noBaselineHint:
+    'Keine Baseline konfiguriert. Gehen Sie zu Einstellungen, um Vorher-Werte einzutragen.',
 } as const
 
 export const SETTINGS_LABELS = {
@@ -357,7 +371,8 @@ export const SETTINGS_LABELS = {
   subtitle: 'Teamverwaltung und Systemkonfiguration',
   inviteTitle: 'Mitarbeiter einladen',
   inviteSubtitle: 'Erstellt einen Zugangscode und sendet eine Einladungs-E-Mail.',
-  emailWarning: 'E-Mail nicht konfiguriert (kein RESEND_API_KEY). Der Code wird nach dem Senden angezeigt — bitte manuell übermitteln.',
+  emailWarning:
+    'E-Mail nicht konfiguriert (kein RESEND_API_KEY). Der Code wird nach dem Senden angezeigt — bitte manuell übermitteln.',
   teamTitle: 'Team',
   lastSeen: 'Zuletzt:',
   neverLoggedIn: 'Noch nie angemeldet',
@@ -478,7 +493,14 @@ export const UNIT_SIDEBAR_LABELS = {
 } as const
 
 export const QUICK_CHECKIN_LABELS = {
-  satisfactionLabels: ['', 'Sehr unzufrieden', 'Unzufrieden', 'Neutral', 'Zufrieden', 'Sehr zufrieden'],
+  satisfactionLabels: [
+    '',
+    'Sehr unzufrieden',
+    'Unzufrieden',
+    'Neutral',
+    'Zufrieden',
+    'Sehr zufrieden',
+  ],
   roommateLabels: ['', 'Sehr schlecht', 'Schlecht', 'OK', 'Gut', 'Sehr gut'],
   mainLabel: 'Wie geht es der Person in der Unterkunft?',
   lastPrefix: 'Letzter: ',
@@ -493,15 +515,18 @@ export const QUICK_CHECKIN_LABELS = {
   toastSuccess: 'Check-in erfolgreich gespeichert',
   errorSaving: 'Fehler beim Speichern',
   errorGeneric: 'Ein Fehler ist aufgetreten',
-  errorValidation: 'Bitte bewerten Sie die Mitbewohner-Beziehung oder beschreiben Sie Ihre Anliegen',
-  statsLine: (week: number, count: number) => `Woche ${week} · ${count} Check-in${count !== 1 ? 's' : ''} bisher`,
+  errorValidation:
+    'Bitte bewerten Sie die Mitbewohner-Beziehung oder beschreiben Sie Ihre Anliegen',
+  statsLine: (week: number, count: number) =>
+    `Woche ${week} · ${count} Check-in${count !== 1 ? 's' : ''} bisher`,
   detailedLink: 'Detaillierter Check-in →',
 } as const
 
 export const HOUSING_NEW_LABELS = {
   backLink: '← Zurück zur Übersicht',
   title: 'Neue Unterkunft erstellen',
-  subtitle: 'Schritt 1 von 2: Grunddaten erfassen. Im nächsten Schritt fügen Sie Zimmer und Betten hinzu.',
+  subtitle:
+    'Schritt 1 von 2: Grunddaten erfassen. Im nächsten Schritt fügen Sie Zimmer und Betten hinzu.',
   step1Label: 'Grunddaten',
   step2Label: 'Zimmer & Betten',
   submit: 'Weiter zu Zimmer & Betten →',
@@ -724,7 +749,8 @@ export const RESIDENT_INCIDENTS_LABELS = {
 
 export const TRANSFER_RECOMMENDATIONS_LABELS = {
   noUnitsAvailable: 'Keine Unterkünfte mit geeigneten Plätzen verfügbar.',
-  unitsAvailable: (count: number) => `${count} Unterkünfte verfügbar · Sortiert nach Passgenauigkeit`,
+  unitsAvailable: (count: number) =>
+    `${count} Unterkünfte verfügbar · Sortiert nach Passgenauigkeit`,
   roommateCompatibility: 'Kompatibilität mit Mitbewohnern',
   showMoreUnits: (count: number) => `+${count} weitere Unterkünfte anzeigen`,
 } as const
@@ -750,6 +776,7 @@ export const PROBLEM_DETECTION_LABELS = {
   smokerInNonSmoking: 'Raucher in einer Nichtraucher-Wohnung',
   avgCompatibilityOnly: 'Durchschnittliche Kompatibilität nur',
   tip: 'Tipp:',
-  tipMessage: 'Klient*innen mit Anpassungsproblemen könnten in einer anderen Wohnung besser passen. Nutzen Sie "Umplatzieren", um passende Alternativen zu finden.',
+  tipMessage:
+    'Klient*innen mit Anpassungsproblemen könnten in einer anderen Wohnung besser passen. Nutzen Sie "Umplatzieren", um passende Alternativen zu finden.',
   relocate: 'Umplatzieren',
 } as const

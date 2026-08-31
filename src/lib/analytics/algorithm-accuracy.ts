@@ -98,29 +98,33 @@ export async function calculateAlgorithmAccuracy(): Promise<AlgorithmAccuracyRep
   })
 
   const totalEnded = endedPlacements.length
-  const withScores = endedPlacements.filter(p => p.compatibilityScore !== null)
+  const withScores = endedPlacements.filter((p) => p.compatibilityScore !== null)
 
   // ── Tiered Accuracy ──────────────────────────────────────────────────
 
   const tieredAccuracy: TierAccuracy[] = TIERS.map(({ tier, label, min, max }) => {
     const inTier = withScores.filter(
-      p => p.compatibilityScore! >= min && p.compatibilityScore! < max
+      (p) => p.compatibilityScore! >= min && p.compatibilityScore! < max,
     )
-    const conflictEnds = inTier.filter(p => p.endReason === 'CONFLICT')
+    const conflictEnds = inTier.filter((p) => p.endReason === 'CONFLICT')
 
     // Average satisfaction from check-ins
-    const allCheckIns = inTier.flatMap(p => p.checkIns)
-    const avgSat = allCheckIns.length > 0
-      ? allCheckIns.reduce((s, c) => s + c.overallSatisfaction, 0) / allCheckIns.length
-      : null
+    const allCheckIns = inTier.flatMap((p) => p.checkIns)
+    const avgSat =
+      allCheckIns.length > 0
+        ? allCheckIns.reduce((s, c) => s + c.overallSatisfaction, 0) / allCheckIns.length
+        : null
 
     // Average placement duration
     const durations = inTier
-      .filter(p => p.endDate)
-      .map(p => (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24))
-    const avgDuration = durations.length > 0
-      ? durations.reduce((s, d) => s + d, 0) / durations.length
-      : null
+      .filter((p) => p.endDate)
+      .map(
+        (p) =>
+          (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
+    const avgDuration =
+      durations.length > 0 ? durations.reduce((s, d) => s + d, 0) / durations.length : null
 
     return {
       tier,
@@ -140,55 +144,73 @@ export async function calculateAlgorithmAccuracy(): Promise<AlgorithmAccuracyRep
     select: { predictable: true },
   })
 
-  const predictable = conflictIncidents.filter(i => i.predictable === true).length
-  const unpredictable = conflictIncidents.filter(i => i.predictable === false).length
-  const unmarked = conflictIncidents.filter(i => i.predictable === null).length
+  const predictable = conflictIncidents.filter((i) => i.predictable === true).length
+  const unpredictable = conflictIncidents.filter((i) => i.predictable === false).length
+  const unmarked = conflictIncidents.filter((i) => i.predictable === null).length
 
-  const conflictEndPlacements = withScores.filter(p => p.endReason === 'CONFLICT')
-  const predictedConflictEnds = conflictEndPlacements.filter(p => p.wasPredictable === true)
+  const conflictEndPlacements = withScores.filter((p) => p.endReason === 'CONFLICT')
+  const predictedConflictEnds = conflictEndPlacements.filter((p) => p.wasPredictable === true)
 
   const predictionAccuracy: PredictionAccuracy = {
     predictableConflicts: predictable,
     unpredictableConflicts: unpredictable,
     unmarked,
-    accuracy: conflictEndPlacements.length > 0
-      ? Math.round((predictedConflictEnds.length / conflictEndPlacements.length) * 100)
-      : null,
+    accuracy:
+      conflictEndPlacements.length > 0
+        ? Math.round((predictedConflictEnds.length / conflictEndPlacements.length) * 100)
+        : null,
   }
 
   // ── Score comparison: conflict vs successful ends ────────────────────
 
-  const successfulEnds = withScores.filter(p => p.endReason !== 'CONFLICT')
-  const avgConflict = conflictEndPlacements.length > 0
-    ? Math.round(conflictEndPlacements.reduce((s, p) => s + p.compatibilityScore!, 0) / conflictEndPlacements.length)
-    : null
-  const avgSuccessful = successfulEnds.length > 0
-    ? Math.round(successfulEnds.reduce((s, p) => s + p.compatibilityScore!, 0) / successfulEnds.length)
-    : null
+  const successfulEnds = withScores.filter((p) => p.endReason !== 'CONFLICT')
+  const avgConflict =
+    conflictEndPlacements.length > 0
+      ? Math.round(
+          conflictEndPlacements.reduce((s, p) => s + p.compatibilityScore!, 0) /
+            conflictEndPlacements.length,
+        )
+      : null
+  const avgSuccessful =
+    successfulEnds.length > 0
+      ? Math.round(
+          successfulEnds.reduce((s, p) => s + p.compatibilityScore!, 0) / successfulEnds.length,
+        )
+      : null
 
   // ── Satisfaction Correlation ─────────────────────────────────────────
 
-  const satisfactionCorrelation: SatisfactionCorrelation[] = TIERS.map(({ tier, label, min, max }) => {
-    const inTier = withScores.filter(
-      p => p.compatibilityScore! >= min && p.compatibilityScore! < max
-    )
-    const allCheckIns = inTier.flatMap(p => p.checkIns)
-    const withRoommate = allCheckIns.filter(c => c.roommateRelations !== null)
+  const satisfactionCorrelation: SatisfactionCorrelation[] = TIERS.map(
+    ({ tier, label, min, max }) => {
+      const inTier = withScores.filter(
+        (p) => p.compatibilityScore! >= min && p.compatibilityScore! < max,
+      )
+      const allCheckIns = inTier.flatMap((p) => p.checkIns)
+      const withRoommate = allCheckIns.filter((c) => c.roommateRelations !== null)
 
-    return {
-      tier,
-      label,
-      scoreRange: `${min}-${max - 1}`,
-      avgSatisfaction: allCheckIns.length > 0
-        ? Math.round(allCheckIns.reduce((s, c) => s + c.overallSatisfaction, 0) / allCheckIns.length * 10) / 10
-        : null,
-      avgRoommateRelations: withRoommate.length > 0
-        ? Math.round(withRoommate.reduce((s, c) => s + c.roommateRelations!, 0) / withRoommate.length * 10) / 10
-        : null,
-      placementCount: inTier.length,
-      checkInCount: allCheckIns.length,
-    }
-  })
+      return {
+        tier,
+        label,
+        scoreRange: `${min}-${max - 1}`,
+        avgSatisfaction:
+          allCheckIns.length > 0
+            ? Math.round(
+                (allCheckIns.reduce((s, c) => s + c.overallSatisfaction, 0) / allCheckIns.length) *
+                  10,
+              ) / 10
+            : null,
+        avgRoommateRelations:
+          withRoommate.length > 0
+            ? Math.round(
+                (withRoommate.reduce((s, c) => s + c.roommateRelations!, 0) / withRoommate.length) *
+                  10,
+              ) / 10
+            : null,
+        placementCount: inTier.length,
+        checkInCount: allCheckIns.length,
+      }
+    },
+  )
 
   return {
     totalEndedPlacements: totalEnded,

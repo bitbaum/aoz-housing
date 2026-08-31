@@ -204,7 +204,9 @@ describe('CreateChoreForm', () => {
     fireEvent.change(screen.getByLabelText(/Titel/), { target: { value: 'Test Aufgabe' } })
     fireEvent.submit(screen.getByRole('button', { name: 'Aufgabe erstellen' }).closest('form')!)
 
-    await waitFor(() => expect(mockPush).toHaveBeenCalledWith('/portal/chores/chore-9?created=true'))
+    await waitFor(() =>
+      expect(mockPush).toHaveBeenCalledWith('/portal/chores/chore-9?created=true'),
+    )
     expect(mockRefresh).toHaveBeenCalled()
   })
 
@@ -231,14 +233,18 @@ describe('CreateChoreForm', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'Ein Fehler ist aufgetreten. Bitte erneut versuchen.'
+        'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
       )
     })
   })
 
   it('shows pending label while submitting', async () => {
     let resolve: (v: unknown) => void
-    global.fetch = jest.fn().mockReturnValue(new Promise(r => { resolve = r }))
+    global.fetch = jest.fn().mockReturnValue(
+      new Promise((r) => {
+        resolve = r
+      }),
+    )
 
     render(<CreateChoreForm />)
     fireEvent.change(screen.getByLabelText(/Titel/), { target: { value: 'Test' } })
@@ -246,6 +252,8 @@ describe('CreateChoreForm', () => {
 
     expect(await screen.findByRole('button', { name: 'Wird erstellt...' })).toBeDisabled()
 
-    await act(async () => { resolve!({ ok: true }) })
+    await act(async () => {
+      resolve!({ ok: true })
+    })
   })
 })

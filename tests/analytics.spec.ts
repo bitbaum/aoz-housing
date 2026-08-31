@@ -8,40 +8,42 @@ test.describe('Analytics page (/analytics)', () => {
   test('loads with heading and subtitle', async ({ page }) => {
     await page.goto('/analytics')
 
-    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows Mission KPI section', async ({ page }) => {
     await page.goto('/analytics')
 
     // MissionKPISection renders a heading about mission/Kern-KPIs
-    await expect(
-      page.getByRole('heading', { name: /Missions-KPIs/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Missions-KPIs/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows occupancy rate metric card', async ({ page }) => {
     await page.goto('/analytics')
 
     // MetricCard for occupancy shows a % value
-    await expect(
-      page.getByText(/Belegungsrate|Auslastung/i).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/Belegungsrate|Auslastung/i).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows satisfaction chart section', async ({ page }) => {
     await page.goto('/analytics')
 
-    await expect(
-      page.getByText(/Zufriedenheit|Satisfaction/i).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/Zufriedenheit|Satisfaction/i).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('shows conflict hotspot section', async ({ page }) => {
     await page.goto('/analytics')
 
     await expect(
-      page.getByText(/Konflikt-Hotspot|Konflikte.*Unterkunft|keine Konflikte/i).first()
+      page.getByText(/Konflikt-Hotspot|Konflikte.*Unterkunft|keine Konflikte/i).first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -52,7 +54,7 @@ test.describe('Analytics page (/analytics)', () => {
     // Scoped to <main>: unscoped this also matched the chrome's "Algorithmus"
     // link, so it passed without the section being on the page at all.
     await expect(
-      page.locator('main').getByRole('heading', { name: /Algorithmus-Genauigkeit/i })
+      page.locator('main').getByRole('heading', { name: /Algorithmus-Genauigkeit/i }),
     ).toBeVisible({ timeout: 15_000 })
   })
 
@@ -60,38 +62,38 @@ test.describe('Analytics page (/analytics)', () => {
     await page.goto('/analytics')
 
     // RecentPlacementsTable renders a table or section with placement data
-    await expect(
-      page.getByRole('heading', { name: /Neueste Platzierungen/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Neueste Platzierungen/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('period selector is present', async ({ page }) => {
     await page.goto('/analytics')
 
     // PeriodSelector renders period toggle buttons (7, 30, 90 days)
-    await expect(
-      page.getByRole('link', { name: /30|90|Tage/i }).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /30|90|Tage/i }).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('changing period via URL updates the heading period', async ({ page }) => {
     await page.goto('/analytics?days=90')
 
     // Page loads successfully with 90-day period — heading still shows
-    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: /Auswertung/i })).toBeVisible({
+      timeout: 15_000,
+    })
 
     // The period selector reflects 90 days
-    await expect(
-      page.getByText(/90/i).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/90/i).first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('export button is present', async ({ page }) => {
     await page.goto('/analytics')
 
-    await expect(
-      page.getByRole('link', { name: /Export|Exportieren/i })
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: /Export|Exportieren/i })).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('accessible from the header nav', async ({ page }) => {
@@ -132,7 +134,11 @@ test.describe('Admin chores (/chores)', () => {
 
     // Seed has tasks in ZH-001, ZH-002 etc — at least one ZH-xxx unit visible
     await expect(
-      page.locator('main').locator('a[href^="/housing/"]:visible').filter({ hasText: /ZH-\d{3}/ }).first()
+      page
+        .locator('main')
+        .locator('a[href^="/housing/"]:visible')
+        .filter({ hasText: /ZH-\d{3}/ })
+        .first(),
     ).toBeVisible({ timeout: 15_000 })
   })
 

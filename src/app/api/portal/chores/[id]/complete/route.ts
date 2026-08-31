@@ -6,13 +6,13 @@ import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const auth = await getPortalAuth()
   if (!auth) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const { id } = await params
@@ -42,16 +42,22 @@ export async function POST(
   })
 
   if (!task) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND }, { status: 404 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_NOT_FOUND },
+      { status: 404 },
+    )
   }
 
   if (task.isCompleted) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_ALREADY_COMPLETED },
+      { status: 400 },
+    )
   }
 
   // Only items that are actually on this task's checklist may be recorded —
   // otherwise a client could claim credit for work the house never agreed on.
-  const ticked = (completedItems ?? []).filter(item => task.checklist.includes(item))
+  const ticked = (completedItems ?? []).filter((item) => task.checklist.includes(item))
 
   try {
     // Transaction: create completion + update task + resolve flags + complete requests.
@@ -65,7 +71,7 @@ export async function POST(
       // the house never agreed on, and the order is the task's, not the
       // client's, so the record reads the same as the list people saw.
       const tickedItems = completedItems
-        ? (task.checklist ?? []).filter(item => completedItems!.includes(item))
+        ? (task.checklist ?? []).filter((item) => completedItems!.includes(item))
         : []
 
       const completion = await tx.taskCompletion.create({
@@ -122,6 +128,9 @@ export async function POST(
     return NextResponse.json({ success: true, data: result })
   } catch (error) {
     logger.errorWithCause('Failed to complete household task', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.TASK_COMPLETE_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.TASK_COMPLETE_ERROR },
+      { status: 500 },
+    )
   }
 }

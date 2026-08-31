@@ -137,7 +137,7 @@ describe('logAudit', () => {
     mockAuditLogCreate.mockRejectedValue(new Error('DB connection lost'))
 
     await expect(
-      logAudit({ action: 'CREATE', entity: 'RESIDENT', entityId: 'res-1' })
+      logAudit({ action: 'CREATE', entity: 'RESIDENT', entityId: 'res-1' }),
     ).resolves.toBeUndefined()
   })
 
@@ -151,7 +151,7 @@ describe('logAudit', () => {
     expect(logger.errorWithCause).toHaveBeenCalledWith(
       expect.stringContaining('Audit log failed'),
       error,
-      expect.any(Object)
+      expect.any(Object),
     )
   })
 
@@ -159,7 +159,7 @@ describe('logAudit', () => {
     mockGetCurrentUser.mockRejectedValue(new Error('Auth service down'))
 
     await expect(
-      logAudit({ action: 'CREATE', entity: 'RESIDENT', entityId: 'res-1' })
+      logAudit({ action: 'CREATE', entity: 'RESIDENT', entityId: 'res-1' }),
     ).resolves.toBeUndefined()
   })
 })
@@ -178,7 +178,7 @@ describe('getEntityAuditLog', () => {
     expect(mockAuditLogFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { entity: 'RESIDENT', entityId: 'res-123' },
-      })
+      }),
     )
   })
 
@@ -188,16 +188,14 @@ describe('getEntityAuditLog', () => {
     expect(mockAuditLogFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         orderBy: { createdAt: 'desc' },
-      })
+      }),
     )
   })
 
   test('limits results to 50', async () => {
     await getEntityAuditLog('INCIDENT', 'i-1')
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ take: 50 })
-    )
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 50 }))
   })
 
   test('returns the results from prisma', async () => {
@@ -224,23 +222,19 @@ describe('getRecentAuditLogs', () => {
     expect(mockAuditLogFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
         orderBy: { createdAt: 'desc' },
-      })
+      }),
     )
   })
 
   test('defaults to limit 100', async () => {
     await getRecentAuditLogs()
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ take: 100 })
-    )
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 100 }))
   })
 
   test('respects custom limit', async () => {
     await getRecentAuditLogs(25)
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({ take: 25 })
-    )
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 25 }))
   })
 })

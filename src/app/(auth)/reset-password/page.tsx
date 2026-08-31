@@ -7,10 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { AuthShell } from '@/components/auth/AuthShell'
 import { LOGIN_LABELS, REGISTER_LABELS, RESET_PASSWORD_LABELS } from '@/lib/constants/labels'
 
-type ResetState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'error'; message: string }
+type ResetState = { status: 'idle' } | { status: 'loading' } | { status: 'error'; message: string }
 
 function ResetPasswordForm() {
   const router = useRouter()

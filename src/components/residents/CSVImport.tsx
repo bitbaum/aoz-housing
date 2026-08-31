@@ -78,10 +78,7 @@ export function CSVImport() {
         >
           {EXPORT_LABELS.selectFile}
         </button>
-        <a
-          href="/api/export/template"
-          className="text-sm text-status-info-text hover:underline"
-        >
+        <a href="/api/export/template" className="text-sm text-status-info-text hover:underline">
           {EXPORT_LABELS.downloadTemplate}
         </a>
       </div>
@@ -116,10 +113,7 @@ export function CSVImport() {
                 {preview.map((row, i) => (
                   <tr key={i}>
                     {Object.values(row).map((val, j) => (
-                      <td
-                        key={j}
-                        className="whitespace-nowrap px-3 py-2 text-ui-muted"
-                      >
+                      <td key={j} className="whitespace-nowrap px-3 py-2 text-ui-muted">
                         {val}
                       </td>
                     ))}
@@ -141,14 +135,12 @@ export function CSVImport() {
       {result && (
         <div className="rounded-md bg-ui-subtle p-4 space-y-2">
           <p className="text-sm font-medium">
-            {EXPORT_LABELS.result}: {result.created} {EXPORT_LABELS.created},{' '}
-            {result.skipped} {EXPORT_LABELS.skipped}
+            {EXPORT_LABELS.result}: {result.created} {EXPORT_LABELS.created}, {result.skipped}{' '}
+            {EXPORT_LABELS.skipped}
           </p>
           {result.errors.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs font-medium text-status-error-text">
-                {EXPORT_LABELS.errors}:
-              </p>
+              <p className="text-xs font-medium text-status-error-text">{EXPORT_LABELS.errors}:</p>
               {result.errors.slice(0, DISPLAY_LIMITS.importErrorPreview).map((err, i) => (
                 <p key={i} className="text-xs text-status-error-text">
                   {EXPORT_LABELS.row} {err.row}: {err.error}

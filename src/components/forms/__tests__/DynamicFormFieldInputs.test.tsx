@@ -234,7 +234,7 @@ describe('ScaleField (radio buttons, max ≤ 5)', () => {
 
   it('disables all radios when disabled', () => {
     render(<ScaleField factor={scaleFactor} disabled />)
-    screen.getAllByRole('radio').forEach(r => expect(r).toBeDisabled())
+    screen.getAllByRole('radio').forEach((r) => expect(r).toBeDisabled())
   })
 })
 
@@ -366,7 +366,7 @@ describe('MultiField', () => {
 
   it('disables all checkboxes when disabled', () => {
     render(<MultiField factor={multiFactor} disabled />)
-    screen.getAllByRole('checkbox').forEach(cb => expect(cb).toBeDisabled())
+    screen.getAllByRole('checkbox').forEach((cb) => expect(cb).toBeDisabled())
   })
 
   it('shows description when provided', () => {

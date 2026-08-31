@@ -3,7 +3,13 @@
 import { useState } from 'react'
 import type { FactorDef } from '@/lib/config/types'
 import { factorDisplayValue } from '@/lib/config/factor-fields'
-import { TextField, EnumField, ScaleField, BooleanField, MultiField } from './DynamicFormFieldInputs'
+import {
+  TextField,
+  EnumField,
+  ScaleField,
+  BooleanField,
+  MultiField,
+} from './DynamicFormFieldInputs'
 
 export type FormFieldValue = string | number | boolean | string[] | Date | null | undefined
 
@@ -22,7 +28,13 @@ interface DynamicFormFieldProps {
   aiTouched?: boolean
 }
 
-export function DynamicFormField({ factor, value, onChange, disabled, aiTouched }: DynamicFormFieldProps) {
+export function DynamicFormField({
+  factor,
+  value,
+  onChange,
+  disabled,
+  aiTouched,
+}: DynamicFormFieldProps) {
   // Only used when the caller does not lift state. Seeded once, like the
   // `defaultValue` this replaced.
   const [ownValue, setOwnValue] = useState<FormFieldValue>(value)
@@ -39,15 +51,30 @@ export function DynamicFormField({ factor, value, onChange, disabled, aiTouched 
 
   switch (factor.type) {
     case 'text':
-      return <TextField factor={factor} value={shown as string} onChange={handleChange} {...chrome} />
+      return (
+        <TextField factor={factor} value={shown as string} onChange={handleChange} {...chrome} />
+      )
     case 'enum':
-      return <EnumField factor={factor} value={shown as string} onChange={handleChange} {...chrome} />
+      return (
+        <EnumField factor={factor} value={shown as string} onChange={handleChange} {...chrome} />
+      )
     case 'scale':
-      return <ScaleField factor={factor} value={shown as number} onChange={handleChange} {...chrome} />
+      return (
+        <ScaleField factor={factor} value={shown as number} onChange={handleChange} {...chrome} />
+      )
     case 'boolean':
-      return <BooleanField factor={factor} value={shown as boolean} onChange={handleChange} {...chrome} />
+      return (
+        <BooleanField
+          factor={factor}
+          value={shown as boolean}
+          onChange={handleChange}
+          {...chrome}
+        />
+      )
     case 'multi':
-      return <MultiField factor={factor} value={shown as string[]} onChange={handleChange} {...chrome} />
+      return (
+        <MultiField factor={factor} value={shown as string[]} onChange={handleChange} {...chrome} />
+      )
     default:
       return null
   }

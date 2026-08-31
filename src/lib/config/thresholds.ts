@@ -95,7 +95,7 @@ export const HARMONY_THRESHOLDS = {
 export type HarmonyLevel = 'excellent' | 'good' | 'moderate' | 'concerning' | 'critical'
 
 export function getHarmonyLevel(avgCompatibility: number, recentConflicts: number): HarmonyLevel {
-  const harmonyScore = avgCompatibility - (recentConflicts * HARMONY_THRESHOLDS.conflictPenalty)
+  const harmonyScore = avgCompatibility - recentConflicts * HARMONY_THRESHOLDS.conflictPenalty
   if (harmonyScore >= HARMONY_THRESHOLDS.excellent) return 'excellent'
   if (harmonyScore >= HARMONY_THRESHOLDS.good) return 'good'
   if (harmonyScore >= HARMONY_THRESHOLDS.moderate) return 'moderate'

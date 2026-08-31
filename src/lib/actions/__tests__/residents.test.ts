@@ -7,7 +7,12 @@
 
 import { prisma } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
-import { exitResident, archiveResident, restoreResident, hardDeleteResidentProtected } from '../residents'
+import {
+  exitResident,
+  archiveResident,
+  restoreResident,
+  hardDeleteResidentProtected,
+} from '../residents'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // =============================================================================
@@ -43,12 +48,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -117,7 +142,7 @@ describe('exitResident', () => {
         entity: 'RESIDENT',
         entityId: 'res-1',
         changes: { status: 'EXITED' },
-      })
+      }),
     )
   })
 
@@ -175,7 +200,7 @@ describe('archiveResident', () => {
         action: 'ARCHIVE',
         entity: 'RESIDENT',
         entityId: 'res-1',
-      })
+      }),
     )
   })
 })
@@ -229,7 +254,7 @@ describe('restoreResident', () => {
         entity: 'RESIDENT',
         entityId: 'res-1',
         changes: { status: 'PLACED' },
-      })
+      }),
     )
   })
 })
@@ -313,7 +338,7 @@ describe('hardDeleteResidentProtected', () => {
         action: 'DELETE',
         entity: 'RESIDENT',
         entityId: 'res-1',
-      })
+      }),
     )
   })
 })

@@ -9,9 +9,19 @@ test.describe('Housing unit pages', () => {
     await expect(page.locator('h1, h2').first()).toContainText(/Unterkünfte/i)
 
     // Should have at least a "new unit" link/button or show empty state
-    const hasNewButton = await page.getByRole('link', { name: /Neue Unterkunft|Hinzufügen/i }).isVisible().catch(() => false)
-    const hasEmptyState = await page.getByText(/Keine Unterkünfte/i).isVisible().catch(() => false)
-    const hasUnits = await page.locator('a[href*="/housing/"]').first().isVisible().catch(() => false)
+    const hasNewButton = await page
+      .getByRole('link', { name: /Neue Unterkunft|Hinzufügen/i })
+      .isVisible()
+      .catch(() => false)
+    const hasEmptyState = await page
+      .getByText(/Keine Unterkünfte/i)
+      .isVisible()
+      .catch(() => false)
+    const hasUnits = await page
+      .locator('a[href*="/housing/"]')
+      .first()
+      .isVisible()
+      .catch(() => false)
 
     expect(hasNewButton || hasEmptyState || hasUnits).toBe(true)
   })
@@ -61,7 +71,9 @@ test.describe('Housing detail page sections', () => {
 
         // Verify detail page loaded
         await expect(page.locator('h1, h2').first()).toBeVisible()
-        await expect(page.getByRole('link', { name: /Bearbeiten/i })).toBeVisible({ timeout: 10000 })
+        await expect(page.getByRole('link', { name: /Bearbeiten/i })).toBeVisible({
+          timeout: 10000,
+        })
       }
     }
     // If no units exist, test passes (nothing to check)

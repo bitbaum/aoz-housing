@@ -20,7 +20,10 @@ interface PhotoUploaderProps {
 async function resizeToAvatar(file: File): Promise<Blob> {
   const bitmap = await createImageBitmap(file)
   try {
-    const scale = Math.min(1, PHOTO_LIMITS.clientMaxDimension / Math.max(bitmap.width, bitmap.height))
+    const scale = Math.min(
+      1,
+      PHOTO_LIMITS.clientMaxDimension / Math.max(bitmap.width, bitmap.height),
+    )
     const width = Math.max(1, Math.round(bitmap.width * scale))
     const height = Math.max(1, Math.round(bitmap.height * scale))
 
@@ -35,7 +38,7 @@ async function resizeToAvatar(file: File): Promise<Blob> {
       canvas.toBlob(
         (blob) => (blob ? resolve(blob) : reject(new Error('toBlob failed'))),
         'image/jpeg',
-        PHOTO_LIMITS.clientJpegQuality
+        PHOTO_LIMITS.clientJpegQuality,
       )
     })
   } finally {

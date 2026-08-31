@@ -41,11 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default async function PortalLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies()
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
   const hasStaffAccess = !!cookieStore.get(STAFF_COOKIE)?.value
@@ -60,9 +56,7 @@ export default async function PortalLayout({
   const { locale, t } = await getRequestTranslator()
 
   if (!residentCode) {
-    return (
-      <div className="min-h-screen bg-ui-canvas text-ui-text">{children}</div>
-    )
+    return <div className="min-h-screen bg-ui-canvas text-ui-text">{children}</div>
   }
 
   return (
@@ -75,7 +69,9 @@ export default async function PortalLayout({
     >
       <LocaleProvider locale={locale}>
         <PortalUrlFeedback />
-        <a href="#portal-main" className="skip-link">Zum Inhalt springen</a>
+        <a href="#portal-main" className="skip-link">
+          Zum Inhalt springen
+        </a>
 
         <header className="chrome-bar sticky top-0 z-30 h-14">
           <div className="h-full px-4 lg:px-6 flex items-center">
@@ -95,7 +91,10 @@ export default async function PortalLayout({
               <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ui-muted">
                   <p className="text-center sm:text-start">{t('safety.emergency')}</p>
-                  <Link href="/portal/help" className="hover:text-ui-text min-h-[44px] flex items-center">
+                  <Link
+                    href="/portal/help"
+                    className="hover:text-ui-text min-h-[44px] flex items-center"
+                  >
                     {t('nav.help')}
                   </Link>
                 </div>

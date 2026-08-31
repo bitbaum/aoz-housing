@@ -534,7 +534,7 @@ async function main() {
           status: 'AVAILABLE',
         },
       }),
-    ])
+    ]),
   )
 
   // ZH-005: 1 room, 2 beds (in maintenance)
@@ -634,7 +634,7 @@ async function main() {
           status: 'AVAILABLE',
         },
       }),
-    ])
+    ]),
   )
 
   // ZH-007: 2 rooms (2 beds, 1 bed) + 1 studio
@@ -770,7 +770,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['ar', 'en'],
         culturalRegion: 'Middle East',
@@ -803,7 +803,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'EXTROVERTED',
         languages: ['ar', 'fr'],
         culturalRegion: 'Middle East',
@@ -836,7 +836,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 5,
         cleanlinessExpectation: 5,
-        chaosTolerance: 6 - (5),
+        chaosTolerance: 6 - 5,
         socialStyle: 'INTROVERTED',
         languages: ['uk', 'ru', 'en'],
         culturalRegion: 'Eastern Europe',
@@ -874,7 +874,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['ti', 'en'],
         culturalRegion: 'East Africa',
@@ -907,7 +907,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'EXTROVERTED',
         languages: ['fa', 'en'],
         culturalRegion: 'Central Asia',
@@ -945,7 +945,7 @@ async function main() {
         noiseTolerance: 1,
         cleanlinessPractice: 5,
         cleanlinessExpectation: 5,
-        chaosTolerance: 6 - (5),
+        chaosTolerance: 6 - 5,
         socialStyle: 'INTROVERTED',
         languages: ['tr', 'de'],
         culturalRegion: 'Middle East',
@@ -978,7 +978,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['so', 'ar', 'en'],
         culturalRegion: 'East Africa',
@@ -1017,7 +1017,7 @@ async function main() {
         noiseTolerance: 5,
         cleanlinessPractice: 2,
         cleanlinessExpectation: 2,
-        chaosTolerance: 6 - (2),
+        chaosTolerance: 6 - 2,
         socialStyle: 'EXTROVERTED',
         languages: ['ps', 'fa'],
         culturalRegion: 'Central Asia',
@@ -1050,7 +1050,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 5,
         cleanlinessExpectation: 5,
-        chaosTolerance: 6 - (5),
+        chaosTolerance: 6 - 5,
         socialStyle: 'INTROVERTED',
         languages: ['uk', 'en'],
         culturalRegion: 'Eastern Europe',
@@ -1083,7 +1083,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'MODERATE',
         languages: ['ar', 'en', 'de'],
         culturalRegion: 'Middle East',
@@ -1118,7 +1118,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 2,
         cleanlinessExpectation: 2,
-        chaosTolerance: 6 - (2),
+        chaosTolerance: 6 - 2,
         socialStyle: 'MODERATE',
         languages: ['ps', 'fa'],
         culturalRegion: 'Central Asia',
@@ -1152,7 +1152,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 5,
         cleanlinessExpectation: 5,
-        chaosTolerance: 6 - (5),
+        chaosTolerance: 6 - 5,
         socialStyle: 'MODERATE',
         languages: ['ti', 'en'],
         culturalRegion: 'East Africa',
@@ -1186,7 +1186,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'INTROVERTED',
         languages: ['ar'],
         culturalRegion: 'Middle East',
@@ -1224,7 +1224,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'EXTROVERTED',
         languages: ['es', 'en'],
         culturalRegion: 'South America',
@@ -1258,7 +1258,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'MODERATE',
         languages: ['fr', 'sw', 'en'],
         culturalRegion: 'Central Africa',
@@ -1292,7 +1292,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'INTROVERTED',
         languages: ['fa', 'en'],
         culturalRegion: 'Middle East',
@@ -1326,7 +1326,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'EXTROVERTED',
         languages: ['am', 'en'],
         culturalRegion: 'East Africa',
@@ -1360,7 +1360,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'MODERATE',
         languages: ['so', 'ar'],
         culturalRegion: 'East Africa',
@@ -1394,7 +1394,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['tr', 'de'],
         culturalRegion: 'Middle East',
@@ -1428,7 +1428,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 2,
         cleanlinessExpectation: 2,
-        chaosTolerance: 6 - (2),
+        chaosTolerance: 6 - 2,
         socialStyle: 'EXTROVERTED',
         languages: ['ar', 'en'],
         culturalRegion: 'Middle East',
@@ -1462,7 +1462,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['es', 'en'],
         culturalRegion: 'South America',
@@ -1496,7 +1496,7 @@ async function main() {
         noiseTolerance: 3,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['ti', 'en', 'ar'],
         culturalRegion: 'East Africa',
@@ -1531,7 +1531,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'INTROVERTED',
         languages: ['fa', 'ps'],
         culturalRegion: 'Central Asia',
@@ -1565,7 +1565,7 @@ async function main() {
         noiseTolerance: 4,
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         socialStyle: 'EXTROVERTED',
         languages: ['ar', 'en', 'de'],
         culturalRegion: 'Middle East',
@@ -1599,7 +1599,7 @@ async function main() {
         noiseTolerance: 2,
         cleanlinessPractice: 4,
         cleanlinessExpectation: 4,
-        chaosTolerance: 6 - (4),
+        chaosTolerance: 6 - 4,
         socialStyle: 'MODERATE',
         languages: ['fr', 'sw'],
         culturalRegion: 'Central Africa',
@@ -1645,7 +1645,7 @@ async function main() {
   })
   console.log(
     `✅ Created ${integration.records} learning records, ` +
-    `${integration.careAssignments} care assignments`
+      `${integration.careAssignments} care assignments`,
   )
 
   const opportunities = await seedOpportunities(prisma, {
@@ -1654,8 +1654,8 @@ async function main() {
   })
   console.log(
     `✅ Created ${opportunities.opportunities} opportunities, ` +
-    `${opportunities.applications} applications, ` +
-    `${opportunities.evidenceRecords} generated records`
+      `${opportunities.applications} applications, ` +
+      `${opportunities.evidenceRecords} generated records`,
   )
 
   // Create placements with CALCULATED compatibility scores
@@ -1709,9 +1709,10 @@ async function main() {
         practicalScore: score_0_1.practicalScore,
         riskScore: score_0_1.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_0_1.concerns.length > 0
-          ? score_0_1.concerns.join('. ')
-          : 'Kompatibilitätsprüfung durchgeführt',
+        placementNotes:
+          score_0_1.concerns.length > 0
+            ? score_0_1.concerns.join('. ')
+            : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -1726,9 +1727,10 @@ async function main() {
         practicalScore: score_0_1.practicalScore,
         riskScore: score_0_1.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_0_1.concerns.length > 0
-          ? score_0_1.concerns.join('. ')
-          : 'Kompatibilitätsprüfung durchgeführt',
+        placementNotes:
+          score_0_1.concerns.length > 0
+            ? score_0_1.concerns.join('. ')
+            : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     // [2] ZH-001 R2-B1: RES-022 (success story)
@@ -1754,7 +1756,9 @@ async function main() {
         housingUnitId: units[1].id,
         spotId: allSpots.zh002.privateRoom.id,
         startDate: new Date(now.getTime() - 90 * DAY),
-        compatibilityScore: Math.round((score_2_3.compatibilityScore + score_2_5.compatibilityScore) / 2),
+        compatibilityScore: Math.round(
+          (score_2_3.compatibilityScore + score_2_5.compatibilityScore) / 2,
+        ),
         lifestyleScore: Math.round((score_2_3.lifestyleScore + score_2_5.lifestyleScore) / 2),
         socialScore: Math.round((score_2_3.socialScore + score_2_5.socialScore) / 2),
         practicalScore: Math.round((score_2_3.practicalScore + score_2_5.practicalScore) / 2),
@@ -1775,9 +1779,10 @@ async function main() {
         practicalScore: score_3_5.practicalScore,
         riskScore: score_3_5.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_3_5.strengths.length > 0
-          ? score_3_5.strengths.join('. ')
-          : 'Kompatibilitätsprüfung durchgeführt',
+        placementNotes:
+          score_3_5.strengths.length > 0
+            ? score_3_5.strengths.join('. ')
+            : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -1808,9 +1813,10 @@ async function main() {
         practicalScore: score_4_6.practicalScore,
         riskScore: score_4_6.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_4_6.strengths.length > 0
-          ? score_4_6.strengths.join('. ')
-          : 'Kompatibilitätsprüfung durchgeführt',
+        placementNotes:
+          score_4_6.strengths.length > 0
+            ? score_4_6.strengths.join('. ')
+            : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     prisma.placement.create({
@@ -1825,9 +1831,10 @@ async function main() {
         practicalScore: score_4_6.practicalScore,
         riskScore: score_4_6.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_4_6.strengths.length > 0
-          ? score_4_6.strengths.join('. ')
-          : 'Kompatibilitätsprüfung durchgeführt',
+        placementNotes:
+          score_4_6.strengths.length > 0
+            ? score_4_6.strengths.join('. ')
+            : 'Kompatibilitätsprüfung durchgeführt',
       },
     }),
     // [8] ZH-004: RES-014 + RES-015 (good match, R1)
@@ -1907,9 +1914,10 @@ async function main() {
         practicalScore: score_15_16.practicalScore,
         riskScore: score_15_16.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_15_16.concerns.length > 0
-          ? score_15_16.concerns.join('. ')
-          : 'Spannungspotential erkannt',
+        placementNotes:
+          score_15_16.concerns.length > 0
+            ? score_15_16.concerns.join('. ')
+            : 'Spannungspotential erkannt',
       },
     }),
     // [13]
@@ -1925,9 +1933,10 @@ async function main() {
         practicalScore: score_15_16.practicalScore,
         riskScore: score_15_16.riskScore,
         status: 'ACTIVE',
-        placementNotes: score_15_16.concerns.length > 0
-          ? score_15_16.concerns.join('. ')
-          : 'Spannungspotential erkannt',
+        placementNotes:
+          score_15_16.concerns.length > 0
+            ? score_15_16.concerns.join('. ')
+            : 'Spannungspotential erkannt',
       },
     }),
     // [14] ZH-006: RES-024 (transferred here from ZH-001, R2)
@@ -2022,25 +2031,70 @@ async function main() {
   // Update spot statuses to OCCUPIED for spots with active placements
   await Promise.all([
     // ZH-001
-    prisma.placementSpot.update({ where: { id: allSpots.zh001.beds[0].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh001.beds[1].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh001.beds[2].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh001.beds[0].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh001.beds[1].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh001.beds[2].id },
+      data: { status: 'OCCUPIED' },
+    }),
     // ZH-002
-    prisma.placementSpot.update({ where: { id: allSpots.zh002.privateRoom.id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh002.beds[0].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh002.beds[1].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh002.privateRoom.id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh002.beds[0].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh002.beds[1].id },
+      data: { status: 'OCCUPIED' },
+    }),
     // ZH-003
-    prisma.placementSpot.update({ where: { id: allSpots.zh003.rooms[0].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh003.rooms[1].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh003.rooms[0].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh003.rooms[1].id },
+      data: { status: 'OCCUPIED' },
+    }),
     // ZH-004
-    prisma.placementSpot.update({ where: { id: allSpots.zh004.beds[0].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh004.beds[1].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh004.beds[4].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh004.beds[5].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh004.beds[0].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh004.beds[1].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh004.beds[4].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh004.beds[5].id },
+      data: { status: 'OCCUPIED' },
+    }),
     // ZH-006
-    prisma.placementSpot.update({ where: { id: allSpots.zh006.beds[0].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh006.beds[1].id }, data: { status: 'OCCUPIED' } }),
-    prisma.placementSpot.update({ where: { id: allSpots.zh006.beds[2].id }, data: { status: 'OCCUPIED' } }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh006.beds[0].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh006.beds[1].id },
+      data: { status: 'OCCUPIED' },
+    }),
+    prisma.placementSpot.update({
+      where: { id: allSpots.zh006.beds[2].id },
+      data: { status: 'OCCUPIED' },
+    }),
   ])
 
   // =========================================================================
@@ -2094,68 +2148,103 @@ async function main() {
     // ZH-002
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[2].id, comparedWithId: residents[3].id,
-        overallScore: score_2_3.compatibilityScore, lifestyleScore: score_2_3.lifestyleScore,
-        socialScore: score_2_3.socialScore, practicalScore: score_2_3.practicalScore,
-        riskScore: score_2_3.riskScore, strengths: score_2_3.strengths,
-        concerns: score_2_3.concerns, recommendations: score_2_3.recommendations,
+        residentId: residents[2].id,
+        comparedWithId: residents[3].id,
+        overallScore: score_2_3.compatibilityScore,
+        lifestyleScore: score_2_3.lifestyleScore,
+        socialScore: score_2_3.socialScore,
+        practicalScore: score_2_3.practicalScore,
+        riskScore: score_2_3.riskScore,
+        strengths: score_2_3.strengths,
+        concerns: score_2_3.concerns,
+        recommendations: score_2_3.recommendations,
       },
     }),
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[2].id, comparedWithId: residents[5].id,
-        overallScore: score_2_5.compatibilityScore, lifestyleScore: score_2_5.lifestyleScore,
-        socialScore: score_2_5.socialScore, practicalScore: score_2_5.practicalScore,
-        riskScore: score_2_5.riskScore, strengths: score_2_5.strengths,
-        concerns: score_2_5.concerns, recommendations: score_2_5.recommendations,
+        residentId: residents[2].id,
+        comparedWithId: residents[5].id,
+        overallScore: score_2_5.compatibilityScore,
+        lifestyleScore: score_2_5.lifestyleScore,
+        socialScore: score_2_5.socialScore,
+        practicalScore: score_2_5.practicalScore,
+        riskScore: score_2_5.riskScore,
+        strengths: score_2_5.strengths,
+        concerns: score_2_5.concerns,
+        recommendations: score_2_5.recommendations,
       },
     }),
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[3].id, comparedWithId: residents[5].id,
-        overallScore: score_3_5.compatibilityScore, lifestyleScore: score_3_5.lifestyleScore,
-        socialScore: score_3_5.socialScore, practicalScore: score_3_5.practicalScore,
-        riskScore: score_3_5.riskScore, strengths: score_3_5.strengths,
-        concerns: score_3_5.concerns, recommendations: score_3_5.recommendations,
+        residentId: residents[3].id,
+        comparedWithId: residents[5].id,
+        overallScore: score_3_5.compatibilityScore,
+        lifestyleScore: score_3_5.lifestyleScore,
+        socialScore: score_3_5.socialScore,
+        practicalScore: score_3_5.practicalScore,
+        riskScore: score_3_5.riskScore,
+        strengths: score_3_5.strengths,
+        concerns: score_3_5.concerns,
+        recommendations: score_3_5.recommendations,
       },
     }),
     // ZH-003
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[4].id, comparedWithId: residents[6].id,
-        overallScore: score_4_6.compatibilityScore, lifestyleScore: score_4_6.lifestyleScore,
-        socialScore: score_4_6.socialScore, practicalScore: score_4_6.practicalScore,
-        riskScore: score_4_6.riskScore, strengths: score_4_6.strengths,
-        concerns: score_4_6.concerns, recommendations: score_4_6.recommendations,
+        residentId: residents[4].id,
+        comparedWithId: residents[6].id,
+        overallScore: score_4_6.compatibilityScore,
+        lifestyleScore: score_4_6.lifestyleScore,
+        socialScore: score_4_6.socialScore,
+        practicalScore: score_4_6.practicalScore,
+        riskScore: score_4_6.riskScore,
+        strengths: score_4_6.strengths,
+        concerns: score_4_6.concerns,
+        recommendations: score_4_6.recommendations,
       },
     }),
     // ZH-004
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[13].id, comparedWithId: residents[14].id,
-        overallScore: score_13_14.compatibilityScore, lifestyleScore: score_13_14.lifestyleScore,
-        socialScore: score_13_14.socialScore, practicalScore: score_13_14.practicalScore,
-        riskScore: score_13_14.riskScore, strengths: score_13_14.strengths,
-        concerns: score_13_14.concerns, recommendations: score_13_14.recommendations,
+        residentId: residents[13].id,
+        comparedWithId: residents[14].id,
+        overallScore: score_13_14.compatibilityScore,
+        lifestyleScore: score_13_14.lifestyleScore,
+        socialScore: score_13_14.socialScore,
+        practicalScore: score_13_14.practicalScore,
+        riskScore: score_13_14.riskScore,
+        strengths: score_13_14.strengths,
+        concerns: score_13_14.concerns,
+        recommendations: score_13_14.recommendations,
       },
     }),
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[17].id, comparedWithId: residents[18].id,
-        overallScore: score_17_18.compatibilityScore, lifestyleScore: score_17_18.lifestyleScore,
-        socialScore: score_17_18.socialScore, practicalScore: score_17_18.practicalScore,
-        riskScore: score_17_18.riskScore, strengths: score_17_18.strengths,
-        concerns: score_17_18.concerns, recommendations: score_17_18.recommendations,
+        residentId: residents[17].id,
+        comparedWithId: residents[18].id,
+        overallScore: score_17_18.compatibilityScore,
+        lifestyleScore: score_17_18.lifestyleScore,
+        socialScore: score_17_18.socialScore,
+        practicalScore: score_17_18.practicalScore,
+        riskScore: score_17_18.riskScore,
+        strengths: score_17_18.strengths,
+        concerns: score_17_18.concerns,
+        recommendations: score_17_18.recommendations,
       },
     }),
     // ZH-006 tension pair
     prisma.compatibilityAssessment.create({
       data: {
-        residentId: residents[15].id, comparedWithId: residents[16].id,
-        overallScore: score_15_16.compatibilityScore, lifestyleScore: score_15_16.lifestyleScore,
-        socialScore: score_15_16.socialScore, practicalScore: score_15_16.practicalScore,
-        riskScore: score_15_16.riskScore, strengths: score_15_16.strengths,
-        concerns: score_15_16.concerns, recommendations: score_15_16.recommendations,
+        residentId: residents[15].id,
+        comparedWithId: residents[16].id,
+        overallScore: score_15_16.compatibilityScore,
+        lifestyleScore: score_15_16.lifestyleScore,
+        socialScore: score_15_16.socialScore,
+        practicalScore: score_15_16.practicalScore,
+        riskScore: score_15_16.riskScore,
+        strengths: score_15_16.strengths,
+        concerns: score_15_16.concerns,
+        recommendations: score_15_16.recommendations,
       },
     }),
   ])
@@ -2171,8 +2260,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[0].id, // RES-001
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 3, roommateRelations: 2, facilitySatisfaction: 4, safetyFeeling: 4,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 3,
+        roommateRelations: 2,
+        facilitySatisfaction: 4,
+        safetyFeeling: 4,
         concerns: 'Mitbewohner ist laut abends',
         collectedBy: 'Frau Müller',
       },
@@ -2180,8 +2273,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[0].id,
-        checkInType: 'REGULAR', weekNumber: 4,
-        overallSatisfaction: 3, roommateRelations: 3, facilitySatisfaction: 4, safetyFeeling: 4,
+        checkInType: 'REGULAR',
+        weekNumber: 4,
+        overallSatisfaction: 3,
+        roommateRelations: 3,
+        facilitySatisfaction: 4,
+        safetyFeeling: 4,
         positives: 'Kopfhörer-Regelung hilft',
         collectedBy: 'Frau Müller',
       },
@@ -2189,8 +2286,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[0].id,
-        checkInType: 'REGULAR', weekNumber: 8,
-        overallSatisfaction: 4, roommateRelations: 3, facilitySatisfaction: 4, safetyFeeling: 5,
+        checkInType: 'REGULAR',
+        weekNumber: 8,
+        overallSatisfaction: 4,
+        roommateRelations: 3,
+        facilitySatisfaction: 4,
+        safetyFeeling: 5,
         positives: 'Situation hat sich stabilisiert',
         collectedBy: 'Frau Müller',
       },
@@ -2199,8 +2300,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[4].id, // RES-004
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 4, roommateRelations: 4, facilitySatisfaction: 5, safetyFeeling: 5,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 4,
+        roommateRelations: 4,
+        facilitySatisfaction: 5,
+        safetyFeeling: 5,
         positives: 'Ruhige Umgebung, nette Mitbewohner',
         collectedBy: 'Herr Schmidt',
       },
@@ -2208,8 +2313,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[4].id,
-        checkInType: 'REGULAR', weekNumber: 6,
-        overallSatisfaction: 5, roommateRelations: 5, facilitySatisfaction: 4, safetyFeeling: 5,
+        checkInType: 'REGULAR',
+        weekNumber: 6,
+        overallSatisfaction: 5,
+        roommateRelations: 5,
+        facilitySatisfaction: 4,
+        safetyFeeling: 5,
         positives: 'Fühle mich wohl hier',
         collectedBy: 'Herr Schmidt',
       },
@@ -2218,8 +2327,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[6].id, // RES-005
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 5, roommateRelations: 4, facilitySatisfaction: 5, safetyFeeling: 5,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 5,
+        roommateRelations: 4,
+        facilitySatisfaction: 5,
+        safetyFeeling: 5,
         positives: 'Eigenes Zimmer ist sehr wichtig für mich',
         collectedBy: 'Frau Müller',
       },
@@ -2227,8 +2340,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[7].id, // RES-007
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 4, roommateRelations: 4, facilitySatisfaction: 5, safetyFeeling: 5,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 4,
+        roommateRelations: 4,
+        facilitySatisfaction: 5,
+        safetyFeeling: 5,
         positives: 'Ruhige Lage am See',
         collectedBy: 'Frau Müller',
       },
@@ -2237,8 +2354,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[8].id, // RES-014
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 4, roommateRelations: 5, facilitySatisfaction: 3, safetyFeeling: 4,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 4,
+        roommateRelations: 5,
+        facilitySatisfaction: 3,
+        safetyFeeling: 4,
         positives: 'Mitbewohner ist super nett',
         collectedBy: 'Herr Schmidt',
       },
@@ -2246,8 +2367,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: endedPlacements[0].id, // RES-020 (ended)
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 2, roommateRelations: 2, facilitySatisfaction: 3, safetyFeeling: 3,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 2,
+        roommateRelations: 2,
+        facilitySatisfaction: 3,
+        safetyFeeling: 3,
         concerns: 'Kann nachts nicht schlafen wegen Mitbewohner',
         collectedBy: 'Herr Schmidt',
       },
@@ -2256,8 +2381,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[12].id, // RES-016
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 3, roommateRelations: 2, facilitySatisfaction: 4, safetyFeeling: 4,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 3,
+        roommateRelations: 2,
+        facilitySatisfaction: 4,
+        safetyFeeling: 4,
         concerns: 'Mitbewohnerin ist zu laut am Morgen',
         collectedBy: 'Frau Müller',
       },
@@ -2265,8 +2394,12 @@ async function main() {
     prisma.satisfactionCheckIn.create({
       data: {
         placementId: placements[13].id, // RES-017
-        checkInType: 'INITIAL', weekNumber: 1,
-        overallSatisfaction: 3, roommateRelations: 3, facilitySatisfaction: 4, safetyFeeling: 4,
+        checkInType: 'INITIAL',
+        weekNumber: 1,
+        overallSatisfaction: 3,
+        roommateRelations: 3,
+        facilitySatisfaction: 4,
+        safetyFeeling: 4,
         concerns: 'Mitbewohnerin geht sehr spät ins Bett, Licht stört',
         collectedBy: 'Frau Müller',
       },
@@ -2550,7 +2683,7 @@ async function main() {
         startedAt: new Date(now.getTime() - 8 * DAY),
         completedAt: new Date(now.getTime() - 7 * DAY),
         resolution: 'Sicherung war defekt, ersetzt',
-        cost: 85.00,
+        cost: 85.0,
       },
     }),
     // Completed: appliance replacement in ZH-004
@@ -2569,7 +2702,7 @@ async function main() {
         startedAt: new Date(now.getTime() - 15 * DAY),
         completedAt: new Date(now.getTime() - 12 * DAY),
         resolution: 'Neue Waschmaschine installiert',
-        cost: 890.00,
+        cost: 890.0,
       },
     }),
   ])
@@ -2587,7 +2720,8 @@ async function main() {
         residentId: residents[0].id,
         currentPlacementId: placements[0].id,
         targetUnitId: units[1].id,
-        reason: 'Meine aktuelle Wohngemeinschaft ist sehr laut und ich schlafe schlecht. Ich würde gerne in eine ruhigere Unterkunft wechseln.',
+        reason:
+          'Meine aktuelle Wohngemeinschaft ist sehr laut und ich schlafe schlecht. Ich würde gerne in eine ruhigere Unterkunft wechseln.',
         status: 'PENDING',
       },
     }),
@@ -2597,7 +2731,8 @@ async function main() {
         residentId: residents[3].id,
         currentPlacementId: placements[4].id,
         targetUnitId: units[2].id,
-        reason: 'Ich möchte in eine kleinere Unterkunft wechseln, da ich mehr Privatsphäre benötige.',
+        reason:
+          'Ich möchte in eine kleinere Unterkunft wechseln, da ich mehr Privatsphäre benötige.',
         status: 'APPROVED',
         staffNotes: 'Transferanfrage genehmigt. Verlegung wird nächste Woche koordiniert.',
         reviewedBy: `${BRAND.codePrefix}ADMIN1`,
@@ -2611,7 +2746,8 @@ async function main() {
         currentPlacementId: placements[5].id,
         reason: 'Ich möchte näher an meiner Sprachschule wohnen, um den Weg zu verkürzen.',
         status: 'DENIED',
-        staffNotes: 'Leider kein geeigneter Platz in der gewünschten Lage verfügbar. Bitte in 4 Wochen erneut anfragen.',
+        staffNotes:
+          'Leider kein geeigneter Platz in der gewünschten Lage verfügbar. Bitte in 4 Wochen erneut anfragen.',
         reviewedBy: `${BRAND.codePrefix}ADMIN1`,
         reviewedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
       },
@@ -2706,7 +2842,10 @@ async function main() {
   // ZH-008: empty, available
 
   // Pilot baseline config (from CLAUDE.md example metrics — pre-system Phase-1 data)
-  const earliestPlacement = await prisma.placement.findFirst({ orderBy: { startDate: 'asc' }, select: { startDate: true } })
+  const earliestPlacement = await prisma.placement.findFirst({
+    orderBy: { startDate: 'asc' },
+    select: { startDate: true },
+  })
   await prisma.systemConfig.upsert({
     where: { id: 'singleton' },
     create: {
@@ -2754,8 +2893,7 @@ async function main() {
           parentRuleId: kitchenRule.id,
           category: kitchenRule.category,
           title: 'Küche: abwaschen am selben Abend',
-          body:
-            'Wer kocht, wäscht am selben Abend ab. Geschirr, das über Nacht stehen bleibt, wird in eine Kiste neben der Spüle geräumt. Am Sonntag räumt die Person auf, die in der Woche dran war.',
+          body: 'Wer kocht, wäscht am selben Abend ab. Geschirr, das über Nacht stehen bleibt, wird in eine Kiste neben der Spüle geräumt. Am Sonntag räumt die Person auf, die in der Woche dran war.',
           delegation: kitchenRule.delegation,
           status: 'ACTIVE',
           version: 1,
@@ -2769,7 +2907,7 @@ async function main() {
       where: { housingUnitId: demoUnit.id, status: 'ACTIVE' },
       select: { residentId: true },
     })
-    const voterIds = Array.from(new Set(demoUnitResidents.map(p => p.residentId)))
+    const voterIds = Array.from(new Set(demoUnitResidents.map((p) => p.residentId)))
 
     const existingProposal = await prisma.proposal.findFirst({
       where: { housingUnitId: demoUnit.id },
@@ -2785,8 +2923,7 @@ async function main() {
           type: 'ADD_RULE',
           category: cleaningRule.category,
           title: 'Putzplan mit fixem Wochentag',
-          body:
-            'Vorschlag: Jede Person übernimmt eine Woche lang Küche und Bad. Der Wechsel ist immer am Sonntagabend. Wer in seiner Woche verhindert ist, tauscht vorher mit jemandem.',
+          body: 'Vorschlag: Jede Person übernimmt eine Woche lang Küche und Bad. Der Wechsel ist immer am Sonntagabend. Wer in seiner Woche verhindert ist, tauscht vorher mit jemandem.',
           parentOrgRuleId: cleaningRule.id,
           proposedByResidentId: voterIds[0],
           status: 'VOTING',
@@ -2816,10 +2953,12 @@ async function main() {
   console.log('')
   console.log('📊 Summary:')
   console.log(`   - ${units.length} housing units`)
-  const placed = residents.filter(r => r.status === 'PLACED').length
-  const active = residents.filter(r => r.status === 'ACTIVE').length
-  const transferred = residents.filter(r => r.status === 'TRANSFERRED').length
-  console.log(`   - ${residents.length} residents (${placed} placed, ${active} waiting, ${transferred} transferred)`)
+  const placed = residents.filter((r) => r.status === 'PLACED').length
+  const active = residents.filter((r) => r.status === 'ACTIVE').length
+  const transferred = residents.filter((r) => r.status === 'TRANSFERRED').length
+  console.log(
+    `   - ${residents.length} residents (${placed} placed, ${active} waiting, ${transferred} transferred)`,
+  )
   console.log(`   - ${placements.length} active + ${endedPlacements.length} ended placements`)
   console.log(`   - ${assessments.length} compatibility assessments`)
   console.log(`   - ${checkIns.length} satisfaction check-ins`)
@@ -2829,7 +2968,7 @@ async function main() {
   console.log(`   - ${householdTasks.length} household tasks`)
   console.log(
     `   - ${ruleSync.created + ruleSync.unchanged + ruleSync.amended} AOZ rules ` +
-    `(${ruleSync.created} new), ${houseRuleCount} house rule(s), ${proposalCount} open decision(s)`
+      `(${ruleSync.created} new), ${houseRuleCount} house rule(s), ${proposalCount} open decision(s)`,
   )
   console.log('')
   console.log('🚀 Ready to run: npm run dev')

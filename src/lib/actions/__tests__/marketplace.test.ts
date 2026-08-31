@@ -126,7 +126,7 @@ describe('claiming', () => {
     // Conditional on still being OPEN, so two people pressing at the same
     // moment produce one winner rather than a silent overwrite.
     expect(mockPrisma.marketplacePost.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'post-1', status: 'OPEN' } })
+      expect.objectContaining({ where: { id: 'post-1', status: 'OPEN' } }),
     )
   })
 
@@ -173,7 +173,7 @@ describe('backing out', () => {
     expect(mockPrisma.marketplacePost.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: { status: 'OPEN', claimedById: null, claimedAt: null },
-      })
+      }),
     )
   })
 
@@ -254,13 +254,13 @@ describe('withdrawing', () => {
 describe('posting', () => {
   it('keeps a category that fits the kind', async () => {
     await createMarketplacePost(
-      form({ title: 'Sofa', description: 'Rot', kind: 'GIVE_AWAY', category: 'FURNITURE' })
+      form({ title: 'Sofa', description: 'Rot', kind: 'GIVE_AWAY', category: 'FURNITURE' }),
     )
 
     expect(mockPrisma.marketplacePost.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ kind: 'GIVE_AWAY', category: 'FURNITURE' }),
-      })
+      }),
     )
   })
 
@@ -270,19 +270,24 @@ describe('posting', () => {
     // beats rejecting — the person wrote a real post, and losing it to a
     // dropdown would be the worse outcome.
     await createMarketplacePost(
-      form({ title: 'Briefe', description: 'Ich helfe', kind: 'OFFER_HELP', category: 'FURNITURE' })
+      form({
+        title: 'Briefe',
+        description: 'Ich helfe',
+        kind: 'OFFER_HELP',
+        category: 'FURNITURE',
+      }),
     )
 
     expect(mockPrisma.marketplacePost.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ kind: 'OFFER_HELP', category: 'OTHER' }),
-      })
+      }),
     )
   })
 
   it('refuses a kind that is not a kind', async () => {
     const result = await createMarketplacePost(
-      form({ title: 'x', description: 'y', kind: 'SELL_FOR_CASH', category: 'OTHER' })
+      form({ title: 'x', description: 'y', kind: 'SELL_FOR_CASH', category: 'OTHER' }),
     )
 
     expect(result.success).toBe(false)

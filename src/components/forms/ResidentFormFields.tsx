@@ -40,7 +40,10 @@ interface ResidentFormFieldsProps {
   isEdit?: boolean
 }
 
-export function ResidentFormFields({ defaultValues = {}, isEdit = false }: ResidentFormFieldsProps) {
+export function ResidentFormFields({
+  defaultValues = {},
+  isEdit = false,
+}: ResidentFormFieldsProps) {
   const sections = [...RESIDENT_FORM_SECTIONS].sort((a, b) => a.order - b.order)
 
   const form = useAiForm({
@@ -58,7 +61,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
 
   function renderSection(section: (typeof sections)[number], essentialOnly: boolean) {
     const factors = getFactorsBySection(section.id).filter((factor) =>
-      essentialOnly ? isEssentialFactor(factor) : !isEssentialFactor(factor)
+      essentialOnly ? isEssentialFactor(factor) : !isEssentialFactor(factor),
     )
     if (factors.length === 0) return null
 
@@ -69,9 +72,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
     return (
       <div key={`${section.id}-${essentialOnly ? 'ess' : 'det'}`} className="card">
         <h2 className="text-lg font-semibold text-ui-text mb-4">{heading}</h2>
-        {section.description && (
-          <p className="text-sm text-ui-muted mb-4">{section.description}</p>
-        )}
+        {section.description && <p className="text-sm text-ui-muted mb-4">{section.description}</p>}
 
         {isGridSection ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -95,7 +96,7 @@ export function ResidentFormFields({ defaultValues = {}, isEdit = false }: Resid
             {factors.map((factor) =>
               factor.type === 'boolean' ? null : (
                 <DynamicFormField key={factor.id} factor={factor} {...bind(factor.id)} />
-              )
+              ),
             )}
             {factors.some((f) => f.type === 'boolean') && (
               <div className="flex flex-wrap gap-6">
@@ -146,10 +147,10 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
 
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold text-ui-text mb-4">{RESIDENT_FORM_LABELS.medDocTitle}</h2>
-      <p className="text-sm text-ui-muted mb-4">
-        {RESIDENT_FORM_LABELS.medDocDesc}
-      </p>
+      <h2 className="text-lg font-semibold text-ui-text mb-4">
+        {RESIDENT_FORM_LABELS.medDocTitle}
+      </h2>
+      <p className="text-sm text-ui-muted mb-4">{RESIDENT_FORM_LABELS.medDocDesc}</p>
       <div className="space-y-4">
         <label className="flex items-center gap-3 cursor-pointer">
           <input
@@ -164,9 +165,7 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
             <span className="text-sm font-medium text-ui-muted">
               {RESIDENT_FORM_LABELS.medDocCheckboxLabel}
             </span>
-            <p className="text-xs text-ui-muted">
-              {RESIDENT_FORM_LABELS.medDocCheckboxDesc}
-            </p>
+            <p className="text-xs text-ui-muted">{RESIDENT_FORM_LABELS.medDocCheckboxDesc}</p>
           </div>
         </label>
 
@@ -197,7 +196,9 @@ function MedicalDocumentationSection({ defaultValues }: { defaultValues: FormVal
                 name="medicalDocDate"
                 defaultValue={
                   defaultValues.medicalDocDate
-                    ? new Date(defaultValues.medicalDocDate as string | number | Date).toISOString().split('T')[0]
+                    ? new Date(defaultValues.medicalDocDate as string | number | Date)
+                        .toISOString()
+                        .split('T')[0]
                     : ''
                 }
                 className="input max-w-xs"

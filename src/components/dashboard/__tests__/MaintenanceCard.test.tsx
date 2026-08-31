@@ -6,8 +6,18 @@ import { MaintenanceCard } from '../MaintenanceCard'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -25,17 +35,19 @@ jest.mock('@/lib/constants/labels', () => ({
 
 // --- Helpers ---
 
-function renderCard(overrides: {
-  openTickets?: number
-  urgentTickets?: number
-  oldestTicketDays?: number
-} = {}) {
+function renderCard(
+  overrides: {
+    openTickets?: number
+    urgentTickets?: number
+    oldestTicketDays?: number
+  } = {},
+) {
   return render(
     <MaintenanceCard
       openTickets={overrides.openTickets ?? 0}
       urgentTickets={overrides.urgentTickets ?? 0}
       oldestTicketDays={overrides.oldestTicketDays}
-    />
+    />,
   )
 }
 
@@ -118,23 +130,30 @@ describe('MaintenanceCard', () => {
 
   it('links urgent badge to /maintenance?priority=URGENT', () => {
     renderCard({ openTickets: 2, urgentTickets: 1 })
-    expect(
-      screen.getByRole('link', { name: /dringend/ })
-    ).toHaveAttribute('href', '/maintenance?priority=URGENT')
+    expect(screen.getByRole('link', { name: /dringend/ })).toHaveAttribute(
+      'href',
+      '/maintenance?priority=URGENT',
+    )
   })
 
   // ── Quick action link ─────────────────────────────────────────────────────
 
   it('always renders the "Neues Ticket" link', () => {
     renderCard({ openTickets: 0 })
-    expect(screen.getByRole('link', { name: /Neues Ticket/ })).toHaveAttribute('href', '/maintenance/new')
+    expect(screen.getByRole('link', { name: /Neues Ticket/ })).toHaveAttribute(
+      'href',
+      '/maintenance/new',
+    )
   })
 
   // ── View-all link ─────────────────────────────────────────────────────────
 
   it('shows view-all link when openTickets > 0', () => {
     renderCard({ openTickets: 2 })
-    expect(screen.getByRole('link', { name: 'Alle Tickets →' })).toHaveAttribute('href', '/maintenance')
+    expect(screen.getByRole('link', { name: 'Alle Tickets →' })).toHaveAttribute(
+      'href',
+      '/maintenance',
+    )
   })
 
   it('hides view-all link when openTickets === 0', () => {

@@ -54,18 +54,16 @@ export function CompatibilityMatrixInteractive({
 
   const getScore = (r1: string, r2: string): CompatibilityScore | null => {
     if (r1 === r2) return null
-    return scores.find(
-      (s) =>
-        (s.residentId === r1 && s.comparedWithId === r2) ||
-        (s.residentId === r2 && s.comparedWithId === r1)
-    ) || null
+    return (
+      scores.find(
+        (s) =>
+          (s.residentId === r1 && s.comparedWithId === r2) ||
+          (s.residentId === r2 && s.comparedWithId === r1),
+      ) || null
+    )
   }
 
-  const handleCellClick = (
-    r1: ResidentBasic,
-    r2: ResidentBasic,
-    event: React.MouseEvent
-  ) => {
+  const handleCellClick = (r1: ResidentBasic, r2: ResidentBasic, event: React.MouseEvent) => {
     if (r1.id === r2.id) return
 
     const score = getScore(r1.id, r2.id)
@@ -85,82 +83,88 @@ export function CompatibilityMatrixInteractive({
   return (
     <div className="relative">
       {/* Desktop: click-to-detail hint */}
-      <p className="hidden sm:block text-sm text-ui-muted mb-4">{COMPATIBILITY_MATRIX_LABELS.clickHint}</p>
+      <p className="hidden sm:block text-sm text-ui-muted mb-4">
+        {COMPATIBILITY_MATRIX_LABELS.clickHint}
+      </p>
       {/* Mobile: scroll hint */}
-      <div className="sm:hidden text-xs text-ui-muted mb-2 flex items-center gap-1" aria-hidden="true">
+      <div
+        className="sm:hidden text-xs text-ui-muted mb-2 flex items-center gap-1"
+        aria-hidden="true"
+      >
         <span>←</span>
         <span>{COMPATIBILITY_MATRIX_LABELS.swipeHint}</span>
         <span>→</span>
       </div>
       <div className="overflow-x-auto -mx-2 px-2 sm:mx-0 sm:px-0">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr>
-            <th scope="col" className="p-2"></th>
-            {residents.map((r) => (
-              <th scope="col" key={r.id} className="p-2 text-center font-medium text-ui-muted">
-                <Link
-                  href={`/residents/${r.id}`}
-                  className="hover:text-brand-primary transition-colors"
-                >
-                  {residentName(r)}
-                </Link>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {residents.map((r1) => (
-            <tr key={r1.id}>
-              <th scope="row" className="p-2 font-medium text-ui-muted text-left">
-                <Link
-                  href={`/residents/${r1.id}`}
-                  className="hover:text-brand-primary transition-colors"
-                >
-                  {residentName(r1)}
-                </Link>
-              </th>
-              {residents.map((r2) => {
-                const score = getScore(r1.id, r2.id)
-                const isSelected =
-                  selectedCell &&
-                  ((selectedCell.resident1.id === r1.id && selectedCell.resident2.id === r2.id) ||
-                    (selectedCell.resident1.id === r2.id && selectedCell.resident2.id === r1.id))
-
-                return (
-                  <td key={r2.id} className="p-2 text-center">
-                    {r1.id === r2.id ? (
-                      <span className="text-ui-muted" aria-hidden="true">-</span>
-                    ) : score === null ? (
-                      <button
-                        onClick={(e) => handleCellClick(r1, r2, e)}
-                        className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-ui-subtle text-ui-muted text-xs hover:bg-ui-border transition-colors cursor-pointer"
-                        aria-label={`Keine Bewertung: ${residentName(r1)} und ${residentName(r2)}`}
-                      >
-                        ?
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => handleCellClick(r1, r2, e)}
-                        className={`inline-flex items-center justify-center w-12 min-h-[44px] rounded ${getScoreBgClass(
-                          score.overallScore
-                        )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-brand-primary ${
-                          isSelected ? 'ring-2 ring-offset-1 ring-brand-primary' : ''
-                        }`}
-                        aria-label={`Kompatibilität ${residentName(r1)} und ${residentName(r2)}: ${score.overallScore}%`}
-                        aria-expanded={isSelected ? true : undefined}
-                      >
-                        {score.overallScore}
-                      </button>
-                    )}
-                  </td>
-                )
-              })}
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr>
+              <th scope="col" className="p-2"></th>
+              {residents.map((r) => (
+                <th scope="col" key={r.id} className="p-2 text-center font-medium text-ui-muted">
+                  <Link
+                    href={`/residents/${r.id}`}
+                    className="hover:text-brand-primary transition-colors"
+                  >
+                    {residentName(r)}
+                  </Link>
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {residents.map((r1) => (
+              <tr key={r1.id}>
+                <th scope="row" className="p-2 font-medium text-ui-muted text-left">
+                  <Link
+                    href={`/residents/${r1.id}`}
+                    className="hover:text-brand-primary transition-colors"
+                  >
+                    {residentName(r1)}
+                  </Link>
+                </th>
+                {residents.map((r2) => {
+                  const score = getScore(r1.id, r2.id)
+                  const isSelected =
+                    selectedCell &&
+                    ((selectedCell.resident1.id === r1.id && selectedCell.resident2.id === r2.id) ||
+                      (selectedCell.resident1.id === r2.id && selectedCell.resident2.id === r1.id))
 
+                  return (
+                    <td key={r2.id} className="p-2 text-center">
+                      {r1.id === r2.id ? (
+                        <span className="text-ui-muted" aria-hidden="true">
+                          -
+                        </span>
+                      ) : score === null ? (
+                        <button
+                          onClick={(e) => handleCellClick(r1, r2, e)}
+                          className="inline-flex items-center justify-center w-12 min-h-[44px] rounded bg-ui-subtle text-ui-muted text-xs hover:bg-ui-border transition-colors cursor-pointer"
+                          aria-label={`Keine Bewertung: ${residentName(r1)} und ${residentName(r2)}`}
+                        >
+                          ?
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => handleCellClick(r1, r2, e)}
+                          className={`inline-flex items-center justify-center w-12 min-h-[44px] rounded ${getScoreBgClass(
+                            score.overallScore,
+                          )} text-xs font-medium transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-brand-primary ${
+                            isSelected ? 'ring-2 ring-offset-1 ring-brand-primary' : ''
+                          }`}
+                          aria-label={`Kompatibilität ${residentName(r1)} und ${residentName(r2)}: ${score.overallScore}%`}
+                          aria-expanded={isSelected ? true : undefined}
+                        >
+                          {score.overallScore}
+                        </button>
+                      )}
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       {/* Detail Popover */}
       {selectedCell && (

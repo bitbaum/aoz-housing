@@ -48,19 +48,19 @@ export async function loadChoreBalances(housingUnitId: string): Promise<ChoreBal
     }),
   ])
 
-  const thisMonth = completions.filter(c => zurichMonthKey(c.completedAt) === monthKey)
+  const thisMonth = completions.filter((c) => zurichMonthKey(c.completedAt) === monthKey)
 
-  const residents = new Map(members.map(m => [m.resident.id, m.resident]))
+  const residents = new Map(members.map((m) => [m.resident.id, m.resident]))
   const balances = computeChoreBalances(
-    thisMonth.map(c => ({
+    thisMonth.map((c) => ({
       completedById: c.completedById,
       durationMinutes: c.durationMinutes,
       taskEstimatedMinutes: c.task.estimatedMinutes,
     })),
-    members.map(m => m.resident.id)
+    members.map((m) => m.resident.id),
   )
 
-  return balances.map(balance => {
+  return balances.map((balance) => {
     const resident = residents.get(balance.residentId)
     return {
       ...balance,

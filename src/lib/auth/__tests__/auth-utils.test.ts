@@ -9,7 +9,13 @@
  */
 
 import crypto from 'crypto'
-import { createToken, verifyToken, shouldRefreshToken, refreshToken, type TokenPayload } from '@/lib/auth/jwt'
+import {
+  createToken,
+  verifyToken,
+  shouldRefreshToken,
+  refreshToken,
+  type TokenPayload,
+} from '@/lib/auth/jwt'
 import { AUTH_CONFIG } from '@/lib/auth/config'
 
 // ---------------------------------------------------------------------------
@@ -42,16 +48,11 @@ function unsafeDecode(token: string): Record<string, unknown> {
  * Useful for crafting tokens with intentionally wrong secrets, issuers, or
  * missing fields -- without importing jose (ESM-only) in the Jest runner.
  */
-function buildRawJwt(
-  claims: Record<string, unknown>,
-  secret: string,
-): string {
+function buildRawJwt(claims: Record<string, unknown>, secret: string): string {
   const header = b64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
   const payload = b64url(JSON.stringify(claims))
   const sigInput = `${header}.${payload}`
-  const signature = b64url(
-    crypto.createHmac('sha256', secret).update(sigInput).digest(),
-  )
+  const signature = b64url(crypto.createHmac('sha256', secret).update(sigInput).digest())
   return `${sigInput}.${signature}`
 }
 
@@ -90,9 +91,7 @@ describe('JWT Token Management', () => {
 
       expect(typeof decoded.iat).toBe('number')
       expect(typeof decoded.exp).toBe('number')
-      expect((decoded.exp as number) - (decoded.iat as number)).toBe(
-        AUTH_CONFIG.jwt.expiresIn,
-      )
+      expect((decoded.exp as number) - (decoded.iat as number)).toBe(AUTH_CONFIG.jwt.expiresIn)
     })
 
     it('produces a token that verifyToken accepts', async () => {
@@ -400,4 +399,3 @@ describe('JWT Token Management', () => {
     })
   })
 })
-

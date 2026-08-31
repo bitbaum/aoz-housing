@@ -70,8 +70,10 @@ export const RESIDENT_STATUS_LABELS: Record<string, string> = {
 }
 
 // Health / Support labels (derived from config SSOT)
-export const ROOM_SHARING_STATUS_LABELS: Record<string, string> = getLabelsFromFactor('roomSharingStatus')
-export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> = getLabelsFromFactor('recyclingKnowledge')
+export const ROOM_SHARING_STATUS_LABELS: Record<string, string> =
+  getLabelsFromFactor('roomSharingStatus')
+export const RECYCLING_KNOWLEDGE_LABELS: Record<string, string> =
+  getLabelsFromFactor('recyclingKnowledge')
 
 export const SUPPORT_LEVEL_LABELS: Record<string, string> = {
   STANDARD: 'Standard',

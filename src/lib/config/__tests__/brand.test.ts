@@ -1,9 +1,4 @@
-import {
-  ALL_CODE_PREFIXES,
-  BRANDS,
-  DEFAULT_BRAND_ID,
-  type BrandId,
-} from '../brand'
+import { ALL_CODE_PREFIXES, BRANDS, DEFAULT_BRAND_ID, type BrandId } from '../brand'
 
 /**
  * The point of the brand layer is that re-badging is a config change, not a

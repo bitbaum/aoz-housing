@@ -81,13 +81,13 @@ function calculateProfileMetrics(residents: ResidentHouseholdProfile[]): Profile
     .sort((a, b) => b.count - a.count)
 
   // Calculate harmony score based on standard deviation of scale values
-  const cleanlinessStdDev = calculateStdDev(residents.map(r => r.cleanlinessPractice))
-  const noiseStdDev = calculateStdDev(residents.map(r => r.noiseTolerance))
-  const privacyStdDev = calculateStdDev(residents.map(r => r.privacyNeed))
+  const cleanlinessStdDev = calculateStdDev(residents.map((r) => r.cleanlinessPractice))
+  const noiseStdDev = calculateStdDev(residents.map((r) => r.noiseTolerance))
+  const privacyStdDev = calculateStdDev(residents.map((r) => r.privacyNeed))
 
   // Lower std dev = higher harmony (max std dev for 1-5 scale is ~2)
   const avgStdDev = (cleanlinessStdDev + noiseStdDev + privacyStdDev) / 3
-  const harmonyScore = Math.round(Math.max(0, 100 - (avgStdDev * 25)))
+  const harmonyScore = Math.round(Math.max(0, 100 - avgStdDev * 25))
 
   return {
     avgCleanliness,
@@ -105,7 +105,7 @@ function calculateProfileMetrics(residents: ResidentHouseholdProfile[]): Profile
 function calculateStdDev(values: number[]): number {
   if (values.length === 0) return 0
   const mean = values.reduce((a, b) => a + b, 0) / values.length
-  const squaredDiffs = values.map(v => Math.pow(v - mean, 2))
+  const squaredDiffs = values.map((v) => Math.pow(v - mean, 2))
   return Math.sqrt(squaredDiffs.reduce((a, b) => a + b, 0) / values.length)
 }
 
@@ -115,16 +115,20 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
   if (residents.length === 0) {
     return (
       <div className="card">
-        <h2 className="text-lg font-semibold text-ui-text mb-4">{APARTMENT_PROFILE_LABELS.title}</h2>
+        <h2 className="text-lg font-semibold text-ui-text mb-4">
+          {APARTMENT_PROFILE_LABELS.title}
+        </h2>
         <p className="text-ui-muted text-center py-4">{APARTMENT_PROFILE_LABELS.emptyState}</p>
       </div>
     )
   }
 
-  const dominantSleepSchedule = Object.entries(metrics.sleepSchedules)
-    .sort((a, b) => b[1] - a[1])[0]?.[0]
-  const dominantSocialStyle = Object.entries(metrics.socialStyles)
-    .sort((a, b) => b[1] - a[1])[0]?.[0]
+  const dominantSleepSchedule = Object.entries(metrics.sleepSchedules).sort(
+    (a, b) => b[1] - a[1],
+  )[0]?.[0]
+  const dominantSocialStyle = Object.entries(metrics.socialStyles).sort(
+    (a, b) => b[1] - a[1],
+  )[0]?.[0]
   const hasNonSmokers = (metrics.smokingStatuses['NON_SMOKER'] || 0) === residents.length
 
   return (
@@ -142,7 +146,10 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
       {/* Quick Summary */}
       <div className="mb-4 p-3 bg-ui-subtle rounded-lg">
         <p className="text-sm text-ui-muted">
-          <span className="font-medium">{residents.length}{APARTMENT_PROFILE_LABELS.residentsSuffix}</span>
+          <span className="font-medium">
+            {residents.length}
+            {APARTMENT_PROFILE_LABELS.residentsSuffix}
+          </span>
           {' · '}
           {dominantSleepSchedule && getLabel(SLEEP_SCHEDULE_LABELS, dominantSleepSchedule)}
           {' · '}
@@ -158,25 +165,31 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldCleanliness}
               value={metrics.avgCleanliness}
-              values={residents.map(r => ({ name: residentName(r), value: r.cleanlinessPractice }))}
+              values={residents.map((r) => ({
+                name: residentName(r),
+                value: r.cleanlinessPractice,
+              }))}
               factorKey="cleanlinessPractice"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldNoiseTolerance}
               value={metrics.avgNoiseTolerance}
-              values={residents.map(r => ({ name: residentName(r), value: r.noiseTolerance }))}
+              values={residents.map((r) => ({ name: residentName(r), value: r.noiseTolerance }))}
               factorKey="noiseTolerance"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldPrivacy}
               value={metrics.avgPrivacyNeed}
-              values={residents.map(r => ({ name: residentName(r), value: r.privacyNeed }))}
+              values={residents.map((r) => ({ name: residentName(r), value: r.privacyNeed }))}
               factorKey="privacyNeed"
             />
             <ScaleMetric
               label={APARTMENT_PROFILE_LABELS.fieldChores}
               value={metrics.avgChoresContribution}
-              values={residents.map(r => ({ name: residentName(r), value: r.choresContribution }))}
+              values={residents.map((r) => ({
+                name: residentName(r),
+                value: r.choresContribution,
+              }))}
               factorKey="choresContribution"
             />
           </div>
@@ -184,18 +197,24 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           {/* Categorical Distributions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.sleepSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">
+                {APARTMENT_PROFILE_LABELS.sleepSection}
+              </p>
               <div className="space-y-1">
                 {Object.entries(metrics.sleepSchedules).map(([schedule, count]) => (
                   <div key={schedule} className="flex items-center justify-between text-sm">
-                    <span className="text-ui-muted">{getLabel(SLEEP_SCHEDULE_LABELS, schedule)}</span>
+                    <span className="text-ui-muted">
+                      {getLabel(SLEEP_SCHEDULE_LABELS, schedule)}
+                    </span>
                     <span className="font-medium text-ui-text">{count}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.socialSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">
+                {APARTMENT_PROFILE_LABELS.socialSection}
+              </p>
               <div className="space-y-1">
                 {Object.entries(metrics.socialStyles).map(([style, count]) => (
                   <div key={style} className="flex items-center justify-between text-sm">
@@ -210,13 +229,12 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           {/* Languages */}
           {metrics.languages.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-ui-muted mb-2">{APARTMENT_PROFILE_LABELS.languagesSection}</p>
+              <p className="text-xs font-medium text-ui-muted mb-2">
+                {APARTMENT_PROFILE_LABELS.languagesSection}
+              </p>
               <div className="flex flex-wrap gap-1">
                 {metrics.languages.map(({ code, count }) => (
-                  <span
-                    key={code}
-                    className="chip-info"
-                  >
+                  <span key={code} className="chip-info">
                     {getLabel(LANGUAGE_LABELS, code)} ({count})
                   </span>
                 ))}
@@ -227,7 +245,8 @@ export function ApartmentProfileCard({ residents, showDetails = true }: Apartmen
           {/* Smoking Warning */}
           {!hasNonSmokers && (
             <div className="mt-4 p-2 bg-status-warning/10 border border-status-warning/25 rounded text-sm text-status-warning-text">
-              ⚠️ {APARTMENT_PROFILE_LABELS.smokerWarning}{Object.entries(metrics.smokingStatuses)
+              ⚠️ {APARTMENT_PROFILE_LABELS.smokerWarning}
+              {Object.entries(metrics.smokingStatuses)
                 .filter(([k]) => k !== 'NON_SMOKER')
                 .map(([k, v]) => `${v}x ${getLabel(SMOKING_STATUS_LABELS, k)}`)
                 .join(', ')}
@@ -253,7 +272,7 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
   const percentage = ((value - 1) / 4) * 100 // Convert 1-5 to 0-100%
 
   // Find outliers (more than 1.5 away from average)
-  const outliers = values.filter(v => Math.abs(v.value - value) > 1.5)
+  const outliers = values.filter((v) => Math.abs(v.value - value) > 1.5)
 
   return (
     <div>
@@ -262,8 +281,11 @@ function ScaleMetric({ label, value, values, factorKey }: ScaleMetricProps) {
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-ui-text">{roundedValue.toFixed(1)}</span>
           {outliers.length > 0 && (
-            <span className="text-xs text-status-warning-text" title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map(o => o.name).join(', ')}`}>
-              ⚠️ {outliers.map(o => o.name).join(', ')}
+            <span
+              className="text-xs text-status-warning-text"
+              title={`${APARTMENT_PROFILE_LABELS.deviationPrefix}${outliers.map((o) => o.name).join(', ')}`}
+            >
+              ⚠️ {outliers.map((o) => o.name).join(', ')}
             </span>
           )}
         </div>

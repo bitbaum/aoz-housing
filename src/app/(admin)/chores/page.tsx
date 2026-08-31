@@ -47,14 +47,15 @@ export default async function AdminChoresPage() {
   })
 
   const unitSummaries = units
-    .filter(u => u.householdTasks.length > 0 || u.placements.length > 0)
-    .map(unit => ({
+    .filter((u) => u.householdTasks.length > 0 || u.placements.length > 0)
+    .map((unit) => ({
       id: unit.id,
       code: unit.code,
       address: unit.address,
       totalTasks: unit.householdTasks.length,
-      activeTasks: unit.householdTasks.filter(t => !t.isCompleted).length,
-      attentionTasks: unit.householdTasks.filter(t => t.currentStatus === 'NEEDS_ATTENTION').length,
+      activeTasks: unit.householdTasks.filter((t) => !t.isCompleted).length,
+      attentionTasks: unit.householdTasks.filter((t) => t.currentStatus === 'NEEDS_ATTENTION')
+        .length,
       residents: unit.placements.length,
     }))
 
@@ -75,7 +76,11 @@ export default async function AdminChoresPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <StatCard label={CHORE_LABELS.statTotal} value={totalTasks} />
         <StatCard label={CHORE_LABELS.statActive} value={activeTasks} />
-        <StatCard label={CHORE_LABELS.statNeedsAttention} value={attentionTasks} trend={attentionTasks > 0 ? 'warning' : 'good'} />
+        <StatCard
+          label={CHORE_LABELS.statNeedsAttention}
+          value={attentionTasks}
+          trend={attentionTasks > 0 ? 'warning' : 'good'}
+        />
         <StatCard label={CHORE_LABELS.statCompletions} value={totalCompletions} />
       </div>
 
@@ -84,9 +89,7 @@ export default async function AdminChoresPage() {
         <h2 className="font-semibold text-ui-text mb-4">{C.perUnitTitle}</h2>
 
         {unitSummaries.length === 0 ? (
-          <p className="text-ui-muted text-center py-8">
-            {C.noUnits}
-          </p>
+          <p className="text-ui-muted text-center py-8">{C.noUnits}</p>
         ) : (
           <>
             {/* Mobile cards */}
@@ -95,7 +98,10 @@ export default async function AdminChoresPage() {
                 <div key={unit.id} className="border border-ui-border rounded-lg p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <Link href={`/housing/${unit.id}`} className="text-brand-primary hover:underline font-medium">
+                      <Link
+                        href={`/housing/${unit.id}`}
+                        className="text-brand-primary hover:underline font-medium"
+                      >
                         {unit.code}
                       </Link>
                       <p className="text-sm text-ui-muted mt-1">{unit.address}</p>
@@ -129,19 +135,34 @@ export default async function AdminChoresPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-ui-border">
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">{C.colUnit}</th>
-                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">{C.colAddress}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colResidents}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colTasks}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.colActive}</th>
-                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">{C.attention}</th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">
+                      {C.colUnit}
+                    </th>
+                    <th scope="col" className="text-left py-3 px-2 font-medium text-ui-muted">
+                      {C.colAddress}
+                    </th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">
+                      {C.colResidents}
+                    </th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">
+                      {C.colTasks}
+                    </th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">
+                      {C.colActive}
+                    </th>
+                    <th scope="col" className="text-center py-3 px-2 font-medium text-ui-muted">
+                      {C.attention}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {unitSummaries.map(unit => (
+                  {unitSummaries.map((unit) => (
                     <tr key={unit.id} className="border-b border-ui-border hover:bg-ui-subtle">
                       <td className="py-3 px-2 font-medium">
-                        <Link href={`/housing/${unit.id}`} className="text-brand-primary hover:underline">
+                        <Link
+                          href={`/housing/${unit.id}`}
+                          className="text-brand-primary hover:underline"
+                        >
                           {unit.code}
                         </Link>
                       </td>
@@ -151,9 +172,7 @@ export default async function AdminChoresPage() {
                       <td className="py-3 px-2 text-center">{unit.activeTasks}</td>
                       <td className="py-3 px-2 text-center">
                         {unit.attentionTasks > 0 ? (
-                          <span className="chip-warning">
-                            {unit.attentionTasks}
-                          </span>
+                          <span className="chip-warning">{unit.attentionTasks}</span>
                         ) : (
                           <span className="text-ui-muted">0</span>
                         )}

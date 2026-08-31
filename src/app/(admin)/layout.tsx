@@ -21,11 +21,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser()
   const cookieStore = await cookies()
   const hasPortalAccess = !!cookieStore.get(RESIDENT_COOKIE)?.value
@@ -40,7 +36,9 @@ export default async function AdminLayout({
   return (
     <>
       <AdminUrlFeedback />
-      <a href="#admin-main" className="skip-link">Zum Inhalt springen</a>
+      <a href="#admin-main" className="skip-link">
+        Zum Inhalt springen
+      </a>
 
       {/* The header carries IDENTITY, not destinations.
           Navigation moved into AdminSidebar: 20 destinations across 5 groups
@@ -84,9 +82,7 @@ export default async function AdminLayout({
             than the viewport instead of being contained and clipped/scrolled
             the way each of those children already intended. */}
         <main id="admin-main" className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6 min-w-0">
-            {children}
-          </div>
+          <div className="flex-1 p-4 pt-16 md:p-6 md:pt-6 min-w-0">{children}</div>
         </main>
       </div>
 
@@ -104,7 +100,9 @@ function AdminFooter() {
   return (
     <footer className="hidden md:block border-t border-ui-border bg-ui-canvas">
       <div className="max-w-screen-2xl mx-auto px-6 py-3 text-xs text-ui-muted">
-        <p>{APP_LABELS.name} · {APP_LABELS.tagline}</p>
+        <p>
+          {APP_LABELS.name} · {APP_LABELS.tagline}
+        </p>
       </div>
     </footer>
   )

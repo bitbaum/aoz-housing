@@ -75,8 +75,8 @@ describe('calculateMissionKPIs', () => {
   test('all months initialized to zero when no data', async () => {
     const kpis = await calculateMissionKPIs(6)
 
-    expect(kpis.incidentsPerMonth.every(d => d.value === 0)).toBe(true)
-    expect(kpis.conflictRelocationsPerMonth.every(d => d.value === 0)).toBe(true)
+    expect(kpis.incidentsPerMonth.every((d) => d.value === 0)).toBe(true)
+    expect(kpis.conflictRelocationsPerMonth.every((d) => d.value === 0)).toBe(true)
     expect(kpis.currentMonthIncidents).toBe(0)
     expect(kpis.currentMonthRelocations).toBe(0)
     expect(kpis.avgIncidentsPerMonth).toBe(0)
@@ -86,16 +86,9 @@ describe('calculateMissionKPIs', () => {
 
   test('months are in ascending chronological order', async () => {
     const kpis = await calculateMissionKPIs(6)
-    const months = kpis.incidentsPerMonth.map(d => d.month)
+    const months = kpis.incidentsPerMonth.map((d) => d.month)
 
-    expect(months).toEqual([
-      '2025-12',
-      '2026-01',
-      '2026-02',
-      '2026-03',
-      '2026-04',
-      '2026-05',
-    ])
+    expect(months).toEqual(['2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05'])
   })
 
   // ── Incident counting ─────────────────────────────────────────────────────
@@ -108,9 +101,9 @@ describe('calculateMissionKPIs', () => {
     ])
 
     const kpis = await calculateMissionKPIs(6)
-    const march = kpis.incidentsPerMonth.find(d => d.month === '2026-03')
-    const april = kpis.incidentsPerMonth.find(d => d.month === '2026-04')
-    const may = kpis.incidentsPerMonth.find(d => d.month === '2026-05')
+    const march = kpis.incidentsPerMonth.find((d) => d.month === '2026-03')
+    const april = kpis.incidentsPerMonth.find((d) => d.month === '2026-04')
+    const may = kpis.incidentsPerMonth.find((d) => d.month === '2026-05')
 
     expect(march?.value).toBe(2)
     expect(april?.value).toBe(1)
@@ -118,10 +111,7 @@ describe('calculateMissionKPIs', () => {
   })
 
   test('currentMonthIncidents reflects May 2026 count', async () => {
-    mockIncidentFindMany.mockResolvedValue([
-      { date: d('2026-05-01') },
-      { date: d('2026-05-14') },
-    ])
+    mockIncidentFindMany.mockResolvedValue([{ date: d('2026-05-01') }, { date: d('2026-05-14') }])
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -146,33 +136,35 @@ describe('calculateMissionKPIs', () => {
   // ── Conflict relocation counting ──────────────────────────────────────────
 
   test('counts only CONFLICT end reason as relocations', async () => {
-    mockPlacementFindMany.mockImplementation((args: { where?: { endDate?: unknown; status?: unknown } }) => {
-      if (args.where?.endDate !== undefined) {
-        // Ended placements query
-        return Promise.resolve([
-          { endDate: d('2026-04-10'), endReason: 'CONFLICT' },
-          { endDate: d('2026-04-15'), endReason: 'NATURAL' },  // not a conflict relocation
-          { endDate: d('2026-04-20'), endReason: 'CONFLICT' },
-        ])
-      }
-      return Promise.resolve([]) // recent placements query
-    })
+    mockPlacementFindMany.mockImplementation(
+      (args: { where?: { endDate?: unknown; status?: unknown } }) => {
+        if (args.where?.endDate !== undefined) {
+          // Ended placements query
+          return Promise.resolve([
+            { endDate: d('2026-04-10'), endReason: 'CONFLICT' },
+            { endDate: d('2026-04-15'), endReason: 'NATURAL' }, // not a conflict relocation
+            { endDate: d('2026-04-20'), endReason: 'CONFLICT' },
+          ])
+        }
+        return Promise.resolve([]) // recent placements query
+      },
+    )
 
     const kpis = await calculateMissionKPIs(6)
-    const april = kpis.conflictRelocationsPerMonth.find(d => d.month === '2026-04')
+    const april = kpis.conflictRelocationsPerMonth.find((d) => d.month === '2026-04')
 
     expect(april?.value).toBe(2)
   })
 
   test('currentMonthRelocations counts May 2026 conflict ends', async () => {
-    mockPlacementFindMany.mockImplementation((args: { where?: { endDate?: unknown; status?: unknown } }) => {
-      if (args.where?.endDate !== undefined) {
-        return Promise.resolve([
-          { endDate: d('2026-05-05'), endReason: 'CONFLICT' },
-        ])
-      }
-      return Promise.resolve([])
-    })
+    mockPlacementFindMany.mockImplementation(
+      (args: { where?: { endDate?: unknown; status?: unknown } }) => {
+        if (args.where?.endDate !== undefined) {
+          return Promise.resolve([{ endDate: d('2026-05-05'), endReason: 'CONFLICT' }])
+        }
+        return Promise.resolve([])
+      },
+    )
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -221,19 +213,17 @@ describe('calculateMissionKPIs', () => {
     const residentCreatedAt = d('2026-04-01T00:00:00Z')
     const firstPlacementDate = d('2026-04-03T00:00:00Z') // 2 days later
 
-    mockResidentFindMany.mockResolvedValue([
-      { id: 'res-1', createdAt: residentCreatedAt },
-    ])
+    mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
 
-    mockPlacementFindMany.mockImplementation((args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
-      if (args.where?.startDate !== undefined) {
-        // Recent placements
-        return Promise.resolve([
-          { residentId: 'res-1', startDate: firstPlacementDate },
-        ])
-      }
-      return Promise.resolve([]) // ended placements
-    })
+    mockPlacementFindMany.mockImplementation(
+      (args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
+        if (args.where?.startDate !== undefined) {
+          // Recent placements
+          return Promise.resolve([{ residentId: 'res-1', startDate: firstPlacementDate }])
+        }
+        return Promise.resolve([]) // ended placements
+      },
+    )
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -243,19 +233,19 @@ describe('calculateMissionKPIs', () => {
   test('uses earliest placement when resident has multiple placements', async () => {
     const residentCreatedAt = d('2026-04-01T00:00:00Z')
 
-    mockResidentFindMany.mockResolvedValue([
-      { id: 'res-1', createdAt: residentCreatedAt },
-    ])
+    mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
 
-    mockPlacementFindMany.mockImplementation((args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
-      if (args.where?.startDate !== undefined) {
-        return Promise.resolve([
-          { residentId: 'res-1', startDate: d('2026-04-10T00:00:00Z') }, // 9 days
-          { residentId: 'res-1', startDate: d('2026-04-05T00:00:00Z') }, // 4 days ← earliest
-        ])
-      }
-      return Promise.resolve([])
-    })
+    mockPlacementFindMany.mockImplementation(
+      (args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
+        if (args.where?.startDate !== undefined) {
+          return Promise.resolve([
+            { residentId: 'res-1', startDate: d('2026-04-10T00:00:00Z') }, // 9 days
+            { residentId: 'res-1', startDate: d('2026-04-05T00:00:00Z') }, // 4 days ← earliest
+          ])
+        }
+        return Promise.resolve([])
+      },
+    )
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -328,10 +318,7 @@ describe('calculateMissionKPIs', () => {
   })
 
   test('trend is "worsening" when previous period had 0 incidents but recent has some', async () => {
-    mockIncidentFindMany.mockResolvedValue([
-      { date: d('2026-03-15') },
-      { date: d('2026-04-15') },
-    ])
+    mockIncidentFindMany.mockResolvedValue([{ date: d('2026-03-15') }, { date: d('2026-04-15') }])
 
     const kpis = await calculateMissionKPIs(6)
 

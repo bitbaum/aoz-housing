@@ -31,7 +31,13 @@ jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
 jest.mock('@/lib/portal-auth', () => ({ getResidentCookie: jest.fn() }))
 jest.mock('@/lib/auth', () => ({ requirePermission: jest.fn() }))
 jest.mock('@/lib/logger', () => ({
-  logger: { debug: jest.fn(), info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    errorWithCause: jest.fn(),
+  },
 }))
 
 /** `redirect()` throws in Next; the thrown path is how we read the outcome. */
@@ -168,7 +174,7 @@ describe('expressInterest', () => {
       new Prisma.PrismaClientKnownRequestError('duplicate', {
         code: 'P2002',
         clientVersion: 'test',
-      })
+      }),
     )
 
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
@@ -273,7 +279,7 @@ describe('withdrawInterest', () => {
 
       expect(to).toBe('/portal/opportunities?error=locked')
       expect(mockPrisma.opportunityApplication.delete).not.toHaveBeenCalled()
-    }
+    },
   )
 
   it('sends a signed-out visitor to the login page', async () => {

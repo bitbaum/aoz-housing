@@ -23,9 +23,13 @@ export function AllClearState({
   return (
     <div className="card bg-status-success/10 border-status-success/25 text-center py-12">
       <div className="text-6xl mb-4">🎉</div>
-      <h2 className="text-2xl font-bold text-status-success-text mb-2">{DASHBOARD_LABELS.allClearTitle}</h2>
+      <h2 className="text-2xl font-bold text-status-success-text mb-2">
+        {DASHBOARD_LABELS.allClearTitle}
+      </h2>
       <p className="text-status-success-text mb-6">
-        {conflictFreeDays !== null && conflictFreeDays > 0 && `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
+        {conflictFreeDays !== null &&
+          conflictFreeDays > 0 &&
+          `${conflictFreeDays} ${DASHBOARD_LABELS.allClearConflictFreeSuffix} `}
         {freeBeds !== null &&
           (freeBeds > 0
             ? `${freeBeds} ${DASHBOARD_LABELS.allClearBedsReadySuffix}`
@@ -33,7 +37,10 @@ export function AllClearState({
         {freeBeds === null && conflictFreeDays === null && DASHBOARD_LABELS.allClearNoDringend}
       </p>
       <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-        <Link href={ctaHref} className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+        <Link
+          href={ctaHref}
+          className="btn-primary w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
+        >
           {ctaLabel}
         </Link>
       </div>
@@ -45,20 +52,40 @@ export function AllClearState({
 // QuickActionsBar
 // =============================================================================
 
-export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: number; freeBeds: number }) {
+export function QuickActionsBar({
+  unplacedCount,
+  freeBeds,
+}: {
+  unplacedCount: number
+  freeBeds: number
+}) {
   const showMatchingHighlight = unplacedCount > 0 && freeBeds > 0
 
   return (
     <div className="card">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-        <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{DASHBOARD_LABELS.sectionQuickActions}</h2>
+        <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">
+          {DASHBOARD_LABELS.sectionQuickActions}
+        </h2>
         {freeBeds > 0 && (
-          <span className="text-xs text-ui-muted">{freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}</span>
+          <span className="text-xs text-ui-muted">
+            {freeBeds} {DASHBOARD_LABELS.allClearBedsFreeSuffix}
+          </span>
         )}
       </div>
       <div className="flex flex-wrap gap-2">
-        <QuickActionButton href="/residents/new" icon={<Plus className="w-4 h-4" />} label={DASHBOARD_LABELS.actionNewResident} variant="primary" />
-        <QuickActionButton href="/housing/new" icon={<Plus className="w-4 h-4" />} label={DASHBOARD_LABELS.actionNewUnit} variant="primary" />
+        <QuickActionButton
+          href="/residents/new"
+          icon={<Plus className="w-4 h-4" />}
+          label={DASHBOARD_LABELS.actionNewResident}
+          variant="primary"
+        />
+        <QuickActionButton
+          href="/housing/new"
+          icon={<Plus className="w-4 h-4" />}
+          label={DASHBOARD_LABELS.actionNewUnit}
+          variant="primary"
+        />
         <QuickActionButton
           href="/matching"
           icon={<RefreshCw className="w-4 h-4" />}
@@ -66,8 +93,18 @@ export function QuickActionsBar({ unplacedCount, freeBeds }: { unplacedCount: nu
           variant={showMatchingHighlight ? 'highlight' : 'secondary'}
           badge={showMatchingHighlight ? unplacedCount : undefined}
         />
-        <QuickActionButton href="/incidents/new" icon={<FileText className="w-4 h-4" />} label={DASHBOARD_LABELS.actionReportIncident} variant="secondary" />
-        <QuickActionButton href="/maintenance/new" icon={<Wrench className="w-4 h-4" />} label={DASHBOARD_LABELS.actionMaintenanceTicket} variant="secondary" />
+        <QuickActionButton
+          href="/incidents/new"
+          icon={<FileText className="w-4 h-4" />}
+          label={DASHBOARD_LABELS.actionReportIncident}
+          variant="secondary"
+        />
+        <QuickActionButton
+          href="/maintenance/new"
+          icon={<Wrench className="w-4 h-4" />}
+          label={DASHBOARD_LABELS.actionMaintenanceTicket}
+          variant="secondary"
+        />
       </div>
     </div>
   )

@@ -40,7 +40,9 @@ interface ScoreBadgeProps {
 
 export function ScoreBadge({ score, showPercent = true }: ScoreBadgeProps) {
   return (
-    <span className={`inline-flex items-center justify-center px-2 py-1 rounded ${getScoreBgClass(score)} text-xs font-medium`}>
+    <span
+      className={`inline-flex items-center justify-center px-2 py-1 rounded ${getScoreBgClass(score)} text-xs font-medium`}
+    >
       {showPercent ? `${score}%` : getScoreLabel(score)}
     </span>
   )
@@ -52,9 +54,7 @@ interface HarmonyBadgeProps {
 
 export function HarmonyBadge({ status }: HarmonyBadgeProps) {
   return (
-    <span className={`badge ${getHarmonyColorClass(status)}`}>
-      {HARMONY_STATUS_LABELS[status]}
-    </span>
+    <span className={`badge ${getHarmonyColorClass(status)}`}>{HARMONY_STATUS_LABELS[status]}</span>
   )
 }
 
@@ -78,12 +78,8 @@ export function HealthIndicator({ label, score, description, tooltip }: HealthIn
         <span className="text-xl font-bold">{score}</span>
       </div>
       <p className="font-medium text-ui-text">{label}</p>
-      {description && (
-        <p className="text-xs text-ui-muted">{description}</p>
-      )}
-      <p className={`text-xs mt-1 ${colorClass.split(' ')[0]}`}>
-        {statusLabel}
-      </p>
+      {description && <p className="text-xs text-ui-muted">{description}</p>}
+      <p className={`text-xs mt-1 ${colorClass.split(' ')[0]}`}>{statusLabel}</p>
     </div>
   )
 }

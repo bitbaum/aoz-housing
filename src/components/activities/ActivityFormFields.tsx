@@ -44,9 +44,15 @@ export function ActivityFormFields({ activity }: ActivityFormFieldsProps) {
 
         <label className="space-y-1.5">
           <span className="text-sm font-medium text-ui-text">Kategorie</span>
-          <select name="category" defaultValue={activity?.category ?? 'COMMUNITY'} className="input">
+          <select
+            name="category"
+            defaultValue={activity?.category ?? 'COMMUNITY'}
+            className="input"
+          >
             {Object.entries(ACTIVITY_CATEGORY_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </label>
@@ -55,7 +61,9 @@ export function ActivityFormFields({ activity }: ActivityFormFieldsProps) {
           <span className="text-sm font-medium text-ui-text">Kosten</span>
           <select name="cost" defaultValue={activity?.cost ?? 'FREE'} className="input">
             {Object.entries(ACTIVITY_COST_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </label>
@@ -64,7 +72,9 @@ export function ActivityFormFields({ activity }: ActivityFormFieldsProps) {
           <span className="text-sm font-medium text-ui-text">Status</span>
           <select name="status" defaultValue={activity?.status ?? 'DRAFT'} className="input">
             {Object.entries(ACTIVITY_STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </label>

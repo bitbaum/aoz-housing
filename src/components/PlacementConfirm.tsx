@@ -43,14 +43,14 @@ export function PlacementConfirm({
   const buttonClass = hasConflicts
     ? 'opacity-50 cursor-not-allowed bg-ui-muted text-ui-on-accent px-3 py-1 rounded text-sm'
     : fitScore < 50
-    ? 'bg-status-warning text-ui-on-accent px-3 py-1 rounded text-sm hover:bg-status-warning/90'
-    : 'btn-primary text-sm'
+      ? 'bg-status-warning text-ui-on-accent px-3 py-1 rounded text-sm hover:bg-status-warning/90'
+      : 'btn-primary text-sm'
 
   const buttonLabel = hasConflicts
     ? MATCHING_LABELS.blocked
     : fitScore < 50
-    ? MATCHING_LABELS.placeLowCompat
-    : MATCHING_LABELS.place
+      ? MATCHING_LABELS.placeLowCompat
+      : MATCHING_LABELS.place
 
   return (
     <>
@@ -81,28 +81,36 @@ export function PlacementConfirm({
                 <p className="text-sm text-ui-muted mb-2">{PLACEMENT_CONFIRM_LABELS.prompt}</p>
                 <div className="bg-ui-subtle rounded-lg p-4 space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.resident}</span>
+                    <span className="text-sm font-medium text-ui-muted">
+                      {PLACEMENT_CONFIRM_LABELS.resident}
+                    </span>
                     <span className="text-sm text-ui-text">{residentCode}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.unit}</span>
+                    <span className="text-sm font-medium text-ui-muted">
+                      {PLACEMENT_CONFIRM_LABELS.unit}
+                    </span>
                     <span className="text-sm text-ui-text">{unitCode}</span>
                   </div>
                   {spotLabel && (
                     <div className="flex justify-between">
-                      <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.spot}</span>
+                      <span className="text-sm font-medium text-ui-muted">
+                        {PLACEMENT_CONFIRM_LABELS.spot}
+                      </span>
                       <span className="text-sm text-ui-text">{spotLabel}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <span className="text-sm font-medium text-ui-muted">{PLACEMENT_CONFIRM_LABELS.compatibility}</span>
+                    <span className="text-sm font-medium text-ui-muted">
+                      {PLACEMENT_CONFIRM_LABELS.compatibility}
+                    </span>
                     <span
                       className={`text-sm font-bold ${
                         fitScore >= 70
                           ? 'text-status-success-text'
                           : fitScore >= 50
-                          ? 'text-status-warning-text'
-                          : 'text-status-error-text'
+                            ? 'text-status-warning-text'
+                            : 'text-status-error-text'
                       }`}
                     >
                       {fitScore}%
@@ -137,18 +145,12 @@ export function PlacementConfirm({
                 </div>
               )}
 
-              <p className="text-sm text-ui-muted">
-                {PLACEMENT_CONFIRM_LABELS.confirmMessage}
-              </p>
+              <p className="text-sm text-ui-muted">{PLACEMENT_CONFIRM_LABELS.confirmMessage}</p>
             </div>
 
             {/* Actions */}
             <div className="px-6 py-4 border-t border-ui-border flex justify-end gap-3">
-              <button
-                onClick={() => setIsOpen(false)}
-                disabled={isPending}
-                className="btn-outline"
-              >
+              <button onClick={() => setIsOpen(false)} disabled={isPending} className="btn-outline">
                 {PLACEMENT_CONFIRM_LABELS.cancel}
               </button>
               <button

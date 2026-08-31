@@ -111,7 +111,7 @@ function newHouseholdCode(): string {
 }
 
 export async function registerWithNewHousehold(
-  input: CreateHouseholdInput
+  input: CreateHouseholdInput,
 ): Promise<CreateHouseholdResult> {
   if (!BRAND.features.selfServeHousehold) {
     // Not a 404 and not a lie: this deployment provisions identities through

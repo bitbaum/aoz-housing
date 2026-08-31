@@ -31,7 +31,13 @@ import { requirePermission } from '@/lib/auth'
 export const dynamic = 'force-dynamic'
 
 interface Props {
-  searchParams: Promise<{ resident?: string; unit?: string; new?: string; q?: string; mode?: string }>
+  searchParams: Promise<{
+    resident?: string
+    unit?: string
+    new?: string
+    q?: string
+    mode?: string
+  }>
 }
 
 export default async function MatchingPage({ searchParams }: Props) {
@@ -40,12 +46,7 @@ export default async function MatchingPage({ searchParams }: Props) {
   const residentQuery = (params.q || '').trim().toLowerCase()
 
   // All four queries are independent — fetch in parallel
-  const [
-    unplacedResidents,
-    placedResidents,
-    totalResidentCount,
-    availableUnits,
-  ]: [
+  const [unplacedResidents, placedResidents, totalResidentCount, availableUnits]: [
     Resident[],
     ResidentWithPlacement[],
     number,
@@ -104,18 +105,18 @@ export default async function MatchingPage({ searchParams }: Props) {
   let unitMatches: UnitMatch[] = []
 
   if (params.unit && !params.resident) {
-    selectedUnit = availableUnits.find(u => u.id === params.unit) || null
+    selectedUnit = availableUnits.find((u) => u.id === params.unit) || null
 
     if (selectedUnit) {
-      const currentResidents = selectedUnit.placements.map(p => p.resident)
+      const currentResidents = selectedUnit.placements.map((p) => p.resident)
       const apartmentProfile = calculateApartmentProfile(
-        currentResidents.map(r => toResidentProfile(r))
+        currentResidents.map((r) => toResidentProfile(r)),
       )
       apartmentProfile.unitId = selectedUnit.id
 
       // Calculate fit for each unplaced resident
       unitMatches = unplacedResidents
-        .map(resident => {
+        .map((resident) => {
           const residentProfile = toResidentProfile(resident)
           const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
 
@@ -128,7 +129,10 @@ export default async function MatchingPage({ searchParams }: Props) {
             concerns,
           }
         })
-        .filter(m => !m.apartmentFit.conflicts.some((c: ApartmentConflict) => c.severity === 'BLOCKING'))
+        .filter(
+          (m) =>
+            !m.apartmentFit.conflicts.some((c: ApartmentConflict) => c.severity === 'BLOCKING'),
+        )
         .sort((a, b) => b.fitScore - a.fitScore)
     }
   }
@@ -150,36 +154,37 @@ export default async function MatchingPage({ searchParams }: Props) {
       const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)
 
       // Calculate matches with unit metrics (async)
-      matches = await Promise.all(filteredUnits.map(async (unit) => {
-        const currentResidents = unit.placements.map((p) => p.resident)
+      matches = await Promise.all(
+        filteredUnits.map(async (unit) => {
+          const currentResidents = unit.placements.map((p) => p.resident)
 
-        // Calculate apartment aggregate profile
-        const apartmentProfile = calculateApartmentProfile(
-          currentResidents.map(r => toResidentProfile(r))
-        )
-        apartmentProfile.unitId = unit.id
+          // Calculate apartment aggregate profile
+          const apartmentProfile = calculateApartmentProfile(
+            currentResidents.map((r) => toResidentProfile(r)),
+          )
+          apartmentProfile.unitId = unit.id
 
-        // Calculate apartment fit for new resident
-        const apartmentFit = calculateApartmentFit(
-          toResidentProfile(foundResident),
-          apartmentProfile
-        )
+          // Calculate apartment fit for new resident
+          const apartmentFit = calculateApartmentFit(
+            toResidentProfile(foundResident),
+            apartmentProfile,
+          )
 
-        // Get unit historical metrics
-        let unitMetrics = null
-        try {
-          unitMetrics = await calculateUnitMetrics(unit.id)
-        } catch (error) {
-          logger.warn(`Failed to calculate metrics for unit ${unit.id}`, { unitId: unit.id })
-        }
+          // Get unit historical metrics
+          let unitMetrics = null
+          try {
+            unitMetrics = await calculateUnitMetrics(unit.id)
+          } catch (error) {
+            logger.warn(`Failed to calculate metrics for unit ${unit.id}`, { unitId: unit.id })
+          }
 
-        // Get REAL success rate data from database
-        let realSuccessData = null
-        try {
-          realSuccessData = await getSimilarPlacementSuccessRate(apartmentFit.fitScore, 10)
-        } catch (error) {
-          logger.warn('Failed to get success rate data')
-        }
+          // Get REAL success rate data from database
+          let realSuccessData = null
+          try {
+            realSuccessData = await getSimilarPlacementSuccessRate(apartmentFit.fitScore, 10)
+          } catch (error) {
+            logger.warn('Failed to get success rate data')
+          }
 
           // Calculate compatibility details with current residents
           const compatibilityDetails: CompatibilityDetail[] = []
@@ -188,7 +193,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             currentResidents.forEach((resident) => {
               const score = calculateCompatibility(
                 toResidentProfile(foundResident),
-                toResidentProfile(resident)
+                toResidentProfile(resident),
               )
               compatibilityDetails.push({
                 resident,
@@ -206,20 +211,25 @@ export default async function MatchingPage({ searchParams }: Props) {
 
           // Count shared languages with current residents
           const roommateLanguages = currentResidents.flatMap((r: Resident) => r.languages || [])
-          const sharedLanguageCount = (foundResident.languages || []).filter(
-            (l: string) => roommateLanguages.includes(l)
+          const sharedLanguageCount = (foundResident.languages || []).filter((l: string) =>
+            roommateLanguages.includes(l),
           ).length
 
           // Count total concerns from roommate compatibility
           const totalRoommateConcerns = compatibilityDetails.reduce(
-            (sum, d) => sum + (d.score.concerns?.length || 0), 0
+            (sum, d) => sum + (d.score.concerns?.length || 0),
+            0,
           )
 
           // Calculate unit risk penalty based on historical performance
           const unitRiskPenalty = unitMetrics
-            ? (unitMetrics.riskLevel === 'CRITICAL' ? 200 :
-               unitMetrics.riskLevel === 'HIGH' ? 100 :
-               unitMetrics.riskLevel === 'MEDIUM' ? 50 : 0)
+            ? unitMetrics.riskLevel === 'CRITICAL'
+              ? 200
+              : unitMetrics.riskLevel === 'HIGH'
+                ? 100
+                : unitMetrics.riskLevel === 'MEDIUM'
+                  ? 50
+                  : 0
             : 0
 
           // Run discrimination safeguard checks on pairwise scores
@@ -229,7 +239,7 @@ export default async function MatchingPage({ searchParams }: Props) {
             const result = validateScoreForDiscrimination(
               detail.score,
               residentProfile,
-              toResidentProfile(detail.resident)
+              toResidentProfile(detail.resident),
             )
             safeguardWarnings.push(...result.warnings)
           }
@@ -243,7 +253,7 @@ export default async function MatchingPage({ searchParams }: Props) {
               code: s.code,
               status: s.status,
               placements: s.placements.map((p) => ({ resident: p.resident })),
-            }))
+            })),
           )
           const roomScore = roomFit?.score ?? apartmentFit.fitScore
           const emptyRoomPenalty = roomFit && roomFit.score === null ? 15 : 0
@@ -261,19 +271,21 @@ export default async function MatchingPage({ searchParams }: Props) {
             totalRoommateConcerns,
             safeguardWarnings,
             bestRoomFit: roomFit,
-            sortScore: (hasBlockingIssue ? 1000 : 0) +
-              (apartmentFit.conflicts.filter(c => c.severity === 'BLOCKING').length * 500) +
+            sortScore:
+              (hasBlockingIssue ? 1000 : 0) +
+              apartmentFit.conflicts.filter((c) => c.severity === 'BLOCKING').length * 500 +
               (roomFit?.blocking ? 400 : 0) +
-              (apartmentFit.conflicts.filter(c => c.severity === 'HIGH').length * 100) +
+              apartmentFit.conflicts.filter((c) => c.severity === 'HIGH').length * 100 +
               unitRiskPenalty +
               unitConcerns.length * 10 +
               totalRoommateConcerns +
               emptyRoomPenalty -
               roomScore -
               sharedLanguageCount * 5 -
-              (currentResidents.length === 0 ? 20 : 0)
+              (currentResidents.length === 0 ? 20 : 0),
           }
-        }))
+        }),
+      )
 
       // Sort matches by score
       matches = matches.sort((a, b) => a.sortScore - b.sortScore)
@@ -283,13 +295,14 @@ export default async function MatchingPage({ searchParams }: Props) {
   const isNewResident = params.new === '1' && !!selectedResident
   const isUnitMode = !!selectedUnit && !selectedResident
   const fastMode =
-    params.mode === 'fast' ||
-    (params.mode !== 'standard' && BRAND.features.matchingFastDefault)
+    params.mode === 'fast' || (params.mode !== 'standard' && BRAND.features.matchingFastDefault)
 
   const filteredUnplacedResidents = unplacedResidents.filter((resident) => {
     if (!residentQuery) return true
     const languageText = (resident.languages || []).join(' ').toLowerCase()
-    return resident.code.toLowerCase().includes(residentQuery) || languageText.includes(residentQuery)
+    return (
+      resident.code.toLowerCase().includes(residentQuery) || languageText.includes(residentQuery)
+    )
   })
 
   return (
@@ -299,17 +312,16 @@ export default async function MatchingPage({ searchParams }: Props) {
           {isUnitMode
             ? MATCHING_LABELS.whoFitsIn(selectedUnit?.code ?? '')
             : isNewResident
-            ? MATCHING_LABELS.findUnit
-            : MATCHING_LABELS.title}
+              ? MATCHING_LABELS.findUnit
+              : MATCHING_LABELS.title}
         </h1>
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-ui-muted min-w-0">
             {isUnitMode
               ? MATCHING_LABELS.findMatchingResidents(selectedUnit?.address ?? '')
               : isNewResident
-              ? MATCHING_LABELS.step2SelectUnit(selectedResident?.code ?? '')
-              : MATCHING_LABELS.findOptimalPlacement
-            }
+                ? MATCHING_LABELS.step2SelectUnit(selectedResident?.code ?? '')
+                : MATCHING_LABELS.findOptimalPlacement}
           </p>
           <Link
             href="/algorithm"
@@ -324,16 +336,12 @@ export default async function MatchingPage({ searchParams }: Props) {
       {isNewResident && (
         <div className="mb-6 flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="avatar-sm bg-status-success">
-              ✓
-            </div>
+            <div className="avatar-sm bg-status-success">✓</div>
             <span className="text-sm text-ui-muted">{MATCHING_LABELS.profileCaptured}</span>
           </div>
           <div className="flex-1 h-0.5 bg-status-success" />
           <div className="flex items-center gap-2">
-            <div className="avatar-sm">
-              2
-            </div>
+            <div className="avatar-sm">2</div>
             <span className="text-sm font-medium text-ui-text">{MATCHING_LABELS.findUnit}</span>
           </div>
         </div>
@@ -346,7 +354,9 @@ export default async function MatchingPage({ searchParams }: Props) {
             <span className="text-2xl">👤</span>
             <div>
               <h2 className="font-semibold text-status-success-text">
-                {MATCHING_LABELS.residentCreated(selectedResident ? residentName(selectedResident) : '')}
+                {MATCHING_LABELS.residentCreated(
+                  selectedResident ? residentName(selectedResident) : '',
+                )}
               </h2>
               <p className="text-sm text-status-success-text mt-1">
                 {MATCHING_LABELS.newResidentBannerDesc}
@@ -366,7 +376,9 @@ export default async function MatchingPage({ searchParams }: Props) {
                 {MATCHING_LABELS.whatIfTitle(residentName(selectedResident))}
               </h2>
               <p className="text-sm text-status-info-text mt-1">
-                {MATCHING_LABELS.whatIfCurrentPlacement(selectedResident.placements[0]?.housingUnit?.code ?? '')}{' '}
+                {MATCHING_LABELS.whatIfCurrentPlacement(
+                  selectedResident.placements[0]?.housingUnit?.code ?? '',
+                )}{' '}
                 {MATCHING_LABELS.whatIfDesc}
               </p>
             </div>
@@ -376,7 +388,7 @@ export default async function MatchingPage({ searchParams }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left panel: Unplaced residents — pushed below results on mobile when results exist */}
-        <div className={(selectedResident || isUnitMode) ? 'order-last lg:order-none' : undefined}>
+        <div className={selectedResident || isUnitMode ? 'order-last lg:order-none' : undefined}>
           <ResidentSelectorPanel
             filteredUnplacedResidents={filteredUnplacedResidents}
             totalUnplaced={unplacedResidents.length}
@@ -388,12 +400,11 @@ export default async function MatchingPage({ searchParams }: Props) {
         </div>
 
         {/* Right panel: Matches, Unit mode, or available units — floats to top on mobile when active */}
-        <div className={`card${(selectedResident || isUnitMode) ? ' order-first lg:order-none' : ''}`}>
+        <div
+          className={`card${selectedResident || isUnitMode ? ' order-first lg:order-none' : ''}`}
+        >
           {isUnitMode && selectedUnit ? (
-            <UnitModePanel
-              selectedUnit={selectedUnit}
-              unitMatches={unitMatches}
-            />
+            <UnitModePanel selectedUnit={selectedUnit} unitMatches={unitMatches} />
           ) : selectedResident ? (
             <MatchResultsPanel
               selectedResident={selectedResident}
@@ -405,13 +416,15 @@ export default async function MatchingPage({ searchParams }: Props) {
           ) : (
             <>
               <h2 className="text-lg font-semibold text-ui-text mb-2">
-                {MATCHING_LABELS.availableUnitsTitle(availableUnits.filter(u => u.placements.length < u.totalBeds).length)}
+                {MATCHING_LABELS.availableUnitsTitle(
+                  availableUnits.filter((u) => u.placements.length < u.totalBeds).length,
+                )}
               </h2>
               <p className="text-sm text-ui-muted mb-4">{MATCHING_LABELS.orSelectUnit}</p>
               <div className="space-y-2">
                 {availableUnits
-                  .filter(u => u.placements.length < u.totalBeds)
-                  .map(u => {
+                  .filter((u) => u.placements.length < u.totalBeds)
+                  .map((u) => {
                     const freeBeds = u.totalBeds - u.placements.length
                     return (
                       <Link
@@ -433,7 +446,9 @@ export default async function MatchingPage({ searchParams }: Props) {
                     )
                   })}
               </div>
-              <p className="text-xs text-ui-muted mt-4 text-center">{MATCHING_LABELS.selectResidentForMatches}</p>
+              <p className="text-xs text-ui-muted mt-4 text-center">
+                {MATCHING_LABELS.selectResidentForMatches}
+              </p>
             </>
           )}
         </div>

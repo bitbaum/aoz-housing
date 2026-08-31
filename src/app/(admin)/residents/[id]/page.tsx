@@ -3,9 +3,7 @@ import type { HousingUnit, Resident } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import {
-  SPOT_TYPE_ICONS,
-} from '@/lib/config/placement-spots'
+import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
 import { getEligibleSpotTypes } from '@/lib/config/placement-spots'
 import {
   PlacementActions,
@@ -43,11 +41,20 @@ import {
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 import { getCurrentUser, hasPermission } from '@/lib/auth'
-import { getCareTeam, listAssignableStaff, listCareAttributes, listResidentAppointments } from '@/lib/actions/care'
+import {
+  getCareTeam,
+  listAssignableStaff,
+  listCareAttributes,
+  listResidentAppointments,
+} from '@/lib/actions/care'
 import { writableCareDomains } from '@/lib/config/care'
 import { listResidentDocuments } from '@/lib/actions/documents'
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
   const { id } = await params
   const resident = await prisma.resident.findUnique({
     where: { id },
@@ -77,7 +84,15 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const canWriteDocuments = staff ? hasPermission(staff, 'documents:write') : false
 
   // resident and availableUnits are independent — fetch in parallel
-  const [resident, availableUnits, careSeats, assignableStaff, careAttributes, careAppointments, documents] = await Promise.all([
+  const [
+    resident,
+    availableUnits,
+    careSeats,
+    assignableStaff,
+    careAttributes,
+    careAppointments,
+    documents,
+  ] = await Promise.all([
     prisma.resident.findUnique({
       where: { id },
       include: {
@@ -172,38 +187,43 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
       if (unit.id === currentPlacement.housingUnitId) continue // Skip current unit
       if (unit.spots.length === 0) continue // No available spots
 
-      const currentResidentProfiles = unit.placements.map(p => ({
+      const currentResidentProfiles = unit.placements.map((p) => ({
         profile: toResidentProfile(p.resident),
         resident: p.resident,
       }))
 
       // Calculate apartment-level fit
-      const apartmentProfile = calculateApartmentProfile(currentResidentProfiles.map(r => r.profile))
+      const apartmentProfile = calculateApartmentProfile(
+        currentResidentProfiles.map((r) => r.profile),
+      )
       const fit = calculateApartmentFit(residentProfile, apartmentProfile)
 
       // Calculate pairwise compatibility with each resident in the unit
-      const residentsWithCompatibility = currentResidentProfiles.map(({ profile, resident: otherResident }) => {
-        const pairwise = calculateCompatibility(residentProfile, profile)
-        // Extract key factors from the pairwise assessment
-        const keyFactors: string[] = []
-        if (pairwise.lifestyle >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleSimilar)
-        else if (pairwise.lifestyle < 40) keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleDifferent)
-        if (pairwise.social >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.socialGood)
-        else if (pairwise.social < 40) keyFactors.push(RESIDENT_DETAIL_LABELS.socialDifferent)
-        if (pairwise.practical >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.practicalCompat)
-        // Add strengths if any
-        if (pairwise.strengths.length > 0) {
-          keyFactors.push(...pairwise.strengths.slice(0, 2))
-        }
+      const residentsWithCompatibility = currentResidentProfiles.map(
+        ({ profile, resident: otherResident }) => {
+          const pairwise = calculateCompatibility(residentProfile, profile)
+          // Extract key factors from the pairwise assessment
+          const keyFactors: string[] = []
+          if (pairwise.lifestyle >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleSimilar)
+          else if (pairwise.lifestyle < 40)
+            keyFactors.push(RESIDENT_DETAIL_LABELS.lifestyleDifferent)
+          if (pairwise.social >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.socialGood)
+          else if (pairwise.social < 40) keyFactors.push(RESIDENT_DETAIL_LABELS.socialDifferent)
+          if (pairwise.practical >= 70) keyFactors.push(RESIDENT_DETAIL_LABELS.practicalCompat)
+          // Add strengths if any
+          if (pairwise.strengths.length > 0) {
+            keyFactors.push(...pairwise.strengths.slice(0, 2))
+          }
 
-        return {
-          id: otherResident.id,
-          code: otherResident.code,
-          displayName: otherResident.displayName,
-          compatibilityScore: Math.round(pairwise.overall),
-          keyFactors: keyFactors.slice(0, 3), // Limit to 3 factors
-        }
-      })
+          return {
+            id: otherResident.id,
+            code: otherResident.code,
+            displayName: otherResident.displayName,
+            compatibilityScore: Math.round(pairwise.overall),
+            keyFactors: keyFactors.slice(0, 3), // Limit to 3 factors
+          }
+        },
+      )
 
       unitCompatibility[unit.id] = {
         fitScore: fit.fitScore,
@@ -238,9 +258,9 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
     // Calculate fit for each unit
     compatibleUnits = unitsWithResidents
-      .filter(u => u.spots.length > 0) // Has available spots
-      .map(unit => {
-        const currentResidents = unit.placements.map(p => toResidentProfile(p.resident))
+      .filter((u) => u.spots.length > 0) // Has available spots
+      .map((unit) => {
+        const currentResidents = unit.placements.map((p) => toResidentProfile(p.resident))
         const apartmentProfile = calculateApartmentProfile(currentResidents)
         const fit = calculateApartmentFit(residentProfile, apartmentProfile)
         return { unit, fitScore: fit.fitScore, residents: currentResidents.length }
@@ -250,7 +270,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
     // Calculate pairwise compatibility
     compatibleResidents = otherUnplaced
-      .map(other => {
+      .map((other) => {
         const otherProfile = toResidentProfile(other)
         const compat = calculateCompatibility(residentProfile, otherProfile)
         return { resident: other, score: compat.overall }
@@ -265,10 +285,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <Link
-              href="/residents"
-              className="text-ui-muted hover:text-ui-muted"
-            >
+            <Link href="/residents" className="text-ui-muted hover:text-ui-muted">
               {RESIDENT_DETAIL_LABELS.breadcrumb}
             </Link>
             <span className="text-ui-muted">/</span>
@@ -277,9 +294,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             <span className="text-ui-text">{resident.code}</span>
           </div>
           <div className="flex items-center gap-4 mt-2">
-            <div className="avatar-lg font-semibold">
-              {residentInitials(resident)}
-            </div>
+            <div className="avatar-lg font-semibold">{residentInitials(resident)}</div>
             <div className="min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
                 {residentName(resident)}
@@ -301,7 +316,10 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               was offered Verlegen / Bearbeiten / Platzieren and got a generic
               crash on click. */}
           {canWritePlacements && currentPlacement && (
-            <Link href={`/residents/${resident.id}?action=transfer#placement-actions`} className="btn-primary">
+            <Link
+              href={`/residents/${resident.id}?action=transfer#placement-actions`}
+              className="btn-primary"
+            >
               {RESIDENT_DETAIL_LABELS.transferBtn}
             </Link>
           )}
@@ -351,21 +369,28 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                       </p>
                       {currentPlacement.spot && (
                         <p className="text-sm text-ui-muted">
-                          {SPOT_TYPE_ICONS[currentPlacement.spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
+                          {
+                            SPOT_TYPE_ICONS[
+                              currentPlacement.spot.type as keyof typeof SPOT_TYPE_ICONS
+                            ]
+                          }{' '}
                           {currentPlacement.spot.label || currentPlacement.spot.code}
                         </p>
                       )}
                       <p className="text-sm text-ui-muted">
-                        {RESIDENT_DETAIL_LABELS.since}{formatDate(currentPlacement.startDate)}
+                        {RESIDENT_DETAIL_LABELS.since}
+                        {formatDate(currentPlacement.startDate)}
                       </p>
                     </div>
                   </div>
                   {currentPlacement.compatibilityScore && (
                     <div className="text-left sm:text-right shrink-0">
-                      <p className="text-sm text-ui-muted">{RESIDENT_DETAIL_LABELS.compatibility}</p>
+                      <p className="text-sm text-ui-muted">
+                        {RESIDENT_DETAIL_LABELS.compatibility}
+                      </p>
                       <p
                         className={`text-lg font-semibold ${getScoreColorClass(
-                          currentPlacement.compatibilityScore
+                          currentPlacement.compatibilityScore,
                         )}`}
                       >
                         {Math.round(currentPlacement.compatibilityScore)}% -{' '}
@@ -400,7 +425,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                   }))}
                   eligibleSpotTypes={getEligibleSpotTypes(
                     resident.hasMedicalDocumentation,
-                    resident.medicalDocType
+                    resident.medicalDocType,
                   )}
                   unitCompatibility={unitCompatibility}
                   recentIncidents={resident.incidentsAsSubject.map((i) => ({
@@ -410,7 +435,13 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                     description: i.description,
                   }))}
                   initialCompatibilityScore={currentPlacement.compatibilityScore}
-                  initialAction={query.action === 'transfer' ? 'transfer' : query.action === 'end' ? 'end' : undefined}
+                  initialAction={
+                    query.action === 'transfer'
+                      ? 'transfer'
+                      : query.action === 'end'
+                        ? 'end'
+                        : undefined
+                  }
                   canWriteCheckIn={canWriteResidents}
                   canWritePlacement={canWritePlacements}
                 />
@@ -419,10 +450,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
               <div className="text-center py-8">
                 <p className="text-ui-muted mb-4">{RESIDENT_DETAIL_LABELS.notPlaced}</p>
                 {canWritePlacements && (
-                  <Link
-                    href={`/matching?resident=${resident.id}`}
-                    className="btn-primary"
-                  >
+                  <Link href={`/matching?resident=${resident.id}`} className="btn-primary">
                     {RESIDENT_DETAIL_LABELS.findUnit}
                   </Link>
                 )}
@@ -440,9 +468,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           )}
 
           {/* Satisfaction Check-ins History */}
-          {currentPlacement && (
-            <SatisfactionHistory placementId={currentPlacement.id} />
-          )}
+          {currentPlacement && <SatisfactionHistory placementId={currentPlacement.id} />}
 
           {/* Compatibility with current roommates */}
           <TopCompatibilitiesCard assessments={resident.assessments} />
@@ -451,7 +477,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
           <ResidentIncidents
             incidentsAsSubject={resident.incidentsAsSubject}
             incidentsReportedCount={resident.incidentsReported.length}
-            currentPlacement={currentPlacement ? { id: currentPlacement.id, housingUnitId: currentPlacement.housingUnitId } : null}
+            currentPlacement={
+              currentPlacement
+                ? { id: currentPlacement.id, housingUnitId: currentPlacement.housingUnitId }
+                : null
+            }
             residentId={resident.id}
             canWriteIncidents={canWriteIncidents}
           />

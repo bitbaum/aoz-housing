@@ -78,15 +78,17 @@ const TEN_WEEKS_AGO = new Date(Date.now() - 10 * 7 * 24 * 60 * 60 * 1000).toISOS
 const RESIDENT_WITH_PLACEMENT = {
   id: 'res-1',
   code: 'RES-001',
-  placements: [{
-    id: 'pl-1',
-    housingUnitId: 'hu-1',
-    housingUnit: { code: 'WE-001' },
-    status: 'ACTIVE',
-    startDate: TEN_WEEKS_AGO,
-    satisfactionRating: 4,
-    checkIns: [{ createdAt: '2026-02-01T10:00:00.000Z' }],
-  }],
+  placements: [
+    {
+      id: 'pl-1',
+      housingUnitId: 'hu-1',
+      housingUnit: { code: 'WE-001' },
+      status: 'ACTIVE',
+      startDate: TEN_WEEKS_AGO,
+      satisfactionRating: 4,
+      checkIns: [{ createdAt: '2026-02-01T10:00:00.000Z' }],
+    },
+  ],
 }
 
 const RESIDENT_NO_PLACEMENT = {
@@ -261,7 +263,10 @@ describe('POST /api/portal/satisfaction', () => {
 
   test('passes concerns to check-in when provided', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockSafeParse.mockReturnValue({ success: true, data: { rating: 4, concerns: 'Küche ist oft schmutzig' } })
+    mockSafeParse.mockReturnValue({
+      success: true,
+      data: { rating: 4, concerns: 'Küche ist oft schmutzig' },
+    })
     mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 4, concerns: 'Küche ist oft schmutzig' })
@@ -346,12 +351,14 @@ describe('GET /api/portal/satisfaction', () => {
     mockFindUnique.mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
-      placements: [{
-        id: 'pl-1',
-        status: 'ACTIVE',
-        satisfactionRating: null,
-        checkIns: [],
-      }],
+      placements: [
+        {
+          id: 'pl-1',
+          status: 'ACTIVE',
+          satisfactionRating: null,
+          checkIns: [],
+        },
+      ],
     })
 
     const res = await GET()

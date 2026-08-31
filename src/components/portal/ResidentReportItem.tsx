@@ -22,8 +22,7 @@ export function ResidentReportItem({
 }) {
   const t = useT()
   const L = buildDashboardReportLabels(t)
-  const clipped =
-    truncate && report.description.length > DISPLAY_LIMITS.descriptionPreview
+  const clipped = truncate && report.description.length > DISPLAY_LIMITS.descriptionPreview
 
   return (
     <div className="p-3 bg-ui-subtle rounded-lg">

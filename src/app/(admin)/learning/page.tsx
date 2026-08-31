@@ -66,8 +66,7 @@ export default async function LearningQueuePage({ searchParams }: Props) {
     ? (statusParam as LearningStatusId)
     : 'ALL'
   const query = queryParam.trim()
-  const source =
-    sourceParam === 'RESIDENT' || sourceParam === 'STAFF' ? sourceParam : 'ALL'
+  const source = sourceParam === 'RESIDENT' || sourceParam === 'STAFF' ? sourceParam : 'ALL'
   const category = (LEARNING_CATEGORIES as readonly string[]).includes(categoryParam)
     ? (categoryParam as LearningCategoryId)
     : 'ALL'
@@ -102,10 +101,7 @@ export default async function LearningQueuePage({ searchParams }: Props) {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={LEARNING_LABELS.boardTitle}
-        description={LEARNING_LABELS.boardSubtitle}
-      />
+      <PageHeader title={LEARNING_LABELS.boardTitle} description={LEARNING_LABELS.boardSubtitle} />
 
       <div className="flex flex-wrap gap-2">
         {LEARNING_BOARD_IDS.map((id) => (
@@ -131,7 +127,9 @@ export default async function LearningQueuePage({ searchParams }: Props) {
         >
           <input type="hidden" name="board" value={board} />
           <div>
-            <label htmlFor="learning-search" className="label">{LEARNING_LABELS.filterSearch}</label>
+            <label htmlFor="learning-search" className="label">
+              {LEARNING_LABELS.filterSearch}
+            </label>
             <input
               id="learning-search"
               type="search"
@@ -142,16 +140,22 @@ export default async function LearningQueuePage({ searchParams }: Props) {
             />
           </div>
           <div>
-            <label htmlFor="learning-status" className="label">{LEARNING_LABELS.filterStatus}</label>
+            <label htmlFor="learning-status" className="label">
+              {LEARNING_LABELS.filterStatus}
+            </label>
             <select id="learning-status" name="status" defaultValue={status} className="input">
               <option value="ALL">Alle</option>
               {Object.entries(LEARNING_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="learning-source" className="label">{LEARNING_LABELS.filterSource}</label>
+            <label htmlFor="learning-source" className="label">
+              {LEARNING_LABELS.filterSource}
+            </label>
             <select id="learning-source" name="source" defaultValue={source} className="input">
               <option value="ALL">{LEARNING_LABELS.sourceAll}</option>
               <option value="RESIDENT">{LEARNING_LABELS.sourceResident}</option>
@@ -159,16 +163,27 @@ export default async function LearningQueuePage({ searchParams }: Props) {
             </select>
           </div>
           <div>
-            <label htmlFor="learning-category" className="label">{LEARNING_LABELS.filterCategory}</label>
-            <select id="learning-category" name="category" defaultValue={category} className="input">
+            <label htmlFor="learning-category" className="label">
+              {LEARNING_LABELS.filterCategory}
+            </label>
+            <select
+              id="learning-category"
+              name="category"
+              defaultValue={category}
+              className="input"
+            >
               <option value="ALL">Alle Bereiche</option>
               {Object.entries(LEARNING_CATEGORY_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="learning-mine" className="label">Sicht</label>
+            <label htmlFor="learning-mine" className="label">
+              Sicht
+            </label>
             <select id="learning-mine" name="mine" defaultValue={mine} className="input">
               <option value="1">{LEARNING_LABELS.filterMine}</option>
               <option value="0">{LEARNING_LABELS.filterAll}</option>
@@ -178,7 +193,10 @@ export default async function LearningQueuePage({ searchParams }: Props) {
             <button type="submit" className="btn-primary min-h-[44px]">
               Anwenden
             </button>
-            <Link href={`/learning?board=${board}`} className="btn-outline min-h-[44px] inline-flex items-center">
+            <Link
+              href={`/learning?board=${board}`}
+              className="btn-outline min-h-[44px] inline-flex items-center"
+            >
               Zurücksetzen
             </Link>
           </div>
@@ -195,22 +213,36 @@ export default async function LearningQueuePage({ searchParams }: Props) {
 
       {board !== 'volunteering' && missingGerman.length > 0 && (
         <section className="card border border-status-warning/30 bg-status-warning/5">
-          <h2 className="text-lg font-semibold text-ui-text mb-1">{LEARNING_LABELS.germanMissing}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-1">
+            {LEARNING_LABELS.germanMissing}
+          </h2>
           <p className="text-sm text-ui-muted mb-4">{LEARNING_LABELS.noGermanHint}</p>
           <ul className="space-y-3">
             {missingGerman.slice(0, 8).map((resident) => (
-              <li key={resident.id} className="flex items-center justify-between gap-3 rounded-lg bg-ui-surface p-3">
+              <li
+                key={resident.id}
+                className="flex items-center justify-between gap-3 rounded-lg bg-ui-surface p-3"
+              >
                 <div className="min-w-0">
-                  <Link href={`/residents/${resident.id}`} className="font-medium text-ui-text hover:underline">
+                  <Link
+                    href={`/residents/${resident.id}`}
+                    className="font-medium text-ui-text hover:underline"
+                  >
                     {residentName(resident)}
                   </Link>
                   {/* resident-code-intentional — staff queue, they look people up by login code */}
-                  <p className="text-xs text-ui-muted font-mono">{/* resident-code-intentional */}
+                  <p className="text-xs text-ui-muted font-mono">
+                    {/* resident-code-intentional */}
                     {resident.code}
-                    {resident.placements[0]?.housingUnit.code ? ` · ${resident.placements[0].housingUnit.code}` : ''}
+                    {resident.placements[0]?.housingUnit.code
+                      ? ` · ${resident.placements[0].housingUnit.code}`
+                      : ''}
                   </p>
                 </div>
-                <Link href={`/residents/${resident.id}`} className="btn-outline text-sm min-h-[44px] inline-flex items-center">
+                <Link
+                  href={`/residents/${resident.id}`}
+                  className="btn-outline text-sm min-h-[44px] inline-flex items-center"
+                >
                   {LEARNING_LABELS.add}
                 </Link>
               </li>
@@ -223,7 +255,9 @@ export default async function LearningQueuePage({ searchParams }: Props) {
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-ui-text">{boardTitle(board)}</h2>
           <p className="text-sm text-ui-muted">
-            {records.length < stats.total ? `${records.length} von ${stats.total}` : `${stats.total} Einträge`}
+            {records.length < stats.total
+              ? `${records.length} von ${stats.total}`
+              : `${stats.total} Einträge`}
           </p>
         </div>
         <IntegrationBoard

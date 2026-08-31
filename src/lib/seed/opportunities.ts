@@ -93,7 +93,8 @@ const TEMPLATES: readonly OpportunityTemplate[] = [
     seats: 4,
     germanLevel: 'A2',
     permitRequirement: 'EMPLOYER_NOTIFIES',
-    requirementNote: 'Die Stadtgärtnerei meldet den Einsatz selbst an. Wir brauchen nur deinen Namen.',
+    requirementNote:
+      'Die Stadtgärtnerei meldet den Einsatz selbst an. Wir brauchen nur deinen Namen.',
     contactName: 'Sandra Vogt',
     contactPhone: '044 412 26 00',
     stages: ['INTERVIEW', 'APPLIED', 'ENDED'],
@@ -167,7 +168,7 @@ export interface OpportunitySeedSummary {
 
 export async function seedOpportunities(
   prisma: PrismaClient,
-  ctx: OpportunitySeedContext
+  ctx: OpportunitySeedContext,
 ): Promise<OpportunitySeedSummary> {
   const now = ctx.now ?? new Date()
   const residents = [...ctx.residentIds]

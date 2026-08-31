@@ -23,7 +23,7 @@ export const HOUSE_EVENT_CATEGORY_LABEL_KEYS: Record<HouseEventCategory, Message
 }
 
 export const HOUSE_EVENT_CATEGORIES = Object.keys(
-  HOUSE_EVENT_CATEGORY_LABEL_KEYS
+  HOUSE_EVENT_CATEGORY_LABEL_KEYS,
 ) as HouseEventCategory[]
 
 export const EVENT_RSVP_LABEL_KEYS: Record<EventRsvpStatus, MessageKey> = {
@@ -33,8 +33,4 @@ export const EVENT_RSVP_LABEL_KEYS: Record<EventRsvpStatus, MessageKey> = {
 }
 
 /** The order the three buttons are offered in, most affirmative first. */
-export const EVENT_RSVP_STATUSES: readonly EventRsvpStatus[] = [
-  'GOING',
-  'MAYBE',
-  'DECLINED',
-]
+export const EVENT_RSVP_STATUSES: readonly EventRsvpStatus[] = ['GOING', 'MAYBE', 'DECLINED']

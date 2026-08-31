@@ -36,9 +36,7 @@ const RESIDENT_CODE = 'RES-001'
 const RESIDENT_WITH_PLACEMENT = {
   id: 'res-id-1',
   code: RESIDENT_CODE,
-  placements: [
-    { id: 'placement-id-1', housingUnitId: 'unit-id-1' },
-  ],
+  placements: [{ id: 'placement-id-1', housingUnitId: 'unit-id-1' }],
 }
 
 const RESIDENT_WITHOUT_PLACEMENT = {
@@ -96,7 +94,7 @@ describe('getPortalAuth', () => {
     expect(mockResidentFindUnique).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { code: RESIDENT_CODE },
-      })
+      }),
     )
   })
 
@@ -156,7 +154,7 @@ describe('getPortalAuth', () => {
             where: { status: 'ACTIVE' },
           }),
         }),
-      })
+      }),
     )
   })
 
@@ -173,7 +171,7 @@ describe('getPortalAuth', () => {
             take: 1,
           }),
         }),
-      })
+      }),
     )
   })
 

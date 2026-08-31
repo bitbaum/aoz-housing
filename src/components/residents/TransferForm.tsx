@@ -3,7 +3,12 @@
 import { transferPlacement } from '@/lib/actions'
 import { SubmitButton } from '@/components/ui'
 import { SPOT_TYPE_LABELS, SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
-import { END_REASON_LABELS, END_REASON_DESCRIPTIONS, PLACEMENT_ACTIONS_LABELS, UI_LABELS } from '@/lib/constants'
+import {
+  END_REASON_LABELS,
+  END_REASON_DESCRIPTIONS,
+  PLACEMENT_ACTIONS_LABELS,
+  UI_LABELS,
+} from '@/lib/constants'
 import { TransferUnitSelector, type UnitCompatibilityData } from './TransferUnitSelector'
 import type { UnitWithSpots } from '@/lib/types'
 
@@ -45,7 +50,9 @@ export function TransferForm({
       className="mt-4 p-4 bg-status-info/8 rounded-lg space-y-4 border border-status-info/25"
     >
       <div className="flex items-center justify-between mb-2">
-        <h4 className="font-medium text-status-info-text">{PLACEMENT_ACTIONS_LABELS.transferTitle}</h4>
+        <h4 className="font-medium text-status-info-text">
+          {PLACEMENT_ACTIONS_LABELS.transferTitle}
+        </h4>
         <button
           type="button"
           className="text-status-info-text hover:text-status-info-text text-sm"
@@ -76,20 +83,16 @@ export function TransferForm({
 
       <div>
         <label className="label">{PLACEMENT_ACTIONS_LABELS.targetSpotLabel}</label>
-        <select
-          name="targetSpotId"
-          required
-          className="input"
-          disabled={!selectedUnitId}
-        >
+        <select name="targetSpotId" required className="input" disabled={!selectedUnitId}>
           <option value="">
-            {selectedUnitId ? PLACEMENT_ACTIONS_LABELS.selectSpot : PLACEMENT_ACTIONS_LABELS.selectUnitFirst}
+            {selectedUnitId
+              ? PLACEMENT_ACTIONS_LABELS.selectSpot
+              : PLACEMENT_ACTIONS_LABELS.selectUnitFirst}
           </option>
           {spotsForSelectedUnit.map((spot) => (
             <option key={spot.id} value={spot.id}>
-              {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]}{' '}
-              {spot.label || spot.code} (
-              {SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]})
+              {SPOT_TYPE_ICONS[spot.type as keyof typeof SPOT_TYPE_ICONS]} {spot.label || spot.code}{' '}
+              ({SPOT_TYPE_LABELS[spot.type as keyof typeof SPOT_TYPE_LABELS]})
             </option>
           ))}
         </select>
@@ -110,9 +113,7 @@ export function TransferForm({
             </option>
           ))}
         </select>
-        <p className="text-xs text-ui-muted mt-1">
-          {PLACEMENT_ACTIONS_LABELS.transferReasonHint}
-        </p>
+        <p className="text-xs text-ui-muted mt-1">{PLACEMENT_ACTIONS_LABELS.transferReasonHint}</p>
       </div>
 
       <div>

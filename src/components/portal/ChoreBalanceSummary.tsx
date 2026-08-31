@@ -38,7 +38,7 @@ export function ChoreBalanceSummary({ balances, currentResidentId }: ChoreBalanc
   // Bars are scaled to the largest imbalance so a near-even month reads as
   // near-even. Scaling to the largest CONTRIBUTION instead would always paint
   // one person's bar full and imply a winner.
-  const widest = Math.max(...balances.map(b => Math.abs(b.balanceMinutes)), 1)
+  const widest = Math.max(...balances.map((b) => Math.abs(b.balanceMinutes)), 1)
 
   return (
     <div className="card">
@@ -54,7 +54,7 @@ export function ChoreBalanceSummary({ balances, currentResidentId }: ChoreBalanc
       ) : (
         <>
           <div className="space-y-4">
-            {balances.map(entry => {
+            {balances.map((entry) => {
               const rounded = Math.round(entry.balanceMinutes)
               const ahead = rounded > 0
               const even = rounded === 0

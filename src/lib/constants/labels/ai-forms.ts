@@ -11,7 +11,8 @@ export const AI_FORM_LABELS = {
   fillSubmit: 'Ausfüllen',
 
   refineTitle: 'Änderung beschreiben',
-  refineHint: 'Sag, was anders sein soll — z.B. «spricht auch Französisch» oder «doch Nichtraucherin».',
+  refineHint:
+    'Sag, was anders sein soll — z.B. «spricht auch Französisch» oder «doch Nichtraucherin».',
   refinePlaceholder: 'z.B. Lärmtoleranz eher 2, und sie kann ein Zimmer teilen',
   refineSubmit: 'Übernehmen',
 

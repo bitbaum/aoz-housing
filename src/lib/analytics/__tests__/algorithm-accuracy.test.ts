@@ -69,15 +69,19 @@ describe('calculateAlgorithmAccuracy', () => {
     expect(report.avgScoreSuccessfulEnds).toBeNull()
     expect(report.predictionAccuracy.accuracy).toBeNull()
     // All tiers should have 0 placements
-    expect(report.tieredAccuracy.every(t => t.totalPlacements === 0)).toBe(true)
+    expect(report.tieredAccuracy.every((t) => t.totalPlacements === 0)).toBe(true)
   })
 
   test('returns 5 tiers always', async () => {
     const report = await calculateAlgorithmAccuracy()
 
     expect(report.tieredAccuracy).toHaveLength(5)
-    expect(report.tieredAccuracy.map(t => t.tier)).toEqual([
-      'critical', 'low', 'medium', 'good', 'excellent',
+    expect(report.tieredAccuracy.map((t) => t.tier)).toEqual([
+      'critical',
+      'low',
+      'medium',
+      'good',
+      'excellent',
     ])
   })
 
@@ -85,15 +89,15 @@ describe('calculateAlgorithmAccuracy', () => {
 
   test('assigns placements to correct score tiers', async () => {
     mockPlacementFindMany.mockResolvedValue([
-      makePlacement({ id: 'p1', compatibilityScore: 10 }),  // critical (0-19)
-      makePlacement({ id: 'p2', compatibilityScore: 25 }),  // low (20-39)
-      makePlacement({ id: 'p3', compatibilityScore: 50 }),  // medium (40-59)
-      makePlacement({ id: 'p4', compatibilityScore: 70 }),  // good (60-79)
-      makePlacement({ id: 'p5', compatibilityScore: 90 }),  // excellent (80+)
+      makePlacement({ id: 'p1', compatibilityScore: 10 }), // critical (0-19)
+      makePlacement({ id: 'p2', compatibilityScore: 25 }), // low (20-39)
+      makePlacement({ id: 'p3', compatibilityScore: 50 }), // medium (40-59)
+      makePlacement({ id: 'p4', compatibilityScore: 70 }), // good (60-79)
+      makePlacement({ id: 'p5', compatibilityScore: 90 }), // excellent (80+)
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const byTier = Object.fromEntries(report.tieredAccuracy.map(t => [t.tier, t]))
+    const byTier = Object.fromEntries(report.tieredAccuracy.map((t) => [t.tier, t]))
 
     expect(byTier.critical.totalPlacements).toBe(1)
     expect(byTier.low.totalPlacements).toBe(1)
@@ -125,7 +129,7 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.tieredAccuracy.find(t => t.tier === 'excellent')!
+    const excellent = report.tieredAccuracy.find((t) => t.tier === 'excellent')!
 
     expect(excellent.totalPlacements).toBe(4)
     expect(excellent.conflictEnds).toBe(1)
@@ -138,7 +142,7 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.tieredAccuracy.find(t => t.tier === 'excellent')!
+    const excellent = report.tieredAccuracy.find((t) => t.tier === 'excellent')!
 
     expect(excellent.conflictRate).toBe(0)
   })
@@ -158,7 +162,7 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.tieredAccuracy.find(t => t.tier === 'excellent')!
+    const excellent = report.tieredAccuracy.find((t) => t.tier === 'excellent')!
 
     expect(excellent.avgSatisfaction).toBe(4) // (5+3)/2 = 4.0
   })
@@ -169,7 +173,7 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.tieredAccuracy.find(t => t.tier === 'excellent')!
+    const excellent = report.tieredAccuracy.find((t) => t.tier === 'excellent')!
 
     expect(excellent.avgSatisfaction).toBeNull()
   })
@@ -185,7 +189,7 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.tieredAccuracy.find(t => t.tier === 'excellent')!
+    const excellent = report.tieredAccuracy.find((t) => t.tier === 'excellent')!
 
     expect(excellent.avgDurationDays).toBe(10)
   })
@@ -235,9 +239,24 @@ describe('calculateAlgorithmAccuracy', () => {
 
   test('calculates prediction accuracy as % of conflict-end placements that were flagged', async () => {
     mockPlacementFindMany.mockResolvedValue([
-      makePlacement({ id: 'p1', compatibilityScore: 30, endReason: 'CONFLICT', wasPredictable: true }),
-      makePlacement({ id: 'p2', compatibilityScore: 25, endReason: 'CONFLICT', wasPredictable: false }),
-      makePlacement({ id: 'p3', compatibilityScore: 20, endReason: 'CONFLICT', wasPredictable: null }),
+      makePlacement({
+        id: 'p1',
+        compatibilityScore: 30,
+        endReason: 'CONFLICT',
+        wasPredictable: true,
+      }),
+      makePlacement({
+        id: 'p2',
+        compatibilityScore: 25,
+        endReason: 'CONFLICT',
+        wasPredictable: false,
+      }),
+      makePlacement({
+        id: 'p3',
+        compatibilityScore: 20,
+        endReason: 'CONFLICT',
+        wasPredictable: null,
+      }),
     ])
 
     const report = await calculateAlgorithmAccuracy()
@@ -260,7 +279,9 @@ describe('calculateAlgorithmAccuracy', () => {
 
   test('satisfaction correlation has 5 tiers with correct scoreRange', async () => {
     const report = await calculateAlgorithmAccuracy()
-    const ranges = Object.fromEntries(report.satisfactionCorrelation.map(t => [t.tier, t.scoreRange]))
+    const ranges = Object.fromEntries(
+      report.satisfactionCorrelation.map((t) => [t.tier, t.scoreRange]),
+    )
 
     expect(ranges.critical).toBe('0-19')
     expect(ranges.low).toBe('20-39')
@@ -282,10 +303,10 @@ describe('calculateAlgorithmAccuracy', () => {
     ])
 
     const report = await calculateAlgorithmAccuracy()
-    const excellent = report.satisfactionCorrelation.find(t => t.tier === 'excellent')!
+    const excellent = report.satisfactionCorrelation.find((t) => t.tier === 'excellent')!
 
-    expect(excellent.avgRoommateRelations).toBe(5)   // only the non-null value
-    expect(excellent.avgSatisfaction).toBe(3.5)       // (4+3)/2
+    expect(excellent.avgRoommateRelations).toBe(5) // only the non-null value
+    expect(excellent.avgSatisfaction).toBe(3.5) // (4+3)/2
     expect(excellent.checkInCount).toBe(2)
   })
 })

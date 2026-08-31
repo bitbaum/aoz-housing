@@ -25,9 +25,7 @@ function parseDate(value: FormDataEntryValue | null): Date | null {
 
 function parseKind(value: FormDataEntryValue | null): LearningKind | null {
   if (typeof value !== 'string') return null
-  return (LEARNING_KINDS as readonly string[]).includes(value)
-    ? (value as LearningKind)
-    : null
+  return (LEARNING_KINDS as readonly string[]).includes(value) ? (value as LearningKind) : null
 }
 
 function parseStatus(value: FormDataEntryValue | null): LearningStatus {
@@ -65,7 +63,10 @@ function parseRecord(formData: FormData) {
     kind,
     title,
     status: parseStatus(formData.get('status')),
-    languageCode: String(formData.get('languageCode') || '').trim().toUpperCase() || null,
+    languageCode:
+      String(formData.get('languageCode') || '')
+        .trim()
+        .toUpperCase() || null,
     cefrLevel,
     provider: String(formData.get('provider') || '').trim() || null,
     category,
@@ -91,7 +92,9 @@ export async function createLearningRecordForResident(formData: FormData): Promi
   void user
 }
 
-export async function createOwnLearningRecord(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function createOwnLearningRecord(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const code = await getResidentCookie()
   if (!code) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
@@ -110,7 +113,10 @@ export async function createOwnLearningRecord(formData: FormData): Promise<{ suc
     if (error instanceof Error && error.message === INVALID_RECORD_MESSAGE) {
       return { success: false, error: ERROR_MESSAGES.INVALID_INPUT_DATA }
     }
-    return { success: false, error: error instanceof Error ? error.message : ERROR_MESSAGES.SAVE_ERROR }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : ERROR_MESSAGES.SAVE_ERROR,
+    }
   }
 
   revalidatePath('/portal/learning')
@@ -171,7 +177,9 @@ export async function listLearningBoard(filters: LearningBoardFilters) {
   const recordWhere = {
     kind: { in: [...kinds] as LearningKind[] },
     ...(filters.status && filters.status !== 'ALL' ? { status: filters.status } : {}),
-    ...(filters.recordedBy && filters.recordedBy !== 'ALL' ? { recordedBy: filters.recordedBy } : {}),
+    ...(filters.recordedBy && filters.recordedBy !== 'ALL'
+      ? { recordedBy: filters.recordedBy }
+      : {}),
     ...(filters.category && filters.category !== 'ALL' ? { category: filters.category } : {}),
     ...(query
       ? {
@@ -250,8 +258,7 @@ export async function listLearningBoard(filters: LearningBoardFilters) {
     planned: statusGroups.find((group) => group.status === 'PLANNED')?._count._all ?? 0,
     inProgress: statusGroups.find((group) => group.status === 'IN_PROGRESS')?._count._all ?? 0,
     completed: statusGroups.find((group) => group.status === 'COMPLETED')?._count._all ?? 0,
-    residentLogged:
-      sourceGroups.find((group) => group.recordedBy === 'RESIDENT')?._count._all ?? 0,
+    residentLogged: sourceGroups.find((group) => group.recordedBy === 'RESIDENT')?._count._all ?? 0,
     staffLogged: sourceGroups.find((group) => group.recordedBy === 'STAFF')?._count._all ?? 0,
   }
 

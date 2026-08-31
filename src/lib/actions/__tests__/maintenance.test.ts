@@ -49,12 +49,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -163,9 +183,7 @@ describe('createMaintenanceRequest', () => {
       housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
     })
 
-    await expect(createMaintenanceRequest(makeCreateFormData())).rejects.toThrow(
-      'NEXT_REDIRECT',
-    )
+    await expect(createMaintenanceRequest(makeCreateFormData())).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockPrisma.maintenanceRequest.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
@@ -219,9 +237,7 @@ describe('createMaintenanceRequest', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.create as jest.Mock).mockRejectedValue(
-      new Error('DB error'),
-    )
+    ;(mockPrisma.maintenanceRequest.create as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(createMaintenanceRequest(makeCreateFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_CREATE_ERROR,
@@ -337,13 +353,11 @@ describe('updateMaintenanceStatus', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(
-      new Error('DB error'),
-    )
+    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(new Error('DB error'))
 
-    await expect(
-      updateMaintenanceStatus(makeStatusUpdateFormData()),
-    ).rejects.toThrow(ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR)
+    await expect(updateMaintenanceStatus(makeStatusUpdateFormData())).rejects.toThrow(
+      ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR,
+    )
   })
 })
 
@@ -385,9 +399,7 @@ describe('assignMaintenanceRequest', () => {
   })
 
   it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(
-      new Error('DB error'),
-    )
+    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(assignMaintenanceRequest(makeAssignFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_ASSIGN_ERROR,
@@ -450,9 +462,7 @@ describe('getHousingUnitMaintenance', () => {
       { id: 'mr-1', title: 'Leaky faucet', status: 'OPEN' },
       { id: 'mr-2', title: 'Broken window', status: 'COMPLETED' },
     ]
-    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue(
-      mockRequests,
-    )
+    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue(mockRequests)
 
     const result = await getHousingUnitMaintenance('hu-1')
 

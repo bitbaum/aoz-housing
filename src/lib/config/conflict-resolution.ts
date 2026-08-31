@@ -16,7 +16,12 @@
  *     did not hold — it says nothing about who was at fault.
  */
 
-import type { IncidentCategory, IncidentSeverity, ResolutionStage, AgreementStatus } from '@prisma/client'
+import type {
+  IncidentCategory,
+  IncidentSeverity,
+  ResolutionStage,
+  AgreementStatus,
+} from '@prisma/client'
 
 // =============================================================================
 // THE LADDER
@@ -94,12 +99,12 @@ export const RESOLUTION_LADDER: readonly ResolutionStageDef[] = [
 export const RESOLUTION_STAGE_BY_KEY: Record<ResolutionStage, ResolutionStageDef> =
   RESOLUTION_LADDER.reduce(
     (acc, def) => ({ ...acc, [def.stage]: def }),
-    {} as Record<ResolutionStage, ResolutionStageDef>
+    {} as Record<ResolutionStage, ResolutionStageDef>,
   )
 
 export const RESOLUTION_STAGE_LABELS: Record<ResolutionStage, string> = RESOLUTION_LADDER.reduce(
   (acc, def) => ({ ...acc, [def.stage]: def.label }),
-  {} as Record<ResolutionStage, string>
+  {} as Record<ResolutionStage, string>,
 )
 
 export const RESOLUTION_STAGE_COLORS: Record<ResolutionStage, string> = {
@@ -144,9 +149,7 @@ export const CATEGORIES_REQUIRING_STAFF_ENTRY: IncidentCategory[] = ['SAFETY']
  * logged them as low severity. Severity is a judgement call made under time
  * pressure; these types are not.
  */
-export const TYPES_REQUIRING_STAFF_ENTRY = [
-  'SAFETY_CONCERN',
-] as const
+export const TYPES_REQUIRING_STAFF_ENTRY = ['SAFETY_CONCERN'] as const
 
 // =============================================================================
 // AGREEMENTS

@@ -12,28 +12,30 @@ jest.mock('next/navigation', () => ({
 
 // --- DangerZone mock (captures props for assertion) ---
 
-const MockDangerZone = jest.fn(({
-  entityType,
-  entityId,
-  entityCode,
-  redirectPath,
-  ariaId,
-}: {
-  entityType: string
-  entityId: string
-  entityCode: string
-  redirectPath: string
-  ariaId: string
-}) => (
-  <div
-    data-testid="danger-zone"
-    data-entity-type={entityType}
-    data-entity-id={entityId}
-    data-entity-code={entityCode}
-    data-redirect-path={redirectPath}
-    data-aria-id={ariaId}
-  />
-))
+const MockDangerZone = jest.fn(
+  ({
+    entityType,
+    entityId,
+    entityCode,
+    redirectPath,
+    ariaId,
+  }: {
+    entityType: string
+    entityId: string
+    entityCode: string
+    redirectPath: string
+    ariaId: string
+  }) => (
+    <div
+      data-testid="danger-zone"
+      data-entity-type={entityType}
+      data-entity-id={entityId}
+      data-entity-code={entityCode}
+      data-redirect-path={redirectPath}
+      data-aria-id={ariaId}
+    />
+  ),
+)
 
 jest.mock('@/components/ui/DangerZone', () => ({
   DangerZone: MockDangerZone,
@@ -126,23 +128,25 @@ const STUB_SPOT: HousingSpot = {
   placements: [],
 }
 
-const MockPlacementPanel = jest.fn(({
-  isOpen,
-  onClose,
-  onPlaceResident,
-}: {
-  isOpen: boolean
-  onClose: () => void
-  onPlaceResident: (residentId: string, spotId: string) => Promise<void>
-  spot: HousingSpot | null
-  compatibleResidents: unknown[]
-  housingUnitId: string
-}) => (
-  <div data-testid={`panel-${isOpen ? 'open' : 'closed'}`}>
-    <button onClick={onClose}>Schliessen</button>
-    <button onClick={() => onPlaceResident('r1', 's1')}>Platzieren</button>
-  </div>
-))
+const MockPlacementPanel = jest.fn(
+  ({
+    isOpen,
+    onClose,
+    onPlaceResident,
+  }: {
+    isOpen: boolean
+    onClose: () => void
+    onPlaceResident: (residentId: string, spotId: string) => Promise<void>
+    spot: HousingSpot | null
+    compatibleResidents: unknown[]
+    housingUnitId: string
+  }) => (
+    <div data-testid={`panel-${isOpen ? 'open' : 'closed'}`}>
+      <button onClick={onClose}>Schliessen</button>
+      <button onClick={() => onPlaceResident('r1', 's1')}>Platzieren</button>
+    </div>
+  ),
+)
 
 jest.mock('../PlacementPanel', () => ({
   PlacementPanel: MockPlacementPanel,
@@ -159,7 +163,7 @@ jest.mock('../RoomVisualization', () => ({
     useBedGrid?: boolean
   }) => (
     <div data-testid="room-visualization" data-spot-count={spots.length}>
-      {spots.map(spot => (
+      {spots.map((spot) => (
         <button
           key={spot.id}
           onClick={() => onAvailableBedClick?.(spot)}
@@ -216,12 +220,18 @@ describe('HousingDangerZone', () => {
 
   it('passes redirectPath=/housing?view=all', () => {
     render(<HousingDangerZone housingUnitId="hu-1" code="HU-TEST" />)
-    expect(screen.getByTestId('danger-zone')).toHaveAttribute('data-redirect-path', '/housing?view=all')
+    expect(screen.getByTestId('danger-zone')).toHaveAttribute(
+      'data-redirect-path',
+      '/housing?view=all',
+    )
   })
 
   it('passes ariaId=housing-danger-zone-title', () => {
     render(<HousingDangerZone housingUnitId="hu-1" code="HU-TEST" />)
-    expect(screen.getByTestId('danger-zone')).toHaveAttribute('data-aria-id', 'housing-danger-zone-title')
+    expect(screen.getByTestId('danger-zone')).toHaveAttribute(
+      'data-aria-id',
+      'housing-danger-zone-title',
+    )
   })
 })
 
@@ -256,12 +266,18 @@ describe('ResidentDangerZone', () => {
 
   it('passes redirectPath=/residents?view=all', () => {
     render(<ResidentDangerZone residentId="r-1" residentCode="RES-TEST" />)
-    expect(screen.getByTestId('danger-zone')).toHaveAttribute('data-redirect-path', '/residents?view=all')
+    expect(screen.getByTestId('danger-zone')).toHaveAttribute(
+      'data-redirect-path',
+      '/residents?view=all',
+    )
   })
 
   it('passes ariaId=resident-danger-zone-title', () => {
     render(<ResidentDangerZone residentId="r-1" residentCode="RES-TEST" />)
-    expect(screen.getByTestId('danger-zone')).toHaveAttribute('data-aria-id', 'resident-danger-zone-title')
+    expect(screen.getByTestId('danger-zone')).toHaveAttribute(
+      'data-aria-id',
+      'resident-danger-zone-title',
+    )
   })
 })
 
@@ -320,7 +336,7 @@ describe('RoomVisualizationWithPlacement', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Platzieren' }))
     })
     expect(createPlacement).toHaveBeenCalledWith(
-      expect.objectContaining({ residentId: 'r1', spotId: 's1', housingUnitId: 'hu-1' })
+      expect.objectContaining({ residentId: 'r1', spotId: 's1', housingUnitId: 'hu-1' }),
     )
   })
 

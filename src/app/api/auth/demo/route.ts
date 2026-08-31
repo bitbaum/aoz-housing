@@ -42,10 +42,12 @@ async function availableDoors(): Promise<DemoDoor[]> {
   })
   const live = new Set(present.map((user) => user.code))
 
-  const doors: DemoDoor[] = demoStaffDoors().filter((door) => live.has(door.code)).map((door) => ({
-    id: door.role,
-    label: ROLE_LABELS[door.role] ?? door.role,
-  }))
+  const doors: DemoDoor[] = demoStaffDoors()
+    .filter((door) => live.has(door.code))
+    .map((door) => ({
+      id: door.role,
+      label: ROLE_LABELS[door.role] ?? door.role,
+    }))
 
   const residentCode = resolveDemoResidentCode()
   if (residentCode) {
@@ -104,7 +106,7 @@ export async function POST(request: NextRequest) {
     if (!code) {
       return NextResponse.json(
         { success: false, error: 'Demo-Zugang ist nicht konfiguriert' },
-        { status: 404 }
+        { status: 404 },
       )
     }
 
@@ -114,8 +116,11 @@ export async function POST(request: NextRequest) {
     const rateCheck = checkRateLimit(clientIp)
     if (!rateCheck.allowed) {
       return NextResponse.json(
-        { success: false, error: `Zu viele Versuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.` },
-        { status: 429 }
+        {
+          success: false,
+          error: `Zu viele Versuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.`,
+        },
+        { status: 429 },
       )
     }
 
@@ -143,7 +148,7 @@ export async function POST(request: NextRequest) {
     logger.errorWithCause('Demo login failed', error)
     return NextResponse.json(
       { success: false, error: 'Demo-Zugang fehlgeschlagen' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

@@ -30,7 +30,7 @@ export interface OutstandingRule {
 export function outstandingForResident(
   rules: RuleLike[],
   acknowledgements: AcknowledgementLike[],
-  residentId: string
+  residentId: string,
 ): OutstandingRule[] {
   const mine = acknowledgements.filter((a) => a.residentId === residentId)
   const highestByRule = new Map<string, number>()
@@ -72,7 +72,7 @@ export interface UnitAcknowledgementCoverage {
 export function unitCoverage(
   rules: RuleLike[],
   acknowledgements: AcknowledgementLike[],
-  residentIds: string[]
+  residentIds: string[],
 ): UnitAcknowledgementCoverage {
   const residentsWithGaps = residentIds
     .map((residentId) => ({

@@ -158,7 +158,7 @@ export async function listResidentAppointments(residentId: string): Promise<Care
  */
 export async function listUpcomingResidentAppointments(
   residentId: string,
-  now = new Date()
+  now = new Date(),
 ): Promise<CareAppointment[]> {
   const answeredSince = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
 
@@ -207,7 +207,9 @@ function mapAppointment(row: {
   }
 }
 
-export async function saveCareSeat(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function saveCareSeat(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
   if (!canWriteAnyCare(user)) {
@@ -244,7 +246,9 @@ export async function saveCareSeat(formData: FormData): Promise<{ success: boole
   return { success: true }
 }
 
-export async function saveCareAttributes(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function saveCareAttributes(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
@@ -277,7 +281,9 @@ export async function saveCareAttributes(formData: FormData): Promise<{ success:
   return { success: true }
 }
 
-export async function createAppointment(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function createAppointment(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
@@ -314,7 +320,9 @@ export async function createAppointment(formData: FormData): Promise<{ success: 
   return { success: true }
 }
 
-export async function setAppointmentStatus(formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function setAppointmentStatus(
+  formData: FormData,
+): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
@@ -420,7 +428,7 @@ function parseSatisfaction(raw: FormDataEntryValue | null): number | null {
  * resident nothing to plan around.
  */
 export async function requestAppointment(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const auth = await getPortalAuth()
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -478,7 +486,7 @@ export async function requestAppointment(
  * and staff are the ones who know what is possible.
  */
 export async function respondToAppointmentRequest(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
@@ -546,7 +554,7 @@ export async function respondToAppointmentRequest(
  * available message for someone waiting on the person responsible for them.
  */
 export async function rescheduleAppointment(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await getCurrentUser()
   if (!user) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }

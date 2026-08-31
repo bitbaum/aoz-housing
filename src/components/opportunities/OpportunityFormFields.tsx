@@ -87,7 +87,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
               className="input"
             >
               {Object.entries(OPPORTUNITY_KIND_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </label>
@@ -175,7 +177,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
             >
               <option value="">{L.germanLevelAny}</option>
               {CEFR_LEVELS.map((level) => (
-                <option key={level} value={level}>{level}</option>
+                <option key={level} value={level}>
+                  {level}
+                </option>
               ))}
             </select>
           </label>
@@ -188,7 +192,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
               className="input"
             >
               {Object.entries(PERMIT_REQUIREMENT_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
             {/* The rule is enforced on the server for both publish paths. It is
@@ -270,13 +276,11 @@ export function OpportunityFormFields({ opportunity }: Props) {
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium text-ui-text">{L.statusField}</span>
-            <select
-              name="status"
-              defaultValue={opportunity?.status ?? 'DRAFT'}
-              className="input"
-            >
+            <select name="status" defaultValue={opportunity?.status ?? 'DRAFT'} className="input">
               {Object.entries(OPPORTUNITY_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </label>

@@ -34,7 +34,7 @@ export interface Transfer {
 export function computeBalances(
   expenses: ExpenseForBalance[],
   settlements: SettlementForBalance[],
-  memberIds: string[] = []
+  memberIds: string[] = [],
 ): Map<string, number> {
   const balances = new Map<string, number>()
   const add = (id: string, delta: number) => {

@@ -6,7 +6,11 @@ import { getScoreLevel, DISPLAY_LIMITS, type ScoreLevel } from '@/lib/config/thr
 import { getScoreColorClass, getScoreBgClass } from '@/lib/utils/formatting'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
 import type { UnitWithSpots } from '@/lib/types'
-import { COMPATIBILITY_SCORE_LABELS, TRANSFER_RECOMMENDATIONS_LABELS, PLACEMENT_ACTIONS_LABELS } from '@/lib/constants'
+import {
+  COMPATIBILITY_SCORE_LABELS,
+  TRANSFER_RECOMMENDATIONS_LABELS,
+  PLACEMENT_ACTIONS_LABELS,
+} from '@/lib/constants'
 import { residentInitials, residentName } from '@/lib/utils/resident-name'
 
 // =============================================================================
@@ -55,10 +59,10 @@ interface TransferRecommendationsProps {
 
 const SCORE_CARD_BG: Record<ScoreLevel, string> = {
   excellent: 'bg-score-excellent/8',
-  good:      'bg-score-good/8',
-  moderate:  'bg-score-medium/8',
-  low:       'bg-score-low/8',
-  critical:  'bg-score-critical/8',
+  good: 'bg-score-good/8',
+  moderate: 'bg-score-medium/8',
+  low: 'bg-score-low/8',
+  critical: 'bg-score-critical/8',
 }
 
 // =============================================================================
@@ -77,7 +81,7 @@ export function TransferRecommendations({
   // Combine units with their compatibility data and sort by fit score
   const rankedUnits = useMemo(() => {
     return eligibleUnits
-      .map(unit => {
+      .map((unit) => {
         const compat = unitCompatibility[unit.id] || {
           fitScore: 50,
           strengths: [],
@@ -113,7 +117,7 @@ export function TransferRecommendations({
       <div className="space-y-2">
         {displayedUnits.map((unit, index) => {
           const level = getScoreLevel(unit.fitScore)
-          const eligibleSpots = unit.spots.filter(spot => eligibleSpotTypes.includes(spot.type))
+          const eligibleSpots = unit.spots.filter((spot) => eligibleSpotTypes.includes(spot.type))
           const isSelected = unit.id === selectedUnitId
           const isExpanded = expandedUnitId === unit.id
           const isEmpty = unit.residents.length === 0
@@ -138,7 +142,9 @@ export function TransferRecommendations({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {index === 0 && level === 'excellent' && (
-                        <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${SCORE_TOKENS.excellent.soft}`}>
+                        <span
+                          className={`text-xs px-1.5 py-0.5 rounded font-medium ${SCORE_TOKENS.excellent.soft}`}
+                        >
                           Empfohlen
                         </span>
                       )}
@@ -148,7 +154,9 @@ export function TransferRecommendations({
 
                     {/* Spots available */}
                     <div className="flex items-center gap-2 mt-1 text-xs text-ui-muted">
-                      <span className="font-medium">{PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)}</span>
+                      <span className="font-medium">
+                        {PLACEMENT_ACTIONS_LABELS.spotsAvailableCount(eligibleSpots.length)}
+                      </span>
                     </div>
 
                     {/* Current residents preview */}
@@ -160,15 +168,17 @@ export function TransferRecommendations({
                       ) : (
                         <div className="flex items-center gap-1 flex-wrap">
                           <span className="text-xs text-ui-muted">Klient*in:</span>
-                          {unit.residents.slice(0, DISPLAY_LIMITS.dashboardItems).map((resident, i) => (
-                            <span
-                              key={resident.id}
-                              className={`text-xs px-1.5 py-0.5 rounded ${getScoreBgClass(resident.compatibilityScore)}`}
-                              title={`${resident.compatibilityScore}% kompatibel`}
-                            >
-                              {residentName(resident)} ({resident.compatibilityScore}%)
-                            </span>
-                          ))}
+                          {unit.residents
+                            .slice(0, DISPLAY_LIMITS.dashboardItems)
+                            .map((resident, i) => (
+                              <span
+                                key={resident.id}
+                                className={`text-xs px-1.5 py-0.5 rounded ${getScoreBgClass(resident.compatibilityScore)}`}
+                                title={`${resident.compatibilityScore}% kompatibel`}
+                              >
+                                {residentName(resident)} ({resident.compatibilityScore}%)
+                              </span>
+                            ))}
                           {unit.residents.length > 3 && (
                             <span className="text-xs text-ui-muted">
                               +{unit.residents.length - 3} weitere
@@ -211,13 +221,19 @@ export function TransferRecommendations({
                       {/* Apartment-level factors */}
                       {(unit.strengths.length > 0 || unit.concerns.length > 0) && (
                         <div className="p-2 bg-ui-surface rounded border border-ui-border">
-                          <p className="text-xs font-medium text-ui-muted mb-1">Wohnungs-Faktoren</p>
+                          <p className="text-xs font-medium text-ui-muted mb-1">
+                            Wohnungs-Faktoren
+                          </p>
                           <div className="space-y-1">
                             {unit.strengths.map((s, i) => (
-                              <p key={i} className="text-xs text-status-success-text">+ {s}</p>
+                              <p key={i} className="text-xs text-status-success-text">
+                                + {s}
+                              </p>
                             ))}
                             {unit.concerns.map((c, i) => (
-                              <p key={i} className="text-xs text-status-warning-text">- {c}</p>
+                              <p key={i} className="text-xs text-status-warning-text">
+                                - {c}
+                              </p>
                             ))}
                           </div>
                         </div>
@@ -229,7 +245,7 @@ export function TransferRecommendations({
                           {TRANSFER_RECOMMENDATIONS_LABELS.roommateCompatibility}
                         </p>
                         <div className="space-y-2">
-                          {unit.residents.map(resident => {
+                          {unit.residents.map((resident) => {
                             const residentLevel = getScoreLevel(resident.compatibilityScore)
                             return (
                               <div
@@ -244,18 +260,22 @@ export function TransferRecommendations({
                                   >
                                     {residentName(resident)}
                                   </Link>
-                                  <span className={`text-sm font-bold ${getScoreColorClass(resident.compatibilityScore)}`}>
+                                  <span
+                                    className={`text-sm font-bold ${getScoreColorClass(resident.compatibilityScore)}`}
+                                  >
                                     {resident.compatibilityScore}%
                                   </span>
                                 </div>
                                 {resident.keyFactors.length > 0 && (
                                   <div className="mt-1 text-xs text-ui-muted">
-                                    {resident.keyFactors.slice(0, DISPLAY_LIMITS.matchStrengths).map((factor, i) => (
-                                      <span key={i}>
-                                        {i > 0 && ' · '}
-                                        {factor}
-                                      </span>
-                                    ))}
+                                    {resident.keyFactors
+                                      .slice(0, DISPLAY_LIMITS.matchStrengths)
+                                      .map((factor, i) => (
+                                        <span key={i}>
+                                          {i > 0 && ' · '}
+                                          {factor}
+                                        </span>
+                                      ))}
                                   </div>
                                 )}
                               </div>

@@ -41,7 +41,13 @@ import { registerAccount, loginWithEmail, requestPasswordReset, resetPassword } 
 import { hashPassword } from '../passwords'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-const STAFF = { id: 'user-1', code: 'AOZ-ADMIN1', name: 'Admin', role: 'ADMIN' as const, active: true }
+const STAFF = {
+  id: 'user-1',
+  code: 'AOZ-ADMIN1',
+  name: 'Admin',
+  role: 'ADMIN' as const,
+  active: true,
+}
 const RESIDENT = { id: 'res-1', code: 'RES-ABC123' }
 
 // bcrypt at 12 rounds is deliberately slow, and slower still when the whole
@@ -58,13 +64,15 @@ beforeAll(async () => {
 })
 
 /** An Account row as ACCOUNT_WITH_IDENTITIES selects it. */
-function account(overrides: Partial<{
-  id: string
-  email: string
-  passwordHash: string | null
-  user: typeof STAFF | null
-  resident: typeof RESIDENT | null
-}> = {}) {
+function account(
+  overrides: Partial<{
+    id: string
+    email: string
+    passwordHash: string | null
+    user: typeof STAFF | null
+    resident: typeof RESIDENT | null
+  }> = {},
+) {
   return {
     id: 'acc-1',
     email: 'g@example.ch',
@@ -78,10 +86,10 @@ function account(overrides: Partial<{
 /** Code lookups resolve; nothing else exists unless a test says so. */
 function codeExists({ staff = false, resident = false } = {}) {
   mockPrisma.user.findUnique.mockImplementation(({ where }: { where: { code?: string } }) =>
-    Promise.resolve(staff && where.code === STAFF.code ? { id: STAFF.id, active: true } : null)
+    Promise.resolve(staff && where.code === STAFF.code ? { id: STAFF.id, active: true } : null),
   )
   mockPrisma.resident.findUnique.mockImplementation(({ where }: { where: { code?: string } }) =>
-    Promise.resolve(resident && where.code === RESIDENT.code ? { id: RESIDENT.id } : null)
+    Promise.resolve(resident && where.code === RESIDENT.code ? { id: RESIDENT.id } : null),
   )
 }
 
@@ -127,7 +135,7 @@ describe('registerAccount', () => {
   it('claims a resident code and returns the resident identity', async () => {
     codeExists({ resident: true })
     mockPrisma.account.findUniqueOrThrow.mockResolvedValue(
-      account({ id: 'acc-new', email: 'ihor@example.ch', resident: RESIDENT })
+      account({ id: 'acc-new', email: 'ihor@example.ch', resident: RESIDENT }),
     )
 
     const result = await registerAccount({
@@ -164,7 +172,7 @@ describe('registerAccount', () => {
   it('rejects a code that already carries credentials (use password reset)', async () => {
     codeExists({ resident: true })
     mockPrisma.account.findFirst.mockResolvedValue(
-      account({ passwordHash: 'already-set', resident: RESIDENT })
+      account({ passwordHash: 'already-set', resident: RESIDENT }),
     )
     const result = await registerAccount({
       code: 'RES-ABC123',
@@ -265,7 +273,7 @@ describe('registerAccount — linking a SECOND role to one login', () => {
         id: 'acc-other',
         passwordHash: 'x',
         resident: { id: 'res-9', code: 'RES-OTHER9' },
-      })
+      }),
     )
 
     const result = await registerAccount({
@@ -284,7 +292,7 @@ describe('loginWithEmail', () => {
         passwordHash: ACCOUNT_HASH,
         user: STAFF,
         resident: RESIDENT,
-      })
+      }),
     )
 
     const result = await loginWithEmail({ email: 'g@example.ch', password: ACCOUNT_PASSWORD })
@@ -304,7 +312,7 @@ describe('loginWithEmail', () => {
         passwordHash: ACCOUNT_HASH,
         user: { ...STAFF, active: false },
         resident: RESIDENT,
-      })
+      }),
     )
 
     const result = await loginWithEmail({ email: 'g@example.ch', password: ACCOUNT_PASSWORD })
@@ -320,7 +328,7 @@ describe('loginWithEmail', () => {
       'wrong password',
       async () => {
         mockPrisma.account.findUnique.mockResolvedValue(
-          account({ passwordHash: ACCOUNT_HASH, user: STAFF })
+          account({ passwordHash: ACCOUNT_HASH, user: STAFF }),
         )
       },
     ],
@@ -334,7 +342,7 @@ describe('loginWithEmail', () => {
       'every identity deactivated',
       async () => {
         mockPrisma.account.findUnique.mockResolvedValue(
-          account({ passwordHash: ACCOUNT_HASH, user: { ...STAFF, active: false } })
+          account({ passwordHash: ACCOUNT_HASH, user: { ...STAFF, active: false } }),
         )
       },
     ],

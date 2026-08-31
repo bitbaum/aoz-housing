@@ -71,7 +71,9 @@ export default async function PortalEventsPage() {
           <span className="numeric">{formatZurichDateTime(event.startsAt)}</span>
           {event.location ? <span>{event.location}</span> : null}
           {event.createdByName ? (
-            <span>{t('events.createdBy')}: {event.createdByName}</span>
+            <span>
+              {t('events.createdBy')}: {event.createdByName}
+            </span>
           ) : null}
         </div>
 

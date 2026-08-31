@@ -5,7 +5,11 @@ import { ChoreList } from '../ChoreList'
 // --- Mocks ---
 
 jest.mock('../ChoreCard', () => ({
-  ChoreCard: ({ task, onQuickComplete, isCompleting }: {
+  ChoreCard: ({
+    task,
+    onQuickComplete,
+    isCompleting,
+  }: {
     task: { id: string; title: string }
     onQuickComplete: (id: string) => void
     isCompleting: boolean
@@ -21,7 +25,7 @@ jest.mock('../ChoreCard', () => ({
 
 jest.mock('../ChoreBalanceSummary', () => ({
   ChoreBalanceSummary: ({ balances }: { balances: Array<{ code: string }> }) => (
-    <div data-testid="chore-balance-summary">{balances.map(b => b.code).join(',')}</div>
+    <div data-testid="chore-balance-summary">{balances.map((b) => b.code).join(',')}</div>
   ),
 }))
 
@@ -36,7 +40,10 @@ jest.mock('@/lib/config/household-tasks', () => ({
   CHORE_LABELS: {
     filter: { all: 'Alle' },
     card: { completed: 'Erledigt' },
-    empty: { title: 'Noch keine Aufgaben', message: 'Erstelle die erste Aufgabe für eure Wohnung.' },
+    empty: {
+      title: 'Noch keine Aufgaben',
+      message: 'Erstelle die erste Aufgabe für eure Wohnung.',
+    },
     errors: { generic: 'Ein Fehler ist aufgetreten.' },
     sections: {
       urgentNow: 'Jetzt wichtig',
@@ -108,7 +115,9 @@ describe('ChoreList', () => {
   // ── Urgent / needs-attention section ─────────────────────────────────────
 
   it('shows urgent section header when tasks have NEEDS_ATTENTION status', () => {
-    const tasks = [makeTask({ id: 't1', title: 'Attention task', currentStatus: 'NEEDS_ATTENTION' })]
+    const tasks = [
+      makeTask({ id: 't1', title: 'Attention task', currentStatus: 'NEEDS_ATTENTION' }),
+    ]
     render(<ChoreList tasks={tasks} balances={[]} />)
     expect(screen.getByText('Jetzt wichtig')).toBeInTheDocument()
   })
@@ -206,20 +215,26 @@ describe('ChoreList', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     })
-    expect(global.fetch).toHaveBeenCalledWith('/api/portal/chores/task-99/complete', { method: 'POST' })
+    expect(global.fetch).toHaveBeenCalledWith('/api/portal/chores/task-99/complete', {
+      method: 'POST',
+    })
   })
 
   it('shows completing state while fetch is in progress', async () => {
     let resolveRequest!: (value: unknown) => void
     ;(global.fetch as jest.Mock).mockReturnValueOnce(
-      new Promise(res => { resolveRequest = res })
+      new Promise((res) => {
+        resolveRequest = res
+      }),
     )
     const tasks = [makeTask({ id: 'task-99', title: 'My task' })]
     render(<ChoreList tasks={tasks} balances={[]} />)
     fireEvent.click(screen.getByRole('button', { name: 'complete' }))
     expect(await screen.findByRole('button', { name: 'completing' })).toBeInTheDocument()
     // Clean up the pending promise
-    await act(async () => { resolveRequest({ ok: false }) })
+    await act(async () => {
+      resolveRequest({ ok: false })
+    })
   })
 
   it('does not refresh when fetch returns non-ok response', async () => {
@@ -246,7 +261,14 @@ describe('ChoreList', () => {
 
   it('renders the balance summary when there is a household to compare', () => {
     const balances = [
-      { residentId: 'r1', code: 'RES-001', displayName: null, doneMinutes: 45, shareMinutes: 30, balanceMinutes: 15 },
+      {
+        residentId: 'r1',
+        code: 'RES-001',
+        displayName: null,
+        doneMinutes: 45,
+        shareMinutes: 30,
+        balanceMinutes: 15,
+      },
     ]
     render(<ChoreList tasks={[]} balances={balances} />)
     expect(screen.getByTestId('chore-balance-summary')).toBeInTheDocument()

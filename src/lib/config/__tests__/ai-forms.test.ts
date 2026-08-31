@@ -34,13 +34,15 @@ const field = (name: string) => {
 const writable = RESIDENT_INTAKE_FIELDS.filter((f) => !f.aiExcluded).map((f) => f.name)
 
 /** Stands in for the model, returning exactly what a test wants it to say. */
-const modelReturning = (values: Record<string, unknown>, message = '') => async () =>
-  JSON.stringify({ values, message })
+const modelReturning =
+  (values: Record<string, unknown>, message = '') =>
+  async () =>
+    JSON.stringify({ values, message })
 
 describe('resident intake registry — derived from RESIDENT_FACTORS', () => {
   it('exposes every configured factor', () => {
     expect(RESIDENT_INTAKE_FIELDS.map((f) => f.name).sort()).toEqual(
-      Object.keys(RESIDENT_FACTORS).sort()
+      Object.keys(RESIDENT_FACTORS).sort(),
     )
   })
 
@@ -98,8 +100,11 @@ describe('resident intake registry — what the model may write', () => {
       if (!validator) continue // reported by the test above
       if (spec.type === 'select') {
         for (const option of spec.options ?? []) {
-          expect({ field: spec.name, value: option.value, ok: validator.safeParse(option.value).success })
-            .toEqual({ field: spec.name, value: option.value, ok: true })
+          expect({
+            field: spec.name,
+            value: option.value,
+            ok: validator.safeParse(option.value).success,
+          }).toEqual({ field: spec.name, value: option.value, ok: true })
         }
       }
       if (spec.type === 'multiselect') {
@@ -121,7 +126,12 @@ describe('resident intake registry — what the model may write', () => {
   it('keeps medical documentation entirely out of the registry', () => {
     // These are collected by a separate, deliberately uncontrolled section, so
     // the model is never shown them and cannot write them.
-    for (const name of ['hasMedicalDocumentation', 'medicalDocType', 'medicalDocDate', 'medicalDocNotes']) {
+    for (const name of [
+      'hasMedicalDocumentation',
+      'medicalDocType',
+      'medicalDocDate',
+      'medicalDocNotes',
+    ]) {
       expect(RESIDENT_INTAKE_FIELDS.find((f) => f.name === name)).toBeUndefined()
     }
   })
@@ -171,7 +181,12 @@ describe('starting values — a default is not an answer', () => {
     })
 
     expect(Object.keys(initial).sort()).toEqual(Object.keys(RESIDENT_FACTORS).sort())
-    for (const leaked of ['hasMedicalDocumentation', 'medicalDocType', 'medicalDocDate', 'medicalDocNotes']) {
+    for (const leaked of [
+      'hasMedicalDocumentation',
+      'medicalDocType',
+      'medicalDocDate',
+      'medicalDocNotes',
+    ]) {
       expect(initial).not.toHaveProperty(leaked)
     }
   })
@@ -188,7 +203,7 @@ describe('assist behaviour on this form', () => {
     },
   }
 
-  it('lands the model\'s answers in the form', async () => {
+  it("lands the model's answers in the form", async () => {
     const result = await runFormAssist({
       ...intake,
       complete: modelReturning({
@@ -209,7 +224,9 @@ describe('assist behaviour on this form', () => {
     // Nothing was said about noise, so nothing was recorded about noise — and
     // the field still shows its configured default rather than an answer.
     expect(result.values.noiseTolerance ?? null).toBeNull()
-    expect(factorDisplayValue(RESIDENT_FACTORS.noiseTolerance, result.values.noiseTolerance)).toBe(3)
+    expect(factorDisplayValue(RESIDENT_FACTORS.noiseTolerance, result.values.noiseTolerance)).toBe(
+      3,
+    )
   })
 
   it('drops a value the factor does not offer', async () => {

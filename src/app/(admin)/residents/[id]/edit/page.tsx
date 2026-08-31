@@ -46,7 +46,10 @@ export default async function EditResidentPage({ params }: Props) {
         <input type="hidden" name="id" value={id} />
 
         <div id="resident-edit-validation-summary" className="hidden alert-error" role="alert" />
-        <FormValidationUX formId="resident-edit-form" summaryId="resident-edit-validation-summary" />
+        <FormValidationUX
+          formId="resident-edit-form"
+          summaryId="resident-edit-validation-summary"
+        />
 
         <ResidentFormFields
           defaultValues={{
@@ -94,7 +97,10 @@ export default async function EditResidentPage({ params }: Props) {
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {RESIDENT_EDIT_LABELS.submit}
           </SubmitButton>
-          <Link href={`/residents/${id}`} className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+          <Link
+            href={`/residents/${id}`}
+            className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
+          >
             {RESIDENT_EDIT_LABELS.cancel}
           </Link>
         </div>

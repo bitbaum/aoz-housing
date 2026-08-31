@@ -18,12 +18,7 @@
  *   Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
  */
 
-export type StaffRole =
-  | 'ADMIN'
-  | 'BETREUUNG'
-  | 'SOZIALARBEIT'
-  | 'JOBCOACH'
-  | 'FREIWILLIGENARBEIT'
+export type StaffRole = 'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH' | 'FREIWILLIGENARBEIT'
 
 export const STAFF_ROLES: readonly StaffRole[] = [
   'ADMIN',
@@ -45,7 +40,7 @@ export function isStaffRole(value: string): value is StaffRole {
  * and `isSystemAdmin`, which can be given to any role.
  */
 export const ASSIGNABLE_STAFF_ROLES: readonly StaffRole[] = STAFF_ROLES.filter(
-  (role) => role !== 'ADMIN'
+  (role) => role !== 'ADMIN',
 )
 
 export const STAFF_SCOPES = ['OWN_DOMAIN', 'ALL_DOMAINS'] as const
@@ -191,8 +186,7 @@ export const ROLE_PERMISSIONS = {
 } as const
 
 export type StaffPermission =
-  | (typeof ROLE_PERMISSIONS)[StaffRole][number]
-  | (typeof SYSTEM_ADMIN_PERMISSIONS)[number]
+  (typeof ROLE_PERMISSIONS)[StaffRole][number] | (typeof SYSTEM_ADMIN_PERMISSIONS)[number]
 
 /**
  * The narrowest possible subject, derived rather than named.
@@ -204,7 +198,7 @@ export type StaffPermission =
  */
 export const NARROWEST_CAPABILITIES: StaffCapabilities = {
   role: ASSIGNABLE_STAFF_ROLES.reduce((a, b) =>
-    ROLE_PERMISSIONS[a].length <= ROLE_PERMISSIONS[b].length ? a : b
+    ROLE_PERMISSIONS[a].length <= ROLE_PERMISSIONS[b].length ? a : b,
   ),
   scope: 'OWN_DOMAIN',
   isSystemAdmin: false,

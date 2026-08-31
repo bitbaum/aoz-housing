@@ -43,12 +43,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -132,7 +152,7 @@ describe('archiveHousingUnit', () => {
         entity: 'HOUSING_UNIT',
         entityId: 'hu-1',
         changes: { status: 'CLOSED' },
-      })
+      }),
     )
   })
 })
@@ -171,7 +191,7 @@ describe('restoreHousingUnit', () => {
         entity: 'HOUSING_UNIT',
         entityId: 'hu-1',
         changes: { status: 'AVAILABLE' },
-      })
+      }),
     )
   })
 })
@@ -182,7 +202,11 @@ describe('restoreHousingUnit', () => {
 
 describe('hardDeleteHousingUnitProtected', () => {
   it('returns error when confirmation is not DELETE', async () => {
-    const result = await hardDeleteHousingUnitProtected('hu-1', 'WRONG', 'Test deletion reason here')
+    const result = await hardDeleteHousingUnitProtected(
+      'hu-1',
+      'WRONG',
+      'Test deletion reason here',
+    )
 
     expect(result).toEqual({ success: false, error: 'Bestätigung fehlt (DELETE)' })
     expect(mockPrisma.housingUnit.findUnique).not.toHaveBeenCalled()
@@ -257,7 +281,7 @@ describe('hardDeleteHousingUnitProtected', () => {
         action: 'DELETE',
         entity: 'HOUSING_UNIT',
         entityId: 'hu-1',
-      })
+      }),
     )
   })
 })

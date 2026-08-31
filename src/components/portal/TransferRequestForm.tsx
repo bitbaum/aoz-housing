@@ -86,7 +86,9 @@ export function TransferRequestForm({ currentUnit, availableUnits }: TransferReq
       {currentUnit && (
         <div className="p-3 bg-ui-subtle rounded-lg">
           <p className="text-sm text-ui-muted">{L.currentUnit}</p>
-          <p className="font-medium text-ui-text">{currentUnit.code} — {currentUnit.address}</p>
+          <p className="font-medium text-ui-text">
+            {currentUnit.code} — {currentUnit.address}
+          </p>
         </div>
       )}
 

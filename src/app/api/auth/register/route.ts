@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   if (!currentUser) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.AUTH_REQUIRED },
-      { status: 401 }
+      { status: 401 },
     )
   }
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   if (!hasPermission(currentUser, 'users:manage')) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: 403 }
+      { status: 403 },
     )
   }
 
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -80,25 +80,24 @@ export async function POST(request: NextRequest) {
   // retired all-in-one role, kept only so existing rows and live JWTs resolve.
   // What it used to grant is now `scope` and `isSystemAdmin`, which can be
   // given to any role — so there is never a reason to mint a new one.
-  const assignable = (ASSIGNABLE_STAFF_ROLES as readonly string[])
+  const assignable = ASSIGNABLE_STAFF_ROLES as readonly string[]
   if (rawRole !== undefined && !assignable.includes(rawRole)) {
-    return NextResponse.json(
-      { success: false, error: 'Ungültige Rolle' },
-      { status: 400 }
-    )
+    return NextResponse.json({ success: false, error: 'Ungültige Rolle' }, { status: 400 })
   }
   const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
 
   // The two facts that used to be bundled into ADMIN. Both default to the
   // narrow answer: a new colleague sees their own domain and administers
   // nothing until someone says otherwise.
-  const scope: StaffScopeId = isStaffScope(String(rawScope ?? '')) ? (rawScope as StaffScopeId) : 'OWN_DOMAIN'
+  const scope: StaffScopeId = isStaffScope(String(rawScope ?? ''))
+    ? (rawScope as StaffScopeId)
+    : 'OWN_DOMAIN'
   const isSystemAdmin = rawIsSystemAdmin === true
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
     return NextResponse.json(
       { success: false, error: 'Name ist erforderlich (mindestens 2 Zeichen)' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -107,7 +106,7 @@ export async function POST(request: NextRequest) {
   if (code && !code.startsWith(BRAND.codePrefix)) {
     return NextResponse.json(
       { success: false, error: `Code muss mit ${BRAND.codePrefix} beginnen` },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -124,7 +123,7 @@ export async function POST(request: NextRequest) {
     if (!code) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.CODE_GENERATION_ERROR },
-        { status: 500 }
+        { status: 500 },
       )
     }
   }
@@ -134,7 +133,7 @@ export async function POST(request: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { success: false, error: 'Dieser Code ist bereits vergeben' },
-      { status: 409 }
+      { status: 409 },
     )
   }
 
@@ -160,15 +159,12 @@ export async function POST(request: NextRequest) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return NextResponse.json(
         { success: false, error: 'Dieser Code ist bereits vergeben' },
-        { status: 409 }
+        { status: 409 },
       )
     }
     // Don't log the freshly-minted login code — it would leak working
     // credentials into log aggregation / error-tracking dashboards.
     logger.errorWithCause('Failed to create staff user', error)
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SAVE_ERROR }, { status: 500 })
   }
 }

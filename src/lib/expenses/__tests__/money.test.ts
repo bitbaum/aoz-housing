@@ -19,13 +19,13 @@ describe('chfToRappen', () => {
     'rejects %s',
     (input) => {
       expect(chfToRappen(input)).toBeNull()
-    }
+    },
   )
 })
 
 describe('formatRappen', () => {
   it.each([
-    [1250, "CHF 12.50"],
+    [1250, 'CHF 12.50'],
     [5, 'CHF 0.05'],
     [123450, "CHF 1'234.50"],
     [100000000, "CHF 1'000'000.00"],

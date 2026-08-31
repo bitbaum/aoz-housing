@@ -43,7 +43,9 @@ type ActionResult<T = undefined> = { success: true; data?: T } | { success: fals
 // =============================================================================
 
 /** Re-import the AOZ baseline catalog. Idempotent; safe to run on every deploy. */
-export async function syncOrgRuleCatalog(): Promise<ActionResult<{ created: number; amended: number }>> {
+export async function syncOrgRuleCatalog(): Promise<
+  ActionResult<{ created: number; amended: number }>
+> {
   const user = await requireStaffAuth()
   try {
     const result = await syncOrgRules(prisma)
@@ -53,7 +55,11 @@ export async function syncOrgRuleCatalog(): Promise<ActionResult<{ created: numb
       entity: 'HOUSE_RULE',
       entityId: 'org-catalog',
       userId: user.id,
-      changes: { created: result.created, amended: result.amended, amendedKeys: result.amendedKeys },
+      changes: {
+        created: result.created,
+        amended: result.amended,
+        amendedKeys: result.amendedKeys,
+      },
     })
 
     revalidatePath('/rules')
@@ -68,7 +74,10 @@ export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{
   const user = await requireStaffAuth()
   const parsed = orgRuleSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -101,14 +110,18 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
   const user = await requireStaffAuth()
   const parsed = updateOrgRuleSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
     const existing = await prisma.houseRule.findUnique({ where: { id: parsed.data.ruleId } })
     if (!existing) return { success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND }
 
-    const contentChanged = existing.title !== parsed.data.title || existing.body !== parsed.data.body
+    const contentChanged =
+      existing.title !== parsed.data.title || existing.body !== parsed.data.body
 
     await prisma.houseRule.update({
       where: { id: parsed.data.ruleId },
@@ -126,13 +139,18 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
       entity: 'HOUSE_RULE',
       entityId: parsed.data.ruleId,
       userId: user.id,
-      changes: { contentChanged, newVersion: contentChanged ? existing.version + 1 : existing.version },
+      changes: {
+        contentChanged,
+        newVersion: contentChanged ? existing.version + 1 : existing.version,
+      },
     })
 
     revalidatePath('/rules')
     return { success: true }
   } catch (error) {
-    logger.errorWithCause(`Failed to update ${BRAND.orgName} rule`, error, { ruleId: parsed.data.ruleId })
+    logger.errorWithCause(`Failed to update ${BRAND.orgName} rule`, error, {
+      ruleId: parsed.data.ruleId,
+    })
     return { success: false, error: ERROR_MESSAGES.RULE_SAVE_ERROR }
   }
 }
@@ -159,11 +177,16 @@ export async function archiveRule(ruleId: string): Promise<ActionResult> {
  * Staff-set house rule. For units too small to hold a meaningful vote, and for
  * writing down what a house already agreed verbally.
  */
-export async function createUnitRuleAsStaff(input: UnitRuleInput): Promise<ActionResult<{ id: string }>> {
+export async function createUnitRuleAsStaff(
+  input: UnitRuleInput,
+): Promise<ActionResult<{ id: string }>> {
   const user = await requireStaffAuth()
   const parsed = unitRuleSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -214,7 +237,9 @@ export async function createUnitRuleAsStaff(input: UnitRuleInput): Promise<Actio
  * The tally/adopt logic lives in lib/governance/lifecycle so the cron and the
  * portal reach the same result by the same path.
  */
-export async function closeProposalVoting(proposalId: string): Promise<ActionResult<{ status: string }>> {
+export async function closeProposalVoting(
+  proposalId: string,
+): Promise<ActionResult<{ status: string }>> {
   const user = await requireStaffAuth()
 
   try {
@@ -242,7 +267,10 @@ export async function confirmProposal(input: StaffConfirmProposalInput): Promise
   const user = await requireStaffAuth()
   const parsed = staffConfirmProposalSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -277,7 +305,9 @@ export async function confirmProposal(input: StaffConfirmProposalInput): Promise
     revalidatePath('/rules/decisions')
     return { success: true }
   } catch (error) {
-    logger.errorWithCause('Failed to confirm proposal', error, { proposalId: parsed.data.proposalId })
+    logger.errorWithCause('Failed to confirm proposal', error, {
+      proposalId: parsed.data.proposalId,
+    })
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 }
@@ -290,7 +320,10 @@ export async function advanceResolutionStage(input: AdvanceStageInput): Promise<
   const user = await requireStaffAuth()
   const parsed = advanceStageSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -334,11 +367,16 @@ export async function advanceResolutionStage(input: AdvanceStageInput): Promise<
   }
 }
 
-export async function createAgreement(input: CreateAgreementInput): Promise<ActionResult<{ id: string }>> {
+export async function createAgreement(
+  input: CreateAgreementInput,
+): Promise<ActionResult<{ id: string }>> {
   const user = await requireStaffAuth()
   const parsed = createAgreementSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -366,7 +404,9 @@ export async function createAgreement(input: CreateAgreementInput): Promise<Acti
     revalidatePath(`/incidents/${parsed.data.incidentId}`)
     return { success: true, data: { id: agreement.id } }
   } catch (error) {
-    logger.errorWithCause('Failed to create agreement', error, { incidentId: parsed.data.incidentId })
+    logger.errorWithCause('Failed to create agreement', error, {
+      incidentId: parsed.data.incidentId,
+    })
     return { success: false, error: ERROR_MESSAGES.AGREEMENT_SAVE_ERROR }
   }
 }
@@ -379,7 +419,10 @@ export async function reviewAgreement(input: ReviewAgreementInput): Promise<Acti
   const user = await requireStaffAuth()
   const parsed = reviewAgreementSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT }
+    return {
+      success: false,
+      error: parsed.error.errors[0]?.message ?? ERROR_MESSAGES.INVALID_INPUT,
+    }
   }
 
   try {
@@ -404,7 +447,9 @@ export async function reviewAgreement(input: ReviewAgreementInput): Promise<Acti
     revalidatePath(`/incidents/${agreement.incidentId}`)
     return { success: true }
   } catch (error) {
-    logger.errorWithCause('Failed to review agreement', error, { agreementId: parsed.data.agreementId })
+    logger.errorWithCause('Failed to review agreement', error, {
+      agreementId: parsed.data.agreementId,
+    })
     return { success: false, error: ERROR_MESSAGES.AGREEMENT_SAVE_ERROR }
   }
 }

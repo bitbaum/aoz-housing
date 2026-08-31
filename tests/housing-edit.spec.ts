@@ -8,7 +8,10 @@ import { test, expect } from '@playwright/test'
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 /** Navigate to housing list and return the href of the unit with the given code. */
-async function getHousingHrefByCode(page: import('@playwright/test').Page, code: string): Promise<string> {
+async function getHousingHrefByCode(
+  page: import('@playwright/test').Page,
+  code: string,
+): Promise<string> {
   await page.goto('/housing')
   const link = page.locator('a[href^="/housing/"]').filter({ hasText: code }).first()
   await expect(link).toBeVisible({ timeout: 15_000 })
@@ -90,7 +93,9 @@ test.describe('Housing edit page', () => {
     const href = await getHousingHrefByCode(page, 'ZH-001')
     await page.goto(`${href}/edit`)
 
-    await expect(page.getByRole('button', { name: /Änderungen speichern/i })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /Änderungen speichern/i })).toBeVisible({
+      timeout: 10_000,
+    })
     await expect(page.getByRole('link', { name: /Abbrechen/i })).toBeVisible()
   })
 
@@ -158,7 +163,9 @@ test.describe('Housing spots management page', () => {
     const href = await getHousingHrefByCode(page, 'ZH-001')
     await page.goto(`${href}/spots`)
 
-    await expect(page.getByRole('heading', { name: /ZH-001|Plätze/i }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: /ZH-001|Plätze/i }).first()).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('spots page shows add-room form', async ({ page }) => {
@@ -183,7 +190,9 @@ test.describe('Housing spots management page', () => {
 
     // ZH-001 has 2 rooms with beds in seed data
     // At minimum the "existing spots" card should render
-    await expect(page.locator('text=/Vorhandene Plätze|Bestehende/i').first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator('text=/Vorhandene Plätze|Bestehende/i').first()).toBeVisible({
+      timeout: 10_000,
+    })
   })
 
   test('back link on spots page returns to unit detail', async ({ page }) => {

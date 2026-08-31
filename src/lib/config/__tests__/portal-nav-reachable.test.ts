@@ -97,19 +97,25 @@ describe('the mobile tab bar', () => {
     for (const item of PORTAL_NAV_ITEMS) {
       // An unknown icon key renders `undefined` as a component and crashes the
       // whole nav — the one part of the page that must never fail.
-      expect({ href: item.href, icon: Boolean(NAV_ICONS[item.icon]) })
-        .toEqual({ href: item.href, icon: true })
+      expect({ href: item.href, icon: Boolean(NAV_ICONS[item.icon]) }).toEqual({
+        href: item.href,
+        icon: true,
+      })
 
       // The key must exist in the German dictionary, not merely resolve: a
       // missing key falls back to German by design, and German falling back to
       // German would hide a typo'd key behind `undefined`.
       const key = portalNavMessageKey(item)
-      expect({ href: item.href, inDictionary: key in de })
-        .toEqual({ href: item.href, inDictionary: true })
+      expect({ href: item.href, inDictionary: key in de }).toEqual({
+        href: item.href,
+        inDictionary: true,
+      })
 
       const label = createTranslator('de')(key)
-      expect({ href: item.href, label: typeof label === 'string' && label.length > 0 })
-        .toEqual({ href: item.href, label: true })
+      expect({ href: item.href, label: typeof label === 'string' && label.length > 0 }).toEqual({
+        href: item.href,
+        label: true,
+      })
     }
   })
 
@@ -130,8 +136,10 @@ describe('the mobile tab bar', () => {
 
   it('files every item under a group that has a heading', () => {
     for (const item of PORTAL_NAV_ITEMS) {
-      expect({ href: item.href, grouped: PORTAL_NAV_GROUP_ORDER.includes(item.group) })
-        .toEqual({ href: item.href, grouped: true })
+      expect({ href: item.href, grouped: PORTAL_NAV_GROUP_ORDER.includes(item.group) }).toEqual({
+        href: item.href,
+        grouped: true,
+      })
     }
 
     for (const group of PORTAL_NAV_GROUP_ORDER) {
@@ -140,10 +148,14 @@ describe('the mobile tab bar', () => {
       // a cast is not a check: a group id with no key renders an EMPTY heading,
       // silently, since the German fallback misses too. This is the only thing
       // standing between that cast and a blank accordion.
-      expect({ group, heading: de[`navGroup.${group}` as keyof typeof de] })
-        .toEqual({ group, heading: expect.any(String) })
-      expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) })
-        .toEqual({ group, items: true })
+      expect({ group, heading: de[`navGroup.${group}` as keyof typeof de] }).toEqual({
+        group,
+        heading: expect.any(String),
+      })
+      expect({ group, items: PORTAL_NAV_ITEMS.some((item) => item.group === group) }).toEqual({
+        group,
+        items: true,
+      })
     }
   })
 

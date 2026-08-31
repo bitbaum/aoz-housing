@@ -26,7 +26,12 @@ describe('calculateApartmentProfile', () => {
   })
 
   it('single resident → averages equal that resident', () => {
-    const r = makeResident({ noiseTolerance: 4, cleanlinessPractice: 2, privacyNeed: 5, choresContribution: 1 })
+    const r = makeResident({
+      noiseTolerance: 4,
+      cleanlinessPractice: 2,
+      privacyNeed: 5,
+      choresContribution: 1,
+    })
     const profile = calculateApartmentProfile([r])
     expect(profile.isEmpty).toBe(false)
     expect(profile.currentResidentCount).toBe(1)
@@ -120,7 +125,7 @@ describe('calculateApartmentFit', () => {
     expect(result.fitScore).toBe(100)
     expect(result.conflicts).toHaveLength(0)
     expect(result.strengths).toEqual(
-      expect.arrayContaining([expect.stringContaining('Erste Person')])
+      expect.arrayContaining([expect.stringContaining('Erste Person')]),
     )
   })
 
@@ -133,7 +138,7 @@ describe('calculateApartmentFit', () => {
       id: 'new',
       cleanlinessPractice: 3,
       cleanlinessExpectation: 3,
-      chaosTolerance: 6 - (3),
+      chaosTolerance: 6 - 3,
       noiseTolerance: 3,
       sleepSchedule: 'STANDARD',
       smokingStatus: 'NON_SMOKER',
@@ -153,7 +158,12 @@ describe('calculateApartmentFit', () => {
     it('flags a BLOCKING conflict when a demanding household meets a messy newcomer', () => {
       const residents = [
         makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 5, chaosTolerance: 1 }),
-        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 5, chaosTolerance: 1 }),
+        makeResident({
+          id: '2',
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 5,
+          chaosTolerance: 1,
+        }),
       ]
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
@@ -164,7 +174,7 @@ describe('calculateApartmentFit', () => {
       })
 
       const result = calculateApartmentFit(newResident, profile)
-      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessPractice')
+      const cleanConflict = result.conflicts.find((c) => c.attribute === 'cleanlinessPractice')
 
       expect(cleanConflict).toBeDefined()
       expect(cleanConflict!.severity).toBe('BLOCKING')
@@ -173,7 +183,12 @@ describe('calculateApartmentFit', () => {
     it('softens the same practice gap when the household tolerates mess', () => {
       const residents = [
         makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 4, chaosTolerance: 3 }),
-        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 4, chaosTolerance: 3 }),
+        makeResident({
+          id: '2',
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 4,
+          chaosTolerance: 3,
+        }),
       ]
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
@@ -184,7 +199,7 @@ describe('calculateApartmentFit', () => {
       })
 
       const result = calculateApartmentFit(newResident, profile)
-      const cleanConflict = result.conflicts.find(c => c.attribute === 'cleanlinessPractice')
+      const cleanConflict = result.conflicts.find((c) => c.attribute === 'cleanlinessPractice')
 
       expect(cleanConflict).toBeDefined()
       expect(cleanConflict!.severity).not.toBe('BLOCKING')
@@ -195,7 +210,12 @@ describe('calculateApartmentFit', () => {
       // difference model reported as the worst possible match.
       const residents = [
         makeResident({ cleanlinessPractice: 5, cleanlinessExpectation: 1, chaosTolerance: 5 }),
-        makeResident({ id: '2', cleanlinessPractice: 5, cleanlinessExpectation: 1, chaosTolerance: 5 }),
+        makeResident({
+          id: '2',
+          cleanlinessPractice: 5,
+          cleanlinessExpectation: 1,
+          chaosTolerance: 5,
+        }),
       ]
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
@@ -207,14 +227,19 @@ describe('calculateApartmentFit', () => {
 
       const result = calculateApartmentFit(newResident, profile)
 
-      expect(result.conflicts.find(c => c.attribute === 'cleanlinessPractice')).toBeUndefined()
+      expect(result.conflicts.find((c) => c.attribute === 'cleanlinessPractice')).toBeUndefined()
       expect(result.strengths).toContain('Sauberkeitsansprüche passen zusammen')
     })
 
     it('warns about a newcomer who demands more order than they keep', () => {
       const residents = [
         makeResident({ cleanlinessPractice: 3, cleanlinessExpectation: 3, chaosTolerance: 3 }),
-        makeResident({ id: '2', cleanlinessPractice: 3, cleanlinessExpectation: 3, chaosTolerance: 3 }),
+        makeResident({
+          id: '2',
+          cleanlinessPractice: 3,
+          cleanlinessExpectation: 3,
+          chaosTolerance: 3,
+        }),
       ]
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({
@@ -226,7 +251,7 @@ describe('calculateApartmentFit', () => {
 
       const result = calculateApartmentFit(newResident, profile)
 
-      expect(result.warnings.some(w => w.includes('Putzplan'))).toBe(true)
+      expect(result.warnings.some((w) => w.includes('Putzplan'))).toBe(true)
     })
   })
 
@@ -240,7 +265,7 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({ id: 'new', sleepSchedule: 'EARLY_BIRD' })
       const result = calculateApartmentFit(newResident, profile)
-      const sleepConflict = result.conflicts.find(c => c.attribute === 'sleepSchedule')
+      const sleepConflict = result.conflicts.find((c) => c.attribute === 'sleepSchedule')
       expect(sleepConflict).toBeDefined()
     })
 
@@ -254,7 +279,7 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({ id: 'new', sleepSchedule: 'EARLY_BIRD' })
       const result = calculateApartmentFit(newResident, profile)
-      const sleepConflict = result.conflicts.find(c => c.attribute === 'sleepSchedule')
+      const sleepConflict = result.conflicts.find((c) => c.attribute === 'sleepSchedule')
       expect(sleepConflict).toBeDefined()
       expect(sleepConflict!.severity).toBe('HIGH')
     })
@@ -268,7 +293,7 @@ describe('calculateApartmentFit', () => {
       const newResident = makeResident({ id: 'new', sleepSchedule: 'EARLY_BIRD' })
       const result = calculateApartmentFit(newResident, profile)
       expect(result.strengths).toEqual(
-        expect.arrayContaining([expect.stringContaining('Schlafrhythmus')])
+        expect.arrayContaining([expect.stringContaining('Schlafrhythmus')]),
       )
     })
   })
@@ -282,7 +307,7 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({ id: 'new', smokingStatus: 'NON_SMOKER' })
       const result = calculateApartmentFit(newResident, profile)
-      const smokingConflict = result.conflicts.find(c => c.attribute === 'smokingStatus')
+      const smokingConflict = result.conflicts.find((c) => c.attribute === 'smokingStatus')
       expect(smokingConflict).toBeDefined()
       expect(smokingConflict!.severity).toBe('MEDIUM')
     })
@@ -322,7 +347,7 @@ describe('calculateApartmentFit', () => {
       const result = calculateApartmentFit(newResident, profile)
 
       // Should have at least a BLOCKING conflict
-      const blockingConflicts = result.conflicts.filter(c => c.severity === 'BLOCKING')
+      const blockingConflicts = result.conflicts.filter((c) => c.severity === 'BLOCKING')
       expect(blockingConflicts.length).toBeGreaterThanOrEqual(1)
 
       // Score should be reduced (strengths/small group bonus can offset partially)
@@ -336,7 +361,7 @@ describe('calculateApartmentFit', () => {
         makeResident({
           cleanlinessPractice: 3,
           cleanlinessExpectation: 3,
-          chaosTolerance: 6 - (3),
+          chaosTolerance: 6 - 3,
           noiseTolerance: 3,
           sleepSchedule: 'STANDARD',
           socialStyle: 'MODERATE',
@@ -348,7 +373,7 @@ describe('calculateApartmentFit', () => {
           id: '2',
           cleanlinessPractice: 3,
           cleanlinessExpectation: 3,
-          chaosTolerance: 6 - (3),
+          chaosTolerance: 6 - 3,
           noiseTolerance: 3,
           sleepSchedule: 'STANDARD',
           socialStyle: 'MODERATE',
@@ -362,7 +387,7 @@ describe('calculateApartmentFit', () => {
         id: 'new',
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         noiseTolerance: 3,
         sleepSchedule: 'STANDARD',
         socialStyle: 'MODERATE',
@@ -383,7 +408,7 @@ describe('calculateApartmentFit', () => {
         id: 'new',
         cleanlinessPractice: 3,
         cleanlinessExpectation: 3,
-        chaosTolerance: 6 - (3),
+        chaosTolerance: 6 - 3,
         noiseTolerance: 3,
         sleepSchedule: 'STANDARD',
         smokingStatus: 'NON_SMOKER',
@@ -409,7 +434,7 @@ describe('calculateApartmentFit', () => {
         id: 'new',
         cleanlinessPractice: 1,
         cleanlinessExpectation: 1,
-        chaosTolerance: 6 - (1),
+        chaosTolerance: 6 - 1,
         noiseTolerance: 1,
         sleepSchedule: 'EARLY_BIRD',
         smokingStatus: 'NON_SMOKER',
@@ -418,9 +443,7 @@ describe('calculateApartmentFit', () => {
       const resultBig = calculateApartmentFit(newResident, profile)
 
       // Same scenario with small group
-      const smallProfile = calculateApartmentProfile([
-        makeResident({ languages: ['Turkish'] }),
-      ])
+      const smallProfile = calculateApartmentProfile([makeResident({ languages: ['Turkish'] })])
       const resultSmall = calculateApartmentFit(newResident, smallProfile)
 
       // The small group should have at least the +5 bonus advantage
@@ -435,7 +458,7 @@ describe('calculateApartmentFit', () => {
         makeResident({
           cleanlinessPractice: 5,
           cleanlinessExpectation: 5,
-          chaosTolerance: 6 - (5),
+          chaosTolerance: 6 - 5,
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -448,7 +471,7 @@ describe('calculateApartmentFit', () => {
           id: '2',
           cleanlinessPractice: 5,
           cleanlinessExpectation: 5,
-          chaosTolerance: 6 - (5),
+          chaosTolerance: 6 - 5,
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -461,7 +484,7 @@ describe('calculateApartmentFit', () => {
           id: '3',
           cleanlinessPractice: 5,
           cleanlinessExpectation: 5,
-          chaosTolerance: 6 - (5),
+          chaosTolerance: 6 - 5,
           noiseTolerance: 1,
           sleepSchedule: 'NIGHT_OWL',
           smokingStatus: 'INDOOR_SMOKER',
@@ -476,7 +499,7 @@ describe('calculateApartmentFit', () => {
         id: 'worst',
         cleanlinessPractice: 1,
         cleanlinessExpectation: 1,
-        chaosTolerance: 6 - (1),
+        chaosTolerance: 6 - 1,
         noiseTolerance: 5,
         sleepSchedule: 'EARLY_BIRD',
         smokingStatus: 'NON_SMOKER',
@@ -501,7 +524,7 @@ describe('calculateApartmentFit', () => {
       // avg=1, new=5, diff=4 ≥ HIGH(3)
       const newResident = makeResident({ id: 'new', noiseTolerance: 5 })
       const result = calculateApartmentFit(newResident, profile)
-      const noiseConflict = result.conflicts.find(c => c.attribute === 'noiseTolerance')
+      const noiseConflict = result.conflicts.find((c) => c.attribute === 'noiseTolerance')
       expect(noiseConflict).toBeDefined()
       expect(noiseConflict!.severity).toBe('HIGH')
     })
@@ -515,7 +538,7 @@ describe('calculateApartmentFit', () => {
       // avg=1, new=3, diff=2 ≥ MEDIUM(2) but < HIGH(3)
       const newResident = makeResident({ id: 'new', noiseTolerance: 3 })
       const result = calculateApartmentFit(newResident, profile)
-      const noiseConflict = result.conflicts.find(c => c.attribute === 'noiseTolerance')
+      const noiseConflict = result.conflicts.find((c) => c.attribute === 'noiseTolerance')
       expect(noiseConflict).toBeDefined()
       expect(noiseConflict!.severity).toBe('MEDIUM')
     })
@@ -531,7 +554,7 @@ describe('calculateApartmentFit', () => {
       const newResident = makeResident({ id: 'new', languages: ['German'] })
       const result = calculateApartmentFit(newResident, profile)
       expect(result.strengths).toEqual(
-        expect.arrayContaining([expect.stringContaining('Gemeinsame Sprache')])
+        expect.arrayContaining([expect.stringContaining('Gemeinsame Sprache')]),
       )
     })
 
@@ -558,7 +581,7 @@ describe('calculateApartmentFit', () => {
       // 100% night disturbances → ≥ 30% threshold
       const newResident = makeResident({ id: 'new', needsQuietEnvironment: true })
       const result = calculateApartmentFit(newResident, profile)
-      const quietConflict = result.conflicts.find(c => c.attribute === 'quietEnvironment')
+      const quietConflict = result.conflicts.find((c) => c.attribute === 'quietEnvironment')
       expect(quietConflict).toBeDefined()
       expect(quietConflict!.severity).toBe('HIGH')
     })
@@ -572,7 +595,7 @@ describe('calculateApartmentFit', () => {
       const newResident = makeResident({ id: 'new', needsQuietEnvironment: true })
       const result = calculateApartmentFit(newResident, profile)
       expect(result.strengths).toEqual(
-        expect.arrayContaining([expect.stringContaining('Ruhige Umgebung')])
+        expect.arrayContaining([expect.stringContaining('Ruhige Umgebung')]),
       )
     })
   })
@@ -586,7 +609,7 @@ describe('calculateApartmentFit', () => {
       const profile = calculateApartmentProfile(residents)
       const newResident = makeResident({ id: 'new', socialStyle: 'INTROVERTED' })
       const result = calculateApartmentFit(newResident, profile)
-      const socialConflict = result.conflicts.find(c => c.attribute === 'socialStyle')
+      const socialConflict = result.conflicts.find((c) => c.attribute === 'socialStyle')
       expect(socialConflict).toBeDefined()
       expect(socialConflict!.severity).toBe('LOW')
     })
@@ -600,7 +623,7 @@ describe('calculateApartmentFit', () => {
       const newResident = makeResident({ id: 'new', socialStyle: 'INTROVERTED' })
       const result = calculateApartmentFit(newResident, profile)
       expect(result.strengths).toEqual(
-        expect.arrayContaining([expect.stringContaining('Sozialstil')])
+        expect.arrayContaining([expect.stringContaining('Sozialstil')]),
       )
     })
   })
@@ -615,7 +638,7 @@ describe('calculateApartmentFit', () => {
       // avg=5, new=1, diff=4 ≥ MEDIUM(3)
       const newResident = makeResident({ id: 'new', choresContribution: 1 })
       const result = calculateApartmentFit(newResident, profile)
-      const choresConflict = result.conflicts.find(c => c.attribute === 'choresContribution')
+      const choresConflict = result.conflicts.find((c) => c.attribute === 'choresContribution')
       expect(choresConflict).toBeDefined()
       expect(choresConflict!.severity).toBe('MEDIUM')
     })
@@ -629,7 +652,7 @@ describe('calculateApartmentFit', () => {
       // avg=5, new=3, diff=2 ≥ LOW(2) but < MEDIUM(3)
       const newResident = makeResident({ id: 'new', choresContribution: 3 })
       const result = calculateApartmentFit(newResident, profile)
-      const choresConflict = result.conflicts.find(c => c.attribute === 'choresContribution')
+      const choresConflict = result.conflicts.find((c) => c.attribute === 'choresContribution')
       expect(choresConflict).toBeDefined()
       expect(choresConflict!.severity).toBe('LOW')
     })

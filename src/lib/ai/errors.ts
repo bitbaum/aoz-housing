@@ -37,7 +37,7 @@ export class AIProviderError extends Error {
   constructor(
     readonly provider: string,
     readonly status: number,
-    readonly body: string
+    readonly body: string,
   ) {
     // The message is for logs. User-facing text comes from userFacingAIError().
     super(`${provider} failed (${status})`)

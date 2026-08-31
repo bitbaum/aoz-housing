@@ -12,17 +12,14 @@
  */
 
 import { de } from '@/lib/i18n/dictionaries/de'
-import {
-  HOUSE_EVENT_CATEGORIES,
-  HOUSE_EVENT_CATEGORY_LABEL_KEYS,
-} from '@/lib/config/events'
+import { HOUSE_EVENT_CATEGORIES, HOUSE_EVENT_CATEGORY_LABEL_KEYS } from '@/lib/config/events'
 import type { HouseEventCategory } from '@prisma/client'
 
 const categoryLabels = Object.fromEntries(
   HOUSE_EVENT_CATEGORIES.map((category) => [
     category,
     de[HOUSE_EVENT_CATEGORY_LABEL_KEYS[category]],
-  ])
+  ]),
 ) as Record<HouseEventCategory, string>
 
 export const EVENTS_ADMIN_LABELS = {

@@ -107,9 +107,11 @@ describe('POST /api/ai/chat', () => {
     mockHasAIProvider.mockReturnValue(true)
     mockGetCurrentUser.mockResolvedValue(STAFF_USER)
 
-    const res = await POST(makeRequest({
-      messages: [{ role: 'system', content: 'hi' }],
-    }))
+    const res = await POST(
+      makeRequest({
+        messages: [{ role: 'system', content: 'hi' }],
+      }),
+    )
     expect(res.status).toBe(400)
   })
 
@@ -149,8 +151,8 @@ describe('POST /api/ai/chat', () => {
             type: 'tokens',
             code: 'rate_limit_exceeded',
           },
-        })
-      )
+        }),
+      ),
     )
 
     const res = await POST(makeRequest(VALID_BODY))

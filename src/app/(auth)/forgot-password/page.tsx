@@ -82,7 +82,10 @@ export default function ForgotPasswordPage() {
       )}
 
       <p className="mt-6 text-center text-sm">
-        <Link href="/login" className="text-ui-muted underline-offset-2 hover:text-ui-text hover:underline">
+        <Link
+          href="/login"
+          className="text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
+        >
           {FORGOT_PASSWORD_LABELS.backToLogin}
         </Link>
       </p>

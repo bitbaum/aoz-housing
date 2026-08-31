@@ -50,12 +50,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -178,7 +198,7 @@ describe('getHousingUnitIncidentHistory', () => {
     // res-a appears as subject 2 times (>= 2 threshold)
     expect(result.frequentSubjects).toHaveLength(1)
     expect(result.frequentSubjects[0]).toEqual(
-      expect.objectContaining({ id: 'res-a', code: 'RES-A', count: 2 })
+      expect.objectContaining({ id: 'res-a', code: 'RES-A', count: 2 }),
     )
   })
 
@@ -222,7 +242,7 @@ describe('getIncidentsNeedingFollowUp', () => {
     ;(mockPrisma.incident.findMany as jest.Mock)
       .mockResolvedValueOnce([overdueIncident]) // overdue
       .mockResolvedValueOnce([dueSoonIncident]) // dueSoon
-      .mockResolvedValueOnce([urgentIncident])  // urgent
+      .mockResolvedValueOnce([urgentIncident]) // urgent
 
     const result = await getIncidentsNeedingFollowUp()
 

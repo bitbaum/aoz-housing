@@ -44,7 +44,13 @@ export default async function PortalHelpPage() {
         <h2 className="text-lg font-semibold text-ui-text mb-4">{t('help.contactTitle')}</h2>
         <div className="space-y-4">
           {ORG_CONTACT_CHANNELS.map((c) => (
-            <ContactItem key={c.label} icon={c.icon} label={c.label} value={c.value} sublabel={c.sublabel} />
+            <ContactItem
+              key={c.label}
+              icon={c.icon}
+              label={c.label}
+              value={c.value}
+              sublabel={c.sublabel}
+            />
           ))}
         </div>
       </div>
@@ -54,14 +60,20 @@ export default async function PortalHelpPage() {
         <p className="text-sm text-ui-muted mb-4">{t('help.emergencyDesc')}</p>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden="true">🚨</span>
+            <span className="text-2xl" aria-hidden="true">
+              🚨
+            </span>
             <div>
               <p className="font-semibold text-status-error-text">{ORG_CONTACT.emergency.police}</p>
-              <p className="text-lg font-bold text-status-error-text">{ORG_CONTACT.emergency.policeNumber}</p>
+              <p className="text-lg font-bold text-status-error-text">
+                {ORG_CONTACT.emergency.policeNumber}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl" aria-hidden="true">🆘</span>
+            <span className="text-2xl" aria-hidden="true">
+              🆘
+            </span>
             <div>
               <p className="font-semibold text-ui-text">{ORG_CONTACT.emergency.orgLabel}</p>
               <p className="text-lg font-bold text-ui-text">{ORG_CONTACT.emergency.orgNumber}</p>
@@ -73,14 +85,18 @@ export default async function PortalHelpPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <Link href="/portal/report" className="card-hover flex items-center gap-4 p-4">
-          <span className="text-2xl" aria-hidden="true">📣</span>
+          <span className="text-2xl" aria-hidden="true">
+            📣
+          </span>
           <div>
             <p className="font-medium text-ui-text">{t('help.link.report')}</p>
             <p className="text-sm text-ui-muted">{t('report.subtitle')}</p>
           </div>
         </Link>
         <Link href="/portal/rules" className="card-hover flex items-center gap-4 p-4">
-          <span className="text-2xl" aria-hidden="true">📋</span>
+          <span className="text-2xl" aria-hidden="true">
+            📋
+          </span>
           <div>
             <p className="font-medium text-ui-text">{t('help.link.rules')}</p>
             <p className="text-sm text-ui-muted">{t('rules.subtitle')}</p>
@@ -96,9 +112,7 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     <details className="group">
       <summary className="flex items-center justify-between cursor-pointer p-4 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors">
         <span className="font-medium text-ui-text">{question}</span>
-        <span className="text-ui-muted group-open:rotate-180 transition-transform">
-          ▼
-        </span>
+        <span className="text-ui-muted group-open:rotate-180 transition-transform">▼</span>
       </summary>
       <div className="p-4 text-sm text-ui-muted">{answer}</div>
     </details>
@@ -118,7 +132,9 @@ function ContactItem({
 }) {
   return (
     <div className="flex items-start gap-3">
-      <span className="text-xl" aria-hidden="true">{icon}</span>
+      <span className="text-xl" aria-hidden="true">
+        {icon}
+      </span>
       <div>
         <p className="text-sm text-ui-muted">{label}</p>
         <p className="font-medium text-ui-text">{value}</p>

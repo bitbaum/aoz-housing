@@ -22,11 +22,7 @@ function LoginForm() {
   // Which door opens first is a brand flag. Invite links with ?code= still
   // land on the code form so the invited person just presses Anmelden.
   const [mode, setMode] = useState<LoginMode>(
-    searchParams.get('code')
-      ? 'code'
-      : BRAND.features.codeFirstLogin
-        ? 'code'
-        : 'email'
+    searchParams.get('code') ? 'code' : BRAND.features.codeFirstLogin ? 'code' : 'email',
   )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -183,129 +179,129 @@ function LoginForm() {
         <AuthSuccess message={state.message} detail={LOGIN_LABELS.success.redirecting} />
       ) : (
         <>
-        {demoDoorPanel}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {verified === '1' && (
-            <div className="alert-success" role="status">
-              {LOGIN_LABELS.emailVerified}
-            </div>
-          )}
-          {verified === '0' && (
-            <div className="alert-warning" role="status">
-              {LOGIN_LABELS.emailVerifyFailed}
-            </div>
-          )}
-          {resetDone && (
-            <div className="alert-success" role="status">
-              {LOGIN_LABELS.passwordResetDone}
-            </div>
-          )}
-          {state.status === 'error' && (
-            <div className="alert-error" role="alert" aria-live="polite">
-              {state.message}
-            </div>
-          )}
+          {demoDoorPanel}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {verified === '1' && (
+              <div className="alert-success" role="status">
+                {LOGIN_LABELS.emailVerified}
+              </div>
+            )}
+            {verified === '0' && (
+              <div className="alert-warning" role="status">
+                {LOGIN_LABELS.emailVerifyFailed}
+              </div>
+            )}
+            {resetDone && (
+              <div className="alert-success" role="status">
+                {LOGIN_LABELS.passwordResetDone}
+              </div>
+            )}
+            {state.status === 'error' && (
+              <div className="alert-error" role="alert" aria-live="polite">
+                {state.message}
+              </div>
+            )}
 
-          {mode === 'email' ? (
-            <>
+            {mode === 'email' ? (
+              <>
+                <div>
+                  <label htmlFor="email" className="label">
+                    {LOGIN_LABELS.email}
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={LOGIN_LABELS.emailPlaceholder}
+                    required
+                    autoComplete="email"
+                    autoFocus
+                    className="input"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-baseline justify-between">
+                    <label htmlFor="password" className="label">
+                      {LOGIN_LABELS.password}
+                    </label>
+                    {/* inline-flex + min-h so the tap target clears 44px without
+                      moving the label off the password row's baseline. */}
+                    <Link
+                      href="/forgot-password"
+                      className="inline-flex items-center min-h-[44px] text-xs text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
+                    >
+                      {LOGIN_LABELS.forgotPassword}
+                    </Link>
+                  </div>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    autoComplete="current-password"
+                    className="input"
+                  />
+                </div>
+              </>
+            ) : (
               <div>
-                <label htmlFor="email" className="label">
-                  {LOGIN_LABELS.email}
+                <label htmlFor="code" className="label">
+                  {LOGIN_LABELS.code}
                 </label>
                 <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={LOGIN_LABELS.emailPlaceholder}
+                  type="text"
+                  id="code"
+                  name="code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder={LOGIN_LABELS.codePlaceholder}
                   required
-                  autoComplete="email"
-                  autoFocus
-                  className="input"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  inputMode="text"
+                  autoFocus={!searchParams.get('code')}
+                  className="input font-mono text-center text-lg tracking-wider"
                 />
+                <p className="mt-1.5 text-xs text-ui-muted">{LOGIN_LABELS.codeHint}</p>
               </div>
-              <div>
-                <div className="flex items-baseline justify-between">
-                  <label htmlFor="password" className="label">
-                    {LOGIN_LABELS.password}
-                  </label>
-                  {/* inline-flex + min-h so the tap target clears 44px without
-                      moving the label off the password row's baseline. */}
-                  <Link
-                    href="/forgot-password"
-                    className="inline-flex items-center min-h-[44px] text-xs text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
-                  >
-                    {LOGIN_LABELS.forgotPassword}
-                  </Link>
-                </div>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="input"
-                />
-              </div>
-            </>
-          ) : (
-            <div>
-              <label htmlFor="code" className="label">
-                {LOGIN_LABELS.code}
-              </label>
-              <input
-                type="text"
-                id="code"
-                name="code"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder={LOGIN_LABELS.codePlaceholder}
-                required
-                autoComplete="off"
-                autoCapitalize="characters"
-                autoCorrect="off"
-                spellCheck={false}
-                inputMode="text"
-                autoFocus={!searchParams.get('code')}
-                className="input font-mono text-center text-lg tracking-wider"
-              />
-              <p className="mt-1.5 text-xs text-ui-muted">{LOGIN_LABELS.codeHint}</p>
-            </div>
-          )}
+            )}
 
-          <Button
-            type="submit"
-            disabled={state.status === 'loading'}
-            className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
-          </Button>
-
-          <div className="flex items-center justify-between text-sm">
-            <button
-              type="button"
-              onClick={() => {
-                setMode(mode === 'email' ? 'code' : 'email')
-                setState({ status: 'idle' })
-              }}
-              className="min-h-[44px] text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
+            <Button
+              type="submit"
+              disabled={state.status === 'loading'}
+              className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {mode === 'email' ? LOGIN_LABELS.useCode : LOGIN_LABELS.useEmail}
-            </button>
-            <span className="text-ui-muted">
-              {LOGIN_LABELS.noAccount}{' '}
-              <Link
-                href="/register"
-                className="inline-flex items-center min-h-[44px] font-medium text-ui-text underline underline-offset-2"
+              {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
+            </Button>
+
+            <div className="flex items-center justify-between text-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === 'email' ? 'code' : 'email')
+                  setState({ status: 'idle' })
+                }}
+                className="min-h-[44px] text-ui-muted underline-offset-2 hover:text-ui-text hover:underline"
               >
-                {LOGIN_LABELS.registerLink}
-              </Link>
-            </span>
-          </div>
-        </form>
+                {mode === 'email' ? LOGIN_LABELS.useCode : LOGIN_LABELS.useEmail}
+              </button>
+              <span className="text-ui-muted">
+                {LOGIN_LABELS.noAccount}{' '}
+                <Link
+                  href="/register"
+                  className="inline-flex items-center min-h-[44px] font-medium text-ui-text underline underline-offset-2"
+                >
+                  {LOGIN_LABELS.registerLink}
+                </Link>
+              </span>
+            </div>
+          </form>
         </>
       )}
 

@@ -53,7 +53,9 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
   // Determine suggested check-in type
   const checkInCount = placement.checkIns.length
   const suggestedType = checkInCount === 0 ? 'INITIAL' : 'REGULAR'
-  const prefilledRating = ['1', '2', '3', '4', '5'].includes(sp.rating || '') ? Number(sp.rating) : null
+  const prefilledRating = ['1', '2', '3', '4', '5'].includes(sp.rating || '')
+    ? Number(sp.rating)
+    : null
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -71,7 +73,8 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
         <p className="text-ui-muted">
           {residentName(placement.resident)} in {placement.housingUnit.code}
           {placement.spot && ` (${placement.spot.label || placement.spot.code})`}
-          {' • '}{CHECKIN_FORM_LABELS.week(weeksSinceStart)}
+          {' • '}
+          {CHECKIN_FORM_LABELS.week(weeksSinceStart)}
         </p>
       </div>
 
@@ -86,7 +89,8 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
               <div key={checkIn.id} className="flex items-center justify-between text-sm">
                 <span className="text-ui-muted">
                   {CHECK_IN_TYPE_LABELS[checkIn.checkInType] || checkIn.checkInType}
-                  {' • '}{CHECKIN_FORM_LABELS.week(checkIn.weekNumber ?? 0)}
+                  {' • '}
+                  {CHECKIN_FORM_LABELS.week(checkIn.weekNumber ?? 0)}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">
@@ -97,8 +101,8 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
                       checkIn.overallSatisfaction >= 4
                         ? 'bg-status-success'
                         : checkIn.overallSatisfaction >= 3
-                        ? 'bg-status-warning'
-                        : 'bg-status-error'
+                          ? 'bg-status-warning'
+                          : 'bg-status-error'
                     }`}
                   />
                 </div>
@@ -114,19 +118,15 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
           <input type="hidden" name="placementId" value={placement.id} />
           {prefilledRating !== null && (
             <div className="rounded-lg border border-status-warning/30 bg-status-warning/5 px-4 py-3 text-sm text-status-warning-text">
-              Vorbewertung übernommen: {prefilledRating}/5. Ergänze jetzt die Details, damit die Rückmeldung vollständig dokumentiert ist.
+              Vorbewertung übernommen: {prefilledRating}/5. Ergänze jetzt die Details, damit die
+              Rückmeldung vollständig dokumentiert ist.
             </div>
           )}
 
           {/* Check-in Type */}
           <div>
             <label className="label">{CHECKIN_FORM_LABELS.typeLabel}</label>
-            <select
-              name="checkInType"
-              required
-              className="input"
-              defaultValue={suggestedType}
-            >
+            <select name="checkInType" required className="input" defaultValue={suggestedType}>
               {Object.entries(CHECK_IN_TYPE_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>
                   {label}
@@ -140,10 +140,7 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
             <label className="label">{CHECKIN_FORM_LABELS.overallLabel}</label>
             <div className="flex gap-2 mt-2">
               {[1, 2, 3, 4, 5].map((score) => (
-                <label
-                  key={score}
-                  className="flex-1 cursor-pointer"
-                >
+                <label key={score} className="flex-1 cursor-pointer">
                   <input
                     type="radio"
                     name="overallSatisfaction"
@@ -162,9 +159,7 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
                 </label>
               ))}
             </div>
-            <p className="text-xs text-ui-muted mt-1">
-              {CHECKIN_FORM_LABELS.scaleHint}
-            </p>
+            <p className="text-xs text-ui-muted mt-1">{CHECKIN_FORM_LABELS.scaleHint}</p>
           </div>
 
           {/* Detailed Scores */}
@@ -254,9 +249,7 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
                   value="true"
                   className="rounded border-ui-border-strong text-brand-primary focus:ring-brand-primary"
                 />
-                <span className="text-sm text-ui-muted">
-                  {CHECKIN_FORM_LABELS.anonymousLabel}
-                </span>
+                <span className="text-sm text-ui-muted">{CHECKIN_FORM_LABELS.anonymousLabel}</span>
               </label>
             </div>
           </div>

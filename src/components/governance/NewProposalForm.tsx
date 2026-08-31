@@ -4,7 +4,11 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { RuleCategory, RuleDelegation, ProposalType } from '@prisma/client'
 import { RULE_CATEGORY_LABELS } from '@/lib/config/house-rules'
-import { CATEGORY_DECISION_MODE, DECISION_MODE_DESCRIPTIONS, PROPOSAL_TYPE_LABELS } from '@/lib/config/decisions'
+import {
+  CATEGORY_DECISION_MODE,
+  DECISION_MODE_DESCRIPTIONS,
+  PROPOSAL_TYPE_LABELS,
+} from '@/lib/config/decisions'
 
 interface OpenTopic {
   id: string

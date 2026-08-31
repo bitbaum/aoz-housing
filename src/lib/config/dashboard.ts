@@ -130,7 +130,7 @@ export interface SetupStep {
 
 export function setupCta(
   viewer: StaffCapabilities,
-  { housingUnitCount }: { housingUnitCount: number }
+  { housingUnitCount }: { housingUnitCount: number },
 ): SetupStep | null {
   // Housing first, but only while there is none: residents are placed INTO
   // units, so an instance with no unit cannot complete an intake.

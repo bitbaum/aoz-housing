@@ -139,7 +139,9 @@ describe('ChoreActions', () => {
     render(<ChoreActions taskId={TASK_ID} roommates={[]} />)
     fireEvent.click(screen.getByRole('button', { name: /Problem melden/i }))
     expect(screen.getByText('Problem mit Aufgabe melden')).toBeInTheDocument()
-    expect(screen.getByText('Deine Meldung wird an die Hausverwaltung weitergeleitet.')).toBeInTheDocument()
+    expect(
+      screen.getByText('Deine Meldung wird an die Hausverwaltung weitergeleitet.'),
+    ).toBeInTheDocument()
   })
 
   it('closes the modal when the ✕ button is clicked', () => {
@@ -270,7 +272,9 @@ describe('ChoreActions', () => {
     fireEvent.change(screen.getByPlaceholderText('z.B. Mitbewohner macht nie sauber...'), {
       target: { value: 'Niemand putzt das Bad' },
     })
-    fireEvent.submit(screen.getByRole('button', { name: 'Problem melden', hidden: true }).closest('form')!)
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Problem melden', hidden: true }).closest('form')!,
+    )
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
     const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
@@ -302,7 +306,7 @@ describe('ChoreActions', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(
-        'Ein Fehler ist aufgetreten. Bitte erneut versuchen.'
+        'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
       )
     })
   })

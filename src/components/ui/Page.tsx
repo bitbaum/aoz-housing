@@ -109,7 +109,7 @@ export function Toolbar({ children, className }: ToolbarProps) {
     <div
       className={clsx(
         'flex flex-col gap-3 rounded-lg border border-ui-border bg-ui-surface px-3 py-3 md:flex-row md:items-center md:justify-between',
-        className
+        className,
       )}
     >
       {children}
@@ -145,7 +145,7 @@ export function ListShell({ children, className }: ListShellProps) {
     <div
       className={clsx(
         'overflow-hidden rounded-lg border border-ui-border bg-ui-surface',
-        className
+        className,
       )}
     >
       {children}

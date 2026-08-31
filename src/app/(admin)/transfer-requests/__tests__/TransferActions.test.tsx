@@ -138,7 +138,11 @@ describe('TransferActions', () => {
 
   it('disables both buttons and shows processing label while loading', async () => {
     let resolve: (v: { success: boolean }) => void
-    mockApprove.mockReturnValue(new Promise((r) => { resolve = r }))
+    mockApprove.mockReturnValue(
+      new Promise((r) => {
+        resolve = r
+      }),
+    )
 
     render(<TransferActions requestId="req-1" residentId="res-1" />)
     fireEvent.click(screen.getByRole('button', { name: 'Genehmigen' }))
@@ -149,7 +153,9 @@ describe('TransferActions', () => {
     expect(screen.getAllByRole('button')[0]).toBeDisabled()
     expect(screen.getAllByRole('button')[1]).toBeDisabled()
 
-    await act(async () => { resolve!({ success: true }) })
+    await act(async () => {
+      resolve!({ success: true })
+    })
   })
 
   // ── Error handling ───────────────────────────────────────────────────────

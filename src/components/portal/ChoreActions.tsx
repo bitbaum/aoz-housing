@@ -60,7 +60,7 @@ export function ChoreActions({
     endpoint: string,
     buildBody: (form: FormData) => Record<string, unknown>,
     successMessage: string,
-    e: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>,
   ) {
     e.preventDefault()
     setSubmitting(true)
@@ -88,30 +88,52 @@ export function ChoreActions({
   }
 
   const handleComplete = (e: React.FormEvent<HTMLFormElement>) =>
-    submitChoreAction('complete', (form) => ({
-      notes: form.get('notes') || undefined,
-      durationMinutes: form.get('durationMinutes') ? Number(form.get('durationMinutes')) : undefined,
-      // Partial ticks are deliberately allowed. Someone who did four of five
-      // things has done four things; forcing all-or-nothing would push them to
-      // either overclaim or log nothing at all, and both corrupt the record.
-      completedItems: form.getAll('completedItems').map(String),
-    }), CHORE_LABELS.success.completed, e)
+    submitChoreAction(
+      'complete',
+      (form) => ({
+        notes: form.get('notes') || undefined,
+        durationMinutes: form.get('durationMinutes')
+          ? Number(form.get('durationMinutes'))
+          : undefined,
+        // Partial ticks are deliberately allowed. Someone who did four of five
+        // things has done four things; forcing all-or-nothing would push them to
+        // either overclaim or log nothing at all, and both corrupt the record.
+        completedItems: form.getAll('completedItems').map(String),
+      }),
+      CHORE_LABELS.success.completed,
+      e,
+    )
 
   const handleRequest = (e: React.FormEvent<HTMLFormElement>) =>
-    submitChoreAction('request', (form) => ({
-      requestedResidentId: form.get('requestedResidentId') || undefined,
-      message: form.get('message') || undefined,
-    }), CHORE_LABELS.success.requested, e)
+    submitChoreAction(
+      'request',
+      (form) => ({
+        requestedResidentId: form.get('requestedResidentId') || undefined,
+        message: form.get('message') || undefined,
+      }),
+      CHORE_LABELS.success.requested,
+      e,
+    )
 
   const handleAttention = (e: React.FormEvent<HTMLFormElement>) =>
-    submitChoreAction('attention', (form) => ({
-      message: form.get('message') || undefined,
-    }), CHORE_LABELS.success.flagged, e)
+    submitChoreAction(
+      'attention',
+      (form) => ({
+        message: form.get('message') || undefined,
+      }),
+      CHORE_LABELS.success.flagged,
+      e,
+    )
 
   const handleComplaint = (e: React.FormEvent<HTMLFormElement>) =>
-    submitChoreAction('complaint', (form) => ({
-      description: form.get('description'),
-    }), CHORE_LABELS.success.complained, e)
+    submitChoreAction(
+      'complaint',
+      (form) => ({
+        description: form.get('description'),
+      }),
+      CHORE_LABELS.success.complained,
+      e,
+    )
 
   return (
     <div>
@@ -130,25 +152,41 @@ export function ChoreActions({
       {/* Action buttons */}
       <div className="grid grid-cols-2 gap-3">
         <button
-          onClick={() => { setActiveModal('complete'); setSuccess(null); setError(null) }}
+          onClick={() => {
+            setActiveModal('complete')
+            setSuccess(null)
+            setError(null)
+          }}
           className="min-h-[44px] px-4 py-3 bg-status-success/10 text-status-success-text hover:bg-status-success/15 rounded-lg text-sm font-medium transition-colors"
         >
           ✓ {CHORE_LABELS.actions.complete}
         </button>
         <button
-          onClick={() => { setActiveModal('request'); setSuccess(null); setError(null) }}
+          onClick={() => {
+            setActiveModal('request')
+            setSuccess(null)
+            setError(null)
+          }}
           className="min-h-[44px] px-4 py-3 bg-brand-secondary/10 text-brand-secondary hover:bg-brand-secondary/15 rounded-lg text-sm font-medium transition-colors"
         >
           📩 {CHORE_LABELS.actions.request}
         </button>
         <button
-          onClick={() => { setActiveModal('attention'); setSuccess(null); setError(null) }}
+          onClick={() => {
+            setActiveModal('attention')
+            setSuccess(null)
+            setError(null)
+          }}
           className="min-h-[44px] px-4 py-3 bg-status-warning/10 text-status-warning-text hover:bg-status-warning/15 rounded-lg text-sm font-medium transition-colors"
         >
           ⚠️ {CHORE_LABELS.actions.attention}
         </button>
         <button
-          onClick={() => { setActiveModal('complaint'); setSuccess(null); setError(null) }}
+          onClick={() => {
+            setActiveModal('complaint')
+            setSuccess(null)
+            setError(null)
+          }}
           className="min-h-[44px] px-4 py-3 bg-status-error/8 text-status-error-text hover:bg-status-error/12 rounded-lg text-sm font-medium transition-colors"
         >
           🚨 {CHORE_LABELS.actions.complaint}
@@ -173,11 +211,7 @@ export function ChoreActions({
                 {activeModal === 'attention' && CHORE_LABELS.attention.title}
                 {activeModal === 'complaint' && CHORE_LABELS.complaint.title}
               </h3>
-              <button
-                onClick={closeModal}
-                className="btn-icon"
-                aria-label="Schliessen"
-              >
+              <button onClick={closeModal} className="btn-icon" aria-label="Schliessen">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -193,7 +227,7 @@ export function ChoreActions({
                       {CHORE_LABELS.complete.checklistHint}
                     </p>
                     <div className="space-y-1">
-                      {checklist.map(item => (
+                      {checklist.map((item) => (
                         <label
                           key={item}
                           className="flex items-center gap-3 min-h-[44px] px-2 -mx-2 rounded-lg cursor-pointer hover:bg-ui-subtle"
@@ -258,8 +292,10 @@ export function ChoreActions({
                     className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
                   >
                     <option value="">{CHORE_LABELS.request.broadcast}</option>
-                    {roommates.map(r => (
-                      <option key={r.id} value={r.id}>{residentName(r)}</option>
+                    {roommates.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {residentName(r)}
+                      </option>
                     ))}
                   </select>
                   <p className="text-xs text-ui-muted mt-1">{CHORE_LABELS.request.broadcastDesc}</p>

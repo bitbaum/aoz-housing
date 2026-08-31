@@ -25,7 +25,7 @@ Sentry.init({
       event.message = redactPII(event.message)
     }
     if (event.exception?.values) {
-      event.exception.values.forEach(ex => {
+      event.exception.values.forEach((ex) => {
         if (ex.value) {
           ex.value = redactPII(ex.value)
         }

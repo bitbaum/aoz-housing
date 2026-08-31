@@ -16,9 +16,24 @@ interface Props {
 }
 
 const TREND_STYLES = {
-  improving: { bg: 'bg-status-success/10', text: 'text-status-success-text', icon: '↓', label: MISSION_KPI_LABELS.trendImproving },
-  stable: { bg: 'bg-status-info/8', text: 'text-status-info-text', icon: '→', label: MISSION_KPI_LABELS.trendStable },
-  worsening: { bg: 'bg-status-error/8', text: 'text-status-error-text', icon: '↑', label: MISSION_KPI_LABELS.trendWorsening },
+  improving: {
+    bg: 'bg-status-success/10',
+    text: 'text-status-success-text',
+    icon: '↓',
+    label: MISSION_KPI_LABELS.trendImproving,
+  },
+  stable: {
+    bg: 'bg-status-info/8',
+    text: 'text-status-info-text',
+    icon: '→',
+    label: MISSION_KPI_LABELS.trendStable,
+  },
+  worsening: {
+    bg: 'bg-status-error/8',
+    text: 'text-status-error-text',
+    icon: '↑',
+    label: MISSION_KPI_LABELS.trendWorsening,
+  },
 }
 
 function pctChange(current: number, baseline: number): number {
@@ -43,12 +58,18 @@ export function MissionKPISection({ kpis, baseline }: Props) {
             {MISSION_KPI_LABELS.sectionDesc(kpis.monthsTracked)}
             {hasBaseline && baseline?.pilotStartDate && (
               <span className="ml-2 text-status-success-text font-medium">
-                · Pilot seit {new Date(baseline.pilotStartDate).toLocaleDateString('de-CH', { month: 'short', year: 'numeric' })}
+                · Pilot seit{' '}
+                {new Date(baseline.pilotStartDate).toLocaleDateString('de-CH', {
+                  month: 'short',
+                  year: 'numeric',
+                })}
               </span>
             )}
           </p>
         </div>
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium ${trendStyle.bg} ${trendStyle.text}`}>
+        <div
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium ${trendStyle.bg} ${trendStyle.text}`}
+        >
           <span aria-hidden="true">{trendStyle.icon}</span>
           {trendStyle.label}
         </div>
@@ -135,9 +156,12 @@ export function MissionKPISection({ kpis, baseline }: Props) {
           data={kpis.mediationMinutesPerMonth}
           color="text-brand-secondary"
           barColor="bg-brand-secondary"
-          baseline={baseline?.pilotBaselineMediationHoursPerWeek !== null && baseline?.pilotBaselineMediationHoursPerWeek !== undefined
-            ? Math.round(baseline.pilotBaselineMediationHoursPerWeek * 4.33 * 10) / 10
-            : null}
+          baseline={
+            baseline?.pilotBaselineMediationHoursPerWeek !== null &&
+            baseline?.pilotBaselineMediationHoursPerWeek !== undefined
+              ? Math.round(baseline.pilotBaselineMediationHoursPerWeek * 4.33 * 10) / 10
+              : null
+          }
         />
       </div>
     </div>
@@ -172,7 +196,13 @@ function KPICard({
   // Progress toward target: 0% = at baseline, 100% = at target
   const progressPct =
     hasBaseline && targetPct && value !== null
-      ? Math.min(100, Math.max(0, Math.round(((baselineValue! - value) / (baselineValue! * targetPct / 100)) * 100)))
+      ? Math.min(
+          100,
+          Math.max(
+            0,
+            Math.round(((baselineValue! - value) / ((baselineValue! * targetPct) / 100)) * 100),
+          ),
+        )
       : null
 
   const isAchieved = progressPct !== null && progressPct >= 100
@@ -182,17 +212,26 @@ function KPICard({
       <p className="text-sm text-ui-muted mb-1">{label}</p>
       <p className="text-2xl font-bold text-ui-text">
         {value !== null ? value : '—'}
-        {value !== null && unit && <span className="text-sm font-normal text-ui-muted ml-1">{unit}</span>}
+        {value !== null && unit && (
+          <span className="text-sm font-normal text-ui-muted ml-1">{unit}</span>
+        )}
       </p>
       {value === null && nudgeHref && (
-        <Link href={nudgeHref} className="inline-flex items-center min-h-[44px] px-1 text-xs text-brand-primary hover:underline">
+        <Link
+          href={nudgeHref}
+          className="inline-flex items-center min-h-[44px] px-1 text-xs text-brand-primary hover:underline"
+        >
           {MISSION_KPI_LABELS.nudgeToLog}
         </Link>
       )}
 
       {current !== null && (
         <p className="text-xs text-ui-muted mt-1">
-          {currentLabel}: <span className="font-medium text-ui-muted">{current}{unit ? ` ${unit}` : ''}</span>
+          {currentLabel}:{' '}
+          <span className="font-medium text-ui-muted">
+            {current}
+            {unit ? ` ${unit}` : ''}
+          </span>
         </p>
       )}
 
@@ -200,9 +239,13 @@ function KPICard({
         <div className="mt-2 space-y-1.5">
           {/* Baseline reference */}
           <div className="flex items-center justify-between text-xs">
-            <span className="text-ui-muted">{PILOT_BASELINE_LABELS.baselineLabel}: {baselineValue}</span>
+            <span className="text-ui-muted">
+              {PILOT_BASELINE_LABELS.baselineLabel}: {baselineValue}
+            </span>
             {targetValue !== null && (
-              <span className="text-ui-muted">{PILOT_BASELINE_LABELS.targetLabel}: {Math.round(targetValue * 10) / 10}</span>
+              <span className="text-ui-muted">
+                {PILOT_BASELINE_LABELS.targetLabel}: {Math.round(targetValue * 10) / 10}
+              </span>
             )}
           </div>
           {/* Progress bar */}
@@ -216,8 +259,14 @@ function KPICard({
           )}
           {/* Reduction label */}
           {reductionPct !== null && (
-            <p className={`text-xs font-medium ${reductionPct > 0 ? 'text-status-success-text' : reductionPct < 0 ? 'text-status-error-text' : 'text-ui-muted'}`}>
-              {reductionPct > 0 ? `↓ ${reductionPct}%` : reductionPct < 0 ? `↑ ${Math.abs(reductionPct)}%` : '→ 0%'}{' '}
+            <p
+              className={`text-xs font-medium ${reductionPct > 0 ? 'text-status-success-text' : reductionPct < 0 ? 'text-status-error-text' : 'text-ui-muted'}`}
+            >
+              {reductionPct > 0
+                ? `↓ ${reductionPct}%`
+                : reductionPct < 0
+                  ? `↑ ${Math.abs(reductionPct)}%`
+                  : '→ 0%'}{' '}
               {PILOT_BASELINE_LABELS.baselineLabel.toLowerCase()}
               {targetPct && (
                 <span className="text-ui-muted font-normal"> · Ziel: -{targetPct}%</span>
@@ -247,7 +296,7 @@ function MiniChart({
   barColor: string
   baseline: number | null
 }) {
-  const maxValue = Math.max(...data.map(d => d.value), baseline ?? 0, 1)
+  const maxValue = Math.max(...data.map((d) => d.value), baseline ?? 0, 1)
 
   return (
     <div className="rounded-lg border border-ui-border bg-ui-surface p-4">
@@ -274,7 +323,9 @@ function MiniChart({
       <div className="flex justify-between mt-1">
         <span className="text-[11px] text-ui-muted">{data[0]?.label}</span>
         {baseline !== null && (
-          <span className="text-[11px] text-ui-muted">— {PILOT_BASELINE_LABELS.baselineLabel} {baseline}</span>
+          <span className="text-[11px] text-ui-muted">
+            — {PILOT_BASELINE_LABELS.baselineLabel} {baseline}
+          </span>
         )}
         <span className="text-[11px] text-ui-muted">{data[data.length - 1]?.label}</span>
       </div>

@@ -52,7 +52,7 @@ async function assertNoViolations(page: import('@playwright/test').Page, label: 
   }
 
   const critical = results.violations.filter(
-    (v: Result) => v.impact === 'critical' || v.impact === 'serious'
+    (v: Result) => v.impact === 'critical' || v.impact === 'serious',
   )
 
   if (critical.length > 0) {

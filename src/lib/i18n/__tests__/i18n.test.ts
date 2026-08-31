@@ -43,14 +43,11 @@ describe('a language is only offered when it is finished', () => {
     //
     // So the offered set is pinned. Adding a language means adding it here on
     // purpose; losing one fails loudly, naming the language that regressed.
-    expect(availableLocales().map((locale) => locale.id).sort()).toEqual([
-      'ar',
-      'de',
-      'en',
-      'fr',
-      'ru',
-      'uk',
-    ])
+    expect(
+      availableLocales()
+        .map((locale) => locale.id)
+        .sort(),
+    ).toEqual(['ar', 'de', 'en', 'fr', 'ru', 'uk'])
   })
 
   it('warns the reader about every language nobody has vouched for', () => {
@@ -61,8 +58,9 @@ describe('a language is only offered when it is finished', () => {
       if (locale.reviewed) continue
 
       const notice = getDictionary(locale.id)['language.machineNotice']
-      expect({ id: locale.id, hasNotice: typeof notice === 'string' && notice.length > 0 })
-        .toEqual({ id: locale.id, hasNotice: true })
+      expect({ id: locale.id, hasNotice: typeof notice === 'string' && notice.length > 0 }).toEqual(
+        { id: locale.id, hasNotice: true },
+      )
     }
   })
 
@@ -119,9 +117,7 @@ describe('dictionaries stay in step with the German source', () => {
   it.each(LOCALE_IDS)('%s invents no keys of its own', (id) => {
     // A stray key is a translated string nothing renders — effort spent on
     // text no resident will ever see, and a hint that a key was renamed.
-    const orphans = Object.keys(getDictionary(id)).filter(
-      (key) => !(key in de)
-    )
+    const orphans = Object.keys(getDictionary(id)).filter((key) => !(key in de))
 
     expect({ id, orphans }).toEqual({ id, orphans: [] })
   })
@@ -129,16 +125,17 @@ describe('dictionaries stay in step with the German source', () => {
   it('has a dictionary entry for every declared locale', () => {
     // A locale in LOCALES with no entry in DICTIONARIES would throw on lookup.
     for (const id of LOCALE_IDS) {
-      expect({ id, hasDictionary: typeof getDictionary(id) === 'object' })
-        .toEqual({ id, hasDictionary: true })
+      expect({ id, hasDictionary: typeof getDictionary(id) === 'object' }).toEqual({
+        id,
+        hasDictionary: true,
+      })
     }
   })
 
   it('names every language in its own language', () => {
     // Nobody scanning a list for their language looks for the word "German".
     for (const id of LOCALE_IDS) {
-      expect({ id, endonym: LOCALES[id].endonym.length > 0 })
-        .toEqual({ id, endonym: true })
+      expect({ id, endonym: LOCALES[id].endonym.length > 0 }).toEqual({ id, endonym: true })
     }
   })
 
@@ -197,8 +194,7 @@ describe('the safety string is treated as safety copy', () => {
       const translated = getDictionary(id)['safety.emergency']
       if (translated === undefined) continue
 
-      expect({ id, keepsNumber: translated.includes('112') })
-        .toEqual({ id, keepsNumber: true })
+      expect({ id, keepsNumber: translated.includes('112') }).toEqual({ id, keepsNumber: true })
     }
   })
 })

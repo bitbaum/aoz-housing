@@ -122,7 +122,9 @@ function createFormDataRequest(data: Record<string, string>): NextRequest {
 const RESIDENT_WITH_PLACEMENT = {
   id: 'res-1',
   code: 'RES-001',
-  placements: [{ id: 'pl-1', housingUnitId: 'hu-1', status: 'ACTIVE', housingUnit: { code: 'WE-001' } }],
+  placements: [
+    { id: 'pl-1', housingUnitId: 'hu-1', status: 'ACTIVE', housingUnit: { code: 'WE-001' } },
+  ],
 }
 
 /** Resident without any active placement */
@@ -253,7 +255,7 @@ describe('POST /api/portal/report', () => {
     })
   })
 
-  test('severity maps onto the maintenance board\'s own urgency scale', async () => {
+  test("severity maps onto the maintenance board's own urgency scale", async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
@@ -264,7 +266,12 @@ describe('POST /api/portal/report', () => {
       location: 'bathroom',
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({ id: 'mr-2', category: 'PLUMBING', priority: 'URGENT', title: 'Sanitär' })
+    mockMaintenanceCreate.mockResolvedValue({
+      id: 'mr-2',
+      category: 'PLUMBING',
+      priority: 'URGENT',
+      title: 'Sanitär',
+    })
 
     await POST(createFormDataRequest({ description: 'x' }))
 
@@ -282,7 +289,12 @@ describe('POST /api/portal/report', () => {
       location: 'kitchen',
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({ id: 'mr-3', category: 'PLUMBING', priority: 'NORMAL', title: 'Sanitär' })
+    mockMaintenanceCreate.mockResolvedValue({
+      id: 'mr-3',
+      category: 'PLUMBING',
+      priority: 'NORMAL',
+      title: 'Sanitär',
+    })
 
     await POST(createFormDataRequest({ description: 'x' }))
 
@@ -432,7 +444,12 @@ describe('POST /api/portal/report', () => {
       requestMediation: false,
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({ id: 'mr-audit', category: 'PLUMBING', priority: 'HIGH', title: 'Sanitär' })
+    mockMaintenanceCreate.mockResolvedValue({
+      id: 'mr-audit',
+      category: 'PLUMBING',
+      priority: 'HIGH',
+      title: 'Sanitär',
+    })
 
     await POST(createFormDataRequest({ description: 'Rohrbruch' }))
 
@@ -477,7 +494,7 @@ describe('POST /api/portal/report', () => {
         type: 'NOISE_COMPLAINT',
         severity: 'HIGH',
         requestedMediation: true,
-      })
+      }),
     )
     expect(mockNotifyStaff).toHaveBeenCalledWith('[AOZ Housing] Neuer Vorfall', '<p>test</p>')
   })
@@ -517,7 +534,12 @@ describe('POST /api/portal/report', () => {
       location: 'basement', // not in the locations array
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({ id: 'mr-5', category: 'OTHER', priority: 'LOW', title: 'Allgemeine Wartung' })
+    mockMaintenanceCreate.mockResolvedValue({
+      id: 'mr-5',
+      category: 'OTHER',
+      priority: 'LOW',
+      title: 'Allgemeine Wartung',
+    })
 
     const req = createFormDataRequest({ description: 'Problem im Keller' })
     await POST(req)

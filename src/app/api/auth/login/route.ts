@@ -35,10 +35,7 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json()
     } catch {
-      return NextResponse.json(
-        { success: false, error: 'Code erforderlich' },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: 'Code erforderlich' }, { status: 400 })
     }
 
     const { code, email } = (body ?? {}) as { code?: unknown; email?: unknown }
@@ -48,8 +45,12 @@ export async function POST(request: NextRequest) {
     const rateCheck = checkRateLimit(clientIp)
     if (!rateCheck.allowed) {
       return NextResponse.json(
-        { success: false, error: `Zu viele Anmeldeversuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.`, retryAfter: rateCheck.retryAfter },
-        { status: 429 }
+        {
+          success: false,
+          error: `Zu viele Anmeldeversuche. Bitte warten Sie ${rateCheck.retryAfter} Sekunden.`,
+          retryAfter: rateCheck.retryAfter,
+        },
+        { status: 429 },
       )
     }
 
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
       if (!parsed.success) {
         return NextResponse.json(
           { success: false, error: ERROR_MESSAGES.INVALID_CREDENTIALS },
-          { status: 400 }
+          { status: 400 },
         )
       }
 
@@ -75,10 +76,7 @@ export async function POST(request: NextRequest) {
 
     // --- Code login ---
     if (!code || typeof code !== 'string') {
-      return NextResponse.json(
-        { success: false, error: 'Code erforderlich' },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: 'Code erforderlich' }, { status: 400 })
     }
 
     const trimmedCode = code.trim().toUpperCase()
@@ -86,10 +84,7 @@ export async function POST(request: NextRequest) {
     const result = await loginByCode(trimmedCode, clientIp)
 
     if (!result.success) {
-      return NextResponse.json(
-        { success: false, error: result.error },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: result.error }, { status: 401 })
     }
 
     // Clear rate limit on success
@@ -116,7 +111,7 @@ export async function POST(request: NextRequest) {
     logger.errorWithCause('Login failed', error)
     return NextResponse.json(
       { success: false, error: 'Ein Fehler ist aufgetreten' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

@@ -24,12 +24,8 @@ jest.mock('@/components/housing/RoomVisualization', () => ({
     onAvailableBedClick: (spot: { id: string; code: string }) => void
   }) => (
     <div data-testid="room-visualization" data-unit={housingUnitId}>
-      {spots.map(s => (
-        <button
-          key={s.id}
-          data-testid={`spot-${s.id}`}
-          onClick={() => onAvailableBedClick(s)}
-        >
+      {spots.map((s) => (
+        <button key={s.id} data-testid={`spot-${s.id}`} onClick={() => onAvailableBedClick(s)}>
           {s.code}
         </button>
       ))}
@@ -60,7 +56,7 @@ jest.mock('@/components/housing/PlacementPanel', () => ({
       data-unit={housingUnitId}
     >
       <button onClick={onClose}>Close panel</button>
-      {compatibleResidents.map(r => (
+      {compatibleResidents.map((r) => (
         <button key={r.resident.id} onClick={() => onPlaceResident(r.resident.id, spot?.id ?? '')}>
           Place {r.resident.id}
         </button>
@@ -90,9 +86,18 @@ function makeSpot(id: string, code = `SPOT-${id}`): HousingSpot {
 const RESIDENTS: CompatibleResident[] = [
   {
     resident: {
-      id: 'r1', code: 'RES-001', displayName: null, ageRange: 'ADULT', gender: 'PREFER_NOT_SAY',
-      languages: ['de'], socialStyle: 'MODERATE', sleepSchedule: 'STANDARD',
-      smokingStatus: 'NON_SMOKER', noiseTolerance: 3, cleanlinessPractice: 3, privacyNeed: 3,
+      id: 'r1',
+      code: 'RES-001',
+      displayName: null,
+      ageRange: 'ADULT',
+      gender: 'PREFER_NOT_SAY',
+      languages: ['de'],
+      socialStyle: 'MODERATE',
+      sleepSchedule: 'STANDARD',
+      smokingStatus: 'NON_SMOKER',
+      noiseTolerance: 3,
+      cleanlinessPractice: 3,
+      privacyNeed: 3,
     },
     fitScore: 85,
     strengths: [],
@@ -110,7 +115,7 @@ function renderComponent(overrides: {
       spots={overrides.spots ?? []}
       housingUnitId={overrides.housingUnitId ?? 'unit-1'}
       compatibleResidents={overrides.compatibleResidents ?? RESIDENTS}
-    />
+    />,
   )
 }
 
@@ -170,7 +175,7 @@ describe('RoomVisualizationWithPlacement', () => {
       fireEvent.click(screen.getByText('Place r1'))
     })
     expect(mockCreatePlacement).toHaveBeenCalledWith(
-      expect.objectContaining({ residentId: 'r1', spotId: 's1', housingUnitId: 'unit-1' })
+      expect.objectContaining({ residentId: 'r1', spotId: 's1', housingUnitId: 'unit-1' }),
     )
   })
 

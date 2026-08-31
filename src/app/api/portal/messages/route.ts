@@ -26,7 +26,10 @@ const sendSchema = z.object({
 export async function GET() {
   const resident = await getPortalResident()
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   try {
@@ -39,25 +42,37 @@ export async function GET() {
     return NextResponse.json({ success: true, data: { messages } })
   } catch (error) {
     logger.errorWithCause('Failed to load resident message thread', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SESSION_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
+      { status: 500 },
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
   const resident = await getPortalResident()
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   let body: string
   try {
     const parsed = sendSchema.safeParse(await request.json())
     if (!parsed.success || !isSendableBody(parsed.data.body)) {
-      return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+      return NextResponse.json(
+        { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+        { status: 400 },
+      )
     }
     body = parsed.data.body
   } catch {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_INPUT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_INPUT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -71,6 +86,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data: { message } })
   } catch (error) {
     logger.errorWithCause('Failed to send resident message', error)
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SESSION_ERROR }, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
+      { status: 500 },
+    )
   }
 }

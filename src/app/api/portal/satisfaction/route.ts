@@ -11,14 +11,20 @@ export async function POST(request: NextRequest) {
   const residentCode = await getResidentCookie()
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const body = await request.json()
   const parsed = portalSatisfactionSchema.safeParse(body)
 
   if (!parsed.success) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.INVALID_RATING }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.INVALID_RATING },
+      { status: 400 },
+    )
   }
 
   const { rating, concerns } = parsed.data
@@ -36,12 +42,18 @@ export async function POST(request: NextRequest) {
   })
 
   if (!resident) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }, { status: 404 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },
+      { status: 404 },
+    )
   }
 
   const placement = resident.placements[0]
   if (!placement) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NO_ACTIVE_PLACEMENT }, { status: 400 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NO_ACTIVE_PLACEMENT },
+      { status: 400 },
+    )
   }
 
   try {
@@ -116,7 +128,10 @@ export async function GET() {
   const residentCode = await getResidentCookie()
 
   if (!residentCode) {
-    return NextResponse.json({ success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }, { status: 401 })
+    return NextResponse.json(
+      { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED },
+      { status: 401 },
+    )
   }
 
   const resident = await prisma.resident.findUnique({

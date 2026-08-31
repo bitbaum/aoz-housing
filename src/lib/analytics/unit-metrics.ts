@@ -12,26 +12,26 @@ export interface UnitMetrics {
   unitCode: string
 
   // Historical performance
-  conflictRate: number          // Conflicts per month (last 6 months)
-  recentConflicts: number        // Count in last 30 days
-  totalConflicts: number         // All-time count
+  conflictRate: number // Conflicts per month (last 6 months)
+  recentConflicts: number // Count in last 30 days
+  totalConflicts: number // All-time count
 
   // Stability metrics
-  avgPlacementDuration: number   // Days residents stay
-  turnoverRate: number           // % of placements that ended early
-  successRate: number            // % of placements that lasted 6+ months
+  avgPlacementDuration: number // Days residents stay
+  turnoverRate: number // % of placements that ended early
+  successRate: number // % of placements that lasted 6+ months
 
   // Current state
-  currentOccupancy: number       // How many residents now
-  occupancyRate: number          // % of beds filled
+  currentOccupancy: number // How many residents now
+  occupancyRate: number // % of beds filled
 
   // Quality indicators
   avgSatisfaction: number | null // From check-ins (1-5)
-  incidentFreeMonths: number     // Consecutive months without incidents
+  incidentFreeMonths: number // Consecutive months without incidents
 
   // Classification
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
-  label: string                  // "Stable", "Improving", "Concerning", etc.
+  label: string // "Stable", "Improving", "Concerning", etc.
 }
 
 /**
@@ -48,21 +48,21 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
     include: {
       placements: {
         where: {
-          startDate: { gte: sixMonthsAgo }
+          startDate: { gte: sixMonthsAgo },
         },
         include: {
           checkIns: {
             select: {
-              overallSatisfaction: true
-            }
-          }
-        }
+              overallSatisfaction: true,
+            },
+          },
+        },
       },
       incidents: {
         where: {
           category: 'INTERPERSONAL',
-          date: { gte: sixMonthsAgo }
-        }
+          date: { gte: sixMonthsAgo },
+        },
       },
     },
   })
@@ -76,58 +76,59 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
   const conflictRate = unit.incidents.length / monthsSinceOldest
 
   // Recent conflicts (last 30 days)
-  const recentConflicts = unit.incidents.filter(i =>
-    new Date(i.date) >= thirtyDaysAgo
-  ).length
+  const recentConflicts = unit.incidents.filter((i) => new Date(i.date) >= thirtyDaysAgo).length
 
   // Total conflicts (all incidents)
   const totalConflicts = await prisma.incident.count({
     where: {
       housingUnitId: unitId,
-      category: 'INTERPERSONAL'
-    }
+      category: 'INTERPERSONAL',
+    },
   })
 
   // Placement duration analysis
-  const endedPlacements = unit.placements.filter(p => p.endDate !== null)
-  const avgDuration = endedPlacements.length > 0
-    ? endedPlacements.reduce((sum, p) => {
-        const duration = (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)
-        return sum + duration
-      }, 0) / endedPlacements.length
-    : 0
+  const endedPlacements = unit.placements.filter((p) => p.endDate !== null)
+  const avgDuration =
+    endedPlacements.length > 0
+      ? endedPlacements.reduce((sum, p) => {
+          const duration =
+            (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) /
+            (1000 * 60 * 60 * 24)
+          return sum + duration
+        }, 0) / endedPlacements.length
+      : 0
 
   // Success rate (6+ months)
-  const successfulPlacements = endedPlacements.filter(p => {
-    const duration = (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)
+  const successfulPlacements = endedPlacements.filter((p) => {
+    const duration =
+      (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)
     return duration >= 180 // 6 months
   })
-  const successRate = endedPlacements.length > 0
-    ? (successfulPlacements.length / endedPlacements.length) * 100
-    : 100 // No data = assume good
+  const successRate =
+    endedPlacements.length > 0 ? (successfulPlacements.length / endedPlacements.length) * 100 : 100 // No data = assume good
 
   // Turnover rate (ended due to conflict)
-  const conflictEnds = endedPlacements.filter(p =>
-    p.endReason === 'CONFLICT' || p.endReason === 'REQUEST'
+  const conflictEnds = endedPlacements.filter(
+    (p) => p.endReason === 'CONFLICT' || p.endReason === 'REQUEST',
   )
-  const turnoverRate = endedPlacements.length > 0
-    ? (conflictEnds.length / endedPlacements.length) * 100
-    : 0
+  const turnoverRate =
+    endedPlacements.length > 0 ? (conflictEnds.length / endedPlacements.length) * 100 : 0
 
   // Current occupancy
   const activePlacements = await prisma.placement.count({
     where: {
       housingUnitId: unitId,
-      status: 'ACTIVE'
-    }
+      status: 'ACTIVE',
+    },
   })
   const occupancyRate = (activePlacements / unit.totalBeds) * 100
 
   // Average satisfaction from check-ins
-  const allCheckIns = unit.placements.flatMap(p => p.checkIns)
-  const avgSatisfaction = allCheckIns.length > 0
-    ? allCheckIns.reduce((sum, c) => sum + c.overallSatisfaction, 0) / allCheckIns.length
-    : null
+  const allCheckIns = unit.placements.flatMap((p) => p.checkIns)
+  const avgSatisfaction =
+    allCheckIns.length > 0
+      ? allCheckIns.reduce((sum, c) => sum + c.overallSatisfaction, 0) / allCheckIns.length
+      : null
 
   // Incident-free months — one query, bucketed in JS in Zurich timezone.
   // Was 12 sequential counts per call (worst-case N+1 in matching page).
@@ -142,7 +143,7 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
     select: { date: true },
   })
 
-  const monthsWithIncidents = new Set(interpersonalIncidents.map(i => zurichMonthKey(i.date)))
+  const monthsWithIncidents = new Set(interpersonalIncidents.map((i) => zurichMonthKey(i.date)))
   let incidentFreeMonths = 0
   for (let i = 0; i < monthsToCheck; i++) {
     const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1)
@@ -169,10 +170,13 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
     label = 'Sehr stabil'
   } else if (incidentFreeMonths >= 3) {
     label = 'Stabil'
-  } else if (recentConflicts < unit.incidents.filter(i => {
-    const twoMonthsAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
-    return new Date(i.date) >= twoMonthsAgo && new Date(i.date) < thirtyDaysAgo
-  }).length) {
+  } else if (
+    recentConflicts <
+    unit.incidents.filter((i) => {
+      const twoMonthsAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+      return new Date(i.date) >= twoMonthsAgo && new Date(i.date) < thirtyDaysAgo
+    }).length
+  ) {
     label = 'Verbesserung'
   } else if (recentConflicts > 2) {
     label = 'Kritisch'
@@ -206,12 +210,10 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
 export async function calculateAllUnitMetrics(): Promise<UnitMetrics[]> {
   const units = await prisma.housingUnit.findMany({
     where: { status: { in: ['AVAILABLE', 'FULL'] } },
-    select: { id: true }
+    select: { id: true },
   })
 
-  const metrics = await Promise.all(
-    units.map(u => calculateUnitMetrics(u.id))
-  )
+  const metrics = await Promise.all(units.map((u) => calculateUnitMetrics(u.id)))
 
   return metrics
 }
@@ -221,7 +223,7 @@ export async function calculateAllUnitMetrics(): Promise<UnitMetrics[]> {
  */
 export async function getSimilarPlacementSuccessRate(
   compatibilityScore: number,
-  range: number = 10
+  range: number = 10,
 ): Promise<{
   successRate: number
   totalPlacements: number
@@ -231,28 +233,29 @@ export async function getSimilarPlacementSuccessRate(
     where: {
       compatibilityScore: {
         gte: compatibilityScore - range,
-        lte: compatibilityScore + range
+        lte: compatibilityScore + range,
       },
-      endDate: { not: null }
-    }
+      endDate: { not: null },
+    },
   })
 
   if (placements.length === 0) {
     return {
       successRate: 0,
       totalPlacements: 0,
-      successfulPlacements: 0
+      successfulPlacements: 0,
     }
   }
 
-  const successful = placements.filter(p => {
-    const duration = (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)
+  const successful = placements.filter((p) => {
+    const duration =
+      (new Date(p.endDate!).getTime() - new Date(p.startDate).getTime()) / (1000 * 60 * 60 * 24)
     return duration >= 180 && p.endReason !== 'CONFLICT'
   })
 
   return {
     successRate: Math.round((successful.length / placements.length) * 100),
     totalPlacements: placements.length,
-    successfulPlacements: successful.length
+    successfulPlacements: successful.length,
   }
 }

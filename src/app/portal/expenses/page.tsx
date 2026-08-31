@@ -103,8 +103,8 @@ export default async function PortalExpensesPage() {
                   className="flex items-center justify-between gap-3 text-sm"
                 >
                   <span className="text-ui-text">
-                    <span className="font-medium">{nameOf(transfer.fromId)}</span>{' '}
-                    {L.suggestedPays} <span className="font-medium">{nameOf(transfer.toId)}</span>{' '}
+                    <span className="font-medium">{nameOf(transfer.fromId)}</span> {L.suggestedPays}{' '}
+                    <span className="font-medium">{nameOf(transfer.toId)}</span>{' '}
                     <span className="numeric">{formatRappen(transfer.amountRappen)}</span>
                   </span>
                   {transfer.fromId === auth.resident.id && (
@@ -137,7 +137,10 @@ export default async function PortalExpensesPage() {
           date: e.date.toISOString(),
           paidByName: nameOf(e.paidById),
           recordedByName: e.createdById === e.paidById ? null : nameOf(e.createdById),
-          shares: e.shares.map((s) => ({ name: nameOf(s.residentId), amountRappen: s.amountRappen })),
+          shares: e.shares.map((s) => ({
+            name: nameOf(s.residentId),
+            amountRappen: s.amountRappen,
+          })),
           splitAcrossAll:
             data.members.length > 0 &&
             data.members.every((m) => e.shares.some((s) => s.residentId === m.id)),
@@ -147,7 +150,10 @@ export default async function PortalExpensesPage() {
 
       {/* Monthly statement */}
       <MonthlyStatements
-        statements={monthlyStatements(data.expenses, data.members.map((m) => m.id))}
+        statements={monthlyStatements(
+          data.expenses,
+          data.members.map((m) => m.id),
+        )}
         nameOf={namesById}
         labels={L}
       />

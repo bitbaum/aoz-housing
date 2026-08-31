@@ -33,7 +33,7 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
 
   function toggleParticipant(id: string) {
     setParticipantIds((current) =>
-      current.includes(id) ? current.filter((p) => p !== id) : [...current, id]
+      current.includes(id) ? current.filter((p) => p !== id) : [...current, id],
     )
   }
 
@@ -156,7 +156,10 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
         </legend>
         <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
           {members.map((m) => (
-            <label key={m.id} className="inline-flex items-center gap-2 min-h-[44px] text-sm text-ui-text">
+            <label
+              key={m.id}
+              className="inline-flex items-center gap-2 min-h-[44px] text-sm text-ui-text"
+            >
               <input
                 type="checkbox"
                 checked={participantIds.includes(m.id)}
@@ -176,7 +179,11 @@ export function AddExpenseForm({ myResidentId, members }: AddExpenseFormProps) {
       )}
 
       <div className="mt-4 flex gap-3">
-        <button type="submit" disabled={submitting || participantIds.length === 0} className="btn-primary">
+        <button
+          type="submit"
+          disabled={submitting || participantIds.length === 0}
+          className="btn-primary"
+        >
           {submitting ? t('action.saving') : t('action.save')}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="btn-ghost">

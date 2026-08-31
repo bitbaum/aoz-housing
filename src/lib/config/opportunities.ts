@@ -50,10 +50,7 @@ export function isWorkKind(kind: string): kind is WorkOpportunityKindId {
  * which cannot publish. That is the intended outcome: the unknown case belongs
  * with Sozialarbeit before it reaches a resident, not on a board.
  */
-export function permitRequirementIsStated(
-  kind: string,
-  permitRequirement: string
-): boolean {
+export function permitRequirementIsStated(kind: string, permitRequirement: string): boolean {
   if (!isWorkKind(kind)) return true
   return permitRequirement === 'EMPLOYER_NOTIFIES' || permitRequirement === 'PERMIT_REQUIRED'
 }

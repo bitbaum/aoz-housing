@@ -57,12 +57,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -140,9 +160,7 @@ describe('createCheckInFromForm', () => {
     })
     ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
 
-    await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
-      'NEXT_REDIRECT',
-    )
+    await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow('NEXT_REDIRECT')
 
     expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({
       data: expect.objectContaining({
@@ -244,9 +262,7 @@ describe('createCheckInFromForm', () => {
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockRejectedValue(
-      new Error('DB error'),
-    )
+    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
       ERROR_MESSAGES.CHECKIN_SAVE_ERROR,
@@ -293,7 +309,7 @@ describe('who collected a check-in', () => {
       ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
 
       await expect(
-        createCheckInFromForm(makeCheckInFormData({ collectedBy: typed }))
+        createCheckInFromForm(makeCheckInFormData({ collectedBy: typed })),
       ).rejects.toThrow('NEXT_REDIRECT')
 
       const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
@@ -304,7 +320,7 @@ describe('who collected a check-in', () => {
 
   it('keeps the typed note and the account as separate fields', async () => {
     await expect(
-      createCheckInFromForm(makeCheckInFormData({ collectedBy: 'Team Nord' }))
+      createCheckInFromForm(makeCheckInFormData({ collectedBy: 'Team Nord' })),
     ).rejects.toThrow('NEXT_REDIRECT')
 
     const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
@@ -323,9 +339,7 @@ describe('getPlacementCheckIns', () => {
       { id: 'ci-1', overallSatisfaction: 4 },
       { id: 'ci-2', overallSatisfaction: 3 },
     ]
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue(
-      mockCheckIns,
-    )
+    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue(mockCheckIns)
 
     const result = await getPlacementCheckIns('pl-1')
 
@@ -400,9 +414,7 @@ describe('getPlacementSatisfactionTrend', () => {
 
     const result = await getPlacementSatisfactionTrend('pl-1')
 
-    expect(result).toEqual([
-      { date: date1, week: 1, overall: 3, roommates: null },
-    ])
+    expect(result).toEqual([{ date: date1, week: 1, overall: 3, roommates: null }])
   })
 
   it('returns empty array when no check-ins exist', async () => {
@@ -423,6 +435,8 @@ describe('auth guard', () => {
     const { requirePermission: mockRequirePermission } = require('@/lib/auth')
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
-    await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow('Anmeldung erforderlich')
+    await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
+      'Anmeldung erforderlich',
+    )
   })
 })

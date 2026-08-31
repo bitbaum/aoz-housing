@@ -17,9 +17,7 @@ export interface SessionResult {
   roles: Array<'staff' | 'resident'>
 }
 
-export async function establishSessions(
-  identities: AccountIdentities
-): Promise<SessionResult> {
+export async function establishSessions(identities: AccountIdentities): Promise<SessionResult> {
   if (identities.staff) {
     const { id, email, name, role } = identities.staff
     await setSessionCookie({ id, email, name, role })

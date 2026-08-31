@@ -50,7 +50,7 @@ export const MATCHING_LABELS = {
   // Unit mode
   matchingResidents: 'Passende Klient*innen',
   occupied: 'belegt',
-  freeSpots: (n: number) => n === 1 ? 'freier Platz' : 'freie Plätze',
+  freeSpots: (n: number) => (n === 1 ? 'freier Platz' : 'freie Plätze'),
   back: 'Zurück',
   noMatchingResidents: 'Keine passenden unplatzierten Klient*innen',
   createNewResident: 'Neue*n Klient*in erfassen',
@@ -73,7 +73,8 @@ export const MATCHING_LABELS = {
   profileCaptured: 'Profil erfasst',
   findUnit: 'Unterkunft finden',
   residentCreated: (code: string) => `Klient*in ${code} erfolgreich erstellt`,
-  newResidentBannerDesc: 'Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach Kompatibilität sortiert - oben die besten Matches.',
+  newResidentBannerDesc:
+    'Wählen Sie jetzt eine passende Unterkunft. Die Unterkünfte sind nach Kompatibilität sortiert - oben die besten Matches.',
   selectResidentForMatches: 'Wählen Sie eine*n Klient*in aus, um Matches zu sehen',
   orSelectUnit: 'oder wählen Sie eine Unterkunft, um zu sehen wer dort passt:',
   freeBeds: (free: number, total: number) => `${free} von ${total} frei`,
@@ -103,7 +104,8 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   sourcesLabel: (count: number) => `${count} Quellen`,
   ethicsValue: 'Ethisch',
   ethicsLabel: 'gestaltet',
-  dimensionsIntro: 'Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert. Klicken Sie auf eine Dimension für Details.',
+  dimensionsIntro:
+    'Alle Faktoren werden direkt aus der Algorithmus-Konfiguration generiert. Klicken Sie auf eine Dimension für Details.',
   factorsCount: (n: number) => `${n} Faktoren`,
   // Overview tab sections
   howItWorksTitle: 'So funktioniert das Matching',
@@ -111,8 +113,10 @@ export const ALGORITHM_OVERVIEW_LABELS = {
   processStep2Desc: (count: number) => `${count} Faktoren werden gewichtet verglichen.`,
   processStep3Desc: 'Ein Score zeigt die Eignung, Warnungen weisen auf Risiken hin.',
   scienceMethodTitle: 'Wissenschaftliche Methodik',
-  scienceMethodP1: 'Die Gewichtung der Faktoren basiert auf einem evidenzbasierten Ansatz: Jeder Faktor wird durch mindestens eine publizierte Studie gestützt. Wir unterscheiden zwischen starker Evidenz (experimentelle Studien, grosse Umfragen), moderater Evidenz (Beobachtungsstudien, Expertenkonsens) und vorläufiger Evidenz (Einzelstudien, indirekte Belege).',
-  scienceMethodP2: 'Schweizer Forschung wird priorisiert, da sie den lokalen Kontext von Asylunterkünften am besten abbildet. Internationale Studien dienen zur Validierung und Ergänzung. Die Gewichtungen werden regelmässig überprüft, wenn neue Forschungsergebnisse vorliegen.',
+  scienceMethodP1:
+    'Die Gewichtung der Faktoren basiert auf einem evidenzbasierten Ansatz: Jeder Faktor wird durch mindestens eine publizierte Studie gestützt. Wir unterscheiden zwischen starker Evidenz (experimentelle Studien, grosse Umfragen), moderater Evidenz (Beobachtungsstudien, Expertenkonsens) und vorläufiger Evidenz (Einzelstudien, indirekte Belege).',
+  scienceMethodP2:
+    'Schweizer Forschung wird priorisiert, da sie den lokalen Kontext von Asylunterkünften am besten abbildet. Internationale Studien dienen zur Validierung und Ergänzung. Die Gewichtungen werden regelmässig überprüft, wenn neue Forschungsergebnisse vorliegen.',
   dimensionsSectionTitle: (count: number) => `Die ${count} Dimensionen`,
   weightDistribution: 'Gewichtungsverteilung',
   scoreInterpTitle: 'Score-Interpretation',
@@ -129,7 +133,8 @@ export const TECHNICAL_TAB_LABELS = {
   examplePrefix: 'Beispiel:',
   logicPrefix: 'Logik:',
   weightDerivationTitle: 'Gewichtungsherleitung',
-  weightDerivationDesc: 'Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der Forschungsbelege für die zugehörigen Faktoren.',
+  weightDerivationDesc:
+    'Die Gewichtung jeder Dimension basiert auf der Stärke und Häufigkeit der Forschungsbelege für die zugehörigen Faktoren.',
   colDimension: 'Dimension',
   colWeight: 'Gewicht',
   colRationale: 'Begründung',
@@ -143,13 +148,15 @@ export const TECHNICAL_TAB_LABELS = {
   incompatibleBehaviorLabel: 'Inkompatibles Verhalten:',
   incompatibleBehaviorDesc: 'Innen-Raucher + Nichtraucher in gleicher Einheit',
   confidenceMatrixTitle: 'Konfidenz-Matrix',
-  confidenceMatrixDesc: 'Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres Vertrauen in die Gewichtung.',
+  confidenceMatrixDesc:
+    'Übersicht der Evidenzstärke pro Faktor. Stärkere Evidenz bedeutet höheres Vertrauen in die Gewichtung.',
   weightSuffix: '% Gewicht',
   versionHistoryTitle: 'Algorithmus-Versionshistorie',
   versionPrefix: 'Version',
   currentBadge: 'Aktuell',
   configTitle: 'Konfiguration (SSOT)',
-  configDesc: 'Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert. Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.',
+  configDesc:
+    'Alle Faktoren, Gewichtungen und Regeln sind in der Konfiguration definiert. Änderungen dort aktualisieren automatisch diese Seite und den Algorithmus.',
   configFile1: 'src/lib/config/resident-factors.ts - Faktoren & Dimensionen',
   configFile2: 'src/lib/config/algorithm-docs.ts - Wissenschaftliche Basis',
   configFile3: 'src/lib/config/types.ts - Typdefinitionen',
@@ -157,21 +164,26 @@ export const TECHNICAL_TAB_LABELS = {
 
 export const SCIENCE_TAB_LABELS = {
   title: 'Wissenschaftliche Grundlage',
-  intro: 'Die Faktorenauswahl basiert auf Forschung zu Wohnkonflikten aus der Schweiz, Deutschland und internationalen Studien. Die Gewichtungen spiegeln die empirisch belegte Bedeutung wider.',
+  intro:
+    'Die Faktorenauswahl basiert auf Forschung zu Wohnkonflikten aus der Schweiz, Deutschland und internationalen Studien. Die Gewichtungen spiegeln die empirisch belegte Bedeutung wider.',
   evidenceHierarchyTitle: 'Evidenz-Hierarchie',
-  evidenceHierarchyDesc: 'Nicht alle Forschung hat die gleiche Aussagekraft. Wir bewerten jede Quelle nach ihrer methodischen Stärke.',
+  evidenceHierarchyDesc:
+    'Nicht alle Forschung hat die gleiche Aussagekraft. Wir bewerten jede Quelle nach ihrer methodischen Stärke.',
   examplePrefix: 'Beispiel:',
   evidenceMapTitle: 'Evidenz-Karte pro Dimension',
-  evidenceMapDesc: 'Welche Forschung stützt welche Dimension? Schweizer Studien sind mit einem Flag markiert.',
+  evidenceMapDesc:
+    'Welche Forschung stützt welche Dimension? Schweizer Studien sind mit einem Flag markiert.',
   weightSuffix: '% Gewicht',
   evidencePerFactorTitle: 'Evidenz pro Faktor',
-  evidencePerFactorDesc: 'Detaillierte wissenschaftliche Grundlage für jeden Kompatibilitätsfaktor.',
+  evidencePerFactorDesc:
+    'Detaillierte wissenschaftliche Grundlage für jeden Kompatibilitätsfaktor.',
   sourcesLabel: 'Quellen:',
 } as const
 
 export const DATA_COLLECTION_TAB_LABELS = {
   title: 'Wie werden die Daten erfasst?',
-  intro: 'Alle Daten werden bei der Aufnahme durch das Klient*innen-Formular erfasst. Die Fragen sind so gestaltet, dass sie ohne Sprachbarrieren verständlich sind (Skalen, Bildauswahl wo möglich).',
+  intro:
+    'Alle Daten werden bei der Aufnahme durch das Klient*innen-Formular erfasst. Die Fragen sind so gestaltet, dass sie ohne Sprachbarrieren verständlich sind (Skalen, Bildauswahl wo möglich).',
   privacyTitle: 'Datenschutz-Grundsätze',
   privacyBullet1: '- Nur funktionale Daten, keine medizinischen Diagnosen',
   privacyBullet2: '- Selbstauskunft der Klient*innen',
@@ -188,7 +200,8 @@ export const PLACEMENT_ACTIONS_LABELS = {
   transferTitle: 'Klient*in verlegen',
   endTitle: 'Platzierung beenden',
   conflictAnalysisTitle: 'Konfliktanalyse',
-  conflictAnalysisDesc: 'Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.',
+  conflictAnalysisDesc:
+    'Diese Angaben helfen, das Matching zu verbessern und zukünftige Konflikte zu vermeiden.',
   conflictCauseLabel: 'Hauptursache des Konflikts *',
   conflictPredictableLabel: 'War der Konflikt vorhersehbar?',
   conflictAlgorithmLabel: 'Hätte der Algorithmus diesen Konflikt vorhersagen können?',
@@ -210,7 +223,8 @@ export const PLACEMENT_ACTIONS_LABELS = {
   transferConfirmBtnPending: 'Wird verlegt...',
   // Hints
   shortcutHint: 'Schnellzugriff: Alt+Shift+V (Verlegen), Alt+Shift+E (Beenden)',
-  noEligibleUnits: 'Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diese*n Klient*in. Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.',
+  noEligibleUnits:
+    'Aktuell gibt es keine geeigneten Ziel-Unterkünfte für diese*n Klient*in. Prüfen Sie medizinische Berechtigung oder verfügbare Plätze.',
   // Transfer form
   targetUnitLabel: 'Ziel-Unterkunft *',
   targetSpotLabel: 'Ziel-Platz *',
@@ -223,7 +237,8 @@ export const PLACEMENT_ACTIONS_LABELS = {
   summaryLabel: 'Zusammenfassung:',
   // End form
   endWarningTitle: 'Achtung:',
-  endWarning: 'Diese Aktion beendet die aktuelle Platzierung. Der*die Klient*in wird als nicht platziert markiert.',
+  endWarning:
+    'Diese Aktion beendet die aktuelle Platzierung. Der*die Klient*in wird als nicht platziert markiert.',
   endReasonLabel: 'Grund *',
   conflictPredictableYes: 'Ja',
   conflictScoreHint: (score: number) => `(Score war ${score}%)`,
@@ -255,9 +270,11 @@ export const PLACEMENT_CONFIRM_LABELS = {
   spot: 'Platz:',
   compatibility: 'Kompatibilität:',
   lowCompatWarning: 'Niedrige Kompatibilität',
-  lowCompatMessage: 'Diese Platzierung hat eine niedrige Kompatibilitätsbewertung. Bitte stellen Sie sicher, dass dies die beste verfügbare Option ist.',
+  lowCompatMessage:
+    'Diese Platzierung hat eine niedrige Kompatibilitätsbewertung. Bitte stellen Sie sicher, dass dies die beste verfügbare Option ist.',
   notePoints: 'Beachten Sie folgende Punkte:',
-  confirmMessage: 'Diese Aktion wird die*den Klient*in platzieren und den Platz als belegt markieren. Möchten Sie fortfahren?',
+  confirmMessage:
+    'Diese Aktion wird die*den Klient*in platzieren und den Platz als belegt markieren. Möchten Sie fortfahren?',
   cancel: 'Abbrechen',
   placing: 'Wird platziert...',
   confirm: 'Jetzt platzieren',

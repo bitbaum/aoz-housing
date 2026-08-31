@@ -112,9 +112,10 @@ export default async function ResidentPortal() {
 
   const currentPlacement = resident.placements[0]
   const housingUnit = currentPlacement?.housingUnit
-  const roommates = housingUnit?.placements
-    .filter(p => p.residentId !== resident.id)
-    .map(p => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null })) || []
+  const roommates =
+    housingUnit?.placements
+      .filter((p) => p.residentId !== resident.id)
+      .map((p) => ({ ...p.resident, photoVersion: p.resident.photo?.updatedAt ?? null })) || []
   const lastCheckIn = currentPlacement?.checkIns?.[0]
   // The full set is merged first so the card knows how many there really are.
   // Slicing before counting is what let the preview claim to be the whole list.
@@ -122,7 +123,15 @@ export default async function ResidentPortal() {
   const myReports = allReports.slice(0, DISPLAY_LIMITS.portalIncidentPreview)
 
   const now = new Date()
-  const [pendingChores, compatibilityScores, highlightedActivities, expenseData, careSeats, upcomingAppointments, myMarketplacePosts] = await Promise.all([
+  const [
+    pendingChores,
+    compatibilityScores,
+    highlightedActivities,
+    expenseData,
+    careSeats,
+    upcomingAppointments,
+    myMarketplacePosts,
+  ] = await Promise.all([
     currentPlacement
       ? prisma.householdTask.findMany({
           where: {
@@ -139,8 +148,8 @@ export default async function ResidentPortal() {
       ? prisma.compatibilityAssessment.findMany({
           where: {
             OR: [
-              { residentId: resident.id, comparedWithId: { in: roommates.map(r => r.id) } },
-              { residentId: { in: roommates.map(r => r.id) }, comparedWithId: resident.id },
+              { residentId: resident.id, comparedWithId: { in: roommates.map((r) => r.id) } },
+              { residentId: { in: roommates.map((r) => r.id) }, comparedWithId: resident.id },
             ],
           },
           select: {
@@ -156,9 +165,7 @@ export default async function ResidentPortal() {
       activeOn: now,
       take: DISPLAY_LIMITS.dashboardItems,
     }),
-    currentPlacement
-      ? getUnitExpenseData(currentPlacement.housingUnitId)
-      : Promise.resolve(null),
+    currentPlacement ? getUnitExpenseData(currentPlacement.housingUnitId) : Promise.resolve(null),
     getCareTeam(resident.id),
     listUpcomingResidentAppointments(resident.id),
     listMyMarketplacePosts(),
@@ -172,9 +179,7 @@ export default async function ResidentPortal() {
           <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
             {t('dashboard.welcome')}, {residentName(resident)}
           </h1>
-          <p className="text-ui-muted mt-1">
-            {t('dashboard.subtitle')}
-          </p>
+          <p className="text-ui-muted mt-1">{t('dashboard.subtitle')}</p>
         </div>
         <Link href="/portal/profile" aria-label={t('nav.profile')} className="shrink-0">
           <ResidentAvatar resident={resident} photoVersion={resident.photo?.updatedAt} />
@@ -236,16 +241,11 @@ export default async function ResidentPortal() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Roommates Preview */}
         {roommates.length > 0 && (
-          <PortalRoommatesCard
-            roommates={roommates}
-            compatibilityScores={compatibilityScores}
-          />
+          <PortalRoommatesCard roommates={roommates} compatibilityScores={compatibilityScores} />
         )}
 
         {/* Shared expenses balance */}
-        {expenseData && (
-          <PortalExpensesCard myBalance={expenseData.balances[resident.id] ?? 0} />
-        )}
+        {expenseData && <PortalExpensesCard myBalance={expenseData.balances[resident.id] ?? 0} />}
 
         {/* Your own marketplace posts, and whether anyone answered them. The
             board had no way of telling you a claim had happened. */}

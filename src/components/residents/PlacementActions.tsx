@@ -78,11 +78,11 @@ export function PlacementActions({
 
   return (
     <div id="placement-actions" className="mt-4 pt-4 border-t scroll-mt-24">
-      <h3 className="text-sm font-medium text-ui-muted mb-1">{PLACEMENT_ACTIONS_LABELS.actionsTitle}</h3>
+      <h3 className="text-sm font-medium text-ui-muted mb-1">
+        {PLACEMENT_ACTIONS_LABELS.actionsTitle}
+      </h3>
       {canWritePlacement && (
-        <p className="text-xs text-ui-muted mb-3">
-          {PLACEMENT_ACTIONS_LABELS.shortcutHint}
-        </p>
+        <p className="text-xs text-ui-muted mb-3">{PLACEMENT_ACTIONS_LABELS.shortcutHint}</p>
       )}
       <div className="flex flex-wrap gap-2">
         {canWriteCheckIn && (

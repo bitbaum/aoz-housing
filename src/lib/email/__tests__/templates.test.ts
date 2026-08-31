@@ -97,13 +97,15 @@ describe('incidentFollowUpReminder', () => {
   })
 
   test('handles incident without housing unit code', () => {
-    const result = incidentFollowUpReminder([{
-      id: 'abc12345',
-      description: 'Test',
-      severity: 'HIGH',
-      housingUnitCode: undefined,
-      nextFollowUpDate: new Date('2026-01-01'),
-    }])
+    const result = incidentFollowUpReminder([
+      {
+        id: 'abc12345',
+        description: 'Test',
+        severity: 'HIGH',
+        housingUnitCode: undefined,
+        nextFollowUpDate: new Date('2026-01-01'),
+      },
+    ])
     // Should show dash for missing unit code
     expect(result.html).toContain('-')
   })
@@ -345,8 +347,14 @@ describe('newIncidentNotification', () => {
   })
 
   test('handles CRITICAL severity correctly', () => {
-    const result = newIncidentNotification({ ...baseData, severity: 'CRITICAL', type: 'SAFETY_CONCERN' })
-    expect(result.subject).toBe(`[${BRAND.productName}] Neuer Vorfall: Sicherheitsbedenken (Kritisch)`)
+    const result = newIncidentNotification({
+      ...baseData,
+      severity: 'CRITICAL',
+      type: 'SAFETY_CONCERN',
+    })
+    expect(result.subject).toBe(
+      `[${BRAND.productName}] Neuer Vorfall: Sicherheitsbedenken (Kritisch)`,
+    )
     expect(result.html).toContain('Kritisch')
   })
 

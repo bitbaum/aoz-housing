@@ -120,7 +120,7 @@ export interface LifecycleResult {
  */
 export async function advanceDueProposals(
   now = new Date(),
-  housingUnitId?: string
+  housingUnitId?: string,
 ): Promise<LifecycleResult> {
   const result: LifecycleResult = { opened: 0, closed: 0 }
   const unitFilter = housingUnitId ? { housingUnitId } : {}

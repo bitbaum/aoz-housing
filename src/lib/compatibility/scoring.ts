@@ -33,7 +33,7 @@ const DEFAULT_WEIGHTS: CompatibilityWeights = OVERALL_DIMENSION_WEIGHTS
 export function calculateCompatibility(
   resident1: ResidentProfile,
   resident2: ResidentProfile,
-  weights: CompatibilityWeights = DEFAULT_WEIGHTS
+  weights: CompatibilityWeights = DEFAULT_WEIGHTS,
 ): CompatibilityScore {
   const lifestyle = calculateLifestyleCompatibility(resident1, resident2)
   const social = calculateSocialCompatibility(resident1, resident2)
@@ -46,13 +46,13 @@ export function calculateCompatibility(
       social.score * weights.social +
       practical.score * weights.practical +
       (100 - risk.score) * weights.risk) /
-      (weights.lifestyle + weights.social + weights.practical + weights.risk)
+      (weights.lifestyle + weights.social + weights.practical + weights.risk),
   )
 
   const { strengths, concerns, recommendations, predictions } = generateInsights(
     resident1,
     resident2,
-    { lifestyle, social, practical, risk }
+    { lifestyle, social, practical, risk },
   )
 
   return {
@@ -73,7 +73,7 @@ export function calculateCompatibility(
  */
 function calculateLifestyleCompatibility(
   r1: ResidentProfile,
-  r2: ResidentProfile
+  r2: ResidentProfile,
 ): DimensionResult {
   const factors: FactorResult[] = []
 
@@ -126,10 +126,7 @@ function calculateLifestyleCompatibility(
 /**
  * Social compatibility: communication style, language, privacy, conflict resolution
  */
-function calculateSocialCompatibility(
-  r1: ResidentProfile,
-  r2: ResidentProfile
-): DimensionResult {
+function calculateSocialCompatibility(r1: ResidentProfile, r2: ResidentProfile): DimensionResult {
   const factors: FactorResult[] = []
 
   // Social style compatibility
@@ -147,8 +144,12 @@ function calculateSocialCompatibility(
     name: 'language',
     score: languageScore,
     weight: DIMENSION_WEIGHTS.social.language,
-    note: languageScore < 50 ? 'Kommunikation könnte schwierig sein' :
-          languageScore === 100 ? `Gemeinsame Sprache: ${sharedLanguages.join(', ')}` : undefined,
+    note:
+      languageScore < 50
+        ? 'Kommunikation könnte schwierig sein'
+        : languageScore === 100
+          ? `Gemeinsame Sprache: ${sharedLanguages.join(', ')}`
+          : undefined,
   })
 
   // Privacy needs compatibility
@@ -180,7 +181,7 @@ function calculateSocialCompatibility(
  */
 function calculatePracticalCompatibility(
   r1: ResidentProfile,
-  r2: ResidentProfile
+  r2: ResidentProfile,
 ): DimensionResult {
   const factors: FactorResult[] = []
 
@@ -236,10 +237,7 @@ function calculatePracticalCompatibility(
 /**
  * Risk factors: things that could cause conflict
  */
-function calculateRiskFactors(
-  r1: ResidentProfile,
-  r2: ResidentProfile
-): DimensionResult {
+function calculateRiskFactors(r1: ResidentProfile, r2: ResidentProfile): DimensionResult {
   const factors: FactorResult[] = []
   let totalRisk = 0
 
@@ -300,15 +298,19 @@ function calculateRiskFactors(
   }
 
   // Sleep equipment noise risk
-  if ((r1.hasSleepEquipment || r2.hasSleepEquipment) &&
-      (r1.noiseTolerance <= 2 || r2.noiseTolerance <= 2)) {
+  if (
+    (r1.hasSleepEquipment || r2.hasSleepEquipment) &&
+    (r1.noiseTolerance <= 2 || r2.noiseTolerance <= 2)
+  ) {
     factors.push({ name: 'equipment_noise', score: 30, weight: 1 })
     totalRisk += 30 * 0.1
   }
 
   // Quiet environment needs conflict with noisy roommate
-  if ((r1.needsQuietEnvironment && r2.noiseTolerance >= 4) ||
-      (r2.needsQuietEnvironment && r1.noiseTolerance >= 4)) {
+  if (
+    (r1.needsQuietEnvironment && r2.noiseTolerance >= 4) ||
+    (r2.needsQuietEnvironment && r1.noiseTolerance >= 4)
+  ) {
     factors.push({ name: 'quiet_vs_noisy', score: 40, weight: 1 })
     totalRisk += 40 * 0.15
   }
@@ -323,7 +325,7 @@ function calculateRiskFactors(
   // Recycling knowledge gap (can cause friction)
   const recyclingOrder = ['NONE', 'BASIC', 'GOOD']
   const recyclingGap = Math.abs(
-    recyclingOrder.indexOf(r1.recyclingKnowledge) - recyclingOrder.indexOf(r2.recyclingKnowledge)
+    recyclingOrder.indexOf(r1.recyclingKnowledge) - recyclingOrder.indexOf(r2.recyclingKnowledge),
   )
   if (recyclingGap >= 2) {
     factors.push({ name: 'recycling_gap', score: 25, weight: 1 })
@@ -359,10 +361,7 @@ function calculateRiskFactors(
 function calculateSleepCompatibility(s1: string, s2: string): number {
   if (s1 === s2) return 100
   if (s1 === 'IRREGULAR' || s2 === 'IRREGULAR') return 70
-  if (
-    (s1 === 'EARLY_BIRD' && s2 === 'NIGHT_OWL') ||
-    (s1 === 'NIGHT_OWL' && s2 === 'EARLY_BIRD')
-  ) {
+  if ((s1 === 'EARLY_BIRD' && s2 === 'NIGHT_OWL') || (s1 === 'NIGHT_OWL' && s2 === 'EARLY_BIRD')) {
     return 30
   }
   return 70 // Adjacent schedules
@@ -420,11 +419,7 @@ function calculateDietaryCompatibility(d1: string[], d2: string[]): number {
   const hasVegan2 = d2.includes('vegan')
 
   // Similar dietary needs are easier
-  if (
-    (hasHalal1 && hasHalal2) ||
-    (hasKosher1 && hasKosher2) ||
-    (hasVegan1 && hasVegan2)
-  ) {
+  if ((hasHalal1 && hasHalal2) || (hasKosher1 && hasKosher2) || (hasVegan1 && hasVegan2)) {
     return 100
   }
 
@@ -481,7 +476,7 @@ function isFrenchOrItalian(lang: string): boolean {
 function calculateLanguageScore(
   langs1: string[],
   langs2: string[],
-  sharedLanguages: string[]
+  sharedLanguages: string[],
 ): number {
   // Perfect match - share native or multiple languages
   if (sharedLanguages.length >= 2) return 100
@@ -525,7 +520,7 @@ function generateInsights(
     social: DimensionResult
     practical: DimensionResult
     risk: DimensionResult
-  }
+  },
 ): { strengths: string[]; concerns: string[]; recommendations: string[]; predictions: string[] } {
   const strengths: string[] = []
   const concerns: string[] = []
@@ -560,8 +555,10 @@ function generateInsights(
   }
 
   // Sleep schedule
-  if (r1.sleepSchedule === 'EARLY_BIRD' && r2.sleepSchedule === 'NIGHT_OWL' ||
-      r1.sleepSchedule === 'NIGHT_OWL' && r2.sleepSchedule === 'EARLY_BIRD') {
+  if (
+    (r1.sleepSchedule === 'EARLY_BIRD' && r2.sleepSchedule === 'NIGHT_OWL') ||
+    (r1.sleepSchedule === 'NIGHT_OWL' && r2.sleepSchedule === 'EARLY_BIRD')
+  ) {
     concerns.push('Sehr unterschiedliche Schlafzeiten')
     recommendations.push('Räume möglichst weit voneinander platzieren')
   }
@@ -595,8 +592,10 @@ function generateInsights(
     recommendations.push('Nur in Einheit mit verfügbarem Einzelzimmer platzieren')
   }
 
-  if (r1.hasNightDisturbances && r2.needsQuietEnvironment ||
-      r2.hasNightDisturbances && r1.needsQuietEnvironment) {
+  if (
+    (r1.hasNightDisturbances && r2.needsQuietEnvironment) ||
+    (r2.hasNightDisturbances && r1.needsQuietEnvironment)
+  ) {
     concerns.push('Nächtliche Unruhe trifft auf Ruhebedürfnis')
     recommendations.push('Nicht im selben Zimmer platzieren')
   }
@@ -622,8 +621,10 @@ function generateInsights(
   if (r1.recyclingKnowledge === 'NONE' || r2.recyclingKnowledge === 'NONE') {
     recommendations.push('Recycling-Schulung für Bewohner ohne Erfahrung einplanen')
   }
-  if ((r1.recyclingKnowledge === 'GOOD' && r2.recyclingKnowledge === 'NONE') ||
-      (r2.recyclingKnowledge === 'GOOD' && r1.recyclingKnowledge === 'NONE')) {
+  if (
+    (r1.recyclingKnowledge === 'GOOD' && r2.recyclingKnowledge === 'NONE') ||
+    (r2.recyclingKnowledge === 'GOOD' && r1.recyclingKnowledge === 'NONE')
+  ) {
     concerns.push('Recycling-Kenntnisse sehr unterschiedlich')
   }
 
@@ -645,8 +646,10 @@ function generateInsights(
   }
 
   // Sleep schedule conflict prediction
-  if ((r1.sleepSchedule === 'EARLY_BIRD' && r2.sleepSchedule === 'NIGHT_OWL') ||
-      (r1.sleepSchedule === 'NIGHT_OWL' && r2.sleepSchedule === 'EARLY_BIRD')) {
+  if (
+    (r1.sleepSchedule === 'EARLY_BIRD' && r2.sleepSchedule === 'NIGHT_OWL') ||
+    (r1.sleepSchedule === 'NIGHT_OWL' && r2.sleepSchedule === 'EARLY_BIRD')
+  ) {
     predictions.push('Hohe Wahrscheinlichkeit Schlafstörungs-Beschwerden in Wochen 2-4')
   }
 
@@ -673,7 +676,4 @@ function generateInsights(
 }
 
 // Re-export from shared utils for backwards compatibility
-export {
-  getScoreLabel,
-  getScoreBadgeClass as getScoreClass,
-} from '@/lib/utils/formatting'
+export { getScoreLabel, getScoreBadgeClass as getScoreClass } from '@/lib/utils/formatting'

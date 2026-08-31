@@ -8,7 +8,10 @@ export const SCORE_TYPE_LABELS: Record<string, string> = {
   harmony: 'Harmonie',
 }
 
-export const SCORE_LEVEL_EXPLANATIONS: Record<string, { description: string; recommendation: string }> = {
+export const SCORE_LEVEL_EXPLANATIONS: Record<
+  string,
+  { description: string; recommendation: string }
+> = {
   excellent: {
     description: 'Sehr hohe Übereinstimmung bei Lebensstil und Präferenzen.',
     recommendation: 'Ideale Platzierung empfohlen.',
@@ -68,11 +71,14 @@ export const TREND_LABELS: Record<string, string> = {
   neutral: 'Neutral',
 }
 
-export const COMPATIBILITY_DIMENSION_LABELS: Record<string, { label: string; description: string }> = {
+export const COMPATIBILITY_DIMENSION_LABELS: Record<
+  string,
+  { label: string; description: string }
+> = {
   lifestyle: { label: 'Lebensstil', description: 'Schlaf, Lärm, Sauberkeit' },
-  social:    { label: 'Sozial',     description: 'Sprache, Umgang' },
-  practical: { label: 'Praktisch',  description: 'Rauchen, Küche' },
-  risk:      { label: 'Risiko',     description: 'Konfliktpotenzial' },
+  social: { label: 'Sozial', description: 'Sprache, Umgang' },
+  practical: { label: 'Praktisch', description: 'Rauchen, Küche' },
+  risk: { label: 'Risiko', description: 'Konfliktpotenzial' },
 }
 
 export const SCORE_EXPLANATION_LABELS = {

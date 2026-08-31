@@ -61,7 +61,9 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
       <PageHeader
         title={L.pageTitle}
         description={L.pageDescription}
-        actions={canWrite ? <ButtonLink href="/opportunities/new">{L.newAction}</ButtonLink> : undefined}
+        actions={
+          canWrite ? <ButtonLink href="/opportunities/new">{L.newAction}</ButtonLink> : undefined
+        }
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -79,7 +81,9 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
           className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_auto]"
         >
           <div>
-            <label htmlFor="opportunity-search" className="label">{L.filterSearch}</label>
+            <label htmlFor="opportunity-search" className="label">
+              {L.filterSearch}
+            </label>
             <input
               id="opportunity-search"
               type="search"
@@ -90,26 +94,44 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
             />
           </div>
           <div>
-            <label htmlFor="opportunity-kind" className="label">{L.filterKind}</label>
+            <label htmlFor="opportunity-kind" className="label">
+              {L.filterKind}
+            </label>
             <select id="opportunity-kind" name="kind" defaultValue={kind ?? ''} className="input">
               <option value="">{L.filterAll}</option>
               {Object.entries(OPPORTUNITY_KIND_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="opportunity-status" className="label">{L.filterStatus}</label>
-            <select id="opportunity-status" name="status" defaultValue={status ?? ''} className="input">
+            <label htmlFor="opportunity-status" className="label">
+              {L.filterStatus}
+            </label>
+            <select
+              id="opportunity-status"
+              name="status"
+              defaultValue={status ?? ''}
+              className="input"
+            >
               <option value="">{L.filterAll}</option>
               {Object.entries(OPPORTUNITY_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           <div className="flex items-end gap-2">
-            <button type="submit" className="btn-primary min-h-[44px]">{L.apply}</button>
-            <Link href="/opportunities" className="btn-outline min-h-[44px] inline-flex items-center">
+            <button type="submit" className="btn-primary min-h-[44px]">
+              {L.apply}
+            </button>
+            <Link
+              href="/opportunities"
+              className="btn-outline min-h-[44px] inline-flex items-center"
+            >
               {L.filterReset}
             </Link>
           </div>
@@ -122,9 +144,13 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
           description={hasFilters ? undefined : L.emptyBody}
           action={
             hasFilters ? (
-              <ButtonLink href="/opportunities" variant="outline">{L.filterReset}</ButtonLink>
+              <ButtonLink href="/opportunities" variant="outline">
+                {L.filterReset}
+              </ButtonLink>
             ) : canWrite ? (
-              <ButtonLink href="/opportunities/new" variant="outline">{L.emptyAction}</ButtonLink>
+              <ButtonLink href="/opportunities/new" variant="outline">
+                {L.emptyAction}
+              </ButtonLink>
             ) : undefined
           }
         />
@@ -162,7 +188,9 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
 
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-ui-muted">
                         <span>{OPPORTUNITY_KIND_LABELS[opportunity.kind]}</span>
-                        <span className={`chip ${PERMIT_REQUIREMENT_BADGES[opportunity.permitRequirement]}`}>
+                        <span
+                          className={`chip ${PERMIT_REQUIREMENT_BADGES[opportunity.permitRequirement]}`}
+                        >
                           {PERMIT_REQUIREMENT_LABELS[opportunity.permitRequirement]}
                         </span>
                         {opportunity.germanLevel ? (
@@ -179,7 +207,9 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
                               ? L.seatsFull
                               : `${free} ${L.seatsFree}`}
                         </span>
-                        <span className="numeric">{active} {L.peopleUnderway}</span>
+                        <span className="numeric">
+                          {active} {L.peopleUnderway}
+                        </span>
                       </div>
                     </div>
 

@@ -31,12 +31,8 @@ export default async function PortalRulesPage() {
   if (!placement) {
     return (
       <div>
-        <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">
-          {t('rules.title')}
-        </h1>
-        <p className="text-ui-muted">
-          {t('rules.noPlacement')}
-        </p>
+        <h1 className="mb-2 text-xl font-bold text-ui-text sm:text-2xl">{t('rules.title')}</h1>
+        <p className="text-ui-muted">{t('rules.noPlacement')}</p>
       </div>
     )
   }
@@ -50,16 +46,14 @@ export default async function PortalRulesPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-xl font-bold text-ui-text sm:text-2xl">{t('rules.title')}</h1>
-        <p className="mt-2 text-sm leading-6 text-ui-muted">
-          {t('rules.subtitle')}
-        </p>
+        <p className="mt-2 text-sm leading-6 text-ui-muted">{t('rules.subtitle')}</p>
         {BRAND.features.householdVotes && (
-        <Link
-          href="/portal/decisions"
-          className="mt-2 inline-flex min-h-[44px] items-center text-sm text-brand-primary hover:underline"
-        >
-          {t('rules.toDecisions')} →
-        </Link>
+          <Link
+            href="/portal/decisions"
+            className="mt-2 inline-flex min-h-[44px] items-center text-sm text-brand-primary hover:underline"
+          >
+            {t('rules.toDecisions')} →
+          </Link>
         )}
       </header>
 

@@ -52,9 +52,7 @@ export const DASHBOARD_LABELS = {
   statTeam: 'Team',
   statTeamSuffix: 'aktiv',
   statTeamNeverSignedIn: (n: number) =>
-    n === 1
-      ? '1 Konto war noch nie angemeldet'
-      : `${n} Konten waren noch nie angemeldet`,
+    n === 1 ? '1 Konto war noch nie angemeldet' : `${n} Konten waren noch nie angemeldet`,
 
   tileCheckIns: 'Check-ins durchführen',
   tilePlaceResidents: 'Klient*innen platzieren',
@@ -121,9 +119,7 @@ export const DASHBOARD_LABELS = {
   heroNotSeenSuffix: 'Tagen nicht gesehen',
   heroStartCheckIn: 'Check-in starten',
   heroProposalsTitle: (n: number) =>
-    n === 1
-      ? '1 Beschluss wartet auf Bestätigung'
-      : `${n} Beschlüsse warten auf Bestätigung`,
+    n === 1 ? '1 Beschluss wartet auf Bestätigung' : `${n} Beschlüsse warten auf Bestätigung`,
   heroReviewProposals: 'Jetzt prüfen',
   heroPlaceResidentsSuffix: 'Klient*innen platzieren',
   heroFreeBedsAvailableSuffix: 'freie Plätze verfügbar',
@@ -176,7 +172,8 @@ export const DASHBOARD_LABELS = {
   // Analytics metric card subtitles
   analyticsBedSubtitle: (occupied: number, total: number) => `${occupied} von ${total} Betten`,
   analyticsActiveSuffix: (total: number) => `von ${total} aktiven`,
-  analyticsEndingSubtitle: (conflict: number, total: number) => `${conflict} von ${total} Beendungen`,
+  analyticsEndingSubtitle: (conflict: number, total: number) =>
+    `${conflict} von ${total} Beendungen`,
   // Analytics section headings and empty states
   analyticsHotspotTitle: (days: number) => `Konflikt-Hotspots (${days} Tage)`,
   analyticsNoHotspots: 'Keine Konflikt-Hotspots',
@@ -200,7 +197,8 @@ export const MISSION_KPI_LABELS = {
   mediationMonthlyChart: 'Mediationszeit pro Monat',
   hoursUnit: 'Std.',
   sectionTitle: 'Missions-KPIs',
-  sectionDesc: (months: number) => `Letzte ${months} Monate — Ziel: weniger Konflikte, schnellere Platzierung`,
+  sectionDesc: (months: number) =>
+    `Letzte ${months} Monate — Ziel: weniger Konflikte, schnellere Platzierung`,
   trendImproving: 'Verbesserung',
   trendStable: 'Stabil',
   trendWorsening: 'Verschlechterung',
@@ -232,7 +230,8 @@ export const SYSTEM_HEALTH_LABELS = {
 export const ALGORITHM_ACCURACY_LABELS = {
   sectionTitle: 'Algorithmus-Genauigkeit',
   empty: 'Noch keine beendeten Platzierungen mit Kompatibilitätsbewertung vorhanden.',
-  subtitle: (count: number) => `Vergleich: Kompatibilitätsbewertung vs. tatsächliches Ergebnis (${count} Platzierungen)`,
+  subtitle: (count: number) =>
+    `Vergleich: Kompatibilitätsbewertung vs. tatsächliches Ergebnis (${count} Platzierungen)`,
   avgScoreConflict: 'Ø Score bei Konflikt-Ende',
   avgScoreSuccess: 'Ø Score bei erfolgreichem Ende',
   resultsByTierTitle: 'Ergebnisse nach Kompatibilitätsstufe',
@@ -259,7 +258,8 @@ export const ALGORITHM_ACCURACY_LABELS = {
   statOfTotal: (total: number) => `von ${total} total`,
   statActivePlacements: (count: number) => `von ${count} aktiven Platzierungen`,
   statOpenIncidents: 'Offene Vorfälle',
-  statConflictsMaintenance: (conflicts: number, maintenance: number) => `${conflicts} Konflikte, ${maintenance} Wartung`,
+  statConflictsMaintenance: (conflicts: number, maintenance: number) =>
+    `${conflicts} Konflikte, ${maintenance} Wartung`,
   // ConflictCard
   conflictCardTitle: 'Konflikte',
   conflictCardActiveSuffix: 'aktiv (30 Tage)',

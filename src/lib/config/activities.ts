@@ -1,7 +1,14 @@
 import { Activity, BookOpen, HeartHandshake, Languages, Palette, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export const ACTIVITY_CATEGORY_VALUES = ['SPORT', 'LANGUAGE', 'CULTURE', 'COMMUNITY', 'FAMILY', 'SUPPORT'] as const
+export const ACTIVITY_CATEGORY_VALUES = [
+  'SPORT',
+  'LANGUAGE',
+  'CULTURE',
+  'COMMUNITY',
+  'FAMILY',
+  'SUPPORT',
+] as const
 export const ACTIVITY_COST_VALUES = ['FREE', 'REDUCED', 'PAID'] as const
 export const ACTIVITY_STATUS_VALUES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const
 

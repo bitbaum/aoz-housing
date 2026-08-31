@@ -73,8 +73,7 @@ export const ar: Dictionary = {
   'action.close': 'إغلاق',
   'action.showAll': 'عرض الكل',
   'error.generic': 'حدث خطأ. يرجى المحاولة مرة أخرى.',
-  'error.accountNotFound':
-    'لم يتم العثور على حسابك. تواصل مع مشرف/ة الدعم.',
+  'error.accountNotFound': 'لم يتم العثور على حسابك. تواصل مع مشرف/ة الدعم.',
   'error.portalMessage': 'حدث خطأ أثناء تحميل البوابة. يرجى المحاولة مرة أخرى.',
   'error.portalHome': 'إلى الصفحة الرئيسية',
 
@@ -113,8 +112,7 @@ export const ar: Dictionary = {
   'report.noPlacement': 'ليس لديك سكن بعد. تواصل مع المشرف/ة.',
 
   'rules.title': 'نظام المنزل',
-  'rules.subtitle':
-    'النص الملزم بالألمانية — النسخة التي توقعها. اسأل المشرف/ة إذا لم تفهم شيئاً.',
+  'rules.subtitle': 'النص الملزم بالألمانية — النسخة التي توقعها. اسأل المشرف/ة إذا لم تفهم شيئاً.',
   'rules.noPlacement': 'بعد التسكين تظهر القواعد هنا.',
   'rules.toDecisions': 'إلى القرارات',
 
@@ -195,9 +193,11 @@ export const ar: Dictionary = {
   'marketplace.categoryPaperwork': 'الأوراق والبريد',
   'marketplace.filterAll': 'الكل',
   'marketplace.openOnly': 'الإعلانات المفتوحة من المساكن الأخرى فقط.',
-  'marketplace.noMoney': 'مساعدة بين الجيران بلا أجر. المهام المدفوعة موجودة في قسم أماكن المشاركة.',
+  'marketplace.noMoney':
+    'مساعدة بين الجيران بلا أجر. المهام المدفوعة موجودة في قسم أماكن المشاركة.',
   'marketplace.formContact': 'كيف يمكن الوصول إليك؟',
-  'marketplace.formContactHint': 'لا يراها إلا من يقبل الطلب وفريق المرافقة. مثال: الغرفة ٣، مساءً.',
+  'marketplace.formContactHint':
+    'لا يراها إلا من يقبل الطلب وفريق المرافقة. مثال: الغرفة ٣، مساءً.',
   'marketplace.contactLabel': 'التواصل',
   'marketplace.release': 'تراجعت',
   'marketplace.reopen': 'إعادة الفتح',
@@ -280,7 +280,8 @@ export const ar: Dictionary = {
   'decisions.phaseDiscussion': 'نقاش',
   'decisions.phaseVoting': 'تصويت',
   'decisions.days': 'أيام',
-  'decisions.tooFewVoters': 'عدد المقيمين هنا حاليًا أقل من أن يسمح بتصويت. يمكنك مع ذلك تقديم اقتراح — وسيناقشه فريق المرافقة معكم.',
+  'decisions.tooFewVoters':
+    'عدد المقيمين هنا حاليًا أقل من أن يسمح بتصويت. يمكنك مع ذلك تقديم اقتراح — وسيناقشه فريق المرافقة معكم.',
 
   'activities.dashboardTitle': 'الأنشطة والدورات',
   'activities.dashboardSubtitle': 'توصيات لك.',
@@ -514,7 +515,7 @@ export const ar: Dictionary = {
   'preferences.field.sleepSchedule': 'نمط النوم',
   'preferences.field.smoking': 'التدخين',
   'preferences.field.socialStyle': 'تفضيل اجتماعي',
-  'preferences.hint.additionalPrefsPlaceholder': 'مثلاً \'أعمل ليلاً\'، \'حساسية من القطط\'...',
+  'preferences.hint.additionalPrefsPlaceholder': "مثلاً 'أعمل ليلاً'، 'حساسية من القطط'...",
   'preferences.hint.chaosTolerance': 'ما مدى تحملك للفوضى؟',
   'preferences.hint.cleanlinessExpectation': 'ما مدى نظافة الآخرين المطلوبة؟',
   'preferences.hint.cleanlinessPractice': 'ما مدى نظافة مساحتك؟',
@@ -523,7 +524,8 @@ export const ar: Dictionary = {
   'preferences.hint.noiseTolerance': 'ما مدى حساسيتك للضوضاء؟',
   'preferences.hint.privacyNeed': 'كم تحتاج من مساحة خاصة؟',
   'preferences.hint.roommatePrefs': 'اختياري: رغبات خاصة للزملاء؟',
-  'preferences.privacyMessage': 'بياناتك تُستخدم فقط لإيجاد زملاء مناسبين. لا تُشارك مع أطراف ثالثة. يمكنك تغييرها أو حذفها.',
+  'preferences.privacyMessage':
+    'بياناتك تُستخدم فقط لإيجاد زملاء مناسبين. لا تُشارك مع أطراف ثالثة. يمكنك تغييرها أو حذفها.',
   'preferences.privacyTitle': 'الخصوصية',
   'preferences.saveButton': 'حفظ الإعدادات',
   'preferences.saveTip': 'نصيحة: احفظ في الأسفل عند الانتهاء. التغييرات تصبح فعّالة بعد الحفظ.',
@@ -602,8 +604,7 @@ export const ar: Dictionary = {
   'opportunities.yours': 'طلباتك',
   'opportunities.yoursEmpty': 'لم تتقدم إلى أي فرصة بعد.',
   'opportunities.open': 'أماكن متاحة',
-  'opportunities.openEmpty':
-    'لا توجد فرص معروضة حالياً. سيخبرك فريقك حالما تتوفر فرصة.',
+  'opportunities.openEmpty': 'لا توجد فرص معروضة حالياً. سيخبرك فريقك حالما تتوفر فرصة.',
   'opportunities.express': 'أنا مهتم',
   'opportunities.withdraw': 'سحب الاهتمام',
   'opportunities.seatsFree': 'الأماكن المتاحة:',
@@ -614,11 +615,9 @@ export const ar: Dictionary = {
   'opportunities.okWithdrawn': 'تم سحب اهتمامك.',
   'opportunities.errorUnavailable': 'هذا المكان غير متاح حالياً.',
   'opportunities.errorFull': 'تم شغل هذا المكان في هذه الأثناء.',
-  'opportunities.errorLocked':
-    'استلم فريقك هذا الطلب بالفعل. تحدث مع فريقك إذا تغير شيء ما.',
+  'opportunities.errorLocked': 'استلم فريقك هذا الطلب بالفعل. تحدث مع فريقك إذا تغير شيء ما.',
   'opportunities.errorFailed': 'لم ينجح ذلك. يرجى المحاولة لاحقاً.',
-  'opportunities.evidenceHint':
-    'بمجرد أن تبدأ، يُحفظ العمل تلقائياً كإثبات لك.',
+  'opportunities.evidenceHint': 'بمجرد أن تبدأ، يُحفظ العمل تلقائياً كإثبات لك.',
   'opportunities.toLearning': 'إلى إثباتاتك',
   'opportunities.kindVolunteering': 'عمل تطوعي',
   'opportunities.kindCommunity': 'خدمة مجتمعية',

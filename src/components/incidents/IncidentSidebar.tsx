@@ -31,7 +31,6 @@ interface Props {
 }
 
 export function IncidentSidebar({ incident }: Props) {
-
   return (
     <div className="space-y-6">
       {/* Location */}
@@ -45,12 +44,8 @@ export function IncidentSidebar({ incident }: Props) {
         >
           <span className="text-xl">🏠</span>
           <div>
-            <p className="font-medium text-ui-text">
-              {incident.housingUnit.code}
-            </p>
-            <p className="text-sm text-ui-muted">
-              {incident.housingUnit.address}
-            </p>
+            <p className="font-medium text-ui-text">{incident.housingUnit.code}</p>
+            <p className="text-sm text-ui-muted">{incident.housingUnit.address}</p>
           </div>
         </Link>
       </div>
@@ -69,9 +64,7 @@ export function IncidentSidebar({ incident }: Props) {
               <span className="text-lg">📢</span>
               <div>
                 <p className="text-sm text-ui-muted">{INCIDENT_SIDEBAR_LABELS.reportedBy}</p>
-                <p className="font-medium text-ui-text">
-                  {residentName(incident.reportedBy)}
-                </p>
+                <p className="font-medium text-ui-text">{residentName(incident.reportedBy)}</p>
               </div>
             </Link>
           )}
@@ -100,21 +93,15 @@ export function IncidentSidebar({ incident }: Props) {
                   href={`/residents/${inv.residentId}`}
                   className="flex items-center gap-3 p-2 bg-ui-subtle rounded hover:bg-ui-subtle"
                 >
-                  <span className="font-medium text-ui-text">
-                    {residentName(inv.resident)}
-                  </span>
-                  <span className="text-xs text-ui-muted">
-                    ({inv.role})
-                  </span>
+                  <span className="font-medium text-ui-text">{residentName(inv.resident)}</span>
+                  <span className="text-xs text-ui-muted">({inv.role})</span>
                 </Link>
               ))}
             </div>
           )}
 
           {!incident.reportedBy && !incident.subject && incident.involvedResidents.length === 0 && (
-            <p className="text-ui-muted text-sm">
-              {INCIDENT_SIDEBAR_LABELS.noResidentsAssigned}
-            </p>
+            <p className="text-ui-muted text-sm">{INCIDENT_SIDEBAR_LABELS.noResidentsAssigned}</p>
           )}
         </div>
       </div>
@@ -131,8 +118,15 @@ export function IncidentSidebar({ incident }: Props) {
           </h2>
           <form id="incident-resolve-form" action={resolveIncident} className="space-y-4">
             <input type="hidden" name="incidentId" value={incident.id} />
-            <div id="incident-resolve-validation-summary" className="hidden alert-error" role="alert" />
-            <FormValidationUX formId="incident-resolve-form" summaryId="incident-resolve-validation-summary" />
+            <div
+              id="incident-resolve-validation-summary"
+              className="hidden alert-error"
+              role="alert"
+            />
+            <FormValidationUX
+              formId="incident-resolve-form"
+              summaryId="incident-resolve-validation-summary"
+            />
             <div>
               <label className="label">{INCIDENT_SIDEBAR_LABELS.resolution}</label>
               <textarea
@@ -168,7 +162,9 @@ export function IncidentSidebar({ incident }: Props) {
             className="input flex-1"
             aria-label={INCIDENT_SIDEBAR_LABELS.mediationTimeEdit}
           />
-          <span className="text-sm text-ui-muted whitespace-nowrap">{INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}</span>
+          <span className="text-sm text-ui-muted whitespace-nowrap">
+            {INCIDENT_SIDEBAR_LABELS.mediationTimeUnit}
+          </span>
           <SubmitButton className="btn-outline min-h-[44px] px-3 text-sm whitespace-nowrap disabled:opacity-60 disabled:cursor-wait">
             {INCIDENT_SIDEBAR_LABELS.mediationTimeSave}
           </SubmitButton>
@@ -183,9 +179,7 @@ export function IncidentSidebar({ incident }: Props) {
         <dl className="space-y-2 text-sm">
           <div className="flex justify-between">
             <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.created}</dt>
-            <dd className="text-ui-text">
-              {formatDate(incident.createdAt)}
-            </dd>
+            <dd className="text-ui-text">{formatDate(incident.createdAt)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.incidentDate}</dt>
@@ -208,9 +202,7 @@ export function IncidentSidebar({ incident }: Props) {
           {incident.resolvedAt && (
             <div className="flex justify-between">
               <dt className="text-ui-muted">{INCIDENT_SIDEBAR_LABELS.resolvedAt}</dt>
-              <dd className="text-ui-text">
-                {formatDate(incident.resolvedAt)}
-              </dd>
+              <dd className="text-ui-text">{formatDate(incident.resolvedAt)}</dd>
             </div>
           )}
         </dl>

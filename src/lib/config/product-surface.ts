@@ -52,16 +52,18 @@ export interface ProductSurface {
  * a combination anyone can be given rather than a role only one person holds.
  */
 export function staffSurface(): SurfaceArea[] {
-  return visibleMegaMenuGroups(WIDEST_CAPABILITIES)
-    .map((group) =>
-      'items' in group
-        ? { title: group.label, entries: group.items.map((item) => item.label) }
-        : { title: group.label, entries: [] }
-    )
-    // Single top-level links (Dashboard, Nachrichten) are destinations, not
-    // areas; listing them as one-entry columns would pad the grid with headings
-    // that have nothing under them.
-    .filter((area) => area.entries.length > 0)
+  return (
+    visibleMegaMenuGroups(WIDEST_CAPABILITIES)
+      .map((group) =>
+        'items' in group
+          ? { title: group.label, entries: group.items.map((item) => item.label) }
+          : { title: group.label, entries: [] },
+      )
+      // Single top-level links (Dashboard, Nachrichten) are destinations, not
+      // areas; listing them as one-entry columns would pad the grid with headings
+      // that have nothing under them.
+      .filter((area) => area.entries.length > 0)
+  )
 }
 
 /** The resident side, filtered by this brand's features — same as they get. */
@@ -113,6 +115,6 @@ export function surfaceDestinationCount(): number {
   return productSurfaces().reduce(
     (total, surface) =>
       total + surface.areas.reduce((count, area) => count + area.entries.length, 0),
-    0
+    0,
   )
 }

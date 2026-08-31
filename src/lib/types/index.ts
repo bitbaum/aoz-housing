@@ -55,10 +55,7 @@ export type ResidentHouseholdProfile = Pick<
  * code forces every consumer to render the login code, which is how the
  * compatibility matrix came to label its rows "RES-DEMO08".
  */
-export type ResidentBasic = Pick<
-  Resident,
-  'id' | 'code' | 'displayName' | 'ageRange' | 'languages'
->
+export type ResidentBasic = Pick<Resident, 'id' | 'code' | 'displayName' | 'ageRange' | 'languages'>
 
 // =============================================================================
 // SPOT / UNIT SUBSETS

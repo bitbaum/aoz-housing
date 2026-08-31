@@ -24,7 +24,11 @@ import { BRANDS, type BrandId } from '@/lib/config/brand'
  */
 describe('the landing page describes the product it ships with', () => {
   it('lists every staff area the widest role can reach', () => {
-    const expected = visibleMegaMenuGroups({ role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true })
+    const expected = visibleMegaMenuGroups({
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+    })
       .filter((group) => 'items' in group)
       .map((group) => ('items' in group ? group.label : ''))
 
@@ -59,7 +63,7 @@ describe('the landing page describes the product it ships with', () => {
     const summed = productSurfaces().reduce(
       (total, surface) =>
         total + surface.areas.reduce((count, area) => count + area.entries.length, 0),
-      0
+      0,
     )
     expect(surfaceDestinationCount()).toBe(summed)
     expect(summed).toBeGreaterThan(0)

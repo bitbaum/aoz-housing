@@ -38,7 +38,9 @@ export async function PortalActivitiesCard({ activities }: PortalActivitiesCardP
                 <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-brand-primary" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ui-text leading-tight">{activity.title}</p>
-                  <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">{activity.description}</p>
+                  <p className="text-sm text-ui-muted mt-0.5 line-clamp-2">
+                    {activity.description}
+                  </p>
                 </div>
                 <span className={`badge ${ACTIVITY_COST_BADGES[activity.cost]} flex-shrink-0`}>
                   {activityCostLabel(t, activity.cost)}

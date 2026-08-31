@@ -178,9 +178,7 @@ export function ActionDashboard({
       </div>
 
       {/* Critical Alert Banner - Only shows when there are critical incidents */}
-      {criticalIncidents.length > 0 && (
-        <CriticalAlertBanner incidents={criticalIncidents} />
-      )}
+      {criticalIncidents.length > 0 && <CriticalAlertBanner incidents={criticalIncidents} />}
 
       {/* Exactly ONE summary panel. All three used to render together on a
           quiet day: the hero ("Alles erledigt!"), the all-clear block
@@ -222,13 +220,19 @@ export function ActionDashboard({
             suffix={` ${DASHBOARD_LABELS.statOverdueSuffix}`}
             href="/placements?status=active&overdue=1"
             urgency={urgencyForOpenCount(overdueCheckIns.length)}
-            icon={overdueCheckIns.length === 0 ? <Check className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+            icon={
+              overdueCheckIns.length === 0 ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <Clock className="w-5 h-5" />
+              )
+            }
             subtext={
               onTimeCheckIns === 0
                 ? DASHBOARD_LABELS.statNoneCurrent
                 : onTimeCheckIns === totalPlacements
-                ? DASHBOARD_LABELS.statAllCurrent
-                : `${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`
+                  ? DASHBOARD_LABELS.statAllCurrent
+                  : `${onTimeCheckIns}/${totalPlacements} ${DASHBOARD_LABELS.statCurrentSuffix}`
             }
           />
         )}
@@ -250,7 +254,13 @@ export function ActionDashboard({
             suffix={` ${DASHBOARD_LABELS.statOpenSuffix}`}
             href="/maintenance"
             urgency={urgencyForOpenCount(openMaintenanceCount)}
-            icon={openMaintenanceCount === 0 ? <Check className="w-5 h-5" /> : <Wrench className="w-5 h-5" />}
+            icon={
+              openMaintenanceCount === 0 ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <Wrench className="w-5 h-5" />
+              )
+            }
           />
         )}
         {show('learning') && (
@@ -297,87 +307,89 @@ export function ActionDashboard({
       {/* Action Tiles - Only show what needs action */}
       {(totalIssues > 0 || problemUnits.length > 0) && (
         <div>
-          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionOpenTasks}</h2>
+          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">
+            {DASHBOARD_LABELS.sectionOpenTasks}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {overdueCheckIns.length > 0 && (
-            <ActionTile
-              title={DASHBOARD_LABELS.tileCheckIns}
-              count={overdueCheckIns.length}
-              description={`${overdueCheckIns[0] ? residentName({ code: overdueCheckIns[0].residentCode, displayName: overdueCheckIns[0].residentDisplayName }) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
-              href={`/residents/${overdueCheckIns[0]?.residentId}`}
-              urgency={urgencyForOpenCount(overdueCheckIns.length)}
-              items={overdueCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map(c => ({
-                label: residentName({ code: c.residentCode, displayName: c.residentDisplayName }),
-                sublabel: `${c.daysSinceLastCheckIn} ${daysWord(c.daysSinceLastCheckIn)} · ${c.unitCode}`,
-                href: `/residents/${c.residentId}`,
-              }))}
-              allHref="/placements?status=active&overdue=1"
-            />
-          )}
+            {overdueCheckIns.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileCheckIns}
+                count={overdueCheckIns.length}
+                description={`${overdueCheckIns[0] ? residentName({ code: overdueCheckIns[0].residentCode, displayName: overdueCheckIns[0].residentDisplayName }) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
+                href={`/residents/${overdueCheckIns[0]?.residentId}`}
+                urgency={urgencyForOpenCount(overdueCheckIns.length)}
+                items={overdueCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map((c) => ({
+                  label: residentName({ code: c.residentCode, displayName: c.residentDisplayName }),
+                  sublabel: `${c.daysSinceLastCheckIn} ${daysWord(c.daysSinceLastCheckIn)} · ${c.unitCode}`,
+                  href: `/residents/${c.residentId}`,
+                }))}
+                allHref="/placements?status=active&overdue=1"
+              />
+            )}
 
-          {unplacedResidents.length > 0 && (
-            <ActionTile
-              title={DASHBOARD_LABELS.tilePlaceResidents}
-              count={unplacedResidents.length}
-              description={`${unplacedResidents[0] ? residentName(unplacedResidents[0]) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
-              href="/matching"
-              urgency="neutral"
-              items={unplacedResidents.slice(0, DISPLAY_LIMITS.dashboardItems).map(r => ({
-                label: residentName(r),
-                sublabel: `${DASHBOARD_LABELS.tileSincePrefix} ${formatDaysAgo(r.createdAt)}`,
-                href: `/matching?resident=${r.id}`,
-              }))}
-              allHref="/matching"
-            />
-          )}
+            {unplacedResidents.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tilePlaceResidents}
+                count={unplacedResidents.length}
+                description={`${unplacedResidents[0] ? residentName(unplacedResidents[0]) : ''} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
+                href="/matching"
+                urgency="neutral"
+                items={unplacedResidents.slice(0, DISPLAY_LIMITS.dashboardItems).map((r) => ({
+                  label: residentName(r),
+                  sublabel: `${DASHBOARD_LABELS.tileSincePrefix} ${formatDaysAgo(r.createdAt)}`,
+                  href: `/matching?resident=${r.id}`,
+                }))}
+                allHref="/matching"
+              />
+            )}
 
-          {pendingTransfers.length > 0 && (
-            <ActionTile
-              title={DASHBOARD_LABELS.tileTransferRequests}
-              count={pendingTransfers.length}
-              description={DASHBOARD_LABELS.tileTransferRequestsDesc}
-              href="/transfer-requests"
-              urgency={urgencyForOpenCount(pendingTransfers.length)}
-              items={pendingTransfers.slice(0, DISPLAY_LIMITS.dashboardItems).map(t => ({
-                label: residentName({ code: t.residentCode, displayName: t.residentDisplayName }),
-                sublabel: `${t.unitCode ? `${t.unitCode} · ` : ''}${DASHBOARD_LABELS.tileSincePrefix} ${t.daysSinceCreated} ${daysWord(t.daysSinceCreated)}`,
-                href: '/transfer-requests',
-              }))}
-              allHref="/transfer-requests"
-            />
-          )}
+            {pendingTransfers.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileTransferRequests}
+                count={pendingTransfers.length}
+                description={DASHBOARD_LABELS.tileTransferRequestsDesc}
+                href="/transfer-requests"
+                urgency={urgencyForOpenCount(pendingTransfers.length)}
+                items={pendingTransfers.slice(0, DISPLAY_LIMITS.dashboardItems).map((t) => ({
+                  label: residentName({ code: t.residentCode, displayName: t.residentDisplayName }),
+                  sublabel: `${t.unitCode ? `${t.unitCode} · ` : ''}${DASHBOARD_LABELS.tileSincePrefix} ${t.daysSinceCreated} ${daysWord(t.daysSinceCreated)}`,
+                  href: '/transfer-requests',
+                }))}
+                allHref="/transfer-requests"
+              />
+            )}
 
-          {proposalsAwaitingStaff.length > 0 && (
-            <ActionTile
-              title={DASHBOARD_LABELS.tileProposals}
-              count={proposalsAwaitingStaff.length}
-              description={DASHBOARD_LABELS.tileProposalsDesc}
-              href="/rules"
-              urgency={urgencyForOpenCount(proposalsAwaitingStaff.length)}
-              items={proposalsAwaitingStaff.slice(0, DISPLAY_LIMITS.dashboardItems).map(p => ({
-                label: p.title,
-                sublabel: `${p.unitCode} · ${DASHBOARD_LABELS.tileSincePrefix} ${p.daysWaiting} ${daysWord(p.daysWaiting)}`,
-                href: '/rules',
-              }))}
-              allHref="/rules"
-            />
-          )}
+            {proposalsAwaitingStaff.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileProposals}
+                count={proposalsAwaitingStaff.length}
+                description={DASHBOARD_LABELS.tileProposalsDesc}
+                href="/rules"
+                urgency={urgencyForOpenCount(proposalsAwaitingStaff.length)}
+                items={proposalsAwaitingStaff.slice(0, DISPLAY_LIMITS.dashboardItems).map((p) => ({
+                  label: p.title,
+                  sublabel: `${p.unitCode} · ${DASHBOARD_LABELS.tileSincePrefix} ${p.daysWaiting} ${daysWord(p.daysWaiting)}`,
+                  href: '/rules',
+                }))}
+                allHref="/rules"
+              />
+            )}
 
-          {problemUnits.length > 0 && (
-            <ActionTile
-              title={DASHBOARD_LABELS.tileConflictUnits}
-              count={problemUnits.length}
-              description={DASHBOARD_LABELS.tileConflictUnitsDesc}
-              href={`/housing/${problemUnits[0]?.id}`}
-              urgency="critical"
-              items={problemUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map(u => ({
-                label: u.code,
-                sublabel: `${u.incidentCount} ${DASHBOARD_LABELS.tileIncidents} · ${INCIDENT_TYPE_LABELS_SHORT[u.primaryIssue] || u.primaryIssue}`,
-                href: `/housing/${u.id}`,
-              }))}
-              allHref="/incidents"
-            />
-          )}
+            {problemUnits.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileConflictUnits}
+                count={problemUnits.length}
+                description={DASHBOARD_LABELS.tileConflictUnitsDesc}
+                href={`/housing/${problemUnits[0]?.id}`}
+                urgency="critical"
+                items={problemUnits.slice(0, DISPLAY_LIMITS.dashboardItems).map((u) => ({
+                  label: u.code,
+                  sublabel: `${u.incidentCount} ${DASHBOARD_LABELS.tileIncidents} · ${INCIDENT_TYPE_LABELS_SHORT[u.primaryIssue] || u.primaryIssue}`,
+                  href: `/housing/${u.id}`,
+                }))}
+                allHref="/incidents"
+              />
+            )}
           </div>
         </div>
       )}
@@ -385,7 +397,9 @@ export function ActionDashboard({
       {/* Bald fällig - Proactive section */}
       {dueSoonCheckIns.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">{DASHBOARD_LABELS.sectionDueSoon}</h2>
+          <h2 className="text-sm font-semibold text-ui-muted uppercase tracking-wide mb-3">
+            {DASHBOARD_LABELS.sectionDueSoon}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <ActionTile
               title={DASHBOARD_LABELS.tileCheckInsThisWeek}
@@ -393,9 +407,14 @@ export function ActionDashboard({
               description={DASHBOARD_LABELS.tilePlanProactively}
               href={`/residents/${dueSoonCheckIns[0]?.residentId}`}
               urgency="neutral"
-              items={dueSoonCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map(c => ({
+              items={dueSoonCheckIns.slice(0, DISPLAY_LIMITS.dashboardItems).map((c) => ({
                 label: residentName({ code: c.residentCode, displayName: c.residentDisplayName }),
-                sublabel: c.daysUntilDue === 0 ? `${DASHBOARD_LABELS.dueTodayPrefix} · ${c.unitCode}` : c.daysUntilDue === 1 ? `${DASHBOARD_LABELS.dueTomorrowPrefix} · ${c.unitCode}` : `${DASHBOARD_LABELS.dueInPrefix} ${c.daysUntilDue} ${DASHBOARD_LABELS.dueInSuffix} · ${c.unitCode}`,
+                sublabel:
+                  c.daysUntilDue === 0
+                    ? `${DASHBOARD_LABELS.dueTodayPrefix} · ${c.unitCode}`
+                    : c.daysUntilDue === 1
+                      ? `${DASHBOARD_LABELS.dueTomorrowPrefix} · ${c.unitCode}`
+                      : `${DASHBOARD_LABELS.dueInPrefix} ${c.daysUntilDue} ${DASHBOARD_LABELS.dueInSuffix} · ${c.unitCode}`,
                 href: `/residents/${c.residentId}`,
               }))}
               allHref="/placements?status=active"
@@ -403,7 +422,6 @@ export function ActionDashboard({
           </div>
         </div>
       )}
-
     </div>
   )
 }

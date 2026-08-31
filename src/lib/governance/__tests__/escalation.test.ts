@@ -74,7 +74,10 @@ describe('nextRung', () => {
 })
 
 describe('recommendNextStep', () => {
-  const incident = (stage: Parameters<typeof recommendNextStep>[0]['resolutionStage'], enteredDaysAgo: number) => ({
+  const incident = (
+    stage: Parameters<typeof recommendNextStep>[0]['resolutionStage'],
+    enteredDaysAgo: number,
+  ) => ({
     resolutionStage: stage,
     stageEnteredAt: daysAgo(enteredDaysAgo),
     resolvedAt: null,
@@ -117,7 +120,7 @@ describe('recommendNextStep', () => {
     const rec = recommendNextStep(
       incident('STAFF_MEDIATION', 2),
       [{ status: 'ACCEPTED', reviewDate: future }],
-      NOW
+      NOW,
     )
 
     expect(rec.shouldEscalate).toBe(false)
@@ -135,7 +138,7 @@ describe('recommendNextStep', () => {
     const rec = recommendNextStep(
       incident('PEER_MEDIATION', 5),
       [agreement('HELD', 30), agreement('BROKEN', 2)],
-      NOW
+      NOW,
     )
 
     expect(rec.shouldEscalate).toBe(true)

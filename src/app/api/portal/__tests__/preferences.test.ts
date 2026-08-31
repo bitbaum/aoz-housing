@@ -205,11 +205,9 @@ describe('POST /api/portal/preferences', () => {
 
     // Must use DB-resolved resident id, not any value from request body
     expect(mockFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { code: 'RES-OWN' } })
+      expect.objectContaining({ where: { code: 'RES-OWN' } }),
     )
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'res-own' } })
-    )
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-own' } }))
   })
 
   test('cannot update another resident by cookie swap — only cookie-identified resident is updated', async () => {
@@ -223,12 +221,8 @@ describe('POST /api/portal/preferences', () => {
     await POST(req)
 
     // Update is scoped to resident A's id, regardless of anything else
-    expect(mockUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'res-a' } })
-    )
+    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-a' } }))
     // Resident B's id never appears in any DB call
-    expect(mockUpdate).not.toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'res-b' } })
-    )
+    expect(mockUpdate).not.toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-b' } }))
   })
 })

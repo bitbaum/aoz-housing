@@ -40,7 +40,7 @@ function makeResident(overrides: Partial<ResidentProfile> = {}): ResidentProfile
     noiseTolerance: 3,
     cleanlinessPractice: 3,
     cleanlinessExpectation: 3,
-    chaosTolerance: 6 - (3),
+    chaosTolerance: 6 - 3,
     guestTolerance: 3,
     socialStyle: 'MODERATE',
     languages: ['DE'],
@@ -68,7 +68,6 @@ function makeResident(overrides: Partial<ResidentProfile> = {}): ResidentProfile
 // =============================================================================
 
 describe('validateScoreForDiscrimination', () => {
-
   // ── High score fast path ──────────────────────────────────────────────────
 
   test('returns safe with no warnings for score >= 40', () => {
@@ -112,7 +111,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['AR'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'LANGUAGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'LANGUAGE_ONLY')
     expect(warning).toBeDefined()
     expect(result.safe).toBe(false)
   })
@@ -124,7 +123,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['AR'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'LANGUAGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'LANGUAGE_ONLY')
     expect(warning).toBeUndefined()
   })
 
@@ -135,7 +134,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['TR'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'LANGUAGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'LANGUAGE_ONLY')
     expect(warning).toBeUndefined()
   })
 
@@ -146,7 +145,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['FA'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'LANGUAGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'LANGUAGE_ONLY')
     expect(warning).toBeUndefined()
   })
 
@@ -157,7 +156,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['TI'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'LANGUAGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'LANGUAGE_ONLY')
     expect(warning?.message).toMatch(/Sprache/i)
     expect(warning?.detail).toContain('language')
   })
@@ -172,7 +171,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'SENIOR', languages: ['DE'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'AGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'AGE_ONLY')
     expect(warning).toBeDefined()
     expect(result.safe).toBe(false)
   })
@@ -184,7 +183,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'MIDDLE_AGED', languages: ['DE'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'AGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'AGE_ONLY')
     expect(warning).toBeUndefined()
   })
 
@@ -195,7 +194,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'SENIOR' }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'AGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'AGE_ONLY')
     expect(warning).toBeUndefined()
   })
 
@@ -206,7 +205,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'SENIOR', languages: ['DE'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'AGE_ONLY')
+    const warning = result.warnings.find((w) => w.type === 'AGE_ONLY')
     expect(warning?.message).toMatch(/Alter/i)
   })
 
@@ -220,7 +219,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002' }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'SINGLE_DIMENSION')
+    const warning = result.warnings.find((w) => w.type === 'SINGLE_DIMENSION')
     expect(warning).toBeDefined()
     expect(warning?.message).toContain('Lebensstil')
     expect(result.safe).toBe(false)
@@ -233,7 +232,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002' }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'SINGLE_DIMENSION')
+    const warning = result.warnings.find((w) => w.type === 'SINGLE_DIMENSION')
     expect(warning).toBeDefined()
     expect(warning?.message).toContain('Sozial')
   })
@@ -246,7 +245,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002' }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'SINGLE_DIMENSION')
+    const warning = result.warnings.find((w) => w.type === 'SINGLE_DIMENSION')
     expect(warning).toBeUndefined()
   })
 
@@ -258,7 +257,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002' }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'SINGLE_DIMENSION')
+    const warning = result.warnings.find((w) => w.type === 'SINGLE_DIMENSION')
     expect(warning).toBeUndefined()
   })
 
@@ -272,7 +271,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'ADULT', languages: ['DE'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'EXTREME_GAP')
+    const warning = result.warnings.find((w) => w.type === 'EXTREME_GAP')
     expect(warning).toBeDefined()
     expect(result.safe).toBe(false)
   })
@@ -284,7 +283,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', ageRange: 'ADULT', languages: ['DE'] }),
     )
 
-    const warning = result.warnings.find(w => w.type === 'EXTREME_GAP')
+    const warning = result.warnings.find((w) => w.type === 'EXTREME_GAP')
     expect(warning).toBeUndefined()
   })
 
@@ -296,7 +295,7 @@ describe('validateScoreForDiscrimination', () => {
       makeResident({ id: 'r2', code: 'RES-002', languages: ['SO'] }),
     )
 
-    const extremeGap = result.warnings.find(w => w.type === 'EXTREME_GAP')
+    const extremeGap = result.warnings.find((w) => w.type === 'EXTREME_GAP')
     expect(extremeGap).toBeUndefined()
     // But should still be unsafe
     expect(result.safe).toBe(false)

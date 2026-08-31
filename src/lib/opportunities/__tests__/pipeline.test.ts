@@ -100,13 +100,13 @@ describe('evidenceForStartedApplication', () => {
   it('carries the kind straight through to the learning record', () => {
     expect(evidenceForStartedApplication(opportunity, startedAt).kind).toBe('VOLUNTEERING')
     expect(
-      evidenceForStartedApplication({ ...opportunity, kind: 'COMMUNITY_SERVICE' }, startedAt).kind
+      evidenceForStartedApplication({ ...opportunity, kind: 'COMMUNITY_SERVICE' }, startedAt).kind,
     ).toBe('COMMUNITY_SERVICE')
   })
 
   it('records the organisation as the provider, not the product', () => {
     expect(evidenceForStartedApplication(opportunity, startedAt).provider).toBe(
-      'Quartierverein Witikon'
+      'Quartierverein Witikon',
     )
   })
 

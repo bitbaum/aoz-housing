@@ -12,11 +12,14 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       args[0].includes('Invalid value for prop') &&
       args[1] === '`action`'
-    ) return
+    )
+      return
     originalConsoleError(...args)
   }
 })
-afterAll(() => { console.error = originalConsoleError })
+afterAll(() => {
+  console.error = originalConsoleError
+})
 
 // --- Mocks ---
 
@@ -44,7 +47,9 @@ jest.mock('../TransferUnitSelector', () => ({
     >
       <option value="">Bitte wählen...</option>
       {eligibleUnits.map((u) => (
-        <option key={u.id} value={u.id}>{u.code}</option>
+        <option key={u.id} value={u.id}>
+          {u.code}
+        </option>
       ))}
     </select>
   ),
@@ -103,9 +108,7 @@ const UNIT_B: UnitWithSpots = {
   id: 'unit-b',
   code: 'B02',
   address: 'Hauptweg 5',
-  spots: [
-    { id: 'spot-bed-b', type: 'BED', code: 'B2', label: 'Bett 2' },
-  ],
+  spots: [{ id: 'spot-bed-b', type: 'BED', code: 'B2', label: 'Bett 2' }],
 }
 
 const BASE_PROPS = {
@@ -154,15 +157,13 @@ describe('TransferForm', () => {
 
   it('shows the no-eligible-units warning when eligibleUnits is empty', () => {
     renderForm({ eligibleUnits: [] })
-    expect(
-      screen.getByText('Keine geeigneten Ziel-Unterkünfte verfügbar.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Keine geeigneten Ziel-Unterkünfte verfügbar.')).toBeInTheDocument()
   })
 
   it('does not show the warning when eligible units are available', () => {
     renderForm()
     expect(
-      screen.queryByText('Keine geeigneten Ziel-Unterkünfte verfügbar.')
+      screen.queryByText('Keine geeigneten Ziel-Unterkünfte verfügbar.'),
     ).not.toBeInTheDocument()
   })
 
@@ -223,25 +224,19 @@ describe('TransferForm', () => {
 
   it('shows med-docs hint when hasMedicalDocumentation is true', () => {
     renderForm({ hasMedicalDocumentation: true })
-    expect(
-      screen.getByText('Zeigt Plätze passend zur med. Dokumentation')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Zeigt Plätze passend zur med. Dokumentation')).toBeInTheDocument()
   })
 
   it('shows no-med-docs hint when hasMedicalDocumentation is false', () => {
     renderForm({ hasMedicalDocumentation: false })
-    expect(
-      screen.getByText('Zeigt nur Betten (keine med. Dokumentation)')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Zeigt nur Betten (keine med. Dokumentation)')).toBeInTheDocument()
   })
 
   // ── Summary text ─────────────────────────────────────────────────────────
 
   it('shows the empty summary when no unit is selected', () => {
     renderForm({ selectedUnitId: '' })
-    expect(
-      screen.getByText(/Wählen Sie eine Ziel-Unterkunft/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Wählen Sie eine Ziel-Unterkunft/)).toBeInTheDocument()
   })
 
   it('shows the unit-based summary when a unit is selected', () => {

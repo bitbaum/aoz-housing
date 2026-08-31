@@ -46,18 +46,16 @@ export function UnitOverviewCards({
       <div className="card">
         <p className="text-sm text-ui-muted">Konflikte (30 Tage)</p>
         <p className="text-xl sm:text-2xl font-bold text-ui-text">
-          {interpersonalIncidents.filter(i =>
-            new Date(i.date) > thirtyDaysAgo
-          ).length}
+          {interpersonalIncidents.filter((i) => new Date(i.date) > thirtyDaysAgo).length}
         </p>
         <p className="text-sm text-ui-muted mt-1">
-          {interpersonalIncidents.filter(i => !i.resolvedAt).length} offen
+          {interpersonalIncidents.filter((i) => !i.resolvedAt).length} offen
         </p>
       </div>
       <div className="card">
         <p className="text-sm text-ui-muted">Wartung</p>
         <p className="text-xl sm:text-2xl font-bold text-ui-text">
-          {maintenanceIncidents.filter(i => !i.resolvedAt).length}
+          {maintenanceIncidents.filter((i) => !i.resolvedAt).length}
         </p>
         <p className="text-sm text-ui-muted mt-1">offene Meldungen</p>
       </div>

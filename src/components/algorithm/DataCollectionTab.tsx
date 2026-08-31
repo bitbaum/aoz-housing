@@ -1,19 +1,13 @@
 'use client'
 
-import {
-  Database,
-  FileText,
-} from 'lucide-react'
-import {
-  RESIDENT_FACTORS,
-  RESIDENT_FORM_SECTIONS,
-} from '@/lib/config/resident-factors'
+import { Database, FileText } from 'lucide-react'
+import { RESIDENT_FACTORS, RESIDENT_FORM_SECTIONS } from '@/lib/config/resident-factors'
 import { FACTOR_SCIENCE } from '@/lib/config/algorithm-docs'
 import { DATA_COLLECTION_TAB_LABELS } from '@/lib/constants'
 
 export function DataCollectionTab() {
   const documentedFactors = Object.values(RESIDENT_FACTORS).filter(
-    f => FACTOR_SCIENCE[f.id]?.dataCollectionMethod
+    (f) => FACTOR_SCIENCE[f.id]?.dataCollectionMethod,
   )
 
   return (
@@ -23,11 +17,11 @@ export function DataCollectionTab() {
           <Database className="w-5 h-5 text-brand-primary" />
           {DATA_COLLECTION_TAB_LABELS.title}
         </h2>
-        <p className="text-ui-muted mb-4">
-          {DATA_COLLECTION_TAB_LABELS.intro}
-        </p>
+        <p className="text-ui-muted mb-4">{DATA_COLLECTION_TAB_LABELS.intro}</p>
         <div className="bg-status-info/8 border border-status-info/25 rounded-lg p-4">
-          <h3 className="font-medium text-status-info-text mb-2">{DATA_COLLECTION_TAB_LABELS.privacyTitle}</h3>
+          <h3 className="font-medium text-status-info-text mb-2">
+            {DATA_COLLECTION_TAB_LABELS.privacyTitle}
+          </h3>
           <ul className="text-sm text-status-info-text space-y-1">
             <li>{DATA_COLLECTION_TAB_LABELS.privacyBullet1}</li>
             <li>{DATA_COLLECTION_TAB_LABELS.privacyBullet2}</li>
@@ -44,7 +38,7 @@ export function DataCollectionTab() {
         </h3>
 
         <div className="space-y-4">
-          {documentedFactors.map(factor => {
+          {documentedFactors.map((factor) => {
             const science = FACTOR_SCIENCE[factor.id]
             if (!science) return null
 
@@ -64,17 +58,21 @@ export function DataCollectionTab() {
       </section>
 
       <section className="card">
-        <h3 className="font-semibold text-ui-text mb-4">{DATA_COLLECTION_TAB_LABELS.formSectionsTitle}</h3>
+        <h3 className="font-semibold text-ui-text mb-4">
+          {DATA_COLLECTION_TAB_LABELS.formSectionsTitle}
+        </h3>
         <div className="grid sm:grid-cols-2 gap-3">
-          {RESIDENT_FORM_SECTIONS.filter(s => s.id !== 'notes').map(section => {
+          {RESIDENT_FORM_SECTIONS.filter((s) => s.id !== 'notes').map((section) => {
             const factorCount = Object.values(RESIDENT_FACTORS).filter(
-              f => f.formSection === section.id
+              (f) => f.formSection === section.id,
             ).length
             return (
               <div key={section.id} className="bg-ui-subtle rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-ui-text">{section.label}</span>
-                  <span className="text-xs text-ui-muted">{factorCount} {DATA_COLLECTION_TAB_LABELS.fieldsSuffix}</span>
+                  <span className="text-xs text-ui-muted">
+                    {factorCount} {DATA_COLLECTION_TAB_LABELS.fieldsSuffix}
+                  </span>
                 </div>
                 {section.description && (
                   <p className="text-xs text-ui-muted mt-1">{section.description}</p>

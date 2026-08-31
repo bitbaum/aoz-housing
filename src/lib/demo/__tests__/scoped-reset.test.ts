@@ -164,7 +164,7 @@ describe('resetDemoWorld', () => {
     // Activity has no unit and no code, which is exactly that.
     expect(mockSeedDemoData).toHaveBeenCalledWith(
       expect.anything(),
-      expect.not.objectContaining({ siteWideContent: true })
+      expect.not.objectContaining({ siteWideContent: true }),
     )
     expect(summary).toEqual({
       ...SEED_SUMMARY,
@@ -190,7 +190,13 @@ describe('upsertDemoStaff', () => {
     expect((raw.user.upsert as jest.Mock).mock.calls[0][0]).toEqual({
       where: { code: 'WG-DEMO01' },
       update: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
-      create: { code: 'WG-DEMO01', name: 'Demo-Zugang', role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
+      create: {
+        code: 'WG-DEMO01',
+        name: 'Demo-Zugang',
+        role: 'ADMIN',
+        scope: 'ALL_DOMAINS',
+        isSystemAdmin: true,
+      },
       select: { id: true },
     })
   })
@@ -201,7 +207,7 @@ describe('upsertDemoStaff', () => {
     await upsertDemoStaff(prisma)
     // A visitor-claimed email/password on the demo door must not outlive the
     // reset — otherwise the next tester cannot get in.
-    expect((raw.account.deleteMany as jest.Mock)).toHaveBeenCalledWith({
+    expect(raw.account.deleteMany as jest.Mock).toHaveBeenCalledWith({
       where: { userId: 'demo-user' },
     })
   })

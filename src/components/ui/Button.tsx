@@ -12,7 +12,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   secondary: 'btn-secondary',
   outline: 'btn-outline',
   ghost: 'btn-ghost',
-  danger: 'btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/35',
+  danger:
+    'btn bg-status-error text-ui-on-accent hover:bg-status-error/90 focus:ring-status-error/35',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {

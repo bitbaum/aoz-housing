@@ -98,7 +98,7 @@ describe('POST /api/auth/demo', () => {
     })
     // Every staff door's account exists unless a test says otherwise.
     mockUserFindMany.mockImplementation(async (args: { where: { code: { in: string[] } } }) =>
-      args.where.code.in.map((code) => ({ code }))
+      args.where.code.in.map((code) => ({ code })),
     )
     mockResidentFindUnique.mockResolvedValue({ id: 'demo-resident-id' })
   })
@@ -132,7 +132,7 @@ describe('POST /api/auth/demo', () => {
           'JOBCOACH',
           'FREIWILLIGENARBEIT',
           'resident',
-        ])
+        ]),
       )
     })
 

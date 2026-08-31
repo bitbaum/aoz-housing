@@ -54,7 +54,7 @@ test.describe('Authentication flow', () => {
     // literals is the same drift it is supposed to catch.
     await expect(page.locator('#code')).toHaveAttribute(
       'placeholder',
-      new RegExp(`${BRAND.codePrefix}.*${BRAND.residentCodePrefix}`)
+      new RegExp(`${BRAND.codePrefix}.*${BRAND.residentCodePrefix}`),
     )
   })
 

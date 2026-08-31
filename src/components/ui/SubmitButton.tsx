@@ -11,7 +11,12 @@ interface SubmitButtonProps {
   disabled?: boolean
 }
 
-export function SubmitButton({ children, pendingText = UI_LABELS.submitting, className, disabled = false }: SubmitButtonProps) {
+export function SubmitButton({
+  children,
+  pendingText = UI_LABELS.submitting,
+  className,
+  disabled = false,
+}: SubmitButtonProps) {
   const { pending } = useFormStatus()
   const isDisabled = pending || disabled
   return (

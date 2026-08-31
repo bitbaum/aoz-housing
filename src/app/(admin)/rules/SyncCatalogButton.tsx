@@ -24,7 +24,7 @@ export function SyncCatalogButton() {
       setMessage(
         result.success
           ? `${result.data?.created ?? 0} neu, ${result.data?.amended ?? 0} geändert`
-          : result.error
+          : result.error,
       )
     })
   }

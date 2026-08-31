@@ -16,7 +16,9 @@ test.describe('Placement list and management', () => {
     await expect(filters.first().getByRole('link', { name: /Aktiv/i })).toBeVisible()
 
     // "New placement" link should go to matching
-    await expect(page.getByRole('link', { name: /Neue Platzierung|Matching/i }).first()).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: /Neue Platzierung|Matching/i }).first(),
+    ).toBeVisible()
   })
 
   test('placement tabs filter correctly', async ({ page }) => {
@@ -24,7 +26,10 @@ test.describe('Placement list and management', () => {
 
     // Click "Alle" tab if it exists
     const alleTab = page.getByRole('button', { name: /Alle/i }).or(page.getByText(/Alle \(/i))
-    const hasAlleTab = await alleTab.first().isVisible().catch(() => false)
+    const hasAlleTab = await alleTab
+      .first()
+      .isVisible()
+      .catch(() => false)
 
     if (hasAlleTab) {
       await alleTab.first().click()
@@ -41,9 +46,20 @@ test.describe('Placement list and management', () => {
     await expect(page.locator('h1, h2').first()).toContainText(/Platzierung/i)
 
     // Check if there are any placement rows, tabs, or empty state
-    const hasRows = await page.locator('a[href*="/residents/"]').first().isVisible({ timeout: 5000 }).catch(() => false)
-    const hasTabs = await page.locator('main nav[aria-label]').first().isVisible().catch(() => false)
-    const hasEmptyState = await page.getByText(/Keine.*Platzierung/i).isVisible().catch(() => false)
+    const hasRows = await page
+      .locator('a[href*="/residents/"]')
+      .first()
+      .isVisible({ timeout: 5000 })
+      .catch(() => false)
+    const hasTabs = await page
+      .locator('main nav[aria-label]')
+      .first()
+      .isVisible()
+      .catch(() => false)
+    const hasEmptyState = await page
+      .getByText(/Keine.*Platzierung/i)
+      .isVisible()
+      .catch(() => false)
 
     // Page should have some placement content
     expect(hasRows || hasTabs || hasEmptyState).toBe(true)
@@ -72,7 +88,11 @@ test.describe('Satisfaction check-in flow', () => {
       // Satisfaction rating uses hidden radio buttons (sr-only) with emoji display
       // Check for attached radios (not visible, since they use sr-only class)
       const radioCount = await page.locator('input[name="overallSatisfaction"]').count()
-      const hasForm = await page.locator('form').first().isVisible().catch(() => false)
+      const hasForm = await page
+        .locator('form')
+        .first()
+        .isVisible()
+        .catch(() => false)
 
       expect(radioCount > 0 || hasForm).toBe(true)
 

@@ -32,8 +32,10 @@ describe('self-serve household on an AOZ deployment', () => {
   it('is off in the shipped AOZ configuration', () => {
     // If this ever flips, the assertions below stop meaning anything — so it
     // is stated first, as a fact about config rather than about behaviour.
-    expect({ brand: BRAND.id, selfServe: BRAND.features.selfServeHousehold })
-      .toEqual({ brand: 'aoz', selfServe: false })
+    expect({ brand: BRAND.id, selfServe: BRAND.features.selfServeHousehold }).toEqual({
+      brand: 'aoz',
+      selfServe: false,
+    })
   })
 
   it('refuses, and never opens a transaction', async () => {

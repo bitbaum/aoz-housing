@@ -89,12 +89,12 @@ describe('completing an appointment', () => {
       await setAppointmentStatus(completionForm({ overallSatisfaction: value }))
 
       expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
-    }
+    },
   )
 
   it('links the reading to the appointment and the account that recorded it', async () => {
     await setAppointmentStatus(
-      completionForm({ overallSatisfaction: '4', concerns: 'Lärm nachts' })
+      completionForm({ overallSatisfaction: '4', concerns: 'Lärm nachts' }),
     )
 
     expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({

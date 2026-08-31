@@ -92,7 +92,10 @@ function NavGroup({
     >
       <summary className="flex items-center justify-between gap-2 min-h-[44px] px-3 cursor-pointer list-none rounded-md hover:bg-ui-subtle text-xs font-semibold uppercase tracking-wide text-ui-muted [&::-webkit-details-marker]:hidden">
         {heading}
-        <ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+        <ChevronDown
+          className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        />
       </summary>
       <ul className="mt-1">
         {grouped.map((item) => (

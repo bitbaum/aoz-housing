@@ -1,4 +1,11 @@
-import { ASSIGNABLE_STAFF_ROLES, NARROWEST_CAPABILITIES, SYSTEM_ADMIN_PERMISSIONS, canRoleAccess, hasPermission, ROLE_PERMISSIONS, STAFF_ROLES,
+import {
+  ASSIGNABLE_STAFF_ROLES,
+  NARROWEST_CAPABILITIES,
+  SYSTEM_ADMIN_PERMISSIONS,
+  canRoleAccess,
+  hasPermission,
+  ROLE_PERMISSIONS,
+  STAFF_ROLES,
   type StaffCapabilities,
   type StaffRole,
   type StaffScopeId,
@@ -15,7 +22,7 @@ import { ASSIGNABLE_STAFF_ROLES, NARROWEST_CAPABILITIES, SYSTEM_ADMIN_PERMISSION
 function caps(
   role: StaffRole,
   scope: StaffScopeId = 'OWN_DOMAIN',
-  isSystemAdmin = false
+  isSystemAdmin = false,
 ): StaffCapabilities {
   return { role, scope, isSystemAdmin }
 }
@@ -119,7 +126,7 @@ describe('role policy smoke checks', () => {
   })
 
   test('canRoleAccess rejects when ADMIN is not in allowlist', () => {
-    expect(canRoleAccess([] as unknown as ('ADMIN')[], 'ADMIN')).toBe(false)
+    expect(canRoleAccess([] as unknown as 'ADMIN'[], 'ADMIN')).toBe(false)
   })
 })
 

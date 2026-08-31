@@ -2,9 +2,9 @@ import Link from 'next/link'
 import type { MatchResult, ResidentWithPlacement } from '@/lib/matching/types'
 
 function spotIdToPlace(match: MatchResult): string {
-  return match.bestRoomFit?.spotId
-    || match.unit.spots.find((s) => s.status === 'AVAILABLE')?.id
-    || ''
+  return (
+    match.bestRoomFit?.spotId || match.unit.spots.find((s) => s.status === 'AVAILABLE')?.id || ''
+  )
 }
 import { EMPTY_STATE_LABELS, MATCH_RESULTS_LABELS, PLACEMENT_PANEL_LABELS } from '@/lib/constants'
 import { SubmitButton } from '@/components/ui'
@@ -32,7 +32,8 @@ export function MatchResultsPanel({
   const otherMatches = matches.slice(DISPLAY_LIMITS.dashboardItems, DISPLAY_LIMITS.unitMatches)
 
   const bestQuickMatch = matches.find((m) => {
-    const hasBlockingConflicts = m.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
+    const hasBlockingConflicts =
+      m.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
     const hasSpot = !!m.unit.spots?.some((s) => s.status === 'AVAILABLE')
     return !m.hasBlockingIssue && !hasBlockingConflicts && hasSpot
   })
@@ -78,17 +79,19 @@ export function MatchResultsPanel({
       ) : (
         <div className="space-y-4">
           {bestQuickMatch && (
-            <form action={placeResident} className="p-3 bg-score-excellent/10 border border-score-excellent/25 rounded-lg">
+            <form
+              action={placeResident}
+              className="p-3 bg-score-excellent/10 border border-score-excellent/25 rounded-lg"
+            >
               <input type="hidden" name="residentId" value={selectedResident.id} />
               <input type="hidden" name="housingUnitId" value={bestQuickMatch.unit.id} />
-              <input
-                type="hidden"
-                name="spotId"
-                value={spotIdToPlace(bestQuickMatch)}
-              />
+              <input type="hidden" name="spotId" value={spotIdToPlace(bestQuickMatch)} />
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <p className="text-sm text-status-success-text">
-                  {MATCH_RESULTS_LABELS.quickActionDesc(bestQuickMatch.unit.code, bestQuickMatch.apartmentFit.fitScore)}
+                  {MATCH_RESULTS_LABELS.quickActionDesc(
+                    bestQuickMatch.unit.code,
+                    bestQuickMatch.apartmentFit.fitScore,
+                  )}
                 </p>
                 <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
                   {MATCH_RESULTS_LABELS.quickActionBtn}
@@ -100,22 +103,36 @@ export function MatchResultsPanel({
           {fastMode ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.fastModeTitle}</h3>
-                <span className="text-xs text-ui-muted">{MATCH_RESULTS_LABELS.fastModeSubtitle}</span>
+                <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">
+                  {MATCH_RESULTS_LABELS.fastModeTitle}
+                </h3>
+                <span className="text-xs text-ui-muted">
+                  {MATCH_RESULTS_LABELS.fastModeSubtitle}
+                </span>
               </div>
               {matches.slice(0, DISPLAY_LIMITS.topUnits).map((match, idx) => {
                 const availableSpotId = spotIdToPlace(match)
-                const hasBlockingConflicts = match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
+                const hasBlockingConflicts =
+                  match.apartmentFit?.conflicts?.some((c) => c.severity === 'BLOCKING') || false
                 return (
-                  <div key={match.unit.id} className={`p-3 rounded-lg border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-ui-border'}`}>
+                  <div
+                    key={match.unit.id}
+                    className={`p-3 rounded-lg border ${idx === 0 ? 'border-score-excellent/30 bg-score-excellent/8' : 'border-ui-border'}`}
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-ui-text">#{idx + 1} · {match.unit.code}</p>
+                        <p className="font-semibold text-ui-text">
+                          #{idx + 1} · {match.unit.code}
+                        </p>
                         <p className="text-sm text-ui-muted">{match.unit.address}</p>
                         <p className="text-xs text-ui-muted mt-1">
                           {match.bestRoomFit?.score != null
                             ? `Zimmer ${match.bestRoomFit.spotCode}: ${match.bestRoomFit.score}% mit ${match.bestRoomFit.roommateCount} Mitbewohnenden`
-                            : MATCH_RESULTS_LABELS.fitInfo(match.apartmentFit.fitScore, match.unit.placements.length, match.unit.totalBeds)}
+                            : MATCH_RESULTS_LABELS.fitInfo(
+                                match.apartmentFit.fitScore,
+                                match.unit.placements.length,
+                                match.unit.totalBeds,
+                              )}
                         </p>
                       </div>
                       {availableSpotId && !hasBlockingConflicts ? (
@@ -123,10 +140,14 @@ export function MatchResultsPanel({
                           <input type="hidden" name="residentId" value={selectedResident.id} />
                           <input type="hidden" name="housingUnitId" value={match.unit.id} />
                           <input type="hidden" name="spotId" value={availableSpotId} />
-                          <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">{PLACEMENT_PANEL_LABELS.place}</SubmitButton>
+                          <SubmitButton className="btn-primary text-sm min-h-[44px] disabled:opacity-60 disabled:cursor-wait">
+                            {PLACEMENT_PANEL_LABELS.place}
+                          </SubmitButton>
                         </form>
                       ) : (
-                        <span className="text-xs text-status-error-text">{PLACEMENT_PANEL_LABELS.blocked}</span>
+                        <span className="text-xs text-status-error-text">
+                          {PLACEMENT_PANEL_LABELS.blocked}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -138,8 +159,12 @@ export function MatchResultsPanel({
               {topMatches.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.topMatchesTitle}</h3>
-                    <span className="text-xs text-ui-muted">{MATCH_RESULTS_LABELS.topMatchesSubtitle}</span>
+                    <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">
+                      {MATCH_RESULTS_LABELS.topMatchesTitle}
+                    </h3>
+                    <span className="text-xs text-ui-muted">
+                      {MATCH_RESULTS_LABELS.topMatchesSubtitle}
+                    </span>
                   </div>
                   {topMatches.map((match, idx) => (
                     <MatchCard
@@ -154,13 +179,11 @@ export function MatchResultsPanel({
 
               {otherMatches.length > 0 && (
                 <div className="space-y-3 pt-2">
-                  <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">{MATCH_RESULTS_LABELS.otherMatchesTitle}</h3>
+                  <h3 className="text-sm font-semibold text-ui-muted uppercase tracking-wide">
+                    {MATCH_RESULTS_LABELS.otherMatchesTitle}
+                  </h3>
                   {otherMatches.map((match) => (
-                    <MatchCard
-                      key={match.unit.id}
-                      match={match}
-                      resident={selectedResident}
-                    />
+                    <MatchCard key={match.unit.id} match={match} resident={selectedResident} />
                   ))}
                 </div>
               )}

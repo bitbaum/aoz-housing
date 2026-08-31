@@ -51,16 +51,12 @@ export async function POST(request: Request) {
 
   try {
     const scope = getDemoResetScope()
-    const summary =
-      scope === 'FULL' ? await resetDemoData(prisma) : await resetDemoWorld(prisma)
+    const summary = scope === 'FULL' ? await resetDemoData(prisma) : await resetDemoWorld(prisma)
     logger.info('Demo data reset', { scope, ...summary })
     return NextResponse.json({ success: true, scope, ...summary })
   } catch (error) {
     logger.errorWithCause('Demo reset failed', error)
-    return NextResponse.json(
-      { success: false, error: 'Demo reset failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: 'Demo reset failed' }, { status: 500 })
   } finally {
     // Release the advisory lock. Failure here is logged but never thrown,
     // so it cannot mask the reset's own outcome.

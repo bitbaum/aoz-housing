@@ -15,11 +15,7 @@ import { useLocale, useT } from '@/lib/i18n/LocaleProvider'
  * Unvouched complete languages still show `language.machineNotice` after the
  * choice, in the chosen language — the reader is the person who can judge.
  */
-export function LanguageSwitcher({
-  variant = 'compact',
-}: {
-  variant?: 'compact' | 'panel'
-}) {
+export function LanguageSwitcher({ variant = 'compact' }: { variant?: 'compact' | 'panel' }) {
   const router = useRouter()
   const current = useLocale()
   const t = useT()

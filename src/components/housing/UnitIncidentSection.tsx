@@ -47,9 +47,7 @@ export function UnitIncidentSection({
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-ui-text">
-          {UNIT_INCIDENT_LABELS.title}
-        </h2>
+        <h2 className="text-lg font-semibold text-ui-text">{UNIT_INCIDENT_LABELS.title}</h2>
         <Link href={`/incidents/new?unit=${unitId}`} className="btn-outline text-sm">
           {UNIT_INCIDENT_LABELS.newIncident}
         </Link>
@@ -59,7 +57,9 @@ export function UnitIncidentSection({
       {frequentSubjects.length > 0 && (
         <div className="mb-4 p-4 bg-status-warning/10 border border-status-warning/25 rounded-lg">
           <div className="flex items-start gap-2">
-            <span className="text-status-warning text-lg" aria-hidden="true">!</span>
+            <span className="text-status-warning text-lg" aria-hidden="true">
+              !
+            </span>
             <div>
               <p className="text-sm font-medium text-status-warning-text">
                 {UNIT_INCIDENT_LABELS.frequentResidents}
@@ -83,16 +83,20 @@ export function UnitIncidentSection({
 
       <div className="mb-4">
         <div className="flex gap-2 border-b border-ui-border">
-          <TabButton active>{UNIT_INCIDENT_LABELS.tabs.all} ({incidents.length})</TabButton>
-          <TabButton>{UNIT_INCIDENT_LABELS.tabs.conflicts} ({interpersonalCount})</TabButton>
-          <TabButton>{UNIT_INCIDENT_LABELS.tabs.maintenance} ({maintenanceCount})</TabButton>
+          <TabButton active>
+            {UNIT_INCIDENT_LABELS.tabs.all} ({incidents.length})
+          </TabButton>
+          <TabButton>
+            {UNIT_INCIDENT_LABELS.tabs.conflicts} ({interpersonalCount})
+          </TabButton>
+          <TabButton>
+            {UNIT_INCIDENT_LABELS.tabs.maintenance} ({maintenanceCount})
+          </TabButton>
         </div>
       </div>
 
       {incidents.length === 0 ? (
-        <p className="text-ui-muted text-center py-8">
-          {UNIT_INCIDENT_LABELS.noIncidents}
-        </p>
+        <p className="text-ui-muted text-center py-8">{UNIT_INCIDENT_LABELS.noIncidents}</p>
       ) : (
         <div className="space-y-3">
           {incidents.map((incident) => (
@@ -108,10 +112,14 @@ function IncidentCard({ incident }: { incident: Incident }) {
   const categoryIcon = INCIDENT_CATEGORY_ICONS[incident.category] || '💬'
 
   return (
-    <div className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}>
+    <div
+      className={`p-4 bg-ui-subtle rounded-lg border-l-4 ${getSeverityBorderClass(incident.severity)}`}
+    >
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <span className="text-lg" aria-hidden="true">{categoryIcon}</span>
+          <span className="text-lg" aria-hidden="true">
+            {categoryIcon}
+          </span>
           <div>
             <p className="font-medium text-ui-text">
               {INCIDENT_TYPE_LABELS[incident.type] || incident.type}
@@ -125,9 +133,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
           </div>
         </div>
         <div className="text-right text-sm">
-          <p className="text-ui-muted">
-            {formatRelativeDate(incident.date)}
-          </p>
+          <p className="text-ui-muted">{formatRelativeDate(incident.date)}</p>
           {incident.resolvedAt ? (
             <span className="badge badge-active">{UI_LABELS.resolved}</span>
           ) : (

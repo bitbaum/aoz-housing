@@ -63,7 +63,10 @@ import { POST } from '../invite/route'
 
 // --- Helpers ---
 
-function createJsonRequest(body: Record<string, unknown>, headers?: Record<string, string>): NextRequest {
+function createJsonRequest(
+  body: Record<string, unknown>,
+  headers?: Record<string, string>,
+): NextRequest {
   return new NextRequest('http://localhost:3001/api/auth/invite', {
     method: 'POST',
     body: JSON.stringify(body),
@@ -119,7 +122,7 @@ describe('POST /api/auth/invite', () => {
   test('checks rate limit using x-forwarded-for IP', async () => {
     const req = createJsonRequest(
       { email: 'test@aoz.ch', name: 'Test' },
-      { 'x-forwarded-for': '203.0.113.5, 10.0.0.1' }
+      { 'x-forwarded-for': '203.0.113.5, 10.0.0.1' },
     )
     await POST(req)
 
@@ -242,7 +245,7 @@ describe('POST /api/auth/invite', () => {
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ role: 'JOBCOACH' }),
-      })
+      }),
     )
   })
 
@@ -267,12 +270,12 @@ describe('POST /api/auth/invite', () => {
           role: 'BETREUUNG',
           active: true,
         }),
-      })
+      }),
     )
     expect(mockSendEmail).toHaveBeenCalledWith(
       ['new@aoz.ch'],
       expect.any(String),
-      expect.any(String)
+      expect.any(String),
     )
   })
 
@@ -283,7 +286,7 @@ describe('POST /api/auth/invite', () => {
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ account: { create: { email: 'upper@aoz.ch' } } }),
-      })
+      }),
     )
   })
 
@@ -294,7 +297,7 @@ describe('POST /api/auth/invite', () => {
     expect(mockUserCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ name: 'Padded Name' }),
-      })
+      }),
     )
   })
 

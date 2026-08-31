@@ -11,18 +11,27 @@ jest.mock('../PrimaryActionHero', () => ({
   CriticalAlertBanner: ({ incidents }: { incidents: Array<{ id: string }> }) => (
     <div data-testid="critical-banner" data-count={incidents.length} />
   ),
-  determinePrimaryAction: jest.fn(() => ({ type: 'ALL_GOOD', label: 'OK', href: '/', color: 'green' })),
+  determinePrimaryAction: jest.fn(() => ({
+    type: 'ALL_GOOD',
+    label: 'OK',
+    href: '/',
+    color: 'green',
+  })),
 }))
 
 jest.mock('../QuickStatsRow', () => ({
   QuickStat: ({ label, value }: { label: string; value: number }) => (
-    <div data-testid="quick-stat">{label}: {value}</div>
+    <div data-testid="quick-stat">
+      {label}: {value}
+    </div>
   ),
 }))
 
 jest.mock('../ActionTilesGrid', () => ({
   ActionTile: ({ title, count }: { title: string; count: number }) => (
-    <div data-testid="action-tile">{title} ({count})</div>
+    <div data-testid="action-tile">
+      {title} ({count})
+    </div>
   ),
 }))
 
@@ -76,7 +85,15 @@ const BASE_PROPS = {
 }
 
 function makeCheckIn(id: string) {
-  return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'A01', daysSinceLastCheckIn: 8, supportLevel: 'STANDARD' }
+  return {
+    id,
+    residentCode: `RES-${id}`,
+    residentDisplayName: null,
+    residentId: `rid-${id}`,
+    unitCode: 'A01',
+    daysSinceLastCheckIn: 8,
+    supportLevel: 'STANDARD',
+  }
 }
 
 function makeResident(id: string) {
@@ -88,15 +105,36 @@ function makeIncident(id: string) {
 }
 
 function makeProblemUnit(id: string) {
-  return { id, code: `U0${id}`, incidentCount: 3, problemScore: 8, unresolvedCount: 1, primaryIssue: 'NOISE' }
+  return {
+    id,
+    code: `U0${id}`,
+    incidentCount: 3,
+    problemScore: 8,
+    unresolvedCount: 1,
+    primaryIssue: 'NOISE',
+  }
 }
 
 function makeDueSoon(id: string, daysUntilDue = 2) {
-  return { id, residentCode: `RES-${id}`, residentDisplayName: null, residentId: `rid-${id}`, unitCode: 'C03', daysUntilDue, supportLevel: 'STANDARD' }
+  return {
+    id,
+    residentCode: `RES-${id}`,
+    residentDisplayName: null,
+    residentId: `rid-${id}`,
+    unitCode: 'C03',
+    daysUntilDue,
+    supportLevel: 'STANDARD',
+  }
 }
 
 function makeTransfer(id: string) {
-  return { id, residentCode: `RES-${id}`, residentDisplayName: null, unitCode: 'A01', daysSinceCreated: 4 }
+  return {
+    id,
+    residentCode: `RES-${id}`,
+    residentDisplayName: null,
+    unitCode: 'A01',
+    daysSinceCreated: 4,
+  }
 }
 
 function makeProposal(id: string) {
@@ -119,10 +157,13 @@ describe('ActionDashboard', () => {
   })
 
   it('shows plural tasks message when more than 1 issue', () => {
-    render(<ActionDashboard {...BASE_PROPS}
-      overdueCheckIns={[makeCheckIn('c1')]}
-      unplacedResidents={[makeResident('r1')]}
-    />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        overdueCheckIns={[makeCheckIn('c1')]}
+        unplacedResidents={[makeResident('r1')]}
+      />,
+    )
     expect(screen.getByText(/2 Aufgaben warten auf Sie/)).toBeInTheDocument()
   })
 
@@ -134,7 +175,12 @@ describe('ActionDashboard', () => {
   })
 
   it('routes unplaced residents into the open task list instead of another CTA bar', () => {
-    render(<ActionDashboard {...BASE_PROPS} unplacedResidents={[makeResident('r1'), makeResident('r2')]} />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        unplacedResidents={[makeResident('r1'), makeResident('r2')]}
+      />,
+    )
     expect(screen.queryByTestId('quick-actions-bar')).not.toBeInTheDocument()
     expect(screen.getByText('Klient*innen platzieren (2)')).toBeInTheDocument()
   })
@@ -176,7 +222,12 @@ describe('ActionDashboard', () => {
   })
 
   it('gives BETREUUNG one tile fewer — no team health', () => {
-    render(<ActionDashboard {...BASE_PROPS} viewer={{ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }} />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+      />,
+    )
     const stats = screen.getAllByTestId('quick-stat')
 
     expect(stats).toHaveLength(6)
@@ -190,14 +241,26 @@ describe('ActionDashboard', () => {
   // it through a mock that cannot render it would test the mock.
 
   it('renders only the learning stat for JOBCOACH', () => {
-    render(<ActionDashboard {...BASE_PROPS} viewer={{ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }} learningInProgressCount={4} />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+        learningInProgressCount={4}
+      />,
+    )
     const stats = screen.getAllByTestId('quick-stat')
     expect(stats).toHaveLength(1)
     expect(stats[0]).toHaveTextContent('Lernen & Beruf: 4')
   })
 
   it('renders learning and events stats for FREIWILLIGENARBEIT, no housing stats', () => {
-    render(<ActionDashboard {...BASE_PROPS} viewer={{ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }} upcomingEventsCount={2} />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+        upcomingEventsCount={2}
+      />,
+    )
     const stats = screen.getAllByTestId('quick-stat')
     expect(stats).toHaveLength(2)
     expect(screen.queryByText(/Freie Plätze/)).not.toBeInTheDocument()
@@ -205,7 +268,12 @@ describe('ActionDashboard', () => {
   })
 
   it('hides check-in and maintenance stats for SOZIALARBEIT but keeps occupancy', () => {
-    render(<ActionDashboard {...BASE_PROPS} viewer={{ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }} />)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'SOZIALARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+      />,
+    )
     expect(screen.queryByText(/Check-ins:/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Wartung:/)).not.toBeInTheDocument()
     expect(screen.getByText(/Freie Plätze: 10/)).toBeInTheDocument()
@@ -217,7 +285,9 @@ describe('ActionDashboard', () => {
   })
 
   it('shows overdue check-in count in stat', () => {
-    render(<ActionDashboard {...BASE_PROPS} overdueCheckIns={[makeCheckIn('c1'), makeCheckIn('c2')]} />)
+    render(
+      <ActionDashboard {...BASE_PROPS} overdueCheckIns={[makeCheckIn('c1'), makeCheckIn('c2')]} />,
+    )
     expect(screen.getByText(/Check-ins: 2/)).toBeInTheDocument()
   })
 
@@ -341,7 +411,7 @@ describe('ActionDashboard', () => {
     // No units yet, and ADMIN may create them.
     expect(screen.getByRole('link', { name: 'Erste Unterkunft erfassen' })).toHaveAttribute(
       'href',
-      '/housing/new'
+      '/housing/new',
     )
   })
 
@@ -349,12 +419,17 @@ describe('ActionDashboard', () => {
     render(<ActionDashboard {...EMPTY_WORKSPACE} housingUnitCount={3} />)
     expect(screen.getByRole('link', { name: 'Erste*n Klient*in erfassen' })).toHaveAttribute(
       'href',
-      '/residents/new'
+      '/residents/new',
     )
   })
 
   it('offers a Jobcoach no setup button, because every one would be a 403', () => {
-    render(<ActionDashboard {...EMPTY_WORKSPACE} viewer={{ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }} />)
+    render(
+      <ActionDashboard
+        {...EMPTY_WORKSPACE}
+        viewer={{ role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+      />,
+    )
     expect(screen.getByText('Noch keine Daten erfasst')).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /erfassen/i })).not.toBeInTheDocument()
   })

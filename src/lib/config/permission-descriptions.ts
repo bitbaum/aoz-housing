@@ -8,7 +8,11 @@
  * a human-readable name.
  */
 
-import { SYSTEM_ADMIN_PERMISSIONS, ROLE_PERMISSIONS, type StaffPermission } from '@/lib/auth/role-policy'
+import {
+  SYSTEM_ADMIN_PERMISSIONS,
+  ROLE_PERMISSIONS,
+  type StaffPermission,
+} from '@/lib/auth/role-policy'
 import { LEARNING_AREA_NAME } from './learning'
 import { OPPORTUNITY_AREA_NAME } from './opportunities'
 

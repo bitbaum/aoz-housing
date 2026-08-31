@@ -21,7 +21,9 @@ import { BLOG_LABELS } from '@/lib/constants/labels'
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-ui-canvas">
-      <a href="#public-main" className="skip-link">Zum Inhalt springen</a>
+      <a href="#public-main" className="skip-link">
+        Zum Inhalt springen
+      </a>
 
       <header className="chrome-bar sticky top-0">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
@@ -29,9 +31,15 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="flex items-center gap-3">
               <Logo href="/" size="md" />
               <nav className="hidden md:flex items-center gap-1 text-sm">
-                <Link href="/blog" className="btn-ghost text-sm">Blog</Link>
-                <Link href="/roadmap" className="btn-ghost text-sm">Roadmap</Link>
-                <Link href="/changelog" className="btn-ghost text-sm">Changelog</Link>
+                <Link href="/blog" className="btn-ghost text-sm">
+                  Blog
+                </Link>
+                <Link href="/roadmap" className="btn-ghost text-sm">
+                  Roadmap
+                </Link>
+                <Link href="/changelog" className="btn-ghost text-sm">
+                  Changelog
+                </Link>
               </nav>
             </div>
             <div className="flex items-center gap-1">
@@ -60,9 +68,15 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="eyebrow">{BLOG_LABELS.title}</p>
             <div className="flex flex-wrap gap-4 text-sm text-ui-muted">
-              <Link href="/blog" className="hover:text-ui-text">Blog</Link>
-              <Link href="/roadmap" className="hover:text-ui-text">Roadmap</Link>
-              <Link href="/changelog" className="hover:text-ui-text">Changelog</Link>
+              <Link href="/blog" className="hover:text-ui-text">
+                Blog
+              </Link>
+              <Link href="/roadmap" className="hover:text-ui-text">
+                Roadmap
+              </Link>
+              <Link href="/changelog" className="hover:text-ui-text">
+                Changelog
+              </Link>
             </div>
           </div>
         </div>

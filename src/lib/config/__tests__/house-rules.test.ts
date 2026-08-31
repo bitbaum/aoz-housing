@@ -1,8 +1,4 @@
-import {
-  DELEGATION_ALLOWS_UNIT_RULE,
-  ORG_RULE_CATALOG,
-  ORG_RULE_KEYS,
-} from '../house-rules'
+import { DELEGATION_ALLOWS_UNIT_RULE, ORG_RULE_CATALOG, ORG_RULE_KEYS } from '../house-rules'
 
 describe('ORG_RULE_CATALOG', () => {
   it('has unique keys — keys are the stable identity the sync is keyed on', () => {
@@ -35,7 +31,13 @@ describe('ORG_RULE_CATALOG', () => {
 
   it('keeps the non-negotiable paper rules FIXED — a house cannot vote them away', () => {
     // These come from the signed document with no room for house variation.
-    const fixed = ['pets', 'keys_and_doors', 'cooking_supervision', 'waste_recycling', 'reachability']
+    const fixed = [
+      'pets',
+      'keys_and_doors',
+      'cooking_supervision',
+      'waste_recycling',
+      'reachability',
+    ]
     for (const key of fixed) {
       const rule = ORG_RULE_CATALOG.find((r) => r.key === key)!
       expect(rule.delegation).toBe('FIXED')

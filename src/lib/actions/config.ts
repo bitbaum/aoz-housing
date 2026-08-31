@@ -37,14 +37,22 @@ export async function saveSystemConfig(formData: FormData): Promise<void> {
     create: {
       id: 'singleton',
       pilotBaselineIncidentsPerMonth: parseFloat(formData.get('pilotBaselineIncidentsPerMonth')),
-      pilotBaselineRelocationsPerMonth: parseFloat(formData.get('pilotBaselineRelocationsPerMonth')),
-      pilotBaselineMediationHoursPerWeek: parseFloat(formData.get('pilotBaselineMediationHoursPerWeek')),
+      pilotBaselineRelocationsPerMonth: parseFloat(
+        formData.get('pilotBaselineRelocationsPerMonth'),
+      ),
+      pilotBaselineMediationHoursPerWeek: parseFloat(
+        formData.get('pilotBaselineMediationHoursPerWeek'),
+      ),
       pilotStartDate,
     },
     update: {
       pilotBaselineIncidentsPerMonth: parseFloat(formData.get('pilotBaselineIncidentsPerMonth')),
-      pilotBaselineRelocationsPerMonth: parseFloat(formData.get('pilotBaselineRelocationsPerMonth')),
-      pilotBaselineMediationHoursPerWeek: parseFloat(formData.get('pilotBaselineMediationHoursPerWeek')),
+      pilotBaselineRelocationsPerMonth: parseFloat(
+        formData.get('pilotBaselineRelocationsPerMonth'),
+      ),
+      pilotBaselineMediationHoursPerWeek: parseFloat(
+        formData.get('pilotBaselineMediationHoursPerWeek'),
+      ),
       pilotStartDate,
     },
   })

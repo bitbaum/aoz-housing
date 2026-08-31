@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
 import { MARKETPLACE_ADMIN_LABELS } from '@/lib/constants'
-import { listStaffMarketplacePosts, hideMarketplacePost, unhideMarketplacePost } from '@/lib/actions/marketplace'
+import {
+  listStaffMarketplacePosts,
+  hideMarketplacePost,
+  unhideMarketplacePost,
+} from '@/lib/actions/marketplace'
 import { getCurrentUser, hasPermission, requirePermission } from '@/lib/auth'
 
 export const metadata: Metadata = { title: MARKETPLACE_ADMIN_LABELS.pageTitle }
@@ -57,15 +61,23 @@ export default async function MarketplaceAdminPage() {
                         {MARKETPLACE_ADMIN_LABELS.kind[post.kind]}
                       </span>
                       {post.hiddenByStaff ? (
-                        <span className="badge badge-alert">{MARKETPLACE_ADMIN_LABELS.hiddenBadge}</span>
+                        <span className="badge badge-alert">
+                          {MARKETPLACE_ADMIN_LABELS.hiddenBadge}
+                        </span>
                       ) : null}
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm text-ui-muted">{post.description}</p>
                     <div className="mt-2 flex flex-wrap gap-3 text-xs text-ui-muted">
-                      <span>{MARKETPLACE_ADMIN_LABELS.unit}: {post.housingUnitCode}</span>
-                      <span>{MARKETPLACE_ADMIN_LABELS.postedBy}: {post.postedByName}</span>
+                      <span>
+                        {MARKETPLACE_ADMIN_LABELS.unit}: {post.housingUnitCode}
+                      </span>
+                      <span>
+                        {MARKETPLACE_ADMIN_LABELS.postedBy}: {post.postedByName}
+                      </span>
                       {post.claimedByName ? (
-                        <span>{MARKETPLACE_ADMIN_LABELS.claimedBy}: {post.claimedByName}</span>
+                        <span>
+                          {MARKETPLACE_ADMIN_LABELS.claimedBy}: {post.claimedByName}
+                        </span>
                       ) : null}
                       <span>{MARKETPLACE_ADMIN_LABELS.category[post.category]}</span>
                     </div>

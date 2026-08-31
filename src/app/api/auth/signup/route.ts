@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     if (!rateCheck.allowed) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.RATE_LIMITED, retryAfter: rateCheck.retryAfter },
-        { status: 429 }
+        { status: 429 },
       )
     }
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { success: false, error: parsed.error.errors[0]?.message || ERROR_MESSAGES.INVALID_INPUT },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     logger.errorWithCause('Signup failed', error)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.SESSION_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

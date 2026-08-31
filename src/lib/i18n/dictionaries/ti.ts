@@ -80,8 +80,7 @@ export const ti: Dictionary = {
   'help.emergencyTitle': 'ሓደጋ',
   'help.emergencyDesc': 'ኣብ ሓደጋ ብኡ ክትርከብ:',
   'help.faq.placement.q': 'ክፍልታት ከመይ ይምቀሉ?',
-  'help.faq.placement.a':
-    'ዕርደት፣ ድምጺ፣ ጽሬትን ቋንቋን ንርኢ. ትኽክለኛ መልሲ ዝበለጸ ምቕማጥ የምጽእ.',
+  'help.faq.placement.a': 'ዕርደት፣ ድምጺ፣ ጽሬትን ቋንቋን ንርኢ. ትኽክለኛ መልሲ ዝበለጸ ምቕማጥ የምጽእ.',
   'help.faq.preferences.q': 'ሓበሬታይ ከቐይር ይኽእል ድየ?',
   'help.faq.preferences.a': 'እወ፣ ኣብ ቅጥዕታት. ለውጢ ንመጻኢ ምቕማጥ እዩ.',
   'help.faq.conflict.q': 'ኣብ ግርጭት እንታይ?',
@@ -89,8 +88,7 @@ export const ti: Dictionary = {
   'help.faq.transfer.q': 'ስግግር ክሓትት ይኽእል ድየ?',
   'help.faq.transfer.a': 'እወ፣ ብ«ስግግር» ወይ ብሓላፊኻ.',
   'help.faq.privacy.q': 'ሓበሬታይ ድሕን ድዩ?',
-  'help.faq.privacy.a':
-    'እወ. ምርጫ መንበሪ ጥራይ — መርመራ ሕክምና የለን፣ ኩነት ዑቕባ የለን. ሓበሬታኻ ክትርኢ ትኽእል ኢኻ.',
+  'help.faq.privacy.a': 'እወ. ምርጫ መንበሪ ጥራይ — መርመራ ሕክምና የለን፣ ኩነት ዑቕባ የለን. ሓበሬታኻ ክትርኢ ትኽእል ኢኻ.',
   'help.link.report': 'ጸገም ሕበር',
   'help.link.rules': 'ሕግታት ገዛ',
 
@@ -101,8 +99,7 @@ export const ti: Dictionary = {
   'report.noPlacement': 'ገና መንበሪ የብልካን. ምስ ሓላፊኻ ተራኸብ.',
 
   'rules.title': 'ሕግታት ገዛ',
-  'rules.subtitle':
-    'እቲ ዝተኣሳሰር ጽሑፍ ብጀርመን እዩ — እቲ እትፈርሞ. እንተዘይተረዳእካ ንሓላፊኻ ሕተት.',
+  'rules.subtitle': 'እቲ ዝተኣሳሰር ጽሑፍ ብጀርመን እዩ — እቲ እትፈርሞ. እንተዘይተረዳእካ ንሓላፊኻ ሕተት.',
   'rules.noPlacement': 'ክፍሊ ምስ ዝህልወካ ሕግታት ኣብዚ ይመጹ.',
   'rules.toDecisions': 'ናብ ውሳነታት',
 

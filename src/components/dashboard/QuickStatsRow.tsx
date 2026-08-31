@@ -22,7 +22,16 @@ export interface QuickStatProps {
   icon: ReactNode
 }
 
-export function QuickStat({ label, value, total, suffix, subtext, href, urgency, icon }: QuickStatProps) {
+export function QuickStat({
+  label,
+  value,
+  total,
+  suffix,
+  subtext,
+  href,
+  urgency,
+  icon,
+}: QuickStatProps) {
   return (
     // A flat, hairline card like every other surface in the product. The old
     // tinted fill and 2px coloured border made four stat cards read as four
@@ -31,7 +40,8 @@ export function QuickStat({ label, value, total, suffix, subtext, href, urgency,
       <div className="flex items-center justify-between mb-1">
         <span className="text-ui-muted inline-flex items-center">{icon}</span>
         <span className={`metric text-2xl ${URGENCY_VALUE_CLASS[urgency]}`}>
-          {value}{suffix}
+          {value}
+          {suffix}
         </span>
       </div>
       <div className="text-sm font-medium text-ui-text">{label}</div>

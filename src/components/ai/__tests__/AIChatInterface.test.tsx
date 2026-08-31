@@ -61,14 +61,14 @@ const sseError = (message: string) => `data: ${JSON.stringify({ type: 'error', m
 function sendKeyAndFlush(textarea: HTMLElement) {
   return act(async () => {
     fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false })
-    await new Promise<void>(resolve => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
   })
 }
 
 function clickAndFlush(el: HTMLElement) {
   return act(async () => {
     fireEvent.click(el)
-    await new Promise<void>(resolve => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => setTimeout(resolve, 0))
   })
 }
 
@@ -110,13 +110,19 @@ describe('AIChatInterface — input interaction', () => {
   it('Shift+Enter does not submit', async () => {
     render(<AIChatInterface />)
     await userEvent.type(screen.getByPlaceholderText('Frage stellen…'), 'Hallo')
-    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), { key: 'Enter', shiftKey: true })
+    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), {
+      key: 'Enter',
+      shiftKey: true,
+    })
     expect(mockFetch).not.toHaveBeenCalled()
   })
 
   it('Enter on empty/whitespace input does not submit', () => {
     render(<AIChatInterface />)
-    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), { key: 'Enter', shiftKey: false })
+    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), {
+      key: 'Enter',
+      shiftKey: false,
+    })
     expect(mockFetch).not.toHaveBeenCalled()
   })
 })
@@ -153,7 +159,7 @@ describe('AIChatInterface — message sending', () => {
     expect(screen.getByText('Frage 1')).toBeInTheDocument()
     expect(mockFetch).toHaveBeenCalledWith(
       '/api/ai/chat',
-      expect.objectContaining({ method: 'POST' })
+      expect.objectContaining({ method: 'POST' }),
     )
   })
 
@@ -197,17 +203,24 @@ describe('AIChatInterface — message sending', () => {
 describe('AIChatInterface — streaming', () => {
   it.skip('shows loader spinner while waiting for first chunk', async () => {
     let resolveRead!: (v: { done: boolean; value: undefined }) => void
-    const pending = new Promise<{ done: boolean; value: undefined }>(r => { resolveRead = r })
+    const pending = new Promise<{ done: boolean; value: undefined }>((r) => {
+      resolveRead = r
+    })
     mockFetch.mockResolvedValueOnce({
       ok: true,
       body: { getReader: () => ({ read: jest.fn().mockReturnValue(pending) }) },
     })
     render(<AIChatInterface />)
     await userEvent.type(screen.getByPlaceholderText('Frage stellen…'), 'Hi')
-    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), { key: 'Enter', shiftKey: false })
+    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), {
+      key: 'Enter',
+      shiftKey: false,
+    })
 
     await waitFor(() => expect(screen.getByTestId('loader-icon')).toBeInTheDocument())
-    await act(async () => { resolveRead({ done: true, value: undefined }) })
+    await act(async () => {
+      resolveRead({ done: true, value: undefined })
+    })
   })
 
   it.skip('accumulates SSE text events into final assistant message', async () => {
@@ -252,20 +265,27 @@ describe('AIChatInterface — streaming', () => {
 
   it.skip('disables textarea and send button while streaming', async () => {
     let resolveRead!: (v: { done: boolean; value: undefined }) => void
-    const pending = new Promise<{ done: boolean; value: undefined }>(r => { resolveRead = r })
+    const pending = new Promise<{ done: boolean; value: undefined }>((r) => {
+      resolveRead = r
+    })
     mockFetch.mockResolvedValueOnce({
       ok: true,
       body: { getReader: () => ({ read: jest.fn().mockReturnValue(pending) }) },
     })
     render(<AIChatInterface />)
     await userEvent.type(screen.getByPlaceholderText('Frage stellen…'), 'Hi')
-    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), { key: 'Enter', shiftKey: false })
+    fireEvent.keyDown(screen.getByPlaceholderText('Frage stellen…'), {
+      key: 'Enter',
+      shiftKey: false,
+    })
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Frage stellen…')).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Nachricht senden' })).toBeDisabled()
     })
-    await act(async () => { resolveRead({ done: true, value: undefined }) })
+    await act(async () => {
+      resolveRead({ done: true, value: undefined })
+    })
   })
 })
 
@@ -352,4 +372,3 @@ describe('AIChatInterface — MessageBubble', () => {
     expect(bubble).not.toBeNull()
   })
 })
-

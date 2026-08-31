@@ -11,7 +11,9 @@ import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 
 export async function getTransferRequests(status?: string) {
   await requireStaffAuth()
-  const where = status ? { status: status as 'PENDING' | 'APPROVED' | 'DENIED' | 'COMPLETED' | 'CANCELLED' } : {}
+  const where = status
+    ? { status: status as 'PENDING' | 'APPROVED' | 'DENIED' | 'COMPLETED' | 'CANCELLED' }
+    : {}
 
   return prisma.transferRequest.findMany({
     where,
@@ -31,7 +33,7 @@ export async function getTransferRequests(status?: string) {
 
 async function reviewTransferRequest(
   input: ReviewTransferRequestInput,
-  decision: 'APPROVED' | 'DENIED'
+  decision: 'APPROVED' | 'DENIED',
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requireStaffAuth()
 

@@ -86,10 +86,10 @@ beforeEach(() => {
   mockGetPortalAuth.mockResolvedValue(AUTH)
   mockGetActiveUnitMembers.mockResolvedValue(MEMBERS)
   mockExpenseCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'expense-1', ...(args.data as object), shares: [] })
+    Promise.resolve({ id: 'expense-1', ...(args.data as object), shares: [] }),
   )
   mockSettlementCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'settlement-1', ...(args.data as object) })
+    Promise.resolve({ id: 'settlement-1', ...(args.data as object) }),
   )
 })
 
@@ -118,7 +118,7 @@ describe('POST /api/portal/expenses', () => {
         ...VALID_EXPENSE,
         paidById: 'ihor',
         participantIds: ['ihor', 'misha'],
-      })
+      }),
     )
     expect(response.status).toBe(200)
     const created = mockExpenseCreate.mock.calls[0][0].data
@@ -129,7 +129,7 @@ describe('POST /api/portal/expenses', () => {
 
   it('rejects a payer who does not live in the unit', async () => {
     const response = await createExpense(
-      jsonRequest('/api/portal/expenses', 'POST', { ...VALID_EXPENSE, paidById: 'stranger' })
+      jsonRequest('/api/portal/expenses', 'POST', { ...VALID_EXPENSE, paidById: 'stranger' }),
     )
     expect(response.status).toBe(400)
     const body = await response.json()
@@ -142,7 +142,7 @@ describe('POST /api/portal/expenses', () => {
       jsonRequest('/api/portal/expenses', 'POST', {
         ...VALID_EXPENSE,
         participantIds: ['georgy', 'stranger'],
-      })
+      }),
     )
     expect(response.status).toBe(400)
     expect(mockExpenseCreate).not.toHaveBeenCalled()
@@ -171,9 +171,12 @@ describe('DELETE /api/portal/expenses/[id]', () => {
   }
 
   function del(id = 'expense-1') {
-    return deleteExpense(new NextRequest(`http://localhost/api/portal/expenses/${id}`, { method: 'DELETE' }), {
-      params: { id },
-    })
+    return deleteExpense(
+      new NextRequest(`http://localhost/api/portal/expenses/${id}`, { method: 'DELETE' }),
+      {
+        params: { id },
+      },
+    )
   }
 
   it('lets the creator delete', async () => {
@@ -207,7 +210,7 @@ describe('DELETE /api/portal/expenses/[id]', () => {
 describe('POST /api/portal/settlements', () => {
   it('records a payment to a roommate', async () => {
     const response = await createSettlement(
-      jsonRequest('/api/portal/settlements', 'POST', { toResidentId: 'ihor', amountRappen: 1500 })
+      jsonRequest('/api/portal/settlements', 'POST', { toResidentId: 'ihor', amountRappen: 1500 }),
     )
     expect(response.status).toBe(200)
     const created = mockSettlementCreate.mock.calls[0][0].data
@@ -216,7 +219,10 @@ describe('POST /api/portal/settlements', () => {
 
   it('refuses paying yourself', async () => {
     const response = await createSettlement(
-      jsonRequest('/api/portal/settlements', 'POST', { toResidentId: 'georgy', amountRappen: 1500 })
+      jsonRequest('/api/portal/settlements', 'POST', {
+        toResidentId: 'georgy',
+        amountRappen: 1500,
+      }),
     )
     expect(response.status).toBe(400)
     const body = await response.json()
@@ -225,7 +231,10 @@ describe('POST /api/portal/settlements', () => {
 
   it('refuses a receiver outside the unit', async () => {
     const response = await createSettlement(
-      jsonRequest('/api/portal/settlements', 'POST', { toResidentId: 'stranger', amountRappen: 1500 })
+      jsonRequest('/api/portal/settlements', 'POST', {
+        toResidentId: 'stranger',
+        amountRappen: 1500,
+      }),
     )
     expect(response.status).toBe(400)
     expect(mockSettlementCreate).not.toHaveBeenCalled()

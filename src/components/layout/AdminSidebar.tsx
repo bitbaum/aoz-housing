@@ -45,7 +45,12 @@ export function AdminSidebar({ groups = MEGAMENU_GROUPS }: { groups?: MegaMenuGr
       <nav aria-label="Hauptnavigation">
         {groups.map((group) =>
           'items' in group ? (
-            <SidebarGroup key={group.label} label={group.label} items={group.items} pathname={pathname} />
+            <SidebarGroup
+              key={group.label}
+              label={group.label}
+              items={group.items}
+              pathname={pathname}
+            />
           ) : (
             // Single destinations (Dashboard, Nachrichten) are not groups, and
             // wrapping them in a one-item accordion would be a link wearing a
@@ -57,7 +62,7 @@ export function AdminSidebar({ groups = MEGAMENU_GROUPS }: { groups?: MegaMenuGr
               label={group.label}
               active={isRouteActive(pathname, group.href)}
             />
-          )
+          ),
         )}
       </nav>
     </aside>
@@ -131,7 +136,10 @@ function SidebarLink({
       aria-current={active ? 'page' : undefined}
       className={`w-full min-h-[44px] ${active ? 'nav-item-active' : 'nav-item'}`}
     >
-      <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-brand-primary' : ''}`} aria-hidden="true" />
+      <Icon
+        className={`w-4 h-4 shrink-0 ${active ? 'text-brand-primary' : ''}`}
+        aria-hidden="true"
+      />
       <span className="min-w-0 truncate">{label}</span>
     </Link>
   )

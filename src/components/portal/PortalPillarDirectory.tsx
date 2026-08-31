@@ -1,9 +1,5 @@
 import Link from 'next/link'
-import {
-  NAV_ICONS,
-  PORTAL_SIDEBAR_GROUPS,
-  portalSidebarItems,
-} from '@/lib/config/navigation'
+import { NAV_ICONS, PORTAL_SIDEBAR_GROUPS, portalSidebarItems } from '@/lib/config/navigation'
 import { portalNavMessageKey } from '@/lib/utils/portal-nav'
 import type { MessageKey } from '@/lib/i18n'
 

@@ -23,8 +23,18 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -213,13 +223,17 @@ describe('ExplainableNumber', () => {
   })
 
   it('maps source to human-readable label (database)', () => {
-    render(<ExplainableNumber value={1} explanation={{ ...BASE_EXPLANATION, source: 'database' }} />)
+    render(
+      <ExplainableNumber value={1} explanation={{ ...BASE_EXPLANATION, source: 'database' }} />,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Datenbank')).toBeInTheDocument()
   })
 
   it('maps source to human-readable label (calculation)', () => {
-    render(<ExplainableNumber value={1} explanation={{ ...BASE_EXPLANATION, source: 'calculation' }} />)
+    render(
+      <ExplainableNumber value={1} explanation={{ ...BASE_EXPLANATION, source: 'calculation' }} />,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Berechnung')).toBeInTheDocument()
   })
@@ -237,7 +251,7 @@ describe('ExplainableMetric', () => {
         value={7}
         subtitle="Letzten 30 Tage"
         explanation={BASE_EXPLANATION}
-      />
+      />,
     )
     expect(screen.getByText('Vorfälle gesamt')).toBeInTheDocument()
     expect(screen.getByText('Letzten 30 Tage')).toBeInTheDocument()
@@ -250,7 +264,7 @@ describe('ExplainableMetric', () => {
         value={5}
         subtitle="Sub"
         explanation={BASE_EXPLANATION}
-      />
+      />,
     )
     expect(screen.getByRole('button')).toHaveTextContent('5')
   })
@@ -263,7 +277,7 @@ describe('ExplainableMetric', () => {
         subtitle="Sub"
         explanation={BASE_EXPLANATION}
         href="/incidents"
-      />
+      />,
     )
     expect(screen.getByRole('link')).toHaveAttribute('href', '/incidents')
   })
@@ -347,14 +361,21 @@ describe('ScoreExplanation', () => {
   })
 
   it('shows positive factors section', () => {
-    render(<ScoreExplanation score={85} factors={[{ label: 'Gleiche Sprache', impact: 'positive' }]} />)
+    render(
+      <ScoreExplanation score={85} factors={[{ label: 'Gleiche Sprache', impact: 'positive' }]} />,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Stärken')).toBeInTheDocument()
     expect(screen.getByText('Gleiche Sprache')).toBeInTheDocument()
   })
 
   it('shows negative factors section', () => {
-    render(<ScoreExplanation score={85} factors={[{ label: 'Unterschiedlicher Schlafrhythmus', impact: 'negative' }]} />)
+    render(
+      <ScoreExplanation
+        score={85}
+        factors={[{ label: 'Unterschiedlicher Schlafrhythmus', impact: 'negative' }]}
+      />,
+    )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('Herausforderungen')).toBeInTheDocument()
     expect(screen.getByText('Unterschiedlicher Schlafrhythmus')).toBeInTheDocument()
@@ -365,7 +386,7 @@ describe('ScoreExplanation', () => {
       <ScoreExplanation
         score={85}
         factors={[{ label: 'Sprache', impact: 'positive', detail: 'beide Deutsch' }]}
-      />
+      />,
     )
     fireEvent.click(screen.getByRole('button'))
     expect(screen.getByText('(beide Deutsch)')).toBeInTheDocument()
@@ -393,19 +414,17 @@ describe('ScoreExplanationBadge', () => {
     render(
       <ScoreExplanationBadge
         score={75}
-        factors={[{ label: 'A', impact: 'positive' }, { label: 'B', impact: 'positive' }]}
-      />
+        factors={[
+          { label: 'A', impact: 'positive' },
+          { label: 'B', impact: 'positive' },
+        ]}
+      />,
     )
     expect(screen.getByText('+2')).toBeInTheDocument()
   })
 
   it('shows -N count for negative factors', () => {
-    render(
-      <ScoreExplanationBadge
-        score={75}
-        factors={[{ label: 'A', impact: 'negative' }]}
-      />
-    )
+    render(<ScoreExplanationBadge score={75} factors={[{ label: 'A', impact: 'negative' }]} />)
     expect(screen.getByText('-1')).toBeInTheDocument()
   })
 
@@ -417,7 +436,7 @@ describe('ScoreExplanationBadge', () => {
           { label: 'A', impact: 'positive' },
           { label: 'B', impact: 'negative' },
         ]}
-      />
+      />,
     )
     expect(screen.getByText('+1')).toBeInTheDocument()
     expect(screen.getByText('-1')).toBeInTheDocument()
@@ -483,12 +502,16 @@ describe('PeriodSelector', () => {
 
 describe('ErrorBoundaryUI', () => {
   it('renders error title', () => {
-    render(<ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />)
+    render(
+      <ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />,
+    )
     expect(screen.getByText('Fehler')).toBeInTheDocument()
   })
 
   it('renders description', () => {
-    render(<ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />)
+    render(
+      <ErrorBoundaryUI description="Daten konnten nicht geladen werden." onRetry={jest.fn()} />,
+    )
     expect(screen.getByText('Daten konnten nicht geladen werden.')).toBeInTheDocument()
   })
 
@@ -520,7 +543,9 @@ describe('ErrorBoundaryUI', () => {
   })
 
   it('renders back link with custom label', () => {
-    render(<ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} backLabel="Zurück zur Liste" />)
+    render(
+      <ErrorBoundaryUI description="Fehler." onRetry={jest.fn()} backLabel="Zurück zur Liste" />,
+    )
     expect(screen.getByRole('link')).toHaveTextContent('Zurück zur Liste')
   })
 })

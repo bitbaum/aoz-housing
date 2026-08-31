@@ -1,11 +1,6 @@
 import { readFileSync, readdirSync, statSync } from 'fs'
 import { join } from 'path'
-import {
-  unitName,
-  unitLabel,
-  hasResidentName,
-  UNIT_NAME_SELECT,
-} from '@/lib/utils/unit-name'
+import { unitName, unitLabel, hasResidentName, UNIT_NAME_SELECT } from '@/lib/utils/unit-name'
 
 /**
  * Residents may name their own apartment. Staff saw only the code, so the two
@@ -31,8 +26,9 @@ describe('what to call a housing unit', () => {
   it('shows staff both names, because they need the code too', () => {
     // The code is what records, exports and calls to the office are keyed on.
     // Leading with it is what made the residents' name invisible.
-    expect(unitLabel({ code: 'DEMO-U05', nickname: 'Casa Harmonie' }))
-      .toBe('Casa Harmonie (DEMO-U05)')
+    expect(unitLabel({ code: 'DEMO-U05', nickname: 'Casa Harmonie' })).toBe(
+      'Casa Harmonie (DEMO-U05)',
+    )
   })
 
   it('never renders empty brackets for an unnamed unit', () => {
@@ -55,9 +51,7 @@ describe('staff surfaces do not render a bare unit code', () => {
    * fact that is true rather than a rule the rest of the app has not adopted
    * yet — a gate that has to be argued with gets deleted.
    */
-  const GUARDED = [
-    join('src', 'components', 'housing', 'HousingList.tsx'),
-  ]
+  const GUARDED = [join('src', 'components', 'housing', 'HousingList.tsx')]
 
   it.each(GUARDED)('%s uses the helpers', (relative) => {
     const source = readFileSync(join(process.cwd(), relative), 'utf8')

@@ -59,9 +59,7 @@ export const INCIDENT_TYPES_BY_CATEGORY: Record<string, string[]> = {
     'SECURITY_SYSTEM',
     'GENERAL_MAINTENANCE',
   ],
-  WELLBEING: [
-    'LOW_SATISFACTION',
-  ],
+  WELLBEING: ['LOW_SATISFACTION'],
 }
 
 export const INCIDENT_SEVERITY_LABELS: Record<string, string> = {
@@ -114,7 +112,8 @@ export const INCIDENT_PAGE_LABELS = {
   createIncident: 'Vorfall erfassen',
   createdToast: 'Vorfall erfolgreich erfasst',
   criticalAlertSuffix: 'kritische Vorfälle erfordern sofortige Aufmerksamkeit',
-  criticalAlertDesc: 'Diese Vorfälle haben höchste Priorität und sollten umgehend bearbeitet werden',
+  criticalAlertDesc:
+    'Diese Vorfälle haben höchste Priorität und sollten umgehend bearbeitet werden',
   noIncidents: 'Keine Vorfälle dokumentiert',
   noIncidentsCategory: (category: string) => `Keine ${category} Vorfälle`,
   noIncidentsOpen: 'Keine offenen Vorfälle',
@@ -133,9 +132,11 @@ export const INCIDENT_PAGE_LABELS = {
     noiseLabel: '🔊 Lärmkonflikt',
     noiseDesc: 'Lärmbeschwerde: Zeitpunkt, beteiligte Personen und Sofortmassnahmen dokumentieren.',
     escalationLabel: '⚠️ Eskalation',
-    escalationDesc: 'Eskalation/verbaler Konflikt: Verlauf, Deeskalation und Sicherheitslage festhalten.',
+    escalationDesc:
+      'Eskalation/verbaler Konflikt: Verlauf, Deeskalation und Sicherheitslage festhalten.',
     safetyLabel: '🚨 Sicherheit',
-    safetyDesc: 'Sicherheitsbedenken: Risiko, Betroffene, sofortige Schutzmassnahmen und nächste Schritte notieren.',
+    safetyDesc:
+      'Sicherheitsbedenken: Risiko, Betroffene, sofortige Schutzmassnahmen und nächste Schritte notieren.',
   },
   sectionLocation: 'Ort & Beteiligte',
   fieldUnit: 'Unterkunft *',

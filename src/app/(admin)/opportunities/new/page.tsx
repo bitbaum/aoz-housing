@@ -26,8 +26,12 @@ export default async function NewOpportunityPage() {
       <form action={createOpportunity} className="card space-y-6">
         <OpportunityFormFields />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn-primary">{L.save}</button>
-          <Link href="/opportunities" className="btn-outline">{L.cancel}</Link>
+          <button type="submit" className="btn-primary">
+            {L.save}
+          </button>
+          <Link href="/opportunities" className="btn-outline">
+            {L.cancel}
+          </Link>
         </div>
       </form>
     </div>

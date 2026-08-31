@@ -74,7 +74,7 @@ export async function getUnitExpenseData(housingUnitId: string): Promise<UnitExp
   const balances = computeBalances(
     expenses,
     settlements,
-    members.map((m) => m.id)
+    members.map((m) => m.id),
   )
 
   return {

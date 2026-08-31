@@ -82,7 +82,7 @@ describe('consumeAuthToken', () => {
 
   it('rejects an expired token', async () => {
     mockPrisma.authToken.findUnique.mockResolvedValue(
-      validTokenRow({ expiresAt: new Date(Date.now() - 1000) })
+      validTokenRow({ expiresAt: new Date(Date.now() - 1000) }),
     )
     expect(await consumeAuthToken('raw', 'RESET_PASSWORD')).toBeNull()
   })

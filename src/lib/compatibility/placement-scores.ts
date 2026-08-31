@@ -12,10 +12,16 @@ import type { Resident, Placement } from '@prisma/client'
 /** Calculate average compatibility scores between a resident and existing placements */
 export function calculateAverageScores(
   resident: Resident,
-  existingPlacements: (Placement & { resident: Resident })[]
+  existingPlacements: (Placement & { resident: Resident })[],
 ) {
   if (existingPlacements.length === 0) {
-    return { compatibilityScore: 100, lifestyleScore: 100, socialScore: 100, practicalScore: 100, riskScore: 0 }
+    return {
+      compatibilityScore: 100,
+      lifestyleScore: 100,
+      socialScore: 100,
+      practicalScore: 100,
+      riskScore: 0,
+    }
   }
 
   const residentProfile = toResidentProfile(resident)

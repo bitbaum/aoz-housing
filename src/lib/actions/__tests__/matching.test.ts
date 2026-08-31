@@ -57,12 +57,32 @@ jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
 
-const mockStaffUser = { id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }
+const mockStaffUser = {
+  id: 'staff-1',
+  email: 'admin@test.com',
+  name: 'Test Admin',
+  role: 'ADMIN' as const,
+}
 
 jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requireStaffAuth: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
-  requirePermission: jest.fn().mockResolvedValue({ id: 'staff-1', email: 'admin@test.com', name: 'Test Admin', role: 'ADMIN' as const }),
+  getCurrentUser: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requireStaffAuth: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
+  requirePermission: jest.fn().mockResolvedValue({
+    id: 'staff-1',
+    email: 'admin@test.com',
+    name: 'Test Admin',
+    role: 'ADMIN' as const,
+  }),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -145,9 +165,7 @@ beforeEach(() => {
  * Configures prisma.$transaction to execute the callback with a mock tx object.
  * Each mock method on tx is configurable via the txSetup callback.
  */
-function setupTransaction(
-  txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void,
-) {
+function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void) {
   const tx: Record<string, Record<string, jest.Mock>> = {
     resident: { findUnique: jest.fn(), update: jest.fn() },
     placement: { findMany: jest.fn(), create: jest.fn() },
@@ -209,9 +227,7 @@ describe('placeResident', () => {
       tx.placementSpot.findUnique.mockResolvedValue(null)
     })
 
-    await expect(placeResident(makeFormData())).rejects.toThrow(
-      ERROR_MESSAGES.SPOT_NOT_FOUND_P,
-    )
+    await expect(placeResident(makeFormData())).rejects.toThrow(ERROR_MESSAGES.SPOT_NOT_FOUND_P)
   })
 
   // ---------------------------------------------------------------------------
@@ -261,9 +277,7 @@ describe('placeResident', () => {
       tx.resident.findUnique.mockResolvedValue(null)
     })
 
-    await expect(placeResident(makeFormData())).rejects.toThrow(
-      ERROR_MESSAGES.RESIDENT_NOT_FOUND_P,
-    )
+    await expect(placeResident(makeFormData())).rejects.toThrow(ERROR_MESSAGES.RESIDENT_NOT_FOUND_P)
   })
 
   // ---------------------------------------------------------------------------
@@ -293,9 +307,7 @@ describe('placeResident', () => {
   it('throws when blocking conflicts are detected', async () => {
     ;(calculateApartmentFit as jest.Mock).mockReturnValueOnce({
       fitScore: 20,
-      conflicts: [
-        { severity: 'BLOCKING', message: 'Raucher in Nichtraucher-Einheit' },
-      ],
+      conflicts: [{ severity: 'BLOCKING', message: 'Raucher in Nichtraucher-Einheit' }],
       strengths: [],
     })
 
@@ -312,9 +324,7 @@ describe('placeResident', () => {
       tx.placement.findMany.mockResolvedValue([])
     })
 
-    await expect(placeResident(makeFormData())).rejects.toThrow(
-      'Placement blockiert',
-    )
+    await expect(placeResident(makeFormData())).rejects.toThrow('Placement blockiert')
   })
 
   // ---------------------------------------------------------------------------

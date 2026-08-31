@@ -33,7 +33,7 @@ export type ResidentDocumentSummary = {
  * become a list of megabytes.
  */
 export async function listResidentDocuments(
-  residentId: string
+  residentId: string,
 ): Promise<ResidentDocumentSummary[]> {
   await requirePermission('documents:read')
 
@@ -65,7 +65,7 @@ export async function listResidentDocuments(
 }
 
 export async function uploadResidentDocument(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('documents:write')
 
@@ -143,7 +143,7 @@ export async function uploadResidentDocument(
 }
 
 export async function deleteResidentDocument(
-  formData: FormData
+  formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('documents:write')
 

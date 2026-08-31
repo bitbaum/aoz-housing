@@ -103,9 +103,7 @@ export const SYSTEM_LINKS: NavItem[] = [
 ]
 
 export function visibleSystemLinks(viewer: StaffCapabilities): NavItem[] {
-  return SYSTEM_LINKS.filter(
-    (item) => !item.permission || hasPermission(viewer, item.permission)
-  )
+  return SYSTEM_LINKS.filter((item) => !item.permission || hasPermission(viewer, item.permission))
 }
 
 /**
@@ -171,9 +169,27 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     items: [
       // "Alle …", not "Klient*innen" again: an item whose label repeats its own
       // group reads as a broken menu, and gives the reader nothing to choose by.
-      { href: '/residents', icon: 'users', label: 'Alle Klient*innen', desc: 'Übersicht & Karten-Board', permission: 'residents:read' },
-      { href: '/residents/new', icon: 'user-plus', label: 'Neue*r Klient*in', desc: 'Person erfassen', permission: 'residents:write' },
-      { href: '/matching', icon: 'puzzle', label: 'Matching', desc: 'Passende Unterkunft finden', permission: 'placements:write' },
+      {
+        href: '/residents',
+        icon: 'users',
+        label: 'Alle Klient*innen',
+        desc: 'Übersicht & Karten-Board',
+        permission: 'residents:read',
+      },
+      {
+        href: '/residents/new',
+        icon: 'user-plus',
+        label: 'Neue*r Klient*in',
+        desc: 'Person erfassen',
+        permission: 'residents:write',
+      },
+      {
+        href: '/matching',
+        icon: 'puzzle',
+        label: 'Matching',
+        desc: 'Passende Unterkunft finden',
+        permission: 'placements:write',
+      },
     ],
   },
   {
@@ -182,12 +198,48 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     // Fachbereiche Wohnen/Immobilienverwaltung (building work).
     label: 'Wohnen',
     items: [
-      { href: '/housing', icon: 'building', label: 'Unterkünfte', desc: 'Alle Wohneinheiten', permission: 'housing:read' },
-      { href: '/housing/new', icon: 'house-plus', label: 'Neue Unterkunft', desc: 'Einheit hinzufügen', permission: 'housing:write' },
-      { href: '/placements', icon: 'clipboard', label: 'Platzierungen', desc: 'Aktive Belegung', permission: 'placements:read' },
-      { href: '/transfer-requests', icon: 'transfer', label: 'Verlegungsanfragen', desc: 'Anfragen prüfen & genehmigen', permission: 'placements:write' },
-      { href: '/maintenance', icon: 'wrench', label: 'Wartung', desc: 'Reparaturen & Meldungen', permission: 'maintenance:read' },
-      { href: '/analytics', icon: 'chart', label: 'Statistiken', desc: 'Auswertungen & Berichte', permission: 'dashboard:read' },
+      {
+        href: '/housing',
+        icon: 'building',
+        label: 'Unterkünfte',
+        desc: 'Alle Wohneinheiten',
+        permission: 'housing:read',
+      },
+      {
+        href: '/housing/new',
+        icon: 'house-plus',
+        label: 'Neue Unterkunft',
+        desc: 'Einheit hinzufügen',
+        permission: 'housing:write',
+      },
+      {
+        href: '/placements',
+        icon: 'clipboard',
+        label: 'Platzierungen',
+        desc: 'Aktive Belegung',
+        permission: 'placements:read',
+      },
+      {
+        href: '/transfer-requests',
+        icon: 'transfer',
+        label: 'Verlegungsanfragen',
+        desc: 'Anfragen prüfen & genehmigen',
+        permission: 'placements:write',
+      },
+      {
+        href: '/maintenance',
+        icon: 'wrench',
+        label: 'Wartung',
+        desc: 'Reparaturen & Meldungen',
+        permission: 'maintenance:read',
+      },
+      {
+        href: '/analytics',
+        icon: 'chart',
+        label: 'Statistiken',
+        desc: 'Auswertungen & Berichte',
+        permission: 'dashboard:read',
+      },
     ],
   },
   {
@@ -197,16 +249,46 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
     // "Alltag" had stopped describing the contents anyway.
     label: 'Gemeinschaft',
     items: [
-      { href: '/chores', icon: 'calendar', label: 'Aufgaben', desc: 'Haushaltsaufgaben & Rotation', permission: 'housing:read' },
-      { href: '/marketplace', icon: 'shop', label: 'Marktplatz', desc: 'Sachen & Hilfe unter Klient*innen', permission: 'marketplace:read' },
-      { href: '/events', icon: 'event', label: 'Veranstaltungen', desc: 'Hausversammlungen & Events', permission: 'events:read' },
+      {
+        href: '/chores',
+        icon: 'calendar',
+        label: 'Aufgaben',
+        desc: 'Haushaltsaufgaben & Rotation',
+        permission: 'housing:read',
+      },
+      {
+        href: '/marketplace',
+        icon: 'shop',
+        label: 'Marktplatz',
+        desc: 'Sachen & Hilfe unter Klient*innen',
+        permission: 'marketplace:read',
+      },
+      {
+        href: '/events',
+        icon: 'event',
+        label: 'Veranstaltungen',
+        desc: 'Hausversammlungen & Events',
+        permission: 'events:read',
+      },
     ],
   },
   {
     label: 'Konflikte',
     items: [
-      { href: '/incidents', icon: 'alert', label: 'Vorfälle', desc: 'Konflikte & Meldungen', permission: 'incidents:read' },
-      { href: '/rules', icon: 'scroll', label: 'Regeln', desc: 'Hausregeln & Beschlüsse', permission: 'housing:read' },
+      {
+        href: '/incidents',
+        icon: 'alert',
+        label: 'Vorfälle',
+        desc: 'Konflikte & Meldungen',
+        permission: 'incidents:read',
+      },
+      {
+        href: '/rules',
+        icon: 'scroll',
+        label: 'Regeln',
+        desc: 'Hausregeln & Beschlüsse',
+        permission: 'housing:read',
+      },
     ],
   },
   // Lernen, Jobcoaching und Freiwilligenarbeit — the integration domain.
@@ -311,12 +393,7 @@ export function visibleMegaMenuGroups(viewer: StaffCapabilities): MegaMenuGroup[
  * brand's feature flags with at least two items, because a one-item accordion
  * is a link wearing a hat.
  */
-export type PortalNavGroup =
-  | 'living'
-  | 'community'
-  | 'concerns'
-  | 'integration'
-  | 'account'
+export type PortalNavGroup = 'living' | 'community' | 'concerns' | 'integration' | 'account'
 
 export const PORTAL_NAV_GROUP_ORDER: readonly PortalNavGroup[] = [
   'living',
@@ -330,7 +407,27 @@ export interface PortalNavItem {
   href: string
   /** Label is resolved at render time from PORTAL_LABELS.nav, not hard-coded
    *  here, to keep the labels SSOT intact. The key indexes into that object. */
-  labelKey: 'overview' | 'messages' | 'apartment' | 'expenses' | 'roommates' | 'chores' | 'housing' | 'activities' | 'report' | 'reports' | 'preferences' | 'profile' | 'help' | 'transfer' | 'rules' | 'decisions' | 'learning' | 'opportunities' | 'marketplace' | 'events'
+  labelKey:
+    | 'overview'
+    | 'messages'
+    | 'apartment'
+    | 'expenses'
+    | 'roommates'
+    | 'chores'
+    | 'housing'
+    | 'activities'
+    | 'report'
+    | 'reports'
+    | 'preferences'
+    | 'profile'
+    | 'help'
+    | 'transfer'
+    | 'rules'
+    | 'decisions'
+    | 'learning'
+    | 'opportunities'
+    | 'marketplace'
+    | 'events'
   icon: keyof typeof NAV_ICONS
   primary?: boolean
   tab?: 1 | 2 | 3 | 4
@@ -368,27 +465,89 @@ export const PORTAL_SIDEBAR_PINNED: readonly string[] = ['/portal']
 
 export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
   // Wohnen — the roof over my head, and running this household.
-  { href: '/portal', labelKey: 'overview', icon: 'home', primary: true, tab: 1, aozTab: 1, group: 'living' },
-  { href: '/portal/chores', labelKey: 'chores', icon: 'calendar', primary: true, tab: 2, group: 'living' },
-  { href: '/portal/expenses', labelKey: 'expenses', icon: 'wallet', primary: true, tab: 3, group: 'living', requiresFeature: 'householdMoney' },
+  {
+    href: '/portal',
+    labelKey: 'overview',
+    icon: 'home',
+    primary: true,
+    tab: 1,
+    aozTab: 1,
+    group: 'living',
+  },
+  {
+    href: '/portal/chores',
+    labelKey: 'chores',
+    icon: 'calendar',
+    primary: true,
+    tab: 2,
+    group: 'living',
+  },
+  {
+    href: '/portal/expenses',
+    labelKey: 'expenses',
+    icon: 'wallet',
+    primary: true,
+    tab: 3,
+    group: 'living',
+    requiresFeature: 'householdMoney',
+  },
   { href: '/portal/housing', labelKey: 'housing', icon: 'house-plus', group: 'living' },
   { href: '/portal/transfer', labelKey: 'transfer', icon: 'transfer', group: 'living' },
   // Gemeinschaft — the people I live with. A noun, so losing `decisions` to a
   // brand flag leaves the heading true instead of leaving it a broken promise.
   { href: '/portal/events', labelKey: 'events', icon: 'event', group: 'community' },
   { href: '/portal/marketplace', labelKey: 'marketplace', icon: 'shop', group: 'community' },
-  { href: '/portal/rules', labelKey: 'rules', icon: 'scroll', primary: true, aozTab: 3, group: 'community' },
-  { href: '/portal/decisions', labelKey: 'decisions', icon: 'vote', primary: true, group: 'community', requiresFeature: 'householdVotes' },
+  {
+    href: '/portal/rules',
+    labelKey: 'rules',
+    icon: 'scroll',
+    primary: true,
+    aozTab: 3,
+    group: 'community',
+  },
+  {
+    href: '/portal/decisions',
+    labelKey: 'decisions',
+    icon: 'vote',
+    primary: true,
+    group: 'community',
+    requiresFeature: 'householdVotes',
+  },
   // Anliegen — I raised something; where did it go. Messages belong here and
   // not under "community": the thread is with STAFF, not with the household.
-  { href: '/portal/report', labelKey: 'report', icon: 'alert', primary: true, aozTab: 2, group: 'concerns' },
+  {
+    href: '/portal/report',
+    labelKey: 'report',
+    icon: 'alert',
+    primary: true,
+    aozTab: 2,
+    group: 'concerns',
+  },
   { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
-  { href: '/portal/messages', labelKey: 'messages', icon: 'message', primary: true, group: 'concerns' },
+  {
+    href: '/portal/messages',
+    labelKey: 'messages',
+    icon: 'message',
+    primary: true,
+    group: 'concerns',
+  },
   // Integration — where I am going next. Activities (sport, language, culture,
   // family support) are external offers that build a life here, which is this
   // question and not "Alltag".
-  { href: '/portal/learning', labelKey: 'learning', icon: 'learning', primary: true, tab: 4, group: 'integration' },
-  { href: '/portal/opportunities', labelKey: 'opportunities', icon: 'opportunities', group: 'integration' },
+  {
+    href: '/portal/learning',
+    labelKey: 'learning',
+    icon: 'learning',
+    primary: true,
+    tab: 4,
+    group: 'integration',
+  },
+  {
+    href: '/portal/opportunities',
+    labelKey: 'opportunities',
+    icon: 'opportunities',
+    group: 'integration',
+  },
   { href: '/portal/activities', labelKey: 'activities', icon: 'heart', group: 'integration' },
   // Mein Konto — me and this app.
   { href: '/portal/profile', labelKey: 'profile', icon: 'settings', group: 'account' },
@@ -406,7 +565,7 @@ const AOZ_PRIMARY_HREFS = new Set([
 
 export function visiblePortalNavItems(): PortalNavItem[] {
   return PORTAL_NAV_ITEMS.filter(
-    (item) => !item.requiresFeature || BRAND.features[item.requiresFeature]
+    (item) => !item.requiresFeature || BRAND.features[item.requiresFeature],
   )
 }
 
@@ -417,9 +576,7 @@ export function portalTabItems(): PortalNavItem[] {
       .filter((item) => item.aozTab !== undefined)
       .sort((a, b) => (a.aozTab ?? 0) - (b.aozTab ?? 0))
   }
-  return items
-    .filter((item) => item.tab !== undefined)
-    .sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))
+  return items.filter((item) => item.tab !== undefined).sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))
 }
 
 export function portalPrimaryItems(): PortalNavItem[] {
@@ -432,13 +589,11 @@ export function portalPrimaryItems(): PortalNavItem[] {
 
 /** The bottom-bar destinations, in the order they are pinned. WG default. */
 export const PORTAL_TAB_ITEMS: PortalNavItem[] = PORTAL_NAV_ITEMS.filter(
-  (item) => item.tab !== undefined
+  (item) => item.tab !== undefined,
 ).sort((a, b) => (a.tab ?? 0) - (b.tab ?? 0))
 
 export function portalSidebarItems(): PortalNavItem[] {
-  return visiblePortalNavItems().filter((item) =>
-    PORTAL_SIDEBAR_GROUPS.includes(item.group)
-  )
+  return visiblePortalNavItems().filter((item) => PORTAL_SIDEBAR_GROUPS.includes(item.group))
 }
 
 export function portalAccountItems(): PortalNavItem[] {

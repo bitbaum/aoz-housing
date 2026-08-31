@@ -2,7 +2,14 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { DecisionMode, ProposalStatus, ProposalType, RuleCategory, VoteChoice, VoteThreshold } from '@prisma/client'
+import type {
+  DecisionMode,
+  ProposalStatus,
+  ProposalType,
+  RuleCategory,
+  VoteChoice,
+  VoteThreshold,
+} from '@prisma/client'
 import {
   DECISION_MODE_IS_VOTED,
   DECISION_MODE_LABELS,
@@ -125,7 +132,8 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
 
       {proposal.parentRuleTitle && (
         <p className="mt-3 text-sm text-ui-muted">
-          Zum {BRAND.orgName}-Thema: <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
+          Zum {BRAND.orgName}-Thema:{' '}
+          <span className="font-medium text-ui-text">{proposal.parentRuleTitle}</span>
         </p>
       )}
 
@@ -142,15 +150,15 @@ function ProposalCard({ proposal }: { proposal: ProposalView }) {
 
       {proposal.status === 'DISCUSSION' && proposal.discussionEndsAt && (
         <p className="mt-3 rounded-md bg-status-info/10 p-3 text-sm text-status-info-text">
-          Noch in der Diskussion. Die Abstimmung startet am{' '}
-          {formatDate(proposal.discussionEndsAt)}.
+          Noch in der Diskussion. Die Abstimmung startet am {formatDate(proposal.discussionEndsAt)}.
         </p>
       )}
 
       {isVoting && (
         <div className="mt-4 border-t border-ui-border pt-4">
           <p className="text-sm text-ui-muted">
-            Abstimmung läuft{proposal.votingEndsAt ? ` bis ${formatDate(proposal.votingEndsAt)}` : ''} ·{' '}
+            Abstimmung läuft
+            {proposal.votingEndsAt ? ` bis ${formatDate(proposal.votingEndsAt)}` : ''} ·{' '}
             {proposal.tally.castVotes} von {proposal.tally.eligibleVoterCount} haben abgestimmt
           </p>
 

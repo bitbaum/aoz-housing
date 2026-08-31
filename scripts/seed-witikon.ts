@@ -6,7 +6,7 @@ async function main() {
   // Find the housing unit WIT-440
   const housing = await prisma.housingUnit.findUnique({
     where: { code: 'WIT-440' },
-    include: { spots: true }
+    include: { spots: true },
   })
 
   if (!housing) {
@@ -15,20 +15,29 @@ async function main() {
   }
 
   console.log('Found housing:', housing.code, housing.address)
-  console.log('Spots:', housing.spots.map(s => `${s.code} (${s.type}, capacity: ${s.capacity})`))
+  console.log(
+    'Spots:',
+    housing.spots.map((s) => `${s.code} (${s.type}, capacity: ${s.capacity})`),
+  )
 
   // Find the rooms and beds
-  const rooms = housing.spots.filter(s => s.type === 'ROOM')
-  const beds = housing.spots.filter(s => s.type === 'BED')
+  const rooms = housing.spots.filter((s) => s.type === 'ROOM')
+  const beds = housing.spots.filter((s) => s.type === 'BED')
 
-  console.log('\nRooms:', rooms.map(r => r.code))
-  console.log('Beds:', beds.map(b => `${b.code} (parent: ${b.parentSpotId})`))
+  console.log(
+    '\nRooms:',
+    rooms.map((r) => r.code),
+  )
+  console.log(
+    'Beds:',
+    beds.map((b) => `${b.code} (parent: ${b.parentSpotId})`),
+  )
 
   // Find rooms by label
-  const room3Person = rooms.find(r => r.label?.includes('3-Personen'))
-  const room1Person = rooms.find(r => r.label?.includes('1-Personen'))
-  const room2PersonA = rooms.find(r => r.label?.includes('2-Personen Zimmer A'))
-  const room2PersonB = rooms.find(r => r.label?.includes('2-Personen Zimmer B'))
+  const room3Person = rooms.find((r) => r.label?.includes('3-Personen'))
+  const room1Person = rooms.find((r) => r.label?.includes('1-Personen'))
+  const room2PersonA = rooms.find((r) => r.label?.includes('2-Personen Zimmer A'))
+  const room2PersonB = rooms.find((r) => r.label?.includes('2-Personen Zimmer B'))
 
   console.log('\nRoom assignments:')
   console.log('3-person room:', room3Person?.code)
@@ -37,15 +46,27 @@ async function main() {
   console.log('2-person room B:', room2PersonB?.code)
 
   // Get beds for each room
-  const beds3Person = beds.filter(b => b.parentSpotId === room3Person?.id)
-  const beds1Person = beds.filter(b => b.parentSpotId === room1Person?.id)
-  const beds2PersonA = beds.filter(b => b.parentSpotId === room2PersonA?.id)
-  const beds2PersonB = beds.filter(b => b.parentSpotId === room2PersonB?.id)
+  const beds3Person = beds.filter((b) => b.parentSpotId === room3Person?.id)
+  const beds1Person = beds.filter((b) => b.parentSpotId === room1Person?.id)
+  const beds2PersonA = beds.filter((b) => b.parentSpotId === room2PersonA?.id)
+  const beds2PersonB = beds.filter((b) => b.parentSpotId === room2PersonB?.id)
 
-  console.log('\nBeds in 3-person room:', beds3Person.map(b => b.code))
-  console.log('Beds in 1-person room:', beds1Person.map(b => b.code))
-  console.log('Beds in 2-person room A:', beds2PersonA.map(b => b.code))
-  console.log('Beds in 2-person room B:', beds2PersonB.map(b => b.code))
+  console.log(
+    '\nBeds in 3-person room:',
+    beds3Person.map((b) => b.code),
+  )
+  console.log(
+    'Beds in 1-person room:',
+    beds1Person.map((b) => b.code),
+  )
+  console.log(
+    'Beds in 2-person room A:',
+    beds2PersonA.map((b) => b.code),
+  )
+  console.log(
+    'Beds in 2-person room B:',
+    beds2PersonB.map((b) => b.code),
+  )
 
   // Default resident data
   const defaultData = {
@@ -56,7 +77,7 @@ async function main() {
     noiseTolerance: 3,
     cleanlinessPractice: 3,
     cleanlinessExpectation: 3,
-    chaosTolerance: 6 - (3),
+    chaosTolerance: 6 - 3,
     socialStyle: 'MODERATE' as const,
     languages: ['DE'],
     smokingStatus: 'NON_SMOKER' as const,
@@ -86,7 +107,7 @@ async function main() {
       data: {
         code,
         ...defaultData,
-      }
+      },
     })
     console.log(`Created resident: ${code} (${resident.id})`)
     createdResidents[code] = resident
@@ -99,8 +120,8 @@ async function main() {
 
   const placements = [
     { resident: 'GB', bed: beds2PersonA[0] }, // GB in 2-person room A, bed 1
-    { resident: 'DH', bed: beds3Person[0] },  // DH in 3-person room, bed 1
-    { resident: 'DS', bed: beds3Person[1] },  // DS in 3-person room, bed 2
+    { resident: 'DH', bed: beds3Person[0] }, // DH in 3-person room, bed 1
+    { resident: 'DS', bed: beds3Person[1] }, // DS in 3-person room, bed 2
     { resident: 'DK', bed: beds2PersonB[0] }, // DK in 2-person room B, bed 1
     { resident: 'SK', bed: beds2PersonB[1] }, // SK in 2-person room B, bed 2
   ]
@@ -117,8 +138,8 @@ async function main() {
     const existingPlacement = await prisma.placement.findFirst({
       where: {
         residentId: resident.id,
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     })
 
     if (existingPlacement) {
@@ -133,19 +154,19 @@ async function main() {
         spotId: p.bed.id,
         startDate: new Date(),
         status: 'ACTIVE',
-      }
+      },
     })
 
     // Update spot status to OCCUPIED
     await prisma.placementSpot.update({
       where: { id: p.bed.id },
-      data: { status: 'OCCUPIED' }
+      data: { status: 'OCCUPIED' },
     })
 
     // Update resident status to PLACED
     await prisma.resident.update({
       where: { id: resident.id },
-      data: { status: 'PLACED' }
+      data: { status: 'PLACED' },
     })
 
     console.log(`Created placement: ${p.resident} -> ${p.bed.code}`)

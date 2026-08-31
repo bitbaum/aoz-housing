@@ -52,7 +52,9 @@ export function CreateChoreForm() {
       if (res.ok) {
         const data = await res.json()
         const taskId = data?.data?.id
-        router.push(taskId ? `/portal/chores/${taskId}?created=true` : '/portal/chores?created=true')
+        router.push(
+          taskId ? `/portal/chores/${taskId}?created=true` : '/portal/chores?created=true',
+        )
         router.refresh()
       } else {
         const data = await res.json()
@@ -87,7 +89,9 @@ export function CreateChoreForm() {
 
       {/* Form */}
       {error && (
-        <div className="mb-4 alert-error" role="alert" aria-live="polite">{error}</div>
+        <div className="mb-4 alert-error" role="alert" aria-live="polite">
+          {error}
+        </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,7 +105,7 @@ export function CreateChoreForm() {
             name="title"
             required
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder={CHORE_LABELS.form.titlePlaceholder}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
@@ -116,7 +120,7 @@ export function CreateChoreForm() {
             id="category"
             name="category"
             value={category}
-            onChange={e => setCategory(e.target.value)}
+            onChange={(e) => setCategory(e.target.value)}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
           >
             {Object.entries(TASK_CATEGORY_LABELS).map(([key, label]) => (
@@ -162,7 +166,7 @@ export function CreateChoreForm() {
               id="scheduleHuman"
               name="scheduleHuman"
               value={scheduleHuman}
-              onChange={e => setScheduleHuman(e.target.value)}
+              onChange={(e) => setScheduleHuman(e.target.value)}
               placeholder={CHORE_LABELS.form.schedulePlaceholder}
               className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
             />
@@ -181,14 +185,19 @@ export function CreateChoreForm() {
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm min-h-[44px]"
           >
             {Object.entries(TASK_PRIORITY_LABELS).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
+              <option key={key} value={key}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Estimated minutes */}
         <div>
-          <label htmlFor="estimatedMinutes" className="block text-sm font-medium text-ui-muted mb-1">
+          <label
+            htmlFor="estimatedMinutes"
+            className="block text-sm font-medium text-ui-muted mb-1"
+          >
             {CHORE_LABELS.form.estimatedMinutes}
           </label>
           <input
@@ -199,7 +208,7 @@ export function CreateChoreForm() {
             min="1"
             max="480"
             value={estimatedMinutes}
-            onChange={e => setEstimatedMinutes(e.target.value)}
+            onChange={(e) => setEstimatedMinutes(e.target.value)}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
@@ -228,7 +237,7 @@ export function CreateChoreForm() {
             name="instructions"
             rows={2}
             value={instructions}
-            onChange={e => setInstructions(e.target.value)}
+            onChange={(e) => setInstructions(e.target.value)}
             placeholder={CHORE_LABELS.form.instructionsPlaceholder}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
@@ -245,17 +254,13 @@ export function CreateChoreForm() {
             name="checklist"
             rows={4}
             value={checklist}
-            onChange={e => setChecklist(e.target.value)}
+            onChange={(e) => setChecklist(e.target.value)}
             placeholder={CHORE_LABELS.form.checklistPlaceholder}
             className="w-full rounded-lg border border-ui-border-strong p-3 text-sm"
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="btn-primary w-full min-h-[44px]"
-        >
+        <button type="submit" disabled={submitting} className="btn-primary w-full min-h-[44px]">
           {submitting ? CHORE_LABELS.form.submitting : CHORE_LABELS.form.submit}
         </button>
       </form>

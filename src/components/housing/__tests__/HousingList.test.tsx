@@ -6,8 +6,18 @@ import { HousingList, HousingListItem } from '../HousingList'
 
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) => (
-    <a href={href} className={className}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string
+    children: React.ReactNode
+    className?: string
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }))
 
@@ -43,8 +53,6 @@ jest.mock('@/lib/constants/labels/housing', () => ({
     CLOSED: 'Geschlossen',
   },
 }))
-
-
 
 // --- Tests for the resident-chosen name ---
 
@@ -169,5 +177,4 @@ describe('HousingList', () => {
     const { container } = render(<HousingList units={[makeUnit({ id: 'u1', incidentCount: 0 })]} />)
     expect(container.querySelector('.bg-status-success')).toBeInTheDocument()
   })
-
 })

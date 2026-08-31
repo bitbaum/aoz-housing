@@ -50,15 +50,15 @@ export default async function EditHousingPage({ params }: Props) {
 
         {/* Status — edit-only field: controls matching eligibility */}
         <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-1">{HOUSING_EDIT_LABELS.statusLabel}</h2>
+          <h2 className="text-lg font-semibold text-ui-text mb-1">
+            {HOUSING_EDIT_LABELS.statusLabel}
+          </h2>
           <p className="text-sm text-ui-muted mb-4">{HOUSING_EDIT_LABELS.statusDescription}</p>
-          <select
-            name="status"
-            defaultValue={unit.status}
-            className="input max-w-xs"
-          >
+          <select name="status" defaultValue={unit.status} className="input max-w-xs">
             {Object.entries(HOUSING_STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
+              <option key={value} value={value}>
+                {label}
+              </option>
             ))}
           </select>
         </div>
@@ -94,7 +94,10 @@ export default async function EditHousingPage({ params }: Props) {
           <SubmitButton className="btn-primary w-full sm:w-auto min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-wait">
             {HOUSING_EDIT_LABELS.submit}
           </SubmitButton>
-          <Link href={`/housing/${id}`} className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center">
+          <Link
+            href={`/housing/${id}`}
+            className="btn-outline w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center"
+          >
             {HOUSING_EDIT_LABELS.cancel}
           </Link>
         </div>

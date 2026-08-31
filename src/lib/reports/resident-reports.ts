@@ -92,13 +92,13 @@ export function mergeResidentReports(
    * the reports page passes none, because a list that silently drops the sixth
    * report is how a resident ends up unable to find something they filed.
    */
-  limit?: number
+  limit?: number,
 ): ResidentReport[] {
   const all = [...incidents.map(fromIncident), ...maintenance.map(fromMaintenanceRequest)].sort(
     (a, b) => {
       if (a.isDone !== b.isDone) return a.isDone ? 1 : -1
       return b.reportedAt.getTime() - a.reportedAt.getTime()
-    }
+    },
   )
 
   return limit === undefined ? all : all.slice(0, limit)

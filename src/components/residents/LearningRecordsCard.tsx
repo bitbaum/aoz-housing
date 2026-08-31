@@ -24,7 +24,10 @@ export function LearningRecordsCard({ residentId, records, canWrite }: Props) {
     <div className="card">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-ui-text">{LEARNING_LABELS.boardTitle}</h2>
-        <Link href="/learning" className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center">
+        <Link
+          href="/learning"
+          className="text-sm text-brand-primary hover:underline min-h-[44px] inline-flex items-center"
+        >
           {LEARNING_LABELS.subtitle.split('—')[0]}
         </Link>
       </div>

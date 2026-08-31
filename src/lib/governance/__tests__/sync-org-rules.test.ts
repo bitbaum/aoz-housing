@@ -13,7 +13,9 @@ function makePrisma(existing: Record<string, unknown> = {}) {
 
   const prisma = {
     houseRule: {
-      findUnique: jest.fn(async ({ where }: { where: { key: string } }) => existing[where.key] ?? null),
+      findUnique: jest.fn(
+        async ({ where }: { where: { key: string } }) => existing[where.key] ?? null,
+      ),
       create: jest.fn(async ({ data }: { data: unknown }) => {
         created.push(data)
         return data
@@ -74,7 +76,7 @@ describe('syncOrgRules', () => {
       ORG_RULE_CATALOG.map((r) => [
         r.key,
         seededRule(r.key, r.key === key ? { body: 'Alter Text, der ersetzt wird.' } : {}),
-      ])
+      ]),
     )
     const { prisma, updated } = makePrisma(existing)
 
@@ -91,7 +93,10 @@ describe('syncOrgRules', () => {
     // must not force the whole house to confirm everything again.
     const key = ORG_RULE_CATALOG[0].key
     const existing = Object.fromEntries(
-      ORG_RULE_CATALOG.map((r) => [r.key, seededRule(r.key, r.key === key ? { category: 'OTHER' } : {})])
+      ORG_RULE_CATALOG.map((r) => [
+        r.key,
+        seededRule(r.key, r.key === key ? { category: 'OTHER' } : {}),
+      ]),
     )
     const { prisma, updated } = makePrisma(existing)
 
@@ -105,7 +110,10 @@ describe('syncOrgRules', () => {
   it('reactivates a rule that was archived out of band', async () => {
     const key = ORG_RULE_CATALOG[0].key
     const existing = Object.fromEntries(
-      ORG_RULE_CATALOG.map((r) => [r.key, seededRule(r.key, r.key === key ? { status: 'ARCHIVED' } : {})])
+      ORG_RULE_CATALOG.map((r) => [
+        r.key,
+        seededRule(r.key, r.key === key ? { status: 'ARCHIVED' } : {}),
+      ]),
     )
     const { prisma, updated } = makePrisma(existing)
 

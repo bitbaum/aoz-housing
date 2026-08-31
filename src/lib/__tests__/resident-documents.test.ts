@@ -21,7 +21,9 @@ import { ROLE_PERMISSIONS, STAFF_ROLES, hasPermission } from '@/lib/auth/role-po
 describe('who may read a resident’s career documents', () => {
   it('gives the integration roles and Leitung read access', () => {
     for (const role of ['ADMIN', 'SOZIALARBEIT', 'JOBCOACH', 'FREIWILLIGENARBEIT'] as const) {
-      expect(hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read')).toBe(true)
+      expect(
+        hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read'),
+      ).toBe(true)
     }
   })
 
@@ -29,24 +31,48 @@ describe('who may read a resident’s career documents', () => {
     // Betreuung runs the building: keys, quiet hours, who is in which room.
     // Someone's employment history is not a housing fact, and the rule
     // everywhere else in this product is the minimum the work requires.
-    expect(hasPermission({ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read')).toBe(false)
-    expect(hasPermission({ role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:write')).toBe(false)
+    expect(
+      hasPermission(
+        { role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'documents:read',
+      ),
+    ).toBe(false)
+    expect(
+      hasPermission(
+        { role: 'BETREUUNG', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'documents:write',
+      ),
+    ).toBe(false)
   })
 
   it('lets the roles who build the file write, and the one who only consults it read', () => {
     for (const role of ['ADMIN', 'SOZIALARBEIT', 'JOBCOACH'] as const) {
-      expect(hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:write')).toBe(true)
+      expect(
+        hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:write'),
+      ).toBe(true)
     }
     // A volunteering coordinator may need to see a reference before placing
     // someone; the CV is the job coach's working document, not theirs to edit.
-    expect(hasPermission({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read')).toBe(true)
-    expect(hasPermission({ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:write')).toBe(false)
+    expect(
+      hasPermission(
+        { role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'documents:read',
+      ),
+    ).toBe(true)
+    expect(
+      hasPermission(
+        { role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false },
+        'documents:write',
+      ),
+    ).toBe(false)
   })
 
   it('never grants write without read, which would be a role that cannot check its own work', () => {
     for (const role of STAFF_ROLES) {
       if (hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:write')) {
-        expect(hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read')).toBe(true)
+        expect(
+          hasPermission({ role, scope: 'OWN_DOMAIN', isSystemAdmin: false }, 'documents:read'),
+        ).toBe(true)
       }
     }
   })
@@ -126,7 +152,7 @@ describe('download filenames cannot break the header', () => {
     // ordinary punctuation, so this pins what must SURVIVE, not only what must
     // not.
     expect(safeDownloadName('Lebenslauf (2026) - Müller.pdf')).toBe(
-      'Lebenslauf (2026) - Müller.pdf'
+      'Lebenslauf (2026) - Müller.pdf',
     )
     expect(safeDownloadName('Сертификат.pdf')).toBe('Сертификат.pdf')
   })

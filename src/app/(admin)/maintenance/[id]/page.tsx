@@ -18,10 +18,23 @@ import {
 import { formatDate } from '@/lib/utils'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
   const { id } = await params
-  const request = await prisma.maintenanceRequest.findUnique({ where: { id }, select: { category: true } })
-  return { title: request ? (MAINTENANCE_CATEGORY_LABELS[request.category as keyof typeof MAINTENANCE_CATEGORY_LABELS] ?? 'Wartungsanfrage') : 'Wartungsanfrage' }
+  const request = await prisma.maintenanceRequest.findUnique({
+    where: { id },
+    select: { category: true },
+  })
+  return {
+    title: request
+      ? (MAINTENANCE_CATEGORY_LABELS[
+          request.category as keyof typeof MAINTENANCE_CATEGORY_LABELS
+        ] ?? 'Wartungsanfrage')
+      : 'Wartungsanfrage',
+  }
 }
 
 export const dynamic = 'force-dynamic'
@@ -65,9 +78,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
           <div className="flex items-center gap-4">
             <span className="text-3xl">{categoryIcon}</span>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">
-                {request.title}
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-ui-text">{request.title}</h1>
               <p className="text-ui-muted">
                 {getLabel(MAINTENANCE_CATEGORY_LABELS, request.category)} ·{' '}
                 {request.housingUnit.code}
@@ -94,9 +105,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
             <h2 className="text-lg font-semibold text-ui-text mb-4">
               {MAINTENANCE_PAGE_LABELS.descriptionTitle}
             </h2>
-            <p className="text-ui-muted whitespace-pre-wrap">
-              {request.description}
-            </p>
+            <p className="text-ui-muted whitespace-pre-wrap">{request.description}</p>
           </div>
 
           {/* Status Update Form */}
@@ -105,17 +114,30 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.updateStatusTitle}
               </h2>
-              <form id="maintenance-status-form" action={updateMaintenanceStatus} className="space-y-4">
+              <form
+                id="maintenance-status-form"
+                action={updateMaintenanceStatus}
+                className="space-y-4"
+              >
                 <input type="hidden" name="requestId" value={request.id} />
-                <div id="maintenance-status-validation-summary" className="hidden alert-error" role="alert" />
-                <FormValidationUX formId="maintenance-status-form" summaryId="maintenance-status-validation-summary" />
+                <div
+                  id="maintenance-status-validation-summary"
+                  className="hidden alert-error"
+                  role="alert"
+                />
+                <FormValidationUX
+                  formId="maintenance-status-form"
+                  summaryId="maintenance-status-validation-summary"
+                />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="label">{MAINTENANCE_PAGE_LABELS.fieldNewStatus}</label>
                     <select name="status" className="input" defaultValue={request.status}>
                       {Object.entries(MAINTENANCE_STATUS_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
+                        <option key={key} value={key}>
+                          {label}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -180,12 +202,11 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               <h2 className="text-lg font-semibold text-ui-text mb-4">
                 {MAINTENANCE_PAGE_LABELS.resolutionTitle}
               </h2>
-              <p className="text-ui-muted whitespace-pre-wrap">
-                {request.resolution}
-              </p>
+              <p className="text-ui-muted whitespace-pre-wrap">{request.resolution}</p>
               {request.cost && (
                 <p className="text-sm text-ui-muted mt-2">
-                  {MAINTENANCE_PAGE_LABELS.costPrefix}{request.cost.toFixed(2)}
+                  {MAINTENANCE_PAGE_LABELS.costPrefix}
+                  {request.cost.toFixed(2)}
                 </p>
               )}
             </div>
@@ -205,12 +226,8 @@ export default async function MaintenanceDetailPage({ params }: Props) {
             >
               <span className="text-xl">🏠</span>
               <div>
-                <p className="font-medium text-ui-text">
-                  {request.housingUnit.code}
-                </p>
-                <p className="text-sm text-ui-muted">
-                  {request.housingUnit.address}
-                </p>
+                <p className="font-medium text-ui-text">{request.housingUnit.code}</p>
+                <p className="text-sm text-ui-muted">{request.housingUnit.address}</p>
               </div>
             </Link>
             {request.spot && (
@@ -240,15 +257,11 @@ export default async function MaintenanceDetailPage({ params }: Props) {
                 className="flex items-center gap-3 p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle"
               >
                 <span className="text-xl">👤</span>
-                <p className="font-medium text-ui-text">
-                  {residentName(request.reportedBy)}
-                </p>
+                <p className="font-medium text-ui-text">{residentName(request.reportedBy)}</p>
               </Link>
             ) : request.reporterName ? (
               <div className="p-3 bg-ui-subtle rounded-lg">
-                <p className="font-medium text-ui-text">
-                  {request.reporterName}
-                </p>
+                <p className="font-medium text-ui-text">{request.reporterName}</p>
               </div>
             ) : (
               <p className="text-ui-muted">{MAINTENANCE_PAGE_LABELS.notAngegeben}</p>
@@ -264,9 +277,7 @@ export default async function MaintenanceDetailPage({ params }: Props) {
               <div className="p-3 bg-status-info/8 rounded-lg">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">🔧</span>
-                  <p className="font-medium text-ui-text">
-                    {request.assignedTo}
-                  </p>
+                  <p className="font-medium text-ui-text">{request.assignedTo}</p>
                 </div>
                 {request.assignedAt && (
                   <p className="text-sm text-ui-muted mt-1">

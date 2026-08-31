@@ -83,8 +83,7 @@ export const ru: Dictionary = {
   'action.close': 'Закрыть',
   'action.showAll': 'Показать все',
   'error.generic': 'Что-то пошло не так. Пожалуйста, попробуйте еще раз.',
-  'error.accountNotFound':
-    'Твой аккаунт не найден. Обратись к своему социальному работнику.',
+  'error.accountNotFound': 'Твой аккаунт не найден. Обратись к своему социальному работнику.',
   'error.portalMessage': 'При загрузке портала произошла ошибка. Пожалуйста, попробуйте еще раз.',
   'error.portalHome': 'На главную',
 
@@ -94,7 +93,8 @@ export const ru: Dictionary = {
 
   'safety.emergency': 'В экстренном случае: звони 112 или свяжись с администрацией дома',
 
-  'placement.none': 'У тебя ещё нет жилья. Как только тебя поселят, здесь будет видно, что происходит в твоём доме.',
+  'placement.none':
+    'У тебя ещё нет жилья. Как только тебя поселят, здесь будет видно, что происходит в твоём доме.',
   'help.title': 'Помощь и частые вопросы',
   'help.subtitle': 'Ответы и контакты — при опасности сначала номера экстренных служб.',
   'help.faqTitle': 'Частые вопросы',
@@ -206,9 +206,11 @@ export const ru: Dictionary = {
   'marketplace.categoryPaperwork': 'Документы и почта',
   'marketplace.filterAll': 'Всё',
   'marketplace.openOnly': 'Только открытые объявления из других мест проживания.',
-  'marketplace.noMoney': 'Соседская помощь без оплаты. Оплачиваемые задания — в разделе «Места участия».',
+  'marketplace.noMoney':
+    'Соседская помощь без оплаты. Оплачиваемые задания — в разделе «Места участия».',
   'marketplace.formContact': 'Как с тобой связаться?',
-  'marketplace.formContactHint': 'Видит только тот, кто откликнется, и сопровождение. Например: комната 3, вечером.',
+  'marketplace.formContactHint':
+    'Видит только тот, кто откликнется, и сопровождение. Например: комната 3, вечером.',
   'marketplace.contactLabel': 'Контакт',
   'marketplace.release': 'Всё-таки нет',
   'marketplace.reopen': 'Открыть снова',
@@ -218,7 +220,8 @@ export const ru: Dictionary = {
   'marketplace.postedAgo': 'Добавлено',
 
   'events.title': 'Мероприятия',
-  'events.subtitle': 'Собрания дома и совместные встречи — подтверди участие или создай своё мероприятие.',
+  'events.subtitle':
+    'Собрания дома и совместные встречи — подтверди участие или создай своё мероприятие.',
   'events.empty': 'Пока нет запланированных мероприятий.',
   'events.createNew': 'Новое мероприятие',
   'events.formTitle': 'Заголовок',
@@ -291,7 +294,8 @@ export const ru: Dictionary = {
   'decisions.phaseDiscussion': 'Обсуждение',
   'decisions.phaseVoting': 'Голосование',
   'decisions.days': 'дней',
-  'decisions.tooFewVoters': 'Сейчас здесь живёт слишком мало людей для голосования. Ты всё равно можешь подать предложение — сопровождение обсудит его с вами.',
+  'decisions.tooFewVoters':
+    'Сейчас здесь живёт слишком мало людей для голосования. Ты всё равно можешь подать предложение — сопровождение обсудит его с вами.',
 
   'activities.dashboardTitle': 'Занятия и курсы',
   'activities.dashboardSubtitle': 'Рекомендации для вас.',
@@ -329,7 +333,8 @@ export const ru: Dictionary = {
   'report.categoryConflictDesc': 'Проблемы с соседями по дому',
   'report.titleMaintenance': 'Сообщить о технической проблеме',
   'report.titleConflict': 'Сообщить о конфликте',
-  'report.conflictSubtitle': 'При проблемах с соседями. Ваше сообщение обрабатывается конфиденциально.',
+  'report.conflictSubtitle':
+    'При проблемах с соседями. Ваше сообщение обрабатывается конфиденциально.',
   'report.typeLabel': 'Тип проблемы',
   'report.conflictTypeLabel': 'Тип конфликта',
   'report.selectPlaceholder': 'Выберите…',
@@ -355,7 +360,8 @@ export const ru: Dictionary = {
   'report.nextStep1': 'Ваше сообщение сохранено и видно команде.',
   'report.nextStep2': 'Команда расставляет приоритеты по срочности.',
   'report.nextStep3': 'При вопросах или высокой срочности с вами свяжутся.',
-  'report.successTip': 'Совет: в разделе «Мои обращения» на главной вы видите, открыто обращение или закрыто.',
+  'report.successTip':
+    'Совет: в разделе «Мои обращения» на главной вы видите, открыто обращение или закрыто.',
   'report.errorGeneric': 'Не удалось отправить. Попробуйте ещё раз.',
   'report.quickTitle': 'Быстрое сообщение',
   'report.quickSubtitle': 'Типичные случаи одним нажатием',
@@ -368,7 +374,8 @@ export const ru: Dictionary = {
   'report.transparency.after': 'Срочные случаи обрабатываются в первую очередь.',
   'report.transparency.seeMine': 'Посмотреть ваши обращения',
   'report.template.urgentRepair.label': 'Срочный ремонт',
-  'report.template.urgentRepair.description': 'Срочная поломка: что сломано, с какого времени и что сейчас не работает?',
+  'report.template.urgentRepair.description':
+    'Срочная поломка: что сломано, с какого времени и что сейчас не работает?',
   'report.template.noise.label': 'Шум',
   'report.template.noise.description': 'Шум: время, частота и что вы уже пробовали решить.',
   'report.template.safety.label': 'Безопасность',
@@ -468,7 +475,8 @@ export const ru: Dictionary = {
   'expenses.splitAll': 'все',
   'expenses.statementExpenses': 'Расходы',
   'expenses.statementNet': 'Сальдо',
-  'expenses.statementNetHint': 'Сальдо = оплачено минус доля. Плюс означает: в этом месяце платил за других.',
+  'expenses.statementNetHint':
+    'Сальдо = оплачено минус доля. Плюс означает: в этом месяце платил за других.',
   'expenses.statementPaid': 'Оплачено',
   'expenses.statementPerson': 'Человек',
   'expenses.statementShare': 'Доля',
@@ -488,7 +496,8 @@ export const ru: Dictionary = {
   'housingBrowse.elevator': 'Лифт',
   'housingBrowse.emptyUnit': 'Жильцов пока нет — ты будешь первым!',
   'housingBrowse.groundFloor': 'Партер',
-  'housingBrowse.noMatches': 'Сейчас нет подходящего жилья. Пожалуйста, свяжись со своей командой сопровождения.',
+  'housingBrowse.noMatches':
+    'Сейчас нет подходящего жилья. Пожалуйста, свяжись со своей командой сопровождения.',
   'housingBrowse.noSmoking': 'Не курят',
   'housingBrowse.petsAllowed': 'Можно с животными',
   'housingBrowse.privateKitchen': 'Своя кухня',
@@ -525,7 +534,8 @@ export const ru: Dictionary = {
   'preferences.field.sleepSchedule': 'Режим сна',
   'preferences.field.smoking': 'Курение',
   'preferences.field.socialStyle': 'Социальные предпочтения',
-  'preferences.hint.additionalPrefsPlaceholder': 'напр. \'Я работаю в ночную смену\', \'У меня аллергия на кошек\'...',
+  'preferences.hint.additionalPrefsPlaceholder':
+    "напр. 'Я работаю в ночную смену', 'У меня аллергия на кошек'...",
   'preferences.hint.chaosTolerance': 'Насколько хорошо ты уживаешься с беспорядком?',
   'preferences.hint.cleanlinessExpectation': 'Насколько аккуратными должны быть остальные?',
   'preferences.hint.cleanlinessPractice': 'Насколько аккуратно ты держишь своё пространство?',
@@ -534,10 +544,12 @@ export const ru: Dictionary = {
   'preferences.hint.noiseTolerance': 'Насколько ты чувствителен к шуму?',
   'preferences.hint.privacyNeed': 'Сколько уединения тебе нужно?',
   'preferences.hint.roommatePrefs': 'Необязательно: есть ли особые пожелания к соседям?',
-  'preferences.privacyMessage': 'Твои данные используются только для подбора подходящих соседей. Они не передаются третьим лицам. Ты в любой момент можешь изменить или удалить свои данные.',
+  'preferences.privacyMessage':
+    'Твои данные используются только для подбора подходящих соседей. Они не передаются третьим лицам. Ты в любой момент можешь изменить или удалить свои данные.',
   'preferences.privacyTitle': 'Защита данных',
   'preferences.saveButton': 'Сохранить настройки',
-  'preferences.saveTip': 'Совет: сохрани внизу, когда закончишь. Изменения вступают в силу только после сохранения.',
+  'preferences.saveTip':
+    'Совет: сохрани внизу, когда закончишь. Изменения вступают в силу только после сохранения.',
   'preferences.saving': 'Сохраняется...',
   'preferences.section.lifestyle': 'Образ жизни',
   'preferences.section.practical': 'Практическое',
@@ -548,7 +560,8 @@ export const ru: Dictionary = {
   'preferences.unsavedChanges': 'Есть несохранённые изменения.',
   'profile.bioLabel': 'Обо мне',
   'profile.bioPlaceholder': 'напр. Люблю готовить и рано встаю.',
-  'profile.codeHint': 'Код остаётся твоим логином. Имя, фото и текст — по желанию, их можно изменить в любой момент.',
+  'profile.codeHint':
+    'Код остаётся твоим логином. Имя, фото и текст — по желанию, их можно изменить в любой момент.',
   'profile.codeLabel': 'Твой код для входа',
   'profile.displayNameLabel': 'Имя',
   'profile.displayNamePlaceholder': 'напр. Георгий',
@@ -568,13 +581,15 @@ export const ru: Dictionary = {
   'profile.visibilityHint.RESIDENTS': 'Также жильцы из других квартир.',
   'profile.visibilityHint.ROOMMATES': 'Те, с кем ты живёшь вместе.',
   'profile.visibilityLabel': 'Кто видит твой профиль?',
-  'profile.visibilityStaffNote': 'Команда сопровождения всегда видит твой профиль — она должна знать, кому помогает.',
+  'profile.visibilityStaffNote':
+    'Команда сопровождения всегда видит твой профиль — она должна знать, кому помогает.',
   'profile.visibleTo': 'Видно твоим соседям и администрации.',
   'transfer.currentUnit': 'Нынешнее жильё',
   'transfer.decidedOn': 'Решение принято',
   'transfer.decisionTitle': 'Ответ на твой запрос',
   'transfer.noPlacement': 'Тебе ещё не назначили жильё.',
-  'transfer.pendingMessage': 'Твой запрос на переезд обрабатывается командой. Мы сообщим, как только будут новости.',
+  'transfer.pendingMessage':
+    'Твой запрос на переезд обрабатывается командой. Мы сообщим, как только будут новости.',
   'transfer.pendingTitle': 'Запрос подан',
   'transfer.reasonLabel': 'Почему ты хочешь переехать?',
   'transfer.reasonPlaceholder': 'Опиши причину запроса на переезд...',

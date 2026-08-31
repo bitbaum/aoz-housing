@@ -23,8 +23,12 @@ test.describe('Maintenance list (/maintenance)', () => {
   test('page loads with heading and new-request button', async ({ page }) => {
     await page.goto('/maintenance')
 
-    await expect(page.getByRole('heading', { name: /Wartungsanfragen/i })).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('link', { name: /Neue Anfrage|Neue Wartungsanfrage/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Wartungsanfragen/i })).toBeVisible({
+      timeout: 15_000,
+    })
+    await expect(
+      page.getByRole('link', { name: /Neue Anfrage|Neue Wartungsanfrage/i }),
+    ).toBeVisible()
   })
 
   test('shows stat cards for open and urgent counts', async ({ page }) => {
@@ -89,8 +93,9 @@ test.describe('Maintenance new request (/maintenance/new)', () => {
   test('page loads with form heading', async ({ page }) => {
     await page.goto('/maintenance/new')
 
-    await expect(page.getByRole('heading', { name: /Neue Wartungsanfrage|Wartungsanfrage erfassen/i }))
-      .toBeVisible({ timeout: 15_000 })
+    await expect(
+      page.getByRole('heading', { name: /Neue Wartungsanfrage|Wartungsanfrage erfassen/i }),
+    ).toBeVisible({ timeout: 15_000 })
   })
 
   test('form has required fields: unit, category, title, description', async ({ page }) => {
@@ -124,11 +129,17 @@ test.describe('Maintenance new request (/maintenance/new)', () => {
 
     await expect(page.locator('select[name="housingUnitId"]')).toBeVisible({ timeout: 15_000 })
 
-    await page.getByRole('button', { name: /Anfrage|Erstellen|Speichern|Senden/i }).last().click()
+    await page
+      .getByRole('button', { name: /Anfrage|Erstellen|Speichern|Senden/i })
+      .last()
+      .click()
 
     // HTML5 required validation or our summary block appears
-    const hasAlert = await page.locator('[role="alert"]:not(.hidden)').isVisible().catch(() => false)
-    const hasInvalidField = await page.locator(':invalid').count() > 0
+    const hasAlert = await page
+      .locator('[role="alert"]:not(.hidden)')
+      .isVisible()
+      .catch(() => false)
+    const hasInvalidField = (await page.locator(':invalid').count()) > 0
 
     expect(hasAlert || hasInvalidField).toBe(true)
   })
@@ -156,9 +167,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     await page.goto(href!)
 
     // Status badge (Offen / Zugewiesen / etc.)
-    await expect(
-      page.locator('.badge, [class*="badge"]').first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('.badge, [class*="badge"]').first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('detail page shows housing unit link', async ({ page }) => {
@@ -169,9 +178,7 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     await page.goto(href!)
 
     // Housing unit code (ZH-xxx) appears as a link
-    await expect(
-      page.locator('a[href^="/housing/"]').first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('a[href^="/housing/"]').first()).toBeVisible({ timeout: 15_000 })
   })
 
   test('back link returns to /maintenance', async ({ page }) => {
@@ -197,9 +204,9 @@ test.describe('Maintenance detail (/maintenance/[id])', () => {
     await page.goto(href!)
 
     // Completed requests show the resolution text
-    await expect(
-      page.getByText(/Abgeschlossen|Erledigt|Abschluss/i).first()
-    ).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(/Abgeschlossen|Erledigt|Abschluss/i).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('nonexistent id shows the 404 page', async ({ page }) => {

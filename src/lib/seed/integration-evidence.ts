@@ -61,7 +61,7 @@ const GERMAN_LANGUAGE_MARKERS: readonly string[] = ['de', 'deutsch', 'german']
 
 function speaksGerman(languages: string[]): boolean {
   return languages.some((language) =>
-    GERMAN_LANGUAGE_MARKERS.includes(language.trim().toLowerCase())
+    GERMAN_LANGUAGE_MARKERS.includes(language.trim().toLowerCase()),
   )
 }
 
@@ -103,8 +103,18 @@ const GERMAN_COURSES: readonly EvidenceTemplate[] = [
 
 /** Real Swiss entry-level qualifications, the ones a Jobcoach actually works toward. */
 const VOCATIONAL_TEMPLATES: readonly EvidenceTemplate[] = [
-  { title: 'Pflegehelfer/in SRK', provider: 'SRK Kanton Zürich', category: 'vocational', hours: 120 },
-  { title: 'Hygieneschulung Gastronomie', provider: 'Gastro Zürich', category: 'vocational', hours: 16 },
+  {
+    title: 'Pflegehelfer/in SRK',
+    provider: 'SRK Kanton Zürich',
+    category: 'vocational',
+    hours: 120,
+  },
+  {
+    title: 'Hygieneschulung Gastronomie',
+    provider: 'Gastro Zürich',
+    category: 'vocational',
+    hours: 16,
+  },
   { title: 'Velomechanik Grundkurs', provider: 'EB Zürich', category: 'vocational', hours: 40 },
   { title: 'Staplerfahrausweis', provider: 'Suva-anerkannt', category: 'vocational', hours: 24 },
   { title: 'Computer-Grundlagen', provider: 'EB Zürich', category: 'digital', hours: 30 },
@@ -113,10 +123,30 @@ const VOCATIONAL_TEMPLATES: readonly EvidenceTemplate[] = [
 
 /** Neighbourhood work — the volunteering board's reason to exist. */
 const VOLUNTEERING_TEMPLATES: readonly EvidenceTemplate[] = [
-  { title: 'Mittagstisch im Quartiertreff', provider: 'Quartiertreff', category: 'community', hours: 48 },
-  { title: 'Velowerkstatt im Quartier', provider: 'Quartiertreff', category: 'community', hours: 32 },
-  { title: 'Deutsch-Café: Gastgeber*in', provider: BRAND.orgName, category: 'community', hours: 24 },
-  { title: 'Nachbarschaftshilfe Einkauf', provider: BRAND.orgName, category: 'community', hours: 16 },
+  {
+    title: 'Mittagstisch im Quartiertreff',
+    provider: 'Quartiertreff',
+    category: 'community',
+    hours: 48,
+  },
+  {
+    title: 'Velowerkstatt im Quartier',
+    provider: 'Quartiertreff',
+    category: 'community',
+    hours: 32,
+  },
+  {
+    title: 'Deutsch-Café: Gastgeber*in',
+    provider: BRAND.orgName,
+    category: 'community',
+    hours: 24,
+  },
+  {
+    title: 'Nachbarschaftshilfe Einkauf',
+    provider: BRAND.orgName,
+    category: 'community',
+    hours: 16,
+  },
 ]
 
 /**
@@ -124,11 +154,7 @@ const VOLUNTEERING_TEMPLATES: readonly EvidenceTemplate[] = [
  * something behind every option. A board where everything is "Abgeschlossen"
  * demonstrates a filter that appears broken.
  */
-const VOCATIONAL_STATUS_CYCLE: readonly LearningStatusId[] = [
-  'COMPLETED',
-  'IN_PROGRESS',
-  'PLANNED',
-]
+const VOCATIONAL_STATUS_CYCLE: readonly LearningStatusId[] = ['COMPLETED', 'IN_PROGRESS', 'PLANNED']
 
 /**
  * How far back a "completed" record sits, and how far ahead a planned one.
@@ -207,10 +233,7 @@ type RecordPayload = {
  * module, and asserting them through a database round-trip would test Prisma
  * instead of the rules.
  */
-export function evidenceForResident(
-  resident: EvidenceProfile,
-  index: number
-): RecordPayload[] {
+export function evidenceForResident(resident: EvidenceProfile, index: number): RecordPayload[] {
   const records: RecordPayload[] = []
   const spacing = index * TIMELINE.perResidentDays
   const hasGerman = speaksGerman(resident.languages)
@@ -282,12 +305,10 @@ export function evidenceForResident(
           : daysAgo(
               (status === 'COMPLETED'
                 ? TIMELINE.completedStartedDaysAgo
-                : TIMELINE.inProgressStartedDaysAgo) + spacing
+                : TIMELINE.inProgressStartedDaysAgo) + spacing,
             ),
       completedAt:
-        status === 'COMPLETED'
-          ? daysAgo(TIMELINE.completedFinishedDaysAgo + spacing)
-          : null,
+        status === 'COMPLETED' ? daysAgo(TIMELINE.completedFinishedDaysAgo + spacing) : null,
       notes: null,
       // A certificate is filed by staff; a plan is made together, but the
       // person is the one who committed to it.
@@ -373,7 +394,7 @@ const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB', 'VOLUNTEERING'] as const
 
 export async function seedIntegrationEvidence(
   prisma: PrismaClient,
-  ctx: IntegrationSeedContext
+  ctx: IntegrationSeedContext,
 ): Promise<IntegrationSeedSummary> {
   const residents = await prisma.resident.findMany({
     where: { id: { in: ctx.residentIds } },
@@ -395,8 +416,8 @@ export async function seedIntegrationEvidence(
         ageRange: resident.ageRange,
         choresContribution: resident.choresContribution,
       },
-      index
-    )
+      index,
+    ),
   )
 
   if (payloads.length > 0) {
@@ -411,7 +432,7 @@ export async function seedIntegrationEvidence(
           residentId: resident.id,
           staffId: ctx.staffId as string,
           role,
-        }))
+        })),
       ),
       // The seed may run over a world that already has real assignments.
       skipDuplicates: true,
@@ -481,7 +502,7 @@ export async function seedIntegrationEvidence(
           checkInType: 'AD_HOC',
           weekNumber: Math.max(
             0,
-            Math.floor((Date.now() - placement.startDate.getTime()) / (7 * DAY_MS))
+            Math.floor((Date.now() - placement.startDate.getTime()) / (7 * DAY_MS)),
           ),
           // Deliberately not all 5s: an even record shows nothing, the same
           // reason the seeded chore history is uneven.

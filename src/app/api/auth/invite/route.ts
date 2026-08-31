@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.RATE_LIMITED, retryAfter: rateCheck.retryAfter },
-      { status: 429 }
+      { status: 429 },
     )
   }
 
@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
     recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.AUTH_REQUIRED },
-      { status: 401 }
+      { status: 401 },
     )
   }
 
   if (!hasPermission(currentUser, 'users:manage')) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS },
-      { status: 403 }
+      { status: 403 },
     )
   }
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.INVALID_REQUEST },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: 'Gültige E-Mail-Adresse erforderlich' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -70,18 +70,14 @@ export async function POST(request: NextRequest) {
     recordLoginAttempt(ip)
     return NextResponse.json(
       { success: false, error: 'Name ist erforderlich (mindestens 2 Zeichen)' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
-  const role: StaffRole =
-    rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
+  const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
   if (rawRole && !isStaffRole(rawRole)) {
     recordLoginAttempt(ip)
-    return NextResponse.json(
-      { success: false, error: 'Ungültige Rolle' },
-      { status: 400 }
-    )
+    return NextResponse.json({ success: false, error: 'Ungültige Rolle' }, { status: 400 })
   }
 
   // Generate a unique code
@@ -97,7 +93,7 @@ export async function POST(request: NextRequest) {
   if (!code) {
     return NextResponse.json(
       { success: false, error: ERROR_MESSAGES.CODE_GENERATION_ERROR },
-      { status: 500 }
+      { status: 500 },
     )
   }
 
@@ -109,7 +105,7 @@ export async function POST(request: NextRequest) {
   if (existingEmail) {
     return NextResponse.json(
       { success: false, error: 'Diese E-Mail-Adresse ist bereits registriert' },
-      { status: 409 }
+      { status: 409 },
     )
   }
 
@@ -133,16 +129,14 @@ export async function POST(request: NextRequest) {
     // Race between pre-check and insert: surface conflict explicitly.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       const target = (error.meta as { target?: string[] } | undefined)?.target?.[0]
-      const message = target === 'email'
-        ? 'Diese E-Mail-Adresse ist bereits registriert'
-        : 'Dieser Code ist bereits vergeben'
+      const message =
+        target === 'email'
+          ? 'Diese E-Mail-Adresse ist bereits registriert'
+          : 'Dieser Code ist bereits vergeben'
       return NextResponse.json({ success: false, error: message }, { status: 409 })
     }
     logger.errorWithCause('Failed to invite staff user', error, { email })
-    return NextResponse.json(
-      { success: false, error: ERROR_MESSAGES.SAVE_ERROR },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: ERROR_MESSAGES.SAVE_ERROR }, { status: 500 })
   }
 
   // Fire-and-forget email send. The admin caller shouldn't wait on Brevo —
@@ -156,7 +150,7 @@ export async function POST(request: NextRequest) {
   })
 
   sendEmail([email], subject, html).catch((err) =>
-    logger.errorWithCause('Failed to send staff invite email', err, { userId: user.id })
+    logger.errorWithCause('Failed to send staff invite email', err, { userId: user.id }),
   )
 
   return NextResponse.json({

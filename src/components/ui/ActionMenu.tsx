@@ -61,7 +61,8 @@ export function ActionMenu({
   const hasActions = onEdit || onDuplicate || onDelete
   if (!hasActions) return null
 
-  const sizeClasses = size === 'sm' ? 'w-8 h-8 min-w-[44px] min-h-[44px]' : 'w-10 h-10 min-w-[44px] min-h-[44px]'
+  const sizeClasses =
+    size === 'sm' ? 'w-8 h-8 min-w-[44px] min-h-[44px]' : 'w-10 h-10 min-w-[44px] min-h-[44px]'
   const iconSize = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5'
 
   return (
@@ -83,10 +84,7 @@ export function ActionMenu({
 
       {/* Dropdown menu */}
       {isOpen && (
-        <div
-          className="absolute right-0 mt-1 w-40 overlay-panel py-1 z-50 animate-in"
-          role="menu"
-        >
+        <div className="absolute right-0 mt-1 w-40 overlay-panel py-1 z-50 animate-in" role="menu">
           {onEdit && (
             <button
               onClick={(e) => {

@@ -142,12 +142,8 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
       <div className="card border-status-success/25 bg-status-success/8">
         <div className="text-center py-6">
           <span className="text-5xl mb-4 block">✓</span>
-          <h2 className="text-xl font-semibold text-status-success-text mb-2">
-            {P.successTitle}
-          </h2>
-          <p className="text-status-success-text">
-            {P.successMessage}
-          </p>
+          <h2 className="text-xl font-semibold text-status-success-text mb-2">{P.successTitle}</h2>
+          <p className="text-status-success-text">{P.successMessage}</p>
           <Link href="/portal" className="text-brand-primary hover:underline mt-4 inline-block">
             {t('action.back')}
           </Link>
@@ -169,7 +165,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             tabIndex={-1}
             className="bg-ui-surface rounded-lg w-full max-w-sm p-6 space-y-4 focus:outline-none"
           >
-            <h3 id="discard-title" className="font-semibold text-ui-text">{P.confirmDiscard}</h3>
+            <h3 id="discard-title" className="font-semibold text-ui-text">
+              {P.confirmDiscard}
+            </h3>
             <p className="text-sm text-ui-muted">{P.confirmDiscardBody}</p>
             <div className="flex gap-3 justify-end">
               <button
@@ -197,12 +195,17 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
         </div>
       )}
 
-      <form ref={formRef} onSubmit={handleSubmit} onChange={() => { if (!isDirty) setIsDirty(true) }} className="space-y-6 pb-24 sm:pb-0">
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit}
+        onChange={() => {
+          if (!isDirty) setIsDirty(true)
+        }}
+        className="space-y-6 pb-24 sm:pb-0"
+      >
         <div className="card bg-status-info/8 border-status-info/25">
           <p className="text-sm text-status-info-text">{P.saveTip}</p>
-          {isDirty && (
-            <p className="text-xs text-status-info-text mt-1">{P.unsavedChanges}</p>
-          )}
+          {isDirty && <p className="text-xs text-status-info-text mt-1">{P.unsavedChanges}</p>}
         </div>
 
         {/* Lifestyle Section */}
@@ -211,7 +214,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label" htmlFor="sleepSchedule">{P.fields.sleepSchedule}</label>
+              <label className="label" htmlFor="sleepSchedule">
+                {P.fields.sleepSchedule}
+              </label>
               <select
                 id="sleepSchedule"
                 name="sleepSchedule"
@@ -282,7 +287,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label" htmlFor="socialStyle">{P.fields.socialStyle}</label>
+              <label className="label" htmlFor="socialStyle">
+                {P.fields.socialStyle}
+              </label>
               <select
                 id="socialStyle"
                 name="socialStyle"
@@ -320,7 +327,10 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         type="checkbox"
                         name="languages"
                         value={lowerCode}
-                        defaultChecked={resident.languages.includes(lowerCode) || resident.languages.includes(code)}
+                        defaultChecked={
+                          resident.languages.includes(lowerCode) ||
+                          resident.languages.includes(code)
+                        }
                         className="sr-only peer"
                       />
                       <div className="px-4 py-2 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
@@ -340,7 +350,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label" htmlFor="smokingStatus">{P.fields.smoking}</label>
+              <label className="label" htmlFor="smokingStatus">
+                {P.fields.smoking}
+              </label>
               <select
                 id="smokingStatus"
                 name="smokingStatus"
@@ -398,7 +410,10 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
                         type="checkbox"
                         name="dietaryNeeds"
                         value={lowerOpt}
-                        defaultChecked={resident.dietaryNeeds.includes(lowerOpt) || resident.dietaryNeeds.includes(opt)}
+                        defaultChecked={
+                          resident.dietaryNeeds.includes(lowerOpt) ||
+                          resident.dietaryNeeds.includes(opt)
+                        }
                         className="sr-only peer"
                       />
                       <div className="px-4 py-2 rounded-sm border-2 border-ui-border peer-checked:border-brand-primary peer-checked:bg-brand-primary peer-checked:text-ui-on-accent transition-colors text-sm">
@@ -419,7 +434,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
 
           <div className="space-y-4">
             <div>
-              <label className="label" htmlFor="preferredAgeRange">{P.fields.preferredAgeRange}</label>
+              <label className="label" htmlFor="preferredAgeRange">
+                {P.fields.preferredAgeRange}
+              </label>
               <select id="preferredAgeRange" name="preferredAgeRange" className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SIMILAR">{P.fields.similarAge}</option>
@@ -432,7 +449,9 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
             </div>
 
             <div>
-              <label className="label" htmlFor="culturalPreference">{P.fields.culturalPref}</label>
+              <label className="label" htmlFor="culturalPreference">
+                {P.fields.culturalPref}
+              </label>
               <select id="culturalPreference" name="culturalPreference" className="input">
                 <option value="">{P.fields.noPref}</option>
                 <option value="SAME_REGION">{P.fields.sameRegion}</option>
@@ -463,7 +482,11 @@ export function PreferencesForm({ resident, languageOptions, dietOptions }: Prop
           >
             {isSubmitting ? P.saving : P.saveButton}
           </button>
-          <button type="button" onClick={handleCancel} className="btn-outline w-full sm:w-auto min-h-[44px]">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="btn-outline w-full sm:w-auto min-h-[44px]"
+          >
             {t('action.cancel')}
           </button>
         </div>

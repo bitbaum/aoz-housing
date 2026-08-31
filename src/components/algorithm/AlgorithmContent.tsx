@@ -2,22 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import {
-  Brain,
-  Shield,
-  ArrowRight,
-  Sparkles,
-  Layers,
-  Activity,
-  MapPin,
-} from 'lucide-react'
+import { Brain, Shield, ArrowRight, Sparkles, Layers, Activity, MapPin } from 'lucide-react'
 import { Tabs, TabPanel } from '@/components/ui'
-import {
-  FACTOR_COUNT,
-  DIMENSION_COUNT,
-  SOURCE_COUNT,
-  FactStat,
-} from './shared'
+import { FACTOR_COUNT, DIMENSION_COUNT, SOURCE_COUNT, FactStat } from './shared'
 import { OverviewTab } from './OverviewTab'
 import { ScienceTab } from './ScienceTab'
 import { DimensionsTab } from './DimensionsTab'
@@ -46,7 +33,9 @@ export function AlgorithmContent() {
             <div className="p-2 bg-ui-inverse/10 rounded-lg">
               <Brain className="w-8 h-8" />
             </div>
-            <span className="text-ui-inverse/80 text-sm font-medium">{ALGORITHM_OVERVIEW_LABELS.heroSubtitle}</span>
+            <span className="text-ui-inverse/80 text-sm font-medium">
+              {ALGORITHM_OVERVIEW_LABELS.heroSubtitle}
+            </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
@@ -110,9 +99,7 @@ export function AlgorithmContent() {
         <h2 className="text-xl sm:text-2xl font-bold text-ui-text mb-3">
           {ALGORITHM_OVERVIEW_LABELS.ctaTitle}
         </h2>
-        <p className="text-ui-muted mb-6 max-w-lg mx-auto">
-          {ALGORITHM_OVERVIEW_LABELS.ctaDesc}
-        </p>
+        <p className="text-ui-muted mb-6 max-w-lg mx-auto">{ALGORITHM_OVERVIEW_LABELS.ctaDesc}</p>
         <Link
           href="/matching"
           className="inline-flex items-center gap-2 px-6 py-3 bg-brand-primary text-ui-on-accent rounded-lg font-medium hover:bg-brand-primary/90 transition-colors"
