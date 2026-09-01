@@ -182,6 +182,17 @@ export const ROLE_PERMISSIONS = {
   JOBCOACH: [
     'dashboard:read',
     'residents:read',
+    // READ, never write. Logging an incident and working the conflict ladder
+    // stay with Betreuung and Sozialarbeit — this is only "is something
+    // currently wrong with the person I am coaching".
+    //
+    // The old boundary was survivable because staff shared a corridor: you
+    // overheard that a household was in trouble. `Begleitung im regulären
+    // Wohnraum` removes exactly that, spreading residents across apartments
+    // nobody but their Betreuer visits. The pilot's own night-shift profile
+    // expects staff to spot "herausfordernde Situationen frühzeitig", which
+    // cannot be done by the two roles that cannot see any situation at all.
+    'incidents:read',
     'learning:read',
     'learning:write',
     'opportunities:read',
@@ -194,6 +205,9 @@ export const ROLE_PERMISSIONS = {
   FREIWILLIGENARBEIT: [
     'dashboard:read',
     'residents:read',
+    // Same reason as JOBCOACH above: read-only sight of an active conflict,
+    // for someone placing this person into a shared activity.
+    'incidents:read',
     'learning:read',
     'learning:write',
     'marketplace:read',
