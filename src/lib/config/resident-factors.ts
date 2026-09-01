@@ -572,6 +572,29 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     rule: 'NONE', // For caseworker info, not compatibility
   },
 
+  livingSkillsSupport: {
+    id: 'livingSkillsSupport',
+    type: 'enum',
+    label: 'Wohnfähigkeit',
+    description: 'Wie viel Unterstützung braucht diese Person im Haushalt?',
+    formSection: 'health',
+    formOrder: 6,
+    options: ['INDEPENDENT', 'SOME_SUPPORT', 'REGULAR_SUPPORT'] as const,
+    optionLabels: {
+      INDEPENDENT: 'Selbstständig',
+      SOME_SUPPORT: 'Punktuelle Unterstützung (Post, Termine, Ämtli)',
+      REGULAR_SUPPORT: 'Regelmässige Begleitung im Alltag',
+    },
+    default: 'INDEPENDENT',
+    dimension: 'requirements',
+    // Zero weight, like `supportLevel`. This describes what the household needs
+    // from the Betreuung, not how two people get along — scoring someone down
+    // as a roommate for needing help with their post would be exactly the
+    // wrong use of it.
+    weight: 0,
+    rule: 'NONE',
+  },
+
   // ---------------------------------------------------------------------------
   // PREFERENCES
   // ---------------------------------------------------------------------------

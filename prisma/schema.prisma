@@ -67,6 +67,17 @@ model Resident {
   hasSleepEquipment     Boolean           @default(false) // CPAP, etc.
   supportLevel          SupportLevel      @default(STANDARD)
 
+  /// How much help running a household this person needs — AOZ's
+  /// "Wohnfähigkeit". Distinct from `supportLevel`, which is how often someone
+  /// checks in on them: a person can need weekly contact and still cook, clean
+  /// and open their post unaided, and another can be seen rarely and still be
+  /// unable to keep a tenancy. Conflating them is why AOZ was recording this on
+  /// paper in a separate project rather than reading it off a system.
+  ///
+  /// FUNCTIONAL, never a diagnosis: it says what support the household needs,
+  /// not why. @see lib/vulnerability/
+  livingSkillsSupport   LivingSkillsSupport @default(INDEPENDENT)
+
   // Roommate preferences (from portal self-service)
   roommatePreferences    String?
   preferencesCompletedAt DateTime? // Set when portal preferences form is submitted
@@ -342,6 +353,21 @@ enum SupportLevel {
   STANDARD // Normal check-ins
   ELEVATED // More frequent monitoring
   INTENSIVE // Close support needed
+}
+
+/// How much support running a household this person needs — AOZ's
+/// "Wohnfähigkeit". A capability, never a diagnosis: the values say what help
+/// the household needs, and nothing about why it is needed.
+///
+/// Deliberately separate from `SupportLevel`. That one is contact FREQUENCY;
+/// this is everyday competence with cooking, cleaning, post, appointments and
+/// keeping a tenancy. The two come apart in both directions, and AOZ named
+/// "Klient*innen mit eingeschränkten Wohnfähigkeiten" as a group it could not
+/// find in any system.
+enum LivingSkillsSupport {
+  INDEPENDENT // Runs the household unaided
+  SOME_SUPPORT // Occasional help: post, appointments, paperwork
+  REGULAR_SUPPORT // Ongoing accompaniment in daily living
 }
 
 enum RecyclingKnowledge {
