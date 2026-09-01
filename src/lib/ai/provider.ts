@@ -214,8 +214,40 @@ async function completeWithOpenAICompat(
     throw new AIProviderError(config.provider, res.status, detail)
   }
 
-  const body = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> }
-  return body.choices?.[0]?.message?.content ?? ''
+  const body = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string | null }; finish_reason?: string }>
+  }
+  const choice = body.choices?.[0]
+  const content = choice?.message?.content ?? ''
+
+  // An empty completion is a FAILURE, not an answer.
+  //
+  // This used to be `content ?? ''`, so a response carrying `content: null`
+  // returned the empty string as a success — `withProviderFallback` then called
+  // `recordAIHealthSuccess()`, the chain never fell through to the next
+  // provider, and the health endpoint reported `ok`. A blank answer, recorded
+  // as a healthy one.
+  //
+  // The way it happens is not exotic: a reasoning model spends the whole
+  // `max_tokens` budget on reasoning tokens and stops with
+  // `finish_reason: "length"` before emitting any content. Observed on an
+  // OpenRouter auto-routed model at a small budget. The app's real budgets
+  // (2000 for form fill) are far from that today — but the model behind a
+  // provider is not ours to pin forever, and this repo has already been bitten
+  // by model ids rotating underneath it.
+  //
+  // 502 rather than a bespoke status because `shouldTryNextProvider` falls
+  // through on `>= 500`: an unusable response from one provider should be
+  // retried on the next, which is the entire point of having a chain.
+  if (content.trim() === '') {
+    throw new AIProviderError(
+      config.provider,
+      502,
+      `empty completion (finish_reason: ${choice?.finish_reason ?? 'unknown'})`,
+    )
+  }
+
+  return content
 }
 
 /**

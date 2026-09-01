@@ -171,6 +171,92 @@ describe('the Groq call', () => {
   })
 })
 
+describe('an empty completion is a failure, not an answer', () => {
+  /**
+   * `content ?? ''` returned the empty string as a SUCCESS: the fallback chain
+   * recorded `recordAIHealthSuccess()`, never tried the next provider, and the
+   * health endpoint said `ok` while the caller got nothing.
+   *
+   * The trigger is ordinary — a reasoning model spends the whole `max_tokens`
+   * budget on reasoning and stops with `finish_reason: "length"` before writing
+   * any content. The model behind a provider is not ours to pin forever.
+   */
+  const emptyResponse = (content: string | null, finish_reason: string) =>
+    ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content }, finish_reason }] }),
+    }) as Response
+
+  it.each([
+    ['null content, truncated', null, 'length'],
+    ['empty string, truncated', '', 'length'],
+    ['whitespace only', '   \n ', 'stop'],
+    ['empty string, stopped', '', 'stop'],
+  ])('rejects %s rather than returning it', async (_name, content, finish) => {
+    const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
+    jest.spyOn(global, 'fetch').mockResolvedValue(emptyResponse(content, finish))
+
+    const failure = await completeText({
+      system: 's',
+      prompt: 'p',
+      maxTokens: 20,
+      temperature: 0,
+    }).catch((error: unknown) => error)
+
+    const { AIChainExhaustedError } = await import('@/lib/ai/errors')
+    expect(failure).toBeInstanceOf(AIChainExhaustedError)
+  })
+
+  it('falls through to the next provider instead of returning blank', async () => {
+    // The whole point of a chain: one provider returning something unusable
+    // must not end the attempt. 502 is chosen so `shouldTryNextProvider` passes.
+    const { completeText } = await loadProvider({
+      GROQ_API_KEY: 'gsk_test',
+      OPENROUTER_API_KEY: 'sk-or_test',
+    })
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValueOnce(emptyResponse(null, 'length'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'real answer' } }] }),
+      } as Response)
+
+    const text = await completeText({ system: 's', prompt: 'p', maxTokens: 20, temperature: 0 })
+
+    expect(text).toBe('real answer')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('names finish_reason on the error, so the log says WHY it was empty', async () => {
+    const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
+    jest.spyOn(global, 'fetch').mockResolvedValue(emptyResponse(null, 'length'))
+
+    const failure = await completeText({
+      system: 's',
+      prompt: 'p',
+      maxTokens: 20,
+      temperature: 0,
+    }).catch((error: unknown) => error)
+
+    const { AIChainExhaustedError } = await import('@/lib/ai/errors')
+    const last = (failure as InstanceType<typeof AIChainExhaustedError>).last
+    expect(last?.body).toContain('length')
+  })
+
+  it('still returns a real answer untouched', async () => {
+    const { completeText } = await loadProvider({ GROQ_API_KEY: 'gsk_test' })
+    jest.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: '{"values":{}}' } }] }),
+    } as Response)
+
+    await expect(
+      completeText({ system: 's', prompt: 'p', maxTokens: 20, temperature: 0 }),
+    ).resolves.toBe('{"values":{}}')
+  })
+})
+
 describe('the OpenRouter call', () => {
   it('uses OpenRouter when Groq is absent', async () => {
     const { completeText } = await loadProvider({
