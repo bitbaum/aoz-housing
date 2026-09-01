@@ -447,6 +447,27 @@ an import passes lint, typecheck and Jest, and fails only at build. Run a build
 before declaring UI work done; `src/lib/__tests__/use-client-directive.test.ts`
 guards that specific class.
 
+**Building locally needs one env var, and without it the failure lies about
+its cause.** A bare `npm run build` dies with `Failed to collect configuration
+for /api/auth/demo` — a route that queries `prisma.user`, so the obvious
+reading is "this laptop has no `aoz_wohnen` database, builds are impossible
+here". That reading is wrong, and it was believed twice on 2026-09-01 before
+anyone read far enough down the log to the real `[cause]`:
+`SESSION_SECRET environment variable must be set in production`.
+
+```bash
+SESSION_SECRET=local-build-only npm run build   # exit 0, 56 static pages
+```
+
+Two traps stacked on that one:
+
+- **Never pipe the build.** `npm run build | tail -25` exits with *tail's*
+  status, so a failed build reports success. Redirect to a file and read `$?`,
+  or run it unpiped.
+- **A build error naming a route that touches the database is not evidence
+  about the database.** Read down to `[cause]` before concluding anything
+  about the environment — the first line names where it broke, not why.
+
 ## Mobile-First Design (MANDATORY)
 
 All UI must work on mobile FIRST, then enhance for larger screens.
