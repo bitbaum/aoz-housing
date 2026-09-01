@@ -58,6 +58,27 @@ export const ru: Dictionary = {
   'reports.showAll': 'Показать все обращения',
   'reports.empty': 'Ты ещё ни о чём не сообщал.',
   'reports.new': 'Новое обращение',
+  // Жалоба на организацию — не на соседей.
+  'nav.complaints': 'Жалоба',
+  'complaints.title': 'Жалоба на сопровождение',
+  'complaints.intro':
+    'Если ты не согласен с сопровождением, жильём или решением, ты можешь сказать об этом здесь. Жалоба не повлияет на твоё место проживания.',
+  'complaints.whoReads':
+    'Твоя жалоба поступит в ответственную инстанцию — не к сотрудникам, которые работают в твоём жилье.',
+  'complaints.subjectLabel': 'О чём идёт речь?',
+  'complaints.subject.STAFF': 'Как со мной обошлись',
+  'complaints.subject.ACCOMMODATION': 'Жильё или его правила',
+  'complaints.subject.DECISION': 'Решение обо мне',
+  'complaints.subject.OTHER': 'Другое',
+  'complaints.bodyLabel': 'Что произошло?',
+  'complaints.bodyPlaceholder': 'Опиши, что случилось: когда, где и кто был причастен.',
+  'complaints.anonymousLabel': 'Отправить анонимно',
+  'complaints.anonymousHint':
+    'Анонимно означает, что твоё имя не указывается. Тогда мы не сможем тебе ответить, и жалоба не появится в разделе «Твои сообщения».',
+  'complaints.submit': 'Отправить жалобу',
+  'complaints.tooShort': 'Пожалуйста, кратко опиши, о чём речь (минимум 10 символов).',
+  'complaints.sent': 'Твоя жалоба получена. Ответ появится в разделе «Твои сообщения».',
+  'complaints.sentAnonymous': 'Твоя анонимная жалоба получена.',
   'reports.open': 'Открыто',
   'reports.done': 'Решено',
   'reports.pending': 'Команда рассматривает это обращение.',

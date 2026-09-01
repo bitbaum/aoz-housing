@@ -89,6 +89,9 @@ export interface NavItem {
  */
 export const SYSTEM_LINKS: NavItem[] = [
   { href: '/settings', icon: 'settings', label: 'Einstellungen', permission: 'users:manage' },
+  // Complaints about the organisation. A system link, not a mission area: it is
+  // deliberately outside the care groups, because the care team cannot see it.
+  { href: '/complaints', icon: 'alert', label: 'Beschwerden', permission: 'complaints:read' },
   // A utility OVER the work, not one of the mission areas — the same kind of
   // thing as the algorithm docs and settings it now sits beside. It was also
   // costing 128px of a bar that did not have them: measured on a 1440px
@@ -418,6 +421,7 @@ export interface PortalNavItem {
     | 'activities'
     | 'report'
     | 'reports'
+    | 'complaints'
     | 'preferences'
     | 'profile'
     | 'help'
@@ -524,6 +528,9 @@ export const PORTAL_NAV_ITEMS: PortalNavItem[] = [
     group: 'concerns',
   },
   { href: '/portal/reports', labelKey: 'reports', icon: 'clipboard', group: 'concerns' },
+  // Objecting to the organisation belongs beside "where did my report go" —
+  // it is the same question a resident arrives with, pointed the other way.
+  { href: '/portal/complaints', labelKey: 'complaints', icon: 'scroll', group: 'concerns' },
   {
     href: '/portal/messages',
     labelKey: 'messages',

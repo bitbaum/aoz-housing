@@ -83,6 +83,25 @@ export const SYSTEM_ADMIN_PERMISSIONS = [
   'import:write',
 ] as const
 
+/**
+ * Reading and answering complaints about the organisation itself.
+ *
+ * Held by NO care role, and — this is the part that matters — not by
+ * `ALL_DOMAINS` either. Every other permission widens with oversight, because
+ * seeing every domain is the point of that axis. This one must not, because
+ * the person with oversight over every domain is one of the people a complaint
+ * can be ABOUT. A grievance channel whose reader may be its subject is not a
+ * grievance channel.
+ *
+ * Named separately from SYSTEM_ADMIN_PERMISSIONS even though `isSystemAdmin`
+ * is what grants both today. They are different jobs: configuring the product
+ * and hearing a complaint against staff. AOZ runs a central Beschwerdestelle
+ * that is deliberately independent of the site team, and when a real person
+ * fills that seat here they should get these two verbs without also being
+ * handed the settings page — which is the whole lesson of retiring ADMIN.
+ */
+export const COMPLAINT_PERMISSIONS = ['complaints:read', 'complaints:respond'] as const
+
 const OPERATIONAL = [
   'dashboard:read',
   'residents:read',
@@ -192,7 +211,9 @@ export const ROLE_PERMISSIONS = {
 } as const
 
 export type StaffPermission =
-  (typeof ROLE_PERMISSIONS)[StaffRole][number] | (typeof SYSTEM_ADMIN_PERMISSIONS)[number]
+  | (typeof ROLE_PERMISSIONS)[StaffRole][number]
+  | (typeof SYSTEM_ADMIN_PERMISSIONS)[number]
+  | (typeof COMPLAINT_PERMISSIONS)[number]
 
 /**
  * The narrowest possible subject, derived rather than named.
@@ -241,6 +262,14 @@ function grantsPermission(role: StaffRole, permission: string): boolean {
  */
 export function hasPermission(subject: StaffCapabilities, permission: string): boolean {
   if ((SYSTEM_ADMIN_PERMISSIONS as readonly string[]).includes(permission)) {
+    return subject.isSystemAdmin
+  }
+
+  // Checked HERE, above the role and scope logic, for the same reason system
+  // permissions are: falling through would let the `ALL_DOMAINS` branch below
+  // grant it, and oversight over every domain must not include reading
+  // complaints that may name the person holding it.
+  if ((COMPLAINT_PERMISSIONS as readonly string[]).includes(permission)) {
     return subject.isSystemAdmin
   }
 

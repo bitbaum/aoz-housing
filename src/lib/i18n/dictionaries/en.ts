@@ -38,6 +38,28 @@ export const en: Dictionary = {
   'reports.showAll': 'Show all reports',
   'reports.empty': 'You have not reported anything yet.',
   'reports.new': 'New report',
+  // Complaint about the organisation — not about a roommate.
+  'nav.complaints': 'Complaint',
+  'complaints.title': 'Complaint about the support you receive',
+  'complaints.intro':
+    'If you disagree with the support, the accommodation or a decision, you can say so here. Making a complaint has no consequences for your place.',
+  'complaints.whoReads':
+    'Your complaint goes to the responsible office — not to the support staff in your accommodation.',
+  'complaints.subjectLabel': 'What is it about?',
+  'complaints.subject.STAFF': 'How I was treated',
+  'complaints.subject.ACCOMMODATION': 'The accommodation or its rules',
+  'complaints.subject.DECISION': 'A decision about me',
+  'complaints.subject.OTHER': 'Something else',
+  'complaints.bodyLabel': 'What happened?',
+  'complaints.bodyPlaceholder': 'Describe what happened: when, where and who was involved.',
+  'complaints.anonymousLabel': 'Submit anonymously',
+  'complaints.anonymousHint':
+    'Anonymous means your name is not attached. We then cannot reply to you, and the complaint will not appear under "Your reports".',
+  'complaints.submit': 'Submit complaint',
+  'complaints.tooShort': 'Please describe briefly what this is about (at least 10 characters).',
+  'complaints.sent':
+    'Your complaint has been received. You will see the reply under "Your reports".',
+  'complaints.sentAnonymous': 'Your anonymous complaint has been received.',
   'reports.open': 'Open',
   'reports.done': 'Resolved',
   'reports.pending': 'The team is looking at this report.',

@@ -44,6 +44,8 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',
   'system:configure': 'Systemeinstellungen ändern',
   'import:write': 'Daten importieren',
+  'complaints:read': 'Beschwerden über die Organisation einsehen',
+  'complaints:respond': 'Beschwerden über die Organisation beantworten',
 }
 
 /**

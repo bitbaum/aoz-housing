@@ -46,6 +46,27 @@ export const uk: Dictionary = {
   'reports.showAll': 'Показати всі звернення',
   'reports.empty': 'Ви ще нічого не повідомляли.',
   'reports.new': 'Нове звернення',
+  // Скарга на організацію — не на сусідів.
+  'nav.complaints': 'Скарга',
+  'complaints.title': 'Скарга на супровід',
+  'complaints.intro':
+    'Якщо ти не згоден із супроводом, житлом або рішенням, ти можеш сказати про це тут. Скарга не вплине на твоє місце проживання.',
+  'complaints.whoReads':
+    'Твоя скарга надійде до відповідальної інстанції — не до працівників, які працюють у твоєму житлі.',
+  'complaints.subjectLabel': 'Про що йдеться?',
+  'complaints.subject.STAFF': 'Як зі мною повелися',
+  'complaints.subject.ACCOMMODATION': 'Житло або його правила',
+  'complaints.subject.DECISION': 'Рішення щодо мене',
+  'complaints.subject.OTHER': 'Інше',
+  'complaints.bodyLabel': 'Що сталося?',
+  'complaints.bodyPlaceholder': 'Опиши, що сталося: коли, де і хто був причетний.',
+  'complaints.anonymousLabel': 'Надіслати анонімно',
+  'complaints.anonymousHint':
+    'Анонімно означає, що твоє ім’я не вказується. Тоді ми не зможемо тобі відповісти, і скарга не з’явиться в розділі «Твої звернення».',
+  'complaints.submit': 'Надіслати скаргу',
+  'complaints.tooShort': 'Будь ласка, коротко опиши, про що йдеться (щонайменше 10 символів).',
+  'complaints.sent': 'Твою скаргу отримано. Відповідь з’явиться в розділі «Твої звернення».',
+  'complaints.sentAnonymous': 'Твою анонімну скаргу отримано.',
   'reports.open': 'Відкрито',
   'reports.done': 'Вирішено',
   'reports.pending': 'Команда розглядає це звернення.',
