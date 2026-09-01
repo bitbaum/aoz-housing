@@ -82,6 +82,7 @@ export default async function EditResidentPage({ params }: Props) {
             needsQuietEnvironment: resident.needsQuietEnvironment,
             hasSleepEquipment: resident.hasSleepEquipment,
             supportLevel: resident.supportLevel,
+            livingSkillsSupport: resident.livingSkillsSupport,
             // Medical documentation
             hasMedicalDocumentation: resident.hasMedicalDocumentation,
             medicalDocType: resident.medicalDocType,

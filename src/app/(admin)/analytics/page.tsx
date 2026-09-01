@@ -20,6 +20,8 @@ import { ConflictAnalysisSection } from '@/components/analytics/ConflictAnalysis
 import { RecentPlacementsTable } from '@/components/analytics/RecentPlacementsTable'
 import { MissionKPISection } from '@/components/analytics/MissionKPISection'
 import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccuracySection'
+import { VulnerabilitySection } from '@/components/analytics/VulnerabilitySection'
+import { summariseVulnerability } from '@/lib/vulnerability'
 import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
@@ -158,6 +160,10 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     endedPlacements.length > 0 ? Math.round((conflictEnds / endedPlacements.length) * 100) : 0
 
   const unresolvedIncidents = recentIncidents.filter((i) => !i.resolvedAt)
+
+  // Derived from the rows already fetched above — no extra query, and no
+  // stored flag that could drift from the needs it summarises.
+  const vulnerability = summariseVulnerability(residents)
 
   // Incident type breakdown (conflicts only)
   const incidentsByType = recentIncidents.reduce(
@@ -413,6 +419,13 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       {/* Algorithm Accuracy */}
       <div className="mt-6 sm:mt-8">
         <AlgorithmAccuracySection report={algorithmAccuracy} />
+      </div>
+
+      {/* Besonderer Unterbringungsbedarf — aggregate only, no one is named, so
+          it sits at the page's own `dashboard:read` like the other summaries.
+          @see lib/vulnerability/ for why this is derived and never stored. */}
+      <div className="mt-6 sm:mt-8">
+        <VulnerabilitySection summary={vulnerability} />
       </div>
 
       {/* Recent Placements — identified resident + satisfaction data, so this

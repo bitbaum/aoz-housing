@@ -54,6 +54,7 @@ function makeResident(overrides: Partial<Resident> = {}): Resident {
     needsQuietEnvironment: false,
     hasSleepEquipment: false,
     supportLevel: 'STANDARD',
+    livingSkillsSupport: 'INDEPENDENT',
     roommatePreferences: null,
     preferencesCompletedAt: null,
     status: 'ACTIVE',
