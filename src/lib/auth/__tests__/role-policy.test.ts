@@ -172,6 +172,26 @@ describe('role, scope and administration are independent', () => {
     expect(hasPermission(sandra, 'placements:write')).toBe(false)
   })
 
+  test('the integration roles SEE a conflict but never work it', () => {
+    // The asymmetry is the whole grant, and a later "these two look
+    // inconsistent, let me line them up" edit would destroy it in either
+    // direction: taking read away re-blinds them, adding write puts the
+    // conflict ladder in the hands of roles that do not run it.
+    //
+    // Why they need read at all: the old boundary was survivable because
+    // staff shared a corridor and overheard that a household was in trouble.
+    // Distributed housing removes that, and a coach placing someone into work
+    // or a group activity should not be the last to know.
+    for (const viewer of [simon, sandra]) {
+      expect(hasPermission(viewer, 'incidents:read')).toBe(true)
+      expect(hasPermission(viewer, 'incidents:write')).toBe(false)
+    }
+
+    // Logging and escalating stay where they were.
+    expect(hasPermission(caps('BETREUUNG'), 'incidents:write')).toBe(true)
+    expect(hasPermission(caps('SOZIALARBEIT'), 'incidents:write')).toBe(true)
+  })
+
   test('scope changes breadth without changing the role', () => {
     // The same person, the same job, one axis moved.
     expect(hasPermission(caps('JOBCOACH'), 'housing:write')).toBe(false)

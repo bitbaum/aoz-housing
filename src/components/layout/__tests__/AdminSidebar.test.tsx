@@ -11,6 +11,7 @@
 import { render, screen } from '@testing-library/react'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { visibleMegaMenuGroups } from '@/lib/config/navigation'
+import { hasPermission } from '@/lib/auth/role-policy'
 
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
@@ -40,18 +41,26 @@ describe('AdminSidebar', () => {
   })
 
   it('shows a narrower role only what its permissions allow', () => {
-    // JOBCOACH may not read housing or incidents. A nav that offered them
-    // would end at /kein-zugriff — a dead end dressed as a destination.
-    const groups = visibleMegaMenuGroups({
-      role: 'JOBCOACH',
-      scope: 'OWN_DOMAIN',
-      isSystemAdmin: false,
-    })
-    render(<AdminSidebar groups={groups} />)
+    // JOBCOACH may not read housing. A nav that offered it would end at
+    // /kein-zugriff — a dead end dressed as a destination.
+    //
+    // Vorfälle IS offered, and that is not a regression of the same rule: the
+    // role now holds `incidents:read` on purpose, so the entry leads
+    // somewhere. Distributed housing removed the corridor where a coach used
+    // to overhear that a client's household was in trouble; this is the
+    // replacement. What they still cannot do is WORK the ladder —
+    // `incidents:write` stays with Betreuung and Sozialarbeit, and the
+    // conflict-operations dashboard section is keyed on that verb.
+    const viewer = { role: 'JOBCOACH', scope: 'OWN_DOMAIN', isSystemAdmin: false } as const
+    render(<AdminSidebar groups={visibleMegaMenuGroups(viewer)} />)
 
     expect(screen.queryByText('Unterkünfte')).toBeNull()
-    expect(screen.queryByText('Vorfälle')).toBeNull()
+    expect(screen.getAllByText('Vorfälle').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
+
+    // The nav entry is only honest if the route behind it admits them.
+    expect(hasPermission(viewer, 'incidents:read')).toBe(true)
+    expect(hasPermission(viewer, 'incidents:write')).toBe(false)
   })
 
   it('marks the current page, and only the current page', () => {

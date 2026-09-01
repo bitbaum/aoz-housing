@@ -24,8 +24,24 @@ export const DASHBOARD_SECTIONS = {
   occupancy: 'housing:read',
   /** Check-in stat, overdue/due-soon tiles, check-in hero branches. */
   checkIns: 'placements:read',
-  /** Harmony stat, critical-incident banner, problem-unit tiles. */
-  incidents: 'incidents:read',
+  /**
+   * Harmony stat, critical-incident banner, problem-unit tiles.
+   *
+   * Keyed on `incidents:WRITE`, not read. Everything in this section is
+   * housing-conflict OPERATIONS — a harmony score for the house, tiles that
+   * name problem UNITS — and belongs to whoever works the ladder, not to
+   * everyone permitted to see that a conflict exists.
+   *
+   * The distinction only started to matter when JOBCOACH and
+   * FREIWILLIGENARBEIT were given read-only sight of incidents, so a coach is
+   * not the last to know their client's household is in trouble. That grant
+   * must not turn their dashboard — deliberately "their own board" — into a
+   * unit-operations screen for houses they do not run.
+   *
+   * Behaviour-preserving for everyone who had it: every role holding
+   * `incidents:read` before that grant also held `incidents:write`.
+   */
+  incidents: 'incidents:write',
   /** Open-maintenance stat. */
   maintenance: 'maintenance:read',
   /** Unplaced-residents tile + hero branch — they link into /matching. */
