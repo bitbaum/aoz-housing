@@ -47,6 +47,28 @@ export const fr: Dictionary = {
   'reports.showAll': 'Afficher tous les signalements',
   'reports.empty': 'Tu n’as encore rien signalé.',
   'reports.new': 'Nouveau signalement',
+  // Réclamation concernant l'organisation — pas un colocataire.
+  'nav.complaints': 'Réclamation',
+  'complaints.title': "Réclamation concernant l'encadrement",
+  'complaints.intro':
+    "Si tu n'es pas d'accord avec l'encadrement, le logement ou une décision, tu peux le dire ici. Une réclamation n'a aucune conséquence sur ta place.",
+  'complaints.whoReads':
+    "Ta réclamation est transmise au service compétent — pas aux personnes qui t'encadrent dans ton logement.",
+  'complaints.subjectLabel': "De quoi s'agit-il ?",
+  'complaints.subject.STAFF': "La façon dont j'ai été traité·e",
+  'complaints.subject.ACCOMMODATION': 'Le logement ou son règlement',
+  'complaints.subject.DECISION': 'Une décision me concernant',
+  'complaints.subject.OTHER': 'Autre chose',
+  'complaints.bodyLabel': "Que s'est-il passé ?",
+  'complaints.bodyPlaceholder': "Décris ce qui s'est passé : quand, où et qui était impliqué.",
+  'complaints.anonymousLabel': 'Envoyer anonymement',
+  'complaints.anonymousHint':
+    "Anonyme signifie que ton nom n'apparaît pas. Nous ne pourrons alors pas te répondre, et la réclamation n'apparaîtra pas sous « Tes signalements ».",
+  'complaints.submit': 'Envoyer la réclamation',
+  'complaints.tooShort': "Décris brièvement de quoi il s'agit (au moins 10 caractères).",
+  'complaints.sent':
+    'Ta réclamation a bien été reçue. Tu verras la réponse sous « Tes signalements ».',
+  'complaints.sentAnonymous': 'Ta réclamation anonyme a bien été reçue.',
   'reports.open': 'Ouvert',
   'reports.done': 'Résolu',
   'reports.pending': 'L’équipe examine ce signalement.',

@@ -96,6 +96,7 @@ model Resident {
   /// endpoint already had, so nobody's visibility widens on migration.
   profileVisibility ProfileVisibility @default(ROOMMATES)
 
+  complaints      Complaint[]
   messageThread   MessageThread?
   messagesWritten Message[]      @relation("MessageAuthor")
 
@@ -232,6 +233,68 @@ model ResidentDocumentBlob {
 /// and making them pick a thread is asking them to do the filing for us. Staff
 /// get the whole history with that person in one place, which is also how they
 /// avoid asking something a colleague already answered.
+/// A complaint about the ORGANISATION — never about a roommate.
+///
+/// The report form already routes a dripping tap to the maintenance board and
+/// a roommate conflict to the incident ladder. Neither fits an objection to how
+/// AOZ itself acted, and filing one as an Incident would be actively harmful:
+/// that ladder escalates TOWARD a resident and ends in FORMAL_MEASURE, so
+/// complaining about staff would open a case against the person complaining.
+///
+/// The City's Eigentümerstrategie fixes "Information und Beschwerdestellen" as
+/// a minimum standard, and AOZ runs a central Beschwerdestelle that logged 242
+/// complaints in 2025 — 38% of them about Unterbringung und Zusammenleben. This
+/// table is the product's side of that obligation.
+///
+/// @see lib/auth/role-policy.ts — COMPLAINT_PERMISSIONS, and why oversight
+/// over every care domain deliberately does NOT grant them.
+model Complaint {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// NULL when filed anonymously. A person objecting to the organisation that
+  /// houses them is in a position where being identifiable is itself a cost,
+  /// so anonymity has to be available — the same reason the satisfaction
+  /// check-in is anonymous. The trade-off is real and stated in the form:
+  /// nobody can write back to an anonymous complaint, and it cannot appear in
+  /// "Deine Meldungen".
+  residentId String?
+  resident   Resident? @relation(fields: [residentId], references: [id], onDelete: SetNull)
+
+  subject ComplaintSubject
+  body    String
+
+  status ComplaintStatus @default(OPEN)
+
+  /// What was written back. Shown to the resident in their own report list —
+  /// an answer stored and never rendered is the same as no answer.
+  response          String?
+  respondedAt       DateTime?
+  respondedByUserId String?
+  respondedBy       User?     @relation("ComplaintRespondedBy", fields: [respondedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([residentId])
+  @@index([createdAt])
+}
+
+/// What the complaint is about. Deliberately coarse: a complaints form is not
+/// a taxonomy exercise, and a resident should not have to classify their own
+/// grievance precisely before being allowed to make it.
+enum ComplaintSubject {
+  STAFF // How I was treated by someone working here
+  ACCOMMODATION // The accommodation itself, or its rules
+  DECISION // A decision that was made about me
+  OTHER
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_REVIEW
+  ANSWERED
+}
+
 model MessageThread {
   id         String   @id @default(cuid())
   residentId String   @unique
@@ -1001,6 +1064,7 @@ model User {
   applicationsSupported OpportunityApplication[] @relation("ApplicationSupportedBy")
   checkInsCollected     SatisfactionCheckIn[]    @relation("CheckInCollectedBy")
   documentsUploaded     ResidentDocument[]       @relation("DocumentUploadedBy")
+  complaintsAnswered    Complaint[]              @relation("ComplaintRespondedBy")
   // Login credentials (email + password) live on Account, never here.
   account               Account?
 

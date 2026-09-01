@@ -56,6 +56,28 @@ export const de = {
   'reports.showAll': 'Alle Meldungen anzeigen',
   'reports.empty': 'Du hast noch nichts gemeldet.',
   'reports.new': 'Neu melden',
+  // Beschwerde über die Organisation — nicht über Mitbewohnende.
+  'nav.complaints': 'Beschwerde',
+  'complaints.title': 'Beschwerde über die Betreuung',
+  'complaints.intro':
+    'Wenn du mit der Betreuung, der Unterkunft oder einer Entscheidung nicht einverstanden bist, kannst du das hier sagen. Eine Beschwerde hat keine Folgen für deinen Platz.',
+  'complaints.whoReads':
+    'Deine Beschwerde geht an die zuständige Stelle — nicht an die Betreuungspersonen in deiner Unterkunft.',
+  'complaints.subjectLabel': 'Worum geht es?',
+  'complaints.subject.STAFF': 'Wie ich behandelt wurde',
+  'complaints.subject.ACCOMMODATION': 'Die Unterkunft oder ihre Regeln',
+  'complaints.subject.DECISION': 'Eine Entscheidung über mich',
+  'complaints.subject.OTHER': 'Etwas anderes',
+  'complaints.bodyLabel': 'Was ist passiert?',
+  'complaints.bodyPlaceholder': 'Beschreibe, was vorgefallen ist: wann, wo und wer beteiligt war.',
+  'complaints.anonymousLabel': 'Anonym einreichen',
+  'complaints.anonymousHint':
+    'Anonym heisst: dein Name steht nicht dabei. Wir können dir dann aber nicht antworten, und die Beschwerde erscheint nicht unter "Deine Meldungen".',
+  'complaints.submit': 'Beschwerde einreichen',
+  'complaints.tooShort': 'Bitte beschreibe kurz, worum es geht (mindestens 10 Zeichen).',
+  'complaints.sent':
+    'Deine Beschwerde ist eingegangen. Du siehst die Antwort unter "Deine Meldungen".',
+  'complaints.sentAnonymous': 'Deine anonyme Beschwerde ist eingegangen.',
   'reports.open': 'Offen',
   'reports.done': 'Erledigt',
   'reports.pending': 'Das Team prüft diese Meldung aktuell.',
