@@ -27,14 +27,21 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
+const mockUserFindFirst = jest.fn()
+const mockUserInsertReturning = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: {
-      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
-      create: (...args: unknown[]) => mockUserCreate(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: {
+        findFirst: (...args: unknown[]) => mockUserFindFirst(...args),
+      },
     },
+    insert: jest.fn(() => ({
+      values: jest.fn((v: unknown) => ({
+        returning: (): Promise<unknown[]> => mockUserInsertReturning(v),
+      })),
+    })),
   },
 }))
 
@@ -231,16 +238,18 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
   })
 
   test('creates staff user with provided code', async () => {
-    mockUserFindUnique.mockResolvedValue(null) // code not taken
+    mockUserFindFirst.mockResolvedValue(null) // code not taken
     // No role in the request, so the new account gets the NARROWEST one.
     // This previously expected ADMIN, pinning in place the behaviour that made
     // every one of the 23 staff accounts in production a Leitung.
-    mockUserCreate.mockResolvedValue({
-      id: 'new-1',
-      code: `${BRAND.codePrefix}CUSTOM`,
-      name: 'New Staff',
-      role: 'BETREUUNG',
-    })
+    mockUserInsertReturning.mockResolvedValue([
+      {
+        id: 'new-1',
+        code: `${BRAND.codePrefix}CUSTOM`,
+        name: 'New Staff',
+        role: 'BETREUUNG',
+      },
+    ])
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: 'New Staff',
@@ -256,29 +265,29 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     expect(body.user.name).toBe('New Staff')
     expect(body.user.role).toBe('BETREUUNG')
 
-    expect(mockUserCreate).toHaveBeenCalledWith(
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          code: `${BRAND.codePrefix}CUSTOM`,
-          name: 'New Staff',
-          role: 'BETREUUNG',
-          active: true,
-        }),
+        code: `${BRAND.codePrefix}CUSTOM`,
+        name: 'New Staff',
+        role: 'BETREUUNG',
+        active: true,
       }),
     )
   })
 
   test('generates code when none provided', async () => {
     // First findUnique (code gen check) returns null (code available)
-    mockUserFindUnique
+    mockUserFindFirst
       .mockResolvedValueOnce(null) // generated code is free
       .mockResolvedValueOnce(null) // uniqueness check passes
-    mockUserCreate.mockResolvedValue({
-      id: 'new-2',
-      code: `${BRAND.codePrefix}GEN001`,
-      name: 'Auto Code',
-      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
-    })
+    mockUserInsertReturning.mockResolvedValue([
+      {
+        id: 'new-2',
+        code: `${BRAND.codePrefix}GEN001`,
+        name: 'Auto Code',
+        role: 'BETREUUNG',
+      },
+    ])
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', { name: 'Auto Code' })
 
@@ -292,7 +301,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
   test('returns 409 when code already exists', async () => {
     // For provided code: uniqueness check finds existing user
-    mockUserFindUnique.mockResolvedValue({ id: 'existing' })
+    mockUserFindFirst.mockResolvedValue({ id: 'existing' })
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: 'Duplicate',
@@ -308,7 +317,7 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
   test('returns 500 when all code generation attempts fail', async () => {
     // All generated codes collide
-    mockUserFindUnique.mockResolvedValue({ id: 'existing' })
+    mockUserFindFirst.mockResolvedValue({ id: 'existing' })
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: 'No Code Available',
@@ -323,8 +332,8 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
   })
 
   test('returns 500 when database create fails', async () => {
-    mockUserFindUnique.mockResolvedValue(null) // code available
-    mockUserCreate.mockRejectedValue(new Error('DB error'))
+    mockUserFindFirst.mockResolvedValue(null) // code available
+    mockUserInsertReturning.mockRejectedValue(new Error('DB error'))
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: 'DB Fail',
@@ -340,13 +349,15 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
   })
 
   test('uppercases provided code', async () => {
-    mockUserFindUnique.mockResolvedValue(null)
-    mockUserCreate.mockResolvedValue({
-      id: 'new-3',
-      code: `${BRAND.codePrefix}LOWER1`,
-      name: 'Lower',
-      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
-    })
+    mockUserFindFirst.mockResolvedValue(null)
+    mockUserInsertReturning.mockResolvedValue([
+      {
+        id: 'new-3',
+        code: `${BRAND.codePrefix}LOWER1`,
+        name: 'Lower',
+        role: 'BETREUUNG',
+      },
+    ])
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: 'Lower',
@@ -357,21 +368,21 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
     const body = await res.json()
 
     expect(res.status).toBe(200)
-    expect(mockUserCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ code: `${BRAND.codePrefix}LOWER1` }),
-      }),
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ code: `${BRAND.codePrefix}LOWER1` }),
     )
   })
 
   test('trims name before storing', async () => {
-    mockUserFindUnique.mockResolvedValue(null)
-    mockUserCreate.mockResolvedValue({
-      id: 'new-4',
-      code: `${BRAND.codePrefix}TRIM01`,
-      name: 'Trimmed Name',
-      viewer: { role: 'ADMIN', scope: 'ALL_DOMAINS', isSystemAdmin: true },
-    })
+    mockUserFindFirst.mockResolvedValue(null)
+    mockUserInsertReturning.mockResolvedValue([
+      {
+        id: 'new-4',
+        code: `${BRAND.codePrefix}TRIM01`,
+        name: 'Trimmed Name',
+        role: 'BETREUUNG',
+      },
+    ])
 
     const req = createJsonRequest('http://localhost:3001/api/auth/register', {
       name: '  Trimmed Name  ',
@@ -380,10 +391,8 @@ describe('POST /api/auth/register (admin-only staff provisioning)', () => {
 
     await registerPOST(req)
 
-    expect(mockUserCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ name: 'Trimmed Name' }),
-      }),
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Trimmed Name' }),
     )
   })
 })

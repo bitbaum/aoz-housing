@@ -7,7 +7,7 @@
  */
 
 import { CATEGORY_DECISION_MODE, DECISION_MODE_IS_VOTED } from '../decisions'
-import type { DecisionMode } from '@prisma/client'
+import type { DecisionMode } from '@/lib/db'
 
 describe('DECISION_MODE_IS_VOTED', () => {
   it('marks staff-decided proposals as never voted on', () => {

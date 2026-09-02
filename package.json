@@ -27,7 +27,6 @@
   "dependencies": {
     "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",
     "@paralleldrive/cuid2": "^3.3.0",
-    "@prisma/client": "^5.17.0",
     "@sentry/nextjs": "^10.71.0",
     "@types/bcryptjs": "^2.4.6",
     "ai-kit": "github:bitbaum/ai-kit#v0.6.2",
@@ -66,7 +65,6 @@
     "jest-environment-jsdom": "^30.4.1",
     "postcss": "^8.5.26",
     "prettier": "3.9.6",
-    "prisma": "^5.17.0",
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

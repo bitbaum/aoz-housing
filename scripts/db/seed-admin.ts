@@ -2,18 +2,16 @@
  * Seed Initial Admin User (code-based auth)
  *
  * Usage:
- *   npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+ *   npm run db:seed:admin
  *
  * Or with custom code:
- *   ADMIN_CODE=AOCH-CUSTOM npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts
+ *   ADMIN_CODE=AOCH-CUSTOM npm run db:seed:admin
  */
 
-import { PrismaClient } from '@prisma/client'
-// Relative, not '@/': this runs under ts-node, which does not apply tsconfig paths.
-import { BRAND } from '../src/lib/config/brand'
-import { WIDEST_CAPABILITIES } from '../src/lib/auth/role-policy'
-
-const prisma = new PrismaClient()
+import { eq } from 'drizzle-orm'
+import { db, user, account } from '@/lib/db'
+import { BRAND } from '@/lib/config/brand'
+import { WIDEST_CAPABILITIES } from '@/lib/auth/role-policy'
 
 // Derived from the active brand — a rebrand must not silently orphan the seeded
 // admin, which is exactly what happened when the default moved to AOCH.
@@ -34,8 +32,8 @@ async function main() {
   console.log('Creating admin user...')
 
   // Check if admin already exists by code
-  const existingByCode = await prisma.user.findUnique({
-    where: { code: ADMIN_CODE },
+  const existingByCode = await db.query.user.findFirst({
+    where: eq(user.code, ADMIN_CODE),
   })
 
   if (existingByCode) {
@@ -46,18 +44,15 @@ async function main() {
   // Email lives on the Account, not the User — an admin seeded under a former
   // code prefix is found through the account that carries the same email.
   const existingByEmail = ADMIN_EMAIL
-    ? await prisma.account.findUnique({
-        where: { email: ADMIN_EMAIL.toLowerCase() },
-        select: { userId: true },
+    ? await db.query.account.findFirst({
+        where: eq(account.email, ADMIN_EMAIL.toLowerCase()),
+        columns: { userId: true },
       })
     : null
 
   if (existingByEmail?.userId) {
     // Update existing user to have a code
-    await prisma.user.update({
-      where: { id: existingByEmail.userId },
-      data: { code: ADMIN_CODE },
-    })
+    await db.update(user).set({ code: ADMIN_CODE }).where(eq(user.id, existingByEmail.userId))
     console.log(`Updated existing admin with code: ${ADMIN_CODE}`)
     return
   }
@@ -73,14 +68,18 @@ async function main() {
   // and an unreachable settings page. The migration only backfilled rows that
   // already existed; seeding is the other way an admin is born, and it was not
   // updated. Spreading the SSOT means a third axis cannot repeat this.
-  const admin = await prisma.user.create({
-    data: {
-      code: ADMIN_CODE,
-      name: ADMIN_NAME,
-      ...WIDEST_CAPABILITIES,
-      active: true,
-      account: { create: { email: ADMIN_EMAIL.toLowerCase() } },
-    },
+  const admin = await db.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(user)
+      .values({
+        code: ADMIN_CODE,
+        name: ADMIN_NAME,
+        ...WIDEST_CAPABILITIES,
+        active: true,
+      })
+      .returning()
+    await tx.insert(account).values({ email: ADMIN_EMAIL.toLowerCase(), userId: created.id })
+    return created
   })
 
   console.log('Admin user created successfully!')
@@ -94,10 +93,11 @@ async function main() {
 }
 
 main()
+  .then(() => {
+    // The pg Pool keeps the event loop alive — exit explicitly on success.
+    process.exit(0)
+  })
   .catch((e) => {
     console.error('Error creating admin user:', e)
     process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
   })

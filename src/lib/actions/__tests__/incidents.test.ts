@@ -6,8 +6,6 @@
  * createIncident/addFollowUp use redirect() or are form-data-dependent.
  */
 
-import { prisma } from '@/lib/db'
-import { logAudit } from '@/lib/audit'
 import {
   getResidentIncidentStats,
   getHousingUnitIncidentHistory,
@@ -19,22 +17,33 @@ import {
 // MOCKS
 // =============================================================================
 
+// db.$count(incident, …) is called for "reported" then "as subject", then
+// db.$count(incidentInvolvement, …) for "involved" — order is deterministic
+// (Promise.all array), so Once-chains keep the old per-model discrimination.
+const mockCount = jest.fn()
+const mockIncidentFindMany = jest.fn()
+const mockIncidentFindFirst = jest.fn()
+const mockUpdateSet = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    incident: {
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      create: jest.fn(),
-      count: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      incident: {
+        findMany: (...a: unknown[]) => mockIncidentFindMany(...a),
+        findFirst: (...a: unknown[]) => mockIncidentFindFirst(...a),
+      },
     },
-    incidentInvolvement: {
-      count: jest.fn(),
-    },
-    incidentFollowUp: {
-      create: jest.fn(),
-    },
-    auditLog: { create: jest.fn() },
+    $count: (table: unknown, where: unknown) => mockCount(table, where),
+    // Subquery builder used inside inArray(); never executed because
+    // findMany is mocked — it only needs to be chainable.
+    select: jest.fn(() => ({ from: jest.fn(() => ({ where: jest.fn(() => ({})) })) })),
+    update: jest.fn(() => ({
+      set: (v: unknown) => {
+        mockUpdateSet(v)
+        return { where: () => Promise.resolve([]) }
+      },
+    })),
   },
 }))
 
@@ -88,8 +97,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -100,11 +107,11 @@ beforeEach(() => {
 
 describe('getResidentIncidentStats', () => {
   it('returns zero counts when resident has no incidents', async () => {
-    ;(mockPrisma.incident.count as jest.Mock)
+    mockCount
       .mockResolvedValueOnce(0) // reported
       .mockResolvedValueOnce(0) // as subject
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0) // involved
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([]) // unique incidents
+      .mockResolvedValueOnce(0) // involved
+    mockIncidentFindMany.mockResolvedValue([]) // unique incidents
 
     const stats = await getResidentIncidentStats('res-1')
 
@@ -117,11 +124,11 @@ describe('getResidentIncidentStats', () => {
   })
 
   it('returns correct counts for a resident with mixed incident involvement', async () => {
-    ;(mockPrisma.incident.count as jest.Mock)
+    mockCount
       .mockResolvedValueOnce(3) // reported
       .mockResolvedValueOnce(1) // as subject
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(2) // involved
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([
+      .mockResolvedValueOnce(2) // involved
+    mockIncidentFindMany.mockResolvedValue([
       { id: 'inc-1' },
       { id: 'inc-2' },
       { id: 'inc-3' },
@@ -145,7 +152,7 @@ describe('getResidentIncidentStats', () => {
 
 describe('getHousingUnitIncidentHistory', () => {
   it('returns empty data for a unit with no incidents', async () => {
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue([])
+    mockIncidentFindMany.mockResolvedValue([])
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -186,7 +193,7 @@ describe('getHousingUnitIncidentHistory', () => {
         involvedResidents: [],
       },
     ]
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue(incidents)
+    mockIncidentFindMany.mockResolvedValue(incidents)
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -221,7 +228,7 @@ describe('getHousingUnitIncidentHistory', () => {
         involvedResidents: [],
       },
     ]
-    ;(mockPrisma.incident.findMany as jest.Mock).mockResolvedValue(incidents)
+    mockIncidentFindMany.mockResolvedValue(incidents)
 
     const result = await getHousingUnitIncidentHistory('hu-1')
 
@@ -235,11 +242,17 @@ describe('getHousingUnitIncidentHistory', () => {
 
 describe('getIncidentsNeedingFollowUp', () => {
   it('returns categorized incidents for follow-up', async () => {
-    const overdueIncident = { id: 'inc-overdue', nextFollowUpDate: new Date('2025-01-01') }
-    const dueSoonIncident = { id: 'inc-soon', nextFollowUpDate: new Date() }
-    const urgentIncident = { id: 'inc-urgent', followUpPriority: 'URGENT' }
+    // followUps rows are fetched (and counted in memory) where Prisma used
+    // a `_count` include, so the fixtures carry the (empty) relation.
+    const overdueIncident = {
+      id: 'inc-overdue',
+      nextFollowUpDate: new Date('2025-01-01'),
+      followUps: [],
+    }
+    const dueSoonIncident = { id: 'inc-soon', nextFollowUpDate: new Date(), followUps: [] }
+    const urgentIncident = { id: 'inc-urgent', followUpPriority: 'URGENT', followUps: [] }
 
-    ;(mockPrisma.incident.findMany as jest.Mock)
+    mockIncidentFindMany
       .mockResolvedValueOnce([overdueIncident]) // overdue
       .mockResolvedValueOnce([dueSoonIncident]) // dueSoon
       .mockResolvedValueOnce([urgentIncident]) // urgent
@@ -252,7 +265,7 @@ describe('getIncidentsNeedingFollowUp', () => {
   })
 
   it('returns empty arrays when no follow-ups needed', async () => {
-    ;(mockPrisma.incident.findMany as jest.Mock)
+    mockIncidentFindMany
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])

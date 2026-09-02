@@ -1,5 +1,5 @@
 import { tallyVotes, canHoldVote, computeSchedule, buildPolicySnapshot } from '../voting'
-import type { VoteChoice } from '@prisma/client'
+import type { VoteChoice } from '@/lib/db'
 import { DECISION_TIMING, THRESHOLD_APPROVAL_PERCENT } from '@/lib/config/decisions'
 
 function votes(spec: Partial<Record<VoteChoice, number>>) {

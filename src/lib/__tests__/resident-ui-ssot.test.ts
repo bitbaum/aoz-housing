@@ -18,7 +18,7 @@
  */
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import { toResidentUiSummary } from '@/lib/housing/resident-ui'
 
 /** Fields that must never reach a client component (and thus the flight payload). */

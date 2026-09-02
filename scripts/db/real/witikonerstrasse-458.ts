@@ -1,5 +1,5 @@
 /**
- * Real apartment: Witikonerstrasse 458 — data config for prisma/seed-real.ts.
+ * Real apartment: Witikonerstrasse 458 — data config for scripts/db/seed-real.ts.
  *
  * SSOT for the physical layout and who lives where. Login codes are NOT in
  * this file on purpose: they are generated at seed time and printed once —

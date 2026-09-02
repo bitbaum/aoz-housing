@@ -25,7 +25,7 @@
  * once. Committing them would publish three working staff logins.
  */
 
-import type { StaffRole, StaffScopeId } from '../../src/lib/auth/role-policy'
+import type { StaffRole, StaffScopeId } from '../../../src/lib/auth/role-policy'
 
 export interface RealStaffSeed {
   /** Shown wherever staff are listed; never a bare code. */

@@ -5,8 +5,8 @@
  *
  * To add a new factor:
  * 1. Add to HOUSING_FACTORS below
- * 2. Add corresponding field to Prisma schema (if not using JSON storage)
- * 3. Run prisma migrate
+ * 2. Add corresponding column in src/lib/db/schema.ts (if not using JSON storage)
+ * 3. Run npm run db:generate + db:migrate
  *
  * Everything else (forms, labels, matching) auto-generates from this config.
  */

@@ -17,24 +17,38 @@ jest.mock('next/headers', () => ({
   }),
 }))
 
-// Transaction mock objects — these are used inside the $transaction callback
+// Transaction mock objects — these are used inside the db.transaction callback.
+// The tx inserts the check-in and (for low ratings) an incident — both awaited
+// on .values() — and updates the placement via .set().where(). Create mocks
+// receive the values payload; the update mock receives { set, where }.
 const mockTxSatisfactionCheckInCreate = jest.fn()
 const mockTxPlacementUpdate = jest.fn()
 const mockTxIncidentCreate = jest.fn()
 const tx = {
-  satisfactionCheckIn: { create: (...args: unknown[]) => mockTxSatisfactionCheckInCreate(...args) },
-  placement: { update: (...args: unknown[]) => mockTxPlacementUpdate(...args) },
-  incident: { create: (...args: unknown[]) => mockTxIncidentCreate(...args) },
+  insert: (table: unknown) => ({
+    values: (v: unknown): Promise<unknown> =>
+      table === satisfactionCheckInTable
+        ? mockTxSatisfactionCheckInCreate(v)
+        : mockTxIncidentCreate(v),
+  }),
+  update: () => ({
+    set: (v: unknown) => ({
+      where: (w: unknown): Promise<unknown> => mockTxPlacementUpdate({ set: v, where: w }),
+    }),
+  }),
 }
 
-const mockFindUnique = jest.fn()
+const mockFindFirst = jest.fn()
 const mockTransaction = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findUnique: (...args: unknown[]) => mockFindUnique(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: {
+        findFirst: (...args: unknown[]) => mockFindFirst(...args),
+      },
     },
-    $transaction: (...args: unknown[]) => mockTransaction(...args),
+    transaction: (...args: unknown[]) => mockTransaction(...args),
   },
 }))
 
@@ -62,6 +76,11 @@ jest.mock('@/lib/email', () => ({
 
 // --- Import after mocks ---
 import { POST, GET } from '../satisfaction/route'
+import {
+  placement as placementTable,
+  satisfactionCheckIn as satisfactionCheckInTable,
+} from '@/lib/db'
+import { eq } from 'drizzle-orm'
 
 // --- Helpers ---
 
@@ -118,7 +137,7 @@ describe('POST /api/portal/satisfaction', () => {
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
     expect(body.error).toBe(ERROR_MESSAGES.NOT_AUTHENTICATED)
-    expect(mockFindUnique).not.toHaveBeenCalled()
+    expect(mockFindFirst).not.toHaveBeenCalled()
   })
 
   test('returns 400 when validation fails', async () => {
@@ -132,13 +151,13 @@ describe('POST /api/portal/satisfaction', () => {
     expect(res.status).toBe(400)
     expect(body.success).toBe(false)
     expect(body.error).toBe(ERROR_MESSAGES.INVALID_RATING)
-    expect(mockFindUnique).not.toHaveBeenCalled()
+    expect(mockFindFirst).not.toHaveBeenCalled()
   })
 
   test('returns 404 when resident not found', async () => {
     mockCookieGet.mockReturnValue({ value: 'UNKNOWN' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 4, concerns: null } })
-    mockFindUnique.mockResolvedValue(null)
+    mockFindFirst.mockResolvedValue(null)
 
     const req = createJsonRequest({ rating: 4 })
     const res = await POST(req)
@@ -152,7 +171,7 @@ describe('POST /api/portal/satisfaction', () => {
   test('returns 400 when no active placement', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-002' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 3, concerns: null } })
-    mockFindUnique.mockResolvedValue(RESIDENT_NO_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_NO_PLACEMENT)
 
     const req = createJsonRequest({ rating: 3 })
     const res = await POST(req)
@@ -166,7 +185,7 @@ describe('POST /api/portal/satisfaction', () => {
   test('saves rating and returns success with rating value', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 4, concerns: null } })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 4 })
     const res = await POST(req)
@@ -176,20 +195,20 @@ describe('POST /api/portal/satisfaction', () => {
     expect(body.success).toBe(true)
     expect(body.rating).toBe(4)
 
-    // Verify satisfactionCheckIn.create was called
-    expect(mockTxSatisfactionCheckInCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    // Verify the check-in insert was called
+    expect(mockTxSatisfactionCheckInCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         placementId: 'pl-1',
         checkInType: 'AD_HOC',
         overallSatisfaction: 4,
         isAnonymous: true,
       }),
-    })
+    )
 
-    // Verify placement.update was called
+    // Verify the placement update was called
     expect(mockTxPlacementUpdate).toHaveBeenCalledWith({
-      where: { id: 'pl-1' },
-      data: { satisfactionRating: 4 },
+      set: { satisfactionRating: 4 },
+      where: eq(placementTable.id, 'pl-1'),
     })
 
     // Should NOT create an incident for rating > 2
@@ -199,7 +218,7 @@ describe('POST /api/portal/satisfaction', () => {
   test('creates incident for low rating (rating = 2)', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 2, concerns: 'Lärm nachts' } })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 2, concerns: 'Lärm nachts' })
     const res = await POST(req)
@@ -210,25 +229,25 @@ describe('POST /api/portal/satisfaction', () => {
     expect(body.rating).toBe(2)
 
     // Should create an incident with MEDIUM severity for rating 2
-    expect(mockTxIncidentCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockTxIncidentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         housingUnitId: 'hu-1',
         reportedById: 'res-1',
         category: 'WELLBEING',
         type: 'LOW_SATISFACTION',
         severity: 'MEDIUM',
       }),
-    })
+    )
 
     // Description should include the concerns text
-    const incidentData = mockTxIncidentCreate.mock.calls[0][0].data
+    const incidentData = mockTxIncidentCreate.mock.calls[0][0]
     expect(incidentData.description).toContain('Lärm nachts')
   })
 
   test('creates incident with HIGH severity for rating = 1', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 1, concerns: null } })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 1 })
     const res = await POST(req)
@@ -237,23 +256,23 @@ describe('POST /api/portal/satisfaction', () => {
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
 
-    expect(mockTxIncidentCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockTxIncidentCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         severity: 'HIGH',
         category: 'WELLBEING',
         type: 'LOW_SATISFACTION',
       }),
-    })
+    )
 
     // No concerns provided — should use fallback description
-    const incidentData = mockTxIncidentCreate.mock.calls[0][0].data
+    const incidentData = mockTxIncidentCreate.mock.calls[0][0]
     expect(incidentData.description).toContain('keine Details angegeben')
   })
 
   test('does not create incident for rating = 3', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 3, concerns: null } })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 3 })
     await POST(req)
@@ -267,19 +286,19 @@ describe('POST /api/portal/satisfaction', () => {
       success: true,
       data: { rating: 4, concerns: 'Küche ist oft schmutzig' },
     })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const req = createJsonRequest({ rating: 4, concerns: 'Küche ist oft schmutzig' })
     await POST(req)
 
-    const checkInData = mockTxSatisfactionCheckInCreate.mock.calls[0][0].data
+    const checkInData = mockTxSatisfactionCheckInCreate.mock.calls[0][0]
     expect(checkInData.concerns).toBe('Küche ist oft schmutzig')
   })
 
   test('returns 500 on database transaction error', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
     mockSafeParse.mockReturnValue({ success: true, data: { rating: 5, concerns: null } })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockTransaction.mockRejectedValue(new Error('Transaction failed'))
 
     const req = createJsonRequest({ rating: 5 })
@@ -312,7 +331,7 @@ describe('GET /api/portal/satisfaction', () => {
 
   test('returns null values when resident not found', async () => {
     mockCookieGet.mockReturnValue({ value: 'UNKNOWN' })
-    mockFindUnique.mockResolvedValue(null)
+    mockFindFirst.mockResolvedValue(null)
 
     const res = await GET()
     const body = await res.json()
@@ -324,7 +343,7 @@ describe('GET /api/portal/satisfaction', () => {
 
   test('returns null values when no active placement', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-002' })
-    mockFindUnique.mockResolvedValue(RESIDENT_NO_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_NO_PLACEMENT)
 
     const res = await GET()
     const body = await res.json()
@@ -336,7 +355,7 @@ describe('GET /api/portal/satisfaction', () => {
 
   test('returns lastCheckIn and rating when data exists', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const res = await GET()
     const body = await res.json()
@@ -348,7 +367,7 @@ describe('GET /api/portal/satisfaction', () => {
 
   test('returns null lastCheckIn when no check-ins exist', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
       placements: [

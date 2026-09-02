@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { findAdminNavLink, expectNotFoundPage } from './helpers'
 
 // storageState from playwright.config handles staff auth
-// Seed data (prisma/seed.ts) provides 4 maintenance requests:
+// Seed data (scripts/db/seed.ts) provides 4 maintenance requests:
 //   - "Dusche tropft"              → OPEN    (ZH-006)
 //   - "Heizung Zimmer 2 defekt"    → ASSIGNED (ZH-002)
 //   - "Steckdose funktioniert nicht" → COMPLETED (ZH-003)

@@ -12,21 +12,21 @@
  * that mints identities into it must not exist — not "must be hard to reach".
  */
 
+const mockAccountFindFirst = jest.fn()
+const mockTransaction = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    account: { findUnique: jest.fn() },
-    $transaction: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      account: { findFirst: (...a: unknown[]) => mockAccountFindFirst(...a) },
+    },
+    transaction: (...a: unknown[]) => mockTransaction(...a),
   },
 }))
 
-import { prisma } from '@/lib/db'
 import { BRAND } from '@/lib/config/brand'
 import { registerWithNewHousehold } from '@/lib/auth/household'
-
-const mockPrisma = prisma as unknown as {
-  account: { findUnique: jest.Mock }
-  $transaction: jest.Mock
-}
 
 describe('self-serve household on an AOZ deployment', () => {
   it('is off in the shipped AOZ configuration', () => {
@@ -48,7 +48,7 @@ describe('self-serve household on an AOZ deployment', () => {
     expect(result.success).toBe(false)
     // The point is not just the return value: nothing may be written, and the
     // refusal must land before any database work is attempted at all.
-    expect(mockPrisma.$transaction).not.toHaveBeenCalled()
-    expect(mockPrisma.account.findUnique).not.toHaveBeenCalled()
+    expect(mockTransaction).not.toHaveBeenCalled()
+    expect(mockAccountFindFirst).not.toHaveBeenCalled()
   })
 })

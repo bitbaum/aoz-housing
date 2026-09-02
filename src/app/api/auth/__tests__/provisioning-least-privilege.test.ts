@@ -27,14 +27,21 @@ jest.mock('@/lib/auth/code-generation', () => ({
   generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
+const mockUserFindFirst = jest.fn()
+const mockUserInsertReturning = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: {
-      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
-      create: (...args: unknown[]) => mockUserCreate(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: {
+        findFirst: (...args: unknown[]) => mockUserFindFirst(...args),
+      },
     },
+    insert: jest.fn(() => ({
+      values: jest.fn((v: unknown) => ({
+        returning: (): Promise<unknown[]> => mockUserInsertReturning(v),
+      })),
+    })),
   },
 }))
 
@@ -54,13 +61,15 @@ function post(body: Record<string, unknown>): NextRequest {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockUserFindUnique.mockResolvedValue(null)
-  mockUserCreate.mockResolvedValue({
-    id: 'u1',
-    code: 'AOZ-GEN001',
-    name: 'Neue Person',
-    role: 'BETREUUNG',
-  })
+  mockUserFindFirst.mockResolvedValue(null)
+  mockUserInsertReturning.mockResolvedValue([
+    {
+      id: 'u1',
+      code: 'AOZ-GEN001',
+      name: 'Neue Person',
+      role: 'BETREUUNG',
+    },
+  ])
 })
 
 describe('staff provisioning', () => {
@@ -76,7 +85,7 @@ describe('staff provisioning', () => {
     const response = await POST(post({ name: 'Neue Person' }))
 
     expect(response.status).toBe(403)
-    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockUserInsertReturning).not.toHaveBeenCalled()
   })
 
   it('refuses an unauthenticated caller', async () => {
@@ -85,7 +94,7 @@ describe('staff provisioning', () => {
     const response = await POST(post({ name: 'Neue Person' }))
 
     expect(response.status).toBe(401)
-    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockUserInsertReturning).not.toHaveBeenCalled()
   })
 
   it('gives an unspecified role the NARROWEST role, never Leitung', async () => {
@@ -98,10 +107,10 @@ describe('staff provisioning', () => {
 
     await POST(post({ name: 'Neue Person' }))
 
-    expect(mockUserCreate).toHaveBeenCalledTimes(1)
-    const [args] = mockUserCreate.mock.calls[0]
-    expect(args.data.role).toBe('BETREUUNG')
-    expect(args.data.role).not.toBe('ADMIN')
+    expect(mockUserInsertReturning).toHaveBeenCalledTimes(1)
+    const [values] = mockUserInsertReturning.mock.calls[0]
+    expect(values.role).toBe('BETREUUNG')
+    expect(values.role).not.toBe('ADMIN')
   })
 
   it('refuses the retired all-in-one role even when asked for explicitly', async () => {
@@ -118,7 +127,7 @@ describe('staff provisioning', () => {
     const response = await POST(post({ name: 'Neue Person', role: 'ADMIN' }))
 
     expect(response.status).toBe(400)
-    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockUserInsertReturning).not.toHaveBeenCalled()
   })
 
   it('defaults BOTH new axes to the narrow answer', async () => {
@@ -131,9 +140,9 @@ describe('staff provisioning', () => {
 
     await POST(post({ name: 'Neue Person' }))
 
-    const [args] = mockUserCreate.mock.calls[0]
-    expect(args.data.scope).toBe('OWN_DOMAIN')
-    expect(args.data.isSystemAdmin).toBe(false)
+    const [values] = mockUserInsertReturning.mock.calls[0]
+    expect(values.scope).toBe('OWN_DOMAIN')
+    expect(values.isSystemAdmin).toBe(false)
   })
 
   it('can describe Franziska: a Betreuerin who also sees everything', async () => {
@@ -148,10 +157,10 @@ describe('staff provisioning', () => {
 
     await POST(post({ name: 'Franziska Heimhuber', role: 'BETREUUNG', scope: 'ALL_DOMAINS' }))
 
-    const [args] = mockUserCreate.mock.calls[0]
-    expect(args.data.role).toBe('BETREUUNG')
-    expect(args.data.scope).toBe('ALL_DOMAINS')
-    expect(args.data.isSystemAdmin).toBe(false)
+    const [values] = mockUserInsertReturning.mock.calls[0]
+    expect(values.role).toBe('BETREUUNG')
+    expect(values.scope).toBe('ALL_DOMAINS')
+    expect(values.isSystemAdmin).toBe(false)
   })
 
   it('ignores a non-boolean isSystemAdmin rather than coercing it true', async () => {
@@ -164,8 +173,8 @@ describe('staff provisioning', () => {
 
     await POST(post({ name: 'Neue Person', isSystemAdmin: 'yes' }))
 
-    const [args] = mockUserCreate.mock.calls[0]
-    expect(args.data.isSystemAdmin).toBe(false)
+    const [values] = mockUserInsertReturning.mock.calls[0]
+    expect(values.isSystemAdmin).toBe(false)
   })
 
   it('rejects a role it does not recognise rather than falling back', async () => {
@@ -179,7 +188,7 @@ describe('staff provisioning', () => {
     const response = await POST(post({ name: 'Neue Person', role: 'SUPERUSER' }))
 
     expect(response.status).toBe(400)
-    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockUserInsertReturning).not.toHaveBeenCalled()
   })
 
   it('keeps the error generic enough not to confirm anything', async () => {

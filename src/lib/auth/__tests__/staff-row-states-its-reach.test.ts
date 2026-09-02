@@ -32,7 +32,7 @@ import fs from 'fs'
 import path from 'path'
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..')
-const SCAN_DIRS = ['src', 'prisma', 'scripts']
+const SCAN_DIRS = ['src', 'scripts']
 
 /** The axes a staff row carries beyond its role. Add one here when one exists. */
 const REACH_FIELDS = ['scope', 'isSystemAdmin'] as const
@@ -89,32 +89,50 @@ function sourceFiles(): string[] {
 }
 
 /**
- * The `data: { ... }` payload of each `prisma.user.create|upsert` in a file.
+ * The written payload of each `.insert(user).values(...)` chain in a file —
+ * the `.values(...)` argument plus, for upserts, the `.onConflictDoUpdate`
+ * argument. `.returning(...)` is deliberately EXCLUDED: it restates column
+ * names without writing them, so counting it would let a site pass by merely
+ * reading `scope` back.
  *
- * Brace-counted rather than regex-matched: a payload contains nested objects
- * (`account: { create: { ... } }`), and a non-greedy regex would stop at the
- * first inner `}` and report a payload that states nothing.
+ * Paren-counted rather than regex-matched: a payload contains nested objects
+ * and calls, and a non-greedy regex would stop at the first inner `)` and
+ * report a payload that states nothing.
  */
 function staffRowPayloads(source: string): string[] {
   const payloads: string[] = []
-  const callSite = /prisma\.user\.(create|upsert)\s*\(/g
+  // Both spellings live in the tree: `insert(user)` in lib/scripts, and
+  // `insert(userTable)` where a route's local variable shadows the table name.
+  const callSite = /\.\s*insert\(\s*(?:user|userTable)\s*\)/g
   let match: RegExpExecArray | null
 
   while ((match = callSite.exec(source)) !== null) {
-    let depth = 0
-    let end = source.length
-    for (let i = match.index + match[0].length - 1; i < source.length; i++) {
-      const ch = source[i]
-      if (ch === '(') depth++
-      else if (ch === ')') {
-        depth--
-        if (depth === 0) {
-          end = i
-          break
+    let payload = ''
+    let i = match.index + match[0].length
+    // Walk the fluent chain that follows the insert().
+    for (;;) {
+      const link = /^\s*\.\s*([A-Za-z_$][\w$]*)\s*\(/.exec(source.slice(i))
+      if (!link) break
+      const open = i + link[0].length - 1
+      let depth = 0
+      let end = source.length
+      for (let j = open; j < source.length; j++) {
+        const ch = source[j]
+        if (ch === '(') depth++
+        else if (ch === ')') {
+          depth--
+          if (depth === 0) {
+            end = j
+            break
+          }
         }
       }
+      if (link[1] === 'values' || link[1] === 'onConflictDoUpdate') {
+        payload += source.slice(open + 1, end) + '\n'
+      }
+      i = end + 1
     }
-    payloads.push(source.slice(match.index, end))
+    if (payload) payloads.push(payload)
   }
   return payloads
 }
@@ -122,7 +140,9 @@ function staffRowPayloads(source: string): string[] {
 function statesReach(payload: string): boolean {
   const spreads = payload.match(REACH_SPREAD) ?? []
   if (spreads.some((spread) => REACH_NAME.test(spread))) return true
-  return REACH_FIELDS.every((field) => new RegExp(`\\b${field}\\s*:`).test(payload))
+  // `[,:}\r\n]` and not just `:` — a payload may state a field in ES shorthand
+  // (`scope,`), the same syntax blind spot the role filter below documents.
+  return REACH_FIELDS.every((field) => new RegExp(`\\b${field}\\s*[,:}\\r\\n]`).test(payload))
 }
 
 describe('every staff-row creation site states its reach', () => {

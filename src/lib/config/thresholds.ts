@@ -230,7 +230,7 @@ export function getHealthLevel(score: number): HealthLevel {
 // =============================================================================
 
 /**
- * Row limits for Prisma queries, grouped by semantic context.
+ * Row limits for database queries, grouped by semantic context.
  * Distinct from DISPLAY_LIMITS (which cap rendered lists after data is fetched).
  */
 export const QUERY_LIMITS = {

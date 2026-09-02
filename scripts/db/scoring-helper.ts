@@ -18,12 +18,12 @@
  * Every demo, screenshot and "Algorithmus-Genauigkeit" panel built on that
  * data was therefore describing software that does not exist. The alias
  * problem is solved where it belongs — `ts-node -r tsconfig-paths/register`
- * in the prisma seed command — and the algorithm has exactly one home again.
+ * in the db:seed command — and the algorithm has exactly one home again.
  *
  * Guarded by `src/lib/__tests__/scoring-ssot.test.ts`.
  */
 
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import { calculateCompatibility } from '@/lib/compatibility/scoring'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 

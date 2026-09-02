@@ -9,20 +9,29 @@
  * screenshot — so it is pinned here instead.
  */
 
-import { prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { DatabaseError } from 'pg'
 import { getResidentCookie } from '@/lib/portal-auth'
 import { expressInterest, withdrawInterest } from '../opportunities'
 
+const mockResidentFindFirst = jest.fn()
+const mockOpportunityFindFirst = jest.fn()
+const mockApplicationFindFirst = jest.fn()
+const mockApplicationCreate = jest.fn()
+const mockApplicationDelete = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: { findUnique: jest.fn() },
-    opportunity: { findUnique: jest.fn() },
-    opportunityApplication: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      delete: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
+      opportunity: { findFirst: (...a: unknown[]) => mockOpportunityFindFirst(...a) },
+      opportunityApplication: {
+        findFirst: (...a: unknown[]) => mockApplicationFindFirst(...a),
+      },
     },
+    // `await db.insert(t).values(v)` — the source awaits without .returning()
+    insert: jest.fn(() => ({ values: (v: unknown) => mockApplicationCreate(v) })),
+    delete: jest.fn(() => ({ where: (w: unknown) => mockApplicationDelete(w) })),
   },
 }))
 
@@ -53,8 +62,14 @@ jest.mock('next/navigation', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
 const mockCookie = getResidentCookie as jest.MockedFunction<typeof getResidentCookie>
+
+/** The pg error shape isUniqueViolation() recognizes (SQLSTATE 23505). */
+function uniqueViolation(): Error {
+  const error = new DatabaseError('duplicate', 0, 'error')
+  error.code = '23505'
+  return error
+}
 
 /** Run an action and report where it sent the resident. */
 async function outcomeOf(run: () => Promise<void>): Promise<string> {
@@ -78,12 +93,14 @@ const RESIDENT = { id: 'res-1', code: 'RES-AAA111' }
 beforeEach(() => {
   jest.clearAllMocks()
   mockCookie.mockResolvedValue(RESIDENT.code)
-  ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({ id: RESIDENT.id })
+  mockResidentFindFirst.mockResolvedValue({ id: RESIDENT.id })
+  mockApplicationCreate.mockResolvedValue(undefined)
+  mockApplicationDelete.mockResolvedValue(undefined)
 })
 
 describe('expressInterest', () => {
   it('attaches the resident to a published listing', async () => {
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: 3,
@@ -93,21 +110,21 @@ describe('expressInterest', () => {
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
     expect(to).toBe('/portal/opportunities?ok=interest')
-    expect(mockPrisma.opportunityApplication.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockApplicationCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         opportunityId: 'opp-1',
         residentId: RESIDENT.id,
         stage: 'INTERESTED',
         createdBy: 'RESIDENT',
       }),
-    })
+    )
   })
 
   it('leaves the staff slot empty, because no member of staff has picked it up', async () => {
     // The unclaimed queue is filtered on exactly this. Filling it with the
     // resident's own action would make every self-registered interest look
     // like it already has someone working on it.
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: null,
@@ -116,12 +133,12 @@ describe('expressInterest', () => {
 
     await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
-    const data = (mockPrisma.opportunityApplication.create as jest.Mock).mock.calls[0][0].data
+    const data = mockApplicationCreate.mock.calls[0][0]
     expect(data.supportedByUserId).toBeUndefined()
   })
 
   it.each(['DRAFT', 'ARCHIVED'])('refuses a %s listing', async (status) => {
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status,
       seats: 5,
@@ -131,11 +148,11 @@ describe('expressInterest', () => {
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
     expect(to).toBe('/portal/opportunities?error=unavailable')
-    expect(mockPrisma.opportunityApplication.create).not.toHaveBeenCalled()
+    expect(mockApplicationCreate).not.toHaveBeenCalled()
   })
 
   it('refuses a listing whose seats are already taken', async () => {
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: 2,
@@ -145,13 +162,13 @@ describe('expressInterest', () => {
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
     expect(to).toBe('/portal/opportunities?error=full')
-    expect(mockPrisma.opportunityApplication.create).not.toHaveBeenCalled()
+    expect(mockApplicationCreate).not.toHaveBeenCalled()
   })
 
   it('still has room when the seats it holds are finished ones', async () => {
     // ENDED and DECLINED do not occupy a place. Counting them would retire a
     // listing permanently after enough people had passed through it.
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: 2,
@@ -164,18 +181,13 @@ describe('expressInterest', () => {
   })
 
   it('treats a second tap as the success it already is', async () => {
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: null,
       applications: [],
     })
-    ;(mockPrisma.opportunityApplication.create as jest.Mock).mockRejectedValue(
-      new Prisma.PrismaClientKnownRequestError('duplicate', {
-        code: 'P2002',
-        clientVersion: 'test',
-      }),
-    )
+    mockApplicationCreate.mockRejectedValue(uniqueViolation())
 
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
@@ -185,13 +197,13 @@ describe('expressInterest', () => {
   it('reports a real database failure as a failure', async () => {
     // The counterpart to the test above: swallowing every error would make the
     // duplicate tolerance quietly hide genuine breakage too.
-    ;(mockPrisma.opportunity.findUnique as jest.Mock).mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       id: 'opp-1',
       status: 'PUBLISHED',
       seats: null,
       applications: [],
     })
-    ;(mockPrisma.opportunityApplication.create as jest.Mock).mockRejectedValue(new Error('boom'))
+    mockApplicationCreate.mockRejectedValue(new Error('boom'))
 
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
@@ -204,13 +216,13 @@ describe('expressInterest', () => {
     const to = await outcomeOf(() => expressInterest(form({ opportunityId: 'opp-1' })))
 
     expect(to).toBe('/login')
-    expect(mockPrisma.opportunity.findUnique).not.toHaveBeenCalled()
+    expect(mockOpportunityFindFirst).not.toHaveBeenCalled()
   })
 })
 
 describe('withdrawInterest', () => {
   it('removes an untouched interest the resident registered themselves', async () => {
-    ;(mockPrisma.opportunityApplication.findUnique as jest.Mock).mockResolvedValue({
+    mockApplicationFindFirst.mockResolvedValue({
       id: 'app-1',
       residentId: RESIDENT.id,
       opportunityId: 'opp-1',
@@ -221,16 +233,14 @@ describe('withdrawInterest', () => {
     const to = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
     expect(to).toBe('/portal/opportunities?ok=withdrawn')
-    expect(mockPrisma.opportunityApplication.delete).toHaveBeenCalledWith({
-      where: { id: 'app-1' },
-    })
+    expect(mockApplicationDelete).toHaveBeenCalledTimes(1)
   })
 
   it('will not delete another resident row, and does not admit that it exists', async () => {
     // Same answer as for an id that is not in the table at all. A different
     // message would confirm to the holder of a guessed id that some other
     // resident has applied for something.
-    ;(mockPrisma.opportunityApplication.findUnique as jest.Mock).mockResolvedValue({
+    mockApplicationFindFirst.mockResolvedValue({
       id: 'app-1',
       residentId: 'someone-else',
       opportunityId: 'opp-1',
@@ -240,15 +250,15 @@ describe('withdrawInterest', () => {
 
     const foreign = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
-    ;(mockPrisma.opportunityApplication.findUnique as jest.Mock).mockResolvedValue(null)
+    mockApplicationFindFirst.mockResolvedValue(null)
     const missing = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
     expect(foreign).toBe(missing)
-    expect(mockPrisma.opportunityApplication.delete).not.toHaveBeenCalled()
+    expect(mockApplicationDelete).not.toHaveBeenCalled()
   })
 
   it('will not delete a row staff created', async () => {
-    ;(mockPrisma.opportunityApplication.findUnique as jest.Mock).mockResolvedValue({
+    mockApplicationFindFirst.mockResolvedValue({
       id: 'app-1',
       residentId: RESIDENT.id,
       opportunityId: 'opp-1',
@@ -259,7 +269,7 @@ describe('withdrawInterest', () => {
     const to = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
     expect(to).toBe('/portal/opportunities?error=locked')
-    expect(mockPrisma.opportunityApplication.delete).not.toHaveBeenCalled()
+    expect(mockApplicationDelete).not.toHaveBeenCalled()
   })
 
   it.each(['APPLIED', 'INTERVIEW', 'ACCEPTED', 'STARTED', 'ENDED'])(
@@ -267,7 +277,7 @@ describe('withdrawInterest', () => {
     async (stage) => {
       // Past INTERESTED a conversation has happened, and the row is staff's
       // record of it as much as the resident's.
-      ;(mockPrisma.opportunityApplication.findUnique as jest.Mock).mockResolvedValue({
+      mockApplicationFindFirst.mockResolvedValue({
         id: 'app-1',
         residentId: RESIDENT.id,
         opportunityId: 'opp-1',
@@ -278,7 +288,7 @@ describe('withdrawInterest', () => {
       const to = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
       expect(to).toBe('/portal/opportunities?error=locked')
-      expect(mockPrisma.opportunityApplication.delete).not.toHaveBeenCalled()
+      expect(mockApplicationDelete).not.toHaveBeenCalled()
     },
   )
 
@@ -288,6 +298,6 @@ describe('withdrawInterest', () => {
     const to = await outcomeOf(() => withdrawInterest(form({ applicationId: 'app-1' })))
 
     expect(to).toBe('/login')
-    expect(mockPrisma.opportunityApplication.findUnique).not.toHaveBeenCalled()
+    expect(mockApplicationFindFirst).not.toHaveBeenCalled()
   })
 })

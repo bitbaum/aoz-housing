@@ -15,9 +15,12 @@ const mockPlacementFindMany = jest.fn()
 const mockIncidentFindMany = jest.fn()
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
-    incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
+      incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
+    },
   },
 }))
 

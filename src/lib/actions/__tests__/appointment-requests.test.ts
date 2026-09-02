@@ -10,20 +10,26 @@
  * that cancels looks — to the person waiting — like being dropped.
  */
 
-import { prisma } from '@/lib/db'
 import { requestAppointment, respondToAppointmentRequest, rescheduleAppointment } from '../care'
 import { CARE_LABELS } from '@/lib/config/care'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
+const mockAppointmentFindFirst = jest.fn()
+const mockCareAssignmentFindFirst = jest.fn()
+const mockInsertValues = jest.fn()
+const mockUpdateSet = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    appointment: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      findFirst: jest.fn(),
-      update: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      appointment: { findFirst: (...a: unknown[]) => mockAppointmentFindFirst(...a) },
+      careAssignment: { findFirst: (...a: unknown[]) => mockCareAssignmentFindFirst(...a) },
     },
-    careAssignment: { findUnique: jest.fn() },
+    insert: jest.fn(() => ({ values: (v: unknown) => mockInsertValues(v) })),
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({ where: () => mockUpdateSet(v) }),
+    })),
   },
 }))
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
@@ -38,11 +44,6 @@ const mockPortalAuth = jest.fn()
 jest.mock('@/lib/portal-auth', () => ({
   getPortalAuth: (...args: unknown[]) => mockPortalAuth(...args),
 }))
-
-const p = prisma as unknown as {
-  appointment: { create: jest.Mock; findUnique: jest.Mock; findFirst: jest.Mock; update: jest.Mock }
-  careAssignment: { findUnique: jest.Mock }
-}
 
 function form(entries: Record<string, string>): FormData {
   const fd = new FormData()
@@ -65,10 +66,10 @@ beforeEach(() => {
   jest.clearAllMocks()
   mockPortalAuth.mockResolvedValue({ resident: { id: 'res-1' } })
   mockGetCurrentUser.mockResolvedValue({ id: 'staff-1', role: 'SOZIALARBEIT' })
-  p.appointment.findFirst.mockResolvedValue(null)
-  p.careAssignment.findUnique.mockResolvedValue({ staffId: 'staff-9' })
-  p.appointment.create.mockResolvedValue({ id: 'appt-1' })
-  p.appointment.update.mockResolvedValue({})
+  mockAppointmentFindFirst.mockResolvedValue(null)
+  mockCareAssignmentFindFirst.mockResolvedValue({ staffId: 'staff-9' })
+  mockInsertValues.mockResolvedValue(undefined)
+  mockUpdateSet.mockResolvedValue(undefined)
 })
 
 describe('a resident asks for a meeting', () => {
@@ -78,23 +79,23 @@ describe('a resident asks for a meeting', () => {
     )
 
     expect(result.success).toBe(true)
-    const [args] = p.appointment.create.mock.calls[0]
-    expect(args.data.status).toBe('REQUESTED')
-    expect(args.data.residentId).toBe('res-1')
-    expect(args.data.staffId).toBe('staff-9')
-    expect(args.data.residentNote).toBe('Brief vom Amt')
+    const [values] = mockInsertValues.mock.calls[0]
+    expect(values.status).toBe('REQUESTED')
+    expect(values.residentId).toBe('res-1')
+    expect(values.staffId).toBe('staff-9')
+    expect(values.residentNote).toBe('Brief vom Amt')
   })
 
   it('still lands unclaimed when nobody holds the seat', async () => {
     // Zero real residents have a care team. Refusing here would have made the
     // feature dead on arrival for exactly the people who need it — the same
     // deadlock that killed caseload scoping.
-    p.careAssignment.findUnique.mockResolvedValue(null)
+    mockCareAssignmentFindFirst.mockResolvedValue(null)
 
     const result = await requestAppointment(form({ domain: 'JOB', startsAt: localInput(TOMORROW) }))
 
     expect(result.success).toBe(true)
-    expect(p.appointment.create.mock.calls[0][0].data.staffId).toBeNull()
+    expect(mockInsertValues.mock.calls[0][0].staffId).toBeNull()
   })
 
   it('refuses a time in the past, which would be invisible the moment it saved', async () => {
@@ -103,20 +104,20 @@ describe('a resident asks for a meeting', () => {
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.requestPastTime })
-    expect(p.appointment.create).not.toHaveBeenCalled()
+    expect(mockInsertValues).not.toHaveBeenCalled()
   })
 
   it('refuses a second open request for the same seat', async () => {
     // A resident unsure the first one landed taps again, and a coach's queue
     // fills with duplicates of one ask.
-    p.appointment.findFirst.mockResolvedValue({ id: 'existing' })
+    mockAppointmentFindFirst.mockResolvedValue({ id: 'existing' })
 
     const result = await requestAppointment(
       form({ domain: 'SOCIAL', startsAt: localInput(TOMORROW) }),
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.requestDuplicate })
-    expect(p.appointment.create).not.toHaveBeenCalled()
+    expect(mockInsertValues).not.toHaveBeenCalled()
   })
 
   it('refuses an unauthenticated caller', async () => {
@@ -127,13 +128,13 @@ describe('a resident asks for a meeting', () => {
     )
 
     expect(result.success).toBe(false)
-    expect(p.appointment.create).not.toHaveBeenCalled()
+    expect(mockInsertValues).not.toHaveBeenCalled()
   })
 })
 
 describe('staff answer the request', () => {
   beforeEach(() => {
-    p.appointment.findUnique.mockResolvedValue({
+    mockAppointmentFindFirst.mockResolvedValue({
       residentId: 'res-1',
       domain: 'SOCIAL',
       status: 'REQUESTED',
@@ -143,16 +144,16 @@ describe('staff answer the request', () => {
   it('accepting schedules it and gives it an owner', async () => {
     await respondToAppointmentRequest(form({ id: 'a1', decision: 'ACCEPT' }))
 
-    const [args] = p.appointment.update.mock.calls[0]
-    expect(args.data.status).toBe('SCHEDULED')
+    const [values] = mockUpdateSet.mock.calls[0]
+    expect(values.status).toBe('SCHEDULED')
     // Whoever answered takes it — including on a request that arrived unclaimed.
-    expect(args.data.staffId).toBe('staff-1')
+    expect(values.staffId).toBe('staff-1')
   })
 
   it('accepting without a new time keeps the time the resident proposed', async () => {
     await respondToAppointmentRequest(form({ id: 'a1', decision: 'ACCEPT' }))
 
-    expect(p.appointment.update.mock.calls[0][0].data.startsAt).toBeUndefined()
+    expect(mockUpdateSet.mock.calls[0][0].startsAt).toBeUndefined()
   })
 
   it('declining REQUIRES a reason the resident will read', async () => {
@@ -161,7 +162,7 @@ describe('staff answer the request', () => {
     )
 
     expect(result).toEqual({ success: false, error: CARE_LABELS.declineNeedsReason })
-    expect(p.appointment.update).not.toHaveBeenCalled()
+    expect(mockUpdateSet).not.toHaveBeenCalled()
   })
 
   it('a decline carries its reason onto the record', async () => {
@@ -169,9 +170,9 @@ describe('staff answer the request', () => {
       form({ id: 'a1', decision: 'DECLINE', staffNote: 'Diese Woche voll, nächste geht.' }),
     )
 
-    const [args] = p.appointment.update.mock.calls[0]
-    expect(args.data.status).toBe('CANCELLED')
-    expect(args.data.staffNote).toBe('Diese Woche voll, nächste geht.')
+    const [values] = mockUpdateSet.mock.calls[0]
+    expect(values.status).toBe('CANCELLED')
+    expect(values.staffNote).toBe('Diese Woche voll, nächste geht.')
   })
 
   it('refuses a staff member who does not work that seat', async () => {
@@ -180,11 +181,11 @@ describe('staff answer the request', () => {
     const result = await respondToAppointmentRequest(form({ id: 'a1', decision: 'ACCEPT' }))
 
     expect(result).toEqual({ success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS })
-    expect(p.appointment.update).not.toHaveBeenCalled()
+    expect(mockUpdateSet).not.toHaveBeenCalled()
   })
 
   it('refuses to answer something that is not an open request', async () => {
-    p.appointment.findUnique.mockResolvedValue({
+    mockAppointmentFindFirst.mockResolvedValue({
       residentId: 'res-1',
       domain: 'SOCIAL',
       status: 'COMPLETED',
@@ -193,13 +194,13 @@ describe('staff answer the request', () => {
     const result = await respondToAppointmentRequest(form({ id: 'a1', decision: 'ACCEPT' }))
 
     expect(result.success).toBe(false)
-    expect(p.appointment.update).not.toHaveBeenCalled()
+    expect(mockUpdateSet).not.toHaveBeenCalled()
   })
 })
 
 describe('moving a meeting keeps the meeting', () => {
   it('changes the time in place rather than cancelling', async () => {
-    p.appointment.findUnique.mockResolvedValue({
+    mockAppointmentFindFirst.mockResolvedValue({
       residentId: 'res-1',
       domain: 'SOCIAL',
       status: 'SCHEDULED',
@@ -209,18 +210,18 @@ describe('moving a meeting keeps the meeting', () => {
       form({ id: 'a1', startsAt: localInput(TOMORROW), staffNote: 'Eine Stunde später.' }),
     )
 
-    const [args] = p.appointment.update.mock.calls[0]
+    const [values] = mockUpdateSet.mock.calls[0]
     // The status is untouched: to the resident this is a change, not a
     // cancellation followed by a different appointment appearing.
-    expect(args.data.status).toBeUndefined()
-    expect(args.data.startsAt).toBeInstanceOf(Date)
-    expect(args.data.staffNote).toBe('Eine Stunde später.')
+    expect(values.status).toBeUndefined()
+    expect(values.startsAt).toBeInstanceOf(Date)
+    expect(values.staffNote).toBe('Eine Stunde später.')
   })
 
   it.each(['COMPLETED', 'CANCELLED', 'NO_SHOW'])(
     'refuses to move a %s appointment, which is a record not a plan',
     async (status) => {
-      p.appointment.findUnique.mockResolvedValue({
+      mockAppointmentFindFirst.mockResolvedValue({
         residentId: 'res-1',
         domain: 'SOCIAL',
         status,
@@ -229,12 +230,12 @@ describe('moving a meeting keeps the meeting', () => {
       const result = await rescheduleAppointment(form({ id: 'a1', startsAt: localInput(TOMORROW) }))
 
       expect(result).toEqual({ success: false, error: CARE_LABELS.rescheduleClosed })
-      expect(p.appointment.update).not.toHaveBeenCalled()
+      expect(mockUpdateSet).not.toHaveBeenCalled()
     },
   )
 
   it('refuses a staff member who does not work that seat', async () => {
-    p.appointment.findUnique.mockResolvedValue({
+    mockAppointmentFindFirst.mockResolvedValue({
       residentId: 'res-1',
       domain: 'HOUSING',
       status: 'SCHEDULED',

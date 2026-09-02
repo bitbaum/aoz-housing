@@ -1,7 +1,7 @@
 /**
  * Provision the real AOZ team, idempotently.
  *
- * Reads `prisma/real/aoz-team.ts` and makes the database match it. Safe to run
+ * Reads `scripts/db/real/aoz-team.ts` and makes the database match it. Safe to run
  * repeatedly: an existing person is matched by name and UPDATED to the shape
  * the config declares, so this doubles as the way to correct someone's reach
  * after the fact. A code is minted only for someone who does not exist yet,
@@ -15,7 +15,7 @@
 
 import { eq } from 'drizzle-orm'
 import { db, user } from '../../src/lib/db'
-import { AOZ_TEAM } from '../../prisma/real/aoz-team'
+import { AOZ_TEAM } from '../db/real/aoz-team'
 import { BRAND } from '../../src/lib/config/brand'
 import { generateStaffCode } from '../../src/lib/auth/code-generation'
 import { CARE_ROLES, CARE_ROLE_LABELS, STAFF_ROLE_CARE_DOMAIN } from '../../src/lib/config/care'

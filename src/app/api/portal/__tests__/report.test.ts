@@ -17,26 +17,34 @@ jest.mock('next/headers', () => ({
   }),
 }))
 
-const mockFindUnique = jest.fn()
+const mockFindFirst = jest.fn()
 const mockIncidentCreate = jest.fn()
 const mockMaintenanceCreate = jest.fn()
 const mockPlacementFindFirst = jest.fn()
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findUnique: (...args: unknown[]) => mockFindUnique(...args),
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  return {
+    ...actual,
+    db: {
+      query: {
+        resident: {
+          findFirst: (...args: unknown[]) => mockFindFirst(...args),
+        },
+        placement: {
+          findFirst: (...args: unknown[]) => mockPlacementFindFirst(...args),
+        },
+      },
+      // Both report paths are insert(...).values(...).returning(); dispatch by
+      // table so incidents and maintenance requests stay separately assertable.
+      insert: (table: unknown) => ({
+        values: (v: unknown) => ({
+          returning: (): Promise<unknown[]> =>
+            table === actual.incident ? mockIncidentCreate(v) : mockMaintenanceCreate(v),
+        }),
+      }),
     },
-    incident: {
-      create: (...args: unknown[]) => mockIncidentCreate(...args),
-    },
-    maintenanceRequest: {
-      create: (...args: unknown[]) => mockMaintenanceCreate(...args),
-    },
-    placement: {
-      findFirst: (...args: unknown[]) => mockPlacementFindFirst(...args),
-    },
-  },
-}))
+  }
+})
 
 const mockLogAudit = jest.fn().mockResolvedValue(undefined)
 jest.mock('@/lib/audit', () => ({
@@ -151,12 +159,12 @@ describe('POST /api/portal/report', () => {
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
     expect(body.error).toBe(ERROR_MESSAGES.NOT_AUTHENTICATED)
-    expect(mockFindUnique).not.toHaveBeenCalled()
+    expect(mockFindFirst).not.toHaveBeenCalled()
   })
 
   test('returns 404 when resident not found', async () => {
     mockCookieGet.mockReturnValue({ value: 'UNKNOWN-CODE' })
-    mockFindUnique.mockResolvedValue(null)
+    mockFindFirst.mockResolvedValue(null)
 
     const req = createFormDataRequest({ description: 'test' })
     const res = await POST(req)
@@ -169,7 +177,7 @@ describe('POST /api/portal/report', () => {
 
   test('returns 400 when no active placement', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-002' })
-    mockFindUnique.mockResolvedValue(RESIDENT_NO_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_NO_PLACEMENT)
 
     const req = createFormDataRequest({ description: 'test' })
     const res = await POST(req)
@@ -182,7 +190,7 @@ describe('POST /api/portal/report', () => {
 
   test('returns 400 when validation fails with ValidationError', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockImplementation(() => {
       throw new MockValidationError('Beschreibung ist erforderlich')
     })
@@ -198,7 +206,7 @@ describe('POST /api/portal/report', () => {
 
   test('returns 400 with generic message for non-validation errors during parsing', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockImplementation(() => {
       throw new Error('Unexpected parse failure')
     })
@@ -217,7 +225,7 @@ describe('POST /api/portal/report', () => {
     // Incident left the report invisible to the people who fix things, and
     // inflated the incident count AOZ uses to measure conflict.
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'MAINTENANCE',
       type: 'PLUMBING',
@@ -226,12 +234,9 @@ describe('POST /api/portal/report', () => {
       location: 'kitchen',
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({
-      id: 'mr-1',
-      category: 'PLUMBING',
-      priority: 'NORMAL',
-      title: 'Sanitär',
-    })
+    mockMaintenanceCreate.mockResolvedValue([
+      { id: 'mr-1', category: 'PLUMBING', priority: 'NORMAL', title: 'Sanitär' },
+    ])
 
     const req = createFormDataRequest({ description: 'Wasserhahn tropft' })
     const res = await POST(req)
@@ -241,8 +246,8 @@ describe('POST /api/portal/report', () => {
     expect(body.success).toBe(true)
     expect(mockIncidentCreate).not.toHaveBeenCalled()
 
-    expect(mockMaintenanceCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockMaintenanceCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         housingUnitId: 'hu-1',
         reportedById: 'res-1',
         category: 'PLUMBING',
@@ -252,12 +257,12 @@ describe('POST /api/portal/report', () => {
         description: 'Wasserhahn tropft',
         location: 'Küche',
       }),
-    })
+    )
   })
 
   test("severity maps onto the maintenance board's own urgency scale", async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'MAINTENANCE',
       type: 'PLUMBING',
@@ -266,21 +271,18 @@ describe('POST /api/portal/report', () => {
       location: 'bathroom',
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({
-      id: 'mr-2',
-      category: 'PLUMBING',
-      priority: 'URGENT',
-      title: 'Sanitär',
-    })
+    mockMaintenanceCreate.mockResolvedValue([
+      { id: 'mr-2', category: 'PLUMBING', priority: 'URGENT', title: 'Sanitär' },
+    ])
 
     await POST(createFormDataRequest({ description: 'x' }))
 
-    expect(mockMaintenanceCreate.mock.calls[0][0].data.priority).toBe('URGENT')
+    expect(mockMaintenanceCreate.mock.calls[0][0].priority).toBe('URGENT')
   })
 
   test('notifies staff about maintenance as a request, not as a Vorfall', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'MAINTENANCE',
       type: 'PLUMBING',
@@ -289,12 +291,9 @@ describe('POST /api/portal/report', () => {
       location: 'kitchen',
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({
-      id: 'mr-3',
-      category: 'PLUMBING',
-      priority: 'NORMAL',
-      title: 'Sanitär',
-    })
+    mockMaintenanceCreate.mockResolvedValue([
+      { id: 'mr-3', category: 'PLUMBING', priority: 'NORMAL', title: 'Sanitär' },
+    ])
 
     await POST(createFormDataRequest({ description: 'x' }))
 
@@ -305,7 +304,7 @@ describe('POST /api/portal/report', () => {
 
   test('creates interpersonal incident with mediation note appended', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
@@ -315,7 +314,7 @@ describe('POST /api/portal/report', () => {
       involvedResident: 'external',
       incidentDate: null,
     })
-    mockIncidentCreate.mockResolvedValue({ id: 'inc-2' })
+    mockIncidentCreate.mockResolvedValue([{ id: 'inc-2' }])
 
     const req = createFormDataRequest({ description: 'Laute Musik nach 22 Uhr' })
     const res = await POST(req)
@@ -326,16 +325,16 @@ describe('POST /api/portal/report', () => {
 
     // Description should have mediation note appended
     const createCall = mockIncidentCreate.mock.calls[0][0]
-    expect(createCall.data.description).toContain('Laute Musik nach 22 Uhr')
-    expect(createCall.data.description).toContain('[Bewohner wünscht Vermittlungsgespräch]')
+    expect(createCall.description).toContain('Laute Musik nach 22 Uhr')
+    expect(createCall.description).toContain('[Bewohner wünscht Vermittlungsgespräch]')
 
     // involvedResident === 'external' should result in null subjectId
-    expect(createCall.data.subjectId).toBeNull()
+    expect(createCall.subjectId).toBeNull()
   })
 
   test('sets subjectId when involvedResident is a roommate in the same unit', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     // Validation lookup: res-99 IS in the same unit, so insert proceeds.
     mockPlacementFindFirst.mockResolvedValue({ residentId: 'res-99' })
     mockValidateFormData.mockReturnValue({
@@ -347,18 +346,18 @@ describe('POST /api/portal/report', () => {
       requestMediation: false,
       incidentDate: null,
     })
-    mockIncidentCreate.mockResolvedValue({ id: 'inc-3' })
+    mockIncidentCreate.mockResolvedValue([{ id: 'inc-3' }])
 
     const req = createFormDataRequest({ description: 'Streit' })
     await POST(req)
 
     const createCall = mockIncidentCreate.mock.calls[0][0]
-    expect(createCall.data.subjectId).toBe('res-99')
+    expect(createCall.subjectId).toBe('res-99')
   })
 
   test('rejects involvedResident that does not live in the same unit', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     // Validation lookup: stranger NOT in this unit → null.
     mockPlacementFindFirst.mockResolvedValue(null)
     mockValidateFormData.mockReturnValue({
@@ -380,7 +379,7 @@ describe('POST /api/portal/report', () => {
 
   test('uses provided incidentDate when present', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'SCHEDULE_CONFLICT',
@@ -390,18 +389,18 @@ describe('POST /api/portal/report', () => {
       requestMediation: false,
       incidentDate: '2026-01-15',
     })
-    mockIncidentCreate.mockResolvedValue({ id: 'inc-4' })
+    mockIncidentCreate.mockResolvedValue([{ id: 'inc-4' }])
 
     const req = createFormDataRequest({ description: 'Streit um Duschzeiten' })
     await POST(req)
 
     const createCall = mockIncidentCreate.mock.calls[0][0]
-    expect(createCall.data.date).toEqual(new Date('2026-01-15'))
+    expect(createCall.date).toEqual(new Date('2026-01-15'))
   })
 
   test('calls logAudit with correct data after incident creation', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'SPACE_DISPUTE',
@@ -411,7 +410,7 @@ describe('POST /api/portal/report', () => {
       requestMediation: false,
       incidentDate: null,
     })
-    mockIncidentCreate.mockResolvedValue({ id: 'inc-audit' })
+    mockIncidentCreate.mockResolvedValue([{ id: 'inc-audit' }])
 
     const req = createFormDataRequest({ description: 'Streit um den Kühlschrank' })
     await POST(req)
@@ -434,7 +433,7 @@ describe('POST /api/portal/report', () => {
 
   test('audits a maintenance report against the maintenance entity', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'MAINTENANCE',
       type: 'PLUMBING',
@@ -444,12 +443,9 @@ describe('POST /api/portal/report', () => {
       requestMediation: false,
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({
-      id: 'mr-audit',
-      category: 'PLUMBING',
-      priority: 'HIGH',
-      title: 'Sanitär',
-    })
+    mockMaintenanceCreate.mockResolvedValue([
+      { id: 'mr-audit', category: 'PLUMBING', priority: 'HIGH', title: 'Sanitär' },
+    ])
 
     await POST(createFormDataRequest({ description: 'Rohrbruch' }))
 
@@ -468,7 +464,7 @@ describe('POST /api/portal/report', () => {
 
   test('sends staff notification after successful incident creation', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
@@ -478,7 +474,7 @@ describe('POST /api/portal/report', () => {
       involvedResident: 'external',
       incidentDate: null,
     })
-    mockIncidentCreate.mockResolvedValue({ id: 'inc-notify' })
+    mockIncidentCreate.mockResolvedValue([{ id: 'inc-notify' }])
 
     const req = createFormDataRequest({ description: 'Laute Musik' })
     await POST(req)
@@ -499,9 +495,9 @@ describe('POST /api/portal/report', () => {
     expect(mockNotifyStaff).toHaveBeenCalledWith('[AOZ Housing] Neuer Vorfall', '<p>test</p>')
   })
 
-  test('returns 500 when prisma.incident.create fails', async () => {
+  test('returns 500 when the incident insert fails', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'INTERPERSONAL',
       type: 'CULTURAL_FRICTION',
@@ -525,7 +521,7 @@ describe('POST /api/portal/report', () => {
 
   test('falls back to location value when label not found in PORTAL_LABELS', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockValidateFormData.mockReturnValue({
       category: 'MAINTENANCE',
       type: 'GENERAL_MAINTENANCE',
@@ -534,17 +530,14 @@ describe('POST /api/portal/report', () => {
       location: 'basement', // not in the locations array
       incidentDate: null,
     })
-    mockMaintenanceCreate.mockResolvedValue({
-      id: 'mr-5',
-      category: 'OTHER',
-      priority: 'LOW',
-      title: 'Allgemeine Wartung',
-    })
+    mockMaintenanceCreate.mockResolvedValue([
+      { id: 'mr-5', category: 'OTHER', priority: 'LOW', title: 'Allgemeine Wartung' },
+    ])
 
     const req = createFormDataRequest({ description: 'Problem im Keller' })
     await POST(req)
 
     // Falls back to the raw value when no matching label
-    expect(mockMaintenanceCreate.mock.calls[0][0].data.location).toBe('basement')
+    expect(mockMaintenanceCreate.mock.calls[0][0].location).toBe('basement')
   })
 })

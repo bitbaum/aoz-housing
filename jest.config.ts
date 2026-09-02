@@ -21,7 +21,9 @@ const config: Config = {
       // ai-kit is ESM-only ("type": "module", no require condition), like
       // every other entry here. Jest runs CJS, so it must be transformed
       // rather than required.
-      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit|ai-kit))'],
+      transformIgnorePatterns: [
+        'node_modules/(?!(@paralleldrive/cuid2|@noble/hashes|jose|@fleet/ai-forms|bip-kit|ai-kit))',
+      ],
       transform: {
         '^.+\\.tsx?$': 'ts-jest',
         '^.+\\.js$': 'ts-jest',
@@ -44,7 +46,9 @@ const config: Config = {
       // ai-kit is ESM-only ("type": "module", no require condition), like
       // every other entry here. Jest runs CJS, so it must be transformed
       // rather than required.
-      transformIgnorePatterns: ['node_modules/(?!(jose|@fleet/ai-forms|bip-kit|ai-kit))'],
+      transformIgnorePatterns: [
+        'node_modules/(?!(@paralleldrive/cuid2|@noble/hashes|jose|@fleet/ai-forms|bip-kit|ai-kit))',
+      ],
       transform: {
         '^.+\\.tsx?$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
         '^.+\\.js$': ['ts-jest', { tsconfig: { allowJs: true, jsx: 'react-jsx' } }],

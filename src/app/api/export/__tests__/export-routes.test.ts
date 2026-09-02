@@ -18,15 +18,20 @@ jest.mock('@/lib/auth', () => ({
 
 const mockResidentFindMany = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findMany: (...args: unknown[]) => mockResidentFindMany(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: {
+        findMany: (...args: unknown[]) => mockResidentFindMany(...args),
+      },
     },
   },
 }))
 
 // --- Import after mocks ---
 import { GET } from '../../export/residents/route'
+import { resident } from '@/lib/db'
+import { desc } from 'drizzle-orm'
 
 describe('GET /api/export/residents', () => {
   beforeEach(() => {
@@ -124,7 +129,7 @@ describe('GET /api/export/residents', () => {
     expect(lines[0]).toContain('Code')
   })
 
-  it('calls prisma with correct orderBy', async () => {
+  it('queries with correct orderBy', async () => {
     mockGetCurrentUser.mockResolvedValue({
       id: 'user-1',
       email: 'staff@aoz.ch',
@@ -136,7 +141,7 @@ describe('GET /api/export/residents', () => {
     await GET()
 
     expect(mockResidentFindMany).toHaveBeenCalledWith({
-      orderBy: { createdAt: 'desc' },
+      orderBy: [desc(resident.createdAt)],
     })
   })
 })

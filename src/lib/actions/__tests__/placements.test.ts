@@ -5,7 +5,8 @@
  * endPlacement and transferPlacement use redirect() which throws, so they are not tested here.
  */
 
-import { prisma } from '@/lib/db'
+import { getTableName } from 'drizzle-orm'
+import { housingUnit, placementSpot, resident } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { createPlacement } from '../placements'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -14,30 +15,12 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockTransaction = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    $transaction: jest.fn(),
-    resident: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    placement: {
-      findFirst: jest.fn(),
-      findMany: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-    },
-    placementSpot: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    housingUnit: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    compatibilityAssessment: {
-      upsert: jest.fn(),
-    },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    transaction: (fn: (tx: unknown) => unknown) => mockTransaction(fn),
   },
 }))
 
@@ -101,6 +84,7 @@ jest.mock('@/lib/compatibility', () => ({
     strengths: [],
     concerns: [],
   }),
+  saveBidirectionalAssessment: jest.fn(),
 }))
 
 jest.mock('@/lib/compatibility/convert', () => ({
@@ -117,34 +101,61 @@ jest.mock('@/lib/compatibility/placement-scores', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
 
 // =============================================================================
-// Helper to set up $transaction mock
+// Helper to set up db.transaction mock
 // =============================================================================
 
+interface MockTx {
+  query: {
+    resident: { findFirst: jest.Mock }
+    placement: { findFirst: jest.Mock; findMany: jest.Mock }
+    placementSpot: { findFirst: jest.Mock }
+    housingUnit: { findFirst: jest.Mock }
+  }
+  /** Resolves the rows returned by tx.insert(…).values(…).returning() */
+  insertReturning: jest.Mock
+  /** Records every tx.update(table).set(payload) as (tableName, payload) */
+  updateSet: jest.Mock
+}
+
 /**
- * Configures prisma.$transaction to execute the callback with a mock tx object.
+ * Configures db.transaction to execute the callback with a mock tx object.
  * Each mock method on tx is configurable via the txSetup callback.
  */
-function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void) {
-  const tx: Record<string, Record<string, jest.Mock>> = {
-    resident: { findUnique: jest.fn(), update: jest.fn() },
-    placement: { findFirst: jest.fn(), findMany: jest.fn(), create: jest.fn() },
-    placementSpot: { findUnique: jest.fn(), update: jest.fn() },
-    housingUnit: { findUnique: jest.fn(), update: jest.fn() },
-    compatibilityAssessment: { upsert: jest.fn() },
+function setupTransaction(txSetup: (tx: MockTx) => void) {
+  const tx: MockTx = {
+    query: {
+      resident: { findFirst: jest.fn() },
+      placement: { findFirst: jest.fn(), findMany: jest.fn() },
+      placementSpot: { findFirst: jest.fn() },
+      housingUnit: { findFirst: jest.fn() },
+    },
+    insertReturning: jest.fn().mockResolvedValue([{}]),
+    updateSet: jest.fn(),
   }
   txSetup(tx)
-  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
-    async (cb: (tx: unknown) => unknown) => {
-      return cb(tx)
-    },
-  )
+
+  const txSurface = {
+    query: tx.query,
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({
+        returning: (): Promise<unknown[]> => tx.insertReturning(v),
+      }),
+    })),
+    update: jest.fn((table: unknown) => ({
+      set: (v: unknown) => {
+        tx.updateSet(getTableName(table as any), v)
+        return { where: () => Promise.resolve([]) }
+      },
+    })),
+  }
+  mockTransaction.mockImplementation(async (cb: (t: unknown) => unknown) => {
+    return cb(txSurface)
+  })
   return tx
 }
 
@@ -163,7 +174,7 @@ const baseInput = {
 describe('createPlacement', () => {
   it('returns error when resident not found', async () => {
     setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue(null)
+      tx.query.resident.findFirst.mockResolvedValue(null)
     })
 
     const result = await createPlacement(baseInput)
@@ -175,8 +186,8 @@ describe('createPlacement', () => {
 
   it('returns error when resident already has active placement', async () => {
     setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
-      tx.placement.findFirst.mockResolvedValue({ id: 'pl-existing', status: 'ACTIVE' })
+      tx.query.resident.findFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+      tx.query.placement.findFirst.mockResolvedValue({ id: 'pl-existing', status: 'ACTIVE' })
     })
 
     const result = await createPlacement(baseInput)
@@ -187,9 +198,9 @@ describe('createPlacement', () => {
 
   it('returns error when spot not found', async () => {
     setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
-      tx.placement.findFirst.mockResolvedValue(null)
-      tx.placementSpot.findUnique.mockResolvedValue(null)
+      tx.query.resident.findFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+      tx.query.placement.findFirst.mockResolvedValue(null)
+      tx.query.placementSpot.findFirst.mockResolvedValue(null)
     })
 
     const result = await createPlacement(baseInput)
@@ -200,9 +211,9 @@ describe('createPlacement', () => {
 
   it('returns error when spot is not available', async () => {
     setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
-      tx.placement.findFirst.mockResolvedValue(null)
-      tx.placementSpot.findUnique.mockResolvedValue({ id: 'spot-1', status: 'OCCUPIED' })
+      tx.query.resident.findFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+      tx.query.placement.findFirst.mockResolvedValue(null)
+      tx.query.placementSpot.findFirst.mockResolvedValue({ id: 'spot-1', status: 'OCCUPIED' })
     })
 
     const result = await createPlacement(baseInput)
@@ -215,14 +226,12 @@ describe('createPlacement', () => {
     const newPlacement = { id: 'pl-new', residentId: 'res-1' }
 
     setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
-      tx.placement.findFirst.mockResolvedValue(null)
-      tx.placementSpot.findUnique.mockResolvedValue({ id: 'spot-1', status: 'AVAILABLE' })
-      tx.placement.findMany.mockResolvedValue([]) // no existing placements in unit
-      tx.placement.create.mockResolvedValue(newPlacement)
-      tx.placementSpot.update.mockResolvedValue({})
-      tx.resident.update.mockResolvedValue({})
-      tx.housingUnit.findUnique.mockResolvedValue({
+      tx.query.resident.findFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+      tx.query.placement.findFirst.mockResolvedValue(null)
+      tx.query.placementSpot.findFirst.mockResolvedValue({ id: 'spot-1', status: 'AVAILABLE' })
+      tx.query.placement.findMany.mockResolvedValue([]) // no existing placements in unit
+      tx.insertReturning.mockResolvedValue([newPlacement])
+      tx.query.housingUnit.findFirst.mockResolvedValue({
         id: 'hu-1',
         spots: [{ id: 'spot-2', status: 'AVAILABLE' }], // still spots available
       })
@@ -245,28 +254,25 @@ describe('createPlacement', () => {
     const newPlacement = { id: 'pl-new', residentId: 'res-1' }
 
     const tx = setupTransaction((tx) => {
-      tx.resident.findUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
-      tx.placement.findFirst.mockResolvedValue(null)
-      tx.placementSpot.findUnique.mockResolvedValue({ id: 'spot-1', status: 'AVAILABLE' })
-      tx.placement.findMany.mockResolvedValue([])
-      tx.placement.create.mockResolvedValue(newPlacement)
-      tx.placementSpot.update.mockResolvedValue({})
-      tx.resident.update.mockResolvedValue({})
+      tx.query.resident.findFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+      tx.query.placement.findFirst.mockResolvedValue(null)
+      tx.query.placementSpot.findFirst.mockResolvedValue({ id: 'spot-1', status: 'AVAILABLE' })
+      tx.query.placement.findMany.mockResolvedValue([])
+      tx.insertReturning.mockResolvedValue([newPlacement])
       // No remaining available spots
-      tx.housingUnit.findUnique.mockResolvedValue({
+      tx.query.housingUnit.findFirst.mockResolvedValue({
         id: 'hu-1',
         spots: [],
       })
-      tx.housingUnit.update.mockResolvedValue({})
     })
 
     const result = await createPlacement(baseInput)
 
     expect(result.success).toBe(true)
-    expect(tx.housingUnit.update).toHaveBeenCalledWith({
-      where: { id: 'hu-1' },
-      data: { status: 'FULL' },
-    })
+    expect(tx.updateSet).toHaveBeenCalledWith(getTableName(housingUnit), { status: 'FULL' })
+    // spot occupied + resident placed still happen alongside the FULL update
+    expect(tx.updateSet).toHaveBeenCalledWith(getTableName(placementSpot), { status: 'OCCUPIED' })
+    expect(tx.updateSet).toHaveBeenCalledWith(getTableName(resident), { status: 'PLACED' })
   })
 })
 

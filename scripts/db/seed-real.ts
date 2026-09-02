@@ -1,8 +1,8 @@
 /**
- * Seed a REAL apartment (no demo data) from prisma/real/*.ts config.
+ * Seed a REAL apartment (no demo data) from scripts/db/real/*.ts config.
  *
  * Usage:
- *   npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-real.ts [--wipe]
+ *   npx ts-node -r tsconfig-paths/register --compiler-options '{"module":"CommonJS"}' scripts/db/seed-real.ts [--wipe]
  *
  * --wipe first truncates every table except User/AlgorithmWeight/SystemConfig
  * (same keep-list as the demo reset) — use it exactly once, when converting a
@@ -15,18 +15,22 @@
  * them; they are intentionally not committed anywhere.
  */
 
-import { PrismaClient } from '@prisma/client'
+import { eq } from 'drizzle-orm'
+import { db, housingUnit, placement, placementSpot, resident as residentTable } from '@/lib/db'
 import { REAL_APARTMENT } from './real/witikonerstrasse-458'
-import { generateResidentCode } from '../src/lib/auth/code-generation'
-import { wipeAllExceptKeepList } from '../src/lib/demo/wipe'
-import { syncOrgRules } from '../src/lib/governance/sync-org-rules'
-
-const prisma = new PrismaClient()
+import { generateResidentCode } from '@/lib/auth/code-generation'
+import { wipeAllExceptKeepList } from '@/lib/demo/wipe'
+import { syncOrgRules } from '@/lib/governance/sync-org-rules'
 
 async function uniqueResidentCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = generateResidentCode()
-    if (!(await prisma.resident.findUnique({ where: { code }, select: { id: true } }))) {
+    if (
+      !(await db.query.resident.findFirst({
+        where: eq(residentTable.code, code),
+        columns: { id: true },
+      }))
+    ) {
       return code
     }
   }
@@ -36,13 +40,14 @@ async function uniqueResidentCode(): Promise<string> {
 async function main() {
   const wipe = process.argv.includes('--wipe')
   if (wipe) {
-    const wiped = await wipeAllExceptKeepList(prisma)
+    const wiped = await wipeAllExceptKeepList(db)
     console.log(`🧹 Wiped ${wiped} tables (keep-list preserved)`)
   }
 
-  const existing = await prisma.housingUnit.findUnique({
-    where: { code: REAL_APARTMENT.unit.code },
-    select: { id: true, placements: { where: { status: 'ACTIVE' }, select: { id: true } } },
+  const existing = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.code, REAL_APARTMENT.unit.code),
+    columns: { id: true },
+    with: { placements: { where: eq(placement.status, 'ACTIVE'), columns: { id: true } } },
   })
   if (existing && existing.placements.length > 0) {
     console.error(
@@ -51,35 +56,38 @@ async function main() {
     process.exit(1)
   }
 
-  const unit = await prisma.housingUnit.create({
-    data: { ...REAL_APARTMENT.unit, status: 'FULL' },
-  })
+  const [unit] = await db
+    .insert(housingUnit)
+    .values({ ...REAL_APARTMENT.unit, status: 'FULL' })
+    .returning()
 
   // Rooms with their beds (the spot hierarchy the rest of the app expects).
   const bedsByRoom = new Map<string, string[]>()
   for (const room of REAL_APARTMENT.rooms) {
-    const roomSpot = await prisma.placementSpot.create({
-      data: {
+    const [roomSpot] = await db
+      .insert(placementSpot)
+      .values({
         housingUnitId: unit.id,
         code: room.code,
         label: room.label,
         type: 'ROOM',
         capacity: room.beds,
         status: 'OCCUPIED',
-      },
-    })
+      })
+      .returning()
     const bedIds: string[] = []
     for (let i = 1; i <= room.beds; i++) {
-      const bed = await prisma.placementSpot.create({
-        data: {
+      const [bed] = await db
+        .insert(placementSpot)
+        .values({
           housingUnitId: unit.id,
           code: `${room.code}-B${i}`,
           type: 'BED',
           parentSpotId: roomSpot.id,
           capacity: 1,
           status: 'AVAILABLE',
-        },
-      })
+        })
+        .returning()
       bedIds.push(bed.id)
     }
     bedsByRoom.set(room.code, bedIds)
@@ -96,8 +104,9 @@ async function main() {
     const bedId = bedIds.shift()!
 
     const code = await uniqueResidentCode()
-    const resident = await prisma.resident.create({
-      data: {
+    const [resident] = await db
+      .insert(residentTable)
+      .values({
         code,
         displayName: person.displayName,
         // Neutral defaults — everyone refines their own preferences in the
@@ -114,24 +123,22 @@ async function main() {
         mobilityNeeds: 'NONE',
         privacyNeed: 3,
         status: 'PLACED',
-      },
-    })
+      })
+      .returning()
 
-    await prisma.placement.create({
-      data: {
-        residentId: resident.id,
-        housingUnitId: unit.id,
-        spotId: bedId,
-        startDate,
-        status: 'ACTIVE',
-      },
+    await db.insert(placement).values({
+      residentId: resident.id,
+      housingUnitId: unit.id,
+      spotId: bedId,
+      startDate,
+      status: 'ACTIVE',
     })
-    await prisma.placementSpot.update({ where: { id: bedId }, data: { status: 'OCCUPIED' } })
+    await db.update(placementSpot).set({ status: 'OCCUPIED' }).where(eq(placementSpot.id, bedId))
 
     credentials.push({ name: person.displayName, code, room: person.room })
   }
 
-  await syncOrgRules(prisma)
+  await syncOrgRules(db)
 
   console.log(`\n🏠 Seeded ${REAL_APARTMENT.unit.code} (${REAL_APARTMENT.unit.address})`)
   console.log('\nLogin codes — hand these out, they are shown ONCE:\n')
@@ -142,10 +149,11 @@ async function main() {
 }
 
 main()
+  .then(() => {
+    // The pg Pool keeps the event loop alive — exit explicitly on success.
+    process.exit(0)
+  })
   .catch((e) => {
     console.error(e)
     process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
   })

@@ -644,11 +644,7 @@ import {
   TASK_CATEGORY_LABELS,
   TASK_PRIORITY_LABELS,
 } from '@/lib/config/household-tasks'
-import type {
-  HouseholdTaskType,
-  HouseholdTaskCategory,
-  HouseholdTaskPriority,
-} from '@/lib/db'
+import type { HouseholdTaskType, HouseholdTaskCategory, HouseholdTaskPriority } from '@/lib/db'
 
 export const HouseholdTaskTypeSchema = enumFromKeys<HouseholdTaskType>(TASK_TYPE_LABELS)
 export const HouseholdTaskCategorySchema = enumFromKeys<HouseholdTaskCategory>(TASK_CATEGORY_LABELS)

@@ -16,12 +16,20 @@ const mockPlacementFindMany = jest.fn()
 const mockResidentFindMany = jest.fn()
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
-    placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
-    resident: { findMany: (...args: unknown[]) => mockResidentFindMany(...args) },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
+      placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
+      resident: { findMany: (...args: unknown[]) => mockResidentFindMany(...args) },
+    },
   },
 }))
+
+// The source makes TWO placement queries (ended vs recent). They used to be
+// told apart by the plain `where` object's keys; with drizzle the where is an
+// SQL tree, so the dispatch reads the compared column back out of it.
+import { whereParts } from '@/test-utils/drizzle-where'
 
 // =============================================================================
 // DATE FIXTURE
@@ -136,19 +144,17 @@ describe('calculateMissionKPIs', () => {
   // ── Conflict relocation counting ──────────────────────────────────────────
 
   test('counts only CONFLICT end reason as relocations', async () => {
-    mockPlacementFindMany.mockImplementation(
-      (args: { where?: { endDate?: unknown; status?: unknown } }) => {
-        if (args.where?.endDate !== undefined) {
-          // Ended placements query
-          return Promise.resolve([
-            { endDate: d('2026-04-10'), endReason: 'CONFLICT' },
-            { endDate: d('2026-04-15'), endReason: 'NATURAL' }, // not a conflict relocation
-            { endDate: d('2026-04-20'), endReason: 'CONFLICT' },
-          ])
-        }
-        return Promise.resolve([]) // recent placements query
-      },
-    )
+    mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
+      if ('endDate' in whereParts(args.where)) {
+        // Ended placements query
+        return Promise.resolve([
+          { endDate: d('2026-04-10'), endReason: 'CONFLICT' },
+          { endDate: d('2026-04-15'), endReason: 'NATURAL' }, // not a conflict relocation
+          { endDate: d('2026-04-20'), endReason: 'CONFLICT' },
+        ])
+      }
+      return Promise.resolve([]) // recent placements query
+    })
 
     const kpis = await calculateMissionKPIs(6)
     const april = kpis.conflictRelocationsPerMonth.find((d) => d.month === '2026-04')
@@ -157,14 +163,12 @@ describe('calculateMissionKPIs', () => {
   })
 
   test('currentMonthRelocations counts May 2026 conflict ends', async () => {
-    mockPlacementFindMany.mockImplementation(
-      (args: { where?: { endDate?: unknown; status?: unknown } }) => {
-        if (args.where?.endDate !== undefined) {
-          return Promise.resolve([{ endDate: d('2026-05-05'), endReason: 'CONFLICT' }])
-        }
-        return Promise.resolve([])
-      },
-    )
+    mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
+      if ('endDate' in whereParts(args.where)) {
+        return Promise.resolve([{ endDate: d('2026-05-05'), endReason: 'CONFLICT' }])
+      }
+      return Promise.resolve([])
+    })
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -215,15 +219,13 @@ describe('calculateMissionKPIs', () => {
 
     mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
 
-    mockPlacementFindMany.mockImplementation(
-      (args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
-        if (args.where?.startDate !== undefined) {
-          // Recent placements
-          return Promise.resolve([{ residentId: 'res-1', startDate: firstPlacementDate }])
-        }
-        return Promise.resolve([]) // ended placements
-      },
-    )
+    mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
+      if ('startDate' in whereParts(args.where)) {
+        // Recent placements
+        return Promise.resolve([{ residentId: 'res-1', startDate: firstPlacementDate }])
+      }
+      return Promise.resolve([]) // ended placements
+    })
 
     const kpis = await calculateMissionKPIs(6)
 
@@ -235,17 +237,15 @@ describe('calculateMissionKPIs', () => {
 
     mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
 
-    mockPlacementFindMany.mockImplementation(
-      (args: { where?: { endDate?: unknown; startDate?: unknown } }) => {
-        if (args.where?.startDate !== undefined) {
-          return Promise.resolve([
-            { residentId: 'res-1', startDate: d('2026-04-10T00:00:00Z') }, // 9 days
-            { residentId: 'res-1', startDate: d('2026-04-05T00:00:00Z') }, // 4 days ← earliest
-          ])
-        }
-        return Promise.resolve([])
-      },
-    )
+    mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
+      if ('startDate' in whereParts(args.where)) {
+        return Promise.resolve([
+          { residentId: 'res-1', startDate: d('2026-04-10T00:00:00Z') }, // 9 days
+          { residentId: 'res-1', startDate: d('2026-04-05T00:00:00Z') }, // 4 days ← earliest
+        ])
+      }
+      return Promise.resolve([])
+    })
 
     const kpis = await calculateMissionKPIs(6)
 

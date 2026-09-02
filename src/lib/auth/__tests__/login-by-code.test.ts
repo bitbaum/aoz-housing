@@ -13,17 +13,20 @@
 import { BRANDS } from '@/lib/config/brand'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
-const mockUserFindUnique = jest.fn()
+const mockUserFindFirst = jest.fn()
 const mockUserUpdate = jest.fn()
-const mockResidentFindUnique = jest.fn()
+const mockResidentFindFirst = jest.fn()
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: {
-      findUnique: (...a: unknown[]) => mockUserFindUnique(...a),
-      update: (...a: unknown[]) => mockUserUpdate(...a),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: { findFirst: (...a: unknown[]) => mockUserFindFirst(...a) },
+      resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
     },
-    resident: { findUnique: (...a: unknown[]) => mockResidentFindUnique(...a) },
+    update: () => ({
+      set: (data: unknown) => ({ where: () => Promise.resolve(mockUserUpdate(data)) }),
+    }),
   },
 }))
 
@@ -39,10 +42,11 @@ jest.mock('@/lib/auth/rate-limit', () => ({
 jest.mock('next/headers', () => ({ cookies: jest.fn() }))
 
 import { loginByCode } from '@/lib/auth'
+import { eqParts } from '@/test-utils/drizzle-where'
 
 const STAFF = {
   id: 'u1',
-  email: 'staff@example.ch',
+  account: { email: 'staff@example.ch' },
   name: 'Sam Staff',
   role: 'ADMIN' as const,
   active: true,
@@ -50,9 +54,9 @@ const STAFF = {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockUserFindUnique.mockResolvedValue(STAFF)
+  mockUserFindFirst.mockResolvedValue(STAFF)
   mockUserUpdate.mockResolvedValue({})
-  mockResidentFindUnique.mockResolvedValue({ id: 'r1', code: 'RES-010' })
+  mockResidentFindFirst.mockResolvedValue({ id: 'r1', code: 'RES-010' })
 })
 
 describe('loginByCode — staff routing', () => {
@@ -63,9 +67,10 @@ describe('loginByCode — staff routing', () => {
 
       expect(result).toMatchObject({ success: true, type: 'staff' })
       // Looked up by the exact string — a prefix never rewrites a code.
-      expect(mockUserFindUnique).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { code: `${prefix}ADMIN1` } }),
-      )
+      expect(eqParts(mockUserFindFirst.mock.calls[0][0].where)).toEqual({
+        column: 'code',
+        value: `${prefix}ADMIN1`,
+      })
     },
   )
 
@@ -76,7 +81,7 @@ describe('loginByCode — staff routing', () => {
   })
 
   it('rejects an inactive staff account', async () => {
-    mockUserFindUnique.mockResolvedValue({ ...STAFF, active: false })
+    mockUserFindFirst.mockResolvedValue({ ...STAFF, active: false })
     expect(await loginByCode('AOZH-ADMIN1', '10.0.0.1')).toMatchObject({ success: false })
   })
 })
@@ -86,7 +91,7 @@ describe('loginByCode — resident routing', () => {
     const result = await loginByCode(`${RESIDENT_CODE_PREFIX}010`, '10.0.0.1')
 
     expect(result).toMatchObject({ success: true, type: 'resident', code: 'RES-010' })
-    expect(mockUserFindUnique).not.toHaveBeenCalled()
+    expect(mockUserFindFirst).not.toHaveBeenCalled()
   })
 })
 

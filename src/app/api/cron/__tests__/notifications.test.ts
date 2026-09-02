@@ -7,19 +7,22 @@
 
 const mockIncidentFindMany = jest.fn()
 const mockPlacementFindMany = jest.fn()
-// $queryRaw is used for pg_try_advisory_lock + pg_advisory_unlock.
+// db.execute is used for pg_try_advisory_lock + pg_advisory_unlock.
 // Default mock: lock acquired so the route proceeds normally; tests can
-// override per case.
-const mockQueryRaw = jest.fn().mockResolvedValue([{ ok: true }])
+// override per case. db.execute resolves a pg result object ({ rows }).
+const mockExecute = jest.fn().mockResolvedValue({ rows: [{ ok: true }] })
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    incident: {
-      findMany: (...args: unknown[]) => mockIncidentFindMany(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      incident: {
+        findMany: (...args: unknown[]) => mockIncidentFindMany(...args),
+      },
+      placement: {
+        findMany: (...args: unknown[]) => mockPlacementFindMany(...args),
+      },
     },
-    placement: {
-      findMany: (...args: unknown[]) => mockPlacementFindMany(...args),
-    },
-    $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+    execute: (...args: unknown[]) => mockExecute(...args),
   },
 }))
 
@@ -48,6 +51,7 @@ jest.mock('@/lib/logger', () => ({
 
 // --- Import after mocks ---
 import { GET } from '../notifications/route'
+import { PgDialect } from 'drizzle-orm/pg-core'
 
 // --- Helpers ---
 
@@ -153,13 +157,13 @@ describe('overdue incident follow-ups', () => {
 
     await GET(createCronRequest(`Bearer ${CRON_SECRET}`))
 
-    expect(mockIncidentFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
-          severity: { in: ['MEDIUM', 'HIGH', 'CRITICAL'] },
-        }),
-      }),
-    )
+    // The where arg is now a drizzle expression; render it to SQL to keep the
+    // assertion about the severity filter itself.
+    expect(mockIncidentFindMany).toHaveBeenCalledTimes(1)
+    const [args] = mockIncidentFindMany.mock.calls[0] as [{ where: never }]
+    const rendered = new PgDialect().sqlToQuery(args.where)
+    expect(rendered.sql).toContain('"severity" in (')
+    expect(rendered.params).toEqual(expect.arrayContaining(['MEDIUM', 'HIGH', 'CRITICAL']))
   })
 
   test('does not send when no overdue incidents', async () => {

@@ -6,6 +6,9 @@
  */
 
 import { logAudit, getEntityAuditLog, getRecentAuditLogs } from '../audit'
+import { auditLog } from '@/lib/db'
+import { desc } from 'drizzle-orm'
+import { whereParts } from '@/test-utils/drizzle-where'
 
 // =============================================================================
 // MOCKS
@@ -15,10 +18,11 @@ const mockAuditLogCreate = jest.fn()
 const mockAuditLogFindMany = jest.fn()
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    auditLog: {
-      create: (...args: unknown[]) => mockAuditLogCreate(...args),
-      findMany: (...args: unknown[]) => mockAuditLogFindMany(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    insert: () => ({ values: (v: unknown) => Promise.resolve(mockAuditLogCreate(v)) }),
+    query: {
+      auditLog: { findMany: (...args: unknown[]) => mockAuditLogFindMany(...args) },
     },
   },
 }))
@@ -57,15 +61,15 @@ describe('logAudit', () => {
       reason: 'Test reason',
     })
 
-    expect(mockAuditLogCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockAuditLogCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         action: 'CREATE',
         entity: 'RESIDENT',
         entityId: 'res-123',
         userId: 'user-1',
         reason: 'Test reason',
       }),
-    })
+    )
   })
 
   test('includes changes field when provided', async () => {
@@ -79,9 +83,7 @@ describe('logAudit', () => {
       changes,
     })
 
-    expect(mockAuditLogCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ changes }),
-    })
+    expect(mockAuditLogCreate).toHaveBeenCalledWith(expect.objectContaining({ changes }))
   })
 
   // ── Auto userId capture ───────────────────────────────────────────────────
@@ -95,9 +97,9 @@ describe('logAudit', () => {
       entityId: 'spot-456',
     })
 
-    expect(mockAuditLogCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ userId: 'auto-user-id' }),
-    })
+    expect(mockAuditLogCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'auto-user-id' }),
+    )
   })
 
   test('uses null userId when getCurrentUser returns null and userId not provided', async () => {
@@ -109,9 +111,7 @@ describe('logAudit', () => {
       entityId: 'placement-789',
     })
 
-    expect(mockAuditLogCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ userId: undefined }),
-    })
+    expect(mockAuditLogCreate).toHaveBeenCalledWith(expect.objectContaining({ userId: undefined }))
   })
 
   test('explicit userId takes precedence over getCurrentUser', async () => {
@@ -126,14 +126,14 @@ describe('logAudit', () => {
 
     // getCurrentUser should NOT be called when userId is explicit
     expect(mockGetCurrentUser).not.toHaveBeenCalled()
-    expect(mockAuditLogCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ userId: 'explicit-user' }),
-    })
+    expect(mockAuditLogCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'explicit-user' }),
+    )
   })
 
   // ── Non-blocking error handling ───────────────────────────────────────────
 
-  test('does not throw when prisma.auditLog.create fails', async () => {
+  test('does not throw when the audit insert fails', async () => {
     mockAuditLogCreate.mockRejectedValue(new Error('DB connection lost'))
 
     await expect(
@@ -175,11 +175,8 @@ describe('getEntityAuditLog', () => {
   test('queries by entity type and entityId', async () => {
     await getEntityAuditLog('RESIDENT', 'res-123')
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { entity: 'RESIDENT', entityId: 'res-123' },
-      }),
-    )
+    const { where } = mockAuditLogFindMany.mock.calls[0][0]
+    expect(whereParts(where)).toEqual({ entity: 'RESIDENT', entityId: 'res-123' })
   })
 
   test('orders results by createdAt descending', async () => {
@@ -187,7 +184,7 @@ describe('getEntityAuditLog', () => {
 
     expect(mockAuditLogFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        orderBy: { createdAt: 'desc' },
+        orderBy: [desc(auditLog.createdAt)],
       }),
     )
   })
@@ -195,10 +192,10 @@ describe('getEntityAuditLog', () => {
   test('limits results to 50', async () => {
     await getEntityAuditLog('INCIDENT', 'i-1')
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 50 }))
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 50 }))
   })
 
-  test('returns the results from prisma', async () => {
+  test('returns the rows the query hands back', async () => {
     const entries = [{ id: 'log-1', action: 'CREATE' }]
     mockAuditLogFindMany.mockResolvedValue(entries)
 
@@ -221,7 +218,7 @@ describe('getRecentAuditLogs', () => {
 
     expect(mockAuditLogFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        orderBy: { createdAt: 'desc' },
+        orderBy: [desc(auditLog.createdAt)],
       }),
     )
   })
@@ -229,12 +226,12 @@ describe('getRecentAuditLogs', () => {
   test('defaults to limit 100', async () => {
     await getRecentAuditLogs()
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 100 }))
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 100 }))
   })
 
   test('respects custom limit', async () => {
     await getRecentAuditLogs(25)
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ take: 25 }))
+    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 25 }))
   })
 })

@@ -30,21 +30,34 @@ jest.mock('@/lib/auth/code-generation', () => ({
   generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindUnique = jest.fn()
-const mockUserCreate = jest.fn()
-const mockAccountFindUnique = jest.fn()
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: {
-      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
-      create: (...args: unknown[]) => mockUserCreate(...args),
+const mockUserFindFirst = jest.fn()
+const mockUserInsertReturning = jest.fn()
+const mockAccountFindFirst = jest.fn()
+const mockAccountInsertReturning = jest.fn()
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  return {
+    ...actual,
+    db: {
+      query: {
+        user: { findFirst: (...args: unknown[]) => mockUserFindFirst(...args) },
+        // Email lives on the Account, not the User.
+        account: { findFirst: (...args: unknown[]) => mockAccountFindFirst(...args) },
+      },
+      // The route creates User + Account inside one transaction; dispatch each
+      // tx.insert to the mock for the table it targets.
+      transaction: (fn: (tx: unknown) => unknown) =>
+        fn({
+          insert: (table: unknown) => ({
+            values: (v: unknown) => ({
+              returning: (): Promise<unknown[]> =>
+                table === actual.user ? mockUserInsertReturning(v) : mockAccountInsertReturning(v),
+            }),
+          }),
+        }),
     },
-    // Email lives on the Account, not the User.
-    account: {
-      findUnique: (...args: unknown[]) => mockAccountFindUnique(...args),
-    },
-  },
-}))
+  }
+})
 
 const mockSendEmail = jest.fn()
 jest.mock('@/lib/email/service', () => ({
@@ -93,14 +106,12 @@ describe('POST /api/auth/invite', () => {
     jest.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
-    mockUserFindUnique.mockResolvedValue(null) // code not taken
-    mockAccountFindUnique.mockResolvedValue(null) // email not taken
-    mockUserCreate.mockResolvedValue({
-      id: 'new-1',
-      code: 'AOZ-GEN001',
-      name: 'New Staff',
-      account: { email: 'new@aoz.ch' },
-    })
+    mockUserFindFirst.mockResolvedValue(null) // code not taken
+    mockAccountFindFirst.mockResolvedValue(null) // email not taken
+    mockUserInsertReturning.mockResolvedValue([
+      { id: 'new-1', code: 'AOZ-GEN001', name: 'New Staff' },
+    ])
+    mockAccountInsertReturning.mockResolvedValue([{ email: 'new@aoz.ch' }])
     mockSendEmail.mockResolvedValue(true)
   })
 
@@ -197,7 +208,7 @@ describe('POST /api/auth/invite', () => {
   // ── Email uniqueness ───────────────────────────────────────────────────────
 
   test('returns 409 when email already registered', async () => {
-    mockAccountFindUnique.mockResolvedValue({ id: 'existing-1' }) // email already taken
+    mockAccountFindFirst.mockResolvedValue({ id: 'existing-1' }) // email already taken
 
     const req = createJsonRequest({ email: 'existing@aoz.ch', name: 'Duplicate' })
     const res = await POST(req)
@@ -212,7 +223,7 @@ describe('POST /api/auth/invite', () => {
 
   test('returns 500 when all code generation attempts fail', async () => {
     // All generated codes collide
-    mockUserFindUnique.mockResolvedValue({ id: 'existing' })
+    mockUserFindFirst.mockResolvedValue({ id: 'existing' })
 
     const req = createJsonRequest({ email: 'new@aoz.ch', name: 'New Staff' })
     const res = await POST(req)
@@ -234,7 +245,7 @@ describe('POST /api/auth/invite', () => {
 
     expect(res.status).toBe(403)
     expect(body.success).toBe(false)
-    expect(mockUserCreate).not.toHaveBeenCalled()
+    expect(mockUserInsertReturning).not.toHaveBeenCalled()
   })
 
   test('creates user with an explicit role', async () => {
@@ -242,10 +253,8 @@ describe('POST /api/auth/invite', () => {
     const res = await POST(req)
 
     expect(res.status).toBe(200)
-    expect(mockUserCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ role: 'JOBCOACH' }),
-      }),
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'JOBCOACH' }),
     )
   })
 
@@ -261,16 +270,17 @@ describe('POST /api/auth/invite', () => {
     expect(body.user.email).toBe('new@aoz.ch')
     expect(body.emailSent).toBe(true)
 
-    expect(mockUserCreate).toHaveBeenCalledWith(
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          code: 'AOZ-GEN001',
-          name: 'New Staff',
-          account: { create: { email: 'new@aoz.ch' } },
-          role: 'BETREUUNG',
-          active: true,
-        }),
+        code: 'AOZ-GEN001',
+        name: 'New Staff',
+        role: 'BETREUUNG',
+        active: true,
       }),
+    )
+    // The Account row is a second insert in the same transaction, linked by FK.
+    expect(mockAccountInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'new@aoz.ch', userId: 'new-1' }),
     )
     expect(mockSendEmail).toHaveBeenCalledWith(
       ['new@aoz.ch'],
@@ -283,10 +293,8 @@ describe('POST /api/auth/invite', () => {
     const req = createJsonRequest({ email: 'Upper@AOZ.CH', name: 'Mixed Case' })
     await POST(req)
 
-    expect(mockUserCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ account: { create: { email: 'upper@aoz.ch' } } }),
-      }),
+    expect(mockAccountInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ email: 'upper@aoz.ch' }),
     )
   })
 
@@ -294,10 +302,8 @@ describe('POST /api/auth/invite', () => {
     const req = createJsonRequest({ email: 'test@aoz.ch', name: '  Padded Name  ' })
     await POST(req)
 
-    expect(mockUserCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ name: 'Padded Name' }),
-      }),
+    expect(mockUserInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Padded Name' }),
     )
   })
 

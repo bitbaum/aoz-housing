@@ -16,14 +16,22 @@ jest.mock('next/headers', () => ({
   }),
 }))
 
-const mockFindUnique = jest.fn()
+const mockFindFirst = jest.fn()
 const mockUpdate = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findUnique: (...args: unknown[]) => mockFindUnique(...args),
-      update: (...args: unknown[]) => mockUpdate(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: {
+        findFirst: (...args: unknown[]) => mockFindFirst(...args),
+      },
     },
+    // db.update(resident).set(v).where(w) — the mock receives { set, where }.
+    update: () => ({
+      set: (v: unknown) => ({
+        where: (w: unknown): Promise<unknown> => mockUpdate({ set: v, where: w }),
+      }),
+    }),
   },
 }))
 
@@ -43,6 +51,8 @@ jest.mock('@/lib/logger', () => ({
 
 // --- Import after mocks ---
 import { POST } from '../preferences/route'
+import { resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 
 // --- Helpers ---
 
@@ -95,7 +105,7 @@ describe('POST /api/portal/preferences', () => {
 
   test('returns 404 when resident code not found in DB', async () => {
     mockCookieGet.mockReturnValue({ value: 'INVALID-CODE' })
-    mockFindUnique.mockResolvedValue(null)
+    mockFindFirst.mockResolvedValue(null)
 
     const req = createPreferencesRequest(VALID_PREFS)
     const res = await POST(req)
@@ -109,7 +119,7 @@ describe('POST /api/portal/preferences', () => {
   test('updates preferences and returns success', async () => {
     const resident = { id: 'res-1', code: 'RES-001' }
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(resident)
+    mockFindFirst.mockResolvedValue(resident)
     mockUpdate.mockResolvedValue(resident)
 
     const req = createPreferencesRequest(VALID_PREFS)
@@ -119,10 +129,9 @@ describe('POST /api/portal/preferences', () => {
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
 
-    // Verify prisma.resident.update was called with correct data
+    // Verify the resident update was called with correct data
     expect(mockUpdate).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: expect.objectContaining({
+      set: expect.objectContaining({
         sleepSchedule: 'STANDARD',
         noiseTolerance: 3,
         cleanlinessPractice: 4,
@@ -130,13 +139,14 @@ describe('POST /api/portal/preferences', () => {
         privacyNeed: 3,
         smokingStatus: 'NON_SMOKER',
       }),
+      where: eq(residentTable.id, 'res-1'),
     })
   })
 
   test('builds roommatePreferences text from optional fields', async () => {
     const resident = { id: 'res-2', code: 'RES-002' }
     mockCookieGet.mockReturnValue({ value: 'RES-002' })
-    mockFindUnique.mockResolvedValue(resident)
+    mockFindFirst.mockResolvedValue(resident)
     mockUpdate.mockResolvedValue(resident)
 
     const prefsWithRoommate = {
@@ -154,14 +164,14 @@ describe('POST /api/portal/preferences', () => {
     expect(body.success).toBe(true)
 
     const updateCall = mockUpdate.mock.calls[0][0]
-    expect(updateCall.data.roommatePreferences).toContain('Altersgruppe: 25-35')
-    expect(updateCall.data.roommatePreferences).toContain('Kultur: Arabisch')
-    expect(updateCall.data.roommatePreferences).toContain('Ruhige Person')
+    expect(updateCall.set.roommatePreferences).toContain('Altersgruppe: 25-35')
+    expect(updateCall.set.roommatePreferences).toContain('Kultur: Arabisch')
+    expect(updateCall.set.roommatePreferences).toContain('Ruhige Person')
   })
 
   test('returns 400 on validation error (invalid sleepSchedule)', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+    mockFindFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
 
     const invalidPrefs = { ...VALID_PREFS, sleepSchedule: 'INVALID_VALUE' }
     const req = createPreferencesRequest(invalidPrefs)
@@ -174,7 +184,7 @@ describe('POST /api/portal/preferences', () => {
 
   test('returns 500 when database update fails', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
+    mockFindFirst.mockResolvedValue({ id: 'res-1', code: 'RES-001' })
     mockUpdate.mockRejectedValue(new Error('DB connection failed'))
 
     const req = createPreferencesRequest(VALID_PREFS)
@@ -193,7 +203,7 @@ describe('POST /api/portal/preferences', () => {
   test('always updates the resident identified by cookie, never request body', async () => {
     const ownResident = { id: 'res-own', code: 'RES-OWN' }
     mockCookieGet.mockReturnValue({ value: 'RES-OWN' })
-    mockFindUnique.mockResolvedValue(ownResident)
+    mockFindFirst.mockResolvedValue(ownResident)
     mockUpdate.mockResolvedValue(ownResident)
 
     const req = createPreferencesRequest(VALID_PREFS)
@@ -204,25 +214,31 @@ describe('POST /api/portal/preferences', () => {
     expect(body.success).toBe(true)
 
     // Must use DB-resolved resident id, not any value from request body
-    expect(mockFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { code: 'RES-OWN' } }),
+    expect(mockFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: eq(residentTable.code, 'RES-OWN') }),
     )
-    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-own' } }))
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: eq(residentTable.id, 'res-own') }),
+    )
   })
 
   test('cannot update another resident by cookie swap — only cookie-identified resident is updated', async () => {
     // Resident A has their own cookie
     const residentA = { id: 'res-a', code: 'RES-AAA' }
     mockCookieGet.mockReturnValue({ value: 'RES-AAA' })
-    mockFindUnique.mockResolvedValue(residentA)
+    mockFindFirst.mockResolvedValue(residentA)
     mockUpdate.mockResolvedValue(residentA)
 
     const req = createPreferencesRequest(VALID_PREFS)
     await POST(req)
 
     // Update is scoped to resident A's id, regardless of anything else
-    expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-a' } }))
+    expect(mockUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ where: eq(residentTable.id, 'res-a') }),
+    )
     // Resident B's id never appears in any DB call
-    expect(mockUpdate).not.toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'res-b' } }))
+    expect(mockUpdate).not.toHaveBeenCalledWith(
+      expect.objectContaining({ where: eq(residentTable.id, 'res-b') }),
+    )
   })
 })

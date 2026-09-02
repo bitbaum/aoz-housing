@@ -6,12 +6,14 @@
 
 // --- Mocks ---
 
-// $queryRaw serves pg_try_advisory_lock + pg_advisory_unlock. Default:
+// db.execute serves pg_try_advisory_lock + pg_advisory_unlock. Default:
 // lock acquired so the route proceeds; tests override per case.
-const mockQueryRaw = jest.fn()
+// db.execute resolves a pg result object ({ rows }).
+const mockExecute = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    $queryRaw: (...args: unknown[]) => mockQueryRaw(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    execute: (...args: unknown[]) => mockExecute(...args),
   },
 }))
 
@@ -83,7 +85,7 @@ describe('POST /api/cron/reset-demo', () => {
     process.env.CRON_SECRET = CRON_SECRET
     process.env.DEMO_ACCESS_ENABLED = 'true'
     delete process.env.DEMO_RESET_SCOPE
-    mockQueryRaw.mockResolvedValue([{ ok: true }])
+    mockExecute.mockResolvedValue({ rows: [{ ok: true }] })
     mockResetDemoData.mockResolvedValue(FULL_RESET_SUMMARY)
     mockResetDemoWorld.mockResolvedValue(SCOPED_RESET_SUMMARY)
   })
@@ -128,7 +130,7 @@ describe('POST /api/cron/reset-demo', () => {
 
   describe('advisory lock', () => {
     it('skips when another reset already holds the lock', async () => {
-      mockQueryRaw.mockResolvedValueOnce([{ ok: false }])
+      mockExecute.mockResolvedValueOnce({ rows: [{ ok: false }] })
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       const body = await response.json()
       expect(body).toEqual({ skipped: true, reason: 'lock-held' })
@@ -138,15 +140,15 @@ describe('POST /api/cron/reset-demo', () => {
 
     it('releases the lock after a successful reset', async () => {
       await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
-      // First $queryRaw call acquires, second releases.
-      expect(mockQueryRaw).toHaveBeenCalledTimes(2)
+      // First db.execute call acquires, second releases.
+      expect(mockExecute).toHaveBeenCalledTimes(2)
     })
 
     it('releases the lock even when the reset throws', async () => {
       mockResetDemoWorld.mockRejectedValueOnce(new Error('boom'))
       const response = await POST(createCronRequest(`Bearer ${CRON_SECRET}`))
       expect(response.status).toBe(500)
-      expect(mockQueryRaw).toHaveBeenCalledTimes(2)
+      expect(mockExecute).toHaveBeenCalledTimes(2)
     })
   })
 

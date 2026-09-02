@@ -1,5 +1,5 @@
 import { toResidentProfile } from '../convert'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 
 function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
   return {

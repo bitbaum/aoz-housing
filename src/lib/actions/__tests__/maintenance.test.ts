@@ -7,7 +7,8 @@
  * createMaintenanceRequest uses redirect() which throws, so we mock it to throw NEXT_REDIRECT.
  */
 
-import { prisma } from '@/lib/db'
+import { maintenanceRequest } from '@/lib/db'
+import { desc, eq } from 'drizzle-orm'
 import { logAudit } from '@/lib/audit'
 import {
   createMaintenanceRequest,
@@ -22,13 +23,29 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockInsertReturning = jest.fn()
+const mockUpdateReturning = jest.fn()
+const mockUpdateWhere = jest.fn()
+const mockCount = jest.fn()
+const mockFindMany = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    maintenanceRequest: {
-      create: jest.fn(),
-      update: jest.fn(),
-      count: jest.fn(),
-      findMany: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({ returning: (): Promise<unknown[]> => mockInsertReturning(v) }),
+    })),
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({
+        where: (w: unknown) => {
+          mockUpdateWhere(w)
+          return { returning: (): Promise<unknown[]> => mockUpdateReturning(v) }
+        },
+      }),
+    })),
+    $count: (...a: unknown[]) => mockCount(...a),
+    query: {
+      maintenanceRequest: { findMany: (...a: unknown[]) => mockFindMany(...a) },
     },
   },
 }))
@@ -86,8 +103,6 @@ jest.mock('@/lib/logger', () => ({
     errorWithCause: jest.fn(),
   },
 }))
-
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -178,15 +193,17 @@ describe('createMaintenanceRequest', () => {
   })
 
   it('creates maintenance request and redirects on success', async () => {
-    ;(mockPrisma.maintenanceRequest.create as jest.Mock).mockResolvedValue({
-      id: 'mr-1',
-      housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
-    })
+    mockInsertReturning.mockResolvedValue([
+      {
+        id: 'mr-1',
+        housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
+      },
+    ])
 
     await expect(createMaintenanceRequest(makeCreateFormData())).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockPrisma.maintenanceRequest.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
         category: 'PLUMBING',
         priority: 'NORMAL',
@@ -194,7 +211,7 @@ describe('createMaintenanceRequest', () => {
         description: 'Kitchen faucet is leaking',
         status: 'OPEN',
       }),
-    })
+    )
 
     expect(logAudit).toHaveBeenCalledWith({
       action: 'CREATE',
@@ -212,10 +229,12 @@ describe('createMaintenanceRequest', () => {
   })
 
   it('creates request with optional fields when provided', async () => {
-    ;(mockPrisma.maintenanceRequest.create as jest.Mock).mockResolvedValue({
-      id: 'mr-2',
-      housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
-    })
+    mockInsertReturning.mockResolvedValue([
+      {
+        id: 'mr-2',
+        housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
+      },
+    ])
 
     const fd = makeCreateFormData({
       spotId: 'clxxxxxxxxxxxxxxxxx0020',
@@ -226,18 +245,18 @@ describe('createMaintenanceRequest', () => {
 
     await expect(createMaintenanceRequest(fd)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockPrisma.maintenanceRequest.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockInsertReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         spotId: 'clxxxxxxxxxxxxxxxxx0020',
         location: 'Kitchen',
         reporterName: 'Maria',
         reportedById: 'clxxxxxxxxxxxxxxxxx0030',
       }),
-    })
+    )
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the insert fails', async () => {
+    mockInsertReturning.mockRejectedValue(new Error('DB error'))
 
     await expect(createMaintenanceRequest(makeCreateFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_CREATE_ERROR,
@@ -257,20 +276,19 @@ describe('updateMaintenanceStatus', () => {
   })
 
   it('updates status to IN_PROGRESS', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockResolvedValue({
-      housingUnitId: 'hu-1',
-    })
+    mockUpdateReturning.mockResolvedValue([{ housingUnitId: 'hu-1' }])
 
     await updateMaintenanceStatus(makeStatusUpdateFormData())
 
-    expect(mockPrisma.maintenanceRequest.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: expect.objectContaining({
+    expect(mockUpdateWhere).toHaveBeenCalledWith(
+      eq(maintenanceRequest.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         status: 'IN_PROGRESS',
         startedAt: expect.any(Date),
       }),
-      select: { housingUnitId: true },
-    })
+    )
 
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -283,9 +301,7 @@ describe('updateMaintenanceStatus', () => {
   })
 
   it('updates status to COMPLETED with resolution and cost', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockResolvedValue({
-      housingUnitId: 'hu-1',
-    })
+    mockUpdateReturning.mockResolvedValue([{ housingUnitId: 'hu-1' }])
 
     const fd = makeStatusUpdateFormData({
       status: 'COMPLETED',
@@ -295,22 +311,21 @@ describe('updateMaintenanceStatus', () => {
 
     await updateMaintenanceStatus(fd)
 
-    expect(mockPrisma.maintenanceRequest.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: expect.objectContaining({
+    expect(mockUpdateWhere).toHaveBeenCalledWith(
+      eq(maintenanceRequest.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         status: 'COMPLETED',
         completedAt: expect.any(Date),
         resolution: 'Fixed the pipe',
         cost: 150,
       }),
-      select: { housingUnitId: true },
-    })
+    )
   })
 
   it('updates status to ASSIGNED with assignedTo', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockResolvedValue({
-      housingUnitId: 'hu-1',
-    })
+    mockUpdateReturning.mockResolvedValue([{ housingUnitId: 'hu-1' }])
 
     const fd = makeStatusUpdateFormData({
       status: 'ASSIGNED',
@@ -319,21 +334,20 @@ describe('updateMaintenanceStatus', () => {
 
     await updateMaintenanceStatus(fd)
 
-    expect(mockPrisma.maintenanceRequest.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: expect.objectContaining({
+    expect(mockUpdateWhere).toHaveBeenCalledWith(
+      eq(maintenanceRequest.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         status: 'ASSIGNED',
         assignedTo: 'Hans Mueller',
         assignedAt: expect.any(Date),
       }),
-      select: { housingUnitId: true },
-    })
+    )
   })
 
   it('includes notes when provided', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockResolvedValue({
-      housingUnitId: 'hu-1',
-    })
+    mockUpdateReturning.mockResolvedValue([{ housingUnitId: 'hu-1' }])
 
     const fd = makeStatusUpdateFormData({
       notes: 'Waiting for parts',
@@ -342,18 +356,19 @@ describe('updateMaintenanceStatus', () => {
 
     await updateMaintenanceStatus(fd)
 
-    expect(mockPrisma.maintenanceRequest.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: expect.objectContaining({
+    expect(mockUpdateWhere).toHaveBeenCalledWith(
+      eq(maintenanceRequest.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         status: 'ON_HOLD',
         notes: 'Waiting for parts',
       }),
-      select: { housingUnitId: true },
-    })
+    )
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the update fails', async () => {
+    mockUpdateReturning.mockRejectedValue(new Error('DB error'))
 
     await expect(updateMaintenanceStatus(makeStatusUpdateFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR,
@@ -373,20 +388,17 @@ describe('assignMaintenanceRequest', () => {
   })
 
   it('assigns request and sets status to ASSIGNED', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockResolvedValue({
-      housingUnitId: 'hu-1',
-    })
+    mockUpdateReturning.mockResolvedValue([{ housingUnitId: 'hu-1' }])
 
     await assignMaintenanceRequest(makeAssignFormData())
 
-    expect(mockPrisma.maintenanceRequest.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: {
-        status: 'ASSIGNED',
-        assignedTo: 'Hans Mueller',
-        assignedAt: expect.any(Date),
-      },
-      select: { housingUnitId: true },
+    expect(mockUpdateWhere).toHaveBeenCalledWith(
+      eq(maintenanceRequest.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
+    expect(mockUpdateReturning).toHaveBeenCalledWith({
+      status: 'ASSIGNED',
+      assignedTo: 'Hans Mueller',
+      assignedAt: expect.any(Date),
     })
 
     expect(logAudit).toHaveBeenCalledWith({
@@ -398,8 +410,8 @@ describe('assignMaintenanceRequest', () => {
     })
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.maintenanceRequest.update as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the update fails', async () => {
+    mockUpdateReturning.mockRejectedValue(new Error('DB error'))
 
     await expect(assignMaintenanceRequest(makeAssignFormData())).rejects.toThrow(
       ERROR_MESSAGES.MAINTENANCE_ASSIGN_ERROR,
@@ -412,9 +424,9 @@ describe('assignMaintenanceRequest', () => {
 // =============================================================================
 
 describe('getMaintenanceStats', () => {
-  it('returns correct stats from prisma counts', async () => {
+  it('returns correct stats from db counts', async () => {
     // Mock the Promise.all counts: open, assigned, inProgress, onHold, completedThisMonth
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock)
+    mockCount
       .mockResolvedValueOnce(5) // open
       .mockResolvedValueOnce(3) // assigned
       .mockResolvedValueOnce(2) // inProgress
@@ -436,7 +448,7 @@ describe('getMaintenanceStats', () => {
   })
 
   it('returns zeros when no requests exist', async () => {
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
+    mockCount.mockResolvedValue(0)
 
     const stats = await getMaintenanceStats()
 
@@ -462,24 +474,24 @@ describe('getHousingUnitMaintenance', () => {
       { id: 'mr-1', title: 'Leaky faucet', status: 'OPEN' },
       { id: 'mr-2', title: 'Broken window', status: 'COMPLETED' },
     ]
-    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue(mockRequests)
+    mockFindMany.mockResolvedValue(mockRequests)
 
     const result = await getHousingUnitMaintenance('hu-1')
 
     expect(result).toEqual(mockRequests)
-    expect(mockPrisma.maintenanceRequest.findMany).toHaveBeenCalledWith({
-      where: { housingUnitId: 'hu-1' },
-      include: {
+    expect(mockFindMany).toHaveBeenCalledWith({
+      where: eq(maintenanceRequest.housingUnitId, 'hu-1'),
+      with: {
         spot: true,
-        reportedBy: { select: { id: true, code: true } },
+        reportedBy: { columns: { id: true, code: true } },
       },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
+      orderBy: [desc(maintenanceRequest.createdAt)],
+      limit: 20,
     })
   })
 
   it('returns empty array when no requests exist', async () => {
-    ;(mockPrisma.maintenanceRequest.findMany as jest.Mock).mockResolvedValue([])
+    mockFindMany.mockResolvedValue([])
 
     const result = await getHousingUnitMaintenance('hu-1')
 

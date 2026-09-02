@@ -1385,15 +1385,13 @@ export async function seedDemoData(
         date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
       })
       .returning()
-    await tx
-      .insert(expenseShare)
-      .values(
-        unit5MemberIds.map((residentId) => ({
-          expenseId: created.id,
-          residentId,
-          amountRappen: 1200,
-        })),
-      )
+    await tx.insert(expenseShare).values(
+      unit5MemberIds.map((residentId) => ({
+        expenseId: created.id,
+        residentId,
+        amountRappen: 1200,
+      })),
+    )
     return created
   })
   await dbClient.transaction(async (tx) => {
@@ -1409,15 +1407,13 @@ export async function seedDemoData(
         date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
       })
       .returning()
-    await tx
-      .insert(expenseShare)
-      .values(
-        unit5MemberIds.map((residentId) => ({
-          expenseId: created.id,
-          residentId,
-          amountRappen: 465,
-        })),
-      )
+    await tx.insert(expenseShare).values(
+      unit5MemberIds.map((residentId) => ({
+        expenseId: created.id,
+        residentId,
+        amountRappen: 465,
+      })),
+    )
   })
   await dbClient.insert(settlement).values({
     housingUnitId: unit5.id,

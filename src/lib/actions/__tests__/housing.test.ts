@@ -5,7 +5,8 @@
  * createHousingUnit/updateHousingUnit use redirect() which throws, so they are not tested here.
  */
 
-import { prisma } from '@/lib/db'
+import { getTableName } from 'drizzle-orm'
+import { placement, incident, maintenanceRequest, placementSpot, householdTask } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { archiveHousingUnit, restoreHousingUnit, hardDeleteHousingUnitProtected } from '../housing'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -14,20 +15,30 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockHousingUnitFindFirst = jest.fn()
+const mockUpdateSet = jest.fn()
+const mockDelete = jest.fn()
+const mockCount = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    housingUnit: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      housingUnit: { findFirst: (...a: unknown[]) => mockHousingUnitFindFirst(...a) },
     },
-    placement: { count: jest.fn() },
-    incident: { count: jest.fn() },
-    maintenanceRequest: { count: jest.fn() },
-    placementSpot: { count: jest.fn() },
-    householdTask: { count: jest.fn() },
-    auditLog: { create: jest.fn() },
+    update: jest.fn(() => ({
+      set: (v: unknown) => {
+        mockUpdateSet(v)
+        return {
+          where: () =>
+            Object.assign(Promise.resolve([]), {
+              returning: (): Promise<unknown[]> => Promise.resolve([{ id: 'hu-1' }]),
+            }),
+        }
+      },
+    })),
+    delete: jest.fn(() => ({ where: (w: unknown) => mockDelete(w) })),
+    $count: (table: unknown, where: unknown) => mockCount(table, where),
   },
 }))
 
@@ -81,10 +92,16 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+/** Route db.$count(table, where) by table, like the old per-model count mocks. */
+function mockCountsByTable(counts: Record<string, number>) {
+  mockCount.mockImplementation((table: unknown) =>
+    Promise.resolve(counts[getTableName(table as any)] ?? 0),
+  )
+}
 
 beforeEach(() => {
   jest.clearAllMocks()
+  mockDelete.mockResolvedValue(undefined)
 })
 
 // =============================================================================
@@ -93,16 +110,16 @@ beforeEach(() => {
 
 describe('archiveHousingUnit', () => {
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    mockHousingUnitFindFirst.mockResolvedValue(null)
 
     const result = await archiveHousingUnit('nonexistent-id')
 
     expect(result).toEqual({ success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND })
-    expect(mockPrisma.housingUnit.update).not.toHaveBeenCalled()
+    expect(mockUpdateSet).not.toHaveBeenCalled()
   })
 
   it('returns error when unit has active placements', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [{ id: 'pl-1' }],
@@ -113,11 +130,11 @@ describe('archiveHousingUnit', () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toContain('aktive Belegung')
-    expect(mockPrisma.housingUnit.update).not.toHaveBeenCalled()
+    expect(mockUpdateSet).not.toHaveBeenCalled()
   })
 
   it('returns error when unit has occupied spots', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [],
@@ -131,21 +148,17 @@ describe('archiveHousingUnit', () => {
   })
 
   it('succeeds and sets status to CLOSED when no active occupancy', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       placements: [],
       spots: [],
     })
-    ;(mockPrisma.housingUnit.update as jest.Mock).mockResolvedValue({ id: 'hu-1' })
 
     const result = await archiveHousingUnit('hu-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.housingUnit.update).toHaveBeenCalledWith({
-      where: { id: 'hu-1' },
-      data: { status: 'CLOSED' },
-    })
+    expect(mockUpdateSet).toHaveBeenCalledWith({ status: 'CLOSED' })
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'ARCHIVE',
@@ -163,7 +176,7 @@ describe('archiveHousingUnit', () => {
 
 describe('restoreHousingUnit', () => {
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    mockHousingUnitFindFirst.mockResolvedValue(null)
 
     const result = await restoreHousingUnit('nonexistent-id')
 
@@ -171,20 +184,16 @@ describe('restoreHousingUnit', () => {
   })
 
   it('succeeds and sets status to AVAILABLE', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
       status: 'CLOSED',
     })
-    ;(mockPrisma.housingUnit.update as jest.Mock).mockResolvedValue({ id: 'hu-1' })
 
     const result = await restoreHousingUnit('hu-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.housingUnit.update).toHaveBeenCalledWith({
-      where: { id: 'hu-1' },
-      data: { status: 'AVAILABLE' },
-    })
+    expect(mockUpdateSet).toHaveBeenCalledWith({ status: 'AVAILABLE' })
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'RESTORE',
@@ -209,7 +218,7 @@ describe('hardDeleteHousingUnitProtected', () => {
     )
 
     expect(result).toEqual({ success: false, error: 'Bestätigung fehlt (DELETE)' })
-    expect(mockPrisma.housingUnit.findUnique).not.toHaveBeenCalled()
+    expect(mockHousingUnitFindFirst).not.toHaveBeenCalled()
   })
 
   it('returns error when reason is too short', async () => {
@@ -220,7 +229,7 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error when housing unit not found', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    mockHousingUnitFindFirst.mockResolvedValue(null)
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -228,7 +237,7 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error when housing unit is not test/demo', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'WG-001',
     })
@@ -240,15 +249,17 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('returns error with blocker report when unit has linked history', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'test-wg-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(3)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(1)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.count as jest.Mock).mockResolvedValue(4)
-    ;(mockPrisma.householdTask.count as jest.Mock).mockResolvedValue(0)
+    mockCountsByTable({
+      [getTableName(placement)]: 3,
+      [getTableName(incident)]: 1,
+      [getTableName(maintenanceRequest)]: 0,
+      [getTableName(placementSpot)]: 4,
+      [getTableName(householdTask)]: 0,
+    })
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -261,21 +272,16 @@ describe('hardDeleteHousingUnitProtected', () => {
   })
 
   it('succeeds for test housing unit with no linked history', async () => {
-    ;(mockPrisma.housingUnit.findUnique as jest.Mock).mockResolvedValue({
+    mockHousingUnitFindFirst.mockResolvedValue({
       id: 'hu-1',
       code: 'demo-wg-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.householdTask.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.housingUnit.delete as jest.Mock).mockResolvedValue({ id: 'hu-1' })
+    mockCountsByTable({})
 
     const result = await hardDeleteHousingUnitProtected('hu-1', 'DELETE', 'Testdaten bereinigen')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.housingUnit.delete).toHaveBeenCalledWith({ where: { id: 'hu-1' } })
+    expect(mockDelete).toHaveBeenCalledTimes(1)
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'DELETE',

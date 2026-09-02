@@ -16,12 +16,7 @@
  *     did not hold — it says nothing about who was at fault.
  */
 
-import type {
-  IncidentCategory,
-  IncidentSeverity,
-  ResolutionStage,
-  AgreementStatus,
-} from '@/lib/db'
+import type { IncidentCategory, IncidentSeverity, ResolutionStage, AgreementStatus } from '@/lib/db'
 
 // =============================================================================
 // THE LADDER

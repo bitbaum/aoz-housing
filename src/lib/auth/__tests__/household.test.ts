@@ -8,10 +8,16 @@
  * kind of property that a later refactor could quietly undo.
  */
 
+const mockAccountFindFirst = jest.fn()
+const mockTransaction = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    account: { findUnique: jest.fn() },
-    $transaction: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      account: { findFirst: (...a: unknown[]) => mockAccountFindFirst(...a) },
+    },
+    transaction: (fn: (tx: unknown) => unknown) => mockTransaction(fn),
   },
 }))
 
@@ -67,13 +73,14 @@ jest.mock('@/lib/auth/code-generation', () => ({
   generateResidentCode: () => 'MB-TEST01',
 }))
 
-import { prisma } from '@/lib/db'
 import { registerWithNewHousehold } from '@/lib/auth/household'
-
-const mockPrisma = prisma as unknown as {
-  account: { findUnique: jest.Mock }
-  $transaction: jest.Mock
-}
+import {
+  housingUnit,
+  resident as residentTable,
+  placement,
+  account as accountTable,
+  user as userTable,
+} from '@/lib/db'
 
 /** Captures every table the transaction wrote, so we can assert on absence. */
 function transactionSpy() {
@@ -85,48 +92,41 @@ function transactionSpy() {
     user: [],
   }
 
-  const tx = {
-    housingUnit: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.housingUnit.push(data)
-        return { id: 'unit-1' }
-      }),
-    },
-    resident: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.resident.push(data)
-        return { id: 'res-1', code: 'MB-TEST01' }
-      }),
-    },
-    placement: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.placement.push(data)
-        return { id: 'pl-1' }
-      }),
-    },
-    account: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.account.push(data)
-        return { id: 'acc-1' }
-      }),
-    },
-    // Present but must never be called.
-    user: {
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.user.push(data)
-        return { id: 'user-1' }
-      }),
-    },
-  }
+  const tableKeys = new Map<unknown, string>([
+    [housingUnit, 'housingUnit'],
+    [residentTable, 'resident'],
+    [placement, 'placement'],
+    [accountTable, 'account'],
+    // Present but must never be written to.
+    [userTable, 'user'],
+  ])
+  const returningRows = new Map<unknown, unknown[]>([
+    [housingUnit, [{ id: 'unit-1' }]],
+    [residentTable, [{ id: 'res-1', code: 'MB-TEST01' }]],
+    [placement, [{ id: 'pl-1' }]],
+    [accountTable, [{ id: 'acc-1' }]],
+    [userTable, [{ id: 'user-1' }]],
+  ])
 
-  mockPrisma.$transaction.mockImplementation(async (fn: (t: typeof tx) => unknown) => fn(tx))
-  return { tx, created }
+  const insert = jest.fn((table: unknown) => ({
+    values: (data: unknown) => {
+      created[tableKeys.get(table) ?? 'unknown']?.push(data)
+      // `.values()` alone is awaitable; `.returning()` yields the created row.
+      return Object.assign(Promise.resolve(), {
+        returning: () => Promise.resolve(returningRows.get(table)),
+      })
+    },
+  }))
+  const tx = { insert }
+
+  mockTransaction.mockImplementation(async (fn: (t: typeof tx) => unknown) => fn(tx))
+  return { tx, created, insert }
 }
 
 beforeEach(() => {
   jest.clearAllMocks()
   globalThis.__selfServeHousehold = true
-  mockPrisma.account.findUnique.mockResolvedValue(null)
+  mockAccountFindFirst.mockResolvedValue(null)
 })
 
 const INPUT = {
@@ -150,11 +150,11 @@ describe('registerWithNewHousehold', () => {
   })
 
   it('NEVER creates a staff user — staff permissions are global', async () => {
-    const { tx, created } = transactionSpy()
+    const { created, insert } = transactionSpy()
 
     const result = await registerWithNewHousehold(INPUT)
 
-    expect(tx.user.create).not.toHaveBeenCalled()
+    expect(insert).not.toHaveBeenCalledWith(userTable)
     expect(created.user).toHaveLength(0)
     // And the session it asks for carries no staff side at all.
     expect(result.success && 'staff' in result.identities).toBe(false)
@@ -197,13 +197,13 @@ describe('registerWithNewHousehold', () => {
   // safeguarding gate through a mock only proves the mock works.
 
   it('refuses an email that already has an account', async () => {
-    mockPrisma.account.findUnique.mockResolvedValue({ id: 'existing' })
-    const { tx } = transactionSpy()
+    mockAccountFindFirst.mockResolvedValue({ id: 'existing' })
+    const { insert } = transactionSpy()
 
     const result = await registerWithNewHousehold(INPUT)
 
     expect(result.success).toBe(false)
-    expect(tx.housingUnit.create).not.toHaveBeenCalled()
+    expect(insert).not.toHaveBeenCalled()
   })
 
   it('still succeeds when the verification email cannot be sent', async () => {

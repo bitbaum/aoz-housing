@@ -14,24 +14,40 @@
  *   3. A resident with no active placement can still have appointments closed.
  */
 
-import { prisma } from '@/lib/db'
+import { getTableName } from 'drizzle-orm'
+import { appointment, placement } from '@/lib/db'
 import { setAppointmentStatus } from '../care'
 
+const mockAppointmentFindFirst = jest.fn()
+const mockPlacementFindFirst = jest.fn()
+const mockCheckInCreate = jest.fn()
+/** Records every update — direct or in a transaction — as (tableName, payload). */
+const mockUpdateSet = jest.fn()
+
 jest.mock('@/lib/db', () => {
-  // Annotated because $transaction refers to prismaMock inside its own
-  // initializer, which otherwise infers as `any` under strict mode.
-  const prismaMock: {
-    appointment: { findUnique: jest.Mock; update: jest.Mock }
-    placement: { findFirst: jest.Mock; update: jest.Mock }
-    satisfactionCheckIn: { create: jest.Mock }
-    $transaction: jest.Mock
-  } = {
-    appointment: { findUnique: jest.fn(), update: jest.fn() },
-    placement: { findFirst: jest.fn(), update: jest.fn() },
-    satisfactionCheckIn: { create: jest.fn() },
-    $transaction: jest.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+  const update = jest.fn((table: unknown) => ({
+    set: (v: unknown) => {
+      const { getTableName: tableName } = require('drizzle-orm')
+
+      mockUpdateSet(tableName(table as any), v)
+      return { where: () => Promise.resolve([]) }
+    },
+  }))
+  const tx = {
+    insert: jest.fn(() => ({ values: (v: unknown) => mockCheckInCreate(v) })),
+    update,
   }
-  return { prisma: prismaMock }
+  return {
+    ...jest.requireActual<object>('@/lib/db'),
+    db: {
+      query: {
+        appointment: { findFirst: (...a: unknown[]) => mockAppointmentFindFirst(...a) },
+        placement: { findFirst: (...a: unknown[]) => mockPlacementFindFirst(...a) },
+      },
+      update,
+      transaction: async (cb: (t: unknown) => Promise<unknown>) => cb(tx),
+    },
+  }
 })
 
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
@@ -48,8 +64,6 @@ jest.mock('@/lib/auth', () => ({
   })),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 function completionForm(fields: Record<string, string> = {}): FormData {
   const fd = new FormData()
   fd.set('id', 'appt-1')
@@ -58,20 +72,23 @@ function completionForm(fields: Record<string, string> = {}): FormData {
   return fd
 }
 
+/** The one update setAppointmentStatus always makes: the status itself. */
+function appointmentStatusUpdates() {
+  return mockUpdateSet.mock.calls.filter(([table]) => table === getTableName(appointment))
+}
+
 beforeEach(() => {
   jest.clearAllMocks()
-  ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue({
+  mockAppointmentFindFirst.mockResolvedValue({
     residentId: 'res-1',
     domain: 'HOUSING',
     checkIn: null,
   })
-  ;(mockPrisma.appointment.update as jest.Mock).mockResolvedValue({})
-  ;(mockPrisma.placement.findFirst as jest.Mock).mockResolvedValue({
+  mockPlacementFindFirst.mockResolvedValue({
     id: 'pl-1',
     startDate: new Date('2026-01-01'),
   })
-  ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-  ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+  mockCheckInCreate.mockResolvedValue({ id: 'ci-1' })
 })
 
 describe('completing an appointment', () => {
@@ -79,8 +96,8 @@ describe('completing an appointment', () => {
     const result = await setAppointmentStatus(completionForm())
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.appointment.update).toHaveBeenCalled()
-    expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
+    expect(appointmentStatusUpdates()).not.toHaveLength(0)
+    expect(mockCheckInCreate).not.toHaveBeenCalled()
   })
 
   it.each(['0', '6', '', 'not a number', '3.5'])(
@@ -88,7 +105,7 @@ describe('completing an appointment', () => {
     async (value) => {
       await setAppointmentStatus(completionForm({ overallSatisfaction: value }))
 
-      expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
+      expect(mockCheckInCreate).not.toHaveBeenCalled()
     },
   )
 
@@ -97,33 +114,32 @@ describe('completing an appointment', () => {
       completionForm({ overallSatisfaction: '4', concerns: 'Lärm nachts' }),
     )
 
-    expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockCheckInCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         placementId: 'pl-1',
         appointmentId: 'appt-1',
         overallSatisfaction: 4,
         concerns: 'Lärm nachts',
         collectedByUserId: staff.id,
       }),
-    })
-    expect(mockPrisma.placement.update).toHaveBeenCalledWith({
-      where: { id: 'pl-1' },
-      data: { satisfactionRating: 4 },
+    )
+    expect(mockUpdateSet).toHaveBeenCalledWith(getTableName(placement), {
+      satisfactionRating: 4,
     })
   })
 
   it('still closes the appointment when the resident has no active placement', async () => {
-    ;(mockPrisma.placement.findFirst as jest.Mock).mockResolvedValue(null)
+    mockPlacementFindFirst.mockResolvedValue(null)
 
     const result = await setAppointmentStatus(completionForm({ overallSatisfaction: '5' }))
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.appointment.update).toHaveBeenCalled()
-    expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
+    expect(appointmentStatusUpdates()).not.toHaveLength(0)
+    expect(mockCheckInCreate).not.toHaveBeenCalled()
   })
 
   it('does not overwrite a reading already recorded for this appointment', async () => {
-    ;(mockPrisma.appointment.findUnique as jest.Mock).mockResolvedValue({
+    mockAppointmentFindFirst.mockResolvedValue({
       residentId: 'res-1',
       domain: 'HOUSING',
       checkIn: { id: 'ci-existing' },
@@ -131,7 +147,7 @@ describe('completing an appointment', () => {
 
     await setAppointmentStatus(completionForm({ overallSatisfaction: '2' }))
 
-    expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
+    expect(mockCheckInCreate).not.toHaveBeenCalled()
   })
 
   it('records nothing when the appointment is cancelled rather than held', async () => {
@@ -140,6 +156,6 @@ describe('completing an appointment', () => {
 
     await setAppointmentStatus(fd)
 
-    expect(mockPrisma.satisfactionCheckIn.create).not.toHaveBeenCalled()
+    expect(mockCheckInCreate).not.toHaveBeenCalled()
   })
 })

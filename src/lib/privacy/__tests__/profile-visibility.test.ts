@@ -4,7 +4,7 @@ import {
   PROFILE_VISIBILITY_OPTIONS,
   type ProfileViewer,
 } from '@/lib/privacy/profile-visibility'
-import type { ProfileVisibility } from '@prisma/client'
+import type { ProfileVisibility } from '@/lib/db'
 
 /**
  * The failure this suite exists to prevent is not a crash. It is a photo shown

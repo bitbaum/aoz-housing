@@ -7,7 +7,8 @@
  * createCheckInFromForm uses redirect() which throws, so we mock it to throw NEXT_REDIRECT.
  */
 
-import { prisma } from '@/lib/db'
+import { placement, satisfactionCheckIn } from '@/lib/db'
+import { eq, asc, desc } from 'drizzle-orm'
 import { logAudit } from '@/lib/audit'
 import {
   createCheckInFromForm,
@@ -20,25 +21,41 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockPlacementFindFirst = jest.fn()
+const mockCheckInFindMany = jest.fn()
+// Receives the insert payload; resolves with the created row.
+const mockCheckInInsert = jest.fn()
+// Receives (table, set payload, where expression) of the placement update.
+const mockPlacementUpdate = jest.fn()
+
 jest.mock('@/lib/db', () => {
-  const prismaMock: {
-    placement: { findUnique: jest.Mock; update: jest.Mock }
-    satisfactionCheckIn: { create: jest.Mock; findMany: jest.Mock }
-    $transaction: jest.Mock
-  } = {
-    placement: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    satisfactionCheckIn: {
-      create: jest.fn(),
-      findMany: jest.fn(),
-    },
-    // $transaction(callback) invokes the callback with the same mock client
-    // so individual model mocks (create, update) continue to be observed.
-    $transaction: jest.fn(async (cb: (tx: unknown) => Promise<unknown>) => cb(prismaMock)),
+  // Keep tables/enums/helpers real; only fake `db`.
+  const actual = jest.requireActual<object>('@/lib/db')
+  // db.transaction(cb) invokes the callback with a tx carrying the builder
+  // surface the action uses, so the write mocks continue to be observed.
+  const tx = {
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({
+        returning: (): Promise<unknown[]> =>
+          Promise.resolve(mockCheckInInsert(v)).then((row: unknown) => [row]),
+      }),
+    })),
+    update: jest.fn((table: unknown) => ({
+      set: (v: unknown) => ({
+        where: (w: unknown): Promise<unknown> => Promise.resolve(mockPlacementUpdate(table, v, w)),
+      }),
+    })),
   }
-  return { prisma: prismaMock }
+  return {
+    ...actual,
+    db: {
+      query: {
+        placement: { findFirst: (...a: unknown[]) => mockPlacementFindFirst(...a) },
+        satisfactionCheckIn: { findMany: (...a: unknown[]) => mockCheckInFindMany(...a) },
+      },
+      transaction: (fn: (t: unknown) => unknown) => fn(tx),
+    },
+  }
 })
 
 jest.mock('next/cache', () => ({
@@ -95,8 +112,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -142,7 +157,7 @@ describe('createCheckInFromForm', () => {
   })
 
   it('throws when placement is not found', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue(null)
+    mockPlacementFindFirst.mockResolvedValue(null)
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
       ERROR_MESSAGES.PLACEMENT_NOT_FOUND,
@@ -151,19 +166,19 @@ describe('createCheckInFromForm', () => {
 
   it('creates check-in and redirects on success', async () => {
     const placementStart = new Date('2025-01-01')
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    mockPlacementFindFirst.mockResolvedValue({
       residentId: 'res-1',
       startDate: placementStart,
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    mockCheckInInsert.mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    mockPlacementUpdate.mockResolvedValue({})
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockCheckInInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
         placementId: 'clxxxxxxxxxxxxxxxxx0001',
         checkInType: 'REGULAR',
         overallSatisfaction: 4,
@@ -172,13 +187,14 @@ describe('createCheckInFromForm', () => {
         safetyFeeling: 5,
         isAnonymous: false,
       }),
-    })
+    )
 
     // Placement satisfaction updated
-    expect(mockPrisma.placement.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0001' },
-      data: { satisfactionRating: 4 },
-    })
+    expect(mockPlacementUpdate).toHaveBeenCalledWith(
+      placement,
+      { satisfactionRating: 4 },
+      eq(placement.id, 'clxxxxxxxxxxxxxxxxx0001'),
+    )
 
     // Audit logged
     expect(logAudit).toHaveBeenCalledWith({
@@ -199,35 +215,35 @@ describe('createCheckInFromForm', () => {
   })
 
   it('uses provided weekNumber when given', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    mockPlacementFindFirst.mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    mockCheckInInsert.mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    mockPlacementUpdate.mockResolvedValue({})
 
     const fd = makeCheckInFormData({ weekNumber: '5' })
 
     await expect(createCheckInFromForm(fd)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockCheckInInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
         weekNumber: 5,
       }),
-    })
+    )
   })
 
   it('includes concerns and text fields when provided', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    mockPlacementFindFirst.mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({
+    mockCheckInInsert.mockResolvedValue({
       id: 'ci-1',
     })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    mockPlacementUpdate.mockResolvedValue({})
 
     const fd = makeCheckInFormData({
       concerns: 'Noise at night',
@@ -238,14 +254,14 @@ describe('createCheckInFromForm', () => {
 
     await expect(createCheckInFromForm(fd)).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(mockPrisma.satisfactionCheckIn.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockCheckInInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
         concerns: 'Noise at night',
         improvements: 'Quiet hours',
         positives: 'Nice location',
         collectedBy: 'Staff member',
       }),
-    })
+    )
 
     // hasConcerns should be true in audit
     expect(logAudit).toHaveBeenCalledWith(
@@ -257,12 +273,12 @@ describe('createCheckInFromForm', () => {
     )
   })
 
-  it('throws user-facing error when prisma create fails', async () => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+  it('throws user-facing error when the insert fails', async () => {
+    mockPlacementFindFirst.mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+    mockCheckInInsert.mockRejectedValue(new Error('DB error'))
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(
       ERROR_MESSAGES.CHECKIN_SAVE_ERROR,
@@ -290,31 +306,31 @@ describe('createCheckInFromForm', () => {
  */
 describe('who collected a check-in', () => {
   beforeEach(() => {
-    ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+    mockPlacementFindFirst.mockResolvedValue({
       residentId: 'res-1',
       startDate: new Date('2025-01-01'),
     })
-    ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-    ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+    mockCheckInInsert.mockResolvedValue({ id: 'ci-1' })
+    mockPlacementUpdate.mockResolvedValue({})
   })
 
   it('always records the signed-in account, whatever the form says', async () => {
     for (const typed of ['', 'Team Nord', 'a colleague']) {
       jest.clearAllMocks()
-      ;(mockPrisma.placement.findUnique as jest.Mock).mockResolvedValue({
+      mockPlacementFindFirst.mockResolvedValue({
         residentId: 'res-1',
         startDate: new Date('2025-01-01'),
       })
-      ;(mockPrisma.satisfactionCheckIn.create as jest.Mock).mockResolvedValue({ id: 'ci-1' })
-      ;(mockPrisma.placement.update as jest.Mock).mockResolvedValue({})
+      mockCheckInInsert.mockResolvedValue({ id: 'ci-1' })
+      mockPlacementUpdate.mockResolvedValue({})
 
       await expect(
         createCheckInFromForm(makeCheckInFormData({ collectedBy: typed })),
       ).rejects.toThrow('NEXT_REDIRECT')
 
-      const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
-      expect(call[0].data.collectedByUserId).toBe(mockStaffUser.id)
-      expect(call[0].data.collectedBy).toBe(typed || null)
+      const [call] = mockCheckInInsert.mock.calls
+      expect(call[0].collectedByUserId).toBe(mockStaffUser.id)
+      expect(call[0].collectedBy).toBe(typed || null)
     }
   })
 
@@ -323,9 +339,9 @@ describe('who collected a check-in', () => {
       createCheckInFromForm(makeCheckInFormData({ collectedBy: 'Team Nord' })),
     ).rejects.toThrow('NEXT_REDIRECT')
 
-    const [call] = (mockPrisma.satisfactionCheckIn.create as jest.Mock).mock.calls
+    const [call] = mockCheckInInsert.mock.calls
     // The note must never be mistaken for an identifier.
-    expect(call[0].data.collectedBy).not.toBe(call[0].data.collectedByUserId)
+    expect(call[0].collectedBy).not.toBe(call[0].collectedByUserId)
   })
 })
 
@@ -339,19 +355,19 @@ describe('getPlacementCheckIns', () => {
       { id: 'ci-1', overallSatisfaction: 4 },
       { id: 'ci-2', overallSatisfaction: 3 },
     ]
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue(mockCheckIns)
+    mockCheckInFindMany.mockResolvedValue(mockCheckIns)
 
     const result = await getPlacementCheckIns('pl-1')
 
     expect(result).toEqual(mockCheckIns)
-    expect(mockPrisma.satisfactionCheckIn.findMany).toHaveBeenCalledWith({
-      where: { placementId: 'pl-1' },
-      orderBy: { createdAt: 'desc' },
+    expect(mockCheckInFindMany).toHaveBeenCalledWith({
+      where: eq(satisfactionCheckIn.placementId, 'pl-1'),
+      orderBy: [desc(satisfactionCheckIn.createdAt)],
     })
   })
 
   it('returns empty array when no check-ins exist', async () => {
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([])
+    mockCheckInFindMany.mockResolvedValue([])
 
     const result = await getPlacementCheckIns('pl-1')
 
@@ -367,7 +383,7 @@ describe('getPlacementSatisfactionTrend', () => {
   it('returns mapped trend data', async () => {
     const date1 = new Date('2025-01-15')
     const date2 = new Date('2025-01-22')
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([
+    mockCheckInFindMany.mockResolvedValue([
       {
         createdAt: date1,
         weekNumber: 1,
@@ -389,10 +405,10 @@ describe('getPlacementSatisfactionTrend', () => {
       { date: date2, week: 2, overall: 5, roommates: 4 },
     ])
 
-    expect(mockPrisma.satisfactionCheckIn.findMany).toHaveBeenCalledWith({
-      where: { placementId: 'pl-1' },
-      orderBy: { createdAt: 'asc' },
-      select: {
+    expect(mockCheckInFindMany).toHaveBeenCalledWith({
+      where: eq(satisfactionCheckIn.placementId, 'pl-1'),
+      orderBy: [asc(satisfactionCheckIn.createdAt)],
+      columns: {
         createdAt: true,
         weekNumber: true,
         overallSatisfaction: true,
@@ -403,7 +419,7 @@ describe('getPlacementSatisfactionTrend', () => {
 
   it('handles null roommateRelations', async () => {
     const date1 = new Date('2025-01-15')
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([
+    mockCheckInFindMany.mockResolvedValue([
       {
         createdAt: date1,
         weekNumber: 1,
@@ -418,7 +434,7 @@ describe('getPlacementSatisfactionTrend', () => {
   })
 
   it('returns empty array when no check-ins exist', async () => {
-    ;(mockPrisma.satisfactionCheckIn.findMany as jest.Mock).mockResolvedValue([])
+    mockCheckInFindMany.mockResolvedValue([])
 
     const result = await getPlacementSatisfactionTrend('pl-1')
 

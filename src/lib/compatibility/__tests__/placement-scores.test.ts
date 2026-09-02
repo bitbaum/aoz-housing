@@ -7,7 +7,7 @@
  */
 
 import { calculateAverageScores } from '../placement-scores'
-import type { Resident, Placement } from '@prisma/client'
+import type { Resident, Placement } from '@/lib/db'
 
 // =============================================================================
 // HELPERS
