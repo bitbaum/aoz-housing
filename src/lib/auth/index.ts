@@ -29,6 +29,7 @@ import {
   type StaffRole,
 } from './role-policy'
 import type { SiteCapabilities } from './site-access'
+import { IMPERSONATION_CLAIM } from './impersonation'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Re-export types
@@ -51,6 +52,17 @@ export interface AuthUser extends StaffCapabilities, SiteCapabilities {
   email: string // JWT still carries email (may be empty string for code-only users)
   name: string
   role: StaffRole
+  /**
+   * Who opened this view, or null when the session is the person's own.
+   *
+   * REQUIRED, not optional — the same rule `NamedResident.displayName`
+   * follows, for the same reason. `null` means "this is my own session"; a
+   * missing field would mean "nobody asked", and a banner that decides whether
+   * to warn you must never confuse those two. Optional here would let a caller
+   * construct an AuthUser that type-checks while silently claiming to be a
+   * real session.
+   */
+  impersonatorId: string | null
 }
 
 export interface AuthResident {
@@ -114,6 +126,11 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     // narrow someone's reach, never throw and take the whole request down.
     assignedUnitIds:
       row.siteAccess === 'ALL_UNITS' ? [] : (row.unitAccess ?? []).map((r) => r.housingUnitId),
+    // From the TOKEN, deliberately — unlike scope and siteAccess above. Those
+    // are privileges, which must not go stale. This one is a fact about how
+    // this particular session was opened, and the session is exactly what the
+    // token describes. There is nowhere else it could be read from.
+    impersonatorId: payload[IMPERSONATION_CLAIM] ?? null,
   }
 }
 
@@ -296,6 +313,11 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         role: staff.role,
         scope: staff.scope,
         isSystemAdmin: staff.isSystemAdmin,
+        // Always null here, and that is a fact rather than a placeholder: this
+        // is the result of somebody typing their OWN code, which is by
+        // definition not a borrowed view. A borrowed session is only ever
+        // minted by /api/auth/impersonate.
+        impersonatorId: null,
         // The login result is a receipt, not a session. Every request that
         // asks "which places?" goes through getCurrentUser, which reads both
         // from the ROW — so the honest value here is the narrowest one rather
@@ -344,12 +366,17 @@ export async function setSessionCookie(
   // absent: privileges in a token go stale, and these are read from the row on
   // every request instead.
   user: Pick<AuthUser, 'id' | 'email' | 'name' | 'role'>,
+  // Present only when an administrator is opening someone else's view. Passed
+  // explicitly rather than read from the current session, so an ordinary login
+  // can never inherit an impersonation claim from the cookie it replaces.
+  impersonatorId?: string,
 ): Promise<void> {
   const token = await createToken({
     sub: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
+    ...(impersonatorId ? { [IMPERSONATION_CLAIM]: impersonatorId } : {}),
   })
 
   const cookieStore = await cookies()

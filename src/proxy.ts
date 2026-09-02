@@ -14,6 +14,11 @@ import {
   SESSION_SECRET,
   SESSION_REFRESH_THRESHOLD_SECONDS,
 } from '@/lib/auth/constants'
+import {
+  IMPERSONATION_CLAIM,
+  IMPERSONATION_LABELS,
+  impersonationAllowsRequest,
+} from '@/lib/auth/impersonation'
 
 /**
  * Middleware for authentication
@@ -120,6 +125,23 @@ export async function proxy(request: NextRequest) {
       const response = NextResponse.redirect(loginUrl)
       response.cookies.delete(STAFF_COOKIE)
       return response
+    }
+
+    // A borrowed session may look, never touch. Enforced HERE rather than in
+    // the components because server actions are POSTs to ordinary UI routes —
+    // one sentence at the door covers both them and every API route, including
+    // the ones nobody remembers to guard. @see lib/auth/impersonation.ts
+    if (
+      !impersonationAllowsRequest({
+        isImpersonating: !!payload?.[IMPERSONATION_CLAIM],
+        method: request.method,
+        pathname,
+      })
+    ) {
+      return NextResponse.json(
+        { success: false, error: IMPERSONATION_LABELS.blocked },
+        { status: 403 },
+      )
     }
 
     const response = NextResponse.next()

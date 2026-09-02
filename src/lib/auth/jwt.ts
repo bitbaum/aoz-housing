@@ -9,12 +9,21 @@ import { SignJWT, jwtVerify, type JWTPayload } from 'jose'
 import { z } from 'zod'
 import { AUTH_CONFIG } from './config'
 import { isStaffRole, type StaffRole } from './role-policy'
+import { IMPERSONATION_CLAIM } from './impersonation'
 
 export interface TokenPayload extends JWTPayload {
   sub: string // User ID
   email: string
   name: string
   role: StaffRole
+  /**
+   * Set ONLY on a borrowed session: the id of the administrator who opened it.
+   *
+   * Its presence is what makes the session read-only and puts the banner on
+   * screen, so it must survive `verifyToken` — see the schema below.
+   * @see ./impersonation.ts
+   */
+  [IMPERSONATION_CLAIM]?: string
 }
 
 // Runtime-validates the decoded JWT body before we trust it. Catches both
@@ -27,6 +36,11 @@ const tokenPayloadSchema = z
     email: z.string(),
     name: z.string().min(1),
     role: z.string().refine(isStaffRole),
+    // Declared rather than left to `passthrough`, so a tampered claim of the
+    // wrong shape fails the parse and rejects the token instead of arriving as
+    // an `unknown` that some caller later coerces. The value is only ever read
+    // as "who opened this view"; a non-string is not that.
+    [IMPERSONATION_CLAIM]: z.string().min(1).optional(),
   })
   .passthrough()
 

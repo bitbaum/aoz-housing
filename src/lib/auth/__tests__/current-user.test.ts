@@ -64,6 +64,10 @@ describe('getCurrentUser', () => {
       isSystemAdmin: true,
       siteAccess: 'ALL_UNITS',
       assignedUnitIds: [],
+      // An ordinary session is nobody's borrowed view. `null` is the assertion,
+      // not an omission: the banner and the read-only rule both key off this,
+      // so "absent" and "not impersonating" must never be the same value.
+      impersonatorId: null,
     })
   })
 

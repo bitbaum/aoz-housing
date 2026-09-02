@@ -9,7 +9,8 @@ import { UserMenu } from '@/components/layout/UserMenu'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
-import { APP_LABELS, PAGE_TITLES } from '@/lib/constants/labels'
+import { APP_LABELS, PAGE_TITLES, ROLE_LABELS } from '@/lib/constants/labels'
+import { ImpersonationBanner } from '@/components/layout/ImpersonationBanner'
 import { getCurrentUser } from '@/lib/auth'
 import { RESIDENT_COOKIE } from '@/lib/auth/constants'
 import { visibleMegaMenuGroups, visibleSystemLinks } from '@/lib/config/navigation'
@@ -36,6 +37,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <>
       <AdminUrlFeedback />
+      {/* Before the skip link and before the header: if this session is
+          borrowed, that is the first thing on the page for a screen reader and
+          for an eye, because everything below it belongs to somebody else. */}
+      {user.impersonatorId && (
+        <ImpersonationBanner
+          viewingAsName={user.name}
+          roleLabel={ROLE_LABELS[user.role] ?? user.role}
+        />
+      )}
       <a href="#admin-main" className="skip-link">
         Zum Inhalt springen
       </a>

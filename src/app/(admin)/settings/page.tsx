@@ -3,6 +3,7 @@ import { requirePermission, hasPermission } from '@/lib/auth'
 import { db, user as userTable } from '@/lib/db'
 import { eq, asc } from 'drizzle-orm'
 import { InviteForm } from './InviteForm'
+import { ViewAsButton } from '@/components/admin/ViewAsButton'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import {
   SETTINGS_LABELS,
@@ -113,13 +114,22 @@ export default async function SettingsPage() {
                   {user.account?.email || '—'}
                 </p>
               </div>
-              <div className="text-right">
-                {user.lastLoginAt ? (
-                  <p className="text-xs text-ui-muted">
-                    {SETTINGS_LABELS.lastSeen} {formatDate(user.lastLoginAt)}
-                  </p>
-                ) : (
-                  <p className="text-xs text-ui-muted">{SETTINGS_LABELS.neverLoggedIn}</p>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  {user.lastLoginAt ? (
+                    <p className="text-xs text-ui-muted">
+                      {SETTINGS_LABELS.lastSeen} {formatDate(user.lastLoginAt)}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-ui-muted">{SETTINGS_LABELS.neverLoggedIn}</p>
+                  )}
+                </div>
+                {/* Not on your own row: "view as yourself" is the session you
+                    are already in, and the API refuses it. Offering a button
+                    whose only outcome is an error is the dead-end affordance
+                    this codebase keeps a test for. */}
+                {canInvite && user.id !== currentUser.id && (
+                  <ViewAsButton userId={user.id} name={user.name} />
                 )}
               </div>
             </div>
