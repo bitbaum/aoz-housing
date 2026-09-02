@@ -691,3 +691,9 @@ export const SiteAccess = Object.freeze({
   ASSIGNED_UNITS: 'ASSIGNED_UNITS',
 } as const) satisfies Record<string, (typeof s.siteAccess.enumValues)[number]>
 export type SiteAccess = (typeof SiteAccess)[keyof typeof SiteAccess]
+export const InterpreterNeed = Object.freeze({
+  NONE: 'NONE',
+  FOR_COMPLEX: 'FOR_COMPLEX',
+  ALWAYS: 'ALWAYS',
+} as const) satisfies Record<string, (typeof s.interpreterNeed.enumValues)[number]>
+export type InterpreterNeed = (typeof InterpreterNeed)[keyof typeof InterpreterNeed]

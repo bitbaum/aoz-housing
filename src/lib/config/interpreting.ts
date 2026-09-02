@@ -1,4 +1,4 @@
-import type { InterpreterNeed } from '@prisma/client'
+import type { InterpreterNeed } from '@/lib/db'
 
 /**
  * Interpreting — the need, and the lead time that makes it operational.

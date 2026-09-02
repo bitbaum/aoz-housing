@@ -173,6 +173,7 @@ export const incidentType = pgEnum('IncidentType', [
   'LOW_SATISFACTION',
   'OTHER',
 ])
+export const interpreterNeed = pgEnum('InterpreterNeed', ['NONE', 'FOR_COMPLEX', 'ALWAYS'])
 export const involvementRole = pgEnum('InvolvementRole', ['INVOLVED', 'WITNESS', 'MEDIATOR'])
 export const learningKind = pgEnum('LearningKind', [
   'LANGUAGE_TEST',
@@ -1081,6 +1082,7 @@ export const resident = pgTable(
     needsQuietEnvironment: boolean().default(false).notNull(),
     hasSleepEquipment: boolean().default(false).notNull(),
     supportLevel: supportLevel().default('STANDARD').notNull(),
+    interpreterNeed: interpreterNeed().default('NONE').notNull(),
     roommatePreferences: text(),
     status: residentStatus().default('ACTIVE').notNull(),
     notes: text(),
@@ -1108,6 +1110,7 @@ export const resident = pgTable(
       table.livingSkillsSupport.asc().nullsLast(),
     ),
     index('Resident_status_idx').using('btree', table.status.asc().nullsLast()),
+    index('Resident_interpreterNeed_idx').using('btree', table.interpreterNeed.asc().nullsLast()),
   ],
 )
 
