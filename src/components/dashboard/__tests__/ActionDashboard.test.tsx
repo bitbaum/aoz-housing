@@ -62,6 +62,7 @@ const BASE_PROPS = {
   // Oversight over every domain: no single seat, so "nobody is assigned to
   // you" is not a question that applies. Specialists are exercised below.
   assignedResidentCount: null,
+  jobQueue: [],
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,

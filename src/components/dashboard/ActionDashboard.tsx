@@ -10,6 +10,8 @@ import {
   type DashboardSection,
 } from '@/lib/config/dashboard'
 import type { StaffCapabilities, StaffRole } from '@/lib/auth/role-policy'
+import { JOB_SIGNAL_IDS, type JobQueueItem } from '@/lib/jobcoach/queue'
+import { JOB_SIGNAL_COPY } from '@/lib/config/job-integration-docs'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
 import { daysSinceCeil } from '@/lib/utils'
 import { residentName } from '@/lib/utils/resident-name'
@@ -58,6 +60,13 @@ interface ActionDashboardProps {
    * you", which the global count above cannot see.
    */
   assignedResidentCount: number | null
+  /**
+   * The Job domain's own work, one row per (client, signal).
+   *
+   * Empty for a viewer who does not hold `learning:write` — the page does not
+   * even run the query for them. @see lib/jobcoach/queue.ts
+   */
+  jobQueue: JobQueueItem[]
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -116,6 +125,7 @@ export function ActionDashboard({
   residentCount,
   housingUnitCount,
   assignedResidentCount,
+  jobQueue,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -154,12 +164,18 @@ export function ActionDashboard({
 
   // Count total issues — every queue that waits on a staff answer, not just
   // the placement ones.
+  // Every term here used to be a HOUSING queue — check-ins, placements,
+  // transfers, governance. A Jobcoach holds none of those permissions, so
+  // their count was structurally zero and the dashboard congratulated them on
+  // a day with real work in it. Observed in production 2026-09-02 with a
+  // client assigned the same morning. @see lib/jobcoach/queue.ts
   const totalIssues =
     criticalIncidents.length +
     overdueCheckIns.length +
     unplacedResidents.length +
     pendingTransfers.length +
-    proposalsAwaitingStaff.length
+    proposalsAwaitingStaff.length +
+    jobQueue.length
 
   // "Nothing to do" and "nothing entered yet" are different facts and get
   // different screens. @see lib/config/dashboard.ts
@@ -341,6 +357,34 @@ export function ActionDashboard({
                 allHref="/placements?status=active&overdue=1"
               />
             )}
+
+            {/* The Job domain's work, one tile per signal. Named clients, not
+                a bare count: the screen this replaces reported "keine
+                dringenden Aufgaben" to a coach whose client was created that
+                morning, and never mentioned him. */}
+            {JOB_SIGNAL_IDS.map((signal) => {
+              const rows = jobQueue.filter((row) => row.signal === signal)
+              if (rows.length === 0) return null
+              const copy = JOB_SIGNAL_COPY[signal]
+              return (
+                <ActionTile
+                  key={signal}
+                  title={copy.title}
+                  count={rows.length}
+                  description={copy.action}
+                  href={`/residents/${rows[0].residentId}`}
+                  urgency={urgencyForOpenCount(rows.length)}
+                  items={rows.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
+                    label: row.name,
+                    // The signal is already the tile's title, so the sublabel
+                    // carries the move rather than repeating it.
+                    sublabel: copy.action,
+                    href: `/residents/${row.residentId}`,
+                  }))}
+                  allHref="/learning?board=job"
+                />
+              )
+            })}
 
             {unplacedResidents.length > 0 && (
               <ActionTile

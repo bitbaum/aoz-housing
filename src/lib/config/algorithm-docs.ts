@@ -9,19 +9,11 @@
 // SCIENTIFIC RESEARCH SOURCES
 // =============================================================================
 
-export type EvidenceStrength = 'strong' | 'moderate' | 'preliminary'
-
-export interface ResearchSource {
-  id: string
-  title: string
-  authors?: string
-  year?: number
-  publication?: string
-  url?: string
-  region: 'CH' | 'DE' | 'INT' // Switzerland, Germany, International
-  keyFindings: string[]
-  evidenceStrength: EvidenceStrength
-}
+// Defined in ./evidence so job integration can cite research without
+// importing the housing algorithm's module for a type it merely shares.
+// Re-exported here so no existing import path changes.
+export type { EvidenceStrength, ResearchSource } from './evidence'
+import type { EvidenceStrength, ResearchSource } from './evidence'
 
 export const RESEARCH_SOURCES: ResearchSource[] = [
   // ─── Swiss Research (Priority) ───────────────────────────────────────────
