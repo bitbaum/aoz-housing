@@ -572,6 +572,28 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     rule: 'NONE', // For caseworker info, not compatibility
   },
 
+  interpreterNeed: {
+    id: 'interpreterNeed',
+    type: 'enum',
+    label: 'Dolmetschung',
+    description: 'Braucht diese Person eine Dolmetschung im Gespräch?',
+    formSection: 'health',
+    formOrder: 7,
+    options: ['NONE', 'FOR_COMPLEX', 'ALWAYS'] as const,
+    optionLabels: {
+      NONE: 'Keine Dolmetschung nötig',
+      FOR_COMPLEX: 'Bei komplexen Gesprächen',
+      ALWAYS: 'Immer',
+    },
+    default: 'NONE',
+    dimension: 'requirements',
+    // Zero weight. Needing an interpreter says nothing about who someone can
+    // live with — scoring it would turn a communication need into a placement
+    // penalty, which is the opposite of what it is for.
+    weight: 0,
+    rule: 'NONE',
+  },
+
   livingSkillsSupport: {
     id: 'livingSkillsSupport',
     type: 'enum',

@@ -8,6 +8,8 @@ import {
   CARE_ROLES,
   type CareRoleId,
 } from '@/lib/config/care'
+import type { InterpreterNeed } from '@prisma/client'
+import { INTERPRETER_LABELS, needsInterpreter } from '@/lib/config/interpreting'
 import type { CareAppointment, CareAttributeValue } from '@/lib/actions/care'
 import {
   createAppointment,
@@ -22,6 +24,15 @@ import { SATISFACTION_EMOJIS, SATISFACTION_LABELS } from '@/lib/constants'
 
 interface CareWorkspaceProps {
   residentId: string
+  /**
+   * Whether conversations with this person need an interpreter.
+   *
+   * Shown HERE, beside the field where a time is chosen, rather than only on
+   * the profile. Medios needs roughly a day's notice, so the moment that
+   * decides whether an interpreter can be there is the moment somebody picks
+   * a date — a note further up the page is read after the decision, if at all.
+   */
+  interpreterNeed: InterpreterNeed
   attributes: CareAttributeValue[]
   appointments: CareAppointment[]
   /**
@@ -39,6 +50,7 @@ interface CareWorkspaceProps {
 
 export function CareWorkspace({
   residentId,
+  interpreterNeed,
   attributes,
   appointments,
   writableDomains,
@@ -59,6 +71,7 @@ export function CareWorkspace({
           <DomainPanel
             key={domain}
             residentId={residentId}
+            interpreterNeed={interpreterNeed}
             domain={domain}
             attributes={attributes.filter((item) => item.domain === domain)}
             appointments={appointments.filter((item) => item.domain === domain)}
@@ -71,11 +84,13 @@ export function CareWorkspace({
 
 function DomainPanel({
   residentId,
+  interpreterNeed,
   domain,
   attributes,
   appointments,
 }: {
   residentId: string
+  interpreterNeed: InterpreterNeed
   domain: CareRoleId
   attributes: CareAttributeValue[]
   appointments: CareAppointment[]
@@ -135,6 +150,11 @@ function DomainPanel({
                 <AppointmentRow key={item.id} item={item} canWrite={false} />
               ))}
             </ul>
+          )}
+          {needsInterpreter(interpreterNeed) && (
+            <p className="alert-info mt-3 text-sm" role="note">
+              {INTERPRETER_LABELS.leadTimeOk} {INTERPRETER_LABELS.bookingHint}
+            </p>
           )}
           <AppointmentForm residentId={residentId} domain={domain} />
         </div>

@@ -21,6 +21,7 @@ import type {
   RoomSharingStatus,
   SupportLevel,
   LivingSkillsSupport,
+  InterpreterNeed,
   RecyclingKnowledge,
   MedicalDocType,
   ResidentStatus,
@@ -122,6 +123,7 @@ export const MobilityNeedSchema = enumFromFactor<MobilityNeed>('mobilityNeeds')
 export const RoomSharingStatusSchema = enumFromFactor<RoomSharingStatus>('roomSharingStatus')
 export const SupportLevelSchema = enumFromFactor<SupportLevel>('supportLevel')
 export const LivingSkillsSupportSchema = enumFromFactor<LivingSkillsSupport>('livingSkillsSupport')
+export const InterpreterNeedSchema = enumFromFactor<InterpreterNeed>('interpreterNeed')
 export const RecyclingKnowledgeSchema = enumFromFactor<RecyclingKnowledge>('recyclingKnowledge')
 
 // Spot/placement - derived from placement-spots config
@@ -211,6 +213,7 @@ export const ResidentInputSchema = z.object({
   hasSleepEquipment: z.coerce.boolean().default(false),
   supportLevel: SupportLevelSchema.default('STANDARD' as SupportLevel),
   livingSkillsSupport: LivingSkillsSupportSchema.default('INDEPENDENT' as LivingSkillsSupport),
+  interpreterNeed: InterpreterNeedSchema.default('NONE' as InterpreterNeed),
   hasMedicalDocumentation: z.coerce.boolean().default(false),
   medicalDocType: MedicalDocTypeSchema.optional().nullable(),
   medicalDocDate: z
