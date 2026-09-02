@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/react'
+import type { JobQueueItem } from '@/lib/jobcoach/queue'
 import { determinePrimaryAction, HeroAction, CriticalAlertBanner } from '../PrimaryActionHero'
 import type { PrimaryActionType } from '../PrimaryActionHero'
 
@@ -64,6 +65,7 @@ jest.mock('@/lib/constants/labels', () => ({
 // --- Fixtures ---
 
 const EMPTY = {
+  jobQueue: [] as JobQueueItem[],
   criticalIncidents: [] as Array<{
     id: string
     type: string
@@ -418,5 +420,48 @@ describe('CriticalAlertBanner', () => {
   it('falls back to raw type string for unknown incident type', () => {
     render(<CriticalAlertBanner incidents={[makeIncident('i1', 'UNKNOWN_TYPE')]} />)
     expect(screen.getByText(/UNKNOWN_TYPE/)).toBeInTheDocument()
+  })
+})
+
+describe('the hero and the header cannot disagree', () => {
+  /**
+   * Wiring the job queue into `totalIssues` and the tiles but NOT the hero
+   * produced three states on one screen, live: the header said "1 Aufgabe
+   * wartet auf Sie", an open-tasks tile named the client, and the hero said
+   * "Alles erledigt! Keine dringenden Aufgaben".
+   *
+   * This dashboard has fixed a contradiction of exactly this shape twice
+   * before. Every queue that counts toward `totalIssues` must therefore be
+   * able to claim the hero.
+   */
+  const jobRow = {
+    residentId: 'r1',
+    name: 'George B',
+    signal: 'NO_LABOUR_MARKET_CONTACT' as const,
+  }
+
+  it('does not report all-clear while the job queue has work', () => {
+    const result = determinePrimaryAction({ ...EMPTY, jobQueue: [jobRow] })
+    expect(result.type).not.toBe('allclear')
+  })
+
+  it('names the client rather than a bare count', () => {
+    const result = determinePrimaryAction({ ...EMPTY, jobQueue: [jobRow] })
+    expect(result.description).toContain('George B')
+  })
+
+  it('still yields to a critical incident', () => {
+    // A coaching task must never outrank a safety emergency, which is why the
+    // job branch sits last among the priorities.
+    const result = determinePrimaryAction({
+      ...EMPTY,
+      jobQueue: [jobRow],
+      criticalIncidents: [makeIncident()],
+    })
+    expect(result.type).toBe('critical')
+  })
+
+  it('reports all-clear when the job queue is genuinely empty', () => {
+    expect(determinePrimaryAction({ ...EMPTY, jobQueue: [] }).type).toBe('allclear')
   })
 })
