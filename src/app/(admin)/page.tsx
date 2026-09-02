@@ -29,7 +29,8 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
     day: 'greetingDay',
     evening: 'greetingEvening',
   }
-import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
+import { buildJobQueue } from '@/lib/jobcoach/queue'
+import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import {
   PROBLEM_DETECTION,
@@ -91,6 +92,7 @@ export default async function AdminDashboard() {
     activeStaffCount,
     neverSignedInStaffCount,
     assignedResidentCount,
+    jobCaseload,
   ] = await Promise.all([
     db.$count(resident),
     // Only used to pick the first setup step, which requires housing:write —
@@ -205,11 +207,49 @@ export default async function AdminDashboard() {
     viewer.scope === 'ALL_DOMAINS' || !user
       ? null
       : db.$count(careAssignment, eq(careAssignment.staffId, user.id)),
+
+    // The job coach's own caseload, with what they'd need to know about it.
+    //
+    // Scoped to THEIR seat rather than to every client: a coach's queue is the
+    // people they hold, and a product-wide list would recreate the aggregate
+    // that told them nothing. Only fetched for a viewer whose work this is —
+    // `learning:write` is the Job domain's verb.
+    show('learning') && user
+      ? db.query.careAssignment.findMany({
+          where: and(eq(careAssignment.staffId, user.id), eq(careAssignment.role, 'JOB')),
+          columns: {},
+          with: {
+            resident: {
+              // RESIDENT_NAME_SELECT already carries `id`, `code` and
+              // `displayName`; naming `id` again would be redundant, not wrong.
+              columns: { ...RESIDENT_NAME_SELECT, createdAt: true },
+              with: {
+                learningRecords: { columns: { kind: true, status: true, updatedAt: true } },
+                opportunityApplications: { columns: { stage: true } },
+              },
+            },
+          },
+        })
+      : [],
   ])
 
   // =============================================================================
   // Calculate Core Stats
   // =============================================================================
+
+  // The Job domain's own work queue. Derived here so the dashboard receives
+  // rows rather than raw records — the rule for what counts lives in
+  // lib/jobcoach/queue.ts, next to the evidence that justifies each signal.
+  const jobQueue = buildJobQueue(
+    jobCaseload.map(({ resident }) => ({
+      residentId: resident.id,
+      name: residentName(resident),
+      createdAt: resident.createdAt,
+      learningRecords: resident.learningRecords,
+      applications: resident.opportunityApplications,
+    })),
+    new Date(),
+  )
 
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
 
@@ -376,6 +416,7 @@ export default async function AdminDashboard() {
       residentCount={residentCount}
       housingUnitCount={housingUnitCount}
       assignedResidentCount={assignedResidentCount}
+      jobQueue={jobQueue}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}
