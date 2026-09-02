@@ -20,21 +20,21 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockResidentFindFirst = jest.fn()
+const mockResidentFindFirst = vi.fn()
 // Receives (set payload, where expression) of a resident update.
-const mockResidentUpdate = jest.fn()
+const mockResidentUpdate = vi.fn()
 // Receives (table, where expression) of db.$count; resolves the count.
-const mockCount = jest.fn()
+const mockCount = vi.fn()
 // Receives the where expression of db.delete(resident).where(where).
-const mockResidentDelete = jest.fn()
+const mockResidentDelete = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
     },
-    update: jest.fn(() => ({
+    update: vi.fn(() => ({
       set: (v: unknown) => ({
         where: (w: unknown) => ({
           then: (
@@ -46,39 +46,39 @@ jest.mock('@/lib/db', () => ({
         }),
       }),
     })),
-    delete: jest.fn(() => ({
+    delete: vi.fn(() => ({
       where: (w: unknown): Promise<unknown> => Promise.resolve(mockResidentDelete(w)),
     })),
     $count: (...a: unknown[]) => mockCount(...a),
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', async () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -86,18 +86,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -338,7 +338,7 @@ describe('hardDeleteResidentProtected', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(exitResident('test-id')).rejects.toThrow('Anmeldung erforderlich')

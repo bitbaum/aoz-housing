@@ -88,7 +88,7 @@ describe('a restricted viewer sees only their places', () => {
         ),
     )
     // Compared as rendered SQL + params: the two expression trees carry
-    // internal closures jest cannot deep-compare, but what the database sees
+    // internal closures the runner cannot deep-compare, but what the database sees
     // is exactly this pair.
     const dialect = new PgDialect()
     const got = residentScopeFilter(twoHouses)

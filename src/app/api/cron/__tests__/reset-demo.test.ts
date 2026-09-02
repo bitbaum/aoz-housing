@@ -9,31 +9,31 @@
 // db.execute serves pg_try_advisory_lock + pg_advisory_unlock. Default:
 // lock acquired so the route proceeds; tests override per case.
 // db.execute resolves a pg result object ({ rows }).
-const mockExecute = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockExecute = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     execute: (...args: unknown[]) => mockExecute(...args),
   },
 }))
 
-const mockResetDemoData = jest.fn()
-jest.mock('@/lib/demo/reset', () => ({
+const mockResetDemoData = vi.fn()
+vi.mock('@/lib/demo/reset', async () => ({
   resetDemoData: (...args: unknown[]) => mockResetDemoData(...args),
 }))
 
-const mockResetDemoWorld = jest.fn()
-jest.mock('@/lib/demo/scoped-reset', () => ({
+const mockResetDemoWorld = vi.fn()
+vi.mock('@/lib/demo/scoped-reset', async () => ({
   resetDemoWorld: (...args: unknown[]) => mockResetDemoWorld(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -81,7 +81,7 @@ describe('POST /api/cron/reset-demo', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.CRON_SECRET = CRON_SECRET
     process.env.DEMO_ACCESS_ENABLED = 'true'
     delete process.env.DEMO_RESET_SCOPE

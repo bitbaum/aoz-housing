@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ResidentBedPopover, getActivePlacement } from '../ResidentBedPopover'
 import type { HousingSpot, HousingPlacement } from '../types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -24,7 +24,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   AGE_RANGE_LABELS: { YOUNG_ADULT: '18-25', ADULT: '26-40', MIDDLE_AGED: '41-60', SENIOR: '60+' },
   LANGUAGE_LABELS: { de: 'Deutsch', en: 'Englisch', ar: 'Arabisch' },
   BED_GRID_LABELS: {
@@ -36,7 +36,7 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
   DISPLAY_LIMITS: { languagePreview: 2 },
 }))
 
@@ -78,7 +78,7 @@ function makeSpot(overrides: Partial<HousingSpot> & { id: string }): HousingSpot
 
 const POSITION = { x: 200, y: 150 }
 
-function renderPopover(spot: HousingSpot, onClose = jest.fn()) {
+function renderPopover(spot: HousingSpot, onClose = vi.fn()) {
   render(<ResidentBedPopover spot={spot} position={POSITION} onClose={onClose} />)
   return { onClose }
 }
@@ -116,7 +116,7 @@ describe('ResidentBedPopover', () => {
   it('renders nothing when spot has no active placement', () => {
     const spot = makeSpot({ id: 's1', placements: [] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />,
+      <ResidentBedPopover spot={spot} position={POSITION} onClose={vi.fn()} />,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -124,7 +124,7 @@ describe('ResidentBedPopover', () => {
   it('renders nothing when only ENDED placement exists', () => {
     const spot = makeSpot({ id: 's1', placements: [makePlacement('r1', 'ENDED')] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={POSITION} onClose={jest.fn()} />,
+      <ResidentBedPopover spot={spot} position={POSITION} onClose={vi.fn()} />,
     )
     expect(container).toBeEmptyDOMElement()
   })
@@ -247,7 +247,7 @@ describe('ResidentBedPopover', () => {
   it('applies position styles from props', () => {
     const spot = makeSpot({ id: 's1', placements: [makePlacement('r1')] })
     const { container } = render(
-      <ResidentBedPopover spot={spot} position={{ x: 300, y: 200 }} onClose={jest.fn()} />,
+      <ResidentBedPopover spot={spot} position={{ x: 300, y: 200 }} onClose={vi.fn()} />,
     )
     const popover = container.firstChild as HTMLElement
     // left = max(8, 300 - 128) = 172

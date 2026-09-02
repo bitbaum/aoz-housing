@@ -9,18 +9,19 @@
  * screenshot — so it is pinned here instead.
  */
 
+import type { MockedFunction } from 'vitest'
 import { DatabaseError } from 'pg'
 import { getResidentCookie } from '@/lib/portal-auth'
 import { expressInterest, withdrawInterest } from '../opportunities'
 
-const mockResidentFindFirst = jest.fn()
-const mockOpportunityFindFirst = jest.fn()
-const mockApplicationFindFirst = jest.fn()
-const mockApplicationCreate = jest.fn()
-const mockApplicationDelete = jest.fn()
+const mockResidentFindFirst = vi.fn()
+const mockOpportunityFindFirst = vi.fn()
+const mockApplicationFindFirst = vi.fn()
+const mockApplicationCreate = vi.fn()
+const mockApplicationDelete = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
@@ -30,22 +31,22 @@ jest.mock('@/lib/db', () => ({
       },
     },
     // `await db.insert(t).values(v)` — the source awaits without .returning()
-    insert: jest.fn(() => ({ values: (v: unknown) => mockApplicationCreate(v) })),
-    delete: jest.fn(() => ({ where: (w: unknown) => mockApplicationDelete(w) })),
+    insert: vi.fn(() => ({ values: (v: unknown) => mockApplicationCreate(v) })),
+    delete: vi.fn(() => ({ where: (w: unknown) => mockApplicationDelete(w) })),
   },
 }))
 
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
-jest.mock('@/lib/portal-auth', () => ({ getResidentCookie: jest.fn() }))
-jest.mock('@/lib/auth', () => ({ requirePermission: jest.fn() }))
-jest.mock('@/lib/logger', () => ({
+vi.mock('next/cache', async () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/audit', async () => ({ logAudit: vi.fn() }))
+vi.mock('@/lib/portal-auth', async () => ({ getResidentCookie: vi.fn() }))
+vi.mock('@/lib/auth', async () => ({ requirePermission: vi.fn() }))
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -56,13 +57,13 @@ class RedirectSignal extends Error {
   }
 }
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn((to: string) => {
+vi.mock('next/navigation', async () => ({
+  redirect: vi.fn((to: string) => {
     throw new RedirectSignal(to)
   }),
 }))
 
-const mockCookie = getResidentCookie as jest.MockedFunction<typeof getResidentCookie>
+const mockCookie = getResidentCookie as MockedFunction<typeof getResidentCookie>
 
 /** The pg error shape isUniqueViolation() recognizes (SQLSTATE 23505). */
 function uniqueViolation(): Error {
@@ -91,7 +92,7 @@ function form(entries: Record<string, string>): FormData {
 const RESIDENT = { id: 'res-1', code: 'RES-AAA111' }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockCookie.mockResolvedValue(RESIDENT.code)
   mockResidentFindFirst.mockResolvedValue({ id: RESIDENT.id })
   mockApplicationCreate.mockResolvedValue(undefined)

@@ -4,28 +4,28 @@
  */
 
 // Mutable mock config — service.ts reads EMAIL_CONFIG at call time, so tests
-// can flip these fields between cases. (Name starts with `mock` so the
-// jest.mock factory may reference it despite hoisting.)
-const mockEmailConfig = {
+// can flip these fields between cases. (vi.hoisted lifts it above the
+// hoisted vi.mock factory that references it.)
+const mockEmailConfig = vi.hoisted(() => ({
   apiKey: 'test-key',
   fromName: 'AOZ Housing',
   fromAddress: 'noreply@aoz-housing.ch',
   staffRecipients: ['staff@aoz-housing.ch'] as string[],
   enabled: true,
-}
+}))
 
-jest.mock('../config', () => ({ EMAIL_CONFIG: mockEmailConfig }))
-jest.mock('@/lib/logger', () => ({
+vi.mock('../config', async () => ({ EMAIL_CONFIG: mockEmailConfig }))
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    info: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    info: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 import { sendEmail, notifyStaff } from '../service'
 
-const mockFetch = jest.fn()
+const mockFetch = vi.fn()
 global.fetch = mockFetch as unknown as typeof fetch
 
 function okResponse() {
@@ -38,20 +38,20 @@ function errorResponse(status: number) {
 // Drive a sendEmail call that may sleep between retries (delays 0/1000/4000ms).
 async function runWithTimers<T>(promise: Promise<T>): Promise<T> {
   // Flush all pending timers + microtasks until the promise settles.
-  await jest.advanceTimersByTimeAsync(10_000)
+  await vi.advanceTimersByTimeAsync(10_000)
   return promise
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  jest.useFakeTimers()
+  vi.clearAllMocks()
+  vi.useFakeTimers()
   mockEmailConfig.enabled = true
   mockEmailConfig.apiKey = 'test-key'
   mockEmailConfig.staffRecipients = ['staff@aoz-housing.ch']
 })
 
 afterEach(() => {
-  jest.useRealTimers()
+  vi.useRealTimers()
 })
 
 describe('sendEmail', () => {

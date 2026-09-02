@@ -1,8 +1,8 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ActionTile } from '../ActionTilesGrid'
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -19,11 +19,11 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
   DISPLAY_LIMITS: { dashboardItems: 3 },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   DASHBOARD_LABELS: {
     showAllPrefix: 'Alle',
     showAllSuffix: 'anzeigen',

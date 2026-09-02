@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { ActionMenu } from '../ActionMenu'
 
 // --- Mocks ---
 
-jest.mock('@/lib/config/crud-actions', () => ({
+vi.mock('@/lib/config/crud-actions', async () => ({
   CRUD_ACTIONS: {
     edit: { label: 'Bearbeiten' },
     duplicate: { label: 'Duplizieren' },
@@ -18,7 +18,7 @@ jest.mock('@/lib/config/crud-actions', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   UI_LABELS: { actions: 'Aktionen' },
 }))
 
@@ -31,7 +31,7 @@ function openMenu() {
 // --- Tests ---
 
 describe('ActionMenu', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── No actions → renders nothing ────────────────────────────────────────
 
@@ -43,23 +43,23 @@ describe('ActionMenu', () => {
   // ── Trigger ──────────────────────────────────────────────────────────────
 
   it('renders the trigger button when at least one action is provided', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     expect(screen.getByRole('button', { name: 'Aktionen' })).toBeInTheDocument()
   })
 
   it('does not show the dropdown menu before the trigger is clicked', () => {
-    render(<ActionMenu onEdit={jest.fn()} onDelete={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
 
   it('shows the dropdown menu after the trigger is clicked', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menu')).toBeInTheDocument()
   })
 
   it('closes the dropdown when the trigger is clicked a second time', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menu')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Aktionen' }))
@@ -69,19 +69,19 @@ describe('ActionMenu', () => {
   // ── Edit item ────────────────────────────────────────────────────────────
 
   it('shows the edit menu item when onEdit is provided', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menuitem', { name: /Bearbeiten/ })).toBeInTheDocument()
   })
 
   it('does not show edit item when onEdit is not provided', () => {
-    render(<ActionMenu onDelete={jest.fn()} />)
+    render(<ActionMenu onDelete={vi.fn()} />)
     openMenu()
     expect(screen.queryByRole('menuitem', { name: /Bearbeiten/ })).not.toBeInTheDocument()
   })
 
   it('calls onEdit and closes menu when edit item is clicked', () => {
-    const onEdit = jest.fn()
+    const onEdit = vi.fn()
     render(<ActionMenu onEdit={onEdit} />)
     openMenu()
     fireEvent.click(screen.getByRole('menuitem', { name: /Bearbeiten/ }))
@@ -92,19 +92,19 @@ describe('ActionMenu', () => {
   // ── Duplicate item ───────────────────────────────────────────────────────
 
   it('shows the duplicate item when onDuplicate is provided', () => {
-    render(<ActionMenu onDuplicate={jest.fn()} />)
+    render(<ActionMenu onDuplicate={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menuitem', { name: /Duplizieren/ })).toBeInTheDocument()
   })
 
   it('does not show duplicate item when onDuplicate is not provided', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.queryByRole('menuitem', { name: /Duplizieren/ })).not.toBeInTheDocument()
   })
 
   it('calls onDuplicate and closes menu when duplicate item is clicked', () => {
-    const onDuplicate = jest.fn()
+    const onDuplicate = vi.fn()
     render(<ActionMenu onDuplicate={onDuplicate} />)
     openMenu()
     fireEvent.click(screen.getByRole('menuitem', { name: /Duplizieren/ }))
@@ -115,19 +115,19 @@ describe('ActionMenu', () => {
   // ── Delete item ──────────────────────────────────────────────────────────
 
   it('shows the delete item when onDelete is provided', () => {
-    render(<ActionMenu onDelete={jest.fn()} />)
+    render(<ActionMenu onDelete={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menuitem', { name: /Löschen/ })).toBeInTheDocument()
   })
 
   it('uses custom deleteLabel when provided', () => {
-    render(<ActionMenu onDelete={jest.fn()} deleteLabel="Archivieren" />)
+    render(<ActionMenu onDelete={vi.fn()} deleteLabel="Archivieren" />)
     openMenu()
     expect(screen.getByRole('menuitem', { name: /Archivieren/ })).toBeInTheDocument()
   })
 
   it('calls onDelete and closes menu when delete item is clicked', () => {
-    const onDelete = jest.fn()
+    const onDelete = vi.fn()
     render(<ActionMenu onDelete={onDelete} />)
     openMenu()
     fireEvent.click(screen.getByRole('menuitem', { name: /Löschen/ }))
@@ -139,7 +139,7 @@ describe('ActionMenu', () => {
 
   it('renders a separator between edit/duplicate and delete when all three are present', () => {
     const { container } = render(
-      <ActionMenu onEdit={jest.fn()} onDuplicate={jest.fn()} onDelete={jest.fn()} />,
+      <ActionMenu onEdit={vi.fn()} onDuplicate={vi.fn()} onDelete={vi.fn()} />,
     )
     openMenu()
     // Separator is a <div> with border-t
@@ -148,7 +148,7 @@ describe('ActionMenu', () => {
   })
 
   it('does not render a separator when only delete is present', () => {
-    const { container } = render(<ActionMenu onDelete={jest.fn()} />)
+    const { container } = render(<ActionMenu onDelete={vi.fn()} />)
     openMenu()
     expect(container.querySelector('.border-t')).not.toBeInTheDocument()
   })
@@ -156,7 +156,7 @@ describe('ActionMenu', () => {
   // ── Escape key ───────────────────────────────────────────────────────────
 
   it('closes the menu when Escape is pressed', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('menu')).toBeInTheDocument()
     fireEvent.keyDown(document, { key: 'Escape' })
@@ -168,7 +168,7 @@ describe('ActionMenu', () => {
   it('closes the menu when clicking outside the component', () => {
     render(
       <div>
-        <ActionMenu onEdit={jest.fn()} />
+        <ActionMenu onEdit={vi.fn()} />
         <button>Outside</button>
       </div>,
     )
@@ -181,7 +181,7 @@ describe('ActionMenu', () => {
   // ── aria-expanded ────────────────────────────────────────────────────────
 
   it('sets aria-expanded=false on the trigger when menu is closed', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     expect(screen.getByRole('button', { name: 'Aktionen' })).toHaveAttribute(
       'aria-expanded',
       'false',
@@ -189,7 +189,7 @@ describe('ActionMenu', () => {
   })
 
   it('sets aria-expanded=true on the trigger when menu is open', () => {
-    render(<ActionMenu onEdit={jest.fn()} />)
+    render(<ActionMenu onEdit={vi.fn()} />)
     openMenu()
     expect(screen.getByRole('button', { name: 'Aktionen' })).toHaveAttribute(
       'aria-expanded',

@@ -1,20 +1,20 @@
 import { NextRequest } from 'next/server'
 import { POST } from '@/app/api/chores/route'
 
-const mockRequireStaffAuth = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockRequireStaffAuth = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   requireStaffAuth: () => mockRequireStaffAuth(),
 }))
 
-const mockUnitFindFirst = jest.fn()
-const mockTaskCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockUnitFindFirst = vi.fn()
+const mockTaskCreate = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       housingUnit: { findFirst: (...args: unknown[]) => mockUnitFindFirst(...args) },
     },
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({
         returning: (): Promise<unknown[]> => mockTaskCreate(v),
       }),
@@ -22,10 +22,10 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({ logAudit: (...args: unknown[]) => mockLogAudit(...args) }))
-jest.mock('@/lib/logger', () => ({
-  logger: { errorWithCause: jest.fn(), error: jest.fn(), info: jest.fn() },
+const mockLogAudit = vi.fn().mockResolvedValue(undefined)
+vi.mock('@/lib/audit', async () => ({ logAudit: (...args: unknown[]) => mockLogAudit(...args) }))
+vi.mock('@/lib/logger', async () => ({
+  logger: { errorWithCause: vi.fn(), error: vi.fn(), info: vi.fn() },
 }))
 
 /**
@@ -50,7 +50,7 @@ const VALID = {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockRequireStaffAuth.mockResolvedValue({ id: 'staff-1', name: 'M. Keller', role: 'ADMIN' })
   mockUnitFindFirst.mockResolvedValue({ id: 'unit-1', code: 'DEMO-U05' })
   mockTaskCreate.mockImplementation((values: unknown) =>

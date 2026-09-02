@@ -6,8 +6,8 @@
 // --- Mocks ---
 
 // Mock redirect to capture calls (next/navigation redirect throws by design)
-const mockRedirect = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRedirect = vi.fn()
+vi.mock('next/navigation', async () => ({
   redirect: (...args: unknown[]) => {
     mockRedirect(...args)
     throw new Error('NEXT_REDIRECT')
@@ -15,9 +15,9 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock cookies
-const mockCookieDelete = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieDelete = vi.fn()
+vi.mock('next/headers', async () => ({
+  cookies: vi.fn().mockResolvedValue({
     delete: (...args: unknown[]) => mockCookieDelete(...args),
   }),
 }))
@@ -29,7 +29,7 @@ import { POST as logoutPOST } from '../logout/route'
 
 describe('POST /api/portal/logout', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('deletes the resident_code cookie', async () => {

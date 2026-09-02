@@ -31,12 +31,12 @@ import { whereParts as mockWhereParts } from '@/test-utils/drizzle-where'
 
 // --- the action path -------------------------------------------------------
 
-const mockOpportunityFindFirst = jest.fn()
+const mockOpportunityFindFirst = vi.fn()
 // (set, whereParts) → the rows `.returning()` yields
-const mockOpportunityUpdate = jest.fn()
+const mockOpportunityUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       opportunity: { findFirst: (...a: unknown[]) => mockOpportunityFindFirst(...a) },
@@ -50,14 +50,14 @@ jest.mock('@/lib/db', () => ({
     }),
   },
 }))
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('next/navigation', () => ({ redirect: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('next/cache', async () => ({ revalidatePath: vi.fn() }))
+vi.mock('next/navigation', async () => ({ redirect: vi.fn() }))
+vi.mock('@/lib/audit', async () => ({ logAudit: vi.fn() }))
+vi.mock('@/lib/logger', async () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
-jest.mock('@/lib/auth', () => ({
-  requirePermission: jest.fn(async () => ({ id: 'staff-1', role: 'JOBCOACH' })),
+vi.mock('@/lib/auth', async () => ({
+  requirePermission: vi.fn(async () => ({ id: 'staff-1', role: 'JOBCOACH' })),
 }))
 
 const UNPAID_KINDS = OPPORTUNITY_KINDS.filter((kind) => !isWorkKind(kind))
@@ -150,7 +150,7 @@ describe('publishing through the form', () => {
 
 describe('publishing through the button that skips the form', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockOpportunityUpdate.mockReturnValue([{ id: 'opp-1' }])
   })
 

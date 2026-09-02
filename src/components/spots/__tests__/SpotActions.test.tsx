@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { SpotActions } from '../SpotActions'
 
@@ -22,14 +22,14 @@ afterAll(() => {
 
 // --- Mocks ---
 
-jest.mock('@/lib/actions', () => ({
-  updateSpot: jest.fn(),
-  deleteSpot: jest.fn(),
+vi.mock('@/lib/actions', async () => ({
+  updateSpot: vi.fn(),
+  deleteSpot: vi.fn(),
 }))
 
 // Render ConfirmDialog children inline and expose a "Bestätigen" button
 // so tests can verify onConfirm wiring without dealing with dialog state.
-jest.mock('@/components/ui/ConfirmDialog', () => ({
+vi.mock('@/components/ui/ConfirmDialog', async () => ({
   ConfirmDialog: ({
     children,
     onConfirm,
@@ -53,7 +53,7 @@ jest.mock('@/components/ui/ConfirmDialog', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/crud-actions', () => ({
+vi.mock('@/lib/config/crud-actions', async () => ({
   DELETE_CONFIRM_CONFIG: {
     title: 'Löschen bestätigen',
     confirmLabel: 'Löschen',
@@ -61,7 +61,7 @@ jest.mock('@/lib/config/crud-actions', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   UI_LABELS: { delete: 'Löschen' },
   SPOT_ACTIONS_LABELS: {
     setMaintenance: 'In Wartung setzen',
@@ -160,7 +160,7 @@ describe('SpotActions', () => {
     // Spy on requestSubmit on the hidden form
     const { container } = render(<SpotActions spot={AVAILABLE_SPOT} housingUnitId={UNIT_ID} />)
     const hiddenForm = container.querySelector('form.hidden') as HTMLFormElement
-    const submitSpy = jest.spyOn(hiddenForm, 'requestSubmit').mockImplementation(() => {})
+    const submitSpy = vi.spyOn(hiddenForm, 'requestSubmit').mockImplementation(() => {})
 
     // Click the confirm button exposed by our ConfirmDialog mock
     const [, confirmBtn] = screen.getAllByTestId('confirm-action')

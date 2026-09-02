@@ -1,31 +1,32 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, waitFor } from '@testing-library/react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { AdminUrlFeedback } from '../AdminUrlFeedback'
 import { showToast } from '@/components/ui/Toast'
 import { RESIDENT_DETAIL_LABELS } from '@/lib/constants/labels/ui'
 
-jest.mock('next/navigation', () => ({
-  useSearchParams: jest.fn(),
-  useRouter: jest.fn(),
-  usePathname: jest.fn(),
+vi.mock('next/navigation', async () => ({
+  useSearchParams: vi.fn(),
+  useRouter: vi.fn(),
+  usePathname: vi.fn(),
 }))
 
-jest.mock('@/components/ui/Toast', () => ({
-  showToast: jest.fn(),
+vi.mock('@/components/ui/Toast', async () => ({
+  showToast: vi.fn(),
 }))
 
-const mockReplace = jest.fn()
+const mockReplace = vi.fn()
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(useRouter as jest.Mock).mockReturnValue({ replace: mockReplace })
+  vi.clearAllMocks()
+  ;(useRouter as Mock).mockReturnValue({ replace: mockReplace })
 })
 
 describe('AdminUrlFeedback', () => {
   it('shows placement toast on resident detail URL', async () => {
-    ;(usePathname as jest.Mock).mockReturnValue('/residents/abc123')
-    ;(useSearchParams as jest.Mock).mockReturnValue(new URLSearchParams('placed=true'))
+    ;(usePathname as Mock).mockReturnValue('/residents/abc123')
+    ;(useSearchParams as Mock).mockReturnValue(new URLSearchParams('placed=true'))
 
     render(<AdminUrlFeedback />)
 

@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TransferRecommendations } from '../TransferRecommendations'
 import { TransferUnitSelector } from '../TransferUnitSelector'
@@ -6,8 +6,8 @@ import type { UnitWithSpots } from '@/lib/types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => {
-  return function MockLink({
+vi.mock('next/link', async () => {
+  function MockLink({
     children,
     href,
     className,
@@ -23,14 +23,15 @@ jest.mock('next/link', () => {
       </a>
     )
   }
+  return { default: MockLink }
 })
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', async () => ({
   SPOT_TYPE_LABELS: { BED: 'Bett', PRIVATE_ROOM: 'Einzelzimmer' },
   SPOT_TYPE_ICONS: { BED: '🛏', PRIVATE_ROOM: '🚪' },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
   getScoreLevel: (score: number) => {
     if (score >= 80) return 'excellent'
     if (score >= 60) return 'good'
@@ -41,12 +42,12 @@ jest.mock('@/lib/config/thresholds', () => ({
   DISPLAY_LIMITS: { topUnits: 5 },
 }))
 
-jest.mock('@/lib/utils/formatting', () => ({
+vi.mock('@/lib/utils/formatting', async () => ({
   getScoreColorClass: () => 'text-green-600',
   getScoreBgClass: () => 'bg-green-50',
 }))
 
-jest.mock('@/lib/constants/labels/scores', () => ({
+vi.mock('@/lib/constants/labels/scores', async () => ({
   COMPATIBILITY_SCORE_LABELS: {
     excellent: 'Sehr gut',
     good: 'Gut',
@@ -71,16 +72,16 @@ function makeUnit(id: string, code: string, overrides: Partial<UnitWithSpots> = 
 const BASE_PROPS = {
   eligibleSpotTypes: ['BED'],
   selectedUnitId: '',
-  onUnitSelect: jest.fn(),
+  onUnitSelect: vi.fn(),
 }
 
 // --- TransferRecommendations Tests ---
 
 describe('TransferRecommendations', () => {
-  const onUnitSelect = jest.fn()
+  const onUnitSelect = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('shows empty state when no eligible units', () => {
@@ -261,10 +262,10 @@ describe('TransferRecommendations', () => {
 // --- TransferUnitSelector Tests ---
 
 describe('TransferUnitSelector', () => {
-  const onUnitSelect = jest.fn()
+  const onUnitSelect = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('renders rich view when compatibility data provided', () => {

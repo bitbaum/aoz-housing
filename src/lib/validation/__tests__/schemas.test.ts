@@ -711,7 +711,7 @@ describe('validateFormData', () => {
     })
     try {
       validateFormData(portalSatisfactionSchema, fd)
-      fail('Should have thrown')
+      expect.unreachable('Should have thrown')
     } catch (err) {
       expect(err).toBeInstanceOf(ValidationError)
       expect((err as ValidationError).fieldErrors).toBeDefined()

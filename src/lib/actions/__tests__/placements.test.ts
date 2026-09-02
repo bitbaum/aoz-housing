@@ -5,6 +5,7 @@
  * endPlacement and transferPlacement use redirect() which throws, so they are not tested here.
  */
 
+import type { Mock } from 'vitest'
 import { getTableName } from 'drizzle-orm'
 import { housingUnit, placementSpot, resident } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
@@ -15,25 +16,25 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockTransaction = jest.fn()
+const mockTransaction = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     transaction: (fn: (tx: unknown) => unknown) => mockTransaction(fn),
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', async () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -43,20 +44,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -64,18 +65,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/compatibility', () => ({
-  calculateCompatibility: jest.fn().mockReturnValue({
+vi.mock('@/lib/compatibility', async () => ({
+  calculateCompatibility: vi.fn().mockReturnValue({
     overall: 75,
     lifestyle: 80,
     social: 70,
@@ -84,15 +85,15 @@ jest.mock('@/lib/compatibility', () => ({
     strengths: [],
     concerns: [],
   }),
-  saveBidirectionalAssessment: jest.fn(),
+  saveBidirectionalAssessment: vi.fn(),
 }))
 
-jest.mock('@/lib/compatibility/convert', () => ({
-  toResidentProfile: jest.fn().mockReturnValue({}),
+vi.mock('@/lib/compatibility/convert', async () => ({
+  toResidentProfile: vi.fn().mockReturnValue({}),
 }))
 
-jest.mock('@/lib/compatibility/placement-scores', () => ({
-  calculateAverageScores: jest.fn().mockReturnValue({
+vi.mock('@/lib/compatibility/placement-scores', async () => ({
+  calculateAverageScores: vi.fn().mockReturnValue({
     compatibilityScore: 75,
     lifestyleScore: 80,
     socialScore: 70,
@@ -102,7 +103,7 @@ jest.mock('@/lib/compatibility/placement-scores', () => ({
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -111,15 +112,15 @@ beforeEach(() => {
 
 interface MockTx {
   query: {
-    resident: { findFirst: jest.Mock }
-    placement: { findFirst: jest.Mock; findMany: jest.Mock }
-    placementSpot: { findFirst: jest.Mock }
-    housingUnit: { findFirst: jest.Mock }
+    resident: { findFirst: Mock }
+    placement: { findFirst: Mock; findMany: Mock }
+    placementSpot: { findFirst: Mock }
+    housingUnit: { findFirst: Mock }
   }
   /** Resolves the rows returned by tx.insert(…).values(…).returning() */
-  insertReturning: jest.Mock
+  insertReturning: Mock
   /** Records every tx.update(table).set(payload) as (tableName, payload) */
-  updateSet: jest.Mock
+  updateSet: Mock
 }
 
 /**
@@ -129,24 +130,24 @@ interface MockTx {
 function setupTransaction(txSetup: (tx: MockTx) => void) {
   const tx: MockTx = {
     query: {
-      resident: { findFirst: jest.fn() },
-      placement: { findFirst: jest.fn(), findMany: jest.fn() },
-      placementSpot: { findFirst: jest.fn() },
-      housingUnit: { findFirst: jest.fn() },
+      resident: { findFirst: vi.fn() },
+      placement: { findFirst: vi.fn(), findMany: vi.fn() },
+      placementSpot: { findFirst: vi.fn() },
+      housingUnit: { findFirst: vi.fn() },
     },
-    insertReturning: jest.fn().mockResolvedValue([{}]),
-    updateSet: jest.fn(),
+    insertReturning: vi.fn().mockResolvedValue([{}]),
+    updateSet: vi.fn(),
   }
   txSetup(tx)
 
   const txSurface = {
     query: tx.query,
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({
         returning: (): Promise<unknown[]> => tx.insertReturning(v),
       }),
     })),
-    update: jest.fn((table: unknown) => ({
+    update: vi.fn((table: unknown) => ({
       set: (v: unknown) => {
         tx.updateSet(getTableName(table as any), v)
         return { where: () => Promise.resolve([]) }
@@ -282,7 +283,7 @@ describe('createPlacement', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(

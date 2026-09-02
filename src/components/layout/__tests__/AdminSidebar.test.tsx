@@ -13,7 +13,7 @@ import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { visibleMegaMenuGroups } from '@/lib/config/navigation'
 import { hasPermission } from '@/lib/auth/role-policy'
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', async () => ({
   usePathname: () => mockPathname,
 }))
 

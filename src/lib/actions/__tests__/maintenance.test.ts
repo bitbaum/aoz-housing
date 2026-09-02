@@ -23,19 +23,19 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockInsertReturning = jest.fn()
-const mockUpdateReturning = jest.fn()
-const mockUpdateWhere = jest.fn()
-const mockCount = jest.fn()
-const mockFindMany = jest.fn()
+const mockInsertReturning = vi.fn()
+const mockUpdateReturning = vi.fn()
+const mockUpdateWhere = vi.fn()
+const mockCount = vi.fn()
+const mockFindMany = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({ returning: (): Promise<unknown[]> => mockInsertReturning(v) }),
     })),
-    update: jest.fn(() => ({
+    update: vi.fn(() => ({
       set: (v: unknown) => ({
         where: (w: unknown) => {
           mockUpdateWhere(w)
@@ -50,20 +50,20 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-const mockRedirect = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRedirect = vi.fn()
+vi.mock('next/navigation', async () => ({
   redirect: (...args: unknown[]) => {
     mockRedirect(...args)
     throw new Error('NEXT_REDIRECT')
   },
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -73,20 +73,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -94,18 +94,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -516,7 +516,7 @@ describe('auth guard', () => {
    * happened. A guard that any signed-in person passes is not a guard.
    */
   it('rejects a caller who lacks the permission', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Keine Berechtigung'))
 
     const fd = new FormData()
@@ -532,7 +532,7 @@ describe('auth guard', () => {
     ['getMaintenanceStats', () => getMaintenanceStats(), 'maintenance:read'],
     ['getHousingUnitMaintenance', () => getHousingUnitMaintenance('hu-1'), 'maintenance:read'],
   ])('%s demands %s', async (_name, call, permission) => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockClear()
 
     await call().catch(() => {

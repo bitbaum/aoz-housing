@@ -1,17 +1,17 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ActionDashboard } from '../ActionDashboard'
 
 // --- Mocks ---
 
-jest.mock('../PrimaryActionHero', () => ({
+vi.mock('../PrimaryActionHero', async () => ({
   HeroAction: ({ action }: { action: { type: string } }) => (
     <div data-testid="hero-action" data-type={action?.type ?? 'none'} />
   ),
   CriticalAlertBanner: ({ incidents }: { incidents: Array<{ id: string }> }) => (
     <div data-testid="critical-banner" data-count={incidents.length} />
   ),
-  determinePrimaryAction: jest.fn(() => ({
+  determinePrimaryAction: vi.fn(() => ({
     type: 'ALL_GOOD',
     label: 'OK',
     href: '/',
@@ -19,7 +19,7 @@ jest.mock('../PrimaryActionHero', () => ({
   })),
 }))
 
-jest.mock('../QuickStatsRow', () => ({
+vi.mock('../QuickStatsRow', async () => ({
   QuickStat: ({ label, value }: { label: string; value: number }) => (
     <div data-testid="quick-stat">
       {label}: {value}
@@ -27,7 +27,7 @@ jest.mock('../QuickStatsRow', () => ({
   ),
 }))
 
-jest.mock('../ActionTilesGrid', () => ({
+vi.mock('../ActionTilesGrid', async () => ({
   ActionTile: ({ title, count }: { title: string; count: number }) => (
     <div data-testid="action-tile">
       {title} ({count})
@@ -35,14 +35,15 @@ jest.mock('../ActionTilesGrid', () => ({
   ),
 }))
 
-jest.mock('../AllClearState', () => ({
+vi.mock('../AllClearState', async () => ({
   AllClearState: () => <div data-testid="all-clear-state" />,
   QuickActionsBar: ({ unplacedCount, freeBeds }: { unplacedCount: number; freeBeds: number }) => (
     <div data-testid="quick-actions-bar" data-unplaced={unplacedCount} data-free={freeBeds} />
   ),
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<object>('@/lib/config/thresholds')),
   DISPLAY_LIMITS: { dashboardItems: 3 },
 }))
 

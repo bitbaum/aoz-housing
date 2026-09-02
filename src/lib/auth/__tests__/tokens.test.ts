@@ -3,15 +3,15 @@
  * invalidation of earlier tokens, and every consume failure mode.
  */
 
-const mockAuthTokenFindFirst = jest.fn()
-const mockInsertValues = jest.fn()
+const mockAuthTokenFindFirst = vi.fn()
+const mockInsertValues = vi.fn()
 // (whereParts) — the delete that invalidates earlier tokens
-const mockDeleteWhere = jest.fn()
+const mockDeleteWhere = vi.fn()
 // (data, whereParts)
-const mockUpdate = jest.fn()
+const mockUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       authToken: { findFirst: (...a: unknown[]) => mockAuthTokenFindFirst(...a) },
@@ -32,7 +32,7 @@ import { createAuthToken, consumeAuthToken, hashAuthToken } from '../tokens'
 import { whereParts as mockWhereParts } from '@/test-utils/drizzle-where'
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockInsertValues.mockResolvedValue(undefined)
   mockDeleteWhere.mockResolvedValue(undefined)
   mockUpdate.mockResolvedValue(undefined)

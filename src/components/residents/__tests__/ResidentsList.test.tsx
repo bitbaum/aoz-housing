@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ResidentsList, type ResidentListItem } from '../ResidentsList'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,13 +21,13 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/components/residents/ResidentCardActions', () => ({
+vi.mock('@/components/residents/ResidentCardActions', async () => ({
   ResidentCardActions: ({ residentId }: { residentId: string }) => (
     <div data-testid={`actions-${residentId}`} />
   ),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   AGE_RANGE_LABELS: { ADULT: '26-40', YOUNG_ADULT: '18-25' },
   GENDER_LABELS_SHORT: { MALE: 'M', FEMALE: 'W', PREFER_NOT_SAY: '-' },
   RESIDENT_STATUS_LABELS: { ACTIVE: 'Aktiv', PLACED: 'Platziert', EXITED: 'Archiviert' },
@@ -45,7 +45,7 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   getStatusBadgeClass: (status: string) => `badge-${status.toLowerCase()}`,
   formatDate: (d: Date | string) => '01.01.2024',
 }))

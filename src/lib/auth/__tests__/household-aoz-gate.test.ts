@@ -12,11 +12,11 @@
  * that mints identities into it must not exist — not "must be hard to reach".
  */
 
-const mockAccountFindFirst = jest.fn()
-const mockTransaction = jest.fn()
+const mockAccountFindFirst = vi.fn()
+const mockTransaction = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       account: { findFirst: (...a: unknown[]) => mockAccountFindFirst(...a) },

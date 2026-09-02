@@ -11,11 +11,11 @@ import { calculateAlgorithmAccuracy } from '../algorithm-accuracy'
 // MOCKS
 // =============================================================================
 
-const mockPlacementFindMany = jest.fn()
-const mockIncidentFindMany = jest.fn()
+const mockPlacementFindMany = vi.fn()
+const mockIncidentFindMany = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
@@ -56,7 +56,7 @@ function makePlacement(overrides: {
 
 describe('calculateAlgorithmAccuracy', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockPlacementFindMany.mockResolvedValue([])
     mockIncidentFindMany.mockResolvedValue([])
   })

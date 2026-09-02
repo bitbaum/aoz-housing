@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ProblemDetectionCard } from '../ProblemDetectionCard'
 import type { ResidentSummary } from '@/lib/types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -22,7 +22,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   AGE_RANGE_LABELS: { YOUNG_ADULT: '18-25', ADULT: '26-40', MIDDLE_AGED: '41-60', SENIOR: '60+' },
   LANGUAGE_LABELS: { de: 'Deutsch', en: 'Englisch', ar: 'Arabisch' },
   PROBLEM_DETECTION_LABELS: {
@@ -52,12 +52,12 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   getScoreColorClass: (score: number) =>
     score >= 80 ? 'score-excellent' : score >= 60 ? 'score-good' : 'score-medium',
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
   DISPLAY_LIMITS: { languagePreview: 2 },
 }))
 

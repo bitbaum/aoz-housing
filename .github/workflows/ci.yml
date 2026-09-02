@@ -47,7 +47,7 @@ jobs:
       - run: npm ci
 
       - name: Run unit tests
-        run: npm test -- --ci --coverage
+        run: npm test -- --coverage
 
       - name: Upload coverage
         if: always()

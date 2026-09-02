@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { EndPlacementForm } from '../EndPlacementForm'
 
@@ -22,11 +22,11 @@ afterAll(() => {
 
 // --- Mocks ---
 
-jest.mock('@/lib/actions', () => ({
-  endPlacement: jest.fn(),
+vi.mock('@/lib/actions', async () => ({
+  endPlacement: vi.fn(),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   END_REASON_LABELS: {
     NATURAL: 'Regulär',
     CONFLICT: 'Konflikt',
@@ -71,7 +71,8 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<object>('@/lib/config/thresholds')),
   DISPLAY_LIMITS: { descriptionPreview: 50 },
 }))
 
@@ -82,8 +83,8 @@ const BASE_PROPS = {
   residentId: 'resident-xyz',
   recentIncidents: [],
   selectedEndReason: '',
-  onReasonChange: jest.fn(),
-  onClose: jest.fn(),
+  onReasonChange: vi.fn(),
+  onClose: vi.fn(),
 }
 
 function renderForm(overrides = {}) {
@@ -94,7 +95,7 @@ function renderForm(overrides = {}) {
 
 describe('EndPlacementForm', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Rendering ───────────────────────────────────────────────────────────
@@ -130,14 +131,14 @@ describe('EndPlacementForm', () => {
   // ── Callbacks ───────────────────────────────────────────────────────────
 
   it('calls onClose when the close button is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     renderForm({ onClose })
     fireEvent.click(screen.getByRole('button', { name: /Schliessen/ }))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('calls onReasonChange with the correct key when a radio is clicked', () => {
-    const onReasonChange = jest.fn()
+    const onReasonChange = vi.fn()
     renderForm({ onReasonChange })
     fireEvent.click(screen.getByRole('radio', { name: /Auf Wunsch/ }))
     expect(onReasonChange).toHaveBeenCalledWith('REQUEST')

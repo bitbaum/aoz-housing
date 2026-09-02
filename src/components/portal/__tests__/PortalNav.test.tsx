@@ -1,16 +1,16 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PortalNav } from '../PortalNav'
 import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', async () => ({
   usePathname: () => mockPathname,
-  useRouter: () => ({ refresh: jest.fn() }),
+  useRouter: () => ({ refresh: vi.fn() }),
 }))
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -28,7 +28,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels', () => jest.requireActual('@/lib/constants/labels'))
+vi.mock('@/lib/constants/labels', async () => await vi.importActual('@/lib/constants/labels'))
 
 function renderNav(hasStaffAccess?: boolean) {
   return render(<PortalNav hasStaffAccess={hasStaffAccess} />)

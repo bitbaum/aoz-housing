@@ -1,22 +1,22 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { TransferActions } from '../TransferActions'
 
 // --- Mocks ---
 
-const mockApprove = jest.fn()
-const mockDeny = jest.fn()
-jest.mock('@/lib/actions/transfers', () => ({
+const mockApprove = vi.fn()
+const mockDeny = vi.fn()
+vi.mock('@/lib/actions/transfers', async () => ({
   approveTransferRequest: (...args: unknown[]) => mockApprove(...args),
   denyTransferRequest: (...args: unknown[]) => mockDeny(...args),
 }))
 
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRefresh = vi.fn()
+vi.mock('next/navigation', async () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   TRANSFER_ACTION_LABELS: {
     notesPlaceholder: 'Notiz (optional)',
     approve: 'Genehmigen',
@@ -41,7 +41,7 @@ function mockError(message = 'Fehler aufgetreten') {
 // --- Tests ---
 
 describe('TransferActions', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Rendering ───────────────────────────────────────────────────────────
 

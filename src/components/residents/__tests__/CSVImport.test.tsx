@@ -1,10 +1,11 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { CSVImport } from '../CSVImport'
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants/labels/export', () => ({
+vi.mock('@/lib/constants/labels/export', async () => ({
   EXPORT_LABELS: {
     selectFile: 'CSV-Datei wählen',
     downloadTemplate: 'Vorlage herunterladen',
@@ -19,7 +20,7 @@ jest.mock('@/lib/constants/labels/export', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
   DISPLAY_LIMITS: { importErrorPreview: 10 },
 }))
 
@@ -29,7 +30,7 @@ let capturedParseCall: {
   config: { complete: (r: { data: unknown[] }) => void; error: () => void }
 } | null = null
 
-jest.mock('papaparse', () => ({
+vi.mock('papaparse', async () => ({
   __esModule: true,
   default: {
     parse: (
@@ -74,9 +75,9 @@ const PREVIEW_ROWS = [
 describe('CSVImport', () => {
   beforeEach(() => {
     capturedParseCall = null
-    global.fetch = jest.fn()
+    global.fetch = vi.fn()
   })
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
 
   // ── Initial render ───────────────────────────────────────────────────────
 
@@ -173,7 +174,7 @@ describe('CSVImport', () => {
   // ── Submit + loading state ───────────────────────────────────────────────
 
   it('sends a POST request to /api/import/residents when import button is clicked', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: true, created: 2, skipped: 0, errors: [] }),
     })
 
@@ -187,14 +188,14 @@ describe('CSVImport', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url, opts] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, opts] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe('/api/import/residents')
     expect(opts.method).toBe('POST')
     expect(opts.body).toBeInstanceOf(FormData)
   })
 
   it('appends the selected file under the key "file" in the FormData', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: true, created: 1, skipped: 0, errors: [] }),
     })
 
@@ -209,13 +210,13 @@ describe('CSVImport', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Importieren' }))
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalled())
-    const formData: FormData = (global.fetch as jest.Mock).mock.calls[0][1].body
+    const formData: FormData = (global.fetch as Mock).mock.calls[0][1].body
     expect(formData.get('file')).toBe(csvFile)
   })
 
   it('shows the importing label while the request is in flight', async () => {
     let resolve!: (v: { json: () => Promise<object> }) => void
-    global.fetch = jest.fn().mockReturnValue(
+    global.fetch = vi.fn().mockReturnValue(
       new Promise((r) => {
         resolve = r as typeof resolve
       }),
@@ -243,7 +244,7 @@ describe('CSVImport', () => {
   // ── Success result display ───────────────────────────────────────────────
 
   it('shows created and skipped counts on success', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: true, created: 5, skipped: 2, errors: [] }),
     })
 
@@ -261,7 +262,7 @@ describe('CSVImport', () => {
   })
 
   it('hides preview table after successful import', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: true, created: 1, skipped: 0, errors: [] }),
     })
 
@@ -278,7 +279,7 @@ describe('CSVImport', () => {
   })
 
   it('does not show error list when result has no errors', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: true, created: 3, skipped: 0, errors: [] }),
     })
 
@@ -297,7 +298,7 @@ describe('CSVImport', () => {
   // ── Error display in result ──────────────────────────────────────────────
 
   it('shows per-row errors returned by the API', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({
         success: false,
         created: 0,
@@ -321,7 +322,7 @@ describe('CSVImport', () => {
 
   it('truncates error list at DISPLAY_LIMITS.importErrorPreview (10) and shows overflow count', async () => {
     const errors = Array.from({ length: 13 }, (_, i) => ({ row: i + 2, error: `Fehler ${i + 1}` }))
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: false, created: 0, skipped: 0, errors }),
     })
 
@@ -344,7 +345,7 @@ describe('CSVImport', () => {
 
   it('does not show overflow notice when errors fit within limit', async () => {
     const errors = Array.from({ length: 3 }, (_, i) => ({ row: i + 2, error: `Fehler ${i + 1}` }))
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ success: false, created: 0, skipped: 0, errors }),
     })
 
@@ -363,7 +364,7 @@ describe('CSVImport', () => {
   // ── Network/fetch error ──────────────────────────────────────────────────
 
   it('shows "Import fehlgeschlagen" when fetch throws', async () => {
-    global.fetch = jest.fn().mockRejectedValue(new Error('network'))
+    global.fetch = vi.fn().mockRejectedValue(new Error('network'))
 
     const { container } = renderImport()
     const input = container.querySelector('input[type="file"]') as HTMLElement

@@ -23,16 +23,16 @@ function mockEqParts(where: unknown): { column?: string; value?: unknown } {
   return parts
 }
 
-const mockUserFindFirst = jest.fn()
-const mockResidentFindFirst = jest.fn()
-const mockAccountFindFirst = jest.fn()
+const mockUserFindFirst = vi.fn()
+const mockResidentFindFirst = vi.fn()
+const mockAccountFindFirst = vi.fn()
 // (table, values) => inserted rows for .returning()
-const mockInsert = jest.fn()
+const mockInsert = vi.fn()
 // (table, data, { column, value }) => updated rows for .returning()
-const mockUpdate = jest.fn()
+const mockUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       user: { findFirst: (...a: unknown[]) => mockUserFindFirst(...a) },
@@ -57,23 +57,23 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockSendEmail = jest.fn()
-jest.mock('@/lib/email/service', () => ({
+const mockSendEmail = vi.fn()
+vi.mock('@/lib/email/service', async () => ({
   sendEmail: (...args: unknown[]) => mockSendEmail(...args),
 }))
 
-const mockEmailConfig = { enabled: true }
-jest.mock('@/lib/email/config', () => ({ EMAIL_CONFIG: mockEmailConfig }))
+const mockEmailConfig = vi.hoisted(() => ({ enabled: true }))
+vi.mock('@/lib/email/config', async () => ({ EMAIL_CONFIG: mockEmailConfig }))
 
-const mockCreateAuthToken = jest.fn()
-const mockConsumeAuthToken = jest.fn()
-jest.mock('../tokens', () => ({
+const mockCreateAuthToken = vi.fn()
+const mockConsumeAuthToken = vi.fn()
+vi.mock('../tokens', async () => ({
   createAuthToken: (...args: unknown[]) => mockCreateAuthToken(...args),
   consumeAuthToken: (...args: unknown[]) => mockConsumeAuthToken(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('@/lib/logger', async () => ({
+  logger: { info: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
 
 import { registerAccount, loginWithEmail, requestPasswordReset, resetPassword } from '../account'
@@ -93,7 +93,7 @@ const RESIDENT = { id: 'res-1', code: 'RES-ABC123' }
 // bcrypt at 12 rounds is deliberately slow, and slower still when the whole
 // suite runs in parallel — the cost is the security property, so these tests
 // get a real budget rather than a weakened hash.
-jest.setTimeout(60_000)
+vi.setConfig({ testTimeout: 60_000 })
 
 // Hash the one password these tests verify against exactly once; otherwise
 // every case pays for it twice.
@@ -125,9 +125,9 @@ function account(
 
 // The three account lookups the source makes, told apart by their where
 // column. These replace the old findFirst/findUnique/findUniqueOrThrow trio.
-const mockAccountByIdentity = jest.fn() // eq(account.userId | residentId, …)
-const mockAccountByEmail = jest.fn() // eq(account.email, …)
-const mockAccountById = jest.fn() // eq(account.id, …) — loadAccount
+const mockAccountByIdentity = vi.fn() // eq(account.userId | residentId, …)
+const mockAccountByEmail = vi.fn() // eq(account.email, …)
+const mockAccountById = vi.fn() // eq(account.id, …) — loadAccount
 
 /** Code lookups resolve; nothing else exists unless a test says so. */
 function codeExists({ staff = false, resident = false } = {}) {
@@ -144,7 +144,7 @@ function codeExists({ staff = false, resident = false } = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockEmailConfig.enabled = true
   codeExists()
   mockAccountFindFirst.mockImplementation(({ where }: { where: unknown }) => {

@@ -14,11 +14,11 @@ import { whereParts } from '@/test-utils/drizzle-where'
 // MOCKS
 // =============================================================================
 
-const mockAuditLogCreate = jest.fn()
-const mockAuditLogFindMany = jest.fn()
+const mockAuditLogCreate = vi.fn()
+const mockAuditLogFindMany = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     insert: () => ({ values: (v: unknown) => Promise.resolve(mockAuditLogCreate(v)) }),
     query: {
@@ -27,15 +27,15 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockGetCurrentUser = jest.fn()
+const mockGetCurrentUser = vi.fn()
 
-jest.mock('@/lib/auth', () => ({
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: () => mockGetCurrentUser(),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    errorWithCause: jest.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -45,7 +45,7 @@ jest.mock('@/lib/logger', () => ({
 
 describe('logAudit', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogCreate.mockResolvedValue({})
     mockGetCurrentUser.mockResolvedValue(null)
   })
@@ -168,7 +168,7 @@ describe('logAudit', () => {
 
 describe('getEntityAuditLog', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogFindMany.mockResolvedValue([])
   })
 
@@ -209,7 +209,7 @@ describe('getEntityAuditLog', () => {
 
 describe('getRecentAuditLogs', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockAuditLogFindMany.mockResolvedValue([])
   })
 

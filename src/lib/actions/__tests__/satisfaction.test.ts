@@ -21,26 +21,26 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockPlacementFindFirst = jest.fn()
-const mockCheckInFindMany = jest.fn()
+const mockPlacementFindFirst = vi.fn()
+const mockCheckInFindMany = vi.fn()
 // Receives the insert payload; resolves with the created row.
-const mockCheckInInsert = jest.fn()
+const mockCheckInInsert = vi.fn()
 // Receives (table, set payload, where expression) of the placement update.
-const mockPlacementUpdate = jest.fn()
+const mockPlacementUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => {
+vi.mock('@/lib/db', async () => {
   // Keep tables/enums/helpers real; only fake `db`.
-  const actual = jest.requireActual<object>('@/lib/db')
+  const actual = await vi.importActual<object>('@/lib/db')
   // db.transaction(cb) invokes the callback with a tx carrying the builder
   // surface the action uses, so the write mocks continue to be observed.
   const tx = {
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({
         returning: (): Promise<unknown[]> =>
           Promise.resolve(mockCheckInInsert(v)).then((row: unknown) => [row]),
       }),
     })),
-    update: jest.fn((table: unknown) => ({
+    update: vi.fn((table: unknown) => ({
       set: (v: unknown) => ({
         where: (w: unknown): Promise<unknown> => Promise.resolve(mockPlacementUpdate(table, v, w)),
       }),
@@ -58,20 +58,20 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-const mockRedirect = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockRedirect = vi.fn()
+vi.mock('next/navigation', async () => ({
   redirect: (...args: unknown[]) => {
     mockRedirect(...args)
     throw new Error('NEXT_REDIRECT')
   },
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -81,20 +81,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -102,18 +102,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -316,7 +316,7 @@ describe('who collected a check-in', () => {
 
   it('always records the signed-in account, whatever the form says', async () => {
     for (const typed of ['', 'Team Nord', 'a colleague']) {
-      jest.clearAllMocks()
+      vi.clearAllMocks()
       mockPlacementFindFirst.mockResolvedValue({
         residentId: 'res-1',
         startDate: new Date('2025-01-01'),
@@ -448,7 +448,7 @@ describe('getPlacementSatisfactionTrend', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(createCheckInFromForm(makeCheckInFormData())).rejects.toThrow(

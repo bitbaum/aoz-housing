@@ -1,12 +1,12 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { DangerZone, type DangerZoneLabels } from '../DangerZone'
 
 // --- Mocks ---
 
-const mockPush = jest.fn()
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockRefresh = vi.fn()
+vi.mock('next/navigation', async () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
@@ -38,7 +38,7 @@ const BASE_PROPS = {
   entityType: 'Resident',
   labels: LABELS,
   blockerLabels: BLOCKER_LABELS,
-  onDelete: jest.fn(),
+  onDelete: vi.fn(),
   redirectPath: '/residents',
   ariaId: 'dz-title',
 }
@@ -61,7 +61,7 @@ function fillValid() {
 // --- Tests ---
 
 describe('DangerZone', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Rendering ────────────────────────────────────────────────────────────
 
@@ -143,7 +143,7 @@ describe('DangerZone', () => {
   // ── Delete flow — success ─────────────────────────────────────────────────
 
   it('calls onDelete with entityId, confirmation, and reason', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: true })
+    const onDelete = vi.fn().mockResolvedValue({ success: true })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -153,7 +153,7 @@ describe('DangerZone', () => {
   })
 
   it('shows success message after successful delete', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: true })
+    const onDelete = vi.fn().mockResolvedValue({ success: true })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -163,7 +163,7 @@ describe('DangerZone', () => {
   })
 
   it('calls router.push with redirectPath after successful delete', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: true })
+    const onDelete = vi.fn().mockResolvedValue({ success: true })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -172,7 +172,7 @@ describe('DangerZone', () => {
   })
 
   it('calls router.refresh() after successful delete', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: true })
+    const onDelete = vi.fn().mockResolvedValue({ success: true })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -183,7 +183,7 @@ describe('DangerZone', () => {
   // ── Delete flow — failure ─────────────────────────────────────────────────
 
   it('shows error message on failure and does NOT redirect', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: false, error: 'DB-Fehler' })
+    const onDelete = vi.fn().mockResolvedValue({ success: false, error: 'DB-Fehler' })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -194,7 +194,7 @@ describe('DangerZone', () => {
   })
 
   it('falls back to labels.deleteFailed when error is absent', async () => {
-    const onDelete = jest.fn().mockResolvedValue({ success: false })
+    const onDelete = vi.fn().mockResolvedValue({ success: false })
     renderDZ({ onDelete })
     fillValid()
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
@@ -206,7 +206,7 @@ describe('DangerZone', () => {
   // ── Blocker report ────────────────────────────────────────────────────────
 
   it('shows blocker report section when onDelete returns blockerReport', async () => {
-    const onDelete = jest.fn().mockResolvedValue({
+    const onDelete = vi.fn().mockResolvedValue({
       success: false,
       error: 'Hat aktive Daten',
       blockerReport: { placements: 2, incidents: 0 },
@@ -223,7 +223,7 @@ describe('DangerZone', () => {
   })
 
   it('shows "Keine Details" when all blocker counts are zero', async () => {
-    const onDelete = jest.fn().mockResolvedValue({
+    const onDelete = vi.fn().mockResolvedValue({
       success: false,
       blockerReport: { placements: 0, incidents: 0 },
     })
@@ -236,7 +236,7 @@ describe('DangerZone', () => {
   })
 
   it('shows the "Report kopieren" button in the blocker report', async () => {
-    const onDelete = jest.fn().mockResolvedValue({
+    const onDelete = vi.fn().mockResolvedValue({
       success: false,
       blockerReport: { placements: 1 },
     })
@@ -250,13 +250,13 @@ describe('DangerZone', () => {
   // ── Copy-to-clipboard ────────────────────────────────────────────────────
 
   it('writes the blocker report to clipboard and shows confirmation', async () => {
-    const writeText = jest.fn().mockResolvedValue(undefined)
+    const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText },
       configurable: true,
     })
 
-    const onDelete = jest.fn().mockResolvedValue({
+    const onDelete = vi.fn().mockResolvedValue({
       success: false,
       blockerReport: { placements: 3 },
     })
@@ -282,7 +282,7 @@ describe('DangerZone', () => {
   // ── State reset between attempts ─────────────────────────────────────────
 
   it('clears previous feedback when a new delete attempt starts', async () => {
-    const onDelete = jest
+    const onDelete = vi
       .fn()
       .mockResolvedValueOnce({ success: false, error: 'Erster Fehler' })
       .mockResolvedValueOnce({ success: true })

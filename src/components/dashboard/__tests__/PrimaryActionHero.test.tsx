@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { determinePrimaryAction, HeroAction, CriticalAlertBanner } from '../PrimaryActionHero'
 import type { PrimaryActionType } from '../PrimaryActionHero'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -22,11 +22,11 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/checkin-intervals', () => ({
+vi.mock('@/lib/config/checkin-intervals', async () => ({
   VERY_OVERDUE_THRESHOLD_DAYS: 14,
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   DASHBOARD_LABELS: {
     heroCriticalIncidentsSuffix: 'kritische Vorfälle',
     heroActionNow: 'Sofort bearbeiten',

@@ -34,7 +34,7 @@ import { housingUnit, placement, resident } from '@/lib/db'
 import type { SiteAccess } from '@/lib/db'
 
 // A standalone builder: these helpers only CONSTRUCT where-fragments, and must
-// do so without touching the lazy db client (jest and next build both call
+// do so without touching the lazy db client (the test runner and next build both call
 // them in environments where DATABASE_URL is absent).
 const qb = new QueryBuilder()
 

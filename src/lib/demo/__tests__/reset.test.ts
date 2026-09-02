@@ -7,18 +7,18 @@
  * models are wiped automatically without editing the reset.
  */
 
-const mockSeedDemoData = jest.fn()
-jest.mock('../seed-data', () => ({
+const mockSeedDemoData = vi.fn()
+vi.mock('../seed-data', async () => ({
   seedDemoData: (...args: unknown[]) => mockSeedDemoData(...args),
 }))
 
-const mockSyncOrgRules = jest.fn()
-jest.mock('../../governance/sync-org-rules', () => ({
+const mockSyncOrgRules = vi.fn()
+vi.mock('../../governance/sync-org-rules', async () => ({
   syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
 }))
 
-const mockSeedOpportunities = jest.fn()
-jest.mock('../../seed/opportunities', () => ({
+const mockSeedOpportunities = vi.fn()
+vi.mock('../../seed/opportunities', async () => ({
   seedOpportunities: (...args: unknown[]) => mockSeedOpportunities(...args),
 }))
 
@@ -45,20 +45,20 @@ const SEED_SUMMARY = {
 function createDbMock(tables: string[]) {
   // Records the TRUNCATE statement's text; the pg_tables SELECT answers with
   // the given table list instead.
-  const executeTruncate = jest.fn((statement: string) => {
+  const executeTruncate = vi.fn((statement: string) => {
     void statement
     return Promise.resolve({ rows: [] as unknown[] })
   })
   // Records each staff upsert as { values, target, set }.
-  const userUpsert = jest.fn((call: unknown) => {
+  const userUpsert = vi.fn((call: unknown) => {
     void call
     return [{ id: 'demo-user' }]
   })
-  const accountDelete = jest.fn().mockResolvedValue({ rowCount: 0 })
-  const residentFindMany = jest.fn().mockResolvedValue([{ id: 'demo-resident-1' }])
+  const accountDelete = vi.fn().mockResolvedValue({ rowCount: 0 })
+  const residentFindMany = vi.fn().mockResolvedValue([{ id: 'demo-resident-1' }])
 
   const dbMock = {
-    execute: jest.fn((query: unknown) => {
+    execute: vi.fn((query: unknown) => {
       const text = sqlText(query)
       if (text.includes('pg_tables')) {
         return Promise.resolve({ rows: tables.map((tablename) => ({ tablename })) })
@@ -94,7 +94,7 @@ describe('resetDemoData', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.DEMO_STAFF_CODE = 'AOZH-DEMO01'
     mockSeedDemoData.mockResolvedValue(SEED_SUMMARY)
     mockSyncOrgRules.mockResolvedValue({ created: 0, amended: 0 })

@@ -9,17 +9,17 @@ import { NextRequest } from 'next/server'
 
 // --- Mocks ---
 
-const mockLoginByCode = jest.fn()
-const mockSetSessionCookie = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockLoginByCode = vi.fn()
+const mockSetSessionCookie = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
   setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
 }))
 
-const mockCheckRateLimit = jest.fn()
-const mockRecordLoginAttempt = jest.fn()
-const mockClearLoginAttempts = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockCheckRateLimit = vi.fn()
+const mockRecordLoginAttempt = vi.fn()
+const mockClearLoginAttempts = vi.fn()
+vi.mock('@/lib/auth/rate-limit', async () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -29,19 +29,19 @@ jest.mock('@/lib/auth/rate-limit', () => ({
   clearLoginAttempts: (...args: unknown[]) => mockClearLoginAttempts(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockCookieSet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieSet = vi.fn()
+vi.mock('next/headers', async () => ({
+  cookies: vi.fn().mockResolvedValue({
     set: (...args: unknown[]) => mockCookieSet(...args),
   }),
 }))
@@ -78,7 +78,7 @@ const STAFF_USER = {
 
 describe('POST /api/auth/login', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Default: rate limit allows
     mockCheckRateLimit.mockReturnValue({ allowed: true })
   })
