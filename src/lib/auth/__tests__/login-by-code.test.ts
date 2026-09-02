@@ -13,12 +13,12 @@
 import { BRANDS } from '@/lib/config/brand'
 import { RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
 
-const mockUserFindFirst = jest.fn()
-const mockUserUpdate = jest.fn()
-const mockResidentFindFirst = jest.fn()
+const mockUserFindFirst = vi.fn()
+const mockUserUpdate = vi.fn()
+const mockResidentFindFirst = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       user: { findFirst: (...a: unknown[]) => mockUserFindFirst(...a) },
@@ -30,16 +30,16 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/auth/rate-limit', () => ({
+vi.mock('@/lib/auth/rate-limit', async () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
     'unknown',
-  recordLoginAttempt: jest.fn(),
-  clearLoginAttempts: jest.fn(),
+  recordLoginAttempt: vi.fn(),
+  clearLoginAttempts: vi.fn(),
 }))
 
-jest.mock('next/headers', () => ({ cookies: jest.fn() }))
+vi.mock('next/headers', async () => ({ cookies: vi.fn() }))
 
 import { loginByCode } from '@/lib/auth'
 import { eqParts } from '@/test-utils/drizzle-where'
@@ -53,7 +53,7 @@ const STAFF = {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockUserFindFirst.mockResolvedValue(STAFF)
   mockUserUpdate.mockResolvedValue({})
   mockResidentFindFirst.mockResolvedValue({ id: 'r1', code: 'RES-010' })

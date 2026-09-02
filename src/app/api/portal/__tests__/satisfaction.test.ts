@@ -10,9 +10,9 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieGet = vi.fn()
+vi.mock('next/headers', async () => ({
+  cookies: vi.fn().mockResolvedValue({
     get: (name: string) => mockCookieGet(name),
   }),
 }))
@@ -21,9 +21,9 @@ jest.mock('next/headers', () => ({
 // The tx inserts the check-in and (for low ratings) an incident — both awaited
 // on .values() — and updates the placement via .set().where(). Create mocks
 // receive the values payload; the update mock receives { set, where }.
-const mockTxSatisfactionCheckInCreate = jest.fn()
-const mockTxPlacementUpdate = jest.fn()
-const mockTxIncidentCreate = jest.fn()
+const mockTxSatisfactionCheckInCreate = vi.fn()
+const mockTxPlacementUpdate = vi.fn()
+const mockTxIncidentCreate = vi.fn()
 const tx = {
   insert: (table: unknown) => ({
     values: (v: unknown): Promise<unknown> =>
@@ -38,10 +38,10 @@ const tx = {
   }),
 }
 
-const mockFindFirst = jest.fn()
-const mockTransaction = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockFindFirst = vi.fn()
+const mockTransaction = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: {
@@ -52,26 +52,26 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockSafeParse = jest.fn()
-jest.mock('@/lib/validation/schemas', () => ({
+const mockSafeParse = vi.fn()
+vi.mock('@/lib/validation/schemas', async () => ({
   portalSatisfactionSchema: {
     safeParse: (...args: unknown[]) => mockSafeParse(...args),
   },
 }))
 
-jest.mock('@/lib/email', () => ({
-  notifyStaff: jest.fn().mockResolvedValue(true),
-  lowSatisfactionAlert: jest.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
+vi.mock('@/lib/email', async () => ({
+  notifyStaff: vi.fn().mockResolvedValue(true),
+  lowSatisfactionAlert: vi.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
 }))
 
 // --- Import after mocks ---
@@ -120,7 +120,7 @@ const RESIDENT_NO_PLACEMENT = {
 
 describe('POST /api/portal/satisfaction', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // Default: transaction passes the callback through with our mock tx
     mockTransaction.mockImplementation(async (cb: (tx: unknown) => unknown) => {
       return cb(tx)
@@ -315,7 +315,7 @@ describe('POST /api/portal/satisfaction', () => {
 
 describe('GET /api/portal/satisfaction', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when no resident_code cookie', async () => {

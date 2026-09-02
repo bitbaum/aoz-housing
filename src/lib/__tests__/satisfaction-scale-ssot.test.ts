@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { execSync } from 'child_process'
 import { SATISFACTION_EMOJIS, SATISFACTION_LABELS } from '@/lib/constants'
 
@@ -35,7 +36,6 @@ function sourceFiles(): string[] {
 
 describe('the satisfaction scale is defined once', () => {
   it('no file outside the SSOT spells out a face scale', () => {
-    const fs = require('fs') as typeof import('fs')
     const offenders: string[] = []
 
     for (const file of sourceFiles()) {

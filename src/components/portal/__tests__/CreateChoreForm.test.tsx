@@ -1,10 +1,11 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { CreateChoreForm } from '../CreateChoreForm'
 
 // --- Mocks ---
 
-jest.mock('@/lib/config/household-tasks', () => ({
+vi.mock('@/lib/config/household-tasks', async () => ({
   TASK_CATEGORY_LABELS: {
     CLEANING: 'Reinigung',
     TRASH: 'Abfall',
@@ -67,37 +68,37 @@ jest.mock('@/lib/config/household-tasks', () => ({
   },
 }))
 
-const mockPush = jest.fn()
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockRefresh = vi.fn()
+vi.mock('next/navigation', async () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
 // --- Helpers ---
 
 function mockFetchSuccess(id?: string) {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ data: id ? { id } : {} }),
   } as unknown as Response)
 }
 
 function mockFetchApiError(message = 'Ungültig') {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: false,
     json: async () => ({ error: message }),
   } as unknown as Response)
 }
 
 function mockFetchNetworkError() {
-  global.fetch = jest.fn().mockRejectedValue(new Error('Network error'))
+  global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 }
 
 // --- Tests ---
 
 describe('CreateChoreForm', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Rendering ───────────────────────────────────────────────────────────
@@ -190,7 +191,7 @@ describe('CreateChoreForm', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Aufgabe erstellen' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe('/api/portal/chores')
     expect(options.method).toBe('POST')
     expect(options.body).toBeInstanceOf(FormData)
@@ -240,7 +241,7 @@ describe('CreateChoreForm', () => {
 
   it('shows pending label while submitting', async () => {
     let resolve: (v: unknown) => void
-    global.fetch = jest.fn().mockReturnValue(
+    global.fetch = vi.fn().mockReturnValue(
       new Promise((r) => {
         resolve = r
       }),

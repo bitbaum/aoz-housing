@@ -8,11 +8,11 @@
  * kind of property that a later refactor could quietly undo.
  */
 
-const mockAccountFindFirst = jest.fn()
-const mockTransaction = jest.fn()
+const mockAccountFindFirst = vi.fn()
+const mockTransaction = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       account: { findFirst: (...a: unknown[]) => mockAccountFindFirst(...a) },
@@ -21,13 +21,13 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/auth/passwords', () => ({
-  hashPassword: jest.fn(async () => 'hashed'),
+vi.mock('@/lib/auth/passwords', async () => ({
+  hashPassword: vi.fn(async () => 'hashed'),
   PASSWORD_MIN_LENGTH: 8,
 }))
 
-const sendVerificationEmail = jest.fn(async () => {})
-jest.mock('@/lib/auth/account', () => ({
+const sendVerificationEmail = vi.fn(async () => {})
+vi.mock('@/lib/auth/account', async () => ({
   sendVerificationEmail: (...args: unknown[]) => sendVerificationEmail(...(args as [])),
 }))
 
@@ -40,7 +40,7 @@ jest.mock('@/lib/auth/account', () => ({
  *    replacing the module wholesale removed the redactor's input entirely.
  *
  * 2. The switch lives on `globalThis`, not in a module-scope `const`. Jest
- *    hoists `jest.mock` factories above the file's own declarations, so a
+ *    hoists `vi.mock` factories above the file's own declarations, so a
  *    factory closing over a local `const` reads a DIFFERENT binding than the
  *    test body mutates — the override applies (tests that need `true` pass) and
  *    the mutation to `false` is silently ignored. That failure mode is
@@ -53,8 +53,8 @@ declare global {
 }
 globalThis.__selfServeHousehold = true
 
-jest.mock('@/lib/config/brand', () => {
-  const actual = jest.requireActual('@/lib/config/brand')
+vi.mock('@/lib/config/brand', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/config/brand')>('@/lib/config/brand')
   return {
     ...actual,
     BRAND: {
@@ -69,7 +69,7 @@ jest.mock('@/lib/config/brand', () => {
   }
 })
 
-jest.mock('@/lib/auth/code-generation', () => ({
+vi.mock('@/lib/auth/code-generation', async () => ({
   generateResidentCode: () => 'MB-TEST01',
 }))
 
@@ -108,7 +108,7 @@ function transactionSpy() {
     [userTable, [{ id: 'user-1' }]],
   ])
 
-  const insert = jest.fn((table: unknown) => ({
+  const insert = vi.fn((table: unknown) => ({
     values: (data: unknown) => {
       created[tableKeys.get(table) ?? 'unknown']?.push(data)
       // `.values()` alone is awaitable; `.returning()` yields the created row.
@@ -124,7 +124,7 @@ function transactionSpy() {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   globalThis.__selfServeHousehold = true
   mockAccountFindFirst.mockResolvedValue(null)
 })

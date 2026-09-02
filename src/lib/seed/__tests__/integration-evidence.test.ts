@@ -193,19 +193,19 @@ describe('seeded appointments', () => {
     const client = {
       query: {
         resident: {
-          findMany: jest.fn(async () => [
+          findMany: vi.fn(async () => [
             { id: 'r1', languages: ['German'], ageRange: 'ADULT', choresContribution: 4 },
             { id: 'r2', languages: ['Tigrinya'], ageRange: 'ADULT', choresContribution: 2 },
           ]),
         },
         placement: {
           // Only r1 is placed, so only r1 can carry a reading.
-          findMany: jest.fn(async () => [
+          findMany: vi.fn(async () => [
             { id: 'p1', residentId: 'r1', startDate: new Date('2026-01-01') },
           ]),
         },
       },
-      insert: jest.fn((table: unknown) => ({
+      insert: vi.fn((table: unknown) => ({
         values: (v: Record<string, unknown> | Record<string, unknown>[]) => ({
           then: (
             resolve: (x: { rowCount: number }) => unknown,

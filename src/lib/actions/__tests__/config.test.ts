@@ -13,17 +13,17 @@ import { getSystemConfig, saveSystemConfig } from '../config'
 // MOCKS
 // =============================================================================
 
-const mockConfigFindFirst = jest.fn()
+const mockConfigFindFirst = vi.fn()
 // Receives (valuesPayload, onConflictConfig) — the drizzle equivalent of upsert
-const mockConfigUpsert = jest.fn()
+const mockConfigUpsert = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       systemConfig: { findFirst: (...a: unknown[]) => mockConfigFindFirst(...a) },
     },
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({
         onConflictDoUpdate: (cfg: unknown): Promise<unknown> => mockConfigUpsert(v, cfg),
       }),
@@ -31,19 +31,19 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  requirePermission: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
     scope: 'ALL_DOMAINS' as const,
     isSystemAdmin: true,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
@@ -53,7 +53,7 @@ jest.mock('@/lib/auth', () => ({
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -280,7 +280,7 @@ describe('saveSystemConfig', () => {
 
   it('revalidates settings and analytics paths', async () => {
     mockConfigUpsert.mockResolvedValue({})
-    const { revalidatePath } = require('next/cache')
+    const { revalidatePath } = vi.mocked(await import('next/cache'))
 
     await saveSystemConfig(new FormData())
 
@@ -289,7 +289,7 @@ describe('saveSystemConfig', () => {
   })
 
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission } = require('@/lib/auth')
+    const { requirePermission } = vi.mocked(await import('@/lib/auth'))
     requirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(saveSystemConfig(new FormData())).rejects.toThrow('Anmeldung erforderlich')

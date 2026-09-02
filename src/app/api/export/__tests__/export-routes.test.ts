@@ -6,8 +6,8 @@
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
   authorizeStaff: async () => {
     const user = await mockGetCurrentUser()
@@ -16,9 +16,9 @@ jest.mock('@/lib/auth', () => ({
   },
 }))
 
-const mockResidentFindMany = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockResidentFindMany = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: {
@@ -35,7 +35,7 @@ import { desc } from 'drizzle-orm'
 
 describe('GET /api/export/residents', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns 401 when not authenticated', async () => {

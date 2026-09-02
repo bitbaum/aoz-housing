@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { HousingList, HousingListItem } from '../HousingList'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,13 +21,13 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/components/housing/HousingCardActions', () => ({
+vi.mock('@/components/housing/HousingCardActions', async () => ({
   HousingCardActions: ({ housingId, status }: { housingId: string; status: string }) => (
     <div data-testid={`actions-${housingId}`} data-status={status} />
   ),
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   getOccupancyColorClass: (percent: number) =>
     percent >= 90 ? 'bg-status-error' : percent >= 70 ? 'bg-status-warning' : 'bg-status-success',
 }))
@@ -45,7 +45,7 @@ jest.mock('@/lib/utils', () => ({
  * truth for exactly the values the component exists to render.
  */
 
-jest.mock('@/lib/constants/labels/housing', () => ({
+vi.mock('@/lib/constants/labels/housing', async () => ({
   HOUSING_STATUS_LABELS: {
     AVAILABLE: 'Verfügbar',
     FULL: 'Voll belegt',

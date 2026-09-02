@@ -6,27 +6,27 @@
  * ("Demo-Zugang") stayed signed in after being set active=false.
  */
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
+const mockCookieGet = vi.fn()
+vi.mock('next/headers', async () => ({
   cookies: async () => ({ get: (...args: unknown[]) => mockCookieGet(...args) }),
 }))
 
-const mockVerifyToken = jest.fn()
-jest.mock('../jwt', () => ({
-  createToken: jest.fn(),
+const mockVerifyToken = vi.fn()
+vi.mock('../jwt', async () => ({
+  createToken: vi.fn(),
   verifyToken: (...args: unknown[]) => mockVerifyToken(...args),
-  shouldRefreshToken: jest.fn(),
-  refreshToken: jest.fn(),
+  shouldRefreshToken: vi.fn(),
+  refreshToken: vi.fn(),
 }))
 
-const mockUserFindFirst = jest.fn()
-jest.mock('@/lib/db', () => ({
+const mockUserFindFirst = vi.fn()
+vi.mock('@/lib/db', async () => ({
   // Keep the real tables/enums/helpers; fake only the client.
-  ...jest.requireActual<object>('@/lib/db'),
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       user: { findFirst: (...args: unknown[]) => mockUserFindFirst(...args) },
-      resident: { findFirst: jest.fn() },
+      resident: { findFirst: vi.fn() },
     },
   },
 }))
@@ -36,7 +36,7 @@ import { getCurrentUser } from '../index'
 const PAYLOAD = { sub: 'user-1', email: '', name: 'Demo-Zugang', role: 'ADMIN' }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockCookieGet.mockReturnValue({ value: 'a-valid-token' })
   mockVerifyToken.mockResolvedValue(PAYLOAD)
 })

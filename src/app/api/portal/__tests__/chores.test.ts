@@ -16,25 +16,25 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetPortalAuth = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockGetPortalAuth = vi.fn()
+vi.mock('@/lib/portal-auth', async () => ({
   getPortalAuth: () => mockGetPortalAuth(),
 }))
 
-const mockFindMany = jest.fn()
-const mockFindFirst = jest.fn()
-const mockCreate = jest.fn()
-const mockUpdate = jest.fn()
+const mockFindMany = vi.fn()
+const mockFindFirst = vi.fn()
+const mockCreate = vi.fn()
+const mockUpdate = vi.fn()
 // Balance loader uses db.select().from(taskCompletion/placement) with joins.
-const mockCompletionSelect = jest.fn().mockResolvedValue([])
-const mockMemberSelect = jest.fn().mockResolvedValue([])
-const mockIncidentCreate = jest.fn()
-const mockFlagCreate = jest.fn()
-const mockRequestCreate = jest.fn()
-const mockTransaction = jest.fn()
+const mockCompletionSelect = vi.fn().mockResolvedValue([])
+const mockMemberSelect = vi.fn().mockResolvedValue([])
+const mockIncidentCreate = vi.fn()
+const mockFlagCreate = vi.fn()
+const mockRequestCreate = vi.fn()
+const mockTransaction = vi.fn()
 
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
   // db.select().from(x).innerJoin(...).where(...)[.orderBy(...)] — a chainable
   // builder that is awaited at the end of the chain (thenable).
   const selectChain = (table: unknown) => {
@@ -85,35 +85,38 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.fn().mockResolvedValue(undefined)
+vi.mock('@/lib/audit', async () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-const mockValidateFormData = jest.fn()
-const MockValidationError = class ValidationError extends Error {
-  fieldErrors: Record<string, string[] | undefined>
-  constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
-    super(message)
-    this.fieldErrors = fieldErrors
-  }
-}
+const mockValidateFormData = vi.fn()
+const MockValidationError = vi.hoisted(
+  () =>
+    class ValidationError extends Error {
+      fieldErrors: Record<string, string[] | undefined>
+      constructor(message: string, fieldErrors: Record<string, string[] | undefined> = {}) {
+        super(message)
+        this.fieldErrors = fieldErrors
+      }
+    },
+)
 // Use the REAL schemas and stub only the form-data helper. A hand-copied
 // schema here would go on passing while the route silently dropped every field
 // the real schema later gained — which is exactly how two portal fields were
 // lost once already. The mock must never become a second definition.
-jest.mock('@/lib/validation/schemas', () => ({
-  ...jest.requireActual('@/lib/validation/schemas'),
+vi.mock('@/lib/validation/schemas', async () => ({
+  ...(await vi.importActual('@/lib/validation/schemas')),
   validateFormData: (...args: unknown[]) => mockValidateFormData(...args),
   ValidationError: MockValidationError,
 }))
@@ -170,10 +173,10 @@ function makeParams(id: string) {
  * mocks receive `{ set, where }`.
  */
 function makeTx(completionResult: { id: string }) {
-  const completionCreate = jest.fn().mockResolvedValue([completionResult])
-  const taskUpdate = jest.fn().mockResolvedValue(undefined)
-  const flagUpdateMany = jest.fn().mockResolvedValue(undefined)
-  const requestUpdateMany = jest.fn().mockResolvedValue(undefined)
+  const completionCreate = vi.fn().mockResolvedValue([completionResult])
+  const taskUpdate = vi.fn().mockResolvedValue(undefined)
+  const flagUpdateMany = vi.fn().mockResolvedValue(undefined)
+  const requestUpdateMany = vi.fn().mockResolvedValue(undefined)
   const tx = {
     insert: () => ({
       values: (v: unknown) => ({ returning: (): Promise<unknown[]> => completionCreate(v) }),
@@ -212,7 +215,7 @@ const SAMPLE_TASK = {
 
 describe('GET /api/portal/chores', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -382,7 +385,7 @@ describe('GET /api/portal/chores', () => {
 
 describe('POST /api/portal/chores', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -554,7 +557,7 @@ describe('POST /api/portal/chores', () => {
 
 describe('GET /api/portal/chores/[id]', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -662,7 +665,7 @@ describe('GET /api/portal/chores/[id]', () => {
 
 describe('POST /api/portal/chores/[id]/complete', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -961,7 +964,7 @@ describe('POST /api/portal/chores/[id]/complete', () => {
 
 describe('POST /api/portal/chores/[id]/complaint', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -1164,7 +1167,7 @@ describe('POST /api/portal/chores/[id]/complaint', () => {
 
 describe('POST /api/portal/chores/[id]/attention', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {
@@ -1306,7 +1309,7 @@ describe('POST /api/portal/chores/[id]/attention', () => {
 
 describe('POST /api/portal/chores/[id]/request', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when not authenticated', async () => {

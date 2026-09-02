@@ -6,16 +6,16 @@
  * (incidents → placements → units → demo residents).
  */
 
-const mockSeedDemoData = jest.fn()
-jest.mock('../seed-data', () => ({
+const mockSeedDemoData = vi.fn()
+vi.mock('../seed-data', async () => ({
   seedDemoData: (...args: unknown[]) => mockSeedDemoData(...args),
 }))
 
 // The catalog sync is reference-data plumbing with its own tests; stubbing it
 // keeps the assertion below about the one thing that matters here — the order
 // demo rows are deleted in.
-const mockSyncOrgRules = jest.fn()
-jest.mock('../../governance/sync-org-rules', () => ({
+const mockSyncOrgRules = vi.fn()
+vi.mock('../../governance/sync-org-rules', async () => ({
   syncOrgRules: (...args: unknown[]) => mockSyncOrgRules(...args),
 }))
 
@@ -59,7 +59,7 @@ function createDbMock() {
     Resident: 15,
     Account: 0,
   }
-  const userUpsert = jest.fn((call: unknown) => {
+  const userUpsert = vi.fn((call: unknown) => {
     void call
     calls.push('user.upsert')
     return [{ id: 'demo-user' }]
@@ -116,7 +116,7 @@ const residentFilter = (configuredCode: string) =>
   )
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   delete process.env.DEMO_RESIDENT_CODE
   delete process.env.DEMO_STAFF_CODE
   mockSeedDemoData.mockResolvedValue(SEED_SUMMARY)

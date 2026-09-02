@@ -13,17 +13,17 @@ import { eqParts, whereParts } from '@/test-utils/drizzle-where'
 // MOCKS
 // =============================================================================
 
-const mockGet = jest.fn()
-const mockCookies = jest.fn().mockResolvedValue({ get: mockGet })
+const mockGet = vi.fn()
+const mockCookies = vi.fn().mockResolvedValue({ get: mockGet })
 
-jest.mock('next/headers', () => ({
+vi.mock('next/headers', async () => ({
   cookies: () => mockCookies(),
 }))
 
-const mockResidentFindFirst = jest.fn()
+const mockResidentFindFirst = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: { findFirst: (...args: unknown[]) => mockResidentFindFirst(...args) },
@@ -55,7 +55,7 @@ const RESIDENT_WITHOUT_PLACEMENT = {
 
 describe('getPortalAuth', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Cookie absent ─────────────────────────────────────────────────────────

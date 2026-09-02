@@ -7,6 +7,7 @@
  * half of the board sorts into the wrong list forever. None of it throws.
  */
 
+import type { MockedFunction } from 'vitest'
 import { marketplacePost } from '@/lib/db'
 import { and, eq, inArray } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
@@ -20,20 +21,20 @@ import {
   reopenMarketplacePost,
 } from '../marketplace'
 
-const mockFindFirst = jest.fn()
-const mockFindMany = jest.fn()
+const mockFindFirst = vi.fn()
+const mockFindMany = vi.fn()
 // Receives the insert payload of db.insert(...).values(payload).
-const mockInsert = jest.fn()
+const mockInsert = vi.fn()
 // Receives (set payload, where expression) of a plain awaited update.
-const mockUpdate = jest.fn()
+const mockUpdate = vi.fn()
 // Receives (set payload, where expression) of an update awaited via .returning();
 // resolves with the returned rows array.
-const mockUpdateReturning = jest.fn()
+const mockUpdateReturning = vi.fn()
 // Receives the where expression of db.delete(...).where(where).
-const mockDelete = jest.fn()
+const mockDelete = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       marketplacePost: {
@@ -41,10 +42,10 @@ jest.mock('@/lib/db', () => ({
         findMany: (...a: unknown[]) => mockFindMany(...a),
       },
     },
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown): Promise<unknown> => Promise.resolve(mockInsert(v)),
     })),
-    update: jest.fn(() => ({
+    update: vi.fn(() => ({
       set: (v: unknown) => ({
         // The same builder is either awaited directly or via .returning();
         // record only the path the code actually takes.
@@ -57,17 +58,17 @@ jest.mock('@/lib/db', () => ({
         }),
       }),
     })),
-    delete: jest.fn(() => ({
+    delete: vi.fn(() => ({
       where: (w: unknown): Promise<unknown> => Promise.resolve(mockDelete(w)),
     })),
   },
 }))
 
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/portal-auth', () => ({ getPortalAuth: jest.fn() }))
-jest.mock('@/lib/auth', () => ({ getCurrentUser: jest.fn() }))
+vi.mock('next/cache', async () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/portal-auth', async () => ({ getPortalAuth: vi.fn() }))
+vi.mock('@/lib/auth', async () => ({ getCurrentUser: vi.fn() }))
 
-const mockAuth = getPortalAuth as jest.MockedFunction<typeof getPortalAuth>
+const mockAuth = getPortalAuth as MockedFunction<typeof getPortalAuth>
 
 const ME = 'resident-me'
 const OTHER = 'resident-other'
@@ -108,7 +109,7 @@ function row(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   signedInAsMe()
 })
 

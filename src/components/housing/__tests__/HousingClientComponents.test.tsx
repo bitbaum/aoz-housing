@@ -1,18 +1,19 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 
 // =============================================================================
 // Mocks shared across suites
 // =============================================================================
 
-const mockRouter = { push: jest.fn(), refresh: jest.fn() }
-jest.mock('next/navigation', () => ({
+const mockRouter = { push: vi.fn(), refresh: vi.fn() }
+vi.mock('next/navigation', async () => ({
   useRouter: () => mockRouter,
 }))
 
 // --- DangerZone mock (captures props for assertion) ---
 
-const MockDangerZone = jest.fn(
+const MockDangerZone = vi.fn(
   ({
     entityType,
     entityId,
@@ -37,13 +38,14 @@ const MockDangerZone = jest.fn(
   ),
 )
 
-jest.mock('@/components/ui/DangerZone', () => ({
-  DangerZone: MockDangerZone,
+vi.mock('@/components/ui/DangerZone', async () => ({
+  // Lazy reference: the factory is hoisted above the const declaration.
+  DangerZone: (props: Parameters<typeof MockDangerZone>[0]) => MockDangerZone(props),
 }))
 
 // --- Label mocks for HousingDangerZone ---
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   HOUSING_DANGER_ZONE_LABELS: {
     title: 'Housing Danger Zone',
     description: 'Housing delete description',
@@ -83,7 +85,7 @@ jest.mock('@/lib/constants/labels', () => ({
   },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   DANGER_ZONE_LABELS: {
     title: 'Resident Danger Zone',
     description: 'Resident delete description',
@@ -108,9 +110,9 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/actions', () => ({
-  hardDeleteHousingUnitProtected: jest.fn(),
-  hardDeleteResidentProtected: jest.fn(),
+vi.mock('@/lib/actions', async () => ({
+  hardDeleteHousingUnitProtected: vi.fn(),
+  hardDeleteResidentProtected: vi.fn(),
 }))
 
 // --- RoomVisualizationWithPlacement mocks ---
@@ -128,7 +130,7 @@ const STUB_SPOT: HousingSpot = {
   placements: [],
 }
 
-const MockPlacementPanel = jest.fn(
+const MockPlacementPanel = vi.fn(
   ({
     isOpen,
     onClose,
@@ -148,11 +150,12 @@ const MockPlacementPanel = jest.fn(
   ),
 )
 
-jest.mock('../PlacementPanel', () => ({
-  PlacementPanel: MockPlacementPanel,
+vi.mock('../PlacementPanel', async () => ({
+  // Lazy reference: the factory is hoisted above the const declaration.
+  PlacementPanel: (props: Parameters<typeof MockPlacementPanel>[0]) => MockPlacementPanel(props),
 }))
 
-jest.mock('../RoomVisualization', () => ({
+vi.mock('../RoomVisualization', async () => ({
   RoomVisualization: ({
     spots,
     onAvailableBedClick,
@@ -176,8 +179,8 @@ jest.mock('../RoomVisualization', () => ({
   ),
 }))
 
-jest.mock('@/lib/actions/placements', () => ({
-  createPlacement: jest.fn().mockResolvedValue({ success: true }),
+vi.mock('@/lib/actions/placements', async () => ({
+  createPlacement: vi.fn().mockResolvedValue({ success: true }),
 }))
 
 // =============================================================================
@@ -296,7 +299,7 @@ describe('RoomVisualizationWithPlacement', () => {
     mockRouter.push.mockClear()
     mockRouter.refresh.mockClear()
     MockPlacementPanel.mockClear()
-    ;(createPlacement as jest.Mock).mockResolvedValue({ success: true })
+    ;(createPlacement as Mock).mockResolvedValue({ success: true })
   })
 
   it('renders RoomVisualization with spots', () => {

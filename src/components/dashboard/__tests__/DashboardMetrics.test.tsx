@@ -1,10 +1,10 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { DashboardMetrics } from '../DashboardMetrics'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -21,7 +21,7 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/constants/labels/dashboard', () => ({
+vi.mock('@/lib/constants/labels/dashboard', async () => ({
   ALGORITHM_ACCURACY_LABELS: {
     statResidents: 'Bewohner',
     statWaitingForPlacement: (n: number) => `${n} warten auf Platzierung`,

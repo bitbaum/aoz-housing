@@ -20,13 +20,13 @@ import {
 // db.$count(incident, …) is called for "reported" then "as subject", then
 // db.$count(incidentInvolvement, …) for "involved" — order is deterministic
 // (Promise.all array), so Once-chains keep the old per-model discrimination.
-const mockCount = jest.fn()
-const mockIncidentFindMany = jest.fn()
-const mockIncidentFindFirst = jest.fn()
-const mockUpdateSet = jest.fn()
+const mockCount = vi.fn()
+const mockIncidentFindMany = vi.fn()
+const mockIncidentFindFirst = vi.fn()
+const mockUpdateSet = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       incident: {
@@ -37,8 +37,8 @@ jest.mock('@/lib/db', () => ({
     $count: (table: unknown, where: unknown) => mockCount(table, where),
     // Subquery builder used inside inArray(); never executed because
     // findMany is mocked — it only needs to be chainable.
-    select: jest.fn(() => ({ from: jest.fn(() => ({ where: jest.fn(() => ({})) })) })),
-    update: jest.fn(() => ({
+    select: vi.fn(() => ({ from: vi.fn(() => ({ where: vi.fn(() => ({})) })) })),
+    update: vi.fn(() => ({
       set: (v: unknown) => {
         mockUpdateSet(v)
         return { where: () => Promise.resolve([]) }
@@ -47,16 +47,16 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', async () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -66,20 +66,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -87,18 +87,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -284,7 +284,7 @@ describe('getIncidentsNeedingFollowUp', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     const fd = new FormData()

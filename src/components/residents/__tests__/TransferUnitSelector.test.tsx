@@ -1,14 +1,15 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   UI_LABELS: { selectPlaceholder: 'Bitte wählen' },
   PLACEMENT_ACTIONS_LABELS: {
     spotsAvailableCount: (count: number) => `${count} Plätze frei`,
   },
 }))
 
-jest.mock('@/components/residents/TransferRecommendations', () => ({
+vi.mock('@/components/residents/TransferRecommendations', async () => ({
   TransferRecommendations: ({
     eligibleUnits,
     selectedUnitId,
@@ -48,10 +49,10 @@ const ELIGIBLE_SPOT_TYPES = ['BED', 'ROOM']
 function renderSelector(overrides: {
   eligibleUnits?: ReturnType<typeof makeUnit>[]
   selectedUnitId?: string
-  onUnitSelect?: jest.Mock
+  onUnitSelect?: Mock
   unitCompatibility?: Record<string, UnitCompatibilityData>
 }) {
-  const onUnitSelect = overrides.onUnitSelect ?? jest.fn()
+  const onUnitSelect = overrides.onUnitSelect ?? vi.fn()
   render(
     <TransferUnitSelector
       eligibleUnits={(overrides.eligibleUnits ?? []) as never}

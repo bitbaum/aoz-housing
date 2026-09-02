@@ -18,35 +18,35 @@
 import { NextRequest } from 'next/server'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-jest.mock('@/lib/auth/code-generation', () => ({
-  generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
+vi.mock('@/lib/auth/code-generation', async () => ({
+  generateStaffCode: vi.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindFirst = jest.fn()
-const mockUserInsertReturning = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockUserFindFirst = vi.fn()
+const mockUserInsertReturning = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       user: {
         findFirst: (...args: unknown[]) => mockUserFindFirst(...args),
       },
     },
-    insert: jest.fn(() => ({
-      values: jest.fn((v: unknown) => ({
+    insert: vi.fn(() => ({
+      values: vi.fn((v: unknown) => ({
         returning: (): Promise<unknown[]> => mockUserInsertReturning(v),
       })),
     })),
   },
 }))
 
-jest.mock('@/lib/logger', () => ({
-  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), errorWithCause: jest.fn() },
+vi.mock('@/lib/logger', async () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), errorWithCause: vi.fn() },
 }))
 
 import { POST } from '../register/route'
@@ -60,7 +60,7 @@ function post(body: Record<string, unknown>): NextRequest {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockUserFindFirst.mockResolvedValue(null)
   mockUserInsertReturning.mockResolvedValue([
     {

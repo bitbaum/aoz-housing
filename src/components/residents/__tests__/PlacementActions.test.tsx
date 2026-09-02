@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { PlacementActions } from '../PlacementActions'
 import type { UnitWithSpots } from '@/lib/types'
@@ -24,13 +24,13 @@ afterAll(() => {
   console.error = originalConsoleError
 })
 
-jest.mock('@/lib/actions', () => ({
-  endPlacement: jest.fn(),
-  transferPlacement: jest.fn(),
+vi.mock('@/lib/actions', async () => ({
+  endPlacement: vi.fn(),
+  transferPlacement: vi.fn(),
 }))
 
-jest.mock('next/link', () => {
-  return function MockLink({
+vi.mock('next/link', async () => {
+  function MockLink({
     children,
     href,
     className,
@@ -45,14 +45,15 @@ jest.mock('next/link', () => {
       </a>
     )
   }
+  return { default: MockLink }
 })
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', async () => ({
   SPOT_TYPE_LABELS: { BED: 'Bett', PRIVATE_ROOM: 'Einzelzimmer' },
   SPOT_TYPE_ICONS: { BED: '🛏', PRIVATE_ROOM: '🚪' },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   END_REASON_LABELS: {
     NATURAL_END: 'Natürliches Ende',
     CONFLICT: 'Konflikt',
@@ -119,11 +120,12 @@ jest.mock('@/lib/constants', () => ({
   },
 }))
 
-jest.mock('@/lib/config/thresholds', () => ({
+vi.mock('@/lib/config/thresholds', async () => ({
+  ...(await vi.importActual<object>('@/lib/config/thresholds')),
   DISPLAY_LIMITS: { descriptionPreview: 50 },
 }))
 
-jest.mock('../TransferRecommendations', () => ({
+vi.mock('../TransferRecommendations', async () => ({
   TransferUnitSelector: ({
     eligibleUnits,
     onUnitSelect,
@@ -212,7 +214,7 @@ describe('PlacementActions', () => {
   test('clicking Verlegen again toggles form off', () => {
     render(<PlacementActions {...DEFAULT_PROPS} />)
 
-    const verlegenBtn = screen.getByRole('button', { name: /^🔄 Verlegen$/i })
+    const verlegenBtn = screen.getByRole('button', { name: /^🔄\s?Verlegen$/i })
     fireEvent.click(verlegenBtn)
     expect(screen.getByText(/Bewohner verlegen/i)).toBeInTheDocument()
 

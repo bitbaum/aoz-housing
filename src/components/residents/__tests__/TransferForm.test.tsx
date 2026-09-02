@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TransferForm } from '../TransferForm'
 import type { UnitWithSpots } from '@/lib/types'
@@ -23,13 +23,13 @@ afterAll(() => {
 
 // --- Mocks ---
 
-jest.mock('@/lib/actions', () => ({
-  transferPlacement: jest.fn(),
+vi.mock('@/lib/actions', async () => ({
+  transferPlacement: vi.fn(),
 }))
 
 // Stub TransferUnitSelector so tests stay focused on TransferForm behaviour.
 // Renders a plain <select name="targetHousingUnitId"> that the tests can drive.
-jest.mock('../TransferUnitSelector', () => ({
+vi.mock('../TransferUnitSelector', async () => ({
   TransferUnitSelector: ({
     eligibleUnits,
     selectedUnitId,
@@ -55,12 +55,12 @@ jest.mock('../TransferUnitSelector', () => ({
   ),
 }))
 
-jest.mock('@/lib/config/placement-spots', () => ({
+vi.mock('@/lib/config/placement-spots', async () => ({
   SPOT_TYPE_LABELS: { BED: 'Bett', PRIVATE_ROOM: 'Privatzimmer' },
   SPOT_TYPE_ICONS: { BED: '🛏', PRIVATE_ROOM: '🚪' },
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   END_REASON_LABELS: {
     CONFLICT: 'Konflikt',
     REQUEST: 'Auf Wunsch',
@@ -118,8 +118,8 @@ const BASE_PROPS = {
   eligibleSpotTypes: ['BED'],
   hasMedicalDocumentation: false,
   selectedUnitId: '',
-  onUnitSelect: jest.fn(),
-  onClose: jest.fn(),
+  onUnitSelect: vi.fn(),
+  onClose: vi.fn(),
 }
 
 function renderForm(overrides = {}) {
@@ -129,7 +129,7 @@ function renderForm(overrides = {}) {
 // --- Tests ---
 
 describe('TransferForm', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => vi.clearAllMocks())
 
   // ── Rendering ───────────────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ describe('TransferForm', () => {
   // ── Close callback ───────────────────────────────────────────────────────
 
   it('calls onClose when the close button is clicked', () => {
-    const onClose = jest.fn()
+    const onClose = vi.fn()
     renderForm({ onClose })
     fireEvent.click(screen.getByRole('button', { name: /Schliessen/ }))
     expect(onClose).toHaveBeenCalledTimes(1)

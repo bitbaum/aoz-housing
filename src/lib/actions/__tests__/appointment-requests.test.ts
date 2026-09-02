@@ -14,34 +14,34 @@ import { requestAppointment, respondToAppointmentRequest, rescheduleAppointment 
 import { CARE_LABELS } from '@/lib/config/care'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
-const mockAppointmentFindFirst = jest.fn()
-const mockCareAssignmentFindFirst = jest.fn()
-const mockInsertValues = jest.fn()
-const mockUpdateSet = jest.fn()
+const mockAppointmentFindFirst = vi.fn()
+const mockCareAssignmentFindFirst = vi.fn()
+const mockInsertValues = vi.fn()
+const mockUpdateSet = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       appointment: { findFirst: (...a: unknown[]) => mockAppointmentFindFirst(...a) },
       careAssignment: { findFirst: (...a: unknown[]) => mockCareAssignmentFindFirst(...a) },
     },
-    insert: jest.fn(() => ({ values: (v: unknown) => mockInsertValues(v) })),
-    update: jest.fn(() => ({
+    insert: vi.fn(() => ({ values: (v: unknown) => mockInsertValues(v) })),
+    update: vi.fn(() => ({
       set: (v: unknown) => ({ where: () => mockUpdateSet(v) }),
     })),
   },
 }))
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
+vi.mock('next/cache', async () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/audit', async () => ({ logAudit: vi.fn() }))
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockPortalAuth = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockPortalAuth = vi.fn()
+vi.mock('@/lib/portal-auth', async () => ({
   getPortalAuth: (...args: unknown[]) => mockPortalAuth(...args),
 }))
 
@@ -63,7 +63,7 @@ function localInput(date: Date): string {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockPortalAuth.mockResolvedValue({ resident: { id: 'res-1' } })
   mockGetCurrentUser.mockResolvedValue({ id: 'staff-1', role: 'SOZIALARBEIT' })
   mockAppointmentFindFirst.mockResolvedValue(null)

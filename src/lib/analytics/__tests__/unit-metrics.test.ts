@@ -5,6 +5,7 @@
  * getSimilarPlacementSuccessRate with the db module mocked.
  */
 
+import type { Mock } from 'vitest'
 import { and, gte, inArray, isNotNull, lte } from 'drizzle-orm'
 import { housingUnit, placement } from '@/lib/db'
 import {
@@ -17,15 +18,15 @@ import {
 // MOCKS
 // =============================================================================
 
-const mockHousingUnitFindFirst = jest.fn()
-const mockHousingUnitFindMany = jest.fn()
-const mockIncidentCount = jest.fn()
-const mockIncidentFindMany = jest.fn().mockResolvedValue([])
-const mockPlacementCount = jest.fn()
-const mockPlacementFindMany = jest.fn()
+const mockHousingUnitFindFirst = vi.fn()
+const mockHousingUnitFindMany = vi.fn()
+const mockIncidentCount = vi.fn()
+const mockIncidentFindMany = vi.fn().mockResolvedValue([])
+const mockPlacementCount = vi.fn()
+const mockPlacementFindMany = vi.fn()
 
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
   return {
     ...actual,
     db: {
@@ -60,13 +61,13 @@ const mockDb = {
 const FIXED_NOW = new Date('2025-07-15T12:00:00.000Z')
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  jest.useFakeTimers()
-  jest.setSystemTime(FIXED_NOW)
+  vi.clearAllMocks()
+  vi.useFakeTimers()
+  vi.setSystemTime(FIXED_NOW)
 })
 
 afterEach(() => {
-  jest.useRealTimers()
+  vi.useRealTimers()
 })
 
 // =============================================================================
@@ -110,9 +111,9 @@ function makeIncident(date: string, overrides: Record<string, unknown> = {}) {
  */
 function setupDefaultMocks(unitOverrides: Record<string, unknown> = {}) {
   const unit = makeUnit(unitOverrides)
-  ;(mockDb.housingUnit.findUnique as jest.Mock).mockResolvedValue(unit)
-  ;(mockDb.incident.count as jest.Mock).mockResolvedValue(0)
-  ;(mockDb.placement.count as jest.Mock).mockResolvedValue(0)
+  ;(mockDb.housingUnit.findUnique as Mock).mockResolvedValue(unit)
+  ;(mockDb.incident.count as Mock).mockResolvedValue(0)
+  ;(mockDb.placement.count as Mock).mockResolvedValue(0)
   return unit
 }
 
@@ -126,7 +127,7 @@ describe('calculateUnitMetrics', () => {
   // ---------------------------------------------------------------------------
 
   it('throws when unit is not found', async () => {
-    ;(mockDb.housingUnit.findUnique as jest.Mock).mockResolvedValue(null)
+    ;(mockDb.housingUnit.findUnique as Mock).mockResolvedValue(null)
 
     await expect(calculateUnitMetrics('nonexistent')).rejects.toThrow('Unit nonexistent not found')
   })
@@ -226,7 +227,7 @@ describe('calculateUnitMetrics', () => {
   it('returns totalConflicts from prisma.incident.count', async () => {
     setupDefaultMocks()
     // First call is totalConflicts, subsequent calls are incident-free month checks
-    ;(mockDb.incident.count as jest.Mock)
+    ;(mockDb.incident.count as Mock)
       .mockResolvedValueOnce(42) // totalConflicts
       .mockResolvedValue(0) // incident-free months loop
 
@@ -446,7 +447,7 @@ describe('calculateUnitMetrics', () => {
   describe('occupancy', () => {
     it('calculates occupancy rate from active placements and total beds', async () => {
       setupDefaultMocks({ totalBeds: 4 })
-      ;(mockDb.placement.count as jest.Mock).mockResolvedValue(3)
+      ;(mockDb.placement.count as Mock).mockResolvedValue(3)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -456,7 +457,7 @@ describe('calculateUnitMetrics', () => {
 
     it('returns 100 when fully occupied', async () => {
       setupDefaultMocks({ totalBeds: 2 })
-      ;(mockDb.placement.count as jest.Mock).mockResolvedValue(2)
+      ;(mockDb.placement.count as Mock).mockResolvedValue(2)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -465,7 +466,7 @@ describe('calculateUnitMetrics', () => {
 
     it('returns 0 when empty', async () => {
       setupDefaultMocks({ totalBeds: 4 })
-      ;(mockDb.placement.count as jest.Mock).mockResolvedValue(0)
+      ;(mockDb.placement.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -555,7 +556,7 @@ describe('calculateUnitMetrics', () => {
     it('returns 12 when all months are incident-free', async () => {
       setupDefaultMocks()
       // totalConflicts = 0, then 12 months of 0 incidents
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValue(0)
+      ;(mockDb.incident.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -566,7 +567,7 @@ describe('calculateUnitMetrics', () => {
       setupDefaultMocks()
       // Refactor: incidentFreeMonths now derives from a single findMany over
       // the last 12 months; the JS loop buckets dates by Zurich month.
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // July 2025: current month has an incident
       ])
 
@@ -576,7 +577,7 @@ describe('calculateUnitMetrics', () => {
 
     it('counts consecutive months backward until an incident is found', async () => {
       setupDefaultMocks()
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-04-15'), // April: incident, break after counting 3 free
       ])
       const result = await calculateUnitMetrics('unit-1')
@@ -585,7 +586,7 @@ describe('calculateUnitMetrics', () => {
 
     it('stops counting at the first month with incidents', async () => {
       setupDefaultMocks()
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-06-15'), // June: incident -> only July counted
         makeIncident('2025-05-10'), // (May also has incidents but we already broke)
       ])
@@ -685,7 +686,7 @@ describe('calculateUnitMetrics', () => {
     it('returns "Sehr stabil" when incidentFreeMonths >= 6', async () => {
       setupDefaultMocks()
       // totalConflicts = 0, all 12 months free
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValue(0)
+      ;(mockDb.incident.count as Mock).mockResolvedValue(0)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -702,8 +703,8 @@ describe('calculateUnitMetrics', () => {
      */
     it('returns "Stabil" when incidentFreeMonths is 3-5', async () => {
       setupDefaultMocks()
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.count as Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-04-15'), // April incident -> 3 free months (Jul, Jun, May)
       ])
 
@@ -729,8 +730,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-20'), // 30-60 day window (before June 15, after May 16)
       ]
       setupDefaultMocks({ incidents })
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(5) // totalConflicts
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.count as Mock).mockResolvedValueOnce(5) // totalConflicts
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
       ])
 
@@ -756,8 +757,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-05-25'), // 30-60 day window
       ]
       setupDefaultMocks({ incidents })
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(10) // totalConflicts
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+      ;(mockDb.incident.count as Mock).mockResolvedValueOnce(10) // totalConflicts
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
         makeIncident('2025-07-10'), // current month -> incidentFreeMonths=0
       ])
 
@@ -780,8 +781,8 @@ describe('calculateUnitMetrics', () => {
         makeIncident('2025-02-10'),
       ]
       setupDefaultMocks({ incidents })
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(20) // totalConflicts
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
+      ;(mockDb.incident.count as Mock).mockResolvedValueOnce(20) // totalConflicts
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -796,8 +797,8 @@ describe('calculateUnitMetrics', () => {
       // incidentFreeMonths = 0 (because current month has incidents via count mock)
       const incidents = [makeIncident('2025-04-01')]
       setupDefaultMocks({ incidents })
-      ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(1) // totalConflicts
-      ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
+      ;(mockDb.incident.count as Mock).mockResolvedValueOnce(1) // totalConflicts
+      ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([makeIncident('2025-07-10')])
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -815,7 +816,7 @@ describe('calculateUnitMetrics', () => {
   describe('rounding', () => {
     it('rounds occupancyRate to integer', async () => {
       setupDefaultMocks({ totalBeds: 3 })
-      ;(mockDb.placement.count as jest.Mock).mockResolvedValue(1)
+      ;(mockDb.placement.count as Mock).mockResolvedValue(1)
 
       const result = await calculateUnitMetrics('unit-1')
 
@@ -869,14 +870,14 @@ describe('calculateUnitMetrics', () => {
       makeIncident('2025-06-01'), // not recent
     ]
 
-    ;(mockDb.housingUnit.findUnique as jest.Mock).mockResolvedValue(
+    ;(mockDb.housingUnit.findUnique as Mock).mockResolvedValue(
       makeUnit({ placements, incidents, totalBeds: 3 }),
     )
-    ;(mockDb.incident.count as jest.Mock).mockResolvedValueOnce(8) // totalConflicts
-    ;(mockDb.incident.findMany as jest.Mock).mockResolvedValueOnce([
+    ;(mockDb.incident.count as Mock).mockResolvedValueOnce(8) // totalConflicts
+    ;(mockDb.incident.findMany as Mock).mockResolvedValueOnce([
       makeIncident('2025-07-10'), // July: incident -> incidentFreeMonths=0
     ])
-    ;(mockDb.placement.count as jest.Mock).mockResolvedValue(1) // 1 active
+    ;(mockDb.placement.count as Mock).mockResolvedValue(1) // 1 active
 
     const result = await calculateUnitMetrics('unit-1')
 
@@ -901,7 +902,7 @@ describe('calculateUnitMetrics', () => {
 
 describe('calculateAllUnitMetrics', () => {
   it('returns empty array when no units match', async () => {
-    ;(mockDb.housingUnit.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockDb.housingUnit.findMany as Mock).mockResolvedValue([])
 
     const result = await calculateAllUnitMetrics()
 
@@ -909,20 +910,17 @@ describe('calculateAllUnitMetrics', () => {
   })
 
   it('calls calculateUnitMetrics for each unit with AVAILABLE or FULL status', async () => {
-    ;(mockDb.housingUnit.findMany as jest.Mock).mockResolvedValue([
-      { id: 'unit-a' },
-      { id: 'unit-b' },
-    ])
+    ;(mockDb.housingUnit.findMany as Mock).mockResolvedValue([{ id: 'unit-a' }, { id: 'unit-b' }])
 
     // Set up mocks for two calls to calculateUnitMetrics
     const unitA = makeUnit({ id: 'unit-a', code: 'WG-A' })
     const unitB = makeUnit({ id: 'unit-b', code: 'WG-B' })
 
-    ;(mockDb.housingUnit.findUnique as jest.Mock)
+    ;(mockDb.housingUnit.findUnique as Mock)
       .mockResolvedValueOnce(unitA)
       .mockResolvedValueOnce(unitB)
-    ;(mockDb.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockDb.placement.count as jest.Mock).mockResolvedValue(0)
+    ;(mockDb.incident.count as Mock).mockResolvedValue(0)
+    ;(mockDb.placement.count as Mock).mockResolvedValue(0)
 
     const result = await calculateAllUnitMetrics()
 
@@ -932,7 +930,7 @@ describe('calculateAllUnitMetrics', () => {
   })
 
   it('queries units with status AVAILABLE or FULL', async () => {
-    ;(mockDb.housingUnit.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockDb.housingUnit.findMany as Mock).mockResolvedValue([])
 
     await calculateAllUnitMetrics()
 
@@ -951,7 +949,7 @@ describe('calculateAllUnitMetrics', () => {
 
 describe('getSimilarPlacementSuccessRate', () => {
   it('returns zeros when no placements found', async () => {
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue([])
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -963,7 +961,7 @@ describe('getSimilarPlacementSuccessRate', () => {
   })
 
   it('queries placements within score +/- range', async () => {
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue([])
 
     await getSimilarPlacementSuccessRate(75, 15)
 
@@ -977,7 +975,7 @@ describe('getSimilarPlacementSuccessRate', () => {
   })
 
   it('uses default range of 10', async () => {
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue([])
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue([])
 
     await getSimilarPlacementSuccessRate(80)
 
@@ -1011,7 +1009,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'COMPLETED',
       },
     ]
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1037,7 +1035,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'REQUEST', // not CONFLICT, so still successful
       },
     ]
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1063,7 +1061,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'CONFLICT',
       },
     ]
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 
@@ -1095,7 +1093,7 @@ describe('getSimilarPlacementSuccessRate', () => {
         endReason: 'COMPLETED',
       },
     ]
-    ;(mockDb.placement.findMany as jest.Mock).mockResolvedValue(placements)
+    ;(mockDb.placement.findMany as Mock).mockResolvedValue(placements)
 
     const result = await getSimilarPlacementSuccessRate(75)
 

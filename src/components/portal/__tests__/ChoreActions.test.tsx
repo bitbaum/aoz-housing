@@ -1,10 +1,11 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ChoreActions } from '../ChoreActions'
 
 // --- Mocks ---
 
-jest.mock('@/lib/config/household-tasks', () => ({
+vi.mock('@/lib/config/household-tasks', async () => ({
   CHORE_LABELS: {
     actions: {
       complete: 'Erledigt!',
@@ -56,13 +57,13 @@ jest.mock('@/lib/config/household-tasks', () => ({
   },
 }))
 
-jest.mock('@/lib/constants/labels', () => ({
+vi.mock('@/lib/constants/labels', async () => ({
   UI_LABELS: { close: 'Schliessen' },
 }))
 
-const mockPush = jest.fn()
-const mockRefresh = jest.fn()
-jest.mock('next/navigation', () => ({
+const mockPush = vi.fn()
+const mockRefresh = vi.fn()
+vi.mock('next/navigation', async () => ({
   useRouter: () => ({ push: mockPush, refresh: mockRefresh }),
 }))
 
@@ -75,25 +76,25 @@ const ROOMMATES = [
 ]
 
 function mockFetchSuccess() {
-  global.fetch = jest.fn().mockResolvedValue({ ok: true } as Response)
+  global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response)
 }
 
 function mockFetchApiError(message = 'Ungültige Anfrage') {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: false,
     json: async () => ({ error: message }),
   } as unknown as Response)
 }
 
 function mockFetchNetworkError() {
-  global.fetch = jest.fn().mockRejectedValue(new Error('Network error'))
+  global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 }
 
 // --- Tests ---
 
 describe('ChoreActions', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   // ── Initial state ───────────────────────────────────────────────────────
@@ -162,7 +163,7 @@ describe('ChoreActions', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Erledigt!' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe(`/api/portal/chores/${TASK_ID}/complete`)
     expect(options.method).toBe('POST')
   })
@@ -193,7 +194,7 @@ describe('ChoreActions', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Erledigt!' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(body.notes).toBe('Sehr gründlich geputzt')
   })
 
@@ -207,7 +208,7 @@ describe('ChoreActions', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe(`/api/portal/chores/${TASK_ID}/request`)
   })
 
@@ -220,7 +221,7 @@ describe('ChoreActions', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(body.requestedResidentId).toBe('res-2')
   })
 
@@ -246,7 +247,7 @@ describe('ChoreActions', () => {
     fireEvent.submit(screen.getByRole('button', { name: 'Markieren' }).closest('form')!)
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe(`/api/portal/chores/${TASK_ID}/attention`)
   })
 
@@ -277,7 +278,7 @@ describe('ChoreActions', () => {
     )
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe(`/api/portal/chores/${TASK_ID}/complaint`)
     const body = JSON.parse(options.body)
     expect(body.description).toBe('Niemand putzt das Bad')

@@ -8,11 +8,11 @@
  * of the returned object is asserted directly.
  */
 
-const mockApplicationFindMany = jest.fn()
-const mockOpportunityFindMany = jest.fn()
+const mockApplicationFindMany = vi.fn()
+const mockOpportunityFindMany = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       opportunityApplication: { findMany: (...a: unknown[]) => mockApplicationFindMany(...a) },
@@ -21,6 +21,7 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
+import type { Mock } from 'vitest'
 import { residentOpportunityBoard } from '../opportunities'
 import { whereParts } from '@/test-utils/drizzle-where'
 
@@ -43,9 +44,9 @@ function listing(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(mockDb.opportunityApplication.findMany as jest.Mock).mockResolvedValue([])
-  ;(mockDb.opportunity.findMany as jest.Mock).mockResolvedValue([listing()])
+  vi.clearAllMocks()
+  ;(mockDb.opportunityApplication.findMany as Mock).mockResolvedValue([])
+  ;(mockDb.opportunity.findMany as Mock).mockResolvedValue([listing()])
 })
 
 describe('residentOpportunityBoard', () => {
@@ -65,7 +66,7 @@ describe('residentOpportunityBoard', () => {
   it('reports an unstated capacity as unknown, not as full', async () => {
     // `null` seats means the listing never named a number. Rendering that as
     // zero would take an open place off the board for everyone.
-    ;(mockDb.opportunity.findMany as jest.Mock).mockResolvedValue([listing({ seats: null })])
+    ;(mockDb.opportunity.findMany as Mock).mockResolvedValue([listing({ seats: null })])
 
     const { open } = await residentOpportunityBoard('res-1')
 
@@ -75,14 +76,14 @@ describe('residentOpportunityBoard', () => {
   it('only ever asks for published listings', async () => {
     await residentOpportunityBoard('res-1')
 
-    const where = (mockDb.opportunity.findMany as jest.Mock).mock.calls[0][0].where
+    const where = (mockDb.opportunity.findMany as Mock).mock.calls[0][0].where
     expect(whereParts(where)).toEqual({ status: 'PUBLISHED' })
   })
 
   it('drops listings the resident is already attached to', async () => {
     // Otherwise the same place appears twice — once under "your placements"
     // with a stage, and once under "open" with a button that cannot work.
-    ;(mockDb.opportunityApplication.findMany as jest.Mock).mockResolvedValue([
+    ;(mockDb.opportunityApplication.findMany as Mock).mockResolvedValue([
       { id: 'app-1', opportunityId: 'opp-1', stage: 'INTERESTED', opportunity: listing() },
     ])
 
@@ -93,7 +94,7 @@ describe('residentOpportunityBoard', () => {
   })
 
   it('puts the places someone can still take first', async () => {
-    ;(mockDb.opportunity.findMany as jest.Mock).mockResolvedValue([
+    ;(mockDb.opportunity.findMany as Mock).mockResolvedValue([
       listing({ id: 'full', seats: 1, applications: [{ stage: 'STARTED' }] }),
       listing({ id: 'open', seats: 2, applications: [] }),
     ])
@@ -106,7 +107,7 @@ describe('residentOpportunityBoard', () => {
   it('scopes the applications it returns to the asking resident', async () => {
     await residentOpportunityBoard('res-1')
 
-    const where = (mockDb.opportunityApplication.findMany as jest.Mock).mock.calls[0][0].where
+    const where = (mockDb.opportunityApplication.findMany as Mock).mock.calls[0][0].where
     expect(whereParts(where)).toEqual({ residentId: 'res-1' })
   })
 })

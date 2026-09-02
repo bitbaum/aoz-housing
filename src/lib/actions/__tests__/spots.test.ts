@@ -14,18 +14,18 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockInsertValues = jest.fn()
-const mockUpdateReturning = jest.fn()
-const mockUpdateWhere = jest.fn()
-const mockDeleteWhere = jest.fn()
-const mockCount = jest.fn()
+const mockInsertValues = vi.fn()
+const mockUpdateReturning = vi.fn()
+const mockUpdateWhere = vi.fn()
+const mockDeleteWhere = vi.fn()
+const mockCount = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     // `values()` is awaited directly for single inserts and `.returning()`ed for
     // the room insert — expose both shapes over the same lazily-run mock.
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => {
         const run = () => mockInsertValues(v) as Promise<unknown[]>
         return {
@@ -34,7 +34,7 @@ jest.mock('@/lib/db', () => ({
         }
       },
     })),
-    update: jest.fn(() => ({
+    update: vi.fn(() => ({
       set: (v: unknown) => ({
         where: (w: unknown) => {
           mockUpdateWhere(w)
@@ -44,7 +44,7 @@ jest.mock('@/lib/db', () => ({
     })),
     // `.where()` is awaited directly for the child-spot delete and
     // `.returning()`ed for the spot itself.
-    delete: jest.fn(() => ({
+    delete: vi.fn(() => ({
       where: (w: unknown) => {
         const run = () => mockDeleteWhere(w) as Promise<unknown[]>
         return {
@@ -57,16 +57,16 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn(),
+vi.mock('next/navigation', async () => ({
+  redirect: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
 const mockStaffUser = {
@@ -76,20 +76,20 @@ const mockStaffUser = {
   role: 'ADMIN' as const,
 }
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -97,18 +97,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -489,7 +489,7 @@ describe('createMultipleSpots', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated requests', async () => {
-    const { requirePermission: mockRequirePermission } = require('@/lib/auth')
+    const { requirePermission: mockRequirePermission } = vi.mocked(await import('@/lib/auth'))
     mockRequirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     const fd = new FormData()

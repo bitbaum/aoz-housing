@@ -9,17 +9,17 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieGet = vi.fn()
+vi.mock('next/headers', async () => ({
+  cookies: vi.fn().mockResolvedValue({
     get: (name: string) => mockCookieGet(name),
   }),
 }))
 
-const mockFindFirst = jest.fn()
-const mockUpdate = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockFindFirst = vi.fn()
+const mockUpdate = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: {
@@ -35,17 +35,17 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn().mockResolvedValue(undefined),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn().mockResolvedValue(undefined),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -88,7 +88,7 @@ function createPreferencesRequest(data: Record<string, string>): NextRequest {
 
 describe('POST /api/portal/preferences', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when no resident_code cookie', async () => {

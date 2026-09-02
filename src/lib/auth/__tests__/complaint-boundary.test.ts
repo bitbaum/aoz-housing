@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import {
   COMPLAINT_PERMISSIONS,
   STAFF_ROLES,
@@ -75,8 +77,6 @@ describe('a complaint never becomes a case against the person who filed it', () 
    * a resident, ending in FORMAL_MEASURE. Filing an objection to the Betreuung
    * as an Incident would open a case against the complainant.
    */
-  const fs = require('fs') as typeof import('fs')
-  const path = require('path') as typeof import('path')
   const ROUTE = path.resolve(__dirname, '../../../app/api/portal/complaints/route.ts')
 
   it('the complaint route writes only to the complaint table', () => {

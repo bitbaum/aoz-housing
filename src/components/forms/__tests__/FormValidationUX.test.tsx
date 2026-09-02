@@ -2,7 +2,7 @@ import React from 'react'
 import { render, act } from '@testing-library/react'
 import { FormValidationUX } from '../FormValidationUX'
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   FORM_VALIDATION_UX_LABELS: {
     requiredFields: 'Bitte prüfen Sie die markierten Pflichtfelder.',
     fieldRequired: 'Dieses Feld ist erforderlich',
@@ -30,7 +30,7 @@ function setupDOM() {
 
 afterEach(() => {
   document.body.innerHTML = ''
-  jest.restoreAllMocks()
+  vi.restoreAllMocks()
 })
 
 describe('FormValidationUX', () => {
@@ -189,7 +189,7 @@ describe('FormValidationUX', () => {
       expect(summary.classList.contains('hidden')).toBe(false)
 
       // Make form valid
-      jest.spyOn(form, 'checkValidity').mockReturnValue(true)
+      vi.spyOn(form, 'checkValidity').mockReturnValue(true)
 
       act(() => {
         input.value = 'filled'
@@ -207,7 +207,7 @@ describe('FormValidationUX', () => {
         input.dispatchEvent(new Event('invalid', { bubbles: false, cancelable: true }))
       })
 
-      jest.spyOn(form, 'checkValidity').mockReturnValue(false)
+      vi.spyOn(form, 'checkValidity').mockReturnValue(false)
 
       act(() => {
         input.value = 'partial'
@@ -235,7 +235,7 @@ describe('FormValidationUX', () => {
 
     it('removes input listener so events have no effect after unmount', () => {
       const { form, input } = setupDOM()
-      const spy = jest.spyOn(form, 'checkValidity').mockReturnValue(true)
+      const spy = vi.spyOn(form, 'checkValidity').mockReturnValue(true)
       const { unmount } = render(<FormValidationUX formId="test-form" summaryId="test-summary" />)
 
       unmount()

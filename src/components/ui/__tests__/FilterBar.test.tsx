@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { SelectFilter, SearchInput } from '../FilterBar'
 
@@ -16,7 +16,7 @@ describe('SelectFilter', () => {
   })
 
   it('renders all options and reports changes', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(<SelectFilter label="Status" value="all" options={options} onChange={onChange} />)
     expect(screen.getByRole('option', { name: 'Alle' })).toBeInTheDocument()
     expect(screen.getByRole('option', { name: 'Aktiv' })).toBeInTheDocument()
@@ -32,7 +32,7 @@ describe('SearchInput', () => {
   })
 
   it('reports typed input', () => {
-    const onChange = jest.fn()
+    const onChange = vi.fn()
     render(<SearchInput value="" onChange={onChange} placeholder="Suchen" />)
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'abc' } })
     expect(onChange).toHaveBeenCalledWith('abc')

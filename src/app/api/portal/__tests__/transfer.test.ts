@@ -10,18 +10,18 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockCookieGet = jest.fn()
-jest.mock('next/headers', () => ({
-  cookies: jest.fn().mockResolvedValue({
+const mockCookieGet = vi.fn()
+vi.mock('next/headers', async () => ({
+  cookies: vi.fn().mockResolvedValue({
     get: (name: string) => mockCookieGet(name),
   }),
 }))
 
-const mockFindFirst = jest.fn()
-const mockTransferCreate = jest.fn()
-const mockHousingUnitFindFirst = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockFindFirst = vi.fn()
+const mockTransferCreate = vi.fn()
+const mockHousingUnitFindFirst = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       resident: {
@@ -31,7 +31,7 @@ jest.mock('@/lib/db', () => ({
         findFirst: (...args: unknown[]) => mockHousingUnitFindFirst(...args),
       },
     },
-    insert: jest.fn(() => ({
+    insert: vi.fn(() => ({
       values: (v: unknown) => ({
         returning: (): Promise<unknown[]> => mockTransferCreate(v),
       }),
@@ -39,26 +39,24 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.fn().mockResolvedValue(undefined)
+vi.mock('@/lib/audit', async () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
-jest.mock('@/lib/email', () => ({
-  notifyStaff: jest.fn(),
-  newTransferRequestNotification: jest
-    .fn()
-    .mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
+vi.mock('@/lib/email', async () => ({
+  notifyStaff: vi.fn(),
+  newTransferRequestNotification: vi.fn().mockReturnValue({ subject: 'test', html: '<p>test</p>' }),
 }))
 
 // --- Import after mocks ---
@@ -104,7 +102,7 @@ const VALID_REASON = 'Ich möchte in eine ruhigere Unterkunft wechseln'
 
 describe('POST /api/portal/transfer', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   test('returns 401 when no resident_code cookie', async () => {

@@ -6,8 +6,8 @@
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
   authorizeStaff: async () => {
     const user = await mockGetCurrentUser()
@@ -21,11 +21,11 @@ jest.mock('@/lib/auth', () => ({
 // .onConflictDoNothing(), re-fetches the inserted IDs, and writes AuditLog rows
 // via tx.insert(auditLog).values(...). The insert mocks receive the values
 // payload (the array of rows) directly.
-const mockResidentFindMany = jest.fn().mockResolvedValue([])
-const mockResidentCreateMany = jest.fn().mockResolvedValue(undefined)
-const mockAuditLogCreateMany = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+const mockResidentFindMany = vi.fn().mockResolvedValue([])
+const mockResidentCreateMany = vi.fn().mockResolvedValue(undefined)
+const mockAuditLogCreateMany = vi.fn().mockResolvedValue(undefined)
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
   const tx = {
     query: {
       resident: { findMany: (...args: unknown[]) => mockResidentFindMany(...args) },
@@ -47,18 +47,18 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-const mockLogAudit = jest.fn()
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.fn()
+vi.mock('@/lib/audit', async () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -99,7 +99,7 @@ const STAFF_USER = {
 
 describe('POST /api/import/residents', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('returns 401 when not authenticated', async () => {

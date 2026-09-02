@@ -1,11 +1,11 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
 import { ApartmentProfileCard } from '../ApartmentProfileCard'
 import type { ResidentHouseholdProfile } from '@/lib/types'
 
 // --- Mocks ---
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   SLEEP_SCHEDULE_LABELS: {
     EARLY_BIRD: 'Frühaufsteher',
     NIGHT_OWL: 'Nachtmensch',
@@ -41,12 +41,12 @@ jest.mock('@/lib/constants', () => ({
   getLabel: (labels: Record<string, string>, key: string) => labels[key] ?? key,
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   getScoreColorClass: (score: number) =>
     score >= 80 ? 'score-excellent' : score >= 60 ? 'score-good' : 'score-medium',
 }))
 
-jest.mock('@/lib/config/resident-factors', () => ({
+vi.mock('@/lib/config/resident-factors', async () => ({
   RESIDENT_FACTORS: {
     cleanlinessPractice: { type: 'scale', lowLabel: 'Niedrig', highLabel: 'Hoch' },
     noiseTolerance: { type: 'scale', lowLabel: 'Leise', highLabel: 'Laut' },

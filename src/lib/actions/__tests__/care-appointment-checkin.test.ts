@@ -18,27 +18,26 @@ import { getTableName } from 'drizzle-orm'
 import { appointment, placement } from '@/lib/db'
 import { setAppointmentStatus } from '../care'
 
-const mockAppointmentFindFirst = jest.fn()
-const mockPlacementFindFirst = jest.fn()
-const mockCheckInCreate = jest.fn()
+const mockAppointmentFindFirst = vi.fn()
+const mockPlacementFindFirst = vi.fn()
+const mockCheckInCreate = vi.fn()
 /** Records every update — direct or in a transaction — as (tableName, payload). */
-const mockUpdateSet = jest.fn()
+const mockUpdateSet = vi.fn()
 
-jest.mock('@/lib/db', () => {
-  const update = jest.fn((table: unknown) => ({
+vi.mock('@/lib/db', async () => {
+  const { getTableName: tableName } = await import('drizzle-orm')
+  const update = vi.fn((table: unknown) => ({
     set: (v: unknown) => {
-      const { getTableName: tableName } = require('drizzle-orm')
-
       mockUpdateSet(tableName(table as any), v)
       return { where: () => Promise.resolve([]) }
     },
   }))
   const tx = {
-    insert: jest.fn(() => ({ values: (v: unknown) => mockCheckInCreate(v) })),
+    insert: vi.fn(() => ({ values: (v: unknown) => mockCheckInCreate(v) })),
     update,
   }
   return {
-    ...jest.requireActual<object>('@/lib/db'),
+    ...(await vi.importActual<object>('@/lib/db')),
     db: {
       query: {
         appointment: { findFirst: (...a: unknown[]) => mockAppointmentFindFirst(...a) },
@@ -50,12 +49,12 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
-jest.mock('@/lib/audit', () => ({ logAudit: jest.fn() }))
+vi.mock('next/cache', async () => ({ revalidatePath: vi.fn() }))
+vi.mock('@/lib/audit', async () => ({ logAudit: vi.fn() }))
 
 const staff = { id: 'staff-1', name: 'Test Admin', role: 'ADMIN' as const }
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn(async () => ({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn(async () => ({
     id: 'staff-1',
     name: 'Test Admin',
     role: 'ADMIN' as const,
@@ -78,7 +77,7 @@ function appointmentStatusUpdates() {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockAppointmentFindFirst.mockResolvedValue({
     residentId: 'res-1',
     domain: 'HOUSING',

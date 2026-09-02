@@ -18,22 +18,22 @@ import { conflictAgreement } from '@/lib/db'
 import { and, inArray, lt } from 'drizzle-orm'
 import { whereParts } from '@/test-utils/drizzle-where'
 
-const mockProposalFindFirst = jest.fn()
-const mockProposalFindMany = jest.fn()
-const mockPlacementFindMany = jest.fn()
+const mockProposalFindFirst = vi.fn()
+const mockProposalFindMany = vi.fn()
+const mockPlacementFindMany = vi.fn()
 // insert(houseRule).values(v) → (v)
-const mockRuleCreate = jest.fn()
+const mockRuleCreate = vi.fn()
 // update(houseRule).set(d).where(w) → (d, whereParts)
-const mockRuleUpdate = jest.fn()
+const mockRuleUpdate = vi.fn()
 // The guarded proposal update — returns the rows `.returning()` yields, so a
 // test can make it lose the close race by returning [].
-const mockProposalUpdate = jest.fn()
+const mockProposalUpdate = vi.fn()
 // update(conflictAgreement) — recorded with the RAW where tree for comparison.
-const mockAgreementUpdate = jest.fn()
+const mockAgreementUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
-  const { whereParts: parts } = jest.requireActual<typeof import('@/test-utils/drizzle-where')>(
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
+  const { whereParts: parts } = await vi.importActual<typeof import('@/test-utils/drizzle-where')>(
     '@/test-utils/drizzle-where',
   )
   return {
@@ -67,8 +67,8 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-jest.mock('@/lib/logger', () => ({
-  logger: { errorWithCause: jest.fn(), info: jest.fn(), warn: jest.fn() },
+vi.mock('@/lib/logger', async () => ({
+  logger: { errorWithCause: vi.fn(), info: vi.fn(), warn: vi.fn() },
 }))
 
 const ORG_TOPIC = {
@@ -103,7 +103,7 @@ function votingProposal(overrides: Record<string, unknown> = {}) {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockProposalUpdate.mockReturnValue([{ id: 'p1' }])
   mockProposalFindMany.mockResolvedValue([])
   mockRuleCreate.mockResolvedValue({ id: 'new-rule' })

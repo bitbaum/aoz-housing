@@ -16,13 +16,13 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
-const mockTransferFindMany = jest.fn()
-const mockTransferFindFirst = jest.fn()
+const mockTransferFindMany = vi.fn()
+const mockTransferFindFirst = vi.fn()
 // Receives (setPayload, whereExpr) and resolves the updated-row array
-const mockTransferUpdate = jest.fn()
+const mockTransferUpdate = vi.fn()
 
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       transferRequest: {
@@ -30,7 +30,7 @@ jest.mock('@/lib/db', () => ({
         findFirst: (...a: unknown[]) => mockTransferFindFirst(...a),
       },
     },
-    update: jest.fn(() => ({
+    update: vi.fn(() => ({
       set: (v: unknown) => ({
         where: (w: unknown) => ({
           returning: (): Promise<unknown[]> => mockTransferUpdate(v, w),
@@ -40,28 +40,28 @@ jest.mock('@/lib/db', () => ({
   },
 }))
 
-jest.mock('next/cache', () => ({
-  revalidatePath: jest.fn(),
+vi.mock('next/cache', async () => ({
+  revalidatePath: vi.fn(),
 }))
 
-jest.mock('@/lib/audit', () => ({
-  logAudit: jest.fn(),
+vi.mock('@/lib/audit', async () => ({
+  logAudit: vi.fn(),
 }))
 
-jest.mock('@/lib/auth', () => ({
-  getCurrentUser: jest.fn().mockResolvedValue({
+vi.mock('@/lib/auth', async () => ({
+  getCurrentUser: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requireStaffAuth: jest.fn().mockResolvedValue({
+  requireStaffAuth: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
     role: 'ADMIN' as const,
   }),
-  requirePermission: jest.fn().mockResolvedValue({
+  requirePermission: vi.fn().mockResolvedValue({
     id: 'staff-1',
     email: 'admin@test.com',
     name: 'Test Admin',
@@ -69,18 +69,18 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
 })
 
 // =============================================================================
@@ -283,7 +283,7 @@ describe('denyTransferRequest', () => {
 
 describe('auth guard', () => {
   it('rejects unauthenticated approve requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    const { requireStaffAuth: mockRequireStaffAuth } = vi.mocked(await import('@/lib/auth'))
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(approveTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(
@@ -292,7 +292,7 @@ describe('auth guard', () => {
   })
 
   it('rejects unauthenticated deny requests', async () => {
-    const { requireStaffAuth: mockRequireStaffAuth } = require('@/lib/auth')
+    const { requireStaffAuth: mockRequireStaffAuth } = vi.mocked(await import('@/lib/auth'))
     mockRequireStaffAuth.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(denyTransferRequest({ requestId: 'clxxxxxxxxxxxxxxxxx0001' })).rejects.toThrow(

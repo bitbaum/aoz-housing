@@ -10,14 +10,14 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetCurrentUser = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockGetCurrentUser = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   getCurrentUser: (...args: unknown[]) => mockGetCurrentUser(...args),
 }))
 
-const mockCheckRateLimit = jest.fn()
-const mockRecordLoginAttempt = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockCheckRateLimit = vi.fn()
+const mockRecordLoginAttempt = vi.fn()
+vi.mock('@/lib/auth/rate-limit', async () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -26,16 +26,16 @@ jest.mock('@/lib/auth/rate-limit', () => ({
   recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
 }))
 
-jest.mock('@/lib/auth/code-generation', () => ({
-  generateStaffCode: jest.fn(() => 'AOZ-GEN001'),
+vi.mock('@/lib/auth/code-generation', async () => ({
+  generateStaffCode: vi.fn(() => 'AOZ-GEN001'),
 }))
 
-const mockUserFindFirst = jest.fn()
-const mockUserInsertReturning = jest.fn()
-const mockAccountFindFirst = jest.fn()
-const mockAccountInsertReturning = jest.fn()
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+const mockUserFindFirst = vi.fn()
+const mockUserInsertReturning = vi.fn()
+const mockAccountFindFirst = vi.fn()
+const mockAccountInsertReturning = vi.fn()
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
   return {
     ...actual,
     db: {
@@ -59,13 +59,13 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-const mockSendEmail = jest.fn()
-jest.mock('@/lib/email/service', () => ({
+const mockSendEmail = vi.fn()
+vi.mock('@/lib/email/service', async () => ({
   sendEmail: (...args: unknown[]) => mockSendEmail(...args),
 }))
 
-jest.mock('@/lib/email/templates', () => ({
-  staffInviteEmail: jest.fn(() => ({
+vi.mock('@/lib/email/templates', async () => ({
+  staffInviteEmail: vi.fn(() => ({
     subject: 'Ihr AOZ Housing Zugangscode',
     html: '<p>Your code</p>',
   })),
@@ -103,7 +103,7 @@ const ADMIN_USER = {
 
 describe('POST /api/auth/invite', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     mockCheckRateLimit.mockReturnValue({ allowed: true })
     mockGetCurrentUser.mockResolvedValue(ADMIN_USER)
     mockUserFindFirst.mockResolvedValue(null) // code not taken

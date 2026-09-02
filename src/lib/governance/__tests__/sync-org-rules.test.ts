@@ -17,14 +17,14 @@ function makeDb(existing: Record<string, unknown> = {}) {
       houseRule: {
         // Looked up by `eq(houseRule.key, …)` — the key is read back out of
         // the where-expression, same dispatch the Prisma mock did on `where.key`.
-        findFirst: jest.fn(
+        findFirst: vi.fn(
           async ({ where }: { where: unknown }) =>
             existing[whereParts(where).key as string] ?? null,
         ),
       },
     },
     insert: () => ({
-      values: jest.fn(async (data: unknown) => {
+      values: vi.fn(async (data: unknown) => {
         created.push(data)
       }),
     }),

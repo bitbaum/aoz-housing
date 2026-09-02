@@ -14,7 +14,7 @@ research-backed factors — but housing is the beginning, not the whole picture.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
-[![Jest](https://img.shields.io/badge/Tests-2341%20unit-green.svg)](https://jestjs.io/)
+[![Vitest](https://img.shields.io/badge/Tests-3599%20unit-green.svg)](https://vitest.dev/)
 [![Playwright](https://img.shields.io/badge/E2E-173%20tests-green.svg)](https://playwright.dev/)
 
 ## What It Does

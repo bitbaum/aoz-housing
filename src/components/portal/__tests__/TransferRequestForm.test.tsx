@@ -1,4 +1,5 @@
-import '@testing-library/jest-dom'
+import type { Mock } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { TransferRequestForm } from '../TransferRequestForm'
 
@@ -22,7 +23,7 @@ const TRANSFER_COPY: Record<string, string> = {
   'error.generic': 'Ein Fehler ist aufgetreten. Bitte erneut versuchen.',
 }
 
-jest.mock('@/lib/i18n/LocaleProvider', () => ({
+vi.mock('@/lib/i18n/LocaleProvider', async () => ({
   useT: () => (key: string) => TRANSFER_COPY[key] ?? key,
 }))
 
@@ -38,28 +39,28 @@ const AVAILABLE_UNITS = [
 ]
 
 function mockFetchSuccess() {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: true,
     json: async () => ({ success: true }),
   } as Response)
 }
 
 function mockFetchApiError(message = 'Anfrage ungültig') {
-  global.fetch = jest.fn().mockResolvedValue({
+  global.fetch = vi.fn().mockResolvedValue({
     ok: false,
     json: async () => ({ success: false, error: message }),
   } as Response)
 }
 
 function mockFetchNetworkError() {
-  global.fetch = jest.fn().mockRejectedValue(new Error('Network error'))
+  global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 }
 
 // --- Tests ---
 
 describe('TransferRequestForm', () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders the form with reason textarea and submit button', () => {
@@ -197,7 +198,7 @@ describe('TransferRequestForm', () => {
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1))
 
-    const [url, options] = (global.fetch as jest.Mock).mock.calls[0]
+    const [url, options] = (global.fetch as Mock).mock.calls[0]
     expect(url).toBe('/api/portal/transfer')
     expect(options.method).toBe('POST')
     const body = JSON.parse(options.body)
@@ -217,9 +218,9 @@ describe('TransferRequestForm', () => {
     })
     fireEvent.submit(screen.getByRole('button', { name: 'Anfrage senden' }).closest('form')!)
 
-    await waitFor(() => expect(global.fetch as jest.Mock).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(global.fetch as Mock).toHaveBeenCalledTimes(1))
 
-    const body = JSON.parse((global.fetch as jest.Mock).mock.calls[0][1].body)
+    const body = JSON.parse((global.fetch as Mock).mock.calls[0][1].body)
     expect(body.targetUnitId).toBe('unit-2')
   })
 })

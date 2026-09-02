@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { CompatibilityMatrixInteractive } from '../CompatibilityMatrixInteractive'
@@ -7,7 +7,7 @@ import type { ResidentBasic } from '@/lib/types'
 
 // --- Mocks ---
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,
@@ -24,12 +24,12 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   getScoreBgClass: (score: number) =>
     score >= 80 ? 'bg-score-excellent/15' : score >= 60 ? 'bg-score-good/15' : 'bg-score-medium/15',
 }))
 
-jest.mock('@/lib/constants', () => ({
+vi.mock('@/lib/constants', async () => ({
   COMPATIBILITY_MATRIX_LABELS: {
     clickHint: 'Auf eine Zelle klicken für Kompatibilitätsdetails',
     swipeHint: 'Wischen zum Scrollen',
@@ -43,7 +43,7 @@ jest.mock('@/lib/constants', () => ({
 }))
 
 // Stub the popover — forwardRef so popoverRef.current attaches for outside-click tests
-jest.mock('../CompatibilityDetailPopover', () => ({
+vi.mock('../CompatibilityDetailPopover', async () => ({
   CompatibilityDetailPopover: React.forwardRef(function PopoverStub(
     {
       resident1,

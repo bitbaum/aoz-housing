@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import { de } from '@/lib/i18n/dictionaries/de'
 import type { MessageKey } from '@/lib/i18n/dictionaries/de'
 import { render, screen } from '@testing-library/react'
@@ -8,11 +8,11 @@ import { PORTAL_LABELS } from '@/lib/constants/labels'
 
 let mockPathname = '/portal'
 
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', async () => ({
   usePathname: () => mockPathname,
 }))
 
-jest.mock('next/link', () => ({
+vi.mock('next/link', async () => ({
   __esModule: true,
   default: ({
     href,

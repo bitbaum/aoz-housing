@@ -12,22 +12,22 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // --- Mocks ---
 
-const mockGetPortalAuth = jest.fn()
-const mockGetActiveUnitMembers = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockGetPortalAuth = vi.fn()
+const mockGetActiveUnitMembers = vi.fn()
+vi.mock('@/lib/portal-auth', async () => ({
   getPortalAuth: () => mockGetPortalAuth(),
   getActiveUnitMembers: (...args: unknown[]) => mockGetActiveUnitMembers(...args),
 }))
 
 // The expense route inserts Expense + ExpenseShare rows inside one
 // transaction; shares get their own mock so the split stays assertable.
-const mockExpenseCreate = jest.fn()
-const mockShareCreate = jest.fn()
-const mockExpenseFindFirst = jest.fn()
-const mockExpenseDelete = jest.fn()
-const mockSettlementCreate = jest.fn()
-jest.mock('@/lib/db', () => {
-  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+const mockExpenseCreate = vi.fn()
+const mockShareCreate = vi.fn()
+const mockExpenseFindFirst = vi.fn()
+const mockExpenseDelete = vi.fn()
+const mockSettlementCreate = vi.fn()
+vi.mock('@/lib/db', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/db')>('@/lib/db')
   return {
     ...actual,
     db: {
@@ -52,18 +52,18 @@ jest.mock('@/lib/db', () => {
   }
 })
 
-const mockLogAudit = jest.fn().mockResolvedValue(undefined)
-jest.mock('@/lib/audit', () => ({
+const mockLogAudit = vi.fn().mockResolvedValue(undefined)
+vi.mock('@/lib/audit', async () => ({
   logAudit: (...args: unknown[]) => mockLogAudit(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
@@ -100,7 +100,7 @@ function jsonRequest(url: string, method: string, body: unknown): NextRequest {
 const VALID_EXPENSE = { description: 'Wocheneinkauf', category: 'GROCERIES', amountRappen: 4000 }
 
 beforeEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   mockGetPortalAuth.mockResolvedValue(AUTH)
   mockGetActiveUnitMembers.mockResolvedValue(MEMBERS)
   mockExpenseCreate.mockImplementation((values: unknown) =>

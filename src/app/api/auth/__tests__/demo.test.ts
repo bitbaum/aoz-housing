@@ -12,16 +12,16 @@ import { NextRequest } from 'next/server'
 
 // --- Mocks ---
 
-const mockLoginByCode = jest.fn()
-const mockSetSessionCookie = jest.fn()
-jest.mock('@/lib/auth', () => ({
+const mockLoginByCode = vi.fn()
+const mockSetSessionCookie = vi.fn()
+vi.mock('@/lib/auth', async () => ({
   loginByCode: (...args: unknown[]) => mockLoginByCode(...args),
   setSessionCookie: (...args: unknown[]) => mockSetSessionCookie(...args),
 }))
 
-const mockCheckRateLimit = jest.fn()
-const mockRecordLoginAttempt = jest.fn()
-jest.mock('@/lib/auth/rate-limit', () => ({
+const mockCheckRateLimit = vi.fn()
+const mockRecordLoginAttempt = vi.fn()
+vi.mock('@/lib/auth/rate-limit', async () => ({
   getClientIp: (request: { headers: { get(name: string): string | null } }) =>
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -30,28 +30,28 @@ jest.mock('@/lib/auth/rate-limit', () => ({
   recordLoginAttempt: (...args: unknown[]) => mockRecordLoginAttempt(...args),
 }))
 
-const mockSetResidentCookie = jest.fn()
-jest.mock('@/lib/portal-auth', () => ({
+const mockSetResidentCookie = vi.fn()
+vi.mock('@/lib/portal-auth', async () => ({
   setResidentCookie: (...args: unknown[]) => mockSetResidentCookie(...args),
 }))
 
-jest.mock('@/lib/logger', () => ({
+vi.mock('@/lib/logger', async () => ({
   logger: {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    errorWithCause: jest.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    errorWithCause: vi.fn(),
   },
 }))
 
 // A door is offered only when its ACCOUNT exists, so the endpoint reads the
 // database. Config presence proves nothing now that codes are derived: it
 // would offer five buttons on an instance where the seed never ran.
-const mockUserFindMany = jest.fn()
-const mockResidentFindFirst = jest.fn()
-jest.mock('@/lib/db', () => ({
-  ...jest.requireActual<object>('@/lib/db'),
+const mockUserFindMany = vi.fn()
+const mockResidentFindFirst = vi.fn()
+vi.mock('@/lib/db', async () => ({
+  ...(await vi.importActual<object>('@/lib/db')),
   db: {
     query: {
       user: { findMany: (...args: unknown[]) => mockUserFindMany(...args) },
@@ -90,7 +90,7 @@ describe('POST /api/auth/demo', () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.DEMO_ACCESS_ENABLED = 'true'
     process.env.DEMO_STAFF_CODE = STAFF_CODE
     process.env.DEMO_RESIDENT_CODE = RESIDENT_CODE
