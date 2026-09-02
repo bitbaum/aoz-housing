@@ -49,7 +49,7 @@ export const AOZ_TEAM: readonly RealStaffSeed[] = [
     note: 'Betreuerin — Wohnen ist ihr Bereich, sie sieht zusätzlich alle Klient*innen.',
   },
   {
-    name: 'Simon Binder',
+    name: 'Simon B.',
     role: 'JOBCOACH',
     scope: 'OWN_DOMAIN',
     isSystemAdmin: false,
