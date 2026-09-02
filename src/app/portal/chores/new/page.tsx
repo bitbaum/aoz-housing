@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, placement as placementTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { CreateChoreForm } from '@/components/portal/CreateChoreForm'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
 import { requireResidentCookie } from '@/lib/portal-auth'
@@ -10,12 +11,12 @@ export const dynamic = 'force-dynamic'
 export default async function NewChorePage() {
   const residentCode = await requireResidentCookie('/portal')
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
       },
     },
   })

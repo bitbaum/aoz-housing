@@ -7,7 +7,8 @@
  * just because a scheduler did not run.
  */
 
-import { prisma } from '@/lib/db'
+import { db, proposal as proposalTable, houseRule, placement, conflictAgreement } from '@/lib/db'
+import { and, eq, gt, inArray, isNull, lt, lte, or } from 'drizzle-orm'
 import { logger } from '@/lib/logger'
 import { checkUnitLegislation, resolveProposalStatus } from './rules'
 import { tallyVotes } from './voting'
@@ -18,9 +19,9 @@ import { tallyVotes } from './voting'
  * only invoke it on the transition into ACCEPTED.
  */
 export async function adoptProposal(proposalId: string): Promise<void> {
-  const proposal = await prisma.proposal.findUnique({
-    where: { id: proposalId },
-    include: { parentOrgRule: true, targetRule: true },
+  const proposal = await db.query.proposal.findFirst({
+    where: eq(proposalTable.id, proposalId),
+    with: { parentOrgRule: true, targetRule: true },
   })
   if (!proposal) return
 
@@ -28,41 +29,39 @@ export async function adoptProposal(proposalId: string): Promise<void> {
   if (proposal.type === 'HOUSE_DECISION') return
 
   if (proposal.type === 'REPEAL_RULE' && proposal.targetRuleId) {
-    await prisma.houseRule.update({
-      where: { id: proposal.targetRuleId },
-      data: { status: 'ARCHIVED', effectiveUntil: new Date() },
-    })
+    await db
+      .update(houseRule)
+      .set({ status: 'ARCHIVED', effectiveUntil: new Date() })
+      .where(eq(houseRule.id, proposal.targetRuleId))
     return
   }
 
   if (proposal.type === 'AMEND_RULE' && proposal.targetRule) {
-    await prisma.houseRule.update({
-      where: { id: proposal.targetRule.id },
-      data: {
+    await db
+      .update(houseRule)
+      .set({
         title: proposal.title,
         body: proposal.body,
         // New wording must be re-acknowledged by everyone the rule binds.
         version: proposal.targetRule.version + 1,
         adoptedByProposalId: proposal.id,
-      },
-    })
+      })
+      .where(eq(houseRule.id, proposal.targetRule.id))
     return
   }
 
   if (proposal.type === 'ADD_RULE' && proposal.parentOrgRule) {
-    await prisma.houseRule.create({
-      data: {
-        scope: 'UNIT',
-        housingUnitId: proposal.housingUnitId,
-        parentRuleId: proposal.parentOrgRule.id,
-        category: proposal.parentOrgRule.category,
-        title: proposal.title,
-        body: proposal.body,
-        delegation: proposal.parentOrgRule.delegation,
-        status: 'ACTIVE',
-        version: 1,
-        adoptedByProposalId: proposal.id,
-      },
+    await db.insert(houseRule).values({
+      scope: 'UNIT',
+      housingUnitId: proposal.housingUnitId,
+      parentRuleId: proposal.parentOrgRule.id,
+      category: proposal.parentOrgRule.category,
+      title: proposal.title,
+      body: proposal.body,
+      delegation: proposal.parentOrgRule.delegation,
+      status: 'ACTIVE',
+      version: 1,
+      adoptedByProposalId: proposal.id,
     })
   }
 }
@@ -72,9 +71,9 @@ export async function adoptProposal(proposalId: string): Promise<void> {
  * Uses the policy snapshot stored on the proposal, never today's config.
  */
 export async function closeProposal(proposalId: string): Promise<string | null> {
-  const proposal = await prisma.proposal.findUnique({
-    where: { id: proposalId },
-    include: { votes: { select: { choice: true, reason: true } }, parentOrgRule: true },
+  const proposal = await db.query.proposal.findFirst({
+    where: eq(proposalTable.id, proposalId),
+    with: { votes: { columns: { choice: true, reason: true } }, parentOrgRule: true },
   })
   if (!proposal || proposal.status !== 'VOTING') return null
 
@@ -93,11 +92,12 @@ export async function closeProposal(proposalId: string): Promise<string | null> 
   const status = resolveProposalStatus(tally.outcome, proposal.decisionMode, requiresConfirmation)
 
   // Guarded update: if another caller closed this proposal first, do nothing.
-  const updated = await prisma.proposal.updateMany({
-    where: { id: proposalId, status: 'VOTING' },
-    data: { status, decidedAt: new Date(), outcomeSummary: tally.explanation },
-  })
-  if (updated.count === 0) return null
+  const updated = await db
+    .update(proposalTable)
+    .set({ status, decidedAt: new Date(), outcomeSummary: tally.explanation })
+    .where(and(eq(proposalTable.id, proposalId), eq(proposalTable.status, 'VOTING')))
+    .returning({ id: proposalTable.id })
+  if (updated.length === 0) return null
 
   if (status === 'ACCEPTED') {
     await adoptProposal(proposalId)
@@ -123,26 +123,35 @@ export async function advanceDueProposals(
   housingUnitId?: string,
 ): Promise<LifecycleResult> {
   const result: LifecycleResult = { opened: 0, closed: 0 }
-  const unitFilter = housingUnitId ? { housingUnitId } : {}
+  const unitFilter = housingUnitId ? [eq(proposalTable.housingUnitId, housingUnitId)] : []
 
   try {
-    const dueToOpen = await prisma.proposal.findMany({
-      where: { ...unitFilter, status: 'DISCUSSION', discussionEndsAt: { lte: now } },
-      select: { id: true, housingUnitId: true },
+    const dueToOpen = await db.query.proposal.findMany({
+      where: and(
+        ...unitFilter,
+        eq(proposalTable.status, 'DISCUSSION'),
+        lte(proposalTable.discussionEndsAt, now),
+      ),
+      columns: { id: true, housingUnitId: true },
     })
 
     for (const proposal of dueToOpen) {
       const eligibleVoterCount = await countEligibleVoters(proposal.housingUnitId, now)
-      const opened = await prisma.proposal.updateMany({
-        where: { id: proposal.id, status: 'DISCUSSION' },
-        data: { status: 'VOTING', votingOpenedAt: now, eligibleVoterCount },
-      })
-      result.opened += opened.count
+      const opened = await db
+        .update(proposalTable)
+        .set({ status: 'VOTING', votingOpenedAt: now, eligibleVoterCount })
+        .where(and(eq(proposalTable.id, proposal.id), eq(proposalTable.status, 'DISCUSSION')))
+        .returning({ id: proposalTable.id })
+      result.opened += opened.length
     }
 
-    const dueToClose = await prisma.proposal.findMany({
-      where: { ...unitFilter, status: 'VOTING', votingEndsAt: { lte: now } },
-      select: { id: true },
+    const dueToClose = await db.query.proposal.findMany({
+      where: and(
+        ...unitFilter,
+        eq(proposalTable.status, 'VOTING'),
+        lte(proposalTable.votingEndsAt, now),
+      ),
+      columns: { id: true },
     })
 
     for (const proposal of dueToClose) {
@@ -159,14 +168,14 @@ export async function advanceDueProposals(
 
 /** Residents with an active placement — the electorate. Mirrors queries.ts. */
 async function countEligibleVoters(housingUnitId: string, now: Date): Promise<number> {
-  const placements = await prisma.placement.findMany({
-    where: {
-      housingUnitId,
-      status: 'ACTIVE',
-      startDate: { lte: now },
-      OR: [{ endDate: null }, { endDate: { gt: now } }],
-    },
-    select: { residentId: true },
+  const placements = await db.query.placement.findMany({
+    where: and(
+      eq(placement.housingUnitId, housingUnitId),
+      eq(placement.status, 'ACTIVE'),
+      lte(placement.startDate, now),
+      or(isNull(placement.endDate), gt(placement.endDate, now)),
+    ),
+    columns: { residentId: true },
   })
   return new Set(placements.map((p) => p.residentId)).size
 }
@@ -180,10 +189,16 @@ export async function expireStaleAgreements(now = new Date(), graceDays = 7): Pr
   const cutoff = new Date(now)
   cutoff.setDate(cutoff.getDate() - graceDays)
 
-  const result = await prisma.conflictAgreement.updateMany({
-    where: { status: { in: ['PROPOSED', 'ACCEPTED'] }, reviewDate: { lt: cutoff } },
-    data: { status: 'EXPIRED' },
-  })
+  const expired = await db
+    .update(conflictAgreement)
+    .set({ status: 'EXPIRED' })
+    .where(
+      and(
+        inArray(conflictAgreement.status, ['PROPOSED', 'ACCEPTED']),
+        lt(conflictAgreement.reviewDate, cutoff),
+      ),
+    )
+    .returning({ id: conflictAgreement.id })
 
-  return result.count
+  return expired.length
 }

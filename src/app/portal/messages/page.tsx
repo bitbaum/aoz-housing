@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { getRequestTranslator } from '@/lib/i18n/request'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { PageHeader } from '@/components/ui/Page'
 import { MessageThreadView } from '@/components/portal/MessageThread'
@@ -27,9 +28,9 @@ export const dynamic = 'force-dynamic'
 export default async function PortalMessagesPage() {
   const residentCode = await requireResidentCookie('/portal')
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: { id: true },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    columns: { id: true },
   })
   if (!resident) redirect('/portal?error=account_not_found')
 

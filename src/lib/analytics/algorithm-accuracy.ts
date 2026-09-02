@@ -7,7 +7,8 @@
  * Answers: "Does higher compatibility actually lead to better outcomes?"
  */
 
-import { prisma } from '@/lib/db'
+import { eq, ne } from 'drizzle-orm'
+import { db, incident, placement } from '@/lib/db'
 import { SCORE_THRESHOLDS } from '@/lib/config/thresholds'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -75,11 +76,9 @@ const TIERS = [
  */
 export async function calculateAlgorithmAccuracy(): Promise<AlgorithmAccuracyReport> {
   // Fetch all ended placements with their scores and check-ins
-  const endedPlacements = await prisma.placement.findMany({
-    where: {
-      status: { not: 'ACTIVE' },
-    },
-    select: {
+  const endedPlacements = await db.query.placement.findMany({
+    where: ne(placement.status, 'ACTIVE'),
+    columns: {
       id: true,
       compatibilityScore: true,
       startDate: true,
@@ -88,8 +87,10 @@ export async function calculateAlgorithmAccuracy(): Promise<AlgorithmAccuracyRep
       conflictGap: true,
       wasPredictable: true,
       satisfactionRating: true,
+    },
+    with: {
       checkIns: {
-        select: {
+        columns: {
           overallSatisfaction: true,
           roommateRelations: true,
         },
@@ -139,9 +140,9 @@ export async function calculateAlgorithmAccuracy(): Promise<AlgorithmAccuracyRep
 
   // ── Prediction Accuracy ──────────────────────────────────────────────
 
-  const conflictIncidents = await prisma.incident.findMany({
-    where: { category: 'INTERPERSONAL' },
-    select: { predictable: true },
+  const conflictIncidents = await db.query.incident.findMany({
+    where: eq(incident.category, 'INTERPERSONAL'),
+    columns: { predictable: true },
   })
 
   const predictable = conflictIncidents.filter((i) => i.predictable === true).length

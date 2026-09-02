@@ -7,8 +7,9 @@
  * be disputable.
  */
 
-import { prisma } from '@/lib/db'
-import type { ProposalStatus, VoteChoice, VoteThreshold } from '@prisma/client'
+import { db, houseRule, placement, proposal, ruleAcknowledgement } from '@/lib/db'
+import type { ProposalStatus, VoteChoice, VoteThreshold } from '@/lib/db'
+import { and, asc, desc, eq, gt, inArray, isNull, lte, or, sql } from 'drizzle-orm'
 import { buildRuleBook, type RuleBook, type RuleLike } from './rules'
 import { outstandingForResident, unitCoverage, type OutstandingRule } from './acknowledgement'
 import { tallyVotes, type TallyResult } from './voting'
@@ -30,18 +31,18 @@ const RULE_SELECT = {
 } as const
 
 export async function getOrgRules(): Promise<RuleLike[]> {
-  return prisma.houseRule.findMany({
-    where: { scope: 'ORG' },
-    select: RULE_SELECT,
-    orderBy: [{ category: 'asc' }, { title: 'asc' }],
+  return db.query.houseRule.findMany({
+    where: eq(houseRule.scope, 'ORG'),
+    columns: RULE_SELECT,
+    orderBy: [asc(houseRule.category), asc(houseRule.title)],
   })
 }
 
 export async function getUnitRules(housingUnitId: string): Promise<RuleLike[]> {
-  return prisma.houseRule.findMany({
-    where: { scope: 'UNIT', housingUnitId },
-    select: RULE_SELECT,
-    orderBy: [{ category: 'asc' }, { createdAt: 'asc' }],
+  return db.query.houseRule.findMany({
+    where: and(eq(houseRule.scope, 'UNIT'), eq(houseRule.housingUnitId, housingUnitId)),
+    columns: RULE_SELECT,
+    orderBy: [asc(houseRule.category), asc(houseRule.createdAt)],
   })
 }
 
@@ -60,14 +61,14 @@ export async function getUnitResidentIds(
   housingUnitId: string,
   now = new Date(),
 ): Promise<string[]> {
-  const placements = await prisma.placement.findMany({
-    where: {
-      housingUnitId,
-      status: 'ACTIVE',
-      startDate: { lte: now },
-      OR: [{ endDate: null }, { endDate: { gt: now } }],
-    },
-    select: { residentId: true },
+  const placements = await db.query.placement.findMany({
+    where: and(
+      eq(placement.housingUnitId, housingUnitId),
+      eq(placement.status, 'ACTIVE'),
+      lte(placement.startDate, now),
+      or(isNull(placement.endDate), gt(placement.endDate, now)),
+    ),
+    columns: { residentId: true },
   })
   return Array.from(new Set(placements.map((p) => p.residentId)))
 }
@@ -91,10 +92,18 @@ export async function getOutstandingRules(
     ...book.orphanedUnitRules,
   ]
 
-  const acknowledgements = await prisma.ruleAcknowledgement.findMany({
-    where: { residentId, ruleId: { in: bindingRules.map((r) => r.id) } },
-    select: { ruleId: true, residentId: true, ruleVersion: true },
-  })
+  // An empty rule id list means no acknowledgements can match — skip the query
+  // (an empty `inArray` is an error, not an empty result).
+  const ruleIds = bindingRules.map((r) => r.id)
+  const acknowledgements = ruleIds.length
+    ? await db.query.ruleAcknowledgement.findMany({
+        where: and(
+          eq(ruleAcknowledgement.residentId, residentId),
+          inArray(ruleAcknowledgement.ruleId, ruleIds),
+        ),
+        columns: { ruleId: true, residentId: true, ruleVersion: true },
+      })
+    : []
 
   return outstandingForResident(bindingRules, acknowledgements, residentId)
 }
@@ -111,10 +120,19 @@ export async function getUnitAcknowledgementCoverage(housingUnitId: string) {
     ...book.orphanedUnitRules,
   ]
 
-  const acknowledgements = await prisma.ruleAcknowledgement.findMany({
-    where: { ruleId: { in: rules.map((r) => r.id) }, residentId: { in: residentIds } },
-    select: { ruleId: true, residentId: true, ruleVersion: true },
-  })
+  // Either list being empty means no acknowledgement can match — skip the
+  // query (an empty `inArray` is an error, not an empty result).
+  const ruleIds = rules.map((r) => r.id)
+  const acknowledgements =
+    ruleIds.length && residentIds.length
+      ? await db.query.ruleAcknowledgement.findMany({
+          where: and(
+            inArray(ruleAcknowledgement.ruleId, ruleIds),
+            inArray(ruleAcknowledgement.residentId, residentIds),
+          ),
+          columns: { ruleId: true, residentId: true, ruleVersion: true },
+        })
+      : []
 
   return unitCoverage(rules, acknowledgements, residentIds)
 }
@@ -124,31 +142,43 @@ export async function getUnitAcknowledgementCoverage(housingUnitId: string) {
 // =============================================================================
 
 const PROPOSAL_INCLUDE = {
-  votes: { select: { id: true, choice: true, reason: true, residentId: true, castAt: true } },
-  proposedByResident: { select: { id: true, code: true } },
-  parentOrgRule: { select: { id: true, title: true, delegation: true, category: true } },
-  targetRule: { select: { id: true, title: true } },
-  housingUnit: { select: { id: true, code: true, address: true } },
+  votes: { columns: { id: true, choice: true, reason: true, residentId: true, castAt: true } },
+  proposedByResident: { columns: { id: true, code: true } },
+  parentOrgRule: { columns: { id: true, title: true, delegation: true, category: true } },
+  targetRule: { columns: { id: true, title: true } },
+  housingUnit: { columns: { id: true, code: true, address: true } },
 } as const
 
 export async function getUnitProposals(housingUnitId: string, statuses?: ProposalStatus[]) {
-  return prisma.proposal.findMany({
-    where: { housingUnitId, ...(statuses ? { status: { in: statuses } } : {}) },
-    include: PROPOSAL_INCLUDE,
-    orderBy: { createdAt: 'desc' },
+  return db.query.proposal.findMany({
+    where: and(
+      eq(proposal.housingUnitId, housingUnitId),
+      statuses
+        ? // An empty status list means "match nothing", which `inArray` cannot express.
+          statuses.length
+          ? inArray(proposal.status, statuses)
+          : sql`false`
+        : undefined,
+    ),
+    with: PROPOSAL_INCLUDE,
+    orderBy: [desc(proposal.createdAt)],
   })
 }
 
 export async function getProposal(proposalId: string) {
-  return prisma.proposal.findUnique({ where: { id: proposalId }, include: PROPOSAL_INCLUDE })
+  const row = await db.query.proposal.findFirst({
+    where: eq(proposal.id, proposalId),
+    with: PROPOSAL_INCLUDE,
+  })
+  return row ?? null
 }
 
 /** Proposals waiting on a staff decision, across all units. */
 export async function getProposalsAwaitingStaff() {
-  return prisma.proposal.findMany({
-    where: { status: 'NEEDS_STAFF_CONFIRMATION' },
-    include: PROPOSAL_INCLUDE,
-    orderBy: { decidedAt: 'asc' },
+  return db.query.proposal.findMany({
+    where: eq(proposal.status, 'NEEDS_STAFF_CONFIRMATION'),
+    with: PROPOSAL_INCLUDE,
+    orderBy: [asc(proposal.decidedAt)],
   })
 }
 

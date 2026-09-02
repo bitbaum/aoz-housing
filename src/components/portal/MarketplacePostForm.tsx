@@ -12,7 +12,7 @@ import {
   natureOfKind,
 } from '@/lib/config/marketplace'
 import { useT } from '@/lib/i18n/LocaleProvider'
-import type { MarketplacePostKind } from '@prisma/client'
+import type { MarketplacePostKind } from '@/lib/db'
 
 /**
  * Posting form for the marketplace.

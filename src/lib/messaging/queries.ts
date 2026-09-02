@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, message as messageTable, messageThread } from '@/lib/db'
+import { asc, desc, eq, inArray } from 'drizzle-orm'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import {
   messageAuthor,
@@ -22,28 +23,48 @@ const MESSAGE_SELECT = {
   readAt: true,
 } as const
 
+/** The message columns as insert-returning shape — mirrors MESSAGE_SELECT. */
+const MESSAGE_RETURNING = {
+  id: messageTable.id,
+  authorResidentId: messageTable.authorResidentId,
+  authorUserId: messageTable.authorUserId,
+  body: messageTable.body,
+  createdAt: messageTable.createdAt,
+  readAt: messageTable.readAt,
+} as const
+
 /**
  * The resident's thread, created on first use.
  *
- * Upsert rather than "find, then create if missing": two requests arriving
- * together — a resident sending while staff open the thread — would otherwise
- * both find nothing and both insert, and the unique index would turn the loser
- * into a 500 on an ordinary action.
+ * Insert-or-skip rather than "find, then create if missing": two requests
+ * arriving together — a resident sending while staff open the thread — would
+ * otherwise both find nothing and both insert, and the unique index would turn
+ * the loser into a 500 on an ordinary action.
  */
 export async function getOrCreateThread(residentId: string) {
-  return prisma.messageThread.upsert({
-    where: { residentId },
-    create: { residentId },
-    update: {},
-    select: { id: true, residentId: true },
+  const [created] = await db
+    .insert(messageThread)
+    .values({ residentId })
+    .onConflictDoNothing({ target: messageThread.residentId })
+    .returning({ id: messageThread.id, residentId: messageThread.residentId })
+  if (created) return created
+
+  const existing = await db.query.messageThread.findFirst({
+    where: eq(messageThread.residentId, residentId),
+    columns: { id: true, residentId: true },
   })
+  if (!existing) {
+    // Unreachable unless the thread was deleted between the two statements.
+    throw new Error(`Message thread for resident ${residentId} vanished during creation`)
+  }
+  return existing
 }
 
 export async function loadThreadMessages(threadId: string): Promise<MessageRow[]> {
-  return prisma.message.findMany({
-    where: { threadId },
-    orderBy: { createdAt: 'asc' },
-    select: MESSAGE_SELECT,
+  return db.query.message.findMany({
+    where: eq(messageTable.threadId, threadId),
+    orderBy: [asc(messageTable.createdAt)],
+    columns: MESSAGE_SELECT,
   })
 }
 
@@ -63,18 +84,18 @@ export async function appendMessage({
   party: MessageParty
   body: string
 }) {
-  return prisma.$transaction(async (tx) => {
-    const message = await tx.message.create({
-      data: { threadId, body: body.trim(), ...messageAuthor(party) },
-      select: MESSAGE_SELECT,
-    })
+  return db.transaction(async (tx) => {
+    const [message] = await tx
+      .insert(messageTable)
+      .values({ threadId, body: body.trim(), ...messageAuthor(party) })
+      .returning(MESSAGE_RETURNING)
 
-    await tx.messageThread.update({
-      where: { id: threadId },
-      data: { updatedAt: new Date() },
-    })
+    await tx
+      .update(messageThread)
+      .set({ updatedAt: new Date() })
+      .where(eq(messageThread.id, threadId))
 
-    return message
+    return message!
   })
 }
 
@@ -84,18 +105,19 @@ export async function markThreadRead(threadId: string, party: MessageParty): Pro
   const ids = messagesToMarkRead(messages, party)
   if (ids.length === 0) return 0
 
-  const result = await prisma.message.updateMany({
-    where: { id: { in: ids } },
-    data: { readAt: new Date() },
-  })
-  return result.count
+  const updated = await db
+    .update(messageTable)
+    .set({ readAt: new Date() })
+    .where(inArray(messageTable.id, ids))
+    .returning({ id: messageTable.id })
+  return updated.length
 }
 
 /** How many messages are waiting for this resident. Drives the portal badge. */
 export async function residentUnreadCount(residentId: string): Promise<number> {
-  const thread = await prisma.messageThread.findUnique({
-    where: { residentId },
-    select: { id: true },
+  const thread = await db.query.messageThread.findFirst({
+    where: eq(messageThread.residentId, residentId),
+    columns: { id: true },
   })
   if (!thread) return 0
 
@@ -111,13 +133,12 @@ export async function residentUnreadCount(residentId: string): Promise<number> {
  * sorting by recency buries exactly the person who has been waiting longest.
  */
 export async function staffInbox() {
-  const threads = await prisma.messageThread.findMany({
-    orderBy: { updatedAt: 'desc' },
-    select: {
-      id: true,
-      updatedAt: true,
-      resident: { select: RESIDENT_NAME_SELECT },
-      messages: { orderBy: { createdAt: 'asc' }, select: MESSAGE_SELECT },
+  const threads = await db.query.messageThread.findMany({
+    orderBy: [desc(messageThread.updatedAt)],
+    columns: { id: true, updatedAt: true },
+    with: {
+      resident: { columns: RESIDENT_NAME_SELECT },
+      messages: { orderBy: [asc(messageTable.createdAt)], columns: MESSAGE_SELECT },
     },
   })
 

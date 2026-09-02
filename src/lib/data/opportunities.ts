@@ -3,7 +3,8 @@
  * `lib/opportunities/pipeline.ts` so they can be tested without a database.
  */
 
-import { prisma } from '@/lib/db'
+import { and, asc, desc, eq, ilike, inArray, notInArray, or, type SQL } from 'drizzle-orm'
+import { db, escapeLike, opportunity, opportunityApplication, resident } from '@/lib/db'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import type {
   ApplicationStageId,
@@ -14,9 +15,9 @@ import { isActiveStage, occupiesSeat, openSeats } from '@/lib/opportunities/pipe
 
 /** Rows that reach the UI carry `displayName`, never a bare code. */
 const APPLICATION_INCLUDE = {
-  resident: { select: RESIDENT_NAME_SELECT },
-  supportedBy: { select: { id: true, name: true } },
-  learningRecord: { select: { id: true } },
+  resident: { columns: RESIDENT_NAME_SELECT },
+  supportedBy: { columns: { id: true, name: true } },
+  learningRecord: { columns: { id: true } },
 } as const
 
 export interface OpportunityListFilters {
@@ -26,25 +27,27 @@ export interface OpportunityListFilters {
   publishedOnly?: boolean
 }
 
-function listWhere(filters: OpportunityListFilters) {
+function listWhere(filters: OpportunityListFilters): SQL | undefined {
   const query = filters.query?.trim() ?? ''
-  return {
-    ...(filters.publishedOnly
-      ? { status: 'PUBLISHED' as const }
-      : filters.status
-        ? { status: filters.status }
-        : {}),
-    ...(filters.kind ? { kind: filters.kind } : {}),
-    ...(query
-      ? {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' as const } },
-            { organisation: { contains: query, mode: 'insensitive' as const } },
-            { location: { contains: query, mode: 'insensitive' as const } },
-          ],
-        }
-      : {}),
+  const conditions: SQL[] = []
+  if (filters.publishedOnly) {
+    conditions.push(eq(opportunity.status, 'PUBLISHED'))
+  } else if (filters.status) {
+    conditions.push(eq(opportunity.status, filters.status))
   }
+  if (filters.kind) {
+    conditions.push(eq(opportunity.kind, filters.kind))
+  }
+  if (query) {
+    const pattern = `%${escapeLike(query)}%`
+    const textMatch = or(
+      ilike(opportunity.title, pattern),
+      ilike(opportunity.organisation, pattern),
+      ilike(opportunity.location, pattern),
+    )
+    if (textMatch) conditions.push(textMatch)
+  }
+  return and(...conditions)
 }
 
 /**
@@ -52,25 +55,26 @@ function listWhere(filters: OpportunityListFilters) {
  * seats without a second query per row.
  */
 export async function listOpportunities(filters: OpportunityListFilters = {}) {
-  return prisma.opportunity.findMany({
+  return db.query.opportunity.findMany({
     where: listWhere(filters),
-    include: {
-      applications: { select: { id: true, stage: true } },
+    with: {
+      applications: { columns: { id: true, stage: true } },
     },
-    orderBy: [{ status: 'asc' }, { startsAt: 'asc' }, { updatedAt: 'desc' }],
+    orderBy: [asc(opportunity.status), asc(opportunity.startsAt), desc(opportunity.updatedAt)],
   })
 }
 
 export async function getOpportunityDetail(id: string) {
-  return prisma.opportunity.findUnique({
-    where: { id },
-    include: {
+  const row = await db.query.opportunity.findFirst({
+    where: eq(opportunity.id, id),
+    with: {
       applications: {
-        include: APPLICATION_INCLUDE,
-        orderBy: [{ stageChangedAt: 'desc' }],
+        with: APPLICATION_INCLUDE,
+        orderBy: [desc(opportunityApplication.stageChangedAt)],
       },
     },
   })
+  return row ?? null
 }
 
 /**
@@ -82,13 +86,14 @@ export async function getOpportunityDetail(id: string) {
  */
 export async function opportunityStats() {
   const [total, published, drafts, activePeople, openThreads] = await Promise.all([
-    prisma.opportunity.count(),
-    prisma.opportunity.count({ where: { status: 'PUBLISHED' } }),
-    prisma.opportunity.count({ where: { status: 'DRAFT' } }),
-    prisma.opportunityApplication.count({ where: { stage: 'STARTED' } }),
-    prisma.opportunityApplication.count({
-      where: { stage: { in: ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED'] } },
-    }),
+    db.$count(opportunity),
+    db.$count(opportunity, eq(opportunity.status, 'PUBLISHED')),
+    db.$count(opportunity, eq(opportunity.status, 'DRAFT')),
+    db.$count(opportunityApplication, eq(opportunityApplication.stage, 'STARTED')),
+    db.$count(
+      opportunityApplication,
+      inArray(opportunityApplication.stage, ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED']),
+    ),
   ])
 
   return { total, published, drafts, activePeople, openThreads }
@@ -102,34 +107,39 @@ export async function opportunityStats() {
  * coach is trying to record something real.
  */
 export async function residentsAvailableFor(opportunityId: string) {
-  const attached = await prisma.opportunityApplication.findMany({
-    where: { opportunityId },
-    select: { residentId: true },
+  const attached = await db.query.opportunityApplication.findMany({
+    where: eq(opportunityApplication.opportunityId, opportunityId),
+    columns: { residentId: true },
   })
 
-  return prisma.resident.findMany({
-    where: {
-      status: 'ACTIVE',
-      id: { notIn: attached.map((row) => row.residentId) },
-    },
-    select: RESIDENT_NAME_SELECT,
-    orderBy: [{ displayName: 'asc' }, { code: 'asc' }],
+  const attachedIds = attached.map((row) => row.residentId)
+
+  return db.query.resident.findMany({
+    where: and(
+      eq(resident.status, 'ACTIVE'),
+      // `notInArray` with an empty list is invalid SQL; with nobody attached
+      // there is nothing to exclude.
+      ...(attachedIds.length ? [notInArray(resident.id, attachedIds)] : []),
+    ),
+    columns: RESIDENT_NAME_SELECT,
+    orderBy: [asc(resident.displayName), asc(resident.code)],
   })
 }
 
 export async function getApplication(id: string) {
-  return prisma.opportunityApplication.findUnique({
-    where: { id },
-    include: { ...APPLICATION_INCLUDE, opportunity: true },
+  const row = await db.query.opportunityApplication.findFirst({
+    where: eq(opportunityApplication.id, id),
+    with: { ...APPLICATION_INCLUDE, opportunity: true },
   })
+  return row ?? null
 }
 
 /** Everything a resident is currently attached to — used by their dossier. */
 export async function listApplicationsForResident(residentId: string) {
-  return prisma.opportunityApplication.findMany({
-    where: { residentId },
-    include: { opportunity: true },
-    orderBy: [{ stageChangedAt: 'desc' }],
+  return db.query.opportunityApplication.findMany({
+    where: eq(opportunityApplication.residentId, residentId),
+    with: { opportunity: true },
+    orderBy: [desc(opportunityApplication.stageChangedAt)],
   })
 }
 
@@ -144,26 +154,26 @@ export async function listApplicationsForResident(residentId: string) {
  */
 export async function residentOpportunityBoard(residentId: string) {
   const [mine, published] = await Promise.all([
-    prisma.opportunityApplication.findMany({
-      where: { residentId },
-      include: { opportunity: true },
-      orderBy: [{ stageChangedAt: 'desc' }],
+    db.query.opportunityApplication.findMany({
+      where: eq(opportunityApplication.residentId, residentId),
+      with: { opportunity: true },
+      orderBy: [desc(opportunityApplication.stageChangedAt)],
     }),
-    prisma.opportunity.findMany({
-      where: { status: 'PUBLISHED' },
-      include: { applications: { select: { stage: true } } },
-      orderBy: [{ startsAt: 'asc' }, { updatedAt: 'desc' }],
+    db.query.opportunity.findMany({
+      where: eq(opportunity.status, 'PUBLISHED'),
+      with: { applications: { columns: { stage: true } } },
+      orderBy: [asc(opportunity.startsAt), desc(opportunity.updatedAt)],
     }),
   ])
 
   const attached = new Set(mine.map((application) => application.opportunityId))
 
   const open = published
-    .filter((opportunity) => !attached.has(opportunity.id))
-    .map(({ applications, ...opportunity }) => ({
-      ...opportunity,
+    .filter((opportunityRow) => !attached.has(opportunityRow.id))
+    .map(({ applications, ...opportunityRow }) => ({
+      ...opportunityRow,
       seatsLeft: openSeats(
-        opportunity,
+        opportunityRow,
         applications.map((a) => a.stage as ApplicationStageId),
       ),
     }))

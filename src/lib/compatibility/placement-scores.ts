@@ -7,7 +7,7 @@
 
 import { calculateCompatibility } from '@/lib/compatibility'
 import { toResidentProfile } from '@/lib/compatibility/convert'
-import type { Resident, Placement } from '@prisma/client'
+import type { Resident, Placement } from '@/lib/db'
 
 /** Calculate average compatibility scores between a resident and existing placements */
 export function calculateAverageScores(

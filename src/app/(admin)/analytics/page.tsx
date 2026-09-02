@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, resident, housingUnit, placement, incident, satisfactionCheckIn } from '@/lib/db'
+import { eq, ne, and, inArray, gte, desc } from 'drizzle-orm'
 import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'Statistiken' }
@@ -56,60 +57,60 @@ export default async function AnalyticsPage({ searchParams }: Props) {
 
   const [residents, units, placements, recentPlacements, recentIncidents, checkIns] =
     await Promise.all([
-      prisma.resident.findMany({
-        where: { status: { in: ['ACTIVE', 'PLACED'] } },
+      db.query.resident.findMany({
+        where: inArray(resident.status, ['ACTIVE', 'PLACED']),
       }),
-      prisma.housingUnit.findMany({
-        include: { placements: { where: { status: 'ACTIVE' } } },
+      db.query.housingUnit.findMany({
+        with: { placements: { where: eq(placement.status, 'ACTIVE') } },
       }),
-      prisma.placement.findMany({
-        where: { status: 'ACTIVE' },
-        include: {
+      db.query.placement.findMany({
+        where: eq(placement.status, 'ACTIVE'),
+        with: {
           resident: true,
           housingUnit: true,
           checkIns: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
+            orderBy: [desc(satisfactionCheckIn.createdAt)],
+            limit: 1,
           },
         },
       }),
       canReadPlacements
-        ? prisma.placement.findMany({
-            where: { startDate: { gte: ninetyDaysAgo } },
-            include: {
+        ? db.query.placement.findMany({
+            where: gte(placement.startDate, ninetyDaysAgo),
+            with: {
               housingUnit: true,
               resident: true,
               checkIns: {
-                orderBy: { createdAt: 'desc' },
-                take: 1,
+                orderBy: [desc(satisfactionCheckIn.createdAt)],
+                limit: 1,
               },
             },
-            orderBy: { startDate: 'desc' },
+            orderBy: [desc(placement.startDate)],
           })
         : [],
-      prisma.incident.findMany({
-        where: {
-          date: { gte: periodStart },
-          category: 'INTERPERSONAL', // Only conflicts, not maintenance
-        },
-        include: { housingUnit: true },
+      db.query.incident.findMany({
+        where: and(
+          gte(incident.date, periodStart),
+          eq(incident.category, 'INTERPERSONAL'), // Only conflicts, not maintenance
+        ),
+        with: { housingUnit: true },
       }),
-      prisma.satisfactionCheckIn.findMany({
-        where: { createdAt: { gte: periodStart } },
-        include: {
+      db.query.satisfactionCheckIn.findMany({
+        where: gte(satisfactionCheckIn.createdAt, periodStart),
+        with: {
           placement: {
-            include: { resident: true, housingUnit: true },
+            with: { resident: true, housingUnit: true },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [desc(satisfactionCheckIn.createdAt)],
       }),
     ])
 
   // Get all ended placements for end reason analysis (including conflict analysis fields)
   const [endedPlacements, missionKPIs, algorithmAccuracy, systemConfig] = await Promise.all([
-    prisma.placement.findMany({
-      where: { status: { not: 'ACTIVE' } },
-      select: {
+    db.query.placement.findMany({
+      where: ne(placement.status, 'ACTIVE'),
+      columns: {
         endReason: true,
         conflictGap: true,
         wasPredictable: true,

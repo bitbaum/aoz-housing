@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, placement, residentPhoto } from '@/lib/db'
+import { and, eq, inArray } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 import { getPortalResident } from '@/lib/portal-auth'
 import { getCurrentUser } from '@/lib/auth'
 import { logger } from '@/lib/logger'
@@ -31,9 +33,9 @@ export async function GET(_request: NextRequest, props: { params: Promise<{ id: 
   }
 
   try {
-    const subject = await prisma.resident.findUnique({
-      where: { id: params.id },
-      select: { id: true, profileVisibility: true },
+    const subject = await db.query.resident.findFirst({
+      where: eq(residentTable.id, params.id),
+      columns: { id: true, profileVisibility: true },
     })
     if (!subject) {
       return NextResponse.json(
@@ -48,19 +50,31 @@ export async function GET(_request: NextRequest, props: { params: Promise<{ id: 
     } else {
       // Only asked when it can change the answer: a resident looking at their
       // own photo, or a PRIVATE subject, needs no unit lookup.
+      // "Shares a unit" = the viewer has an ACTIVE placement in a unit where
+      // the subject also has one (Prisma's relation filter, as a subquery).
+      const subjectPlacement = alias(placement, 'subjectPlacement')
       const sharesUnit =
         resident!.id === params.id
           ? false
           : Boolean(
-              await prisma.placement.findFirst({
-                where: {
-                  residentId: resident!.id,
-                  status: 'ACTIVE',
-                  housingUnit: {
-                    placements: { some: { residentId: params.id, status: 'ACTIVE' } },
-                  },
-                },
-                select: { id: true },
+              await db.query.placement.findFirst({
+                where: and(
+                  eq(placement.residentId, resident!.id),
+                  eq(placement.status, 'ACTIVE'),
+                  inArray(
+                    placement.housingUnitId,
+                    db
+                      .select({ housingUnitId: subjectPlacement.housingUnitId })
+                      .from(subjectPlacement)
+                      .where(
+                        and(
+                          eq(subjectPlacement.residentId, params.id),
+                          eq(subjectPlacement.status, 'ACTIVE'),
+                        ),
+                      ),
+                  ),
+                ),
+                columns: { id: true },
               }),
             )
       viewer = { kind: 'resident', residentId: resident!.id, sharesUnit }
@@ -73,7 +87,9 @@ export async function GET(_request: NextRequest, props: { params: Promise<{ id: 
       )
     }
 
-    const photo = await prisma.residentPhoto.findUnique({ where: { residentId: params.id } })
+    const photo = await db.query.residentPhoto.findFirst({
+      where: eq(residentPhoto.residentId, params.id),
+    })
     if (!photo) {
       return NextResponse.json(
         { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND },

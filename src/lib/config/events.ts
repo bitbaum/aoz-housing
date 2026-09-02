@@ -12,7 +12,7 @@
  * fails to compile until it has a word.
  */
 
-import type { EventRsvpStatus, HouseEventCategory } from '@prisma/client'
+import type { EventRsvpStatus, HouseEventCategory } from '@/lib/db'
 import type { MessageKey } from '@/lib/i18n'
 
 export const HOUSE_EVENT_CATEGORY_LABEL_KEYS: Record<HouseEventCategory, MessageKey> = {

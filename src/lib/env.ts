@@ -15,7 +15,7 @@ import { z } from 'zod'
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 
-  // Database — required everywhere except tests (jest mocks prisma)
+  // Database — required everywhere except tests (jest mocks the db module)
   DATABASE_URL: z.string().url().optional(),
 
   // Auth secrets

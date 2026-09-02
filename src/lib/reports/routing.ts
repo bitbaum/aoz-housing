@@ -18,7 +18,7 @@ import type {
   IncidentType,
   MaintenanceCategory,
   MaintenancePriority,
-} from '@prisma/client'
+} from '@/lib/db'
 
 /**
  * The maintenance incident types, mapped onto the maintenance board's own

@@ -16,8 +16,15 @@
  * Relative-import-safe (no '@/' aliases): loaded through plain ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import {
+  learningRecord,
+  opportunity as opportunityTable,
+  opportunityApplication,
+  type db,
+} from '../db'
 import { evidenceForStartedApplication } from '../opportunities/pipeline'
+
+type Db = typeof db
 
 type Kind = 'VOLUNTEERING' | 'COMMUNITY_SERVICE'
 type Permit = 'NONE' | 'EMPLOYER_NOTIFIES' | 'PERMIT_REQUIRED'
@@ -167,7 +174,7 @@ export interface OpportunitySeedSummary {
 }
 
 export async function seedOpportunities(
-  prisma: PrismaClient,
+  dbc: Db,
   ctx: OpportunitySeedContext,
 ): Promise<OpportunitySeedSummary> {
   const now = ctx.now ?? new Date()
@@ -181,8 +188,9 @@ export async function seedOpportunities(
   for (const template of TEMPLATES) {
     const { stages, ...columns } = template
 
-    const opportunity = await prisma.opportunity.create({
-      data: {
+    const [opportunity] = await dbc
+      .insert(opportunityTable)
+      .values({
         ...columns,
         // The draft listing is the one with no applicants — a board where
         // everything is published shows a filter that looks broken.
@@ -190,8 +198,8 @@ export async function seedOpportunities(
         startsAt: daysAgo(60, now),
         createdByUserId: ctx.staffId,
         updatedByUserId: ctx.staffId,
-      },
-    })
+      })
+      .returning()
     opportunities += 1
 
     // One application per resident per listing is a unique constraint. With
@@ -217,30 +225,29 @@ export async function seedOpportunities(
       // that does not exist.
       let learningRecordId: string | null = null
       if (stage === 'STARTED' || stage === 'ENDED') {
-        const record = await prisma.learningRecord.create({
-          data: {
+        const [record] = await dbc
+          .insert(learningRecord)
+          .values({
             residentId,
             ...evidenceForStartedApplication(opportunity, stageChangedAt),
             ...(stage === 'ENDED'
               ? { status: 'COMPLETED' as const, completedAt: daysAgo(7, now), hours: 48 }
               : {}),
-          },
-        })
+          })
+          .returning()
         learningRecordId = record.id
         evidenceRecords += 1
       }
 
-      await prisma.opportunityApplication.create({
-        data: {
-          opportunityId: opportunity.id,
-          residentId,
-          stage,
-          stageChangedAt,
-          createdAt: daysAgo(STAGE_AGE_DAYS[stage] + 4, now),
-          createdBy: stage === 'INTERESTED' ? 'RESIDENT' : 'STAFF',
-          supportedByUserId: ctx.staffId,
-          learningRecordId,
-        },
+      await dbc.insert(opportunityApplication).values({
+        opportunityId: opportunity.id,
+        residentId,
+        stage,
+        stageChangedAt,
+        createdAt: daysAgo(STAGE_AGE_DAYS[stage] + 4, now),
+        createdBy: stage === 'INTERESTED' ? 'RESIDENT' : 'STAFF',
+        supportedByUserId: ctx.staffId,
+        learningRecordId,
       })
       applications += 1
     }

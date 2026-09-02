@@ -1,4 +1,11 @@
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  maintenanceRequest,
+  incident as incidentTable,
+} from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import { portalReportSchema, validateFormData, ValidationError } from '@/lib/validation/schemas'
@@ -28,13 +35,13 @@ export async function POST(request: NextRequest) {
   }
 
   // Derive resident and placement from cookie — never trust client-submitted IDs
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
-        include: { housingUnit: { select: { code: true } } },
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
+        with: { housingUnit: { columns: { code: true } } },
       },
     },
   })
@@ -92,13 +99,13 @@ export async function POST(request: NextRequest) {
     data.involvedResident !== 'external' &&
     data.involvedResident !== 'anonymous'
   ) {
-    const candidate = await prisma.placement.findFirst({
-      where: {
-        residentId: data.involvedResident,
-        housingUnitId: placement.housingUnitId,
-        status: 'ACTIVE',
-      },
-      select: { residentId: true },
+    const candidate = await db.query.placement.findFirst({
+      where: and(
+        eq(placementTable.residentId, data.involvedResident),
+        eq(placementTable.housingUnitId, placement.housingUnitId),
+        eq(placementTable.status, 'ACTIVE'),
+      ),
+      columns: { residentId: true },
     })
     if (!candidate) {
       return NextResponse.json(
@@ -113,8 +120,9 @@ export async function POST(request: NextRequest) {
     // A broken tap goes to the maintenance board, not onto the conflict ladder.
     // @see lib/reports/routing.ts for why the two must not share a table.
     if (data.category === 'MAINTENANCE' && isMaintenanceType(data.type)) {
-      const request = await prisma.maintenanceRequest.create({
-        data: {
+      const [request] = await db
+        .insert(maintenanceRequest)
+        .values({
           housingUnitId: placement.housingUnitId,
           reportedById: resident.id,
           category: maintenanceCategoryFor(data.type),
@@ -122,8 +130,8 @@ export async function POST(request: NextRequest) {
           title: getLabel(INCIDENT_TYPE_LABELS, data.type),
           description: data.description,
           location: locationLabel,
-        },
-      })
+        })
+        .returning()
 
       await logAudit({
         action: 'CREATE',
@@ -153,8 +161,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
-    const incident = await prisma.incident.create({
-      data: {
+    const [incident] = await db
+      .insert(incidentTable)
+      .values({
         housingUnitId: placement.housingUnitId,
         reportedById: resident.id,
         subjectId: validatedSubjectId,
@@ -163,8 +172,8 @@ export async function POST(request: NextRequest) {
         severity: data.severity,
         description: fullDescription,
         date: data.incidentDate ? new Date(data.incidentDate) : new Date(),
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',

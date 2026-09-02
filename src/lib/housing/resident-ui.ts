@@ -1,4 +1,4 @@
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ResidentSummary } from '@/lib/types'
 
 /**
@@ -41,7 +41,7 @@ export function toResidentUiSummary(r: Resident): ResidentUiSummary {
     displayName: r.displayName,
     ageRange: r.ageRange,
     gender: r.gender,
-    languages: r.languages,
+    languages: r.languages ?? [],
     socialStyle: r.socialStyle,
     sleepSchedule: r.sleepSchedule,
     smokingStatus: r.smokingStatus,

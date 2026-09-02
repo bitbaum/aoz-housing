@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { getPortalResident } from '@/lib/portal-auth'
 import { UpdateProfileSchema } from '@/lib/validation/expenses'
 import { logAudit } from '@/lib/audit'
@@ -27,9 +28,9 @@ export async function PATCH(request: NextRequest) {
   const data = parsed.data
 
   try {
-    const updated = await prisma.resident.update({
-      where: { id: resident.id },
-      data: {
+    const [updated] = await db
+      .update(residentTable)
+      .set({
         // Empty string clears the field back to "code only".
         ...(data.displayName !== undefined && { displayName: data.displayName || null }),
         ...(data.bio !== undefined && { bio: data.bio || null }),
@@ -39,15 +40,20 @@ export async function PATCH(request: NextRequest) {
         ...(data.profileVisibility !== undefined && {
           profileVisibility: data.profileVisibility,
         }),
-      },
-      select: {
-        id: true,
-        code: true,
-        displayName: true,
-        bio: true,
-        profileVisibility: true,
-      },
-    })
+        // Set explicitly (rather than left to the schema's $onUpdateFn) because
+        // an all-optional PATCH body may leave every field above undefined, and
+        // drizzle throws on an empty `set` — Prisma treated that as a bare
+        // "touch" that still bumped updatedAt and returned the row.
+        updatedAt: new Date(),
+      })
+      .where(eq(residentTable.id, resident.id))
+      .returning({
+        id: residentTable.id,
+        code: residentTable.code,
+        displayName: residentTable.displayName,
+        bio: residentTable.bio,
+        profileVisibility: residentTable.profileVisibility,
+      })
 
     await logAudit({
       action: 'UPDATE',

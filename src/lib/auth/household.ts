@@ -29,8 +29,16 @@
  * Gated by `BRAND.features.selfServeHousehold`, which is OFF for AOZ. @see brand.ts
  */
 
-import { Prisma } from '@prisma/client'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  account,
+  housingUnit,
+  placement,
+  resident,
+  isUniqueViolation,
+  type NewResident,
+} from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { BRAND } from '@/lib/config/brand'
 import { generateResidentCode } from './code-generation'
 import { hashPassword } from './passwords'
@@ -72,7 +80,7 @@ function unansweredPreferences() {
     // frozen instance handed to every create is the kind of shared mutable
     // default that goes wrong quietly and late.
     languages: [] as string[],
-  } satisfies Prisma.ResidentCreateInput | Record<string, unknown>
+  } satisfies Partial<NewResident>
 }
 
 /**
@@ -123,15 +131,19 @@ export async function registerWithNewHousehold(
 
   // One email is one account, always — the unique index is the only thing
   // that could tell staff and resident logins apart, and it does not.
-  const existing = await prisma.account.findUnique({ where: { email }, select: { id: true } })
+  const existing = await db.query.account.findFirst({
+    where: eq(account.email, email),
+    columns: { id: true },
+  })
   if (existing) return { success: false, error: ERROR_MESSAGES.AUTH_EMAIL_TAKEN }
 
   const passwordHash = await hashPassword(password)
 
   try {
-    const created = await prisma.$transaction(async (tx) => {
-      const unit = await tx.housingUnit.create({
-        data: {
+    const created = await db.transaction(async (tx) => {
+      const [unit] = await tx
+        .insert(housingUnit)
+        .values({
           code: newHouseholdCode(),
           // The name the person typed IS the address line until they edit it.
           // A blank address on a required column would be a lie stored forever.
@@ -141,34 +153,31 @@ export async function registerWithNewHousehold(
           // One bed, one occupant: this flat is at capacity the moment it is
           // created. AVAILABLE would advertise a free bed that does not exist.
           status: 'FULL',
-        },
-        select: { id: true },
-      })
+        })
+        .returning({ id: housingUnit.id })
 
-      const resident = await tx.resident.create({
-        data: {
+      const [founder] = await tx
+        .insert(resident)
+        .values({
           code: generateResidentCode(),
           displayName: displayName?.trim() || null,
           status: 'PLACED',
           ...unansweredPreferences(),
-        },
-        select: { id: true, code: true },
+        })
+        .returning({ id: resident.id, code: resident.code })
+
+      await tx.insert(placement).values({
+        residentId: founder.id,
+        housingUnitId: unit.id,
+        startDate: new Date(),
       })
 
-      await tx.placement.create({
-        data: {
-          residentId: resident.id,
-          housingUnitId: unit.id,
-          startDate: new Date(),
-        },
-      })
+      const [acct] = await tx
+        .insert(account)
+        .values({ email, passwordHash, residentId: founder.id })
+        .returning({ id: account.id })
 
-      const account = await tx.account.create({
-        data: { email, passwordHash, residentId: resident.id },
-        select: { id: true },
-      })
-
-      return { accountId: account.id, resident }
+      return { accountId: acct.id, resident: founder }
     })
 
     // Outside the transaction AND swallowed on purpose.
@@ -199,7 +208,7 @@ export async function registerWithNewHousehold(
     // The only realistic collision is a generated code that already exists.
     // Reporting it as a generic save failure is right: the caller retries, and
     // nothing about our code space is the user's business.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
     }
     throw error

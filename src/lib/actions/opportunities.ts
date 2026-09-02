@@ -2,13 +2,21 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { Prisma } from '@prisma/client'
+import { eq } from 'drizzle-orm'
 import { requirePermission } from '@/lib/auth'
 import { getResidentCookie } from '@/lib/portal-auth'
 import { isFull } from '@/lib/opportunities/pipeline'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  isUniqueViolation,
+  learningRecord,
+  opportunity as opportunityTable,
+  opportunityApplication,
+  resident as residentTable,
+  type Opportunity,
+} from '@/lib/db'
 import {
   ApplicationCreateSchema,
   ApplicationStageChangeSchema,
@@ -43,13 +51,15 @@ export async function createOpportunity(formData: FormData): Promise<void> {
 
   let created
   try {
-    created = await prisma.opportunity.create({
-      data: {
+    const [row] = await db
+      .insert(opportunityTable)
+      .values({
         ...nullifyBlanks(data),
         createdByUserId: user.id,
         updatedByUserId: user.id,
-      },
-    })
+      })
+      .returning()
+    created = row
 
     await logAudit({
       action: 'CREATE',
@@ -72,10 +82,13 @@ export async function updateOpportunity(formData: FormData): Promise<void> {
   const { id, ...data } = validateFormData(OpportunityUpdateSchema, formData)
 
   try {
-    await prisma.opportunity.update({
-      where: { id },
-      data: { ...nullifyBlanks(data), updatedByUserId: user.id },
-    })
+    const [updated] = await db
+      .update(opportunityTable)
+      .set({ ...nullifyBlanks(data), updatedByUserId: user.id })
+      .where(eq(opportunityTable.id, id))
+      .returning({ id: opportunityTable.id })
+    // Prisma's update threw when the id matched no row; keep that error path.
+    if (!updated) throw new Error('Einsatzplatz nicht gefunden')
 
     await logAudit({
       action: 'UPDATE',
@@ -102,9 +115,9 @@ async function setStatus(opportunityId: string, status: OpportunityStatusId): Pr
   // could go live one click later still claiming no authorisation is needed —
   // the gate would exist and be trivially walked around.
   if (status === 'PUBLISHED') {
-    const existing = await prisma.opportunity.findUnique({
-      where: { id: opportunityId },
-      select: { kind: true, permitRequirement: true },
+    const existing = await db.query.opportunity.findFirst({
+      where: eq(opportunityTable.id, opportunityId),
+      columns: { kind: true, permitRequirement: true },
     })
     if (!existing) throw new Error('Einsatzplatz nicht gefunden')
     if (!permitRequirementIsStated(existing.kind, existing.permitRequirement)) {
@@ -116,10 +129,13 @@ async function setStatus(opportunityId: string, status: OpportunityStatusId): Pr
   }
 
   try {
-    await prisma.opportunity.update({
-      where: { id: opportunityId },
-      data: { status, updatedByUserId: user.id },
-    })
+    const [updated] = await db
+      .update(opportunityTable)
+      .set({ status, updatedByUserId: user.id })
+      .where(eq(opportunityTable.id, opportunityId))
+      .returning({ id: opportunityTable.id })
+    // Prisma's update threw when the id matched no row; keep that error path.
+    if (!updated) throw new Error('Einsatzplatz nicht gefunden')
 
     await logAudit({
       action: status === 'ARCHIVED' ? 'ARCHIVE' : 'UPDATE',
@@ -149,17 +165,15 @@ export async function addApplicant(formData: FormData): Promise<void> {
   const data = validateFormData(ApplicationCreateSchema, formData)
 
   try {
-    await prisma.opportunityApplication.create({
-      data: {
-        opportunityId: data.opportunityId,
-        residentId: data.residentId,
-        note: data.note || null,
-        stage: 'INTERESTED',
-        // Staff put this person forward. The resident portal will set
-        // 'RESIDENT' for self-service interest in the next phase.
-        createdBy: 'STAFF',
-        supportedByUserId: user.id,
-      },
+    await db.insert(opportunityApplication).values({
+      opportunityId: data.opportunityId,
+      residentId: data.residentId,
+      note: data.note || null,
+      stage: 'INTERESTED',
+      // Staff put this person forward. The resident portal will set
+      // 'RESIDENT' for self-service interest in the next phase.
+      createdBy: 'STAFF',
+      supportedByUserId: user.id,
     })
 
     await logAudit({
@@ -192,16 +206,16 @@ export async function changeApplicationStage(formData: FormData): Promise<void> 
   const user = await requirePermission('opportunities:write')
   const { applicationId, stage, hours } = validateFormData(ApplicationStageChangeSchema, formData)
 
-  const application = await prisma.opportunityApplication.findUnique({
-    where: { id: applicationId },
-    include: { opportunity: true },
+  const application = await db.query.opportunityApplication.findFirst({
+    where: eq(opportunityApplication.id, applicationId),
+    with: { opportunity: true },
   })
   if (!application) throw new Error('Bewerbung nicht gefunden')
 
   const now = new Date()
 
   try {
-    await prisma.$transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       let learningRecordId = application.learningRecordId
 
       // Generate the evidence exactly once. A coach correcting a misclick
@@ -209,37 +223,43 @@ export async function changeApplicationStage(formData: FormData): Promise<void> 
       // `learningRecordId` is unique, so the second insert would throw and
       // the stage move would fail for a reason nobody could act on.
       if (stage === 'STARTED' && !learningRecordId) {
-        const record = await tx.learningRecord.create({
-          data: {
+        const [record] = await tx
+          .insert(learningRecord)
+          .values({
             residentId: application.residentId,
-            ...evidenceForStartedApplication(application.opportunity, now),
-          },
-        })
+            // (`db.query`'s relation typing collapses to an untyped fallback
+            // for this schema; at runtime `.opportunity` is one row.)
+            ...evidenceForStartedApplication(
+              application.opportunity as unknown as Opportunity,
+              now,
+            ),
+          })
+          .returning({ id: learningRecord.id })
         learningRecordId = record.id
       }
 
       // The total is only knowable when the engagement is over, which is why
       // it is asked for here and never derived from hoursPerWeek.
       if (stage === 'ENDED' && learningRecordId) {
-        await tx.learningRecord.update({
-          where: { id: learningRecordId },
-          data: {
+        await tx
+          .update(learningRecord)
+          .set({
             status: 'COMPLETED',
             completedAt: now,
             ...(hours !== null ? { hours } : {}),
-          },
-        })
+          })
+          .where(eq(learningRecord.id, learningRecordId))
       }
 
-      await tx.opportunityApplication.update({
-        where: { id: applicationId },
-        data: {
+      await tx
+        .update(opportunityApplication)
+        .set({
           stage,
           stageChangedAt: now,
           learningRecordId,
           supportedByUserId: application.supportedByUserId ?? user.id,
-        },
-      })
+        })
+        .where(eq(opportunityApplication.id, applicationId))
     })
 
     await logAudit({
@@ -292,18 +312,18 @@ async function actingResidentId(): Promise<string | null> {
   const code = await getResidentCookie()
   if (!code) return null
 
-  const resident = await prisma.resident.findUnique({
-    where: { code },
-    select: { id: true },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, code),
+    columns: { id: true },
   })
   return resident?.id ?? null
 }
 
 /** All the fallible work, so `redirect()` never runs inside a `try`. */
 async function recordInterest(opportunityId: string, residentId: string): Promise<PortalOutcome> {
-  const opportunity = await prisma.opportunity.findUnique({
-    where: { id: opportunityId },
-    include: { applications: { select: { stage: true } } },
+  const opportunity = await db.query.opportunity.findFirst({
+    where: eq(opportunityTable.id, opportunityId),
+    with: { applications: { columns: { stage: true } } },
   })
 
   // A DRAFT is a listing staff are still writing and an ARCHIVED one is over.
@@ -319,21 +339,19 @@ async function recordInterest(opportunityId: string, residentId: string): Promis
     return 'error=full'
 
   try {
-    await prisma.opportunityApplication.create({
-      data: {
-        opportunityId,
-        residentId,
-        stage: 'INTERESTED',
-        // The resident put themselves forward. `supportedByUserId` stays null
-        // on purpose: it is the honest record that nobody on the staff side has
-        // picked this up yet, which is exactly what the queue is filtering for.
-        createdBy: 'RESIDENT',
-      },
+    await db.insert(opportunityApplication).values({
+      opportunityId,
+      residentId,
+      stage: 'INTERESTED',
+      // The resident put themselves forward. `supportedByUserId` stays null
+      // on purpose: it is the honest record that nobody on the staff side has
+      // picked this up yet, which is exactly what the queue is filtering for.
+      createdBy: 'RESIDENT',
     })
   } catch (error) {
     // Already attached. That IS the state they asked for, so reporting a
     // failure would be a lie about a button that worked the first time.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       return 'ok=interest'
     }
     logger.errorWithCause('Failed to record resident interest', error, { opportunityId })
@@ -378,9 +396,9 @@ export async function expressInterest(formData: FormData): Promise<void> {
  * your team instead of failing silently.
  */
 async function removeInterest(applicationId: string, residentId: string): Promise<PortalOutcome> {
-  const application = await prisma.opportunityApplication.findUnique({
-    where: { id: applicationId },
-    select: { id: true, residentId: true, opportunityId: true, createdBy: true, stage: true },
+  const application = await db.query.opportunityApplication.findFirst({
+    where: eq(opportunityApplication.id, applicationId),
+    columns: { id: true, residentId: true, opportunityId: true, createdBy: true, stage: true },
   })
 
   // Same answer for "not yours" as for "does not exist": a distinguishable
@@ -391,7 +409,7 @@ async function removeInterest(applicationId: string, residentId: string): Promis
   }
 
   try {
-    await prisma.opportunityApplication.delete({ where: { id: applicationId } })
+    await db.delete(opportunityApplication).where(eq(opportunityApplication.id, applicationId))
   } catch (error) {
     logger.errorWithCause('Failed to withdraw resident interest', error, { applicationId })
     return 'error=failed'

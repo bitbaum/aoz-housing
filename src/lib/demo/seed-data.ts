@@ -17,7 +17,20 @@
  * path aliases.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { eq, inArray, like, or } from 'drizzle-orm'
+import {
+  escapeLike,
+  expense,
+  expenseShare,
+  housingUnit,
+  incident,
+  incidentInvolvement,
+  placement,
+  placementSpot,
+  resident,
+  settlement,
+  type db,
+} from '../db'
 import { resolveDemoResidentCode, DEMO_RESIDENT_CODE_PREFIX, DEMO_UNIT_CODE_PREFIX } from './config'
 import { seedDemoGovernance } from './seed-governance'
 import { seedIntegrationEvidence } from '../seed/integration-evidence'
@@ -55,7 +68,7 @@ export interface DemoSeedOptions {
 }
 
 export async function seedDemoData(
-  prisma: PrismaClient,
+  dbClient: typeof db,
   options: DemoSeedOptions = {},
 ): Promise<DemoSeedSummary> {
   // The portal demo logs in as Fatima: PLACED, in the zero-conflict success
@@ -77,8 +90,9 @@ export async function seedDemoData(
   // ========================================================================
 
   // SUCCESS UNIT (Unit 5) - 4 highly compatible residents
-  const fatima = await prisma.resident.create({
-    data: {
+  const [fatima] = await dbClient
+    .insert(resident)
+    .values({
       code: demoResidentCode,
       // Self-chosen profile — shows the resident-profile feature in the tour.
       displayName: 'Fatima',
@@ -111,11 +125,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const yasmin = await prisma.resident.create({
-    data: {
+  const [yasmin] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}02`,
       displayName: 'Yasmin',
       ageRange: 'ADULT',
@@ -146,11 +161,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const amira = await prisma.resident.create({
-    data: {
+  const [amira] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}03`,
       displayName: 'Amira',
       ageRange: 'YOUNG_ADULT',
@@ -181,11 +197,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const sara = await prisma.resident.create({
-    data: {
+  const [sara] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}04`,
       displayName: 'Sara',
       ageRange: 'ADULT',
@@ -216,12 +233,13 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
   // PROBLEM UNIT (Unit 12) - 4 incompatible residents
-  const marco = await prisma.resident.create({
-    data: {
+  const [marco] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}05`,
       displayName: 'Marco',
       ageRange: 'YOUNG_ADULT',
@@ -252,11 +270,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const dmitri = await prisma.resident.create({
-    data: {
+  const [dmitri] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}06`,
       displayName: 'Dmitri',
       ageRange: 'ADULT',
@@ -287,11 +306,12 @@ export async function seedDemoData(
       supportLevel: 'ELEVATED',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const petro = await prisma.resident.create({
-    data: {
+  const [petro] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}07`,
       displayName: 'Petro',
       ageRange: 'YOUNG_ADULT',
@@ -322,11 +342,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const alexei = await prisma.resident.create({
-    data: {
+  const [alexei] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}08`,
       displayName: 'Alexei',
       ageRange: 'ADULT',
@@ -359,12 +380,13 @@ export async function seedDemoData(
       hasMedicalDocumentation: true,
       medicalDocType: 'PRIVATE_ROOM',
       medicalDocDate: new Date('2024-01-15'),
-    },
-  })
+    })
+    .returning()
 
   // UNIT 7 RESIDENTS - Good mid-tier unit
-  const habib = await prisma.resident.create({
-    data: {
+  const [habib] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}09`,
       displayName: 'Habib',
       ageRange: 'ADULT',
@@ -395,11 +417,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const omar = await prisma.resident.create({
-    data: {
+  const [omar] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}10`,
       displayName: 'Omar',
       ageRange: 'YOUNG_ADULT',
@@ -430,11 +453,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const mustafa = await prisma.resident.create({
-    data: {
+  const [mustafa] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}11`,
       displayName: 'Mustafa',
       ageRange: 'ADULT',
@@ -465,12 +489,13 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
   // UNIT 9 RESIDENTS - Mixed unit
-  const elena = await prisma.resident.create({
-    data: {
+  const [elena] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}12`,
       displayName: 'Elena',
       ageRange: 'MIDDLE_AGED',
@@ -501,11 +526,12 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const grace = await prisma.resident.create({
-    data: {
+  const [grace] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}13`,
       displayName: 'Grace',
       ageRange: 'YOUNG_ADULT',
@@ -536,12 +562,13 @@ export async function seedDemoData(
       supportLevel: 'STANDARD',
       status: 'PLACED',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
   // UNPLACED RESIDENTS - The stars of the demo
-  const ahmed = await prisma.resident.create({
-    data: {
+  const [ahmed] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}14`,
       displayName: 'Ahmed',
       ageRange: 'ADULT',
@@ -573,11 +600,12 @@ export async function seedDemoData(
       status: 'ACTIVE', // UNPLACED - This is our demo star!
       notes: 'New arrival today - needs placement. Good candidate for Arabic-speaking unit.',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
-  const maria = await prisma.resident.create({
-    data: {
+  const [maria] = await dbClient
+    .insert(resident)
+    .values({
       code: `${DEMO_RESIDENT_CODE_PREFIX}15`,
       displayName: 'Maria',
       ageRange: 'MIDDLE_AGED',
@@ -610,16 +638,17 @@ export async function seedDemoData(
       notes:
         'Previously transferred 3 times due to cleanliness conflicts. Needs quiet, clean environment.',
       hasMedicalDocumentation: false,
-    },
-  })
+    })
+    .returning()
 
   // ========================================================================
   // HOUSING UNITS
   // ========================================================================
 
   // UNIT 5 - THE SUCCESS STORY
-  const unit5 = await prisma.housingUnit.create({
-    data: {
+  const [unit5] = await dbClient
+    .insert(housingUnit)
+    .values({
       code: `${DEMO_UNIT_CODE_PREFIX}U05`,
       address: 'Mühlebachstrasse 45, 8008 Zürich',
       // Resident-chosen apartment name — shows the apartment profile feature.
@@ -643,12 +672,13 @@ export async function seedDemoData(
       nearSchools: false,
       status: 'FULL',
       notes: 'Success story - 6 months with zero conflicts. All residents highly compatible.',
-    },
-  })
+    })
+    .returning()
 
   // UNIT 12 - THE PROBLEM UNIT
-  const unit12 = await prisma.housingUnit.create({
-    data: {
+  const [unit12] = await dbClient
+    .insert(housingUnit)
+    .values({
       code: `${DEMO_UNIT_CODE_PREFIX}U12`,
       address: 'Langstrasse 127, 8004 Zürich',
       totalBeds: 5,
@@ -670,12 +700,13 @@ export async function seedDemoData(
       nearSchools: false,
       status: 'AVAILABLE',
       notes: 'Historical issues with noise and cleanliness. Needs careful matching.',
-    },
-  })
+    })
+    .returning()
 
   // UNIT 7 - GOOD UNIT (ready for Ahmed)
-  const unit7 = await prisma.housingUnit.create({
-    data: {
+  const [unit7] = await dbClient
+    .insert(housingUnit)
+    .values({
       code: `${DEMO_UNIT_CODE_PREFIX}U07`,
       address: 'Badenerstrasse 88, 8004 Zürich',
       totalBeds: 4,
@@ -697,12 +728,13 @@ export async function seedDemoData(
       nearSchools: false,
       status: 'AVAILABLE',
       notes: 'Stable unit with Arabic-speaking residents. Good for cultural integration.',
-    },
-  })
+    })
+    .returning()
 
   // UNIT 3 - EMPTY UNIT
-  const unit3 = await prisma.housingUnit.create({
-    data: {
+  const [unit3] = await dbClient
+    .insert(housingUnit)
+    .values({
       code: `${DEMO_UNIT_CODE_PREFIX}U03`,
       address: 'Hohlstrasse 56, 8004 Zürich',
       totalBeds: 3,
@@ -724,12 +756,13 @@ export async function seedDemoData(
       nearSchools: true,
       status: 'AVAILABLE',
       notes: 'Newly available unit. All private rooms. Ground floor with wheelchair access.',
-    },
-  })
+    })
+    .returning()
 
   // UNIT 9 - MIXED UNIT
-  const unit9 = await prisma.housingUnit.create({
-    data: {
+  const [unit9] = await dbClient
+    .insert(housingUnit)
+    .values({
       code: `${DEMO_UNIT_CODE_PREFIX}U09`,
       address: 'Josefstrasse 34, 8005 Zürich',
       totalBeds: 3,
@@ -751,88 +784,96 @@ export async function seedDemoData(
       nearSchools: false,
       status: 'AVAILABLE',
       notes: 'Mixed demographic unit. Moderate performance.',
-    },
-  })
+    })
+    .returning()
 
   // ========================================================================
   // PLACEMENT SPOTS
   // ========================================================================
 
   // Unit 5 spots (all occupied)
-  const unit5Bed1 = await prisma.placementSpot.create({
-    data: {
+  const [unit5Bed1] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit5.id,
       code: 'R1-B1',
       label: 'Room 1 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit5Bed2 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit5Bed2] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit5.id,
       code: 'R1-B2',
       label: 'Room 1 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit5Bed3 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit5Bed3] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit5.id,
       code: 'R2-B1',
       label: 'Room 2 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit5Bed4 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit5Bed4] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit5.id,
       code: 'R2-B2',
       label: 'Room 2 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
+    })
+    .returning()
 
   // Unit 12 spots
-  const unit12Bed1 = await prisma.placementSpot.create({
-    data: {
+  const [unit12Bed1] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit12.id,
       code: 'R1-B1',
       label: 'Room 1 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit12Bed2 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit12Bed2] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit12.id,
       code: 'R1-B2',
       label: 'Room 1 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit12Bed3 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit12Bed3] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit12.id,
       code: 'R2-B1',
       label: 'Room 2 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit12Room3 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit12Room3] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit12.id,
       code: 'R3',
       label: 'Private Room 3',
@@ -840,123 +881,122 @@ export async function seedDemoData(
       capacity: 1,
       status: 'OCCUPIED',
       requiresMedicalDocs: true,
-    },
-  })
-  const unit12Bed5 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit12Bed5] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit12.id,
       code: 'R2-B2',
       label: 'Room 2 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'AVAILABLE',
-    },
-  })
+    })
+    .returning()
 
   // Unit 7 spots (one available for Ahmed!)
-  const unit7Bed1 = await prisma.placementSpot.create({
-    data: {
+  const [unit7Bed1] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit7.id,
       code: 'R1-B1',
       label: 'Room 1 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit7Bed2 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit7Bed2] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit7.id,
       code: 'R1-B2',
       label: 'Room 1 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit7Bed3 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit7Bed3] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit7.id,
       code: 'R2-B1',
       label: 'Room 2 - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit7Bed4 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit7Bed4] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit7.id,
       code: 'R2-B2',
       label: 'Room 2 - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'AVAILABLE',
-    },
-  })
+    })
+    .returning()
 
   // Unit 3 spots (all empty)
-  await prisma.placementSpot.create({
-    data: {
-      housingUnitId: unit3.id,
-      code: 'R1',
-      label: 'Private Room 1',
-      type: 'PRIVATE_ROOM',
-      capacity: 1,
-      status: 'AVAILABLE',
-    },
+  await dbClient.insert(placementSpot).values({
+    housingUnitId: unit3.id,
+    code: 'R1',
+    label: 'Private Room 1',
+    type: 'PRIVATE_ROOM',
+    capacity: 1,
+    status: 'AVAILABLE',
   })
-  await prisma.placementSpot.create({
-    data: {
-      housingUnitId: unit3.id,
-      code: 'R2',
-      label: 'Private Room 2',
-      type: 'PRIVATE_ROOM',
-      capacity: 1,
-      status: 'AVAILABLE',
-    },
+  await dbClient.insert(placementSpot).values({
+    housingUnitId: unit3.id,
+    code: 'R2',
+    label: 'Private Room 2',
+    type: 'PRIVATE_ROOM',
+    capacity: 1,
+    status: 'AVAILABLE',
   })
-  await prisma.placementSpot.create({
-    data: {
-      housingUnitId: unit3.id,
-      code: 'R3',
-      label: 'Private Room 3',
-      type: 'PRIVATE_ROOM',
-      capacity: 1,
-      status: 'AVAILABLE',
-    },
+  await dbClient.insert(placementSpot).values({
+    housingUnitId: unit3.id,
+    code: 'R3',
+    label: 'Private Room 3',
+    type: 'PRIVATE_ROOM',
+    capacity: 1,
+    status: 'AVAILABLE',
   })
 
   // Unit 9 spots
-  const unit9Bed1 = await prisma.placementSpot.create({
-    data: {
+  const [unit9Bed1] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit9.id,
       code: 'R1-B1',
       label: 'Shared Room - Bed 1',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  const unit9Bed2 = await prisma.placementSpot.create({
-    data: {
+    })
+    .returning()
+  const [unit9Bed2] = await dbClient
+    .insert(placementSpot)
+    .values({
       housingUnitId: unit9.id,
       code: 'R1-B2',
       label: 'Shared Room - Bed 2',
       type: 'BED',
       capacity: 1,
       status: 'OCCUPIED',
-    },
-  })
-  await prisma.placementSpot.create({
-    data: {
-      housingUnitId: unit9.id,
-      code: 'R2',
-      label: 'Private Room',
-      type: 'PRIVATE_ROOM',
-      capacity: 1,
-      status: 'AVAILABLE',
-    },
+    })
+    .returning()
+  await dbClient.insert(placementSpot).values({
+    housingUnitId: unit9.id,
+    code: 'R2',
+    label: 'Private Room',
+    type: 'PRIVATE_ROOM',
+    capacity: 1,
+    status: 'AVAILABLE',
   })
 
   // ========================================================================
@@ -973,222 +1013,195 @@ export async function seedDemoData(
   twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2)
 
   // Unit 5 placements (SUCCESS - all high compatibility)
-  await prisma.placement.create({
-    data: {
-      residentId: fatima.id,
-      housingUnitId: unit5.id,
-      spotId: unit5Bed1.id,
-      startDate: sixMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 88,
-      lifestyleScore: 85,
-      socialScore: 92,
-      practicalScore: 87,
-      riskScore: 12,
-      placementNotes:
-        'Apartment Fit: 88%\n\nStrong match - similar cultural background and lifestyle preferences.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: fatima.id,
+    housingUnitId: unit5.id,
+    spotId: unit5Bed1.id,
+    startDate: sixMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 88,
+    lifestyleScore: 85,
+    socialScore: 92,
+    practicalScore: 87,
+    riskScore: 12,
+    placementNotes:
+      'Apartment Fit: 88%\n\nStrong match - similar cultural background and lifestyle preferences.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: yasmin.id,
-      housingUnitId: unit5.id,
-      spotId: unit5Bed2.id,
-      startDate: sixMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 85,
-      lifestyleScore: 83,
-      socialScore: 90,
-      practicalScore: 84,
-      riskScore: 15,
-      placementNotes:
-        'Apartment Fit: 85%\n\nExcellent language match with Fatima (both Arabic speakers).',
-    },
+  await dbClient.insert(placement).values({
+    residentId: yasmin.id,
+    housingUnitId: unit5.id,
+    spotId: unit5Bed2.id,
+    startDate: sixMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 85,
+    lifestyleScore: 83,
+    socialScore: 90,
+    practicalScore: 84,
+    riskScore: 15,
+    placementNotes:
+      'Apartment Fit: 85%\n\nExcellent language match with Fatima (both Arabic speakers).',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: amira.id,
-      housingUnitId: unit5.id,
-      spotId: unit5Bed3.id,
-      startDate: sixMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 82,
-      lifestyleScore: 80,
-      socialScore: 88,
-      practicalScore: 81,
-      riskScore: 18,
-      placementNotes:
-        'Apartment Fit: 82%\n\nGood fit with existing residents. Slightly more extroverted but compatible.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: amira.id,
+    housingUnitId: unit5.id,
+    spotId: unit5Bed3.id,
+    startDate: sixMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 82,
+    lifestyleScore: 80,
+    socialScore: 88,
+    practicalScore: 81,
+    riskScore: 18,
+    placementNotes:
+      'Apartment Fit: 82%\n\nGood fit with existing residents. Slightly more extroverted but compatible.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: sara.id,
-      housingUnitId: unit5.id,
-      spotId: unit5Bed4.id,
-      startDate: sixMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 79,
-      lifestyleScore: 82,
-      socialScore: 85,
-      practicalScore: 75,
-      riskScore: 21,
-      placementNotes:
-        'Apartment Fit: 79%\n\nHighly clean, might set good example. Needs quiet which aligns with unit culture.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: sara.id,
+    housingUnitId: unit5.id,
+    spotId: unit5Bed4.id,
+    startDate: sixMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 79,
+    lifestyleScore: 82,
+    socialScore: 85,
+    practicalScore: 75,
+    riskScore: 21,
+    placementNotes:
+      'Apartment Fit: 79%\n\nHighly clean, might set good example. Needs quiet which aligns with unit culture.',
   })
 
   // Unit 12 placements (PROBLEM - low compatibility, conflicts expected)
-  await prisma.placement.create({
-    data: {
-      residentId: marco.id,
-      housingUnitId: unit12.id,
-      spotId: unit12Bed1.id,
-      startDate: threeMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 45,
-      lifestyleScore: 38,
-      socialScore: 52,
-      practicalScore: 48,
-      riskScore: 62,
-      placementNotes: 'Apartment Fit: 45%\n\nSuboptimal match - significant lifestyle differences.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: marco.id,
+    housingUnitId: unit12.id,
+    spotId: unit12Bed1.id,
+    startDate: threeMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 45,
+    lifestyleScore: 38,
+    socialScore: 52,
+    practicalScore: 48,
+    riskScore: 62,
+    placementNotes: 'Apartment Fit: 45%\n\nSuboptimal match - significant lifestyle differences.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: dmitri.id,
-      housingUnitId: unit12.id,
-      spotId: unit12Bed2.id,
-      startDate: threeMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 42,
-      lifestyleScore: 35,
-      socialScore: 48,
-      practicalScore: 45,
-      riskScore: 58,
-      placementNotes:
-        'Apartment Fit: 42%\n\nLanguage barrier with Marco. Both low on chores contribution.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: dmitri.id,
+    housingUnitId: unit12.id,
+    spotId: unit12Bed2.id,
+    startDate: threeMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 42,
+    lifestyleScore: 35,
+    socialScore: 48,
+    practicalScore: 45,
+    riskScore: 58,
+    placementNotes:
+      'Apartment Fit: 42%\n\nLanguage barrier with Marco. Both low on chores contribution.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: petro.id,
-      housingUnitId: unit12.id,
-      spotId: unit12Bed3.id,
-      startDate: twoMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 48,
-      lifestyleScore: 40,
-      socialScore: 55,
-      practicalScore: 50,
-      riskScore: 52,
-      placementNotes: 'Apartment Fit: 48%\n\nBetter than existing residents but still suboptimal.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: petro.id,
+    housingUnitId: unit12.id,
+    spotId: unit12Bed3.id,
+    startDate: twoMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 48,
+    lifestyleScore: 40,
+    socialScore: 55,
+    practicalScore: 50,
+    riskScore: 52,
+    placementNotes: 'Apartment Fit: 48%\n\nBetter than existing residents but still suboptimal.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: alexei.id,
-      housingUnitId: unit12.id,
-      spotId: unit12Room3.id,
-      startDate: twoMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 28,
-      lifestyleScore: 22,
-      socialScore: 35,
-      practicalScore: 30,
-      riskScore: 78,
-      placementNotes:
-        'Apartment Fit: 28%\n\nVery poor match - extremely clean person in messy unit. High conflict risk.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: alexei.id,
+    housingUnitId: unit12.id,
+    spotId: unit12Room3.id,
+    startDate: twoMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 28,
+    lifestyleScore: 22,
+    socialScore: 35,
+    practicalScore: 30,
+    riskScore: 78,
+    placementNotes:
+      'Apartment Fit: 28%\n\nVery poor match - extremely clean person in messy unit. High conflict risk.',
   })
 
   // Unit 7 placements (GOOD - ready for Ahmed)
-  await prisma.placement.create({
-    data: {
-      residentId: habib.id,
-      housingUnitId: unit7.id,
-      spotId: unit7Bed1.id,
-      startDate: threeMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 82,
-      lifestyleScore: 80,
-      socialScore: 88,
-      practicalScore: 80,
-      riskScore: 18,
-      placementNotes: 'Apartment Fit: 82%\n\nGood foundational resident for unit.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: habib.id,
+    housingUnitId: unit7.id,
+    spotId: unit7Bed1.id,
+    startDate: threeMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 82,
+    lifestyleScore: 80,
+    socialScore: 88,
+    practicalScore: 80,
+    riskScore: 18,
+    placementNotes: 'Apartment Fit: 82%\n\nGood foundational resident for unit.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: omar.id,
-      housingUnitId: unit7.id,
-      spotId: unit7Bed2.id,
-      startDate: threeMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 80,
-      lifestyleScore: 78,
-      socialScore: 86,
-      practicalScore: 78,
-      riskScore: 20,
-      placementNotes: 'Apartment Fit: 80%\n\nStrong language match with Habib.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: omar.id,
+    housingUnitId: unit7.id,
+    spotId: unit7Bed2.id,
+    startDate: threeMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 80,
+    lifestyleScore: 78,
+    socialScore: 86,
+    practicalScore: 78,
+    riskScore: 20,
+    placementNotes: 'Apartment Fit: 80%\n\nStrong language match with Habib.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: mustafa.id,
-      housingUnitId: unit7.id,
-      spotId: unit7Bed3.id,
-      startDate: twoMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 76,
-      lifestyleScore: 75,
-      socialScore: 80,
-      practicalScore: 74,
-      riskScore: 24,
-      placementNotes:
-        'Apartment Fit: 76%\n\nGood addition. Similar early bird schedule with Habib.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: mustafa.id,
+    housingUnitId: unit7.id,
+    spotId: unit7Bed3.id,
+    startDate: twoMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 76,
+    lifestyleScore: 75,
+    socialScore: 80,
+    practicalScore: 74,
+    riskScore: 24,
+    placementNotes: 'Apartment Fit: 76%\n\nGood addition. Similar early bird schedule with Habib.',
   })
 
   // Unit 9 placements
-  await prisma.placement.create({
-    data: {
-      residentId: elena.id,
-      housingUnitId: unit9.id,
-      spotId: unit9Bed1.id,
-      startDate: threeMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 68,
-      lifestyleScore: 65,
-      socialScore: 72,
-      practicalScore: 67,
-      riskScore: 33,
-      placementNotes: 'Apartment Fit: 68%\n\nModerate match.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: elena.id,
+    housingUnitId: unit9.id,
+    spotId: unit9Bed1.id,
+    startDate: threeMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 68,
+    lifestyleScore: 65,
+    socialScore: 72,
+    practicalScore: 67,
+    riskScore: 33,
+    placementNotes: 'Apartment Fit: 68%\n\nModerate match.',
   })
 
-  await prisma.placement.create({
-    data: {
-      residentId: grace.id,
-      housingUnitId: unit9.id,
-      spotId: unit9Bed2.id,
-      startDate: twoMonthsAgo,
-      status: 'ACTIVE',
-      compatibilityScore: 72,
-      lifestyleScore: 70,
-      socialScore: 75,
-      practicalScore: 71,
-      riskScore: 28,
-      placementNotes: 'Apartment Fit: 72%\n\nGood addition to unit.',
-    },
+  await dbClient.insert(placement).values({
+    residentId: grace.id,
+    housingUnitId: unit9.id,
+    spotId: unit9Bed2.id,
+    startDate: twoMonthsAgo,
+    status: 'ACTIVE',
+    compatibilityScore: 72,
+    lifestyleScore: 70,
+    socialScore: 75,
+    practicalScore: 71,
+    riskScore: 28,
+    placementNotes: 'Apartment Fit: 72%\n\nGood addition to unit.',
   })
 
   // ============================================================================
@@ -1198,8 +1211,9 @@ export async function seedDemoData(
   // Unit 12 - PROBLEM UNIT: Multiple conflicts demonstrating poor compatibility
 
   // Week 2: First cleanliness complaint (predicted timing)
-  const incident1 = await prisma.incident.create({
-    data: {
+  const [incident1] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'CLEANLINESS_DISPUTE',
@@ -1210,20 +1224,19 @@ export async function seedDemoData(
       resolvedAt: new Date(Date.now() - 83 * 24 * 60 * 60 * 1000),
       resolution: 'Hausordnung besprochen. Putzplan erstellt.',
       reportedById: marco.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident1.id, residentId: marco.id, role: 'INVOLVED' },
-      { incidentId: incident1.id, residentId: dmitri.id, role: 'INVOLVED' },
-      { incidentId: incident1.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident1.id, residentId: marco.id, role: 'INVOLVED' },
+    { incidentId: incident1.id, residentId: dmitri.id, role: 'INVOLVED' },
+    { incidentId: incident1.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Week 3: Noise complaint (night owl vs introverted needs privacy)
-  const incident2 = await prisma.incident.create({
-    data: {
+  const [incident2] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
@@ -1234,19 +1247,18 @@ export async function seedDemoData(
       resolvedAt: new Date(Date.now() - 76 * 24 * 60 * 60 * 1000),
       resolution: 'Ruhezeiten nach 22:00 Uhr vereinbart. Petro zugestimmt.',
       reportedById: alexei.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident2.id, residentId: alexei.id, role: 'INVOLVED' },
-      { incidentId: incident2.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident2.id, residentId: alexei.id, role: 'INVOLVED' },
+    { incidentId: incident2.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Week 4: Cleanliness escalation (difference of 3 levels)
-  const incident3 = await prisma.incident.create({
-    data: {
+  const [incident3] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'CLEANLINESS_DISPUTE',
@@ -1255,20 +1267,19 @@ export async function seedDemoData(
         'Schwerer Sauberkeitskonflikt: Alexei (sehr sauber) kann nicht mit Dmitri und Petro (beide Sauberkeit Level 2) zusammenleben. Küche nicht gereinigt seit 5 Tagen.',
       severity: 'HIGH',
       // No reportedById = staff reported
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident3.id, residentId: alexei.id, role: 'INVOLVED' },
-      { incidentId: incident3.id, residentId: dmitri.id, role: 'INVOLVED' },
-      { incidentId: incident3.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident3.id, residentId: alexei.id, role: 'INVOLVED' },
+    { incidentId: incident3.id, residentId: dmitri.id, role: 'INVOLVED' },
+    { incidentId: incident3.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Week 6: Chores conflict (low contribution causing tension)
-  const incident4 = await prisma.incident.create({
-    data: {
+  const [incident4] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
@@ -1279,19 +1290,18 @@ export async function seedDemoData(
       resolvedAt: new Date(Date.now() - 52 * 24 * 60 * 60 * 1000),
       resolution: 'Rotierender Putzplan mit klaren Zuständigkeiten eingeführt.',
       reportedById: marco.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident4.id, residentId: marco.id, role: 'INVOLVED' },
-      { incidentId: incident4.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident4.id, residentId: marco.id, role: 'INVOLVED' },
+    { incidentId: incident4.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Week 9: Recycling dispute (knowledge gap causing issues)
-  const incident5 = await prisma.incident.create({
-    data: {
+  const [incident5] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
@@ -1302,20 +1312,19 @@ export async function seedDemoData(
       resolvedAt: new Date(Date.now() - 33 * 24 * 60 * 60 * 1000),
       resolution: 'Recycling-Schulung durchgeführt. Infografik in Küche aufgehängt.',
       reportedById: alexei.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident5.id, residentId: alexei.id, role: 'INVOLVED' },
-      { incidentId: incident5.id, residentId: dmitri.id, role: 'INVOLVED' },
-      { incidentId: incident5.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident5.id, residentId: alexei.id, role: 'INVOLVED' },
+    { incidentId: incident5.id, residentId: dmitri.id, role: 'INVOLVED' },
+    { incidentId: incident5.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Week 11: Recent noise complaint (pattern continues)
-  const incident6 = await prisma.incident.create({
-    data: {
+  const [incident6] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit12.id,
       category: 'INTERPERSONAL',
       type: 'NOISE_COMPLAINT',
@@ -1324,22 +1333,21 @@ export async function seedDemoData(
         'Erneute Lärmbelästigung: Petro hält sich nicht an vereinbarte Ruhezeiten. Alexei erwägt Umzug.',
       severity: 'HIGH',
       reportedById: alexei.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident6.id, residentId: alexei.id, role: 'INVOLVED' },
-      { incidentId: incident6.id, residentId: petro.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident6.id, residentId: alexei.id, role: 'INVOLVED' },
+    { incidentId: incident6.id, residentId: petro.id, role: 'INVOLVED' },
+  ])
 
   // Unit 5 - SUCCESS STORY: 0 incidents over 6 months (no incidents to create)
   // This demonstrates what good compatibility looks like
 
   // Unit 9 - One minor incident (manageable with moderate compatibility)
-  const incident7 = await prisma.incident.create({
-    data: {
+  const [incident7] = await dbClient
+    .insert(incident)
+    .values({
       housingUnitId: unit9.id,
       category: 'INTERPERSONAL',
       type: 'PERSONAL_CONFLICT',
@@ -1350,15 +1358,13 @@ export async function seedDemoData(
       resolvedAt: new Date(Date.now() - 44 * 24 * 60 * 60 * 1000),
       resolution: 'Nutzungsplan erstellt. Beide Parteien zufrieden.',
       reportedById: elena.id,
-    },
-  })
+    })
+    .returning()
 
-  await prisma.incidentInvolvement.createMany({
-    data: [
-      { incidentId: incident7.id, residentId: elena.id, role: 'INVOLVED' },
-      { incidentId: incident7.id, residentId: grace.id, role: 'INVOLVED' },
-    ],
-  })
+  await dbClient.insert(incidentInvolvement).values([
+    { incidentId: incident7.id, residentId: elena.id, role: 'INVOLVED' },
+    { incidentId: incident7.id, residentId: grace.id, role: 'INVOLVED' },
+  ])
 
   // ========================================================================
   // SHARED EXPENSES (Unit 5) — the expense-sharing tour
@@ -1366,48 +1372,65 @@ export async function seedDemoData(
   // An equal 4-way split of CHF 48.00 with one settlement already recorded,
   // so the demo shows balances, a suggested transfer AND a payment history.
   const unit5MemberIds = [fatima.id, yasmin.id, amira.id, sara.id]
-  const groceries = await prisma.expense.create({
-    data: {
-      housingUnitId: unit5.id,
-      paidById: fatima.id,
-      createdById: fatima.id,
-      description: 'Wocheneinkauf Migros',
-      category: 'GROCERIES',
-      amountRappen: 4800,
-      date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      shares: {
-        create: unit5MemberIds.map((residentId) => ({ residentId, amountRappen: 1200 })),
-      },
-    },
+  const groceries = await dbClient.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(expense)
+      .values({
+        housingUnitId: unit5.id,
+        paidById: fatima.id,
+        createdById: fatima.id,
+        description: 'Wocheneinkauf Migros',
+        category: 'GROCERIES',
+        amountRappen: 4800,
+        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      })
+      .returning()
+    await tx
+      .insert(expenseShare)
+      .values(
+        unit5MemberIds.map((residentId) => ({
+          expenseId: created.id,
+          residentId,
+          amountRappen: 1200,
+        })),
+      )
+    return created
   })
-  await prisma.expense.create({
-    data: {
-      housingUnitId: unit5.id,
-      paidById: yasmin.id,
-      createdById: yasmin.id,
-      description: 'Putzmittel und WC-Papier',
-      category: 'HOUSEHOLD',
-      amountRappen: 1860,
-      date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-      shares: {
-        create: unit5MemberIds.map((residentId) => ({ residentId, amountRappen: 465 })),
-      },
-    },
+  await dbClient.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(expense)
+      .values({
+        housingUnitId: unit5.id,
+        paidById: yasmin.id,
+        createdById: yasmin.id,
+        description: 'Putzmittel und WC-Papier',
+        category: 'HOUSEHOLD',
+        amountRappen: 1860,
+        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      })
+      .returning()
+    await tx
+      .insert(expenseShare)
+      .values(
+        unit5MemberIds.map((residentId) => ({
+          expenseId: created.id,
+          residentId,
+          amountRappen: 465,
+        })),
+      )
   })
-  await prisma.settlement.create({
-    data: {
-      housingUnitId: unit5.id,
-      fromId: sara.id,
-      toId: fatima.id,
-      amountRappen: 1200,
-      note: `Anteil ${groceries.description}`,
-    },
+  await dbClient.insert(settlement).values({
+    housingUnitId: unit5.id,
+    fromId: sara.id,
+    toId: fatima.id,
+    amountRappen: 1200,
+    note: `Anteil ${groceries.description}`,
   })
 
   // ========================================================================
   // LIVING TOGETHER (Unit 5) — chores, decisions and maintenance
   // ========================================================================
-  await seedDemoGovernance(prisma, {
+  await seedDemoGovernance(dbClient, {
     siteWideContent: options.siteWideContent ?? false,
     unitId: unit5.id,
     demoResidentId: fatima.id,
@@ -1421,13 +1444,14 @@ export async function seedDemoData(
   // and a board holding four people out of fifteen looks like a filter bug.
   // Ids are queried by prefix rather than threaded through this function, so
   // adding a resident above needs no change here.
-  const demoResidents = await prisma.resident.findMany({
-    where: {
-      OR: [{ code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } }, { code: demoResidentCode }],
-    },
-    select: { id: true },
+  const demoResidents = await dbClient.query.resident.findMany({
+    where: or(
+      like(resident.code, `${escapeLike(DEMO_RESIDENT_CODE_PREFIX)}%`),
+      eq(resident.code, demoResidentCode),
+    ),
+    columns: { id: true },
   })
-  const integration = await seedIntegrationEvidence(prisma, {
+  const integration = await seedIntegrationEvidence(dbClient, {
     residentIds: demoResidents.map((resident) => resident.id),
     staffId: options.careStaffId ?? null,
   })
@@ -1435,16 +1459,22 @@ export async function seedDemoData(
   // Counts are queried, not hardcoded, so the summary can never drift from
   // the data above (ground truth #2: one source of truth). Scoped to the
   // demo prefixes: under UNIT scope this database also holds real data.
-  const demoUnitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
+  const demoUnitFilter = like(housingUnit.code, `${escapeLike(DEMO_UNIT_CODE_PREFIX)}%`)
+  const demoUnitIds = dbClient
+    .select({ id: housingUnit.id })
+    .from(housingUnit)
+    .where(demoUnitFilter)
   const [residents, housingUnits, placements, incidents] = await Promise.all([
-    prisma.resident.count({
-      where: {
-        OR: [{ code: { startsWith: DEMO_RESIDENT_CODE_PREFIX } }, { code: demoResidentCode }],
-      },
-    }),
-    prisma.housingUnit.count({ where: demoUnitFilter }),
-    prisma.placement.count({ where: { housingUnit: demoUnitFilter } }),
-    prisma.incident.count({ where: { housingUnit: demoUnitFilter } }),
+    dbClient.$count(
+      resident,
+      or(
+        like(resident.code, `${escapeLike(DEMO_RESIDENT_CODE_PREFIX)}%`),
+        eq(resident.code, demoResidentCode),
+      ),
+    ),
+    dbClient.$count(housingUnit, demoUnitFilter),
+    dbClient.$count(placement, inArray(placement.housingUnitId, demoUnitIds)),
+    dbClient.$count(incident, inArray(incident.housingUnitId, demoUnitIds)),
   ])
 
   return {

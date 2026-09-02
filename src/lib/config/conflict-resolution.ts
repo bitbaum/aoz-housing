@@ -21,7 +21,7 @@ import type {
   IncidentSeverity,
   ResolutionStage,
   AgreementStatus,
-} from '@prisma/client'
+} from '@/lib/db'
 
 // =============================================================================
 // THE LADDER

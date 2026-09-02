@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, escapeLike, resident, placement, incident, satisfactionCheckIn } from '@/lib/db'
+import { eq, and, or, gte, inArray, notInArray, isNotNull, ilike, desc, count } from 'drizzle-orm'
 import {
   EMPTY_STATE_LABELS,
   RESIDENT_LIST_LABELS,
@@ -67,7 +68,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   const can = (permission: StaffPermission) => hasPermission(viewer, permission)
 
   // Which PLACES this viewer covers. Null for ALL_UNITS — everyone, until
-  // somebody is deliberately narrowed — so the spread below adds nothing and
+  // somebody is deliberately narrowed — so the `and()` below adds nothing and
   // the common query is unchanged.
   //
   // Read from `currentUser`, not from `viewer`: the NARROWEST_CAPABILITIES
@@ -76,89 +77,106 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   // with sites.
   const siteFilter = currentUser ? residentScopeFilter(currentUser) : null
 
-  const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
-    prisma.resident.findMany({
-      where: {
-        ...(siteFilter ?? {}),
-        ...(view === 'active'
-          ? { status: { in: ['ACTIVE', 'PLACED'] } }
-          : view === 'archived'
-            ? { status: 'EXITED' }
-            : {}),
-        ...(q
-          ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                { displayName: { contains: q, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-      },
-      select: {
-        ...RESIDENT_NAME_SELECT,
-        ageRange: true,
-        gender: true,
-        status: true,
-        supportLevel: true,
-        languages: true,
-        createdAt: true,
-        placements: {
-          where: { status: 'ACTIVE' },
-          select: {
-            startDate: true,
-            housingUnit: { select: { code: true } },
-            checkIns: {
-              orderBy: { createdAt: 'desc' },
-              take: 1,
-              select: { createdAt: true },
-            },
-          },
+  const residentsWhere = and(
+    siteFilter ?? undefined,
+    view === 'active'
+      ? inArray(resident.status, ['ACTIVE', 'PLACED'])
+      : view === 'archived'
+        ? eq(resident.status, 'EXITED')
+        : undefined,
+    q
+      ? or(
+          ilike(resident.code, `%${escapeLike(q)}%`),
+          ilike(resident.displayName, `%${escapeLike(q)}%`),
+        )
+      : undefined,
+  )
+
+  const [residents, statusGroups, unplacedCount, myResidentIds, incidentGroups] = await Promise.all(
+    [
+      db.query.resident.findMany({
+        where: residentsWhere,
+        columns: {
+          ...RESIDENT_NAME_SELECT,
+          ageRange: true,
+          gender: true,
+          status: true,
+          supportLevel: true,
+          languages: true,
+          createdAt: true,
         },
-        careAssignments: {
-          select: {
-            role: true,
-            staff: { select: { name: true } },
-          },
-        },
-        careAttributes: {
-          select: { key: true, value: true, domain: true },
-        },
-        _count: {
-          select: {
-            incidentsAsSubject: {
-              where: {
-                date: { gte: getDateDaysAgo(30) },
-                category: 'INTERPERSONAL',
+        with: {
+          placements: {
+            where: eq(placement.status, 'ACTIVE'),
+            columns: { startDate: true },
+            with: {
+              housingUnit: { columns: { code: true } },
+              checkIns: {
+                orderBy: [desc(satisfactionCheckIn.createdAt)],
+                limit: 1,
+                columns: { createdAt: true },
               },
             },
           },
+          careAssignments: {
+            columns: { role: true },
+            with: {
+              staff: { columns: { name: true } },
+            },
+          },
+          careAttributes: {
+            columns: { key: true, value: true, domain: true },
+          },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-    }),
-    // Aggregate tab counts by status (single query instead of fetching all rows)
-    prisma.resident.groupBy({
-      by: ['status'],
-      _count: { _all: true },
-    }),
-    // Count of ACTIVE residents with no active placement (separate query)
-    prisma.resident.count({
-      where: {
-        status: 'ACTIVE',
-        placements: { none: { status: 'ACTIVE' } },
-      },
-    }),
-    // "My clients" — IDs where this user is a care worker
-    currentUser ? getMyResidentIds(currentUser.id) : Promise.resolve([]),
-  ])
+        orderBy: [desc(resident.createdAt)],
+      }),
+      // Aggregate tab counts by status (single query instead of fetching all rows)
+      db
+        .select({ status: resident.status, count: count() })
+        .from(resident)
+        .groupBy(resident.status),
+      // Count of ACTIVE residents with no active placement (separate query)
+      db.$count(
+        resident,
+        and(
+          eq(resident.status, 'ACTIVE'),
+          notInArray(
+            resident.id,
+            db
+              .select({ residentId: placement.residentId })
+              .from(placement)
+              .where(eq(placement.status, 'ACTIVE')),
+          ),
+        ),
+      ),
+      // "My clients" — IDs where this user is a care worker
+      currentUser ? getMyResidentIds(currentUser.id) : Promise.resolve([]),
+      // Recent interpersonal incidents per subject (was Prisma's filtered
+      // `_count.incidentsAsSubject` select — the query API has no filtered
+      // relation count, so it is one grouped query joined in application code)
+      db
+        .select({ subjectId: incident.subjectId, count: count() })
+        .from(incident)
+        .where(
+          and(
+            isNotNull(incident.subjectId),
+            gte(incident.date, getDateDaysAgo(30)),
+            eq(incident.category, 'INTERPERSONAL'),
+          ),
+        )
+        .groupBy(incident.subjectId),
+    ],
+  )
+
+  const incidentCountByResident = new Map(incidentGroups.map((g) => [g.subjectId, g.count]))
 
   const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
-    acc[g.status] = g._count._all
+    acc[g.status] = g.count
     return acc
   }, {})
 
   const stats = {
-    total: statusGroups.reduce((sum, g) => sum + g._count._all, 0),
+    total: statusGroups.reduce((sum, g) => sum + g.count, 0),
     active: statusCounts.ACTIVE ?? 0,
     placed: statusCounts.PLACED ?? 0,
     archived: statusCounts.EXITED ?? 0,
@@ -202,7 +220,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
       careAttributes: (r.careAttributes ?? []).filter(
         (a: { domain: string }) => !viewerDomain || a.domain === viewerDomain,
       ),
-      incidentCount: r._count?.incidentsAsSubject ?? 0,
+      incidentCount: incidentCountByResident.get(r.id) ?? 0,
       daysSinceCheckIn,
       checkInIntervalDays: intervalDays,
       isMyClient: myResidentIdSet.has(r.id),
@@ -347,7 +365,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         <ResidentsList
           residents={(residents as any[]).map((r) => ({
             ...r,
-            incidentCount: r._count?.incidentsAsSubject ?? 0,
+            incidentCount: incidentCountByResident.get(r.id) ?? 0,
           }))}
           canWrite={
             viewerRole === 'ADMIN' || viewerRole === 'BETREUUNG' || viewerRole === 'SOZIALARBEIT'

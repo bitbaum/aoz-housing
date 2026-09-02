@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, placement as placementTable, satisfactionCheckIn } from '@/lib/db'
+import { eq, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createCheckInFromForm } from '@/lib/actions'
@@ -30,15 +31,15 @@ export default async function NewCheckInPage({ params, searchParams }: Props) {
   const sp = await searchParams
 
   // Get placement with resident and housing info
-  const placement = await prisma.placement.findUnique({
-    where: { id },
-    include: {
+  const placement = await db.query.placement.findFirst({
+    where: eq(placementTable.id, id),
+    with: {
       resident: true,
       housingUnit: true,
       spot: true,
       checkIns: {
-        orderBy: { createdAt: 'desc' },
-        take: 5,
+        orderBy: [desc(satisfactionCheckIn.createdAt)],
+        limit: 5,
       },
     },
   })

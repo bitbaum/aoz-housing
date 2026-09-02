@@ -2,7 +2,7 @@
  * Types for the matching page and its extracted components
  */
 
-import type { Resident, HousingUnit, Placement, PlacementSpot } from '@prisma/client'
+import type { Resident, HousingUnit, Placement, PlacementSpot } from '@/lib/db'
 import type {
   ApartmentProfile,
   ApartmentCompatibility,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, expense as expenseTable, expenseShare } from '@/lib/db'
 import { getPortalAuth, getActiveUnitMembers } from '@/lib/portal-auth'
 import { CreateExpenseSchema } from '@/lib/validation/expenses'
 import { splitEqually } from '@/lib/expenses'
@@ -43,18 +43,26 @@ export async function POST(request: NextRequest) {
 
     const shares = splitEqually(data.amountRappen, participantIds)
 
-    const expense = await prisma.expense.create({
-      data: {
-        housingUnitId: auth.placement.housingUnitId,
-        paidById,
-        createdById: auth.resident.id,
-        description: data.description,
-        category: data.category,
-        amountRappen: data.amountRappen,
-        date: data.date ?? new Date(),
-        shares: { create: shares },
-      },
-      include: { shares: true },
+    // Expense and its shares stand or fall together (Prisma's nested create was
+    // one transaction); the returned shape mirrors the old `include: { shares }`.
+    const expense = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(expenseTable)
+        .values({
+          housingUnitId: auth.placement.housingUnitId,
+          paidById,
+          createdById: auth.resident.id,
+          description: data.description,
+          category: data.category,
+          amountRappen: data.amountRappen,
+          date: data.date ?? new Date(),
+        })
+        .returning()
+      const shareRows = await tx
+        .insert(expenseShare)
+        .values(shares.map((share) => ({ ...share, expenseId: created.id })))
+        .returning()
+      return { ...created, shares: shareRows }
     })
 
     await logAudit({

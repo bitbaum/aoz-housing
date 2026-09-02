@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, householdTask, taskCompletion, housingUnit, placement } from '@/lib/db'
+import { eq, inArray, asc } from 'drizzle-orm'
 import Link from 'next/link'
 import { StatCard } from '@/components/ui/Card'
 import { PageHeader } from '@/components/ui/Page'
@@ -16,34 +17,34 @@ export default async function AdminChoresPage() {
   await requirePermission('housing:read')
   // Overall stats
   const [totalTasks, activeTasks, attentionTasks, totalCompletions] = await Promise.all([
-    prisma.householdTask.count(),
-    prisma.householdTask.count({ where: { isCompleted: false } }),
-    prisma.householdTask.count({ where: { currentStatus: 'NEEDS_ATTENTION' } }),
-    prisma.taskCompletion.count(),
+    db.$count(householdTask),
+    db.$count(householdTask, eq(householdTask.isCompleted, false)),
+    db.$count(householdTask, eq(householdTask.currentStatus, 'NEEDS_ATTENTION')),
+    db.$count(taskCompletion),
   ])
 
   // Per-unit summary
-  const units = await prisma.housingUnit.findMany({
-    where: {
-      status: { in: ['AVAILABLE', 'FULL'] },
-    },
-    select: {
+  const units = await db.query.housingUnit.findMany({
+    where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+    columns: {
       id: true,
       code: true,
       address: true,
+    },
+    with: {
       householdTasks: {
-        select: {
+        columns: {
           id: true,
           currentStatus: true,
           isCompleted: true,
         },
       },
       placements: {
-        where: { status: 'ACTIVE' },
-        select: { id: true },
+        where: eq(placement.status, 'ACTIVE'),
+        columns: { id: true },
       },
     },
-    orderBy: { code: 'asc' },
+    orderBy: [asc(housingUnit.code)],
   })
 
   const unitSummaries = units

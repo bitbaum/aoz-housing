@@ -12,7 +12,8 @@
 import { BRAND } from '@/lib/config/brand'
 
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, incident, placement, satisfactionCheckIn } from '@/lib/db'
+import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
 import { notifyStaff, incidentFollowUpReminder, checkInReminder } from '@/lib/email'
 import { logger } from '@/lib/logger'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
@@ -44,9 +45,10 @@ export async function GET(request: Request) {
   // Postgres advisory lock — non-blocking, session-scoped. If another
   // invocation of this same cron is already running on the same DB, this
   // call returns false and we bail. Prevents overlapping-run double-sends.
-  const lockResult = await prisma.$queryRaw<Array<{ ok: boolean }>>`
+  const { rows: lockRows } = await db.execute(sql`
     SELECT pg_try_advisory_lock(${CRON_LOCK_KEY}) AS ok
-  `
+  `)
+  const lockResult = lockRows as unknown as Array<{ ok: boolean }>
   if (!lockResult[0]?.ok) {
     logger.warn('cron/notifications skipped: another run already in progress')
     return NextResponse.json({ skipped: true, reason: 'lock-held' })
@@ -65,16 +67,16 @@ export async function GET(request: Request) {
 
   try {
     // 1. Overdue incident follow-ups
-    const overdueIncidents = await prisma.incident.findMany({
-      where: {
-        resolvedAt: null,
-        nextFollowUpDate: { lt: new Date() },
-        severity: { in: ['MEDIUM', 'HIGH', 'CRITICAL'] },
+    const overdueIncidents = await db.query.incident.findMany({
+      where: and(
+        isNull(incident.resolvedAt),
+        lt(incident.nextFollowUpDate, new Date()),
+        inArray(incident.severity, ['MEDIUM', 'HIGH', 'CRITICAL']),
+      ),
+      with: {
+        housingUnit: { columns: { code: true } },
       },
-      include: {
-        housingUnit: { select: { code: true } },
-      },
-      take: 50,
+      limit: 50,
     })
 
     if (overdueIncidents.length > 0) {
@@ -94,13 +96,13 @@ export async function GET(request: Request) {
     // 2. Overdue resident check-ins.
     // Cap to a sane batch so a runaway dataset can't blow the function
     // timeout. The cron runs daily so we'd catch any backlog the next day.
-    const activePlacements = await prisma.placement.findMany({
-      where: { status: 'ACTIVE' },
-      include: {
-        resident: { select: { code: true, supportLevel: true } },
-        checkIns: { orderBy: { createdAt: 'desc' }, take: 1 },
+    const activePlacements = await db.query.placement.findMany({
+      where: eq(placement.status, 'ACTIVE'),
+      with: {
+        resident: { columns: { code: true, supportLevel: true } },
+        checkIns: { orderBy: [desc(satisfactionCheckIn.createdAt)], limit: 1 },
       },
-      take: 1000,
+      limit: 1000,
     })
 
     const overdueResidents = activePlacements
@@ -128,7 +130,7 @@ export async function GET(request: Request) {
     // rule book), and relying on someone remembering to press a button in the
     // admin UI is how a database ends up silently missing it. Idempotent, so
     // this is a no-op on every run that changes nothing.
-    const ruleSync = await syncOrgRules(prisma)
+    const ruleSync = await syncOrgRules(db)
     results.orgRulesCreated = ruleSync.created
     results.orgRulesAmended = ruleSync.amended
     if (ruleSync.created > 0 || ruleSync.amended > 0) {
@@ -157,7 +159,7 @@ export async function GET(request: Request) {
     // Release the advisory lock. Failure here is logged but never thrown,
     // so it can't mask the original error.
     try {
-      await prisma.$queryRaw`SELECT pg_advisory_unlock(${CRON_LOCK_KEY})`
+      await db.execute(sql`SELECT pg_advisory_unlock(${CRON_LOCK_KEY})`)
     } catch (unlockErr) {
       logger.errorWithCause('Failed to release cron advisory lock', unlockErr)
     }

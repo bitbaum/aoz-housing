@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ResidentWithPlacement } from '@/lib/matching/types'
 import {
   AGE_RANGE_LABELS,
@@ -92,7 +92,7 @@ export function ResidentSelectorPanel({
                   </p>
                   <p className="text-sm text-ui-muted">
                     {getLabel(AGE_RANGE_LABELS, resident.ageRange)} ·{' '}
-                    {resident.languages
+                    {(resident.languages ?? [])
                       .slice(0, DISPLAY_LIMITS.languagePreview)
                       .map((l) => getLabel(LANGUAGE_LABELS, l))
                       .join(', ')}

@@ -15,7 +15,7 @@ import type {
   RuleDelegation,
   RuleScope,
   RuleStatus,
-} from '@prisma/client'
+} from '@/lib/db'
 import {
   DELEGATION_ALLOWS_UNIT_RULE,
   DELEGATION_REQUIRES_STAFF_CONFIRMATION,

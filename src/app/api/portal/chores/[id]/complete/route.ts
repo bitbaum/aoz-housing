@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, taskCompletion, taskAttentionFlag, taskRequest } from '@/lib/db'
+import { eq, and, inArray } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { portalCompleteTaskSchema } from '@/lib/validation/schemas'
@@ -37,8 +38,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   // Security check: verify task belongs to this housing unit
-  const task = await prisma.householdTask.findFirst({
-    where: { id, housingUnitId: auth.placement.housingUnitId },
+  const task = await db.query.householdTask.findFirst({
+    where: and(
+      eq(householdTask.id, id),
+      eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+    ),
   })
 
   if (!task) {
@@ -57,13 +61,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // Only items that are actually on this task's checklist may be recorded —
   // otherwise a client could claim credit for work the house never agreed on.
-  const ticked = (completedItems ?? []).filter((item) => task.checklist.includes(item))
+  const ticked = (completedItems ?? []).filter((item) => (task.checklist ?? []).includes(item))
 
   try {
     // Transaction: create completion + update task + resolve flags + complete requests.
     // For ONE_TIME tasks we use a conditional update with `isCompleted: false` guard
     // to prevent two concurrent completions from racing past the outer check.
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       const isOneTime = task.taskType === 'ONE_TIME'
 
       // 1. Create completion. Ticked items are intersected with the task's own
@@ -74,46 +78,46 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         ? (task.checklist ?? []).filter((item) => completedItems!.includes(item))
         : []
 
-      const completion = await tx.taskCompletion.create({
-        data: {
+      const [completion] = await tx
+        .insert(taskCompletion)
+        .values({
           taskId: id,
           completedById: auth.resident.id,
           notes: notes || null,
           durationMinutes: durationMinutes || null,
           completedItems: tickedItems,
-        },
-      })
+        })
+        .returning()
 
       // 2. Update task status
-      await tx.householdTask.update({
-        where: { id },
-        data: {
+      await tx
+        .update(householdTask)
+        .set({
           currentStatus: 'IDLE',
           ...(isOneTime ? { isCompleted: true, completedAt: new Date() } : {}),
-        },
-      })
+        })
+        .where(eq(householdTask.id, id))
 
       // 3. Resolve active attention flags
-      await tx.taskAttentionFlag.updateMany({
-        where: { taskId: id, isResolved: false },
-        data: {
+      await tx
+        .update(taskAttentionFlag)
+        .set({
           isResolved: true,
           resolvedAt: new Date(),
           resolvedByCompletionId: completion.id,
-        },
-      })
+        })
+        .where(and(eq(taskAttentionFlag.taskId, id), eq(taskAttentionFlag.isResolved, false)))
 
       // 4. Complete pending/accepted requests
-      await tx.taskRequest.updateMany({
-        where: {
-          taskId: id,
-          status: { in: ['PENDING', 'ACCEPTED'] },
-        },
-        data: {
+      await tx
+        .update(taskRequest)
+        .set({
           status: 'COMPLETED',
           completionId: completion.id,
-        },
-      })
+        })
+        .where(
+          and(eq(taskRequest.taskId, id), inArray(taskRequest.status, ['PENDING', 'ACCEPTED'])),
+        )
 
       return completion
     })

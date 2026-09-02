@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, taskRequest, placement } from '@/lib/db'
+import { eq, and } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { portalTaskRequestSchema } from '@/lib/validation/schemas'
@@ -37,8 +38,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    const task = await prisma.householdTask.findFirst({
-      where: { id, housingUnitId: auth.placement.housingUnitId },
+    const task = await db.query.householdTask.findFirst({
+      where: and(
+        eq(householdTask.id, id),
+        eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+      ),
     })
 
     if (!task) {
@@ -58,13 +62,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Validate requestedResidentId is a roommate (same housing unit) — prevents
     // targeting arbitrary residents elsewhere in the system.
     if (requestedResidentId) {
-      const roommate = await prisma.placement.findFirst({
-        where: {
-          residentId: requestedResidentId,
-          housingUnitId: auth.placement.housingUnitId,
-          status: 'ACTIVE',
-        },
-        select: { residentId: true },
+      const roommate = await db.query.placement.findFirst({
+        where: and(
+          eq(placement.residentId, requestedResidentId),
+          eq(placement.housingUnitId, auth.placement.housingUnitId),
+          eq(placement.status, 'ACTIVE'),
+        ),
+        columns: { residentId: true },
       })
       if (!roommate) {
         return NextResponse.json(
@@ -76,23 +80,24 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const isBroadcast = !requestedResidentId
 
-    const taskRequest = await prisma.taskRequest.create({
-      data: {
+    const [createdRequest] = await db
+      .insert(taskRequest)
+      .values({
         taskId: id,
         requestedById: auth.resident.id,
         requestedResidentId: requestedResidentId || null,
         isBroadcast,
         message: message || null,
-      },
-    })
+      })
+      .returning()
 
     // Update task status to REQUESTED
-    await prisma.householdTask.update({
-      where: { id },
-      data: { currentStatus: 'REQUESTED' },
-    })
+    await db
+      .update(householdTask)
+      .set({ currentStatus: 'REQUESTED' })
+      .where(eq(householdTask.id, id))
 
-    return NextResponse.json({ success: true, data: taskRequest })
+    return NextResponse.json({ success: true, data: createdRequest })
   } catch (error) {
     logger.errorWithCause('Failed to create task request', error)
     return NextResponse.json(

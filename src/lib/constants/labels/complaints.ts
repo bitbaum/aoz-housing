@@ -1,4 +1,4 @@
-import type { ComplaintStatus, ComplaintSubject } from '@prisma/client'
+import type { ComplaintStatus, ComplaintSubject } from '@/lib/db'
 
 /**
  * Complaints about the organisation — resident-facing and staff-facing German.

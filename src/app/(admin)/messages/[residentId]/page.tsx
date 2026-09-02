@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { PageHeader } from '@/components/ui/Page'
 import { StaffReplyThread } from '@/components/messaging/StaffReplyThread'
 import { getOrCreateThread, loadThreadMessages, markThreadRead } from '@/lib/messaging/queries'
@@ -20,9 +21,9 @@ export default async function StaffThreadPage({
   const { residentId } = await params
   const staff = await requireStaffAuth()
 
-  const resident = await prisma.resident.findUnique({
-    where: { id: residentId },
-    select: RESIDENT_NAME_SELECT,
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.id, residentId),
+    columns: RESIDENT_NAME_SELECT,
   })
   if (!resident) notFound()
 

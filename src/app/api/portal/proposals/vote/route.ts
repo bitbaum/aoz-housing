@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, proposal as proposalTable, vote } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -34,9 +35,9 @@ export async function POST(request: NextRequest) {
     // Close anything overdue first, so a vote cannot land after the deadline.
     await advanceDueProposals(new Date(), auth.placement.housingUnitId)
 
-    const proposal = await prisma.proposal.findUnique({
-      where: { id: parsed.data.proposalId },
-      select: { id: true, status: true, housingUnitId: true, votingEndsAt: true },
+    const proposal = await db.query.proposal.findFirst({
+      where: eq(proposalTable.id, parsed.data.proposalId),
+      columns: { id: true, status: true, housingUnitId: true, votingEndsAt: true },
     })
 
     if (!proposal) {
@@ -68,22 +69,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    await prisma.vote.upsert({
-      where: {
-        proposalId_residentId: { proposalId: proposal.id, residentId: auth.resident.id },
-      },
-      create: {
+    await db
+      .insert(vote)
+      .values({
         proposalId: proposal.id,
         residentId: auth.resident.id,
         choice: parsed.data.choice,
         reason: parsed.data.reason,
-      },
-      update: {
-        choice: parsed.data.choice,
-        reason: parsed.data.reason,
-        castAt: new Date(),
-      },
-    })
+      })
+      .onConflictDoUpdate({
+        target: [vote.proposalId, vote.residentId],
+        set: {
+          choice: parsed.data.choice,
+          reason: parsed.data.reason,
+          castAt: new Date(),
+        },
+      })
 
     return NextResponse.json({ success: true })
   } catch (error) {

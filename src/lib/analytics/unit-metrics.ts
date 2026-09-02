@@ -4,7 +4,8 @@
  * Provides context about unit performance for matching decisions
  */
 
-import { prisma } from '@/lib/db'
+import { and, eq, gte, inArray, isNotNull, lte } from 'drizzle-orm'
+import { db, housingUnit, incident, placement } from '@/lib/db'
 import { zurichMonthKey } from '@/lib/utils'
 
 export interface UnitMetrics {
@@ -43,26 +44,21 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
   const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000)
 
   // Fetch unit with related data
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id: unitId },
-    include: {
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.id, unitId),
+    with: {
       placements: {
-        where: {
-          startDate: { gte: sixMonthsAgo },
-        },
-        include: {
+        where: gte(placement.startDate, sixMonthsAgo),
+        with: {
           checkIns: {
-            select: {
+            columns: {
               overallSatisfaction: true,
             },
           },
         },
       },
       incidents: {
-        where: {
-          category: 'INTERPERSONAL',
-          date: { gte: sixMonthsAgo },
-        },
+        where: and(eq(incident.category, 'INTERPERSONAL'), gte(incident.date, sixMonthsAgo)),
       },
     },
   })
@@ -79,12 +75,10 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
   const recentConflicts = unit.incidents.filter((i) => new Date(i.date) >= thirtyDaysAgo).length
 
   // Total conflicts (all incidents)
-  const totalConflicts = await prisma.incident.count({
-    where: {
-      housingUnitId: unitId,
-      category: 'INTERPERSONAL',
-    },
-  })
+  const totalConflicts = await db.$count(
+    incident,
+    and(eq(incident.housingUnitId, unitId), eq(incident.category, 'INTERPERSONAL')),
+  )
 
   // Placement duration analysis
   const endedPlacements = unit.placements.filter((p) => p.endDate !== null)
@@ -115,12 +109,10 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
     endedPlacements.length > 0 ? (conflictEnds.length / endedPlacements.length) * 100 : 0
 
   // Current occupancy
-  const activePlacements = await prisma.placement.count({
-    where: {
-      housingUnitId: unitId,
-      status: 'ACTIVE',
-    },
-  })
+  const activePlacements = await db.$count(
+    placement,
+    and(eq(placement.housingUnitId, unitId), eq(placement.status, 'ACTIVE')),
+  )
   const occupancyRate = (activePlacements / unit.totalBeds) * 100
 
   // Average satisfaction from check-ins
@@ -134,13 +126,13 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
   // Was 12 sequential counts per call (worst-case N+1 in matching page).
   const monthsToCheck = 12
   const monthsWindowStart = new Date(now.getFullYear(), now.getMonth() - monthsToCheck, 1)
-  const interpersonalIncidents = await prisma.incident.findMany({
-    where: {
-      housingUnitId: unitId,
-      category: 'INTERPERSONAL',
-      date: { gte: monthsWindowStart },
-    },
-    select: { date: true },
+  const interpersonalIncidents = await db.query.incident.findMany({
+    where: and(
+      eq(incident.housingUnitId, unitId),
+      eq(incident.category, 'INTERPERSONAL'),
+      gte(incident.date, monthsWindowStart),
+    ),
+    columns: { date: true },
   })
 
   const monthsWithIncidents = new Set(interpersonalIncidents.map((i) => zurichMonthKey(i.date)))
@@ -208,9 +200,9 @@ export async function calculateUnitMetrics(unitId: string): Promise<UnitMetrics>
  * Calculate metrics for all units (for dashboard)
  */
 export async function calculateAllUnitMetrics(): Promise<UnitMetrics[]> {
-  const units = await prisma.housingUnit.findMany({
-    where: { status: { in: ['AVAILABLE', 'FULL'] } },
-    select: { id: true },
+  const units = await db.query.housingUnit.findMany({
+    where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+    columns: { id: true },
   })
 
   const metrics = await Promise.all(units.map((u) => calculateUnitMetrics(u.id)))
@@ -229,14 +221,12 @@ export async function getSimilarPlacementSuccessRate(
   totalPlacements: number
   successfulPlacements: number
 }> {
-  const placements = await prisma.placement.findMany({
-    where: {
-      compatibilityScore: {
-        gte: compatibilityScore - range,
-        lte: compatibilityScore + range,
-      },
-      endDate: { not: null },
-    },
+  const placements = await db.query.placement.findMany({
+    where: and(
+      gte(placement.compatibilityScore, compatibilityScore - range),
+      lte(placement.compatibilityScore, compatibilityScore + range),
+      isNotNull(placement.endDate),
+    ),
   })
 
   if (placements.length === 0) {

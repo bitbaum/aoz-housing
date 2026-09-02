@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, placement, resident, taskCompletion } from '@/lib/db'
+import { and, asc, eq, gte } from 'drizzle-orm'
 import { zurichMonthKey } from '@/lib/utils'
-import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import { computeChoreBalances } from './balances'
 import type { ChoreBalanceRow } from '@/components/portal/ChoreBalanceSummary'
 
@@ -27,37 +27,41 @@ export async function loadChoreBalances(housingUnitId: string): Promise<ChoreBal
   const since = new Date(Date.now() - 62 * 24 * 60 * 60 * 1000)
 
   const [completions, members] = await Promise.all([
-    prisma.taskCompletion.findMany({
-      where: {
-        completedAt: { gte: since },
-        task: { housingUnitId },
-      },
-      select: {
-        completedById: true,
-        completedAt: true,
-        durationMinutes: true,
-        task: { select: { estimatedMinutes: true } },
-      },
-    }),
-    prisma.placement.findMany({
-      where: { housingUnitId, status: 'ACTIVE' },
-      select: {
-        resident: { select: RESIDENT_NAME_SELECT },
-      },
-      orderBy: { resident: { code: 'asc' } },
-    }),
+    // "Completions of this unit's tasks" — the unit lives on the task row.
+    db
+      .select({
+        completedById: taskCompletion.completedById,
+        completedAt: taskCompletion.completedAt,
+        durationMinutes: taskCompletion.durationMinutes,
+        taskEstimatedMinutes: householdTask.estimatedMinutes,
+      })
+      .from(taskCompletion)
+      .innerJoin(householdTask, eq(taskCompletion.taskId, householdTask.id))
+      .where(
+        and(gte(taskCompletion.completedAt, since), eq(householdTask.housingUnitId, housingUnitId)),
+      ),
+    db
+      .select({
+        id: resident.id,
+        code: resident.code,
+        displayName: resident.displayName,
+      })
+      .from(placement)
+      .innerJoin(resident, eq(placement.residentId, resident.id))
+      .where(and(eq(placement.housingUnitId, housingUnitId), eq(placement.status, 'ACTIVE')))
+      .orderBy(asc(resident.code)),
   ])
 
   const thisMonth = completions.filter((c) => zurichMonthKey(c.completedAt) === monthKey)
 
-  const residents = new Map(members.map((m) => [m.resident.id, m.resident]))
+  const residents = new Map(members.map((m) => [m.id, m]))
   const balances = computeChoreBalances(
     thisMonth.map((c) => ({
       completedById: c.completedById,
       durationMinutes: c.durationMinutes,
-      taskEstimatedMinutes: c.task.estimatedMinutes,
+      taskEstimatedMinutes: c.taskEstimatedMinutes,
     })),
-    members.map((m) => m.resident.id),
+    members.map((m) => m.id),
   )
 
   return balances.map((balance) => {

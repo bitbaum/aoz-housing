@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,8 +26,8 @@ export default async function PreferencesPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
   })
 
   if (!resident) {
@@ -57,8 +58,8 @@ export default async function PreferencesPage() {
           petTolerance: resident.petTolerance,
           sharedBathroom: resident.sharedBathroom,
           sharedKitchen: resident.sharedKitchen,
-          languages: resident.languages,
-          dietaryNeeds: resident.dietaryNeeds,
+          languages: resident.languages ?? [],
+          dietaryNeeds: resident.dietaryNeeds ?? [],
           roommatePreferences: resident.roommatePreferences,
         }}
         languageOptions={[...LANGUAGE_OPTIONS]}

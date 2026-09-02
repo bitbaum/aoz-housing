@@ -1,4 +1,4 @@
-import type { ProfileVisibility } from '@prisma/client'
+import type { ProfileVisibility } from '@/lib/db'
 import type { Translator } from './index'
 
 export function formatMarkPaidConfirm(t: Translator, amount: string, name: string): string {

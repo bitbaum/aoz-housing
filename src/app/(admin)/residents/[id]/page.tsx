@@ -1,6 +1,16 @@
 import type { Metadata } from 'next'
-import type { HousingUnit, Resident } from '@prisma/client'
-import { prisma } from '@/lib/db'
+import type { HousingUnit, Resident } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement,
+  placementSpot,
+  incident,
+  learningRecord,
+  compatibilityAssessment,
+  housingUnit,
+} from '@/lib/db'
+import { eq, ne, and, inArray, notInArray, desc, asc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { SPOT_TYPE_ICONS } from '@/lib/config/placement-spots'
@@ -56,9 +66,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const resident = await prisma.resident.findUnique({
-    where: { id },
-    select: { code: true, displayName: true },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.id, id),
+    columns: { code: true, displayName: true },
   })
   return { title: resident ? residentName(resident) : 'Klient*in' }
 }
@@ -94,60 +104,58 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     careAppointments,
     documents,
   ] = await Promise.all([
-    prisma.resident.findUnique({
-      where: { id },
-      include: {
+    db.query.resident.findFirst({
+      where: eq(residentTable.id, id),
+      with: {
         placements: {
-          include: {
+          with: {
             housingUnit: true,
             spot: true,
           },
-          orderBy: { startDate: 'desc' },
+          orderBy: [desc(placement.startDate)],
         },
-        learningRecords: { orderBy: { updatedAt: 'desc' } },
+        learningRecords: { orderBy: [desc(learningRecord.updatedAt)] },
         incidentsAsSubject: {
-          include: {
+          with: {
             housingUnit: true,
           },
-          orderBy: { date: 'desc' },
-          take: QUERY_LIMITS.residentHistory,
+          orderBy: [desc(incident.date)],
+          limit: QUERY_LIMITS.residentHistory,
         },
         incidentsReported: {
-          include: {
+          with: {
             housingUnit: true,
           },
-          orderBy: { date: 'desc' },
-          take: QUERY_LIMITS.residentHistory,
+          orderBy: [desc(incident.date)],
+          limit: QUERY_LIMITS.residentHistory,
         },
         assessments: {
-          include: {
+          with: {
             comparedWith: true,
           },
-          orderBy: { overallScore: 'desc' },
-          take: 5,
+          orderBy: [desc(compatibilityAssessment.overallScore)],
+          limit: 5,
         },
       },
     }),
     // Available units for placement/transfer actions
     canWritePlacements
-      ? prisma.housingUnit.findMany({
-          where: {
-            status: { in: ['AVAILABLE', 'FULL'] },
-          },
-          include: {
+      ? db.query.housingUnit.findMany({
+          where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+          with: {
             spots: {
-              where: {
-                status: 'AVAILABLE',
-                type: { not: 'ROOM' }, // Only assignable spots
-              },
-              orderBy: { code: 'asc' },
+              where: and(
+                eq(placementSpot.status, 'AVAILABLE'),
+                ne(placementSpot.type, 'ROOM'), // Only assignable spots
+              ),
+              orderBy: [asc(placementSpot.code)],
             },
             placements: {
-              where: { status: 'ACTIVE' },
-              include: { resident: true },
+              where: eq(placement.status, 'ACTIVE'),
+              with: { resident: true },
             },
           },
-          orderBy: { code: 'asc' },
+          orderBy: [asc(housingUnit.code)],
         })
       : Promise.resolve([]),
     getCareTeam(id),
@@ -238,22 +246,30 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   if (!currentPlacement && canWritePlacements) {
     // Both queries depend only on resident.id — fetch in parallel
     const [unitsWithResidents, otherUnplaced] = await Promise.all([
-      prisma.housingUnit.findMany({
-        where: { status: { in: ['AVAILABLE', 'FULL'] } },
-        include: {
+      db.query.housingUnit.findMany({
+        where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+        with: {
           placements: {
-            where: { status: 'ACTIVE' },
-            include: { resident: true },
+            where: eq(placement.status, 'ACTIVE'),
+            with: { resident: true },
           },
-          spots: { where: { status: 'AVAILABLE' } },
+          spots: { where: eq(placementSpot.status, 'AVAILABLE') },
         },
       }),
-      prisma.resident.findMany({
-        where: {
-          id: { not: resident.id },
-          status: 'ACTIVE',
-          placements: { none: { status: 'ACTIVE' } },
-        },
+      db.query.resident.findMany({
+        // `placements: { none: { status: ACTIVE } }` — no active placement,
+        // expressed as a NOT IN subquery.
+        where: and(
+          ne(residentTable.id, resident.id),
+          eq(residentTable.status, 'ACTIVE'),
+          notInArray(
+            residentTable.id,
+            db
+              .select({ residentId: placement.residentId })
+              .from(placement)
+              .where(eq(placement.status, 'ACTIVE')),
+          ),
+        ),
       }),
     ])
 

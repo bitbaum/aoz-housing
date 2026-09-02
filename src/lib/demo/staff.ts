@@ -8,7 +8,8 @@
  * Relative-import-safe (no '@/' aliases): loaded through ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { eq } from 'drizzle-orm'
+import { account, user, type db } from '../db'
 import { getDemoStaffCode, DEMO_STAFF_NAME } from './config'
 import { demoStaffDoors, demoStaffReachFor } from './roles'
 
@@ -31,7 +32,7 @@ export interface DemoStaffAccount {
  * unclaimed code, so a drive-by visitor could otherwise attach their own email
  * and password to a demo door and lock out everyone after them.
  */
-export async function upsertDemoStaffRoles(prisma: PrismaClient): Promise<DemoStaffAccount[]> {
+export async function upsertDemoStaffRoles(dbClient: typeof db): Promise<DemoStaffAccount[]> {
   const accounts: DemoStaffAccount[] = []
 
   for (const door of demoStaffDoors()) {
@@ -39,15 +40,17 @@ export async function upsertDemoStaffRoles(prisma: PrismaClient): Promise<DemoSt
     // role/scope split carries the old column defaults, and a demo door with
     // no care seats renders an empty workspace to every visitor.
     const reach = demoStaffReachFor(door.role)
-    const user = await prisma.user.upsert({
-      where: { code: door.code },
-      update: { name: door.name, role: door.role, active: true, ...reach },
-      create: { code: door.code, name: door.name, role: door.role, ...reach },
-      select: { id: true },
-    })
+    const [upserted] = await dbClient
+      .insert(user)
+      .values({ code: door.code, name: door.name, role: door.role, ...reach })
+      .onConflictDoUpdate({
+        target: user.code,
+        set: { name: door.name, role: door.role, active: true, ...reach },
+      })
+      .returning({ id: user.id })
 
-    await prisma.account.deleteMany({ where: { userId: user.id } })
-    accounts.push({ id: user.id, code: door.code })
+    await dbClient.delete(account).where(eq(account.userId, upserted.id))
+    accounts.push({ id: upserted.id, code: door.code })
   }
 
   return accounts
@@ -58,27 +61,29 @@ export async function upsertDemoStaffRoles(prisma: PrismaClient): Promise<DemoSt
  * point at this account, and they are what makes the boards' default
  * "Meine Klient*innen" view show anything for a non-Leitung role.
  */
-export async function upsertDemoStaff(prisma: PrismaClient): Promise<DemoStaffAccount | null> {
+export async function upsertDemoStaff(dbClient: typeof db): Promise<DemoStaffAccount | null> {
   const demoStaffCode = getDemoStaffCode()
   if (!demoStaffCode) return null
 
-  const user = await prisma.user.upsert({
-    where: { code: demoStaffCode },
-    update: { name: DEMO_STAFF_NAME, active: true, ...demoStaffReachFor('ADMIN') },
-    create: {
+  const [upserted] = await dbClient
+    .insert(user)
+    .values({
       code: demoStaffCode,
       name: DEMO_STAFF_NAME,
       role: 'ADMIN',
       ...demoStaffReachFor('ADMIN'),
-    },
-    select: { id: true },
-  })
+    })
+    .onConflictDoUpdate({
+      target: user.code,
+      set: { name: DEMO_STAFF_NAME, active: true, ...demoStaffReachFor('ADMIN') },
+    })
+    .returning({ id: user.id })
 
   // Also drop any account claimed on the demo code: a drive-by visitor may
   // have registered their own email + password on it (registration is open on
   // any unclaimed code). Without this, that claim would outlive every reset
   // and lock the next visitor out of the demo door.
-  await prisma.account.deleteMany({ where: { userId: user.id } })
+  await dbClient.delete(account).where(eq(account.userId, upserted.id))
 
-  return { id: user.id, code: demoStaffCode }
+  return { id: upserted.id, code: demoStaffCode }
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { authorizeStaff } from '@/lib/auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { prisma } from '@/lib/db'
+import { db, resident, auditLog } from '@/lib/db'
+import { inArray } from 'drizzle-orm'
 import { ResidentImportSchema } from '@/lib/validation/import'
 import Papa from 'papaparse'
 import { logAudit } from '@/lib/audit'
@@ -80,17 +81,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, ...results })
   }
 
-  // Phase 2: one createMany with skipDuplicates so a single P2002 conflict
-  // doesn't abort the whole batch. Then a single audit insert per created
-  // resident is collected in one transaction so a partial failure is undone.
+  // Phase 2: one bulk insert with conflict-skip so a single unique-violation
+  // conflict doesn't abort the whole batch. Then a single audit insert per
+  // created resident is collected in one transaction so a partial failure is
+  // undone.
   try {
-    const createdRows = await prisma.$transaction(async (tx) => {
+    const createdRows = await db.transaction(async (tx) => {
       // Detect which codes already exist BEFORE the bulk insert, so we can
-      // report per-row "already exists" errors. `createMany` with
-      // `skipDuplicates` silently drops them — we want to surface them.
-      const existing = await tx.resident.findMany({
-        where: { code: { in: validRows.map((v) => v.data.code) } },
-        select: { code: true },
+      // report per-row "already exists" errors. `onConflictDoNothing`
+      // silently drops them — we want to surface them.
+      const existing = await tx.query.resident.findMany({
+        where: inArray(
+          resident.code,
+          validRows.map((v) => v.data.code),
+        ),
+        columns: { code: true },
       })
       const existingCodes = new Set(existing.map((r) => r.code))
 
@@ -107,33 +112,42 @@ export async function POST(request: Request) {
 
       if (toInsert.length === 0) return []
 
-      await tx.resident.createMany({
-        data: toInsert.map((v) => ({
-          ...v.data,
-          privacyNeed: 3,
-          guestTolerance: 3,
-          status: 'ACTIVE',
-        })),
+      await tx
+        .insert(resident)
+        .values(
+          toInsert.map((v) => ({
+            ...v.data,
+            privacyNeed: 3,
+            guestTolerance: 3,
+            status: 'ACTIVE' as const,
+          })),
+        )
         // Race-safety: if a concurrent import inserts one of these codes
-        // between our pre-check and the createMany, skip rather than throw.
-        skipDuplicates: true,
+        // between our pre-check and the bulk insert, skip rather than throw.
+        .onConflictDoNothing()
+
+      // We need the IDs for the audit log; the bulk insert doesn't return them.
+      const inserted = await tx.query.resident.findMany({
+        where: inArray(
+          resident.code,
+          toInsert.map((v) => v.data.code),
+        ),
+        columns: { id: true, code: true },
       })
 
-      // We need the IDs for the audit log; createMany doesn't return them.
-      const inserted = await tx.resident.findMany({
-        where: { code: { in: toInsert.map((v) => v.data.code) } },
-        select: { id: true, code: true },
-      })
-
-      await tx.auditLog.createMany({
-        data: inserted.map((r) => ({
-          action: 'CREATE',
-          entity: 'RESIDENT',
-          entityId: r.id,
-          userId: user.id,
-          changes: { code: r.code, source: 'CSV_IMPORT' },
-        })),
-      })
+      // Guard: if the race above skipped every row, there is nothing to log
+      // (an empty `.values([])` throws, where Prisma's createMany no-oped).
+      if (inserted.length > 0) {
+        await tx.insert(auditLog).values(
+          inserted.map((r) => ({
+            action: 'CREATE',
+            entity: 'RESIDENT',
+            entityId: r.id,
+            userId: user.id,
+            changes: { code: r.code, source: 'CSV_IMPORT' },
+          })),
+        )
+      }
 
       return inserted
     })

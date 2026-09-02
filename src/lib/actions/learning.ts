@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import { db, learningRecord, resident, careAssignment, placement, escapeLike } from '@/lib/db'
+import { and, asc, count, desc, eq, ilike, inArray, notInArray, or, sql } from 'drizzle-orm'
 import { requirePermission } from '@/lib/auth'
 import { getResidentCookie } from '@/lib/portal-auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -13,7 +14,7 @@ import {
   LEARNING_KINDS,
   LEARNING_STATUSES,
 } from '@/lib/config/learning'
-import type { LearningKind, LearningStatus, ResidentOrStaff } from '@prisma/client'
+import type { LearningKind, LearningStatus, ResidentOrStaff } from '@/lib/db'
 
 const INVALID_RECORD_MESSAGE = 'Art und Bezeichnung sind erforderlich'
 
@@ -83,9 +84,9 @@ export async function createLearningRecordForResident(formData: FormData): Promi
   if (!residentId) throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND)
 
   const data = parseRecord(formData)
-  await prisma.learningRecord.create({
-    data: { ...data, residentId, recordedBy: 'STAFF' as ResidentOrStaff },
-  })
+  await db
+    .insert(learningRecord)
+    .values({ ...data, residentId, recordedBy: 'STAFF' as ResidentOrStaff })
 
   revalidatePath(`/residents/${residentId}`)
   revalidatePath('/learning')
@@ -98,17 +99,17 @@ export async function createOwnLearningRecord(
   const code = await getResidentCookie()
   if (!code) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
-  const resident = await prisma.resident.findUnique({
-    where: { code },
-    select: { id: true },
+  const residentRow = await db.query.resident.findFirst({
+    where: eq(resident.code, code),
+    columns: { id: true },
   })
-  if (!resident) return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
+  if (!residentRow) return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
 
   try {
     const data = parseRecord(formData)
-    await prisma.learningRecord.create({
-      data: { ...data, residentId: resident.id, recordedBy: 'RESIDENT' },
-    })
+    await db
+      .insert(learningRecord)
+      .values({ ...data, residentId: residentRow.id, recordedBy: 'RESIDENT' })
   } catch (error) {
     if (error instanceof Error && error.message === INVALID_RECORD_MESSAGE) {
       return { success: false, error: ERROR_MESSAGES.INVALID_INPUT_DATA }
@@ -123,33 +124,39 @@ export async function createOwnLearningRecord(
   return { success: true }
 }
 
+// Residents with no German language test on file (Prisma's `learningRecords: { none: … }`)
+function missingGermanTestFilter() {
+  return notInArray(
+    resident.id,
+    db
+      .select({ id: learningRecord.residentId })
+      .from(learningRecord)
+      .where(and(eq(learningRecord.kind, 'LANGUAGE_TEST'), eq(learningRecord.languageCode, 'DE'))),
+  )
+}
+
 export async function listLearningQueue(kind?: LearningKind) {
   await requirePermission('learning:read')
 
   const [records, missingGerman] = await Promise.all([
-    prisma.learningRecord.findMany({
-      where: {
-        status: { in: ['PLANNED', 'IN_PROGRESS'] },
-        ...(kind ? { kind } : {}),
+    db.query.learningRecord.findMany({
+      where: and(
+        inArray(learningRecord.status, ['PLANNED', 'IN_PROGRESS']),
+        ...(kind ? [eq(learningRecord.kind, kind)] : []),
+      ),
+      with: {
+        resident: { columns: { id: true, code: true, displayName: true, languages: true } },
       },
-      include: {
-        resident: { select: { id: true, code: true, displayName: true, languages: true } },
-      },
-      orderBy: { updatedAt: 'desc' },
-      take: 50,
+      orderBy: [desc(learningRecord.updatedAt)],
+      limit: 50,
     }),
     kind
       ? Promise.resolve([])
-      : prisma.resident.findMany({
-          where: {
-            status: { in: ['ACTIVE', 'PLACED'] },
-            learningRecords: {
-              none: { kind: 'LANGUAGE_TEST', languageCode: 'DE' },
-            },
-          },
-          select: { id: true, code: true, displayName: true, languages: true },
-          orderBy: { code: 'asc' },
-          take: 40,
+      : db.query.resident.findMany({
+          where: and(inArray(resident.status, ['ACTIVE', 'PLACED']), missingGermanTestFilter()),
+          columns: { id: true, code: true, displayName: true, languages: true },
+          orderBy: [asc(resident.code)],
+          limit: 40,
         }),
   ])
 
@@ -169,97 +176,115 @@ export async function listLearningBoard(filters: LearningBoardFilters) {
   const user = await requirePermission('learning:read')
   const query = filters.query?.trim() || ''
   const kinds = boardKinds(filters.board)
+  const pattern = `%${escapeLike(query)}%`
 
-  const residentWhere = filters.mineOnly
-    ? { careAssignments: { some: { staffId: user.id } } }
-    : undefined
+  // Residents assigned to me (Prisma's `careAssignments: { some: { staffId } }`)
+  const myResidentIds = db
+    .select({ id: careAssignment.residentId })
+    .from(careAssignment)
+    .where(eq(careAssignment.staffId, user.id))
 
-  const recordWhere = {
-    kind: { in: [...kinds] as LearningKind[] },
-    ...(filters.status && filters.status !== 'ALL' ? { status: filters.status } : {}),
+  const residentWhere = filters.mineOnly ? inArray(resident.id, myResidentIds) : undefined
+
+  const recordWhere = and(
+    kinds.length ? inArray(learningRecord.kind, [...kinds] as LearningKind[]) : sql`false`,
+    ...(filters.status && filters.status !== 'ALL'
+      ? [eq(learningRecord.status, filters.status)]
+      : []),
     ...(filters.recordedBy && filters.recordedBy !== 'ALL'
-      ? { recordedBy: filters.recordedBy }
-      : {}),
-    ...(filters.category && filters.category !== 'ALL' ? { category: filters.category } : {}),
+      ? [eq(learningRecord.recordedBy, filters.recordedBy)]
+      : []),
+    ...(filters.category && filters.category !== 'ALL'
+      ? [eq(learningRecord.category, filters.category)]
+      : []),
     ...(query
-      ? {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' as const } },
-            { provider: { contains: query, mode: 'insensitive' as const } },
-            { notes: { contains: query, mode: 'insensitive' as const } },
-            { resident: { code: { contains: query, mode: 'insensitive' as const } } },
-            { resident: { displayName: { contains: query, mode: 'insensitive' as const } } },
-          ],
-        }
-      : {}),
-    ...(residentWhere ? { resident: residentWhere } : {}),
-  }
+      ? [
+          or(
+            ilike(learningRecord.title, pattern),
+            ilike(learningRecord.provider, pattern),
+            ilike(learningRecord.notes, pattern),
+            inArray(
+              learningRecord.residentId,
+              db
+                .select({ id: resident.id })
+                .from(resident)
+                .where(or(ilike(resident.code, pattern), ilike(resident.displayName, pattern))),
+            ),
+          ),
+        ]
+      : []),
+    ...(filters.mineOnly ? [inArray(learningRecord.residentId, myResidentIds)] : []),
+  )
 
   const [records, missingGerman, total, statusGroups, sourceGroups] = await Promise.all([
-    prisma.learningRecord.findMany({
+    db.query.learningRecord.findMany({
       where: recordWhere,
-      include: {
+      with: {
         resident: {
-          select: {
+          columns: {
             id: true,
             code: true,
             displayName: true,
             supportLevel: true,
+          },
+          with: {
             placements: {
-              where: { status: 'ACTIVE' },
-              select: { housingUnit: { select: { code: true } } },
-              take: 1,
+              where: eq(placement.status, 'ACTIVE'),
+              columns: {},
+              with: { housingUnit: { columns: { code: true } } },
+              limit: 1,
             },
           },
         },
       },
-      orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
-      take: 200,
+      orderBy: [asc(learningRecord.status), desc(learningRecord.updatedAt)],
+      limit: 200,
     }),
     filters.board === 'volunteering'
       ? Promise.resolve([])
-      : prisma.resident.findMany({
-          where: {
-            status: { in: ['ACTIVE', 'PLACED'] },
-            learningRecords: {
-              none: { kind: 'LANGUAGE_TEST', languageCode: 'DE' },
-            },
-            ...(residentWhere || {}),
-          },
-          select: {
+      : db.query.resident.findMany({
+          where: and(
+            inArray(resident.status, ['ACTIVE', 'PLACED']),
+            missingGermanTestFilter(),
+            ...(residentWhere ? [residentWhere] : []),
+          ),
+          columns: {
             id: true,
             code: true,
             displayName: true,
             supportLevel: true,
+          },
+          with: {
             placements: {
-              where: { status: 'ACTIVE' },
-              select: { housingUnit: { select: { code: true } } },
-              take: 1,
+              where: eq(placement.status, 'ACTIVE'),
+              columns: {},
+              with: { housingUnit: { columns: { code: true } } },
+              limit: 1,
             },
           },
-          orderBy: { code: 'asc' },
-          take: 40,
+          orderBy: [asc(resident.code)],
+          limit: 40,
         }),
-    prisma.learningRecord.count({ where: recordWhere }),
-    prisma.learningRecord.groupBy({
-      by: ['status'],
-      where: recordWhere,
-      _count: { _all: true },
-    }),
-    prisma.learningRecord.groupBy({
-      by: ['recordedBy'],
-      where: recordWhere,
-      _count: { _all: true },
-    }),
+    db.$count(learningRecord, recordWhere),
+    db
+      .select({ status: learningRecord.status, count: count() })
+      .from(learningRecord)
+      .where(recordWhere)
+      .groupBy(learningRecord.status),
+    db
+      .select({ recordedBy: learningRecord.recordedBy, count: count() })
+      .from(learningRecord)
+      .where(recordWhere)
+      .groupBy(learningRecord.recordedBy),
   ])
 
   const stats = {
     total,
-    planned: statusGroups.find((group) => group.status === 'PLANNED')?._count._all ?? 0,
-    inProgress: statusGroups.find((group) => group.status === 'IN_PROGRESS')?._count._all ?? 0,
-    completed: statusGroups.find((group) => group.status === 'COMPLETED')?._count._all ?? 0,
-    residentLogged: sourceGroups.find((group) => group.recordedBy === 'RESIDENT')?._count._all ?? 0,
-    staffLogged: sourceGroups.find((group) => group.recordedBy === 'STAFF')?._count._all ?? 0,
+    planned: statusGroups.find((group) => group.status === 'PLANNED')?.count ?? 0,
+    inProgress: statusGroups.find((group) => group.status === 'IN_PROGRESS')?.count ?? 0,
+    completed: statusGroups.find((group) => group.status === 'COMPLETED')?.count ?? 0,
+    residentLogged: sourceGroups.find((group) => group.recordedBy === 'RESIDENT')?.count ?? 0,
+    staffLogged: sourceGroups.find((group) => group.recordedBy === 'STAFF')?.count ?? 0,
   }
 
   return { user, records, missingGerman, stats }
@@ -269,11 +294,13 @@ export async function listResidentLearningEvidence() {
   const code = await getResidentCookie()
   if (!code) return null
 
-  return prisma.resident.findUnique({
-    where: { code },
-    select: {
-      id: true,
-      learningRecords: { orderBy: { updatedAt: 'desc' } },
-    },
-  })
+  return (
+    (await db.query.resident.findFirst({
+      where: eq(resident.code, code),
+      columns: { id: true },
+      with: {
+        learningRecords: { orderBy: [desc(learningRecord.updatedAt)] },
+      },
+    })) ?? null
+  )
 }

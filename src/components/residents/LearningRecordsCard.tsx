@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { LearningRecord } from '@prisma/client'
+import type { LearningRecord } from '@/lib/db'
 import {
   LEARNING_CATEGORY_LABELS,
   LEARNING_KIND_LABELS,

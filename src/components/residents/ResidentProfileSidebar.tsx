@@ -1,4 +1,4 @@
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import {
   SLEEP_SCHEDULE_LABELS,
   SOCIAL_STYLE_LABELS,
@@ -189,7 +189,7 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
           <div>
             <dt className="text-ui-muted mb-2">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldLanguages}</dt>
             <dd className="flex flex-wrap gap-1">
-              {resident.languages.map((lang) => (
+              {(resident.languages ?? []).map((lang) => (
                 <span
                   key={lang}
                   className="px-2 py-1 bg-brand-accent text-brand-secondary rounded text-xs font-medium"
@@ -253,11 +253,11 @@ export function ResidentProfileSidebar({ resident }: ResidentProfileSidebarProps
             label={RESIDENT_PROFILE_SIDEBAR_LABELS.fieldMedEquipment}
             value={resident.medicalEquipment}
           />
-          {resident.dietaryNeeds.length > 0 && (
+          {(resident.dietaryNeeds ?? []).length > 0 && (
             <div className="pt-2">
               <dt className="text-ui-muted mb-1">{RESIDENT_PROFILE_SIDEBAR_LABELS.fieldDiet}</dt>
               <dd className="flex flex-wrap gap-1">
-                {resident.dietaryNeeds.map((diet) => (
+                {(resident.dietaryNeeds ?? []).map((diet) => (
                   <span key={diet} className="px-2 py-0.5 bg-ui-subtle rounded text-xs">
                     {getLabel(DIET_LABELS, diet)}
                   </span>

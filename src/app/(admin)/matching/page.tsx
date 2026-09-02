@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, resident, placement, housingUnit } from '@/lib/db'
+import { eq, and, inArray, notInArray, desc, asc } from 'drizzle-orm'
 import { logger } from '@/lib/logger'
 
 export const metadata: Metadata = { title: 'Matching' }
@@ -13,7 +14,7 @@ import { bestRoomFit } from '@/lib/compatibility/room-fit'
 import { validateScoreForDiscrimination } from '@/lib/compatibility/safeguards'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 import { calculateUnitMetrics, getSimilarPlacementSuccessRate } from '@/lib/analytics/unit-metrics'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type {
   MatchResult,
@@ -52,47 +53,60 @@ export default async function MatchingPage({ searchParams }: Props) {
     number,
     MatchUnit[],
   ] = await Promise.all([
-    prisma.resident.findMany({
-      where: {
-        status: 'ACTIVE',
-        placements: { none: { status: 'ACTIVE' } },
-      },
-      orderBy: { createdAt: 'desc' },
+    db.query.resident.findMany({
+      // `placements: { none: { status: ACTIVE } }` — residents without an
+      // active placement, expressed as a NOT IN subquery.
+      where: and(
+        eq(resident.status, 'ACTIVE'),
+        notInArray(
+          resident.id,
+          db
+            .select({ residentId: placement.residentId })
+            .from(placement)
+            .where(eq(placement.status, 'ACTIVE')),
+        ),
+      ),
+      orderBy: [desc(resident.createdAt)],
     }),
-    prisma.resident.findMany({
-      where: {
-        status: 'PLACED',
-        placements: { some: { status: 'ACTIVE' } },
-      },
-      include: {
+    db.query.resident.findMany({
+      // `placements: { some: { status: ACTIVE } }` — as an IN subquery.
+      where: and(
+        eq(resident.status, 'PLACED'),
+        inArray(
+          resident.id,
+          db
+            .select({ residentId: placement.residentId })
+            .from(placement)
+            .where(eq(placement.status, 'ACTIVE')),
+        ),
+      ),
+      with: {
         placements: {
-          where: { status: 'ACTIVE' },
-          include: { housingUnit: { select: { id: true, code: true } } },
-          take: 1,
+          where: eq(placement.status, 'ACTIVE'),
+          with: { housingUnit: { columns: { id: true, code: true } } },
+          limit: 1,
         },
       },
-      orderBy: { code: 'asc' },
+      orderBy: [asc(resident.code)],
     }),
-    prisma.resident.count(),
-    prisma.housingUnit.findMany({
-      where: {
-        status: { in: ['AVAILABLE', 'FULL'] },
-      },
-      include: {
+    db.$count(resident),
+    db.query.housingUnit.findMany({
+      where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+      with: {
         placements: {
-          where: { status: 'ACTIVE' },
-          include: { resident: true },
+          where: eq(placement.status, 'ACTIVE'),
+          with: { resident: true },
         },
         spots: {
-          include: {
+          with: {
             placements: {
-              where: { status: 'ACTIVE' },
-              include: { resident: true },
+              where: eq(placement.status, 'ACTIVE'),
+              with: { resident: true },
             },
           },
         },
       },
-      orderBy: { code: 'asc' },
+      orderBy: [asc(housingUnit.code)],
     }),
   ])
 
@@ -138,17 +152,17 @@ export default async function MatchingPage({ searchParams }: Props) {
   }
 
   if (params.resident) {
-    const foundResident = await prisma.resident.findUnique({
-      where: { id: params.resident },
-      include: {
+    const foundResident = await db.query.resident.findFirst({
+      where: eq(resident.id, params.resident),
+      with: {
         placements: {
-          where: { status: 'ACTIVE' },
-          include: { housingUnit: { select: { id: true, code: true } } },
-          take: 1,
+          where: eq(placement.status, 'ACTIVE'),
+          with: { housingUnit: { columns: { id: true, code: true } } },
+          limit: 1,
         },
       },
     })
-    selectedResident = foundResident
+    selectedResident = foundResident ?? null
 
     if (foundResident) {
       const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)

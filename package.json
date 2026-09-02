@@ -8,25 +8,21 @@
   "description": "Support platform for refugee care work: housing stability with compatibility matching, daily-life coordination, conflict resolution, and learning & participation tracking — one system for staff and residents",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test",
     "test": "jest",
     "test:e2e": "playwright test",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "prisma:migrate:dev": "prisma migrate dev",
-    "prisma:push": "prisma db push",
-    "prisma:studio": "prisma studio",
-    "prisma:seed": "prisma db seed",
-    "prisma:seed:admin": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' prisma/seed-admin.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' scripts/db/seed.ts",
+    "db:seed:admin": "ts-node -r tsconfig-paths/register --compiler-options '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' scripts/db/seed-admin.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
-  },
-  "prisma": {
-    "seed": "ts-node -r tsconfig-paths/register --compiler-options {\"module\":\"CommonJS\",\"types\":[\"node\"]} prisma/seed.ts"
   },
   "dependencies": {
     "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",

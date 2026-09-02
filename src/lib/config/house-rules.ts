@@ -16,7 +16,7 @@
  */
 import { BRAND } from './brand'
 
-import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@prisma/client'
+import type { RuleCategory, RuleDelegation, RuleScope, RuleStatus } from '@/lib/db'
 
 // =============================================================================
 // SCOPE

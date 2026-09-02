@@ -1,6 +1,7 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import { db, placement as placementTable, satisfactionCheckIn } from '@/lib/db'
+import { eq, asc, desc } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { validateFormData, SatisfactionCheckInInputSchema } from '@/lib/validation'
@@ -14,9 +15,9 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
   const user = await requirePermission('residents:write')
   const data = validateFormData(SatisfactionCheckInInputSchema, formData)
 
-  const placement = await prisma.placement.findUnique({
-    where: { id: data.placementId },
-    select: { residentId: true, startDate: true },
+  const placement = await db.query.placement.findFirst({
+    where: eq(placementTable.id, data.placementId),
+    columns: { residentId: true, startDate: true },
   })
 
   if (!placement) {
@@ -29,9 +30,10 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
 
     // Wrap both writes in a transaction so a partial failure can't leave
     // the placement's cached rating out of sync with its check-in history.
-    const checkIn = await prisma.$transaction(async (tx) => {
-      const created = await tx.satisfactionCheckIn.create({
-        data: {
+    const checkIn = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(satisfactionCheckIn)
+        .values({
           placementId: data.placementId,
           checkInType: data.checkInType,
           weekNumber: data.weekNumber ?? weeksSinceStart,
@@ -49,16 +51,16 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
           collectedBy: data.collectedBy || null,
           collectedByUserId: user.id,
           isAnonymous: data.isAnonymous ?? false,
-        },
-      })
+        })
+        .returning()
 
       // Update placement satisfaction rating with latest overall
-      await tx.placement.update({
-        where: { id: data.placementId },
-        data: {
+      await tx
+        .update(placementTable)
+        .set({
           satisfactionRating: data.overallSatisfaction,
-        },
-      })
+        })
+        .where(eq(placementTable.id, data.placementId))
 
       return created
     })
@@ -100,18 +102,18 @@ export async function createCheckInFromForm(formData: FormData): Promise<void> {
 
 export async function getPlacementCheckIns(placementId: string) {
   await requirePermission('residents:read')
-  return prisma.satisfactionCheckIn.findMany({
-    where: { placementId },
-    orderBy: { createdAt: 'desc' },
+  return db.query.satisfactionCheckIn.findMany({
+    where: eq(satisfactionCheckIn.placementId, placementId),
+    orderBy: [desc(satisfactionCheckIn.createdAt)],
   })
 }
 
 export async function getPlacementSatisfactionTrend(placementId: string) {
   await requirePermission('residents:read')
-  const checkIns = await prisma.satisfactionCheckIn.findMany({
-    where: { placementId },
-    orderBy: { createdAt: 'asc' },
-    select: {
+  const checkIns = await db.query.satisfactionCheckIn.findMany({
+    where: eq(satisfactionCheckIn.placementId, placementId),
+    orderBy: [asc(satisfactionCheckIn.createdAt)],
+    columns: {
       createdAt: true,
       weekNumber: true,
       overallSatisfaction: true,

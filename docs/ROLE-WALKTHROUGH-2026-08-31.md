@@ -35,7 +35,7 @@ rather than leaving the seat quietly empty — an unstaffed domain looks
 identical to a staffed one nobody has used yet. The SOCIAL seat is covered by
 Franziska's oversight.
 
-Provisioning lives in `prisma/real/aoz-team.ts` (config) +
+Provisioning lives in `scripts/db/real/aoz-team.ts` (config) +
 `scripts/maintenance/ensure-aoz-team.ts` (idempotent, matches by name, so it
 is also how a reach is corrected later). Codes are generated at run time and
 printed once — never committed, for the same reason the real apartment's

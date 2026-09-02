@@ -1,4 +1,11 @@
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  transferRequest as transferRequestTable,
+  housingUnit,
+} from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { CreateTransferRequestSchema } from '@/lib/validation/transfer'
 import { logAudit } from '@/lib/audit'
@@ -29,11 +36,11 @@ export async function POST(request: NextRequest) {
   const { reason, targetUnitId } = parsed.data
 
   // Find resident and active placement
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
-      placements: { where: { status: 'ACTIVE' }, take: 1 },
-      transferRequests: { where: { status: 'PENDING' }, take: 1 },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
+      placements: { where: eq(placementTable.status, 'ACTIVE'), limit: 1 },
+      transferRequests: { where: eq(transferRequestTable.status, 'PENDING'), limit: 1 },
     },
   })
 
@@ -61,14 +68,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const transferRequest = await prisma.transferRequest.create({
-      data: {
+    const [transferRequest] = await db
+      .insert(transferRequestTable)
+      .values({
         residentId: resident.id,
         currentPlacementId: placement.id,
         targetUnitId: targetUnitId || null,
         reason,
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
@@ -83,18 +91,18 @@ export async function POST(request: NextRequest) {
 
       let currentUnitCode = 'Unbekannt'
       if (placement.housingUnitId) {
-        const unit = await prisma.housingUnit.findUnique({
-          where: { id: placement.housingUnitId },
-          select: { code: true },
+        const unit = await db.query.housingUnit.findFirst({
+          where: eq(housingUnit.id, placement.housingUnitId),
+          columns: { code: true },
         })
         if (unit) currentUnitCode = unit.code
       }
 
       let targetUnitCode: string | undefined
       if (targetUnitId) {
-        const target = await prisma.housingUnit.findUnique({
-          where: { id: targetUnitId },
-          select: { code: true },
+        const target = await db.query.housingUnit.findFirst({
+          where: eq(housingUnit.id, targetUnitId),
+          columns: { code: true },
         })
         if (target) targetUnitCode = target.code
       }

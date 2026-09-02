@@ -1,7 +1,17 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  appointment as appointmentTable,
+  careAssignment,
+  careAttribute,
+  placement as placementTable,
+  satisfactionCheckIn,
+  user as userTable,
+} from '@/lib/db'
+import type { AppointmentStatus, CareRole } from '@/lib/db'
+import { and, asc, eq, gte, or } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 import { getPortalAuth } from '@/lib/portal-auth'
 import {
@@ -23,7 +33,6 @@ import {
 import { fromDatetimeLocalInput } from '@/lib/utils/local-time'
 import { weeksBetween } from '@/lib/utils'
 import { logAudit } from '@/lib/audit'
-import type { AppointmentStatus, CareRole } from '@prisma/client'
 
 export type CareSeat = {
   role: CareRoleId
@@ -70,9 +79,9 @@ export type CareAttributeValue = {
  * Used to power the "Meine Klient*innen" filter on the client board.
  */
 export async function getMyResidentIds(staffId: string): Promise<string[]> {
-  const assignments = await prisma.careAssignment.findMany({
-    where: { staffId },
-    select: { residentId: true },
+  const assignments = await db.query.careAssignment.findMany({
+    where: eq(careAssignment.staffId, staffId),
+    columns: { residentId: true },
   })
   return assignments.map((a) => a.residentId)
 }
@@ -102,9 +111,9 @@ function revalidateResident(residentId: string) {
 }
 
 export async function getCareTeam(residentId: string): Promise<CareSeat[]> {
-  const assignments = await prisma.careAssignment.findMany({
-    where: { residentId },
-    include: { staff: { select: { id: true, name: true } } },
+  const assignments = await db.query.careAssignment.findMany({
+    where: eq(careAssignment.residentId, residentId),
+    with: { staff: { columns: { id: true, name: true } } },
   })
   const byRole = new Map(assignments.map((row) => [row.role, row]))
 
@@ -119,15 +128,17 @@ export async function getCareTeam(residentId: string): Promise<CareSeat[]> {
 }
 
 export async function listAssignableStaff(): Promise<AssignableStaff[]> {
-  return prisma.user.findMany({
-    where: { active: true },
-    select: { id: true, name: true, role: true },
-    orderBy: { name: 'asc' },
+  return db.query.user.findMany({
+    where: eq(userTable.active, true),
+    columns: { id: true, name: true, role: true },
+    orderBy: [asc(userTable.name)],
   })
 }
 
 export async function listCareAttributes(residentId: string): Promise<CareAttributeValue[]> {
-  const rows = await prisma.careAttribute.findMany({ where: { residentId } })
+  const rows = await db.query.careAttribute.findMany({
+    where: eq(careAttribute.residentId, residentId),
+  })
   return rows.map((row) => ({
     domain: row.domain as CareRoleId,
     key: row.key,
@@ -136,10 +147,10 @@ export async function listCareAttributes(residentId: string): Promise<CareAttrib
 }
 
 export async function listResidentAppointments(residentId: string): Promise<CareAppointment[]> {
-  const rows = await prisma.appointment.findMany({
-    where: { residentId },
-    include: { staff: { select: { id: true, name: true } } },
-    orderBy: { startsAt: 'asc' },
+  const rows = await db.query.appointment.findMany({
+    where: eq(appointmentTable.residentId, residentId),
+    with: { staff: { columns: { id: true, name: true } } },
+    orderBy: [asc(appointmentTable.startsAt)],
   })
   return rows.map(mapAppointment)
 }
@@ -162,20 +173,23 @@ export async function listUpcomingResidentAppointments(
 ): Promise<CareAppointment[]> {
   const answeredSince = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
 
-  const rows = await prisma.appointment.findMany({
-    where: {
-      residentId,
-      OR: [
-        { status: 'SCHEDULED', startsAt: { gte: now } },
+  const rows = await db.query.appointment.findMany({
+    where: and(
+      eq(appointmentTable.residentId, residentId),
+      or(
+        and(eq(appointmentTable.status, 'SCHEDULED'), gte(appointmentTable.startsAt, now)),
         // An open request, whenever it was for — an unanswered ask does not
         // stop mattering because the date the resident suggested has passed.
-        { status: 'REQUESTED' },
-        { status: 'CANCELLED', updatedAt: { gte: answeredSince } },
-      ],
-    },
-    include: { staff: { select: { id: true, name: true } } },
-    orderBy: { startsAt: 'asc' },
-    take: 12,
+        eq(appointmentTable.status, 'REQUESTED'),
+        and(
+          eq(appointmentTable.status, 'CANCELLED'),
+          gte(appointmentTable.updatedAt, answeredSince),
+        ),
+      ),
+    ),
+    with: { staff: { columns: { id: true, name: true } } },
+    orderBy: [asc(appointmentTable.startsAt)],
+    limit: 12,
   })
   return rows.map(mapAppointment)
 }
@@ -227,19 +241,23 @@ export async function saveCareSeat(
   }
 
   if (!staffId) {
-    await prisma.careAssignment.deleteMany({ where: { residentId, role } })
+    await db
+      .delete(careAssignment)
+      .where(and(eq(careAssignment.residentId, residentId), eq(careAssignment.role, role)))
   } else {
-    const staff = await prisma.user.findFirst({
-      where: { id: staffId, active: true },
-      select: { id: true },
+    const staff = await db.query.user.findFirst({
+      where: and(eq(userTable.id, staffId), eq(userTable.active, true)),
+      columns: { id: true },
     })
     if (!staff) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
-    await prisma.careAssignment.upsert({
-      where: { residentId_role: { residentId, role } },
-      create: { residentId, staffId, role },
-      update: { staffId },
-    })
+    await db
+      .insert(careAssignment)
+      .values({ residentId, staffId, role })
+      .onConflictDoUpdate({
+        target: [careAssignment.residentId, careAssignment.role],
+        set: { staffId },
+      })
   }
 
   revalidateResident(residentId)
@@ -267,14 +285,24 @@ export async function saveCareAttributes(
     if (!isCatalogKey(domain, key)) continue
     const value = String(raw).trim()
     if (!value) {
-      await prisma.careAttribute.deleteMany({ where: { residentId, domain, key } })
+      await db
+        .delete(careAttribute)
+        .where(
+          and(
+            eq(careAttribute.residentId, residentId),
+            eq(careAttribute.domain, domain),
+            eq(careAttribute.key, key),
+          ),
+        )
       continue
     }
-    await prisma.careAttribute.upsert({
-      where: { residentId_domain_key: { residentId, domain, key } },
-      create: { residentId, domain, key, value, updatedById: user.id },
-      update: { value, updatedById: user.id },
-    })
+    await db
+      .insert(careAttribute)
+      .values({ residentId, domain, key, value, updatedById: user.id })
+      .onConflictDoUpdate({
+        target: [careAttribute.residentId, careAttribute.domain, careAttribute.key],
+        set: { value, updatedById: user.id },
+      })
   }
 
   revalidateResident(residentId)
@@ -298,22 +326,20 @@ export async function createAppointment(
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
-  const assigned = await prisma.careAssignment.findUnique({
-    where: { residentId_role: { residentId, role: domain } },
-    select: { staffId: true },
+  const assigned = await db.query.careAssignment.findFirst({
+    where: and(eq(careAssignment.residentId, residentId), eq(careAssignment.role, domain)),
+    columns: { staffId: true },
   })
   const staffId = assigned?.staffId || user.id
 
-  await prisma.appointment.create({
-    data: {
-      residentId,
-      staffId,
-      domain,
-      title,
-      startsAt,
-      location: String(formData.get('location') || '').trim() || null,
-      notes: String(formData.get('notes') || '').trim() || null,
-    },
+  await db.insert(appointmentTable).values({
+    residentId,
+    staffId,
+    domain,
+    title,
+    startsAt,
+    location: String(formData.get('location') || '').trim() || null,
+    notes: String(formData.get('notes') || '').trim() || null,
   })
 
   revalidateResident(residentId)
@@ -330,9 +356,10 @@ export async function setAppointmentStatus(
   const status = parseStatus(formData.get('status'))
   if (!id || !status) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
-  const appointment = await prisma.appointment.findUnique({
-    where: { id },
-    select: { residentId: true, domain: true, checkIn: { select: { id: true } } },
+  const appointment = await db.query.appointment.findFirst({
+    where: eq(appointmentTable.id, id),
+    columns: { residentId: true, domain: true },
+    with: { checkIn: { columns: { id: true } } },
   })
   if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   if (!canWriteCareDomain(user, appointment.domain)) {
@@ -348,35 +375,36 @@ export async function setAppointmentStatus(
   const rating = parseSatisfaction(formData.get('overallSatisfaction'))
   const concerns = String(formData.get('concerns') || '').trim()
 
-  await prisma.appointment.update({ where: { id }, data: { status } })
+  await db.update(appointmentTable).set({ status }).where(eq(appointmentTable.id, id))
 
   if (status === 'COMPLETED' && rating !== null && !appointment.checkIn) {
     // The check-in hangs off a placement, so someone with no active placement
     // can still have appointments — they just have nothing to attach a
     // reading to. Completing the appointment must not fail because of that.
-    const placement = await prisma.placement.findFirst({
-      where: { residentId: appointment.residentId, status: 'ACTIVE' },
-      select: { id: true, startDate: true },
+    const placement = await db.query.placement.findFirst({
+      where: and(
+        eq(placementTable.residentId, appointment.residentId),
+        eq(placementTable.status, 'ACTIVE'),
+      ),
+      columns: { id: true, startDate: true },
     })
 
     if (placement) {
-      await prisma.$transaction(async (tx) => {
-        await tx.satisfactionCheckIn.create({
-          data: {
-            placementId: placement.id,
-            appointmentId: id,
-            checkInType: 'AD_HOC',
-            weekNumber: weeksBetween(placement.startDate),
-            overallSatisfaction: rating,
-            concerns: concerns || null,
-            collectedByUserId: user.id,
-            isAnonymous: false,
-          },
+      await db.transaction(async (tx) => {
+        await tx.insert(satisfactionCheckIn).values({
+          placementId: placement.id,
+          appointmentId: id,
+          checkInType: 'AD_HOC',
+          weekNumber: weeksBetween(placement.startDate),
+          overallSatisfaction: rating,
+          concerns: concerns || null,
+          collectedByUserId: user.id,
+          isAnonymous: false,
         })
-        await tx.placement.update({
-          where: { id: placement.id },
-          data: { satisfactionRating: rating },
-        })
+        await tx
+          .update(placementTable)
+          .set({ satisfactionRating: rating })
+          .where(eq(placementTable.id, placement.id))
       })
 
       await logAudit({
@@ -448,30 +476,32 @@ export async function requestAppointment(
   // One open request per seat. Without this a resident who taps twice, or who
   // is not sure the first one worked, fills a coach's queue with duplicates of
   // the same ask — and nothing in the UI told them the first had landed.
-  const existing = await prisma.appointment.findFirst({
-    where: { residentId: auth.resident.id, domain, status: 'REQUESTED' },
-    select: { id: true },
+  const existing = await db.query.appointment.findFirst({
+    where: and(
+      eq(appointmentTable.residentId, auth.resident.id),
+      eq(appointmentTable.domain, domain),
+      eq(appointmentTable.status, 'REQUESTED'),
+    ),
+    columns: { id: true },
   })
   if (existing) return { success: false, error: CARE_LABELS.requestDuplicate }
 
   // Whoever holds the seat, if anyone does. Null is a real state: on a
   // deployment where the care team is not assigned yet, the request is still
   // worth making and lands unclaimed rather than being refused.
-  const assigned = await prisma.careAssignment.findUnique({
-    where: { residentId_role: { residentId: auth.resident.id, role: domain } },
-    select: { staffId: true },
+  const assigned = await db.query.careAssignment.findFirst({
+    where: and(eq(careAssignment.residentId, auth.resident.id), eq(careAssignment.role, domain)),
+    columns: { staffId: true },
   })
 
-  await prisma.appointment.create({
-    data: {
-      residentId: auth.resident.id,
-      staffId: assigned?.staffId ?? null,
-      domain,
-      title: CARE_LABELS.requestTitle,
-      startsAt,
-      status: 'REQUESTED',
-      residentNote: note || null,
-    },
+  await db.insert(appointmentTable).values({
+    residentId: auth.resident.id,
+    staffId: assigned?.staffId ?? null,
+    domain,
+    title: CARE_LABELS.requestTitle,
+    startsAt,
+    status: 'REQUESTED',
+    residentNote: note || null,
   })
 
   revalidateResident(auth.resident.id)
@@ -495,9 +525,9 @@ export async function respondToAppointmentRequest(
   const decision = String(formData.get('decision') || '')
   const note = String(formData.get('staffNote') || '').trim()
 
-  const appointment = await prisma.appointment.findUnique({
-    where: { id },
-    select: { residentId: true, domain: true, status: true },
+  const appointment = await db.query.appointment.findFirst({
+    where: eq(appointmentTable.id, id),
+    columns: { residentId: true, domain: true, status: true },
   })
   if (!appointment || appointment.status !== 'REQUESTED') {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
@@ -511,24 +541,24 @@ export async function respondToAppointmentRequest(
     // to do. The resident reads this sentence, so it is required.
     if (note.length < 3) return { success: false, error: CARE_LABELS.declineNeedsReason }
 
-    await prisma.appointment.update({
-      where: { id },
-      data: { status: 'CANCELLED', staffNote: note, staffId: user.id },
-    })
+    await db
+      .update(appointmentTable)
+      .set({ status: 'CANCELLED', staffNote: note, staffId: user.id })
+      .where(eq(appointmentTable.id, id))
   } else if (decision === 'ACCEPT') {
     const proposed = fromDatetimeLocalInput(String(formData.get('startsAt') || ''))
 
-    await prisma.appointment.update({
-      where: { id },
-      data: {
+    await db
+      .update(appointmentTable)
+      .set({
         status: 'SCHEDULED',
         // The answering colleague takes it, which is also how an unclaimed
         // request gets an owner.
         staffId: user.id,
         ...(proposed ? { startsAt: proposed } : {}),
         staffNote: note || null,
-      },
-    })
+      })
+      .where(eq(appointmentTable.id, id))
   } else {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
@@ -564,9 +594,9 @@ export async function rescheduleAppointment(
   const note = String(formData.get('staffNote') || '').trim()
   if (!id || !startsAt) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
-  const appointment = await prisma.appointment.findUnique({
-    where: { id },
-    select: { residentId: true, domain: true, status: true },
+  const appointment = await db.query.appointment.findFirst({
+    where: eq(appointmentTable.id, id),
+    columns: { residentId: true, domain: true, status: true },
   })
   if (!appointment) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   if (!canWriteCareDomain(user, appointment.domain)) {
@@ -578,10 +608,10 @@ export async function rescheduleAppointment(
     return { success: false, error: CARE_LABELS.rescheduleClosed }
   }
 
-  await prisma.appointment.update({
-    where: { id },
-    data: { startsAt, staffNote: note || null },
-  })
+  await db
+    .update(appointmentTable)
+    .set({ startsAt, staffNote: note || null })
+    .where(eq(appointmentTable.id, id))
 
   await logAudit({
     action: 'UPDATE',

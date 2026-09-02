@@ -15,7 +15,7 @@ import type {
   IncidentSeverity,
   IncidentType,
   ResolutionStage,
-} from '@prisma/client'
+} from '@/lib/db'
 import {
   CATEGORIES_REQUIRING_STAFF_ENTRY,
   RESOLUTION_LADDER,

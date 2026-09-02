@@ -39,7 +39,7 @@ import type {
   MaintenancePriority,
   MaintenanceStatus,
   CheckInType,
-} from '@prisma/client'
+} from '@/lib/db'
 import { RESIDENT_FACTORS } from '@/lib/config/resident-factors'
 import {
   INCIDENT_CATEGORY_LABELS,
@@ -648,7 +648,7 @@ import type {
   HouseholdTaskType,
   HouseholdTaskCategory,
   HouseholdTaskPriority,
-} from '@prisma/client'
+} from '@/lib/db'
 
 export const HouseholdTaskTypeSchema = enumFromKeys<HouseholdTaskType>(TASK_TYPE_LABELS)
 export const HouseholdTaskCategorySchema = enumFromKeys<HouseholdTaskCategory>(TASK_CATEGORY_LABELS)

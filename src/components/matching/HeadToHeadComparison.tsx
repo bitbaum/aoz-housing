@@ -1,4 +1,4 @@
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ApartmentProfile } from '@/lib/compatibility/types'
 import {
   SLEEP_SCHEDULE_LABELS_SHORT,

@@ -196,7 +196,7 @@ This demo showcases the intelligent matching system that reduces conflicts and i
 
 ### Before Demo:
 - [ ] Run `npm run dev` to start server
-- [ ] Verify database has demo seed data (`npx ts-node prisma/seed-demo.ts`)
+- [ ] Verify database has demo seed data (`npx ts-node scripts/db/seed-demo.ts`)
 - [ ] Open http://localhost:3000/matching in browser
 - [ ] Have ROI dashboard (http://localhost:3000/analytics/roi) in second tab
 - [ ] Test that Ahmed (RES-AH014) appears in resident dropdown
@@ -270,7 +270,7 @@ If time permits (extra 2 minutes):
 **For Questions**:
 - Technical: Review codebase at /home/g/dev/aoz-housing
 - Business: Review ROI dashboard at /analytics/roi
-- Data: Review seed file at prisma/seed-demo.ts
+- Data: Review seed file at scripts/db/seed-demo.ts
 
 **Suggested Next Steps**:
 1. Pilot with real AOZ data (anonymized)

@@ -184,7 +184,7 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
 // COMPLAINT → INCIDENT CATEGORY MAPPING
 // =============================================================================
 
-import type { HouseholdTaskCategory, IncidentType } from '@prisma/client'
+import type { HouseholdTaskCategory, IncidentType } from '@/lib/db'
 
 export const CHORE_COMPLAINT_INCIDENT_MAP: Record<HouseholdTaskCategory, IncidentType> = {
   CLEANING: 'CLEANLINESS_DISPUTE',

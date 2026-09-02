@@ -1,4 +1,12 @@
-import { prisma } from '@/lib/db'
+import {
+  db,
+  householdTask,
+  taskCompletion,
+  taskAttentionFlag,
+  taskRequest,
+  placement,
+} from '@/lib/db'
+import { eq, and, ne, desc } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
@@ -17,27 +25,27 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
   const { id } = await params
 
   try {
-    const task = await prisma.householdTask.findFirst({
-      where: {
-        id,
-        housingUnitId: auth.placement.housingUnitId,
-      },
-      include: {
-        createdByResident: { select: { id: true, code: true } },
+    const task = await db.query.householdTask.findFirst({
+      where: and(
+        eq(householdTask.id, id),
+        eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+      ),
+      with: {
+        createdByResident: { columns: { id: true, code: true } },
         completions: {
-          orderBy: { completedAt: 'desc' },
-          take: QUERY_LIMITS.choreHistory,
-          include: { completedBy: { select: { id: true, code: true } } },
+          orderBy: [desc(taskCompletion.completedAt)],
+          limit: QUERY_LIMITS.choreHistory,
+          with: { completedBy: { columns: { id: true, code: true } } },
         },
         attentionFlags: {
-          orderBy: { createdAt: 'desc' },
-          include: { flaggedBy: { select: { id: true, code: true } } },
+          orderBy: [desc(taskAttentionFlag.createdAt)],
+          with: { flaggedBy: { columns: { id: true, code: true } } },
         },
         requests: {
-          orderBy: { createdAt: 'desc' },
-          include: {
-            requestedBy: { select: { id: true, code: true } },
-            requestedResident: { select: { id: true, code: true } },
+          orderBy: [desc(taskRequest.createdAt)],
+          with: {
+            requestedBy: { columns: { id: true, code: true } },
+            requestedResident: { columns: { id: true, code: true } },
           },
         },
       },
@@ -51,14 +59,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     }
 
     // Get roommates for request form
-    const roommates = await prisma.placement.findMany({
-      where: {
-        housingUnitId: auth.placement.housingUnitId,
-        status: 'ACTIVE',
-        residentId: { not: auth.resident.id },
-      },
-      select: {
-        resident: { select: { id: true, code: true } },
+    const roommates = await db.query.placement.findMany({
+      where: and(
+        eq(placement.housingUnitId, auth.placement.housingUnitId),
+        eq(placement.status, 'ACTIVE'),
+        ne(placement.residentId, auth.resident.id),
+      ),
+      columns: {},
+      with: {
+        resident: { columns: { id: true, code: true } },
       },
     })
 

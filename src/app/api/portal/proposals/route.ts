@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, houseRule, proposal as proposalTable } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -84,8 +85,8 @@ export async function POST(request: NextRequest) {
 
     let parentOrgRuleId: string | null = null
     if (parsed.data.type === 'ADD_RULE' && parsed.data.parentOrgRuleId) {
-      const parent = await prisma.houseRule.findUnique({
-        where: { id: parsed.data.parentOrgRuleId },
+      const parent = await db.query.houseRule.findFirst({
+        where: eq(houseRule.id, parsed.data.parentOrgRuleId),
       })
       if (!parent) {
         return NextResponse.json(
@@ -104,9 +105,13 @@ export async function POST(request: NextRequest) {
 
     // A house rule that belongs to the house being changed, not another one.
     if (parsed.data.targetRuleId) {
-      const target = await prisma.houseRule.findFirst({
-        where: { id: parsed.data.targetRuleId, scope: 'UNIT', housingUnitId },
-        select: { id: true },
+      const target = await db.query.houseRule.findFirst({
+        where: and(
+          eq(houseRule.id, parsed.data.targetRuleId),
+          eq(houseRule.scope, 'UNIT'),
+          eq(houseRule.housingUnitId, housingUnitId),
+        ),
+        columns: { id: true },
       })
       if (!target) {
         return NextResponse.json(
@@ -126,8 +131,9 @@ export async function POST(request: NextRequest) {
     // must answer it. "Not votable" must not mean "not heard".
     const goesStraightToStaff = decisionMode === 'STAFF_ONLY' || !canHoldVote(eligibleVoterCount)
 
-    const proposal = await prisma.proposal.create({
-      data: {
+    const [proposal] = await db
+      .insert(proposalTable)
+      .values({
         housingUnitId,
         type: parsed.data.type,
         category: parsed.data.category,
@@ -146,9 +152,8 @@ export async function POST(request: NextRequest) {
             ? ERROR_MESSAGES.PROPOSAL_STAFF_ONLY
             : ERROR_MESSAGES.UNIT_TOO_SMALL_FOR_VOTE
           : null,
-      },
-      select: { id: true, status: true },
-    })
+      })
+      .returning({ id: proposalTable.id, status: proposalTable.status })
 
     return NextResponse.json({ success: true, data: proposal })
   } catch (error) {

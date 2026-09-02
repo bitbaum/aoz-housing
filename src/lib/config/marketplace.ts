@@ -31,7 +31,7 @@
  * a value the code cannot handle.
  */
 
-import type { MarketplacePostKind, MarketplacePostStatus } from '@prisma/client'
+import type { MarketplacePostKind, MarketplacePostStatus } from '@/lib/db'
 import type { MessageKey } from '@/lib/i18n'
 
 /** The two halves of the board. */

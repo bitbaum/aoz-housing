@@ -3,20 +3,19 @@
  * Run with: npx tsx scripts/calculate-compatibility.ts [housing-unit-code]
  */
 
-import { PrismaClient } from '@prisma/client'
+import { eq } from 'drizzle-orm'
+import { db, housingUnit, placement, compatibilityAssessment } from '../src/lib/db'
 import { calculateCompatibility } from '../src/lib/compatibility'
 import { toResidentProfile } from '../src/lib/compatibility/convert'
 
-const prisma = new PrismaClient()
-
 async function calculateCompatibilityForUnit(unitCode?: string) {
   // Get housing units (all or specific)
-  const units = await prisma.housingUnit.findMany({
-    where: unitCode ? { code: unitCode } : undefined,
-    include: {
+  const units = await db.query.housingUnit.findMany({
+    where: unitCode ? eq(housingUnit.code, unitCode) : undefined,
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        include: { resident: true },
+        where: eq(placement.status, 'ACTIVE'),
+        with: { resident: true },
       },
     },
   })
@@ -45,65 +44,41 @@ async function calculateCompatibilityForUnit(unitCode?: string) {
 
         console.log(`  ${r1.code} <-> ${r2.code}: ${score.overall}%`)
 
+        const scores = {
+          overallScore: score.overall,
+          lifestyleScore: score.lifestyle,
+          socialScore: score.social,
+          practicalScore: score.practical,
+          riskScore: score.risk,
+          strengths: score.strengths || [],
+          concerns: score.concerns || [],
+        }
+
         // Create/update assessment for r1 -> r2
-        await prisma.compatibilityAssessment.upsert({
-          where: {
-            residentId_comparedWithId: {
-              residentId: r1.id,
-              comparedWithId: r2.id,
-            },
-          },
-          update: {
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-          create: {
+        await db
+          .insert(compatibilityAssessment)
+          .values({
             residentId: r1.id,
             comparedWithId: r2.id,
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-        })
+            ...scores,
+          })
+          .onConflictDoUpdate({
+            target: [compatibilityAssessment.residentId, compatibilityAssessment.comparedWithId],
+            set: scores,
+          })
 
         // Create/update reverse assessment for r2 -> r1
-        await prisma.compatibilityAssessment.upsert({
-          where: {
-            residentId_comparedWithId: {
-              residentId: r2.id,
-              comparedWithId: r1.id,
-            },
-          },
-          update: {
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-          create: {
+        await db
+          .insert(compatibilityAssessment)
+          .values({
             residentId: r2.id,
             comparedWithId: r1.id,
-            overallScore: score.overall,
-            lifestyleScore: score.lifestyle,
-            socialScore: score.social,
-            practicalScore: score.practical,
-            riskScore: score.risk,
-            strengths: score.strengths || [],
-            concerns: score.concerns || [],
-          },
-        })
+            ...scores,
+          })
+          .onConflictDoUpdate({
+            target: [compatibilityAssessment.residentId, compatibilityAssessment.comparedWithId],
+            set: scores,
+          })
       }
     }
   }
@@ -114,4 +89,4 @@ async function calculateCompatibilityForUnit(unitCode?: string) {
 const unitCode = process.argv[2]
 calculateCompatibilityForUnit(unitCode)
   .catch(console.error)
-  .finally(() => prisma.$disconnect())
+  .finally(() => process.exit(0))

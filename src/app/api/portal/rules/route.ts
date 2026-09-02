@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, houseRule, ruleAcknowledgement } from '@/lib/db'
+import { and, eq, inArray, or } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -65,23 +66,35 @@ export async function POST(request: NextRequest) {
 
     // Only rules that actually bind this resident — an acknowledgement of
     // another house's rule would be meaningless and is silently impossible.
-    const bindingRules = await prisma.houseRule.findMany({
-      where: {
-        id: { in: parsed.data.ruleIds },
-        status: 'ACTIVE',
-        OR: [{ scope: 'ORG' }, { scope: 'UNIT', housingUnitId: auth.placement.housingUnitId }],
-      },
-      select: { id: true, version: true },
+    const bindingRules = await db.query.houseRule.findMany({
+      where: and(
+        inArray(houseRule.id, parsed.data.ruleIds),
+        eq(houseRule.status, 'ACTIVE'),
+        or(
+          eq(houseRule.scope, 'ORG'),
+          and(
+            eq(houseRule.scope, 'UNIT'),
+            eq(houseRule.housingUnitId, auth.placement.housingUnitId),
+          ),
+        ),
+      ),
+      columns: { id: true, version: true },
     })
 
-    await prisma.ruleAcknowledgement.createMany({
-      data: bindingRules.map((rule) => ({
-        ruleId: rule.id,
-        residentId: auth.resident.id,
-        ruleVersion: rule.version,
-      })),
-      skipDuplicates: true,
-    })
+    // None binding is a valid outcome (Prisma's createMany no-oped on an empty
+    // list; drizzle's `.values([])` throws).
+    if (bindingRules.length > 0) {
+      await db
+        .insert(ruleAcknowledgement)
+        .values(
+          bindingRules.map((rule) => ({
+            ruleId: rule.id,
+            residentId: auth.resident.id,
+            ruleVersion: rule.version,
+          })),
+        )
+        .onConflictDoNothing()
+    }
 
     return NextResponse.json({ success: true, data: { acknowledged: bindingRules.length } })
   } catch (error) {

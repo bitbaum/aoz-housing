@@ -1,12 +1,17 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { and, eq } from 'drizzle-orm'
+import {
+  db,
+  housingUnit,
+  resident as residentTable,
+  placement as placementTable,
+  placementSpot,
+} from '../src/lib/db'
 
 async function main() {
   // Find the housing unit WIT-440
-  const housing = await prisma.housingUnit.findUnique({
-    where: { code: 'WIT-440' },
-    include: { spots: true },
+  const housing = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.code, 'WIT-440'),
+    with: { spots: true },
   })
 
   if (!housing) {
@@ -96,19 +101,20 @@ async function main() {
 
   for (const code of residents) {
     // Check if resident already exists
-    const existing = await prisma.resident.findUnique({ where: { code } })
+    const existing = await db.query.resident.findFirst({ where: eq(residentTable.code, code) })
     if (existing) {
       console.log(`Resident ${code} already exists, skipping creation`)
       createdResidents[code] = existing
       continue
     }
 
-    const resident = await prisma.resident.create({
-      data: {
+    const [resident] = await db
+      .insert(residentTable)
+      .values({
         code,
         ...defaultData,
-      },
-    })
+      })
+      .returning()
     console.log(`Created resident: ${code} (${resident.id})`)
     createdResidents[code] = resident
   }
@@ -135,11 +141,8 @@ async function main() {
     const resident = createdResidents[p.resident]
 
     // Check if placement already exists
-    const existingPlacement = await prisma.placement.findFirst({
-      where: {
-        residentId: resident.id,
-        status: 'ACTIVE',
-      },
+    const existingPlacement = await db.query.placement.findFirst({
+      where: and(eq(placementTable.residentId, resident.id), eq(placementTable.status, 'ACTIVE')),
     })
 
     if (existingPlacement) {
@@ -147,27 +150,22 @@ async function main() {
       continue
     }
 
-    const placement = await prisma.placement.create({
-      data: {
-        residentId: resident.id,
-        housingUnitId: housing.id,
-        spotId: p.bed.id,
-        startDate: new Date(),
-        status: 'ACTIVE',
-      },
+    await db.insert(placementTable).values({
+      residentId: resident.id,
+      housingUnitId: housing.id,
+      spotId: p.bed.id,
+      startDate: new Date(),
+      status: 'ACTIVE',
     })
 
     // Update spot status to OCCUPIED
-    await prisma.placementSpot.update({
-      where: { id: p.bed.id },
-      data: { status: 'OCCUPIED' },
-    })
+    await db.update(placementSpot).set({ status: 'OCCUPIED' }).where(eq(placementSpot.id, p.bed.id))
 
     // Update resident status to PLACED
-    await prisma.resident.update({
-      where: { id: resident.id },
-      data: { status: 'PLACED' },
-    })
+    await db
+      .update(residentTable)
+      .set({ status: 'PLACED' })
+      .where(eq(residentTable.id, resident.id))
 
     console.log(`Created placement: ${p.resident} -> ${p.bed.code}`)
   }
@@ -177,4 +175,4 @@ async function main() {
 
 main()
   .catch(console.error)
-  .finally(() => prisma.$disconnect())
+  .finally(() => process.exit(0))

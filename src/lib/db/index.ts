@@ -30,3 +30,4 @@ export const db = new Proxy({} as DbInstance, {
 
 export * from './schema'
 export * from './types'
+export * from './helpers'

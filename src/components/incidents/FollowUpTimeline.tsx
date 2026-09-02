@@ -1,4 +1,4 @@
-import type { IncidentFollowUp } from '@prisma/client'
+import type { IncidentFollowUp } from '@/lib/db'
 import { formatRelativeDate, formatDate } from '@/lib/utils'
 import { INCIDENT_DETAIL_LABELS } from '@/lib/constants'
 

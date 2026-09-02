@@ -1,5 +1,6 @@
 import { BRAND } from '@/lib/config/brand'
-import { prisma } from '@/lib/db'
+import { db, user as userTable, isUniqueViolation } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import {
@@ -13,7 +14,6 @@ import {
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
 import { logger } from '@/lib/logger'
-import { Prisma } from '@prisma/client'
 
 /**
  * Staff user provisioning (Leitung only).
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     // Generate a unique code
     for (let attempt = 0; attempt < 5; attempt++) {
       const candidate = generateStaffCode()
-      const existing = await prisma.user.findUnique({ where: { code: candidate } })
+      const existing = await db.query.user.findFirst({ where: eq(userTable.code, candidate) })
       if (!existing) {
         code = candidate
         break
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Check code uniqueness
-  const existing = await prisma.user.findUnique({ where: { code } })
+  const existing = await db.query.user.findFirst({ where: eq(userTable.code, code) })
   if (existing) {
     return NextResponse.json(
       { success: false, error: 'Dieser Code ist bereits vergeben' },
@@ -138,17 +138,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const user = await prisma.user.create({
-      data: {
+    const [user] = await db
+      .insert(userTable)
+      .values({
         code,
         name: name.trim(),
         role,
         scope,
         isSystemAdmin,
         active: true,
-      },
-      select: { id: true, code: true, name: true, role: true, scope: true, isSystemAdmin: true },
-    })
+      })
+      .returning({
+        id: userTable.id,
+        code: userTable.code,
+        name: userTable.name,
+        role: userTable.role,
+        scope: userTable.scope,
+        isSystemAdmin: userTable.isSystemAdmin,
+      })
 
     return NextResponse.json({
       success: true,
@@ -156,7 +163,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     // Race between unique pre-check and create: report friendly conflict.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       return NextResponse.json(
         { success: false, error: 'Dieser Code ist bereits vergeben' },
         { status: 409 },

@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, maintenanceRequest } from '@/lib/db'
+import { and, desc, eq, gte, inArray } from 'drizzle-orm'
 import {
   validateFormData,
   MaintenanceRequestInputSchema,
@@ -27,8 +28,9 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
   const data = validateFormData(MaintenanceRequestInputSchema, formData)
 
   try {
-    const request = await prisma.maintenanceRequest.create({
-      data: {
+    const [request] = await db
+      .insert(maintenanceRequest)
+      .values({
         housingUnitId: data.housingUnitId,
         spotId: data.spotId || undefined,
         category: data.category,
@@ -39,8 +41,8 @@ export async function createMaintenanceRequest(formData: FormData): Promise<void
         reportedById: data.reportedById || undefined,
         reporterName: data.reporterName,
         status: DEFAULT_STATUSES.maintenance,
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
@@ -70,7 +72,7 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
   const data = validateFormData(MaintenanceStatusUpdateSchema, formData)
 
   try {
-    const updateData: Record<string, string | number | Date | null> = { status: data.status }
+    const updateData: Partial<typeof maintenanceRequest.$inferInsert> = { status: data.status }
 
     // Set timestamps based on status
     if (data.status === 'ASSIGNED' && data.assignedTo) {
@@ -87,11 +89,13 @@ export async function updateMaintenanceStatus(formData: FormData): Promise<void>
     }
     if (data.notes) updateData.notes = data.notes
 
-    const request = await prisma.maintenanceRequest.update({
-      where: { id: data.requestId },
-      data: updateData,
-      select: { housingUnitId: true },
-    })
+    const [request] = await db
+      .update(maintenanceRequest)
+      .set(updateData)
+      .where(eq(maintenanceRequest.id, data.requestId))
+      .returning({ housingUnitId: maintenanceRequest.housingUnitId })
+    // Prisma threw when the request was missing — keep that error path
+    if (!request) throw new Error(ERROR_MESSAGES.MAINTENANCE_STATUS_UPDATE_ERROR)
 
     await logAudit({
       action: 'UPDATE',
@@ -117,15 +121,17 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
   const { requestId, assignedTo } = validateFormData(AssignMaintenanceSchema, formData)
 
   try {
-    const request = await prisma.maintenanceRequest.update({
-      where: { id: requestId },
-      data: {
+    const [request] = await db
+      .update(maintenanceRequest)
+      .set({
         status: 'ASSIGNED',
         assignedTo,
         assignedAt: new Date(),
-      },
-      select: { housingUnitId: true },
-    })
+      })
+      .where(eq(maintenanceRequest.id, requestId))
+      .returning({ housingUnitId: maintenanceRequest.housingUnitId })
+    // Prisma threw when the request was missing — keep that error path
+    if (!request) throw new Error(ERROR_MESSAGES.MAINTENANCE_ASSIGN_ERROR)
 
     await logAudit({
       action: 'UPDATE',
@@ -147,24 +153,26 @@ export async function assignMaintenanceRequest(formData: FormData): Promise<void
 export async function getMaintenanceStats() {
   await requirePermission('maintenance:read')
   const [open, assigned, inProgress, onHold, completedThisMonth] = await Promise.all([
-    prisma.maintenanceRequest.count({ where: { status: 'OPEN' } }),
-    prisma.maintenanceRequest.count({ where: { status: 'ASSIGNED' } }),
-    prisma.maintenanceRequest.count({ where: { status: 'IN_PROGRESS' } }),
-    prisma.maintenanceRequest.count({ where: { status: 'ON_HOLD' } }),
-    prisma.maintenanceRequest.count({
-      where: {
-        status: 'COMPLETED',
-        completedAt: { gte: new Date(new Date().setDate(1)) },
-      },
-    }),
+    db.$count(maintenanceRequest, eq(maintenanceRequest.status, 'OPEN')),
+    db.$count(maintenanceRequest, eq(maintenanceRequest.status, 'ASSIGNED')),
+    db.$count(maintenanceRequest, eq(maintenanceRequest.status, 'IN_PROGRESS')),
+    db.$count(maintenanceRequest, eq(maintenanceRequest.status, 'ON_HOLD')),
+    db.$count(
+      maintenanceRequest,
+      and(
+        eq(maintenanceRequest.status, 'COMPLETED'),
+        gte(maintenanceRequest.completedAt, new Date(new Date().setDate(1))),
+      ),
+    ),
   ])
 
-  const urgent = await prisma.maintenanceRequest.count({
-    where: {
-      priority: 'URGENT',
-      status: { in: ['OPEN', 'ASSIGNED'] },
-    },
-  })
+  const urgent = await db.$count(
+    maintenanceRequest,
+    and(
+      eq(maintenanceRequest.priority, 'URGENT'),
+      inArray(maintenanceRequest.status, ['OPEN', 'ASSIGNED']),
+    ),
+  )
 
   return {
     open,
@@ -179,13 +187,13 @@ export async function getMaintenanceStats() {
 
 export async function getHousingUnitMaintenance(housingUnitId: string) {
   await requirePermission('maintenance:read')
-  return prisma.maintenanceRequest.findMany({
-    where: { housingUnitId },
-    include: {
+  return db.query.maintenanceRequest.findMany({
+    where: eq(maintenanceRequest.housingUnitId, housingUnitId),
+    with: {
       spot: true,
-      reportedBy: { select: { id: true, code: true } },
+      reportedBy: { columns: { id: true, code: true } },
     },
-    orderBy: { createdAt: 'desc' },
-    take: QUERY_LIMITS.unitHistory,
+    orderBy: [desc(maintenanceRequest.createdAt)],
+    limit: QUERY_LIMITS.unitHistory,
   })
 }

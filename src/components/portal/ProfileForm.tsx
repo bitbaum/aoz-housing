@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PROFILE_LIMITS } from '@/lib/config/profile'
 import { PROFILE_VISIBILITY_OPTIONS } from '@/lib/privacy/profile-visibility'
-import type { ProfileVisibility } from '@prisma/client'
+import type { ProfileVisibility } from '@/lib/db'
 import { useT } from '@/lib/i18n/LocaleProvider'
 import { buildProfileLabels } from '@/lib/i18n/portal-surfaces'
 

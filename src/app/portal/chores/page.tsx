@@ -1,6 +1,15 @@
 import type { Metadata } from 'next'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  householdTask,
+  taskCompletion,
+  taskAttentionFlag,
+  taskRequest,
+} from '@/lib/db'
+import { eq, desc, inArray } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 
@@ -19,12 +28,12 @@ export const dynamic = 'force-dynamic'
 export default async function ChoresPage() {
   const residentCode = await requireResidentCookie('/portal')
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
       },
     },
   })
@@ -47,23 +56,27 @@ export default async function ChoresPage() {
 
   // tasks and balances both only need placement.housingUnitId — fetch in parallel
   const [tasks, balances] = await Promise.all([
-    prisma.householdTask.findMany({
-      where: { housingUnitId: placement.housingUnitId },
-      include: {
+    db.query.householdTask.findMany({
+      where: eq(householdTask.housingUnitId, placement.housingUnitId),
+      with: {
         completions: {
-          orderBy: { completedAt: 'desc' },
-          take: 1,
-          include: { completedBy: { select: RESIDENT_NAME_SELECT } },
+          orderBy: [desc(taskCompletion.completedAt)],
+          limit: 1,
+          with: { completedBy: { columns: RESIDENT_NAME_SELECT } },
         },
         attentionFlags: {
-          where: { isResolved: false },
+          where: eq(taskAttentionFlag.isResolved, false),
         },
         requests: {
-          where: { status: { in: ['PENDING', 'ACCEPTED'] } },
+          where: inArray(taskRequest.status, ['PENDING', 'ACCEPTED']),
         },
-        createdByResident: { select: RESIDENT_NAME_SELECT },
+        createdByResident: { columns: RESIDENT_NAME_SELECT },
       },
-      orderBy: [{ currentStatus: 'desc' }, { priority: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [
+        desc(householdTask.currentStatus),
+        desc(householdTask.priority),
+        desc(householdTask.createdAt),
+      ],
     }),
     loadChoreBalances(placement.housingUnitId),
   ])

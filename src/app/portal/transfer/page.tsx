@@ -1,5 +1,12 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  transferRequest,
+  housingUnit,
+} from '@/lib/db'
+import { eq, and, ne, desc, asc } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import { TransferRequestForm } from '@/components/portal/TransferRequestForm'
 import { buildTransferLabels } from '@/lib/i18n/portal-surfaces'
@@ -20,14 +27,14 @@ export default async function TransferPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
-        include: {
-          housingUnit: { select: { id: true, code: true, address: true } },
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
+        with: {
+          housingUnit: { columns: { id: true, code: true, address: true } },
         },
       },
       // The LATEST request, whatever its status — not just the pending one.
@@ -35,9 +42,9 @@ export default async function TransferPage() {
       // resident's view the moment it was made, taking the staff note with
       // it: they were told "du wirst benachrichtigt" and then never were.
       transferRequests: {
-        orderBy: { createdAt: 'desc' },
-        take: 1,
-        select: {
+        orderBy: [desc(transferRequest.createdAt)],
+        limit: 1,
+        columns: {
           id: true,
           createdAt: true,
           reason: true,
@@ -62,13 +69,13 @@ export default async function TransferPage() {
 
   // Fetch available units for optional target selection (exclude current unit)
   const availableUnits = placement
-    ? await prisma.housingUnit.findMany({
-        where: {
-          status: 'AVAILABLE',
-          id: { not: placement.housingUnit?.id },
-        },
-        select: { id: true, code: true, address: true },
-        orderBy: { code: 'asc' },
+    ? await db.query.housingUnit.findMany({
+        where: and(
+          eq(housingUnit.status, 'AVAILABLE'),
+          ne(housingUnit.id, placement.housingUnit.id),
+        ),
+        columns: { id: true, code: true, address: true },
+        orderBy: [asc(housingUnit.code)],
       })
     : []
 

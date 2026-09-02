@@ -1,6 +1,16 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement,
+  incident,
+  incidentInvolvement,
+  maintenanceRequest,
+  compatibilityAssessment,
+  isUniqueViolation,
+} from '@/lib/db'
+import { eq, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { validateFormData, ResidentInputSchema, ResidentUpdateSchema } from '@/lib/validation'
@@ -9,7 +19,6 @@ import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requirePermission } from '@/lib/auth'
-import { Prisma } from '@prisma/client'
 
 export async function createResident(formData: FormData): Promise<void> {
   const user = await requirePermission('residents:write')
@@ -17,12 +26,14 @@ export async function createResident(formData: FormData): Promise<void> {
 
   let resident
   try {
-    resident = await prisma.resident.create({
-      data: {
+    const [created] = await db
+      .insert(residentTable)
+      .values({
         ...data,
         status: DEFAULT_STATUSES.resident,
-      },
-    })
+      })
+      .returning()
+    resident = created
 
     await logAudit({
       action: 'CREATE',
@@ -32,7 +43,7 @@ export async function createResident(formData: FormData): Promise<void> {
       changes: { code: data.code },
     })
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       throw new Error(ERROR_MESSAGES.RESIDENT_CODE_EXISTS)
     }
     logger.errorWithCause('Failed to create resident', error, { code: data.code })
@@ -50,9 +61,9 @@ export async function exitResident(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
-    const resident = await prisma.resident.findUnique({
-      where: { id: residentId },
-      include: { placements: { where: { status: 'ACTIVE' } } },
+    const resident = await db.query.resident.findFirst({
+      where: eq(residentTable.id, residentId),
+      with: { placements: { where: eq(placement.status, 'ACTIVE') } },
     })
 
     if (!resident) {
@@ -63,10 +74,7 @@ export async function exitResident(
       return { success: false, error: ERROR_MESSAGES.RESIDENT_HAS_ACTIVE_PLACEMENTS }
     }
 
-    await prisma.resident.update({
-      where: { id: residentId },
-      data: { status: 'EXITED' },
-    })
+    await db.update(residentTable).set({ status: 'EXITED' }).where(eq(residentTable.id, residentId))
 
     await logAudit({
       action: 'END',
@@ -92,10 +100,16 @@ export async function updateResident(formData: FormData): Promise<void> {
   const { id, code: _code, ...updateData } = data
 
   try {
-    await prisma.resident.update({
-      where: { id },
-      data: updateData,
-    })
+    const [updated] = await db
+      .update(residentTable)
+      .set(updateData)
+      .where(eq(residentTable.id, id))
+      .returning({ id: residentTable.id })
+
+    // Updating a missing row used to throw (P2025); keep that error path.
+    if (!updated) {
+      throw new Error(ERROR_MESSAGES.RESIDENT_NOT_FOUND)
+    }
 
     await logAudit({
       action: 'UPDATE',
@@ -119,9 +133,9 @@ export async function archiveResident(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
-    const resident = await prisma.resident.findUnique({
-      where: { id: residentId },
-      include: { placements: { where: { status: 'ACTIVE' } } },
+    const resident = await db.query.resident.findFirst({
+      where: eq(residentTable.id, residentId),
+      with: { placements: { where: eq(placement.status, 'ACTIVE') } },
     })
 
     if (!resident) {
@@ -132,10 +146,7 @@ export async function archiveResident(
       return { success: false, error: ERROR_MESSAGES.RESIDENT_ARCHIVE_BLOCKED }
     }
 
-    await prisma.resident.update({
-      where: { id: residentId },
-      data: { status: 'EXITED' },
-    })
+    await db.update(residentTable).set({ status: 'EXITED' }).where(eq(residentTable.id, residentId))
 
     await logAudit({
       action: 'ARCHIVE',
@@ -159,9 +170,9 @@ export async function restoreResident(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('residents:write')
   try {
-    const resident = await prisma.resident.findUnique({
-      where: { id: residentId },
-      include: { placements: { where: { status: 'ACTIVE' } } },
+    const resident = await db.query.resident.findFirst({
+      where: eq(residentTable.id, residentId),
+      with: { placements: { where: eq(placement.status, 'ACTIVE') } },
     })
 
     if (!resident) {
@@ -170,10 +181,10 @@ export async function restoreResident(
 
     const nextStatus = resident.placements.length > 0 ? 'PLACED' : 'ACTIVE'
 
-    await prisma.resident.update({
-      where: { id: residentId },
-      data: { status: nextStatus },
-    })
+    await db
+      .update(residentTable)
+      .set({ status: nextStatus })
+      .where(eq(residentTable.id, residentId))
 
     await logAudit({
       action: 'RESTORE',
@@ -215,7 +226,9 @@ export async function hardDeleteResidentProtected(
       }
     }
 
-    const resident = await prisma.resident.findUnique({ where: { id: residentId } })
+    const resident = await db.query.resident.findFirst({
+      where: eq(residentTable.id, residentId),
+    })
     if (!resident) {
       return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
     }
@@ -232,16 +245,18 @@ export async function hardDeleteResidentProtected(
       maintenanceRequests,
       assessments,
     ] = await Promise.all([
-      prisma.placement.count({ where: { residentId } }),
-      prisma.incident.count({ where: { reportedById: residentId } }),
-      prisma.incident.count({ where: { subjectId: residentId } }),
-      prisma.incidentInvolvement.count({ where: { residentId } }),
-      prisma.maintenanceRequest.count({ where: { reportedById: residentId } }),
-      prisma.compatibilityAssessment.count({
-        where: {
-          OR: [{ residentId }, { comparedWithId: residentId }],
-        },
-      }),
+      db.$count(placement, eq(placement.residentId, residentId)),
+      db.$count(incident, eq(incident.reportedById, residentId)),
+      db.$count(incident, eq(incident.subjectId, residentId)),
+      db.$count(incidentInvolvement, eq(incidentInvolvement.residentId, residentId)),
+      db.$count(maintenanceRequest, eq(maintenanceRequest.reportedById, residentId)),
+      db.$count(
+        compatibilityAssessment,
+        or(
+          eq(compatibilityAssessment.residentId, residentId),
+          eq(compatibilityAssessment.comparedWithId, residentId),
+        ),
+      ),
     ])
 
     if (
@@ -267,7 +282,7 @@ export async function hardDeleteResidentProtected(
       }
     }
 
-    await prisma.resident.delete({ where: { id: residentId } })
+    await db.delete(residentTable).where(eq(residentTable.id, residentId))
 
     await logAudit({
       action: 'DELETE',

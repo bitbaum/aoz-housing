@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, complaint } from '@/lib/db'
+import { asc, desc } from 'drizzle-orm'
 import { requirePermission } from '@/lib/auth'
 import { PageHeader } from '@/components/ui/Page'
 import { SubmitButton } from '@/components/ui'
@@ -27,9 +28,9 @@ export const dynamic = 'force-dynamic'
 export default async function ComplaintsPage() {
   await requirePermission('complaints:read')
 
-  const complaints = await prisma.complaint.findMany({
-    orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-    select: {
+  const complaints = await db.query.complaint.findMany({
+    orderBy: [asc(complaint.status), desc(complaint.createdAt)],
+    columns: {
       id: true,
       createdAt: true,
       subject: true,
@@ -37,10 +38,12 @@ export default async function ComplaintsPage() {
       status: true,
       response: true,
       respondedAt: true,
+    },
+    with: {
       // An anonymous complaint has no resident, and the null IS the anonymity —
       // there is nothing here to redact later because nothing was written.
-      resident: { select: { code: true, displayName: true } },
-      respondedBy: { select: { name: true } },
+      resident: { columns: { code: true, displayName: true } },
+      respondedBy: { columns: { name: true } },
     },
   })
 

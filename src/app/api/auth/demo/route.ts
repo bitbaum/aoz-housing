@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { loginByCode, setSessionCookie } from '@/lib/auth'
 import { checkRateLimit, recordLoginAttempt, getClientIp } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
-import { prisma } from '@/lib/db'
+import { db, user, resident } from '@/lib/db'
+import { and, eq, inArray } from 'drizzle-orm'
 import { setResidentCookie } from '@/lib/portal-auth'
 import { isDemoEnabled, resolveDemoResidentCode } from '@/lib/demo/config'
 import { demoStaffDoors } from '@/lib/demo/roles'
@@ -36,9 +37,9 @@ async function availableDoors(): Promise<DemoDoor[]> {
   if (!isDemoEnabled()) return []
 
   const codes = demoStaffDoors().map((door) => door.code)
-  const present = await prisma.user.findMany({
-    where: { code: { in: codes }, active: true },
-    select: { code: true },
+  const present = await db.query.user.findMany({
+    where: and(inArray(user.code, codes), eq(user.active, true)),
+    columns: { code: true },
   })
   const live = new Set(present.map((user) => user.code))
 
@@ -51,11 +52,11 @@ async function availableDoors(): Promise<DemoDoor[]> {
 
   const residentCode = resolveDemoResidentCode()
   if (residentCode) {
-    const resident = await prisma.resident.findUnique({
-      where: { code: residentCode },
-      select: { id: true },
+    const residentRow = await db.query.resident.findFirst({
+      where: eq(resident.code, residentCode),
+      columns: { id: true },
     })
-    if (resident) doors.push({ id: 'resident', label: residentDoorLabel() })
+    if (residentRow) doors.push({ id: 'resident', label: residentDoorLabel() })
   }
 
   return doors

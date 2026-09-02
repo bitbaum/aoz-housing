@@ -1,6 +1,7 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import { db, placementSpot, placement, isUniqueViolation } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -14,7 +15,6 @@ import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requirePermission } from '@/lib/auth'
-import { Prisma } from '@prisma/client'
 
 // Simple schema for delete operation
 const DeleteSpotSchema = z.object({
@@ -27,22 +27,20 @@ export async function createSpot(formData: FormData): Promise<void> {
   const data = validateFormData(SpotInputSchema, formData)
 
   try {
-    await prisma.placementSpot.create({
-      data: {
-        housingUnitId: data.housingUnitId,
-        code: data.code,
-        label: data.label,
-        type: data.type,
-        parentSpotId: data.parentSpotId,
-        squareMeters: data.squareMeters,
-        floor: data.floor,
-        requiresMedicalDocs: data.requiresMedicalDocs,
-        status: data.status,
-        notes: data.notes,
-      },
+    await db.insert(placementSpot).values({
+      housingUnitId: data.housingUnitId,
+      code: data.code,
+      label: data.label,
+      type: data.type,
+      parentSpotId: data.parentSpotId,
+      squareMeters: data.squareMeters,
+      floor: data.floor,
+      requiresMedicalDocs: data.requiresMedicalDocs,
+      status: data.status,
+      notes: data.notes,
     })
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       throw new Error(ERROR_MESSAGES.SPOT_CODE_EXISTS)
     }
     logger.errorWithCause('Failed to create spot', error, { housingUnitId: data.housingUnitId })
@@ -60,13 +58,19 @@ export async function updateSpot(formData: FormData): Promise<void> {
   const { id, housingUnitId, ...updateData } = data
 
   try {
-    await prisma.placementSpot.update({
-      where: { id },
-      data: {
+    const [updated] = await db
+      .update(placementSpot)
+      .set({
         ...updateData,
         parentSpotId: updateData.parentSpotId || null,
-      },
-    })
+      })
+      .where(eq(placementSpot.id, id))
+      .returning({ id: placementSpot.id })
+
+    // Updating a missing row used to throw (P2025); keep that error path.
+    if (!updated) {
+      throw new Error(ERROR_MESSAGES.SPOT_UPDATE_ERROR)
+    }
   } catch (error) {
     logger.errorWithCause('Failed to update spot', error, { spotId: id, housingUnitId })
     throw new Error(ERROR_MESSAGES.SPOT_UPDATE_ERROR)
@@ -83,22 +87,27 @@ export async function deleteSpot(formData: FormData): Promise<void> {
 
   try {
     // Check if spot has active placements
-    const activePlacements = await prisma.placement.count({
-      where: { spotId: id, status: 'ACTIVE' },
-    })
+    const activePlacements = await db.$count(
+      placement,
+      and(eq(placement.spotId, id), eq(placement.status, 'ACTIVE')),
+    )
 
     if (activePlacements > 0) {
       throw new Error(ERROR_MESSAGES.SPOT_DELETE_BLOCKED)
     }
 
     // Delete child spots first if this is a container
-    await prisma.placementSpot.deleteMany({
-      where: { parentSpotId: id },
-    })
+    await db.delete(placementSpot).where(eq(placementSpot.parentSpotId, id))
 
-    await prisma.placementSpot.delete({
-      where: { id },
-    })
+    const deleted = await db
+      .delete(placementSpot)
+      .where(eq(placementSpot.id, id))
+      .returning({ id: placementSpot.id })
+
+    // Deleting a missing row used to throw (P2025); keep that error path.
+    if (deleted.length === 0) {
+      throw new Error(ERROR_MESSAGES.SPOT_DELETE_ERROR)
+    }
   } catch (error) {
     if (error instanceof Error && error.message.includes(ERROR_MESSAGES.SPOT_DELETE_BLOCKED)) {
       throw error
@@ -118,8 +127,9 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
 
   try {
     // Create the room (container)
-    const room = await prisma.placementSpot.create({
-      data: {
+    const [room] = await db
+      .insert(placementSpot)
+      .values({
         housingUnitId: data.housingUnitId,
         code: data.roomCode,
         label: data.roomLabel,
@@ -127,24 +137,22 @@ export async function createMultipleSpots(formData: FormData): Promise<void> {
         squareMeters: data.squareMeters,
         floor: data.floor,
         status: DEFAULT_STATUSES.spot,
-      },
-    })
+      })
+      .returning()
 
     // Create beds inside the room
     for (let i = 1; i <= data.bedCount; i++) {
-      await prisma.placementSpot.create({
-        data: {
-          housingUnitId: data.housingUnitId,
-          code: `${data.roomCode}-B${i}`,
-          label: `Bett ${i}`,
-          type: 'BED',
-          parentSpotId: room.id,
-          status: DEFAULT_STATUSES.spot,
-        },
+      await db.insert(placementSpot).values({
+        housingUnitId: data.housingUnitId,
+        code: `${data.roomCode}-B${i}`,
+        label: `Bett ${i}`,
+        type: 'BED',
+        parentSpotId: room.id,
+        status: DEFAULT_STATUSES.spot,
       })
     }
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       throw new Error(ERROR_MESSAGES.SPOT_CODE_EXISTS)
     }
     logger.errorWithCause('Failed to create multiple spots', error, {

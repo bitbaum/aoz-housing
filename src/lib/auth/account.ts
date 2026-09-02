@@ -19,7 +19,8 @@
 
 import { ALL_CODE_PREFIXES } from '@/lib/config/brand'
 import { ALL_RESIDENT_CODE_PREFIXES } from '@/lib/auth/code-prefixes'
-import { prisma } from '@/lib/db'
+import { db, account, user, resident } from '@/lib/db'
+import { eq, type SQL } from 'drizzle-orm'
 import { hashPassword, verifyPassword } from './passwords'
 import { createAuthToken, consumeAuthToken } from './tokens'
 import { sendEmail } from '@/lib/email/service'
@@ -53,11 +54,11 @@ export type AccountResult =
   { success: true; identities: AccountIdentities } | { success: false; error: string }
 
 const ACCOUNT_WITH_IDENTITIES = {
-  id: true,
-  email: true,
-  passwordHash: true,
-  user: { select: { id: true, code: true, name: true, role: true, active: true } },
-  resident: { select: { id: true, code: true } },
+  columns: { id: true, email: true, passwordHash: true },
+  with: {
+    user: { columns: { id: true, code: true, name: true, role: true, active: true } },
+    resident: { columns: { id: true, code: true } },
+  },
 } as const
 
 type AccountRow = {
@@ -66,6 +67,20 @@ type AccountRow = {
   passwordHash: string | null
   user: { id: string; code: string; name: string; role: StaffRole; active: boolean } | null
   resident: { id: string; code: string } | null
+}
+
+/**
+ * One account with both identities attached.
+ *
+ * The cast exists because schema.ts currently has circular table initializer
+ * references (Placement ↔ Incident et al.), which make `placement` implicitly
+ * `any` and poison drizzle's relational result types repo-wide. The runtime
+ * shape of this query is exactly AccountRow; drop the cast once the schema
+ * circularity is fixed.
+ */
+async function findAccountWithIdentities(where: SQL): Promise<AccountRow | undefined> {
+  return (await db.query.account.findFirst({ where, ...ACCOUNT_WITH_IDENTITIES })) as
+    AccountRow | undefined
 }
 
 /** Shape an account row into the identities a session should carry. */
@@ -94,17 +109,20 @@ type CodeIdentity =
 /** Resolve a login code to the identity it names. */
 async function findIdentityByCode(code: string): Promise<CodeIdentity | null> {
   if (ALL_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
-    const user = await prisma.user.findUnique({
-      where: { code },
-      select: { id: true, active: true },
+    const staff = await db.query.user.findFirst({
+      where: eq(user.code, code),
+      columns: { id: true, active: true },
     })
-    return user ? { kind: 'staff', id: user.id, active: user.active } : null
+    return staff ? { kind: 'staff', id: staff.id, active: staff.active } : null
   }
 
   // All prefixes, never just the active brand's — see loginByCode.
   if (ALL_RESIDENT_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
-    const resident = await prisma.resident.findUnique({ where: { code }, select: { id: true } })
-    return resident ? { kind: 'resident', id: resident.id } : null
+    const row = await db.query.resident.findFirst({
+      where: eq(resident.code, code),
+      columns: { id: true },
+    })
+    return row ? { kind: 'resident', id: row.id } : null
   }
 
   return null
@@ -129,7 +147,10 @@ export async function sendVerificationEmail(accountId: string, email: string): P
 }
 
 async function loadAccount(where: { id: string }): Promise<AccountRow> {
-  return prisma.account.findUniqueOrThrow({ where, select: ACCOUNT_WITH_IDENTITIES })
+  const row = await findAccountWithIdentities(eq(account.id, where.id))
+  // findUniqueOrThrow semantics: the caller just wrote this row, so a miss is a bug.
+  if (!row) throw new Error(`Account ${where.id} not found`)
+  return row
 }
 
 /**
@@ -155,10 +176,14 @@ export async function registerAccount(input: {
 
   const identityLink =
     identity.kind === 'staff' ? { userId: identity.id } : { residentId: identity.id }
+  const identityWhere =
+    identity.kind === 'staff'
+      ? eq(account.userId, identity.id)
+      : eq(account.residentId, identity.id)
 
   const [accountForIdentity, accountForEmail] = await Promise.all([
-    prisma.account.findFirst({ where: identityLink, select: ACCOUNT_WITH_IDENTITIES }),
-    prisma.account.findUnique({ where: { email }, select: ACCOUNT_WITH_IDENTITIES }),
+    findAccountWithIdentities(identityWhere),
+    findAccountWithIdentities(eq(account.email, email)),
   ])
 
   // This code already belongs to a finished account — recover it, don't re-claim.
@@ -180,13 +205,13 @@ export async function registerAccount(input: {
       if (!(await verifyPassword(password, accountForEmail.passwordHash))) {
         return { success: false, error: ERROR_MESSAGES.AUTH_LINK_PASSWORD_MISMATCH }
       }
-      await prisma.account.update({ where: { id: accountForEmail.id }, data: identityLink })
+      await db.update(account).set(identityLink).where(eq(account.id, accountForEmail.id))
     } else {
       // Known email, no password yet (invited, or migrated from a legacy row).
-      await prisma.account.update({
-        where: { id: accountForEmail.id },
-        data: { ...identityLink, passwordHash: await hashPassword(password) },
-      })
+      await db
+        .update(account)
+        .set({ ...identityLink, passwordHash: await hashPassword(password) })
+        .where(eq(account.id, accountForEmail.id))
       await sendVerificationEmail(accountForEmail.id, email)
     }
 
@@ -199,18 +224,18 @@ export async function registerAccount(input: {
   // --- Finish this identity's own unclaimed account, or create one ---
   const accountId = accountForIdentity
     ? (
-        await prisma.account.update({
-          where: { id: accountForIdentity.id },
-          data: { email, passwordHash: await hashPassword(password) },
-          select: { id: true },
-        })
-      ).id
+        await db
+          .update(account)
+          .set({ email, passwordHash: await hashPassword(password) })
+          .where(eq(account.id, accountForIdentity.id))
+          .returning({ id: account.id })
+      )[0].id
     : (
-        await prisma.account.create({
-          data: { email, passwordHash: await hashPassword(password), ...identityLink },
-          select: { id: true },
-        })
-      ).id
+        await db
+          .insert(account)
+          .values({ email, passwordHash: await hashPassword(password), ...identityLink })
+          .returning({ id: account.id })
+      )[0].id
 
   await sendVerificationEmail(accountId, email)
 
@@ -231,21 +256,15 @@ export async function loginWithEmail(input: {
 }): Promise<AccountResult> {
   const failure = { success: false as const, error: ERROR_MESSAGES.INVALID_CREDENTIALS }
 
-  const account = await prisma.account.findUnique({
-    where: { email: input.email },
-    select: ACCOUNT_WITH_IDENTITIES,
-  })
-  if (!account?.passwordHash) return failure
-  if (!(await verifyPassword(input.password, account.passwordHash))) return failure
+  const acct = await findAccountWithIdentities(eq(account.email, input.email))
+  if (!acct?.passwordHash) return failure
+  if (!(await verifyPassword(input.password, acct.passwordHash))) return failure
 
-  const identities = toIdentities(account)
+  const identities = toIdentities(acct)
   if (!identities.staff && !identities.resident) return failure
 
   if (identities.staff) {
-    await prisma.user.update({
-      where: { id: identities.staff.id },
-      data: { lastLoginAt: new Date() },
-    })
+    await db.update(user).set({ lastLoginAt: new Date() }).where(eq(user.id, identities.staff.id))
   }
 
   return { success: true, identities }
@@ -263,9 +282,12 @@ export async function requestPasswordReset(
     return { success: false, error: ERROR_MESSAGES.AUTH_EMAIL_NOT_CONFIGURED }
   }
 
-  const account = await prisma.account.findUnique({ where: { email }, select: { id: true } })
-  if (account) {
-    const raw = await createAuthToken(account.id, 'RESET_PASSWORD')
+  const acct = await db.query.account.findFirst({
+    where: eq(account.email, email),
+    columns: { id: true },
+  })
+  if (acct) {
+    const raw = await createAuthToken(acct.id, 'RESET_PASSWORD')
     const { subject, html } = passwordResetEmail({
       link: `${getAppUrl()}/reset-password?token=${raw}`,
     })
@@ -287,10 +309,10 @@ export async function resetPassword(
   const accountId = await consumeAuthToken(rawToken, 'RESET_PASSWORD')
   if (!accountId) return { success: false, error: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID }
 
-  await prisma.account.update({
-    where: { id: accountId },
-    data: { passwordHash: await hashPassword(newPassword), emailVerifiedAt: new Date() },
-  })
+  await db
+    .update(account)
+    .set({ passwordHash: await hashPassword(newPassword), emailVerifiedAt: new Date() })
+    .where(eq(account.id, accountId))
 
   return { success: true }
 }
@@ -300,9 +322,6 @@ export async function verifyEmailToken(rawToken: string): Promise<boolean> {
   const accountId = await consumeAuthToken(rawToken, 'VERIFY_EMAIL')
   if (!accountId) return false
 
-  await prisma.account.update({
-    where: { id: accountId },
-    data: { emailVerifiedAt: new Date() },
-  })
+  await db.update(account).set({ emailVerifiedAt: new Date() }).where(eq(account.id, accountId))
   return true
 }

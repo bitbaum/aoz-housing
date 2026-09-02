@@ -2,26 +2,25 @@
  * Verify all test data is correctly set up
  */
 
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { eq, like } from 'drizzle-orm'
+import { db, housingUnit, resident, placement } from '../src/lib/db'
 
 async function main() {
   console.log('🔍 Verifying test data...\n')
 
   // Check housing unit
-  const unit = await prisma.housingUnit.findUnique({
-    where: { code: 'ZH-1-440' },
-    include: {
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.code, 'ZH-1-440'),
+    with: {
       spots: true,
       placements: {
-        where: { status: 'ACTIVE' },
-        include: { resident: true, spot: true },
+        where: eq(placement.status, 'ACTIVE'),
+        with: { resident: true, spot: true },
       },
       incidents: {
-        include: {
-          reportedBy: { select: { code: true } },
-          subject: { select: { code: true } },
+        with: {
+          reportedBy: { columns: { code: true } },
+          subject: { columns: { code: true } },
         },
       },
     },
@@ -69,13 +68,11 @@ async function main() {
   })
 
   // Check residents
-  const residents = await prisma.resident.findMany({
-    where: {
-      code: { startsWith: 'WIT-' },
-    },
-    include: {
+  const residents = await db.query.resident.findMany({
+    where: like(resident.code, 'WIT-%'),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
+        where: eq(placement.status, 'ACTIVE'),
       },
       incidentsAsSubject: true,
       incidentsReported: true,
@@ -109,6 +106,6 @@ main()
     console.error('❌ Error:', e)
     process.exit(1)
   })
-  .finally(async () => {
-    await prisma.$disconnect()
+  .finally(() => {
+    process.exit(0)
   })

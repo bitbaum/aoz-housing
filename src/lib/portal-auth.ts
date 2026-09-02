@@ -9,7 +9,8 @@
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident, placement } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { RESIDENT_COOKIE, RESIDENT_COOKIE_MAX_AGE_SECONDS } from '@/lib/auth/constants'
 
 // Re-export so existing call sites continue to import from '@/lib/portal-auth'.
@@ -68,11 +69,12 @@ export async function getPortalResident(): Promise<{ id: string; code: string } 
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
   if (!residentCode) return null
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: { id: true, code: true },
+  const row = await db.query.resident.findFirst({
+    where: eq(resident.code, residentCode),
+    columns: { id: true, code: true },
   })
-  return resident
+  // Callers expect Prisma's null, not drizzle's undefined.
+  return row ?? null
 }
 
 export interface UnitMember {
@@ -85,19 +87,30 @@ export interface UnitMember {
 
 /** Active members of a housing unit, shaped for display (never includes photo bytes). */
 export async function getActiveUnitMembers(housingUnitId: string): Promise<UnitMember[]> {
-  const placements = await prisma.placement.findMany({
-    where: { housingUnitId, status: 'ACTIVE' },
-    select: {
+  const placements = (await db.query.placement.findMany({
+    where: and(eq(placement.housingUnitId, housingUnitId), eq(placement.status, 'ACTIVE')),
+    columns: {},
+    with: {
       resident: {
-        select: {
+        columns: {
           id: true,
           code: true,
           displayName: true,
-          photo: { select: { updatedAt: true } },
         },
+        with: { photo: { columns: { updatedAt: true } } },
       },
     },
-  })
+    // Cast: the relational result type is poisoned by the schema.ts
+    // circular-reference bug (placement is implicitly `any`); at runtime each
+    // row carries exactly one resident with an optional photo.
+  })) as {
+    resident: {
+      id: string
+      code: string
+      displayName: string | null
+      photo: { updatedAt: Date } | null
+    }
+  }[]
   return placements.map((p) => ({
     id: p.resident.id,
     code: p.resident.code,
@@ -116,26 +129,25 @@ export async function getPortalAuth(): Promise<PortalAuthResult | null> {
 
   if (!residentCode) return null
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: {
-      id: true,
-      code: true,
+  const row = await db.query.resident.findFirst({
+    where: eq(resident.code, residentCode),
+    columns: { id: true, code: true },
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        select: { id: true, housingUnitId: true },
-        take: 1,
+        where: eq(placement.status, 'ACTIVE'),
+        columns: { id: true, housingUnitId: true },
+        limit: 1,
       },
     },
   })
 
-  if (!resident) return null
+  if (!row) return null
 
-  const placement = resident.placements[0]
-  if (!placement) return null
+  const active = row.placements[0]
+  if (!active) return null
 
   return {
-    resident: { id: resident.id, code: resident.code },
-    placement: { id: placement.id, housingUnitId: placement.housingUnitId },
+    resident: { id: row.id, code: row.code },
+    placement: { id: active.id, housingUnitId: active.housingUnitId },
   }
 }

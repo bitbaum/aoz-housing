@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, settlement as settlementTable } from '@/lib/db'
 import { getPortalAuth, getActiveUnitMembers } from '@/lib/portal-auth'
 import { CreateSettlementSchema } from '@/lib/validation/expenses'
 import { logAudit } from '@/lib/audit'
@@ -41,15 +41,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const settlement = await prisma.settlement.create({
-      data: {
+    const [settlement] = await db
+      .insert(settlementTable)
+      .values({
         housingUnitId: auth.placement.housingUnitId,
         fromId: auth.resident.id,
         toId: data.toResidentId,
         amountRappen: data.amountRappen,
         note: data.note || null,
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',

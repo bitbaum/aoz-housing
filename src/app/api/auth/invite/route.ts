@@ -1,4 +1,6 @@
-import { prisma } from '@/lib/db'
+import { db, user as userTable, account, isUniqueViolation } from '@/lib/db'
+import { eq } from 'drizzle-orm'
+import { DatabaseError } from 'pg'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import {
@@ -13,7 +15,20 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { generateStaffCode } from '@/lib/auth/code-generation'
 import { checkRateLimit, recordLoginAttempt, getClientIp } from '@/lib/auth/rate-limit'
 import { logger } from '@/lib/logger'
-import { Prisma } from '@prisma/client'
+
+/**
+ * The violated constraint name from a pg unique-violation, walking wrapped
+ * causes (drizzle wraps the driver error). Prisma exposed the violated
+ * COLUMNS via `error.meta.target`; pg names the CONSTRAINT instead
+ * ('Account_email_key' / 'User_code_key').
+ */
+function uniqueViolationConstraint(error: unknown): string | undefined {
+  if (error instanceof DatabaseError) return error.constraint
+  if (error instanceof Error && error.cause !== undefined) {
+    return uniqueViolationConstraint(error.cause)
+  }
+  return undefined
+}
 
 /**
  * POST /api/auth/invite
@@ -89,7 +104,7 @@ export async function POST(request: NextRequest) {
   let code: string | null = null
   for (let attempt = 0; attempt < 5; attempt++) {
     const candidate = generateStaffCode()
-    const existing = await prisma.user.findUnique({ where: { code: candidate } })
+    const existing = await db.query.user.findFirst({ where: eq(userTable.code, candidate) })
     if (!existing) {
       code = candidate
       break
@@ -103,9 +118,9 @@ export async function POST(request: NextRequest) {
   }
 
   // Check if email already registered
-  const existingEmail = await prisma.account.findUnique({
-    where: { email: email.toLowerCase() },
-    select: { id: true },
+  const existingEmail = await db.query.account.findFirst({
+    where: eq(account.email, email.toLowerCase()),
+    columns: { id: true },
   })
   if (existingEmail) {
     return NextResponse.json(
@@ -120,30 +135,35 @@ export async function POST(request: NextRequest) {
     // The invited person's email is KNOWN but they have no password yet —
     // exactly the shape an unclaimed Account has, so /register (or
     // /forgot-password) completes it without an admin doing anything else.
-    user = await prisma.user.create({
-      data: {
-        code,
-        name: name.trim(),
-        role,
-        // Stated, not inherited from the column defaults. An invited colleague
-        // gets their own domain and administers nothing until someone widens
-        // that deliberately — same answer the defaults give, but written down,
-        // so a future change to the defaults cannot quietly widen every invite.
-        scope: NARROWEST_CAPABILITIES.scope,
-        isSystemAdmin: NARROWEST_CAPABILITIES.isSystemAdmin,
-        active: true,
-        account: { create: { email: email.toLowerCase() } },
-      },
-      select: { id: true, code: true, name: true, account: { select: { email: true } } },
+    user = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(userTable)
+        .values({
+          code,
+          name: name.trim(),
+          role,
+          // Stated, not inherited from the column defaults. An invited colleague
+          // gets their own domain and administers nothing until someone widens
+          // that deliberately — same answer the defaults give, but written down,
+          // so a future change to the defaults cannot quietly widen every invite.
+          scope: NARROWEST_CAPABILITIES.scope,
+          isSystemAdmin: NARROWEST_CAPABILITIES.isSystemAdmin,
+          active: true,
+        })
+        .returning({ id: userTable.id, code: userTable.code, name: userTable.name })
+      const [createdAccount] = await tx
+        .insert(account)
+        .values({ email: email.toLowerCase(), userId: created.id })
+        .returning({ email: account.email })
+      return { ...created, account: { email: createdAccount.email } }
     })
   } catch (error) {
     // Race between pre-check and insert: surface conflict explicitly.
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      const target = (error.meta as { target?: string[] } | undefined)?.target?.[0]
-      const message =
-        target === 'email'
-          ? 'Diese E-Mail-Adresse ist bereits registriert'
-          : 'Dieser Code ist bereits vergeben'
+    if (isUniqueViolation(error)) {
+      const constraint = uniqueViolationConstraint(error)
+      const message = constraint?.includes('email')
+        ? 'Diese E-Mail-Adresse ist bereits registriert'
+        : 'Dieser Code ist bereits vergeben'
       return NextResponse.json({ success: false, error: message }, { status: 409 })
     }
     logger.errorWithCause('Failed to invite staff user', error, { email })

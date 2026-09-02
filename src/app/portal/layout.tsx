@@ -10,7 +10,8 @@ import { PortalSidebar } from '@/components/portal/PortalSidebar'
 import { PortalTabBar } from '@/components/portal/PortalTabBar'
 import { BRAND } from '@/lib/config/brand'
 import { RESIDENT_COOKIE, STAFF_COOKIE } from '@/lib/auth/constants'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { residentUnreadCount } from '@/lib/messaging/queries'
 
 /**
@@ -46,9 +47,9 @@ export default async function PortalLayout({ children }: { children: React.React
   const residentCode = cookieStore.get(RESIDENT_COOKIE)?.value
   const hasStaffAccess = !!cookieStore.get(STAFF_COOKIE)?.value
   const resident = residentCode
-    ? await prisma.resident.findUnique({
-        where: { code: residentCode },
-        select: { id: true },
+    ? await db.query.resident.findFirst({
+        where: eq(residentTable.code, residentCode),
+        columns: { id: true },
       })
     : null
   const messageUnreadCount = resident ? await residentUnreadCount(resident.id) : 0

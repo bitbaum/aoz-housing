@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, placement } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,19 +20,19 @@ export default async function ReportPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        include: {
+        where: eq(placement.status, 'ACTIVE'),
+        with: {
           housingUnit: {
-            include: {
+            with: {
               placements: {
-                where: { status: 'ACTIVE' },
-                include: {
+                where: eq(placement.status, 'ACTIVE'),
+                with: {
                   resident: {
-                    select: RESIDENT_NAME_SELECT,
+                    columns: RESIDENT_NAME_SELECT,
                   },
                 },
               },

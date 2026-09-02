@@ -10,7 +10,8 @@
  *   deployments only. Explicit opt-in.
  */
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { sql } from 'drizzle-orm'
+import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { isDemoEnabled, getDemoResetScope } from '@/lib/demo/config'
 import { resetDemoData } from '@/lib/demo/reset'
@@ -41,9 +42,10 @@ export async function POST(request: Request) {
 
   // Advisory lock: a reset overlapping itself (or a slow previous run) would
   // truncate mid-seed. Non-blocking — the later run just skips.
-  const lockResult = await prisma.$queryRaw<Array<{ ok: boolean }>>`
+  const { rows: lockRows } = await db.execute(sql`
     SELECT pg_try_advisory_lock(${CRON_LOCK_KEY}) AS ok
-  `
+  `)
+  const lockResult = lockRows as unknown as Array<{ ok: boolean }>
   if (!lockResult[0]?.ok) {
     logger.warn('cron/reset-demo skipped: another run already in progress')
     return NextResponse.json({ skipped: true, reason: 'lock-held' })
@@ -51,7 +53,7 @@ export async function POST(request: Request) {
 
   try {
     const scope = getDemoResetScope()
-    const summary = scope === 'FULL' ? await resetDemoData(prisma) : await resetDemoWorld(prisma)
+    const summary = scope === 'FULL' ? await resetDemoData(db) : await resetDemoWorld(db)
     logger.info('Demo data reset', { scope, ...summary })
     return NextResponse.json({ success: true, scope, ...summary })
   } catch (error) {
@@ -61,7 +63,7 @@ export async function POST(request: Request) {
     // Release the advisory lock. Failure here is logged but never thrown,
     // so it cannot mask the reset's own outcome.
     try {
-      await prisma.$queryRaw`SELECT pg_advisory_unlock(${CRON_LOCK_KEY})`
+      await db.execute(sql`SELECT pg_advisory_unlock(${CRON_LOCK_KEY})`)
     } catch (unlockErr) {
       logger.errorWithCause('Failed to release cron advisory lock', unlockErr)
     }

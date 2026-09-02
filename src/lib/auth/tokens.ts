@@ -9,8 +9,8 @@
  */
 
 import { createHash, randomBytes } from 'crypto'
-import type { AuthTokenPurpose } from '@prisma/client'
-import { prisma } from '@/lib/db'
+import { db, authToken, type AuthTokenPurpose } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 
 export const TOKEN_TTL_MS: Record<AuthTokenPurpose, number> = {
   // A reset link is a credential — keep its window short.
@@ -34,14 +34,14 @@ export async function createAuthToken(
 ): Promise<string> {
   const raw = randomBytes(32).toString('hex')
 
-  await prisma.authToken.deleteMany({ where: { accountId, purpose } })
-  await prisma.authToken.create({
-    data: {
-      accountId,
-      purpose,
-      tokenHash: hashAuthToken(raw),
-      expiresAt: new Date(Date.now() + TOKEN_TTL_MS[purpose]),
-    },
+  await db
+    .delete(authToken)
+    .where(and(eq(authToken.accountId, accountId), eq(authToken.purpose, purpose)))
+  await db.insert(authToken).values({
+    accountId,
+    purpose,
+    tokenHash: hashAuthToken(raw),
+    expiresAt: new Date(Date.now() + TOKEN_TTL_MS[purpose]),
   })
 
   return raw
@@ -56,15 +56,15 @@ export async function consumeAuthToken(
   raw: string,
   purpose: AuthTokenPurpose,
 ): Promise<string | null> {
-  const token = await prisma.authToken.findUnique({
-    where: { tokenHash: hashAuthToken(raw) },
-    select: { id: true, purpose: true, expiresAt: true, usedAt: true, accountId: true },
+  const token = await db.query.authToken.findFirst({
+    where: eq(authToken.tokenHash, hashAuthToken(raw)),
+    columns: { id: true, purpose: true, expiresAt: true, usedAt: true, accountId: true },
   })
 
   if (!token || token.purpose !== purpose || token.usedAt || token.expiresAt < new Date()) {
     return null
   }
 
-  await prisma.authToken.update({ where: { id: token.id }, data: { usedAt: new Date() } })
+  await db.update(authToken).set({ usedAt: new Date() }).where(eq(authToken.id, token.id))
   return token.accountId
 }

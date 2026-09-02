@@ -11,9 +11,10 @@
  * bound to wording they never saw.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { eq } from 'drizzle-orm'
 // Relative rather than the usual '@/' alias: prisma/seed.ts imports this module
 // through ts-node, which does not resolve tsconfig path aliases.
+import { houseRule, type db } from '../db'
 import { ORG_RULE_CATALOG } from '../config/house-rules'
 
 export interface SyncResult {
@@ -24,24 +25,24 @@ export interface SyncResult {
   amendedKeys: string[]
 }
 
-export async function syncOrgRules(prisma: PrismaClient): Promise<SyncResult> {
+export async function syncOrgRules(dbClient: typeof db): Promise<SyncResult> {
   const result: SyncResult = { created: 0, amended: 0, unchanged: 0, amendedKeys: [] }
 
   for (const seed of ORG_RULE_CATALOG) {
-    const existing = await prisma.houseRule.findUnique({ where: { key: seed.key } })
+    const existing = await dbClient.query.houseRule.findFirst({
+      where: eq(houseRule.key, seed.key),
+    })
 
     if (!existing) {
-      await prisma.houseRule.create({
-        data: {
-          scope: 'ORG',
-          key: seed.key,
-          category: seed.category,
-          title: seed.title,
-          body: seed.body,
-          delegation: seed.delegation,
-          status: 'ACTIVE',
-          version: 1,
-        },
+      await dbClient.insert(houseRule).values({
+        scope: 'ORG',
+        key: seed.key,
+        category: seed.category,
+        title: seed.title,
+        body: seed.body,
+        delegation: seed.delegation,
+        status: 'ACTIVE',
+        version: 1,
       })
       result.created++
       continue
@@ -58,9 +59,9 @@ export async function syncOrgRules(prisma: PrismaClient): Promise<SyncResult> {
       continue
     }
 
-    await prisma.houseRule.update({
-      where: { id: existing.id },
-      data: {
+    await dbClient
+      .update(houseRule)
+      .set({
         category: seed.category,
         title: seed.title,
         body: seed.body,
@@ -70,8 +71,8 @@ export async function syncOrgRules(prisma: PrismaClient): Promise<SyncResult> {
         // rule does not change what a resident agreed to, so it must not
         // trigger a re-acknowledgement round for everyone.
         version: contentChanged ? existing.version + 1 : existing.version,
-      },
-    })
+      })
+      .where(eq(houseRule.id, existing.id))
 
     if (contentChanged) {
       result.amended++

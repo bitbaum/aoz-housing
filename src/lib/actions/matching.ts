@@ -1,6 +1,14 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
+import {
+  db,
+  housingUnit,
+  placement as placementTable,
+  placementSpot,
+  resident as residentTable,
+  type Resident,
+} from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { logAudit } from '@/lib/audit'
 import { calculateCompatibility, saveBidirectionalAssessment } from '@/lib/compatibility'
@@ -84,12 +92,12 @@ export async function placeResident(formData: FormData) {
   // Execute all placement operations in a transaction to ensure atomicity
   let placement
   try {
-    placement = await prisma.$transaction(async (tx) => {
+    placement = await db.transaction(async (tx) => {
       // 1. Check if spot is still available (prevents double-booking)
       if (spotId) {
-        const spot = await tx.placementSpot.findUnique({
-          where: { id: spotId },
-          include: { placements: { where: { status: 'ACTIVE' } } },
+        const spot = await tx.query.placementSpot.findFirst({
+          where: eq(placementSpot.id, spotId),
+          with: { placements: { where: eq(placementTable.status, 'ACTIVE') } },
         })
 
         if (!spot) {
@@ -106,9 +114,9 @@ export async function placeResident(formData: FormData) {
       }
 
       // 2. Check if resident is still unplaced
-      const resident = await tx.resident.findUnique({
-        where: { id: residentId },
-        include: { placements: { where: { status: 'ACTIVE' } } },
+      const resident = await tx.query.resident.findFirst({
+        where: eq(residentTable.id, residentId),
+        with: { placements: { where: eq(placementTable.status, 'ACTIVE') } },
       })
 
       if (!resident) {
@@ -120,14 +128,21 @@ export async function placeResident(formData: FormData) {
       }
 
       // 3. Fetch existing active placements in the unit for score calculation
-      const existingPlacements = await tx.placement.findMany({
-        where: { housingUnitId, status: 'ACTIVE' },
-        include: { resident: true },
+      const existingPlacements = await tx.query.placement.findMany({
+        where: and(
+          eq(placementTable.housingUnitId, housingUnitId),
+          eq(placementTable.status, 'ACTIVE'),
+        ),
+        with: { resident: true },
       })
 
       // 4. Server-side blocking conflict check (never trust client)
+      // (`db.query`'s relation typing collapses to an untyped fallback for
+      // this schema; at runtime each `p.resident` is one Resident row.)
       const residentProfile = toResidentProfile(resident)
-      const existingProfiles = existingPlacements.map((p) => toResidentProfile(p.resident))
+      const existingProfiles = existingPlacements.map((p) =>
+        toResidentProfile(p.resident as unknown as Resident),
+      )
       const apartmentProfile = calculateApartmentProfile(existingProfiles)
       const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
       const apartmentFitScore = apartmentFit.fitScore
@@ -154,7 +169,7 @@ export async function placeResident(formData: FormData) {
 
       if (existingPlacements.length > 0) {
         for (const existingPlacement of existingPlacements) {
-          const otherProfile = toResidentProfile(existingPlacement.resident)
+          const otherProfile = toResidentProfile(existingPlacement.resident as unknown as Resident)
           const score = calculateCompatibility(residentProfile, otherProfile)
 
           // Collect insights
@@ -180,8 +195,9 @@ export async function placeResident(formData: FormData) {
       )
 
       // 7. Create placement with server-computed scores
-      const newPlacement = await tx.placement.create({
-        data: {
+      const [newPlacement] = await tx
+        .insert(placementTable)
+        .values({
           residentId,
           housingUnitId,
           spotId,
@@ -193,35 +209,35 @@ export async function placeResident(formData: FormData) {
           practicalScore,
           riskScore,
           placementNotes,
-        },
-      })
+        })
+        .returning()
 
       // 8. Update spot status if assigned
       if (spotId) {
-        await tx.placementSpot.update({
-          where: { id: spotId },
-          data: { status: 'OCCUPIED' },
-        })
+        await tx
+          .update(placementSpot)
+          .set({ status: 'OCCUPIED' })
+          .where(eq(placementSpot.id, spotId))
       }
 
       // 9. Update resident status
-      await tx.resident.update({
-        where: { id: residentId },
-        data: { status: 'PLACED' },
-      })
+      await tx
+        .update(residentTable)
+        .set({ status: 'PLACED' })
+        .where(eq(residentTable.id, residentId))
 
       // 10. Check if unit is now full and update status
-      const unit = await tx.housingUnit.findUnique({
-        where: { id: housingUnitId },
-        include: { placements: { where: { status: 'ACTIVE' } } },
+      const unit = await tx.query.housingUnit.findFirst({
+        where: eq(housingUnit.id, housingUnitId),
+        with: { placements: { where: eq(placementTable.status, 'ACTIVE') } },
       })
 
       // placements already includes the newly created one (same transaction)
       if (unit && unit.placements.length >= unit.totalBeds) {
-        await tx.housingUnit.update({
-          where: { id: housingUnitId },
-          data: { status: 'FULL' },
-        })
+        await tx
+          .update(housingUnit)
+          .set({ status: 'FULL' })
+          .where(eq(housingUnit.id, housingUnitId))
       }
 
       return {

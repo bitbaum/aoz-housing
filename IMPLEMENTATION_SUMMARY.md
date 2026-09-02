@@ -79,7 +79,7 @@ This document summarizes all implementation work completed for the AOZ Housing i
 **File**: `/src/app/matching/page.tsx` (UPDATED)
 
 **What it does**:
-- Wraps placement operations in `prisma.$transaction()`
+- Wraps placement operations in `db.transaction()`
 - Atomic operations: all-or-nothing
 - Prevents partial failures leaving database in bad state
 
@@ -130,7 +130,7 @@ This document summarizes all implementation work completed for the AOZ Housing i
 ## 3. Demo Data
 
 ### Comprehensive Seed File ✅
-**File**: `/prisma/seed-demo.ts` (NEW)
+**File**: `/scripts/db/seed-demo.ts` (NEW)
 
 **What it contains**:
 - **15 residents**: Including Ahmed (unplaced, demo star) and Maria (transferred 3x)
@@ -148,7 +148,7 @@ This document summarizes all implementation work completed for the AOZ Housing i
 
 **Real data**: YES - All data exists in database after running seed
 **Made up**: NO - Data is realistic but fictional for demonstration
-**Run with**: `npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-demo.ts`
+**Run with**: `npx ts-node -r tsconfig-paths/register --compiler-options '{"module":"CommonJS","types":["node"]}' scripts/db/seed-demo.ts`
 
 ---
 
@@ -300,7 +300,7 @@ This document summarizes all implementation work completed for the AOZ Housing i
 
 2. **Seed demo data** (if not already done):
    ```bash
-   npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-demo.ts
+   npx ts-node -r tsconfig-paths/register --compiler-options '{"module":"CommonJS","types":["node"]}' scripts/db/seed-demo.ts
    ```
 
 3. **Open pages**:
@@ -322,7 +322,7 @@ This document summarizes all implementation work completed for the AOZ Housing i
 4. `/src/lib/analytics/unit-metrics.ts`
 5. `/src/app/analytics/roi/page.tsx`
 6. `/src/app/analytics/learning/page.tsx`
-7. `/prisma/seed-demo.ts`
+7. `/scripts/db/seed-demo.ts`
 8. `/DEMO_GUIDE.md`
 
 ### Modified Files (5):
