@@ -2,7 +2,7 @@
   "name": "aoz-housing",
   "version": "0.1.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "private": true,
   "description": "Support platform for refugee care work: housing stability with compatibility matching, daily-life coordination, conflict resolution, and learning & participation tracking — one system for staff and residents",
