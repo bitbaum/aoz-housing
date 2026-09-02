@@ -84,7 +84,7 @@ UI — that stays German.
 
 ### Config-Driven Design (2-File Changes)
 
-All factor definitions, labels, options, thresholds, and colors live in `src/lib/config/`. Adding a new compatibility factor requires editing at most 2 files: config + Prisma schema. Forms, scoring, display, and validation auto-generate from config.
+All factor definitions, labels, options, thresholds, and colors live in `src/lib/config/`. Adding a new compatibility factor requires editing at most 2 files: config + Drizzle schema. Forms, scoring, display, and validation auto-generate from config.
 
 Key config files:
 - `resident-factors.ts` (550+ lines) -- 38 resident factors organized by form section (basic, lifestyle, social, practical, household, health, preferences, notes)
@@ -138,7 +138,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 |-------|------------|
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript (strict mode) |
-| Database | PostgreSQL 17 on Hetzner (`aoz_wohnen`) + Prisma |
+| Database | PostgreSQL 17 on Hetzner (`aoz_wohnen`) + Drizzle ORM |
 | Styling | Tailwind CSS (mobile-first) |
 | Validation | Zod |
 | Auth | JWT sessions (bcryptjs + jose) |
@@ -162,7 +162,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 git clone <repo-url> && cd aoz-housing
 pnpm install
 cp .env.example .env          # local Postgres; production is aoz_wohnen on Hetzner — see docs/INFRASTRUCTURE.md
-pnpm prisma migrate deploy
+pnpm db:migrate
 pnpm dev
 ```
 
@@ -225,8 +225,8 @@ src/
     audit.ts              # Placement audit trail
     auth/                 # JWT sessions, role policy, rate limiting
   components/             # UI components (mobile-first)
-prisma/
-  schema.prisma           # Single source of truth for data model
+src/lib/db/
+  schema.ts               # Single source of truth for data model (drizzle/ holds its SQL migrations)
 tests/
   unit/                   # 2341 unit tests (135 suites)
   e2e/                    # 45 Playwright specs (11 files)

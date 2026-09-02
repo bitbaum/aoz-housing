@@ -9,7 +9,16 @@
  */
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  agreementParty,
+  conflictAgreement,
+  houseRule,
+  incident,
+  incidentFollowUp,
+  proposal,
+} from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -48,7 +57,7 @@ export async function syncOrgRuleCatalog(): Promise<
 > {
   const user = await requireStaffAuth()
   try {
-    const result = await syncOrgRules(prisma)
+    const result = await syncOrgRules(db)
 
     await logAudit({
       action: 'UPDATE',
@@ -81,9 +90,10 @@ export async function createOrgRule(input: OrgRuleInput): Promise<ActionResult<{
   }
 
   try {
-    const rule = await prisma.houseRule.create({
-      data: { ...parsed.data, scope: 'ORG', status: 'ACTIVE', version: 1 },
-    })
+    const [rule] = await db
+      .insert(houseRule)
+      .values({ ...parsed.data, scope: 'ORG', status: 'ACTIVE', version: 1 })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
@@ -117,22 +127,24 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
   }
 
   try {
-    const existing = await prisma.houseRule.findUnique({ where: { id: parsed.data.ruleId } })
+    const existing = await db.query.houseRule.findFirst({
+      where: eq(houseRule.id, parsed.data.ruleId),
+    })
     if (!existing) return { success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND }
 
     const contentChanged =
       existing.title !== parsed.data.title || existing.body !== parsed.data.body
 
-    await prisma.houseRule.update({
-      where: { id: parsed.data.ruleId },
-      data: {
+    await db
+      .update(houseRule)
+      .set({
         category: parsed.data.category,
         title: parsed.data.title,
         body: parsed.data.body,
         delegation: parsed.data.delegation,
         version: contentChanged ? existing.version + 1 : existing.version,
-      },
-    })
+      })
+      .where(eq(houseRule.id, parsed.data.ruleId))
 
     await logAudit({
       action: 'UPDATE',
@@ -158,10 +170,13 @@ export async function updateOrgRule(input: UpdateOrgRuleInput): Promise<ActionRe
 export async function archiveRule(ruleId: string): Promise<ActionResult> {
   const user = await requireStaffAuth()
   try {
-    await prisma.houseRule.update({
-      where: { id: ruleId },
-      data: { status: 'ARCHIVED', effectiveUntil: new Date() },
-    })
+    const [archived] = await db
+      .update(houseRule)
+      .set({ status: 'ARCHIVED', effectiveUntil: new Date() })
+      .where(eq(houseRule.id, ruleId))
+      .returning({ id: houseRule.id })
+    // Prisma threw on a missing rule; keep that outcome for a bad id.
+    if (!archived) return { success: false, error: ERROR_MESSAGES.ARCHIVE_ERROR }
 
     await logAudit({ action: 'ARCHIVE', entity: 'HOUSE_RULE', entityId: ruleId, userId: user.id })
 
@@ -190,15 +205,18 @@ export async function createUnitRuleAsStaff(
   }
 
   try {
-    const parent = await prisma.houseRule.findUnique({ where: { id: parsed.data.parentRuleId } })
+    const parent = await db.query.houseRule.findFirst({
+      where: eq(houseRule.id, parsed.data.parentRuleId),
+    })
     if (!parent) return { success: false, error: ERROR_MESSAGES.RULE_NOT_FOUND }
 
     // Same gate as a resident proposal: staff cannot override an AOZ rule either.
     const check = checkUnitLegislation(parent)
     if (!check.allowed) return { success: false, error: check.reason }
 
-    const rule = await prisma.houseRule.create({
-      data: {
+    const [rule] = await db
+      .insert(houseRule)
+      .values({
         scope: 'UNIT',
         housingUnitId: parsed.data.housingUnitId,
         parentRuleId: parsed.data.parentRuleId,
@@ -209,8 +227,8 @@ export async function createUnitRuleAsStaff(
         status: 'ACTIVE',
         version: 1,
         createdByStaff: user.name,
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
@@ -275,18 +293,24 @@ export async function confirmProposal(input: StaffConfirmProposalInput): Promise
 
   try {
     // Atomic guard — two staff members must not confirm and veto the same row.
-    const updated = await prisma.proposal.updateMany({
-      where: { id: parsed.data.proposalId, status: 'NEEDS_STAFF_CONFIRMATION' },
-      data: {
+    const updated = await db
+      .update(proposal)
+      .set({
         status: parsed.data.decision === 'CONFIRMED' ? 'ACCEPTED' : 'VETOED',
         staffDecision: parsed.data.decision,
         staffNotes: parsed.data.staffNotes,
         staffUserId: user.id,
         staffDecidedAt: new Date(),
-      },
-    })
+      })
+      .where(
+        and(
+          eq(proposal.id, parsed.data.proposalId),
+          eq(proposal.status, 'NEEDS_STAFF_CONFIRMATION'),
+        ),
+      )
+      .returning({ id: proposal.id })
 
-    if (updated.count === 0) {
+    if (updated.length === 0) {
       return { success: false, error: ERROR_MESSAGES.PROPOSAL_ALREADY_DECIDED }
     }
 
@@ -327,25 +351,26 @@ export async function advanceResolutionStage(input: AdvanceStageInput): Promise<
   }
 
   try {
-    await prisma.incident.update({
-      where: { id: parsed.data.incidentId },
-      data: {
+    const [moved] = await db
+      .update(incident)
+      .set({
         resolutionStage: parsed.data.stage,
         stageEnteredAt: new Date(),
         ...(parsed.data.stage === 'CLOSED' ? { resolvedAt: new Date() } : {}),
-      },
-    })
+      })
+      .where(eq(incident.id, parsed.data.incidentId))
+      .returning({ id: incident.id })
+    // Prisma threw on a missing incident; keep that outcome for a bad id.
+    if (!moved) return { success: false, error: ERROR_MESSAGES.RESOLUTION_STAGE_ERROR }
 
     // The stage change itself is the follow-up record — the incident history
     // must show why it moved, not just that it did.
     if (parsed.data.note) {
-      await prisma.incidentFollowUp.create({
-        data: {
-          incidentId: parsed.data.incidentId,
-          action: `Schritt gewechselt: ${parsed.data.stage}`,
-          notes: parsed.data.note,
-          staffName: user.name,
-        },
+      await db.insert(incidentFollowUp).values({
+        incidentId: parsed.data.incidentId,
+        action: `Schritt gewechselt: ${parsed.data.stage}`,
+        notes: parsed.data.note,
+        staffName: user.name,
       })
     }
 
@@ -380,17 +405,27 @@ export async function createAgreement(
   }
 
   try {
-    const agreement = await prisma.conflictAgreement.create({
-      data: {
-        incidentId: parsed.data.incidentId,
-        terms: parsed.data.terms,
-        reviewDate: parsed.data.reviewDate,
-        mediatorName: parsed.data.mediatorName ?? user.name,
-        status: 'PROPOSED',
-        parties: {
-          create: parsed.data.residentIds.map((residentId) => ({ residentId })),
-        },
-      },
+    // Agreement and its parties land together or not at all — the nested
+    // create Prisma did in one call becomes two inserts in one transaction.
+    const agreement = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(conflictAgreement)
+        .values({
+          incidentId: parsed.data.incidentId,
+          terms: parsed.data.terms,
+          reviewDate: parsed.data.reviewDate,
+          mediatorName: parsed.data.mediatorName ?? user.name,
+          status: 'PROPOSED',
+        })
+        .returning()
+      if (parsed.data.residentIds.length > 0) {
+        await tx
+          .insert(agreementParty)
+          .values(
+            parsed.data.residentIds.map((residentId) => ({ agreementId: created.id, residentId })),
+          )
+      }
+      return created
     })
 
     await logAudit({
@@ -426,15 +461,17 @@ export async function reviewAgreement(input: ReviewAgreementInput): Promise<Acti
   }
 
   try {
-    const agreement = await prisma.conflictAgreement.update({
-      where: { id: parsed.data.agreementId },
-      data: {
+    const [agreement] = await db
+      .update(conflictAgreement)
+      .set({
         status: parsed.data.status,
         outcomeNotes: parsed.data.outcomeNotes,
         reviewedAt: new Date(),
-      },
-      select: { id: true, incidentId: true },
-    })
+      })
+      .where(eq(conflictAgreement.id, parsed.data.agreementId))
+      .returning({ id: conflictAgreement.id, incidentId: conflictAgreement.incidentId })
+    // Prisma threw on a missing agreement; keep that outcome for a bad id.
+    if (!agreement) return { success: false, error: ERROR_MESSAGES.AGREEMENT_SAVE_ERROR }
 
     await logAudit({
       action: 'UPDATE',

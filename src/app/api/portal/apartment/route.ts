@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, housingUnit } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { UpdateApartmentSchema } from '@/lib/validation/expenses'
 import { logAudit } from '@/lib/audit'
@@ -26,11 +27,11 @@ export async function PATCH(request: NextRequest) {
   try {
     // Any current resident may (re)name their own home; the audit trail
     // records who did. An empty string clears the nickname.
-    const unit = await prisma.housingUnit.update({
-      where: { id: auth.placement.housingUnitId },
-      data: { nickname: parsed.data.nickname || null },
-      select: { id: true, nickname: true },
-    })
+    const [unit] = await db
+      .update(housingUnit)
+      .set({ nickname: parsed.data.nickname || null })
+      .where(eq(housingUnit.id, auth.placement.housingUnitId))
+      .returning({ id: housingUnit.id, nickname: housingUnit.nickname })
 
     await logAudit({
       action: 'UPDATE',

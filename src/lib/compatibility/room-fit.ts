@@ -8,7 +8,7 @@
  * roommate was a blocking mismatch.
  */
 
-import type { PlacementSpot, Resident } from '@prisma/client'
+import type { PlacementSpot, Resident } from '@/lib/db'
 import { calculateCompatibility } from './scoring'
 import { toResidentProfile } from './convert'
 

@@ -1,4 +1,11 @@
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  satisfactionCheckIn,
+  incident,
+} from '@/lib/db'
+import { desc, eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { portalSatisfactionSchema } from '@/lib/validation/schemas'
 import { logger } from '@/lib/logger'
@@ -30,13 +37,13 @@ export async function POST(request: NextRequest) {
   const { rating, concerns } = parsed.data
 
   // Find resident and their active placement
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
-        include: { housingUnit: { select: { code: true } } },
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
+        with: { housingUnit: { columns: { code: true } } },
       },
     },
   })
@@ -60,45 +67,41 @@ export async function POST(request: NextRequest) {
     const weeksSinceStart = weeksBetween(placement.startDate)
 
     // Wrap all DB writes in a transaction
-    await prisma.$transaction(async (tx) => {
-      await tx.satisfactionCheckIn.create({
-        data: {
-          placementId: placement.id,
-          checkInType: 'AD_HOC',
-          weekNumber: weeksSinceStart,
-          overallSatisfaction: rating,
-          roommateRelations: null,
-          facilitySatisfaction: null,
-          safetyFeeling: null,
-          concerns: concerns || null,
-          improvements: null,
-          positives: null,
-          collectedBy: null,
-          isAnonymous: true,
-        },
+    await db.transaction(async (tx) => {
+      await tx.insert(satisfactionCheckIn).values({
+        placementId: placement.id,
+        checkInType: 'AD_HOC',
+        weekNumber: weeksSinceStart,
+        overallSatisfaction: rating,
+        roommateRelations: null,
+        facilitySatisfaction: null,
+        safetyFeeling: null,
+        concerns: concerns || null,
+        improvements: null,
+        positives: null,
+        collectedBy: null,
+        isAnonymous: true,
       })
 
-      await tx.placement.update({
-        where: { id: placement.id },
-        data: {
+      await tx
+        .update(placementTable)
+        .set({
           satisfactionRating: rating,
-        },
-      })
+        })
+        .where(eq(placementTable.id, placement.id))
 
       // Create alert for staff if low rating
       if (rating <= 2) {
-        await tx.incident.create({
-          data: {
-            housingUnitId: placement.housingUnitId,
-            reportedById: resident.id,
-            date: new Date(),
-            category: 'WELLBEING',
-            type: 'LOW_SATISFACTION',
-            severity: rating === 1 ? 'HIGH' : 'MEDIUM',
-            description: concerns
-              ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
-              : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
-          },
+        await tx.insert(incident).values({
+          housingUnitId: placement.housingUnitId,
+          reportedById: resident.id,
+          date: new Date(),
+          category: 'WELLBEING',
+          type: 'LOW_SATISFACTION',
+          severity: rating === 1 ? 'HIGH' : 'MEDIUM',
+          description: concerns
+            ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
+            : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
         })
       }
     })
@@ -134,16 +137,16 @@ export async function GET() {
     )
   }
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
-        include: {
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
+        with: {
           checkIns: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
+            orderBy: [desc(satisfactionCheckIn.createdAt)],
+            limit: 1,
           },
         },
       },

@@ -3,7 +3,7 @@ import { expandResidentIntakeDetails } from './helpers'
 
 // storageState from playwright.config handles staff auth.
 //
-// Seed data used (from prisma/seed.ts):
+// Seed data used (from scripts/db/seed.ts):
 //   - RES-008 to RES-013: status=ACTIVE (unplaced, no placement)
 //   - ZH-001 to ZH-010+: housing units with available spots
 

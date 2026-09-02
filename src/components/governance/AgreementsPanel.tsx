@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { AgreementStatus } from '@prisma/client'
+import type { AgreementStatus } from '@/lib/db'
 import { createAgreement, reviewAgreement } from '@/lib/actions/governance'
 import {
   AGREEMENT_QUALITY_HINTS,

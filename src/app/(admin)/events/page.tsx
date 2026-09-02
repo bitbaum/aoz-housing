@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit } from '@/lib/db'
+import { asc } from 'drizzle-orm'
 import { EmptyState, ListShell, PageHeader, PageShell } from '@/components/ui/Page'
 import { EVENTS_ADMIN_LABELS } from '@/lib/constants'
 import { listStaffEvents, createEventAsStaff, cancelEvent } from '@/lib/actions/events'
@@ -31,7 +32,10 @@ export default async function EventsAdminPage() {
   const canWriteEvents = !!staff && hasPermission(staff, 'events:write')
   const [events, units] = await Promise.all([
     listStaffEvents(),
-    prisma.housingUnit.findMany({ select: { id: true, code: true }, orderBy: { code: 'asc' } }),
+    db.query.housingUnit.findMany({
+      columns: { id: true, code: true },
+      orderBy: [asc(housingUnit.code)],
+    }),
   ])
 
   return (

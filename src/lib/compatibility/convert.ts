@@ -1,12 +1,12 @@
 /**
- * Convert Prisma Resident to ResidentProfile for scoring
+ * Convert a Resident row to ResidentProfile for scoring
  */
 
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ResidentProfile } from './types'
 
 /**
- * Convert a Prisma Resident record to a ResidentProfile for compatibility scoring
+ * Convert a Resident record to a ResidentProfile for compatibility scoring
  */
 export function toResidentProfile(resident: Resident): ResidentProfile {
   return {
@@ -22,11 +22,11 @@ export function toResidentProfile(resident: Resident): ResidentProfile {
     chaosTolerance: resident.chaosTolerance,
     guestTolerance: resident.guestTolerance,
     socialStyle: resident.socialStyle,
-    languages: resident.languages,
+    languages: resident.languages ?? [],
     culturalRegion: resident.culturalRegion ?? undefined,
     conflictStyle: resident.conflictStyle,
     smokingStatus: resident.smokingStatus,
-    dietaryNeeds: resident.dietaryNeeds,
+    dietaryNeeds: resident.dietaryNeeds ?? [],
     mobilityNeeds: resident.mobilityNeeds,
     medicalEquipment: resident.medicalEquipment,
     petTolerance: resident.petTolerance,

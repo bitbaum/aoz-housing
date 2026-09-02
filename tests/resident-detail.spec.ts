@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { expectNotFoundPage } from './helpers'
 
 // storageState from playwright.config handles staff auth
-// Seed data (prisma/seed.ts):
+// Seed data (scripts/db/seed.ts):
 //   RES-001 → status PLACED (active placement in ZH-001)
 //   RES-021 → status ACTIVE  (unplaced, no active placement)
 

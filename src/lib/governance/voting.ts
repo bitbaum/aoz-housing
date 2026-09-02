@@ -6,7 +6,7 @@
  * same words the staff see. No black-box outcomes (First Principle #3).
  */
 
-import type { VoteChoice, VoteThreshold } from '@prisma/client'
+import type { VoteChoice, VoteThreshold } from '@/lib/db'
 // Relative rather than the usual '@/' alias: the demo seed reaches this module
 // through ts-node, which does not resolve tsconfig path aliases.
 import { DECISION_TIMING, THRESHOLD_APPROVAL_PERCENT, THRESHOLD_LABELS } from '../config/decisions'

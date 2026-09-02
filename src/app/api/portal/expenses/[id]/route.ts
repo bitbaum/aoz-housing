@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, expense as expenseTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
@@ -16,9 +17,9 @@ export async function DELETE(_request: NextRequest, props: { params: Promise<{ i
   }
 
   try {
-    const expense = await prisma.expense.findUnique({
-      where: { id: params.id },
-      select: {
+    const expense = await db.query.expense.findFirst({
+      where: eq(expenseTable.id, params.id),
+      columns: {
         id: true,
         housingUnitId: true,
         paidById: true,
@@ -43,7 +44,7 @@ export async function DELETE(_request: NextRequest, props: { params: Promise<{ i
       )
     }
 
-    await prisma.expense.delete({ where: { id: expense.id } })
+    await db.delete(expenseTable).where(eq(expenseTable.id, expense.id))
 
     await logAudit({
       action: 'DELETE',

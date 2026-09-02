@@ -1,6 +1,7 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import { db, transferRequest } from '@/lib/db'
+import { and, desc, eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
@@ -12,22 +13,25 @@ import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 export async function getTransferRequests(status?: string) {
   await requireStaffAuth()
   const where = status
-    ? { status: status as 'PENDING' | 'APPROVED' | 'DENIED' | 'COMPLETED' | 'CANCELLED' }
-    : {}
+    ? eq(
+        transferRequest.status,
+        status as 'PENDING' | 'APPROVED' | 'DENIED' | 'COMPLETED' | 'CANCELLED',
+      )
+    : undefined
 
-  return prisma.transferRequest.findMany({
+  return db.query.transferRequest.findMany({
     where,
-    include: {
-      resident: { select: { ...RESIDENT_NAME_SELECT, supportLevel: true } },
+    with: {
+      resident: { columns: { ...RESIDENT_NAME_SELECT, supportLevel: true } },
       currentPlacement: {
-        select: {
-          id: true,
-          housingUnit: { select: { id: true, code: true, address: true } },
+        columns: { id: true },
+        with: {
+          housingUnit: { columns: { id: true, code: true, address: true } },
         },
       },
-      targetUnit: { select: { id: true, code: true, address: true } },
+      targetUnit: { columns: { id: true, code: true, address: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: [desc(transferRequest.createdAt)],
   })
 }
 
@@ -40,20 +44,21 @@ async function reviewTransferRequest(
   try {
     // Atomic guard: only PENDING rows are eligible. Prevents two staff members
     // concurrently approving + denying (or both approving) the same request.
-    const result = await prisma.transferRequest.updateMany({
-      where: { id: input.requestId, status: 'PENDING' },
-      data: {
+    const updated = await db
+      .update(transferRequest)
+      .set({
         status: decision,
         staffNotes: input.staffNotes,
         reviewedBy: user.id,
         reviewedAt: new Date(),
-      },
-    })
+      })
+      .where(and(eq(transferRequest.id, input.requestId), eq(transferRequest.status, 'PENDING')))
+      .returning({ id: transferRequest.id })
 
-    if (result.count === 0) {
-      const exists = await prisma.transferRequest.findUnique({
-        where: { id: input.requestId },
-        select: { id: true },
+    if (updated.length === 0) {
+      const exists = await db.query.transferRequest.findFirst({
+        where: eq(transferRequest.id, input.requestId),
+        columns: { id: true },
       })
       return {
         success: false,

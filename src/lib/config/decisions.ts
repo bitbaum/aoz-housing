@@ -28,7 +28,7 @@ import type {
   RuleCategory,
   VoteChoice,
   VoteThreshold,
-} from '@prisma/client'
+} from '@/lib/db'
 
 // =============================================================================
 // WHO DECIDES — per rule category

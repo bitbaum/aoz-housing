@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import { and, desc, eq, inArray } from 'drizzle-orm'
+import { db, marketplacePost } from '@/lib/db'
 import { getCurrentUser } from '@/lib/auth'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { hasPermission } from '@/lib/auth/role-policy'
@@ -14,7 +15,7 @@ import {
   natureOfKind,
   type MarketplaceNature,
 } from '@/lib/config/marketplace'
-import type { MarketplacePostKind, MarketplacePostStatus } from '@prisma/client'
+import type { MarketplacePostKind, MarketplacePostStatus } from '@/lib/db'
 
 export type MarketplacePostSummary = {
   id: string
@@ -58,10 +59,18 @@ function revalidateMarketplace() {
 }
 
 const POST_INCLUDE = {
-  housingUnit: { select: { id: true, code: true } },
-  postedBy: { select: RESIDENT_NAME_SELECT },
-  claimedBy: { select: RESIDENT_NAME_SELECT },
+  housingUnit: { columns: { id: true, code: true } },
+  postedBy: { columns: RESIDENT_NAME_SELECT },
+  claimedBy: { columns: RESIDENT_NAME_SELECT },
 } as const
+
+/**
+ * `db.query`'s relation typing collapses to an untyped fallback for this
+ * schema, so rows are re-asserted to the shape `mapPost` consumes. The runtime
+ * shape is exactly this — to-one relations come back as single objects (or
+ * null), never arrays.
+ */
+type PostRow = Parameters<typeof mapPost>[0]
 
 /**
  * The board as one reader sees it.
@@ -79,17 +88,17 @@ export async function listPortalMarketplacePosts(nature?: MarketplaceNature): Pr
   const auth = await getPortalAuth()
   if (!auth) return null
 
-  const rows = await prisma.marketplacePost.findMany({
-    where: { hiddenByStaff: false },
-    include: POST_INCLUDE,
-    orderBy: { createdAt: 'desc' },
+  const rows = await db.query.marketplacePost.findMany({
+    where: eq(marketplacePost.hiddenByStaff, false),
+    with: POST_INCLUDE,
+    orderBy: [desc(marketplacePost.createdAt)],
   })
 
   const mine = auth.resident.id
   const unitId = auth.placement.housingUnitId
   const mapped = rows
     .map((row) =>
-      mapPost(row, {
+      mapPost(row as unknown as PostRow, {
         // Contact details reach the two people the handover is between, and
         // nobody else. Computed here, once, from the reader's identity.
         canSeeContact: row.postedById === mine || row.claimedById === mine,
@@ -120,28 +129,28 @@ export async function listMyMarketplacePosts(): Promise<MarketplacePostSummary[]
   const auth = await getPortalAuth()
   if (!auth) return []
 
-  const rows = await prisma.marketplacePost.findMany({
-    where: {
-      postedById: auth.resident.id,
-      hiddenByStaff: false,
-      status: { in: ['OPEN', 'CLAIMED'] },
-    },
-    include: POST_INCLUDE,
+  const rows = await db.query.marketplacePost.findMany({
+    where: and(
+      eq(marketplacePost.postedById, auth.resident.id),
+      eq(marketplacePost.hiddenByStaff, false),
+      inArray(marketplacePost.status, ['OPEN', 'CLAIMED']),
+    ),
+    with: POST_INCLUDE,
     // Claimed first: a post someone answered is the one needing the reader's
     // attention, and it is what this card exists to surface.
-    orderBy: [{ status: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [desc(marketplacePost.status), desc(marketplacePost.createdAt)],
   })
 
-  return rows.map((row) => mapPost(row, { canSeeContact: true }))
+  return rows.map((row) => mapPost(row as unknown as PostRow, { canSeeContact: true }))
 }
 
 export async function listStaffMarketplacePosts(): Promise<MarketplacePostSummary[]> {
-  const rows = await prisma.marketplacePost.findMany({
-    include: POST_INCLUDE,
-    orderBy: { createdAt: 'desc' },
+  const rows = await db.query.marketplacePost.findMany({
+    with: POST_INCLUDE,
+    orderBy: [desc(marketplacePost.createdAt)],
   })
   // Staff moderate the board, so they read it whole — that is the job.
-  return rows.map((row) => mapPost(row, { canSeeContact: true }))
+  return rows.map((row) => mapPost(row as unknown as PostRow, { canSeeContact: true }))
 }
 
 function mapPost(
@@ -207,16 +216,14 @@ export async function createMarketplacePost(
   const requested = parseCategory(formData.get('category'))
   const category = categoryFitsKind(kind, requested) ? requested : 'OTHER'
 
-  await prisma.marketplacePost.create({
-    data: {
-      housingUnitId: auth.placement.housingUnitId,
-      postedById: auth.resident.id,
-      title,
-      description,
-      contactNote,
-      kind,
-      category,
-    },
+  await db.insert(marketplacePost).values({
+    housingUnitId: auth.placement.housingUnitId,
+    postedById: auth.resident.id,
+    title,
+    description,
+    contactNote,
+    kind,
+    category,
   })
 
   revalidateMarketplace()
@@ -230,7 +237,7 @@ export async function claimMarketplacePost(
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
   const id = String(formData.get('id') || '')
-  const post = await prisma.marketplacePost.findUnique({ where: { id } })
+  const post = await db.query.marketplacePost.findFirst({ where: eq(marketplacePost.id, id) })
   if (!post || post.status !== 'OPEN' || post.hiddenByStaff) {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
@@ -245,11 +252,12 @@ export async function claimMarketplacePost(
 
   // Conditional on still being OPEN, so two people pressing at once produces
   // one winner rather than a silent overwrite of the first claim.
-  const claimed = await prisma.marketplacePost.updateMany({
-    where: { id, status: 'OPEN' },
-    data: { status: 'CLAIMED', claimedById: auth.resident.id, claimedAt: new Date() },
-  })
-  if (claimed.count === 0) {
+  const claimed = await db
+    .update(marketplacePost)
+    .set({ status: 'CLAIMED', claimedById: auth.resident.id, claimedAt: new Date() })
+    .where(and(eq(marketplacePost.id, id), eq(marketplacePost.status, 'OPEN')))
+    .returning({ id: marketplacePost.id })
+  if (claimed.length === 0) {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 
@@ -271,7 +279,7 @@ export async function releaseMarketplaceClaim(
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
   const id = String(formData.get('id') || '')
-  const post = await prisma.marketplacePost.findUnique({ where: { id } })
+  const post = await db.query.marketplacePost.findFirst({ where: eq(marketplacePost.id, id) })
   if (!post || post.status !== 'CLAIMED') {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
@@ -282,10 +290,10 @@ export async function releaseMarketplaceClaim(
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
-  await prisma.marketplacePost.update({
-    where: { id },
-    data: { status: 'OPEN', claimedById: null, claimedAt: null },
-  })
+  await db
+    .update(marketplacePost)
+    .set({ status: 'OPEN', claimedById: null, claimedAt: null })
+    .where(eq(marketplacePost.id, id))
 
   revalidateMarketplace()
   return { success: true }
@@ -298,15 +306,15 @@ export async function closeMarketplacePost(
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
   const id = String(formData.get('id') || '')
-  const post = await prisma.marketplacePost.findUnique({ where: { id } })
+  const post = await db.query.marketplacePost.findFirst({ where: eq(marketplacePost.id, id) })
   if (!post) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   const isOwner = post.postedById === auth.resident.id || post.claimedById === auth.resident.id
   if (!isOwner) return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
 
-  await prisma.marketplacePost.update({
-    where: { id },
-    data: { status: 'CLOSED', closedAt: new Date() },
-  })
+  await db
+    .update(marketplacePost)
+    .set({ status: 'CLOSED', closedAt: new Date() })
+    .where(eq(marketplacePost.id, id))
 
   revalidateMarketplace()
   return { success: true }
@@ -320,7 +328,7 @@ export async function reopenMarketplacePost(
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
   const id = String(formData.get('id') || '')
-  const post = await prisma.marketplacePost.findUnique({ where: { id } })
+  const post = await db.query.marketplacePost.findFirst({ where: eq(marketplacePost.id, id) })
   if (!post || post.status === 'OPEN') {
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
@@ -328,10 +336,10 @@ export async function reopenMarketplacePost(
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
-  await prisma.marketplacePost.update({
-    where: { id },
-    data: { status: 'OPEN', claimedById: null, claimedAt: null, closedAt: null },
-  })
+  await db
+    .update(marketplacePost)
+    .set({ status: 'OPEN', claimedById: null, claimedAt: null, closedAt: null })
+    .where(eq(marketplacePost.id, id))
 
   revalidateMarketplace()
   return { success: true }
@@ -350,13 +358,13 @@ export async function deleteMarketplacePost(
   if (!auth) return { success: false, error: ERROR_MESSAGES.NOT_AUTHENTICATED }
 
   const id = String(formData.get('id') || '')
-  const post = await prisma.marketplacePost.findUnique({ where: { id } })
+  const post = await db.query.marketplacePost.findFirst({ where: eq(marketplacePost.id, id) })
   if (!post) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   if (post.postedById !== auth.resident.id || post.status !== 'OPEN') {
     return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
   }
 
-  await prisma.marketplacePost.delete({ where: { id } })
+  await db.delete(marketplacePost).where(eq(marketplacePost.id, id))
 
   revalidateMarketplace()
   return { success: true }
@@ -375,10 +383,13 @@ export async function hideMarketplacePost(
   const reason = String(formData.get('reason') || '').trim() || null
   if (!id) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
-  await prisma.marketplacePost.update({
-    where: { id },
-    data: { hiddenByStaff: true, hiddenReason: reason },
-  })
+  const hidden = await db
+    .update(marketplacePost)
+    .set({ hiddenByStaff: true, hiddenReason: reason })
+    .where(eq(marketplacePost.id, id))
+    .returning({ id: marketplacePost.id })
+  // Prisma's update threw when the id matched no row; keep that error path.
+  if (hidden.length === 0) throw new Error(ERROR_MESSAGES.SAVE_ERROR)
 
   revalidateMarketplace()
   return { success: true }
@@ -396,10 +407,13 @@ export async function unhideMarketplacePost(
   const id = String(formData.get('id') || '')
   if (!id) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
-  await prisma.marketplacePost.update({
-    where: { id },
-    data: { hiddenByStaff: false, hiddenReason: null },
-  })
+  const unhidden = await db
+    .update(marketplacePost)
+    .set({ hiddenByStaff: false, hiddenReason: null })
+    .where(eq(marketplacePost.id, id))
+    .returning({ id: marketplacePost.id })
+  // Prisma's update threw when the id matched no row; keep that error path.
+  if (unhidden.length === 0) throw new Error(ERROR_MESSAGES.SAVE_ERROR)
 
   revalidateMarketplace()
   return { success: true }

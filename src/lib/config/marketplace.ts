@@ -31,7 +31,7 @@
  * a value the code cannot handle.
  */
 
-import type { MarketplacePostKind, MarketplacePostStatus } from '@prisma/client'
+import type { MarketplacePostKind, MarketplacePostStatus } from '@/lib/db'
 import type { MessageKey } from '@/lib/i18n'
 
 /** The two halves of the board. */
@@ -59,7 +59,7 @@ interface MarketplaceKindConfig {
 }
 
 /**
- * Every kind, keyed by the Prisma enum so a value added to the schema without
+ * Every kind, keyed by the database enum so a value added to the schema without
  * a config entry fails to compile rather than rendering a blank chip.
  */
 export const MARKETPLACE_KINDS: Record<MarketplacePostKind, MarketplaceKindConfig> = {

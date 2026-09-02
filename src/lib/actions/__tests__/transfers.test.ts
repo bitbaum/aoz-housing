@@ -6,7 +6,8 @@
  * update status atomically, create audit log).
  */
 
-import { prisma } from '@/lib/db'
+import { and, desc, eq } from 'drizzle-orm'
+import { transferRequest } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { getTransferRequests, approveTransferRequest, denyTransferRequest } from '../transfers'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
@@ -15,13 +16,27 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockTransferFindMany = jest.fn()
+const mockTransferFindFirst = jest.fn()
+// Receives (setPayload, whereExpr) and resolves the updated-row array
+const mockTransferUpdate = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    transferRequest: {
-      findMany: jest.fn(),
-      findUnique: jest.fn(),
-      updateMany: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      transferRequest: {
+        findMany: (...a: unknown[]) => mockTransferFindMany(...a),
+        findFirst: (...a: unknown[]) => mockTransferFindFirst(...a),
+      },
     },
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({
+        where: (w: unknown) => ({
+          returning: (): Promise<unknown[]> => mockTransferUpdate(v, w),
+        }),
+      }),
+    })),
   },
 }))
 
@@ -64,8 +79,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -80,43 +93,43 @@ describe('getTransferRequests', () => {
       { id: 'tr-1', status: 'PENDING', reason: 'Lärm' },
       { id: 'tr-2', status: 'APPROVED', reason: 'Platzwechsel' },
     ]
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue(mockRequests)
+    mockTransferFindMany.mockResolvedValue(mockRequests)
 
     const result = await getTransferRequests()
 
     expect(result).toEqual(mockRequests)
-    expect(mockPrisma.transferRequest.findMany).toHaveBeenCalledWith({
-      where: {},
-      include: {
+    expect(mockTransferFindMany).toHaveBeenCalledWith({
+      where: undefined,
+      with: {
         // displayName comes along so the staff queue can show a name rather
         // than a login code (RESIDENT_NAME_SELECT).
-        resident: { select: { id: true, code: true, displayName: true, supportLevel: true } },
+        resident: { columns: { id: true, code: true, displayName: true, supportLevel: true } },
         currentPlacement: {
-          select: {
-            id: true,
-            housingUnit: { select: { id: true, code: true, address: true } },
+          columns: { id: true },
+          with: {
+            housingUnit: { columns: { id: true, code: true, address: true } },
           },
         },
-        targetUnit: { select: { id: true, code: true, address: true } },
+        targetUnit: { columns: { id: true, code: true, address: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [desc(transferRequest.createdAt)],
     })
   })
 
   it('filters by status when provided', async () => {
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue([])
+    mockTransferFindMany.mockResolvedValue([])
 
     await getTransferRequests('PENDING')
 
-    expect(mockPrisma.transferRequest.findMany).toHaveBeenCalledWith(
+    expect(mockTransferFindMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { status: 'PENDING' },
+        where: eq(transferRequest.status, 'PENDING'),
       }),
     )
   })
 
   it('returns empty array when no requests exist', async () => {
-    ;(mockPrisma.transferRequest.findMany as jest.Mock).mockResolvedValue([])
+    mockTransferFindMany.mockResolvedValue([])
 
     const result = await getTransferRequests()
 
@@ -132,25 +145,25 @@ describe('approveTransferRequest', () => {
   const validInput = { requestId: 'clxxxxxxxxxxxxxxxxx0001', staffNotes: 'Genehmigt' }
 
   it('approves a pending request atomically and returns success', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    mockTransferUpdate.mockResolvedValue([{ id: 'updated' }])
 
     const result = await approveTransferRequest(validInput)
 
     expect(result).toEqual({ success: true })
 
-    expect(mockPrisma.transferRequest.updateMany).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0001', status: 'PENDING' },
-      data: {
+    expect(mockTransferUpdate).toHaveBeenCalledWith(
+      {
         status: 'APPROVED',
         staffNotes: 'Genehmigt',
         reviewedBy: 'staff-1',
         reviewedAt: expect.any(Date),
       },
-    })
+      and(eq(transferRequest.id, 'clxxxxxxxxxxxxxxxxx0001'), eq(transferRequest.status, 'PENDING')),
+    )
   })
 
   it('calls logAudit with userId on approval', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    mockTransferUpdate.mockResolvedValue([{ id: 'updated' }])
 
     await approveTransferRequest(validInput)
 
@@ -164,8 +177,8 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns error when request is not found', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue(null)
+    mockTransferUpdate.mockResolvedValue([])
+    mockTransferFindFirst.mockResolvedValue(null)
 
     const result = await approveTransferRequest(validInput)
 
@@ -174,8 +187,8 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns error when request has already been reviewed', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue({
+    mockTransferUpdate.mockResolvedValue([])
+    mockTransferFindFirst.mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0001',
     })
 
@@ -186,7 +199,7 @@ describe('approveTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
+    mockTransferUpdate.mockRejectedValue(new Error('DB error'))
 
     const result = await approveTransferRequest(validInput)
 
@@ -202,25 +215,25 @@ describe('denyTransferRequest', () => {
   const validInput = { requestId: 'clxxxxxxxxxxxxxxxxx0002', staffNotes: 'Kein Platz verfügbar' }
 
   it('denies a pending request atomically and returns success', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    mockTransferUpdate.mockResolvedValue([{ id: 'updated' }])
 
     const result = await denyTransferRequest(validInput)
 
     expect(result).toEqual({ success: true })
 
-    expect(mockPrisma.transferRequest.updateMany).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0002', status: 'PENDING' },
-      data: {
+    expect(mockTransferUpdate).toHaveBeenCalledWith(
+      {
         status: 'DENIED',
         staffNotes: 'Kein Platz verfügbar',
         reviewedBy: 'staff-1',
         reviewedAt: expect.any(Date),
       },
-    })
+      and(eq(transferRequest.id, 'clxxxxxxxxxxxxxxxxx0002'), eq(transferRequest.status, 'PENDING')),
+    )
   })
 
   it('calls logAudit with userId on denial', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 1 })
+    mockTransferUpdate.mockResolvedValue([{ id: 'updated' }])
 
     await denyTransferRequest(validInput)
 
@@ -234,8 +247,8 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns error when request is not found', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue(null)
+    mockTransferUpdate.mockResolvedValue([])
+    mockTransferFindFirst.mockResolvedValue(null)
 
     const result = await denyTransferRequest(validInput)
 
@@ -244,8 +257,8 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns error when request has already been reviewed', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.transferRequest.findUnique as jest.Mock).mockResolvedValue({
+    mockTransferUpdate.mockResolvedValue([])
+    mockTransferFindFirst.mockResolvedValue({
       id: 'clxxxxxxxxxxxxxxxxx0002',
     })
 
@@ -256,7 +269,7 @@ describe('denyTransferRequest', () => {
   })
 
   it('returns generic error when prisma fails', async () => {
-    ;(mockPrisma.transferRequest.updateMany as jest.Mock).mockRejectedValue(new Error('DB error'))
+    mockTransferUpdate.mockRejectedValue(new Error('DB error'))
 
     const result = await denyTransferRequest(validInput)
 

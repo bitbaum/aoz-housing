@@ -2,10 +2,11 @@
  * Unit tests for spots server actions
  *
  * Tests createSpot, updateSpot, deleteSpot, and createMultipleSpots.
- * All actions take FormData, perform Prisma operations, and call revalidatePath.
+ * All actions take FormData, perform db operations, and call revalidatePath.
  */
 
-import { prisma } from '@/lib/db'
+import { placementSpot, placement } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { createSpot, updateSpot, deleteSpot, createMultipleSpots } from '../spots'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
@@ -13,17 +14,46 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockInsertValues = jest.fn()
+const mockUpdateReturning = jest.fn()
+const mockUpdateWhere = jest.fn()
+const mockDeleteWhere = jest.fn()
+const mockCount = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    placementSpot: {
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-      deleteMany: jest.fn(),
-    },
-    placement: {
-      count: jest.fn(),
-    },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    // `values()` is awaited directly for single inserts and `.returning()`ed for
+    // the room insert — expose both shapes over the same lazily-run mock.
+    insert: jest.fn(() => ({
+      values: (v: unknown) => {
+        const run = () => mockInsertValues(v) as Promise<unknown[]>
+        return {
+          then: (res?: never, rej?: never) => run().then(res, rej),
+          returning: () => run(),
+        }
+      },
+    })),
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({
+        where: (w: unknown) => {
+          mockUpdateWhere(w)
+          return { returning: (): Promise<unknown[]> => mockUpdateReturning(v) }
+        },
+      }),
+    })),
+    // `.where()` is awaited directly for the child-spot delete and
+    // `.returning()`ed for the spot itself.
+    delete: jest.fn(() => ({
+      where: (w: unknown) => {
+        const run = () => mockDeleteWhere(w) as Promise<unknown[]>
+        return {
+          then: (res?: never, rej?: never) => run().then(res, rej),
+          returning: () => run(),
+        }
+      },
+    })),
+    $count: (...a: unknown[]) => mockCount(...a),
   },
 }))
 
@@ -76,8 +106,6 @@ jest.mock('@/lib/logger', () => ({
     errorWithCause: jest.fn(),
   },
 }))
-
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -183,25 +211,21 @@ describe('createSpot', () => {
   })
 
   it('creates a spot with required fields', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({
-      id: 'spot-1',
-    })
+    mockInsertValues.mockResolvedValue([{ id: 'spot-1' }])
 
     await createSpot(makeCreateSpotFormData())
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
         housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
         code: 'R101-B1',
         type: 'BED',
       }),
-    })
+    )
   })
 
   it('creates a spot with optional fields', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({
-      id: 'spot-1',
-    })
+    mockInsertValues.mockResolvedValue([{ id: 'spot-1' }])
 
     const fd = makeCreateSpotFormData({
       label: 'Bett 1',
@@ -213,19 +237,19 @@ describe('createSpot', () => {
 
     await createSpot(fd)
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenCalledWith(
+      expect.objectContaining({
         label: 'Bett 1',
         squareMeters: 12,
         floor: 2,
         notes: 'Near window',
         status: 'AVAILABLE',
       }),
-    })
+    )
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the insert fails', async () => {
+    mockInsertValues.mockRejectedValue(new Error('DB error'))
 
     await expect(createSpot(makeCreateSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_CREATE_ERROR,
@@ -245,42 +269,34 @@ describe('updateSpot', () => {
   })
 
   it('updates a spot with new data', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
-      id: 'clxxxxxxxxxxxxxxxxx0010',
-    })
+    mockUpdateReturning.mockResolvedValue([{ id: 'clxxxxxxxxxxxxxxxxx0010' }])
 
     await updateSpot(makeUpdateSpotFormData())
 
-    expect(mockPrisma.placementSpot.update).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-      data: expect.objectContaining({
+    expect(mockUpdateWhere).toHaveBeenCalledWith(eq(placementSpot.id, 'clxxxxxxxxxxxxxxxxx0010'))
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({
         code: 'R101-B1-updated',
         type: 'BED',
         parentSpotId: null,
       }),
-    })
+    )
   })
 
   it('sets parentSpotId to null when not provided', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
-      id: 'clxxxxxxxxxxxxxxxxx0010',
-    })
+    mockUpdateReturning.mockResolvedValue([{ id: 'clxxxxxxxxxxxxxxxxx0010' }])
 
     await updateSpot(makeUpdateSpotFormData())
 
-    expect(mockPrisma.placementSpot.update).toHaveBeenCalledWith(
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          parentSpotId: null,
-        }),
+        parentSpotId: null,
       }),
     )
   })
 
   it('preserves parentSpotId when provided', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockResolvedValue({
-      id: 'clxxxxxxxxxxxxxxxxx0010',
-    })
+    mockUpdateReturning.mockResolvedValue([{ id: 'clxxxxxxxxxxxxxxxxx0010' }])
 
     const fd = makeUpdateSpotFormData({
       parentSpotId: 'clxxxxxxxxxxxxxxxxx0099',
@@ -288,17 +304,15 @@ describe('updateSpot', () => {
 
     await updateSpot(fd)
 
-    expect(mockPrisma.placementSpot.update).toHaveBeenCalledWith(
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          parentSpotId: 'clxxxxxxxxxxxxxxxxx0099',
-        }),
+        parentSpotId: 'clxxxxxxxxxxxxxxxxx0099',
       }),
     )
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.update as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the update fails', async () => {
+    mockUpdateReturning.mockRejectedValue(new Error('DB error'))
 
     await expect(updateSpot(makeUpdateSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_UPDATE_ERROR,
@@ -318,7 +332,7 @@ describe('deleteSpot', () => {
   })
 
   it('throws when spot has active placements', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(1)
+    mockCount.mockResolvedValue(1)
 
     await expect(deleteSpot(makeDeleteSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_DELETE_BLOCKED,
@@ -326,29 +340,35 @@ describe('deleteSpot', () => {
   })
 
   it('deletes child spots then the spot itself when no active placements', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.deleteMany as jest.Mock).mockResolvedValue({ count: 2 })
-    ;(mockPrisma.placementSpot.delete as jest.Mock).mockResolvedValue({
-      id: 'clxxxxxxxxxxxxxxxxx0010',
-    })
+    mockCount.mockResolvedValue(0)
+    mockDeleteWhere.mockResolvedValue([{ id: 'clxxxxxxxxxxxxxxxxx0010' }])
 
     await deleteSpot(makeDeleteSpotFormData())
 
+    // The active-placement check scoped to this spot
+    expect(mockCount).toHaveBeenCalledWith(
+      placement,
+      and(eq(placement.spotId, 'clxxxxxxxxxxxxxxxxx0010'), eq(placement.status, 'ACTIVE')),
+    )
+
     // Child spots deleted first
-    expect(mockPrisma.placementSpot.deleteMany).toHaveBeenCalledWith({
-      where: { parentSpotId: 'clxxxxxxxxxxxxxxxxx0010' },
-    })
+    expect(mockDeleteWhere).toHaveBeenNthCalledWith(
+      1,
+      eq(placementSpot.parentSpotId, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
 
     // Then the spot itself
-    expect(mockPrisma.placementSpot.delete).toHaveBeenCalledWith({
-      where: { id: 'clxxxxxxxxxxxxxxxxx0010' },
-    })
+    expect(mockDeleteWhere).toHaveBeenNthCalledWith(
+      2,
+      eq(placementSpot.id, 'clxxxxxxxxxxxxxxxxx0010'),
+    )
   })
 
-  it('throws user-facing error when prisma delete fails', async () => {
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.placementSpot.deleteMany as jest.Mock).mockResolvedValue({ count: 0 })
-    ;(mockPrisma.placementSpot.delete as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the delete fails', async () => {
+    mockCount.mockResolvedValue(0)
+    mockDeleteWhere
+      .mockResolvedValueOnce([]) // child-spot delete succeeds
+      .mockRejectedValueOnce(new Error('DB error')) // spot delete fails
 
     await expect(deleteSpot(makeDeleteSpotFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOT_DELETE_ERROR,
@@ -369,29 +389,31 @@ describe('createMultipleSpots', () => {
 
   it('creates a room and beds inside it', async () => {
     const mockRoom = { id: 'room-1' }
-    ;(mockPrisma.placementSpot.create as jest.Mock)
-      .mockResolvedValueOnce(mockRoom) // room creation
-      .mockResolvedValueOnce({ id: 'bed-1' }) // bed 1
-      .mockResolvedValueOnce({ id: 'bed-2' }) // bed 2
-      .mockResolvedValueOnce({ id: 'bed-3' }) // bed 3
+    mockInsertValues
+      .mockResolvedValueOnce([mockRoom]) // room creation
+      .mockResolvedValueOnce([{ id: 'bed-1' }]) // bed 1
+      .mockResolvedValueOnce([{ id: 'bed-2' }]) // bed 2
+      .mockResolvedValueOnce([{ id: 'bed-3' }]) // bed 3
 
     await createMultipleSpots(makeMultipleSpotsFormData())
 
     // First call: room
-    expect(mockPrisma.placementSpot.create).toHaveBeenNthCalledWith(1, {
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
         housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
         code: 'R101',
         type: 'ROOM',
         status: 'AVAILABLE',
       }),
-    })
+    )
 
     // Subsequent calls: beds (3 beds)
-    expect(mockPrisma.placementSpot.create).toHaveBeenCalledTimes(4) // 1 room + 3 beds
+    expect(mockInsertValues).toHaveBeenCalledTimes(4) // 1 room + 3 beds
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenNthCalledWith(2, {
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
         housingUnitId: 'clxxxxxxxxxxxxxxxxx0001',
         code: 'R101-B1',
         label: 'Bett 1',
@@ -399,27 +421,29 @@ describe('createMultipleSpots', () => {
         parentSpotId: 'room-1',
         status: 'AVAILABLE',
       }),
-    })
+    )
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenNthCalledWith(3, {
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenNthCalledWith(
+      3,
+      expect.objectContaining({
         code: 'R101-B2',
         label: 'Bett 2',
         parentSpotId: 'room-1',
       }),
-    })
+    )
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenNthCalledWith(4, {
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenNthCalledWith(
+      4,
+      expect.objectContaining({
         code: 'R101-B3',
         label: 'Bett 3',
         parentSpotId: 'room-1',
       }),
-    })
+    )
   })
 
   it('passes optional fields to room creation', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({ id: 'room-1' })
+    mockInsertValues.mockResolvedValue([{ id: 'room-1' }])
 
     const fd = makeMultipleSpotsFormData({
       roomLabel: 'Zimmer 101',
@@ -430,27 +454,28 @@ describe('createMultipleSpots', () => {
 
     await createMultipleSpots(fd)
 
-    expect(mockPrisma.placementSpot.create).toHaveBeenNthCalledWith(1, {
-      data: expect.objectContaining({
+    expect(mockInsertValues).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
         label: 'Zimmer 101',
         squareMeters: 20,
         floor: 1,
       }),
-    })
+    )
   })
 
   it('creates correct number of beds based on bedCount', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockResolvedValue({ id: 'room-1' })
+    mockInsertValues.mockResolvedValue([{ id: 'room-1' }])
 
     const fd = makeMultipleSpotsFormData({ bedCount: '1' })
     await createMultipleSpots(fd)
 
     // 1 room + 1 bed = 2 total
-    expect(mockPrisma.placementSpot.create).toHaveBeenCalledTimes(2)
+    expect(mockInsertValues).toHaveBeenCalledTimes(2)
   })
 
-  it('throws user-facing error when prisma fails', async () => {
-    ;(mockPrisma.placementSpot.create as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('throws user-facing error when the insert fails', async () => {
+    mockInsertValues.mockRejectedValue(new Error('DB error'))
 
     await expect(createMultipleSpots(makeMultipleSpotsFormData())).rejects.toThrow(
       ERROR_MESSAGES.SPOTS_BATCH_CREATE_ERROR,

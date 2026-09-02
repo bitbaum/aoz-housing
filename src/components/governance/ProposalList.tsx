@@ -9,7 +9,7 @@ import type {
   RuleCategory,
   VoteChoice,
   VoteThreshold,
-} from '@prisma/client'
+} from '@/lib/db'
 import {
   DECISION_MODE_IS_VOTED,
   DECISION_MODE_LABELS,

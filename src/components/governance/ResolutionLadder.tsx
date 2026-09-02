@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { ResolutionStage } from '@prisma/client'
+import type { ResolutionStage } from '@/lib/db'
 import { advanceResolutionStage } from '@/lib/actions/governance'
 import {
   RESOLUTION_LADDER,

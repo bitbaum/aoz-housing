@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, taskAttentionFlag } from '@/lib/db'
+import { eq, and } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { portalAttentionFlagSchema } from '@/lib/validation/schemas'
@@ -31,8 +32,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    const task = await prisma.householdTask.findFirst({
-      where: { id, housingUnitId: auth.placement.housingUnitId },
+    const task = await db.query.householdTask.findFirst({
+      where: and(
+        eq(householdTask.id, id),
+        eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+      ),
     })
 
     if (!task) {
@@ -49,19 +53,20 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
     }
 
-    const flag = await prisma.taskAttentionFlag.create({
-      data: {
+    const [flag] = await db
+      .insert(taskAttentionFlag)
+      .values({
         taskId: id,
         flaggedById: auth.resident.id,
         message: message || null,
-      },
-    })
+      })
+      .returning()
 
     // Update task status to NEEDS_ATTENTION
-    await prisma.householdTask.update({
-      where: { id },
-      data: { currentStatus: 'NEEDS_ATTENTION' },
-    })
+    await db
+      .update(householdTask)
+      .set({ currentStatus: 'NEEDS_ATTENTION' })
+      .where(eq(householdTask.id, id))
 
     return NextResponse.json({ success: true, data: flag })
   } catch (error) {

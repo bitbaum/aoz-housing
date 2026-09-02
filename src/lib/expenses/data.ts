@@ -7,7 +7,8 @@
  * part of the history is simply a wrong number.
  */
 
-import { prisma } from '@/lib/db'
+import { db, expense, settlement } from '@/lib/db'
+import { desc, eq } from 'drizzle-orm'
 import { getActiveUnitMembers, type UnitMember } from '@/lib/portal-auth'
 import { computeBalances, simplifyDebts, type Transfer } from './balances'
 
@@ -43,9 +44,9 @@ export interface UnitExpenseData {
 export async function getUnitExpenseData(housingUnitId: string): Promise<UnitExpenseData> {
   const [members, expenses, settlements] = await Promise.all([
     getActiveUnitMembers(housingUnitId),
-    prisma.expense.findMany({
-      where: { housingUnitId },
-      select: {
+    db.query.expense.findMany({
+      where: eq(expense.housingUnitId, housingUnitId),
+      columns: {
         id: true,
         description: true,
         category: true,
@@ -53,13 +54,13 @@ export async function getUnitExpenseData(housingUnitId: string): Promise<UnitExp
         date: true,
         paidById: true,
         createdById: true,
-        shares: { select: { residentId: true, amountRappen: true } },
       },
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      with: { shares: { columns: { residentId: true, amountRappen: true } } },
+      orderBy: [desc(expense.date), desc(expense.createdAt)],
     }),
-    prisma.settlement.findMany({
-      where: { housingUnitId },
-      select: {
+    db.query.settlement.findMany({
+      where: eq(settlement.housingUnitId, housingUnitId),
+      columns: {
         id: true,
         createdAt: true,
         fromId: true,
@@ -67,7 +68,7 @@ export async function getUnitExpenseData(housingUnitId: string): Promise<UnitExp
         amountRappen: true,
         note: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [desc(settlement.createdAt)],
     }),
   ])
 

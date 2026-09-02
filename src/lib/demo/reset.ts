@@ -19,7 +19,8 @@
  * through ts-node, which does not resolve tsconfig path aliases.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { asc } from 'drizzle-orm'
+import { resident, type db } from '../db'
 import { seedDemoData, type DemoSeedSummary } from './seed-data'
 import { syncOrgRules } from '../governance/sync-org-rules'
 import { upsertDemoStaff, upsertDemoStaffRoles } from './staff'
@@ -34,17 +35,17 @@ export interface DemoResetSummary extends DemoSeedSummary {
   opportunityApplications: number
 }
 
-export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSummary> {
-  const tablesWiped = await wipeAllExceptKeepList(prisma)
+export async function resetDemoData(dbClient: typeof db): Promise<DemoResetSummary> {
+  const tablesWiped = await wipeAllExceptKeepList(dbClient)
 
   // BEFORE the seed, not after: the seed hands this account the care seats on
   // every demo resident, and an assignment cannot point at a row that does not
   // exist yet. (The wipe keeps User, so this is an update on a repeat run.)
-  const demoStaff = await upsertDemoStaff(prisma)
+  const demoStaff = await upsertDemoStaff(dbClient)
   // Every role door, so the visitor can walk the product as each of them.
-  await upsertDemoStaffRoles(prisma)
+  await upsertDemoStaffRoles(dbClient)
 
-  const seeded = await seedDemoData(prisma, {
+  const seeded = await seedDemoData(dbClient, {
     careStaffId: demoStaff?.id ?? null,
     // Full scope owns the whole database, so it can also own — and next time
     // truncate — content that no demo prefix reaches.
@@ -55,16 +56,16 @@ export async function resetDemoData(prisma: PrismaClient): Promise<DemoResetSumm
   // the scoped reset: this path truncated the database first, which makes an
   // unscoped resident query correct and makes invented listings impossible to
   // confuse with a real coach's. See lib/seed/opportunities.ts.
-  const demoResidents = await prisma.resident.findMany({
-    select: { id: true },
-    orderBy: { code: 'asc' },
+  const demoResidents = await dbClient.query.resident.findMany({
+    columns: { id: true },
+    orderBy: [asc(resident.code)],
   })
-  const opportunities = await seedOpportunities(prisma, {
+  const opportunities = await seedOpportunities(dbClient, {
     residentIds: demoResidents.map((resident) => resident.id),
     staffId: demoStaff?.id ?? null,
   })
 
-  await syncOrgRules(prisma)
+  await syncOrgRules(dbClient)
 
   return {
     ...seeded,

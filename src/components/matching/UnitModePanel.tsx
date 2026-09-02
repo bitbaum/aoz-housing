@@ -85,7 +85,7 @@ export function UnitModePanel({ selectedUnit, unitMatches }: Props) {
                     </Link>
                     <p className="text-sm text-ui-muted">
                       {getLabel(AGE_RANGE_LABELS, match.resident.ageRange)} ·{' '}
-                      {match.resident.languages
+                      {(match.resident.languages ?? [])
                         .slice(0, DISPLAY_LIMITS.languagePreview)
                         .map((l: string) => getLabel(LANGUAGE_LABELS, l))
                         .join(', ')}

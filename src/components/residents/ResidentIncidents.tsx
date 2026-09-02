@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Incident, HousingUnit } from '@prisma/client'
+import type { Incident, HousingUnit } from '@/lib/db'
 import {
   INCIDENT_TYPE_LABELS,
   RESIDENT_INCIDENTS_LABELS,

@@ -5,19 +5,29 @@
  * saveSystemConfig uses a custom parseFloat that treats empty/negative/NaN as null.
  */
 
-import { prisma } from '@/lib/db'
+import { eq } from 'drizzle-orm'
+import { systemConfig } from '@/lib/db'
 import { getSystemConfig, saveSystemConfig } from '../config'
 
 // =============================================================================
 // MOCKS
 // =============================================================================
 
+const mockConfigFindFirst = jest.fn()
+// Receives (valuesPayload, onConflictConfig) — the drizzle equivalent of upsert
+const mockConfigUpsert = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    systemConfig: {
-      findUnique: jest.fn(),
-      upsert: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      systemConfig: { findFirst: (...a: unknown[]) => mockConfigFindFirst(...a) },
     },
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({
+        onConflictDoUpdate: (cfg: unknown): Promise<unknown> => mockConfigUpsert(v, cfg),
+      }),
+    })),
   },
 }))
 
@@ -42,8 +52,6 @@ jest.mock('@/lib/auth', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -66,7 +74,7 @@ function makeConfigFormData(overrides: Record<string, string> = {}): FormData {
 
 describe('getSystemConfig', () => {
   it('returns all nulls when no config row exists', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue(null)
+    mockConfigFindFirst.mockResolvedValue(null)
 
     const result = await getSystemConfig()
 
@@ -80,7 +88,7 @@ describe('getSystemConfig', () => {
 
   it('returns stored values when config exists', async () => {
     const startDate = new Date('2024-03-01')
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue({
+    mockConfigFindFirst.mockResolvedValue({
       id: 'singleton',
       pilotBaselineIncidentsPerMonth: 15,
       pilotBaselineRelocationsPerMonth: 4,
@@ -99,7 +107,7 @@ describe('getSystemConfig', () => {
   })
 
   it('returns nulls for missing optional fields in existing row', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue({
+    mockConfigFindFirst.mockResolvedValue({
       id: 'singleton',
       pilotBaselineIncidentsPerMonth: null,
       pilotBaselineRelocationsPerMonth: null,
@@ -114,12 +122,12 @@ describe('getSystemConfig', () => {
   })
 
   it('queries by singleton id', async () => {
-    ;(mockPrisma.systemConfig.findUnique as jest.Mock).mockResolvedValue(null)
+    mockConfigFindFirst.mockResolvedValue(null)
 
     await getSystemConfig()
 
-    expect(mockPrisma.systemConfig.findUnique).toHaveBeenCalledWith({
-      where: { id: 'singleton' },
+    expect(mockConfigFindFirst).toHaveBeenCalledWith({
+      where: eq(systemConfig.id, 'singleton'),
     })
   })
 })
@@ -130,7 +138,7 @@ describe('getSystemConfig', () => {
 
 describe('saveSystemConfig', () => {
   it('saves valid numeric values', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '15',
@@ -140,14 +148,14 @@ describe('saveSystemConfig', () => {
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineIncidentsPerMonth: 15,
-          pilotBaselineRelocationsPerMonth: 4,
-          pilotBaselineMediationHoursPerWeek: 12,
-        }),
-        update: expect.objectContaining({
+        pilotBaselineIncidentsPerMonth: 15,
+        pilotBaselineRelocationsPerMonth: 4,
+        pilotBaselineMediationHoursPerWeek: 12,
+      }),
+      expect.objectContaining({
+        set: expect.objectContaining({
           pilotBaselineIncidentsPerMonth: 15,
           pilotBaselineRelocationsPerMonth: 4,
           pilotBaselineMediationHoursPerWeek: 12,
@@ -157,24 +165,23 @@ describe('saveSystemConfig', () => {
   })
 
   it('treats empty fields as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     await saveSystemConfig(new FormData())
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineIncidentsPerMonth: null,
-          pilotBaselineRelocationsPerMonth: null,
-          pilotBaselineMediationHoursPerWeek: null,
-          pilotStartDate: null,
-        }),
+        pilotBaselineIncidentsPerMonth: null,
+        pilotBaselineRelocationsPerMonth: null,
+        pilotBaselineMediationHoursPerWeek: null,
+        pilotStartDate: null,
       }),
+      expect.anything(),
     )
   })
 
   it('treats negative values as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '-5',
@@ -183,18 +190,17 @@ describe('saveSystemConfig', () => {
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineIncidentsPerMonth: null,
-          pilotBaselineRelocationsPerMonth: null,
-        }),
+        pilotBaselineIncidentsPerMonth: null,
+        pilotBaselineRelocationsPerMonth: null,
       }),
+      expect.anything(),
     )
   })
 
   it('treats non-numeric strings as null', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: 'abc',
@@ -203,18 +209,17 @@ describe('saveSystemConfig', () => {
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineIncidentsPerMonth: null,
-          pilotBaselineMediationHoursPerWeek: null,
-        }),
+        pilotBaselineIncidentsPerMonth: null,
+        pilotBaselineMediationHoursPerWeek: null,
       }),
+      expect.anything(),
     )
   })
 
   it('accepts zero as a valid value', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineIncidentsPerMonth: '0',
@@ -222,17 +227,16 @@ describe('saveSystemConfig', () => {
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineIncidentsPerMonth: 0,
-        }),
+        pilotBaselineIncidentsPerMonth: 0,
       }),
+      expect.anything(),
     )
   })
 
   it('accepts decimal values', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({
       pilotBaselineMediationHoursPerWeek: '7.5',
@@ -240,43 +244,42 @@ describe('saveSystemConfig', () => {
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotBaselineMediationHoursPerWeek: 7.5,
-        }),
+        pilotBaselineMediationHoursPerWeek: 7.5,
       }),
+      expect.anything(),
     )
   })
 
   it('saves a valid pilot start date', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     const fd = makeConfigFormData({ pilotStartDate: '2024-03-01' })
 
     await saveSystemConfig(fd)
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
-        create: expect.objectContaining({
-          pilotStartDate: new Date('2024-03-01'),
-        }),
+        pilotStartDate: new Date('2024-03-01'),
       }),
+      expect.anything(),
     )
   })
 
   it('uses singleton upsert key', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
 
     await saveSystemConfig(new FormData())
 
-    expect(mockPrisma.systemConfig.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'singleton' } }),
+    expect(mockConfigUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'singleton' }),
+      expect.objectContaining({ target: systemConfig.id }),
     )
   })
 
   it('revalidates settings and analytics paths', async () => {
-    ;(mockPrisma.systemConfig.upsert as jest.Mock).mockResolvedValue({})
+    mockConfigUpsert.mockResolvedValue({})
     const { revalidatePath } = require('next/cache')
 
     await saveSystemConfig(new FormData())
@@ -290,6 +293,6 @@ describe('saveSystemConfig', () => {
     requirePermission.mockRejectedValueOnce(new Error('Anmeldung erforderlich'))
 
     await expect(saveSystemConfig(new FormData())).rejects.toThrow('Anmeldung erforderlich')
-    expect(mockPrisma.systemConfig.upsert).not.toHaveBeenCalled()
+    expect(mockConfigUpsert).not.toHaveBeenCalled()
   })
 })

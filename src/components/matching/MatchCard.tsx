@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { MatchResult, CompatibilityDetail } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'

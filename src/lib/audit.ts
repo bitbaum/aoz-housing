@@ -5,8 +5,8 @@
  * Auth-ready: Automatically captures current user when auth is implemented
  */
 
-import { prisma } from '@/lib/db'
-import { Prisma } from '@prisma/client'
+import { db, auditLog } from '@/lib/db'
+import { and, eq, desc } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
@@ -40,7 +40,8 @@ interface AuditLogEntry {
   entity: AuditEntity
   entityId: string
   userId?: string // Optional: will auto-capture from session if not provided
-  changes?: Prisma.InputJsonValue
+  // The jsonb column types as `unknown` — anything JSON-serialisable is fine.
+  changes?: unknown
   reason?: string
 }
 
@@ -68,15 +69,13 @@ export async function logAudit({
       resolvedUserId = currentUser?.id
     }
 
-    await prisma.auditLog.create({
-      data: {
-        action,
-        entity,
-        entityId,
-        userId: resolvedUserId,
-        changes: changes ?? undefined,
-        reason,
-      },
+    await db.insert(auditLog).values({
+      action,
+      entity,
+      entityId,
+      userId: resolvedUserId,
+      changes: changes ?? undefined,
+      reason,
     })
   } catch (error) {
     // Log error but don't throw - audit logging should never break operations
@@ -89,10 +88,10 @@ export async function logAudit({
  * Get audit history for an entity
  */
 export async function getEntityAuditLog(entity: AuditEntity, entityId: string) {
-  return prisma.auditLog.findMany({
-    where: { entity, entityId },
-    orderBy: { createdAt: 'desc' },
-    take: QUERY_LIMITS.entityHistory,
+  return db.query.auditLog.findMany({
+    where: and(eq(auditLog.entity, entity), eq(auditLog.entityId, entityId)),
+    orderBy: [desc(auditLog.createdAt)],
+    limit: QUERY_LIMITS.entityHistory,
   })
 }
 
@@ -100,8 +99,8 @@ export async function getEntityAuditLog(entity: AuditEntity, entityId: string) {
  * Get recent audit logs (for admin dashboard)
  */
 export async function getRecentAuditLogs(limit = 100) {
-  return prisma.auditLog.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: limit,
+  return db.query.auditLog.findMany({
+    orderBy: [desc(auditLog.createdAt)],
+    limit,
   })
 }

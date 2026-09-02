@@ -83,14 +83,27 @@ echo "==> migrate the demo database"
 # box and has to do it itself. Postgres here only accepts 127.0.0.1, so the
 # migration runs ON the box against its own loopback.
 #
-# The prisma version comes from THIS repo's package.json rather than being
-# written here or resolved to `latest` on the box: the migration format has to
-# match the client the build was compiled against, and a floating `latest` makes
-# the deploy depend on the day it ran.
-PRISMA_VERSION=$(node -p "require('./package.json').devDependencies.prisma")
-rsync -az --delete prisma/ "$BOX:/opt/aoz-demo/prisma/"
-ssh "$BOX" "cd /opt/aoz-demo && set -a && . ./shared/.env && set +a && npx --yes prisma@${PRISMA_VERSION#^} migrate deploy --schema prisma/schema.prisma" \
+# Drizzle migrations are plain forward-only SQL, applied with psql against the
+# demo's own DATABASE_URL and ledgered in public._deploy_schema_history — the
+# same ledger fleetcrown's apply-schema.sh keeps for the real instance, so both
+# databases answer "what has been applied" the same way. Each file runs in a
+# single transaction (-1); a failure aborts the deploy before the restart.
+rsync -az --delete drizzle/ "$BOX:/opt/aoz-demo/drizzle/"
+ssh "$BOX" 'bash -s' <<'EOSH' \
   || { echo "migration failed — NOT restarting into a schema the code cannot use"; exit 1; }
+set -euo pipefail
+cd /opt/aoz-demo && set -a && . ./shared/.env && set +a
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -qc \
+  "CREATE TABLE IF NOT EXISTS public._deploy_schema_history (tag text PRIMARY KEY, applied_at timestamptz NOT NULL DEFAULT now())"
+for f in drizzle/[0-9]*.sql; do
+  tag=$(basename "$f" .sql)
+  applied=$(psql "$DATABASE_URL" -tAc "SELECT 1 FROM public._deploy_schema_history WHERE tag = '$tag'")
+  [ "$applied" = "1" ] && { echo "    $tag: already applied"; continue; }
+  echo "    $tag: applying"
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -1 -f "$f"
+  psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -qc "INSERT INTO public._deploy_schema_history(tag) VALUES ('$tag')"
+done
+EOSH
 
 echo "==> restart"
 ssh "$BOX" "chown -R ubuntu:ubuntu $APP_DIR && systemctl restart aoz-demo-app"

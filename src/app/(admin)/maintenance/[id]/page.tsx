@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, maintenanceRequest } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { updateMaintenanceStatus } from '@/lib/actions'
@@ -25,9 +26,9 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const request = await prisma.maintenanceRequest.findUnique({
-    where: { id },
-    select: { category: true },
+  const request = await db.query.maintenanceRequest.findFirst({
+    where: eq(maintenanceRequest.id, id),
+    columns: { category: true },
   })
   return {
     title: request
@@ -49,12 +50,12 @@ export default async function MaintenanceDetailPage({ params }: Props) {
   await requirePermission('maintenance:read')
   const { id } = await params
 
-  const request = await prisma.maintenanceRequest.findUnique({
-    where: { id },
-    include: {
+  const request = await db.query.maintenanceRequest.findFirst({
+    where: eq(maintenanceRequest.id, id),
+    with: {
       housingUnit: true,
       spot: true,
-      reportedBy: { select: RESIDENT_NAME_SELECT },
+      reportedBy: { columns: RESIDENT_NAME_SELECT },
     },
   })
 

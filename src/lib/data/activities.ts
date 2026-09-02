@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client'
+import { sql, type SQL } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
-import { prisma } from '@/lib/db'
+import { db } from '@/lib/db'
 import type { ActivityCategory, ActivityRecord, ActivityStatus } from '@/lib/config/activities'
 
 type ActivityWriteData = {
@@ -29,13 +29,14 @@ function createCuidLikeId() {
 }
 
 export async function getActivityById(id: string): Promise<ActivityRecord | null> {
-  const rows = await prisma.$queryRaw<ActivityRecord[]>`
+  const { rows } = await db.execute(sql`
     SELECT *
     FROM "Activity"
     WHERE "id" = ${id}
     LIMIT 1
-  `
-  return rows[0] ? mapActivity(rows[0]) : null
+  `)
+  const records = rows as unknown as ActivityRecord[]
+  return records[0] ? mapActivity(records[0]) : null
 }
 
 export async function listActivities(
@@ -48,38 +49,37 @@ export async function listActivities(
     take?: number
   } = {},
 ): Promise<ActivityRecord[]> {
-  const where: Prisma.Sql[] = []
+  const where: SQL[] = []
 
   if (options.publishedOnly) {
-    where.push(Prisma.sql`"status" = 'PUBLISHED'::"ActivityStatus"`)
+    where.push(sql`"status" = 'PUBLISHED'::"ActivityStatus"`)
   } else if (options.status) {
-    where.push(Prisma.sql`"status" = ${options.status}::"ActivityStatus"`)
+    where.push(sql`"status" = ${options.status}::"ActivityStatus"`)
   }
 
   if (options.category) {
-    where.push(Prisma.sql`"category" = ${options.category}::"ActivityCategory"`)
+    where.push(sql`"category" = ${options.category}::"ActivityCategory"`)
   }
 
   if (options.highlightedOnly) {
-    where.push(Prisma.sql`"highlight" = true`)
+    where.push(sql`"highlight" = true`)
   }
 
   if (options.activeOn) {
-    where.push(Prisma.sql`("endsAt" IS NULL OR "endsAt" >= ${options.activeOn})`)
+    where.push(sql`("endsAt" IS NULL OR "endsAt" >= ${options.activeOn})`)
   }
 
-  const whereClause =
-    where.length > 0 ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}` : Prisma.empty
-  const limitClause =
-    typeof options.take === 'number' ? Prisma.sql`LIMIT ${options.take}` : Prisma.empty
+  const whereClause = where.length > 0 ? sql`WHERE ${sql.join(where, sql` AND `)}` : sql``
+  const limitClause = typeof options.take === 'number' ? sql`LIMIT ${options.take}` : sql``
 
-  return prisma.$queryRaw<ActivityRecord[]>`
+  const { rows } = await db.execute(sql`
     SELECT *
     FROM "Activity"
     ${whereClause}
     ORDER BY "status" ASC, "highlight" DESC, "startsAt" ASC NULLS LAST, "updatedAt" DESC
     ${limitClause}
-  `
+  `)
+  return rows as unknown as ActivityRecord[]
 }
 
 export async function countActivities(
@@ -88,25 +88,26 @@ export async function countActivities(
     highlightedPublished?: boolean
   } = {},
 ): Promise<number> {
-  const where: Prisma.Sql[] = []
+  const where: SQL[] = []
   if (options.status) {
-    where.push(Prisma.sql`"status" = ${options.status}::"ActivityStatus"`)
+    where.push(sql`"status" = ${options.status}::"ActivityStatus"`)
   }
   if (options.highlightedPublished) {
-    where.push(Prisma.sql`"status" = 'PUBLISHED'::"ActivityStatus" AND "highlight" = true`)
+    where.push(sql`"status" = 'PUBLISHED'::"ActivityStatus" AND "highlight" = true`)
   }
-  const whereClause =
-    where.length > 0 ? Prisma.sql`WHERE ${Prisma.join(where, ' AND ')}` : Prisma.empty
-  const rows = await prisma.$queryRaw<Array<{ count: bigint }>>`
+  const whereClause = where.length > 0 ? sql`WHERE ${sql.join(where, sql` AND `)}` : sql``
+  const { rows } = await db.execute(sql`
     SELECT COUNT(*)::bigint AS count
     FROM "Activity"
     ${whereClause}
-  `
-  return Number(rows[0]?.count ?? 0)
+  `)
+  // COUNT arrives as a string through node-postgres — coerce before returning.
+  const records = rows as unknown as Array<{ count: string }>
+  return Number(records[0]?.count ?? 0)
 }
 
 export async function createActivityRecord(data: ActivityWriteData): Promise<ActivityRecord> {
-  const rows = await prisma.$queryRaw<ActivityRecord[]>`
+  const { rows } = await db.execute(sql`
     INSERT INTO "Activity" (
       "id", "updatedAt", "title", "description", "category", "cost", "costNote",
       "location", "website", "phone", "schedule", "startsAt", "endsAt",
@@ -119,15 +120,16 @@ export async function createActivityRecord(data: ActivityWriteData): Promise<Act
       ${data.status}::"ActivityStatus", ${data.highlight}, ${data.userId}, ${data.userId}
     )
     RETURNING *
-  `
-  return rows[0]
+  `)
+  const records = rows as unknown as ActivityRecord[]
+  return records[0]
 }
 
 export async function updateActivityRecord(
   id: string,
   data: ActivityWriteData,
 ): Promise<ActivityRecord> {
-  const rows = await prisma.$queryRaw<ActivityRecord[]>`
+  const { rows } = await db.execute(sql`
     UPDATE "Activity"
     SET
       "updatedAt" = now(),
@@ -147,8 +149,9 @@ export async function updateActivityRecord(
       "updatedByUserId" = ${data.userId}
     WHERE "id" = ${id}
     RETURNING *
-  `
-  return rows[0]
+  `)
+  const records = rows as unknown as ActivityRecord[]
+  return records[0]
 }
 
 export async function setActivityStatus(
@@ -156,7 +159,7 @@ export async function setActivityStatus(
   status: ActivityStatus,
   userId: string,
 ): Promise<void> {
-  await prisma.$executeRaw`
+  await db.execute(sql`
     UPDATE "Activity"
     SET
       "status" = ${status}::"ActivityStatus",
@@ -164,5 +167,5 @@ export async function setActivityStatus(
       "updatedByUserId" = ${userId},
       "updatedAt" = now()
     WHERE "id" = ${id}
-  `
+  `)
 }

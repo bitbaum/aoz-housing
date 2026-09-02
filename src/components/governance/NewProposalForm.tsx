@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import type { RuleCategory, RuleDelegation, ProposalType } from '@prisma/client'
+import type { RuleCategory, RuleDelegation, ProposalType } from '@/lib/db'
 import { RULE_CATEGORY_LABELS } from '@/lib/config/house-rules'
 import {
   CATEGORY_DECISION_MODE,

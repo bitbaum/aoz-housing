@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, residentDocument } from '@/lib/db'
+import { and, eq } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 import { getPortalResident } from '@/lib/portal-auth'
 import { hasPermission, isStaffRole } from '@/lib/auth/role-policy'
@@ -63,12 +64,16 @@ export async function GET(
       return notFound
     }
 
-    const document = await prisma.residentDocument.findFirst({
+    const document = await db.query.residentDocument.findFirst({
       // Matched on BOTH ids: without the residentId clause a valid document id
       // would serve under any resident's path, and the URL would stop meaning
       // what it says.
-      where: { id: params.documentId, residentId: params.id },
-      select: { fileName: true, mimeType: true, blob: { select: { data: true } } },
+      where: and(
+        eq(residentDocument.id, params.documentId),
+        eq(residentDocument.residentId, params.id),
+      ),
+      columns: { fileName: true, mimeType: true },
+      with: { blob: { columns: { data: true } } },
     })
 
     if (!document?.blob) return notFound

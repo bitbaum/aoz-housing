@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit } from '@/lib/db'
+import { inArray, asc } from 'drizzle-orm'
 import { PageHeader, EmptyState } from '@/components/ui/Page'
 import { StaffChoreForm } from '@/components/housing/StaffChoreForm'
 import { CHORE_LABELS } from '@/lib/config/household-tasks'
@@ -19,10 +20,10 @@ export const dynamic = 'force-dynamic'
  * agreement stayed in their notes and the house never saw it.
  */
 export default async function NewStaffChorePage() {
-  const units = await prisma.housingUnit.findMany({
-    where: { status: { in: ['AVAILABLE', 'FULL'] } },
-    select: { id: true, ...UNIT_NAME_SELECT },
-    orderBy: { code: 'asc' },
+  const units = await db.query.housingUnit.findMany({
+    where: inArray(housingUnit.status, ['AVAILABLE', 'FULL']),
+    columns: { id: true, ...UNIT_NAME_SELECT },
+    orderBy: [asc(housingUnit.code)],
   })
 
   return (

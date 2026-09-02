@@ -9,7 +9,7 @@
  * answer at all.
  */
 
-import type { MaintenanceStatus } from '@prisma/client'
+import type { MaintenanceStatus } from '@/lib/db'
 import { INCIDENT_TYPE_LABELS, MAINTENANCE_CATEGORY_LABELS, getLabel } from '@/lib/constants'
 
 /**

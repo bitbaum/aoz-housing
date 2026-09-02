@@ -22,7 +22,7 @@ import {
   natureOfKind,
   type MarketplaceNature,
 } from '@/lib/config/marketplace'
-import type { MarketplacePostKind } from '@prisma/client'
+import type { MarketplacePostKind } from '@/lib/db'
 
 const kindLabels = Object.fromEntries(
   MARKETPLACE_KIND_VALUES.map((kind) => [kind, de[MARKETPLACE_KINDS[kind].labelKey]]),

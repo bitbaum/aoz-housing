@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, maintenanceRequest } from '@/lib/db'
+import { eq, and, inArray, notInArray, asc, desc, count, type SQL } from 'drizzle-orm'
 import Link from 'next/link'
 import { updateMaintenanceStatus, assignMaintenanceRequest } from '@/lib/actions'
 import { requirePermission } from '@/lib/auth'
@@ -20,7 +21,7 @@ import { formatRelativeDate } from '@/lib/utils'
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
-import type { MaintenanceStatus, Prisma } from '@prisma/client'
+import type { MaintenanceStatus } from '@/lib/db'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
 
@@ -55,17 +56,17 @@ export default async function MaintenancePage({ searchParams }: Props) {
   const statusFilter = params.status || 'active'
 
   // Build where clause based on status filter
-  let whereClause: Prisma.MaintenanceRequestWhereInput = {}
+  let whereClause: SQL | undefined
   if (statusFilter === 'active') {
-    whereClause.status = { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] }
+    whereClause = inArray(maintenanceRequest.status, ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'])
   } else if (statusFilter !== 'all') {
-    whereClause.status = statusFilter as MaintenanceStatus
+    whereClause = eq(maintenanceRequest.status, statusFilter as MaintenanceStatus)
   }
 
   const [requests, statusGroups, urgentActiveCount] = await Promise.all([
-    prisma.maintenanceRequest.findMany({
+    db.query.maintenanceRequest.findMany({
       where: whereClause,
-      select: {
+      columns: {
         id: true,
         title: true,
         description: true,
@@ -77,38 +78,41 @@ export default async function MaintenancePage({ searchParams }: Props) {
         createdAt: true,
         housingUnitId: true,
         reportedById: true,
+      },
+      with: {
         housingUnit: {
-          select: { code: true },
+          columns: { code: true },
         },
         spot: {
-          select: { code: true, label: true },
+          columns: { code: true, label: true },
         },
         reportedBy: {
-          select: RESIDENT_NAME_SELECT,
+          columns: RESIDENT_NAME_SELECT,
         },
       },
-      orderBy: [{ priority: 'asc' }, { createdAt: 'desc' }],
-      take: QUERY_LIMITS.pageList,
+      orderBy: [asc(maintenanceRequest.priority), desc(maintenanceRequest.createdAt)],
+      limit: QUERY_LIMITS.pageList,
     }),
     // Aggregate tab counts by status (single query instead of fetching all rows)
-    prisma.maintenanceRequest.groupBy({
-      by: ['status'],
-      _count: { _all: true },
-    }),
+    db
+      .select({ status: maintenanceRequest.status, count: count() })
+      .from(maintenanceRequest)
+      .groupBy(maintenanceRequest.status),
     // Urgent + still-active requests (separate query — combines priority + status NOT IN)
-    prisma.maintenanceRequest.count({
-      where: {
-        priority: 'URGENT',
-        status: { notIn: ['COMPLETED', 'CANCELLED'] },
-      },
-    }),
+    db.$count(
+      maintenanceRequest,
+      and(
+        eq(maintenanceRequest.priority, 'URGENT'),
+        notInArray(maintenanceRequest.status, ['COMPLETED', 'CANCELLED']),
+      ),
+    ),
   ])
 
   const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
-    acc[g.status] = g._count._all
+    acc[g.status] = g.count
     return acc
   }, {})
-  const totalRequests = statusGroups.reduce((sum, g) => sum + g._count._all, 0)
+  const totalRequests = statusGroups.reduce((sum, g) => sum + g.count, 0)
   const activeCount = totalRequests - (statusCounts.COMPLETED ?? 0) - (statusCounts.CANCELLED ?? 0)
 
   const stats = {

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { prisma } from '@/lib/db'
+import { db, housingUnit, resident } from '@/lib/db'
+import { ne, inArray, asc } from 'drizzle-orm'
 import { createIncident } from '@/lib/actions'
 import { requirePermission } from '@/lib/auth'
 
@@ -39,13 +40,13 @@ export default async function NewIncidentPage({ searchParams }: Props) {
   const params = await searchParams
 
   const [units, residents] = await Promise.all([
-    prisma.housingUnit.findMany({
-      where: { status: { not: 'CLOSED' } },
-      orderBy: { code: 'asc' },
+    db.query.housingUnit.findMany({
+      where: ne(housingUnit.status, 'CLOSED'),
+      orderBy: [asc(housingUnit.code)],
     }),
-    prisma.resident.findMany({
-      where: { status: { in: ['ACTIVE', 'PLACED'] } },
-      orderBy: { code: 'asc' },
+    db.query.resident.findMany({
+      where: inArray(resident.status, ['ACTIVE', 'PLACED']),
+      orderBy: [asc(resident.code)],
     }),
   ])
 

@@ -1,33 +1,43 @@
 import { syncOrgRules } from '../sync-org-rules'
 import { ORG_RULE_CATALOG } from '@/lib/config/house-rules'
-import type { PrismaClient } from '@prisma/client'
+import { whereParts } from '@/test-utils/drizzle-where'
+import type { db } from '@/lib/db'
 
 /**
  * The catalog sync runs unattended on every cron tick, so the properties that
  * matter are: it must not duplicate, it must not reset acknowledgements for
  * rules that did not change, and it MUST invalidate them for rules that did.
  */
-function makePrisma(existing: Record<string, unknown> = {}) {
+function makeDb(existing: Record<string, unknown> = {}) {
   const created: unknown[] = []
   const updated: { where: unknown; data: Record<string, unknown> }[] = []
 
-  const prisma = {
-    houseRule: {
-      findUnique: jest.fn(
-        async ({ where }: { where: { key: string } }) => existing[where.key] ?? null,
-      ),
-      create: jest.fn(async ({ data }: { data: unknown }) => {
-        created.push(data)
-        return data
-      }),
-      update: jest.fn(async (args: { where: unknown; data: Record<string, unknown> }) => {
-        updated.push(args)
-        return args.data
-      }),
+  const dbMock = {
+    query: {
+      houseRule: {
+        // Looked up by `eq(houseRule.key, …)` — the key is read back out of
+        // the where-expression, same dispatch the Prisma mock did on `where.key`.
+        findFirst: jest.fn(
+          async ({ where }: { where: unknown }) =>
+            existing[whereParts(where).key as string] ?? null,
+        ),
+      },
     },
-  } as unknown as PrismaClient
+    insert: () => ({
+      values: jest.fn(async (data: unknown) => {
+        created.push(data)
+      }),
+    }),
+    update: () => ({
+      set: (data: Record<string, unknown>) => ({
+        where: async (where: unknown) => {
+          updated.push({ where: whereParts(where), data })
+        },
+      }),
+    }),
+  }
 
-  return { prisma, created, updated }
+  return { db: dbMock as unknown as typeof db, created, updated }
 }
 
 function seededRule(key: string, overrides: Record<string, unknown> = {}) {
@@ -47,9 +57,9 @@ function seededRule(key: string, overrides: Record<string, unknown> = {}) {
 
 describe('syncOrgRules', () => {
   it('creates the whole catalog on an empty database', async () => {
-    const { prisma, created } = makePrisma()
+    const { db, created } = makeDb()
 
-    const result = await syncOrgRules(prisma)
+    const result = await syncOrgRules(db)
 
     expect(result.created).toBe(ORG_RULE_CATALOG.length)
     expect(result.amended).toBe(0)
@@ -59,9 +69,9 @@ describe('syncOrgRules', () => {
 
   it('is idempotent — a second run changes nothing', async () => {
     const existing = Object.fromEntries(ORG_RULE_CATALOG.map((r) => [r.key, seededRule(r.key)]))
-    const { prisma, created, updated } = makePrisma(existing)
+    const { db, created, updated } = makeDb(existing)
 
-    const result = await syncOrgRules(prisma)
+    const result = await syncOrgRules(db)
 
     expect(result.created).toBe(0)
     expect(result.amended).toBe(0)
@@ -78,9 +88,9 @@ describe('syncOrgRules', () => {
         seededRule(r.key, r.key === key ? { body: 'Alter Text, der ersetzt wird.' } : {}),
       ]),
     )
-    const { prisma, updated } = makePrisma(existing)
+    const { db, updated } = makeDb(existing)
 
-    const result = await syncOrgRules(prisma)
+    const result = await syncOrgRules(db)
 
     expect(result.amended).toBe(1)
     expect(result.amendedKeys).toEqual([key])
@@ -98,9 +108,9 @@ describe('syncOrgRules', () => {
         seededRule(r.key, r.key === key ? { category: 'OTHER' } : {}),
       ]),
     )
-    const { prisma, updated } = makePrisma(existing)
+    const { db, updated } = makeDb(existing)
 
-    const result = await syncOrgRules(prisma)
+    const result = await syncOrgRules(db)
 
     expect(result.amended).toBe(0)
     expect(updated).toHaveLength(1)
@@ -115,9 +125,9 @@ describe('syncOrgRules', () => {
         seededRule(r.key, r.key === key ? { status: 'ARCHIVED' } : {}),
       ]),
     )
-    const { prisma, updated } = makePrisma(existing)
+    const { db, updated } = makeDb(existing)
 
-    await syncOrgRules(prisma)
+    await syncOrgRules(db)
 
     expect(updated).toHaveLength(1)
     expect(updated[0].data.status).toBe('ACTIVE')

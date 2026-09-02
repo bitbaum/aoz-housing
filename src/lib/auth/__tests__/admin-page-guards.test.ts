@@ -139,7 +139,7 @@ describe('the settings page does not ship anyone a credential', () => {
    */
   it('does not select staff codes', () => {
     const source = fs.readFileSync(path.join(ADMIN_DIR, 'settings/page.tsx'), 'utf8')
-    const select = source.match(/prisma\.user\.findMany\(\{[\s\S]*?\n {4}\}\)/)
+    const select = source.match(/db\.query\.user\.findMany\(\{[\s\S]*?\n {4}\}\)/)
 
     expect(select).not.toBeNull()
     expect(select?.[0]).not.toMatch(/\bcode:\s*true\b/)
@@ -200,7 +200,7 @@ describe('the analytics page does not bypass the placements boundary', () => {
       /canReadPlacements\s*=\s*hasPermission\(\s*currentUser,\s*'placements:read'\s*\)/,
     )
 
-    const queryLine = source.match(/canReadPlacements\s*\n?\s*\?\s*prisma\.placement\.findMany/)
+    const queryLine = source.match(/canReadPlacements\s*\n?\s*\?\s*db\.query\.placement\.findMany/)
     expect(queryLine).not.toBeNull()
 
     const renderLine = source.match(/canReadPlacements\s*&&\s*<RecentPlacementsTable/)

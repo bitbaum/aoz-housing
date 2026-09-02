@@ -3,8 +3,8 @@ import { resolve } from 'path'
 
 /**
  * Guards the failure mode that sent an agent at a dead cloud host: tracked
- * env templates and the Prisma client describing production as a pooler, or
- * naming the wrong database. Docs may name the decommissioned host as a
+ * env templates and the db client module describing production as a pooler,
+ * or naming the wrong database. Docs may name the decommissioned host as a
  * negative example so a search for it finds "that is stale".
  */
 
@@ -15,8 +15,8 @@ function read(relative: string) {
 }
 
 describe('production is Hetzner Postgres, not a cloud pooler', () => {
-  it('does not put a cloud-pooler host in the env template or Prisma client', () => {
-    for (const file of ['.env.example', 'src/lib/db.ts'] as const) {
+  it('does not put a cloud-pooler host in the env template or db client', () => {
+    for (const file of ['.env.example', 'src/lib/db/index.ts'] as const) {
       const text = read(file)
       expect({ file, hasNeonHost: /neon\.tech|neondb|@neondatabase/.test(text) }).toEqual({
         file,

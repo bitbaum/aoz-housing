@@ -1,27 +1,27 @@
 /**
  * Create 8 diverse residents for Witikon-440
  * Following CLAUDE.md best practices:
- * - SSOT: Using Prisma schema
+ * - SSOT: Using the Drizzle schema
  * - Quality: Type-safe, validated data
  * - SOC: Data creation separated from business logic
  */
 
+import { eq } from 'drizzle-orm'
 import {
-  PrismaClient,
-  AgeRange,
-  Gender,
-  FamilyStatus,
-  SleepSchedule,
-  SocialStyle,
-  SmokingStatus,
-  MobilityNeed,
-  RecyclingKnowledge,
-  RoomSharingStatus,
-  SupportLevel,
-  ResidentStatus,
-} from '@prisma/client'
-
-const prisma = new PrismaClient()
+  db,
+  resident as residentTable,
+  type AgeRange,
+  type Gender,
+  type FamilyStatus,
+  type SleepSchedule,
+  type SocialStyle,
+  type SmokingStatus,
+  type MobilityNeed,
+  type RecyclingKnowledge,
+  type RoomSharingStatus,
+  type SupportLevel,
+  type ResidentStatus,
+} from '../src/lib/db'
 
 async function main() {
   console.log('🏢 Creating residents for Witikon-440...\n')
@@ -170,8 +170,8 @@ async function main() {
     const { name, ...residentData } = data
 
     // Check if already exists
-    const exists = await prisma.resident.findUnique({
-      where: { code: data.code },
+    const exists = await db.query.resident.findFirst({
+      where: eq(residentTable.code, data.code),
     })
 
     if (exists) {
@@ -179,8 +179,9 @@ async function main() {
       continue
     }
 
-    const resident = await prisma.resident.create({
-      data: {
+    const [resident] = await db
+      .insert(residentTable)
+      .values({
         ...residentData,
         status: 'ACTIVE' as ResidentStatus,
         // Default values for required fields
@@ -196,8 +197,8 @@ async function main() {
         hasNightDisturbances: false,
         needsQuietEnvironment: data.noiseTolerance <= 2,
         hasSleepEquipment: false,
-      },
-    })
+      })
+      .returning()
 
     console.log(`  ✓ Created ${resident.code} - ${name}`)
   }
@@ -218,6 +219,6 @@ main()
     console.error('Error:', e)
     process.exit(1)
   })
-  .finally(async () => {
-    await prisma.$disconnect()
+  .finally(() => {
+    process.exit(0)
   })

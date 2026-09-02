@@ -6,12 +6,19 @@ jest.mock('@/lib/auth', () => ({
   requireStaffAuth: () => mockRequireStaffAuth(),
 }))
 
-const mockUnitFindUnique = jest.fn()
+const mockUnitFindFirst = jest.fn()
 const mockTaskCreate = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    housingUnit: { findUnique: (...args: unknown[]) => mockUnitFindUnique(...args) },
-    householdTask: { create: (...args: unknown[]) => mockTaskCreate(...args) },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      housingUnit: { findFirst: (...args: unknown[]) => mockUnitFindFirst(...args) },
+    },
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({
+        returning: (): Promise<unknown[]> => mockTaskCreate(v),
+      }),
+    })),
   },
 }))
 
@@ -45,9 +52,9 @@ const VALID = {
 beforeEach(() => {
   jest.clearAllMocks()
   mockRequireStaffAuth.mockResolvedValue({ id: 'staff-1', name: 'M. Keller', role: 'ADMIN' })
-  mockUnitFindUnique.mockResolvedValue({ id: 'unit-1', code: 'DEMO-U05' })
-  mockTaskCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'task-1', ...(args.data as object) }),
+  mockUnitFindFirst.mockResolvedValue({ id: 'unit-1', code: 'DEMO-U05' })
+  mockTaskCreate.mockImplementation((values: unknown) =>
+    Promise.resolve([{ id: 'task-1', ...(values as object) }]),
   )
 })
 
@@ -66,9 +73,7 @@ describe('POST /api/chores (staff)', () => {
 
     expect(response.status).toBe(200)
     expect(mockTaskCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ housingUnitId: 'unit-1', title: 'Küche putzen' }),
-      }),
+      expect.objectContaining({ housingUnitId: 'unit-1', title: 'Küche putzen' }),
     )
   })
 
@@ -80,21 +85,21 @@ describe('POST /api/chores (staff)', () => {
     await post(VALID)
 
     expect(mockTaskCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ createdByStaff: 'M. Keller' }) }),
+      expect.objectContaining({ createdByStaff: 'M. Keller' }),
     )
   })
 
   it('never attributes a staff task to a resident', async () => {
     await post(VALID)
 
-    const { data } = mockTaskCreate.mock.calls[0][0]
-    expect(data.createdByResidentId).toBeUndefined()
+    const [values] = mockTaskCreate.mock.calls[0]
+    expect(values.createdByResidentId).toBeUndefined()
   })
 
   it('rejects a unit that does not exist rather than failing on the foreign key', async () => {
     // An id from a form is an id the caller chose. Without this the failure is
     // a Prisma FK error and a 500, which tells nobody anything.
-    mockUnitFindUnique.mockResolvedValue(null)
+    mockUnitFindFirst.mockResolvedValue(null)
 
     const response = await post({ ...VALID, housingUnitId: 'made-up' })
 

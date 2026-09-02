@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, incident, incidentFollowUp, incidentInvolvement } from '@/lib/db'
+import { and, asc, desc, eq, gte, inArray, isNull, lt, lte, or } from 'drizzle-orm'
 import { z } from 'zod'
 import {
   validateFormData,
@@ -29,8 +30,9 @@ export async function createIncident(formData: FormData): Promise<void> {
   let incidentId: string
 
   try {
-    const incident = await prisma.incident.create({
-      data: {
+    const [created] = await db
+      .insert(incident)
+      .values({
         housingUnitId: data.housingUnitId,
         reportedById: data.reportedById || undefined,
         subjectId: data.subjectId || undefined,
@@ -49,13 +51,13 @@ export async function createIncident(formData: FormData): Promise<void> {
           type: data.type,
         }).stage,
         stageEnteredAt: new Date(),
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
       entity: 'INCIDENT',
-      entityId: incident.id,
+      entityId: created.id,
       userId: user.id,
       changes: {
         category: data.category,
@@ -64,7 +66,7 @@ export async function createIncident(formData: FormData): Promise<void> {
         housingUnitId: data.housingUnitId,
       },
     })
-    incidentId = incident.id
+    incidentId = created.id
   } catch (error) {
     logger.errorWithCause('Failed to create incident', error, { housingUnitId: data.housingUnitId })
     throw new Error(ERROR_MESSAGES.INCIDENT_CREATE_ERROR)
@@ -78,13 +80,16 @@ export async function resolveIncident(formData: FormData): Promise<void> {
   const { incidentId, resolution } = validateFormData(ResolveIncidentSchema, formData)
 
   try {
-    await prisma.incident.update({
-      where: { id: incidentId },
-      data: {
+    const [updated] = await db
+      .update(incident)
+      .set({
         resolvedAt: new Date(),
         resolution,
-      },
-    })
+      })
+      .where(eq(incident.id, incidentId))
+      .returning({ id: incident.id })
+    // Prisma threw when the incident was missing — keep that error path
+    if (!updated) throw new Error(ERROR_MESSAGES.INCIDENT_RESOLVE_ERROR)
 
     await logAudit({
       action: 'RESOLVE',
@@ -107,10 +112,13 @@ export async function updateMediationTime(formData: FormData): Promise<void> {
   const { incidentId, mediationMinutes } = validateFormData(UpdateMediationTimeSchema, formData)
 
   try {
-    await prisma.incident.update({
-      where: { id: incidentId },
-      data: { mediationMinutes },
-    })
+    const [updated] = await db
+      .update(incident)
+      .set({ mediationMinutes })
+      .where(eq(incident.id, incidentId))
+      .returning({ id: incident.id })
+    // Prisma threw when the incident was missing — keep that error path
+    if (!updated) throw new Error(ERROR_MESSAGES.INCIDENT_UPDATE_MEDIATION_ERROR)
 
     await logAudit({
       action: 'UPDATE',
@@ -138,27 +146,25 @@ export interface ResidentIncidentStats {
 export async function getResidentIncidentStats(residentId: string): Promise<ResidentIncidentStats> {
   await requirePermission('incidents:read')
   const [reported, asSubject, involved] = await Promise.all([
-    prisma.incident.count({
-      where: { reportedById: residentId },
-    }),
-    prisma.incident.count({
-      where: { subjectId: residentId },
-    }),
-    prisma.incidentInvolvement.count({
-      where: { residentId },
-    }),
+    db.$count(incident, eq(incident.reportedById, residentId)),
+    db.$count(incident, eq(incident.subjectId, residentId)),
+    db.$count(incidentInvolvement, eq(incidentInvolvement.residentId, residentId)),
   ])
 
   // Count unique incidents (reporter, subject, or involved)
-  const uniqueIncidents = await prisma.incident.findMany({
-    where: {
-      OR: [
-        { reportedById: residentId },
-        { subjectId: residentId },
-        { involvedResidents: { some: { residentId } } },
-      ],
-    },
-    select: { id: true },
+  const uniqueIncidents = await db.query.incident.findMany({
+    where: or(
+      eq(incident.reportedById, residentId),
+      eq(incident.subjectId, residentId),
+      inArray(
+        incident.id,
+        db
+          .select({ id: incidentInvolvement.incidentId })
+          .from(incidentInvolvement)
+          .where(eq(incidentInvolvement.residentId, residentId)),
+      ),
+    ),
+    columns: { id: true },
   })
 
   return {
@@ -171,19 +177,19 @@ export async function getResidentIncidentStats(residentId: string): Promise<Resi
 
 export async function getHousingUnitIncidentHistory(housingUnitId: string) {
   await requirePermission('incidents:read')
-  const incidents = await prisma.incident.findMany({
-    where: { housingUnitId },
-    include: {
-      reportedBy: { select: { id: true, code: true } },
-      subject: { select: { id: true, code: true } },
+  const incidents = await db.query.incident.findMany({
+    where: eq(incident.housingUnitId, housingUnitId),
+    with: {
+      reportedBy: { columns: { id: true, code: true } },
+      subject: { columns: { id: true, code: true } },
       involvedResidents: {
-        include: {
-          resident: { select: { id: true, code: true } },
+        with: {
+          resident: { columns: { id: true, code: true } },
         },
       },
     },
-    orderBy: { date: 'desc' },
-    take: QUERY_LIMITS.entityHistory,
+    orderBy: [desc(incident.date)],
+    limit: QUERY_LIMITS.entityHistory,
   })
 
   // Calculate which residents appear most frequently as subjects
@@ -225,19 +231,20 @@ export async function addFollowUp(formData: FormData): Promise<void> {
 
   try {
     // Create the follow-up record
-    const followUp = await prisma.incidentFollowUp.create({
-      data: {
+    const [followUp] = await db
+      .insert(incidentFollowUp)
+      .values({
         incidentId: data.incidentId,
         action: data.action,
         notes: data.notes,
         outcome: data.outcome,
         staffName: data.staffName,
         scheduledNextDate: data.scheduledNextDate,
-      },
-    })
+      })
+      .returning()
 
     // Update the incident with next follow-up date and priority
-    const updateData: Record<string, Date | string | null> = {}
+    const updateData: Partial<typeof incident.$inferInsert> = {}
     if (data.scheduledNextDate) {
       updateData.nextFollowUpDate = data.scheduledNextDate
     }
@@ -246,10 +253,7 @@ export async function addFollowUp(formData: FormData): Promise<void> {
     }
 
     if (Object.keys(updateData).length > 0) {
-      await prisma.incident.update({
-        where: { id: data.incidentId },
-        data: updateData,
-      })
+      await db.update(incident).set(updateData).where(eq(incident.id, data.incidentId))
     }
 
     await logAudit({
@@ -270,20 +274,22 @@ export async function addFollowUp(formData: FormData): Promise<void> {
 
 export async function getIncidentWithFollowUps(incidentId: string) {
   await requirePermission('incidents:read')
-  return prisma.incident.findUnique({
-    where: { id: incidentId },
-    include: {
-      housingUnit: true,
-      reportedBy: true,
-      subject: true,
-      involvedResidents: {
-        include: { resident: true },
+  return (
+    (await db.query.incident.findFirst({
+      where: eq(incident.id, incidentId),
+      with: {
+        housingUnit: true,
+        reportedBy: true,
+        subject: true,
+        involvedResidents: {
+          with: { resident: true },
+        },
+        followUps: {
+          orderBy: [desc(incidentFollowUp.createdAt)],
+        },
       },
-      followUps: {
-        orderBy: { createdAt: 'desc' },
-      },
-    },
-  })
+    })) ?? null
+  )
 }
 
 export async function getIncidentsNeedingFollowUp() {
@@ -295,49 +301,60 @@ export async function getIncidentsNeedingFollowUp() {
   threeDays.setDate(threeDays.getDate() + 3)
 
   // Get overdue incidents (follow-up date passed but not resolved)
-  const overdue = await prisma.incident.findMany({
-    where: {
-      resolvedAt: null,
-      nextFollowUpDate: { lt: now },
-    },
-    include: {
+  const overdue = await db.query.incident.findMany({
+    where: and(isNull(incident.resolvedAt), lt(incident.nextFollowUpDate, now)),
+    with: {
       housingUnit: true,
       subject: true,
-      _count: { select: { followUps: true } },
+      followUps: { columns: { id: true } },
     },
-    orderBy: { nextFollowUpDate: 'asc' },
+    orderBy: [asc(incident.nextFollowUpDate)],
   })
 
   // Get incidents due today/tomorrow
-  const dueSoon = await prisma.incident.findMany({
-    where: {
-      resolvedAt: null,
-      nextFollowUpDate: { gte: now, lte: tomorrow },
-    },
-    include: {
+  const dueSoon = await db.query.incident.findMany({
+    where: and(
+      isNull(incident.resolvedAt),
+      gte(incident.nextFollowUpDate, now),
+      lte(incident.nextFollowUpDate, tomorrow),
+    ),
+    with: {
       housingUnit: true,
       subject: true,
-      _count: { select: { followUps: true } },
+      followUps: { columns: { id: true } },
     },
-    orderBy: { nextFollowUpDate: 'asc' },
+    orderBy: [asc(incident.nextFollowUpDate)],
   })
 
   // Get incidents with urgent priority regardless of date
-  const urgent = await prisma.incident.findMany({
-    where: {
-      resolvedAt: null,
-      followUpPriority: { in: ['URGENT', 'HIGH'] },
-      nextFollowUpDate: { gte: tomorrow }, // Not already in dueSoon
-    },
-    include: {
+  const urgent = await db.query.incident.findMany({
+    where: and(
+      isNull(incident.resolvedAt),
+      inArray(incident.followUpPriority, ['URGENT', 'HIGH']),
+      gte(incident.nextFollowUpDate, tomorrow), // Not already in dueSoon
+    ),
+    with: {
       housingUnit: true,
       subject: true,
-      _count: { select: { followUps: true } },
+      followUps: { columns: { id: true } },
     },
-    orderBy: { followUpPriority: 'asc' },
+    orderBy: [asc(incident.followUpPriority)],
   })
 
-  return { overdue, dueSoon, urgent }
+  // Rebuild Prisma's `_count: { followUps }` shape — the query API has no
+  // count-include, so we fetched the follow-up ids and count them in memory.
+  const withFollowUpCount = ({
+    followUps,
+    ...rest
+  }: (typeof overdue)[number]): Omit<(typeof overdue)[number], 'followUps'> & {
+    _count: { followUps: number }
+  } => ({ ...rest, _count: { followUps: followUps.length } })
+
+  return {
+    overdue: overdue.map(withFollowUpCount),
+    dueSoon: dueSoon.map(withFollowUpCount),
+    urgent: urgent.map(withFollowUpCount),
+  }
 }
 
 export async function clearFollowUpReminder(formData: FormData): Promise<void> {
@@ -345,13 +362,16 @@ export async function clearFollowUpReminder(formData: FormData): Promise<void> {
   const { incidentId } = validateFormData(ClearFollowUpSchema, formData)
 
   try {
-    await prisma.incident.update({
-      where: { id: incidentId },
-      data: {
+    const [updated] = await db
+      .update(incident)
+      .set({
         nextFollowUpDate: null,
         followUpPriority: null,
-      },
-    })
+      })
+      .where(eq(incident.id, incidentId))
+      .returning({ id: incident.id })
+    // Prisma threw when the incident was missing — keep that error path
+    if (!updated) throw new Error(ERROR_MESSAGES.REMINDER_DELETE_ERROR)
 
     await logAudit({
       action: 'UPDATE',

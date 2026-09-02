@@ -24,7 +24,9 @@ jest.mock('../../seed/opportunities', () => ({
 
 import { resetDemoData } from '../reset'
 import { STAFF_ROLES } from '@/lib/auth/role-policy'
-import type { PrismaClient } from '@prisma/client'
+import { account, user, type db } from '@/lib/db'
+import { eq } from 'drizzle-orm'
+import { sqlText } from '@/test-utils/drizzle-where'
 
 const SEED_SUMMARY = {
   residents: 15,
@@ -34,23 +36,57 @@ const SEED_SUMMARY = {
   demoResidentCode: 'RES-001',
 }
 
-function createPrismaMock(tables: string[]) {
-  return {
-    $queryRaw: jest.fn().mockResolvedValue(tables.map((tablename) => ({ tablename }))),
-    $executeRawUnsafe: jest.fn().mockResolvedValue(0),
-    user: { upsert: jest.fn().mockResolvedValue({ id: 'demo-user' }) },
-    account: { deleteMany: jest.fn().mockResolvedValue({ count: 0 }) },
+/**
+ * A drizzle-client stand-in built to the surface the reset actually uses:
+ * `execute` (pg_tables SELECT, then the TRUNCATE), the demo-staff upsert
+ * (`insert(user)…onConflictDoUpdate…returning`), `delete(account)`, and the
+ * resident listing the opportunity seed reads.
+ */
+function createDbMock(tables: string[]) {
+  // Records the TRUNCATE statement's text; the pg_tables SELECT answers with
+  // the given table list instead.
+  const executeTruncate = jest.fn((statement: string) => {
+    void statement
+    return Promise.resolve({ rows: [] as unknown[] })
+  })
+  // Records each staff upsert as { values, target, set }.
+  const userUpsert = jest.fn((call: unknown) => {
+    void call
+    return [{ id: 'demo-user' }]
+  })
+  const accountDelete = jest.fn().mockResolvedValue({ rowCount: 0 })
+  const residentFindMany = jest.fn().mockResolvedValue([{ id: 'demo-resident-1' }])
+
+  const dbMock = {
+    execute: jest.fn((query: unknown) => {
+      const text = sqlText(query)
+      if (text.includes('pg_tables')) {
+        return Promise.resolve({ rows: tables.map((tablename) => ({ tablename })) })
+      }
+      return executeTruncate(text)
+    }),
+    insert: () => ({
+      values: (values: unknown) => ({
+        onConflictDoUpdate: ({ target, set }: { target: unknown; set: unknown }) => ({
+          returning: () => Promise.resolve(userUpsert({ values, target, set })),
+        }),
+      }),
+    }),
+    delete: () => ({ where: (w: unknown) => accountDelete(w) }),
     // The org-wide opportunity directory is seeded from the demo residents
     // this path just created. Unscoped is correct HERE and only here: the
     // wipe above ran first, so every remaining resident is a demo resident.
-    resident: {
-      findMany: jest.fn().mockResolvedValue([{ id: 'demo-resident-1' }]),
+    query: {
+      resident: { findMany: (...args: unknown[]) => residentFindMany(...args) },
     },
-  } as unknown as PrismaClient & {
-    $executeRawUnsafe: jest.Mock
-    user: { upsert: jest.Mock }
-    account: { deleteMany: jest.Mock }
-    resident: { findMany: jest.Mock }
+  }
+
+  return {
+    db: dbMock as unknown as typeof db,
+    executeTruncate,
+    userUpsert,
+    accountDelete,
+    residentFindMany,
   }
 }
 
@@ -72,11 +108,11 @@ describe('resetDemoData', () => {
   it('seeds the opportunity directory from the residents it just created', async () => {
     // Mocking a seed away and then never asserting it ran is how a step
     // silently stops happening while the suite stays green.
-    const prisma = createPrismaMock(['Resident'])
-    const summary = await resetDemoData(prisma)
+    const { db } = createDbMock(['Resident'])
+    const summary = await resetDemoData(db)
 
     expect(mockSeedOpportunities).toHaveBeenCalledWith(
-      prisma,
+      db,
       expect.objectContaining({ residentIds: ['demo-resident-1'], staffId: 'demo-user' }),
     )
     expect(summary.opportunities).toBe(5)
@@ -88,7 +124,7 @@ describe('resetDemoData', () => {
   })
 
   it('truncates every discovered table except the keep-list', async () => {
-    const prisma = createPrismaMock([
+    const { db, executeTruncate } = createDbMock([
       '_prisma_migrations',
       'User',
       'AlgorithmWeight',
@@ -99,10 +135,10 @@ describe('resetDemoData', () => {
       'BrandNewFutureModel', // schema growth: wiped without editing the reset
     ])
 
-    await resetDemoData(prisma)
+    await resetDemoData(db)
 
-    expect(prisma.$executeRawUnsafe).toHaveBeenCalledTimes(1)
-    const sql = prisma.$executeRawUnsafe.mock.calls[0][0] as string
+    expect(executeTruncate).toHaveBeenCalledTimes(1)
+    const sql = executeTruncate.mock.calls[0][0] as string
     expect(sql).toContain('"Resident"')
     expect(sql).toContain('"HousingUnit"')
     expect(sql).toContain('"HouseRule"')
@@ -115,34 +151,33 @@ describe('resetDemoData', () => {
   })
 
   it('reseeds, self-heals the demo staff account, and re-syncs the rule catalog', async () => {
-    const prisma = createPrismaMock(['Resident'])
+    const { db, userUpsert, accountDelete } = createDbMock(['Resident'])
 
-    const summary = await resetDemoData(prisma)
+    const summary = await resetDemoData(db)
 
     // The staff account is upserted BEFORE the seed and handed to it: the
     // care seats it assigns cannot point at a row that does not exist yet.
-    expect(mockSeedDemoData).toHaveBeenCalledWith(prisma, {
+    expect(mockSeedDemoData).toHaveBeenCalledWith(db, {
       careStaffId: 'demo-user',
       // Full scope owns the whole database, so it may also create content no
       // demo prefix reaches — and truncate it next time round. The scoped
       // reset must NOT pass this; `scoped-reset.test.ts` holds that end.
       siteWideContent: true,
     })
-    expect(prisma.user.upsert).toHaveBeenCalledWith({
-      where: { code: 'AOZH-DEMO01' },
-      update: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
-      create: {
+    expect(userUpsert).toHaveBeenCalledWith({
+      values: {
         code: 'AOZH-DEMO01',
         name: 'Demo-Zugang',
         role: 'ADMIN',
         scope: 'ALL_DOMAINS',
         isSystemAdmin: true,
       },
-      select: { id: true },
+      target: user.code,
+      set: { name: 'Demo-Zugang', active: true, scope: 'ALL_DOMAINS', isSystemAdmin: true },
     })
     // A visitor-claimed account on the demo code must not outlive the reset.
-    expect(prisma.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'demo-user' } })
-    expect(mockSyncOrgRules).toHaveBeenCalledWith(prisma)
+    expect(accountDelete).toHaveBeenCalledWith(eq(account.userId, 'demo-user'))
+    expect(mockSyncOrgRules).toHaveBeenCalledWith(db)
     expect(summary).toEqual({
       ...SEED_SUMMARY,
       tablesWiped: 1,
@@ -160,11 +195,11 @@ describe('resetDemoData', () => {
     // derived code — it does not mean "no staff demo", which is what this used
     // to assert back when the single door was the whole feature.
     delete process.env.DEMO_STAFF_CODE
-    const prisma = createPrismaMock(['Resident'])
+    const { db, userUpsert } = createDbMock(['Resident'])
 
-    const summary = await resetDemoData(prisma)
+    const summary = await resetDemoData(db)
 
-    expect(prisma.user.upsert).toHaveBeenCalledTimes(STAFF_ROLES.length)
+    expect(userUpsert).toHaveBeenCalledTimes(STAFF_ROLES.length)
     // The legacy single-door summary field stays null: nothing was configured.
     expect(summary.demoStaffCode).toBeNull()
   })

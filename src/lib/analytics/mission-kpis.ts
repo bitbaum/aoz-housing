@@ -10,7 +10,8 @@
  * @see CLAUDE.md "Measuring Success" section
  */
 
-import { prisma } from '@/lib/db'
+import { and, asc, eq, gte, inArray, ne } from 'drizzle-orm'
+import { db, incident, placement, resident } from '@/lib/db'
 import { zurichMonthKey, getZurichParts } from '@/lib/utils'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -101,40 +102,32 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
 
   const [incidents, endedPlacements, residents, placements] = await Promise.all([
     // Interpersonal incidents in range
-    prisma.incident.findMany({
-      where: {
-        category: 'INTERPERSONAL',
-        date: { gte: startDate },
-      },
-      select: { date: true, mediationMinutes: true },
-      orderBy: { date: 'asc' },
+    db.query.incident.findMany({
+      where: and(eq(incident.category, 'INTERPERSONAL'), gte(incident.date, startDate)),
+      columns: { date: true, mediationMinutes: true },
+      orderBy: [asc(incident.date)],
     }),
 
     // Placements that ended in range
-    prisma.placement.findMany({
-      where: {
-        endDate: { gte: startDate },
-        status: { not: 'ACTIVE' },
-      },
-      select: { endDate: true, endReason: true },
+    db.query.placement.findMany({
+      where: and(gte(placement.endDate, startDate), ne(placement.status, 'ACTIVE')),
+      columns: { endDate: true, endReason: true },
     }),
 
     // Residents created in range (for placement time calculation)
-    prisma.resident.findMany({
-      where: {
-        createdAt: { gte: startDate },
-        status: { in: ['PLACED', 'ACTIVE'] },
-      },
-      select: { id: true, createdAt: true },
+    db.query.resident.findMany({
+      where: and(
+        gte(resident.createdAt, startDate),
+        inArray(resident.status, ['PLACED', 'ACTIVE']),
+      ),
+      columns: { id: true, createdAt: true },
     }),
 
     // First placement per recent resident
-    prisma.placement.findMany({
-      where: {
-        startDate: { gte: startDate },
-      },
-      select: { residentId: true, startDate: true },
-      orderBy: { startDate: 'asc' },
+    db.query.placement.findMany({
+      where: gte(placement.startDate, startDate),
+      columns: { residentId: true, startDate: true },
+      orderBy: [asc(placement.startDate)],
     }),
   ])
 

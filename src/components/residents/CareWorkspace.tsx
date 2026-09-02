@@ -8,7 +8,7 @@ import {
   CARE_ROLES,
   type CareRoleId,
 } from '@/lib/config/care'
-import type { InterpreterNeed } from '@prisma/client'
+import type { InterpreterNeed } from '@/lib/db'
 import { INTERPRETER_LABELS, needsInterpreter } from '@/lib/config/interpreting'
 import type { CareAppointment, CareAttributeValue } from '@/lib/actions/care'
 import {

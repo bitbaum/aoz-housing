@@ -26,9 +26,6 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate Prisma client
-        run: npx prisma generate
-
       - name: Lint
         run: npm run lint
 
@@ -48,9 +45,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-
-      - name: Generate Prisma client
-        run: npx prisma generate
 
       - name: Run unit tests
         run: npm test -- --ci --coverage
@@ -82,7 +76,6 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: 'postgresql://fake:fake@localhost:5432/fake'
-          DIRECT_URL: 'postgresql://fake:fake@localhost:5432/fake'
           # Not a real secret: page-data collection imports auth/constants,
           # whose production fail-fast requires this to be set (>=32 chars).
           SESSION_SECRET: 'ci-build-only-dummy-0123456789abcdef'
@@ -125,16 +118,12 @@ jobs:
 
       - run: npm ci
 
-      - name: Generate Prisma client
-        run: npx prisma generate
-
       - name: Initialize database schema
-        run: npx prisma migrate deploy
+        run: npm run db:migrate
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
-          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
-      # Through the npm scripts, never `npx ts-node prisma/…` directly: the
+      # Through the npm scripts, never `npx ts-node scripts/db/…` directly: the
       # seed imports the product's compatibility algorithm by its `@/` alias,
       # and only the scripts carry `-r tsconfig-paths/register`. Invoking
       # ts-node here by hand was a second definition of "how to seed", and it
@@ -142,11 +131,10 @@ jobs:
       # Guarded by src/lib/__tests__/scoring-ssot.test.ts.
       - name: Seed E2E data
         run: |
-          npm run prisma:seed
-          npm run prisma:seed:admin
+          npm run db:seed
+          npm run db:seed:admin
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
-          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -155,7 +143,6 @@ jobs:
         run: npm run test:e2e
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
-          DIRECT_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
           SESSION_SECRET: 'ci-test-secret-not-for-production'
           STAFF_INVITE_CODE: '0000'
 

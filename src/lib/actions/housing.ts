@@ -1,6 +1,16 @@
 'use server'
 
-import { prisma } from '@/lib/db'
+import {
+  db,
+  housingUnit,
+  placement,
+  placementSpot,
+  incident,
+  maintenanceRequest,
+  householdTask,
+  isUniqueViolation,
+} from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { validateFormData, HousingUnitInputSchema, HousingUnitUpdateSchema } from '@/lib/validation'
@@ -9,7 +19,6 @@ import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { requirePermission } from '@/lib/auth'
-import { Prisma } from '@prisma/client'
 
 export async function createHousingUnit(formData: FormData): Promise<void> {
   const user = await requirePermission('housing:write')
@@ -17,12 +26,14 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
 
   let unit
   try {
-    unit = await prisma.housingUnit.create({
-      data: {
+    const [created] = await db
+      .insert(housingUnit)
+      .values({
         ...data,
         status: DEFAULT_STATUSES.housing,
-      },
-    })
+      })
+      .returning()
+    unit = created
 
     await logAudit({
       action: 'CREATE',
@@ -32,7 +43,7 @@ export async function createHousingUnit(formData: FormData): Promise<void> {
       changes: { code: data.code, address: data.address },
     })
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (isUniqueViolation(error)) {
       throw new Error(ERROR_MESSAGES.UNIT_CODE_EXISTS)
     }
     logger.errorWithCause('Failed to create housing unit', error, { code: data.code })
@@ -50,10 +61,13 @@ export async function updateHousingUnit(formData: FormData): Promise<void> {
   const { id, ...updateData } = data
 
   try {
-    await prisma.housingUnit.update({
-      where: { id },
-      data: updateData,
-    })
+    const [updated] = await db
+      .update(housingUnit)
+      .set(updateData)
+      .where(eq(housingUnit.id, id))
+      .returning({ id: housingUnit.id })
+    // Prisma threw when the unit was missing — keep that error path
+    if (!updated) throw new Error(ERROR_MESSAGES.UNIT_UPDATE_ERROR)
 
     await logAudit({
       action: 'UPDATE',
@@ -77,11 +91,11 @@ export async function archiveHousingUnit(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('housing:write')
   try {
-    const unit = await prisma.housingUnit.findUnique({
-      where: { id: housingUnitId },
-      include: {
-        placements: { where: { status: 'ACTIVE' }, select: { id: true } },
-        spots: { where: { status: 'OCCUPIED' }, select: { id: true } },
+    const unit = await db.query.housingUnit.findFirst({
+      where: eq(housingUnit.id, housingUnitId),
+      with: {
+        placements: { where: eq(placement.status, 'ACTIVE'), columns: { id: true } },
+        spots: { where: eq(placementSpot.status, 'OCCUPIED'), columns: { id: true } },
       },
     })
 
@@ -90,10 +104,7 @@ export async function archiveHousingUnit(
       return { success: false, error: ERROR_MESSAGES.UNIT_ARCHIVE_BLOCKED }
     }
 
-    await prisma.housingUnit.update({
-      where: { id: housingUnitId },
-      data: { status: 'CLOSED' },
-    })
+    await db.update(housingUnit).set({ status: 'CLOSED' }).where(eq(housingUnit.id, housingUnitId))
 
     await logAudit({
       action: 'ARCHIVE',
@@ -117,13 +128,13 @@ export async function restoreHousingUnit(
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requirePermission('housing:write')
   try {
-    const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })
+    const unit = await db.query.housingUnit.findFirst({ where: eq(housingUnit.id, housingUnitId) })
     if (!unit) return { success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND }
 
-    await prisma.housingUnit.update({
-      where: { id: housingUnitId },
-      data: { status: 'AVAILABLE' },
-    })
+    await db
+      .update(housingUnit)
+      .set({ status: 'AVAILABLE' })
+      .where(eq(housingUnit.id, housingUnitId))
 
     await logAudit({
       action: 'RESTORE',
@@ -165,7 +176,7 @@ export async function hardDeleteHousingUnitProtected(
       }
     }
 
-    const unit = await prisma.housingUnit.findUnique({ where: { id: housingUnitId } })
+    const unit = await db.query.housingUnit.findFirst({ where: eq(housingUnit.id, housingUnitId) })
     if (!unit) return { success: false, error: ERROR_MESSAGES.UNIT_NOT_FOUND }
 
     if (!isTestOrDemoCode(unit.code)) {
@@ -173,11 +184,11 @@ export async function hardDeleteHousingUnitProtected(
     }
 
     const [placements, incidents, maintenanceRequests, spots, tasks] = await Promise.all([
-      prisma.placement.count({ where: { housingUnitId } }),
-      prisma.incident.count({ where: { housingUnitId } }),
-      prisma.maintenanceRequest.count({ where: { housingUnitId } }),
-      prisma.placementSpot.count({ where: { housingUnitId } }),
-      prisma.householdTask.count({ where: { housingUnitId } }),
+      db.$count(placement, eq(placement.housingUnitId, housingUnitId)),
+      db.$count(incident, eq(incident.housingUnitId, housingUnitId)),
+      db.$count(maintenanceRequest, eq(maintenanceRequest.housingUnitId, housingUnitId)),
+      db.$count(placementSpot, eq(placementSpot.housingUnitId, housingUnitId)),
+      db.$count(householdTask, eq(householdTask.housingUnitId, housingUnitId)),
     ])
 
     if (placements + incidents + maintenanceRequests + spots + tasks > 0) {
@@ -194,7 +205,7 @@ export async function hardDeleteHousingUnitProtected(
       }
     }
 
-    await prisma.housingUnit.delete({ where: { id: housingUnitId } })
+    await db.delete(housingUnit).where(eq(housingUnit.id, housingUnitId))
 
     await logAudit({
       action: 'DELETE',

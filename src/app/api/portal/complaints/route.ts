@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, complaint } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
@@ -41,9 +42,9 @@ export async function POST(request: NextRequest) {
   // anyone on the internet, and a channel full of noise protects nobody. What
   // "anonymous" changes is whether the RECORD carries the identity, not
   // whether the sender had one.
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: { id: true },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    columns: { id: true },
   })
   if (!resident) {
     return NextResponse.json(
@@ -63,12 +64,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    await prisma.complaint.create({
-      data: {
-        residentId: parsed.anonymous ? null : resident.id,
-        subject: parsed.subject,
-        body: parsed.body,
-      },
+    await db.insert(complaint).values({
+      residentId: parsed.anonymous ? null : resident.id,
+      subject: parsed.subject,
+      body: parsed.body,
     })
   } catch (error) {
     // The body is a person's complaint. It never goes to the logger.

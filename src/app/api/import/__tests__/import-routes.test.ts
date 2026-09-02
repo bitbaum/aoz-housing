@@ -16,27 +16,36 @@ jest.mock('@/lib/auth', () => ({
   },
 }))
 
-// Route now uses createMany + a transaction; pre-checks existing codes via
-// findMany, and writes AuditLog entries via auditLog.createMany.
+// Route runs one transaction; pre-checks existing codes via tx.query.resident
+// .findMany, bulk-inserts residents via tx.insert(resident).values(...)
+// .onConflictDoNothing(), re-fetches the inserted IDs, and writes AuditLog rows
+// via tx.insert(auditLog).values(...). The insert mocks receive the values
+// payload (the array of rows) directly.
 const mockResidentFindMany = jest.fn().mockResolvedValue([])
-const mockResidentCreateMany = jest.fn().mockResolvedValue({ count: 0 })
-const mockAuditLogCreateMany = jest.fn().mockResolvedValue({ count: 0 })
-const mockTx = {
-  resident: {
-    findMany: mockResidentFindMany,
-    createMany: mockResidentCreateMany,
-  },
-  auditLog: {
-    createMany: mockAuditLogCreateMany,
-  },
-}
-const mockTransaction = jest.fn(async (cb: (tx: typeof mockTx) => Promise<unknown>) => cb(mockTx))
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    $transaction: (...args: unknown[]) =>
-      mockTransaction(...(args as [(tx: typeof mockTx) => Promise<unknown>])),
-  },
-}))
+const mockResidentCreateMany = jest.fn().mockResolvedValue(undefined)
+const mockAuditLogCreateMany = jest.fn().mockResolvedValue(undefined)
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  const tx = {
+    query: {
+      resident: { findMany: (...args: unknown[]) => mockResidentFindMany(...args) },
+    },
+    insert: (table: unknown) => ({
+      values: (v: unknown) =>
+        table === actual.resident
+          ? // Resident insert is awaited after .onConflictDoNothing()
+            { onConflictDoNothing: (): Promise<unknown> => mockResidentCreateMany(v) }
+          : // AuditLog insert is awaited on the builder itself (no returning)
+            mockAuditLogCreateMany(v),
+    }),
+  }
+  return {
+    ...actual,
+    db: {
+      transaction: (fn: (tx: unknown) => unknown) => fn(tx),
+    },
+  }
+})
 
 const mockLogAudit = jest.fn()
 jest.mock('@/lib/audit', () => ({
@@ -144,8 +153,8 @@ describe('POST /api/import/residents', () => {
     mockResidentFindMany
       .mockResolvedValueOnce([]) // pre-check: no duplicates
       .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-TEST' }]) // post-insert ID lookup
-    mockResidentCreateMany.mockResolvedValue({ count: 1 })
-    mockAuditLogCreateMany.mockResolvedValue({ count: 1 })
+    mockResidentCreateMany.mockResolvedValue(undefined)
+    mockAuditLogCreateMany.mockResolvedValue(undefined)
     mockLogAudit.mockResolvedValue(undefined)
 
     const csv = `${CSV_HEADER}\n${VALID_CSV_ROW}`
@@ -162,34 +171,29 @@ describe('POST /api/import/residents', () => {
     expect(body.errors.length).toBe(0)
 
     // Verify bulk insert was called with the validated row payload
-    expect(mockResidentCreateMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({
-          code: 'RES-TEST',
-          ageRange: 'ADULT',
-          gender: 'MALE',
-          status: 'ACTIVE',
-          privacyNeed: 3,
-          guestTolerance: 3,
-          languages: ['de', 'en'],
-        }),
-      ],
-      skipDuplicates: true,
-    })
+    expect(mockResidentCreateMany).toHaveBeenCalledWith([
+      expect.objectContaining({
+        code: 'RES-TEST',
+        ageRange: 'ADULT',
+        gender: 'MALE',
+        status: 'ACTIVE',
+        privacyNeed: 3,
+        guestTolerance: 3,
+        languages: ['de', 'en'],
+      }),
+    ])
 
     // The route now also writes AuditLog rows inside the transaction plus a
     // single summary logAudit() afterwards.
-    expect(mockAuditLogCreateMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({
-          action: 'CREATE',
-          entity: 'RESIDENT',
-          entityId: 'new-res-1',
-          userId: 'user-1',
-          changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
-        }),
-      ],
-    })
+    expect(mockAuditLogCreateMany).toHaveBeenCalledWith([
+      expect.objectContaining({
+        action: 'CREATE',
+        entity: 'RESIDENT',
+        entityId: 'new-res-1',
+        userId: 'user-1',
+        changes: { code: 'RES-TEST', source: 'CSV_IMPORT' },
+      }),
+    ])
     expect(mockLogAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'CREATE',
@@ -225,7 +229,7 @@ describe('POST /api/import/residents', () => {
     mockResidentFindMany
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-TEST' }])
-    mockResidentCreateMany.mockResolvedValue({ count: 1 })
+    mockResidentCreateMany.mockResolvedValue(undefined)
     mockLogAudit.mockResolvedValue(undefined)
 
     // First row valid, second row invalid (missing code)
@@ -265,7 +269,7 @@ describe('POST /api/import/residents', () => {
     mockResidentFindMany
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ id: 'new-res-1', code: 'RES-COERCE' }])
-    mockResidentCreateMany.mockResolvedValue({ count: 1 })
+    mockResidentCreateMany.mockResolvedValue(undefined)
     mockLogAudit.mockResolvedValue(undefined)
 
     // noiseTolerance and cleanlinessPractice come as strings from CSV
@@ -275,14 +279,11 @@ describe('POST /api/import/residents', () => {
 
     await POST(request)
 
-    expect(mockResidentCreateMany).toHaveBeenCalledWith({
-      data: [
-        expect.objectContaining({
-          noiseTolerance: 3,
-          cleanlinessPractice: 4,
-        }),
-      ],
-      skipDuplicates: true,
-    })
+    expect(mockResidentCreateMany).toHaveBeenCalledWith([
+      expect.objectContaining({
+        noiseTolerance: 3,
+        cleanlinessPractice: 4,
+      }),
+    ])
   })
 })

@@ -4,7 +4,7 @@ created_date: 2026-08-17
 last_modified_date: 2026-08-19
 last_modified_summary: Document fleet AI keys (Groq → OpenRouter); staff chat no longer uses Anthropic.
 
-This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, Prisma loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
+This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, the db client loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
 
 ## Production (the only live instance)
 
@@ -32,8 +32,8 @@ Neon, Vercel and hosted Supabase were left on 2026-06-12 (see `CHANGELOG.md`). T
 Do not:
 
 - Restore those URLs into `.env`
-- Treat Prisma's "loaded env from .env" line as proof of where production lives
-- Run `prisma migrate` against whatever happens to be in a gitignored file without reading the host
+- Treat a client's "loaded env from .env" line as proof of where production lives
+- Run migrations against whatever happens to be in a gitignored file without reading the host
 - Invent a tunnel and then confuse this laptop's Postgres (`aoz_housing`, old scratch DBs) with `aoz_wohnen` on the box
 
 ## How code reaches the box
@@ -42,7 +42,7 @@ Push to `master` → `.github/workflows/deploy.yml` → reusable
 `bitbaum/fleetcrown/.github/workflows/selfhost-deploy.yml`.
 
 That pipeline waits for this commit's CI, pulls `/opt/aoz-wohnen/shared/.env`
-from the box (the box stays env SSOT), runs `prisma migrate deploy` against
+from the box (the box stays env SSOT), applies pending `drizzle/*.sql` (fleetcrown apply-schema.sh, ledgered in `_deploy_schema_history`) against
 `aoz_wohnen` over the deploy tunnel, builds, rsyncs, health-checks.
 
 If CI on `master` is red, deploy is blocked. Auto-merge must set
@@ -68,10 +68,10 @@ ssh root@167.233.22.31
 # then, as the app:
 cd /opt/aoz-wohnen/current
 # DATABASE_URL is already aoz_wohnen@localhost
-npx prisma migrate status
+npm run db:migrate   # drizzle-kit; no-ops when the journal is current
 ```
 
-Do not point this laptop's Prisma at Neon. Do not assume `localhost:5432` on the laptop is `aoz_wohnen` — that database lives on the box.
+Do not point this laptop's db client at Neon. Do not assume `localhost:5432` on the laptop is `aoz_wohnen` — that database lives on the box.
 
 Local development uses a **local** Postgres and `.env.example` as the template (`aoz_wohnen` as the name so it matches production). Copy credentials from the box only when you are deliberately tunnelling, and rewrite the host/port to the tunnel — never keep a `neon.tech` host "for convenience".
 

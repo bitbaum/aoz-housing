@@ -4,7 +4,7 @@
  * The "Voraussetzungen" block is the ethical core of the feature and is
  * grouped and captioned as such on purpose: everything in it describes the
  * PLACE. There is deliberately no field anywhere on this form that records
- * anything about a person's status — see the note in `schema.prisma`.
+ * anything about a person’s status — see the note in src/lib/db/schema.ts.
  *
  * Every `name=` here is checked against the zod schema by
  * `opportunity-form-fields.test.ts`. A field the schema does not know is

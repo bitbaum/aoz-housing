@@ -1,5 +1,14 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  housingUnit,
+  placement,
+  placementSpot,
+  incident,
+  compatibilityAssessment,
+  resident as residentTable,
+} from '@/lib/db'
+import { eq, and, inArray, notInArray, asc, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -37,7 +46,7 @@ import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatib
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { getUnitFitConcerns } from '@/lib/compatibility'
 import { requirePermission } from '@/lib/auth'
-import type { Resident, CompatibilityAssessment } from '@prisma/client'
+import type { Resident, CompatibilityAssessment } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { HousingSpot } from '@/components/housing/types'
 import { hasResidentName, unitName, UNIT_NAME_SELECT } from '@/lib/utils/unit-name'
@@ -58,9 +67,9 @@ export async function generateMetadata({
   // Selects the nickname too, so the browser tab says what the residents call
   // the place. Selecting only `code` here is the exact under-selection that
   // UNIT_NAME_SELECT exists to prevent.
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id },
-    select: UNIT_NAME_SELECT,
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.id, id),
+    columns: UNIT_NAME_SELECT,
   })
   return { title: unit ? unitName(unit) : 'Unterkunft' }
 }
@@ -75,39 +84,39 @@ export default async function HousingDetailPage({ params }: Props) {
   await requirePermission('housing:read')
   const { id } = await params
 
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id },
-    include: {
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.id, id),
+    with: {
       spots: {
-        include: {
+        with: {
           placements: {
-            where: { status: 'ACTIVE' },
-            include: { resident: true },
+            where: eq(placement.status, 'ACTIVE'),
+            with: { resident: true },
           },
           childSpots: {
-            include: {
+            with: {
               placements: {
-                where: { status: 'ACTIVE' },
-                include: { resident: true },
+                where: eq(placement.status, 'ACTIVE'),
+                with: { resident: true },
               },
             },
           },
         },
-        orderBy: { code: 'asc' },
+        orderBy: [asc(placementSpot.code)],
       },
       placements: {
-        where: { status: 'ACTIVE' },
-        include: {
+        where: eq(placement.status, 'ACTIVE'),
+        with: {
           resident: true,
         },
-        orderBy: { startDate: 'desc' },
+        orderBy: [desc(placement.startDate)],
       },
       incidents: {
-        orderBy: { date: 'desc' },
-        take: QUERY_LIMITS.unitHistory,
-        include: {
-          reportedBy: { select: RESIDENT_NAME_SELECT },
-          subject: { select: RESIDENT_NAME_SELECT },
+        orderBy: [desc(incident.date)],
+        limit: QUERY_LIMITS.unitHistory,
+        with: {
+          reportedBy: { columns: RESIDENT_NAME_SELECT },
+          subject: { columns: RESIDENT_NAME_SELECT },
         },
       },
     },
@@ -121,11 +130,11 @@ export default async function HousingDetailPage({ params }: Props) {
   const residentIds = unit.placements.map((p) => p.residentId)
   const compatibilityScores =
     residentIds.length > 1
-      ? await prisma.compatibilityAssessment.findMany({
-          where: {
-            residentId: { in: residentIds },
-            comparedWithId: { in: residentIds },
-          },
+      ? await db.query.compatibilityAssessment.findMany({
+          where: and(
+            inArray(compatibilityAssessment.residentId, residentIds),
+            inArray(compatibilityAssessment.comparedWithId, residentIds),
+          ),
         })
       : []
 
@@ -179,12 +188,19 @@ export default async function HousingDetailPage({ params }: Props) {
   const hasAvailableSpace = unit.placements.length < unit.totalBeds
 
   if (hasAvailableSpace) {
-    // Get unplaced residents
-    const unplacedResidents = await prisma.resident.findMany({
-      where: {
-        status: 'ACTIVE',
-        placements: { none: { status: 'ACTIVE' } },
-      },
+    // Get unplaced residents (no active placement — Prisma's `none` relation
+    // filter, expressed as a NOT IN subquery)
+    const unplacedResidents = await db.query.resident.findMany({
+      where: and(
+        eq(residentTable.status, 'ACTIVE'),
+        notInArray(
+          residentTable.id,
+          db
+            .select({ id: placement.residentId })
+            .from(placement)
+            .where(eq(placement.status, 'ACTIVE')),
+        ),
+      ),
     })
 
     if (unplacedResidents.length > 0) {

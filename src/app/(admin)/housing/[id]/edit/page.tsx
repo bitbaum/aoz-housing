@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { HousingFormFields, FormValidationUX } from '@/components/forms'
@@ -23,8 +24,8 @@ export default async function EditHousingPage({ params }: Props) {
   await requirePermission('housing:write')
   const { id } = await params
 
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id },
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.id, id),
   })
 
   if (!unit) {

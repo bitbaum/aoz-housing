@@ -8,7 +8,8 @@ import { ALL_CODE_PREFIXES, BRAND } from '@/lib/config/brand'
 
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, user, resident } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { AUTH_CONFIG } from './config'
 import { RESIDENT_COOKIE } from '@/lib/portal-auth'
 import { ALL_RESIDENT_CODE_PREFIXES, RESIDENT_CODE_PREFIX } from '@/lib/auth/code-prefixes'
@@ -78,20 +79,22 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   // A session must not outlive the account. The JWT alone would keep a
   // deactivated user (offboarded staff, retired demo account) signed in
   // until token expiry — with sliding refresh, indefinitely.
-  const user = await prisma.user.findUnique({
-    where: { id: payload.sub },
-    select: {
+  const row = await db.query.user.findFirst({
+    where: eq(user.id, payload.sub),
+    columns: {
       active: true,
       scope: true,
       isSystemAdmin: true,
       siteAccess: true,
-      // Only the ids, and only when they can matter. An ALL_UNITS viewer —
-      // everyone, until somebody is deliberately narrowed — carries an empty
-      // list that nothing reads, so the common request does not grow a join.
-      unitAccess: { select: { housingUnitId: true } },
+    },
+    // Only the ids, and only when they can matter. An ALL_UNITS viewer —
+    // everyone, until somebody is deliberately narrowed — carries an empty
+    // list that nothing reads, so the common request does not grow a join.
+    with: {
+      unitAccess: { columns: { housingUnitId: true } },
     },
   })
-  if (!user?.active) return null
+  if (!row?.active) return null
 
   return {
     id: payload.sub,
@@ -102,17 +105,15 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     // belongs in that same sentence: revoking someone's reach must take effect
     // on the next request, not at token expiry, which with sliding refresh is
     // indefinitely.
-    scope: user.scope,
-    isSystemAdmin: user.isSystemAdmin,
-    siteAccess: user.siteAccess,
+    scope: row.scope,
+    isSystemAdmin: row.isSystemAdmin,
+    siteAccess: row.siteAccess,
     // `?? []` guards a future caller that forgets to select the relation.
     // The column is NOT NULL with a default, so absence is impossible in
     // production — but this is the auth path, and an incomplete select should
     // narrow someone's reach, never throw and take the whole request down.
     assignedUnitIds:
-      user.siteAccess === 'ALL_UNITS'
-        ? []
-        : (user.unitAccess ?? []).map((row) => row.housingUnitId),
+      row.siteAccess === 'ALL_UNITS' ? [] : (row.unitAccess ?? []).map((r) => r.housingUnitId),
   }
 }
 
@@ -148,16 +149,16 @@ export async function getCurrentResident(): Promise<AuthResident | null> {
   if (!residentCode) return null
 
   // Validate code exists in database
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: { id: true, code: true },
+  const row = await db.query.resident.findFirst({
+    where: eq(resident.code, residentCode),
+    columns: { id: true, code: true },
   })
 
-  if (!resident) return null
+  if (!row) return null
 
   return {
-    id: resident.id,
-    code: resident.code,
+    id: row.id,
+    code: row.code,
   }
 }
 
@@ -262,9 +263,9 @@ export async function isAuthenticated(): Promise<boolean> {
 export async function loginByCode(code: string, clientIp: string): Promise<LoginByCodeResult> {
   if (ALL_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
     // Staff login
-    const user = await prisma.user.findUnique({
-      where: { code },
-      select: {
+    const staff = await db.query.user.findFirst({
+      where: eq(user.code, code),
+      columns: {
         id: true,
         name: true,
         role: true,
@@ -272,37 +273,34 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         isSystemAdmin: true,
         siteAccess: true,
         active: true,
-        // Contact email lives on the account (may be absent for code-only staff).
-        account: { select: { email: true } },
       },
+      // Contact email lives on the account (may be absent for code-only staff).
+      with: { account: { columns: { email: true } } },
     })
 
-    if (!user || !user.active) {
+    if (!staff || !staff.active) {
       recordLoginAttempt(clientIp)
       return { success: false, error: 'Ungültiger Code' }
     }
 
     clearLoginAttempts(clientIp)
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    })
+    await db.update(user).set({ lastLoginAt: new Date() }).where(eq(user.id, staff.id))
 
     return {
       success: true,
       type: 'staff',
       user: {
-        id: user.id,
-        email: user.account?.email || '',
-        name: user.name,
-        role: user.role,
-        scope: user.scope,
-        isSystemAdmin: user.isSystemAdmin,
+        id: staff.id,
+        email: staff.account?.email || '',
+        name: staff.name,
+        role: staff.role,
+        scope: staff.scope,
+        isSystemAdmin: staff.isSystemAdmin,
         // The login result is a receipt, not a session. Every request that
         // asks "which places?" goes through getCurrentUser, which reads both
         // from the ROW — so the honest value here is the narrowest one rather
         // than a snapshot that could go stale in a caller's hands.
-        siteAccess: user.siteAccess,
+        siteAccess: staff.siteAccess,
         assignedUnitIds: [],
       },
     }
@@ -314,12 +312,12 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
   // printed before the rebrand, with a "Ungültiger Code" that is a lie.
   if (ALL_RESIDENT_CODE_PREFIXES.some((prefix) => code.startsWith(prefix))) {
     // Resident login
-    const resident = await prisma.resident.findUnique({
-      where: { code },
-      select: { id: true, code: true },
+    const row = await db.query.resident.findFirst({
+      where: eq(resident.code, code),
+      columns: { id: true, code: true },
     })
 
-    if (!resident) {
+    if (!row) {
       recordLoginAttempt(clientIp)
       return { success: false, error: 'Ungültiger Code' }
     }
@@ -328,7 +326,7 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
     return {
       success: true,
       type: 'resident',
-      code: resident.code,
+      code: row.code,
     }
   }
 

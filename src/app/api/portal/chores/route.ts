@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, taskCompletion, taskAttentionFlag, taskRequest } from '@/lib/db'
+import { eq, desc, inArray } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { portalCreateTaskSchema, ValidationError, validateFormData } from '@/lib/validation/schemas'
@@ -17,23 +18,27 @@ export async function GET() {
   }
 
   try {
-    const tasks = await prisma.householdTask.findMany({
-      where: { housingUnitId: auth.placement.housingUnitId },
-      include: {
+    const tasks = await db.query.householdTask.findMany({
+      where: eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+      with: {
         completions: {
-          orderBy: { completedAt: 'desc' },
-          take: 1,
-          include: { completedBy: { select: { id: true, code: true } } },
+          orderBy: [desc(taskCompletion.completedAt)],
+          limit: 1,
+          with: { completedBy: { columns: { id: true, code: true } } },
         },
         attentionFlags: {
-          where: { isResolved: false },
+          where: eq(taskAttentionFlag.isResolved, false),
         },
         requests: {
-          where: { status: { in: ['PENDING', 'ACCEPTED'] } },
+          where: inArray(taskRequest.status, ['PENDING', 'ACCEPTED']),
         },
-        createdByResident: { select: { id: true, code: true } },
+        createdByResident: { columns: { id: true, code: true } },
       },
-      orderBy: [{ currentStatus: 'desc' }, { priority: 'desc' }, { createdAt: 'desc' }],
+      orderBy: [
+        desc(householdTask.currentStatus),
+        desc(householdTask.priority),
+        desc(householdTask.createdAt),
+      ],
     })
 
     // Same loader the page uses — a balance that disagreed between the two
@@ -74,8 +79,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const task = await prisma.householdTask.create({
-      data: {
+    const [task] = await db
+      .insert(householdTask)
+      .values({
         housingUnitId: auth.placement.housingUnitId,
         createdByResidentId: auth.resident.id,
         title: data.title,
@@ -87,8 +93,8 @@ export async function POST(request: NextRequest) {
         scheduleHuman: data.scheduleHuman || null,
         estimatedMinutes: data.estimatedMinutes || null,
         checklist: data.checklist ?? [],
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',

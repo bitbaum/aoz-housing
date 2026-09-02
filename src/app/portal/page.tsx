@@ -1,6 +1,16 @@
 import type { Metadata } from 'next'
 import { getRequestTranslator } from '@/lib/i18n/request'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement,
+  maintenanceRequest,
+  satisfactionCheckIn,
+  incident,
+  householdTask,
+  compatibilityAssessment,
+} from '@/lib/db'
+import { eq, and, or, desc, inArray, notInArray } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 
 // The portal's name is the brand's decision, not this file's — the tab used to
@@ -40,47 +50,49 @@ export default async function ResidentPortal() {
   const residentCode = await requireResidentCookie('/login')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
-      photo: { select: { updatedAt: true } },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
+      photo: { columns: { updatedAt: true } },
       placements: {
-        where: { status: 'ACTIVE' },
-        include: {
+        where: eq(placement.status, 'ACTIVE'),
+        with: {
           housingUnit: {
-            include: {
+            with: {
               placements: {
-                where: { status: 'ACTIVE' },
-                include: {
+                where: eq(placement.status, 'ACTIVE'),
+                with: {
                   resident: {
-                    select: {
+                    columns: {
                       id: true,
                       code: true,
                       displayName: true,
                       socialStyle: true,
-                      photo: { select: { updatedAt: true } },
+                    },
+                    with: {
+                      photo: { columns: { updatedAt: true } },
                     },
                   },
                 },
               },
               maintenanceRequests: {
-                where: { status: { notIn: ['COMPLETED', 'CANCELLED'] } },
-                orderBy: { createdAt: 'desc' },
-                take: DISPLAY_LIMITS.portalIncidentPreview,
-                select: { id: true, category: true, createdAt: true },
+                where: notInArray(maintenanceRequest.status, ['COMPLETED', 'CANCELLED']),
+                orderBy: [desc(maintenanceRequest.createdAt)],
+                limit: DISPLAY_LIMITS.portalIncidentPreview,
+                columns: { id: true, category: true, createdAt: true },
               },
             },
           },
           checkIns: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
+            orderBy: [desc(satisfactionCheckIn.createdAt)],
+            limit: 1,
           },
         },
       },
       incidentsReported: {
-        orderBy: { date: 'desc' },
-        take: DISPLAY_LIMITS.portalIncidentPreview,
-        select: {
+        orderBy: [desc(incident.date)],
+        limit: DISPLAY_LIMITS.portalIncidentPreview,
+        columns: {
           id: true,
           type: true,
           description: true,
@@ -92,9 +104,9 @@ export default async function ResidentPortal() {
       // A resident's own reports live in two tables — conflicts on the ladder,
       // broken things on the maintenance board — but they are one list to them.
       maintenanceRequests: {
-        orderBy: { createdAt: 'desc' },
-        take: DISPLAY_LIMITS.portalIncidentPreview,
-        select: {
+        orderBy: [desc(maintenanceRequest.createdAt)],
+        limit: DISPLAY_LIMITS.portalIncidentPreview,
+        columns: {
           id: true,
           category: true,
           description: true,
@@ -133,26 +145,36 @@ export default async function ResidentPortal() {
     myMarketplacePosts,
   ] = await Promise.all([
     currentPlacement
-      ? prisma.householdTask.findMany({
-          where: {
-            housingUnitId: currentPlacement.housingUnitId,
-            isCompleted: false,
-            currentStatus: { in: ['NEEDS_ATTENTION', 'REQUESTED'] },
-          },
-          select: { id: true, title: true, currentStatus: true },
-          orderBy: { updatedAt: 'desc' },
-          take: DISPLAY_LIMITS.dashboardItems,
+      ? db.query.householdTask.findMany({
+          where: and(
+            eq(householdTask.housingUnitId, currentPlacement.housingUnitId),
+            eq(householdTask.isCompleted, false),
+            inArray(householdTask.currentStatus, ['NEEDS_ATTENTION', 'REQUESTED']),
+          ),
+          columns: { id: true, title: true, currentStatus: true },
+          orderBy: [desc(householdTask.updatedAt)],
+          limit: DISPLAY_LIMITS.dashboardItems,
         })
       : Promise.resolve([]),
     roommates.length > 0
-      ? prisma.compatibilityAssessment.findMany({
-          where: {
-            OR: [
-              { residentId: resident.id, comparedWithId: { in: roommates.map((r) => r.id) } },
-              { residentId: { in: roommates.map((r) => r.id) }, comparedWithId: resident.id },
-            ],
-          },
-          select: {
+      ? db.query.compatibilityAssessment.findMany({
+          where: or(
+            and(
+              eq(compatibilityAssessment.residentId, resident.id),
+              inArray(
+                compatibilityAssessment.comparedWithId,
+                roommates.map((r) => r.id),
+              ),
+            ),
+            and(
+              inArray(
+                compatibilityAssessment.residentId,
+                roommates.map((r) => r.id),
+              ),
+              eq(compatibilityAssessment.comparedWithId, resident.id),
+            ),
+          ),
+          columns: {
             residentId: true,
             comparedWithId: true,
             overallScore: true,

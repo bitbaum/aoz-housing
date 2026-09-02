@@ -1,11 +1,11 @@
 /**
  * Unit tests for matching server action: placeResident
  *
- * placeResident takes FormData, runs a Prisma transaction, and calls redirect() on success.
+ * placeResident takes FormData, runs a db transaction, and calls redirect() on success.
  * Since redirect() throws by design in Next.js, we mock it to throw a sentinel error.
  */
 
-import { prisma } from '@/lib/db'
+import { db, housingUnit, placementSpot, resident } from '@/lib/db'
 import { logAudit } from '@/lib/audit'
 import { calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { calculateCompatibility } from '@/lib/compatibility'
@@ -17,27 +17,9 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // =============================================================================
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    $transaction: jest.fn(),
-    resident: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    placement: {
-      findMany: jest.fn(),
-      create: jest.fn(),
-    },
-    placementSpot: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    housingUnit: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
-    },
-    compatibilityAssessment: {
-      upsert: jest.fn(),
-    },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    transaction: jest.fn(),
   },
 }))
 
@@ -151,7 +133,7 @@ jest.mock('@/lib/compatibility/placement-scores', () => ({
   }),
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
+const mockDb = db as unknown as { transaction: jest.Mock }
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -162,8 +144,10 @@ beforeEach(() => {
 // =============================================================================
 
 /**
- * Configures prisma.$transaction to execute the callback with a mock tx object.
- * Each mock method on tx is configurable via the txSetup callback.
+ * Configures db.transaction to execute the callback with a mock tx object.
+ * Each mock method on tx is configurable via the txSetup callback; a
+ * drizzle-shaped facade maps the source's tx.query/insert/update calls onto
+ * those holder mocks (updates dispatch on the real table object identity).
  */
 function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>>) => void) {
   const tx: Record<string, Record<string, jest.Mock>> = {
@@ -174,11 +158,40 @@ function setupTransaction(txSetup: (tx: Record<string, Record<string, jest.Mock>
     compatibilityAssessment: { upsert: jest.fn() },
   }
   txSetup(tx)
-  ;(mockPrisma.$transaction as jest.Mock).mockImplementation(
-    async (cb: (tx: unknown) => unknown) => {
-      return cb(tx)
+  const drizzleTx = {
+    query: {
+      placementSpot: { findFirst: (...a: unknown[]) => tx.placementSpot.findUnique(...a) },
+      resident: { findFirst: (...a: unknown[]) => tx.resident.findUnique(...a) },
+      placement: { findMany: (...a: unknown[]) => tx.placement.findMany(...a) },
+      housingUnit: { findFirst: (...a: unknown[]) => tx.housingUnit.findUnique(...a) },
     },
-  )
+    // Only the placement table is inserted into in this action
+    insert: (_table: unknown) => ({
+      values: (v: unknown) => ({
+        returning: async (): Promise<unknown[]> => [await tx.placement.create(v)],
+      }),
+    }),
+    update: (table: unknown) => ({
+      set: (v: unknown) => ({
+        where: (_w: unknown) => {
+          const m =
+            table === placementSpot
+              ? tx.placementSpot.update
+              : table === resident
+                ? tx.resident.update
+                : table === housingUnit
+                  ? tx.housingUnit.update
+                  : jest.fn()
+          return m(v)
+        },
+      }),
+    }),
+    // Consumed only by the mocked saveBidirectionalAssessment above
+    compatibilityAssessment: tx.compatibilityAssessment,
+  }
+  mockDb.transaction.mockImplementation(async (cb: (tx: unknown) => unknown) => {
+    return cb(drizzleTx)
+  })
   return tx
 }
 
@@ -358,8 +371,8 @@ describe('placeResident', () => {
     await expect(placeResident(makeFormData())).rejects.toThrow('NEXT_REDIRECT')
 
     // Verify placement was created with computed scores
-    expect(tx.placement.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(tx.placement.create).toHaveBeenCalledWith(
+      expect.objectContaining({
         residentId: 'res-1',
         housingUnitId: 'hu-1',
         spotId: 'spot-1',
@@ -370,19 +383,13 @@ describe('placeResident', () => {
         practicalScore: 75,
         riskScore: 65,
       }),
-    })
+    )
 
     // Spot updated to OCCUPIED
-    expect(tx.placementSpot.update).toHaveBeenCalledWith({
-      where: { id: 'spot-1' },
-      data: { status: 'OCCUPIED' },
-    })
+    expect(tx.placementSpot.update).toHaveBeenCalledWith({ status: 'OCCUPIED' })
 
     // Resident updated to PLACED
-    expect(tx.resident.update).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: { status: 'PLACED' },
-    })
+    expect(tx.resident.update).toHaveBeenCalledWith({ status: 'PLACED' })
 
     // Unit NOT marked FULL (1 of 3 beds)
     expect(tx.housingUnit.update).not.toHaveBeenCalled()
@@ -493,10 +500,7 @@ describe('placeResident', () => {
 
     await expect(placeResident(makeFormData())).rejects.toThrow('NEXT_REDIRECT')
 
-    expect(tx.housingUnit.update).toHaveBeenCalledWith({
-      where: { id: 'hu-1' },
-      data: { status: 'FULL' },
-    })
+    expect(tx.housingUnit.update).toHaveBeenCalledWith({ status: 'FULL' })
   })
 
   // ---------------------------------------------------------------------------
@@ -583,11 +587,11 @@ describe('placeResident', () => {
     expect(tx.placementSpot.update).not.toHaveBeenCalled()
 
     // Placement created with null spotId
-    expect(tx.placement.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(tx.placement.create).toHaveBeenCalledWith(
+      expect.objectContaining({
         spotId: null,
       }),
-    })
+    )
   })
 })
 

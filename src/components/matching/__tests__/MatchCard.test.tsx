@@ -2,7 +2,7 @@ import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { MatchCard } from '../MatchCard'
 import type { MatchResult } from '@/lib/matching/types'
-import type { Resident } from '@prisma/client'
+import type { Resident } from '@/lib/db'
 
 // =============================================================================
 // MOCKS

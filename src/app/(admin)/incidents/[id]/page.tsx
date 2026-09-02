@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+// `incident` is aliased: the fetched row below is also named `incident`.
+import { db, incident as incidentTable, incidentFollowUp, conflictAgreement } from '@/lib/db'
+import { eq, desc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { clearFollowUpReminder } from '@/lib/actions'
@@ -23,7 +25,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const incident = await prisma.incident.findUnique({ where: { id }, select: { type: true } })
+  const incident = await db.query.incident.findFirst({
+    where: eq(incidentTable.id, id),
+    columns: { type: true },
+  })
   return {
     title: incident
       ? (INCIDENT_TYPE_LABELS[incident.type as keyof typeof INCIDENT_TYPE_LABELS] ?? 'Vorfall')
@@ -61,31 +66,31 @@ export default async function IncidentDetailPage({ params, searchParams }: Props
   const { id } = await params
   const sp = await searchParams
 
-  const incident = await prisma.incident.findUnique({
-    where: { id },
-    include: {
+  const incident = await db.query.incident.findFirst({
+    where: eq(incidentTable.id, id),
+    with: {
       housingUnit: {
-        select: { code: true, address: true },
+        columns: { code: true, address: true },
       },
       reportedBy: {
-        select: RESIDENT_NAME_SELECT,
+        columns: RESIDENT_NAME_SELECT,
       },
       subject: {
-        select: RESIDENT_NAME_SELECT,
+        columns: RESIDENT_NAME_SELECT,
       },
       involvedResidents: {
-        include: {
+        with: {
           resident: {
-            select: RESIDENT_NAME_SELECT,
+            columns: RESIDENT_NAME_SELECT,
           },
         },
       },
       followUps: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: [desc(incidentFollowUp.createdAt)],
       },
       agreements: {
-        orderBy: { createdAt: 'desc' },
-        include: { parties: { include: { resident: { select: RESIDENT_NAME_SELECT } } } },
+        orderBy: [desc(conflictAgreement.createdAt)],
+        with: { parties: { with: { resident: { columns: RESIDENT_NAME_SELECT } } } },
       },
     },
   })

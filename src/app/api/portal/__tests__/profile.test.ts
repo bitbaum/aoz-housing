@@ -31,27 +31,54 @@ jest.mock('@/lib/auth', () => ({
 
 const mockResidentUpdate = jest.fn()
 // Every photo request now loads the subject's visibility setting first.
-const mockResidentFindUnique = jest.fn()
+const mockResidentFindFirst = jest.fn()
 const mockPhotoUpsert = jest.fn()
 const mockPhotoDeleteMany = jest.fn()
-const mockPhotoFindUnique = jest.fn()
+const mockPhotoFindFirst = jest.fn()
 const mockPlacementFindFirst = jest.fn()
 const mockUnitUpdate = jest.fn()
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      update: (...args: unknown[]) => mockResidentUpdate(...args),
-      findUnique: (...args: unknown[]) => mockResidentFindUnique(...args),
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  return {
+    ...actual,
+    db: {
+      query: {
+        resident: { findFirst: (...args: unknown[]) => mockResidentFindFirst(...args) },
+        residentPhoto: { findFirst: (...args: unknown[]) => mockPhotoFindFirst(...args) },
+        placement: { findFirst: (...args: unknown[]) => mockPlacementFindFirst(...args) },
+      },
+      // Profile PATCH updates Resident; apartment PATCH updates HousingUnit.
+      // Both mocks receive { set, where } and resolve the .returning() array.
+      update: (table: unknown) => ({
+        set: (v: unknown) => ({
+          where: (w: unknown) => ({
+            returning: (): Promise<unknown[]> =>
+              table === actual.resident
+                ? mockResidentUpdate({ set: v, where: w })
+                : mockUnitUpdate({ set: v, where: w }),
+          }),
+        }),
+      }),
+      // Photo upload is insert…onConflictDoUpdate (an upsert).
+      insert: () => ({
+        values: (v: unknown) => ({
+          onConflictDoUpdate: (conflict: unknown): Promise<unknown> =>
+            mockPhotoUpsert({ values: v, conflict }),
+        }),
+      }),
+      delete: () => ({ where: (w: unknown): Promise<unknown> => mockPhotoDeleteMany(w) }),
+      // The photo route builds a "shares a unit" subquery from db.select();
+      // it is never awaited, only embedded into inArray(), so a plain
+      // chainable stub is enough.
+      select: () => ({
+        from: () => {
+          const chain = { where: () => chain }
+          return chain
+        },
+      }),
     },
-    residentPhoto: {
-      upsert: (...args: unknown[]) => mockPhotoUpsert(...args),
-      deleteMany: (...args: unknown[]) => mockPhotoDeleteMany(...args),
-      findUnique: (...args: unknown[]) => mockPhotoFindUnique(...args),
-    },
-    placement: { findFirst: (...args: unknown[]) => mockPlacementFindFirst(...args) },
-    housingUnit: { update: (...args: unknown[]) => mockUnitUpdate(...args) },
-  },
-}))
+  }
+})
 
 const mockLogAudit = jest.fn().mockResolvedValue(undefined)
 jest.mock('@/lib/audit', () => ({
@@ -74,6 +101,9 @@ import { PATCH as patchProfile } from '../profile/route'
 import { POST as uploadPhoto, DELETE as deletePhoto } from '../profile/photo/route'
 import { GET as getPhoto } from '../residents/[id]/photo/route'
 import { PATCH as patchApartment } from '../apartment/route'
+import { housingUnit, residentPhoto } from '@/lib/db'
+import { eq } from 'drizzle-orm'
+import { PgDialect } from 'drizzle-orm/pg-core'
 
 // --- Helpers ---
 
@@ -105,15 +135,17 @@ beforeEach(() => {
   // Default subject: the ROOMMATES setting, which is what the route enforced
   // before the setting existed — so these cases keep testing the old rule.
   // Echoes the id that was asked for, the way the real query does — a fixed id
-  // would make "am I looking at my own profile" false for everyone.
-  mockResidentFindUnique.mockImplementation((args: { where: { id: string } }) =>
-    Promise.resolve({ id: args.where.id, profileVisibility: 'ROOMMATES' }),
+  // would make "am I looking at my own profile" false for everyone. The id is
+  // the bound parameter of the drizzle eq() expression.
+  mockResidentFindFirst.mockImplementation((args: { where: never }) => {
+    const id = new PgDialect().sqlToQuery(args.where).params[0] as string
+    return Promise.resolve({ id, profileVisibility: 'ROOMMATES' })
+  })
+  mockResidentUpdate.mockImplementation((args: { set: unknown }) =>
+    Promise.resolve([{ id: 'georgy', code: 'RES-GEO001', ...(args.set as object) }]),
   )
-  mockResidentUpdate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'georgy', code: 'RES-GEO001', ...(args.data as object) }),
-  )
-  mockUnitUpdate.mockImplementation((args: { data: { nickname: string | null } }) =>
-    Promise.resolve({ id: 'unit-1', nickname: args.data.nickname }),
+  mockUnitUpdate.mockImplementation((args: { set: { nickname: string | null } }) =>
+    Promise.resolve([{ id: 'unit-1', nickname: args.set.nickname }]),
   )
 })
 
@@ -131,20 +163,27 @@ describe('PATCH /api/portal/profile', () => {
       jsonRequest('/api/portal/profile', { displayName: '  Georgy ', bio: 'Zimmer 1' }),
     )
     expect(response.status).toBe(200)
-    expect(mockResidentUpdate.mock.calls[0][0].data).toEqual({
+    expect(mockResidentUpdate.mock.calls[0][0].set).toEqual({
       displayName: 'Georgy',
       bio: 'Zimmer 1',
+      updatedAt: expect.any(Date),
     })
   })
 
   it('clears a field when the empty string is sent', async () => {
     await patchProfile(jsonRequest('/api/portal/profile', { displayName: '' }))
-    expect(mockResidentUpdate.mock.calls[0][0].data).toEqual({ displayName: null })
+    expect(mockResidentUpdate.mock.calls[0][0].set).toEqual({
+      displayName: null,
+      updatedAt: expect.any(Date),
+    })
   })
 
   it('leaves untouched fields out of the update', async () => {
     await patchProfile(jsonRequest('/api/portal/profile', { bio: 'Nur Bio' }))
-    expect(mockResidentUpdate.mock.calls[0][0].data).toEqual({ bio: 'Nur Bio' })
+    expect(mockResidentUpdate.mock.calls[0][0].set).toEqual({
+      bio: 'Nur Bio',
+      updatedAt: expect.any(Date),
+    })
   })
 
   it('rejects an over-long displayName', async () => {
@@ -162,8 +201,11 @@ describe('POST /api/portal/profile/photo', () => {
     const response = await uploadPhoto(photoRequest(file))
     expect(response.status).toBe(200)
     const upsert = mockPhotoUpsert.mock.calls[0][0]
-    expect(upsert.where).toEqual({ residentId: 'georgy' })
-    expect(upsert.create.mimeType).toBe('image/jpeg')
+    expect(upsert.values.residentId).toBe('georgy')
+    expect(upsert.values.mimeType).toBe('image/jpeg')
+    // Conflict on residentId makes the insert an upsert per resident.
+    expect(upsert.conflict.target).toBe(residentPhoto.residentId)
+    expect(upsert.conflict.set.mimeType).toBe('image/jpeg')
   })
 
   it('rejects a disallowed mime type', async () => {
@@ -193,7 +235,7 @@ describe('POST /api/portal/profile/photo', () => {
   it('DELETE removes the photo', async () => {
     const response = await deletePhoto()
     expect(response.status).toBe(200)
-    expect(mockPhotoDeleteMany).toHaveBeenCalledWith({ where: { residentId: 'georgy' } })
+    expect(mockPhotoDeleteMany).toHaveBeenCalledWith(eq(residentPhoto.residentId, 'georgy'))
   })
 })
 
@@ -207,7 +249,7 @@ describe('GET /api/portal/residents/[id]/photo', () => {
   }
 
   it('serves your own photo without a placement check', async () => {
-    mockPhotoFindUnique.mockResolvedValue({ ...PHOTO, residentId: 'georgy' })
+    mockPhotoFindFirst.mockResolvedValue({ ...PHOTO, residentId: 'georgy' })
     const response = await get('georgy')
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('image/jpeg')
@@ -219,8 +261,8 @@ describe('GET /api/portal/residents/[id]/photo', () => {
     // deliberate change from the route's original behaviour, which hid photos
     // from staff too.
     mockGetCurrentUser.mockResolvedValue({ id: 'staff-1', role: 'ADMIN' })
-    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
-    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+    mockResidentFindFirst.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
+    mockPhotoFindFirst.mockResolvedValue(PHOTO)
 
     const response = await get('ihor')
 
@@ -230,17 +272,17 @@ describe('GET /api/portal/residents/[id]/photo', () => {
   })
 
   it('404s for a roommate when the resident chose PRIVATE', async () => {
-    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
+    mockResidentFindFirst.mockResolvedValue({ id: 'ihor', profileVisibility: 'PRIVATE' })
     mockPlacementFindFirst.mockResolvedValue({ id: 'placement-1' })
-    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+    mockPhotoFindFirst.mockResolvedValue(PHOTO)
 
     expect((await get('ihor')).status).toBe(404)
   })
 
   it('serves a resident of another unit when the setting is RESIDENTS', async () => {
-    mockResidentFindUnique.mockResolvedValue({ id: 'ihor', profileVisibility: 'RESIDENTS' })
+    mockResidentFindFirst.mockResolvedValue({ id: 'ihor', profileVisibility: 'RESIDENTS' })
     mockPlacementFindFirst.mockResolvedValue(null)
-    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+    mockPhotoFindFirst.mockResolvedValue(PHOTO)
 
     expect((await get('ihor')).status).toBe(200)
   })
@@ -248,15 +290,15 @@ describe('GET /api/portal/residents/[id]/photo', () => {
   it('404s for an unknown resident without touching the photo table', async () => {
     // Ordering matters: looking up the photo first would answer "does this
     // person have a picture" for an id the caller may simply have guessed.
-    mockResidentFindUnique.mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     expect((await get('nobody')).status).toBe(404)
-    expect(mockPhotoFindUnique).not.toHaveBeenCalled()
+    expect(mockPhotoFindFirst).not.toHaveBeenCalled()
   })
 
   it("serves a roommate's photo when a shared unit exists", async () => {
     mockPlacementFindFirst.mockResolvedValue({ id: 'placement-1' })
-    mockPhotoFindUnique.mockResolvedValue(PHOTO)
+    mockPhotoFindFirst.mockResolvedValue(PHOTO)
     const response = await get('ihor')
     expect(response.status).toBe(200)
   })
@@ -265,12 +307,12 @@ describe('GET /api/portal/residents/[id]/photo', () => {
     mockPlacementFindFirst.mockResolvedValue(null)
     const response = await get('ihor')
     expect(response.status).toBe(404)
-    expect(mockPhotoFindUnique).not.toHaveBeenCalled()
+    expect(mockPhotoFindFirst).not.toHaveBeenCalled()
   })
 
   it('404s when the roommate has no photo', async () => {
     mockPlacementFindFirst.mockResolvedValue({ id: 'placement-1' })
-    mockPhotoFindUnique.mockResolvedValue(null)
+    mockPhotoFindFirst.mockResolvedValue(null)
     const response = await get('ihor')
     expect(response.status).toBe(404)
   })
@@ -283,14 +325,14 @@ describe('PATCH /api/portal/apartment', () => {
     )
     expect(response.status).toBe(200)
     expect(mockUnitUpdate.mock.calls[0][0]).toMatchObject({
-      where: { id: 'unit-1' },
-      data: { nickname: 'Singapur' },
+      set: { nickname: 'Singapur' },
+      where: eq(housingUnit.id, 'unit-1'),
     })
   })
 
   it('clears the nickname with an empty string', async () => {
     await patchApartment(jsonRequest('/api/portal/apartment', { nickname: '' }))
-    expect(mockUnitUpdate.mock.calls[0][0].data).toEqual({ nickname: null })
+    expect(mockUnitUpdate.mock.calls[0][0].set).toEqual({ nickname: null })
   })
 
   it('returns 401 without a placement-backed session', async () => {

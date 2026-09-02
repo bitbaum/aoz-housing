@@ -9,6 +9,8 @@
  * and that panel is the first thing a Jobcoach looks at.
  */
 
+import { getTableName } from 'drizzle-orm'
+import { appointment, satisfactionCheckIn } from '@/lib/db'
 import { evidenceForResident, seedIntegrationEvidence } from '../integration-evidence'
 import { LEARNING_PULSE_WINDOW_DAYS } from '../../config/learning'
 
@@ -172,43 +174,65 @@ describe('evidenceForResident', () => {
  * was invisible here.
  */
 describe('seeded appointments', () => {
-  function makePrisma() {
+  function makeDb() {
     const created: Record<string, Record<string, unknown>[]> = { appointment: [], checkIn: [] }
-    return {
-      created,
-      client: {
+    // A drizzle-shaped stand-in for the surface seedIntegrationEvidence uses:
+    // query.resident/placement.findMany, and insert(table).values(v) awaited
+    // bare, with .returning() (held appointment) and .onConflictDoNothing()
+    // (care seats). Dispatch is on the REAL table identity, so the assertions
+    // keep the per-table discrimination the Prisma model names carried.
+    const record = (table: unknown, v: unknown) => {
+      const name: string = getTableName(table as typeof appointment)
+      if (name === getTableName(appointment)) {
+        created.appointment.push(v as Record<string, unknown>)
+      }
+      if (name === getTableName(satisfactionCheckIn)) {
+        created.checkIn.push(v as Record<string, unknown>)
+      }
+    }
+    const client = {
+      query: {
         resident: {
           findMany: jest.fn(async () => [
             { id: 'r1', languages: ['German'], ageRange: 'ADULT', choresContribution: 4 },
             { id: 'r2', languages: ['Tigrinya'], ageRange: 'ADULT', choresContribution: 2 },
           ]),
         },
-        learningRecord: { createMany: jest.fn(async () => ({ count: 0 })) },
-        careAssignment: { createMany: jest.fn(async () => ({ count: 8 })) },
         placement: {
           // Only r1 is placed, so only r1 can carry a reading.
           findMany: jest.fn(async () => [
             { id: 'p1', residentId: 'r1', startDate: new Date('2026-01-01') },
           ]),
         },
-        appointment: {
-          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
-            created.appointment.push(args.data)
-            return { id: `appt-${created.appointment.length}`, ...args.data }
-          }),
-        },
-        satisfactionCheckIn: {
-          create: jest.fn(async (args: { data: Record<string, unknown> }) => {
-            created.checkIn.push(args.data)
-            return { id: 'ci-1' }
-          }),
-        },
       },
+      insert: jest.fn((table: unknown) => ({
+        values: (v: Record<string, unknown> | Record<string, unknown>[]) => ({
+          then: (
+            resolve: (x: { rowCount: number }) => unknown,
+            reject?: (e: unknown) => unknown,
+          ) => {
+            record(table, v)
+            return Promise.resolve({ rowCount: Array.isArray(v) ? v.length : 1 }).then(
+              resolve,
+              reject,
+            )
+          },
+          onConflictDoNothing: () => {
+            record(table, v)
+            return Promise.resolve({ rowCount: 8 })
+          },
+          returning: async () => {
+            record(table, v)
+            return [{ id: `appt-${created.appointment.length}`, ...(v as Record<string, unknown>) }]
+          },
+        }),
+      })),
     }
+    return { created, client }
   }
 
   it('creates no appointments when the deployment has no staff account', async () => {
-    const { client, created } = makePrisma()
+    const { client, created } = makeDb()
 
     // Same rule the care seats follow: with nobody to hold the appointment,
     // inventing a colleague would put a fake name in a real "zuständig" picker.
@@ -223,7 +247,7 @@ describe('seeded appointments', () => {
   })
 
   it('seeds both states, so the feature is visible AND touchable', async () => {
-    const { client, created } = makePrisma()
+    const { client, created } = makeDb()
 
     await seedIntegrationEvidence(client as never, {
       residentIds: ['r1', 'r2'],
@@ -238,7 +262,7 @@ describe('seeded appointments', () => {
   })
 
   it('puts the scheduled one in the future and the held one in the past', async () => {
-    const { client, created } = makePrisma()
+    const { client, created } = makeDb()
     const now = Date.now()
 
     await seedIntegrationEvidence(client as never, {
@@ -259,7 +283,7 @@ describe('seeded appointments', () => {
   })
 
   it('attaches every seeded reading to its appointment and to the account', async () => {
-    const { client, created } = makePrisma()
+    const { client, created } = makeDb()
 
     await seedIntegrationEvidence(client as never, {
       residentIds: ['r1', 'r2'],
@@ -280,7 +304,7 @@ describe('seeded appointments', () => {
   it('skips the held appointment for a resident with no active placement', async () => {
     // A check-in hangs off a placement. r2 has none, so it gets the scheduled
     // appointment only — never a reading with nothing to attach to.
-    const { client, created } = makePrisma()
+    const { client, created } = makeDb()
 
     await seedIntegrationEvidence(client as never, {
       residentIds: ['r1', 'r2'],

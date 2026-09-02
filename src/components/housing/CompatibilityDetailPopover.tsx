@@ -23,7 +23,7 @@ export interface CompatibilityScore {
   practicalScore?: number
   riskScore?: number
   conflicts?: { message: string; severity: string }[]
-  strengths?: string[]
+  strengths?: string[] | null
 }
 
 export interface CompatibilityDetailPopoverProps {

@@ -1,7 +1,7 @@
 /**
  * Provision the real AOZ team, idempotently.
  *
- * Reads `prisma/real/aoz-team.ts` and makes the database match it. Safe to run
+ * Reads `scripts/db/real/aoz-team.ts` and makes the database match it. Safe to run
  * repeatedly: an existing person is matched by name and UPDATED to the shape
  * the config declares, so this doubles as the way to correct someone's reach
  * after the fact. A code is minted only for someone who does not exist yet,
@@ -13,13 +13,13 @@
  * Add DRY_RUN=1 to see what it would do without writing.
  */
 
-import { PrismaClient } from '@prisma/client'
-import { AOZ_TEAM } from '../../prisma/real/aoz-team'
+import { eq } from 'drizzle-orm'
+import { db, user } from '../../src/lib/db'
+import { AOZ_TEAM } from '../db/real/aoz-team'
 import { BRAND } from '../../src/lib/config/brand'
 import { generateStaffCode } from '../../src/lib/auth/code-generation'
 import { CARE_ROLES, CARE_ROLE_LABELS, STAFF_ROLE_CARE_DOMAIN } from '../../src/lib/config/care'
 
-const prisma = new PrismaClient()
 const DRY_RUN = process.env.DRY_RUN === '1'
 
 /**
@@ -53,7 +53,7 @@ function requireExplicitBrand(): void {
 async function uniqueStaffCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = generateStaffCode()
-    if (!(await prisma.user.findUnique({ where: { code }, select: { id: true } }))) {
+    if (!(await db.query.user.findFirst({ where: eq(user.code, code), columns: { id: true } }))) {
       return code
     }
   }
@@ -73,9 +73,9 @@ async function main() {
       isSystemAdmin: person.isSystemAdmin,
     }
 
-    const existing = await prisma.user.findFirst({
-      where: { name: person.name },
-      select: { id: true, code: true, role: true, scope: true, isSystemAdmin: true, active: true },
+    const existing = await db.query.user.findFirst({
+      where: eq(user.name, person.name),
+      columns: { id: true, code: true, role: true, scope: true, isSystemAdmin: true, active: true },
     })
 
     if (existing) {
@@ -95,10 +95,10 @@ async function main() {
           ` -> ${person.role}/${person.scope}${person.isSystemAdmin ? '/admin' : ''}`,
       )
       if (!DRY_RUN) {
-        await prisma.user.update({
-          where: { id: existing.id },
-          data: { ...capabilities, active: true },
-        })
+        await db
+          .update(user)
+          .set({ ...capabilities, active: true })
+          .where(eq(user.id, existing.id))
       }
       continue
     }
@@ -110,9 +110,7 @@ async function main() {
     const code = DRY_RUN ? `${BRAND.codePrefix}<generated at run time>` : await uniqueStaffCode()
     console.log(`+ ${person.name}: ${person.role}/${person.scope}`)
     if (!DRY_RUN) {
-      await prisma.user.create({
-        data: { code, name: person.name, ...capabilities, active: true },
-      })
+      await db.insert(user).values({ code, name: person.name, ...capabilities, active: true })
       minted.push({ name: person.name, code })
     }
   }
@@ -156,6 +154,6 @@ main()
     console.error('ensure-aoz-team failed:', e)
     process.exit(1)
   })
-  .finally(async () => {
-    await prisma.$disconnect()
+  .finally(() => {
+    process.exit(0)
   })

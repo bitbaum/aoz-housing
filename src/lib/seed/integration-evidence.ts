@@ -32,10 +32,21 @@
  * Relative-import-safe (no '@/' aliases): loaded through ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { and, asc, eq, inArray } from 'drizzle-orm'
+import {
+  appointment,
+  careAssignment,
+  learningRecord,
+  placement,
+  resident as residentTable,
+  satisfactionCheckIn,
+  type db,
+} from '../db'
 import type { LearningCategoryId, LearningKindId, LearningStatusId } from '../config/learning'
 import { LEARNING_PULSE_WINDOW_DAYS } from '../config/learning'
 import { BRAND } from '../config/brand'
+
+type Db = typeof db
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const daysAgo = (days: number) => new Date(Date.now() - days * DAY_MS)
@@ -230,7 +241,7 @@ type RecordPayload = {
  * The evidence one resident carries, derived from who they are.
  *
  * Exported for the test: the derivation rules are the whole point of this
- * module, and asserting them through a database round-trip would test Prisma
+ * module, and asserting them through a database round-trip would test the ORM
  * instead of the rules.
  */
 export function evidenceForResident(resident: EvidenceProfile, index: number): RecordPayload[] {
@@ -393,26 +404,28 @@ const APPOINTMENT_SCRIPT = [
 const CARE_ROLES = ['HOUSING', 'SOCIAL', 'JOB', 'VOLUNTEERING'] as const
 
 export async function seedIntegrationEvidence(
-  prisma: PrismaClient,
+  dbc: Db,
   ctx: IntegrationSeedContext,
 ): Promise<IntegrationSeedSummary> {
-  const residents = await prisma.resident.findMany({
-    where: { id: { in: ctx.residentIds } },
-    select: {
-      id: true,
-      languages: true,
-      ageRange: true,
-      choresContribution: true,
-    },
-    // Sorted so the index — and therefore the whole world — is reproducible.
-    orderBy: { code: 'asc' },
-  })
+  const residents = ctx.residentIds.length
+    ? await dbc.query.resident.findMany({
+        where: inArray(residentTable.id, ctx.residentIds),
+        columns: {
+          id: true,
+          languages: true,
+          ageRange: true,
+          choresContribution: true,
+        },
+        // Sorted so the index — and therefore the whole world — is reproducible.
+        orderBy: [asc(residentTable.code)],
+      })
+    : []
 
   const payloads = residents.flatMap((resident, index) =>
     evidenceForResident(
       {
         id: resident.id,
-        languages: resident.languages,
+        languages: resident.languages ?? [],
         ageRange: resident.ageRange,
         choresContribution: resident.choresContribution,
       },
@@ -421,23 +434,25 @@ export async function seedIntegrationEvidence(
   )
 
   if (payloads.length > 0) {
-    await prisma.learningRecord.createMany({ data: payloads })
+    await dbc.insert(learningRecord).values(payloads)
   }
 
   let careAssignments = 0
-  if (ctx.staffId) {
-    const result = await prisma.careAssignment.createMany({
-      data: residents.flatMap((resident) =>
-        CARE_ROLES.map((role) => ({
-          residentId: resident.id,
-          staffId: ctx.staffId as string,
-          role,
-        })),
-      ),
+  if (ctx.staffId && residents.length > 0) {
+    const result = await dbc
+      .insert(careAssignment)
+      .values(
+        residents.flatMap((resident) =>
+          CARE_ROLES.map((role) => ({
+            residentId: resident.id,
+            staffId: ctx.staffId as string,
+            role,
+          })),
+        ),
+      )
       // The seed may run over a world that already has real assignments.
-      skipDuplicates: true,
-    })
-    careAssignments = result.count
+      .onConflictDoNothing()
+    careAssignments = result.rowCount ?? 0
   }
 
   // ---------------------------------------------------------------------
@@ -452,65 +467,69 @@ export async function seedIntegrationEvidence(
 
     // The check-in hangs off a placement, so only a placed resident can carry
     // the completed half. Everyone still gets the scheduled one.
-    const placements = await prisma.placement.findMany({
-      where: { residentId: { in: residents.map((r) => r.id) }, status: 'ACTIVE' },
-      select: { id: true, residentId: true, startDate: true },
-    })
+    const placements = residents.length
+      ? await dbc.query.placement.findMany({
+          where: and(
+            inArray(
+              placement.residentId,
+              residents.map((r) => r.id),
+            ),
+            eq(placement.status, 'ACTIVE'),
+          ),
+          columns: { id: true, residentId: true, startDate: true },
+        })
+      : []
     const placementByResident = new Map(placements.map((p) => [p.residentId, p]))
 
     for (let index = 0; index < residents.length; index += 1) {
       const resident = residents[index]
       const script = APPOINTMENT_SCRIPT[index % APPOINTMENT_SCRIPT.length]
 
-      const upcoming = await prisma.appointment.create({
-        data: {
-          residentId: resident.id,
-          staffId,
-          domain: script.domain,
-          title: script.next,
-          // A day out, so it is still upcoming however late in the day the
-          // visitor arrives — the demo world is rebuilt nightly.
-          startsAt: daysAhead(1),
-          status: 'SCHEDULED',
-        },
+      await dbc.insert(appointment).values({
+        residentId: resident.id,
+        staffId,
+        domain: script.domain,
+        title: script.next,
+        // A day out, so it is still upcoming however late in the day the
+        // visitor arrives — the demo world is rebuilt nightly.
+        startsAt: daysAhead(1),
+        status: 'SCHEDULED',
       })
       appointments += 1
-      void upcoming
 
-      const placement = placementByResident.get(resident.id)
-      if (!placement) continue
+      const residentPlacement = placementByResident.get(resident.id)
+      if (!residentPlacement) continue
 
-      const held = await prisma.appointment.create({
-        data: {
+      const [held] = await dbc
+        .insert(appointment)
+        .values({
           residentId: resident.id,
           staffId,
           domain: script.domain,
           title: script.past,
           startsAt: daysAgo(6 + (index % 5)),
           status: 'COMPLETED',
-        },
-      })
+        })
+        .returning()
       appointments += 1
 
       // The reading this product now produces: attached to the conversation it
       // came from, and attributed to the account that recorded it. A demo that
       // showed a score with neither would be demonstrating the old behaviour.
-      await prisma.satisfactionCheckIn.create({
-        data: {
-          placementId: placement.id,
-          appointmentId: held.id,
-          checkInType: 'AD_HOC',
-          weekNumber: Math.max(
-            0,
-            Math.floor((Date.now() - placement.startDate.getTime()) / (7 * DAY_MS)),
-          ),
-          // Deliberately not all 5s: an even record shows nothing, the same
-          // reason the seeded chore history is uneven.
-          overallSatisfaction: 3 + (index % 3),
-          concerns: index % 3 === 0 ? 'Sucht eine Anschlusslösung für den Winter.' : null,
-          collectedByUserId: staffId,
-          isAnonymous: false,
-        },
+      await dbc.insert(satisfactionCheckIn).values({
+        placementId: residentPlacement.id,
+        appointmentId: held.id,
+        checkInType: 'AD_HOC',
+        weekNumber: Math.max(
+          0,
+          Math.floor((Date.now() - residentPlacement.startDate.getTime()) / (7 * DAY_MS)),
+        ),
+        // Deliberately not all 5s: an even record shows nothing, the same
+        // reason the seeded chore history is uneven.
+        overallSatisfaction: 3 + (index % 3),
+        concerns: index % 3 === 0 ? 'Sucht eine Anschlusslösung für den Winter.' : null,
+        collectedByUserId: staffId,
+        isAnonymous: false,
       })
     }
   }

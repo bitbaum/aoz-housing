@@ -9,7 +9,7 @@ import { portalLocaleCookie } from './helpers'
  *   - Portal pages require resident_code cookie → redirect to /login without it
  *   - We inject the cookie directly via addCookies() — no login round-trip needed
  *
- * Seed data used (from prisma/seed.ts):
+ * Seed data used (from scripts/db/seed.ts):
  *   - RES-001: status=PLACED (has active placement)
  *   - RES-021: status=ACTIVE (unplaced, no placement)
  */

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { authorizeStaff } from '@/lib/auth'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
-import { prisma } from '@/lib/db'
+import { db, resident } from '@/lib/db'
+import { desc } from 'drizzle-orm'
 import { generateCSV } from '@/lib/export'
 import { EXPORT_COLUMNS } from '@/lib/export/config'
 
@@ -18,8 +19,8 @@ export async function GET() {
   }
 
   try {
-    const data = await prisma.resident.findMany({
-      orderBy: { createdAt: 'desc' },
+    const data = await db.query.resident.findMany({
+      orderBy: [desc(resident.createdAt)],
     })
 
     const csv = generateCSV(data as unknown as Record<string, unknown>[], EXPORT_COLUMNS.residents)

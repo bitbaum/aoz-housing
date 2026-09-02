@@ -7,6 +7,7 @@
  */
 
 import { getPortalAuth } from '../portal-auth'
+import { eqParts, whereParts } from '@/test-utils/drizzle-where'
 
 // =============================================================================
 // MOCKS
@@ -19,11 +20,14 @@ jest.mock('next/headers', () => ({
   cookies: () => mockCookies(),
 }))
 
-const mockResidentFindUnique = jest.fn()
+const mockResidentFindFirst = jest.fn()
 
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: { findUnique: (...args: unknown[]) => mockResidentFindUnique(...args) },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: { findFirst: (...args: unknown[]) => mockResidentFindFirst(...args) },
+    },
   },
 }))
 
@@ -62,7 +66,7 @@ describe('getPortalAuth', () => {
     const result = await getPortalAuth()
 
     expect(result).toBeNull()
-    expect(mockResidentFindUnique).not.toHaveBeenCalled()
+    expect(mockResidentFindFirst).not.toHaveBeenCalled()
   })
 
   test('returns null when resident_code cookie has no value', async () => {
@@ -71,14 +75,14 @@ describe('getPortalAuth', () => {
     const result = await getPortalAuth()
 
     expect(result).toBeNull()
-    expect(mockResidentFindUnique).not.toHaveBeenCalled()
+    expect(mockResidentFindFirst).not.toHaveBeenCalled()
   })
 
   // ── Resident not found ────────────────────────────────────────────────────
 
   test('returns null when resident code does not match any resident', async () => {
     mockGet.mockReturnValue({ value: 'RES-INVALID' })
-    mockResidentFindUnique.mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     const result = await getPortalAuth()
 
@@ -87,22 +91,19 @@ describe('getPortalAuth', () => {
 
   test('queries resident by exact code from cookie', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     await getPortalAuth()
 
-    expect(mockResidentFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { code: RESIDENT_CODE },
-      }),
-    )
+    const { where } = mockResidentFindFirst.mock.calls[0][0]
+    expect(eqParts(where)).toEqual({ column: 'code', value: RESIDENT_CODE })
   })
 
   // ── Resident found but no active placement ────────────────────────────────
 
   test('returns null when resident has no active placement', async () => {
     mockGet.mockReturnValue({ value: 'RES-002' })
-    mockResidentFindUnique.mockResolvedValue(RESIDENT_WITHOUT_PLACEMENT)
+    mockResidentFindFirst.mockResolvedValue(RESIDENT_WITHOUT_PLACEMENT)
 
     const result = await getPortalAuth()
 
@@ -113,7 +114,7 @@ describe('getPortalAuth', () => {
 
   test('returns resident and placement when authentication succeeds', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockResidentFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     const result = await getPortalAuth()
 
@@ -126,7 +127,7 @@ describe('getPortalAuth', () => {
 
   test('uses the first active placement when multiple exist', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       ...RESIDENT_WITH_PLACEMENT,
       placements: [
         { id: 'placement-id-1', housingUnitId: 'unit-id-1' },
@@ -143,51 +144,32 @@ describe('getPortalAuth', () => {
 
   test('only selects active placements in the query', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockResidentFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     await getPortalAuth()
 
-    expect(mockResidentFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          placements: expect.objectContaining({
-            where: { status: 'ACTIVE' },
-          }),
-        }),
-      }),
-    )
+    const call = mockResidentFindFirst.mock.calls[0][0]
+    expect(whereParts(call.with.placements.where)).toEqual({ status: 'ACTIVE' })
   })
 
   test('limits placement query to 1 record', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockResidentFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     await getPortalAuth()
 
-    expect(mockResidentFindUnique).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          placements: expect.objectContaining({
-            take: 1,
-          }),
-        }),
-      }),
-    )
+    const call = mockResidentFindFirst.mock.calls[0][0]
+    expect(call.with.placements.limit).toBe(1)
   })
 
   test('selects minimal fields (id, code, placement id, housingUnitId)', async () => {
     mockGet.mockReturnValue({ value: RESIDENT_CODE })
-    mockResidentFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockResidentFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
 
     await getPortalAuth()
 
-    const call = mockResidentFindUnique.mock.calls[0][0]
-    expect(call.select).toMatchObject({
-      id: true,
-      code: true,
-      placements: expect.objectContaining({
-        select: { id: true, housingUnitId: true },
-      }),
-    })
+    const call = mockResidentFindFirst.mock.calls[0][0]
+    expect(call.columns).toEqual({ id: true, code: true })
+    expect(call.with.placements.columns).toEqual({ id: true, housingUnitId: true })
   })
 })

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requirePermission, hasPermission } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { db, user as userTable } from '@/lib/db'
+import { eq, asc } from 'drizzle-orm'
 import { InviteForm } from './InviteForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import {
@@ -43,9 +44,9 @@ export default async function SettingsPage() {
   const canConfigure = true
 
   const [staffUsers, systemConfig] = await Promise.all([
-    prisma.user.findMany({
-      where: { active: true },
-      select: {
+    db.query.user.findMany({
+      where: eq(userTable.active, true),
+      columns: {
         id: true,
         // Deliberately NOT selecting `code`. Even an administrator has no
         // reason to READ a colleague's credential: they can invite, deactivate
@@ -58,9 +59,11 @@ export default async function SettingsPage() {
         scope: true,
         isSystemAdmin: true,
         lastLoginAt: true,
-        account: { select: { email: true } },
       },
-      orderBy: { name: 'asc' },
+      with: {
+        account: { columns: { email: true } },
+      },
+      orderBy: [asc(userTable.name)],
     }),
     getSystemConfig(),
   ])

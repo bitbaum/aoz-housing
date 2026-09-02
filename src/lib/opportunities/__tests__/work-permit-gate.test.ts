@@ -26,17 +26,28 @@ import {
   permitRequirementIsStated,
 } from '@/lib/config/opportunities'
 import { OpportunityInputSchema } from '@/lib/validation'
-import { prisma } from '@/lib/db'
 import { publishOpportunity } from '@/lib/actions/opportunities'
+import { whereParts as mockWhereParts } from '@/test-utils/drizzle-where'
 
 // --- the action path -------------------------------------------------------
 
+const mockOpportunityFindFirst = jest.fn()
+// (set, whereParts) → the rows `.returning()` yields
+const mockOpportunityUpdate = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    opportunity: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      opportunity: { findFirst: (...a: unknown[]) => mockOpportunityFindFirst(...a) },
     },
+    update: () => ({
+      set: (data: unknown) => ({
+        where: (w: unknown) => ({
+          returning: () => Promise.resolve(mockOpportunityUpdate(data, mockWhereParts(w))),
+        }),
+      }),
+    }),
   },
 }))
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
@@ -138,49 +149,43 @@ describe('publishing through the form', () => {
 })
 
 describe('publishing through the button that skips the form', () => {
-  const mockPrisma = prisma as unknown as {
-    opportunity: { findUnique: jest.Mock; update: jest.Mock }
-  }
-
   beforeEach(() => {
     jest.clearAllMocks()
-    mockPrisma.opportunity.update.mockResolvedValue({})
+    mockOpportunityUpdate.mockReturnValue([{ id: 'opp-1' }])
   })
 
   it.each([...WORK_OPPORTUNITY_KINDS])(
     'refuses to publish a stored %s draft that still says NONE',
     async (kind) => {
-      mockPrisma.opportunity.findUnique.mockResolvedValue({
+      mockOpportunityFindFirst.mockResolvedValue({
         kind,
         permitRequirement: 'NONE',
       })
 
       await expect(publishOpportunity('opp-1')).rejects.toThrow(/Bewilligungsweg/)
-      expect(mockPrisma.opportunity.update).not.toHaveBeenCalled()
+      expect(mockOpportunityUpdate).not.toHaveBeenCalled()
     },
   )
 
   it('publishes a work listing once a route is stated', async () => {
-    mockPrisma.opportunity.findUnique.mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       kind: 'EMPLOYMENT',
       permitRequirement: 'PERMIT_REQUIRED',
     })
 
     await publishOpportunity('opp-1')
 
-    expect(mockPrisma.opportunity.update).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'opp-1' } }),
-    )
+    expect(mockOpportunityUpdate).toHaveBeenCalledWith(expect.anything(), { id: 'opp-1' })
   })
 
   it('leaves unpaid listings publishable', async () => {
-    mockPrisma.opportunity.findUnique.mockResolvedValue({
+    mockOpportunityFindFirst.mockResolvedValue({
       kind: 'VOLUNTEERING',
       permitRequirement: 'NONE',
     })
 
     await publishOpportunity('opp-1')
 
-    expect(mockPrisma.opportunity.update).toHaveBeenCalled()
+    expect(mockOpportunityUpdate).toHaveBeenCalled()
   })
 })

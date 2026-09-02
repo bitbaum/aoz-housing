@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import type { InterpreterNeed } from '@prisma/client'
+import type { InterpreterNeed } from '@/lib/db'
 import { CareWorkspace } from '../CareWorkspace'
 import { CARE_ROLES, CARE_ROLE_LABELS, writableCareDomains } from '@/lib/config/care'
 import { ASSIGNABLE_STAFF_ROLES, type StaffRole } from '@/lib/auth/role-policy'

@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import { db, systemConfig } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { requirePermission } from '@/lib/auth'
 
 export interface SystemConfigData {
@@ -12,7 +13,9 @@ export interface SystemConfigData {
 }
 
 export async function getSystemConfig(): Promise<SystemConfigData> {
-  const config = await prisma.systemConfig.findUnique({ where: { id: 'singleton' } })
+  const config = await db.query.systemConfig.findFirst({
+    where: eq(systemConfig.id, 'singleton'),
+  })
   return {
     pilotBaselineIncidentsPerMonth: config?.pilotBaselineIncidentsPerMonth ?? null,
     pilotBaselineRelocationsPerMonth: config?.pilotBaselineRelocationsPerMonth ?? null,
@@ -32,30 +35,21 @@ export async function saveSystemConfig(formData: FormData): Promise<void> {
   const pilotStartRaw = formData.get('pilotStartDate')
   const pilotStartDate = pilotStartRaw ? new Date(pilotStartRaw as string) : null
 
-  await prisma.systemConfig.upsert({
-    where: { id: 'singleton' },
-    create: {
-      id: 'singleton',
-      pilotBaselineIncidentsPerMonth: parseFloat(formData.get('pilotBaselineIncidentsPerMonth')),
-      pilotBaselineRelocationsPerMonth: parseFloat(
-        formData.get('pilotBaselineRelocationsPerMonth'),
-      ),
-      pilotBaselineMediationHoursPerWeek: parseFloat(
-        formData.get('pilotBaselineMediationHoursPerWeek'),
-      ),
-      pilotStartDate,
-    },
-    update: {
-      pilotBaselineIncidentsPerMonth: parseFloat(formData.get('pilotBaselineIncidentsPerMonth')),
-      pilotBaselineRelocationsPerMonth: parseFloat(
-        formData.get('pilotBaselineRelocationsPerMonth'),
-      ),
-      pilotBaselineMediationHoursPerWeek: parseFloat(
-        formData.get('pilotBaselineMediationHoursPerWeek'),
-      ),
-      pilotStartDate,
-    },
-  })
+  // Prisma's upsert had identical create and update payloads, so the insert
+  // values double as the conflict-update set.
+  const values = {
+    pilotBaselineIncidentsPerMonth: parseFloat(formData.get('pilotBaselineIncidentsPerMonth')),
+    pilotBaselineRelocationsPerMonth: parseFloat(formData.get('pilotBaselineRelocationsPerMonth')),
+    pilotBaselineMediationHoursPerWeek: parseFloat(
+      formData.get('pilotBaselineMediationHoursPerWeek'),
+    ),
+    pilotStartDate,
+  }
+
+  await db
+    .insert(systemConfig)
+    .values({ id: 'singleton', ...values })
+    .onConflictDoUpdate({ target: systemConfig.id, set: values })
 
   revalidatePath('/settings')
   revalidatePath('/analytics')

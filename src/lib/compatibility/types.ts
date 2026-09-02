@@ -14,7 +14,7 @@ import type {
   SupportLevel,
   RecyclingKnowledge,
   ConflictStyle,
-} from '@prisma/client'
+} from '@/lib/db'
 import type { CleanlinessProfile } from './cleanliness'
 
 export type {
@@ -79,7 +79,7 @@ export interface ResidentProfile {
   supportLevel: SupportLevel
 }
 
-// Types imported from @prisma/client above (SSOT: schema.prisma)
+// Types imported from @/lib/db above (SSOT: src/lib/db/schema.ts)
 
 export interface CompatibilityScore {
   overall: number // 0-100

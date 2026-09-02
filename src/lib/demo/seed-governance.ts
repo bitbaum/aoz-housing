@@ -15,7 +15,21 @@
  * Relative-import-safe (no '@/' aliases): loaded through ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { eq } from 'drizzle-orm'
+import {
+  activity,
+  eventRsvp,
+  houseEvent,
+  houseRule,
+  householdTask,
+  maintenanceRequest,
+  marketplacePost,
+  proposal,
+  taskAttentionFlag,
+  taskCompletion,
+  vote,
+  type db,
+} from '../db'
 import {
   CATEGORY_DECISION_MODE,
   CATEGORY_THRESHOLD,
@@ -77,7 +91,7 @@ function snapshotFor(category: 'NOISE' | 'KITCHEN' | 'CLEANLINESS' | 'SAFETY', v
 }
 
 export async function seedDemoGovernance(
-  prisma: PrismaClient,
+  dbClient: typeof db,
   ctx: DemoGovernanceContext,
 ): Promise<void> {
   const { unitId, demoResidentId, roommateIds, siteWideContent } = ctx
@@ -89,8 +103,9 @@ export async function seedDemoGovernance(
   // ==========================================================================
   // Completion counts are uneven on purpose: an even board shows nothing, while
   // "who has actually been doing this" is the conversation the page exists for.
-  const kitchen = await prisma.householdTask.create({
-    data: {
+  const [kitchen] = await dbClient
+    .insert(householdTask)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: demoResidentId,
       title: 'Küche putzen',
@@ -109,11 +124,12 @@ export async function seedDemoGovernance(
       ],
       // A rota so the demo shows whose turn it is; the order is just the house.
       rotationResidentIds: [demoResidentId, yasmin, amira, sara],
-    },
-  })
+    })
+    .returning()
 
-  const trash = await prisma.householdTask.create({
-    data: {
+  const [trash] = await dbClient
+    .insert(householdTask)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: yasmin,
       title: 'Abfall und Recycling rausbringen',
@@ -126,11 +142,12 @@ export async function seedDemoGovernance(
       // uniform list where nothing ever needs doing.
       currentStatus: 'NEEDS_ATTENTION',
       checklist: ['Sack zum Container gebracht', 'Neuer Sack eingesetzt'],
-    },
-  })
+    })
+    .returning()
 
-  const bathroom = await prisma.householdTask.create({
-    data: {
+  const [bathroom] = await dbClient
+    .insert(householdTask)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: amira,
       title: 'Bad putzen',
@@ -149,74 +166,70 @@ export async function seedDemoGovernance(
         'Handtücher gewechselt',
       ],
       rotationResidentIds: [amira, demoResidentId, yasmin],
-    },
-  })
+    })
+    .returning()
 
   // Minutes, not row counts, are what the balance panel reads — so the seeded
   // record is uneven in TIME as well as in count. Sara has done nothing this
   // month and sits visibly behind; that gap is the conversation the panel is
   // for, and an even board would show a visitor nothing at all.
-  const kitchenItems = kitchen.checklist
-  const bathItems = bathroom.checklist
-  const trashItems = trash.checklist
+  const kitchenItems = kitchen.checklist ?? []
+  const bathItems = bathroom.checklist ?? []
+  const trashItems = trash.checklist ?? []
 
-  await prisma.taskCompletion.createMany({
-    data: [
-      {
-        taskId: kitchen.id,
-        completedById: demoResidentId,
-        completedAt: daysAgoThisMonth(2),
-        durationMinutes: 35,
-        completedItems: kitchenItems,
-      },
-      {
-        taskId: kitchen.id,
-        completedById: yasmin,
-        completedAt: daysAgoThisMonth(9),
-        durationMinutes: 30,
-        completedItems: kitchenItems,
-      },
-      {
-        taskId: bathroom.id,
-        completedById: demoResidentId,
-        completedAt: daysAgoThisMonth(4),
-        durationMinutes: 20,
-        completedItems: bathItems,
-      },
-      // A deliberately PARTIAL completion: the floor and the towels were left.
-      // "Erledigt" with two items unticked is exactly the situation the
-      // checklist exists to make visible instead of arguable.
-      {
-        taskId: bathroom.id,
-        completedById: amira,
-        completedAt: daysAgoThisMonth(11),
-        durationMinutes: 25,
-        completedItems: bathItems.slice(0, 3),
-      },
-      {
-        taskId: trash.id,
-        completedById: yasmin,
-        completedAt: daysAgoThisMonth(3),
-        durationMinutes: 10,
-        completedItems: trashItems,
-      },
-      {
-        taskId: trash.id,
-        completedById: demoResidentId,
-        completedAt: daysAgoThisMonth(10),
-        durationMinutes: 10,
-        completedItems: trashItems,
-      },
-    ],
-  })
-
-  await prisma.taskAttentionFlag.create({
-    data: {
-      taskId: trash.id,
-      flaggedById: sara,
-      message: 'Der Abfallsack ist voll — kann das jemand heute noch rausbringen?',
-      createdAt: daysAgo(1),
+  await dbClient.insert(taskCompletion).values([
+    {
+      taskId: kitchen.id,
+      completedById: demoResidentId,
+      completedAt: daysAgoThisMonth(2),
+      durationMinutes: 35,
+      completedItems: kitchenItems,
     },
+    {
+      taskId: kitchen.id,
+      completedById: yasmin,
+      completedAt: daysAgoThisMonth(9),
+      durationMinutes: 30,
+      completedItems: kitchenItems,
+    },
+    {
+      taskId: bathroom.id,
+      completedById: demoResidentId,
+      completedAt: daysAgoThisMonth(4),
+      durationMinutes: 20,
+      completedItems: bathItems,
+    },
+    // A deliberately PARTIAL completion: the floor and the towels were left.
+    // "Erledigt" with two items unticked is exactly the situation the
+    // checklist exists to make visible instead of arguable.
+    {
+      taskId: bathroom.id,
+      completedById: amira,
+      completedAt: daysAgoThisMonth(11),
+      durationMinutes: 25,
+      completedItems: bathItems.slice(0, 3),
+    },
+    {
+      taskId: trash.id,
+      completedById: yasmin,
+      completedAt: daysAgoThisMonth(3),
+      durationMinutes: 10,
+      completedItems: trashItems,
+    },
+    {
+      taskId: trash.id,
+      completedById: demoResidentId,
+      completedAt: daysAgoThisMonth(10),
+      durationMinutes: 10,
+      completedItems: trashItems,
+    },
+  ])
+
+  await dbClient.insert(taskAttentionFlag).values({
+    taskId: trash.id,
+    flaggedById: sara,
+    message: 'Der Abfallsack ist voll — kann das jemand heute noch rausbringen?',
+    createdAt: daysAgo(1),
   })
 
   // ==========================================================================
@@ -227,59 +240,59 @@ export async function seedDemoGovernance(
   //    Backdated so the discussion window has genuinely elapsed; without that
   //    the vote buttons refuse ("Die Abstimmung hat noch nicht begonnen") and
   //    the single most important screen in the tour is unreachable.
-  await prisma.proposal.create({
-    data: {
-      housingUnitId: unitId,
-      type: 'HOUSE_DECISION',
-      category: 'KITCHEN',
-      title: 'Abwasch am selben Abend',
-      body:
-        'Wer kocht, wäscht am selben Abend ab. Das Geschirr bleibt nicht über Nacht stehen, ' +
-        'damit die Küche am Morgen für alle nutzbar ist.',
-      proposedByResidentId: yasmin,
-      status: 'VOTING',
-      ...snapshotFor('KITCHEN', voters),
-      createdAt: daysAgo(5),
-      discussionEndsAt: daysAgo(2),
-      votingOpenedAt: daysAgo(2),
-      votingEndsAt: daysAhead(5),
-      votes: {
-        create: [
-          { residentId: yasmin, choice: 'YES', castAt: daysAgo(2) },
-          { residentId: amira, choice: 'YES', castAt: daysAgo(1) },
-          // Sara is against; Fatima — the demo login — has not voted yet.
-          {
-            residentId: sara,
-            choice: 'NO',
-            reason: 'Nach der Spätschicht schaffe ich das nicht immer.',
-            castAt: daysAgo(1),
-          },
-        ],
+  await dbClient.transaction(async (tx) => {
+    const [dishesProposal] = await tx
+      .insert(proposal)
+      .values({
+        housingUnitId: unitId,
+        type: 'HOUSE_DECISION',
+        category: 'KITCHEN',
+        title: 'Abwasch am selben Abend',
+        body:
+          'Wer kocht, wäscht am selben Abend ab. Das Geschirr bleibt nicht über Nacht stehen, ' +
+          'damit die Küche am Morgen für alle nutzbar ist.',
+        proposedByResidentId: yasmin,
+        status: 'VOTING',
+        ...snapshotFor('KITCHEN', voters),
+        createdAt: daysAgo(5),
+        discussionEndsAt: daysAgo(2),
+        votingOpenedAt: daysAgo(2),
+        votingEndsAt: daysAhead(5),
+      })
+      .returning()
+    await tx.insert(vote).values([
+      { proposalId: dishesProposal.id, residentId: yasmin, choice: 'YES', castAt: daysAgo(2) },
+      { proposalId: dishesProposal.id, residentId: amira, choice: 'YES', castAt: daysAgo(1) },
+      // Sara is against; Fatima — the demo login — has not voted yet.
+      {
+        proposalId: dishesProposal.id,
+        residentId: sara,
+        choice: 'NO',
+        reason: 'Nach der Spätschicht schaffe ich das nicht immer.',
+        castAt: daysAgo(1),
       },
-    },
+    ])
   })
 
   // 2. DISCUSSION — still being talked about, voting has not opened.
-  await prisma.proposal.create({
-    data: {
-      housingUnitId: unitId,
-      type: 'HOUSE_DECISION',
-      category: 'SHARED_SPACES',
-      title: 'Pflanzen im Wohnzimmer',
-      body:
-        'Wir stellen ein paar Pflanzen ins Wohnzimmer und teilen das Giessen auf. ' +
-        'Kosten ca. CHF 40, aus der gemeinsamen Kasse.',
-      proposedByResidentId: amira,
-      status: 'DISCUSSION',
-      decisionMode: CATEGORY_DECISION_MODE.SHARED_SPACES,
-      threshold: CATEGORY_THRESHOLD.SHARED_SPACES,
-      quorumPercent: DECISION_TIMING.quorumPercent,
-      approvalPercent: THRESHOLD_APPROVAL_PERCENT[CATEGORY_THRESHOLD.SHARED_SPACES],
-      eligibleVoterCount: voters,
-      createdAt: daysAgo(1),
-      discussionEndsAt: daysAhead(2),
-      votingEndsAt: daysAhead(9),
-    },
+  await dbClient.insert(proposal).values({
+    housingUnitId: unitId,
+    type: 'HOUSE_DECISION',
+    category: 'SHARED_SPACES',
+    title: 'Pflanzen im Wohnzimmer',
+    body:
+      'Wir stellen ein paar Pflanzen ins Wohnzimmer und teilen das Giessen auf. ' +
+      'Kosten ca. CHF 40, aus der gemeinsamen Kasse.',
+    proposedByResidentId: amira,
+    status: 'DISCUSSION',
+    decisionMode: CATEGORY_DECISION_MODE.SHARED_SPACES,
+    threshold: CATEGORY_THRESHOLD.SHARED_SPACES,
+    quorumPercent: DECISION_TIMING.quorumPercent,
+    approvalPercent: THRESHOLD_APPROVAL_PERCENT[CATEGORY_THRESHOLD.SHARED_SPACES],
+    eligibleVoterCount: voters,
+    createdAt: daysAgo(1),
+    discussionEndsAt: daysAhead(2),
+    votingEndsAt: daysAhead(9),
   })
 
   // 3. ACCEPTED — a decision the house already took, with the house rule it
@@ -301,141 +314,137 @@ export async function seedDemoGovernance(
     approvalPercent: quietSnapshot.approvalPercent,
   })
 
-  const nightQuiet = await prisma.houseRule.findUnique({ where: { key: 'night_quiet' } })
+  const nightQuiet = await dbClient.query.houseRule.findFirst({
+    where: eq(houseRule.key, 'night_quiet'),
+  })
 
-  const quietProposal = await prisma.proposal.create({
-    data: {
-      housingUnitId: unitId,
-      type: 'ADD_RULE',
-      category: 'NOISE',
-      title: 'Ruhe ab 21:30 statt 22:00',
-      body:
-        'Wir ziehen die Nachtruhe eine halbe Stunde vor. Ab 21:30 keine Musik ohne Kopfhörer ' +
-        'und keine Waschmaschine mehr.',
-      parentOrgRuleId: nightQuiet?.id ?? null,
-      proposedByResidentId: demoResidentId,
-      status: 'ACCEPTED',
-      ...quietSnapshot,
-      createdAt: daysAgo(24),
-      discussionEndsAt: daysAgo(21),
-      votingOpenedAt: daysAgo(21),
-      votingEndsAt: daysAgo(14),
-      decidedAt: daysAgo(14),
-      outcomeSummary: quietTally.explanation,
-      votes: { create: quietVotes.map((v) => ({ ...v, castAt: daysAgo(18) })) },
-    },
+  const quietProposal = await dbClient.transaction(async (tx) => {
+    const [created] = await tx
+      .insert(proposal)
+      .values({
+        housingUnitId: unitId,
+        type: 'ADD_RULE',
+        category: 'NOISE',
+        title: 'Ruhe ab 21:30 statt 22:00',
+        body:
+          'Wir ziehen die Nachtruhe eine halbe Stunde vor. Ab 21:30 keine Musik ohne Kopfhörer ' +
+          'und keine Waschmaschine mehr.',
+        parentOrgRuleId: nightQuiet?.id ?? null,
+        proposedByResidentId: demoResidentId,
+        status: 'ACCEPTED',
+        ...quietSnapshot,
+        createdAt: daysAgo(24),
+        discussionEndsAt: daysAgo(21),
+        votingOpenedAt: daysAgo(21),
+        votingEndsAt: daysAgo(14),
+        decidedAt: daysAgo(14),
+        outcomeSummary: quietTally.explanation,
+      })
+      .returning()
+    await tx
+      .insert(vote)
+      .values(quietVotes.map((v) => ({ ...v, proposalId: created.id, castAt: daysAgo(18) })))
+    return created
   })
 
   if (nightQuiet) {
-    await prisma.houseRule.create({
-      data: {
-        scope: 'UNIT',
-        housingUnitId: unitId,
-        parentRuleId: nightQuiet.id,
-        category: 'NOISE',
-        title: 'Ruhe ab 21:30',
-        body:
-          'In dieser Wohnung beginnt die Ruhezeit um 21:30 Uhr — eine halbe Stunde früher als ' +
-          `die ${BRAND.orgName}-Regel verlangt. Beschlossen von den Bewohnenden am ` +
-          `${daysAgo(14).toLocaleDateString('de-CH')}.`,
-        status: 'ACTIVE',
-        version: 1,
-        adoptedByProposalId: quietProposal.id,
-      },
+    await dbClient.insert(houseRule).values({
+      scope: 'UNIT',
+      housingUnitId: unitId,
+      parentRuleId: nightQuiet.id,
+      category: 'NOISE',
+      title: 'Ruhe ab 21:30',
+      body:
+        'In dieser Wohnung beginnt die Ruhezeit um 21:30 Uhr — eine halbe Stunde früher als ' +
+        `die ${BRAND.orgName}-Regel verlangt. Beschlossen von den Bewohnenden am ` +
+        `${daysAgo(14).toLocaleDateString('de-CH')}.`,
+      status: 'ACTIVE',
+      version: 1,
+      adoptedByProposalId: quietProposal.id,
     })
   }
 
   // 4. NEEDS_STAFF_CONFIRMATION — safety is never put to a vote, but the house
   //    must still be answered. This is also what fills the staff decision queue,
   //    which is otherwise empty in the staff tour.
-  await prisma.proposal.create({
-    data: {
-      housingUnitId: unitId,
-      type: 'HOUSE_DECISION',
-      category: 'SAFETY',
-      title: 'Zweiter Schlüssel für den Veloraum',
-      body:
-        'Es gibt nur einen Schlüssel für den Veloraum. Wir hätten gern einen zweiten, ' +
-        'damit nicht immer dieselbe Person aufschliessen muss.',
-      proposedByResidentId: sara,
-      status: 'NEEDS_STAFF_CONFIRMATION',
-      ...snapshotFor('SAFETY', voters),
-      createdAt: daysAgo(3),
-      outcomeSummary:
-        'Sicherheitsthemen werden nicht abgestimmt. Die Betreuung beantwortet den Vorschlag.',
-    },
+  await dbClient.insert(proposal).values({
+    housingUnitId: unitId,
+    type: 'HOUSE_DECISION',
+    category: 'SAFETY',
+    title: 'Zweiter Schlüssel für den Veloraum',
+    body:
+      'Es gibt nur einen Schlüssel für den Veloraum. Wir hätten gern einen zweiten, ' +
+      'damit nicht immer dieselbe Person aufschliessen muss.',
+    proposedByResidentId: sara,
+    status: 'NEEDS_STAFF_CONFIRMATION',
+    ...snapshotFor('SAFETY', voters),
+    createdAt: daysAgo(3),
+    outcomeSummary:
+      'Sicherheitsthemen werden nicht abgestimmt. Die Betreuung beantwortet den Vorschlag.',
   })
 
   // ==========================================================================
   // MAINTENANCE — the board staff work, seen from the resident side too
   // ==========================================================================
-  await prisma.maintenanceRequest.create({
-    data: {
-      housingUnitId: unitId,
-      reportedById: demoResidentId,
-      category: 'PLUMBING',
-      priority: 'NORMAL',
-      title: 'Sanitär',
-      description: 'Der Wasserhahn im Bad tropft, auch wenn er ganz zugedreht ist.',
-      location: 'Bad',
-      status: 'IN_PROGRESS',
-      assignedTo: 'Hauswart',
-      assignedAt: daysAgo(2),
-      startedAt: daysAgo(1),
-      createdAt: daysAgo(3),
-    },
+  await dbClient.insert(maintenanceRequest).values({
+    housingUnitId: unitId,
+    reportedById: demoResidentId,
+    category: 'PLUMBING',
+    priority: 'NORMAL',
+    title: 'Sanitär',
+    description: 'Der Wasserhahn im Bad tropft, auch wenn er ganz zugedreht ist.',
+    location: 'Bad',
+    status: 'IN_PROGRESS',
+    assignedTo: 'Hauswart',
+    assignedAt: daysAgo(2),
+    startedAt: daysAgo(1),
+    createdAt: daysAgo(3),
   })
 
   // Reported by the DEMO LOGIN and already answered, so the tour shows the one
   // thing a resident actually wants from reporting something: a reply. An
   // answered request belonging to a roommate proves nothing to the visitor.
-  await prisma.maintenanceRequest.create({
-    data: {
-      housingUnitId: unitId,
-      reportedById: demoResidentId,
-      category: 'HEATING_COOLING',
-      priority: 'NORMAL',
-      title: 'Heizung/Klima',
-      description: 'Die Heizung im Zimmer wird nur oben warm.',
-      location: 'Zimmer',
-      status: 'COMPLETED',
-      assignedTo: 'Hauswart',
-      completedAt: daysAgo(6),
-      resolution: 'Heizkörper entlüftet. Bitte melden, falls es wieder auftritt.',
-      createdAt: daysAgo(12),
-    },
+  await dbClient.insert(maintenanceRequest).values({
+    housingUnitId: unitId,
+    reportedById: demoResidentId,
+    category: 'HEATING_COOLING',
+    priority: 'NORMAL',
+    title: 'Heizung/Klima',
+    description: 'Die Heizung im Zimmer wird nur oben warm.',
+    location: 'Zimmer',
+    status: 'COMPLETED',
+    assignedTo: 'Hauswart',
+    completedAt: daysAgo(6),
+    resolution: 'Heizkörper entlüftet. Bitte melden, falls es wieder auftritt.',
+    createdAt: daysAgo(12),
   })
 
-  await prisma.maintenanceRequest.create({
-    data: {
-      housingUnitId: unitId,
-      reportedById: sara,
-      category: 'APPLIANCE',
-      priority: 'HIGH',
-      title: 'Gerät defekt',
-      description: 'Die Waschmaschine schleudert nicht mehr und bleibt mitten im Programm stehen.',
-      location: 'Waschküche',
-      status: 'OPEN',
-      createdAt: daysAgo(1),
-    },
+  await dbClient.insert(maintenanceRequest).values({
+    housingUnitId: unitId,
+    reportedById: sara,
+    category: 'APPLIANCE',
+    priority: 'HIGH',
+    title: 'Gerät defekt',
+    description: 'Die Waschmaschine schleudert nicht mehr und bleibt mitten im Programm stehen.',
+    location: 'Waschküche',
+    status: 'OPEN',
+    createdAt: daysAgo(1),
   })
 
-  await prisma.maintenanceRequest.create({
-    data: {
-      housingUnitId: unitId,
-      reportedById: yasmin,
-      category: 'ELECTRICAL',
-      priority: 'NORMAL',
-      title: 'Elektrik',
-      description: 'Das Licht im Korridor flackert.',
-      location: 'Korridor',
-      status: 'COMPLETED',
-      assignedTo: 'Hauswart',
-      completedAt: daysAgo(5),
-      // The answer travels back to the resident who reported it.
-      resolution: 'Leuchtmittel und Starter ersetzt. Bitte melden, falls es erneut flackert.',
-      createdAt: daysAgo(9),
-    },
+  await dbClient.insert(maintenanceRequest).values({
+    housingUnitId: unitId,
+    reportedById: yasmin,
+    category: 'ELECTRICAL',
+    priority: 'NORMAL',
+    title: 'Elektrik',
+    description: 'Das Licht im Korridor flackert.',
+    location: 'Korridor',
+    status: 'COMPLETED',
+    assignedTo: 'Hauswart',
+    completedAt: daysAgo(5),
+    // The answer travels back to the resident who reported it.
+    resolution: 'Leuchtmittel und Starter ersetzt. Bitte melden, falls es erneut flackert.',
+    createdAt: daysAgo(9),
   })
 
   // ==========================================================================
@@ -448,68 +457,66 @@ export async function seedDemoGovernance(
   //
   // The states are deliberately mixed — open, claimed, closed — because a board
   // where nothing has ever been taken does not demonstrate a handover.
-  await prisma.marketplacePost.createMany({
-    data: [
-      {
-        housingUnitId: unitId,
-        postedById: yasmin,
-        title: 'Wasserkocher',
-        description: 'Funktioniert einwandfrei, ich habe jetzt zwei. Wer mag?',
-        kind: 'GIVE_AWAY',
-        category: 'KITCHEN',
-        status: 'OPEN',
-        contactNote: 'Zimmer 2, meistens ab 18 Uhr da.',
-        createdAt: daysAgo(2),
-      },
-      {
-        housingUnitId: unitId,
-        postedById: amira,
-        title: 'Koffer für eine Woche',
-        description: 'Ich brauche einen grossen Koffer für eine Reise Ende Monat.',
-        kind: 'WANTED',
-        category: 'OTHER',
-        status: 'OPEN',
-        createdAt: daysAgo(4),
-      },
-      {
-        housingUnitId: unitId,
-        postedById: sara,
-        title: 'Briefe auf Deutsch erklären',
-        description:
-          'Ich kann Deutsch und Arabisch. Wenn ein Brief von einer Behörde kommt, lese ich ihn mit dir zusammen durch.',
-        kind: 'OFFER_HELP',
-        category: 'PAPERWORK',
-        status: 'OPEN',
-        contactNote: 'Klopf einfach, Zimmer 4.',
-        createdAt: daysAgo(6),
-      },
-      {
-        housingUnitId: unitId,
-        postedById: demoResidentId,
-        title: 'Schrank in den 3. Stock tragen',
-        description: 'Zu zweit ist es in zehn Minuten erledigt. Samstagvormittag würde mir passen.',
-        kind: 'NEED_HELP',
-        category: 'MOVING',
-        status: 'CLAIMED',
-        claimedById: yasmin,
-        claimedAt: daysAgo(1),
-        createdAt: daysAgo(3),
-      },
-      {
-        housingUnitId: unitId,
-        postedById: yasmin,
-        title: 'Kinderkleider Grösse 98',
-        description: 'Zwei Jacken und vier Pullover, alles gewaschen.',
-        kind: 'GIVE_AWAY',
-        category: 'KIDS',
-        status: 'CLOSED',
-        claimedById: amira,
-        claimedAt: daysAgo(9),
-        closedAt: daysAgo(8),
-        createdAt: daysAgo(11),
-      },
-    ],
-  })
+  await dbClient.insert(marketplacePost).values([
+    {
+      housingUnitId: unitId,
+      postedById: yasmin,
+      title: 'Wasserkocher',
+      description: 'Funktioniert einwandfrei, ich habe jetzt zwei. Wer mag?',
+      kind: 'GIVE_AWAY',
+      category: 'KITCHEN',
+      status: 'OPEN',
+      contactNote: 'Zimmer 2, meistens ab 18 Uhr da.',
+      createdAt: daysAgo(2),
+    },
+    {
+      housingUnitId: unitId,
+      postedById: amira,
+      title: 'Koffer für eine Woche',
+      description: 'Ich brauche einen grossen Koffer für eine Reise Ende Monat.',
+      kind: 'WANTED',
+      category: 'OTHER',
+      status: 'OPEN',
+      createdAt: daysAgo(4),
+    },
+    {
+      housingUnitId: unitId,
+      postedById: sara,
+      title: 'Briefe auf Deutsch erklären',
+      description:
+        'Ich kann Deutsch und Arabisch. Wenn ein Brief von einer Behörde kommt, lese ich ihn mit dir zusammen durch.',
+      kind: 'OFFER_HELP',
+      category: 'PAPERWORK',
+      status: 'OPEN',
+      contactNote: 'Klopf einfach, Zimmer 4.',
+      createdAt: daysAgo(6),
+    },
+    {
+      housingUnitId: unitId,
+      postedById: demoResidentId,
+      title: 'Schrank in den 3. Stock tragen',
+      description: 'Zu zweit ist es in zehn Minuten erledigt. Samstagvormittag würde mir passen.',
+      kind: 'NEED_HELP',
+      category: 'MOVING',
+      status: 'CLAIMED',
+      claimedById: yasmin,
+      claimedAt: daysAgo(1),
+      createdAt: daysAgo(3),
+    },
+    {
+      housingUnitId: unitId,
+      postedById: yasmin,
+      title: 'Kinderkleider Grösse 98',
+      description: 'Zwei Jacken und vier Pullover, alles gewaschen.',
+      kind: 'GIVE_AWAY',
+      category: 'KIDS',
+      status: 'CLOSED',
+      claimedById: amira,
+      claimedAt: daysAgo(9),
+      closedAt: daysAgo(8),
+      createdAt: daysAgo(11),
+    },
+  ])
 
   // ==========================================================================
   // HOUSE EVENTS — one past, one imminent, one further out
@@ -517,8 +524,9 @@ export async function seedDemoGovernance(
   // The RSVP counts are uneven and the demo resident has deliberately NOT
   // answered the next one, so the visitor has a decision to make rather than a
   // finished record to read.
-  const houseMeeting = await prisma.houseEvent.create({
-    data: {
+  const [houseMeeting] = await dbClient
+    .insert(houseEvent)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: yasmin,
       title: 'Hausversammlung',
@@ -529,19 +537,18 @@ export async function seedDemoGovernance(
       startsAt: daysAhead(3),
       status: 'PUBLISHED',
       createdAt: daysAgo(2),
-    },
-  })
+    })
+    .returning()
 
-  await prisma.eventRsvp.createMany({
-    data: [
-      { eventId: houseMeeting.id, residentId: yasmin, status: 'GOING' },
-      { eventId: houseMeeting.id, residentId: amira, status: 'GOING' },
-      { eventId: houseMeeting.id, residentId: sara, status: 'MAYBE' },
-    ],
-  })
+  await dbClient.insert(eventRsvp).values([
+    { eventId: houseMeeting.id, residentId: yasmin, status: 'GOING' },
+    { eventId: houseMeeting.id, residentId: amira, status: 'GOING' },
+    { eventId: houseMeeting.id, residentId: sara, status: 'MAYBE' },
+  ])
 
-  const cooking = await prisma.houseEvent.create({
-    data: {
+  const [cooking] = await dbClient
+    .insert(houseEvent)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: amira,
       title: 'Zusammen kochen',
@@ -551,18 +558,17 @@ export async function seedDemoGovernance(
       startsAt: daysAhead(10),
       status: 'PUBLISHED',
       createdAt: daysAgo(1),
-    },
-  })
+    })
+    .returning()
 
-  await prisma.eventRsvp.createMany({
-    data: [
-      { eventId: cooking.id, residentId: amira, status: 'GOING' },
-      { eventId: cooking.id, residentId: demoResidentId, status: 'GOING' },
-    ],
-  })
+  await dbClient.insert(eventRsvp).values([
+    { eventId: cooking.id, residentId: amira, status: 'GOING' },
+    { eventId: cooking.id, residentId: demoResidentId, status: 'GOING' },
+  ])
 
-  const pastEvent = await prisma.houseEvent.create({
-    data: {
+  const [pastEvent] = await dbClient
+    .insert(houseEvent)
+    .values({
       housingUnitId: unitId,
       createdByResidentId: sara,
       title: 'Frühlingsputz im Hof',
@@ -572,17 +578,15 @@ export async function seedDemoGovernance(
       startsAt: daysAgo(14),
       status: 'PUBLISHED',
       createdAt: daysAgo(21),
-    },
-  })
+    })
+    .returning()
 
-  await prisma.eventRsvp.createMany({
-    data: [
-      { eventId: pastEvent.id, residentId: sara, status: 'GOING' },
-      { eventId: pastEvent.id, residentId: yasmin, status: 'GOING' },
-      { eventId: pastEvent.id, residentId: demoResidentId, status: 'GOING' },
-      { eventId: pastEvent.id, residentId: amira, status: 'DECLINED' },
-    ],
-  })
+  await dbClient.insert(eventRsvp).values([
+    { eventId: pastEvent.id, residentId: sara, status: 'GOING' },
+    { eventId: pastEvent.id, residentId: yasmin, status: 'GOING' },
+    { eventId: pastEvent.id, residentId: demoResidentId, status: 'GOING' },
+    { eventId: pastEvent.id, residentId: amira, status: 'DECLINED' },
+  ])
 
   // ==========================================================================
   // ACTIVITIES — the external catalogue
@@ -598,74 +602,72 @@ export async function seedDemoGovernance(
   // real residents invented offers with invented phone numbers.
   if (!siteWideContent) return
 
-  await prisma.activity.createMany({
-    data: [
-      {
-        title: 'Offenes Fussballtraining',
-        description:
-          'Jeden Mittwoch, alle Niveaus, keine Anmeldung nötig. Fussballschuhe können vor Ort geliehen werden.',
-        category: 'SPORT',
-        cost: 'FREE',
-        location: 'Sportanlage Heerenschürli, Zürich',
-        schedule: 'Mittwoch 18:00–20:00',
-        status: 'PUBLISHED',
-        highlight: true,
-      },
-      {
-        title: 'Deutsch-Konversation im Quartiertreff',
-        description:
-          'Zwanglos Deutsch sprechen mit Freiwilligen. Einsteigen ist jederzeit möglich, auch mit wenig Vorkenntnissen.',
-        category: 'LANGUAGE',
-        cost: 'FREE',
-        location: 'Quartiertreff Hirslanden',
-        schedule: 'Dienstag und Donnerstag, 14:00–16:00',
-        status: 'PUBLISHED',
-        highlight: true,
-      },
-      {
-        title: 'Museum für Gestaltung — Eintritt mit KulturLegi',
-        description:
-          'Mit der KulturLegi ist der Eintritt stark vergünstigt. Ausstellungen wechseln alle paar Monate.',
-        category: 'CULTURE',
-        cost: 'REDUCED',
-        costNote: 'CHF 6 statt CHF 12 mit KulturLegi',
-        location: 'Ausstellungsstrasse 60, Zürich',
-        website: 'https://museum-gestaltung.ch',
-        status: 'PUBLISHED',
-      },
-      {
-        title: 'Nachbarschaftscafé',
-        description:
-          'Kaffee, Kuchen und Leute aus dem Quartier. Ein guter Ort, um jemanden kennenzulernen.',
-        category: 'COMMUNITY',
-        cost: 'FREE',
-        location: 'Gemeinschaftszentrum Witikon',
-        schedule: 'Jeden Freitagnachmittag',
-        status: 'PUBLISHED',
-      },
-      {
-        title: 'Spielgruppe für Kinder von 2 bis 5',
-        description:
-          'Betreute Spielgruppe am Vormittag. Die Eltern können bleiben oder etwas erledigen.',
-        category: 'FAMILY',
-        cost: 'REDUCED',
-        costNote: 'Nach Einkommen abgestuft; frag bei der Betreuung nach',
-        location: 'Familienzentrum Zürich Ost',
-        schedule: 'Montag bis Donnerstag, 9:00–11:30',
-        phone: '044 000 00 00',
-        status: 'PUBLISHED',
-      },
-      {
-        title: 'Rechtsberatung für Asylsuchende',
-        description:
-          'Kostenlose und vertrauliche Beratung zu Verfahren und Fristen. Dolmetschen kann organisiert werden.',
-        category: 'SUPPORT',
-        cost: 'FREE',
-        location: 'Beratungsstelle Zürich',
-        schedule: 'Montag 13:00–17:00, ohne Voranmeldung',
-        phone: '044 000 00 01',
-        status: 'PUBLISHED',
-      },
-    ],
-  })
+  await dbClient.insert(activity).values([
+    {
+      title: 'Offenes Fussballtraining',
+      description:
+        'Jeden Mittwoch, alle Niveaus, keine Anmeldung nötig. Fussballschuhe können vor Ort geliehen werden.',
+      category: 'SPORT',
+      cost: 'FREE',
+      location: 'Sportanlage Heerenschürli, Zürich',
+      schedule: 'Mittwoch 18:00–20:00',
+      status: 'PUBLISHED',
+      highlight: true,
+    },
+    {
+      title: 'Deutsch-Konversation im Quartiertreff',
+      description:
+        'Zwanglos Deutsch sprechen mit Freiwilligen. Einsteigen ist jederzeit möglich, auch mit wenig Vorkenntnissen.',
+      category: 'LANGUAGE',
+      cost: 'FREE',
+      location: 'Quartiertreff Hirslanden',
+      schedule: 'Dienstag und Donnerstag, 14:00–16:00',
+      status: 'PUBLISHED',
+      highlight: true,
+    },
+    {
+      title: 'Museum für Gestaltung — Eintritt mit KulturLegi',
+      description:
+        'Mit der KulturLegi ist der Eintritt stark vergünstigt. Ausstellungen wechseln alle paar Monate.',
+      category: 'CULTURE',
+      cost: 'REDUCED',
+      costNote: 'CHF 6 statt CHF 12 mit KulturLegi',
+      location: 'Ausstellungsstrasse 60, Zürich',
+      website: 'https://museum-gestaltung.ch',
+      status: 'PUBLISHED',
+    },
+    {
+      title: 'Nachbarschaftscafé',
+      description:
+        'Kaffee, Kuchen und Leute aus dem Quartier. Ein guter Ort, um jemanden kennenzulernen.',
+      category: 'COMMUNITY',
+      cost: 'FREE',
+      location: 'Gemeinschaftszentrum Witikon',
+      schedule: 'Jeden Freitagnachmittag',
+      status: 'PUBLISHED',
+    },
+    {
+      title: 'Spielgruppe für Kinder von 2 bis 5',
+      description:
+        'Betreute Spielgruppe am Vormittag. Die Eltern können bleiben oder etwas erledigen.',
+      category: 'FAMILY',
+      cost: 'REDUCED',
+      costNote: 'Nach Einkommen abgestuft; frag bei der Betreuung nach',
+      location: 'Familienzentrum Zürich Ost',
+      schedule: 'Montag bis Donnerstag, 9:00–11:30',
+      phone: '044 000 00 00',
+      status: 'PUBLISHED',
+    },
+    {
+      title: 'Rechtsberatung für Asylsuchende',
+      description:
+        'Kostenlose und vertrauliche Beratung zu Verfahren und Fristen. Dolmetschen kann organisiert werden.',
+      category: 'SUPPORT',
+      cost: 'FREE',
+      location: 'Beratungsstelle Zürich',
+      schedule: 'Montag 13:00–17:00, ohne Voranmeldung',
+      phone: '044 000 00 01',
+      status: 'PUBLISHED',
+    },
+  ])
 }

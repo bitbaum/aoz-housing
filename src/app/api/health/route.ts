@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { sql } from 'drizzle-orm'
+import { db } from '@/lib/db'
 import { getAIHealth } from '@/lib/ai/health'
 
 /**
@@ -19,7 +20,7 @@ export async function GET() {
   const started = Date.now()
   const ai = getAIHealth()
   try {
-    await prisma.$queryRaw`SELECT 1`
+    await db.execute(sql`SELECT 1`)
     return NextResponse.json({
       status: 'ok',
       db: 'up',

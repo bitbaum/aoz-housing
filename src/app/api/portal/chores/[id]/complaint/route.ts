@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, householdTask, incident } from '@/lib/db'
+import { eq, and } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { portalTaskComplaintSchema } from '@/lib/validation/schemas'
@@ -41,8 +42,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   try {
-    const task = await prisma.householdTask.findFirst({
-      where: { id, housingUnitId: auth.placement.housingUnitId },
+    const task = await db.query.householdTask.findFirst({
+      where: and(
+        eq(householdTask.id, id),
+        eq(householdTask.housingUnitId, auth.placement.housingUnitId),
+      ),
     })
 
     if (!task) {
@@ -52,13 +56,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       )
     }
 
-    // Map chore category to incident type. The map is typed against the Prisma
+    // Map chore category to incident type. The map is typed against the db
     // enums so the fallback is only used for unknown categories.
     const incidentType = CHORE_COMPLAINT_INCIDENT_MAP[task.category] ?? 'PERSONAL_CONFLICT'
 
     // Create an Incident (escalation to staff)
-    const incident = await prisma.incident.create({
-      data: {
+    const [createdIncident] = await db
+      .insert(incident)
+      .values({
         housingUnitId: auth.placement.housingUnitId,
         placementId: auth.placement.id,
         reportedById: auth.resident.id,
@@ -67,13 +72,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         severity: 'MEDIUM',
         description: `[Haushaltsaufgabe: ${task.title}]\n\n${description}`,
         date: new Date(),
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',
       entity: 'INCIDENT',
-      entityId: incident.id,
+      entityId: createdIncident.id,
       changes: {
         source: 'household_task_complaint',
         taskId: id,
@@ -82,7 +87,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       },
     })
 
-    return NextResponse.json({ success: true, data: { incidentId: incident.id } })
+    return NextResponse.json({ success: true, data: { incidentId: createdIncident.id } })
   } catch (error) {
     logger.errorWithCause('Failed to create task complaint incident', error)
     return NextResponse.json(

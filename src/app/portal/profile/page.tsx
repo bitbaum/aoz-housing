@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { ProfileForm } from '@/components/portal/ProfileForm'
 import { PhotoUploader } from '@/components/portal/PhotoUploader'
@@ -23,15 +24,17 @@ export default async function PortalProfilePage() {
   const { t } = await getRequestTranslator()
   const L = buildProfileLabels(t)
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    columns: {
       id: true,
       code: true,
       displayName: true,
       bio: true,
       profileVisibility: true,
-      photo: { select: { updatedAt: true } },
+    },
+    with: {
+      photo: { columns: { updatedAt: true } },
     },
   })
   if (!resident) redirect('/login')

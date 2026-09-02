@@ -27,13 +27,31 @@
  * seat, this decides the address.
  */
 
-import type { SiteAccess } from '@prisma/client'
+import { and, eq, inArray, sql } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
+import { QueryBuilder, type PgColumn } from 'drizzle-orm/pg-core'
+import { housingUnit, placement, resident } from '@/lib/db'
+import type { SiteAccess } from '@/lib/db'
+
+// A standalone builder: these helpers only CONSTRUCT where-fragments, and must
+// do so without touching the lazy db client (jest and next build both call
+// them in environments where DATABASE_URL is absent).
+const qb = new QueryBuilder()
 
 /** Everything a site question needs about the person asking. */
 export interface SiteCapabilities {
   siteAccess: SiteAccess
   /** Unit ids joined through StaffUnit. Empty unless ASSIGNED_UNITS. */
   assignedUnitIds: readonly string[]
+}
+
+/**
+ * `inArray` throws on an empty list, and "assigned nowhere" must read as
+ * matching NOTHING (see isStrandedWithoutUnits) — never as an error and never
+ * as everything.
+ */
+function inIds(column: PgColumn, ids: readonly string[]): SQL {
+  return ids.length > 0 ? inArray(column, [...ids]) : sql`false`
 }
 
 /**
@@ -48,36 +66,40 @@ export function canAccessUnit(viewer: SiteCapabilities, housingUnitId: string): 
 }
 
 /**
- * A Prisma `where` fragment restricting rows to this viewer's units, or `null`
- * when no restriction applies.
+ * A `where` fragment restricting HousingUnit rows to this viewer's units, or
+ * `null` when no restriction applies.
  *
  * Returning null rather than an always-true clause is deliberate: a caller
- * that spreads `...(unitFilter ?? {})` adds nothing for an ALL_UNITS viewer, so
- * the common path issues exactly the query it issued before this axis existed.
+ * that passes `and(unitFilter ?? undefined, …)` adds nothing for an ALL_UNITS
+ * viewer, so the common path issues exactly the query it issued before this
+ * axis existed.
  */
-export function unitScopeFilter(viewer: SiteCapabilities): { id: { in: string[] } } | null {
+export function unitScopeFilter(viewer: SiteCapabilities): SQL | null {
   if (viewer.siteAccess === 'ALL_UNITS') return null
-  return { id: { in: [...viewer.assignedUnitIds] } }
+  return inIds(housingUnit.id, viewer.assignedUnitIds)
 }
 
 /**
  * The same restriction expressed for rows that POINT AT a unit — placements,
- * incidents, maintenance — where the column is `housingUnitId`.
+ * incidents, maintenance — where the column is `housingUnitId`. The caller
+ * names its table's column, because each drizzle table carries its own.
  */
 export function housingUnitScopeFilter(
   viewer: SiteCapabilities,
-): { housingUnitId: { in: string[] } } | null {
+  housingUnitIdColumn: PgColumn,
+): SQL | null {
   if (viewer.siteAccess === 'ALL_UNITS') return null
-  return { housingUnitId: { in: [...viewer.assignedUnitIds] } }
+  return inIds(housingUnitIdColumn, viewer.assignedUnitIds)
 }
 
 /**
- * Residents this viewer may see, as a Prisma `where` fragment.
+ * Residents this viewer may see, as a `where` fragment on Resident.
  *
  * A resident is in scope when they hold an ACTIVE placement in one of the
- * viewer's units. The `some` is load-bearing: matching on any placement would
- * leak everyone who ever passed through a house the viewer covers, including
- * people who have since moved somewhere they do not.
+ * viewer's units — Prisma's `placements: { some: … }`, expressed as a
+ * subquery. The ACTIVE condition is load-bearing: matching on any placement
+ * would leak everyone who ever passed through a house the viewer covers,
+ * including people who have since moved somewhere they do not.
  *
  * Unplaced residents are deliberately NOT in scope for a restricted viewer.
  * Somebody who has not been placed anywhere belongs to no site, so there is no
@@ -85,15 +107,17 @@ export function housingUnitScopeFilter(
  * site-restricted specialist does not do. This is the one case worth
  * re-examining if AOZ ever restricts a Betreuer who also does intake.
  */
-export function residentScopeFilter(viewer: SiteCapabilities): {
-  placements: { some: { status: 'ACTIVE'; housingUnitId: { in: string[] } } }
-} | null {
+export function residentScopeFilter(viewer: SiteCapabilities): SQL | null {
   if (viewer.siteAccess === 'ALL_UNITS') return null
-  return {
-    placements: {
-      some: { status: 'ACTIVE', housingUnitId: { in: [...viewer.assignedUnitIds] } },
-    },
-  }
+  return inArray(
+    resident.id,
+    qb
+      .select({ id: placement.residentId })
+      .from(placement)
+      .where(
+        and(eq(placement.status, 'ACTIVE'), inIds(placement.housingUnitId, viewer.assignedUnitIds)),
+      ),
+  )
 }
 
 /**
@@ -101,7 +125,7 @@ export function residentScopeFilter(viewer: SiteCapabilities): {
  * misconfiguration, not a state to render as "all quiet".
  *
  * Same failure the dashboard already learned once: a specialist with no clients
- * was congratulated on an empty day. An `{ in: [] }` filter is silently and
+ * was congratulated on an empty day. An empty filter is silently and
  * permanently empty, so the surfaces that use it must be able to say WHY.
  */
 export function isStrandedWithoutUnits(viewer: SiteCapabilities): boolean {

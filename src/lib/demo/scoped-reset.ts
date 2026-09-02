@@ -17,7 +17,17 @@
  * Relative-import-safe (no '@/' aliases): loaded through ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { eq, inArray, like, or } from 'drizzle-orm'
+import {
+  escapeLike,
+  housingUnit,
+  incident,
+  message,
+  messageThread,
+  placement,
+  resident,
+  type db,
+} from '../db'
 import {
   resolveDemoResidentCode,
   ALL_DEMO_RESIDENT_CODE_PREFIXES,
@@ -34,24 +44,32 @@ export interface DemoWorldResetSummary extends DemoSeedSummary {
 }
 
 /** Delete every demo unit and demo resident. No-op when absent. */
-export async function deleteDemoWorld(prisma: PrismaClient): Promise<{
+export async function deleteDemoWorld(dbClient: typeof db): Promise<{
   unitsDeleted: number
   residentsDeleted: number
 }> {
-  const demoUnitFilter = { code: { startsWith: DEMO_UNIT_CODE_PREFIX } }
+  const demoUnitFilter = like(housingUnit.code, `${escapeLike(DEMO_UNIT_CODE_PREFIX)}%`)
   // Every demo prefix ever issued, not just this brand's: a demo resident
   // seeded under a previous client prefix would otherwise survive every reset,
   // uncleanable and — on a `unit`-scope instance — parked next to real data.
-  const demoResidentFilter = {
-    OR: [
-      ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) => ({ code: { startsWith: prefix } })),
-      { code: resolveDemoResidentCode() },
-    ],
-  }
+  const demoResidentFilter = or(
+    ...ALL_DEMO_RESIDENT_CODE_PREFIXES.map((prefix) =>
+      like(resident.code, `${escapeLike(prefix)}%`),
+    ),
+    eq(resident.code, resolveDemoResidentCode()),
+  )
+  const demoUnitIds = dbClient
+    .select({ id: housingUnit.id })
+    .from(housingUnit)
+    .where(demoUnitFilter)
+  const demoResidentIds = dbClient
+    .select({ id: resident.id })
+    .from(resident)
+    .where(demoResidentFilter)
 
-  await prisma.incident.deleteMany({ where: { housingUnit: demoUnitFilter } })
-  await prisma.placement.deleteMany({ where: { housingUnit: demoUnitFilter } })
-  const units = await prisma.housingUnit.deleteMany({ where: demoUnitFilter })
+  await dbClient.delete(incident).where(inArray(incident.housingUnitId, demoUnitIds))
+  await dbClient.delete(placement).where(inArray(placement.housingUnitId, demoUnitIds))
+  const units = await dbClient.delete(housingUnit).where(demoUnitFilter)
 
   // Messages a demo resident WROTE hold a Restrict foreign key, so they veto
   // the resident delete below. Restrict is right for real data — nobody should
@@ -62,21 +80,21 @@ export async function deleteDemoWorld(prisma: PrismaClient): Promise<{
   // Postgres reports only the FIRST blocking foreign key, so a missing delete
   // here does not surface as "you forgot messages"; it surfaces as the whole
   // nightly reset failing, and the demo silently rotting from that day on.
-  await prisma.message.deleteMany({ where: { authorResident: demoResidentFilter } })
-  await prisma.messageThread.deleteMany({ where: { resident: demoResidentFilter } })
+  await dbClient.delete(message).where(inArray(message.authorResidentId, demoResidentIds))
+  await dbClient.delete(messageThread).where(inArray(messageThread.residentId, demoResidentIds))
 
-  const residents = await prisma.resident.deleteMany({ where: demoResidentFilter })
+  const residents = await dbClient.delete(resident).where(demoResidentFilter)
 
-  return { unitsDeleted: units.count, residentsDeleted: residents.count }
+  return { unitsDeleted: units.rowCount ?? 0, residentsDeleted: residents.rowCount ?? 0 }
 }
 
 /** Tear down and reseed the demo world; self-heal the demo staff account. */
-export async function resetDemoWorld(prisma: PrismaClient): Promise<DemoWorldResetSummary> {
-  const removed = await deleteDemoWorld(prisma)
+export async function resetDemoWorld(dbClient: typeof db): Promise<DemoWorldResetSummary> {
+  const removed = await deleteDemoWorld(dbClient)
   // The AOZ catalog is reference data, not demo data — it is never deleted
   // above. But the demo's adopted house rule points at an ORG rule by key, so
   // the catalog has to be present before seeding, not merely usually present.
-  await syncOrgRules(prisma)
+  await syncOrgRules(dbClient)
   // Before the seed: it assigns this account the care seats on every demo
   // resident, so the account has to exist first.
   // Deliberately the SINGLE configured door, not the per-role set. This scope
@@ -84,8 +102,8 @@ export async function resetDemoWorld(prisma: PrismaClient): Promise<DemoWorldRes
   // minting five staff accounts there would hand anonymous visitors four more
   // ways into real residents' records. The per-role doors are a dedicated-demo
   // feature and are created only by the full reset.
-  const demoStaff = await upsertDemoStaff(prisma)
-  const seeded = await seedDemoData(prisma, { careStaffId: demoStaff?.id ?? null })
+  const demoStaff = await upsertDemoStaff(dbClient)
+  const seeded = await seedDemoData(dbClient, { careStaffId: demoStaff?.id ?? null })
 
   return { ...seeded, ...removed, demoStaffCode: demoStaff?.code ?? null }
 }

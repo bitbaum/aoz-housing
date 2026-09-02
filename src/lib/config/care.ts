@@ -54,7 +54,7 @@ export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {
 }
 
 /**
- * Must match the `AppointmentStatus` enum in schema.prisma exactly.
+ * Must match the `AppointmentStatus` pgEnum in src/lib/db/schema.ts exactly.
  *
  * `mapAppointment` casts the database value into this union, and a cast is not
  * a check: a status present in the database and missing here renders its label

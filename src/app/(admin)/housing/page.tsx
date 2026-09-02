@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit, placement, incident, escapeLike } from '@/lib/db'
+import { and, or, eq, inArray, ilike, gte, asc } from 'drizzle-orm'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 import { requirePermission } from '@/lib/auth'
@@ -37,28 +38,26 @@ export default async function HousingListPage({ searchParams }: Props) {
   // issued before the site axis existed.
   const unitFilter = unitScopeFilter(viewer)
 
-  const [units, allUnits] = await Promise.all([
-    prisma.housingUnit.findMany({
-      where: {
-        ...(unitFilter ?? {}),
-        ...(view === 'active'
-          ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
+  const [unitRows, allUnitRows] = await Promise.all([
+    db.query.housingUnit.findMany({
+      where: and(
+        unitFilter ?? undefined,
+        view === 'active'
+          ? inArray(housingUnit.status, ['AVAILABLE', 'FULL', 'MAINTENANCE'])
           : view === 'archived'
-            ? { status: 'CLOSED' }
-            : {}),
-        ...(q
-          ? {
-              OR: [
-                { code: { contains: q, mode: 'insensitive' } },
-                // A caseworker who hears "Casa Harmonie" must be able to type it.
-                { nickname: { contains: q, mode: 'insensitive' } },
-                { address: { contains: q, mode: 'insensitive' } },
-                { buildingCode: { contains: q, mode: 'insensitive' } },
-              ],
-            }
-          : {}),
-      },
-      select: {
+            ? eq(housingUnit.status, 'CLOSED')
+            : undefined,
+        q
+          ? or(
+              ilike(housingUnit.code, `%${escapeLike(q)}%`),
+              // A caseworker who hears "Casa Harmonie" must be able to type it.
+              ilike(housingUnit.nickname, `%${escapeLike(q)}%`),
+              ilike(housingUnit.address, `%${escapeLike(q)}%`),
+              ilike(housingUnit.buildingCode, `%${escapeLike(q)}%`),
+            )
+          : undefined,
+      ),
+      columns: {
         id: true,
         code: true,
         // The name the residents gave their own home. Without it the staff
@@ -70,38 +69,52 @@ export default async function HousingListPage({ searchParams }: Props) {
         totalBeds: true,
         totalRooms: true,
         wheelchairAccess: true,
-        _count: {
-          select: {
-            placements: {
-              where: { status: 'ACTIVE' },
-            },
-            incidents: {
-              where: {
-                date: { gte: getDateDaysAgo(30) },
-                category: 'INTERPERSONAL',
-              },
-            },
-          },
+      },
+      with: {
+        placements: {
+          where: eq(placement.status, 'ACTIVE'),
+          columns: { id: true },
+        },
+        incidents: {
+          where: and(
+            gte(incident.date, getDateDaysAgo(30)),
+            eq(incident.category, 'INTERPERSONAL'),
+          ),
+          columns: { id: true },
         },
       },
-      orderBy: { code: 'asc' },
+      orderBy: [asc(housingUnit.code)],
     }),
     // Tab counts and stats — unfiltered by VIEW (that is the point: the
     // counts describe every tab), but still scoped to the viewer's units.
-    prisma.housingUnit.findMany({
+    db.query.housingUnit.findMany({
       // Scoped as well: this feeds the view counts beside the tabs, and an
       // unscoped count tells a restricted viewer how many houses exist that
       // they cannot open.
-      where: { ...(unitFilter ?? {}) },
-      select: {
+      where: unitFilter ?? undefined,
+      columns: {
         status: true,
         totalBeds: true,
-        _count: {
-          select: { placements: { where: { status: 'ACTIVE' } } },
+      },
+      with: {
+        placements: {
+          where: eq(placement.status, 'ACTIVE'),
+          columns: { id: true },
         },
       },
     }),
   ])
+
+  // Prisma's `_count` selects have no query-API equivalent — the filtered
+  // relations are fetched as id-only rows and counted here instead.
+  const units = unitRows.map(({ placements, incidents, ...rest }) => ({
+    ...rest,
+    _count: { placements: placements.length, incidents: incidents.length },
+  }))
+  const allUnits = allUnitRows.map(({ placements, ...rest }) => ({
+    ...rest,
+    _count: { placements: placements.length },
+  }))
 
   const stats = {
     total: allUnits.length,

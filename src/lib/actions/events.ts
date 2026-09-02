@@ -1,14 +1,15 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import { db, eventRsvp, houseEvent } from '@/lib/db'
+import type { EventRsvpStatus, HouseEventCategory, HouseEventStatus } from '@/lib/db'
+import { and, asc, desc, eq, ne } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 import { getPortalAuth } from '@/lib/portal-auth'
 import { hasPermission } from '@/lib/auth/role-policy'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { fromDatetimeLocalInput } from '@/lib/utils/local-time'
-import type { EventRsvpStatus, HouseEventCategory, HouseEventStatus } from '@prisma/client'
 
 const CATEGORIES: HouseEventCategory[] = ['HOUSE_MEETING', 'SOCIAL', 'CULTURE', 'SUPPORT']
 const RSVP_STATUSES: EventRsvpStatus[] = ['GOING', 'MAYBE', 'DECLINED']
@@ -99,15 +100,18 @@ export async function listUnitEvents(now: Date = new Date()): Promise<{
   const auth = await getPortalAuth()
   if (!auth) return null
 
-  const rows = await prisma.houseEvent.findMany({
-    where: { housingUnitId: auth.placement.housingUnitId, status: { not: 'CANCELLED' } },
-    include: {
-      housingUnit: { select: { id: true, code: true } },
-      createdByStaff: { select: { name: true } },
-      createdByResident: { select: RESIDENT_NAME_SELECT },
-      rsvps: { include: { resident: { select: RESIDENT_NAME_SELECT } } },
+  const rows = await db.query.houseEvent.findMany({
+    where: and(
+      eq(houseEvent.housingUnitId, auth.placement.housingUnitId),
+      ne(houseEvent.status, 'CANCELLED'),
+    ),
+    with: {
+      housingUnit: { columns: { id: true, code: true } },
+      createdByStaff: { columns: { name: true } },
+      createdByResident: { columns: RESIDENT_NAME_SELECT },
+      rsvps: { with: { resident: { columns: RESIDENT_NAME_SELECT } } },
     },
-    orderBy: { startsAt: 'asc' },
+    orderBy: [asc(houseEvent.startsAt)],
   })
 
   const mapped = rows.map(mapEvent)
@@ -118,14 +122,14 @@ export async function listUnitEvents(now: Date = new Date()): Promise<{
 }
 
 export async function listStaffEvents(): Promise<HouseEventSummary[]> {
-  const rows = await prisma.houseEvent.findMany({
-    include: {
-      housingUnit: { select: { id: true, code: true } },
-      createdByStaff: { select: { name: true } },
-      createdByResident: { select: RESIDENT_NAME_SELECT },
-      rsvps: { include: { resident: { select: RESIDENT_NAME_SELECT } } },
+  const rows = await db.query.houseEvent.findMany({
+    with: {
+      housingUnit: { columns: { id: true, code: true } },
+      createdByStaff: { columns: { name: true } },
+      createdByResident: { columns: RESIDENT_NAME_SELECT },
+      rsvps: { with: { resident: { columns: RESIDENT_NAME_SELECT } } },
     },
-    orderBy: { startsAt: 'desc' },
+    orderBy: [desc(houseEvent.startsAt)],
   })
   return rows.map(mapEvent)
 }
@@ -145,16 +149,14 @@ export async function createEventAsResident(
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 
-  await prisma.houseEvent.create({
-    data: {
-      housingUnitId: auth.placement.housingUnitId,
-      createdByResidentId: auth.resident.id,
-      title,
-      description,
-      location,
-      startsAt,
-      category,
-    },
+  await db.insert(houseEvent).values({
+    housingUnitId: auth.placement.housingUnitId,
+    createdByResidentId: auth.resident.id,
+    title,
+    description,
+    location,
+    startsAt,
+    category,
   })
 
   revalidateEvents()
@@ -180,16 +182,14 @@ export async function createEventAsStaff(
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 
-  await prisma.houseEvent.create({
-    data: {
-      housingUnitId,
-      createdByStaffId: user.id,
-      title,
-      description,
-      location,
-      startsAt,
-      category,
-    },
+  await db.insert(houseEvent).values({
+    housingUnitId,
+    createdByStaffId: user.id,
+    title,
+    description,
+    location,
+    startsAt,
+    category,
   })
 
   revalidateEvents()
@@ -210,9 +210,9 @@ export async function rsvpToEvent(
   // check any resident could answer any unit's event by id — and since the
   // attendee list renders NAMES, that puts a stranger into another household's
   // "wer kommt" list, which is a privacy leak wearing the costume of an RSVP.
-  const event = await prisma.houseEvent.findUnique({
-    where: { id: eventId },
-    select: { housingUnitId: true, status: true },
+  const event = await db.query.houseEvent.findFirst({
+    where: eq(houseEvent.id, eventId),
+    columns: { housingUnitId: true, status: true },
   })
   if (
     !event ||
@@ -222,11 +222,13 @@ export async function rsvpToEvent(
     return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
   }
 
-  await prisma.eventRsvp.upsert({
-    where: { eventId_residentId: { eventId, residentId: auth.resident.id } },
-    create: { eventId, residentId: auth.resident.id, status },
-    update: { status },
-  })
+  await db
+    .insert(eventRsvp)
+    .values({ eventId, residentId: auth.resident.id, status })
+    .onConflictDoUpdate({
+      target: [eventRsvp.eventId, eventRsvp.residentId],
+      set: { status },
+    })
 
   revalidateEvents()
   return { success: true }
@@ -236,22 +238,22 @@ export async function cancelEvent(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string }> {
   const id = String(formData.get('id') || '')
-  const event = await prisma.houseEvent.findUnique({
-    where: { id },
-    select: { createdByResidentId: true, createdByStaffId: true },
+  const event = await db.query.houseEvent.findFirst({
+    where: eq(houseEvent.id, id),
+    columns: { createdByResidentId: true, createdByStaffId: true },
   })
   if (!event) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
   const staffUser = await getCurrentUser()
   if (staffUser && hasPermission(staffUser, 'events:write')) {
-    await prisma.houseEvent.update({ where: { id }, data: { status: 'CANCELLED' } })
+    await db.update(houseEvent).set({ status: 'CANCELLED' }).where(eq(houseEvent.id, id))
     revalidateEvents()
     return { success: true }
   }
 
   const auth = await getPortalAuth()
   if (auth && event.createdByResidentId === auth.resident.id) {
-    await prisma.houseEvent.update({ where: { id }, data: { status: 'CANCELLED' } })
+    await db.update(houseEvent).set({ status: 'CANCELLED' }).where(eq(houseEvent.id, id))
     revalidateEvents()
     return { success: true }
   }

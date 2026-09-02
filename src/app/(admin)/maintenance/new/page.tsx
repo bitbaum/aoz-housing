@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit, placementSpot, resident } from '@/lib/db'
+import { ne, inArray, asc } from 'drizzle-orm'
 import Link from 'next/link'
 import { createMaintenanceRequest } from '@/lib/actions'
 import { requirePermission } from '@/lib/auth'
@@ -31,20 +32,20 @@ export default async function NewMaintenanceRequestPage({ searchParams }: Props)
   const preselectedSpotId = params.spot
 
   const [housingUnits, residents] = await Promise.all([
-    prisma.housingUnit.findMany({
-      where: { status: { not: 'CLOSED' } },
-      include: {
+    db.query.housingUnit.findMany({
+      where: ne(housingUnit.status, 'CLOSED'),
+      with: {
         spots: {
-          where: { type: { not: 'ROOM' } },
-          orderBy: { code: 'asc' },
+          where: ne(placementSpot.type, 'ROOM'),
+          orderBy: [asc(placementSpot.code)],
         },
       },
-      orderBy: { code: 'asc' },
+      orderBy: [asc(housingUnit.code)],
     }),
-    prisma.resident.findMany({
-      where: { status: { in: ['ACTIVE', 'PLACED'] } },
-      select: RESIDENT_NAME_SELECT,
-      orderBy: { code: 'asc' },
+    db.query.resident.findMany({
+      where: inArray(resident.status, ['ACTIVE', 'PLACED']),
+      columns: RESIDENT_NAME_SELECT,
+      orderBy: [asc(resident.code)],
     }),
   ])
 

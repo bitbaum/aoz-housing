@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, residentDocument, residentDocumentBlob } from '@/lib/db'
+import { desc, eq } from 'drizzle-orm'
 import { requirePermission } from '@/lib/auth'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
@@ -37,9 +38,9 @@ export async function listResidentDocuments(
 ): Promise<ResidentDocumentSummary[]> {
   await requirePermission('documents:read')
 
-  const rows = await prisma.residentDocument.findMany({
-    where: { residentId },
-    select: {
+  const rows = await db.query.residentDocument.findMany({
+    where: eq(residentDocument.residentId, residentId),
+    columns: {
       id: true,
       category: true,
       title: true,
@@ -47,9 +48,9 @@ export async function listResidentDocuments(
       mimeType: true,
       sizeBytes: true,
       createdAt: true,
-      uploadedBy: { select: { name: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    with: { uploadedBy: { columns: { name: true } } },
+    orderBy: [desc(residentDocument.createdAt)],
   })
 
   return rows.map((row) => ({
@@ -89,9 +90,9 @@ export async function uploadResidentDocument(
     return { success: false, error: DOCUMENT_LABELS.wrongType }
   }
 
-  const resident = await prisma.resident.findUnique({
-    where: { id: residentId },
-    select: { id: true },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.id, residentId),
+    columns: { id: true },
   })
   if (!resident) return { success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND }
 
@@ -100,9 +101,10 @@ export async function uploadResidentDocument(
   try {
     const bytes = Buffer.from(await file.arrayBuffer())
 
-    const created = await prisma.$transaction(async (tx) => {
-      const document = await tx.residentDocument.create({
-        data: {
+    const created = await db.transaction(async (tx) => {
+      const [document] = await tx
+        .insert(residentDocument)
+        .values({
           residentId,
           category,
           title: title.slice(0, 200),
@@ -110,11 +112,9 @@ export async function uploadResidentDocument(
           mimeType: file.type,
           sizeBytes: file.size,
           uploadedByUserId: user.id,
-        },
-      })
-      await tx.residentDocumentBlob.create({
-        data: { documentId: document.id, data: bytes },
-      })
+        })
+        .returning()
+      await tx.insert(residentDocumentBlob).values({ documentId: document.id, data: bytes })
       return document
     })
 
@@ -148,16 +148,16 @@ export async function deleteResidentDocument(
   const user = await requirePermission('documents:write')
 
   const id = String(formData.get('id') || '')
-  const document = await prisma.residentDocument.findUnique({
-    where: { id },
-    select: { id: true, residentId: true, fileName: true, category: true },
+  const document = await db.query.residentDocument.findFirst({
+    where: eq(residentDocument.id, id),
+    columns: { id: true, residentId: true, fileName: true, category: true },
   })
   if (!document) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
 
   try {
     // The blob cascades. Deleting the metadata row and orphaning bytes would
     // leave a file nobody can see and nobody can remove.
-    await prisma.residentDocument.delete({ where: { id } })
+    await db.delete(residentDocument).where(eq(residentDocument.id, id))
 
     await logAudit({
       action: 'DELETE',

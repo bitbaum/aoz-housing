@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { db, residentPhoto } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { getPortalResident } from '@/lib/portal-auth'
 import { PHOTO_LIMITS, isAllowedPhotoMimeType } from '@/lib/config/profile'
 import { logAudit } from '@/lib/audit'
@@ -40,11 +41,13 @@ export async function POST(request: NextRequest) {
 
     const data = Buffer.from(await file.arrayBuffer())
 
-    await prisma.residentPhoto.upsert({
-      where: { residentId: resident.id },
-      update: { data, mimeType: file.type },
-      create: { residentId: resident.id, data, mimeType: file.type },
-    })
+    await db
+      .insert(residentPhoto)
+      .values({ residentId: resident.id, data, mimeType: file.type })
+      .onConflictDoUpdate({
+        target: residentPhoto.residentId,
+        set: { data, mimeType: file.type },
+      })
 
     await logAudit({
       action: 'UPDATE',
@@ -73,7 +76,7 @@ export async function DELETE() {
   }
 
   try {
-    await prisma.residentPhoto.deleteMany({ where: { residentId: resident.id } })
+    await db.delete(residentPhoto).where(eq(residentPhoto.residentId, resident.id))
 
     await logAudit({
       action: 'UPDATE',

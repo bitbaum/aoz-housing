@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, placement as placementTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { getRuleBook, getUnitProposals, getUnitResidentIds } from '@/lib/governance/queries'
 import { advanceDueProposals } from '@/lib/governance/lifecycle'
@@ -22,9 +23,9 @@ export default async function PortalDecisionsPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: { placements: { where: { status: 'ACTIVE' }, take: 1 } },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: { placements: { where: eq(placementTable.status, 'ACTIVE'), limit: 1 } },
   })
 
   if (!resident) redirect('/portal')

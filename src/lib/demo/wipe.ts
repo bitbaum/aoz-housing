@@ -9,7 +9,8 @@
  * Relative-import-safe (no '@/' aliases): loaded through ts-node.
  */
 
-import type { PrismaClient } from '@prisma/client'
+import { sql } from 'drizzle-orm'
+import type { db } from '../db'
 
 /**
  * Tables that survive a wipe:
@@ -26,18 +27,19 @@ export const KEEP_TABLES = new Set([
 ])
 
 /** Truncate every public table except the keep-list. Returns the wiped count. */
-export async function wipeAllExceptKeepList(prisma: PrismaClient): Promise<number> {
-  const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
+export async function wipeAllExceptKeepList(dbClient: typeof db): Promise<number> {
+  const { rows } = await dbClient.execute(sql`
     SELECT tablename FROM pg_tables WHERE schemaname = 'public'
-  `
+  `)
+  const tables = rows as unknown as Array<{ tablename: string }>
   const wipe = tables.map((t) => t.tablename).filter((t) => !KEEP_TABLES.has(t))
 
   if (wipe.length > 0) {
     // Table names come from pg_tables, not user input; quoting preserves the
     // PascalCase names Prisma creates. CASCADE clears FK order concerns —
     // none of the kept tables reference a wiped one.
-    await prisma.$executeRawUnsafe(
-      `TRUNCATE TABLE ${wipe.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`,
+    await dbClient.execute(
+      sql.raw(`TRUNCATE TABLE ${wipe.map((t) => `"${t}"`).join(', ')} RESTART IDENTITY CASCADE`),
     )
   }
 

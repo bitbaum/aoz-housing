@@ -19,11 +19,15 @@ jest.mock('../jwt', () => ({
   refreshToken: jest.fn(),
 }))
 
-const mockUserFindUnique = jest.fn()
+const mockUserFindFirst = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: { findUnique: (...args: unknown[]) => mockUserFindUnique(...args) },
-    resident: { findUnique: jest.fn() },
+  // Keep the real tables/enums/helpers; fake only the client.
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: { findFirst: (...args: unknown[]) => mockUserFindFirst(...args) },
+      resident: { findFirst: jest.fn() },
+    },
   },
 }))
 
@@ -43,7 +47,7 @@ describe('getCurrentUser', () => {
     // be `{ active: true }` alone, which passed only because the function read
     // nothing else off the row — every field added since is a fact this test
     // should be asserting travels.
-    mockUserFindUnique.mockResolvedValue({
+    mockUserFindFirst.mockResolvedValue({
       active: true,
       scope: 'ALL_DOMAINS',
       isSystemAdmin: true,
@@ -68,7 +72,7 @@ describe('getCurrentUser', () => {
     // come from the ROW for the same reason `scope` does: a privilege in a JWT
     // goes stale, and with sliding refresh "stale" means indefinitely —
     // revoking somebody's reach has to take effect on the next request.
-    mockUserFindUnique.mockResolvedValue({
+    mockUserFindFirst.mockResolvedValue({
       active: true,
       scope: 'OWN_DOMAIN',
       isSystemAdmin: false,
@@ -85,7 +89,7 @@ describe('getCurrentUser', () => {
     // Impossible in production — the column is NOT NULL with a default — but
     // this is the auth path. An incomplete select must narrow someone's reach,
     // never take the request down.
-    mockUserFindUnique.mockResolvedValue({
+    mockUserFindFirst.mockResolvedValue({
       active: true,
       scope: 'OWN_DOMAIN',
       isSystemAdmin: false,
@@ -97,24 +101,24 @@ describe('getCurrentUser', () => {
   })
 
   it('rejects a valid token whose account was deactivated', async () => {
-    mockUserFindUnique.mockResolvedValue({ active: false })
+    mockUserFindFirst.mockResolvedValue({ active: false })
     expect(await getCurrentUser()).toBeNull()
   })
 
   it('rejects a valid token whose account no longer exists', async () => {
-    mockUserFindUnique.mockResolvedValue(null)
+    mockUserFindFirst.mockResolvedValue(null)
     expect(await getCurrentUser()).toBeNull()
   })
 
   it('returns null without a cookie', async () => {
     mockCookieGet.mockReturnValue(undefined)
     expect(await getCurrentUser()).toBeNull()
-    expect(mockUserFindUnique).not.toHaveBeenCalled()
+    expect(mockUserFindFirst).not.toHaveBeenCalled()
   })
 
   it('returns null for an invalid token without touching the database', async () => {
     mockVerifyToken.mockResolvedValue(null)
     expect(await getCurrentUser()).toBeNull()
-    expect(mockUserFindUnique).not.toHaveBeenCalled()
+    expect(mockUserFindFirst).not.toHaveBeenCalled()
   })
 })

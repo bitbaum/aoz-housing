@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/db'
+import { db, housingUnit, householdTask } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { requireStaffAuth } from '@/lib/auth'
 import { portalCreateTaskSchema, ValidationError, validateFormData } from '@/lib/validation/schemas'
 import { logAudit } from '@/lib/audit'
@@ -72,9 +73,9 @@ export async function POST(request: NextRequest) {
     // Checked rather than trusted: an id from a form is an id a caller chose,
     // and creating a task against a unit that does not exist would fail with a
     // foreign-key error rather than a message anybody can act on.
-    const unit = await prisma.housingUnit.findUnique({
-      where: { id: unitId },
-      select: { id: true, code: true },
+    const unit = await db.query.housingUnit.findFirst({
+      where: eq(housingUnit.id, unitId),
+      columns: { id: true, code: true },
     })
     if (!unit) {
       return NextResponse.json(
@@ -83,8 +84,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const task = await prisma.householdTask.create({
-      data: {
+    const [task] = await db
+      .insert(householdTask)
+      .values({
         housingUnitId: unit.id,
         createdByStaff: staff.name,
         title: data.title,
@@ -96,8 +98,8 @@ export async function POST(request: NextRequest) {
         scheduleHuman: data.scheduleHuman || null,
         estimatedMinutes: data.estimatedMinutes || null,
         checklist: data.checklist ?? [],
-      },
-    })
+      })
+      .returning()
 
     await logAudit({
       action: 'CREATE',

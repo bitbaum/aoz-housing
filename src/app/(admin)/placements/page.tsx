@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, placement, satisfactionCheckIn } from '@/lib/db'
+import { eq, ne, isNotNull, desc, count, avg } from 'drizzle-orm'
 import Link from 'next/link'
 import {
   PLACEMENT_STATUS_LABELS,
@@ -45,14 +46,14 @@ export default async function PlacementsListPage({ searchParams }: Props) {
   const conflictsOnly = params.conflicts === '1'
 
   const [placements, statusGroups, avgSatisfactionAgg, conflictEndsCount] = await Promise.all([
-    prisma.placement.findMany({
+    db.query.placement.findMany({
       where:
         statusFilter === 'active'
-          ? { status: 'ACTIVE' }
+          ? eq(placement.status, 'ACTIVE')
           : statusFilter === 'ended'
-            ? { status: { not: 'ACTIVE' } }
+            ? ne(placement.status, 'ACTIVE')
             : undefined,
-      select: {
+      columns: {
         id: true,
         status: true,
         startDate: true,
@@ -61,56 +62,56 @@ export default async function PlacementsListPage({ searchParams }: Props) {
         endReason: true,
         residentId: true,
         housingUnitId: true,
+      },
+      with: {
         resident: {
-          select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
+          columns: { ...RESIDENT_NAME_SELECT, supportLevel: true },
         },
         housingUnit: {
-          select: { code: true, address: true },
+          columns: { code: true, address: true },
         },
         checkIns: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: {
+          orderBy: [desc(satisfactionCheckIn.createdAt)],
+          limit: 1,
+          columns: {
             createdAt: true,
             overallSatisfaction: true,
             concerns: true,
           },
         },
       },
-      orderBy: { startDate: 'desc' },
-      take: 200,
+      orderBy: [desc(placement.startDate)],
+      limit: 200,
     }),
     // Aggregate tab counts by status (single query instead of fetching all rows)
-    prisma.placement.groupBy({
-      by: ['status'],
-      _count: { _all: true },
-    }),
+    db
+      .select({ status: placement.status, count: count() })
+      .from(placement)
+      .groupBy(placement.status),
     // Average satisfaction across all placements with a rating set
-    prisma.placement.aggregate({
-      where: { satisfactionRating: { not: null } },
-      _avg: { satisfactionRating: true },
-    }),
+    db
+      .select({ avg: avg(placement.satisfactionRating) })
+      .from(placement)
+      .where(isNotNull(placement.satisfactionRating)),
     // Count of placements that ended due to conflict
-    prisma.placement.count({
-      where: { endReason: 'CONFLICT' },
-    }),
+    db.$count(placement, eq(placement.endReason, 'CONFLICT')),
   ])
 
   const statusCounts = statusGroups.reduce<Record<string, number>>((acc, g) => {
-    acc[g.status] = g._count._all
+    acc[g.status] = g.count
     return acc
   }, {})
-  const totalPlacements = statusGroups.reduce((sum, g) => sum + g._count._all, 0)
+  const totalPlacements = statusGroups.reduce((sum, g) => sum + g.count, 0)
   const activeCount = statusCounts.ACTIVE ?? 0
+
+  // avg() comes back as string | null from node-postgres (Prisma returned number | null)
+  const avgSatisfactionRaw = avgSatisfactionAgg[0]?.avg ?? null
 
   const stats = {
     total: totalPlacements,
     active: activeCount,
     ended: totalPlacements - activeCount,
-    avgSatisfaction:
-      avgSatisfactionAgg._avg.satisfactionRating !== null
-        ? Math.round(avgSatisfactionAgg._avg.satisfactionRating)
-        : null,
+    avgSatisfaction: avgSatisfactionRaw !== null ? Math.round(Number(avgSatisfactionRaw)) : null,
     conflictEnds: conflictEndsCount,
   }
 

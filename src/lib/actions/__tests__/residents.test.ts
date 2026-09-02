@@ -5,7 +5,8 @@
  * createResident/updateResident use redirect() which throws, so they are not tested here.
  */
 
-import { prisma } from '@/lib/db'
+import { resident, placement } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { logAudit } from '@/lib/audit'
 import {
   exitResident,
@@ -19,20 +20,36 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 // MOCKS
 // =============================================================================
 
+const mockResidentFindFirst = jest.fn()
+// Receives (set payload, where expression) of a resident update.
+const mockResidentUpdate = jest.fn()
+// Receives (table, where expression) of db.$count; resolves the count.
+const mockCount = jest.fn()
+// Receives the where expression of db.delete(resident).where(where).
+const mockResidentDelete = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
     },
-    placement: { count: jest.fn() },
-    incident: { count: jest.fn() },
-    incidentInvolvement: { count: jest.fn() },
-    maintenanceRequest: { count: jest.fn() },
-    compatibilityAssessment: { count: jest.fn() },
-    auditLog: { create: jest.fn() },
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({
+        where: (w: unknown) => ({
+          then: (
+            resolve: (value: unknown) => unknown,
+            reject: (reason: unknown) => unknown,
+          ): Promise<unknown> => Promise.resolve(mockResidentUpdate(v, w)).then(resolve, reject),
+          returning: (): Promise<unknown[]> =>
+            Promise.resolve(mockResidentUpdate(v, w)).then((row: unknown) => [row]),
+        }),
+      }),
+    })),
+    delete: jest.fn(() => ({
+      where: (w: unknown): Promise<unknown> => Promise.resolve(mockResidentDelete(w)),
+    })),
+    $count: (...a: unknown[]) => mockCount(...a),
   },
 }))
 
@@ -47,13 +64,6 @@ jest.mock('next/navigation', () => ({
 jest.mock('@/lib/audit', () => ({
   logAudit: jest.fn(),
 }))
-
-const mockStaffUser = {
-  id: 'staff-1',
-  email: 'admin@test.com',
-  name: 'Test Admin',
-  role: 'ADMIN' as const,
-}
 
 jest.mock('@/lib/auth', () => ({
   getCurrentUser: jest.fn().mockResolvedValue({
@@ -86,8 +96,6 @@ jest.mock('@/lib/logger', () => ({
   },
 }))
 
-const mockPrisma = prisma as jest.Mocked<typeof prisma>
-
 beforeEach(() => {
   jest.clearAllMocks()
 })
@@ -98,17 +106,17 @@ beforeEach(() => {
 
 describe('exitResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     const result = await exitResident('nonexistent-id')
 
     expect(result).toEqual({ success: false, error: ERROR_MESSAGES.RESIDENT_NOT_FOUND })
-    expect(mockPrisma.resident.update).not.toHaveBeenCalled()
+    expect(mockResidentUpdate).not.toHaveBeenCalled()
     expect(logAudit).not.toHaveBeenCalled()
   })
 
   it('returns error when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
@@ -118,24 +126,21 @@ describe('exitResident', () => {
 
     expect(result.success).toBe(false)
     expect(result.error).toContain('aktive Platzierungen')
-    expect(mockPrisma.resident.update).not.toHaveBeenCalled()
+    expect(mockResidentUpdate).not.toHaveBeenCalled()
   })
 
   it('succeeds and updates status to EXITED when no active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1', status: 'EXITED' })
+    mockResidentUpdate.mockResolvedValue({ id: 'res-1', status: 'EXITED' })
 
     const result = await exitResident('res-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.resident.update).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: { status: 'EXITED' },
-    })
+    expect(mockResidentUpdate).toHaveBeenCalledWith({ status: 'EXITED' }, eq(resident.id, 'res-1'))
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'END',
@@ -146,8 +151,8 @@ describe('exitResident', () => {
     )
   })
 
-  it('returns error when prisma throws', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'))
+  it('returns error when the db throws', async () => {
+    mockResidentFindFirst.mockRejectedValue(new Error('DB error'))
 
     const result = await exitResident('res-1')
 
@@ -162,7 +167,7 @@ describe('exitResident', () => {
 
 describe('archiveResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     const result = await archiveResident('nonexistent-id')
 
@@ -170,7 +175,7 @@ describe('archiveResident', () => {
   })
 
   it('returns error when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
     })
@@ -182,19 +187,16 @@ describe('archiveResident', () => {
   })
 
   it('succeeds and sets status to EXITED', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    mockResidentUpdate.mockResolvedValue({ id: 'res-1' })
 
     const result = await archiveResident('res-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.resident.update).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: { status: 'EXITED' },
-    })
+    expect(mockResidentUpdate).toHaveBeenCalledWith({ status: 'EXITED' }, eq(resident.id, 'res-1'))
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'ARCHIVE',
@@ -211,7 +213,7 @@ describe('archiveResident', () => {
 
 describe('restoreResident', () => {
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     const result = await restoreResident('nonexistent-id')
 
@@ -219,35 +221,29 @@ describe('restoreResident', () => {
   })
 
   it('restores to ACTIVE when no active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       placements: [],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    mockResidentUpdate.mockResolvedValue({ id: 'res-1' })
 
     const result = await restoreResident('res-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.resident.update).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: { status: 'ACTIVE' },
-    })
+    expect(mockResidentUpdate).toHaveBeenCalledWith({ status: 'ACTIVE' }, eq(resident.id, 'res-1'))
   })
 
   it('restores to PLACED when resident has active placements', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       placements: [{ id: 'pl-1', status: 'ACTIVE' }],
     })
-    ;(mockPrisma.resident.update as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    mockResidentUpdate.mockResolvedValue({ id: 'res-1' })
 
     const result = await restoreResident('res-1')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.resident.update).toHaveBeenCalledWith({
-      where: { id: 'res-1' },
-      data: { status: 'PLACED' },
-    })
+    expect(mockResidentUpdate).toHaveBeenCalledWith({ status: 'PLACED' }, eq(resident.id, 'res-1'))
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'RESTORE',
@@ -268,7 +264,7 @@ describe('hardDeleteResidentProtected', () => {
     const result = await hardDeleteResidentProtected('res-1', 'WRONG', 'Test deletion reason here')
 
     expect(result).toEqual({ success: false, error: 'Bestätigung fehlt (DELETE)' })
-    expect(mockPrisma.resident.findUnique).not.toHaveBeenCalled()
+    expect(mockResidentFindFirst).not.toHaveBeenCalled()
   })
 
   it('returns error when reason is too short', async () => {
@@ -279,7 +275,7 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error when resident not found', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue(null)
+    mockResidentFindFirst.mockResolvedValue(null)
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -287,7 +283,7 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error when resident is not test/demo', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'RES-001',
     })
@@ -299,15 +295,12 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('returns error with blocker report when resident has linked history', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'test-resident-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(2)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.compatibilityAssessment.count as jest.Mock).mockResolvedValue(0)
+    // Two placements block the delete; every other linked table is empty.
+    mockCount.mockImplementation(async (table: unknown) => (table === placement ? 2 : 0))
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
@@ -318,21 +311,17 @@ describe('hardDeleteResidentProtected', () => {
   })
 
   it('succeeds for test resident with no linked history', async () => {
-    ;(mockPrisma.resident.findUnique as jest.Mock).mockResolvedValue({
+    mockResidentFindFirst.mockResolvedValue({
       id: 'res-1',
       code: 'test-resident-1',
     })
-    ;(mockPrisma.placement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incident.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.incidentInvolvement.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.maintenanceRequest.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.compatibilityAssessment.count as jest.Mock).mockResolvedValue(0)
-    ;(mockPrisma.resident.delete as jest.Mock).mockResolvedValue({ id: 'res-1' })
+    mockCount.mockResolvedValue(0)
+    mockResidentDelete.mockResolvedValue({ id: 'res-1' })
 
     const result = await hardDeleteResidentProtected('res-1', 'DELETE', 'Testdaten bereinigen')
 
     expect(result).toEqual({ success: true })
-    expect(mockPrisma.resident.delete).toHaveBeenCalledWith({ where: { id: 'res-1' } })
+    expect(mockResidentDelete).toHaveBeenCalledWith(eq(resident.id, 'res-1'))
     expect(logAudit).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'DELETE',

@@ -5,18 +5,57 @@
  * guarantees.
  */
 
-const mockPrisma = {
-  user: { findUnique: jest.fn(), update: jest.fn() },
-  resident: { findUnique: jest.fn() },
-  account: {
-    findFirst: jest.fn(),
-    findUnique: jest.fn(),
-    findUniqueOrThrow: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-  },
+/**
+ * Pull `column = value` out of a drizzle eq() expression, so mocks can
+ * dispatch the way the old tests dispatched on Prisma's `where` objects.
+ * All three Prisma account lookups (findFirst by identity, findUnique by
+ * email, findUniqueOrThrow by id) are now ONE db.query.account.findFirst —
+ * the where column is what tells them apart.
+ */
+function mockEqParts(where: unknown): { column?: string; value?: unknown } {
+  const parts: { column?: string; value?: unknown } = {}
+  for (const chunk of (where as { queryChunks?: unknown[] })?.queryChunks ?? []) {
+    if (chunk && typeof chunk === 'object') {
+      if ('name' in chunk && 'table' in chunk) parts.column = (chunk as { name: string }).name
+      else if ('encoder' in chunk) parts.value = (chunk as unknown as { value: unknown }).value
+    }
+  }
+  return parts
 }
-jest.mock('@/lib/db', () => ({ prisma: mockPrisma }))
+
+const mockUserFindFirst = jest.fn()
+const mockResidentFindFirst = jest.fn()
+const mockAccountFindFirst = jest.fn()
+// (table, values) => inserted rows for .returning()
+const mockInsert = jest.fn()
+// (table, data, { column, value }) => updated rows for .returning()
+const mockUpdate = jest.fn()
+
+jest.mock('@/lib/db', () => ({
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: { findFirst: (...a: unknown[]) => mockUserFindFirst(...a) },
+      resident: { findFirst: (...a: unknown[]) => mockResidentFindFirst(...a) },
+      account: { findFirst: (...a: unknown[]) => mockAccountFindFirst(...a) },
+    },
+    insert: (table: unknown) => ({
+      values: (v: unknown) => ({
+        returning: () => Promise.resolve(mockInsert(table, v)),
+      }),
+    }),
+    update: (table: unknown) => ({
+      set: (data: unknown) => ({
+        where: (w: unknown) => {
+          const rows = mockUpdate(table, data, mockEqParts(w))
+          return Object.assign(Promise.resolve(rows), {
+            returning: () => Promise.resolve(rows),
+          })
+        },
+      }),
+    }),
+  },
+}))
 
 const mockSendEmail = jest.fn()
 jest.mock('@/lib/email/service', () => ({
@@ -40,6 +79,7 @@ jest.mock('@/lib/logger', () => ({
 import { registerAccount, loginWithEmail, requestPasswordReset, resetPassword } from '../account'
 import { hashPassword } from '../passwords'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
+import { account as accountTable, user as userTable } from '@/lib/db'
 
 const STAFF = {
   id: 'user-1',
@@ -83,13 +123,23 @@ function account(
   }
 }
 
+// The three account lookups the source makes, told apart by their where
+// column. These replace the old findFirst/findUnique/findUniqueOrThrow trio.
+const mockAccountByIdentity = jest.fn() // eq(account.userId | residentId, …)
+const mockAccountByEmail = jest.fn() // eq(account.email, …)
+const mockAccountById = jest.fn() // eq(account.id, …) — loadAccount
+
 /** Code lookups resolve; nothing else exists unless a test says so. */
 function codeExists({ staff = false, resident = false } = {}) {
-  mockPrisma.user.findUnique.mockImplementation(({ where }: { where: { code?: string } }) =>
-    Promise.resolve(staff && where.code === STAFF.code ? { id: STAFF.id, active: true } : null),
+  mockUserFindFirst.mockImplementation(({ where }: { where: unknown }) =>
+    Promise.resolve(
+      staff && mockEqParts(where).value === STAFF.code ? { id: STAFF.id, active: true } : null,
+    ),
   )
-  mockPrisma.resident.findUnique.mockImplementation(({ where }: { where: { code?: string } }) =>
-    Promise.resolve(resident && where.code === RESIDENT.code ? { id: RESIDENT.id } : null),
+  mockResidentFindFirst.mockImplementation(({ where }: { where: unknown }) =>
+    Promise.resolve(
+      resident && mockEqParts(where).value === RESIDENT.code ? { id: RESIDENT.id } : null,
+    ),
   )
 }
 
@@ -97,12 +147,17 @@ beforeEach(() => {
   jest.clearAllMocks()
   mockEmailConfig.enabled = true
   codeExists()
-  mockPrisma.user.update.mockResolvedValue({})
-  mockPrisma.account.findFirst.mockResolvedValue(null)
-  mockPrisma.account.findUnique.mockResolvedValue(null)
-  mockPrisma.account.create.mockResolvedValue({ id: 'acc-new' })
-  mockPrisma.account.update.mockResolvedValue({ id: 'acc-1' })
-  mockPrisma.account.findUniqueOrThrow.mockResolvedValue(account())
+  mockAccountFindFirst.mockImplementation(({ where }: { where: unknown }) => {
+    const { column, value } = mockEqParts(where)
+    if (column === 'email') return mockAccountByEmail(value)
+    if (column === 'id') return mockAccountById(value)
+    return mockAccountByIdentity(column, value)
+  })
+  mockAccountByIdentity.mockResolvedValue(null)
+  mockAccountByEmail.mockResolvedValue(null)
+  mockAccountById.mockResolvedValue(account())
+  mockInsert.mockReturnValue([{ id: 'acc-new' }])
+  mockUpdate.mockReturnValue([{ id: 'acc-1' }])
   mockCreateAuthToken.mockResolvedValue('raw-token')
   mockSendEmail.mockResolvedValue(true)
 })
@@ -110,7 +165,7 @@ beforeEach(() => {
 describe('registerAccount', () => {
   it('claims a staff code: creates the account with a bcrypt hash, sends verification', async () => {
     codeExists({ staff: true })
-    mockPrisma.account.findUniqueOrThrow.mockResolvedValue(account({ id: 'acc-new', user: STAFF }))
+    mockAccountById.mockResolvedValue(account({ id: 'acc-new', user: STAFF }))
 
     const result = await registerAccount({
       code: 'AOZ-ADMIN1',
@@ -123,7 +178,8 @@ describe('registerAccount', () => {
     expect(result.identities.staff).toMatchObject({ code: 'AOZ-ADMIN1', email: 'g@example.ch' })
     expect(result.identities.resident).toBeUndefined()
 
-    const created = mockPrisma.account.create.mock.calls[0][0].data
+    const [table, created] = mockInsert.mock.calls[0]
+    expect(table).toBe(accountTable)
     expect(created).toMatchObject({ email: 'g@example.ch', userId: 'user-1' })
     expect(created.passwordHash).toMatch(/^\$2[aby]\$/)
     expect(created.passwordHash).not.toBe('secret-password')
@@ -134,7 +190,7 @@ describe('registerAccount', () => {
 
   it('claims a resident code and returns the resident identity', async () => {
     codeExists({ resident: true })
-    mockPrisma.account.findUniqueOrThrow.mockResolvedValue(
+    mockAccountById.mockResolvedValue(
       account({ id: 'acc-new', email: 'ihor@example.ch', resident: RESIDENT }),
     )
 
@@ -147,7 +203,7 @@ describe('registerAccount', () => {
     expect(result.success).toBe(true)
     if (!result.success) return
     expect(result.identities.resident).toEqual({ id: 'res-1', code: 'RES-ABC123' })
-    expect(mockPrisma.account.create.mock.calls[0][0].data).toMatchObject({ residentId: 'res-1' })
+    expect(mockInsert.mock.calls[0][1]).toMatchObject({ residentId: 'res-1' })
   })
 
   it('rejects an unknown code', async () => {
@@ -160,7 +216,7 @@ describe('registerAccount', () => {
   })
 
   it('rejects a DEACTIVATED staff code with the same message as an unknown one', async () => {
-    mockPrisma.user.findUnique.mockResolvedValue({ id: STAFF.id, active: false })
+    mockUserFindFirst.mockResolvedValue({ id: STAFF.id, active: false })
     const result = await registerAccount({
       code: 'AOZ-ADMIN1',
       email: 'x@example.ch',
@@ -171,7 +227,7 @@ describe('registerAccount', () => {
 
   it('rejects a code that already carries credentials (use password reset)', async () => {
     codeExists({ resident: true })
-    mockPrisma.account.findFirst.mockResolvedValue(
+    mockAccountByIdentity.mockResolvedValue(
       account({ passwordHash: 'already-set', resident: RESIDENT }),
     )
     const result = await registerAccount({
@@ -184,8 +240,8 @@ describe('registerAccount', () => {
 
   it('rejects an email owned by a DIFFERENT account than the code is on', async () => {
     codeExists({ resident: true })
-    mockPrisma.account.findFirst.mockResolvedValue(account({ id: 'acc-res', resident: RESIDENT }))
-    mockPrisma.account.findUnique.mockResolvedValue(account({ id: 'acc-other' }))
+    mockAccountByIdentity.mockResolvedValue(account({ id: 'acc-res', resident: RESIDENT }))
+    mockAccountByEmail.mockResolvedValue(account({ id: 'acc-other' }))
 
     const result = await registerAccount({
       code: 'RES-ABC123',
@@ -198,9 +254,9 @@ describe('registerAccount', () => {
   it('completes an unclaimed account that already knows the email (invited staff)', async () => {
     codeExists({ staff: true })
     const unclaimed = account({ user: STAFF })
-    mockPrisma.account.findFirst.mockResolvedValue(unclaimed)
-    mockPrisma.account.findUnique.mockResolvedValue(unclaimed)
-    mockPrisma.account.findUniqueOrThrow.mockResolvedValue(account({ user: STAFF }))
+    mockAccountByIdentity.mockResolvedValue(unclaimed)
+    mockAccountByEmail.mockResolvedValue(unclaimed)
+    mockAccountById.mockResolvedValue(account({ user: STAFF }))
 
     const result = await registerAccount({
       code: 'AOZ-ADMIN1',
@@ -209,8 +265,8 @@ describe('registerAccount', () => {
     })
 
     expect(result.success).toBe(true)
-    expect(mockPrisma.account.create).not.toHaveBeenCalled()
-    expect(mockPrisma.account.update.mock.calls[0][0].where).toEqual({ id: 'acc-1' })
+    expect(mockInsert).not.toHaveBeenCalled()
+    expect(mockUpdate.mock.calls[0][2]).toEqual({ column: 'id', value: 'acc-1' })
   })
 
   it('still succeeds when the verification email fails to send', async () => {
@@ -231,9 +287,9 @@ describe('registerAccount — linking a SECOND role to one login', () => {
   async function linkResidentToStaffAccount(password: string) {
     codeExists({ resident: true })
     const staffAccount = account({ id: 'acc-staff', passwordHash: ACCOUNT_HASH, user: STAFF })
-    mockPrisma.account.findFirst.mockResolvedValue(null)
-    mockPrisma.account.findUnique.mockResolvedValue(staffAccount)
-    mockPrisma.account.findUniqueOrThrow.mockResolvedValue({
+    mockAccountByIdentity.mockResolvedValue(null)
+    mockAccountByEmail.mockResolvedValue(staffAccount)
+    mockAccountById.mockResolvedValue({
       ...staffAccount,
       resident: RESIDENT,
     })
@@ -249,12 +305,13 @@ describe('registerAccount — linking a SECOND role to one login', () => {
     expect(result.identities.staff).toMatchObject({ code: 'AOZ-ADMIN1' })
     expect(result.identities.resident).toEqual({ id: 'res-1', code: 'RES-ABC123' })
 
-    expect(mockPrisma.account.update).toHaveBeenCalledWith({
-      where: { id: 'acc-staff' },
-      data: { residentId: 'res-1' },
-    })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      accountTable,
+      { residentId: 'res-1' },
+      { column: 'id', value: 'acc-staff' },
+    )
     // Linking must not touch the existing password.
-    expect(mockPrisma.account.update.mock.calls[0][0].data.passwordHash).toBeUndefined()
+    expect(mockUpdate.mock.calls[0][1].passwordHash).toBeUndefined()
   })
 
   it('refuses to link without the account password (a stray code is not enough)', async () => {
@@ -263,12 +320,12 @@ describe('registerAccount — linking a SECOND role to one login', () => {
       success: false,
       error: ERROR_MESSAGES.AUTH_LINK_PASSWORD_MISMATCH,
     })
-    expect(mockPrisma.account.update).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('refuses a second code for a role slot that is already filled', async () => {
     codeExists({ resident: true })
-    mockPrisma.account.findUnique.mockResolvedValue(
+    mockAccountByEmail.mockResolvedValue(
       account({
         id: 'acc-other',
         passwordHash: 'x',
@@ -287,7 +344,7 @@ describe('registerAccount — linking a SECOND role to one login', () => {
 
 describe('loginWithEmail', () => {
   it('returns EVERY identity the account carries', async () => {
-    mockPrisma.account.findUnique.mockResolvedValue(
+    mockAccountByEmail.mockResolvedValue(
       account({
         passwordHash: ACCOUNT_HASH,
         user: STAFF,
@@ -300,14 +357,15 @@ describe('loginWithEmail', () => {
     if (!result.success) return
     expect(result.identities.staff).toMatchObject({ id: 'user-1', role: 'ADMIN' })
     expect(result.identities.resident).toEqual({ id: 'res-1', code: 'RES-ABC123' })
-    expect(mockPrisma.user.update).toHaveBeenCalledWith({
-      where: { id: 'user-1' },
-      data: { lastLoginAt: expect.any(Date) },
-    })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      userTable,
+      { lastLoginAt: expect.any(Date) },
+      { column: 'id', value: 'user-1' },
+    )
   })
 
   it('keeps resident access when the staff identity is deactivated', async () => {
-    mockPrisma.account.findUnique.mockResolvedValue(
+    mockAccountByEmail.mockResolvedValue(
       account({
         passwordHash: ACCOUNT_HASH,
         user: { ...STAFF, active: false },
@@ -327,21 +385,19 @@ describe('loginWithEmail', () => {
     [
       'wrong password',
       async () => {
-        mockPrisma.account.findUnique.mockResolvedValue(
-          account({ passwordHash: ACCOUNT_HASH, user: STAFF }),
-        )
+        mockAccountByEmail.mockResolvedValue(account({ passwordHash: ACCOUNT_HASH, user: STAFF }))
       },
     ],
     [
       'account without a password',
       () => {
-        mockPrisma.account.findUnique.mockResolvedValue(account({ user: STAFF }))
+        mockAccountByEmail.mockResolvedValue(account({ user: STAFF }))
       },
     ],
     [
       'every identity deactivated',
       async () => {
-        mockPrisma.account.findUnique.mockResolvedValue(
+        mockAccountByEmail.mockResolvedValue(
           account({ passwordHash: ACCOUNT_HASH, user: { ...STAFF, active: false } }),
         )
       },
@@ -365,7 +421,7 @@ describe('requestPasswordReset', () => {
   })
 
   it('sends a reset link to an existing account', async () => {
-    mockPrisma.account.findUnique.mockResolvedValue({ id: 'acc-1' })
+    mockAccountByEmail.mockResolvedValue({ id: 'acc-1' })
     const result = await requestPasswordReset('g@example.ch')
     expect(result).toEqual({ success: true })
     expect(mockCreateAuthToken).toHaveBeenCalledWith('acc-1', 'RESET_PASSWORD')
@@ -387,16 +443,17 @@ describe('resetPassword', () => {
     const result = await resetPassword('raw-token', 'new-password-123')
     expect(result).toEqual({ success: true })
 
-    const update = mockPrisma.account.update.mock.calls[0][0]
-    expect(update.where).toEqual({ id: 'acc-1' })
-    expect(update.data.passwordHash).toMatch(/^\$2[aby]\$/)
-    expect(update.data.emailVerifiedAt).toBeInstanceOf(Date)
+    const [table, data, where] = mockUpdate.mock.calls[0]
+    expect(table).toBe(accountTable)
+    expect(where).toEqual({ column: 'id', value: 'acc-1' })
+    expect(data.passwordHash).toMatch(/^\$2[aby]\$/)
+    expect(data.emailVerifiedAt).toBeInstanceOf(Date)
   })
 
   it('rejects an invalid or expired token', async () => {
     mockConsumeAuthToken.mockResolvedValue(null)
     const result = await resetPassword('raw-token', 'new-password-123')
     expect(result).toEqual({ success: false, error: ERROR_MESSAGES.AUTH_RESET_TOKEN_INVALID })
-    expect(mockPrisma.account.update).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 })

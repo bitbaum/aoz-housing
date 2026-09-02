@@ -1,5 +1,15 @@
 import { z } from 'zod'
-import { prisma } from '@/lib/db'
+import { and, asc, desc, eq, inArray, isNull, like, type SQL } from 'drizzle-orm'
+import {
+  db,
+  escapeLike,
+  housingUnit,
+  incident,
+  maintenanceRequest,
+  placement,
+  resident,
+  transferRequest,
+} from '@/lib/db'
 
 /** Server-side cap on per-tool result size, regardless of what the LLM asks for. */
 export const MAX_TOOL_LIMIT = 25
@@ -97,11 +107,11 @@ export async function executeStaffChatTool(name: string, rawInput: unknown): Pro
     case 'get_dashboard_stats': {
       const [totalResidents, activePlacements, totalUnits, openIncidents, pendingTransfers] =
         await Promise.all([
-          prisma.resident.count(),
-          prisma.placement.count({ where: { status: 'ACTIVE' } }),
-          prisma.housingUnit.count(),
-          prisma.incident.count({ where: { resolvedAt: null } }),
-          prisma.transferRequest.count({ where: { status: 'PENDING' } }),
+          db.$count(resident),
+          db.$count(placement, eq(placement.status, 'ACTIVE')),
+          db.$count(housingUnit),
+          db.$count(incident, isNull(incident.resolvedAt)),
+          db.$count(transferRequest, eq(transferRequest.status, 'PENDING')),
         ])
       return {
         totalResidents,
@@ -119,29 +129,33 @@ export async function executeStaffChatTool(name: string, rawInput: unknown): Pro
       if (!parsed.success) return { error: 'Ungültige Eingabe' }
       const input = parsed.data
 
-      const where: Record<string, unknown> = {}
-      if (input.code) where.code = { contains: input.code.toUpperCase() }
-      if (input.status) where.status = input.status
+      const conditions: SQL[] = []
+      if (input.code)
+        conditions.push(like(resident.code, `%${escapeLike(input.code.toUpperCase())}%`))
+      if (input.status) conditions.push(eq(resident.status, input.status))
 
-      const residents = await prisma.resident.findMany({
-        where,
-        select: {
+      const residents = await db.query.resident.findMany({
+        where: and(...conditions),
+        columns: {
           code: true,
           status: true,
           languages: true,
+        },
+        with: {
           placements: {
-            where: { status: 'ACTIVE' },
-            select: { housingUnit: { select: { code: true, address: true } } },
-            take: 1,
+            where: eq(placement.status, 'ACTIVE'),
+            columns: {},
+            with: { housingUnit: { columns: { code: true, address: true } } },
+            limit: 1,
           },
         },
-        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
-        orderBy: { createdAt: 'desc' },
+        limit: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
+        orderBy: [desc(resident.createdAt)],
       })
       return residents.map((r) => ({
         code: r.code,
         status: r.status,
-        languages: r.languages,
+        languages: r.languages ?? [],
         currentUnit: r.placements[0]?.housingUnit?.code ?? null,
         unitAddress: r.placements[0]?.housingUnit?.address ?? null,
       }))
@@ -152,20 +166,22 @@ export async function executeStaffChatTool(name: string, rawInput: unknown): Pro
       if (!parsed.success) return { error: 'Ungültige Eingabe' }
       const input = parsed.data
 
-      const units = await prisma.housingUnit.findMany({
-        select: {
+      const units = await db.query.housingUnit.findMany({
+        columns: {
           code: true,
           address: true,
           totalBeds: true,
-          placements: { where: { status: 'ACTIVE' }, select: { id: true } },
-          incidents: { where: { resolvedAt: null }, select: { id: true } },
+        },
+        with: {
+          placements: { where: eq(placement.status, 'ACTIVE'), columns: { id: true } },
+          incidents: { where: isNull(incident.resolvedAt), columns: { id: true } },
           maintenanceRequests: {
-            where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
-            select: { id: true },
+            where: inArray(maintenanceRequest.status, ['OPEN', 'IN_PROGRESS']),
+            columns: { id: true },
           },
         },
-        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
-        orderBy: { code: 'asc' },
+        limit: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
+        orderBy: [asc(housingUnit.code)],
       })
       const result = units.map((u) => ({
         code: u.code,
@@ -184,22 +200,24 @@ export async function executeStaffChatTool(name: string, rawInput: unknown): Pro
       if (!parsed.success) return { error: 'Ungültige Eingabe' }
       const input = parsed.data
 
-      const where: Record<string, unknown> = {}
-      if (input.category) where.category = input.category
-      if (input.unresolved) where.resolvedAt = null
+      const conditions: SQL[] = []
+      if (input.category) conditions.push(eq(incident.category, input.category))
+      if (input.unresolved) conditions.push(isNull(incident.resolvedAt))
 
-      const incidents = await prisma.incident.findMany({
-        where,
-        select: {
+      const incidents = await db.query.incident.findMany({
+        where: and(...conditions),
+        columns: {
           type: true,
           category: true,
           severity: true,
           date: true,
           resolvedAt: true,
-          housingUnit: { select: { code: true } },
         },
-        orderBy: { date: 'desc' },
-        take: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
+        with: {
+          housingUnit: { columns: { code: true } },
+        },
+        orderBy: [desc(incident.date)],
+        limit: Math.min(input.limit ?? 10, MAX_TOOL_LIMIT),
       })
       return incidents.map((i) => ({
         type: i.type,

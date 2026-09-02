@@ -10,11 +10,11 @@
  *   OPERATOR_RESIDENT_NAME=Georgy npx ts-node --compiler-options '{"module":"CommonJS"}' scripts/maintenance/ensure-operator.ts
  */
 
-import { PrismaClient } from '@prisma/client'
+import { and, asc, eq, inArray } from 'drizzle-orm'
+import { db, user, account, careAssignment, resident as residentTable } from '../../src/lib/db'
 import { generateStaffCode } from '../../src/lib/auth/code-generation'
 import { CARE_ROLES } from '../../src/lib/config/care'
 
-const prisma = new PrismaClient()
 const RESIDENT_NAME = process.env.OPERATOR_RESIDENT_NAME || 'Georgy'
 
 /**
@@ -36,7 +36,7 @@ const OPERATOR_CAPABILITIES = {
 async function uniqueStaffCode(): Promise<string> {
   for (let attempt = 0; attempt < 10; attempt++) {
     const code = generateStaffCode()
-    if (!(await prisma.user.findUnique({ where: { code }, select: { id: true } }))) {
+    if (!(await db.query.user.findFirst({ where: eq(user.code, code), columns: { id: true } }))) {
       return code
     }
   }
@@ -44,77 +44,82 @@ async function uniqueStaffCode(): Promise<string> {
 }
 
 async function main() {
-  const resident = await prisma.resident.findFirst({
-    where: { displayName: RESIDENT_NAME, status: { in: ['ACTIVE', 'PLACED'] } },
-    include: { account: true },
-    orderBy: { createdAt: 'asc' },
+  const resident = await db.query.resident.findFirst({
+    where: and(
+      eq(residentTable.displayName, RESIDENT_NAME),
+      inArray(residentTable.status, ['ACTIVE', 'PLACED']),
+    ),
+    orderBy: [asc(residentTable.createdAt)],
   })
   if (!resident) {
     throw new Error(`No active resident named ${RESIDENT_NAME}`)
   }
 
-  let staffId = resident.account?.userId ?? null
+  // Fetched directly (Account.residentId is unique) rather than via `with`,
+  // whose inferred type for a one() relation declared without fields is too
+  // loose to read `.userId` off.
+  const residentAccount =
+    (await db.query.account.findFirst({ where: eq(account.residentId, resident.id) })) ?? null
+
+  let staffId = residentAccount?.userId ?? null
   let staffCode: string | null = null
   let createdStaff = false
 
   if (staffId) {
-    const existing = await prisma.user.findUnique({
-      where: { id: staffId },
-      select: { id: true, code: true, role: true, active: true },
+    const existing = await db.query.user.findFirst({
+      where: eq(user.id, staffId),
+      columns: { id: true, code: true, role: true, active: true },
     })
     if (!existing?.active) {
       throw new Error('Linked staff identity is missing or inactive')
     }
     staffCode = existing.code
-    await prisma.user.update({ where: { id: existing.id }, data: OPERATOR_CAPABILITIES })
+    await db.update(user).set(OPERATOR_CAPABILITIES).where(eq(user.id, existing.id))
   } else {
-    const named = await prisma.user.findFirst({
-      where: { name: resident.displayName || RESIDENT_NAME, active: true },
-      select: { id: true, code: true, account: { select: { id: true } } },
+    const named = await db.query.user.findFirst({
+      where: and(eq(user.name, resident.displayName || RESIDENT_NAME), eq(user.active, true)),
+      columns: { id: true, code: true },
+      with: { account: { columns: { id: true } } },
     })
     if (named && !named.account) {
       staffId = named.id
       staffCode = named.code
-      await prisma.user.update({ where: { id: named.id }, data: OPERATOR_CAPABILITIES })
+      await db.update(user).set(OPERATOR_CAPABILITIES).where(eq(user.id, named.id))
     } else {
       const code = await uniqueStaffCode()
-      const created = await prisma.user.create({
-        data: {
+      const [created] = await db
+        .insert(user)
+        .values({
           code,
           name: resident.displayName || RESIDENT_NAME,
           ...OPERATOR_CAPABILITIES,
           active: true,
-        },
-      })
+        })
+        .returning()
       staffId = created.id
       staffCode = created.code
       createdStaff = true
     }
 
-    if (resident.account) {
-      await prisma.account.update({
-        where: { id: resident.account.id },
-        data: { userId: staffId },
-      })
+    if (residentAccount) {
+      await db.update(account).set({ userId: staffId }).where(eq(account.id, residentAccount.id))
     }
   }
 
-  const residents = await prisma.resident.findMany({
-    where: { status: { in: ['ACTIVE', 'PLACED'] } },
-    select: { id: true, displayName: true },
+  const residents = await db.query.resident.findMany({
+    where: inArray(residentTable.status, ['ACTIVE', 'PLACED']),
+    columns: { id: true, displayName: true },
   })
 
   let seatsFilled = 0
   for (const person of residents) {
     for (const role of CARE_ROLES) {
-      const existing = await prisma.careAssignment.findUnique({
-        where: { residentId_role: { residentId: person.id, role } },
-        select: { id: true },
+      const existing = await db.query.careAssignment.findFirst({
+        where: and(eq(careAssignment.residentId, person.id), eq(careAssignment.role, role)),
+        columns: { id: true },
       })
       if (existing) continue
-      await prisma.careAssignment.create({
-        data: { residentId: person.id, staffId: staffId!, role },
-      })
+      await db.insert(careAssignment).values({ residentId: person.id, staffId: staffId!, role })
       seatsFilled += 1
     }
   }
@@ -123,7 +128,7 @@ async function main() {
   console.log(`Staff ${staffCode} — Leitung, all three care domains`)
   if (createdStaff) {
     console.log('New staff code created. Register it with the SAME email as the resident account.')
-  } else if (resident.account?.userId || resident.account) {
+  } else if (residentAccount?.userId || residentAccount) {
     console.log(
       'Staff identity is on the same login as the resident. Sign in once, switch in the nav.',
     )
@@ -140,6 +145,6 @@ main()
     console.error(error)
     process.exit(1)
   })
-  .finally(async () => {
-    await prisma.$disconnect()
+  .finally(() => {
+    process.exit(0)
   })

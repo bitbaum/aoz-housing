@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+// `incident` is aliased: the row-mapping callbacks below use the same name.
+import { db, incident as incidentTable } from '@/lib/db'
+import { eq, and, isNull, isNotNull, desc, count } from 'drizzle-orm'
 import Link from 'next/link'
 import { X, AlertTriangle, Home, Megaphone, User, Clock, Timer } from 'lucide-react'
 import {
@@ -18,7 +20,7 @@ import { getSeverityBorderClass, getSeverityDotClass, formatRelativeDate } from 
 import { StatCard } from '@/components/ui/Card'
 import { TabLink, TabLinkGroup } from '@/components/ui/Tabs'
 import { PageHeader } from '@/components/ui/Page'
-import type { IncidentCategory, Prisma } from '@prisma/client'
+import type { IncidentCategory } from '@/lib/db'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
 import { requirePermission } from '@/lib/auth'
@@ -48,16 +50,18 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   const canWriteIncidents = hasPermission(viewer, 'incidents:write')
   const canExport = hasPermission(viewer, 'export:read')
 
-  const where: Prisma.IncidentWhereInput = {
-    ...(categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : {}),
-    ...(statusFilter === 'open' ? { resolvedAt: null } : {}),
-    ...(statusFilter === 'resolved' ? { resolvedAt: { not: null } } : {}),
-  }
+  const conditions = [
+    ...(categoryFilter !== 'all'
+      ? [eq(incidentTable.category, categoryFilter as IncidentCategory)]
+      : []),
+    ...(statusFilter === 'open' ? [isNull(incidentTable.resolvedAt)] : []),
+    ...(statusFilter === 'resolved' ? [isNotNull(incidentTable.resolvedAt)] : []),
+  ]
 
-  const [incidents, categoryGroups, openCategoryGroups, criticalOpenCount] = await Promise.all([
-    prisma.incident.findMany({
-      where: Object.keys(where).length > 0 ? where : undefined,
-      select: {
+  const [incidentRows, categoryGroups, openCategoryGroups, criticalOpenCount] = await Promise.all([
+    db.query.incident.findMany({
+      where: conditions.length > 0 ? and(...conditions) : undefined,
+      columns: {
         id: true,
         type: true,
         category: true,
@@ -68,51 +72,60 @@ export default async function IncidentsListPage({ searchParams }: Props) {
         resolution: true,
         nextFollowUpDate: true,
         mediationMinutes: true,
+      },
+      with: {
         housingUnit: {
-          select: { code: true },
+          columns: { code: true },
         },
         reportedBy: {
-          select: RESIDENT_NAME_SELECT,
+          columns: RESIDENT_NAME_SELECT,
         },
         subject: {
-          select: RESIDENT_NAME_SELECT,
+          columns: RESIDENT_NAME_SELECT,
         },
-        _count: {
-          select: { followUps: true },
+        // Prisma's `_count.followUps`: fetched id-only and counted below.
+        followUps: {
+          columns: { id: true },
         },
       },
-      orderBy: { date: 'desc' },
-      take: QUERY_LIMITS.pageList,
+      orderBy: [desc(incidentTable.date)],
+      limit: QUERY_LIMITS.pageList,
     }),
     // Total counts per category (single query instead of fetching all rows)
-    prisma.incident.groupBy({
-      by: ['category'],
-      _count: { _all: true },
-    }),
+    db
+      .select({ category: incidentTable.category, count: count() })
+      .from(incidentTable)
+      .groupBy(incidentTable.category),
     // Open (resolvedAt = null) counts per category
-    prisma.incident.groupBy({
-      by: ['category'],
-      where: { resolvedAt: null },
-      _count: { _all: true },
-    }),
+    db
+      .select({ category: incidentTable.category, count: count() })
+      .from(incidentTable)
+      .where(isNull(incidentTable.resolvedAt))
+      .groupBy(incidentTable.category),
     // Count of critical, still-open incidents
-    prisma.incident.count({
-      where: { severity: 'CRITICAL', resolvedAt: null },
-    }),
+    db.$count(
+      incidentTable,
+      and(eq(incidentTable.severity, 'CRITICAL'), isNull(incidentTable.resolvedAt)),
+    ),
   ])
 
+  const incidents = incidentRows.map(({ followUps, ...rest }) => ({
+    ...rest,
+    _count: { followUps: followUps.length },
+  }))
+
   const categoryCounts = categoryGroups.reduce<Record<string, number>>((acc, g) => {
-    acc[g.category] = g._count._all
+    acc[g.category] = g.count
     return acc
   }, {})
   const openCategoryCounts = openCategoryGroups.reduce<Record<string, number>>((acc, g) => {
-    acc[g.category] = g._count._all
+    acc[g.category] = g.count
     return acc
   }, {})
 
   const stats = {
-    total: categoryGroups.reduce((sum, g) => sum + g._count._all, 0),
-    open: openCategoryGroups.reduce((sum, g) => sum + g._count._all, 0),
+    total: categoryGroups.reduce((sum, g) => sum + g.count, 0),
+    open: openCategoryGroups.reduce((sum, g) => sum + g.count, 0),
     interpersonal: categoryCounts.INTERPERSONAL ?? 0,
     openInterpersonal: openCategoryCounts.INTERPERSONAL ?? 0,
     maintenance: categoryCounts.MAINTENANCE ?? 0,

@@ -49,16 +49,20 @@ jest.mock('@/lib/logger', () => ({
 // database. Config presence proves nothing now that codes are derived: it
 // would offer five buttons on an instance where the seed never ran.
 const mockUserFindMany = jest.fn()
-const mockResidentFindUnique = jest.fn()
+const mockResidentFindFirst = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    user: { findMany: (...args: unknown[]) => mockUserFindMany(...args) },
-    resident: { findUnique: (...args: unknown[]) => mockResidentFindUnique(...args) },
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      user: { findMany: (...args: unknown[]) => mockUserFindMany(...args) },
+      resident: { findFirst: (...args: unknown[]) => mockResidentFindFirst(...args) },
+    },
   },
 }))
 
 // --- Import after mocks ---
 import { POST, GET } from '../demo/route'
+import { demoStaffDoors } from '@/lib/demo/roles'
 
 // --- Helpers ---
 
@@ -96,11 +100,13 @@ describe('POST /api/auth/demo', () => {
       type: 'staff',
       user: STAFF_USER,
     })
-    // Every staff door's account exists unless a test says otherwise.
-    mockUserFindMany.mockImplementation(async (args: { where: { code: { in: string[] } } }) =>
-      args.where.code.in.map((code) => ({ code })),
+    // Every staff door's account exists unless a test says otherwise. The
+    // where arg is now a drizzle expression, so derive the codes from the same
+    // source the route does instead of picking the Prisma `in` list apart.
+    mockUserFindMany.mockImplementation(async () =>
+      demoStaffDoors().map((door) => ({ code: door.code })),
     )
-    mockResidentFindUnique.mockResolvedValue({ id: 'demo-resident-id' })
+    mockResidentFindFirst.mockResolvedValue({ id: 'demo-resident-id' })
   })
 
   afterEach(() => {
@@ -140,7 +146,7 @@ describe('POST /api/auth/demo', () => {
       // The rule the old version stated and this one keeps: a button appears
       // only when pressing it can succeed.
       mockUserFindMany.mockResolvedValue([])
-      mockResidentFindUnique.mockResolvedValue(null)
+      mockResidentFindFirst.mockResolvedValue(null)
 
       const response = await GET()
       const body = await response.json()

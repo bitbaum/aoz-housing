@@ -1,4 +1,13 @@
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident as residentTable,
+  placement as placementTable,
+  householdTask,
+  taskCompletion,
+  taskAttentionFlag,
+  taskRequest,
+} from '@/lib/db'
+import { eq, and, desc } from 'drizzle-orm'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChoreActions } from '@/components/portal/ChoreActions'
@@ -29,12 +38,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
   const { id } = await params
   const residentCode = await requireResidentCookie('/portal')
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    include: {
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        take: 1,
+        where: eq(placementTable.status, 'ACTIVE'),
+        limit: 1,
       },
     },
   })
@@ -46,45 +55,46 @@ export default async function ChoreDetailPage({ params }: PageProps) {
   const placement = resident.placements[0]
 
   // task and roommatePlacements both depend only on placement — fetch in parallel
-  const [task, roommatePlacements] = await Promise.all([
-    prisma.householdTask.findFirst({
-      where: {
-        id,
-        housingUnitId: placement.housingUnitId,
-      },
-      include: {
-        // Whose turn it is counts EVERY completion ever, not the page's
-        // truncated history slice — a rota that silently reset every 20
-        // completions would put the same person up twice in a row.
-        _count: { select: { completions: true } },
-        createdByResident: { select: RESIDENT_NAME_SELECT },
+  const [task, roommatePlacements, totalCompletionCount] = await Promise.all([
+    db.query.householdTask.findFirst({
+      where: and(
+        eq(householdTask.id, id),
+        eq(householdTask.housingUnitId, placement.housingUnitId),
+      ),
+      with: {
+        createdByResident: { columns: RESIDENT_NAME_SELECT },
         completions: {
-          orderBy: { completedAt: 'desc' },
-          take: QUERY_LIMITS.choreHistory,
-          include: { completedBy: { select: RESIDENT_NAME_SELECT } },
+          orderBy: [desc(taskCompletion.completedAt)],
+          limit: QUERY_LIMITS.choreHistory,
+          with: { completedBy: { columns: RESIDENT_NAME_SELECT } },
         },
         attentionFlags: {
-          orderBy: { createdAt: 'desc' },
-          include: { flaggedBy: { select: RESIDENT_NAME_SELECT } },
+          orderBy: [desc(taskAttentionFlag.createdAt)],
+          with: { flaggedBy: { columns: RESIDENT_NAME_SELECT } },
         },
         requests: {
-          orderBy: { createdAt: 'desc' },
-          include: {
-            requestedBy: { select: RESIDENT_NAME_SELECT },
-            requestedResident: { select: RESIDENT_NAME_SELECT },
+          orderBy: [desc(taskRequest.createdAt)],
+          with: {
+            requestedBy: { columns: RESIDENT_NAME_SELECT },
+            requestedResident: { columns: RESIDENT_NAME_SELECT },
           },
         },
       },
     }),
-    prisma.placement.findMany({
-      where: {
-        housingUnitId: placement.housingUnitId,
-        status: 'ACTIVE',
-      },
-      select: {
-        resident: { select: RESIDENT_NAME_SELECT },
+    db.query.placement.findMany({
+      where: and(
+        eq(placementTable.housingUnitId, placement.housingUnitId),
+        eq(placementTable.status, 'ACTIVE'),
+      ),
+      columns: {},
+      with: {
+        resident: { columns: RESIDENT_NAME_SELECT },
       },
     }),
+    // Whose turn it is counts EVERY completion ever, not the page's
+    // truncated history slice — a rota that silently reset every 20
+    // completions would put the same person up twice in a row.
+    db.$count(taskCompletion, eq(taskCompletion.taskId, id)),
   ])
 
   if (!task) {
@@ -95,7 +105,10 @@ export default async function ChoreDetailPage({ params }: PageProps) {
   // The request dropdown asks someone ELSE to take this on.
   const roommates = household.filter((r) => r.id !== resident.id)
 
-  const turnResidentId = currentTurnResidentId(task.rotationResidentIds, task._count.completions)
+  // `text[]` columns type as nullable at the DB level even though the app
+  // always writes arrays — normalize once so the render logic stays simple.
+  const checklist = task.checklist ?? []
+  const turnResidentId = currentTurnResidentId(task.rotationResidentIds ?? [], totalCompletionCount)
   const turnResident = household.find((r) => r.id === turnResidentId)
   const isMyTurn = turnResidentId === resident.id
 
@@ -159,12 +172,12 @@ export default async function ChoreDetailPage({ params }: PageProps) {
             hiding it makes the gap invisible. */}
         <div className="mb-3">
           <h3 className="text-sm font-medium text-ui-muted">{CHORE_LABELS.detail.checklist}</h3>
-          {task.checklist.length === 0 ? (
+          {checklist.length === 0 ? (
             <p className="text-sm text-ui-muted mt-1">{CHORE_LABELS.detail.noChecklist}</p>
           ) : (
             <>
               <ul className="mt-2 space-y-1">
-                {task.checklist.map((item) => (
+                {checklist.map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm text-ui-text">
                     <span className="text-ui-muted mt-0.5" aria-hidden="true">
                       ☐
@@ -219,7 +232,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
           <ChoreActions
             taskId={task.id}
             roommates={roommates}
-            checklist={task.checklist}
+            checklist={checklist}
             estimatedMinutes={task.estimatedMinutes}
           />
         </div>
@@ -242,7 +255,7 @@ export default async function ChoreDetailPage({ params }: PageProps) {
                   {/* What was actually ticked. A partial completion stays
                       visibly partial instead of collapsing into "erledigt",
                       which is what lets the next person see what was left. */}
-                  {c.completedItems.length > 0 && (
+                  {c.completedItems && c.completedItems.length > 0 && (
                     <ul className="mt-1 space-y-0.5">
                       {c.completedItems.map((item) => (
                         <li key={item} className="text-sm text-ui-muted">

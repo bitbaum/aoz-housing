@@ -7,7 +7,8 @@
  * half of the board sorts into the wrong list forever. None of it throws.
  */
 
-import { prisma } from '@/lib/db'
+import { marketplacePost } from '@/lib/db'
+import { and, eq, inArray } from 'drizzle-orm'
 import { getPortalAuth } from '@/lib/portal-auth'
 import {
   claimMarketplacePost,
@@ -19,16 +20,46 @@ import {
   reopenMarketplacePost,
 } from '../marketplace'
 
+const mockFindFirst = jest.fn()
+const mockFindMany = jest.fn()
+// Receives the insert payload of db.insert(...).values(payload).
+const mockInsert = jest.fn()
+// Receives (set payload, where expression) of a plain awaited update.
+const mockUpdate = jest.fn()
+// Receives (set payload, where expression) of an update awaited via .returning();
+// resolves with the returned rows array.
+const mockUpdateReturning = jest.fn()
+// Receives the where expression of db.delete(...).where(where).
+const mockDelete = jest.fn()
+
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    marketplacePost: {
-      create: jest.fn(),
-      findUnique: jest.fn(),
-      findMany: jest.fn(),
-      update: jest.fn(),
-      updateMany: jest.fn(),
-      delete: jest.fn(),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      marketplacePost: {
+        findFirst: (...a: unknown[]) => mockFindFirst(...a),
+        findMany: (...a: unknown[]) => mockFindMany(...a),
+      },
     },
+    insert: jest.fn(() => ({
+      values: (v: unknown): Promise<unknown> => Promise.resolve(mockInsert(v)),
+    })),
+    update: jest.fn(() => ({
+      set: (v: unknown) => ({
+        // The same builder is either awaited directly or via .returning();
+        // record only the path the code actually takes.
+        where: (w: unknown) => ({
+          then: (
+            resolve: (value: unknown) => unknown,
+            reject: (reason: unknown) => unknown,
+          ): Promise<unknown> => Promise.resolve(mockUpdate(v, w)).then(resolve, reject),
+          returning: (): Promise<unknown[]> => Promise.resolve(mockUpdateReturning(v, w)),
+        }),
+      }),
+    })),
+    delete: jest.fn(() => ({
+      where: (w: unknown): Promise<unknown> => Promise.resolve(mockDelete(w)),
+    })),
   },
 }))
 
@@ -36,16 +67,6 @@ jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }))
 jest.mock('@/lib/portal-auth', () => ({ getPortalAuth: jest.fn() }))
 jest.mock('@/lib/auth', () => ({ getCurrentUser: jest.fn() }))
 
-const mockPrisma = prisma as unknown as {
-  marketplacePost: {
-    create: jest.Mock
-    findUnique: jest.Mock
-    findMany: jest.Mock
-    update: jest.Mock
-    updateMany: jest.Mock
-    delete: jest.Mock
-  }
-}
 const mockAuth = getPortalAuth as jest.MockedFunction<typeof getPortalAuth>
 
 const ME = 'resident-me'
@@ -96,7 +117,7 @@ describe('claiming', () => {
     // Nothing stopped this, and the result was a listing marked "Übernommen
     // von <the person who wrote it>": off the open board, unreachable by
     // anyone who actually wanted it, and indistinguishable from a real match.
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       hiddenByStaff: false,
@@ -107,44 +128,45 @@ describe('claiming', () => {
     const result = await claimMarketplacePost(form({ id: 'post-1' }))
 
     expect(result.success).toBe(false)
-    expect(mockPrisma.marketplacePost.updateMany).not.toHaveBeenCalled()
+    expect(mockUpdateReturning).not.toHaveBeenCalled()
   })
 
   it('claims somebody else’s open post', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       hiddenByStaff: false,
       postedById: OTHER,
       claimedById: null,
     })
-    mockPrisma.marketplacePost.updateMany.mockResolvedValue({ count: 1 })
+    mockUpdateReturning.mockResolvedValue([{ id: 'post-1' }])
 
     const result = await claimMarketplacePost(form({ id: 'post-1' }))
 
     expect(result.success).toBe(true)
     // Conditional on still being OPEN, so two people pressing at the same
     // moment produce one winner rather than a silent overwrite.
-    expect(mockPrisma.marketplacePost.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'post-1', status: 'OPEN' } }),
+    expect(mockUpdateReturning).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'CLAIMED', claimedById: ME }),
+      and(eq(marketplacePost.id, 'post-1'), eq(marketplacePost.status, 'OPEN')),
     )
   })
 
   it('loses the race rather than overwriting the winner', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       hiddenByStaff: false,
       postedById: OTHER,
       claimedById: null,
     })
-    mockPrisma.marketplacePost.updateMany.mockResolvedValue({ count: 0 })
+    mockUpdateReturning.mockResolvedValue([])
 
     expect((await claimMarketplacePost(form({ id: 'post-1' }))).success).toBe(false)
   })
 
   it('refuses a post staff have hidden', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       hiddenByStaff: true,
@@ -160,7 +182,7 @@ describe('backing out', () => {
   it('lets the claimer release, putting the post back on the board', async () => {
     // The only way out used to be CLOSE, which takes the item off the board
     // entirely — one person's second thoughts destroyed the offer for everyone.
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'CLAIMED',
       postedById: OTHER,
@@ -170,15 +192,14 @@ describe('backing out', () => {
     const result = await releaseMarketplaceClaim(form({ id: 'post-1' }))
 
     expect(result.success).toBe(true)
-    expect(mockPrisma.marketplacePost.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: { status: 'OPEN', claimedById: null, claimedAt: null },
-      }),
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { status: 'OPEN', claimedById: null, claimedAt: null },
+      eq(marketplacePost.id, 'post-1'),
     )
   })
 
   it('lets the poster release a claimer who never turned up', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'CLAIMED',
       postedById: ME,
@@ -189,7 +210,7 @@ describe('backing out', () => {
   })
 
   it('refuses a release from a bystander', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'CLAIMED',
       postedById: OTHER,
@@ -197,13 +218,13 @@ describe('backing out', () => {
     })
 
     expect((await releaseMarketplaceClaim(form({ id: 'post-1' }))).success).toBe(false)
-    expect(mockPrisma.marketplacePost.update).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
   })
 })
 
 describe('withdrawing', () => {
   it('deletes your own untouched post', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       postedById: ME,
@@ -211,13 +232,13 @@ describe('withdrawing', () => {
     })
 
     expect((await deleteMarketplacePost(form({ id: 'post-1' }))).success).toBe(true)
-    expect(mockPrisma.marketplacePost.delete).toHaveBeenCalled()
+    expect(mockDelete).toHaveBeenCalled()
   })
 
   it('refuses to delete a post somebody has already answered', async () => {
     // Deleting it would erase the other person's side of an arrangement
     // without telling them. A claimed post can only be closed.
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'CLAIMED',
       postedById: ME,
@@ -225,11 +246,11 @@ describe('withdrawing', () => {
     })
 
     expect((await deleteMarketplacePost(form({ id: 'post-1' }))).success).toBe(false)
-    expect(mockPrisma.marketplacePost.delete).not.toHaveBeenCalled()
+    expect(mockDelete).not.toHaveBeenCalled()
   })
 
   it('refuses to delete somebody else’s post', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'OPEN',
       postedById: OTHER,
@@ -240,7 +261,7 @@ describe('withdrawing', () => {
   })
 
   it('reopens only for the poster', async () => {
-    mockPrisma.marketplacePost.findUnique.mockResolvedValue({
+    mockFindFirst.mockResolvedValue({
       id: 'post-1',
       status: 'CLOSED',
       postedById: OTHER,
@@ -257,10 +278,8 @@ describe('posting', () => {
       form({ title: 'Sofa', description: 'Rot', kind: 'GIVE_AWAY', category: 'FURNITURE' }),
     )
 
-    expect(mockPrisma.marketplacePost.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ kind: 'GIVE_AWAY', category: 'FURNITURE' }),
-      }),
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'GIVE_AWAY', category: 'FURNITURE' }),
     )
   })
 
@@ -278,10 +297,8 @@ describe('posting', () => {
       }),
     )
 
-    expect(mockPrisma.marketplacePost.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ kind: 'OFFER_HELP', category: 'OTHER' }),
-      }),
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'OFFER_HELP', category: 'OTHER' }),
     )
   })
 
@@ -291,7 +308,7 @@ describe('posting', () => {
     )
 
     expect(result.success).toBe(false)
-    expect(mockPrisma.marketplacePost.create).not.toHaveBeenCalled()
+    expect(mockInsert).not.toHaveBeenCalled()
   })
 })
 
@@ -299,7 +316,7 @@ describe('reading the board', () => {
   it('hands the contact note only to the two people the handover is between', async () => {
     // The payload is the leak, not the markup: a note dropped in the JSX still
     // ships to every browser that renders the page.
-    mockPrisma.marketplacePost.findMany.mockResolvedValue([
+    mockFindMany.mockResolvedValue([
       row({ id: 'theirs', postedById: OTHER, claimedById: null }),
       row({ id: 'mine', postedById: ME, claimedById: null }),
       row({ id: 'claimed-by-me', postedById: OTHER, claimedById: ME }),
@@ -314,7 +331,7 @@ describe('reading the board', () => {
   })
 
   it('shows other units only what is still open', async () => {
-    mockPrisma.marketplacePost.findMany.mockResolvedValue([
+    mockFindMany.mockResolvedValue([
       row({ id: 'other-open', housingUnit: { id: 'unit-x', code: 'X' }, status: 'OPEN' }),
       row({ id: 'other-closed', housingUnit: { id: 'unit-x', code: 'X' }, status: 'CLOSED' }),
       row({ id: 'own-closed', status: 'CLOSED' }),
@@ -328,7 +345,7 @@ describe('reading the board', () => {
   })
 
   it('filters to one half of the board when asked', async () => {
-    mockPrisma.marketplacePost.findMany.mockResolvedValue([
+    mockFindMany.mockResolvedValue([
       row({ id: 'thing', kind: 'GIVE_AWAY' }),
       row({ id: 'help', kind: 'OFFER_HELP' }),
     ])
@@ -350,20 +367,22 @@ describe('reading the board', () => {
  */
 describe('your own posts, for the dashboard', () => {
   it('asks only for your own posts that are still live', async () => {
-    mockPrisma.marketplacePost.findMany.mockResolvedValue([])
+    mockFindMany.mockResolvedValue([])
 
     await listMyMarketplacePosts()
 
-    const [args] = mockPrisma.marketplacePost.findMany.mock.calls[0]
-    expect(args.where).toEqual({
-      postedById: ME,
-      hiddenByStaff: false,
-      status: { in: ['OPEN', 'CLAIMED'] },
-    })
+    const [args] = mockFindMany.mock.calls[0]
+    expect(args.where).toEqual(
+      and(
+        eq(marketplacePost.postedById, ME),
+        eq(marketplacePost.hiddenByStaff, false),
+        inArray(marketplacePost.status, ['OPEN', 'CLAIMED']),
+      ),
+    )
   })
 
   it('carries the contact note, which is the point of the card', async () => {
-    mockPrisma.marketplacePost.findMany.mockResolvedValue([
+    mockFindMany.mockResolvedValue([
       row({
         postedById: ME,
         status: 'CLAIMED',
@@ -384,6 +403,6 @@ describe('your own posts, for the dashboard', () => {
     mockAuth.mockResolvedValue(null as unknown as Awaited<ReturnType<typeof getPortalAuth>>)
 
     await expect(listMyMarketplacePosts()).resolves.toEqual([])
-    expect(mockPrisma.marketplacePost.findMany).not.toHaveBeenCalled()
+    expect(mockFindMany).not.toHaveBeenCalled()
   })
 })

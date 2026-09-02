@@ -19,22 +19,38 @@ jest.mock('@/lib/portal-auth', () => ({
   getActiveUnitMembers: (...args: unknown[]) => mockGetActiveUnitMembers(...args),
 }))
 
+// The expense route inserts Expense + ExpenseShare rows inside one
+// transaction; shares get their own mock so the split stays assertable.
 const mockExpenseCreate = jest.fn()
-const mockExpenseFindUnique = jest.fn()
+const mockShareCreate = jest.fn()
+const mockExpenseFindFirst = jest.fn()
 const mockExpenseDelete = jest.fn()
 const mockSettlementCreate = jest.fn()
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    expense: {
-      create: (...args: unknown[]) => mockExpenseCreate(...args),
-      findUnique: (...args: unknown[]) => mockExpenseFindUnique(...args),
-      delete: (...args: unknown[]) => mockExpenseDelete(...args),
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  return {
+    ...actual,
+    db: {
+      query: {
+        expense: { findFirst: (...args: unknown[]) => mockExpenseFindFirst(...args) },
+      },
+      // Top-level insert is only used for settlements.
+      insert: () => ({
+        values: (v: unknown) => ({ returning: (): Promise<unknown[]> => mockSettlementCreate(v) }),
+      }),
+      delete: () => ({ where: (w: unknown): Promise<unknown> => mockExpenseDelete(w) }),
+      transaction: (fn: (tx: unknown) => unknown) =>
+        fn({
+          insert: (table: unknown) => ({
+            values: (v: unknown) => ({
+              returning: (): Promise<unknown[]> =>
+                table === actual.expense ? mockExpenseCreate(v) : mockShareCreate(v),
+            }),
+          }),
+        }),
     },
-    settlement: {
-      create: (...args: unknown[]) => mockSettlementCreate(...args),
-    },
-  },
-}))
+  }
+})
 
 const mockLogAudit = jest.fn().mockResolvedValue(undefined)
 jest.mock('@/lib/audit', () => ({
@@ -56,6 +72,8 @@ jest.mock('@/lib/logger', () => ({
 import { POST as createExpense } from '../expenses/route'
 import { DELETE as deleteExpense } from '../expenses/[id]/route'
 import { POST as createSettlement } from '../settlements/route'
+import { expense } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 
 // --- Helpers ---
 
@@ -85,11 +103,12 @@ beforeEach(() => {
   jest.clearAllMocks()
   mockGetPortalAuth.mockResolvedValue(AUTH)
   mockGetActiveUnitMembers.mockResolvedValue(MEMBERS)
-  mockExpenseCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'expense-1', ...(args.data as object), shares: [] }),
+  mockExpenseCreate.mockImplementation((values: unknown) =>
+    Promise.resolve([{ id: 'expense-1', ...(values as object) }]),
   )
-  mockSettlementCreate.mockImplementation((args: { data: unknown }) =>
-    Promise.resolve({ id: 'settlement-1', ...(args.data as object) }),
+  mockShareCreate.mockImplementation((rows: unknown) => Promise.resolve(rows as unknown[]))
+  mockSettlementCreate.mockImplementation((values: unknown) =>
+    Promise.resolve([{ id: 'settlement-1', ...(values as object) }]),
   )
 })
 
@@ -104,12 +123,17 @@ describe('POST /api/portal/expenses', () => {
     const response = await createExpense(jsonRequest('/api/portal/expenses', 'POST', VALID_EXPENSE))
     expect(response.status).toBe(200)
 
-    const created = mockExpenseCreate.mock.calls[0][0].data
+    const created = mockExpenseCreate.mock.calls[0][0]
     expect(created.paidById).toBe('georgy')
     expect(created.createdById).toBe('georgy')
-    const shares = created.shares.create as { residentId: string; amountRappen: number }[]
+    const shares = mockShareCreate.mock.calls[0][0] as {
+      residentId: string
+      amountRappen: number
+      expenseId: string
+    }[]
     expect(shares).toHaveLength(4)
     expect(shares.reduce((a, s) => a + s.amountRappen, 0)).toBe(4000)
+    expect(shares.every((s) => s.expenseId === 'expense-1')).toBe(true)
   })
 
   it('allows recording on behalf of another roommate with chosen participants', async () => {
@@ -121,10 +145,10 @@ describe('POST /api/portal/expenses', () => {
       }),
     )
     expect(response.status).toBe(200)
-    const created = mockExpenseCreate.mock.calls[0][0].data
+    const created = mockExpenseCreate.mock.calls[0][0]
     expect(created.paidById).toBe('ihor')
     expect(created.createdById).toBe('georgy')
-    expect(created.shares.create).toHaveLength(2)
+    expect(mockShareCreate.mock.calls[0][0]).toHaveLength(2)
   })
 
   it('rejects a payer who does not live in the unit', async () => {
@@ -180,27 +204,27 @@ describe('DELETE /api/portal/expenses/[id]', () => {
   }
 
   it('lets the creator delete', async () => {
-    mockExpenseFindUnique.mockResolvedValue(EXPENSE)
+    mockExpenseFindFirst.mockResolvedValue(EXPENSE)
     const response = await del()
     expect(response.status).toBe(200)
-    expect(mockExpenseDelete).toHaveBeenCalledWith({ where: { id: 'expense-1' } })
+    expect(mockExpenseDelete).toHaveBeenCalledWith(eq(expense.id, 'expense-1'))
   })
 
   it('lets the payer delete', async () => {
-    mockExpenseFindUnique.mockResolvedValue({ ...EXPENSE, paidById: 'georgy', createdById: 'ihor' })
+    mockExpenseFindFirst.mockResolvedValue({ ...EXPENSE, paidById: 'georgy', createdById: 'ihor' })
     const response = await del()
     expect(response.status).toBe(200)
   })
 
   it('refuses an uninvolved roommate with 403', async () => {
-    mockExpenseFindUnique.mockResolvedValue({ ...EXPENSE, paidById: 'misha', createdById: 'alex' })
+    mockExpenseFindFirst.mockResolvedValue({ ...EXPENSE, paidById: 'misha', createdById: 'alex' })
     const response = await del()
     expect(response.status).toBe(403)
     expect(mockExpenseDelete).not.toHaveBeenCalled()
   })
 
   it("hides another unit's expense as 404", async () => {
-    mockExpenseFindUnique.mockResolvedValue({ ...EXPENSE, housingUnitId: 'unit-2' })
+    mockExpenseFindFirst.mockResolvedValue({ ...EXPENSE, housingUnitId: 'unit-2' })
     const response = await del()
     expect(response.status).toBe(404)
     expect(mockExpenseDelete).not.toHaveBeenCalled()
@@ -213,7 +237,7 @@ describe('POST /api/portal/settlements', () => {
       jsonRequest('/api/portal/settlements', 'POST', { toResidentId: 'ihor', amountRappen: 1500 }),
     )
     expect(response.status).toBe(200)
-    const created = mockSettlementCreate.mock.calls[0][0].data
+    const created = mockSettlementCreate.mock.calls[0][0]
     expect(created).toMatchObject({ fromId: 'georgy', toId: 'ihor', amountRappen: 1500 })
   })
 

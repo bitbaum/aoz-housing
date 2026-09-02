@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, housingUnit, placement, placementSpot } from '@/lib/db'
+import { eq, asc } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
@@ -29,25 +30,25 @@ export default async function SpotManagementPage({ params, searchParams }: Props
   const { id } = await params
   const { new: isNewUnit } = await searchParams
 
-  const unit = await prisma.housingUnit.findUnique({
-    where: { id },
-    include: {
+  const unit = await db.query.housingUnit.findFirst({
+    where: eq(housingUnit.id, id),
+    with: {
       spots: {
-        include: {
+        with: {
           placements: {
-            where: { status: 'ACTIVE' },
-            include: { resident: true },
+            where: eq(placement.status, 'ACTIVE'),
+            with: { resident: true },
           },
           childSpots: {
-            include: {
+            with: {
               placements: {
-                where: { status: 'ACTIVE' },
-                include: { resident: true },
+                where: eq(placement.status, 'ACTIVE'),
+                with: { resident: true },
               },
             },
           },
         },
-        orderBy: { code: 'asc' },
+        orderBy: [asc(placementSpot.code)],
       },
     },
   })

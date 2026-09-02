@@ -81,9 +81,9 @@ describe('a complaint never becomes a case against the person who filed it', () 
 
   it('the complaint route writes only to the complaint table', () => {
     const source = fs.readFileSync(ROUTE, 'utf8')
-    expect(source).toMatch(/prisma\.complaint\.create/)
-    expect(source).not.toMatch(/prisma\.incident\.create/)
-    expect(source).not.toMatch(/prisma\.maintenanceRequest\.create/)
+    expect(source).toMatch(/\.insert\(complaint\)/)
+    expect(source).not.toMatch(/\.insert\(incident\)/)
+    expect(source).not.toMatch(/\.insert\(maintenanceRequest\)/)
   })
 
   it('an anonymous complaint stores no resident, and no audit row names one', () => {

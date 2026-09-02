@@ -17,14 +17,15 @@ The live product is **https://aoz-wohnen.orangecat.ch** on the Hetzner box
 `/opt/aoz-wohnen/shared/.env` on the box.
 
 Neon, Vercel and hosted Supabase were decommissioned on 2026-06-12. A laptop
-`.env` that still names `neon.tech` is leftover garbage. Prisma will load it
-and time out; that is not "production is down". Do not restore those URLs.
+`.env` that still names `neon.tech` is leftover garbage. The db client will
+load it and time out; that is not "production is down". Do not restore those URLs.
 Do not treat gitignored env files as SSOT. This laptop's Postgres is not
 `aoz_wohnen`.
 
 Uncommitted work, and any branch that is not `master`, is not what residents
 see. Deploy is push to `master` → `.github/workflows/deploy.yml` (waits for
-CI, pulls box env, `prisma migrate deploy`, build, rsync). Manual:
+CI, applies pending `drizzle/*.sql` via fleetcrown's apply-schema.sh, build,
+rsync). Manual:
 `gh workflow run deploy.yml -R bitbaum/aoz-housing`.
 
 Full table: `docs/INFRASTRUCTURE.md`.
@@ -136,7 +137,7 @@ This system serves **vulnerable populations** (asylum seekers). Every decision m
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript (strict mode) |
 | Styling | Tailwind CSS (mobile-first) |
-| Database | PostgreSQL + Prisma |
+| Database | PostgreSQL + Drizzle ORM |
 | Validation | Zod (SSOT for types) |
 | Testing | Jest + Playwright |
 
@@ -449,7 +450,7 @@ guards that specific class.
 
 **Building locally needs one env var, and without it the failure lies about
 its cause.** A bare `npm run build` dies with `Failed to collect configuration
-for /api/auth/demo` — a route that queries `prisma.user`, so the obvious
+for /api/auth/demo` — a route that queries the user table, so the obvious
 reading is "this laptop has no `aoz_wohnen` database, builds are impossible
 here". That reading is wrong, and it was believed twice on 2026-09-01 before
 anyone read far enough down the log to the real `[cause]`:
@@ -554,7 +555,7 @@ export const RESIDENT_FACTORS = {
 
 **Maximum 2 files to change:**
 1. `src/lib/config/resident-factors.ts` - Define factor
-2. `prisma/schema.prisma` - Add column
+2. `src/lib/db/schema.ts` - Add column (then `npm run db:generate` for the migration)
 
 **If you need to edit more files, the architecture is wrong.**
 
@@ -826,7 +827,7 @@ identity. `src/lib/expenses/` holds the pure logic; routes only do I/O.
   `simplifyDebts` yields a stable ≤ n−1 transfer plan (greedy, id-tiebreak).
 - **Resident FKs are `Restrict`, not `Cascade`** — deleting a payer would
   silently change everyone else's balance. Residents exit via status.
-- Categories are **config, not a Prisma enum** (`lib/config/expenses.ts`):
+- Categories are **config, not a database enum** (`lib/config/expenses.ts`):
   a new category is a config change, never a migration.
 
 Who may do what: any current unit member records expenses (also on behalf of
@@ -842,7 +843,7 @@ portal lets them OPTIONALLY set `displayName`, `bio` and a photo:
   the SSOT for display — never inline `displayName || code`, and never render
   `resident.code` directly. Both helpers already fall back to the code, so the
   privacy default is preserved for free. **Selecting only `{ code: true }` in
-  Prisma causes the same bug one layer earlier** — spread `RESIDENT_NAME_SELECT`
+  a query causes the same bug one layer earlier** — spread `RESIDENT_NAME_SELECT`
   into any query whose rows reach the UI, and use `ResidentSummary` (which
   carries `displayName`) for compatibility cards.
   **`NamedResident.displayName` is REQUIRED, not optional — this is the load-
@@ -883,7 +884,7 @@ profiles.
 
 ### Real deployments vs demo
 
-`prisma/seed-real.ts` seeds a REAL apartment from `prisma/real/*.ts` config
+`scripts/db/seed-real.ts` seeds a REAL apartment from `scripts/db/real/*.ts` config
 (layout + who lives where; login codes are generated at runtime and printed
 once — never committed). `--wipe` converts a demo instance in place. A real
 instance must run with `DEMO_ACCESS_ENABLED=false` and the reset timer
@@ -1220,7 +1221,8 @@ two reset scopes).
 
 ### Database Model
 
-```prisma
+```
+// src/lib/db/schema.ts (excerpt, Drizzle; shown here in Prisma-style shorthand)
 model User {
   id           String    @id @default(cuid())
   code         String    @unique  // AOZ-XXXXXX login code — the identity
@@ -1266,7 +1268,7 @@ model Account {
 | Audit logging | Active | `src/lib/audit.ts` |
 | Role switching | Active | UserMenu + PortalNav show cross-links |
 
-**To create initial admin:** Run `npx ts-node --compiler-options '{"module":"CommonJS"}' prisma/seed-admin.ts` (default code: `AOZ-ADMIN1`)
+**To create initial admin:** Run `npm run db:seed:admin` (default code: `AOZ-ADMIN1`)
 
 ---
 
@@ -1334,11 +1336,11 @@ Representative coverage by area (not an exhaustive suite list):
 ```bash
 npm run dev              # Development server (port 3001)
 npm run build            # Production build
-npm run prisma:generate  # Regenerate Prisma client
-npm run prisma:migrate   # Run pending migrations (production)
-npm run prisma:push      # Push schema changes (development only)
-npm run prisma:studio    # Database browser
-npm run prisma:seed      # Seed demo data
+npm run db:generate      # Generate a migration from schema.ts changes
+npm run db:migrate       # Run pending migrations
+npm run db:push          # Push schema changes (development only)
+npm run db:studio        # Database browser
+npm run db:seed          # Seed demo data
 npm run test             # Run Jest tests (2558 tests)
 npm run test:e2e         # Run Playwright tests (173 tests)
 ```
@@ -1360,7 +1362,7 @@ npm run test:e2e         # Run Playwright tests (173 tests)
 | Transfer actions | `src/lib/actions/transfers.ts` |
 | Auth guards | `src/lib/auth/index.ts` (`requireStaffAuth()`) |
 | Route boundaries | `src/lib/auth/route-boundaries.ts` |
-| Prisma schema | `prisma/schema.prisma` |
+| Drizzle schema | `src/lib/db/schema.ts` |
 
 ---
 
@@ -1381,14 +1383,14 @@ npm run test:e2e         # Run Playwright tests (173 tests)
 ## Troubleshooting
 
 ### Schema changes workflow
-1. Edit `prisma/schema.prisma`
-2. Run `npx prisma migrate dev --name describe-change` to create migration
-3. Run `npm run prisma:generate` to update client types
+1. Edit `src/lib/db/schema.ts`
+2. Run `npm run db:generate` to create the migration in `drizzle/`
+3. Run `npm run db:migrate` to apply it locally
 4. Restart dev server
 
 ### "Column not found" errors after schema change
-1. Run `npm run prisma:generate`
-2. Restart dev server (clears column cache)
+1. Run `npm run db:migrate` (the migration may not be applied yet)
+2. Restart dev server
 
 ### Mobile nav not showing
 - Check for `sm:hidden` / `hidden sm:flex` patterns

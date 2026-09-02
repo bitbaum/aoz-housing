@@ -7,7 +7,7 @@
  * @see prisma/schema.prisma (source of truth)
  */
 
-import type { Resident, PlacementSpot, HousingUnit } from '@prisma/client'
+import type { Resident, PlacementSpot, HousingUnit } from '@/lib/db'
 
 // =============================================================================
 // RESIDENT SUBSETS
@@ -30,7 +30,12 @@ export type ResidentSummary = Pick<
   | 'noiseTolerance'
   | 'cleanlinessPractice'
   | 'privacyNeed'
->
+> & {
+  // The DB column is a nullable TEXT[] (Prisma typed it string[], writing []
+  // on create). The UI contract stays non-null; toResidentUiSummary and every
+  // other projection normalises `?? []` at the boundary.
+  languages: string[]
+}
 
 /** Resident fields needed for apartment profile calculations */
 export type ResidentHouseholdProfile = Pick<
@@ -76,4 +81,4 @@ export interface UnitWithSpots {
 // RE-EXPORTS for convenience
 // =============================================================================
 
-export type { Resident, PlacementSpot, HousingUnit } from '@prisma/client'
+export type { Resident, PlacementSpot, HousingUnit } from '@/lib/db'

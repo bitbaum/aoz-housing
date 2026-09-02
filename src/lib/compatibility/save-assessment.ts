@@ -6,14 +6,15 @@
  * a UNION. This helper makes both upserts atomic from the caller's perspective.
  */
 
-import type { Prisma } from '@prisma/client'
+import { compatibilityAssessment } from '@/lib/db'
+import type { db } from '@/lib/db'
 import type { CompatibilityScore } from './types'
 
-type CompatibilityAssessmentTx = {
-  compatibilityAssessment: {
-    upsert: (args: Prisma.CompatibilityAssessmentUpsertArgs) => Promise<unknown>
-  }
-}
+/**
+ * Any Drizzle client that can run inserts — the `db` singleton or, as every
+ * current caller does, the `tx` handed out by `db.transaction()`.
+ */
+type CompatibilityAssessmentTx = Pick<typeof db, 'insert'>
 
 export async function saveBidirectionalAssessment(
   tx: CompatibilityAssessmentTx,
@@ -31,25 +32,19 @@ export async function saveBidirectionalAssessment(
     concerns: score.concerns || [],
   }
 
-  await tx.compatibilityAssessment.upsert({
-    where: {
-      residentId_comparedWithId: {
-        residentId: residentAId,
-        comparedWithId: residentBId,
-      },
-    },
-    update: data,
-    create: { residentId: residentAId, comparedWithId: residentBId, ...data },
-  })
+  await tx
+    .insert(compatibilityAssessment)
+    .values({ residentId: residentAId, comparedWithId: residentBId, ...data })
+    .onConflictDoUpdate({
+      target: [compatibilityAssessment.residentId, compatibilityAssessment.comparedWithId],
+      set: data,
+    })
 
-  await tx.compatibilityAssessment.upsert({
-    where: {
-      residentId_comparedWithId: {
-        residentId: residentBId,
-        comparedWithId: residentAId,
-      },
-    },
-    update: data,
-    create: { residentId: residentBId, comparedWithId: residentAId, ...data },
-  })
+  await tx
+    .insert(compatibilityAssessment)
+    .values({ residentId: residentBId, comparedWithId: residentAId, ...data })
+    .onConflictDoUpdate({
+      target: [compatibilityAssessment.residentId, compatibilityAssessment.comparedWithId],
+      set: data,
+    })
 }

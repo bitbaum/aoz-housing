@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ResidentFormFields, FormValidationUX } from '@/components/forms'
@@ -23,8 +24,8 @@ export default async function EditResidentPage({ params }: Props) {
   await requirePermission('residents:write')
   const { id } = await params
 
-  const resident = await prisma.resident.findUnique({
-    where: { id },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.id, id),
   })
 
   if (!resident) {

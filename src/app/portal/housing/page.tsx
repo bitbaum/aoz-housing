@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, placement, housingUnit, placementSpot } from '@/lib/db'
+import { eq, and, ne, asc } from 'drizzle-orm'
 import { toResidentProfile } from '@/lib/compatibility/convert'
 import { calculateApartmentProfile, calculateApartmentFit } from '@/lib/compatibility/aggregate'
 import { PortalHousingBrowse } from '@/components/portal/PortalHousingBrowse'
@@ -18,8 +19,8 @@ export default async function PortalHousingPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
   })
 
   if (!resident) {
@@ -32,26 +33,26 @@ export default async function PortalHousingPage() {
   }
 
   // Check if already placed — redirect to dashboard
-  const activePlacement = await prisma.placement.findFirst({
-    where: { residentId: resident.id, status: 'ACTIVE' },
+  const activePlacement = await db.query.placement.findFirst({
+    where: and(eq(placement.residentId, resident.id), eq(placement.status, 'ACTIVE')),
   })
   if (activePlacement) {
     redirect('/portal')
   }
 
   // Fetch available housing units with current residents and available spots
-  const units = await prisma.housingUnit.findMany({
-    where: { status: 'AVAILABLE' },
-    include: {
+  const units = await db.query.housingUnit.findMany({
+    where: eq(housingUnit.status, 'AVAILABLE'),
+    with: {
       placements: {
-        where: { status: 'ACTIVE' },
-        include: { resident: true },
+        where: eq(placement.status, 'ACTIVE'),
+        with: { resident: true },
       },
       spots: {
-        where: { status: 'AVAILABLE', type: { not: 'ROOM' } },
+        where: and(eq(placementSpot.status, 'AVAILABLE'), ne(placementSpot.type, 'ROOM')),
       },
     },
-    orderBy: { code: 'asc' },
+    orderBy: [asc(housingUnit.code)],
   })
 
   const residentProfile = toResidentProfile(resident)

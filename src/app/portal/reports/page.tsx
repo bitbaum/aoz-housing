@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable, incident, maintenanceRequest } from '@/lib/db'
+import { eq, desc } from 'drizzle-orm'
 import { requireResidentCookie } from '@/lib/portal-auth'
 import { mergeResidentReports } from '@/lib/reports/resident-reports'
 import { getRequestTranslator } from '@/lib/i18n/request'
@@ -31,13 +32,13 @@ export default async function PortalReportsPage() {
   const residentCode = await requireResidentCookie('/portal')
   const { t } = await getRequestTranslator()
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
-    select: {
-      id: true,
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
+    columns: { id: true },
+    with: {
       incidentsReported: {
-        orderBy: { date: 'desc' },
-        select: {
+        orderBy: [desc(incident.date)],
+        columns: {
           id: true,
           type: true,
           description: true,
@@ -47,8 +48,8 @@ export default async function PortalReportsPage() {
         },
       },
       maintenanceRequests: {
-        orderBy: { createdAt: 'desc' },
-        select: {
+        orderBy: [desc(maintenanceRequest.createdAt)],
+        columns: {
           id: true,
           category: true,
           description: true,

@@ -1,5 +1,19 @@
 import type { Metadata } from 'next'
-import { prisma } from '@/lib/db'
+import {
+  db,
+  resident,
+  housingUnit,
+  placement,
+  incident,
+  maintenanceRequest,
+  transferRequest,
+  learningRecord,
+  houseEvent,
+  user as userTable,
+  careAssignment,
+  satisfactionCheckIn,
+} from '@/lib/db'
+import { eq, and, gte, inArray, isNull, desc, asc } from 'drizzle-orm'
 import { daysSinceCeil, getDateDaysAgo } from '@/lib/utils'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -78,48 +92,48 @@ export default async function AdminDashboard() {
     neverSignedInStaffCount,
     assignedResidentCount,
   ] = await Promise.all([
-    prisma.resident.count(),
+    db.$count(resident),
     // Only used to pick the first setup step, which requires housing:write —
     // a subset of the housing:read this section is gated on.
-    show('occupancy') ? prisma.housingUnit.count() : 0,
+    show('occupancy') ? db.$count(housingUnit) : 0,
     show('matching')
-      ? prisma.resident.findMany({
-          where: { status: { in: ['ACTIVE', 'PLACED'] } },
-          select: { ...RESIDENT_NAME_SELECT, status: true, createdAt: true },
+      ? db.query.resident.findMany({
+          where: inArray(resident.status, ['ACTIVE', 'PLACED']),
+          columns: { ...RESIDENT_NAME_SELECT, status: true, createdAt: true },
         })
       : [],
     show('occupancy')
-      ? prisma.housingUnit.findMany({
-          select: { totalBeds: true, status: true },
+      ? db.query.housingUnit.findMany({
+          columns: { totalBeds: true, status: true },
         })
       : [],
-    show('occupancy') ? prisma.placement.count({ where: { status: 'ACTIVE' } }) : 0,
+    show('occupancy') ? db.$count(placement, eq(placement.status, 'ACTIVE')) : 0,
     show('checkIns')
-      ? prisma.placement.findMany({
-          where: { status: 'ACTIVE' },
-          select: {
+      ? db.query.placement.findMany({
+          where: eq(placement.status, 'ACTIVE'),
+          columns: {
             id: true,
             startDate: true,
+          },
+          with: {
             resident: {
-              select: { ...RESIDENT_NAME_SELECT, supportLevel: true },
+              columns: { ...RESIDENT_NAME_SELECT, supportLevel: true },
             },
             housingUnit: {
-              select: { code: true },
+              columns: { code: true },
             },
             checkIns: {
-              orderBy: { createdAt: 'desc' },
-              take: 1,
-              select: { createdAt: true },
+              orderBy: [desc(satisfactionCheckIn.createdAt)],
+              limit: 1,
+              columns: { createdAt: true },
             },
           },
         })
       : [],
     show('incidents')
-      ? prisma.incident.findMany({
-          where: {
-            date: { gte: getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays) },
-          },
-          select: {
+      ? db.query.incident.findMany({
+          where: gte(incident.date, getDateDaysAgo(PROBLEM_DETECTION.recentIncidentsDays)),
+          columns: {
             id: true,
             type: true,
             category: true,
@@ -127,52 +141,60 @@ export default async function AdminDashboard() {
             date: true,
             resolvedAt: true,
             housingUnitId: true,
-            housingUnit: { select: { code: true } },
           },
-          orderBy: { date: 'desc' },
+          with: {
+            housingUnit: { columns: { code: true } },
+          },
+          orderBy: [desc(incident.date)],
         })
       : [],
     show('maintenance')
-      ? prisma.maintenanceRequest.count({
-          where: {
-            status: { in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD'] },
-          },
-        })
+      ? db.$count(
+          maintenanceRequest,
+          inArray(maintenanceRequest.status, ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD']),
+        )
       : 0,
     show('transferRequests')
-      ? prisma.transferRequest.findMany({
-          where: { status: 'PENDING' },
-          select: {
+      ? db.query.transferRequest.findMany({
+          where: eq(transferRequest.status, 'PENDING'),
+          columns: {
             id: true,
             createdAt: true,
-            resident: { select: RESIDENT_NAME_SELECT },
+          },
+          with: {
+            resident: { columns: RESIDENT_NAME_SELECT },
             currentPlacement: {
-              select: { housingUnit: { select: { code: true } } },
+              columns: {},
+              with: { housingUnit: { columns: { code: true } } },
             },
           },
-          orderBy: { createdAt: 'asc' },
+          orderBy: [asc(transferRequest.createdAt)],
         })
       : [],
     show('proposals') ? getProposalsAwaitingStaff() : [],
-    show('learning') ? prisma.learningRecord.count({ where: { status: 'IN_PROGRESS' } }) : 0,
+    show('learning') ? db.$count(learningRecord, eq(learningRecord.status, 'IN_PROGRESS')) : 0,
     show('learning')
-      ? prisma.learningRecord.count({
-          where: {
-            status: 'COMPLETED',
-            completedAt: { gte: getDateDaysAgo(LEARNING_PULSE_WINDOW_DAYS) },
-          },
-        })
+      ? db.$count(
+          learningRecord,
+          and(
+            eq(learningRecord.status, 'COMPLETED'),
+            gte(learningRecord.completedAt, getDateDaysAgo(LEARNING_PULSE_WINDOW_DAYS)),
+          ),
+        )
       : 0,
     show('events')
-      ? prisma.houseEvent.count({
-          where: { status: 'PUBLISHED', startsAt: { gte: now } },
-        })
+      ? db.$count(
+          houseEvent,
+          and(eq(houseEvent.status, 'PUBLISHED'), gte(houseEvent.startsAt, now)),
+        )
       : 0,
-    show('team') ? prisma.user.count({ where: { active: true } }) : 0,
+    show('team') ? db.$count(userTable, eq(userTable.active, true)) : 0,
     // Provisioned and never used. A staff code that was issued but never
     // signed in with is invisible everywhere else in the product — it is not
     // an error, it is an unfinished handover, and only Leitung can close it.
-    show('team') ? prisma.user.count({ where: { active: true, lastLoginAt: null } }) : 0,
+    show('team')
+      ? db.$count(userTable, and(eq(userTable.active, true), isNull(userTable.lastLoginAt)))
+      : 0,
     // How many clients sit in THIS person's care seat.
     //
     // null for a viewer whose reach is every domain: they have no single seat
@@ -182,7 +204,7 @@ export default async function AdminDashboard() {
     // cannot tell those apart, and reported the second as the first.
     viewer.scope === 'ALL_DOMAINS' || !user
       ? null
-      : prisma.careAssignment.count({ where: { staffId: user.id } }),
+      : db.$count(careAssignment, eq(careAssignment.staffId, user.id)),
   ])
 
   // =============================================================================

@@ -17,20 +17,25 @@ jest.mock('next/headers', () => ({
   }),
 }))
 
-const mockFindUnique = jest.fn()
+const mockFindFirst = jest.fn()
 const mockTransferCreate = jest.fn()
-const mockHousingUnitFindUnique = jest.fn()
+const mockHousingUnitFindFirst = jest.fn()
 jest.mock('@/lib/db', () => ({
-  prisma: {
-    resident: {
-      findUnique: (...args: unknown[]) => mockFindUnique(...args),
+  ...jest.requireActual<object>('@/lib/db'),
+  db: {
+    query: {
+      resident: {
+        findFirst: (...args: unknown[]) => mockFindFirst(...args),
+      },
+      housingUnit: {
+        findFirst: (...args: unknown[]) => mockHousingUnitFindFirst(...args),
+      },
     },
-    transferRequest: {
-      create: (...args: unknown[]) => mockTransferCreate(...args),
-    },
-    housingUnit: {
-      findUnique: (...args: unknown[]) => mockHousingUnitFindUnique(...args),
-    },
+    insert: jest.fn(() => ({
+      values: (v: unknown) => ({
+        returning: (): Promise<unknown[]> => mockTransferCreate(v),
+      }),
+    })),
   },
 }))
 
@@ -112,7 +117,7 @@ describe('POST /api/portal/transfer', () => {
     expect(res.status).toBe(401)
     expect(body.success).toBe(false)
     expect(body.error).toBe(ERROR_MESSAGES.NOT_AUTHENTICATED)
-    expect(mockFindUnique).not.toHaveBeenCalled()
+    expect(mockFindFirst).not.toHaveBeenCalled()
   })
 
   test('returns 400 for invalid input (reason too short)', async () => {
@@ -129,7 +134,7 @@ describe('POST /api/portal/transfer', () => {
 
   test('returns 404 when resident not found', async () => {
     mockCookieGet.mockReturnValue({ value: 'UNKNOWN-CODE' })
-    mockFindUnique.mockResolvedValue(null)
+    mockFindFirst.mockResolvedValue(null)
 
     const req = createTransferRequest({ reason: VALID_REASON })
     const res = await POST(req)
@@ -142,7 +147,7 @@ describe('POST /api/portal/transfer', () => {
 
   test('returns 400 when no active placement', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-003' })
-    mockFindUnique.mockResolvedValue(RESIDENT_NO_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_NO_PLACEMENT)
 
     const req = createTransferRequest({ reason: VALID_REASON })
     const res = await POST(req)
@@ -155,7 +160,7 @@ describe('POST /api/portal/transfer', () => {
 
   test('returns 409 when pending request already exists', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-002' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PENDING_TRANSFER)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PENDING_TRANSFER)
 
     const req = createTransferRequest({ reason: VALID_REASON })
     const res = await POST(req)
@@ -168,9 +173,9 @@ describe('POST /api/portal/transfer', () => {
 
   test('returns 200 with success and id on happy path', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
-    mockTransferCreate.mockResolvedValue({ id: 'tr-new' })
-    mockHousingUnitFindUnique.mockResolvedValue({ code: 'WE-001' })
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockTransferCreate.mockResolvedValue([{ id: 'tr-new' }])
+    mockHousingUnitFindFirst.mockResolvedValue({ code: 'WE-001' })
 
     const req = createTransferRequest({ reason: VALID_REASON })
     const res = await POST(req)
@@ -181,20 +186,18 @@ describe('POST /api/portal/transfer', () => {
     expect(body.id).toBe('tr-new')
 
     expect(mockTransferCreate).toHaveBeenCalledWith({
-      data: {
-        residentId: 'res-1',
-        currentPlacementId: 'pl-1',
-        targetUnitId: null,
-        reason: VALID_REASON,
-      },
+      residentId: 'res-1',
+      currentPlacementId: 'pl-1',
+      targetUnitId: null,
+      reason: VALID_REASON,
     })
   })
 
   test('creates audit log on success', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
-    mockTransferCreate.mockResolvedValue({ id: 'tr-audit' })
-    mockHousingUnitFindUnique.mockResolvedValue({ code: 'WE-001' })
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockTransferCreate.mockResolvedValue([{ id: 'tr-audit' }])
+    mockHousingUnitFindFirst.mockResolvedValue({ code: 'WE-001' })
 
     const req = createTransferRequest({ reason: VALID_REASON })
     await POST(req)
@@ -209,7 +212,7 @@ describe('POST /api/portal/transfer', () => {
 
   test('returns 500 on database error', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
     mockTransferCreate.mockRejectedValue(new Error('DB connection failed'))
 
     const req = createTransferRequest({ reason: VALID_REASON })
@@ -224,9 +227,9 @@ describe('POST /api/portal/transfer', () => {
 
   test('passes targetUnitId when provided', async () => {
     mockCookieGet.mockReturnValue({ value: 'RES-001' })
-    mockFindUnique.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
-    mockTransferCreate.mockResolvedValue({ id: 'tr-target' })
-    mockHousingUnitFindUnique.mockResolvedValue({ code: 'WE-002' })
+    mockFindFirst.mockResolvedValue(RESIDENT_WITH_PLACEMENT)
+    mockTransferCreate.mockResolvedValue([{ id: 'tr-target' }])
+    mockHousingUnitFindFirst.mockResolvedValue({ code: 'WE-002' })
 
     const req = createTransferRequest({
       reason: VALID_REASON,
@@ -234,10 +237,10 @@ describe('POST /api/portal/transfer', () => {
     })
     await POST(req)
 
-    expect(mockTransferCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({
+    expect(mockTransferCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
         targetUnitId: 'hu-target',
       }),
-    })
+    )
   })
 })

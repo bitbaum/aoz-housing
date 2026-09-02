@@ -8,35 +8,68 @@
  * when the house actually said yes.
  */
 
-import { prisma } from '@/lib/db'
 import {
   adoptProposal,
   advanceDueProposals,
   closeProposal,
   expireStaleAgreements,
 } from '../lifecycle'
+import { conflictAgreement } from '@/lib/db'
+import { and, inArray, lt } from 'drizzle-orm'
+import { whereParts } from '@/test-utils/drizzle-where'
 
-jest.mock('@/lib/db', () => ({
-  prisma: {
-    proposal: { findMany: jest.fn(), findUnique: jest.fn(), updateMany: jest.fn() },
-    houseRule: { create: jest.fn(), update: jest.fn() },
-    placement: { findMany: jest.fn() },
-    conflictAgreement: { updateMany: jest.fn() },
-  },
-}))
+const mockProposalFindFirst = jest.fn()
+const mockProposalFindMany = jest.fn()
+const mockPlacementFindMany = jest.fn()
+// insert(houseRule).values(v) → (v)
+const mockRuleCreate = jest.fn()
+// update(houseRule).set(d).where(w) → (d, whereParts)
+const mockRuleUpdate = jest.fn()
+// The guarded proposal update — returns the rows `.returning()` yields, so a
+// test can make it lose the close race by returning [].
+const mockProposalUpdate = jest.fn()
+// update(conflictAgreement) — recorded with the RAW where tree for comparison.
+const mockAgreementUpdate = jest.fn()
+
+jest.mock('@/lib/db', () => {
+  const actual = jest.requireActual<typeof import('@/lib/db')>('@/lib/db')
+  const { whereParts: parts } = jest.requireActual<typeof import('@/test-utils/drizzle-where')>(
+    '@/test-utils/drizzle-where',
+  )
+  return {
+    ...actual,
+    db: {
+      query: {
+        proposal: {
+          findFirst: (...a: unknown[]) => mockProposalFindFirst(...a),
+          findMany: (...a: unknown[]) => mockProposalFindMany(...a),
+        },
+        placement: { findMany: (...a: unknown[]) => mockPlacementFindMany(...a) },
+      },
+      insert: () => ({ values: (v: unknown) => Promise.resolve(mockRuleCreate(v)) }),
+      update: (table: unknown) => ({
+        set: (data: unknown) => ({
+          where: (w: unknown) => {
+            if (table === actual.houseRule) {
+              return Promise.resolve(mockRuleUpdate(data, parts(w)))
+            }
+            const rows =
+              table === actual.conflictAgreement
+                ? mockAgreementUpdate(data, w)
+                : mockProposalUpdate(data, parts(w))
+            return Object.assign(Promise.resolve(rows), {
+              returning: () => Promise.resolve(rows),
+            })
+          },
+        }),
+      }),
+    },
+  }
+})
 
 jest.mock('@/lib/logger', () => ({
   logger: { errorWithCause: jest.fn(), info: jest.fn(), warn: jest.fn() },
 }))
-
-const mockProposal = prisma.proposal as unknown as {
-  findMany: jest.Mock
-  findUnique: jest.Mock
-  updateMany: jest.Mock
-}
-const mockRule = prisma.houseRule as unknown as { create: jest.Mock; update: jest.Mock }
-const mockPlacement = prisma.placement as unknown as { findMany: jest.Mock }
-const mockAgreement = prisma.conflictAgreement as unknown as { updateMany: jest.Mock }
 
 const ORG_TOPIC = {
   id: 'org-kitchen',
@@ -71,119 +104,114 @@ function votingProposal(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockProposal.updateMany.mockResolvedValue({ count: 1 })
-  mockProposal.findMany.mockResolvedValue([])
-  mockRule.create.mockResolvedValue({ id: 'new-rule' })
-  mockRule.update.mockResolvedValue({})
-  mockAgreement.updateMany.mockResolvedValue({ count: 0 })
+  mockProposalUpdate.mockReturnValue([{ id: 'p1' }])
+  mockProposalFindMany.mockResolvedValue([])
+  mockRuleCreate.mockResolvedValue({ id: 'new-rule' })
+  mockRuleUpdate.mockResolvedValue({})
+  mockAgreementUpdate.mockReturnValue([])
 })
 
 describe('closeProposal', () => {
   it('accepts a passing vote and creates the house rule', async () => {
-    mockProposal.findUnique.mockResolvedValue(votingProposal())
+    mockProposalFindFirst.mockResolvedValue(votingProposal())
 
     const status = await closeProposal('p1')
 
     expect(status).toBe('ACCEPTED')
-    expect(mockRule.create).toHaveBeenCalledWith(
+    expect(mockRuleCreate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          scope: 'UNIT',
-          housingUnitId: 'unit-1',
-          parentRuleId: ORG_TOPIC.id,
-          adoptedByProposalId: 'p1',
-        }),
+        scope: 'UNIT',
+        housingUnitId: 'unit-1',
+        parentRuleId: ORG_TOPIC.id,
+        adoptedByProposalId: 'p1',
       }),
     )
   })
 
   it('records the plain-language explanation as the outcome', async () => {
-    mockProposal.findUnique.mockResolvedValue(votingProposal())
+    mockProposalFindFirst.mockResolvedValue(votingProposal())
 
     await closeProposal('p1')
 
-    const update = mockProposal.updateMany.mock.calls[0][0]
-    expect(update.data.outcomeSummary).toContain('Angenommen')
-    expect(update.data.outcomeSummary).toContain('3 dafür')
+    const [data] = mockProposalUpdate.mock.calls[0]
+    expect(data.outcomeSummary).toContain('Angenommen')
+    expect(data.outcomeSummary).toContain('3 dafür')
   })
 
   it('creates no rule when the house voted it down', async () => {
-    mockProposal.findUnique.mockResolvedValue(
+    mockProposalFindFirst.mockResolvedValue(
       votingProposal({ votes: [{ choice: 'NO' }, { choice: 'NO' }, { choice: 'YES' }] }),
     )
 
     const status = await closeProposal('p1')
 
     expect(status).toBe('REJECTED')
-    expect(mockRule.create).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
   })
 
   it('expires rather than rejects when quorum was never reached', async () => {
     // A house that did not vote has not said no — it can try again.
-    mockProposal.findUnique.mockResolvedValue(votingProposal({ votes: [{ choice: 'YES' }] }))
+    mockProposalFindFirst.mockResolvedValue(votingProposal({ votes: [{ choice: 'YES' }] }))
 
     expect(await closeProposal('p1')).toBe('EXPIRED')
-    expect(mockRule.create).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
   })
 
   it('holds an advisory decision for staff instead of adopting it', async () => {
-    mockProposal.findUnique.mockResolvedValue(votingProposal({ decisionMode: 'RESIDENT_ADVISORY' }))
+    mockProposalFindFirst.mockResolvedValue(votingProposal({ decisionMode: 'RESIDENT_ADVISORY' }))
 
     expect(await closeProposal('p1')).toBe('NEEDS_STAFF_CONFIRMATION')
-    expect(mockRule.create).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
   })
 
   it('holds a decision that claims to strengthen an AOZ rule', async () => {
-    mockProposal.findUnique.mockResolvedValue(
+    mockProposalFindFirst.mockResolvedValue(
       votingProposal({
         parentOrgRule: { ...ORG_TOPIC, delegation: 'UNIT_MAY_STRENGTHEN' },
       }),
     )
 
     expect(await closeProposal('p1')).toBe('NEEDS_STAFF_CONFIRMATION')
-    expect(mockRule.create).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
   })
 
   it('does nothing to a proposal that is not open for voting', async () => {
-    mockProposal.findUnique.mockResolvedValue(votingProposal({ status: 'ACCEPTED' }))
+    mockProposalFindFirst.mockResolvedValue(votingProposal({ status: 'ACCEPTED' }))
 
     expect(await closeProposal('p1')).toBeNull()
-    expect(mockProposal.updateMany).not.toHaveBeenCalled()
+    expect(mockProposalUpdate).not.toHaveBeenCalled()
   })
 
   it('cannot adopt twice when two callers close the same proposal at once', async () => {
     // The guarded update loses the race and must not create a second rule.
-    mockProposal.findUnique.mockResolvedValue(votingProposal())
-    mockProposal.updateMany.mockResolvedValue({ count: 0 })
+    mockProposalFindFirst.mockResolvedValue(votingProposal())
+    mockProposalUpdate.mockReturnValue([])
 
     expect(await closeProposal('p1')).toBeNull()
-    expect(mockRule.create).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
   })
 
   it('returns null for a proposal that no longer exists', async () => {
-    mockProposal.findUnique.mockResolvedValue(null)
+    mockProposalFindFirst.mockResolvedValue(null)
     expect(await closeProposal('p1')).toBeNull()
   })
 })
 
 describe('adoptProposal', () => {
   it('archives the target rule on a repeal', async () => {
-    mockProposal.findUnique.mockResolvedValue(
+    mockProposalFindFirst.mockResolvedValue(
       votingProposal({ type: 'REPEAL_RULE', targetRuleId: 'rule-9' }),
     )
 
     await adoptProposal('p1')
 
-    expect(mockRule.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: 'rule-9' },
-        data: expect.objectContaining({ status: 'ARCHIVED' }),
-      }),
-    )
+    expect(mockRuleUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'ARCHIVED' }), {
+      id: 'rule-9',
+    })
   })
 
   it('bumps the version on an amendment so everyone re-acknowledges', async () => {
-    mockProposal.findUnique.mockResolvedValue(
+    mockProposalFindFirst.mockResolvedValue(
       votingProposal({
         type: 'AMEND_RULE',
         targetRule: { id: 'rule-9', version: 3 },
@@ -193,18 +221,19 @@ describe('adoptProposal', () => {
 
     await adoptProposal('p1')
 
-    expect(mockRule.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ version: 4 }) }),
+    expect(mockRuleUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ version: 4 }),
+      expect.anything(),
     )
   })
 
   it('records a one-off house decision without creating a standing rule', async () => {
-    mockProposal.findUnique.mockResolvedValue(votingProposal({ type: 'HOUSE_DECISION' }))
+    mockProposalFindFirst.mockResolvedValue(votingProposal({ type: 'HOUSE_DECISION' }))
 
     await adoptProposal('p1')
 
-    expect(mockRule.create).not.toHaveBeenCalled()
-    expect(mockRule.update).not.toHaveBeenCalled()
+    expect(mockRuleCreate).not.toHaveBeenCalled()
+    expect(mockRuleUpdate).not.toHaveBeenCalled()
   })
 })
 
@@ -212,10 +241,10 @@ describe('advanceDueProposals', () => {
   it('snapshots the electorate when voting opens, not when the proposal was written', async () => {
     // People move in and out; a quorum measured against last week's roster is
     // not a quorum.
-    mockProposal.findMany
+    mockProposalFindMany
       .mockResolvedValueOnce([{ id: 'p1', housingUnitId: 'unit-1' }]) // due to open
       .mockResolvedValueOnce([]) // due to close
-    mockPlacement.findMany.mockResolvedValue([
+    mockPlacementFindMany.mockResolvedValue([
       { residentId: 'r1' },
       { residentId: 'r2' },
       { residentId: 'r2' }, // duplicate placement must not inflate the electorate
@@ -225,16 +254,15 @@ describe('advanceDueProposals', () => {
     const result = await advanceDueProposals(new Date('2026-03-10T00:00:00Z'))
 
     expect(result.opened).toBe(1)
-    expect(mockProposal.updateMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({ status: 'VOTING', eligibleVoterCount: 3 }),
-      }),
+    expect(mockProposalUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'VOTING', eligibleVoterCount: 3 }),
+      expect.anything(),
     )
   })
 
   it('closes proposals whose voting window has elapsed', async () => {
-    mockProposal.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'p1' }])
-    mockProposal.findUnique.mockResolvedValue(votingProposal())
+    mockProposalFindMany.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 'p1' }])
+    mockProposalFindFirst.mockResolvedValue(votingProposal())
 
     const result = await advanceDueProposals(new Date())
 
@@ -242,38 +270,44 @@ describe('advanceDueProposals', () => {
   })
 
   it('never throws — it runs inside page loads', async () => {
-    mockProposal.findMany.mockRejectedValue(new Error('db down'))
+    mockProposalFindMany.mockRejectedValue(new Error('db down'))
 
     await expect(advanceDueProposals(new Date())).resolves.toEqual({ opened: 0, closed: 0 })
   })
 
   it('scopes to one unit when asked', async () => {
-    mockProposal.findMany.mockResolvedValue([])
+    mockProposalFindMany.mockResolvedValue([])
 
     await advanceDueProposals(new Date(), 'unit-7')
 
-    expect(mockProposal.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ housingUnitId: 'unit-7' }) }),
-    )
+    expect(whereParts(mockProposalFindMany.mock.calls[0][0].where)).toMatchObject({
+      housingUnitId: 'unit-7',
+    })
   })
 })
 
 describe('expireStaleAgreements', () => {
   it('expires agreements nobody reviewed, so silence never counts as success', async () => {
-    mockAgreement.updateMany.mockResolvedValue({ count: 2 })
+    mockAgreementUpdate.mockReturnValue([{ id: 'a1' }, { id: 'a2' }])
 
     const count = await expireStaleAgreements(new Date('2026-03-20T00:00:00Z'), 7)
 
     expect(count).toBe(2)
-    const args = mockAgreement.updateMany.mock.calls[0][0]
-    expect(args.where.status).toEqual({ in: ['PROPOSED', 'ACCEPTED'] })
-    expect(args.data).toEqual({ status: 'EXPIRED' })
+    // Compared against the REAL drizzle expression — same statuses, same
+    // cutoff, without hand-parsing the SQL tree.
+    expect(mockAgreementUpdate).toHaveBeenCalledWith(
+      { status: 'EXPIRED' },
+      and(
+        inArray(conflictAgreement.status, ['PROPOSED', 'ACCEPTED']),
+        lt(conflictAgreement.reviewDate, new Date('2026-03-13T00:00:00Z')),
+      ),
+    )
   })
 
   it('leaves agreements still inside their grace period alone', async () => {
     await expireStaleAgreements(new Date('2026-03-20T00:00:00Z'), 7)
 
-    const cutoff = mockAgreement.updateMany.mock.calls[0][0].where.reviewDate.lt as Date
+    const cutoff = whereParts(mockAgreementUpdate.mock.calls[0][1]).reviewDate as Date
     expect(cutoff.toISOString().slice(0, 10)).toBe('2026-03-13')
   })
 })

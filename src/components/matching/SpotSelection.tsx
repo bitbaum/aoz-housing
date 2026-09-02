@@ -1,4 +1,4 @@
-import type { Resident, Placement, PlacementSpot } from '@prisma/client'
+import type { Resident, Placement, PlacementSpot } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { MatchResult } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'

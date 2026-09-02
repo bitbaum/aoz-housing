@@ -1,4 +1,5 @@
-import { prisma } from '@/lib/db'
+import { db, resident as residentTable } from '@/lib/db'
+import { eq } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { logAudit } from '@/lib/audit'
 import {
@@ -20,8 +21,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const resident = await prisma.resident.findUnique({
-    where: { code: residentCode },
+  const resident = await db.query.resident.findFirst({
+    where: eq(residentTable.code, residentCode),
   })
 
   if (!resident) {
@@ -56,9 +57,9 @@ export async function POST(request: NextRequest) {
       .join('. ') || null
 
   try {
-    await prisma.resident.update({
-      where: { id: resident.id },
-      data: {
+    await db
+      .update(residentTable)
+      .set({
         sleepSchedule: data.sleepSchedule,
         noiseTolerance: data.noiseTolerance,
         cleanlinessPractice: data.cleanlinessPractice,
@@ -74,8 +75,8 @@ export async function POST(request: NextRequest) {
         dietaryNeeds: data.dietaryNeeds,
         roommatePreferences: roommatePrefsText,
         preferencesCompletedAt: new Date(),
-      },
-    })
+      })
+      .where(eq(residentTable.id, resident.id))
 
     await logAudit({
       action: 'UPDATE',
