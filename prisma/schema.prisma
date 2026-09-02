@@ -67,6 +67,17 @@ model Resident {
   hasSleepEquipment     Boolean           @default(false) // CPAP, etc.
   supportLevel          SupportLevel      @default(STANDARD)
 
+  /// Whether conversations with this person need an interpreter.
+  ///
+  /// The LEVEL only. Which language is already on `languages`, and a second
+  /// column naming it would be a second source of truth that drifts.
+  ///
+  /// This is not a language test and not a judgement about someone's German —
+  /// `germanLevel` is a separate, learning-domain fact. It answers one
+  /// operational question: does booking this meeting require booking a third
+  /// person too. @see lib/config/interpreting.ts
+  interpreterNeed     InterpreterNeed @default(NONE)
+
   /// How much help running a household this person needs — AOZ's
   /// "Wohnfähigkeit". Distinct from `supportLevel`, which is how often someone
   /// checks in on them: a person can need weekly contact and still cook, clean
@@ -416,6 +427,22 @@ enum SupportLevel {
   STANDARD // Normal check-ins
   ELEVATED // More frequent monitoring
   INTENSIVE // Close support needed
+}
+
+/// Whether a conversation with this person needs an interpreter booked.
+///
+/// AOZ runs Medios: ~80 languages, ~1000 interpreters, booked on an external
+/// platform with roughly a day's confirmation lead time. This product does not
+/// rebuild that booking and should not — it records the NEED, so that a
+/// meeting is not scheduled for tomorrow morning with nobody able to speak to
+/// the person once it starts.
+enum InterpreterNeed {
+  /// Manages in a language the team shares.
+  NONE
+  /// Helpful for official, complex or consequential conversations.
+  FOR_COMPLEX
+  /// Needed for any substantive conversation.
+  ALWAYS
 }
 
 /// How much support running a household this person needs — AOZ's

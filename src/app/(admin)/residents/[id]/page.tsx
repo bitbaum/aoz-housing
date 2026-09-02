@@ -534,6 +534,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
 
           <CareWorkspace
             residentId={resident.id}
+            interpreterNeed={resident.interpreterNeed}
             attributes={careAttributes}
             appointments={careAppointments}
             writableDomains={staff ? writableCareDomains(staff) : []}

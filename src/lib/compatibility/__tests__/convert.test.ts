@@ -37,6 +37,7 @@ function makePrismaResident(overrides: Partial<Resident> = {}): Resident {
     hasSleepEquipment: false,
     supportLevel: 'STANDARD',
     livingSkillsSupport: 'INDEPENDENT',
+    interpreterNeed: 'NONE',
     status: 'ACTIVE',
     notes: null,
     hasMedicalDocumentation: false,
