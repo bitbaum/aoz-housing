@@ -22,6 +22,7 @@ import type { IncidentCategory, Prisma } from '@prisma/client'
 import { QUERY_LIMITS } from '@/lib/config/thresholds'
 import { RESIDENT_NAME_SELECT, residentName, type NamedResident } from '@/lib/utils/resident-name'
 import { requirePermission } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/role-policy'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +35,18 @@ export default async function IncidentsListPage({ searchParams }: Props) {
   const categoryFilter = params.category || 'all'
   const statusFilter = params.status || 'all'
 
-  await requirePermission('incidents:read')
+  // `incidents:read` opens the board. It does NOT imply either affordance
+  // rendered on it, and until JOBCOACH and FREIWILLIGENARBEIT were given
+  // read-only sight of conflicts, nobody could reach this page without also
+  // holding both — so two dead ends sat here harmlessly. Verified in
+  // production: a Jobcoach landed on the board and was offered "Vorfall
+  // melden", which redirects to /kein-zugriff?needs=incidents%3Awrite.
+  //
+  // A button that ends at the permission-denied page is the exact thing the
+  // nav rule forbids; a page may not do what its own menu may not.
+  const viewer = await requirePermission('incidents:read')
+  const canWriteIncidents = hasPermission(viewer, 'incidents:write')
+  const canExport = hasPermission(viewer, 'export:read')
 
   const where: Prisma.IncidentWhereInput = {
     ...(categoryFilter !== 'all' ? { category: categoryFilter as IncidentCategory } : {}),
@@ -145,15 +157,19 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           title={INCIDENT_PAGE_LABELS.title}
           actions={
             <>
-              <a
-                href="/api/export/incidents"
-                className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
-              >
-                {INCIDENT_PAGE_LABELS.export}
-              </a>
-              <Link href="/incidents/new" className="btn-primary">
-                {INCIDENT_PAGE_LABELS.newIncident}
-              </Link>
+              {canExport && (
+                <a
+                  href="/api/export/incidents"
+                  className="min-h-[44px] rounded-md border border-ui-border-strong bg-ui-surface px-4 py-2 text-sm font-medium text-ui-muted hover:bg-ui-subtle inline-flex items-center"
+                >
+                  {INCIDENT_PAGE_LABELS.export}
+                </a>
+              )}
+              {canWriteIncidents && (
+                <Link href="/incidents/new" className="btn-primary">
+                  {INCIDENT_PAGE_LABELS.newIncident}
+                </Link>
+              )}
             </>
           }
         />
@@ -253,9 +269,13 @@ export default async function IncidentsListPage({ searchParams }: Props) {
               {INCIDENT_PAGE_LABELS.clearFilter}
             </Link>
           ) : (
-            <Link href="/incidents/new" className="btn-primary">
-              {INCIDENT_PAGE_LABELS.createIncident}
-            </Link>
+            // An empty board offers the fix to whoever can perform it. For a
+            // reader it stays an empty board, which is the honest rendering.
+            canWriteIncidents && (
+              <Link href="/incidents/new" className="btn-primary">
+                {INCIDENT_PAGE_LABELS.createIncident}
+              </Link>
+            )
           )}
         </div>
       ) : (
