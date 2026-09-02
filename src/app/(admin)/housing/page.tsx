@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 import { requirePermission } from '@/lib/auth'
+import { unitScopeFilter } from '@/lib/auth/site-access'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
 import {
@@ -29,11 +30,17 @@ export default async function HousingListPage({ searchParams }: Props) {
   const view = params.view || 'active'
   const q = params.q?.trim() || ''
 
-  await requirePermission('housing:read')
+  const viewer = await requirePermission('housing:read')
+
+  // Null for an ALL_UNITS viewer — everyone, until somebody is deliberately
+  // narrowed — so the spread adds nothing and this issues exactly the query it
+  // issued before the site axis existed.
+  const unitFilter = unitScopeFilter(viewer)
 
   const [units, allUnits] = await Promise.all([
     prisma.housingUnit.findMany({
       where: {
+        ...(unitFilter ?? {}),
         ...(view === 'active'
           ? { status: { in: ['AVAILABLE', 'FULL', 'MAINTENANCE'] } }
           : view === 'archived'
@@ -79,8 +86,13 @@ export default async function HousingListPage({ searchParams }: Props) {
       },
       orderBy: { code: 'asc' },
     }),
-    // Unfiltered for tab counts and stats
+    // Tab counts and stats — unfiltered by VIEW (that is the point: the
+    // counts describe every tab), but still scoped to the viewer's units.
     prisma.housingUnit.findMany({
+      // Scoped as well: this feeds the view counts beside the tabs, and an
+      // unscoped count tells a restricted viewer how many houses exist that
+      // they cannot open.
+      where: { ...(unitFilter ?? {}) },
       select: {
         status: true,
         totalBeds: true,

@@ -39,9 +39,61 @@ beforeEach(() => {
 
 describe('getCurrentUser', () => {
   it('returns the user for a valid token and an active account', async () => {
-    mockUserFindUnique.mockResolvedValue({ active: true })
+    // The mock is a ROW, so it carries what getCurrentUser selects. It used to
+    // be `{ active: true }` alone, which passed only because the function read
+    // nothing else off the row — every field added since is a fact this test
+    // should be asserting travels.
+    mockUserFindUnique.mockResolvedValue({
+      active: true,
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+      siteAccess: 'ALL_UNITS',
+      unitAccess: [],
+    })
     const user = await getCurrentUser()
-    expect(user).toEqual({ id: 'user-1', email: '', name: 'Demo-Zugang', role: 'ADMIN' })
+    expect(user).toEqual({
+      id: 'user-1',
+      email: '',
+      name: 'Demo-Zugang',
+      role: 'ADMIN',
+      scope: 'ALL_DOMAINS',
+      isSystemAdmin: true,
+      siteAccess: 'ALL_UNITS',
+      assignedUnitIds: [],
+    })
+  })
+
+  it('carries the assigned units for a site-restricted viewer', async () => {
+    // The branch that actually reads the join. `siteAccess` and the unit ids
+    // come from the ROW for the same reason `scope` does: a privilege in a JWT
+    // goes stale, and with sliding refresh "stale" means indefinitely —
+    // revoking somebody's reach has to take effect on the next request.
+    mockUserFindUnique.mockResolvedValue({
+      active: true,
+      scope: 'OWN_DOMAIN',
+      isSystemAdmin: false,
+      siteAccess: 'ASSIGNED_UNITS',
+      unitAccess: [{ housingUnitId: 'unit-a' }, { housingUnitId: 'unit-b' }],
+    })
+
+    const user = await getCurrentUser()
+    expect(user?.siteAccess).toBe('ASSIGNED_UNITS')
+    expect(user?.assignedUnitIds).toEqual(['unit-a', 'unit-b'])
+  })
+
+  it('does not throw when a caller forgot to select the join', async () => {
+    // Impossible in production — the column is NOT NULL with a default — but
+    // this is the auth path. An incomplete select must narrow someone's reach,
+    // never take the request down.
+    mockUserFindUnique.mockResolvedValue({
+      active: true,
+      scope: 'OWN_DOMAIN',
+      isSystemAdmin: false,
+      siteAccess: 'ASSIGNED_UNITS',
+    })
+
+    const user = await getCurrentUser()
+    expect(user?.assignedUnitIds).toEqual([])
   })
 
   it('rejects a valid token whose account was deactivated', async () => {
