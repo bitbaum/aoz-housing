@@ -1,5 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import { and, eq, inArray, sql } from 'drizzle-orm'
+import { PgDialect, QueryBuilder } from 'drizzle-orm/pg-core'
+import { housingUnit, incident, placement, resident, user } from '@/lib/db'
 import {
   canAccessUnit,
   housingUnitScopeFilter,
@@ -29,25 +32,24 @@ describe('nobody loses access on the day this ships', () => {
    */
   it('an ALL_UNITS viewer is unrestricted everywhere', () => {
     expect(unitScopeFilter(everywhere)).toBeNull()
-    expect(housingUnitScopeFilter(everywhere)).toBeNull()
+    expect(housingUnitScopeFilter(everywhere, incident.housingUnitId)).toBeNull()
     expect(residentScopeFilter(everywhere)).toBeNull()
     expect(canAccessUnit(everywhere, 'any-unit-at-all')).toBe(true)
   })
 
   it('returns null rather than an always-true clause', () => {
-    // `...(filter ?? {})` must add NOTHING for the common viewer, so the query
-    // Prisma issues is byte-identical to the one before this axis existed. An
-    // `{ id: { in: [...everything] } }` would have been correct and would also
+    // `and(filter ?? undefined, …)` must add NOTHING for the common viewer, so
+    // the query issued is identical to the one before this axis existed. An
+    // `inArray(id, [...everything])` would have been correct and would also
     // have quietly changed every query plan in the product.
     expect(unitScopeFilter(everywhere)).toBeNull()
   })
 
   it('the schema default is ALL_UNITS, not the restrictive value', () => {
-    const schema = fs.readFileSync(
-      path.resolve(__dirname, '../../../../prisma/schema.prisma'),
-      'utf8',
-    )
-    expect(schema).toMatch(/siteAccess\s+SiteAccess\s+@default\(ALL_UNITS\)/)
+    // Straight off the drizzle column definition — the schema IS the runtime
+    // object, so no file parsing is needed.
+    expect(user.siteAccess.hasDefault).toBe(true)
+    expect(user.siteAccess.default).toBe('ALL_UNITS')
   })
 })
 
@@ -58,25 +60,40 @@ describe('a restricted viewer sees only their places', () => {
   })
 
   it('filters units by id', () => {
-    expect(unitScopeFilter(twoHouses)).toEqual({ id: { in: ['unit-a', 'unit-b'] } })
+    expect(unitScopeFilter(twoHouses)).toEqual(inArray(housingUnit.id, ['unit-a', 'unit-b']))
   })
 
   it('filters unit-owned rows by housingUnitId', () => {
     // Placements, incidents and maintenance all point AT a unit rather than
-    // being one, so they need the other column name.
-    expect(housingUnitScopeFilter(twoHouses)).toEqual({
-      housingUnitId: { in: ['unit-a', 'unit-b'] },
-    })
+    // being one, so the caller names its table's column.
+    expect(housingUnitScopeFilter(twoHouses, incident.housingUnitId)).toEqual(
+      inArray(incident.housingUnitId, ['unit-a', 'unit-b']),
+    )
   })
 
   it('scopes residents by their ACTIVE placement, not any placement', () => {
     // Load-bearing. Matching any placement would leak everyone who ever passed
     // through a house the viewer covers — including people who have since
     // moved somewhere the viewer does not cover.
-    const filter = residentScopeFilter(twoHouses)
-    expect(filter).toEqual({
-      placements: { some: { status: 'ACTIVE', housingUnitId: { in: ['unit-a', 'unit-b'] } } },
-    })
+    const expected = inArray(
+      resident.id,
+      new QueryBuilder()
+        .select({ id: placement.residentId })
+        .from(placement)
+        .where(
+          and(
+            eq(placement.status, 'ACTIVE'),
+            inArray(placement.housingUnitId, ['unit-a', 'unit-b']),
+          ),
+        ),
+    )
+    // Compared as rendered SQL + params: the two expression trees carry
+    // internal closures jest cannot deep-compare, but what the database sees
+    // is exactly this pair.
+    const dialect = new PgDialect()
+    const got = residentScopeFilter(twoHouses)
+    expect(got).not.toBeNull()
+    expect(dialect.sqlToQuery(got as NonNullable<typeof got>)).toEqual(dialect.sqlToQuery(expected))
   })
 })
 
@@ -84,7 +101,7 @@ describe('a restricted viewer with no units is misconfigured, not idle', () => {
   /**
    * This product has already made the neighbouring mistake once: a specialist
    * with nobody assigned was shown "🎉 Alles unter Kontrolle!" on their first
-   * login. An `{ in: [] }` filter is silently and permanently empty, and looks
+   * login. An empty-list filter is silently and permanently empty, and looks
    * exactly like a quiet day.
    */
   it('is detectable rather than indistinguishable from an empty day', () => {
@@ -95,8 +112,9 @@ describe('a restricted viewer with no units is misconfigured, not idle', () => {
 
   it('still produces a filter that matches nothing, rather than everything', () => {
     // The dangerous failure would be treating "no units assigned" as "no
-    // restriction". Fail closed.
-    expect(unitScopeFilter(stranded)).toEqual({ id: { in: [] } })
+    // restriction". Fail closed. (drizzle's `inArray` throws on an empty
+    // list, so the helper renders literal FALSE instead.)
+    expect(unitScopeFilter(stranded)).toEqual(sql`false`)
     expect(canAccessUnit(stranded, 'unit-a')).toBe(false)
   })
 })
@@ -109,18 +127,19 @@ describe('the boards that enforce it', () => {
     // Scoping only the list would leave a restricted viewer reading counts
     // that describe houses they cannot open — the count is the leak.
     const source = fs.readFileSync(path.join(ADMIN_DIR, 'housing/page.tsx'), 'utf8')
-    const queries = source.match(/prisma\.housingUnit\.findMany\(/g) ?? []
-    const scoped = source.match(/\.\.\.\(unitFilter \?\? \{\}\)/g) ?? []
+    const queries = source.match(/db\.query\.housingUnit\.findMany\(/g) ?? []
+    const scoped = source.match(/unitFilter \?\? undefined/g) ?? []
     expect({ queries: queries.length, scoped: scoped.length }).toEqual({
       queries: queries.length,
       scoped: queries.length,
     })
+    expect(queries.length).toBeGreaterThanOrEqual(2)
   })
 
   it('the resident board scopes its list', () => {
     const source = fs.readFileSync(path.join(ADMIN_DIR, 'residents/page.tsx'), 'utf8')
     expect(source).toMatch(/siteFilter\s*=\s*currentUser\s*\?\s*residentScopeFilter\(currentUser\)/)
-    expect(source).toMatch(/\.\.\.\(siteFilter \?\? \{\}\)/)
+    expect(source).toMatch(/siteFilter \?\? undefined/)
   })
 })
 
@@ -135,7 +154,9 @@ describe('site access is read from the row, never the token', () => {
       source.indexOf('export async function getTokenPayload'),
     )
     expect(currentUser).toMatch(/siteAccess:\s*true/)
-    expect(currentUser).toMatch(/unitAccess:\s*\{\s*select:\s*\{\s*housingUnitId:\s*true\s*\}\s*\}/)
+    expect(currentUser).toMatch(
+      /unitAccess:\s*\{\s*columns:\s*\{\s*housingUnitId:\s*true\s*\}\s*\}/,
+    )
     expect(currentUser).not.toMatch(/payload\.siteAccess/)
   })
 })

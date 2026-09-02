@@ -1,6 +1,6 @@
 {
-  "id": "e44fa51c-d34d-4880-a554-e3551fc5c9f2",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f57a3251-c84e-4bb5-b4b4-b4d90bf08291",
+  "prevId": "e44fa51c-d34d-4880-a554-e3551fc5c9f2",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -6251,6 +6251,100 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.StaffUnit": {
+      "name": "StaffUnit",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp (3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        "staffId": {
+          "name": "staffId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "housingUnitId": {
+          "name": "housingUnitId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "StaffUnit_staffId_housingUnitId_key": {
+          "name": "StaffUnit_staffId_housingUnitId_key",
+          "columns": [
+            {
+              "expression": "staffId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "housingUnitId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "StaffUnit_housingUnitId_idx": {
+          "name": "StaffUnit_housingUnitId_idx",
+          "columns": [
+            {
+              "expression": "housingUnitId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "StaffUnit_staffId_fkey": {
+          "name": "StaffUnit_staffId_fkey",
+          "tableFrom": "StaffUnit",
+          "tableTo": "User",
+          "columnsFrom": ["staffId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "StaffUnit_housingUnitId_fkey": {
+          "name": "StaffUnit_housingUnitId_fkey",
+          "tableFrom": "StaffUnit",
+          "tableTo": "HousingUnit",
+          "columnsFrom": ["housingUnitId"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.SystemConfig": {
       "name": "SystemConfig",
       "schema": "",
@@ -6878,6 +6972,14 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "siteAccess": {
+          "name": "siteAccess",
+          "type": "SiteAccess",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ALL_UNITS'"
         }
       },
       "indexes": {
@@ -7394,6 +7496,11 @@
       "name": "RuleStatus",
       "schema": "public",
       "values": ["ACTIVE", "SUPERSEDED", "ARCHIVED"]
+    },
+    "public.SiteAccess": {
+      "name": "SiteAccess",
+      "schema": "public",
+      "values": ["ALL_UNITS", "ASSIGNED_UNITS"]
     },
     "public.SleepSchedule": {
       "name": "SleepSchedule",

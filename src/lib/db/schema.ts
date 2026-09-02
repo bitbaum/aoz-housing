@@ -302,6 +302,7 @@ export const ruleDelegation = pgEnum('RuleDelegation', [
 ])
 export const ruleScope = pgEnum('RuleScope', ['ORG', 'UNIT'])
 export const ruleStatus = pgEnum('RuleStatus', ['ACTIVE', 'SUPERSEDED', 'ARCHIVED'])
+export const siteAccess = pgEnum('SiteAccess', ['ALL_UNITS', 'ASSIGNED_UNITS'])
 export const sleepSchedule = pgEnum('SleepSchedule', [
   'EARLY_BIRD',
   'STANDARD',
@@ -932,6 +933,7 @@ export const user = pgTable(
     code: text().notNull(),
     scope: staffScope().default('OWN_DOMAIN').notNull(),
     isSystemAdmin: boolean().default(false).notNull(),
+    siteAccess: siteAccess().default('ALL_UNITS').notNull(),
   },
   (table) => [
     index('User_code_idx').using('btree', table.code.asc().nullsLast()),
@@ -2428,6 +2430,47 @@ export const residentDocumentBlob = pgTable(
       columns: [table.documentId],
       foreignColumns: [residentDocument.id],
       name: 'ResidentDocumentBlob_documentId_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+  ],
+)
+
+/**
+ * Which PLACES a staff member is responsible for — the join behind
+ * `User.siteAccess = 'ASSIGNED_UNITS'`. A join, not a String[] of unit ids on
+ * User: a unit that closes must take its access rows with it. Cascade both
+ * ways — pure access wiring, no history worth keeping once either side is
+ * gone.
+ */
+export const staffUnit = pgTable(
+  'StaffUnit',
+  {
+    id: text().primaryKey().$defaultFn(createId).notNull(),
+    createdAt: timestamp({ precision: 3, mode: 'date' })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    staffId: text().notNull(),
+    housingUnitId: text().notNull(),
+  },
+  (table) => [
+    uniqueIndex('StaffUnit_staffId_housingUnitId_key').using(
+      'btree',
+      table.staffId.asc().nullsLast(),
+      table.housingUnitId.asc().nullsLast(),
+    ),
+    index('StaffUnit_housingUnitId_idx').using('btree', table.housingUnitId.asc().nullsLast()),
+    foreignKey({
+      columns: [table.staffId],
+      foreignColumns: [user.id],
+      name: 'StaffUnit_staffId_fkey',
+    })
+      .onUpdate('cascade')
+      .onDelete('cascade'),
+    foreignKey({
+      columns: [table.housingUnitId],
+      foreignColumns: [housingUnit.id],
+      name: 'StaffUnit_housingUnitId_fkey',
     })
       .onUpdate('cascade')
       .onDelete('cascade'),

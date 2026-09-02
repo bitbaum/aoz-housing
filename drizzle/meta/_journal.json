@@ -8,6 +8,13 @@
       "when": 1788303042211,
       "tag": "0000_unusual_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788340236588,
+      "tag": "0001_staff_site_access",
+      "breakpoints": true
     }
   ]
 }

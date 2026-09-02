@@ -113,9 +113,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     // production — but this is the auth path, and an incomplete select should
     // narrow someone's reach, never throw and take the whole request down.
     assignedUnitIds:
-      row.siteAccess === 'ALL_UNITS'
-        ? []
-        : (row.unitAccess ?? []).map((r) => r.housingUnitId),
+      row.siteAccess === 'ALL_UNITS' ? [] : (row.unitAccess ?? []).map((r) => r.housingUnitId),
   }
 }
 
