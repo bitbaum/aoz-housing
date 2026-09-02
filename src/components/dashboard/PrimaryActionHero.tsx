@@ -6,6 +6,8 @@ import { AlertTriangle, Hand, Home, AlertCircle, Sparkles, ArrowRight, Vote } fr
 import { URGENCY_BADGE_CLASS, URGENCY_BORDER_CLASS, type Urgency } from '@/lib/config/urgency'
 import { VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import { fallbackCta } from '@/lib/config/dashboard'
+import type { JobQueueItem } from '@/lib/jobcoach/queue'
+import { JOB_SIGNAL_COPY } from '@/lib/config/job-integration-docs'
 import type { StaffCapabilities } from '@/lib/auth/role-policy'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS, UI_LABELS } from '@/lib/constants/labels'
 import { residentName } from '@/lib/utils/resident-name'
@@ -41,6 +43,7 @@ export function determinePrimaryAction({
   freeBeds,
   problemUnits,
   proposalsAwaitingStaff,
+  jobQueue,
   viewer,
 }: {
   criticalIncidents: CriticalIncident[]
@@ -49,6 +52,7 @@ export function determinePrimaryAction({
   freeBeds: number
   problemUnits: ProblemUnit[]
   proposalsAwaitingStaff: ProposalAwaitingStaff[]
+  jobQueue: JobQueueItem[]
   viewer: StaffCapabilities
 }): PrimaryActionType {
   // Priority 1: Critical incidents
@@ -140,6 +144,26 @@ export function determinePrimaryAction({
       href: `/housing/${problemUnits[0].id}`,
       buttonText: DASHBOARD_LABELS.heroReview,
       count: problemUnits.length,
+    }
+  }
+
+  // The Job domain's work, LAST among the priorities and before all-clear.
+  //
+  // Last because everything above it is a safety or housing emergency, and a
+  // coaching task must not outrank a critical incident. Before all-clear
+  // because it is still work: without this branch the hero announced "Alles
+  // erledigt!" on the same screen as a header reading "1 Aufgabe wartet auf
+  // Sie" and an open-tasks tile naming the client — three states at once,
+  // which is the contradiction this dashboard has fixed twice before.
+  if (jobQueue.length > 0) {
+    const copy = JOB_SIGNAL_COPY[jobQueue[0].signal]
+    return {
+      type: 'problem',
+      title: copy.title,
+      description: `${jobQueue[0].name} — ${copy.action}`,
+      href: `/residents/${jobQueue[0].residentId}`,
+      buttonText: DASHBOARD_LABELS.heroReview,
+      count: jobQueue.length,
     }
   }
 
