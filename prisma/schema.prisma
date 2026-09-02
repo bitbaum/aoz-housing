@@ -507,6 +507,9 @@ model HousingUnit {
   marketplacePosts    MarketplacePost[]
   houseEvents         HouseEvent[]
 
+  /// Staff explicitly responsible for this unit. @see StaffUnit
+  staffAccess StaffUnit[]
+
   // Governance
   houseRules HouseRule[]
   proposals  Proposal[]
@@ -1041,6 +1044,23 @@ model User {
   /// at AOZ works the housing domain AND sees every client, and a job coach
   /// works one domain and sees only that.
   scope       StaffScope @default(OWN_DOMAIN)
+
+  /// WHICH PLACES this person is responsible for.
+  ///
+  /// A fourth orthogonal fact, and the one the three-axis model could not say.
+  /// `role` is which care domain, `scope` is how many domains, and neither
+  /// answers "which houses". AOZ runs 31 sites (16 in the city), the portfolio
+  /// turns over every few years, and it staffs a `Springer*in` explicitly
+  /// described as having "kein fester Arbeitsort" — one person covering some
+  /// sites but not others, which nothing here could express.
+  ///
+  /// ALL_UNITS is the default so NOBODY's access changes the day this ships:
+  /// every existing row keeps seeing everything, exactly as the ADMIN→scope
+  /// migration did. Narrowing someone is then a deliberate act, never a
+  /// side effect of a deploy.
+  siteAccess  SiteAccess @default(ALL_UNITS)
+  /// Which units, when `siteAccess` is ASSIGNED_UNITS. Ignored otherwise.
+  unitAccess  StaffUnit[]
 
   /// May configure the product: invite staff, change settings, import data.
   /// NOT implied by seeing everything — reading every file and reconfiguring
@@ -2099,6 +2119,37 @@ enum CareRole {
   SOCIAL
   JOB
   VOLUNTEERING
+}
+
+/// Which units a staff member covers, when they do not cover all of them.
+///
+/// A join rather than a `String[]` of ids on User: a unit that closes must take
+/// its access rows with it, and a site portfolio that turns over every few
+/// years would otherwise accumulate ids pointing at nothing. Cascade on the
+/// unit, Cascade on the user — this table is pure access wiring and carries no
+/// history worth keeping once either side is gone.
+model StaffUnit {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  staff         User        @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staffId       String
+  housingUnit   HousingUnit @relation(fields: [housingUnitId], references: [id], onDelete: Cascade)
+  housingUnitId String
+
+  @@unique([staffId, housingUnitId])
+  @@index([housingUnitId])
+}
+
+/// How wide a staff member's SITE reach is. Orthogonal to `StaffScope`, which
+/// is about care domains — a Jobcoach with ALL_DOMAINS still works one seat,
+/// and a Betreuer with ALL_UNITS still works one domain.
+enum SiteAccess {
+  /// Every unit in the product. The default, and what everyone had before
+  /// this axis existed.
+  ALL_UNITS
+  /// Only the units joined through StaffUnit.
+  ASSIGNED_UNITS
 }
 
 model CareAssignment {

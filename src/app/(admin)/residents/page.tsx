@@ -23,6 +23,7 @@ import { LayoutGrid, List } from 'lucide-react'
 import Link from 'next/link'
 import { getCheckInInterval } from '@/lib/config/checkin-intervals'
 import { getCurrentUser, requirePermission } from '@/lib/auth'
+import { residentScopeFilter } from '@/lib/auth/site-access'
 import {
   NARROWEST_CAPABILITIES,
   hasPermission,
@@ -65,9 +66,20 @@ export default async function ResidentsListPage({ searchParams }: Props) {
   // ones the role can actually keep.
   const can = (permission: StaffPermission) => hasPermission(viewer, permission)
 
+  // Which PLACES this viewer covers. Null for ALL_UNITS — everyone, until
+  // somebody is deliberately narrowed — so the spread below adds nothing and
+  // the common query is unchanged.
+  //
+  // Read from `currentUser`, not from `viewer`: the NARROWEST_CAPABILITIES
+  // fallback describes a care role only, and inventing a site restriction for
+  // an expiring session would hide people for a reason that has nothing to do
+  // with sites.
+  const siteFilter = currentUser ? residentScopeFilter(currentUser) : null
+
   const [residents, statusGroups, unplacedCount, myResidentIds] = await Promise.all([
     prisma.resident.findMany({
       where: {
+        ...(siteFilter ?? {}),
         ...(view === 'active'
           ? { status: { in: ['ACTIVE', 'PLACED'] } }
           : view === 'archived'

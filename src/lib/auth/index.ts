@@ -27,6 +27,7 @@ import {
   type StaffPermission,
   type StaffRole,
 } from './role-policy'
+import type { SiteCapabilities } from './site-access'
 import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 
 // Re-export types
@@ -44,7 +45,7 @@ export { hasPermission, canRoleAccess, STAFF_ROLES, isStaffRole } from './role-p
  * is indefinitely — the same failure the `active` re-check already exists to
  * prevent. The row is fetched anyway for that check, so this costs nothing.
  */
-export interface AuthUser extends StaffCapabilities {
+export interface AuthUser extends StaffCapabilities, SiteCapabilities {
   id: string
   email: string // JWT still carries email (may be empty string for code-only users)
   name: string
@@ -79,7 +80,16 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   // until token expiry — with sliding refresh, indefinitely.
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { active: true, scope: true, isSystemAdmin: true },
+    select: {
+      active: true,
+      scope: true,
+      isSystemAdmin: true,
+      siteAccess: true,
+      // Only the ids, and only when they can matter. An ALL_UNITS viewer —
+      // everyone, until somebody is deliberately narrowed — carries an empty
+      // list that nothing reads, so the common request does not grow a join.
+      unitAccess: { select: { housingUnitId: true } },
+    },
   })
   if (!user?.active) return null
 
@@ -88,9 +98,21 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     email: payload.email,
     name: payload.name,
     role: payload.role,
-    // From the row, never the token — see the AuthUser docstring.
+    // From the row, never the token — see the AuthUser docstring. Site access
+    // belongs in that same sentence: revoking someone's reach must take effect
+    // on the next request, not at token expiry, which with sliding refresh is
+    // indefinitely.
     scope: user.scope,
     isSystemAdmin: user.isSystemAdmin,
+    siteAccess: user.siteAccess,
+    // `?? []` guards a future caller that forgets to select the relation.
+    // The column is NOT NULL with a default, so absence is impossible in
+    // production — but this is the auth path, and an incomplete select should
+    // narrow someone's reach, never throw and take the whole request down.
+    assignedUnitIds:
+      user.siteAccess === 'ALL_UNITS'
+        ? []
+        : (user.unitAccess ?? []).map((row) => row.housingUnitId),
   }
 }
 
@@ -248,6 +270,7 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         role: true,
         scope: true,
         isSystemAdmin: true,
+        siteAccess: true,
         active: true,
         // Contact email lives on the account (may be absent for code-only staff).
         account: { select: { email: true } },
@@ -275,6 +298,12 @@ export async function loginByCode(code: string, clientIp: string): Promise<Login
         role: user.role,
         scope: user.scope,
         isSystemAdmin: user.isSystemAdmin,
+        // The login result is a receipt, not a session. Every request that
+        // asks "which places?" goes through getCurrentUser, which reads both
+        // from the ROW — so the honest value here is the narrowest one rather
+        // than a snapshot that could go stale in a caller's hands.
+        siteAccess: user.siteAccess,
+        assignedUnitIds: [],
       },
     }
   }
