@@ -34,6 +34,10 @@ export type AuditEntity =
   | 'RESIDENT_PROFILE'
   | 'OPPORTUNITY'
   | 'OPPORTUNITY_APPLICATION'
+  // A staff account as the SUBJECT of an action — currently opening and
+  // closing a borrowed view. Distinct from the `userId` on every other entry,
+  // which records who ACTED; here the staff member is what was acted upon.
+  | 'STAFF_USER'
 
 interface AuditLogEntry {
   action: AuditAction
