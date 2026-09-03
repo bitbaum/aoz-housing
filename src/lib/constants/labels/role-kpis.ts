@@ -11,13 +11,12 @@ export const ROLE_KPI_LABELS = {
   scopeAll: 'Alle Klient*innen — ohne Demo-Daten.',
 
   unitDays: 'Tage · ',
-  denominator: (n: number) => `von ${n} Personen`,
   /**
-   * The distinction the whole KPI set turns on. An empty caseload is not a
-   * score of nought, and saying "0%" to someone nobody has assigned a client to
-   * blames them for an empty seat.
+   * Singular matters here rather than being pedantry: these caseloads are one
+   * and two people, so "von 1 Personen" is the string a real coach would read
+   * on a real screen, every day, about a real person.
    */
-  noCaseload: 'noch niemand zugewiesen',
+  denominator: (n: number) => (n === 1 ? 'von 1 Person' : `von ${n} Personen`),
 
   basis: 'Grundlage:',
 

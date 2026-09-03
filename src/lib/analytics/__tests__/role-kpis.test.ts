@@ -178,6 +178,23 @@ describe('every KPI traces to evidence', () => {
     ).toEqual(VOLUNTEERING_KPI_DEFS.map((d) => d.id).sort())
   })
 
+  it('says what a dash MEANS, per KPI', () => {
+    /**
+     * Shipped without this and it was wrong on screen within the hour: Simon's
+     * median-days tile read "noch niemand zugewiesen" while he plainly had a
+     * client. That tile's denominator is the people who have HAD contact, so
+     * nought means "nobody has started yet" — the state a coach acts on — and
+     * one shared string cannot say both.
+     */
+    for (const def of [...JOB_KPI_DEFS, ...VOLUNTEERING_KPI_DEFS]) {
+      expect(def.emptyHint.length).toBeGreaterThan(0)
+    }
+
+    const median = JOB_KPI_DEFS.find((d) => d.id === 'MEDIAN_DAYS_TO_FIRST_CONTACT')
+    const rate = JOB_KPI_DEFS.find((d) => d.id === 'LABOUR_MARKET_CONTACT_RATE')
+    expect(median?.emptyHint).not.toBe(rate?.emptyHint)
+  })
+
   it('names which care domains still have no KPIs, rather than pretending', () => {
     // HOUSING is covered by mission-kpis.ts; SOCIAL genuinely has none yet, and
     // this test exists so that stays a visible decision rather than an oversight.

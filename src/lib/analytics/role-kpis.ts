@@ -56,6 +56,16 @@ export interface RoleKpiDef {
   format: KpiFormat
   /** Into JOB_RESEARCH_SOURCES. Empty is not allowed — see the docstring. */
   sourceIds: string[]
+  /**
+   * What a dash MEANS for this particular number.
+   *
+   * Shipped without this and it was wrong on screen within the hour: Simon's
+   * median-days tile read "noch niemand zugewiesen" while he plainly had a
+   * client. Its denominator is the people who have HAD contact, so nought there
+   * means "nobody has started yet" — a different fact from an empty caseload,
+   * and the one a coach would act on. One shared empty string cannot say both.
+   */
+  emptyHint: string
 }
 
 export interface KpiValue {
@@ -81,6 +91,7 @@ export const JOB_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'up',
     format: 'percent',
     sourceIds: ['ips-supported-employment', 'iab-fluchtmigration-erwerbsverlauf'],
+    emptyHint: 'noch niemand zugewiesen',
   },
   {
     id: 'MEDIAN_DAYS_TO_FIRST_CONTACT',
@@ -89,6 +100,10 @@ export const JOB_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'down',
     format: 'days',
     sourceIds: ['iab-fluchtmigration-erwerbsverlauf', 'ips-supported-employment'],
+    // NOT "niemand zugewiesen": this one is nought when a caseload exists but
+    // nobody in it has reached the labour market yet — which is the state a
+    // coach acts on.
+    emptyHint: 'noch kein Kontakt erfasst',
   },
   {
     id: 'COURSE_WITHOUT_WORK_RATE',
@@ -97,6 +112,7 @@ export const JOB_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'down',
     format: 'percent',
     sourceIds: ['iab-lock-in', 'language-and-work-parallel'],
+    emptyHint: 'noch niemand zugewiesen',
   },
   {
     id: 'GERMAN_LEVEL_RECORDED_RATE',
@@ -105,6 +121,7 @@ export const JOB_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'up',
     format: 'percent',
     sourceIds: ['integrationsagenda-schweiz', 'language-and-work-parallel'],
+    emptyHint: 'noch niemand zugewiesen',
   },
 ]
 
@@ -215,6 +232,7 @@ export const VOLUNTEERING_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'up',
     format: 'percent',
     sourceIds: ['ips-supported-employment'],
+    emptyHint: 'noch niemand zugewiesen',
   },
   {
     id: 'EVENT_PARTICIPATION_RATE',
@@ -223,6 +241,7 @@ export const VOLUNTEERING_KPI_DEFS: readonly RoleKpiDef[] = [
     direction: 'up',
     format: 'percent',
     sourceIds: ['language-and-work-parallel'],
+    emptyHint: 'noch niemand zugewiesen',
   },
 ]
 
