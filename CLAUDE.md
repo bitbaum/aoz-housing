@@ -77,6 +77,38 @@ AOZ staff place asylum seekers into shared housing based on **gut feeling and av
 | Staff hours on mediation | -40% | 12 → 7 hours/week |
 | Placement decision time | Same or faster | No slower than before |
 
+⚠️ **Those four are HOUSING KPIs, and for a long time they were the only ones.**
+Implemented in `lib/analytics/mission-kpis.ts`, rendered by `MissionKPISection`
+— and a Jobcoach or a Freiwilligenarbeit coordinator could open `/analytics`
+and find nothing on it about their work, while labour-market integration is
+half of what AOZ is measured on by its funder.
+
+`lib/analytics/role-kpis.ts` now carries the other domains, as LEADING
+indicators anchored to the Integrationsagenda Schweiz Wirkungsziele (which
+themselves resolve at five and seven years and cannot be steered on):
+
+| Domain | Indicators |
+|---|---|
+| Jobcoach | contact rate · median days to first contact · course-without-work (IAB lock-in) · German level recorded |
+| Freiwilligenarbeit | active engagement rate · event participation |
+| Sozialarbeit | **none yet** — a visible gap, pinned by a test rather than left to be noticed |
+
+Two rules these follow, and both are load-bearing:
+
+- **Shares of a caseload, never counts.** A count rewards holding more clients;
+  a share asks whether the people you hold are moving.
+- **An empty caseload reports `null`, never `0`.** Zero says "nobody is
+  progressing"; null says "nobody is assigned". They look identical on a tile
+  and mean opposite things about whose problem it is.
+
+⚠️ **And no KPI is trustworthy until the demo world is excluded.** The pilot
+numbers were computed over demo AND real rows: measured 2026-09-03, seven of
+eight interpersonal incidents in 180 days belonged to `DEMO-U12`/`DEMO-U09`,
+re-seeded nightly at 04:05, and the page reported "67% mehr Konflikte ·
+Verschlechterung" off them. `lib/analytics/real-data.ts` excludes demo rows by
+the same CODE PREFIX the scoped reset deletes by, so a row the reset can clean
+is exactly a row the KPIs ignore. Any new metric must pass through it.
+
 **Cost of NOT solving this:**
 - 1 relocation = ~2 staff hours (packing, transport, paperwork) = CHF 100+
 - 1 conflict mediation = ~1 staff hour = CHF 50+
@@ -773,25 +805,29 @@ hold permits that constrain paid work, and a neighbour-help board where one
 resident quotes another turns into informal employment nobody has checked,
 inside a population that cannot afford to have that go wrong.
 
-⚠️ **The other half of that safeguard does not exist yet, and this file used to
-claim it did.** It said paid and formal work "keeps its own channel with its
-own permit gate — `Opportunity`". `Opportunity` has exactly two kinds,
-`VOLUNTEERING` and `COMMUNITY_SERVICE`; there is no kind an employment can be
-filed under, so the channel is empty by construction. `PermitRequirement`
-(`NONE` / `EMPLOYER_NOTIFIES` / `PERMIT_REQUIRED`) is plainly designed for
-employment and currently only ever decorates unpaid volunteering — the one case
-where it cannot matter. Meanwhile `JOBCOACH`, the `JOB` care domain and the
-`job_goal` / `work_status` attributes all ship, so the role exists and the
-object its work is about does not.
+**The other half of that safeguard now exists.** This paragraph twice described
+a gap that has since been closed, so read the code before trusting it again:
+`Opportunity` has FOUR kinds — `VOLUNTEERING`, `COMMUNITY_SERVICE`,
+`EMPLOYMENT`, `INTERNSHIP` — and the last two are what paid and formal work is
+filed under, in a channel separate from the no-price marketplace.
 
-The marketplace's no-price rule stands on its own and is not weakened by this.
-But do not read the sentence above as "jobs are handled elsewhere" — nothing is
-handling them. Adding an employment kind is a live decision: it means this
-product starts listing paid work to people whose permits constrain it, and if
-it is taken, `permitRequirement` must stop defaulting to `NONE` for those
-kinds — enforced by a test, not by a convention. Choosing NOT to take it is
-equally defensible — but then this paragraph, not the old one, is the honest
-description.
+The decision this file called live has been taken, and the condition it set was
+met. `permitRequirementIsStated()` refuses a work listing that leaves
+`permitRequirement` at its `NONE` default, because `NONE` renders to a resident
+as "Keine Bewilligung nötig" — true and useful on unpaid volunteering, and on a
+job a legal claim about that person's situation which this product must never
+make by accident. A coach who does not know which route applies cannot publish;
+the unknown case belongs with Sozialarbeit before it reaches a resident.
+
+Enforced in three places, not by convention: the zod schema
+(`validation/schemas.ts`), the publish action (`actions/opportunities.ts`), and
+`opportunities/__tests__/work-permit-gate.test.ts`.
+
+What is still true: the board itself is EMPTY on the live instance — zero
+places, zero applications. That is AOZ's data to enter, and it is the binding
+constraint on the Jobcoach and Freiwilligenarbeit KPIs, which cannot rise while
+there is nowhere to place anyone. Do not seed it with invented employers to
+make a number move.
 
 - **`kind` is an enum, `category` is config.** Not the same kind of thing: a
   category is vocabulary (adding "Fahrrad" is one line, never a migration — same
@@ -1258,7 +1294,8 @@ model Account {
 | Email verification | Active | `src/app/api/auth/verify-email/route.ts` |
 | Unified code login | Active | `src/lib/auth/index.ts` (`loginByCode()`) |
 | Staff JWT auth | Active | `src/lib/auth/jwt.ts` |
-| Middleware enforcement | Active | `src/middleware.ts` |
+| Middleware enforcement | Active | `src/proxy.ts` (Next 16 renamed it from `middleware.ts`) |
+| View as a colleague | Active | `src/lib/auth/impersonation.ts` + `/api/auth/impersonate` |
 | Login page (unified) | Working | `src/app/(auth)/login/page.tsx` |
 | Staff provisioning | Working | `src/app/api/auth/register/route.ts` |
 | Rate limiting | Active | `src/lib/auth/rate-limit.ts` |
