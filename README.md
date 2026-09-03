@@ -1,8 +1,8 @@
 # AOZ Begleitung
 
 created_date: 2025-06-01
-last_modified_date: 2026-08-24
-last_modified_summary: Reframed from housing-placement-only to the four-pillar support platform the product has become; repo name stays aoz-housing (identifier, not branding).
+last_modified_date: 2026-09-03
+last_modified_summary: Honesty pass — aligned test counts and badges with CI 2026-09-02 (3650 unit Vitest, 201 E2E). No customer claim.
 
 A support platform for refugee care work, built on four pillars: **housing
 stability** (compatibility-based placement, conflict resolution), **capability**
@@ -14,8 +14,8 @@ research-backed factors — but housing is the beginning, not the whole picture.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
-[![Vitest](https://img.shields.io/badge/Tests-3599%20unit-green.svg)](https://vitest.dev/)
-[![Playwright](https://img.shields.io/badge/E2E-173%20tests-green.svg)](https://playwright.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-3650%20unit-green.svg)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/E2E-201%20tests-green.svg)](https://playwright.dev/)
 
 ## What It Does
 
@@ -142,7 +142,7 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 | Styling | Tailwind CSS (mobile-first) |
 | Validation | Zod |
 | Auth | JWT sessions (bcryptjs + jose) |
-| Testing | Jest (2341 unit) + Playwright (173 E2E) |
+| Testing | Vitest (3650 unit) + Playwright (201 E2E) |
 | CI/CD | GitHub Actions |
 
 ---
@@ -182,7 +182,7 @@ pnpm dev
 
 Testing is not an afterthought. The compatibility algorithm makes placement decisions that affect people's daily lives. Every scoring path, every threshold boundary, every conflict classification is tested.
 
-### Unit Tests: 2341 tests across 135 suites
+### Unit Tests: 3650 passed (CI 2026-09-02, Vitest)
 
 | Area | Suites | What They Cover |
 |------|--------|-----------------|
@@ -196,7 +196,7 @@ Testing is not an afterthought. The compatibility algorithm makes placement deci
 | UI | 2 | BedGrid component, style utilities |
 | Config | 3 | Labels, formatting, factor configuration |
 
-### E2E Tests: 45 tests across 11 Playwright specs
+### E2E Tests: 201 passed (CI 2026-09-02, Playwright)
 
 - Auth flow, resident creation, matching workflow, incident reporting
 - Placement check-in, housing detail, dashboard, navigation
@@ -208,7 +208,7 @@ Testing is not an afterthought. The compatibility algorithm makes placement deci
 `.github/workflows/ci.yml` runs on every push:
 
 1. **Lint + Type Check** -- ESLint + TypeScript strict mode
-2. **Unit Tests** -- Jest with coverage reporting
+2. **Unit Tests** -- Vitest with coverage reporting
 3. **Build** -- Next.js production build
 4. **E2E Tests** -- Playwright against PostgreSQL 16 service container
 
@@ -228,8 +228,8 @@ src/
 src/lib/db/
   schema.ts               # Single source of truth for data model (drizzle/ holds its SQL migrations)
 tests/
-  unit/                   # 2341 unit tests (135 suites)
-  e2e/                    # 45 Playwright specs (11 files)
+  unit/                   # 3650 unit tests (Vitest; CI 2026-09-02)
+  e2e/                    # 201 Playwright tests (CI 2026-09-02)
 .github/
   workflows/ci.yml        # Lint, test, build, E2E pipeline
 ```
