@@ -247,6 +247,17 @@ export const RESIDENT_LIST_LABELS = {
   title: 'Klient*innen',
   export: 'Exportieren',
   addResident: '+ Klient*in',
+  /**
+   * The "not archived" filter tab.
+   *
+   * NOT "Aktiv", which it used to be — and that word already means a resident
+   * STATUS in this product (`RESIDENT_STATUS_LABELS.ACTIVE`: erfasst, noch
+   * nicht platziert). Both appeared on this one screen, reading "Aktiv 20" in
+   * the filter row and "Aktiv 3" in the stat block, because one counts
+   * everything that is not archived and the other counts one status. Neither
+   * number was wrong; the word was.
+   */
+  viewCurrent: 'Aktuell',
   unplacedBannerSuffix: 'Klient*innen warten auf Platzierung',
   unplacedBannerDesc: 'Starten Sie den Matching-Prozess um passende Unterkünfte zu finden',
   startMatching: 'Matching starten',

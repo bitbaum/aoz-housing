@@ -296,7 +296,7 @@ export default async function ResidentsListPage({ searchParams }: Props) {
         <TabLinkGroup label={UI_LABELS.filterNav}>
           <TabLink
             href={`/residents?view=active${layoutParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-            label="Aktiv"
+            label={RESIDENT_LIST_LABELS.viewCurrent}
             count={stats.active + stats.placed}
             active={view === 'active'}
           />
