@@ -83,6 +83,27 @@ export function excludesDemo<T extends MaybeDemoRow>(rows: readonly T[], scope: 
 }
 
 /**
+ * Match like with like — never a real person against the demo world.
+ *
+ * Distinct from `excludesDemo`, and the difference matters. The KPIs must
+ * simply drop demo rows. MATCHING must not: compatibility scoring is the
+ * product's headline feature, and a demo visitor placing Fatima has to see it
+ * work. Excluding demo outright would gut the tour; ignoring the question
+ * produces the bug found on 2026-09-03, where a REAL client's page recommended
+ * `DEMO-U07` and `DEMO-U03` as best-fit housing and two demo residents as
+ * roommates — units and people wiped and re-seeded at 04:05 every night.
+ *
+ * Staff acting on that would place someone into a flat that ceases to exist.
+ *
+ * So the rule is symmetric: demo subjects see demo candidates, real subjects
+ * see real ones. Both worlds keep a working matcher and neither can reach into
+ * the other.
+ */
+export function belongsToSameWorld(subjectIsDemo: boolean, candidateIsDemo: boolean): boolean {
+  return subjectIsDemo === candidateIsDemo
+}
+
+/**
  * Load the demo ids once per analytics request.
  *
  * Selects ids and codes only — nothing here reaches a UI, and a demo resident's
