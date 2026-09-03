@@ -13,6 +13,7 @@
 import { and, asc, eq, gte, inArray, ne } from 'drizzle-orm'
 import { db, incident, placement, resident } from '@/lib/db'
 import { zurichMonthKey, getZurichParts } from '@/lib/utils'
+import { excludesDemo, isDemoResidentCode, loadDemoScope } from './real-data'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -100,36 +101,50 @@ export async function calculateMissionKPIs(months: number = 6): Promise<MissionK
 
   // ── Fetch data ─────────────────────────────────────────────────────
 
-  const [incidents, endedPlacements, residents, placements] = await Promise.all([
-    // Interpersonal incidents in range
-    db.query.incident.findMany({
-      where: and(eq(incident.category, 'INTERPERSONAL'), gte(incident.date, startDate)),
-      columns: { date: true, mediationMinutes: true },
-      orderBy: [asc(incident.date)],
-    }),
+  // Every query below selects the ids that identify a demo row, and every
+  // result is passed through `excludesDemo`. Without it the pilot's headline
+  // number counted a nightly-reseeded demo world: measured 2026-09-03, seven of
+  // eight interpersonal incidents in 180 days were demo. @see ./real-data.ts
+  const [demoScope, rawIncidents, rawEndedPlacements, rawResidents, rawPlacements] =
+    await Promise.all([
+      loadDemoScope(),
 
-    // Placements that ended in range
-    db.query.placement.findMany({
-      where: and(gte(placement.endDate, startDate), ne(placement.status, 'ACTIVE')),
-      columns: { endDate: true, endReason: true },
-    }),
+      // Interpersonal incidents in range
+      db.query.incident.findMany({
+        where: and(eq(incident.category, 'INTERPERSONAL'), gte(incident.date, startDate)),
+        columns: { date: true, mediationMinutes: true, housingUnitId: true },
+        orderBy: [asc(incident.date)],
+      }),
 
-    // Residents created in range (for placement time calculation)
-    db.query.resident.findMany({
-      where: and(
-        gte(resident.createdAt, startDate),
-        inArray(resident.status, ['PLACED', 'ACTIVE']),
-      ),
-      columns: { id: true, createdAt: true },
-    }),
+      // Placements that ended in range
+      db.query.placement.findMany({
+        where: and(gte(placement.endDate, startDate), ne(placement.status, 'ACTIVE')),
+        columns: { endDate: true, endReason: true, residentId: true, housingUnitId: true },
+      }),
 
-    // First placement per recent resident
-    db.query.placement.findMany({
-      where: gte(placement.startDate, startDate),
-      columns: { residentId: true, startDate: true },
-      orderBy: [asc(placement.startDate)],
-    }),
-  ])
+      // Residents created in range (for placement time calculation)
+      db.query.resident.findMany({
+        where: and(
+          gte(resident.createdAt, startDate),
+          inArray(resident.status, ['PLACED', 'ACTIVE']),
+        ),
+        columns: { id: true, createdAt: true, code: true },
+      }),
+
+      // First placement per recent resident
+      db.query.placement.findMany({
+        where: gte(placement.startDate, startDate),
+        columns: { residentId: true, startDate: true, housingUnitId: true },
+        orderBy: [asc(placement.startDate)],
+      }),
+    ])
+
+  const incidents = excludesDemo(rawIncidents, demoScope)
+  const endedPlacements = excludesDemo(rawEndedPlacements, demoScope)
+  const placements = excludesDemo(rawPlacements, demoScope)
+  // Residents carry their own code rather than a residentId, so the shared
+  // predicate does not apply — the code IS the identifier here.
+  const residents = rawResidents.filter((row) => !isDemoResidentCode(row.code))
 
   // ── Build monthly data points ──────────────────────────────────────
 

@@ -73,6 +73,31 @@ export type LearningCategoryId = (typeof LEARNING_CATEGORIES)[number]
  */
 export const LEARNING_PULSE_WINDOW_DAYS = 30
 
+/**
+ * What counts as "this person has a German level on file".
+ *
+ * ONE definition, because two things ask it and they must never disagree: the
+ * learning board's "Kein Deutsch-Test erfasst" panel (as SQL, in
+ * `actions/learning.ts`) and the Jobcoach KPI that measures the same coverage
+ * (as a predicate, in `analytics/role-kpis.ts`). A board that nudges about a
+ * gap the KPI does not count would have staff chasing a number that never moves.
+ *
+ * Why it matters at all: the Integrationsagenda Schweiz sets communication in a
+ * national language as an explicit Wirkungsziel, and the OECD finding is that
+ * language and work run in PARALLEL. A missing level is not an administrative
+ * gap — it is the one fact that decides whether a placement conversation can
+ * even start.
+ */
+export const GERMAN_TEST_KIND = 'LANGUAGE_TEST' as const
+export const GERMAN_LANGUAGE_CODE = 'DE' as const
+
+export function isGermanLanguageTest(record: {
+  kind: string
+  languageCode?: string | null
+}): boolean {
+  return record.kind === GERMAN_TEST_KIND && record.languageCode === GERMAN_LANGUAGE_CODE
+}
+
 export const LEARNING_BOARD_IDS = ['overview', 'job', 'volunteering'] as const
 export type LearningBoardId = (typeof LEARNING_BOARD_IDS)[number]
 

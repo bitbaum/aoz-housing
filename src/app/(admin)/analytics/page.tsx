@@ -24,6 +24,11 @@ import { AlgorithmAccuracySection } from '@/components/analytics/AlgorithmAccura
 import { VulnerabilitySection } from '@/components/analytics/VulnerabilitySection'
 import { summariseVulnerability } from '@/lib/vulnerability'
 import { calculateMissionKPIs } from '@/lib/analytics/mission-kpis'
+import { loadJobKpis, loadVolunteeringKpis } from '@/lib/analytics/role-kpi-queries'
+import { JOB_KPI_DEFS, VOLUNTEERING_KPI_DEFS } from '@/lib/analytics/role-kpis'
+import { RoleKPISection } from '@/components/analytics/RoleKPISection'
+import { ROLE_KPI_LABELS } from '@/lib/constants/labels/role-kpis'
+import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
 import { BRAND } from '@/lib/config/brand'
@@ -107,22 +112,40 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     ])
 
   // Get all ended placements for end reason analysis (including conflict analysis fields)
-  const [endedPlacements, missionKPIs, algorithmAccuracy, systemConfig] = await Promise.all([
-    db.query.placement.findMany({
-      where: ne(placement.status, 'ACTIVE'),
-      columns: {
-        endReason: true,
-        conflictGap: true,
-        wasPredictable: true,
-        compatibilityScore: true,
-      },
-    }),
-    // Off-brand, this is four queries whose result nothing renders. Gating the
-    // JSX alone would still pay for them on every load of the page.
-    BRAND.features.pilotMeasurement ? calculateMissionKPIs(6) : null,
-    calculateAlgorithmAccuracy(),
-    getSystemConfig(),
-  ])
+  // Which domain's KPIs this viewer is shown, and over whose caseload.
+  //
+  // A specialist gets their OWN seat's numbers; someone whose reach is every
+  // domain has no single seat, so they see both sets over the whole real
+  // population. Housing is deliberately absent here — it already has
+  // MissionKPISection, and duplicating it would be a second definition of the
+  // same four numbers.
+  const viewerDomain = STAFF_ROLE_CARE_DOMAIN[currentUser.role]
+  const seesAllDomains = currentUser.scope === 'ALL_DOMAINS'
+  const kpiStaffId = seesAllDomains ? null : currentUser.id
+  const showJobKpis = seesAllDomains || viewerDomain === 'JOB'
+  const showVolunteeringKpis = seesAllDomains || viewerDomain === 'VOLUNTEERING'
+
+  const [endedPlacements, missionKPIs, algorithmAccuracy, systemConfig, jobKpis, volunteeringKpis] =
+    await Promise.all([
+      db.query.placement.findMany({
+        where: ne(placement.status, 'ACTIVE'),
+        columns: {
+          endReason: true,
+          conflictGap: true,
+          wasPredictable: true,
+          compatibilityScore: true,
+        },
+      }),
+      // Off-brand, this is four queries whose result nothing renders. Gating the
+      // JSX alone would still pay for them on every load of the page.
+      BRAND.features.pilotMeasurement ? calculateMissionKPIs(6) : null,
+      calculateAlgorithmAccuracy(),
+      getSystemConfig(),
+      showJobKpis ? loadJobKpis({ domain: 'JOB', staffId: kpiStaffId }) : null,
+      showVolunteeringKpis
+        ? loadVolunteeringKpis({ domain: 'VOLUNTEERING', staffId: kpiStaffId })
+        : null,
+    ])
 
   // Calculate metrics
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
@@ -247,6 +270,31 @@ export default async function AnalyticsPage({ searchParams }: Props) {
       {missionKPIs && (
         <div className="mb-6 sm:mb-8">
           <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
+        </div>
+      )}
+
+      {/* Per-domain KPIs. Housing is absent on purpose — MissionKPISection
+          above already owns those four numbers, and a second rendering would
+          be a second definition of them. */}
+      {jobKpis && (
+        <div className="mb-6 sm:mb-8">
+          <RoleKPISection
+            title={ROLE_KPI_LABELS.jobTitle}
+            defs={JOB_KPI_DEFS}
+            values={jobKpis}
+            scopeNote={seesAllDomains ? ROLE_KPI_LABELS.scopeAll : ROLE_KPI_LABELS.scopeOwn}
+            showLaggingTargets
+          />
+        </div>
+      )}
+      {volunteeringKpis && (
+        <div className="mb-6 sm:mb-8">
+          <RoleKPISection
+            title={ROLE_KPI_LABELS.volunteeringTitle}
+            defs={VOLUNTEERING_KPI_DEFS}
+            values={volunteeringKpis}
+            scopeNote={seesAllDomains ? ROLE_KPI_LABELS.scopeAll : ROLE_KPI_LABELS.scopeOwn}
+          />
         </div>
       )}
 
