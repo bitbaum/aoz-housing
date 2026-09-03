@@ -57,9 +57,7 @@ export function RoleKPISection({ title, defs, values, scopeNote, showLaggingTarg
                 {def.format === 'days' ? ROLE_KPI_LABELS.unitDays : ''}
                 {/* Says WHAT the share is of. Without it "100%" of a caseload
                     of one reads like a result. */}
-                {value === null
-                  ? ROLE_KPI_LABELS.noCaseload
-                  : ROLE_KPI_LABELS.denominator(denominator)}
+                {value === null ? def.emptyHint : ROLE_KPI_LABELS.denominator(denominator)}
               </p>
               <p className="text-xs text-ui-muted mt-2 leading-relaxed">{def.help}</p>
               <p className="text-2xs text-ui-muted mt-2">
