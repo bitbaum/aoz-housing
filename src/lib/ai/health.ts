@@ -7,7 +7,7 @@
  * adopted fleet-wide (evig, kivvi, botsmann, hirnli).
  */
 
-import { createHealthTracker } from 'ai-kit'
+import { createHealthTracker } from '@bitbaum/ai-kit'
 
 const tracker = createHealthTracker({ downAfter: 3 })
 

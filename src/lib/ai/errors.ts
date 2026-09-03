@@ -24,7 +24,7 @@
  * fetch. @see SHARED.md ("AI provider client — 16 copies")
  */
 
-import { classifyRateLimit, rateLimitMessage, retryAfterSeconds } from 'ai-kit'
+import { classifyRateLimit, rateLimitMessage, retryAfterSeconds } from '@bitbaum/ai-kit'
 
 /**
  * A provider call that failed, carrying the raw body for the LOG only.

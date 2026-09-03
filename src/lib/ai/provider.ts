@@ -28,7 +28,7 @@
  * - `runStaffChat` — streaming staff assistant (/api/ai/chat)
  */
 
-import { freeChain, usableChain, chainFrom } from 'ai-kit'
+import { freeChain, usableChain, chainFrom } from '@bitbaum/ai-kit'
 import { BRAND } from '@/lib/config/brand'
 import { AIChainExhaustedError, AIProviderError, shouldTryNextProvider } from './errors'
 import { recordAIHealthFailure, recordAIHealthSuccess } from './health'
