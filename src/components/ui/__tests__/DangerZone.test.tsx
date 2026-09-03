@@ -295,6 +295,16 @@ describe('DangerZone', () => {
     await waitFor(() => screen.getByRole('status'))
     expect(screen.getByRole('status')).toHaveTextContent('Erster Fehler')
 
+    // Wait for the button to come back before clicking it again. It is
+    // `disabled` while `isPending` is true, and a click on a disabled button is
+    // silently dropped — so without this the second attempt sometimes never
+    // happened at all and the assertion below timed out against the FIRST
+    // error. Flaky in exactly the way that reads as a product bug: identical
+    // code, run twice, passed then failed.
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Endgültig löschen' })).not.toBeDisabled(),
+    )
+
     // Second attempt succeeds — error must clear before success shows
     fireEvent.click(screen.getByRole('button', { name: 'Endgültig löschen' }))
     await waitFor(() =>
