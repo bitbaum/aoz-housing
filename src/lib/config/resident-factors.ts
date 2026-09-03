@@ -12,6 +12,7 @@
  */
 
 import type { CompatibilityFactorDef, DimensionConfig, FormSectionConfig } from './types'
+import { BRAND } from './brand'
 
 // =============================================================================
 // DIMENSIONS (for compatibility scoring)
@@ -76,9 +77,18 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     id: 'code',
     type: 'text',
     label: 'Code / Referenz',
-    description: 'Anonyme Referenznummer',
-    placeholder: 'z.B. R-2024-001',
-    required: true,
+    /**
+     * Optional, generated when blank.
+     *
+     * The placeholder used to read "z.B. R-2024-001", a pattern matching NO
+     * prefix that login accepts — so a code typed to the example produced a
+     * client who could never sign in, silently. It is now derived from the
+     * brand, because the prefix is what login actually resolves against and a
+     * literal here would be a second copy of it.
+     */
+    description: 'Anonyme Referenznummer — leer lassen, um einen Code zu erzeugen.',
+    placeholder: `z.B. ${BRAND.residentCodePrefix}A1B2C3 (oder leer lassen)`,
+    required: false,
     intake: 'essential',
     formSection: 'basic',
     formOrder: 1,

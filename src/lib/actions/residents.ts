@@ -14,6 +14,7 @@ import { eq, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { validateFormData, ResidentInputSchema, ResidentUpdateSchema } from '@/lib/validation'
+import { generateResidentCode } from '@/lib/auth/code-generation'
 import { logAudit } from '@/lib/audit'
 import { logger } from '@/lib/logger'
 import { DEFAULT_STATUSES } from '@/lib/config/thresholds'
@@ -24,12 +25,19 @@ export async function createResident(formData: FormData): Promise<void> {
   const user = await requirePermission('residents:write')
   const data = validateFormData(ResidentInputSchema, formData)
 
+  // Blank means "mint one". Trimmed and upper-cased first, so a stray space or
+  // a lower-case paste of a real paper code does not become a second identity
+  // that login can never resolve — the same normalisation the code login does.
+  const typed = data.code?.trim().toUpperCase()
+  const code = typed && typed.length > 0 ? typed : generateResidentCode()
+
   let resident
   try {
     const [created] = await db
       .insert(residentTable)
       .values({
         ...data,
+        code,
         status: DEFAULT_STATUSES.resident,
       })
       .returning()
@@ -40,13 +48,13 @@ export async function createResident(formData: FormData): Promise<void> {
       entity: 'RESIDENT',
       entityId: resident.id,
       userId: user.id,
-      changes: { code: data.code },
+      changes: { code },
     })
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new Error(ERROR_MESSAGES.RESIDENT_CODE_EXISTS)
     }
-    logger.errorWithCause('Failed to create resident', error, { code: data.code })
+    logger.errorWithCause('Failed to create resident', error, { code })
     throw new Error(ERROR_MESSAGES.RESIDENT_CREATE_ERROR)
   }
 

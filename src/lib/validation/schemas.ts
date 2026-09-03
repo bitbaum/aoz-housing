@@ -176,7 +176,22 @@ const scaleSchema = z.coerce.number().int().min(1).max(5)
 // =============================================================================
 
 export const ResidentInputSchema = z.object({
-  code: z.string().min(1, 'Code ist erforderlich').max(50),
+  /**
+   * Optional, and generated when left blank.
+   *
+   * It used to be required, with the placeholder "z.B. R-2024-001" — a pattern
+   * that matches NO prefix login accepts. Login resolves a resident by exact
+   * string against `ALL_RESIDENT_CODE_PREFIXES` (`RES-`, `KL-`), so a code
+   * typed to that example produced a client who could never sign in, and
+   * nothing in the form said so. Meanwhile `generateResidentCode()` existed and
+   * was used by the household flow — the intake form was the one path that
+   * asked a human to invent the credential instead.
+   *
+   * Kept accepting an explicit code, because a real code already printed on
+   * paper has to be enterable. Blank now means "mint one", which is the case
+   * that should have been the default all along.
+   */
+  code: z.string().max(50).optional(),
   ageRange: AgeRangeSchema,
   gender: GenderSchema,
   familyStatus: FamilyStatusSchema,

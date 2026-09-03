@@ -73,15 +73,31 @@ describe('ResidentInputSchema', () => {
     }
   })
 
-  it('rejects missing required code', () => {
+  /**
+   * The code is deliberately OPTIONAL now, and these two cases inverted with
+   * that change rather than regressing.
+   *
+   * It was required, with the placeholder "z.B. R-2024-001" — a pattern
+   * matching no prefix login accepts, so a code typed to the example created a
+   * client who could never sign in and nothing said so. Blank now means
+   * "generate one" (`createResident` calls `generateResidentCode()`), which is
+   * the case that should have been the default: the credential is the product's
+   * to mint, not a human's to invent.
+   */
+  it('accepts a missing code — the action generates one', () => {
     const { code, ...noCode } = validInput
     const result = ResidentInputSchema.safeParse(noCode)
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
   })
 
-  it('rejects empty code', () => {
+  it('accepts an empty code, for the same reason', () => {
     const result = ResidentInputSchema.safeParse({ ...validInput, code: '' })
-    expect(result.success).toBe(false)
+    expect(result.success).toBe(true)
+  })
+
+  it('still accepts an explicit code, so a paper code can be entered', () => {
+    const result = ResidentInputSchema.safeParse({ ...validInput, code: 'KL-A1B2C3' })
+    expect(result.success).toBe(true)
   })
 
   it('rejects invalid enum values', () => {
