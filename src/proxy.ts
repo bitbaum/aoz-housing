@@ -17,7 +17,8 @@ import {
 import {
   IMPERSONATION_CLAIM,
   IMPERSONATION_LABELS,
-  impersonationAllowsRequest,
+  isImpersonationExempt,
+  isReadOnlyMethod,
 } from '@/lib/auth/impersonation'
 
 /**
@@ -61,6 +62,34 @@ function publicOrigin(request: NextRequest): string {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // FIRST, above the public-route early return, and that position is the whole
+  // point. A borrowed session is read-only EVERYWHERE — including on paths the
+  // boundary list calls public.
+  //
+  // `/api/auth` is public so that signing in can happen without a session, but
+  // `invite` and `register` sit under it and both CREATE STAFF ACCOUNTS. With
+  // this check inside the `requiresStaffAuth` branch, as it first shipped,
+  // those two skipped it entirely: verified against production, where a POST to
+  // /api/auth/invite from a borrowed session was refused only by that route's
+  // own `users:manage` check. That is luck, not a guard — an administrator
+  // viewing ANOTHER administrator passes it, and would have created a real
+  // colleague's account while the banner promised changes were locked.
+  //
+  // The cost is one JWT verification on non-GET requests that carry a staff
+  // cookie, which is the cheap side of the trade.
+  if (!isReadOnlyMethod(request.method) && !isImpersonationExempt(pathname)) {
+    const staffToken = request.cookies.get(STAFF_COOKIE)?.value
+    if (staffToken) {
+      const { valid, payload } = await verifyStaffToken(staffToken)
+      if (valid && payload?.[IMPERSONATION_CLAIM]) {
+        return NextResponse.json(
+          { success: false, error: IMPERSONATION_LABELS.blocked },
+          { status: 403 },
+        )
+      }
+    }
+  }
 
   if (isPublicRoute(pathname)) {
     return NextResponse.next()
@@ -127,23 +156,9 @@ export async function proxy(request: NextRequest) {
       return response
     }
 
-    // A borrowed session may look, never touch. Enforced HERE rather than in
-    // the components because server actions are POSTs to ordinary UI routes —
-    // one sentence at the door covers both them and every API route, including
-    // the ones nobody remembers to guard. @see lib/auth/impersonation.ts
-    if (
-      !impersonationAllowsRequest({
-        isImpersonating: !!payload?.[IMPERSONATION_CLAIM],
-        method: request.method,
-        pathname,
-      })
-    ) {
-      return NextResponse.json(
-        { success: false, error: IMPERSONATION_LABELS.blocked },
-        { status: 403 },
-      )
-    }
-
+    // No impersonation check here: it runs at the TOP of this function, above
+    // the public-route return, so it already covers every path this branch
+    // could reach. A second copy would be a second place for the rule to drift.
     const response = NextResponse.next()
     if (payload) {
       response.headers.set('x-user-id', payload.sub as string)
