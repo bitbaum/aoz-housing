@@ -4,6 +4,7 @@ import { db, user as userTable } from '@/lib/db'
 import { eq, asc } from 'drizzle-orm'
 import { InviteForm } from './InviteForm'
 import { ViewAsButton } from '@/components/admin/ViewAsButton'
+import { HandoverForm } from '@/components/admin/HandoverForm'
 import { EMAIL_CONFIG } from '@/lib/email/config'
 import {
   SETTINGS_LABELS,
@@ -128,6 +129,14 @@ export default async function SettingsPage() {
                     are already in, and the API refuses it. Offering a button
                     whose only outcome is an error is the dead-end affordance
                     this codebase keeps a test for. */}
+                {/* Only for someone with no address on file. A colleague who
+                    already signs in with an email does not need handing their
+                    code again, and changing an existing address is a different
+                    act — it moves control of an account to another mailbox —
+                    which this control deliberately does not offer. */}
+                {canInvite && !user.account?.email && (
+                  <HandoverForm userId={user.id} name={user.name} />
+                )}
                 {canInvite && user.id !== currentUser.id && (
                   <ViewAsButton userId={user.id} name={user.name} />
                 )}
