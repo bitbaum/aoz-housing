@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/role-policy'
+import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import { consumeRateLimit } from '@/lib/auth/rate-limit'
 import { hasAIProvider } from '@/lib/ai/provider'
 import { AI_NOT_CONFIGURED, userFacingAIError } from '@/lib/ai/errors'
@@ -32,6 +34,14 @@ export async function POST(request: Request) {
   const user = await getCurrentUser()
   if (!user) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
+  }
+
+  // The route enforces the same permission the page and the nav ask for.
+  // Checking only "are you signed in" left the API open while the nav hid the
+  // entry — a declared boundary that differed from the enforced one, which is
+  // exactly how the /algorithm mismatch survived for months.
+  if (!hasPermission(user, 'ai:assist')) {
+    return NextResponse.json({ error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }, { status: 403 })
   }
 
   const rateCheck = consumeRateLimit(`ai-chat:${user.id}`)

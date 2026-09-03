@@ -13,6 +13,7 @@
 
 import { createFormAssistHandler, type AuthorizeResult } from '@fleet/ai-forms/server'
 import { getCurrentUser } from '@/lib/auth'
+import { hasPermission } from '@/lib/auth/role-policy'
 import { consumeRateLimit } from '@/lib/auth/rate-limit'
 import { completeText, hasAIProvider } from '@/lib/ai/provider'
 import { AI_FORMS } from '@/lib/config/ai-forms'
@@ -26,6 +27,11 @@ async function authorize(): Promise<AuthorizeResult> {
   const user = await getCurrentUser()
   if (!user) {
     return { ok: false, status: 401, error: AI_FORM_ERRORS.unauthenticated }
+  }
+
+  // Same permission the page and the nav ask for — see /api/ai/chat.
+  if (!hasPermission(user, 'ai:assist')) {
+    return { ok: false, status: 403, error: AI_FORM_ERRORS.forbidden }
   }
 
   // Every call is metered, so `consume` rather than `check` — a plain check

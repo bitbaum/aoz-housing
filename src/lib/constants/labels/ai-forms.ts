@@ -27,5 +27,6 @@ export const AI_FORM_LABELS = {
 export const AI_FORM_ERRORS = {
   notConfigured: 'KI-Assistent nicht konfiguriert (kein API-Schlüssel hinterlegt).',
   unauthenticated: 'Nicht authentifiziert',
+  forbidden: 'Für diese Funktion fehlt die Berechtigung.',
   rateLimited: (seconds: number) => `Zu viele Anfragen. Bitte warten Sie ${seconds} Sekunden.`,
 } as const
