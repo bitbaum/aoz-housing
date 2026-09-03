@@ -13,6 +13,8 @@ import {
   type LearningBoardId,
   LEARNING_KINDS,
   LEARNING_STATUSES,
+  GERMAN_TEST_KIND,
+  GERMAN_LANGUAGE_CODE,
 } from '@/lib/config/learning'
 import type { LearningKind, LearningStatus, ResidentOrStaff } from '@/lib/db'
 
@@ -131,7 +133,12 @@ function missingGermanTestFilter() {
     db
       .select({ id: learningRecord.residentId })
       .from(learningRecord)
-      .where(and(eq(learningRecord.kind, 'LANGUAGE_TEST'), eq(learningRecord.languageCode, 'DE'))),
+      .where(
+        and(
+          eq(learningRecord.kind, GERMAN_TEST_KIND),
+          eq(learningRecord.languageCode, GERMAN_LANGUAGE_CODE),
+        ),
+      ),
   )
 }
 

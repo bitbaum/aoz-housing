@@ -14,6 +14,7 @@ import { calculateMissionKPIs } from '../mission-kpis'
 const mockIncidentFindMany = vi.fn()
 const mockPlacementFindMany = vi.fn()
 const mockResidentFindMany = vi.fn()
+const mockHousingUnitFindMany = vi.fn(() => Promise.resolve([]))
 
 vi.mock('@/lib/db', async () => ({
   ...(await vi.importActual<object>('@/lib/db')),
@@ -22,6 +23,12 @@ vi.mock('@/lib/db', async () => ({
       incident: { findMany: (...args: unknown[]) => mockIncidentFindMany(...args) },
       placement: { findMany: (...args: unknown[]) => mockPlacementFindMany(...args) },
       resident: { findMany: (...args: unknown[]) => mockResidentFindMany(...args) },
+      // Read by `loadDemoScope`, which every KPI query now passes through so a
+      // nightly-reseeded demo apartment cannot count toward the pilot. These
+      // fixtures carry no demo codes, so the scope resolves empty and the
+      // expectations below are unchanged — which is the point: excluding demo
+      // must not move a number on an instance that has none.
+      housingUnit: { findMany: () => mockHousingUnitFindMany() },
     },
   },
 }))
@@ -217,7 +224,9 @@ describe('calculateMissionKPIs', () => {
     const residentCreatedAt = d('2026-04-01T00:00:00Z')
     const firstPlacementDate = d('2026-04-03T00:00:00Z') // 2 days later
 
-    mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
+    mockResidentFindMany.mockResolvedValue([
+      { id: 'res-1', code: 'KL-REAL01', createdAt: residentCreatedAt },
+    ])
 
     mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
       if ('startDate' in whereParts(args.where)) {
@@ -235,7 +244,9 @@ describe('calculateMissionKPIs', () => {
   test('uses earliest placement when resident has multiple placements', async () => {
     const residentCreatedAt = d('2026-04-01T00:00:00Z')
 
-    mockResidentFindMany.mockResolvedValue([{ id: 'res-1', createdAt: residentCreatedAt }])
+    mockResidentFindMany.mockResolvedValue([
+      { id: 'res-1', code: 'KL-REAL01', createdAt: residentCreatedAt },
+    ])
 
     mockPlacementFindMany.mockImplementation((args: { where?: unknown }) => {
       if ('startDate' in whereParts(args.where)) {

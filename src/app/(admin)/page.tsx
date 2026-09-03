@@ -30,6 +30,7 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
     evening: 'greetingEvening',
   }
 import { buildJobQueue } from '@/lib/jobcoach/queue'
+import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
 import {
@@ -86,8 +87,9 @@ export default async function AdminDashboard() {
     openMaintenanceCount,
     pendingTransfersRaw,
     proposalsRaw,
-    learningInProgressCount,
-    learningRecentCompletions,
+    learningRecordsRaw,
+    myCaseloadResidentIds,
+    demoScope,
     upcomingEventsCount,
     activeStaffCount,
     neverSignedInStaffCount,
@@ -174,16 +176,26 @@ export default async function AdminDashboard() {
         })
       : [],
     show('proposals') ? getProposalsAwaitingStaff() : [],
-    show('learning') ? db.$count(learningRecord, eq(learningRecord.status, 'IN_PROGRESS')) : 0,
+    // Counted in JS rather than by two $count queries, because both numbers now
+    // have to be narrowed twice — past the demo world, and (for a specialist)
+    // down to their own caseload. Expressing that as SQL would mean an
+    // `inArray` over an id list that is empty on a fresh instance, which is a
+    // different query rather than a narrower one. The volume is a few dozen
+    // rows; the clarity is worth more than the round trip.
     show('learning')
-      ? db.$count(
-          learningRecord,
-          and(
-            eq(learningRecord.status, 'COMPLETED'),
-            gte(learningRecord.completedAt, getDateDaysAgo(LEARNING_PULSE_WINDOW_DAYS)),
-          ),
-        )
-      : 0,
+      ? db.query.learningRecord.findMany({
+          columns: { status: true, completedAt: true, residentId: true },
+        })
+      : [],
+    // "My clients" across every seat this person holds — not just JOB, because
+    // a Freiwilligenarbeit coordinator's learning entries are hers too.
+    show('learning') && user
+      ? db.query.careAssignment.findMany({
+          where: eq(careAssignment.staffId, user.id),
+          columns: { residentId: true },
+        })
+      : [],
+    show('learning') ? loadDemoScope() : EMPTY_DEMO_SCOPE,
     show('events')
       ? db.$count(
           houseEvent,
@@ -250,6 +262,36 @@ export default async function AdminDashboard() {
     })),
     new Date(),
   )
+
+  // The learning tile, narrowed to what it claims to be about.
+  //
+  // It used to be two global counts. On Simon's dashboard that read "23 laufend
+  // · 7 Abschlüsse in 30 Tagen" while `/learning` — the page the tile links to,
+  // which defaults to "Meine Klient*innen" — showed him TOTAL 0. Neither number
+  // was wrong; they answered different questions, and only one of them was the
+  // question a coach is asking on his own dashboard.
+  //
+  // Two narrowings, in this order:
+  //  - demo rows never count, the same rule the mission KPIs now follow;
+  //  - a SPECIALIST sees their own caseload, because that is their work. A
+  //    viewer with reach over every domain has no single seat, so the honest
+  //    denominator for them is the whole real population — the same distinction
+  //    `assignedResidentCount` above already draws.
+  const myResidentIds = new Set(myCaseloadResidentIds.map((row) => row.residentId))
+  const learningRecords = learningRecordsRaw
+    .filter((row) => isRealRow(row, demoScope))
+    .filter((row) => viewer.scope === 'ALL_DOMAINS' || myResidentIds.has(row.residentId))
+
+  const learningInProgressCount = learningRecords.filter(
+    (row) => row.status === 'IN_PROGRESS',
+  ).length
+  const learningPulseSince = getDateDaysAgo(LEARNING_PULSE_WINDOW_DAYS)
+  const learningRecentCompletions = learningRecords.filter(
+    (row) =>
+      row.status === 'COMPLETED' &&
+      row.completedAt !== null &&
+      row.completedAt >= learningPulseSince,
+  ).length
 
   const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
 
