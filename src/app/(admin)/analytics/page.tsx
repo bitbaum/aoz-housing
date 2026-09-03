@@ -55,6 +55,19 @@ export default async function AnalyticsPage({ searchParams }: Props) {
   // data here. Same class of leak /settings had: a boundary that exists one
   // page over is not a boundary on this one.
   const canReadPlacements = hasPermission(currentUser, 'placements:read')
+  /**
+   * Everything on this page except the per-domain KPIs is housing reporting.
+   *
+   * The page itself sits on `dashboard:read`, which every staff role holds — so
+   * a Jobcoach who cannot open /housing was nevertheless reading occupancy,
+   * satisfaction, and conflict hotspots labelled with street addresses.
+   * Verified live as Simon on 2026-09-03. Hiding the /housing link while
+   * serving the same facts one page over is not a boundary.
+   *
+   * The page stays reachable for every role because their OWN KPIs live here
+   * now; what they see is narrowed to what their role is for.
+   */
+  const canReadHousing = hasPermission(currentUser, 'housing:read')
   const params = await searchParams
   const days = Math.min(Math.max(Number(params.days) || 30, 7), 365)
   const periodStart = getDateDaysAgo(days)
@@ -137,8 +150,9 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         },
       }),
       // Off-brand, this is four queries whose result nothing renders. Gating the
-      // JSX alone would still pay for them on every load of the page.
-      BRAND.features.pilotMeasurement ? calculateMissionKPIs(6) : null,
+      // JSX alone would still pay for them on every load of the page — which is
+      // why the housing check belongs here too, not only around the markup.
+      BRAND.features.pilotMeasurement && canReadHousing ? calculateMissionKPIs(6) : null,
       calculateAlgorithmAccuracy(),
       getSystemConfig(),
       showJobKpis ? loadJobKpis({ domain: 'JOB', staffId: kpiStaffId }) : null,
@@ -266,8 +280,10 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
       </div>
 
-      {/* Mission KPIs — pilot brands only. @see BrandFeatures.pilotMeasurement */}
-      {missionKPIs && (
+      {/* Mission KPIs — pilot brands only (@see BrandFeatures.pilotMeasurement),
+          and housing readers only. These four ARE the housing numbers; a role
+          that may not open /housing has no business reading its occupancy. */}
+      {missionKPIs && canReadHousing && (
         <div className="mb-6 sm:mb-8">
           <MissionKPISection kpis={missionKPIs} baseline={systemConfig} />
         </div>
@@ -298,184 +314,191 @@ export default async function AnalyticsPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <MetricCard
-          label={DASHBOARD_LABELS.analyticsOccupancyRate}
-          value={`${occupancyRate}%`}
-          subtitle={DASHBOARD_LABELS.analyticsBedSubtitle(occupiedBeds, totalBeds)}
-        />
-        <MetricCard
-          label={DASHBOARD_LABELS.analyticsOverdueCheckIns}
-          value={overdueCheckIns.length}
-          subtitle={DASHBOARD_LABELS.analyticsActiveSuffix(placements.length)}
-          href="/placements?status=active&overdue=1"
-          highlight={overdueCheckIns.length > 0}
-        />
-        <MetricCard
-          label={DASHBOARD_LABELS.analyticsConflictsTitle(days)}
-          value={recentIncidents.length}
-          subtitle={DASHBOARD_LABELS.analyticsUnresolved(unresolvedIncidents.length)}
-          href="/incidents?category=INTERPERSONAL"
-          highlight={unresolvedIncidents.length > 0}
-        />
-        <MetricCard
-          label={DASHBOARD_LABELS.analyticsConflictEnded}
-          value={`${conflictRate}%`}
-          subtitle={DASHBOARD_LABELS.analyticsEndingSubtitle(conflictEnds, endedPlacements.length)}
-          highlight={conflictRate > 20}
-        />
-      </div>
+      {canReadHousing && (
+        <>
+          {/* Key Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <MetricCard
+              label={DASHBOARD_LABELS.analyticsOccupancyRate}
+              value={`${occupancyRate}%`}
+              subtitle={DASHBOARD_LABELS.analyticsBedSubtitle(occupiedBeds, totalBeds)}
+            />
+            <MetricCard
+              label={DASHBOARD_LABELS.analyticsOverdueCheckIns}
+              value={overdueCheckIns.length}
+              subtitle={DASHBOARD_LABELS.analyticsActiveSuffix(placements.length)}
+              href="/placements?status=active&overdue=1"
+              highlight={overdueCheckIns.length > 0}
+            />
+            <MetricCard
+              label={DASHBOARD_LABELS.analyticsConflictsTitle(days)}
+              value={recentIncidents.length}
+              subtitle={DASHBOARD_LABELS.analyticsUnresolved(unresolvedIncidents.length)}
+              href="/incidents?category=INTERPERSONAL"
+              highlight={unresolvedIncidents.length > 0}
+            />
+            <MetricCard
+              label={DASHBOARD_LABELS.analyticsConflictEnded}
+              value={`${conflictRate}%`}
+              subtitle={DASHBOARD_LABELS.analyticsEndingSubtitle(
+                conflictEnds,
+                endedPlacements.length,
+              )}
+              highlight={conflictRate > 20}
+            />
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Satisfaction Chart */}
-        <SatisfactionChart
-          days={days}
-          totalCheckIns={totalCheckIns}
-          avgSatisfaction={avgSatisfaction}
-          satisfactionCounts={satisfactionCounts}
-          lowSatisfactionCount={lowSatisfactionCheckIns.length}
-        />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Satisfaction Chart */}
+            <SatisfactionChart
+              days={days}
+              totalCheckIns={totalCheckIns}
+              avgSatisfaction={avgSatisfaction}
+              satisfactionCounts={satisfactionCounts}
+              lowSatisfactionCount={lowSatisfactionCheckIns.length}
+            />
 
-        {/* Conflict Hotspots */}
-        <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-4">
-            {DASHBOARD_LABELS.analyticsHotspotTitle(days)}
-          </h2>
-          {hotspotUnits.length === 0 ? (
-            <div className="text-center py-8">
-              <span className="text-3xl mb-2 block" aria-hidden="true">
-                ✓
-              </span>
-              <p className="text-ui-muted">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {hotspotUnits.map(({ unit, count }) => (
-                <Link
-                  key={unit.id}
-                  href={`/housing/${unit.id}`}
-                  className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors"
-                >
-                  <div>
-                    <p className="font-medium text-ui-text">{unit.code}</p>
-                    <p className="text-sm text-ui-muted">{unit.address}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-status-warning-text">{count}</p>
-                    <p className="text-xs text-ui-muted">
-                      {DASHBOARD_LABELS.analyticsConflictCountLabel}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Conflict Types */}
-        <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-4">
-            {DASHBOARD_LABELS.analyticsConflictTypesTitle(days)}
-          </h2>
-          {topIncidentTypes.length === 0 ? (
-            <p className="text-ui-muted text-center py-8">
-              {DASHBOARD_LABELS.analyticsNoConflictTypes}
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {topIncidentTypes.map(([type, count]) => (
-                <div key={type} className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-ui-text">
-                        {getLabel(INCIDENT_TYPE_LABELS, type)}
-                      </span>
-                      <span className="text-ui-muted">{count}</span>
-                    </div>
-                    <div className="meter-lg">
-                      <div
-                        className="meter-fill"
-                        style={{
-                          width: `${(count / recentIncidents.length) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
+            {/* Conflict Hotspots */}
+            <div className="card">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
+                {DASHBOARD_LABELS.analyticsHotspotTitle(days)}
+              </h2>
+              {hotspotUnits.length === 0 ? (
+                <div className="text-center py-8">
+                  <span className="text-3xl mb-2 block" aria-hidden="true">
+                    ✓
+                  </span>
+                  <p className="text-ui-muted">{DASHBOARD_LABELS.analyticsNoHotspots}</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Placement End Reasons */}
-        <div className="card">
-          <h2 className="text-lg font-semibold text-ui-text mb-4">
-            {DASHBOARD_LABELS.analyticsEndReasonsTitle}
-          </h2>
-          {endedPlacements.length === 0 ? (
-            <p className="text-ui-muted text-center py-8">
-              {DASHBOARD_LABELS.analyticsNoEndedPlacements}
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {Object.entries(endsByReason)
-                .sort((a, b) => b[1] - a[1])
-                .map(([reason, count]) => (
-                  <div key={reason} className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium text-ui-text">
-                          {getLabel(END_REASON_LABELS, reason)}
-                        </span>
-                        <span className="text-ui-muted">
-                          {count} ({Math.round((count / endedPlacements.length) * 100)}%)
-                        </span>
+              ) : (
+                <div className="space-y-3">
+                  {hotspotUnits.map(({ unit, count }) => (
+                    <Link
+                      key={unit.id}
+                      href={`/housing/${unit.id}`}
+                      className="flex items-center justify-between p-3 bg-ui-subtle rounded-lg hover:bg-ui-subtle transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-ui-text">{unit.code}</p>
+                        <p className="text-sm text-ui-muted">{unit.address}</p>
                       </div>
-                      <div className="meter-lg">
-                        <div
-                          className={`meter-fill ${
-                            reason === 'CONFLICT'
-                              ? 'bg-status-error'
-                              : reason === 'NATURAL'
-                                ? 'bg-status-success'
-                                : 'bg-status-warning'
-                          }`}
-                          style={{
-                            width: `${(count / endedPlacements.length) * 100}%`,
-                          }}
-                        />
+                      <div className="text-right">
+                        <p className="font-semibold text-status-warning-text">{count}</p>
+                        <p className="text-xs text-ui-muted">
+                          {DASHBOARD_LABELS.analyticsConflictCountLabel}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Conflict Types */}
+            <div className="card">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
+                {DASHBOARD_LABELS.analyticsConflictTypesTitle(days)}
+              </h2>
+              {topIncidentTypes.length === 0 ? (
+                <p className="text-ui-muted text-center py-8">
+                  {DASHBOARD_LABELS.analyticsNoConflictTypes}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {topIncidentTypes.map(([type, count]) => (
+                    <div key={type} className="flex items-center gap-4">
+                      <div className="flex-1">
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="font-medium text-ui-text">
+                            {getLabel(INCIDENT_TYPE_LABELS, type)}
+                          </span>
+                          <span className="text-ui-muted">{count}</span>
+                        </div>
+                        <div className="meter-lg">
+                          <div
+                            className="meter-fill"
+                            style={{
+                              width: `${(count / recentIncidents.length) * 100}%`,
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Placement End Reasons */}
+            <div className="card">
+              <h2 className="text-lg font-semibold text-ui-text mb-4">
+                {DASHBOARD_LABELS.analyticsEndReasonsTitle}
+              </h2>
+              {endedPlacements.length === 0 ? (
+                <p className="text-ui-muted text-center py-8">
+                  {DASHBOARD_LABELS.analyticsNoEndedPlacements}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(endsByReason)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([reason, count]) => (
+                      <div key={reason} className="flex items-center gap-4">
+                        <div className="flex-1">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="font-medium text-ui-text">
+                              {getLabel(END_REASON_LABELS, reason)}
+                            </span>
+                            <span className="text-ui-muted">
+                              {count} ({Math.round((count / endedPlacements.length) * 100)}%)
+                            </span>
+                          </div>
+                          <div className="meter-lg">
+                            <div
+                              className={`meter-fill ${
+                                reason === 'CONFLICT'
+                                  ? 'bg-status-error'
+                                  : reason === 'NATURAL'
+                                    ? 'bg-status-success'
+                                    : 'bg-status-warning'
+                              }`}
+                              style={{
+                                width: `${(count / endedPlacements.length) * 100}%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Conflict Analysis Section */}
+          {conflictEnds > 0 && (
+            <ConflictAnalysisSection
+              conflictsByGap={conflictsByGap}
+              conflictPlacementsCount={conflictPlacements.length}
+              predictableCount={predictableConflicts.length}
+              unpredictableCount={unpredictableConflicts.length}
+              lowScoreCount={lowScoreConflicts.length}
+            />
           )}
-        </div>
-      </div>
 
-      {/* Conflict Analysis Section */}
-      {conflictEnds > 0 && (
-        <ConflictAnalysisSection
-          conflictsByGap={conflictsByGap}
-          conflictPlacementsCount={conflictPlacements.length}
-          predictableCount={predictableConflicts.length}
-          unpredictableCount={unpredictableConflicts.length}
-          lowScoreCount={lowScoreConflicts.length}
-        />
-      )}
+          {/* Algorithm Accuracy */}
+          <div className="mt-6 sm:mt-8">
+            <AlgorithmAccuracySection report={algorithmAccuracy} />
+          </div>
 
-      {/* Algorithm Accuracy */}
-      <div className="mt-6 sm:mt-8">
-        <AlgorithmAccuracySection report={algorithmAccuracy} />
-      </div>
-
-      {/* Besonderer Unterbringungsbedarf — aggregate only, no one is named, so
+          {/* Besonderer Unterbringungsbedarf — aggregate only, no one is named, so
           it sits at the page's own `dashboard:read` like the other summaries.
           @see lib/vulnerability/ for why this is derived and never stored. */}
-      <div className="mt-6 sm:mt-8">
-        <VulnerabilitySection summary={vulnerability} />
-      </div>
+          <div className="mt-6 sm:mt-8">
+            <VulnerabilitySection summary={vulnerability} />
+          </div>
+        </>
+      )}
 
       {/* Recent Placements — identified resident + satisfaction data, so this
           follows the same boundary as /placements rather than dashboard:read. */}
