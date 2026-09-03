@@ -10,6 +10,8 @@ import { ScienceTab } from './ScienceTab'
 import { DimensionsTab } from './DimensionsTab'
 import { DataCollectionTab } from './DataCollectionTab'
 import { TechnicalTab } from './TechnicalTab'
+import { IntegrationTab } from './IntegrationTab'
+import { INTEGRATION_TAB_LABELS } from '@/lib/constants/labels/integration-tab'
 import { ALGORITHM_OVERVIEW_LABELS } from '@/lib/constants'
 
 export function AlgorithmContent() {
@@ -22,6 +24,9 @@ export function AlgorithmContent() {
     { id: 'dimensions', label: ALGORITHM_OVERVIEW_LABELS.tabFactors },
     { id: 'collection', label: ALGORITHM_OVERVIEW_LABELS.tabCollection },
     { id: 'technical', label: ALGORITHM_OVERVIEW_LABELS.tabTechnical },
+    // Labour-market integration is the second domain this product claims an
+    // evidence base for, and it had no surface at all. @see IntegrationTab
+    { id: 'integration', label: INTEGRATION_TAB_LABELS.tab },
   ]
 
   return (
@@ -91,6 +96,7 @@ export function AlgorithmContent() {
         )}
         {activeTab === 'collection' && <DataCollectionTab />}
         {activeTab === 'technical' && <TechnicalTab />}
+        {activeTab === 'integration' && <IntegrationTab />}
       </TabPanel>
 
       {/* CTA Section */}
