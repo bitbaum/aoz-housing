@@ -35,8 +35,13 @@ describe('pilotMeasurement gates the surfaces it names', () => {
     expect(call).toBeGreaterThan(-1)
     // The call must sit on the true side of a conditional, not run every load.
     // Gating only the JSX still pays for four queries nothing renders.
+    // Additional conditions may stand beside the flag — the housing check does,
+    // since these four numbers are housing reporting and a Jobcoach may not
+    // read it. What must hold is that the flag is ON the true side, not that it
+    // is the ONLY thing there; pinning the exact expression would fail the next
+    // legitimate narrowing rather than an actual regression.
     const line = source.slice(source.lastIndexOf('\n', call) + 1, source.indexOf('\n', call))
-    expect(line).toMatch(new RegExp(`${FLAG}\\s*\\?`))
+    expect(line).toMatch(new RegExp(`${FLAG}\\s*(&&[^?]*)?\\?`))
   })
 
   it('does not render the Mission-KPI block when the brand has no pilot', () => {
@@ -49,7 +54,7 @@ describe('pilotMeasurement gates the surfaces it names', () => {
     expect(guard).toBeLessThan(render)
     // Rendered off a value that is null off-brand, so the block cannot appear
     // with empty data — an empty chart reads as a broken feature.
-    expect(source).toMatch(/\{missionKPIs && \(/)
+    expect(source).toMatch(/\{missionKPIs &&[^)]*\(/)
   })
 
   it('does not offer the Pilot-Baseline fieldset when the brand has no pilot', () => {
