@@ -4,10 +4,13 @@ import { DatabaseError } from 'pg'
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import {
+  ASSIGNABLE_STAFF_ROLES,
   NARROWEST_CAPABILITIES,
   hasPermission,
   isStaffRole,
+  isStaffScope,
   type StaffRole,
+  type StaffScopeId,
 } from '@/lib/auth/role-policy'
 import { sendEmail } from '@/lib/email/service'
 import { staffInviteEmail } from '@/lib/email/templates'
@@ -76,7 +79,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { email, name, role: rawRole } = body as { email?: string; name?: string; role?: string }
+  const {
+    email,
+    name,
+    role: rawRole,
+    scope: rawScope,
+  } = body as { email?: string; name?: string; role?: string; scope?: string }
 
   if (!email || typeof email !== 'string' || !email.includes('@')) {
     recordLoginAttempt(ip)
@@ -94,10 +102,35 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
-  if (rawRole && !isStaffRole(rawRole)) {
+  // ASSIGNABLE, not `isStaffRole`. The latter accepts ADMIN — the retired
+  // all-in-one role — so this endpoint would happily mint a new one, while its
+  // sibling /api/auth/register has refused since the split. Two provisioning
+  // paths disagreeing is the exact defect the register route's own comment
+  // describes about the `users:manage` check; this was the same divergence left
+  // standing in the role allowlist, and the settings form pointed at THIS one.
+  const assignable = ASSIGNABLE_STAFF_ROLES as readonly string[]
+  if (rawRole !== undefined && !assignable.includes(rawRole)) {
     recordLoginAttempt(ip)
     return NextResponse.json({ success: false, error: 'Ungültige Rolle' }, { status: 400 })
+  }
+  const role: StaffRole = rawRole && isStaffRole(rawRole) ? rawRole : 'BETREUUNG'
+
+  // Reach is stated, administration is not.
+  //
+  // `scope` belongs here because the team cannot otherwise be described: the
+  // only way to create Franziska — a Betreuerin who ALSO covers every domain —
+  // was to pick "Leitung" from a dropdown that should not have offered it. That
+  // is WHY the retired role survived in the UI, and removing the option without
+  // adding this would have taken away the only way to express her.
+  //
+  // `isSystemAdmin` deliberately stays false and unexposed. Running the houses
+  // is not reconfiguring the product; granting that is a rare, deliberate act
+  // and does not belong on the form used to add a colleague.
+  const scope: StaffScopeId =
+    typeof rawScope === 'string' && isStaffScope(rawScope) ? rawScope : 'OWN_DOMAIN'
+  if (rawScope !== undefined && typeof rawScope === 'string' && !isStaffScope(rawScope)) {
+    recordLoginAttempt(ip)
+    return NextResponse.json({ success: false, error: 'Ungültige Reichweite' }, { status: 400 })
   }
 
   // Generate a unique code
@@ -142,11 +175,10 @@ export async function POST(request: NextRequest) {
           code,
           name: name.trim(),
           role,
-          // Stated, not inherited from the column defaults. An invited colleague
-          // gets their own domain and administers nothing until someone widens
-          // that deliberately — same answer the defaults give, but written down,
-          // so a future change to the defaults cannot quietly widen every invite.
-          scope: NARROWEST_CAPABILITIES.scope,
+          // Reach as chosen; administration never. Both stated rather than
+          // inherited from the column defaults, so a future change to those
+          // cannot quietly widen every invite.
+          scope,
           isSystemAdmin: NARROWEST_CAPABILITIES.isSystemAdmin,
           active: true,
         })

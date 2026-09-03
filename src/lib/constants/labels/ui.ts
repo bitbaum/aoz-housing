@@ -398,6 +398,8 @@ export const INVITE_FORM_LABELS = {
   fieldEmail: 'E-Mail-Adresse',
   fieldEmailPlaceholder: 'name@example.com',
   fieldRole: 'Rolle',
+  fieldScope: 'Reichweite',
+  fieldScopeHint: 'Nur den eigenen Bereich, oder alle Bereiche mitbetreuen.',
   sending: 'Wird gesendet...',
   submit: 'Einladung senden',
 } as const

@@ -1,8 +1,13 @@
 'use client'
 
 import { useState, FormEvent } from 'react'
-import { INVITE_FORM_LABELS, ROLE_LABELS } from '@/lib/constants'
-import { STAFF_ROLES, type StaffRole } from '@/lib/auth/role-policy'
+import { INVITE_FORM_LABELS, ROLE_LABELS, SCOPE_LABELS } from '@/lib/constants'
+import {
+  ASSIGNABLE_STAFF_ROLES,
+  STAFF_SCOPES,
+  type StaffRole,
+  type StaffScopeId,
+} from '@/lib/auth/role-policy'
 
 interface InviteResult {
   success: boolean
@@ -15,6 +20,7 @@ export function InviteForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<StaffRole>('BETREUUNG')
+  const [scope, setScope] = useState<StaffScopeId>('OWN_DOMAIN')
   const [state, setState] = useState<
     | { status: 'idle' }
     | { status: 'loading' }
@@ -30,7 +36,7 @@ export function InviteForm() {
       const res = await fetch('/api/auth/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), role }),
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), role, scope }),
       })
       const data: InviteResult = await res.json()
 
@@ -43,6 +49,7 @@ export function InviteForm() {
       setName('')
       setEmail('')
       setRole('BETREUUNG')
+      setScope('OWN_DOMAIN')
     } catch {
       setState({ status: 'error', message: INVITE_FORM_LABELS.errorNetwork })
     }
@@ -123,7 +130,7 @@ export function InviteForm() {
             className="input"
           />
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <label htmlFor="invite-role" className="label">
             {INVITE_FORM_LABELS.fieldRole} <span className="text-status-error-text">*</span>
           </label>
@@ -133,12 +140,37 @@ export function InviteForm() {
             onChange={(e) => setRole(e.target.value as StaffRole)}
             className="input"
           >
-            {STAFF_ROLES.map((id) => (
+            {/* ASSIGNABLE, not every role in the enum. "Leitung" (ADMIN) is
+                retired and the API refuses it — offering it here made the one
+                UI that creates colleagues point at the one value that must
+                never be created again. */}
+            {ASSIGNABLE_STAFF_ROLES.map((id) => (
               <option key={id} value={id}>
                 {ROLE_LABELS[id] || id}
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label htmlFor="invite-scope" className="label">
+            {INVITE_FORM_LABELS.fieldScope} <span className="text-status-error-text">*</span>
+          </label>
+          <select
+            id="invite-scope"
+            value={scope}
+            onChange={(e) => setScope(e.target.value as StaffScopeId)}
+            className="input"
+          >
+            {STAFF_SCOPES.map((id) => (
+              <option key={id} value={id}>
+                {SCOPE_LABELS[id] || id}
+              </option>
+            ))}
+          </select>
+          {/* Why this field exists at all: without it the only way to describe
+              a Betreuerin who also covers every domain was to pick "Leitung",
+              which is precisely how the retired role stayed alive in the UI. */}
+          <p className="mt-1 text-xs text-ui-muted">{INVITE_FORM_LABELS.fieldScopeHint}</p>
         </div>
       </div>
 
