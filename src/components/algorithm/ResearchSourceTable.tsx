@@ -1,8 +1,21 @@
 import { ExternalLink } from 'lucide-react'
-import { RESEARCH_SOURCES } from '@/lib/config/algorithm-docs'
+import type { ResearchSource } from '@/lib/config/evidence'
 import { EvidenceStrengthBadge } from './shared'
 
-export function ResearchSourceTable({ count }: { count: number }) {
+/**
+ * The sources behind one domain's methodology.
+ *
+ * Takes its sources rather than importing the housing set, because there are
+ * now two: `RESEARCH_SOURCES` for compatibility scoring and
+ * `JOB_RESEARCH_SOURCES` for labour-market integration. A second copy of this
+ * table would have been a second place for the markup to drift.
+ *
+ * The count is DERIVED, not passed. It used to arrive as a `count` prop fed by
+ * `SOURCE_COUNT` — a second statement of `sources.length` that could disagree
+ * with the rows actually rendered.
+ */
+export function ResearchSourceTable({ sources }: { sources: readonly ResearchSource[] }) {
+  const count = sources.length
   return (
     <section className="card">
       <h3 className="font-semibold text-ui-text mb-4 flex items-center gap-2">
@@ -32,7 +45,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
             </tr>
           </thead>
           <tbody>
-            {RESEARCH_SOURCES.map((source) => (
+            {sources.map((source) => (
               <tr key={source.id} className="border-b border-ui-border">
                 <td className="py-2 pr-3">
                   <div className="flex items-center gap-2">
@@ -68,7 +81,7 @@ export function ResearchSourceTable({ count }: { count: number }) {
       </div>
 
       <div className="md:hidden space-y-3">
-        {RESEARCH_SOURCES.map((source) => (
+        {sources.map((source) => (
           <div key={source.id} className="border border-ui-border rounded-lg p-3">
             <div className="flex items-start justify-between gap-2 mb-2">
               <h4 className="text-sm font-medium text-ui-text">{source.title}</h4>

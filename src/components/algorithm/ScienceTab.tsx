@@ -15,6 +15,7 @@ import {
   EvidenceStrengthBar,
 } from './shared'
 import { ResearchSourceTable } from './ResearchSourceTable'
+import { RESEARCH_SOURCES } from '@/lib/config/algorithm-docs'
 import { SCIENCE_TAB_LABELS } from '@/lib/constants'
 
 export function ScienceTab() {
@@ -206,7 +207,7 @@ export function ScienceTab() {
         </div>
       </section>
 
-      <ResearchSourceTable count={SOURCE_COUNT} />
+      <ResearchSourceTable sources={RESEARCH_SOURCES} />
     </div>
   )
 }
