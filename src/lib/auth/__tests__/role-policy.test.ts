@@ -64,7 +64,12 @@ describe('role policy smoke checks', () => {
     // 24, not 27: users:manage, system:configure and import:write moved OUT of
     // every role and into SYSTEM_ADMIN_PERMISSIONS, which only `isSystemAdmin`
     // grants. No role implies the right to reconfigure the product.
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(24)
+    //
+    // 25 since `ai:assist` was named: drafting help used to ride on
+    // residents:write, which hid the KI-Assistent from precisely the two roles
+    // that write the most prose while the API served them anyway.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(25)
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('ai:assist')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:write')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('export:read')

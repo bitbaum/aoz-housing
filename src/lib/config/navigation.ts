@@ -98,7 +98,7 @@ export const SYSTEM_LINKS: NavItem[] = [
   // laptop the nav needed 954px and had 865, so two entries sat behind a
   // horizontal scroll that people do not find. One click away, and the
   // mission areas fit.
-  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'residents:write' },
+  { href: '/ai-assistant', icon: 'bot', label: 'KI-Assistent', permission: 'ai:assist' },
   // Read-only methodology docs — visible to every staff role that sees a
   // compatibility score (i.e. all of them), matching the page's own guard.
   { href: '/algorithm', icon: 'brain', label: 'Algorithmus', permission: 'dashboard:read' },

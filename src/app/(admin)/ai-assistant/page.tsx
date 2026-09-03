@@ -7,7 +7,7 @@ import { requirePermission } from '@/lib/auth'
 export const metadata: Metadata = { title: 'KI-Assistent' }
 
 export default async function AIAssistantPage() {
-  await requirePermission('residents:write')
+  await requirePermission('ai:assist')
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">

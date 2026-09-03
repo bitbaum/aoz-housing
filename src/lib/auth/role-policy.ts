@@ -130,6 +130,18 @@ const OPERATIONAL = [
   // people at sport, language and community offers — JOBCOACH and
   // FREIWILLIGENARBEIT — were the two who could not open the page.
   'activities:read',
+  // Drafting help — a CV, a reference, a listing, a note. Held by every care
+  // role, and named rather than borrowed.
+  //
+  // It rode on `residents:write` for the same bad reason `activities:read`
+  // did, and with a worse symptom: the two roles who write the most prose in
+  // this product (a Jobcoach's CVs and references, a Freiwilligenarbeit
+  // coordinator's listings) were the two the nav hid it from. Meanwhile
+  // /api/ai/chat and /api/ai/form-assist checked only that you were signed in,
+  // so the boundary the nav declared and the one the API enforced disagreed —
+  // the same defect as the old /algorithm mismatch. One permission now governs
+  // the page, the nav and both routes.
+  'ai:assist',
 ] as const
 
 /**
@@ -176,6 +188,7 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:read',
     'activities:write',
+    'ai:assist',
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
   ],
@@ -199,6 +212,7 @@ export const ROLE_PERMISSIONS = {
     'opportunities:write',
     'activities:read',
     'activities:write',
+    'ai:assist',
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
   ],
@@ -220,6 +234,7 @@ export const ROLE_PERMISSIONS = {
     'activities:write',
     // Read only: a volunteering coordinator may need to see a reference
     // before placing someone, but the CV is the job coach's working document.
+    'ai:assist',
     CAREER_DOCUMENTS_READ,
   ],
 } as const

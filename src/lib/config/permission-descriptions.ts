@@ -38,6 +38,7 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'opportunities:read': `${OPPORTUNITY_AREA_NAME} und laufende Einsätze ansehen`,
   'opportunities:write': `${OPPORTUNITY_AREA_NAME} erfassen und Personen zuordnen`,
   'activities:read': 'externe Aktivitäten ansehen',
+  'ai:assist': 'den KI-Assistenten beim Schreiben nutzen',
   'activities:write': 'externe Aktivitäten erfassen und veröffentlichen',
   'documents:read': 'Lebenslauf, Zeugnisse und Referenzen einsehen',
   'documents:write': 'Lebenslauf, Zeugnisse und Referenzen hinzufügen und entfernen',
