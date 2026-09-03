@@ -1,5 +1,6 @@
 import {
   EMPTY_DEMO_SCOPE,
+  belongsToSameWorld,
   excludesDemo,
   isDemoResidentCode,
   isDemoUnitCode,
@@ -68,6 +69,37 @@ describe('which rows belong to the pilot', () => {
 
   it('keeps a row linked to neither', () => {
     expect(isRealRow({}, scope)).toBe(true)
+  })
+})
+
+describe('matching never crosses the demo boundary', () => {
+  /**
+   * Found on the live instance: George B — a REAL client — had "Beste
+   * Unterkünfte" offering `DEMO-U07` and `DEMO-U03`, and "Passende Mitbewohner"
+   * offering two demo residents. All of them are deleted and re-seeded at 04:05
+   * every night. Staff acting on that recommendation would place someone into a
+   * flat that ceases to exist.
+   *
+   * The rule is symmetric rather than "exclude demo", because compatibility
+   * scoring is the product's headline feature and a demo visitor has to see it
+   * work. Both worlds keep a matcher; neither reaches into the other.
+   */
+  it('a real client is never offered a demo unit', () => {
+    expect(belongsToSameWorld(false, true)).toBe(false)
+  })
+
+  it('a demo visitor still gets demo candidates, so the tour works', () => {
+    expect(belongsToSameWorld(true, true)).toBe(true)
+  })
+
+  it('a demo person is not offered the real flat either', () => {
+    // The other direction matters too: a demo visitor clicking through must not
+    // be shown Witikonerstrasse, nor its residents.
+    expect(belongsToSameWorld(true, false)).toBe(false)
+  })
+
+  it('real matches real', () => {
+    expect(belongsToSameWorld(false, false)).toBe(true)
   })
 })
 
