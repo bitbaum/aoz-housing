@@ -236,13 +236,6 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
         desc: 'Reparaturen & Meldungen',
         permission: 'maintenance:read',
       },
-      {
-        href: '/analytics',
-        icon: 'chart',
-        label: 'Statistiken',
-        desc: 'Auswertungen & Berichte',
-        permission: 'dashboard:read',
-      },
     ],
   },
   {
@@ -342,6 +335,20 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
       },
     ],
   },
+  // Top level, and no longer inside "Wohnen".
+  //
+  // It sat there while it was purely housing reporting. It is not any more:
+  // /analytics now renders the viewer's OWN domain KPIs, and for a Jobcoach or
+  // a Freiwilligenarbeit coordinator the housing half is not even fetched. A
+  // cross-cutting page filed under one mission area is mislabelled for every
+  // other one.
+  //
+  // It was also the only survivor of "Wohnen" for those two roles — every other
+  // item there needs `housing:read`, which they do not hold — so the group
+  // rendered as an accordion named for the roof over someone's head containing
+  // a single reporting link. Moving it fixes the label and empties the group in
+  // the same stroke.
+  { href: '/analytics', icon: 'chart', label: 'Statistiken', permission: 'dashboard:read' },
   { href: '/messages', icon: 'message', label: 'Nachrichten' },
 ]
 
@@ -359,6 +366,25 @@ export function visibleMegaMenuGroups(viewer: StaffCapabilities): MegaMenuGroup[
     }
     const items = group.items.filter((item) => itemVisible(item, viewer))
     if (items.length === 0) return []
+
+    // One survivor is a LINK, not an accordion.
+    //
+    // `AdminSidebar.test.tsx` has forbidden one-item accordions since the
+    // sidebar shipped — but only for ADMIN, the one viewer for whom no group is
+    // ever near-empty. Walked live on 2026-09-03, Simon (JOBCOACH) had THREE:
+    // "Klient*innen" holding only "Alle Klient*innen", "Konflikte" holding only
+    // "Vorfälle", and "Wohnen" holding only "Statistiken". Sandra had the same.
+    // A rule enforced against the one role it cannot fire for is not enforced.
+    //
+    // The item's own label wins, because it names the destination — "Vorfälle"
+    // rather than a "Konflikte" heading you must open to discover holds exactly
+    // Vorfälle. The permission travels with it so the flattened entry keeps the
+    // same boundary it had inside the group.
+    if (items.length === 1) {
+      const [only] = items
+      return [{ label: only.label, href: only.href, icon: only.icon, permission: only.permission }]
+    }
+
     return [{ ...group, items }]
   })
 }
