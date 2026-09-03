@@ -53,6 +53,32 @@ describe('what a borrowed session may do', () => {
     expect(isImpersonationExempt('/api/auth/impersonateXYZ')).toBe(false)
   })
 
+  /**
+   * The hole this shipped with, found by probing the deployed instance rather
+   * than by reading the code.
+   *
+   * `/api/auth` is in PUBLIC_ROUTES so that signing in works without a session.
+   * The first version of this guard sat inside the proxy's `requiresStaffAuth`
+   * branch, BELOW the public-route early return — so these two, which create
+   * staff accounts, skipped the rule completely. Production refused the probe
+   * only because the impersonated Jobcoach lacked `users:manage`; an
+   * administrator viewing another administrator would have sailed through and
+   * created a real colleague's account, under a banner promising the opposite.
+   *
+   * The rule itself was never wrong. Its CALL SITE was. These cases exist so a
+   * future reorganisation of the proxy cannot quietly reintroduce the same
+   * ordering.
+   */
+  it.each([['/api/auth/invite'], ['/api/auth/register'], ['/api/auth/signup']])(
+    'refuses POST %s even though it sits under a public prefix',
+    (pathname) => {
+      expect(isImpersonationExempt(pathname)).toBe(false)
+      expect(impersonationAllowsRequest({ isImpersonating: true, method: 'POST', pathname })).toBe(
+        false,
+      )
+    },
+  )
+
   it('constrains nothing when the session is your own', () => {
     expect(
       impersonationAllowsRequest({
