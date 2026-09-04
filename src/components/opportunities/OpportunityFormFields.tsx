@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * The opportunity form.
  *
@@ -9,8 +11,27 @@
  * Every `name=` here is checked against the zod schema by
  * `opportunity-form-fields.test.ts`. A field the schema does not know is
  * stripped on save and vanishes with no error at all.
+ *
+ * ## Why this is a client component now
+ *
+ * Because the board was empty, and a listing is fourteen fields. A coach
+ * holding a job ad — an e-mail, a PDF, a note from a phone call — had to
+ * retype all of it, and the cost of entering a place is the thing standing
+ * between residents and anything to apply for at all.
+ *
+ * The values live in one `useAiForm` store that both the coach and the
+ * assistant write to, exactly as the resident intake form does. The inputs
+ * keep their `name` attributes, so the enclosing `<form action={…}>` still
+ * submits plain FormData and nothing about saving changed.
+ *
+ * TWO fields are withheld from the model, and both matter more than the
+ * convenience does — see OPPORTUNITY_AI_EXCLUDED in lib/config/ai-forms.ts.
+ * They are rendered here from the store like everything else, but the model is
+ * never shown them and can never write them.
  */
 
+import { useAiForm } from '@fleet/ai-forms/react'
+import { AiFormBar } from '@/components/forms/AiFormBar'
 import {
   OPPORTUNITY_KIND_LABELS,
   OPPORTUNITY_STATUS_LABELS,
@@ -19,6 +40,7 @@ import {
   type OpportunityRecord,
 } from '@/lib/config/opportunities'
 import { CEFR_LEVELS } from '@/lib/config/learning'
+import { OPPORTUNITY_FORM } from '@/lib/config/ai-forms'
 import { OPPORTUNITIES_ADMIN_LABELS as L } from '@/lib/constants'
 
 type Props = {
@@ -33,10 +55,53 @@ function numberInputValue(value?: number | null) {
   return value === null || value === undefined ? '' : String(value)
 }
 
+/**
+ * The store's starting values.
+ *
+ * `null` everywhere for a new listing, and that is load-bearing rather than
+ * tidy: the hook infers fill-vs-refine from whether ANY value has content, so
+ * seeding `kind: 'VOLUNTEERING'` and `status: 'DRAFT'` — the defaults the
+ * selects display — would make the very first instruction a refine, and a
+ * refine cannot fill an empty form. The selects show those defaults by falling
+ * back at render time instead, so what a coach sees is unchanged.
+ */
+function initialValues(opportunity?: OpportunityRecord): Record<string, unknown> {
+  const values: Record<string, unknown> = {}
+  for (const field of OPPORTUNITY_FORM.fields) {
+    if (!opportunity) {
+      values[field.name] = null
+      continue
+    }
+    const saved = (opportunity as unknown as Record<string, unknown>)[field.name]
+    values[field.name] =
+      saved instanceof Date ? dateInputValue(saved) : saved === undefined ? null : saved
+  }
+  return values
+}
+
 export function OpportunityFormFields({ opportunity }: Props) {
+  const form = useAiForm({
+    target: OPPORTUNITY_FORM.key,
+    fields: OPPORTUNITY_FORM.fields,
+    initialValues: initialValues(opportunity),
+  })
+
+  const text = (name: string) => (form.values[name] == null ? '' : String(form.values[name]))
+  const set = (name: string) => (event: { target: { value: string } }) =>
+    form.setValue(name, event.target.value)
+
+  /** A field the assistant wrote is worth a glance before it is saved. */
+  const touched = (name: string) => (form.isAiTouched(name) ? ' ring-1 ring-brand-primary/40' : '')
+
   return (
     <div className="space-y-6">
       {opportunity ? <input type="hidden" name="id" value={opportunity.id} /> : null}
+
+      <AiFormBar
+        form={form}
+        fillPlaceholder="Inserat, E-Mail oder Notiz aus dem Telefonat hier einfügen …"
+        refinePlaceholder="z.B. «Start ist der 1. Oktober, 8 Stunden pro Woche»"
+      />
 
       <section className="space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-label text-ui-muted">
@@ -48,11 +113,12 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.titleField}</span>
             <input
               name="title"
-              defaultValue={opportunity?.title}
+              value={text('title')}
+              onChange={set('title')}
               placeholder={L.titlePlaceholder}
               required
               maxLength={160}
-              className="input"
+              className={`input${touched('title')}`}
             />
           </label>
 
@@ -60,11 +126,12 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.descriptionField}</span>
             <textarea
               name="description"
-              defaultValue={opportunity?.description}
+              value={text('description')}
+              onChange={set('description')}
               required
               maxLength={2000}
               rows={5}
-              className="input min-h-32"
+              className={`input min-h-32${touched('description')}`}
             />
           </label>
 
@@ -72,10 +139,11 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.organisation}</span>
             <input
               name="organisation"
-              defaultValue={opportunity?.organisation}
+              value={text('organisation')}
+              onChange={set('organisation')}
               required
               maxLength={200}
-              className="input"
+              className={`input${touched('organisation')}`}
             />
           </label>
 
@@ -83,8 +151,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.kindField}</span>
             <select
               name="kind"
-              defaultValue={opportunity?.kind ?? 'VOLUNTEERING'}
-              className="input"
+              value={text('kind') || 'VOLUNTEERING'}
+              onChange={set('kind')}
+              className={`input${touched('kind')}`}
             >
               {Object.entries(OPPORTUNITY_KIND_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -98,9 +167,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.location}</span>
             <input
               name="location"
-              defaultValue={opportunity?.location ?? ''}
+              value={text('location')}
+              onChange={set('location')}
               maxLength={300}
-              className="input"
+              className={`input${touched('location')}`}
             />
           </label>
 
@@ -108,10 +178,11 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.schedule}</span>
             <input
               name="schedule"
-              defaultValue={opportunity?.schedule ?? ''}
+              value={text('schedule')}
+              onChange={set('schedule')}
               placeholder="z.B. Di + Do, 11–14 Uhr"
               maxLength={300}
-              className="input"
+              className={`input${touched('schedule')}`}
             />
           </label>
 
@@ -121,8 +192,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
               name="hoursPerWeek"
               type="number"
               min={1}
-              defaultValue={numberInputValue(opportunity?.hoursPerWeek)}
-              className="input"
+              value={numberInputValue(form.values.hoursPerWeek as number | null)}
+              onChange={set('hoursPerWeek')}
+              className={`input${touched('hoursPerWeek')}`}
             />
           </label>
 
@@ -132,8 +204,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
               name="seats"
               type="number"
               min={1}
-              defaultValue={numberInputValue(opportunity?.seats)}
-              className="input"
+              value={numberInputValue(form.values.seats as number | null)}
+              onChange={set('seats')}
+              className={`input${touched('seats')}`}
             />
           </label>
 
@@ -142,8 +215,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <input
               name="startsAt"
               type="date"
-              defaultValue={dateInputValue(opportunity?.startsAt)}
-              className="input"
+              value={text('startsAt')}
+              onChange={set('startsAt')}
+              className={`input${touched('startsAt')}`}
             />
           </label>
 
@@ -152,8 +226,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <input
               name="endsAt"
               type="date"
-              defaultValue={dateInputValue(opportunity?.endsAt)}
-              className="input"
+              value={text('endsAt')}
+              onChange={set('endsAt')}
+              className={`input${touched('endsAt')}`}
             />
           </label>
         </div>
@@ -172,8 +247,9 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.germanLevel}</span>
             <select
               name="germanLevel"
-              defaultValue={opportunity?.germanLevel ?? ''}
-              className="input"
+              value={text('germanLevel')}
+              onChange={set('germanLevel')}
+              className={`input${touched('germanLevel')}`}
             >
               <option value="">{L.germanLevelAny}</option>
               {CEFR_LEVELS.map((level) => (
@@ -186,9 +262,11 @@ export function OpportunityFormFields({ opportunity }: Props) {
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium text-ui-text">{L.permitRequirement}</span>
+            {/* Never written by the assistant. @see OPPORTUNITY_AI_EXCLUDED */}
             <select
               name="permitRequirement"
-              defaultValue={opportunity?.permitRequirement ?? 'NONE'}
+              value={text('permitRequirement') || 'NONE'}
+              onChange={set('permitRequirement')}
               className="input"
             >
               {Object.entries(PERMIT_REQUIREMENT_LABELS).map(([value, label]) => (
@@ -207,9 +285,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.requirementNote}</span>
             <input
               name="requirementNote"
-              defaultValue={opportunity?.requirementNote ?? ''}
+              value={text('requirementNote')}
+              onChange={set('requirementNote')}
               maxLength={500}
-              className="input"
+              className={`input${touched('requirementNote')}`}
             />
           </label>
         </div>
@@ -236,9 +315,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.contactName}</span>
             <input
               name="contactName"
-              defaultValue={opportunity?.contactName ?? ''}
+              value={text('contactName')}
+              onChange={set('contactName')}
               maxLength={200}
-              className="input"
+              className={`input${touched('contactName')}`}
             />
           </label>
 
@@ -247,9 +327,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <input
               name="contactEmail"
               type="email"
-              defaultValue={opportunity?.contactEmail ?? ''}
+              value={text('contactEmail')}
+              onChange={set('contactEmail')}
               maxLength={200}
-              className="input"
+              className={`input${touched('contactEmail')}`}
             />
           </label>
 
@@ -257,9 +338,10 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <span className="text-sm font-medium text-ui-text">{L.contactPhone}</span>
             <input
               name="contactPhone"
-              defaultValue={opportunity?.contactPhone ?? ''}
+              value={text('contactPhone')}
+              onChange={set('contactPhone')}
               maxLength={80}
-              className="input"
+              className={`input${touched('contactPhone')}`}
             />
           </label>
 
@@ -268,15 +350,22 @@ export function OpportunityFormFields({ opportunity }: Props) {
             <input
               name="website"
               type="url"
-              defaultValue={opportunity?.website ?? ''}
+              value={text('website')}
+              onChange={set('website')}
               maxLength={500}
-              className="input"
+              className={`input${touched('website')}`}
             />
           </label>
 
           <label className="space-y-1.5">
             <span className="text-sm font-medium text-ui-text">{L.statusField}</span>
-            <select name="status" defaultValue={opportunity?.status ?? 'DRAFT'} className="input">
+            {/* Never written by the assistant. @see OPPORTUNITY_AI_EXCLUDED */}
+            <select
+              name="status"
+              value={text('status') || 'DRAFT'}
+              onChange={set('status')}
+              className="input"
+            >
               {Object.entries(OPPORTUNITY_STATUS_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
