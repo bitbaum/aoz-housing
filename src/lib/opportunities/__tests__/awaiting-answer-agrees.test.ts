@@ -30,6 +30,32 @@ describe('the SQL filter and the predicate say the same thing', () => {
   })
 })
 
+describe('the demo world can produce the state too', () => {
+  /**
+   * The seed already holds itself to "never seed a world the running code
+   * cannot produce" — it mints a LearningRecord for STARTED because that is
+   * what a real stage change does. The application row broke its own rule one
+   * field along: it marked INTERESTED rows `createdBy: 'RESIDENT'` and then
+   * set a `supportedByUserId` anyway, which `recordInterest` never does.
+   *
+   * Two costs, and the second is the one that matters: the demo contained a
+   * row shaped like nothing the product writes, and "Wartet auf Antwort" was
+   * permanently empty in the only place anyone looks at this feature before
+   * adopting it. An unseen feature reads as a missing one.
+   */
+  const seed = readFileSync(join(process.cwd(), 'src/lib/seed/opportunities.ts'), 'utf8')
+
+  it('leaves a resident-raised interest unclaimed, as the portal does', () => {
+    expect(seed).toContain("supportedByUserId: stage === 'INTERESTED' ? null : ctx.staffId")
+  })
+
+  it('still records who is supporting every thread that has moved on', () => {
+    // The opposite mistake — nulling it everywhere — would make every demo
+    // thread look abandoned and the queue read as the whole caseload.
+    expect(seed).toContain('ctx.staffId')
+  })
+})
+
 describe('the predicate itself, over every combination that reaches it', () => {
   const row = (over: Partial<JobApplicationInput>): JobApplicationInput => ({
     stage: 'INTERESTED',

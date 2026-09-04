@@ -246,7 +246,13 @@ export async function seedOpportunities(
         stageChangedAt,
         createdAt: daysAgo(STAGE_AGE_DAYS[stage] + 4, now),
         createdBy: stage === 'INTERESTED' ? 'RESIDENT' : 'STAFF',
-        supportedByUserId: ctx.staffId,
+        // Same rule as the evidence above, one field along. `recordInterest`
+        // leaves `supportedByUserId` null — that IS a resident-raised interest
+        // nobody has answered, and it is what the Jobcoach queue is built to
+        // surface. Seeding a supporter onto it produced a row the running code
+        // can never produce, and a demo in which "Wartet auf Antwort" is
+        // permanently empty. @see lib/jobcoach/queue.ts
+        supportedByUserId: stage === 'INTERESTED' ? null : ctx.staffId,
         learningRecordId,
       })
       applications += 1
