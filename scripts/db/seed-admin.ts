@@ -2,10 +2,10 @@
  * Seed Initial Admin User (code-based auth)
  *
  * Usage:
- *   npm run db:seed:admin
+ *   pnpm run db:seed:admin
  *
  * Or with custom code:
- *   ADMIN_CODE=AOCH-CUSTOM npm run db:seed:admin
+ *   ADMIN_CODE=AOCH-CUSTOM pnpm run db:seed:admin
  */
 
 import { eq } from 'drizzle-orm'
