@@ -22,6 +22,7 @@ import {
   ApplicationStageChangeSchema,
   OpportunityInputSchema,
   OpportunityUpdateSchema,
+  ValidationError,
   validateFormData,
 } from '@/lib/validation'
 import { evidenceForStartedApplication } from '@/lib/opportunities/pipeline'
@@ -96,9 +97,53 @@ function nullifyBlanks<T extends Record<string, unknown>>(data: T): T {
   return out
 }
 
-export async function createOpportunity(formData: FormData): Promise<void> {
+/**
+ * What the form gets back when a save does not go through.
+ *
+ * ## The bug this exists to end
+ *
+ * `validateFormData` throws a `ValidationError` carrying a carefully written
+ * German sentence. Nothing caught it, so it reached Next's error boundary and
+ * the coach saw "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut." —
+ * and the form was gone, taking every field with it.
+ *
+ * Observed live on 2026-09-04 while posting a real AOZ vacancy: publishing an
+ * Arbeitsstelle whose Bewilligungsweg was still the `NONE` default correctly
+ * hit the work-permit gate, and the one message that would have told the coach
+ * what to do next ("... Sonst als Entwurf speichern und mit der Sozialarbeit
+ * klären") was replaced by a shrug. Adding AI fill made the loss far worse:
+ * fourteen fields, gone.
+ *
+ * So a failed save now RETURNS. The form is a client component holding every
+ * value in its own store, so returning — rather than throwing — leaves that
+ * store untouched and the coach edits one field instead of starting again.
+ */
+export interface OpportunityFormState {
+  error?: string
+  /** Keyed by field name, so a future version can mark the offending input. */
+  fieldErrors?: Record<string, string[] | undefined>
+}
+
+/** Every save path shares this, so no caller has to remember to catch. */
+function toFormState(error: unknown, fallback: string): OpportunityFormState {
+  if (error instanceof ValidationError) {
+    return { error: error.message, fieldErrors: error.fieldErrors }
+  }
+  return { error: error instanceof Error ? error.message : fallback }
+}
+
+export async function createOpportunity(
+  _previous: OpportunityFormState,
+  formData: FormData,
+): Promise<OpportunityFormState> {
   const user = await requirePermission('opportunities:write')
-  const data = validateFormData(OpportunityInputSchema, formData)
+
+  let data
+  try {
+    data = validateFormData(OpportunityInputSchema, formData)
+  } catch (error) {
+    return toFormState(error, 'Einsatzplatz konnte nicht erstellt werden')
+  }
 
   let created
   try {
@@ -129,9 +174,19 @@ export async function createOpportunity(formData: FormData): Promise<void> {
   redirect(`/opportunities/${created.id}`)
 }
 
-export async function updateOpportunity(formData: FormData): Promise<void> {
+export async function updateOpportunity(
+  _previous: OpportunityFormState,
+  formData: FormData,
+): Promise<OpportunityFormState> {
   const user = await requirePermission('opportunities:write')
-  const { id, ...data } = validateFormData(OpportunityUpdateSchema, formData)
+
+  let parsed
+  try {
+    parsed = validateFormData(OpportunityUpdateSchema, formData)
+  } catch (error) {
+    return toFormState(error, 'Einsatzplatz konnte nicht aktualisiert werden')
+  }
+  const { id, ...data } = parsed
 
   try {
     const [updated] = await db
@@ -215,6 +270,36 @@ async function setStatus(opportunityId: string, status: OpportunityStatusId): Pr
 
 export async function publishOpportunity(opportunityId: string): Promise<void> {
   await setStatus(opportunityId, 'PUBLISHED')
+}
+
+/**
+ * The edit page's «Veröffentlichen» button.
+ *
+ * `publishOpportunity` keeps throwing — it is the server-side guard and its
+ * refusal is pinned by `work-permit-gate.test.ts`. But a throw reaching a
+ * button renders the same shrug as above, so this wraps it and sends the
+ * reason back to the page as a URL param.
+ *
+ * The fallible work is in its own function so that `redirect()` — which works
+ * by throwing — is never called inside the `try` that would catch it. Same
+ * split as `expressInterest` on the portal side.
+ */
+async function tryPublish(opportunityId: string): Promise<string | null> {
+  try {
+    await setStatus(opportunityId, 'PUBLISHED')
+    return null
+  } catch (error) {
+    return error instanceof Error ? error.message : 'Veröffentlichen nicht möglich'
+  }
+}
+
+export async function publishOpportunityFromEdit(opportunityId: string): Promise<void> {
+  const failure = await tryPublish(opportunityId)
+  redirect(
+    failure
+      ? `/opportunities/${opportunityId}/edit?error=${encodeURIComponent(failure)}`
+      : `/opportunities/${opportunityId}`,
+  )
 }
 
 export async function archiveOpportunity(opportunityId: string): Promise<void> {
