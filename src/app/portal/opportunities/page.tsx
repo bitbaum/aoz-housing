@@ -19,6 +19,7 @@ import {
   type PermitRequirementId,
 } from '@/lib/config/opportunities'
 import { formatDate } from '@/lib/utils/formatting'
+import { residentNextStep } from '@/lib/opportunities/pipeline'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getRequestTranslator()
@@ -36,6 +37,14 @@ const OK_KEYS = {
   withdrawn: 'opportunities.okWithdrawn',
 } as const
 
+/** The four things that can be true of a thread of your own, as one sentence. */
+const NEXT_STEP_KEYS = {
+  WAITING_ON_STAFF: 'opportunities.nextWaiting',
+  YOURS_TO_ATTEND: 'opportunities.nextAttend',
+  FINISHED: 'opportunities.nextFinished',
+  NOT_THIS_TIME: 'opportunities.nextDeclined',
+} as const
+
 const ERROR_KEYS = {
   unavailable: 'opportunities.errorUnavailable',
   full: 'opportunities.errorFull',
@@ -48,9 +57,11 @@ export default async function PortalOpportunitiesPage(props: Props) {
   const resident = await getPortalResident()
   if (!resident) redirect('/login')
 
-  const [{ t }, { mine, open }, params] = await Promise.all([
-    getRequestTranslator(),
-    residentOpportunityBoard(resident.id),
+  // The translator first, because the board is resolved INTO this reader's
+  // language server-side — the payload carries one language, not six.
+  const { t, locale } = await getRequestTranslator()
+  const [{ mine, open }, params] = await Promise.all([
+    residentOpportunityBoard(resident.id, locale),
     searchParams,
   ])
 
@@ -97,21 +108,73 @@ export default async function PortalOpportunitiesPage(props: Props) {
               // worse than no button.
               const canWithdraw = application.createdBy === 'RESIDENT' && stage === 'INTERESTED'
 
+              const listing = application.opportunity
+              const contact = [listing.contactName, listing.contactPhone, listing.contactEmail]
+                .filter(Boolean)
+                .join(' · ')
+
               return (
                 <li key={application.id} className="card">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="font-medium text-ui-text">{application.opportunity.title}</p>
+                    <p className="font-medium text-ui-text">{listing.title}</p>
                     <span className={APPLICATION_STAGE_BADGES[stage]}>
                       {applicationStageLabel(t, stage)}
                     </span>
                   </div>
                   <p className="text-sm text-ui-muted mt-1">
-                    {application.opportunity.organisation}
+                    {listing.organisation}
                     {' · '}
-                    {opportunityKindLabel(t, application.opportunity.kind as OpportunityKindId)}
+                    {opportunityKindLabel(t, listing.kind as OpportunityKindId)}
                     {' · '}
                     {formatDate(application.stageChangedAt)}
+                    {listing.machineTranslated ? ` · ${t('opportunities.machineTranslated')}` : ''}
                   </p>
+
+                  {/* What happens now. A stage badge says where the thread is;
+                      it does not say what this person should do about it, and
+                      that is the only question they opened the page with. */}
+                  <p className="text-sm text-ui-text mt-2">
+                    {t(NEXT_STEP_KEYS[residentNextStep(stage)])}
+                  </p>
+
+                  {/* The practical facts. All of these were already loaded and
+                      none of them was rendered, so somebody who had been
+                      ACCEPTED could not find out where to go or when. */}
+                  <dl className="mt-3 grid grid-cols-1 gap-1 text-sm sm:grid-cols-2">
+                    {listing.location ? (
+                      <div>
+                        <dt className="eyebrow">{t('opportunities.where')}</dt>
+                        <dd className="text-ui-text">{listing.location}</dd>
+                      </div>
+                    ) : null}
+                    {listing.startsAt ? (
+                      <div>
+                        <dt className="eyebrow">{t('opportunities.starts')}</dt>
+                        <dd className="text-ui-text">{formatDate(listing.startsAt)}</dd>
+                      </div>
+                    ) : null}
+                    {listing.schedule ? (
+                      <div>
+                        <dt className="eyebrow">{t('opportunities.perWeek')}</dt>
+                        <dd className="text-ui-text">
+                          {listing.schedule}
+                          {listing.hoursPerWeek ? ` · ${listing.hoursPerWeek}` : ''}
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
+
+                  {/* Present only once the server sent it — before ACCEPTED
+                      these fields are stripped from the row, not hidden here.
+                      @see lib/opportunities/pipeline.ts */}
+                  {contact ? (
+                    <div className="mt-3 rounded-lg border border-ui-border bg-ui-subtle p-3">
+                      <p className="eyebrow">{t('opportunities.contactTitle')}</p>
+                      <p className="mt-1 text-sm text-ui-text">{contact}</p>
+                      <p className="mt-1 text-xs text-ui-muted">{t('opportunities.contactHint')}</p>
+                    </div>
+                  ) : null}
+
                   {canWithdraw ? (
                     <form action={withdrawInterest} className="mt-3">
                       <input type="hidden" name="applicationId" value={application.id} />
@@ -161,7 +224,38 @@ export default async function PortalOpportunitiesPage(props: Props) {
                     {opportunity.description}
                   </p>
 
+                  {/* Said, not implied. The reader is the person best placed to
+                      judge whether a machine translation is good enough here,
+                      and they can only do that if they know it is one — the
+                      same honesty the language picker already applies to the
+                      interface itself. */}
+                  {opportunity.machineTranslated && opportunity.original ? (
+                    <details className="mt-2">
+                      <summary className="flex min-h-[44px] cursor-pointer items-center text-xs text-ui-muted">
+                        {t('opportunities.machineTranslated')} · {t('opportunities.showOriginal')}
+                      </summary>
+                      <div className="mt-2 rounded-lg border border-ui-border bg-ui-subtle p-3">
+                        <p className="eyebrow">{t('opportunities.originalTitle')}</p>
+                        {/* lang + dir so a screen reader switches voice, and so
+                            German inside an RTL card is not laid out backwards. */}
+                        <p lang="de" dir="ltr" className="mt-1 text-sm font-medium text-ui-text">
+                          {opportunity.original.title}
+                        </p>
+                        <p
+                          lang="de"
+                          dir="ltr"
+                          className="mt-1 text-sm leading-relaxed text-ui-text"
+                        >
+                          {opportunity.original.description}
+                        </p>
+                      </div>
+                    </details>
+                  ) : null}
+
                   <p className="mt-3">
+                    {/* Never machine-translated. This sentence is a statement
+                        about what the place requires and is hand-translated per
+                        locale in the dictionaries. @see lib/opportunities/translation.ts */}
                     <span className={PERMIT_REQUIREMENT_BADGES[permit]}>
                       {permitRequirementLabel(t, permit)}
                     </span>

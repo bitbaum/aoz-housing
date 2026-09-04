@@ -2,15 +2,40 @@ import {
   JOB_SIGNAL_IDS,
   NO_CONTACT_GRACE_DAYS,
   STALLED_RECORD_DAYS,
+  awaitsAnswer,
   buildJobQueue,
   hasLabourMarketContact,
+  isAwaitingAnswer,
   signalsFor,
+  type JobApplicationInput,
   type JobClientInput,
 } from '../queue'
+import type { ApplicationStageId } from '@/lib/config/opportunities'
 import { INTEGRATION_PRINCIPLES } from '@/lib/config/job-integration-docs'
 
 const NOW = new Date('2026-09-02T09:00:00Z')
 const daysAgo = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000)
+
+/** A thread a coach opened, or one they have since picked up. */
+const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  stage,
+  createdBy: 'STAFF',
+  supportedByUserId: 'u-simon',
+})
+
+/** A resident pressed "Ich habe Interesse" and nobody has replied yet. */
+const unanswered = (): JobApplicationInput => ({
+  stage: 'INTERESTED',
+  createdBy: 'RESIDENT',
+  supportedByUserId: null,
+})
+
+/** The same click, after a coach picked it up. */
+const answeredApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  stage,
+  createdBy: 'RESIDENT',
+  supportedByUserId: 'u-simon',
+})
 
 const client = (over: Partial<JobClientInput> = {}): JobClientInput => ({
   residentId: 'r1',
@@ -63,7 +88,7 @@ describe('no labour-market contact', () => {
   it.each([['INTERESTED'], ['APPLIED'], ['INTERVIEW'], ['ACCEPTED'], ['STARTED']] as const)(
     'a %s application counts as contact',
     (stage) => {
-      const c = client({ createdAt: daysAgo(90), applications: [{ stage }] })
+      const c = client({ createdAt: daysAgo(90), applications: [staffApp(stage)] })
       expect(hasLabourMarketContact(c)).toBe(true)
       expect(signalsFor(c, NOW)).not.toContain('NO_LABOUR_MARKET_CONTACT')
     },
@@ -72,7 +97,7 @@ describe('no labour-market contact', () => {
   it.each([['ENDED'], ['DECLINED']] as const)('a %s application does not', (stage) => {
     // A finished or refused application is history. Treating it as contact
     // would hide exactly the person who needs the next one.
-    const c = client({ createdAt: daysAgo(90), applications: [{ stage }] })
+    const c = client({ createdAt: daysAgo(90), applications: [staffApp(stage)] })
     expect(hasLabourMarketContact(c)).toBe(false)
     expect(signalsFor(c, NOW)).toContain('NO_LABOUR_MARKET_CONTACT')
   })
@@ -94,6 +119,73 @@ describe('no labour-market contact', () => {
       learningRecords: [{ kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(1) }],
     })
     expect(hasLabourMarketContact(c)).toBe(false)
+  })
+})
+
+describe('a resident raising their hand is a request for contact, not contact', () => {
+  /**
+   * The inversion this block exists to prevent, in the exact shape it shipped.
+   *
+   * `recordInterest` writes a resident-created INTERESTED row with
+   * `supportedByUserId` null. `hasLiveApplication` counted INTERESTED, and
+   * nothing anywhere read `supportedByUserId`. So the ONE action a resident can
+   * take on the board deleted them from their coach's queue and raised
+   * `LABOUR_MARKET_CONTACT_RATE` — the person waiting for a reply became the
+   * person the product had stopped mentioning.
+   */
+  it('an unanswered click does not count as contact', () => {
+    const c = client({ createdAt: daysAgo(90), applications: [unanswered()] })
+    expect(hasLabourMarketContact(c)).toBe(false)
+  })
+
+  it('and it raises INTEREST_UNANSWERED instead of silence', () => {
+    const c = client({ createdAt: daysAgo(90), applications: [unanswered()] })
+    expect(signalsFor(c, NOW)).toContain('INTEREST_UNANSWERED')
+  })
+
+  it('a coach picking the same thread up turns it into contact', () => {
+    // The row is otherwise identical. `supportedByUserId` is the whole
+    // difference, which is why it must be selected wherever this is computed.
+    const c = client({ createdAt: daysAgo(90), applications: [answeredApp('INTERESTED')] })
+    expect(hasLabourMarketContact(c)).toBe(true)
+    expect(signalsFor(c, NOW)).not.toContain('INTEREST_UNANSWERED')
+  })
+
+  it('so does the coach moving it along, which is what sets that field', () => {
+    const c = client({ createdAt: daysAgo(90), applications: [answeredApp('APPLIED')] })
+    expect(awaitsAnswer(c)).toBe(false)
+    expect(hasLabourMarketContact(c)).toBe(true)
+  })
+
+  it('replaces the contact signals rather than adding a fourth row', () => {
+    // "Find this person something" is the wrong next move for someone who
+    // already found it themselves and is waiting to hear back.
+    const signals = signalsFor(
+      client({ createdAt: daysAgo(90), applications: [unanswered()] }),
+      NOW,
+    )
+    expect(signals).toEqual(['INTEREST_UNANSWERED'])
+  })
+
+  it('fires even for someone already in work — they are still owed a reply', () => {
+    const c = client({
+      createdAt: daysAgo(200),
+      applications: [staffApp('STARTED'), unanswered()],
+    })
+    expect(hasLabourMarketContact(c)).toBe(true)
+    expect(signalsFor(c, NOW)).toContain('INTEREST_UNANSWERED')
+  })
+
+  it('fires from day one — a grace period on an unread message is a delay', () => {
+    // NO_LABOUR_MARKET_CONTACT waits two weeks because nothing has been asked
+    // of anyone yet. Here a person has asked, and the clock is theirs.
+    const c = client({ createdAt: daysAgo(0), applications: [unanswered()] })
+    expect(signalsFor(c, NOW)).toContain('INTEREST_UNANSWERED')
+  })
+
+  it('a staff-created INTERESTED row is not waiting on anyone', () => {
+    expect(isAwaitingAnswer(staffApp('INTERESTED'))).toBe(false)
+    expect(isAwaitingAnswer(unanswered())).toBe(true)
   })
 })
 
@@ -122,7 +214,7 @@ describe('course without work', () => {
 describe('stalled records', () => {
   it('flags an IN_PROGRESS record nobody has touched', () => {
     const c = client({
-      applications: [{ stage: 'STARTED' }],
+      applications: [staffApp('STARTED')],
       learningRecords: [
         { kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(STALLED_RECORD_DAYS) },
       ],
@@ -132,7 +224,7 @@ describe('stalled records', () => {
 
   it('leaves a recently updated record alone', () => {
     const c = client({
-      applications: [{ stage: 'STARTED' }],
+      applications: [staffApp('STARTED')],
       learningRecords: [{ kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(3) }],
     })
     expect(signalsFor(c, NOW)).not.toContain('STALLED_RECORD')
@@ -141,7 +233,7 @@ describe('stalled records', () => {
   it('ignores completed records however old', () => {
     // A finished course does not go stale. Only work in flight can stall.
     const c = client({
-      applications: [{ stage: 'STARTED' }],
+      applications: [staffApp('STARTED')],
       learningRecords: [{ kind: 'COURSE', status: 'COMPLETED', updatedAt: daysAgo(400) }],
     })
     expect(signalsFor(c, NOW)).toEqual([])
@@ -152,7 +244,7 @@ describe('the queue as a whole', () => {
   it('is empty for a client with work running and records moving', () => {
     const c = client({
       createdAt: daysAgo(200),
-      applications: [{ stage: 'STARTED' }],
+      applications: [staffApp('STARTED')],
       learningRecords: [{ kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(2) }],
     })
     expect(buildJobQueue([c], NOW)).toEqual([])
@@ -174,6 +266,26 @@ describe('the queue as a whole', () => {
 
   it('an empty caseload produces an empty queue, not an error', () => {
     expect(buildJobQueue([], NOW)).toEqual([])
+  })
+
+  it('puts the person waiting for a reply first, whatever order the rows arrive in', () => {
+    // The dashboard hero renders jobQueue[0] and nothing else. Left unsorted,
+    // who got that slot was decided by which client the query returned first.
+    const stalled = client({
+      residentId: 'stalled',
+      name: 'A',
+      createdAt: daysAgo(200),
+      applications: [staffApp('STARTED')],
+      learningRecords: [
+        { kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(STALLED_RECORD_DAYS + 1) },
+      ],
+    })
+    const waiting = client({ residentId: 'waiting', name: 'B', applications: [unanswered()] })
+
+    expect(buildJobQueue([stalled, waiting], NOW)[0]).toMatchObject({
+      residentId: 'waiting',
+      signal: 'INTEREST_UNANSWERED',
+    })
   })
 })
 

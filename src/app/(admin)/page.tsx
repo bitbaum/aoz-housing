@@ -238,7 +238,11 @@ export default async function AdminDashboard() {
               columns: { ...RESIDENT_NAME_SELECT, createdAt: true },
               with: {
                 learningRecords: { columns: { kind: true, status: true, updatedAt: true } },
-                opportunityApplications: { columns: { stage: true } },
+                // `createdBy` and `supportedByUserId` are what separate contact
+                // from a request for one. @see lib/jobcoach/queue.ts
+                opportunityApplications: {
+                  columns: { stage: true, createdBy: true, supportedByUserId: true },
+                },
               },
             },
           },

@@ -297,6 +297,18 @@ export const de = {
   'opportunities.evidenceHint':
     'Sobald du startest, wird der Einsatz automatisch als Nachweis gespeichert.',
   'opportunities.toLearning': 'Zu deinen Nachweisen',
+  'opportunities.machineTranslated': 'Maschinell übersetzt',
+  'opportunities.showOriginal': 'Deutsches Original anzeigen',
+  'opportunities.originalTitle': 'Original auf Deutsch',
+  'opportunities.where': 'Wo',
+  'opportunities.starts': 'Beginn',
+  'opportunities.contactTitle': 'So erreichst du den Ort',
+  'opportunities.contactHint': 'Melde dich vor dem ersten Tag bei dieser Person.',
+  'opportunities.nextWaiting': 'Dein Team schaut sich das an und meldet sich bei dir.',
+  'opportunities.nextAttend': 'Der Platz gehört dir. Unten steht, wo und ab wann.',
+  'opportunities.nextFinished': 'Abgeschlossen. Der Nachweis liegt bei deinen Nachweisen.',
+  'opportunities.nextDeclined':
+    'Dieser Platz hat nicht geklappt. Dein Team sucht mit dir einen anderen.',
   'opportunities.kindVolunteering': 'Freiwilligenarbeit',
   'opportunities.kindCommunity': 'Gemeinnütziger Einsatz',
   'opportunities.kindEmployment': 'Arbeitsstelle',

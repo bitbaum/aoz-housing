@@ -21,6 +21,7 @@
 import { and, eq, inArray } from 'drizzle-orm'
 import { careAssignment, db, resident } from '@/lib/db'
 import { loadDemoScope } from './real-data'
+import { isAwaitingAnswer } from '@/lib/jobcoach/queue'
 import {
   computeJobKpis,
   computeVolunteeringKpis,
@@ -73,28 +74,46 @@ export async function loadJobKpis(request: RoleKpiRequest): Promise<KpiValue[]> 
       learningRecords: {
         columns: { kind: true, status: true, updatedAt: true, languageCode: true },
       },
-      opportunityApplications: { columns: { stage: true, createdAt: true } },
+      opportunityApplications: {
+        columns: { stage: true, createdAt: true, createdBy: true, supportedByUserId: true },
+      },
     },
   })
 
-  const clients: JobKpiClient[] = rows.map((row) => ({
-    residentId: row.id,
-    name: residentName(row),
-    createdAt: row.createdAt,
-    learningRecords: row.learningRecords,
-    applications: row.opportunityApplications,
-    // The earliest application is the best available proxy for "first contact":
-    // it is the first moment this product can witness. An approach made by
-    // phone and never recorded is invisible here, which is a limit of the data
-    // rather than of the metric — and a reason the number belongs beside a
-    // caseload size rather than alone.
-    firstContactAt: row.opportunityApplications.length
-      ? row.opportunityApplications.reduce(
-          (earliest, a) => (a.createdAt < earliest ? a.createdAt : earliest),
-          row.opportunityApplications[0].createdAt,
-        )
-      : null,
-  }))
+  const clients: JobKpiClient[] = rows.map((row) => {
+    // Threads nobody has answered are not contact, so they are not a first
+    // contact either. Left in, the median would have measured how quickly
+    // RESIDENTS click — a client who pressed "Ich habe Interesse" on day one
+    // and waited two months would have reported one day, and the tile would
+    // have improved fastest exactly where the service was slowest.
+    // @see lib/jobcoach/queue.ts
+    const answered = row.opportunityApplications.filter((a) => !isAwaitingAnswer(a))
+
+    return {
+      residentId: row.id,
+      name: residentName(row),
+      createdAt: row.createdAt,
+      learningRecords: row.learningRecords,
+      applications: row.opportunityApplications,
+      // The earliest answered application is the best available proxy for
+      // "first contact": it is the first moment this product can witness. An
+      // approach made by phone and never recorded is invisible here, which is a
+      // limit of the data rather than of the metric — and a reason the number
+      // belongs beside a caseload size rather than alone.
+      //
+      // For a thread the resident opened and staff later took up, this is still
+      // the date of the CLICK rather than of the reply, so the figure remains a
+      // lower bound on the delay. Recording an answeredAt would tighten it; a
+      // lower bound that cannot be gamed by the resident's own action is the
+      // improvement that mattered.
+      firstContactAt: answered.length
+        ? answered.reduce(
+            (earliest, a) => (a.createdAt < earliest ? a.createdAt : earliest),
+            answered[0].createdAt,
+          )
+        : null,
+    }
+  })
 
   return computeJobKpis(clients)
 }
@@ -107,7 +126,9 @@ export async function loadVolunteeringKpis(request: RoleKpiRequest): Promise<Kpi
     where: inArray(resident.id, ids),
     columns: { id: true },
     with: {
-      opportunityApplications: { columns: { stage: true } },
+      opportunityApplications: {
+        columns: { stage: true, createdBy: true, supportedByUserId: true },
+      },
       eventRsvps: { columns: { status: true } },
     },
   })

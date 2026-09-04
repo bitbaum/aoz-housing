@@ -647,6 +647,18 @@ export const en: Dictionary = {
   'opportunities.evidenceHint':
     'Once you start, the work is saved automatically as a record for you.',
   'opportunities.toLearning': 'To your records',
+  'opportunities.machineTranslated': 'Machine translated',
+  'opportunities.showOriginal': 'Show the German original',
+  'opportunities.originalTitle': 'Original in German',
+  'opportunities.where': 'Where',
+  'opportunities.starts': 'Starts',
+  'opportunities.contactTitle': 'How to reach them',
+  'opportunities.contactHint': 'Get in touch with this person before your first day.',
+  'opportunities.nextWaiting': 'Your team is looking at this and will get back to you.',
+  'opportunities.nextAttend': 'The place is yours. Where and when is below.',
+  'opportunities.nextFinished': 'Finished. The record is with your certificates.',
+  'opportunities.nextDeclined':
+    'This place did not work out. Your team will look for another one with you.',
   'opportunities.kindVolunteering': 'Volunteering',
   'opportunities.kindCommunity': 'Community service',
   'opportunities.kindEmployment': 'Job',

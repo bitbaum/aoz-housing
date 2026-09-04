@@ -663,6 +663,18 @@ export const fr: Dictionary = {
   'opportunities.evidenceHint':
     'Dès que vous commencez, l’engagement est enregistré automatiquement comme justificatif.',
   'opportunities.toLearning': 'Vers vos justificatifs',
+  'opportunities.machineTranslated': 'Traduction automatique',
+  'opportunities.showOriginal': 'Afficher l’original en allemand',
+  'opportunities.originalTitle': 'Original en allemand',
+  'opportunities.where': 'Où',
+  'opportunities.starts': 'Début',
+  'opportunities.contactTitle': 'Comment les joindre',
+  'opportunities.contactHint': 'Contactez cette personne avant votre premier jour.',
+  'opportunities.nextWaiting': 'Votre équipe examine votre demande et vous recontacte.',
+  'opportunities.nextAttend': 'La place est pour vous. Le lieu et la date sont ci-dessous.',
+  'opportunities.nextFinished': 'Terminé. L’attestation se trouve dans vos justificatifs.',
+  'opportunities.nextDeclined':
+    'Cette place n’a pas abouti. Votre équipe en cherche une autre avec vous.',
   'opportunities.kindVolunteering': 'Bénévolat',
   'opportunities.kindCommunity': 'Mission d’intérêt général',
   'opportunities.kindEmployment': 'Emploi',

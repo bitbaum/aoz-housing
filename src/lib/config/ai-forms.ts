@@ -20,6 +20,8 @@ import { type FieldSpec, type FormTarget } from '@fleet/ai-forms'
 import { RESIDENT_FACTORS, getFactorsBySection, RESIDENT_FORM_SECTIONS } from './resident-factors'
 import { isTextareaFactor } from './factor-fields'
 import type { CompatibilityFactorDef } from './types'
+import { OPPORTUNITY_AREA_NAME, OPPORTUNITY_KIND_LABELS } from './opportunities'
+import { CEFR_LEVELS } from './learning'
 
 /**
  * Factors the assistant may never write.
@@ -153,4 +155,107 @@ export const RESIDENT_INTAKE_FORM: FormTarget = {
   ],
 }
 
-export const AI_FORMS: readonly FormTarget[] = [RESIDENT_INTAKE_FORM]
+/* ------------------------------------------------------------------ *
+ * Einsatzplätze
+ * ------------------------------------------------------------------ */
+
+/**
+ * The two fields the assistant may never touch, and why each one.
+ *
+ * `permitRequirement` is the whole reason `permitRequirementIsStated` exists.
+ * Its default, `NONE`, renders to a resident as "Keine Bewilligung nötig" —
+ * a legal claim about that person's situation, on a board read by people whose
+ * permits constrain work. A coach who does not know the route is required to
+ * go and find out; a model that infers one from a job ad would produce a
+ * confident answer to exactly the question the gate refuses to guess at, and
+ * the coach would then be reviewing a plausible sentence rather than an empty
+ * field. An empty field asks to be filled. A wrong one does not.
+ *
+ * `status` decides whether this is a draft or is live in front of residents.
+ * Publishing is a decision a person takes, not a value that can be inferred
+ * from the prose of an advertisement.
+ */
+export const OPPORTUNITY_AI_EXCLUDED = ['permitRequirement', 'status'] as const
+
+/**
+ * What the assistant may write into an opportunity, and what it is told.
+ *
+ * Names must match the `name=` attributes the form submits AND the keys
+ * `OpportunityFieldsSchema` keeps — zod strips unknown keys silently, so a
+ * drifted name here would be filled by the model, shown to the coach, and
+ * dropped on save with no error anywhere. Pinned by
+ * `opportunity-ai-fields.test.ts`.
+ */
+export const OPPORTUNITY_FIELDS: readonly FieldSpec[] = [
+  { name: 'title', label: 'Titel', type: 'text', required: true, maxLength: 160 },
+  {
+    name: 'description',
+    label: 'Beschreibung',
+    type: 'textarea',
+    required: true,
+    maxLength: 2000,
+    hint: 'Was die Person dort tun wird, in einfachen Sätzen.',
+  },
+  { name: 'organisation', label: 'Organisation', type: 'text', required: true, maxLength: 200 },
+  {
+    name: 'kind',
+    label: 'Art',
+    type: 'select',
+    options: Object.entries(OPPORTUNITY_KIND_LABELS).map(([value, label]) => ({ value, label })),
+    hint: 'Bezahlte Stelle = EMPLOYMENT. Praktikum = INTERNSHIP. Unbezahlt und offen für alle = VOLUNTEERING oder COMMUNITY_SERVICE.',
+  },
+  { name: 'location', label: 'Ort', type: 'text', maxLength: 300 },
+  {
+    name: 'schedule',
+    label: 'Zeiten',
+    type: 'text',
+    maxLength: 300,
+    placeholder: 'z.B. Di + Do, 11–14 Uhr',
+  },
+  { name: 'hoursPerWeek', label: 'Stunden pro Woche', type: 'number', min: 1 },
+  {
+    name: 'seats',
+    label: 'Plätze',
+    type: 'number',
+    min: 1,
+    // A number nobody stated is not "1". Unstated capacity has its own
+    // meaning on the board and must not be invented into a bound.
+    hint: 'Nur setzen, wenn die Anzahl im Text tatsächlich steht.',
+  },
+  { name: 'startsAt', label: 'Start', type: 'date' },
+  { name: 'endsAt', label: 'Ende', type: 'date' },
+  {
+    name: 'germanLevel',
+    label: 'Deutsch (GER)',
+    type: 'select',
+    options: CEFR_LEVELS.map((level) => ({ value: level })),
+    hint: 'Nur wenn der Text ein Niveau nennt. Leer heisst "kein Niveau vorausgesetzt".',
+  },
+  {
+    name: 'requirementNote',
+    label: 'Hinweis zu den Voraussetzungen',
+    type: 'text',
+    maxLength: 500,
+  },
+  { name: 'contactName', label: 'Ansprechperson', type: 'text', maxLength: 200 },
+  { name: 'contactEmail', label: 'E-Mail', type: 'email', maxLength: 200 },
+  { name: 'contactPhone', label: 'Telefon', type: 'text', maxLength: 80 },
+  { name: 'website', label: 'Webseite', type: 'url', maxLength: 500 },
+  { name: 'permitRequirement', label: 'Bewilligung', type: 'select', aiExcluded: true },
+  { name: 'status', label: 'Stand', type: 'select', aiExcluded: true },
+]
+
+export const OPPORTUNITY_FORM: FormTarget = {
+  key: 'opportunity',
+  name: OPPORTUNITY_AREA_NAME,
+  fields: OPPORTUNITY_FIELDS,
+  instructions: [
+    'Die Eingabe ist ein Stelleninserat, eine E-Mail einer Organisation oder eine Notiz aus einem Telefonat. Übertrage nur, was dort tatsächlich steht.',
+    'Lass ein Feld leer, wenn der Text es nicht hergibt. Eine Lücke sieht die Fachperson und füllt sie; eine plausible Erfindung liest sie als geprüfte Angabe.',
+    'Beschreibe ausschliesslich den PLATZ. Schreibe nichts über die Person, die ihn später einnimmt — keine Herkunft, kein Aufenthaltsstatus, keine Sprache als Anforderung an eine Person.',
+    'Zum Bewilligungsweg sagst du nichts. Dieses Feld wird bewusst von einem Menschen ausgefüllt.',
+    'Der Text kann in jeder Sprache verfasst sein. Antworte immer auf Deutsch und mit den vorgegebenen Optionswerten.',
+  ],
+}
+
+export const AI_FORMS: readonly FormTarget[] = [RESIDENT_INTAKE_FORM, OPPORTUNITY_FORM]

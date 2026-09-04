@@ -40,7 +40,12 @@
  */
 
 import { isGermanLanguageTest } from '@/lib/config/learning'
-import { hasLabourMarketContact, type JobClientInput } from '@/lib/jobcoach/queue'
+import {
+  hasLabourMarketContact,
+  isAwaitingAnswer,
+  type JobApplicationInput,
+  type JobClientInput,
+} from '@/lib/jobcoach/queue'
 
 export type KpiDirection = 'up' | 'down'
 export type KpiFormat = 'percent' | 'days'
@@ -256,7 +261,7 @@ export const ACTIVE_ENGAGEMENT_STAGES = [
 
 export interface VolunteeringKpiClient {
   residentId: string
-  applications: { stage: string }[]
+  applications: JobApplicationInput[]
   /** GOING counts; MAYBE and DECLINED do not — a maybe is not attendance. */
   rsvpStatuses: string[]
 }
@@ -264,8 +269,12 @@ export interface VolunteeringKpiClient {
 export function computeVolunteeringKpis(clients: readonly VolunteeringKpiClient[]): KpiValue[] {
   const total = clients.length
 
+  // The same rule the Jobcoach side follows, for the same reason: an interest
+  // nobody has answered is a person waiting, not a running engagement. Without
+  // this, a resident's own click would raise Sandra's ENGAGEMENT_RATE while
+  // nothing had been arranged for them.
   const engaged = clients.filter((c) =>
-    c.applications.some((a) => ACTIVE_ENGAGEMENT_STAGES.includes(a.stage)),
+    c.applications.some((a) => ACTIVE_ENGAGEMENT_STAGES.includes(a.stage) && !isAwaitingAnswer(a)),
   )
   const attending = clients.filter((c) => c.rsvpStatuses.includes('GOING'))
 

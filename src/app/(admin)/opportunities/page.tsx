@@ -18,6 +18,7 @@ import {
 } from '@/lib/config/opportunities'
 import { countActive, listOpportunities, opportunityStats } from '@/lib/data/opportunities'
 import { openSeats } from '@/lib/opportunities/pipeline'
+import { isAwaitingAnswer } from '@/lib/jobcoach/queue'
 import { OPPORTUNITIES_ADMIN_LABELS as L } from '@/lib/constants'
 
 export const metadata: Metadata = { title: L.pageTitle }
@@ -66,12 +67,15 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <StatCard label={L.statTotal} value={stats.total} />
         <StatCard label={L.statPublished} value={stats.published} />
         <StatCard label={L.statDrafts} value={stats.drafts} />
         <StatCard label={L.statActivePeople} value={stats.activePeople} />
         <StatCard label={L.statOpenThreads} value={stats.openThreads} />
+        {/* The only one of these six where a person, not a process, is
+            waiting. @see lib/jobcoach/queue.ts */}
+        <StatCard label={L.statAwaiting} value={stats.awaitingAnswer} />
       </div>
 
       <Toolbar>
@@ -162,6 +166,7 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
               const stages = opportunity.applications.map((a) => a.stage)
               const free = openSeats(opportunity, stages)
               const active = countActive(opportunity.applications)
+              const waiting = opportunity.applications.filter(isAwaitingAnswer).length
 
               return (
                 <div key={opportunity.id} className="px-4 py-4">
@@ -178,6 +183,13 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
                         <span className={`badge ${OPPORTUNITY_STATUS_BADGES[opportunity.status]}`}>
                           {OPPORTUNITY_STATUS_LABELS[opportunity.status]}
                         </span>
+                        {/* Beside the title rather than down with the counts:
+                            it is the reason to open this row today. */}
+                        {waiting > 0 ? (
+                          <span className="chip chip-warning">
+                            {waiting} {L.awaitingAnswer}
+                          </span>
+                        ) : null}
                       </div>
 
                       <p className="mt-1 text-sm text-ui-muted">

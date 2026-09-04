@@ -3,7 +3,7 @@
  * `lib/opportunities/pipeline.ts` so they can be tested without a database.
  */
 
-import { and, asc, desc, eq, ilike, inArray, notInArray, or, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, ilike, inArray, isNull, notInArray, or, type SQL } from 'drizzle-orm'
 import { db, escapeLike, opportunity, opportunityApplication, resident } from '@/lib/db'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import type {
@@ -11,7 +11,12 @@ import type {
   OpportunityKindId,
   OpportunityStatusId,
 } from '@/lib/config/opportunities'
-import { isActiveStage, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
+import { isActiveStage, maySeeContact, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
+import {
+  readableListing,
+  type ListingTranslations,
+  type TranslatableListing,
+} from '@/lib/opportunities/translation'
 
 /** Rows that reach the UI carry `displayName`, never a bare code. */
 const APPLICATION_INCLUDE = {
@@ -19,6 +24,20 @@ const APPLICATION_INCLUDE = {
   supportedBy: { columns: { id: true, name: true } },
   learningRecord: { columns: { id: true } },
 } as const
+
+/**
+ * The SQL form of `isAwaitingAnswer` — resident-raised, still INTERESTED, and
+ * unclaimed. The predicate itself lives in `lib/jobcoach/queue.ts`; this is the
+ * same three clauses expressed where the database can filter on them, and
+ * `awaiting-answer-agrees.test.ts` holds the two to each other.
+ */
+export function awaitingAnswerFilter() {
+  return and(
+    eq(opportunityApplication.createdBy, 'RESIDENT'),
+    eq(opportunityApplication.stage, 'INTERESTED'),
+    isNull(opportunityApplication.supportedByUserId),
+  )
+}
 
 export interface OpportunityListFilters {
   status?: OpportunityStatusId
@@ -58,7 +77,11 @@ export async function listOpportunities(filters: OpportunityListFilters = {}) {
   return db.query.opportunity.findMany({
     where: listWhere(filters),
     with: {
-      applications: { columns: { id: true, stage: true } },
+      // `createdBy` and `supportedByUserId` ride along so the board can mark
+      // the listings somebody is waiting on without a query per row.
+      applications: {
+        columns: { id: true, stage: true, createdBy: true, supportedByUserId: true },
+      },
     },
     orderBy: [asc(opportunity.status), asc(opportunity.startsAt), desc(opportunity.updatedAt)],
   })
@@ -85,7 +108,7 @@ export async function getOpportunityDetail(id: string) {
  * "who is mid-flight and who is waiting on me" is.
  */
 export async function opportunityStats() {
-  const [total, published, drafts, activePeople, openThreads] = await Promise.all([
+  const [total, published, drafts, activePeople, openThreads, awaitingAnswer] = await Promise.all([
     db.$count(opportunity),
     db.$count(opportunity, eq(opportunity.status, 'PUBLISHED')),
     db.$count(opportunity, eq(opportunity.status, 'DRAFT')),
@@ -94,9 +117,13 @@ export async function opportunityStats() {
       opportunityApplication,
       inArray(opportunityApplication.stage, ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED']),
     ),
+    // The SQL twin of `isAwaitingAnswer`. Kept beside the other counts rather
+    // than derived in a page, so "somebody is waiting on a person" is a number
+    // this board leads with instead of a state you have to notice.
+    db.$count(opportunityApplication, awaitingAnswerFilter()),
   ])
 
-  return { total, published, drafts, activePeople, openThreads }
+  return { total, published, drafts, activePeople, openThreads, awaitingAnswer }
 }
 
 /**
@@ -152,7 +179,41 @@ export async function listApplicationsForResident(residentId: string) {
  * and "just not rendering them" is the same mistake as selecting a password
  * hash and not printing it — the payload is the leak, not the JSX.
  */
-export async function residentOpportunityBoard(residentId: string) {
+/**
+ * One listing as this reader should see it.
+ *
+ * Resolved here rather than in the page, and the `translations` bag is dropped
+ * on the way out. A reader needs the language they chose; shipping five
+ * languages of every listing to a phone on a shared connection is the same
+ * mistake as shipping the applicant rows, in a cheaper currency.
+ *
+ * The German original rides along ONLY when the text shown is not it, so the
+ * card can offer it without ever carrying the same string twice.
+ */
+function localise<T extends TranslatableListing & { translations?: unknown }>(
+  listing: T,
+  locale: string,
+) {
+  const readable = readableListing(
+    listing,
+    (listing.translations ?? null) as ListingTranslations | null,
+    locale,
+  )
+  const { translations: _dropped, ...rest } = listing
+
+  return {
+    ...rest,
+    title: readable.title,
+    description: readable.description,
+    requirementNote: readable.requirementNote,
+    machineTranslated: readable.machineTranslated,
+    original: readable.machineTranslated
+      ? { title: listing.title, description: listing.description }
+      : null,
+  }
+}
+
+export async function residentOpportunityBoard(residentId: string, locale: string = 'de') {
   const [mine, published] = await Promise.all([
     db.query.opportunityApplication.findMany({
       where: eq(opportunityApplication.residentId, residentId),
@@ -165,6 +226,17 @@ export async function residentOpportunityBoard(residentId: string) {
       orderBy: [asc(opportunity.startsAt), desc(opportunity.updatedAt)],
     }),
   ])
+
+  // Contact details are stripped from the rows themselves, not hidden in the
+  // JSX. `with: { opportunity: true }` selects every column, so before this the
+  // board shipped an organisation's direct line to anyone who had pressed
+  // "Ich habe Interesse". @see lib/opportunities/pipeline.ts
+  const myThreads = mine.map(({ opportunity: listing, ...application }) => {
+    const visible = maySeeContact(application.stage)
+      ? listing
+      : { ...listing, contactName: null, contactEmail: null, contactPhone: null, website: null }
+    return { ...application, opportunity: localise(visible, locale) }
+  })
 
   const attached = new Set(mine.map((application) => application.opportunityId))
 
@@ -180,8 +252,13 @@ export async function residentOpportunityBoard(residentId: string) {
     // Places someone can still take come first; a full one stays visible rather
     // than vanishing, so "it was here yesterday" has an answer on the page.
     .sort((a, b) => Number(a.seatsLeft === 0) - Number(b.seatsLeft === 0))
+    // Nobody on the open board has been accepted onto anything, so nobody there
+    // gets a contact address. Same rule, applied where the stage is implicit.
+    .map(({ contactName, contactEmail, contactPhone, website, ...listing }) =>
+      localise(listing, locale),
+    )
 
-  return { mine, open }
+  return { mine: myThreads, open }
 }
 
 export type ResidentOpportunityBoard = Awaited<ReturnType<typeof residentOpportunityBoard>>

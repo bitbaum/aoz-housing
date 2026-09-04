@@ -26,6 +26,12 @@ import {
 } from '@/lib/validation'
 import { evidenceForStartedApplication } from '@/lib/opportunities/pipeline'
 import { permitRequirementIsStated, type OpportunityStatusId } from '@/lib/config/opportunities'
+import {
+  localesNeedingTranslation,
+  type ListingTranslations,
+} from '@/lib/opportunities/translation'
+import { portalLocaleIds, translateListing } from '@/lib/opportunities/translate'
+import type { LocaleId } from '@/lib/i18n/locales'
 
 function revalidateOpportunity(opportunityId?: string) {
   revalidatePath('/opportunities')
@@ -33,6 +39,51 @@ function revalidateOpportunity(opportunityId?: string) {
   if (opportunityId) {
     revalidatePath(`/opportunities/${opportunityId}`)
     revalidatePath(`/opportunities/${opportunityId}/edit`)
+  }
+}
+
+/**
+ * Bring a published listing's translations up to date with its German.
+ *
+ * Awaited rather than fired and forgotten: a server action's work stops when
+ * the response does, so a detached promise here would be killed roughly half
+ * the time and nobody would ever see why. Publishing is a deliberate and
+ * infrequent act, the calls run in parallel, and the coach gets a listing that
+ * every resident can read the moment it is live.
+ *
+ * BEST EFFORT, ALWAYS. A model that is down or rate-limited costs a resident a
+ * translation; a publish that failed because of it would cost every resident
+ * the listing. So this swallows everything and the callers ignore it — the
+ * German still renders, and the next edit or re-publish tries again.
+ */
+async function refreshTranslations(opportunityId: string): Promise<void> {
+  try {
+    const listing = await db.query.opportunity.findFirst({
+      where: eq(opportunityTable.id, opportunityId),
+      columns: {
+        status: true,
+        title: true,
+        description: true,
+        requirementNote: true,
+        translations: true,
+      },
+    })
+    // Drafts and archived listings are on nobody's portal, so translating them
+    // would spend calls on text that may never be read and will likely change.
+    if (!listing || listing.status !== 'PUBLISHED') return
+
+    const existing = (listing.translations ?? null) as ListingTranslations | null
+    const wanted = localesNeedingTranslation(listing, existing, portalLocaleIds())
+    if (wanted.length === 0) return
+
+    const translations = await translateListing(listing, wanted as LocaleId[], existing)
+
+    await db
+      .update(opportunityTable)
+      .set({ translations })
+      .where(eq(opportunityTable.id, opportunityId))
+  } catch (error) {
+    logger.errorWithCause('Failed to refresh listing translations', error, { opportunityId })
   }
 }
 
@@ -73,6 +124,7 @@ export async function createOpportunity(formData: FormData): Promise<void> {
     throw new Error('Einsatzplatz konnte nicht erstellt werden')
   }
 
+  await refreshTranslations(created.id)
   revalidateOpportunity(created.id)
   redirect(`/opportunities/${created.id}`)
 }
@@ -102,6 +154,11 @@ export async function updateOpportunity(formData: FormData): Promise<void> {
     throw new Error('Einsatzplatz konnte nicht aktualisiert werden')
   }
 
+  // After the write, so the hash is computed over the text as saved. Editing
+  // the German invalidates the stored translations by hash, and this is what
+  // replaces them — otherwise the listing would fall back to German silently
+  // and stay that way until somebody happened to re-publish it.
+  await refreshTranslations(id)
   revalidateOpportunity(id)
   redirect(`/opportunities/${id}`)
 }
@@ -149,6 +206,10 @@ async function setStatus(opportunityId: string, status: OpportunityStatusId): Pr
     throw new Error('Stand konnte nicht geändert werden')
   }
 
+  // Only does anything when the listing is now PUBLISHED and something is
+  // missing — publishing a draft is the usual case, and archiving costs
+  // nothing because the helper returns immediately.
+  await refreshTranslations(opportunityId)
   revalidateOpportunity(opportunityId)
 }
 

@@ -26,6 +26,23 @@ export const OPPORTUNITIES_ADMIN_LABELS = {
   statDrafts: 'Entwürfe',
   statActivePeople: 'Laufende Einsätze',
   statOpenThreads: 'Offene Bewerbungen',
+  statAwaiting: 'Wartet auf Antwort',
+
+  // Somebody put their own hand up and nobody has replied. Deliberately its
+  // own vocabulary rather than a shade of "offen": every other thread on this
+  // board is waiting on a process, this one is waiting on a person.
+  awaitingAnswer: 'Wartet auf Antwort',
+  awaitingSince: (days: number) =>
+    days <= 0 ? 'seit heute' : `seit ${days} ${days === 1 ? 'Tag' : 'Tagen'}`,
+  awaitingHint:
+    'Diese Person hat sich selbst gemeldet. Bis jemand antwortet, gilt das nicht als Arbeitsmarktkontakt — und die Meldung bleibt in der Aufgabenliste.',
+  selfReported: 'Selbst gemeldet',
+  filterAwaiting: 'Nur unbeantwortete',
+
+  // A client's own threads, on their dossier
+  residentThreadsTitle: 'Einsätze & Bewerbungen',
+  residentThreadsEmpty: 'Noch nichts — weder zugeordnet noch selbst gemeldet.',
+  openListing: 'Zum Platz',
 
   filterAll: 'Alle',
   filterKind: 'Art',
