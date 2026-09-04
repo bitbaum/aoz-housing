@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import {
   validateFormData,
+  idSchema,
   SpotInputSchema,
   SpotUpdateSchema,
   MultipleSpotInputSchema,
@@ -18,8 +19,8 @@ import { requirePermission } from '@/lib/auth'
 
 // Simple schema for delete operation
 const DeleteSpotSchema = z.object({
-  id: z.string().cuid(),
-  housingUnitId: z.string().cuid(),
+  id: idSchema,
+  housingUnitId: idSchema,
 })
 
 export async function createSpot(formData: FormData): Promise<void> {
