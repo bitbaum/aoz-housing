@@ -1,8 +1,8 @@
 # AOZ Begleitung
 
 created_date: 2025-06-01
-last_modified_date: 2026-08-25
-last_modified_summary: Documented the navigation IA rule (name a group for what it IS) and the marketplace's two halves with its deliberate absence of money.
+last_modified_date: 2026-09-04
+last_modified_summary: Documented the Einsatzplätze loop — that a resident's click is a request for contact and not contact, what they may see of their own thread, and that listing prose is machine-translated while the permit sentence never is.
 
 @~/.claude/CLAUDE.md
 
@@ -827,7 +827,94 @@ What is still true: the board itself is EMPTY on the live instance — zero
 places, zero applications. That is AOZ's data to enter, and it is the binding
 constraint on the Jobcoach and Freiwilligenarbeit KPIs, which cannot rise while
 there is nowhere to place anyone. Do not seed it with invented employers to
-make a number move.
+make a number move. What DID reduce the cost of entering one is AI form assist
+on the opportunity form — a coach pastes an ad and corrects it — with
+`permitRequirement` and `status` `aiExcluded`, because a model must never
+assert an authorisation route (see below) nor decide to publish.
+
+### A click is a request for contact, not contact
+
+⚠️ **The single worst bug this area has had, because it hid itself and
+flattered the numbers while doing it.** `hasLabourMarketContact` counted an
+`INTERESTED` application as labour-market contact. `recordInterest` writes
+exactly that row — `createdBy: 'RESIDENT'`, `INTERESTED`, `supportedByUserId`
+null — when a resident presses "Ich habe Interesse". **Nothing anywhere read
+`supportedByUserId`**; the comment in `recordInterest` claiming the queue
+filtered on it was aspirational, and it was written in three places and read in
+none.
+
+So the one action a resident can take on this board REMOVED them from
+`NO_LABOUR_MARKET_CONTACT` and RAISED `LABOUR_MARKET_CONTACT_RATE`, with no
+member of staff having done anything. The person most in need of a reply became
+the person the product had stopped mentioning. Sandra's `ENGAGEMENT_RATE` had
+the same inversion, and `MEDIAN_DAYS_TO_FIRST_CONTACT` was measuring how fast
+residents click — a client who clicked on day one and waited two months
+reported one day, so the tile improved fastest exactly where the service was
+slowest.
+
+Same class as [demo rows in the pilot KPI], from the other side: there the
+numerator held rows nobody was working, here rows nobody had answered.
+
+The rule now, `isAwaitingAnswer()` in `lib/jobcoach/queue.ts` and its SQL twin
+`awaitingAnswerFilter()` in `lib/data/opportunities.ts`, held together by
+`awaiting-answer-agrees.test.ts`:
+
+- **Contact means a person engaged.** A resident-raised `INTERESTED` row with
+  no `supportedByUserId` is a REQUEST for contact and counts as none.
+- **`INTEREST_UNANSWERED` is first in `JOB_SIGNAL_IDS`**, and that order is the
+  queue's priority — the dashboard hero renders `jobQueue[0]` and nothing else,
+  so an unsorted queue handed that slot to whichever client the query returned
+  first.
+- **It fires from day one.** `NO_CONTACT_GRACE_DAYS` exists because nothing has
+  been asked of anyone yet; here a person has asked, and the clock is theirs.
+- **It replaces the contact signals rather than adding a row.** "Find this
+  person something" is the wrong next move for someone who already found it.
+- It promoted `client-preference` from `documented` to `signal`: the product
+  could detect a stated preference all along and was saying nothing about it.
+- **The demo must be able to produce the state.** `lib/seed/opportunities.ts`
+  set `supportedByUserId` on resident-created `INTERESTED` rows — a row the
+  running code can never write, and a demo where "Wartet auf Antwort" is
+  permanently empty.
+
+### What a resident may see of their own thread
+
+- **Contact details are withheld until `ACCEPTED`, and stripped from the
+  PAYLOAD** (`maySeeContact()`), not hidden in the JSX — `with: { opportunity:
+  true }` selects every column, so the board was shipping employers' direct
+  lines to anyone who pressed "Interesse". Not about secrecy: these residents
+  hold permits that constrain work, and arranging something directly at
+  `INTERESTED` goes around the one person who checks which route applies.
+  `ENDED` keeps it (a reference is normal); `DECLINED` does not.
+- **The practical facts must render.** `location`, `schedule`, `hoursPerWeek`
+  and `startsAt` were loaded and never shown, so somebody already accepted onto
+  a place could not learn where to go or when.
+- **`residentNextStep()` is four states, not seven.** What differs between
+  stages is whether the next move is theirs, ours or nobody's.
+
+### Listing prose is machine-translated; the permit sentence never is
+
+`lib/opportunities/translation.ts`. Every label around a listing was translated
+into eleven locales while the title, description and requirement note — the
+strings carrying what the place IS — stayed the coach's German.
+
+- **Only the coach's free text.** `PERMIT_REQUIREMENT_LABELS` is a statement
+  about what the PLACE requires, hand-translated per locale, and must never
+  pass through a model: "Keine Bewilligung nötig" mistranslated is a wrong
+  answer to the exact question `permitRequirementIsStated` refuses to guess at.
+  Structured facts and names are not translated either.
+- **A translation that outlives its source is not shown.** Each entry carries a
+  hash of the German it came from. Without it, editing "dienstags" to
+  "mittwochs" leaves the Arabic on Tuesday with no error and no way for the
+  reader to tell. The hash covers ALL translatable fields together — per-field
+  hashes would allow a fresh title above a stale description.
+- **The reader is told**, with the German original one tap away, marked
+  `lang="de" dir="ltr"` so it is not laid out backwards inside an RTL card.
+- **Never blocks a publish.** A model that is down costs one resident a
+  translation; a publish that failed because of it costs every resident the
+  listing.
+- Locales come from `availableLocales()`, so the unfinished dictionaries
+  (ti, fa, so, sq, tr — NOT offered) cost nothing and are included the day
+  somebody finishes them.
 
 - **`kind` is an enum, `category` is config.** Not the same kind of thing: a
   category is vocabulary (adding "Fahrrad" is one line, never a migration — same
