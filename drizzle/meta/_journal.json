@@ -22,6 +22,13 @@
       "when": 1788341777738,
       "tag": "0002_interpreter_need",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1788519148602,
+      "tag": "0003_opportunity_translations",
+      "breakpoints": true
     }
   ]
 }

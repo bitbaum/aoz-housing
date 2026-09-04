@@ -647,6 +647,9 @@ export const en: Dictionary = {
   'opportunities.evidenceHint':
     'Once you start, the work is saved automatically as a record for you.',
   'opportunities.toLearning': 'To your records',
+  'opportunities.machineTranslated': 'Machine translated',
+  'opportunities.showOriginal': 'Show the German original',
+  'opportunities.originalTitle': 'Original in German',
   'opportunities.where': 'Where',
   'opportunities.starts': 'Starts',
   'opportunities.contactTitle': 'How to reach them',

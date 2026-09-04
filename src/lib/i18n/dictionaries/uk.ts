@@ -656,6 +656,9 @@ export const uk: Dictionary = {
   'opportunities.evidenceHint':
     'Щойно ти почнеш, роботу буде автоматично збережено як підтвердження.',
   'opportunities.toLearning': 'До твоїх підтверджень',
+  'opportunities.machineTranslated': 'Машинний переклад',
+  'opportunities.showOriginal': 'Показати оригінал німецькою',
+  'opportunities.originalTitle': 'Оригінал німецькою',
   'opportunities.where': 'Де',
   'opportunities.starts': 'Початок',
   'opportunities.contactTitle': 'Як зв’язатися з організацією',

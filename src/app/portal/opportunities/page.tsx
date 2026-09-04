@@ -57,9 +57,11 @@ export default async function PortalOpportunitiesPage(props: Props) {
   const resident = await getPortalResident()
   if (!resident) redirect('/login')
 
-  const [{ t }, { mine, open }, params] = await Promise.all([
-    getRequestTranslator(),
-    residentOpportunityBoard(resident.id),
+  // The translator first, because the board is resolved INTO this reader's
+  // language server-side — the payload carries one language, not six.
+  const { t, locale } = await getRequestTranslator()
+  const [{ mine, open }, params] = await Promise.all([
+    residentOpportunityBoard(resident.id, locale),
     searchParams,
   ])
 
@@ -125,6 +127,7 @@ export default async function PortalOpportunitiesPage(props: Props) {
                     {opportunityKindLabel(t, listing.kind as OpportunityKindId)}
                     {' · '}
                     {formatDate(application.stageChangedAt)}
+                    {listing.machineTranslated ? ` · ${t('opportunities.machineTranslated')}` : ''}
                   </p>
 
                   {/* What happens now. A stage badge says where the thread is;
@@ -221,7 +224,38 @@ export default async function PortalOpportunitiesPage(props: Props) {
                     {opportunity.description}
                   </p>
 
+                  {/* Said, not implied. The reader is the person best placed to
+                      judge whether a machine translation is good enough here,
+                      and they can only do that if they know it is one — the
+                      same honesty the language picker already applies to the
+                      interface itself. */}
+                  {opportunity.machineTranslated && opportunity.original ? (
+                    <details className="mt-2">
+                      <summary className="flex min-h-[44px] cursor-pointer items-center text-xs text-ui-muted">
+                        {t('opportunities.machineTranslated')} · {t('opportunities.showOriginal')}
+                      </summary>
+                      <div className="mt-2 rounded-lg border border-ui-border bg-ui-subtle p-3">
+                        <p className="eyebrow">{t('opportunities.originalTitle')}</p>
+                        {/* lang + dir so a screen reader switches voice, and so
+                            German inside an RTL card is not laid out backwards. */}
+                        <p lang="de" dir="ltr" className="mt-1 text-sm font-medium text-ui-text">
+                          {opportunity.original.title}
+                        </p>
+                        <p
+                          lang="de"
+                          dir="ltr"
+                          className="mt-1 text-sm leading-relaxed text-ui-text"
+                        >
+                          {opportunity.original.description}
+                        </p>
+                      </div>
+                    </details>
+                  ) : null}
+
                   <p className="mt-3">
+                    {/* Never machine-translated. This sentence is a statement
+                        about what the place requires and is hand-translated per
+                        locale in the dictionaries. @see lib/opportunities/translation.ts */}
                     <span className={PERMIT_REQUIREMENT_BADGES[permit]}>
                       {permitRequirementLabel(t, permit)}
                     </span>

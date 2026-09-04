@@ -12,6 +12,11 @@ import type {
   OpportunityStatusId,
 } from '@/lib/config/opportunities'
 import { isActiveStage, maySeeContact, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
+import {
+  readableListing,
+  type ListingTranslations,
+  type TranslatableListing,
+} from '@/lib/opportunities/translation'
 
 /** Rows that reach the UI carry `displayName`, never a bare code. */
 const APPLICATION_INCLUDE = {
@@ -174,7 +179,41 @@ export async function listApplicationsForResident(residentId: string) {
  * and "just not rendering them" is the same mistake as selecting a password
  * hash and not printing it — the payload is the leak, not the JSX.
  */
-export async function residentOpportunityBoard(residentId: string) {
+/**
+ * One listing as this reader should see it.
+ *
+ * Resolved here rather than in the page, and the `translations` bag is dropped
+ * on the way out. A reader needs the language they chose; shipping five
+ * languages of every listing to a phone on a shared connection is the same
+ * mistake as shipping the applicant rows, in a cheaper currency.
+ *
+ * The German original rides along ONLY when the text shown is not it, so the
+ * card can offer it without ever carrying the same string twice.
+ */
+function localise<T extends TranslatableListing & { translations?: unknown }>(
+  listing: T,
+  locale: string,
+) {
+  const readable = readableListing(
+    listing,
+    (listing.translations ?? null) as ListingTranslations | null,
+    locale,
+  )
+  const { translations: _dropped, ...rest } = listing
+
+  return {
+    ...rest,
+    title: readable.title,
+    description: readable.description,
+    requirementNote: readable.requirementNote,
+    machineTranslated: readable.machineTranslated,
+    original: readable.machineTranslated
+      ? { title: listing.title, description: listing.description }
+      : null,
+  }
+}
+
+export async function residentOpportunityBoard(residentId: string, locale: string = 'de') {
   const [mine, published] = await Promise.all([
     db.query.opportunityApplication.findMany({
       where: eq(opportunityApplication.residentId, residentId),
@@ -192,12 +231,12 @@ export async function residentOpportunityBoard(residentId: string) {
   // JSX. `with: { opportunity: true }` selects every column, so before this the
   // board shipped an organisation's direct line to anyone who had pressed
   // "Ich habe Interesse". @see lib/opportunities/pipeline.ts
-  const myThreads = mine.map(({ opportunity: listing, ...application }) => ({
-    ...application,
-    opportunity: maySeeContact(application.stage)
+  const myThreads = mine.map(({ opportunity: listing, ...application }) => {
+    const visible = maySeeContact(application.stage)
       ? listing
-      : { ...listing, contactName: null, contactEmail: null, contactPhone: null, website: null },
-  }))
+      : { ...listing, contactName: null, contactEmail: null, contactPhone: null, website: null }
+    return { ...application, opportunity: localise(visible, locale) }
+  })
 
   const attached = new Set(mine.map((application) => application.opportunityId))
 
@@ -215,7 +254,9 @@ export async function residentOpportunityBoard(residentId: string) {
     .sort((a, b) => Number(a.seatsLeft === 0) - Number(b.seatsLeft === 0))
     // Nobody on the open board has been accepted onto anything, so nobody there
     // gets a contact address. Same rule, applied where the stage is implicit.
-    .map(({ contactName, contactEmail, contactPhone, website, ...listing }) => listing)
+    .map(({ contactName, contactEmail, contactPhone, website, ...listing }) =>
+      localise(listing, locale),
+    )
 
   return { mine: myThreads, open }
 }

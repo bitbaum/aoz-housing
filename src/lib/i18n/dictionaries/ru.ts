@@ -667,6 +667,9 @@ export const ru: Dictionary = {
   'opportunities.evidenceHint':
     'Как только ты начнёшь, работа будет автоматически сохранена как подтверждение.',
   'opportunities.toLearning': 'К твоим подтверждениям',
+  'opportunities.machineTranslated': 'Машинный перевод',
+  'opportunities.showOriginal': 'Показать оригинал на немецком',
+  'opportunities.originalTitle': 'Оригинал на немецком',
   'opportunities.where': 'Где',
   'opportunities.starts': 'Начало',
   'opportunities.contactTitle': 'Как связаться с организацией',

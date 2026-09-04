@@ -2184,6 +2184,16 @@ export const opportunity = pgTable(
     status: opportunityStatus().default('DRAFT').notNull(),
     startsAt: timestamp({ precision: 3, mode: 'date' }),
     endsAt: timestamp({ precision: 3, mode: 'date' }),
+    /**
+     * Machine translations of the coach's free text, keyed by locale.
+     *
+     * Derived data that belongs to the row — never queried on, always fetched
+     * with the listing — so a column rather than a table. Each entry carries a
+     * hash of the German it came from; one whose hash no longer matches is not
+     * shown, because a translation that outlives its source is worse than none.
+     * @see lib/opportunities/translation.ts
+     */
+    translations: jsonb(),
     createdByUserId: text(),
     updatedByUserId: text(),
   },

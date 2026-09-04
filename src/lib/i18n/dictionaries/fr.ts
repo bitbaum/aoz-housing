@@ -663,6 +663,9 @@ export const fr: Dictionary = {
   'opportunities.evidenceHint':
     'Dès que vous commencez, l’engagement est enregistré automatiquement comme justificatif.',
   'opportunities.toLearning': 'Vers vos justificatifs',
+  'opportunities.machineTranslated': 'Traduction automatique',
+  'opportunities.showOriginal': 'Afficher l’original en allemand',
+  'opportunities.originalTitle': 'Original en allemand',
   'opportunities.where': 'Où',
   'opportunities.starts': 'Début',
   'opportunities.contactTitle': 'Comment les joindre',

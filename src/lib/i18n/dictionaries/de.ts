@@ -297,6 +297,9 @@ export const de = {
   'opportunities.evidenceHint':
     'Sobald du startest, wird der Einsatz automatisch als Nachweis gespeichert.',
   'opportunities.toLearning': 'Zu deinen Nachweisen',
+  'opportunities.machineTranslated': 'Maschinell übersetzt',
+  'opportunities.showOriginal': 'Deutsches Original anzeigen',
+  'opportunities.originalTitle': 'Original auf Deutsch',
   'opportunities.where': 'Wo',
   'opportunities.starts': 'Beginn',
   'opportunities.contactTitle': 'So erreichst du den Ort',
