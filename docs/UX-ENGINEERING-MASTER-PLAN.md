@@ -169,8 +169,8 @@ A workflow is considered “done” only if all are true:
 
 ## 7) Testing protocol (per iteration)
 
-1. `npm run lint`
-2. `npm test -- --runInBand`
+1. `pnpm run lint`
+2. `pnpm test`
 3. Targeted manual mobile checks (375px + 768px + desktop)
 4. E2E run when environment supports webServer stability; otherwise manual checklist must be executed and recorded
 

@@ -1,8 +1,8 @@
 # Where AOZ Begleitung actually runs
 
 created_date: 2026-08-17
-last_modified_date: 2026-08-19
-last_modified_summary: Document fleet AI keys (Groq → OpenRouter); staff chat no longer uses Anthropic.
+last_modified_date: 2026-09-04
+last_modified_summary: Docs truth-sweep — live-DB section now matches the releases layout (/opt/aoz-wohnen/app) and the fact that migrations are applied by the deploy pipeline, not by hand on the box.
 
 This file exists because a gitignored laptop `.env` still named a decommissioned Neon host, the db client loaded it, and an agent treated that timeout as "the production database is unreachable". It was never the production database.
 
@@ -65,11 +65,14 @@ From the box, with the box env:
 
 ```bash
 ssh root@167.233.22.31
-# then, as the app:
-cd /opt/aoz-wohnen/current
-# DATABASE_URL is already aoz_wohnen@localhost
-npm run db:migrate   # drizzle-kit; no-ops when the journal is current
+# the deployed release is /opt/aoz-wohnen/app (a symlink into releases/);
+# DATABASE_URL in /opt/aoz-wohnen/shared/.env is already aoz_wohnen@localhost
 ```
+
+Migrations are applied by the deploy itself: fleetcrown's `deploy.sh` runs
+`apply-schema.sh` (drizzle-kit over an SSH tunnel) before building, and no-ops
+when the journal is current. There is no drizzle-kit installed on the box, so
+do not try `pnpm run db:migrate` there.
 
 Do not point this laptop's db client at Neon. Do not assume `localhost:5432` on the laptop is `aoz_wohnen` — that database lives on the box.
 
