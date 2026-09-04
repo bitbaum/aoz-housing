@@ -18,14 +18,39 @@ interface AiFormBarProps {
   form: UseAiForm
   fillPlaceholder?: string
   refinePlaceholder?: string
+  /**
+   * Copy overrides, because the default labels describe an intake interview.
+   *
+   * The placeholder alone was overridable, so the Einsatzplatz form told a job
+   * coach "Aus Gesprächsnotizen ausfüllen — beschreibe das Aufnahmegespräch in
+   * eigenen Worten" above a box for pasting a job advertisement, and offered
+   * «doch Nichtraucherin» as an example edit. Every word of that is about a
+   * person, on a form that describes a workplace.
+   */
+  fillTitle?: string
+  refineTitle?: string
+  fillHint?: string
+  refineHint?: string
 }
 
-export function AiFormBar({ form, fillPlaceholder, refinePlaceholder }: AiFormBarProps) {
+export function AiFormBar({
+  form,
+  fillPlaceholder,
+  refinePlaceholder,
+  fillTitle,
+  refineTitle,
+  fillHint,
+  refineHint,
+}: AiFormBarProps) {
   const [instruction, setInstruction] = useState('')
   const isFill = form.isEmpty
 
-  const title = isFill ? AI_FORM_LABELS.fillTitle : AI_FORM_LABELS.refineTitle
-  const hint = isFill ? AI_FORM_LABELS.fillHint : AI_FORM_LABELS.refineHint
+  const title = isFill
+    ? (fillTitle ?? AI_FORM_LABELS.fillTitle)
+    : (refineTitle ?? AI_FORM_LABELS.refineTitle)
+  const hint = isFill
+    ? (fillHint ?? AI_FORM_LABELS.fillHint)
+    : (refineHint ?? AI_FORM_LABELS.refineHint)
   const submit = isFill ? AI_FORM_LABELS.fillSubmit : AI_FORM_LABELS.refineSubmit
   const placeholder =
     (isFill ? fillPlaceholder : refinePlaceholder) ??

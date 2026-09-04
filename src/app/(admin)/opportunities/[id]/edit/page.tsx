@@ -2,7 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requirePermission } from '@/lib/auth'
-import { archiveOpportunity, publishOpportunity, updateOpportunity } from '@/lib/actions'
+import { archiveOpportunity, updateOpportunity } from '@/lib/actions'
+import { publishOpportunityFromEdit } from '@/lib/actions/opportunities'
 import { OpportunityFormFields } from '@/components/opportunities/OpportunityFormFields'
 import { PageHeader } from '@/components/ui/Page'
 import { getOpportunityDetail } from '@/lib/data/opportunities'
@@ -13,15 +14,17 @@ export const dynamic = 'force-dynamic'
 
 interface Props {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ error?: string }>
 }
 
-export default async function EditOpportunityPage({ params }: Props) {
+export default async function EditOpportunityPage({ params, searchParams }: Props) {
   await requirePermission('opportunities:write')
   const { id } = await params
+  const { error } = await searchParams
   const opportunity = await getOpportunityDetail(id)
   if (!opportunity) notFound()
 
-  const publish = publishOpportunity.bind(null, id)
+  const publish = publishOpportunityFromEdit.bind(null, id)
   const archive = archiveOpportunity.bind(null, id)
 
   return (
@@ -35,17 +38,19 @@ export default async function EditOpportunityPage({ params }: Props) {
         />
       </div>
 
-      <form action={updateOpportunity} className="card space-y-6">
-        <OpportunityFormFields opportunity={opportunity} />
-        <div className="flex flex-wrap gap-3">
-          <button type="submit" className="btn-primary">
-            {L.save}
-          </button>
-          <Link href={`/opportunities/${id}`} className="btn-outline">
-            {L.cancel}
-          </Link>
-        </div>
-      </form>
+      {/* Why the reason reaches the screen at all: the gate's message used to
+          be swallowed by the error boundary. @see OpportunityFormState */}
+      {error ? (
+        <p className="alert-error mb-4" role="alert">
+          {error}
+        </p>
+      ) : null}
+
+      <OpportunityFormFields
+        opportunity={opportunity}
+        action={updateOpportunity}
+        cancelHref={`/opportunities/${id}`}
+      />
 
       <div className="mt-4 flex flex-wrap gap-3">
         {opportunity.status !== 'PUBLISHED' ? (

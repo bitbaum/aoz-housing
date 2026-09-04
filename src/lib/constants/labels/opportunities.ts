@@ -113,6 +113,18 @@ export const OPPORTUNITIES_ADMIN_LABELS = {
   evidenceHint: 'Beim Start entsteht automatisch ein Eintrag in «Lernen & Beruf».',
   openResident: 'Zum Dossier',
 
+  // The assistant bar. Its defaults describe an intake interview, which on
+  // this form told a coach to "describe the Aufnahmegespräch" above a box for
+  // pasting a job advertisement — and offered «doch Nichtraucherin» as an
+  // example edit. Every field on this form describes a PLACE.
+  aiFillTitle: 'Aus einem Inserat ausfüllen',
+  aiFillHint:
+    'Inserat, E-Mail oder Telefonnotiz einfügen — das Formular wird ausgefüllt. Überprüfe jede Angabe, bevor du speicherst. Den Bewilligungsweg setzt du selbst.',
+  aiFillPlaceholder: 'Inserat, E-Mail oder Notiz aus dem Telefonat hier einfügen …',
+  aiRefineTitle: 'Angaben anpassen',
+  aiRefineHint: 'Sag, was anders sein soll — der Rest bleibt stehen.',
+  aiRefinePlaceholder: 'z.B. «Start ist der 1. Oktober, 8 Stunden pro Woche»',
+
   save: 'Speichern',
   saving: 'Wird gespeichert…',
   cancel: 'Abbrechen',

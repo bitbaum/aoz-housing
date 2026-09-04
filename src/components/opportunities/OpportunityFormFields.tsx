@@ -30,8 +30,11 @@
  * never shown them and can never write them.
  */
 
+import Link from 'next/link'
+import { useActionState } from 'react'
 import { useAiForm } from '@fleet/ai-forms/react'
 import { AiFormBar } from '@/components/forms/AiFormBar'
+import type { OpportunityFormState } from '@/lib/actions/opportunities'
 import {
   OPPORTUNITY_KIND_LABELS,
   OPPORTUNITY_STATUS_LABELS,
@@ -45,6 +48,10 @@ import { OPPORTUNITIES_ADMIN_LABELS as L } from '@/lib/constants'
 
 type Props = {
   opportunity?: OpportunityRecord
+  /** The save action. Returns a state rather than throwing. @see lib/actions/opportunities */
+  action: (state: OpportunityFormState, formData: FormData) => Promise<OpportunityFormState>
+  /** Where «Abbrechen» goes back to. */
+  cancelHref: string
 }
 
 function dateInputValue(value?: Date | null) {
@@ -79,12 +86,18 @@ function initialValues(opportunity?: OpportunityRecord): Record<string, unknown>
   return values
 }
 
-export function OpportunityFormFields({ opportunity }: Props) {
+export function OpportunityFormFields({ opportunity, action, cancelHref }: Props) {
   const form = useAiForm({
     target: OPPORTUNITY_FORM.key,
     fields: OPPORTUNITY_FORM.fields,
     initialValues: initialValues(opportunity),
   })
+
+  // The `<form>` lives here rather than in the page so that a rejected save
+  // returns into THIS component and leaves the store above untouched. Hoisted
+  // to the page, a rejection unmounted the whole route and every value went
+  // with it. @see OpportunityFormState
+  const [state, submit, pending] = useActionState<OpportunityFormState, FormData>(action, {})
 
   const text = (name: string) => (form.values[name] == null ? '' : String(form.values[name]))
   const set = (name: string) => (event: { target: { value: string } }) =>
@@ -94,13 +107,25 @@ export function OpportunityFormFields({ opportunity }: Props) {
   const touched = (name: string) => (form.isAiTouched(name) ? ' ring-1 ring-brand-primary/40' : '')
 
   return (
-    <div className="space-y-6">
+    <form action={submit} className="card space-y-6">
       {opportunity ? <input type="hidden" name="id" value={opportunity.id} /> : null}
+
+      {/* The reason the save did not go through, in the words the schema
+          chose. This used to be swallowed by the error boundary. */}
+      {state.error ? (
+        <p className="alert-error" role="alert">
+          {state.error}
+        </p>
+      ) : null}
 
       <AiFormBar
         form={form}
-        fillPlaceholder="Inserat, E-Mail oder Notiz aus dem Telefonat hier einfügen …"
-        refinePlaceholder="z.B. «Start ist der 1. Oktober, 8 Stunden pro Woche»"
+        fillTitle={L.aiFillTitle}
+        refineTitle={L.aiRefineTitle}
+        fillHint={L.aiFillHint}
+        refineHint={L.aiRefineHint}
+        fillPlaceholder={L.aiFillPlaceholder}
+        refinePlaceholder={L.aiRefinePlaceholder}
       />
 
       <section className="space-y-4">
@@ -375,6 +400,15 @@ export function OpportunityFormFields({ opportunity }: Props) {
           </label>
         </div>
       </section>
-    </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? L.saving : L.save}
+        </button>
+        <Link href={cancelHref} className="btn-outline">
+          {L.cancel}
+        </Link>
+      </div>
+    </form>
   )
 }

@@ -26,7 +26,12 @@ import {
   permitRequirementIsStated,
 } from '@/lib/config/opportunities'
 import { OpportunityInputSchema } from '@/lib/validation'
-import { publishOpportunity } from '@/lib/actions/opportunities'
+import { redirect } from 'next/navigation'
+import {
+  createOpportunity,
+  publishOpportunity,
+  publishOpportunityFromEdit,
+} from '@/lib/actions/opportunities'
 import { whereParts as mockWhereParts } from '@/test-utils/drizzle-where'
 
 // --- the action path -------------------------------------------------------
@@ -187,5 +192,73 @@ describe('publishing through the button that skips the form', () => {
     await publishOpportunity('opp-1')
 
     expect(mockOpportunityUpdate).toHaveBeenCalled()
+  })
+})
+
+describe('the refusal has to reach the person who has to act on it', () => {
+  /**
+   * The gate above works and, for a while, told nobody.
+   *
+   * `publishOpportunity` throws; nothing caught it; Next rendered "Etwas ist
+   * schiefgelaufen. Bitte versuchen Sie es erneut." A message that names the
+   * exact next step ("Sonst als Entwurf speichern und mit der Sozialarbeit
+   * klären") was replaced by a shrug — observed live on 2026-09-04 while
+   * posting a real AOZ vacancy.
+   *
+   * The throw stays: it is the server guard, pinned above. The BUTTON now
+   * carries the reason back to the page instead of letting it escape.
+   */
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockOpportunityUpdate.mockReturnValue([{ id: 'opp-1' }])
+  })
+
+  it('sends the gate’s own words back to the edit page', async () => {
+    mockOpportunityFindFirst.mockResolvedValue({
+      kind: 'EMPLOYMENT',
+      permitRequirement: 'NONE',
+    })
+
+    await publishOpportunityFromEdit('opp-1')
+
+    const target = vi.mocked(redirect).mock.calls[0][0] as string
+    expect(target).toContain('/opportunities/opp-1/edit?error=')
+    expect(decodeURIComponent(target)).toMatch(/Bewilligungsweg/)
+  })
+
+  it('goes to the listing when the publish actually worked', async () => {
+    mockOpportunityFindFirst.mockResolvedValue({
+      kind: 'EMPLOYMENT',
+      permitRequirement: 'EMPLOYER_NOTIFIES',
+    })
+
+    await publishOpportunityFromEdit('opp-1')
+
+    expect(vi.mocked(redirect).mock.calls[0][0]).toBe('/opportunities/opp-1')
+  })
+})
+
+describe('a rejected save returns rather than throwing', () => {
+  /**
+   * The costly half. The form is a client component holding every value —
+   * fourteen fields, most of them written by the assistant from a pasted
+   * advertisement. A throw unmounts the route and takes all of it; a returned
+   * state leaves the store alone and the coach fixes one field.
+   */
+  beforeEach(() => vi.clearAllMocks())
+
+  it('reports the work-permit rule instead of exploding', async () => {
+    const form = new FormData()
+    form.set('title', 'Programmleiter*in')
+    form.set('description', 'Leitung des Pilotprojekts.')
+    form.set('organisation', 'AOZ')
+    form.set('kind', 'EMPLOYMENT')
+    form.set('permitRequirement', 'NONE')
+    form.set('status', 'PUBLISHED')
+
+    const state = await createOpportunity({}, form)
+
+    expect(state.error).toMatch(/Bewilligungsweg/)
+    expect(state.fieldErrors?.permitRequirement?.length).toBeGreaterThan(0)
   })
 })
