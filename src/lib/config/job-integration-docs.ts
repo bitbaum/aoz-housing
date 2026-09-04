@@ -193,9 +193,12 @@ export const INTEGRATION_PRINCIPLES: IntegrationPrinciple[] = [
     claim:
       'Orientierung an den Präferenzen der Person ist ein Wirkprinzip von IPS, kein Zugeständnis — Passung sagt Verbleib voraus.',
     implication:
-      'Ein erfasstes Berufsziel ist eine Arbeitsgrundlage; sein Fehlen ist eine offene Frage.',
+      'Meldet sich eine Person selbst auf einen Einsatzplatz, ist das der stärkste erfasste Hinweis auf ihre Präferenz — und er verfällt, solange niemand antwortet.',
     sourceIds: ['ips-supported-employment'],
-    status: 'documented',
+    // Was 'documented', on the grounds that the product could not detect a
+    // stated preference. It could all along: an expression of interest IS one,
+    // and the product was holding those and saying nothing about them.
+    status: 'signal',
   },
 ]
 
@@ -208,6 +211,11 @@ export const INTEGRATION_PRINCIPLES: IntegrationPrinciple[] = [
  * without naming the next move is a nag.
  */
 export const JOB_SIGNAL_COPY = {
+  INTEREST_UNANSWERED: {
+    title: 'Interesse wartet auf Antwort',
+    action: 'Zurückmelden — die Person hat den Platz selbst gewählt.',
+    principleId: 'client-preference',
+  },
   NO_LABOUR_MARKET_CONTACT: {
     title: 'Noch kein Arbeitsmarktkontakt',
     action: 'Bewerbung oder Einsatz anstossen — Vermittlung wirkt vor Qualifizierung.',

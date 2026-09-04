@@ -3,7 +3,7 @@
  * `lib/opportunities/pipeline.ts` so they can be tested without a database.
  */
 
-import { and, asc, desc, eq, ilike, inArray, notInArray, or, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, ilike, inArray, isNull, notInArray, or, type SQL } from 'drizzle-orm'
 import { db, escapeLike, opportunity, opportunityApplication, resident } from '@/lib/db'
 import { RESIDENT_NAME_SELECT } from '@/lib/utils/resident-name'
 import type {
@@ -19,6 +19,20 @@ const APPLICATION_INCLUDE = {
   supportedBy: { columns: { id: true, name: true } },
   learningRecord: { columns: { id: true } },
 } as const
+
+/**
+ * The SQL form of `isAwaitingAnswer` — resident-raised, still INTERESTED, and
+ * unclaimed. The predicate itself lives in `lib/jobcoach/queue.ts`; this is the
+ * same three clauses expressed where the database can filter on them, and
+ * `awaiting-answer-agrees.test.ts` holds the two to each other.
+ */
+export function awaitingAnswerFilter() {
+  return and(
+    eq(opportunityApplication.createdBy, 'RESIDENT'),
+    eq(opportunityApplication.stage, 'INTERESTED'),
+    isNull(opportunityApplication.supportedByUserId),
+  )
+}
 
 export interface OpportunityListFilters {
   status?: OpportunityStatusId
@@ -58,7 +72,11 @@ export async function listOpportunities(filters: OpportunityListFilters = {}) {
   return db.query.opportunity.findMany({
     where: listWhere(filters),
     with: {
-      applications: { columns: { id: true, stage: true } },
+      // `createdBy` and `supportedByUserId` ride along so the board can mark
+      // the listings somebody is waiting on without a query per row.
+      applications: {
+        columns: { id: true, stage: true, createdBy: true, supportedByUserId: true },
+      },
     },
     orderBy: [asc(opportunity.status), asc(opportunity.startsAt), desc(opportunity.updatedAt)],
   })
@@ -85,7 +103,7 @@ export async function getOpportunityDetail(id: string) {
  * "who is mid-flight and who is waiting on me" is.
  */
 export async function opportunityStats() {
-  const [total, published, drafts, activePeople, openThreads] = await Promise.all([
+  const [total, published, drafts, activePeople, openThreads, awaitingAnswer] = await Promise.all([
     db.$count(opportunity),
     db.$count(opportunity, eq(opportunity.status, 'PUBLISHED')),
     db.$count(opportunity, eq(opportunity.status, 'DRAFT')),
@@ -94,9 +112,13 @@ export async function opportunityStats() {
       opportunityApplication,
       inArray(opportunityApplication.stage, ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED']),
     ),
+    // The SQL twin of `isAwaitingAnswer`. Kept beside the other counts rather
+    // than derived in a page, so "somebody is waiting on a person" is a number
+    // this board leads with instead of a state you have to notice.
+    db.$count(opportunityApplication, awaitingAnswerFilter()),
   ])
 
-  return { total, published, drafts, activePeople, openThreads }
+  return { total, published, drafts, activePeople, openThreads, awaitingAnswer }
 }
 
 /**

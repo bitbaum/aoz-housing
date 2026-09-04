@@ -24,12 +24,18 @@ import {
   type ApplicationStageId,
 } from '@/lib/config/opportunities'
 import { isTerminalStage, nextPipelineStage } from '@/lib/opportunities/pipeline'
+import { isAwaitingAnswer } from '@/lib/jobcoach/queue'
 import { residentName } from '@/lib/utils/resident-name'
 import { OPPORTUNITIES_ADMIN_LABELS as L } from '@/lib/constants'
 import type { ApplicationRow } from '@/lib/data/opportunities'
 
 function formatDate(value: Date): string {
   return new Intl.DateTimeFormat('de-CH', { dateStyle: 'medium' }).format(value)
+}
+
+/** Whole days a thread has been open. Only ever shown for unanswered ones. */
+function daysSince(value: Date): number {
+  return Math.floor((Date.now() - value.getTime()) / (1000 * 60 * 60 * 24))
 }
 
 function StageSelector({ application }: { application: ApplicationRow }) {
@@ -120,9 +126,16 @@ export function ApplicantPipeline({
     return <p className="text-sm text-ui-muted">{L.applicantsEmpty}</p>
   }
 
+  // Whoever is waiting for a reply goes to the top. The rest keep the query's
+  // order (most recently moved first), which is the right order for everything
+  // that is already in motion.
+  const ordered = [...applications].sort(
+    (a, b) => Number(isAwaitingAnswer(b)) - Number(isAwaitingAnswer(a)),
+  )
+
   return (
     <ul className="divide-y divide-ui-border">
-      {applications.map((application) => (
+      {ordered.map((application) => (
         <li key={application.id} className="py-4 first:pt-0 last:pb-0">
           <div className="flex flex-wrap items-center gap-2">
             {/* The only route to the dossier from this row, so it carries the
@@ -138,6 +151,11 @@ export function ApplicantPipeline({
             </span>
             {application.learningRecord ? (
               <span className="chip chip-success">{L.evidenceCreated}</span>
+            ) : null}
+            {isAwaitingAnswer(application) ? (
+              <span className="chip chip-warning">
+                {L.awaitingAnswer} {L.awaitingSince(daysSince(application.createdAt))}
+              </span>
             ) : null}
           </div>
 

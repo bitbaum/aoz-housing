@@ -59,6 +59,8 @@ import {
 } from '@/lib/actions/care'
 import { writableCareDomains } from '@/lib/config/care'
 import { listResidentDocuments } from '@/lib/actions/documents'
+import { listApplicationsForResident } from '@/lib/data/opportunities'
+import { ResidentThreadsCard } from '@/components/opportunities/ResidentThreadsCard'
 import { belongsToSameWorld, isDemoResidentCode, isDemoUnitCode } from '@/lib/analytics/real-data'
 
 export async function generateMetadata({
@@ -94,6 +96,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
   const canWriteLearning = staff ? hasPermission(staff, 'learning:write') : false
   const canReadDocuments = staff ? hasPermission(staff, 'documents:read') : false
   const canWriteDocuments = staff ? hasPermission(staff, 'documents:write') : false
+  const canReadOpportunities = staff ? hasPermission(staff, 'opportunities:read') : false
 
   // resident and availableUnits are independent — fetch in parallel
   const [
@@ -104,6 +107,7 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     careAttributes,
     careAppointments,
     documents,
+    opportunityThreads,
   ] = await Promise.all([
     db.query.resident.findFirst({
       where: eq(residentTable.id, id),
@@ -166,6 +170,8 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
     // Only fetched when the viewer may see them — the list is cheap, but
     // "fetch then hide" is how a payload leaks what the markup conceals.
     canReadDocuments ? listResidentDocuments(id) : Promise.resolve([]),
+    // Same rule as documents: fetched only for a viewer who may see them.
+    canReadOpportunities ? listApplicationsForResident(id) : Promise.resolve([]),
   ])
 
   if (!resident) {
@@ -536,6 +542,11 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
             residentId={resident.id}
             canWriteIncidents={canWriteIncidents}
           />
+
+          {/* Directly above the evidence, because that is where the evidence
+              comes from: a thread reaching STARTED mints the LearningRecord
+              below it. @see lib/opportunities/pipeline.ts */}
+          {canReadOpportunities && <ResidentThreadsCard threads={opportunityThreads} />}
 
           <LearningRecordsCard
             residentId={resident.id}

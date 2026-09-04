@@ -8,9 +8,25 @@ import {
 } from '../role-kpis'
 import { JOB_RESEARCH_SOURCES } from '@/lib/config/job-integration-docs'
 import { CARE_ROLES } from '@/lib/config/care'
+import type { JobApplicationInput } from '@/lib/jobcoach/queue'
+import type { ApplicationStageId } from '@/lib/config/opportunities'
 
 const NOW = new Date('2026-09-03T09:00:00Z')
 const daysAgo = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000)
+
+/** A thread a coach opened or has picked up — contact by definition. */
+const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  stage,
+  createdBy: 'STAFF',
+  supportedByUserId: 'u-simon',
+})
+
+/** A resident pressed "Ich habe Interesse" and nobody has replied. */
+const unanswered = (): JobApplicationInput => ({
+  stage: 'INTERESTED',
+  createdBy: 'RESIDENT',
+  supportedByUserId: null,
+})
 
 const client = (over: Partial<JobKpiClient> = {}): JobKpiClient => ({
   residentId: 'r1',
@@ -42,7 +58,7 @@ describe('an empty caseload is not a score of zero', () => {
   })
 
   it('carries the denominator, so 1 of 1 cannot read as a trend', () => {
-    const rows = computeJobKpis([client({ applications: [{ stage: 'APPLIED' }] })])
+    const rows = computeJobKpis([client({ applications: [staffApp('APPLIED')] })])
     expect(value(rows, 'LABOUR_MARKET_CONTACT_RATE')).toEqual({
       id: 'LABOUR_MARKET_CONTACT_RATE',
       value: 100,
@@ -54,7 +70,7 @@ describe('an empty caseload is not a score of zero', () => {
 describe('labour-market contact', () => {
   it('counts an applying client and not an idle one', () => {
     const rows = computeJobKpis([
-      client({ residentId: 'a', applications: [{ stage: 'STARTED' }] }),
+      client({ residentId: 'a', applications: [staffApp('STARTED')] }),
       client({ residentId: 'b' }),
     ])
     expect(value(rows, 'LABOUR_MARKET_CONTACT_RATE')?.value).toBe(50)
@@ -63,8 +79,27 @@ describe('labour-market contact', () => {
   it('does not count a finished or refused application as contact', () => {
     // Same rule the dashboard queue applies. History is not contact, and
     // treating it as such hides the person who needs the next application.
-    const rows = computeJobKpis([client({ applications: [{ stage: 'DECLINED' }] })])
+    const rows = computeJobKpis([client({ applications: [staffApp('DECLINED')] })])
     expect(value(rows, 'LABOUR_MARKET_CONTACT_RATE')?.value).toBe(0)
+  })
+
+  it('a resident clicking "Interesse" does not move this coach\'s number', () => {
+    // The inversion in KPI form. An unanswered click used to read 100% — the
+    // metric improving fastest at the moment nobody had done anything, and
+    // improving precisely where a person was left waiting.
+    const rows = computeJobKpis([client({ applications: [unanswered()] })])
+    expect(value(rows, 'LABOUR_MARKET_CONTACT_RATE')?.value).toBe(0)
+  })
+
+  it('answering it does', () => {
+    const rows = computeJobKpis([
+      client({
+        applications: [
+          { stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: 'u-simon' },
+        ],
+      }),
+    ])
+    expect(value(rows, 'LABOUR_MARKET_CONTACT_RATE')?.value).toBe(100)
   })
 })
 
@@ -83,7 +118,7 @@ describe('course without work — the lock-in measure', () => {
     // from exactly the combination the evidence supports.
     const rows = computeJobKpis([
       client({
-        applications: [{ stage: 'STARTED' }],
+        applications: [staffApp('STARTED')],
         learningRecords: [{ kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(1) }],
       }),
     ])
@@ -134,10 +169,19 @@ describe('time to first contact', () => {
 describe('volunteering', () => {
   it('counts an active engagement and ignores a closed one', () => {
     const rows = computeVolunteeringKpis([
-      { residentId: 'a', applications: [{ stage: 'ACCEPTED' }], rsvpStatuses: [] },
-      { residentId: 'b', applications: [{ stage: 'ENDED' }], rsvpStatuses: [] },
+      { residentId: 'a', applications: [staffApp('ACCEPTED')], rsvpStatuses: [] },
+      { residentId: 'b', applications: [staffApp('ENDED')], rsvpStatuses: [] },
     ])
     expect(rows.find((r) => r.id === 'ENGAGEMENT_RATE')?.value).toBe(50)
+  })
+
+  it('an unanswered interest is not a running engagement either', () => {
+    // The same inversion on Sandra's side: a resident's own click would have
+    // reported an engagement she had not arranged and did not know about.
+    const rows = computeVolunteeringKpis([
+      { residentId: 'a', applications: [unanswered()], rsvpStatuses: [] },
+    ])
+    expect(rows.find((r) => r.id === 'ENGAGEMENT_RATE')?.value).toBe(0)
   })
 
   it('counts a GOING rsvp as participation, but not MAYBE or DECLINED', () => {

@@ -22,11 +22,14 @@ import type { LearningKindId, LearningStatusId } from '@/lib/config/learning'
  * real work outstanding, and the queue cannot see it" — because the queue was
  * defined in another domain's vocabulary.
  *
- * ## Why these three signals and not others
+ * ## Why these four signals and not others
  *
  * Each maps to a principle in `config/job-integration-docs.ts` marked
  * `status: 'signal'`. Nothing here is a hunch:
  *
+ *  - INTEREST_UNANSWERED — client preference first. A resident who pressed
+ *    "Ich habe Interesse" has stated the one thing IPS says predicts retention,
+ *    and is now waiting for a person to reply.
  *  - NO_LABOUR_MARKET_CONTACT — place-then-train. Rapid entry into real work
  *    beats lengthy pre-training, so a client with no application and no active
  *    placement is an open task rather than a neutral state.
@@ -48,6 +51,7 @@ import type { LearningKindId, LearningStatusId } from '@/lib/config/learning'
  */
 
 export const JOB_SIGNAL_IDS = [
+  'INTEREST_UNANSWERED',
   'NO_LABOUR_MARKET_CONTACT',
   'COURSE_WITHOUT_WORK',
   'STALLED_RECORD',
@@ -87,6 +91,21 @@ const LIVE_STAGES: readonly ApplicationStageId[] = [
   'STARTED',
 ]
 
+/**
+ * An application as every measure of labour-market contact reads it.
+ *
+ * `createdBy` and `supportedByUserId` are not decoration. Together they answer
+ * the only question that separates contact from a request for contact: did a
+ * person on the staff side ever engage with this thread?
+ */
+export interface JobApplicationInput {
+  stage: ApplicationStageId
+  /** Who opened this thread — the resident themselves, or a member of staff. */
+  createdBy: 'RESIDENT' | 'STAFF'
+  /** null = nobody on the staff side has picked it up. */
+  supportedByUserId: string | null
+}
+
 export interface JobClientInput {
   residentId: string
   /** For display. Never a bare code — see utils/resident-name. */
@@ -98,7 +117,7 @@ export interface JobClientInput {
     status: LearningStatusId
     updatedAt: Date
   }[]
-  applications: { stage: ApplicationStageId }[]
+  applications: JobApplicationInput[]
 }
 
 export interface JobQueueItem {
@@ -107,8 +126,43 @@ export interface JobQueueItem {
   signal: JobSignalId
 }
 
+/**
+ * A resident put their hand up and nobody has answered.
+ *
+ * ## The inversion this ends
+ *
+ * `hasLiveApplication` counted INTERESTED as labour-market contact, and
+ * `recordInterest` writes precisely that row — resident-created, INTERESTED,
+ * `supportedByUserId` null — when somebody presses "Ich habe Interesse" in the
+ * portal. Nothing anywhere read `supportedByUserId`.
+ *
+ * So the single action a resident can take on this board REMOVED them from
+ * their coach's queue and RAISED `LABOUR_MARKET_CONTACT_RATE`, without one
+ * member of staff having done anything. The person most in need of a reply
+ * became the person the product had stopped mentioning, and the metric moved
+ * in the right direction while the work went undone.
+ *
+ * That is the same class of error as counting demo rows in the pilot KPI, from
+ * the opposite side: there the numerator held rows nobody was working; here it
+ * held rows nobody had answered.
+ *
+ * Contact means a person engaged. A click is a request for one.
+ */
+export function isAwaitingAnswer(application: JobApplicationInput): boolean {
+  return (
+    application.createdBy === 'RESIDENT' &&
+    application.stage === 'INTERESTED' &&
+    application.supportedByUserId === null
+  )
+}
+
+/** True while at least one of this client's threads is waiting for a reply. */
+export function awaitsAnswer(client: JobClientInput): boolean {
+  return client.applications.some(isAwaitingAnswer)
+}
+
 function hasLiveApplication(client: JobClientInput): boolean {
-  return client.applications.some((a) => LIVE_STAGES.includes(a.stage))
+  return client.applications.some((a) => LIVE_STAGES.includes(a.stage) && !isAwaitingAnswer(a))
 }
 
 function hasWorkRecord(client: JobClientInput): boolean {
@@ -130,12 +184,19 @@ function daysBetween(from: Date, to: Date): number {
  * At most one contact-related signal: a client with no contact at all already
  * gets NO_LABOUR_MARKET_CONTACT, and also telling the coach "and they are on a
  * course" would be two rows for one conversation.
+ *
+ * An unanswered interest takes that slot outright, and does so whether or not
+ * the person has other contact — someone is waiting for a reply either way.
+ * "Find this person something" is the wrong next move when they have already
+ * found it themselves and are waiting to hear back.
  */
 export function signalsFor(client: JobClientInput, now: Date): JobSignalId[] {
   const signals: JobSignalId[] = []
   const contact = hasLabourMarketContact(client)
 
-  if (!contact && daysBetween(client.createdAt, now) >= NO_CONTACT_GRACE_DAYS) {
+  if (awaitsAnswer(client)) {
+    signals.push('INTEREST_UNANSWERED')
+  } else if (!contact && daysBetween(client.createdAt, now) >= NO_CONTACT_GRACE_DAYS) {
     signals.push('NO_LABOUR_MARKET_CONTACT')
   } else if (!contact) {
     // Still inside the grace period. A running course with nothing alongside
@@ -164,11 +225,21 @@ export function signalsFor(client: JobClientInput, now: Date): JobSignalId[] {
  * represents two pieces of work.
  */
 export function buildJobQueue(clients: JobClientInput[], now: Date): JobQueueItem[] {
-  return clients.flatMap((client) =>
+  const rows = clients.flatMap((client) =>
     signalsFor(client, now).map((signal) => ({
       residentId: client.residentId,
       name: client.name,
       signal,
     })),
   )
+
+  // Ordered by signal, not by whichever client the query happened to return
+  // first. The dashboard hero shows `jobQueue[0]` and nothing else, so without
+  // this a person waiting for a reply loses the one prominent slot on the
+  // screen to a record that has been sitting still for six weeks — decided by
+  // row order, which is not a priority.
+  //
+  // JOB_SIGNAL_IDS is therefore the priority list, and it is already the order
+  // the tiles render in. One list, both uses.
+  return rows.sort((a, b) => JOB_SIGNAL_IDS.indexOf(a.signal) - JOB_SIGNAL_IDS.indexOf(b.signal))
 }
