@@ -28,6 +28,7 @@ import { UnitModePanel } from '@/components/matching/UnitModePanel'
 import { MatchResultsPanel } from '@/components/matching/MatchResultsPanel'
 import { residentName } from '@/lib/utils/resident-name'
 import { requirePermission } from '@/lib/auth'
+import { belongsToSameWorld, isDemoResidentCode, isDemoUnitCode } from '@/lib/analytics/real-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -128,8 +129,13 @@ export default async function MatchingPage({ searchParams }: Props) {
       )
       apartmentProfile.unitId = selectedUnit.id
 
-      // Calculate fit for each unplaced resident
+      // Calculate fit for each unplaced resident — same world only. The other
+      // direction of the same rule: a demo unit must not be offered a real
+      // person, which is how a demo tour would reach into the real flat.
       unitMatches = unplacedResidents
+        .filter((r) =>
+          belongsToSameWorld(isDemoUnitCode(selectedUnit!.code), isDemoResidentCode(r.code)),
+        )
         .map((resident) => {
           const residentProfile = toResidentProfile(resident)
           const apartmentFit = calculateApartmentFit(residentProfile, apartmentProfile)
@@ -165,7 +171,16 @@ export default async function MatchingPage({ searchParams }: Props) {
     selectedResident = foundResident ?? null
 
     if (foundResident) {
-      const filteredUnits = availableUnits.filter((unit) => unit.placements.length < unit.totalBeds)
+      // Candidates never cross the demo boundary. Same rule as the client
+      // page's recommendations, and this is the surface where it matters most:
+      // /matching exists to make the placement decision, so a demo flat offered
+      // here is one keystroke from a real person being placed into a unit the
+      // 04:05 reset deletes. @see lib/analytics/real-data.ts
+      const filteredUnits = availableUnits
+        .filter((unit) => unit.placements.length < unit.totalBeds)
+        .filter((unit) =>
+          belongsToSameWorld(isDemoResidentCode(selectedResident!.code), isDemoUnitCode(unit.code)),
+        )
 
       // Calculate matches with unit metrics (async)
       matches = await Promise.all(
