@@ -12,8 +12,8 @@ importers:
         specifier: ^0.6.2
         version: 0.6.2(react@19.2.8)
       '@fleet/ai-forms':
-        specifier: github:bitbaum/ai-forms#v0.1.0
-        version: https://codeload.github.com/bitbaum/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76(react@19.2.8)
+        specifier: npm:ai-forms@^0.1.2
+        version: ai-forms@0.1.2(react@19.2.8)
       '@paralleldrive/cuid2':
         specifier: ^3.3.0
         version: 3.3.0
@@ -814,15 +814,6 @@ packages:
       '@noble/hashes': ^1.8.0 || ^2.0.0
     peerDependenciesMeta:
       '@noble/hashes':
-        optional: true
-
-  '@fleet/ai-forms@https://codeload.github.com/bitbaum/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/bitbaum/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76}
-    version: 0.1.0
-    peerDependencies:
-      react: '>=18'
-    peerDependenciesMeta:
-      react:
         optional: true
 
   '@humanfs/core@0.19.2':
@@ -4636,10 +4627,6 @@ snapshots:
   '@exodus/bytes@1.15.1(@noble/hashes@2.4.0)':
     optionalDependencies:
       '@noble/hashes': 2.4.0
-
-  '@fleet/ai-forms@https://codeload.github.com/bitbaum/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76(react@19.2.8)':
-    optionalDependencies:
-      react: 19.2.8
 
   '@humanfs/core@0.19.2':
     dependencies:
