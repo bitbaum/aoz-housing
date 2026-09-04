@@ -4,6 +4,7 @@ import { and, or, eq, inArray, ilike, gte, asc } from 'drizzle-orm'
 import { StatCard } from '@/components/ui/Card'
 import { getDateDaysAgo } from '@/lib/utils'
 import { requirePermission } from '@/lib/auth'
+import { placeableBeds } from '@/lib/config/capacity'
 import { unitScopeFilter } from '@/lib/auth/site-access'
 
 export const metadata: Metadata = { title: 'Unterkünfte' }
@@ -121,7 +122,8 @@ export default async function HousingListPage({ searchParams }: Props) {
     available: allUnits.filter((u) => u.status === 'AVAILABLE').length,
     full: allUnits.filter((u) => u.status === 'FULL').length,
     archived: allUnits.filter((u) => u.status === 'CLOSED').length,
-    totalBeds: allUnits.reduce((sum, u) => sum + u.totalBeds, 0),
+    // Placeable beds only. @see lib/config/capacity.ts
+    totalBeds: placeableBeds(allUnits),
     occupiedBeds: allUnits.reduce((sum, u) => sum + u._count.placements, 0),
     visible: units.length,
   }

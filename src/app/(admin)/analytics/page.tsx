@@ -29,6 +29,7 @@ import { JOB_KPI_DEFS, VOLUNTEERING_KPI_DEFS } from '@/lib/analytics/role-kpis'
 import { RoleKPISection } from '@/components/analytics/RoleKPISection'
 import { ROLE_KPI_LABELS } from '@/lib/constants/labels/role-kpis'
 import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
+import { placeableBeds } from '@/lib/config/capacity'
 import { calculateAlgorithmAccuracy } from '@/lib/analytics/algorithm-accuracy'
 import { getSystemConfig } from '@/lib/actions/config'
 import { BRAND } from '@/lib/config/brand'
@@ -162,7 +163,8 @@ export default async function AnalyticsPage({ searchParams }: Props) {
     ])
 
   // Calculate metrics
-  const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
+  // Placeable beds only — a CLOSED unit is not headroom. @see lib/config/capacity.ts
+  const totalBeds = placeableBeds(units)
   const occupiedBeds = units.reduce((sum, u) => sum + u.placements.length, 0)
   const occupancyRate = totalBeds > 0 ? Math.round((occupiedBeds / totalBeds) * 100) : 0
 
