@@ -1,7 +1,7 @@
 /**
  * Seed script for AOZ Housing
  *
- * Run with: npm run db:seed
+ * Run with: pnpm run db:seed
  */
 
 import type { InferInsertModel, InferSelectModel } from 'drizzle-orm'
@@ -2740,7 +2740,7 @@ async function main() {
       `(${ruleSync.created} new), ${houseRuleCount} house rule(s), ${proposalCount} open decision(s)`,
   )
   console.log('')
-  console.log('🚀 Ready to run: npm run dev')
+  console.log('🚀 Ready to run: pnpm run dev')
 }
 
 main()

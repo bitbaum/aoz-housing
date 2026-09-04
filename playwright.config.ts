@@ -32,7 +32,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev -- --port 3101',
+    command: 'pnpm run dev --port 3101',
     url: 'http://localhost:3101',
     reuseExistingServer: true,
     timeout: 180_000,

@@ -34,7 +34,7 @@ URL=https://aoz.orangecat.ch
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 echo "==> verify"
-npm run verify
+pnpm run verify
 
 echo "==> pull the box's env for the build"
 # The BOX holds the runtime env; this build has to be made with it, not with
@@ -62,7 +62,7 @@ echo "==> build (brand: aoz)"
 # and the CSP includes 'unsafe-eval'. Pin production for this process only.
 export NODE_ENV=production
 rm -rf .next/standalone .next/static
-NEXT_PUBLIC_BRAND=aoz npm run build
+NEXT_PUBLIC_BRAND=aoz pnpm run build
 
 echo "==> assemble standalone bundle"
 cp -r .next/static .next/standalone/.next/static

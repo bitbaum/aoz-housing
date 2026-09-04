@@ -1,0 +1,23 @@
+allowBuilds:
+  # git-hosted dep: needs its prepare script to build dist/. pnpm requires the
+  # exact resolved spec for git deps, so this key changes if the pinned tag
+  # (v0.1.0) ever moves.
+  '@fleet/ai-forms@https://codeload.github.com/bitbaum/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76': true
+  '@parcel/watcher': true
+  '@sentry/cli': true
+  '@swc/core': true
+  '@tailwindcss/oxide': true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+# pnpm refuses packages published within its minimum-release-age window — a
+# supply-chain guard against a compromised release being installed before
+# anyone notices. @bitbaum/ai-kit 0.6.2 is our own package, published to npm
+# the day before this commit, so it needs an explicit exemption.
+#
+# Temporary: once 0.6.2 is older than the window this entry is redundant and
+# should be deleted. Add lines only for versions we published ourselves —
+# never to hurry along a third-party package.
+minimumReleaseAgeExclude:
+  - '@bitbaum/ai-kit@0.6.2'

@@ -1,5 +1,5 @@
 # Each check is defined ONCE, in package.json (`lint`, `typecheck`, `test`);
-# this file only chooses how to group them into jobs. `npm run verify` runs the
+# this file only chooses how to group them into jobs. `pnpm run verify` runs the
 # same three locally, so green verify ⇒ green CI. The e2e suite is separate:
 # it needs a seeded DB and a running server.
 name: CI
@@ -19,18 +19,24 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+
+      # setup-pnpm's default store nests inside its own bin dir, which breaks
+      # any prepare-building dep (portable-type TS2742) — pin it outside.
+      - run: pnpm config set store-dir ~/.pnpm-store --global
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Type check
-        run: npm run typecheck
+        run: pnpm run typecheck
 
   unit-tests:
     name: Unit Tests
@@ -39,15 +45,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+
+      # setup-pnpm's default store nests inside its own bin dir, which breaks
+      # any prepare-building dep (portable-type TS2742) — pin it outside.
+      - run: pnpm config set store-dir ~/.pnpm-store --global
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Run unit tests
-        run: npm test -- --coverage
+        run: pnpm test -- --coverage
 
       - name: Upload coverage
         if: always()
@@ -65,15 +77,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+
+      # setup-pnpm's default store nests inside its own bin dir, which breaks
+      # any prepare-building dep (portable-type TS2742) — pin it outside.
+      - run: pnpm config set store-dir ~/.pnpm-store --global
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: pnpm run build
         env:
           DATABASE_URL: 'postgresql://fake:fake@localhost:5432/fake'
           # Not a real secret: page-data collection imports auth/constants,
@@ -84,7 +102,7 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     # Deliberately NO `needs:`. This job builds nothing from the Build job — it
-    # serves the app with `npm run dev` (see playwright.config.ts webServer), so
+    # serves the app with `pnpm run dev` (see playwright.config.ts webServer), so
     # waiting for Build was a dependency in the graph that did not exist in
     # reality. It cost the full lint+unit+build chain (223s) on the critical path
     # of the longest job in the pipeline. Every job here is still a required
@@ -111,19 +129,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: pnpm/action-setup@v6
+
+      # setup-pnpm's default store nests inside its own bin dir, which breaks
+      # any prepare-building dep (portable-type TS2742) — pin it outside.
+      - run: pnpm config set store-dir ~/.pnpm-store --global
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
-          cache: npm
+          cache: pnpm
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
       - name: Initialize database schema
-        run: npm run db:migrate
+        run: pnpm run db:migrate
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
-      # Through the npm scripts, never `npx ts-node scripts/db/…` directly: the
+      # Through the npm scripts, never `pnpm ts-node scripts/db/…` directly: the
       # seed imports the product's compatibility algorithm by its `@/` alias,
       # and only the scripts carry `-r tsconfig-paths/register`. Invoking
       # ts-node here by hand was a second definition of "how to seed", and it
@@ -131,16 +155,16 @@ jobs:
       # Guarded by src/lib/__tests__/scoring-ssot.test.ts.
       - name: Seed E2E data
         run: |
-          npm run db:seed
-          npm run db:seed:admin
+          pnpm run db:seed
+          pnpm run db:seed:admin
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: pnpm run test:e2e
         env:
           DATABASE_URL: 'postgresql://aoz_test:aoz_test@localhost:5432/aoz_housing_test'
           SESSION_SECRET: 'ci-test-secret-not-for-production'
