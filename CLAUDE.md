@@ -2,7 +2,7 @@
 
 created_date: 2025-06-01
 last_modified_date: 2026-09-04
-last_modified_summary: Docs truth-sweep — npm→pnpm commands, Jest→Vitest, test counts aligned with CI 2026-09-02 (3650 unit, 201 E2E), dev port corrected to 3000.
+last_modified_summary: Two repo-wide rules from posting the first real listing — a server action must RETURN what the user has to act on (a throw reaches the error boundary and destroys the form), and ids use idSchema rather than a shape assertion that the cuid2 migration invalidated for 96% of rows.
 
 @~/.claude/CLAUDE.md
 
@@ -1546,6 +1546,63 @@ pnpm run test:e2e        # Run Playwright tests (201 tests)
 - Skip mobile testing → Test at 375px minimum
 - Use `any` type → Use proper types or `unknown`
 - Commit without testing → Verify in browser
+- Validate an id by its SHAPE → Use `idSchema` (see below)
+- Throw a user-facing rule from a server action → Return it (see below)
+
+---
+
+## Server actions: return what the user must act on
+
+⚠️ **A thrown error cannot be delivered.** `validateFormData` throws a
+`ValidationError` carrying the sentence that names the field and the next step.
+Nothing caught it, so React's error boundary rendered "Etwas ist
+schiefgelaufen. Bitte versuchen Sie es erneut." AND unmounted the route,
+destroying every field the user had entered.
+
+The boundary cannot tell a system fault from a rule the user must read, so it
+says the same thing to both. Therefore:
+
+- **Return `{ error, fieldErrors }` for anything the USER must act on.** Throw
+  only for genuine faults. `OpportunityFormState` is the pattern.
+- **Put the `<form>` inside the client component that owns the values**
+  (`useActionState`), never in the page. On a returned error the component does
+  not unmount, so the store survives and the user fixes one field. With AI form
+  fill this is the difference between one correction and fourteen.
+- **`redirect()` works BY throwing.** Keep the fallible work in its own
+  function so redirect is never called inside the `try` that would catch it —
+  `expressInterest` / `publishOpportunityFromEdit` show the split.
+- Where a throwing guard must stay because it is the real enforcement and a
+  test pins it, wrap it at the button and pass the reason back as a URL param.
+
+**This class hides other bugs.** Within an hour of fixing it, the first edit
+attempted reported `id: Invalid cuid` — the entry below, which had made 96% of
+all rows uneditable and had been invisible behind this same shrug.
+
+## Ids: `idSchema`, never a shape assertion
+
+⚠️ Every id field validated `z.string().cuid()` — cuid **v1**, which requires a
+leading `c`. Prisma minted cuid v1, so it held. The Drizzle migration switched
+generation to `@paralleldrive/cuid2` (`$defaultFn(createId)` in `db/schema.ts`),
+whose ids begin with any letter. `.cuid()` accepts **70 of 2000** of them.
+
+Measured on the live database 2026-09-04: **1 of 123** housing units, 5 of 20
+residents, 6 of 17 placements and **0 of 4** maintenance requests could be
+edited at all. The rows that still worked were the Prisma-era ones, so it read
+as flakiness rather than a rule.
+
+- **Use `idSchema`** (`z.string().min(1).max(64)`). An id is an opaque key: its
+  shape proves nothing the row lookup and the permission check — which run
+  anyway — do not already prove. Asserting it bought no safety and cost most of
+  the database.
+- **After ANY change to an id, key or token generator, grep for validators
+  asserting the old shape.** The generator and its validator are two copies of
+  one decision, and only one of them moved.
+- **Test ids with the REAL generator, in bulk.** Every existing test used
+  hand-written fixtures, and a fixture is written by the same person who chose
+  the validator — it agrees by construction. `id-schema.test.ts` draws a
+  thousand `createId()` values, because at a 3.5% pass rate a single draw looks
+  like success.
+- Legacy cuid v1 ids are still in the database and must keep working.
 
 ---
 
