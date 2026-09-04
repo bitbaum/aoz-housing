@@ -1,8 +1,8 @@
 # AOZ Begleitung
 
 created_date: 2025-06-01
-last_modified_date: 2026-09-03
-last_modified_summary: Honesty pass — aligned test counts and badges with CI 2026-09-02 (3650 unit Vitest, 201 E2E). No customer claim.
+last_modified_date: 2026-09-04
+last_modified_summary: Docs truth-sweep — prerequisites now match engines/.nvmrc (Node 24, pnpm 11).
 
 A support platform for refugee care work, built on four pillars: **housing
 stability** (compatibility-based placement, conflict resolution), **capability**
@@ -152,9 +152,9 @@ The system detects when conflicts are likely to emerge and estimates timeframes.
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 24+ (see `.nvmrc`)
 - PostgreSQL 16
-- pnpm (recommended)
+- pnpm 11 (pinned via `packageManager`)
 
 ### Setup
 

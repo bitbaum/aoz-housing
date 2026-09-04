@@ -2,7 +2,7 @@
 
 created_date: 2025-06-01
 last_modified_date: 2026-09-04
-last_modified_summary: Documented the Einsatzplätze loop (a click is a request for contact, not contact), and what posting the first real listing through the UI exposed — a refusal that reached nobody and destroyed the form, and assist copy written for another form.
+last_modified_summary: Docs truth-sweep — npm→pnpm commands, Jest→Vitest, test counts aligned with CI 2026-09-02 (3650 unit, 201 E2E), dev port corrected to 3000.
 
 @~/.claude/CLAUDE.md
 
@@ -171,7 +171,7 @@ This system serves **vulnerable populations** (asylum seekers). Every decision m
 | Styling | Tailwind CSS (mobile-first) |
 | Database | PostgreSQL + Drizzle ORM |
 | Validation | Zod (SSOT for types) |
-| Testing | Jest + Playwright |
+| Testing | Vitest + Playwright |
 
 ---
 
@@ -472,16 +472,16 @@ for it on something with padding, you want `.chip` or `.meter`.
 All six are enforced by **`src/lib/__tests__/design-system.test.ts`**, which
 also verifies that every `var(--x)` in the Tailwind config actually exists (an
 unresolvable CSS variable is invisible to both tsc and ESLint) and that the AOZ
-palette has not drifted. Run it with `npm run test` — not a style opinion, a
+palette has not drifted. Run it with `pnpm run test` — not a style opinion, a
 gate.
 
-⚠️ `npm run verify` does **not** run `next build`. A `'use client'` placed below
-an import passes lint, typecheck and Jest, and fails only at build. Run a build
+⚠️ `pnpm run verify` does **not** run `next build`. A `'use client'` placed below
+an import passes lint, typecheck and Vitest, and fails only at build. Run a build
 before declaring UI work done; `src/lib/__tests__/use-client-directive.test.ts`
 guards that specific class.
 
 **Building locally needs one env var, and without it the failure lies about
-its cause.** A bare `npm run build` dies with `Failed to collect configuration
+its cause.** A bare `pnpm run build` dies with `Failed to collect configuration
 for /api/auth/demo` — a route that queries the user table, so the obvious
 reading is "this laptop has no `aoz_wohnen` database, builds are impossible
 here". That reading is wrong, and it was believed twice on 2026-09-01 before
@@ -489,12 +489,12 @@ anyone read far enough down the log to the real `[cause]`:
 `SESSION_SECRET environment variable must be set in production`.
 
 ```bash
-SESSION_SECRET=local-build-only npm run build   # exit 0, 56 static pages
+SESSION_SECRET=local-build-only pnpm run build   # exit 0, 56 static pages
 ```
 
 Two traps stacked on that one:
 
-- **Never pipe the build.** `npm run build | tail -25` exits with *tail's*
+- **Never pipe the build.** `pnpm run build | tail -25` exits with *tail's*
   status, so a failed build reports success. Redirect to a file and read `$?`,
   or run it unpiped.
 - **A build error naming a route that touches the database is not evidence
@@ -587,7 +587,7 @@ export const RESIDENT_FACTORS = {
 
 **Maximum 2 files to change:**
 1. `src/lib/config/resident-factors.ts` - Define factor
-2. `src/lib/db/schema.ts` - Add column (then `npm run db:generate` for the migration)
+2. `src/lib/db/schema.ts` - Add column (then `pnpm run db:generate` for the migration)
 
 **If you need to edit more files, the architecture is wrong.**
 
@@ -1437,13 +1437,13 @@ model Account {
 | Audit logging | Active | `src/lib/audit.ts` |
 | Role switching | Active | UserMenu + PortalNav show cross-links |
 
-**To create initial admin:** Run `npm run db:seed:admin` (default code: `AOZ-ADMIN1`)
+**To create initial admin:** Run `pnpm run db:seed:admin` (default code: `AOZ-ADMIN1`)
 
 ---
 
 ## Testing Strategy
 
-### Unit Tests (Jest) — 2558 tests, 139 suites
+### Unit Tests (Vitest) — 3650 tests (CI 2026-09-02)
 
 Representative coverage by area (not an exhaustive suite list):
 
@@ -1459,7 +1459,7 @@ Representative coverage by area (not an exhaustive suite list):
 | UI components | Dialogs (a11y), filters, BedGrid, style utilities |
 | Config | Labels, formatting, factor config |
 
-### E2E Tests (Playwright) — 173 tests, 18 specs
+### E2E Tests (Playwright) — 201 tests, 18 specs (CI 2026-09-02)
 
 - Auth flow (code-based login)
 - Resident creation
@@ -1503,15 +1503,15 @@ Representative coverage by area (not an exhaustive suite list):
 ### Commands
 
 ```bash
-npm run dev              # Development server (port 3001)
-npm run build            # Production build
-npm run db:generate      # Generate a migration from schema.ts changes
-npm run db:migrate       # Run pending migrations
-npm run db:push          # Push schema changes (development only)
-npm run db:studio        # Database browser
-npm run db:seed          # Seed demo data
-npm run test             # Run Jest tests (2558 tests)
-npm run test:e2e         # Run Playwright tests (173 tests)
+pnpm run dev             # Development server (port 3000)
+pnpm run build           # Production build
+pnpm run db:generate     # Generate a migration from schema.ts changes
+pnpm run db:migrate      # Run pending migrations
+pnpm run db:push         # Push schema changes (development only)
+pnpm run db:studio       # Database browser
+pnpm run db:seed         # Seed demo data
+pnpm run test            # Run Vitest tests (3650 tests, CI 2026-09-02)
+pnpm run test:e2e        # Run Playwright tests (201 tests)
 ```
 
 ### Key Files
@@ -1553,12 +1553,12 @@ npm run test:e2e         # Run Playwright tests (173 tests)
 
 ### Schema changes workflow
 1. Edit `src/lib/db/schema.ts`
-2. Run `npm run db:generate` to create the migration in `drizzle/`
-3. Run `npm run db:migrate` to apply it locally
+2. Run `pnpm run db:generate` to create the migration in `drizzle/`
+3. Run `pnpm run db:migrate` to apply it locally
 4. Restart dev server
 
 ### "Column not found" errors after schema change
-1. Run `npm run db:migrate` (the migration may not be applied yet)
+1. Run `pnpm run db:migrate` (the migration may not be applied yet)
 2. Restart dev server
 
 ### Mobile nav not showing
