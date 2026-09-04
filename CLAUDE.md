@@ -2,7 +2,7 @@
 
 created_date: 2025-06-01
 last_modified_date: 2026-09-04
-last_modified_summary: Documented the Einsatzplätze loop — that a resident's click is a request for contact and not contact, what they may see of their own thread, and that listing prose is machine-translated while the permit sentence never is.
+last_modified_summary: Documented the Einsatzplätze loop (a click is a request for contact, not contact), and what posting the first real listing through the UI exposed — a refusal that reached nobody and destroyed the form, and assist copy written for another form.
 
 @~/.claude/CLAUDE.md
 
@@ -823,14 +823,59 @@ Enforced in three places, not by convention: the zod schema
 (`validation/schemas.ts`), the publish action (`actions/opportunities.ts`), and
 `opportunities/__tests__/work-permit-gate.test.ts`.
 
-What is still true: the board itself is EMPTY on the live instance — zero
-places, zero applications. That is AOZ's data to enter, and it is the binding
-constraint on the Jobcoach and Freiwilligenarbeit KPIs, which cannot rise while
-there is nowhere to place anyone. Do not seed it with invented employers to
-make a number move. What DID reduce the cost of entering one is AI form assist
-on the opportunity form — a coach pastes an ad and corrects it — with
-`permitRequirement` and `status` `aiExcluded`, because a model must never
-assert an authorisation route (see below) nor decide to publish.
+The board was EMPTY on the live instance until 2026-09-04 — zero places, zero
+applications — and it is the binding constraint on the Jobcoach and
+Freiwilligenarbeit KPIs, which cannot rise while there is nowhere to place
+anyone. It now holds ONE listing: AOZ's own real vacancy
+`Programmleiter*in 90-100%, Pilotprojekt «Begleitung im regulären Wohnraum»`
+(jobs.aoz.ch job 4057371), entered through the UI as the end-to-end proof.
+Everything else is still AOZ's data to enter. **Do not seed it with invented
+employers to make a number move** — a real vacancy from the organisation that
+runs this product is not that; a plausible-sounding Velowerkstatt is.
+
+What reduced the cost of entering one is AI form assist on the opportunity
+form — paste an ad, correct it — with `permitRequirement` and `status`
+`aiExcluded`, because a model must never assert an authorisation route (see
+below) nor decide to publish. Measured on the real ad: 11 fields filled,
+hours/seats/start left BLANK because the ad did not state them, and one real
+error (the HR contact's name paired with the line manager's phone). That last
+one is why the form says «überprüfe jede Angabe».
+
+### A refusal that reaches nobody is not a gate, it is a crash
+
+⚠️ **Found by using the product, not by reading it.** Publishing an
+Arbeitsstelle whose Bewilligungsweg was still the `NONE` default correctly hit
+the work-permit gate — and rendered "Etwas ist schiefgelaufen. Bitte versuchen
+Sie es erneut."
+
+`validateFormData` throws a `ValidationError` carrying the one sentence that
+names the next step. Nothing caught it, so Next's error boundary replaced it
+with a shrug AND unmounted the route, losing all fourteen fields — most of them
+written seconds earlier by the assistant. Adding AI fill turned a bad message
+into an expensive one.
+
+- **A failed save RETURNS `OpportunityFormState`; it does not throw.** The
+  `<form>` lives inside the client component that holds every value, so a
+  rejection leaves that store alone and the coach fixes one field.
+- **The publish BUTTON keeps its throwing guard** (`publishOpportunity`, pinned
+  by `work-permit-gate.test.ts`) and is wrapped by `publishOpportunityFromEdit`,
+  which carries the gate's own words back as a URL param.
+- **`redirect()` works by throwing**, so the fallible work sits in its own
+  function and redirect is never called inside the `try` that would catch it.
+  Same split as `expressInterest`.
+
+The general lesson, and it applies to every action in this repo: a server
+action that throws a *message a user must act on* has no way to deliver it.
+Return it.
+
+### Copy defaults describe the form they were written for
+
+`AiFormBar`'s title and hint come from `AI_FORM_LABELS`, written for resident
+intake. Only the placeholder was overridable, so the Einsatzplatz form told a
+job coach to "beschreibe das Aufnahmegespräch in eigenen Worten" above a box
+for a job advert, and offered «doch Nichtraucherin» as an example edit — copy
+about a PERSON on a form describing a PLACE. Pass `fillTitle` / `refineTitle` /
+`fillHint` / `refineHint` on any new assisted form.
 
 ### A click is a request for contact, not contact
 
