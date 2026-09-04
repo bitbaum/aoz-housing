@@ -7,6 +7,7 @@ import { and, asc, desc, eq, gte, inArray, isNull, lt, lte, or } from 'drizzle-o
 import { z } from 'zod'
 import {
   validateFormData,
+  idSchema,
   IncidentInputSchema,
   ResolveIncidentSchema,
   FollowUpInputSchema,
@@ -21,7 +22,7 @@ import { QUERY_LIMITS } from '@/lib/config/thresholds'
 
 // Simple schema for clearing follow-up
 const ClearFollowUpSchema = z.object({
-  incidentId: z.string().cuid(),
+  incidentId: idSchema,
 })
 
 export async function createIncident(formData: FormData): Promise<void> {

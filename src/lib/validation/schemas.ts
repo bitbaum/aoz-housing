@@ -108,6 +108,40 @@ function enumFromFactor<T>(factorId: keyof typeof RESIDENT_FACTORS): z.ZodType<T
 }
 
 // =============================================================================
+// IDENTIFIERS
+// =============================================================================
+
+/**
+ * A row id issued by this database.
+ *
+ * ## The bug this replaces
+ *
+ * Every id field validated with `z.string().cuid()`, which is cuid **v1** and
+ * requires a leading `c`. Prisma minted cuid v1, so it held. The move to
+ * Drizzle switched id generation to `@paralleldrive/cuid2`
+ * (`$defaultFn(createId)` in db/schema.ts), whose ids start with any letter —
+ * and `.cuid()` rejects 96.5% of them (measured: 70 of 2000).
+ *
+ * So every form that submits an id stopped working for almost every row
+ * created after that migration, and said so as "Etwas ist schiefgelaufen"
+ * because the ValidationError never reached the screen. Measured on the live
+ * database on 2026-09-04: 122 of 123 housing units, 15 of 20 residents, 11 of
+ * 17 placements and every maintenance request were uneditable. The rows that
+ * still worked were the Prisma-era ones.
+ *
+ * ## Why this is now permissive
+ *
+ * An id is an opaque key. Its shape proves nothing — the row either exists and
+ * the viewer may touch it, or it does not, and that is settled by the lookup
+ * and the permission check, both of which run anyway. A format assertion here
+ * bought no safety and cost most of the database, twice over: once when the
+ * generator changed, and again for anyone who changes it next.
+ *
+ * The bound stays only to keep an absurd payload out of a query parameter.
+ */
+export const idSchema = z.string().min(1).max(64)
+
+// =============================================================================
 // ENUM SCHEMAS (derived from config/labels - SSOT, typed as Prisma enums)
 // =============================================================================
 
@@ -242,7 +276,7 @@ export const ResidentInputSchema = z.object({
 })
 
 export const ResidentUpdateSchema = ResidentInputSchema.extend({
-  id: z.string().cuid(),
+  id: idSchema,
   // code is disabled (read-only) in edit form, so it's not included in FormData
   code: z.string().optional(),
 })
@@ -276,7 +310,7 @@ export const HousingUnitInputSchema = z.object({
 })
 
 export const HousingUnitUpdateSchema = HousingUnitInputSchema.extend({
-  id: z.string().cuid(),
+  id: idSchema,
   status: HousingStatusSchema.optional(),
 })
 
@@ -285,11 +319,11 @@ export const HousingUnitUpdateSchema = HousingUnitInputSchema.extend({
 // =============================================================================
 
 export const SpotInputSchema = z.object({
-  housingUnitId: z.string().cuid(),
+  housingUnitId: idSchema,
   code: z.string().min(1, 'Code ist erforderlich'),
   label: z.string().optional().nullable(),
   type: SpotTypeSchema,
-  parentSpotId: z.string().cuid().optional().nullable(),
+  parentSpotId: idSchema.optional().nullable(),
   squareMeters: z.coerce.number().positive().optional().nullable(),
   floor: z.coerce.number().int().optional().nullable(),
   requiresMedicalDocs: z.coerce.boolean().default(false),
@@ -298,12 +332,12 @@ export const SpotInputSchema = z.object({
 })
 
 export const SpotUpdateSchema = SpotInputSchema.partial().extend({
-  id: z.string().cuid(),
-  housingUnitId: z.string().cuid(),
+  id: idSchema,
+  housingUnitId: idSchema,
 })
 
 export const MultipleSpotInputSchema = z.object({
-  housingUnitId: z.string().cuid(),
+  housingUnitId: idSchema,
   roomCode: z.string().min(1, 'Zimmer-Code ist erforderlich'),
   roomLabel: z.string().optional().nullable(),
   bedCount: z.coerce.number().int().min(1).max(8).default(2),
@@ -316,9 +350,9 @@ export const MultipleSpotInputSchema = z.object({
 // =============================================================================
 
 export const PlacementInputSchema = z.object({
-  residentId: z.string().cuid(),
-  housingUnitId: z.string().cuid(),
-  spotId: z.string().cuid().optional(),
+  residentId: idSchema,
+  housingUnitId: idSchema,
+  spotId: idSchema.optional(),
   compatibilityScore: z.coerce.number().min(0).max(100).optional(),
   lifestyleScore: z.coerce.number().min(0).max(100).optional(),
   socialScore: z.coerce.number().min(0).max(100).optional(),
@@ -328,21 +362,21 @@ export const PlacementInputSchema = z.object({
 })
 
 export const EndPlacementSchema = z.object({
-  placementId: z.string().cuid(),
-  residentId: z.string().cuid(),
+  placementId: idSchema,
+  residentId: idSchema,
   endReason: EndReasonSchema,
   notes: z.string().optional().nullable(),
   // Conflict analysis fields (required when endReason is CONFLICT)
   conflictGap: CompatibilityGapSchema.optional().nullable(),
   wasPredictable: z.coerce.boolean().optional().nullable(),
-  relatedIncidentId: z.string().cuid().optional().nullable(),
+  relatedIncidentId: idSchema.optional().nullable(),
 })
 
 export const TransferPlacementSchema = z.object({
-  currentPlacementId: z.string().cuid(),
-  residentId: z.string().cuid(),
-  targetHousingUnitId: z.string().cuid(),
-  targetSpotId: z.string().cuid(),
+  currentPlacementId: idSchema,
+  residentId: idSchema,
+  targetHousingUnitId: idSchema,
+  targetSpotId: idSchema,
   transferReason: EndReasonSchema,
   notes: z.string().optional().nullable(),
 })
@@ -352,9 +386,9 @@ export const TransferPlacementSchema = z.object({
 // =============================================================================
 
 export const IncidentInputSchema = z.object({
-  housingUnitId: z.string().cuid(),
-  reportedById: z.string().cuid().optional().nullable(),
-  subjectId: z.string().cuid().optional().nullable(),
+  housingUnitId: idSchema,
+  reportedById: idSchema.optional().nullable(),
+  subjectId: idSchema.optional().nullable(),
   category: IncidentCategorySchema,
   type: IncidentTypeSchema,
   severity: IncidentSeveritySchema,
@@ -367,17 +401,17 @@ export const IncidentInputSchema = z.object({
 })
 
 export const ResolveIncidentSchema = z.object({
-  incidentId: z.string().cuid(),
+  incidentId: idSchema,
   resolution: z.string().optional().default('Gelöst durch Administrator'),
 })
 
 export const UpdateMediationTimeSchema = z.object({
-  incidentId: z.string().cuid(),
+  incidentId: idSchema,
   mediationMinutes: z.coerce.number().int().min(0).max(9999),
 })
 
 export const FollowUpInputSchema = z.object({
-  incidentId: z.string().cuid(),
+  incidentId: idSchema,
   action: z.string().min(1, 'Aktion ist erforderlich'),
   notes: z.string().optional().nullable(),
   outcome: z.string().optional().nullable(),
@@ -396,19 +430,19 @@ export const FollowUpInputSchema = z.object({
 // =============================================================================
 
 export const MaintenanceRequestInputSchema = z.object({
-  housingUnitId: z.string().cuid(),
-  spotId: z.string().cuid().optional().nullable(),
+  housingUnitId: idSchema,
+  spotId: idSchema.optional().nullable(),
   category: MaintenanceCategorySchema,
   priority: MaintenancePrioritySchema.default('NORMAL' as MaintenancePriority),
   title: z.string().min(1, 'Titel ist erforderlich'),
   description: z.string().min(1, 'Beschreibung ist erforderlich'),
   location: z.string().optional().nullable(),
-  reportedById: z.string().cuid().optional().nullable(),
+  reportedById: idSchema.optional().nullable(),
   reporterName: z.string().optional().nullable(),
 })
 
 export const MaintenanceStatusUpdateSchema = z.object({
-  requestId: z.string().cuid(),
+  requestId: idSchema,
   status: MaintenanceStatusSchema,
   assignedTo: z.string().optional().nullable(),
   resolution: z.string().optional().nullable(),
@@ -417,7 +451,7 @@ export const MaintenanceStatusUpdateSchema = z.object({
 })
 
 export const AssignMaintenanceSchema = z.object({
-  requestId: z.string().cuid(),
+  requestId: idSchema,
   assignedTo: z.string().min(1, 'Zuweisungsname ist erforderlich'),
 })
 
@@ -449,7 +483,7 @@ export const ActivityInputSchema = z.object({
 })
 
 export const ActivityUpdateSchema = ActivityInputSchema.extend({
-  id: z.string().cuid(),
+  id: idSchema,
 })
 
 // =============================================================================
@@ -557,17 +591,17 @@ export const OpportunityInputSchema = OpportunityFieldsSchema.superRefine(
 )
 
 export const OpportunityUpdateSchema = OpportunityFieldsSchema.extend({
-  id: z.string().cuid(),
+  id: idSchema,
 }).superRefine(requireStatedPermitForWork)
 
 export const ApplicationCreateSchema = z.object({
-  opportunityId: z.string().cuid(),
-  residentId: z.string().cuid(),
+  opportunityId: idSchema,
+  residentId: idSchema,
   note: z.string().max(500).optional().nullable(),
 })
 
 export const ApplicationStageChangeSchema = z.object({
-  applicationId: z.string().cuid(),
+  applicationId: idSchema,
   stage: ApplicationStageSchema,
   // Captured at the moment an engagement ENDS, because that is the only point
   // anyone knows the total. hoursPerWeek is a rate and must never be used here.
@@ -579,7 +613,7 @@ export const ApplicationStageChangeSchema = z.object({
 // =============================================================================
 
 export const SatisfactionCheckInInputSchema = z.object({
-  placementId: z.string().cuid(),
+  placementId: idSchema,
   checkInType: CheckInTypeSchema,
   weekNumber: z.coerce.number().int().positive().optional().nullable(),
   overallSatisfaction: scaleSchema,
@@ -611,9 +645,7 @@ export const portalReportSchema = z.object({
     .string()
     .optional()
     .refine((val) => !val || !isNaN(new Date(val).getTime()), { message: 'Ungültiges Datum' }),
-  involvedResident: z
-    .union([z.literal('external'), z.literal('anonymous'), z.string().cuid()])
-    .optional(),
+  involvedResident: z.union([z.literal('external'), z.literal('anonymous'), idSchema]).optional(),
   requestMediation: z.coerce.boolean().default(false),
 })
 
@@ -706,7 +738,7 @@ export const portalAttentionFlagSchema = z.object({
 })
 
 export const portalTaskRequestSchema = z.object({
-  requestedResidentId: z.string().cuid().optional(),
+  requestedResidentId: idSchema.optional(),
   message: z.string().max(500).optional(),
 })
 

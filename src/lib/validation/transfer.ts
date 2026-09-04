@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { idSchema } from './schemas'
 
 export const CreateTransferRequestSchema = z.object({
   reason: z.string().min(10, 'Bitte einen Grund angeben (mind. 10 Zeichen)'),
@@ -6,7 +7,7 @@ export const CreateTransferRequestSchema = z.object({
 })
 
 export const ReviewTransferRequestSchema = z.object({
-  requestId: z.string().cuid(),
+  requestId: idSchema,
   staffNotes: z.string().optional(),
 })
 
