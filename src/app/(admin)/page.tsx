@@ -39,6 +39,7 @@ import {
   DISPLAY_LIMITS,
 } from '@/lib/config/thresholds'
 import { sectionVisible, type DashboardSection } from '@/lib/config/dashboard'
+import { placeableBeds } from '@/lib/config/capacity'
 import { LEARNING_PULSE_WINDOW_DAYS } from '@/lib/config/learning'
 import { getProposalsAwaitingStaff } from '@/lib/governance/queries'
 import {
@@ -293,7 +294,9 @@ export default async function AdminDashboard() {
       row.completedAt >= learningPulseSince,
   ).length
 
-  const totalBeds = units.reduce((sum, u) => sum + u.totalBeds, 0)
+  // Placeable beds only. A CLOSED unit's beds are not headroom, and free beds
+  // is derived from this. @see lib/config/capacity.ts
+  const totalBeds = placeableBeds(units)
 
   // =============================================================================
   // Overdue Check-ins (using config intervals)
