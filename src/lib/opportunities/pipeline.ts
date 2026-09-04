@@ -80,6 +80,46 @@ export function occupiesSeat(stage: ApplicationStageId): boolean {
 }
 
 /**
+ * What a resident should do about their own thread, in four states.
+ *
+ * Four rather than one per stage, because seven near-identical sentences are
+ * noise: what actually differs is whether the next move is theirs, ours, or
+ * nobody's. A stage badge alone answers "where is this" and not "what do I do",
+ * and "what do I do" is the only question somebody opens this page with.
+ */
+export type ResidentNextStep = 'WAITING_ON_STAFF' | 'YOURS_TO_ATTEND' | 'FINISHED' | 'NOT_THIS_TIME'
+
+export function residentNextStep(stage: ApplicationStageId): ResidentNextStep {
+  if (stage === 'DECLINED') return 'NOT_THIS_TIME'
+  if (stage === 'ENDED') return 'FINISHED'
+  if (occupiesSeat(stage)) return 'YOURS_TO_ATTEND'
+  return 'WAITING_ON_STAFF'
+}
+
+/**
+ * When a resident may see how to reach the organisation.
+ *
+ * Not before they have been accepted, and this is enforced on the PAYLOAD —
+ * `with: { opportunity: true }` hands back every column including
+ * `contactEmail`, so the board was already shipping an employer's direct line
+ * to anyone who pressed "Ich habe Interesse". Not rendering it is not the same
+ * as not sending it.
+ *
+ * The reason is not that a contact address is secret. It is that the people
+ * using this hold permits that constrain work, `permitRequirementIsStated`
+ * exists so that a listing cannot claim otherwise, and a resident arranging
+ * something directly at INTERESTED bypasses the one person who checks which
+ * route applies. Once staff have accepted them onto the place that check has
+ * happened, and withholding the address would then just stop them turning up.
+ *
+ * ENDED keeps it: you worked there, and a reference is a normal thing to ask
+ * for. DECLINED does not — that relationship never started.
+ */
+export function maySeeContact(stage: ApplicationStageId): boolean {
+  return stage === 'ACCEPTED' || stage === 'STARTED' || stage === 'ENDED'
+}
+
+/**
  * Seats left, or null when the listing never stated a number.
  *
  * Null is not zero and must not render as "0 frei" — an unstated capacity is

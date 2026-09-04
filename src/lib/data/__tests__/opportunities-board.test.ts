@@ -111,3 +111,67 @@ describe('residentOpportunityBoard', () => {
     expect(whereParts(where)).toEqual({ residentId: 'res-1' })
   })
 })
+
+describe('how to reach the organisation, and when', () => {
+  /**
+   * The same rule as the applicant rows above, one field further in.
+   * `with: { opportunity: true }` selects EVERY column, so the board was
+   * shipping an employer's direct line to anyone who had pressed "Ich habe
+   * Interesse" — not rendered, but present, which is the distinction this file
+   * exists to keep.
+   *
+   * The reason it matters here is not secrecy. These residents hold permits
+   * that constrain work, `permitRequirementIsStated` exists so that a listing
+   * cannot claim otherwise, and someone arranging a job directly at INTERESTED
+   * has gone around the one person who checks which route applies.
+   */
+  const withContact = (stage: string) => ({
+    id: 'app-1',
+    opportunityId: 'opp-1',
+    stage,
+    opportunity: listing({
+      contactName: 'R. Meier',
+      contactEmail: 'r.meier@example.org',
+      contactPhone: '044 000 00 00',
+      website: 'https://example.org',
+    }),
+  })
+
+  it.each(['INTERESTED', 'APPLIED', 'INTERVIEW', 'DECLINED'])(
+    'is withheld at %s — stripped from the row, not hidden in the markup',
+    async (stage) => {
+      ;(mockDb.opportunityApplication.findMany as Mock).mockResolvedValue([withContact(stage)])
+
+      const { mine } = await residentOpportunityBoard('res-1')
+
+      expect(mine[0].opportunity).toMatchObject({
+        contactName: null,
+        contactEmail: null,
+        contactPhone: null,
+        website: null,
+      })
+    },
+  )
+
+  it.each(['ACCEPTED', 'STARTED', 'ENDED'])(
+    'is handed over at %s — otherwise they cannot turn up',
+    async (stage) => {
+      ;(mockDb.opportunityApplication.findMany as Mock).mockResolvedValue([withContact(stage)])
+
+      const { mine } = await residentOpportunityBoard('res-1')
+
+      expect(mine[0].opportunity.contactEmail).toBe('r.meier@example.org')
+    },
+  )
+
+  it('never appears on the open board, where nobody has been accepted', async () => {
+    ;(mockDb.opportunity.findMany as Mock).mockResolvedValue([
+      listing({ contactEmail: 'r.meier@example.org', contactPhone: '044 000 00 00' }),
+    ])
+
+    const { open } = await residentOpportunityBoard('res-1')
+
+    expect(open[0]).not.toHaveProperty('contactEmail')
+    expect(open[0]).not.toHaveProperty('contactPhone')
+  })
+})

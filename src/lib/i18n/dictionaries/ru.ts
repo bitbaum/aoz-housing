@@ -667,6 +667,15 @@ export const ru: Dictionary = {
   'opportunities.evidenceHint':
     'Как только ты начнёшь, работа будет автоматически сохранена как подтверждение.',
   'opportunities.toLearning': 'К твоим подтверждениям',
+  'opportunities.where': 'Где',
+  'opportunities.starts': 'Начало',
+  'opportunities.contactTitle': 'Как связаться с организацией',
+  'opportunities.contactHint': 'Свяжись с этим человеком до первого дня.',
+  'opportunities.nextWaiting': 'Твоя команда смотрит заявку и свяжется с тобой.',
+  'opportunities.nextAttend': 'Место твоё. Где и когда — ниже.',
+  'opportunities.nextFinished': 'Завершено. Подтверждение — среди твоих документов.',
+  'opportunities.nextDeclined':
+    'С этим местом не получилось. Твоя команда поищет вместе с тобой другое.',
   'opportunities.kindVolunteering': 'Волонтёрство',
   'opportunities.kindCommunity': 'Общественно полезная работа',
   'opportunities.kindEmployment': 'Работа',

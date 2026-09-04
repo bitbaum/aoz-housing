@@ -11,7 +11,7 @@ import type {
   OpportunityKindId,
   OpportunityStatusId,
 } from '@/lib/config/opportunities'
-import { isActiveStage, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
+import { isActiveStage, maySeeContact, occupiesSeat, openSeats } from '@/lib/opportunities/pipeline'
 
 /** Rows that reach the UI carry `displayName`, never a bare code. */
 const APPLICATION_INCLUDE = {
@@ -188,6 +188,17 @@ export async function residentOpportunityBoard(residentId: string) {
     }),
   ])
 
+  // Contact details are stripped from the rows themselves, not hidden in the
+  // JSX. `with: { opportunity: true }` selects every column, so before this the
+  // board shipped an organisation's direct line to anyone who had pressed
+  // "Ich habe Interesse". @see lib/opportunities/pipeline.ts
+  const myThreads = mine.map(({ opportunity: listing, ...application }) => ({
+    ...application,
+    opportunity: maySeeContact(application.stage)
+      ? listing
+      : { ...listing, contactName: null, contactEmail: null, contactPhone: null, website: null },
+  }))
+
   const attached = new Set(mine.map((application) => application.opportunityId))
 
   const open = published
@@ -202,8 +213,11 @@ export async function residentOpportunityBoard(residentId: string) {
     // Places someone can still take come first; a full one stays visible rather
     // than vanishing, so "it was here yesterday" has an answer on the page.
     .sort((a, b) => Number(a.seatsLeft === 0) - Number(b.seatsLeft === 0))
+    // Nobody on the open board has been accepted onto anything, so nobody there
+    // gets a contact address. Same rule, applied where the stage is implicit.
+    .map(({ contactName, contactEmail, contactPhone, website, ...listing }) => listing)
 
-  return { mine, open }
+  return { mine: myThreads, open }
 }
 
 export type ResidentOpportunityBoard = Awaited<ReturnType<typeof residentOpportunityBoard>>
