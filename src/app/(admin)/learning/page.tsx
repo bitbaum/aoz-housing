@@ -5,16 +5,19 @@ import { listLearningBoard } from '@/lib/actions/learning'
 import { PageHeader, Toolbar } from '@/components/ui/Page'
 import { StatCard } from '@/components/ui/Card'
 import { IntegrationBoard } from '@/components/learning/IntegrationBoard'
+import { BoardSwitcher } from '@/components/ui/BoardSwitcher'
 import {
-  defaultLearningBoardForRole,
-  LEARNING_BOARD_IDS,
+  INTEGRATION_BOARD_IDS,
+  resolveIntegrationBoard,
+  type IntegrationBoardId,
+} from '@/lib/config/integration-boards'
+import {
   LEARNING_CATEGORIES,
   LEARNING_CATEGORY_LABELS,
   LEARNING_AREA_NAME,
   LEARNING_LABELS,
   LEARNING_STATUSES,
   LEARNING_STATUS_LABELS,
-  type LearningBoardId,
   type LearningCategoryId,
   type LearningStatusId,
 } from '@/lib/config/learning'
@@ -38,7 +41,7 @@ function firstParam(value?: string | string[]): string {
   return Array.isArray(value) ? value[0] || '' : value || ''
 }
 
-function boardTitle(board: LearningBoardId): string {
+function boardTitle(board: IntegrationBoardId): string {
   if (board === 'job') return LEARNING_LABELS.boardJob
   if (board === 'volunteering') return LEARNING_LABELS.boardVolunteering
   return LEARNING_LABELS.boardOverview
@@ -49,7 +52,6 @@ export default async function LearningQueuePage({ searchParams }: Props) {
   const params = await searchParams
   const role = staff.role
 
-  const defaultBoard = defaultLearningBoardForRole(role)
   const boardParam = firstParam(params.board)
   const statusParam = firstParam(params.status)
   const queryParam = firstParam(params.q)
@@ -57,10 +59,13 @@ export default async function LearningQueuePage({ searchParams }: Props) {
   const sourceParam = firstParam(params.source)
   const categoryParam = firstParam(params.category)
 
-  const board = (LEARNING_BOARD_IDS as readonly string[]).includes(boardParam)
-    ? (boardParam as LearningBoardId)
-    : defaultBoard
-  const mineDefault = role === 'ADMIN' ? '0' : '1'
+  const board = resolveIntegrationBoard(boardParam, role)
+  // Keys on SCOPE, not role. It read `role === 'ADMIN'` — a role retired when
+  // the three axes landed — so Franziska (BETREUUNG + ALL_DOMAINS, the shape
+  // that replaced ADMIN for oversight) silently defaulted to her own caseload,
+  // while the dashboard tile counting the same records keys on scope. Her tile
+  // and the page it links to reported different numbers.
+  const mineDefault = staff.scope === 'ALL_DOMAINS' ? '0' : '1'
   const mine = mineParam === '0' || mineParam === '1' ? mineParam : mineDefault
   const status = (LEARNING_STATUSES as readonly string[]).includes(statusParam)
     ? (statusParam as LearningStatusId)
@@ -93,7 +98,7 @@ export default async function LearningQueuePage({ searchParams }: Props) {
   if (mine !== mineDefault) queryBits.set('mine', mine)
   if (source !== 'ALL') queryBits.set('source', source)
   if (category !== 'ALL') queryBits.set('category', category)
-  const boardHref = (nextBoard: LearningBoardId) => {
+  const boardHref = (nextBoard: IntegrationBoardId) => {
     const next = new URLSearchParams(queryBits)
     next.set('board', nextBoard)
     return `/learning?${next.toString()}`
@@ -103,21 +108,15 @@ export default async function LearningQueuePage({ searchParams }: Props) {
     <div className="space-y-6">
       <PageHeader title={LEARNING_LABELS.boardTitle} description={LEARNING_LABELS.boardSubtitle} />
 
-      <div className="flex flex-wrap gap-2">
-        {LEARNING_BOARD_IDS.map((id) => (
-          <Link
-            key={id}
-            href={boardHref(id)}
-            className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-colors ${
-              id === board
-                ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
-                : 'border-ui-border text-ui-muted hover:text-ui-text hover:border-brand-primary/30'
-            }`}
-          >
-            {boardTitle(id)}
-          </Link>
-        ))}
-      </div>
+      <BoardSwitcher
+        label={LEARNING_LABELS.boardSwitcherLabel}
+        current={board}
+        items={INTEGRATION_BOARD_IDS.map((id) => ({
+          id,
+          label: boardTitle(id),
+          href: boardHref(id),
+        }))}
+      />
 
       <Toolbar>
         <form

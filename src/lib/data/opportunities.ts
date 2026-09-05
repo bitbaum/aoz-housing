@@ -42,6 +42,12 @@ export function awaitingAnswerFilter() {
 export interface OpportunityListFilters {
   status?: OpportunityStatusId
   kind?: OpportunityKindId
+  /**
+   * The board's half of the domain. Separate from `kind` because they answer
+   * different questions: `kinds` is "which work is mine", `kind` is "show me
+   * only Praktika within it". Both may apply at once.
+   */
+  kinds?: readonly OpportunityKindId[]
   query?: string
   publishedOnly?: boolean
 }
@@ -56,6 +62,11 @@ function listWhere(filters: OpportunityListFilters): SQL | undefined {
   }
   if (filters.kind) {
     conditions.push(eq(opportunity.kind, filters.kind))
+  }
+  // An empty array would compile to invalid SQL, and it can only arise from a
+  // caller asking for nothing — which is not the same request as "no filter".
+  if (filters.kinds && filters.kinds.length > 0) {
+    conditions.push(inArray(opportunity.kind, [...filters.kinds]))
   }
   if (query) {
     const pattern = `%${escapeLike(query)}%`
@@ -107,20 +118,42 @@ export async function getOpportunityDetail(id: string) {
  * "how many places exist" is not the question a coach opens this page with —
  * "who is mid-flight and who is waiting on me" is.
  */
-export async function opportunityStats() {
+export async function opportunityStats(kinds?: readonly OpportunityKindId[]) {
+  // The tiles must describe the list underneath them. Once the board opens on
+  // the coach's own half, unscoped totals would report Sandra's waiting people
+  // above Simon's listings — a number that is true of nothing on the screen.
+  const scoped = kinds && kinds.length > 0 ? inArray(opportunity.kind, [...kinds]) : undefined
+
+  const listingsIn = (extra?: SQL) => (scoped ? and(scoped, extra) : extra)
+
+  // Applications reach `kind` only through their listing, so they scope by
+  // membership rather than by a column of their own.
+  const applicationsOn = (extra: SQL | undefined): SQL | undefined =>
+    scoped
+      ? and(
+          extra,
+          inArray(
+            opportunityApplication.opportunityId,
+            db.select({ id: opportunity.id }).from(opportunity).where(scoped),
+          ),
+        )
+      : extra
+
   const [total, published, drafts, activePeople, openThreads, awaitingAnswer] = await Promise.all([
-    db.$count(opportunity),
-    db.$count(opportunity, eq(opportunity.status, 'PUBLISHED')),
-    db.$count(opportunity, eq(opportunity.status, 'DRAFT')),
-    db.$count(opportunityApplication, eq(opportunityApplication.stage, 'STARTED')),
+    db.$count(opportunity, listingsIn()),
+    db.$count(opportunity, listingsIn(eq(opportunity.status, 'PUBLISHED'))),
+    db.$count(opportunity, listingsIn(eq(opportunity.status, 'DRAFT'))),
+    db.$count(opportunityApplication, applicationsOn(eq(opportunityApplication.stage, 'STARTED'))),
     db.$count(
       opportunityApplication,
-      inArray(opportunityApplication.stage, ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED']),
+      applicationsOn(
+        inArray(opportunityApplication.stage, ['INTERESTED', 'APPLIED', 'INTERVIEW', 'ACCEPTED']),
+      ),
     ),
     // The SQL twin of `isAwaitingAnswer`. Kept beside the other counts rather
     // than derived in a page, so "somebody is waiting on a person" is a number
     // this board leads with instead of a state you have to notice.
-    db.$count(opportunityApplication, awaitingAnswerFilter()),
+    db.$count(opportunityApplication, applicationsOn(awaitingAnswerFilter())),
   ])
 
   return { total, published, drafts, activePeople, openThreads, awaitingAnswer }

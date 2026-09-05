@@ -10,12 +10,12 @@ import {
   boardKinds,
   CEFR_LEVELS,
   LEARNING_CATEGORIES,
-  type LearningBoardId,
   LEARNING_KINDS,
   LEARNING_STATUSES,
   GERMAN_TEST_KIND,
   GERMAN_LANGUAGE_CODE,
 } from '@/lib/config/learning'
+import type { IntegrationBoardId } from '@/lib/config/integration-boards'
 import type { LearningKind, LearningStatus, ResidentOrStaff } from '@/lib/db'
 
 const INVALID_RECORD_MESSAGE = 'Art und Bezeichnung sind erforderlich'
@@ -171,7 +171,7 @@ export async function listLearningQueue(kind?: LearningKind) {
 }
 
 export interface LearningBoardFilters {
-  board: LearningBoardId
+  board: IntegrationBoardId
   status?: LearningStatus | 'ALL'
   query?: string
   mineOnly?: boolean

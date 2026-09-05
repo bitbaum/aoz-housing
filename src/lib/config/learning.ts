@@ -6,8 +6,8 @@
  * never a grade of the person. No diagnoses, no case details.
  */
 
-import type { StaffRole } from '@/lib/auth/role-policy'
 import { BRAND } from './brand'
+import type { IntegrationBoardId } from './integration-boards'
 
 export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const
 export type CefrLevel = (typeof CEFR_LEVELS)[number]
@@ -98,10 +98,14 @@ export function isGermanLanguageTest(record: {
   return record.kind === GERMAN_TEST_KIND && record.languageCode === GERMAN_LANGUAGE_CODE
 }
 
-export const LEARNING_BOARD_IDS = ['overview', 'job', 'volunteering'] as const
-export type LearningBoardId = (typeof LEARNING_BOARD_IDS)[number]
-
-export function boardKinds(board: LearningBoardId): readonly LearningKindId[] {
+/**
+ * The boards are NOT learning's own. `/opportunities` splits the integration
+ * domain the same way and by the same role rule, so the identity and the
+ * default live in `integration-boards.ts` and this file only says which
+ * learning kinds land on each. Two copies of "the job coach works the job half"
+ * is exactly one copy too many.
+ */
+export function boardKinds(board: IntegrationBoardId): readonly LearningKindId[] {
   switch (board) {
     case 'job':
       // The job coach's board now holds the two kinds their work is actually
@@ -114,12 +118,6 @@ export function boardKinds(board: LearningBoardId): readonly LearningKindId[] {
     default:
       return LEARNING_KINDS
   }
-}
-
-export function defaultLearningBoardForRole(role: StaffRole): LearningBoardId {
-  if (role === 'JOBCOACH') return 'job'
-  if (role === 'FREIWILLIGENARBEIT') return 'volunteering'
-  return 'overview'
 }
 
 export const LEARNING_KIND_LABELS: Record<LearningKindId, string> = {
@@ -181,6 +179,7 @@ export const LEARNING_LABELS = {
   boardTitle: LEARNING_AREA_NAME,
   boardSubtitle:
     'Was jemand macht, lernt und nachweisen kann — damit Jobcoach, Sozialarbeit und Freiwilligenarbeit schnell sehen, was zählt.',
+  boardSwitcherLabel: 'Bereich',
   boardOverview: 'Alle Nachweise',
   boardJob: 'Beruf & Qualifikation',
   boardVolunteering: 'Freiwilligenarbeit',

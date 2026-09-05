@@ -349,7 +349,7 @@ export const MEGAMENU_GROUPS: MegaMenuGroup[] = [
   // a single reporting link. Moving it fixes the label and empties the group in
   // the same stroke.
   { href: '/analytics', icon: 'chart', label: 'Statistiken', permission: 'dashboard:read' },
-  { href: '/messages', icon: 'message', label: 'Nachrichten' },
+  { href: '/messages', icon: 'message', label: 'Nachrichten', permission: 'messages:read' },
 ]
 
 function itemVisible(item: MegaMenuDropdownItem, viewer: StaffCapabilities): boolean {

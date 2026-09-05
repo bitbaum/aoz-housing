@@ -11,6 +11,7 @@
 
 import { Briefcase, GraduationCap, HeartHandshake, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import type { IntegrationBoardId } from './integration-boards'
 
 export const OPPORTUNITY_KINDS = [
   'VOLUNTEERING',
@@ -33,6 +34,22 @@ export type WorkOpportunityKindId = (typeof WORK_OPPORTUNITY_KINDS)[number]
 
 export function isWorkKind(kind: string): kind is WorkOpportunityKindId {
   return (WORK_OPPORTUNITY_KINDS as readonly string[]).includes(kind)
+}
+
+/**
+ * Which listings belong on each half of the board.
+ *
+ * DERIVED from `WORK_OPPORTUNITY_KINDS`, never a second list: a kind added to
+ * the enum lands on exactly one board without anyone remembering to put it
+ * there, and it can never land on both or neither. The split the coaches see is
+ * then the same split the permit gate already enforces, which is the point —
+ * "does this raise a question about authorisation" is what separates Simon's
+ * work from Sandra's.
+ */
+export function boardOpportunityKinds(board: IntegrationBoardId): readonly OpportunityKindId[] {
+  if (board === 'job') return WORK_OPPORTUNITY_KINDS
+  if (board === 'volunteering') return OPPORTUNITY_KINDS.filter((kind) => !isWorkKind(kind))
+  return OPPORTUNITY_KINDS
 }
 
 /**
