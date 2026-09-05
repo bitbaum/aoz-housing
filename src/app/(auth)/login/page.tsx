@@ -280,7 +280,10 @@ function LoginForm() {
               {state.status === 'loading' ? LOGIN_LABELS.submitting : LOGIN_LABELS.submit}
             </Button>
 
-            <div className="flex items-center justify-between text-sm">
+            {/* gap-x, not justify-between alone: inside the narrow auth card the two
+                items fill the line, and "Mit Code anmelden" ran straight into
+                "Noch kein Konto?" with nothing between them. */}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 text-sm">
               <button
                 type="button"
                 onClick={() => {
