@@ -31,6 +31,7 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
   }
 import { buildJobQueue } from '@/lib/jobcoach/queue'
 import { buildVolunteeringQueue } from '@/lib/volunteering/queue'
+import { staffInbox } from '@/lib/messaging/queries'
 import { STAFF_ROLE_CARE_DOMAIN, roleHasCaseload } from '@/lib/config/care'
 import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
@@ -98,6 +99,7 @@ export default async function AdminDashboard() {
     myCaseloadResidentIds,
     demoScope,
     upcomingEventsCount,
+    inboxThreads,
     activeStaffCount,
     neverSignedInStaffCount,
     assignedResidentCount,
@@ -209,6 +211,10 @@ export default async function AdminDashboard() {
           and(eq(houseEvent.status, 'PUBLISHED'), gte(houseEvent.startsAt, now)),
         )
       : 0,
+    // Who is waiting for an answer. `staffInbox()` already sorts oldest-wait
+    // first and carries `waitingSince`; the dashboard simply reads what the
+    // inbox page has always had to itself.
+    show('messages') ? staffInbox() : [],
     show('team') ? db.$count(userTable, eq(userTable.active, true)) : 0,
     // Provisioned and never used. A staff code that was issued but never
     // signed in with is invisible everywhere else in the product — it is not
@@ -282,6 +288,21 @@ export default async function AdminDashboard() {
   // The Job domain's own work queue. Derived here so the dashboard receives
   // rows rather than raw records — the rule for what counts lives in
   // lib/jobcoach/queue.ts, next to the evidence that justifies each signal.
+  /**
+   * Threads where a Klient*in is waiting, longest first.
+   *
+   * `staffInbox()` sorts that way already and puts waiting threads ahead of
+   * quiet ones, so the first entry IS the person who has waited longest —
+   * which is what the tile leads with.
+   */
+  const waitingThreads = inboxThreads
+    .filter((thread) => thread.unreadCount > 0 && thread.waitingSince)
+    .map((thread) => ({
+      residentId: thread.resident.id,
+      name: residentName(thread.resident),
+      waitingSince: thread.waitingSince as Date,
+    }))
+
   const caseloadClients = jobCaseload.map(({ resident }) => ({
     residentId: resident.id,
     name: residentName(resident),
@@ -497,6 +518,7 @@ export default async function AdminDashboard() {
       assignedResidentCount={assignedResidentCount}
       jobQueue={jobQueue}
       volunteeringQueue={volunteeringQueue}
+      waitingThreads={waitingThreads}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}

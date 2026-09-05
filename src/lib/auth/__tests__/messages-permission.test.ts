@@ -4,6 +4,7 @@ import { join } from 'path'
 import { describe, expect, it } from 'vitest'
 
 import { ROLE_PERMISSIONS, hasPermission, type StaffRole } from '@/lib/auth/role-policy'
+import { DASHBOARD_SECTIONS, sectionVisible } from '@/lib/config/dashboard'
 
 /**
  * A resident's messages to staff are readable by the roles that correspond with
@@ -99,5 +100,29 @@ describe('both message surfaces are actually guarded', () => {
 
     expect(source).toMatch(/requirePermission\(\s*'messages:read'\s*\)/)
     expect(source).not.toMatch(/requireStaffAuth\s*\(/)
+  })
+})
+
+describe('the dashboard tile follows the same boundary as the inbox', () => {
+  /**
+   * The tile names a Klient*in and links into a conversation, so it must never
+   * render for somebody who may not open that conversation. Gating it on the
+   * SAME permission as the page means the two cannot drift — the failure mode
+   * would be a coach seeing "Ihor wartet seit 4 Tagen" on a thread they are
+   * not allowed to read.
+   */
+  it('is gated on messages:read, exactly like /messages', () => {
+    expect(DASHBOARD_SECTIONS.messages).toBe('messages:read')
+  })
+
+  it('so the integration roles get no tile', () => {
+    expect(sectionVisible(subject('JOBCOACH'), 'messages')).toBe(false)
+    expect(sectionVisible(subject('FREIWILLIGENARBEIT'), 'messages')).toBe(false)
+    expect(sectionVisible(subject('LIEGENSCHAFTEN'), 'messages')).toBe(false)
+  })
+
+  it('and the correspondence roles do', () => {
+    expect(sectionVisible(subject('BETREUUNG'), 'messages')).toBe(true)
+    expect(sectionVisible(subject('SOZIALARBEIT'), 'messages')).toBe(true)
   })
 })

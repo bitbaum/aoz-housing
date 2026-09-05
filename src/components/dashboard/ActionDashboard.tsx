@@ -70,6 +70,8 @@ interface ActionDashboardProps {
    */
   jobQueue: JobQueueItem[]
   volunteeringQueue: VolunteeringQueueItem[]
+  /** Klient*innen waiting for an answer, longest wait first. */
+  waitingThreads: { residentId: string; name: string; waitingSince: Date }[]
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -130,6 +132,7 @@ export function ActionDashboard({
   assignedResidentCount,
   jobQueue,
   volunteeringQueue,
+  waitingThreads,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -214,6 +217,9 @@ export function ActionDashboard({
     unplacedResidents.length +
     pendingTransfers.length +
     proposalsAwaitingStaff.length +
+    // Somebody asked a question and is still waiting. Counted like any other
+    // open task, because that is what it is.
+    waitingThreads.length +
     // Sandra's rows count exactly as Simon's do. While they did not, her
     // dashboard could only ever resolve to `quiet` — every term above needs a
     // permission she does not hold, and her caseload was never fetched.
@@ -406,6 +412,28 @@ export function ActionDashboard({
                 that morning, and never mentioned him — and said the same thing
                 to his colleague for three days longer, because her caseload was
                 not even queried. */}
+            {/* Somebody asked and is still waiting. The product has always
+                known this — `staffInbox()` computes `waitingSince` and sorts
+                oldest-first on every load — and only the inbox page read it,
+                so Betreuung had to open /messages speculatively to find out. */}
+            {waitingThreads.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileMessagesWaiting}
+                count={waitingThreads.length}
+                description={`${waitingThreads[0].name} ${DASHBOARD_LABELS.tileWaitingLongestSuffix}`}
+                href={`/messages/${waitingThreads[0].residentId}`}
+                urgency={urgencyForOpenCount(waitingThreads.length)}
+                items={waitingThreads.slice(0, DISPLAY_LIMITS.dashboardItems).map((thread) => ({
+                  label: thread.name,
+                  sublabel: DASHBOARD_LABELS.tileWaitingSinceDays(
+                    daysSinceCeil(thread.waitingSince),
+                  ),
+                  href: `/messages/${thread.residentId}`,
+                }))}
+                allHref="/messages"
+              />
+            )}
+
             {careTiles.map((tile) => (
               <ActionTile
                 key={tile.key}

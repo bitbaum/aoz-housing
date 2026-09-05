@@ -65,6 +65,7 @@ const BASE_PROPS = {
   assignedResidentCount: null,
   jobQueue: [],
   volunteeringQueue: [],
+  waitingThreads: [],
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,
@@ -320,6 +321,35 @@ describe('ActionDashboard', () => {
     )
     const tiles = screen.queryAllByTestId('action-tile').map((el) => el.textContent ?? '')
     expect(tiles.some((t) => t.includes('Interesse wartet auf Antwort'))).toBe(false)
+  })
+
+  /**
+   * `staffInbox()` computed `waitingSince` per thread and sorted oldest-first
+   * on every load, and only /messages read it — so Betreuung had to open the
+   * inbox speculatively to learn somebody had been waiting four days.
+   */
+  it('names who is waiting for an answer, longest wait first', () => {
+    const fourDaysAgo = new Date(Date.now() - 4 * 86_400_000)
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'BETREUUNG', scope: 'ALL_DOMAINS', isSystemAdmin: false }}
+        waitingThreads={[
+          { residentId: 'r1', name: 'Ihor', waitingSince: fourDaysAgo },
+          { residentId: 'r2', name: 'Misha', waitingSince: new Date() },
+        ]}
+      />,
+    )
+
+    const tiles = screen.getAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Nachrichten ohne Antwort'))).toBe(true)
+    expect(tiles.some((t) => t.includes('(2)'))).toBe(true)
+  })
+
+  it('shows nobody waiting when nobody is', () => {
+    render(<ActionDashboard {...BASE_PROPS} waitingThreads={[]} />)
+    const tiles = screen.queryAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Nachrichten ohne Antwort'))).toBe(false)
   })
 
   it('hides check-in and maintenance stats for SOZIALARBEIT but keeps occupancy', () => {
