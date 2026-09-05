@@ -31,7 +31,14 @@ describe("Sandra's queue", () => {
   it('names a resident whose own interest nobody answered', () => {
     const signals = signalsFor(
       client({
-        applications: [{ stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: null }],
+        applications: [
+          {
+            opportunityId: 'opp-1',
+            stage: 'INTERESTED',
+            createdBy: 'RESIDENT',
+            supportedByUserId: null,
+          },
+        ],
       }),
       NOW,
     )
@@ -44,7 +51,12 @@ describe("Sandra's queue", () => {
     const signals = signalsFor(
       client({
         applications: [
-          { stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: 'staff-1' },
+          {
+            opportunityId: 'opp-1',
+            stage: 'INTERESTED',
+            createdBy: 'RESIDENT',
+            supportedByUserId: 'staff-1',
+          },
         ],
       }),
       NOW,
@@ -57,7 +69,14 @@ describe("Sandra's queue", () => {
     // from Sandra's queue — the exact failure fixed on the job side.
     const waiting = client({
       createdAt: daysAgo(NO_ENGAGEMENT_GRACE_DAYS + 5),
-      applications: [{ stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: null }],
+      applications: [
+        {
+          opportunityId: 'opp-1',
+          stage: 'INTERESTED',
+          createdBy: 'RESIDENT',
+          supportedByUserId: null,
+        },
+      ],
     })
     expect(signalsFor(waiting, NOW)).toContain('INTEREST_UNANSWERED')
     expect(signalsFor(waiting, NOW)).not.toContain('NO_ENGAGEMENT')
@@ -75,14 +94,28 @@ describe("Sandra's queue", () => {
   it('treats a live engagement as arranged', () => {
     const placed = client({
       createdAt: daysAgo(200),
-      applications: [{ stage: 'STARTED', createdBy: 'STAFF', supportedByUserId: 'staff-1' }],
+      applications: [
+        {
+          opportunityId: 'opp-1',
+          stage: 'STARTED',
+          createdBy: 'STAFF',
+          supportedByUserId: 'staff-1',
+        },
+      ],
     })
     expect(signalsFor(placed, NOW)).toEqual([])
   })
 
   it('flags an engagement that has stopped moving', () => {
     const stalled = client({
-      applications: [{ stage: 'STARTED', createdBy: 'STAFF', supportedByUserId: 'staff-1' }],
+      applications: [
+        {
+          opportunityId: 'opp-1',
+          stage: 'STARTED',
+          createdBy: 'STAFF',
+          supportedByUserId: 'staff-1',
+        },
+      ],
       learningRecords: [
         {
           kind: 'VOLUNTEERING',
@@ -98,7 +131,14 @@ describe("Sandra's queue", () => {
     // A language course going nowhere is Simon's signal, not Sandra's. Her
     // queue naming it would hand her work she cannot act on.
     const jobRecord = client({
-      applications: [{ stage: 'STARTED', createdBy: 'STAFF', supportedByUserId: 'staff-1' }],
+      applications: [
+        {
+          opportunityId: 'opp-1',
+          stage: 'STARTED',
+          createdBy: 'STAFF',
+          supportedByUserId: 'staff-1',
+        },
+      ],
       learningRecords: [
         { kind: 'COURSE', status: 'IN_PROGRESS', updatedAt: daysAgo(STALLED_ENGAGEMENT_DAYS + 1) },
       ],
@@ -119,18 +159,72 @@ describe("Sandra's queue", () => {
               updatedAt: daysAgo(STALLED_ENGAGEMENT_DAYS + 1),
             },
           ],
-          applications: [{ stage: 'STARTED', createdBy: 'STAFF', supportedByUserId: 's' }],
+          applications: [
+            {
+              opportunityId: 'opp-1',
+              stage: 'STARTED',
+              createdBy: 'STAFF',
+              supportedByUserId: 's',
+            },
+          ],
         }),
         client({
           residentId: 'waiting',
           name: 'Waiting',
-          applications: [{ stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: null }],
+          applications: [
+            {
+              opportunityId: 'opp-1',
+              stage: 'INTERESTED',
+              createdBy: 'RESIDENT',
+              supportedByUserId: null,
+            },
+          ],
         }),
       ],
       NOW,
     )
 
     expect(queue[0]).toMatchObject({ residentId: 'waiting', signal: 'INTEREST_UNANSWERED' })
+  })
+})
+
+describe('a row points at the thing it is about', () => {
+  /**
+   * The three navigations this ends: the tile linked to `/residents/{id}`, from
+   * which the coach scrolled to the threads card, opened the listing, and
+   * looked for the person among its applicants — once per waiting client, for
+   * the signal that is FIRST in the priority list and therefore the one the
+   * dashboard hero renders.
+   *
+   * The id was in the source row the whole time and the queue dropped it.
+   */
+  it('carries the opportunity a resident is waiting on', () => {
+    const [row] = buildVolunteeringQueue(
+      [
+        client({
+          applications: [
+            {
+              opportunityId: 'opp-kinderhort',
+              stage: 'INTERESTED',
+              createdBy: 'RESIDENT',
+              supportedByUserId: null,
+            },
+          ],
+        }),
+      ],
+      NOW,
+    )
+    expect(row).toMatchObject({ signal: 'INTEREST_UNANSWERED', opportunityId: 'opp-kinderhort' })
+  })
+
+  it('carries null for a signal about the person, not a placement', () => {
+    // "Nobody has arranged anything yet" has no thread to open, and inventing
+    // a destination for it would be worse than the extra click.
+    const [row] = buildVolunteeringQueue(
+      [client({ createdAt: daysAgo(NO_ENGAGEMENT_GRACE_DAYS + 1) })],
+      NOW,
+    )
+    expect(row).toMatchObject({ signal: 'NO_ENGAGEMENT', opportunityId: null })
   })
 })
 

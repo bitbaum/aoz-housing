@@ -253,7 +253,14 @@ export default async function AdminDashboard() {
                 // `createdBy` and `supportedByUserId` are what separate contact
                 // from a request for one. @see lib/jobcoach/queue.ts
                 opportunityApplications: {
-                  columns: { stage: true, createdBy: true, supportedByUserId: true },
+                  // `opportunityId` is what lets the queue row link at the
+                  // thread instead of the dossier.
+                  columns: {
+                    opportunityId: true,
+                    stage: true,
+                    createdBy: true,
+                    supportedByUserId: true,
+                  },
                 },
               },
             },

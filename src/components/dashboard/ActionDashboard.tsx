@@ -174,6 +174,23 @@ export function ActionDashboard({
   // their count was structurally zero and the dashboard congratulated them on
   // a day with real work in it. Observed in production 2026-09-02 with a
   // client assigned the same morning. @see lib/jobcoach/queue.ts
+  /**
+   * Where a row goes when you click it.
+   *
+   * A row about ONE thread opens that thread. "Interesse wartet auf Antwort"
+   * is the first signal in both domains' priority lists, so it is what the
+   * hero renders — and it used to land on the dossier, from which the coach
+   * scrolled to the threads card, opened the listing, and looked for the
+   * person among its applicants. Three navigations for the one action the
+   * queue exists to prompt, once per waiting client.
+   *
+   * Rows about the PERSON rather than a placement still open the dossier:
+   * "nobody has arranged anything yet" has no thread to open, and inventing a
+   * destination for it would be worse than the extra click.
+   */
+  const rowHref = (row: { residentId: string; opportunityId: string | null }) =>
+    row.opportunityId ? `/opportunities/${row.opportunityId}` : `/residents/${row.residentId}`
+
   // One rendering, two domains. The signal ids are each domain's priority
   // order, and the tiles render in it — the same list the queue sorts by.
   const careTiles = [
@@ -395,14 +412,14 @@ export function ActionDashboard({
                 title={tile.copy.title}
                 count={tile.rows.length}
                 description={tile.copy.action}
-                href={`/residents/${tile.rows[0].residentId}`}
+                href={rowHref(tile.rows[0])}
                 urgency={urgencyForOpenCount(tile.rows.length)}
                 items={tile.rows.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
                   label: row.name,
                   // The signal is already the tile's title, so the sublabel
                   // carries the move rather than repeating it.
                   sublabel: tile.copy.action,
-                  href: `/residents/${row.residentId}`,
+                  href: rowHref(row),
                 }))}
                 allHref={tile.allHref}
               />

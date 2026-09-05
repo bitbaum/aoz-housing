@@ -31,6 +31,16 @@ import type { LearningKindId, LearningStatusId } from '@/lib/config/learning'
  * person on the staff side ever engage with this thread?
  */
 export interface CareApplicationInput {
+  /**
+   * The thread this row is about.
+   *
+   * REQUIRED, not optional. A queue row that says "somebody is waiting" and
+   * cannot say what for sent the coach to the dossier to go and find it — three
+   * navigations for the one action the queue exists to prompt. Optional would
+   * have let a query forget to select it and still typecheck, which is the
+   * mistake `NamedResident.displayName` is required to prevent.
+   */
+  opportunityId: string
   stage: ApplicationStageId
   /** Who opened this thread — the resident themselves, or a member of staff. */
   createdBy: 'RESIDENT' | 'STAFF'
@@ -56,6 +66,12 @@ export interface CareQueueItem<Signal extends string> {
   residentId: string
   name: string
   signal: Signal
+  /**
+   * Where to go to ACT on this row, when the row is about one thread.
+   * `null` for signals that are about the person rather than a placement —
+   * "nobody has arranged anything yet" has no thread to open.
+   */
+  opportunityId: string | null
 }
 
 /**
@@ -91,6 +107,20 @@ export function awaitsAnswer(client: CareClientInput): boolean {
   return client.applications.some(isAwaitingAnswer)
 }
 
+/**
+ * The signal that names a specific thread, shared by every domain.
+ *
+ * Both coaches call it the same thing because it IS the same thing — a
+ * resident put their hand up on one listing — so the rule for what a row links
+ * to lives here once rather than as a callback each domain remembers to pass.
+ */
+export const AWAITING_ANSWER_SIGNAL = 'INTEREST_UNANSWERED'
+
+/** The thread somebody is waiting on, oldest first by query order. */
+export function awaitingApplication(client: CareClientInput): CareApplicationInput | null {
+  return client.applications.find(isAwaitingAnswer) ?? null
+}
+
 export function daysBetween(from: Date, to: Date): number {
   return Math.floor((to.getTime() - from.getTime()) / 86_400_000)
 }
@@ -119,6 +149,12 @@ export function buildCareQueue<Signal extends string>(
       residentId: client.residentId,
       name: client.name,
       signal,
+      // Only the awaiting signal is about one thread. Attached here rather than
+      // in each domain so the two cannot come to disagree about it.
+      opportunityId:
+        signal === AWAITING_ANSWER_SIGNAL
+          ? (awaitingApplication(client)?.opportunityId ?? null)
+          : null,
     })),
   )
 
