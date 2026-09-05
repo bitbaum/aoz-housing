@@ -238,6 +238,29 @@ export function canWriteCareDomain(viewer: StaffCapabilities, domain: CareRoleId
   return CARE_DOMAIN_STAFF_ROLE[domain] === viewer.role
 }
 
+/**
+ * Could this person be put on a client's team for this domain?
+ *
+ * The mirror of `canWriteCareDomain`, which asks whether a VIEWER may edit a
+ * seat. This asks whether a CANDIDATE could hold it — and the answer is the
+ * same rule from the other side: their role works that domain, or they cover
+ * every domain.
+ *
+ * Without it the picker offered every active account for every seat. Manuel
+ * appeared under Jobcoach though `LIEGENSCHAFTEN` maps to no care domain and
+ * he can never work one; Simon appeared under Freiwilligenarbeit. Nothing
+ * stopped the assignment either — `saveCareSeat` checks who is EDITING, not
+ * who is being named — so the mistake was one click away and would have looked
+ * like a staffed seat forever after.
+ */
+export function canStaffWorkDomain(
+  candidate: { role: string; scope: string },
+  domain: CareRoleId,
+): boolean {
+  if (candidate.scope === 'ALL_DOMAINS') return true
+  return CARE_DOMAIN_STAFF_ROLE[domain] === candidate.role
+}
+
 export function writableCareDomains(viewer: StaffCapabilities): CareRoleId[] {
   return CARE_ROLES.filter((domain) => canWriteCareDomain(viewer, domain))
 }
