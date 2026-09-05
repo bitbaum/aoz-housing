@@ -5,7 +5,14 @@ import { hasPermission } from '@/lib/auth/role-policy'
 import { StatCard } from '@/components/ui/Card'
 import { ButtonLink } from '@/components/ui/Button'
 import { EmptyState, ListShell, PageHeader, PageShell, Toolbar } from '@/components/ui/Page'
+import { BoardSwitcher } from '@/components/ui/BoardSwitcher'
 import {
+  INTEGRATION_BOARD_IDS,
+  resolveIntegrationBoard,
+  type IntegrationBoardId,
+} from '@/lib/config/integration-boards'
+import {
+  boardOpportunityKinds,
   OPPORTUNITY_KIND_ICONS,
   OPPORTUNITY_KIND_LABELS,
   OPPORTUNITY_STATUSES,
@@ -29,6 +36,7 @@ interface Props {
     status?: string | string[]
     kind?: string | string[]
     q?: string | string[]
+    board?: string | string[]
   }>
 }
 
@@ -50,12 +58,28 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
     : undefined
   const kind = kindParam in OPPORTUNITY_KIND_LABELS ? (kindParam as OpportunityKindId) : undefined
 
+  // No `?board=` means nobody has chosen, so the role answers. Simon opens on
+  // work, Sandra on volunteering, Franziska on everything — and each of them
+  // stops setting the same filter on every visit.
+  const board = resolveIntegrationBoard(firstParam(params.board), staff.role)
+  const boardKinds = boardOpportunityKinds(board)
+
   const [stats, opportunities] = await Promise.all([
-    opportunityStats(),
-    listOpportunities({ status, kind, query }),
+    opportunityStats(boardKinds),
+    listOpportunities({ status, kind, kinds: boardKinds, query }),
   ])
 
+  // The board is not a filter to reset — it is where this coach works. Clearing
+  // filters must land them back on their own half, not on everybody's.
   const hasFilters = Boolean(status || kind || query)
+  const boardHref = (next: IntegrationBoardId) => {
+    const params = new URLSearchParams()
+    if (status) params.set('status', status)
+    if (kind) params.set('kind', kind)
+    if (query) params.set('q', query)
+    params.set('board', next)
+    return `/opportunities?${params.toString()}`
+  }
 
   return (
     <PageShell>
@@ -65,6 +89,16 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
         actions={
           canWrite ? <ButtonLink href="/opportunities/new">{L.newAction}</ButtonLink> : undefined
         }
+      />
+
+      <BoardSwitcher
+        label={L.boardSwitcherLabel}
+        current={board}
+        items={INTEGRATION_BOARD_IDS.map((id) => ({
+          id,
+          label: L.boards[id],
+          href: boardHref(id),
+        }))}
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -84,6 +118,10 @@ export default async function OpportunitiesPage({ searchParams }: Props) {
           action="/opportunities"
           className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_auto]"
         >
+          {/* A GET form rebuilds the query string from its fields alone, so
+              without this, applying any filter would silently throw the coach
+              back to whichever board their role defaults to. */}
+          <input type="hidden" name="board" value={board} />
           <div>
             <label htmlFor="opportunity-search" className="label">
               {L.filterSearch}

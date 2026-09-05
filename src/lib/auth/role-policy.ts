@@ -160,6 +160,28 @@ const OPERATIONAL = [
 const CAREER_DOCUMENTS_READ = 'documents:read'
 const CAREER_DOCUMENTS_WRITE = 'documents:write'
 
+/**
+ * The resident's own channel to their support — and the same reasoning as
+ * career documents, from the other end.
+ *
+ * A `MessageThread` belongs to one resident and the other side is always
+ * STAFF. It is where somebody writes what is wrong at home, in their own
+ * words, to the people responsible for their housing. That is Betreuung and
+ * Sozialarbeit's correspondence; it is not a job-coaching or volunteering
+ * fact, and a coach who needs to know something about a client has the
+ * dossier, the incident list and the person themselves.
+ *
+ * Both message surfaces had NO permission check at all — the inbox took none,
+ * the thread took `requireStaffAuth()` — so every staff member could read
+ * every conversation. `residents:read` does not fix that: all four care roles
+ * hold it, so gating on it would have been a check that nobody fails.
+ *
+ * ⚠️ A DECISION, not a derivation: if AOZ wants Simon or Sandra answering
+ * residents directly, this is one line in each list. Better to have to grant
+ * it than to have never noticed it was ungranted.
+ */
+const MESSAGES_READ = 'messages:read'
+
 export const ROLE_PERMISSIONS = {
   // Legacy. Equivalent to BETREUUNG; what made it special now lives in `scope`
   // and `isSystemAdmin`, which the migration set on every existing ADMIN row.
@@ -169,8 +191,9 @@ export const ROLE_PERMISSIONS = {
     CAREER_DOCUMENTS_WRITE,
     'opportunities:write',
     'activities:write',
+    MESSAGES_READ,
   ],
-  BETREUUNG: [...OPERATIONAL],
+  BETREUUNG: [...OPERATIONAL, MESSAGES_READ],
   SOZIALARBEIT: [
     'dashboard:read',
     'residents:read',
@@ -191,6 +214,7 @@ export const ROLE_PERMISSIONS = {
     'ai:assist',
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
+    MESSAGES_READ,
   ],
   JOBCOACH: [
     'dashboard:read',

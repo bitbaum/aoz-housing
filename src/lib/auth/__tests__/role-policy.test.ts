@@ -68,7 +68,12 @@ describe('role policy smoke checks', () => {
     // 25 since `ai:assist` was named: drafting help used to ride on
     // residents:write, which hid the KI-Assistent from precisely the two roles
     // that write the most prose while the API served them anyway.
-    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(25)
+    //
+    // 26 since `messages:read` was named. It rode on nothing at all — both
+    // message surfaces were ungated, so every staff member could read every
+    // resident conversation. Naming it is what makes NOT holding it sayable.
+    expect(ROLE_PERMISSIONS.ADMIN).toHaveLength(26)
+    expect(ROLE_PERMISSIONS.ADMIN).toContain('messages:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('ai:assist')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:read')
     expect(ROLE_PERMISSIONS.ADMIN).toContain('documents:write')

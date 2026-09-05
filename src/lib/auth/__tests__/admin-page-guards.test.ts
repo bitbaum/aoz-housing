@@ -47,9 +47,16 @@ const SESSION_IS_ENOUGH = new Set([
   // disciplines by design — the whole point is one rule book.
   'rules/page.tsx',
   'rules/decisions/page.tsx',
-  // Staff<->resident message threads. Scoped per thread, not per role.
-  'messages/page.tsx',
-  'messages/[residentId]/page.tsx',
+  // REMOVED 2026-09-05. The entry read "Scoped per thread, not per role" — and
+  // that scoping did not exist. `staffInbox()` is a `findMany` over EVERY
+  // thread with no filter, and the thread page took `requireStaffAuth()`, so
+  // any staff member could read every resident's conversation. The exemption
+  // was the alibi: this list records a claim, and nothing checked that the
+  // claim was true. Same shape as the `supportedByUserId` comment that
+  // described a filter which was never written.
+  //
+  // Both pages now require `messages:read`. If a future entry here says a page
+  // is "scoped", open the query and confirm it before believing it.
   // Maintenance is NOT here any more. It was, on the guess that a repair board
   // is shared house operations — and walking it in production as a
   // Sozialarbeiter*in disproved that: the nav gates Wartung on

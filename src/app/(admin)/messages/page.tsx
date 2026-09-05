@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PageHeader, EmptyState, ListShell } from '@/components/ui/Page'
+import { requirePermission } from '@/lib/auth'
 import { staffInbox } from '@/lib/messaging/queries'
 import { residentName } from '@/lib/utils/resident-name'
 import { formatDateTime } from '@/lib/utils/formatting'
@@ -18,6 +19,14 @@ export const dynamic = 'force-dynamic'
  * "newest first" buries precisely the person nobody has got back to.
  */
 export default async function StaffMessagesPage() {
+  // A resident writes to "die Betreuung" about their housing, and every thread
+  // here is that conversation. This page had no permission check at all — the
+  // only `(admin)` list page without one — so a Jobcoach or the Freiwilligen-
+  // arbeit coordinator could read all of it. The session guard in `proxy.ts`
+  // proves somebody is staff; it cannot say which staff, and this is precisely
+  // a surface where that difference is the whole point.
+  await requirePermission('messages:read')
+
   const threads = await staffInbox()
   const waiting = threads.filter((thread) => thread.unreadCount > 0)
 

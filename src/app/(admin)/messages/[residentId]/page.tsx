@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm'
 import { PageHeader } from '@/components/ui/Page'
 import { StaffReplyThread } from '@/components/messaging/StaffReplyThread'
 import { getOrCreateThread, loadThreadMessages, markThreadRead } from '@/lib/messaging/queries'
-import { requireStaffAuth } from '@/lib/auth'
+import { requirePermission } from '@/lib/auth'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { MESSAGES_LABELS } from '@/lib/constants/labels'
 
@@ -19,7 +19,9 @@ export default async function StaffThreadPage({
   params: Promise<{ residentId: string }>
 }) {
   const { residentId } = await params
-  const staff = await requireStaffAuth()
+  // The inbox is gated; the thread it links to must be too, or the
+  // boundary is a link you can simply not click.
+  const staff = await requirePermission('messages:read')
 
   const resident = await db.query.resident.findFirst({
     where: eq(residentTable.id, residentId),

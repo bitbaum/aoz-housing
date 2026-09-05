@@ -1,9 +1,4 @@
-import {
-  boardKinds,
-  defaultLearningBoardForRole,
-  isAchievementRecord,
-  kindTracksHours,
-} from '@/lib/config/learning'
+import { boardKinds, isAchievementRecord, kindTracksHours } from '@/lib/config/learning'
 
 describe('learning records', () => {
   it('treats completed tests, courses, qualifications and service as achievements', () => {
@@ -31,11 +26,5 @@ describe('learning records', () => {
       'INTERNSHIP',
     ])
     expect(boardKinds('volunteering')).toEqual(['VOLUNTEERING', 'COMMUNITY_SERVICE'])
-  })
-
-  it('defaults the board by staff role', () => {
-    expect(defaultLearningBoardForRole('JOBCOACH')).toBe('job')
-    expect(defaultLearningBoardForRole('FREIWILLIGENARBEIT')).toBe('volunteering')
-    expect(defaultLearningBoardForRole('SOZIALARBEIT')).toBe('overview')
   })
 })

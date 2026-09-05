@@ -6,6 +6,7 @@
  */
 
 import { OPPORTUNITY_AREA_NAME } from '@/lib/config/opportunities'
+import type { IntegrationBoardId } from '@/lib/config/integration-boards'
 
 export const OPPORTUNITIES_ADMIN_LABELS = {
   pageTitle: OPPORTUNITY_AREA_NAME,
@@ -43,6 +44,17 @@ export const OPPORTUNITIES_ADMIN_LABELS = {
   residentThreadsTitle: 'Einsätze & Bewerbungen',
   residentThreadsEmpty: 'Noch nichts — weder zugeordnet noch selbst gemeldet.',
   openListing: 'Zum Platz',
+
+  // The two halves of the domain. "Freiwilligenarbeit" is deliberately the SAME
+  // word `/learning` uses — a term that differs between two staff surfaces is
+  // how a shared vocabulary rots. The job half differs on purpose: `/learning`
+  // holds qualifications, this board holds places.
+  boardSwitcherLabel: 'Bereich',
+  boards: {
+    overview: 'Alle Plätze',
+    job: 'Arbeit & Praktikum',
+    volunteering: 'Freiwilligenarbeit',
+  } satisfies Record<IntegrationBoardId, string>,
 
   filterAll: 'Alle',
   filterKind: 'Art',
