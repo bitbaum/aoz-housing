@@ -283,6 +283,24 @@ export const RESIDENT_FACTORS: Record<string, CompatibilityFactorDef> = {
     label: 'Soziale Präferenz',
     description: 'Wie viel Kontakt mit Mitbewohnern gewünscht?',
     required: true,
+    /**
+     * `intake: 'essential'` is what puts a field on the form a human fills.
+     *
+     * This was missing, and `ResidentInputSchema` requires `socialStyle` with
+     * NO default — so the intake form rendered no control for it and every
+     * submission died on the server. Observed on production 2026-09-05:
+     * "Etwas ist schiefgelaufen", the route unmounted, all fields lost. The
+     * client intake form — the primary way to add a person to this product —
+     * could not be completed by anyone.
+     *
+     * The alternative fix was a schema default, as its three neighbours have.
+     * Rejected: this factor carries weight 0.25 in the social dimension, so a
+     * default would silently assign every new client the same social
+     * preference and quietly corrupt matching. That is the same damage the
+     * `guestTolerance` comment above describes — "nobody answered" and
+     * "answered MODERATE" look identical in the data.
+     */
+    intake: 'essential',
     formSection: 'social',
     formOrder: 1,
     options: ['INTROVERTED', 'MODERATE', 'EXTROVERTED'] as const,
