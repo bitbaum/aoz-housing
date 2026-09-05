@@ -29,6 +29,13 @@
       "when": 1788519148602,
       "tag": "0003_opportunity_translations",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788615365563,
+      "tag": "0004_marvelous_molecule_man",
+      "breakpoints": true
     }
   ]
 }
