@@ -24,7 +24,8 @@
  *   Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
  */
 
-export type StaffRole = 'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH' | 'FREIWILLIGENARBEIT'
+export type StaffRole =
+  'ADMIN' | 'BETREUUNG' | 'SOZIALARBEIT' | 'JOBCOACH' | 'FREIWILLIGENARBEIT' | 'LIEGENSCHAFTEN'
 
 export const STAFF_ROLES: readonly StaffRole[] = [
   'ADMIN',
@@ -32,6 +33,7 @@ export const STAFF_ROLES: readonly StaffRole[] = [
   'SOZIALARBEIT',
   'JOBCOACH',
   'FREIWILLIGENARBEIT',
+  'LIEGENSCHAFTEN',
 ] as const
 
 export function isStaffRole(value: string): value is StaffRole {
@@ -240,6 +242,46 @@ export const ROLE_PERMISSIONS = {
     CAREER_DOCUMENTS_READ,
     CAREER_DOCUMENTS_WRITE,
   ],
+  /**
+   * Runs the buildings, not a caseload.
+   *
+   * The first role staffed for no CARE DOMAIN at all. `role` answers "which
+   * care domain am I staffed for?", and the honest answer here is none —
+   * Manuel is responsible for the housing stock: which flats exist, who is
+   * placed where, what is broken. Franziska is a Betreuerin who supports
+   * PEOPLE about their housing, and she holds their HOUSING care seats. Those
+   * are two jobs, and giving both the same role said they were one.
+   *
+   * What he does NOT get, and each omission is deliberate:
+   *   `residents:write`  — he places people into flats; he does not edit who
+   *                        they are. Intake and preferences stay with care.
+   *   `messages:read`    — a resident writing to "die Betreuung" is writing to
+   *                        their Betreuer*in, not to the person who owns the
+   *                        building.
+   *   `learning:*`, `opportunities:*`, `activities:*` — integration work.
+   *   `marketplace`, `events` — community life, not the fabric of the house.
+   *
+   * `incidents:read` IS granted, read-only, for the same reason JOBCOACH and
+   * FREIWILLIGENARBEIT have it: somebody placing a person into a flat needs to
+   * see that a conflict is live in it. Logging and working the ladder stays
+   * with Betreuung and Sozialarbeit.
+   */
+  LIEGENSCHAFTEN: [
+    'dashboard:read',
+    // You cannot run a house without knowing who lives in it, and a placement
+    // is a statement about a person. Read only.
+    'residents:read',
+    'housing:read',
+    'housing:write',
+    'placements:read',
+    'placements:write',
+    'maintenance:read',
+    'maintenance:write',
+    'incidents:read',
+    // Drafting help. About writing prose, not about clients — he describes
+    // units and maintenance work like everyone else describes their own.
+    'ai:assist',
+  ],
   FREIWILLIGENARBEIT: [
     'dashboard:read',
     'residents:read',
@@ -285,6 +327,23 @@ export const NARROWEST_CAPABILITIES: StaffCapabilities = {
 }
 
 /**
+ * What EVERY role holds, and therefore the most that can be granted without
+ * knowing which role a subject is. All reads — not a coincidence, and the
+ * reason this is the right answer for a session that has just ended.
+ *
+ * ⚠️ `NARROWEST_CAPABILITIES` picks the role with the FEWEST permissions, and
+ * fewest is not narrowest: a short list can still contain writes. That was
+ * survivable while the shortest role happened to be an integration one, and
+ * stopped being survivable when LIEGENSCHAFTEN arrived with three permissions
+ * and `housing:write` among them — the stand-in for an expired session would
+ * have rendered as somebody who may create housing. The count never expressed
+ * the intent; this does.
+ */
+const UNIVERSAL_PERMISSIONS: readonly string[] = ASSIGNABLE_STAFF_ROLES.map(
+  (role) => ROLE_PERMISSIONS[role] as readonly string[],
+).reduce((a, b) => a.filter((permission) => b.includes(permission)))
+
+/**
  * The widest real account: sees every domain and may configure the product.
  *
  * Note it does NOT use the legacy ADMIN role — that is the point of the split.
@@ -314,6 +373,14 @@ function grantsPermission(role: StaffRole, permission: string): boolean {
  *  - otherwise the answer is their own domain's verbs.
  */
 export function hasPermission(subject: StaffCapabilities, permission: string): boolean {
+  // The expired-session stand-in gets the intersection of every role, never
+  // its own role's list. Compared by identity because it is a singleton and
+  // every call site passes it through unchanged (`user ?? NARROWEST`); a
+  // spread copy falls back to the role, which is the older, wider behaviour.
+  if (subject === NARROWEST_CAPABILITIES) {
+    return UNIVERSAL_PERMISSIONS.includes(permission)
+  }
+
   if ((SYSTEM_ADMIN_PERMISSIONS as readonly string[]).includes(permission)) {
     return subject.isSystemAdmin
   }

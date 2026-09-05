@@ -13,26 +13,17 @@
  *   Simon and Sandra each work one domain, which is the ordinary shape.
  *
  *   Manuel is responsible for the HOUSING ITSELF — units, placements,
- *   maintenance. ⚠️ He and Franziska carry the same `role`, and that is the
- *   one place this file approximates. `BETREUUNG` bundles two jobs the axes
- *   cannot separate: supporting a PERSON about their housing (Franziska is
- *   somebody's Betreuerin, and holds their HOUSING care seat) and running the
- *   BUILDING (Manuel, who will hold no care seat at all). The permissions
- *   happen to coincide — `OPERATIONAL` carries both `residents:*` and
- *   `housing:*`/`placements:*`/`maintenance:*` — so nobody is over- or
- *   under-granted, and his first login was verified against production: he
- *   lands on "4 Aufgaben warten auf Sie" with beds to fill and tickets open,
- *   NOT on the onboarding screen. `workspaceState` puts `openTaskCount > 0`
- *   ahead of the empty-caseload check for exactly this reason, and says so.
+ *   maintenance — and carries NO caseload. He and Franziska were briefly given
+ *   the same `BETREUUNG` role on the grounds that the permissions matched.
+ *   They do not do the same job: she supports a PERSON about their housing and
+ *   holds their HOUSING care seat; he is responsible for the BUILDING. Saying
+ *   that with one role said they were one job.
  *
- *   Where it still shows is a day with no open housing work at all: then a
- *   man who will never hold a care seat is told "Ihnen ist noch niemand
- *   zugewiesen". Rare rather than daily, and worth knowing rather than
- *   fixing blind.
- *
- *   The deeper version is the missing dimension CLAUDE.md flags for a
- *   Springer*in, and the reason four of five helpers in `site-access.ts` are
- *   wired to nothing. Decide it before the second apartment, not after.
+ *   `LIEGENSCHAFTEN` is therefore the first role staffed for no care domain at
+ *   all. `STAFF_ROLE_CARE_DOMAIN` leaves it undefined — the same shape retired
+ *   ADMIN has, for the opposite reason: ADMIN works every seat, this works
+ *   none. `roleHasCaseload()` is how the product asks, so "no clients" reads
+ *   as his job rather than as an account nobody has finished setting up.
  *
  * Nobody here is a system administrator. Running the house is not the same as
  * configuring the product; that stays with the operator account, and granting
@@ -49,7 +40,7 @@
  *
  * Login codes are NOT in this file, for the same reason they are absent from
  * witikonerstrasse-458.ts: they are generated when the script runs and printed
- * once. Committing them would publish three working staff logins.
+ * once. Committing them would publish four working staff logins.
  */
 
 import type { StaffRole, StaffScopeId } from '../../../src/lib/auth/role-policy'
@@ -57,11 +48,12 @@ import type { StaffRole, StaffScopeId } from '../../../src/lib/auth/role-policy'
 export interface RealStaffSeed {
   /** Shown wherever staff are listed; never a bare code. */
   name: string
-  /** The care domain this person is staffed for. */
+  /** The care domain this person is staffed for — or the work they do, when
+   *  that is not a care domain at all (Liegenschaften). */
   role: StaffRole
   /** Whose files they may open. */
   scope: StaffScopeId
-  /** May they reconfigure the product? Deliberately false for all three. */
+  /** May they reconfigure the product? Deliberately false for all four. */
   isSystemAdmin: boolean
   /** Why this shape, in one line — read by the script's output. */
   note: string
@@ -91,9 +83,9 @@ export const AOZ_TEAM: readonly RealStaffSeed[] = [
   },
   {
     name: 'Manuel',
-    role: 'BETREUUNG',
+    role: 'LIEGENSCHAFTEN',
     scope: 'OWN_DOMAIN',
     isSystemAdmin: false,
-    note: 'Wohnen — Unterkünfte, Platzierungen und Unterhalt.',
+    note: 'Liegenschaften — Unterkünfte, Platzierungen und Unterhalt. Keine Fallführung.',
   },
 ] as const

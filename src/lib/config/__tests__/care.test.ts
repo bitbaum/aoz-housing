@@ -10,6 +10,7 @@ import {
   writableCareDomains,
 } from '@/lib/config/care'
 import { STAFF_ROLES } from '@/lib/auth/role-policy'
+import { roleHasCaseload } from '@/lib/config/care'
 
 describe('the seat map is one mapping, not two', () => {
   /**
@@ -24,11 +25,16 @@ describe('the seat map is one mapping, not two', () => {
     }
   })
 
-  it('gives every specialist role exactly one seat, and Leitung none of its own', () => {
+  it('gives every care role exactly one seat, and the seatless roles none', () => {
+    // Two roles have no seat, for OPPOSITE reasons, and both must stay
+    // seatless: ADMIN works every domain, LIEGENSCHAFTEN works none — Manuel
+    // is responsible for the buildings, never for a person's care.
+    const SEATLESS: readonly string[] = ['ADMIN', 'LIEGENSCHAFTEN']
+
     for (const role of STAFF_ROLES) {
-      if (role === 'ADMIN') {
-        // Leitung works every seat, so "which one is theirs?" has no answer.
-        // Callers must handle that rather than be handed an arbitrary domain.
+      if (SEATLESS.includes(role)) {
+        // "Which seat is theirs?" has no answer. Callers must handle that
+        // rather than be handed an arbitrary domain.
         expect(STAFF_ROLE_CARE_DOMAIN[role]).toBeUndefined()
       } else {
         expect(CARE_ROLES).toContain(STAFF_ROLE_CARE_DOMAIN[role])
@@ -107,6 +113,32 @@ describe('care domains', () => {
         expect(isCatalogKey(domain, key)).toBe(true)
       }
       expect(isCatalogKey(domain, 'diagnosis')).toBe(false)
+    }
+  })
+})
+
+describe('a role either carries a caseload or does not', () => {
+  /**
+   * Counting somebody's care assignments cannot answer this. Sandra with zero
+   * clients is WAITING to be assigned; Manuel with zero is doing his job. Both
+   * count 0, and the dashboard must say different things to them.
+   */
+  it('says yes for the four care domains', () => {
+    expect(roleHasCaseload('BETREUUNG')).toBe(true)
+    expect(roleHasCaseload('SOZIALARBEIT')).toBe(true)
+    expect(roleHasCaseload('JOBCOACH')).toBe(true)
+    expect(roleHasCaseload('FREIWILLIGENARBEIT')).toBe(true)
+  })
+
+  it('says no for the role that runs the buildings', () => {
+    expect(roleHasCaseload('LIEGENSCHAFTEN')).toBe(false)
+  })
+
+  it('is derived from the seat map, not a second list', () => {
+    // If it were written out by hand it could disagree with the map, and then
+    // a role would be told it has a caseload it can never be given.
+    for (const role of STAFF_ROLES) {
+      expect(roleHasCaseload(role)).toBe(STAFF_ROLE_CARE_DOMAIN[role] !== undefined)
     }
   })
 })

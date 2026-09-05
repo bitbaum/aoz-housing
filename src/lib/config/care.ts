@@ -41,10 +41,31 @@ export const CARE_DOMAIN_STAFF_ROLE: Record<CareRoleId, Exclude<StaffRole, 'ADMI
  * of its own, and a caller asking "which one is theirs?" must handle that
  * rather than be handed an arbitrary answer. Breadth is `scope`, and it is
  * asked about separately.
+ *
+ * LIEGENSCHAFTEN is absent for the opposite reason, and it is the more
+ * interesting one: ADMIN has no seat because it works ALL of them, and
+ * Liegenschaften has none because it works NONE. Manuel is responsible for the
+ * buildings — which flats exist, who is placed where, what is broken — and
+ * never for a person's care. `undefined` here is therefore a fact about the
+ * job, not a gap to fill in later, and `roleHasCaseload()` below is how the
+ * rest of the product should ask.
  */
 export const STAFF_ROLE_CARE_DOMAIN: Partial<Record<StaffRole, CareRoleId>> = Object.fromEntries(
   CARE_ROLES.map((domain) => [CARE_DOMAIN_STAFF_ROLE[domain], domain]),
 )
+
+/**
+ * Does this role carry a caseload at all?
+ *
+ * Asked instead of counting someone's assignments and inferring from zero.
+ * Those are different facts: Sandra with no clients is WAITING to be assigned
+ * and the dashboard should say so; Manuel with no clients is doing his job,
+ * and telling him "Ihnen ist noch niemand zugewiesen" would be the product
+ * misunderstanding what he is for.
+ */
+export function roleHasCaseload(role: StaffRole): boolean {
+  return STAFF_ROLE_CARE_DOMAIN[role] !== undefined
+}
 
 export const CARE_ROLE_LABELS: Record<CareRoleId, string> = {
   HOUSING: 'Wohnen / Betreuung',

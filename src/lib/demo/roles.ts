@@ -39,6 +39,7 @@ const ROLE_TOKEN: Record<StaffRole, string> = {
   SOZIALARBEIT: 'SOZ',
   JOBCOACH: 'JOB',
   FREIWILLIGENARBEIT: 'FREI',
+  LIEGENSCHAFTEN: 'LIEG',
 }
 
 /**

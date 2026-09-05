@@ -10,6 +10,7 @@ import {
   type StaffRole,
   type StaffScopeId,
 } from '@/lib/auth/role-policy'
+import { roleHasCaseload } from '@/lib/config/care'
 
 /**
  * A subject to ask permission questions about.
@@ -88,13 +89,20 @@ describe('role policy smoke checks', () => {
     expect(ROLE_PERMISSIONS.ADMIN).toContain('events:write')
   })
 
-  test('every role can read the opportunity directory', () => {
+  test('every role WITH CLIENTS can read the opportunity directory', () => {
     // Betreuung fields "is there anything I could point them at?" at the
     // kitchen table. A directory only the integration roles can open is a
     // directory nobody mentions.
-    for (const role of STAFF_ROLES) {
+    //
+    // Narrowed from "every role" when LIEGENSCHAFTEN arrived: the reason above
+    // is a conversation with a client, and that role has no clients. Keeping
+    // the claim universal would have meant granting a permission whose own
+    // stated justification did not apply — the definition of access nobody
+    // asked for.
+    for (const role of STAFF_ROLES.filter(roleHasCaseload)) {
       expect(hasPermission(caps(role), 'opportunities:read')).toBe(true)
     }
+    expect(hasPermission(caps('LIEGENSCHAFTEN'), 'opportunities:read')).toBe(false)
   })
 
   test('curating the directory belongs to the integration roles', () => {
@@ -255,5 +263,35 @@ describe('role, scope and administration are independent', () => {
     expect(NARROWEST_CAPABILITIES.isSystemAdmin).toBe(false)
     expect(hasPermission(NARROWEST_CAPABILITIES, 'users:manage')).toBe(false)
     expect(hasPermission(NARROWEST_CAPABILITIES, 'placements:write')).toBe(false)
+  })
+
+  test('the narrowest subject may do NOTHING that some role cannot', () => {
+    // The real invariant, and it did not hold before: the constant picks the
+    // role with the FEWEST permissions, and fewest is not narrowest — a short
+    // list can contain writes. It survived only while the shortest role
+    // happened to be an integration one. LIEGENSCHAFTEN has three permissions
+    // including `housing:write`, so the stand-in for an expired session would
+    // have rendered as somebody who may create housing.
+    //
+    // Checked against every role rather than against a list of permissions
+    // somebody remembered to name.
+    for (const role of STAFF_ROLES) {
+      const real = caps(role)
+      for (const permission of ROLE_PERMISSIONS[role] as readonly string[]) {
+        if (!hasPermission(real, permission)) continue
+        // If the narrowest can do it, EVERY role must be able to.
+        if (hasPermission(NARROWEST_CAPABILITIES, permission)) {
+          for (const other of STAFF_ROLES) {
+            expect(hasPermission(caps(other), permission)).toBe(true)
+          }
+        }
+      }
+    }
+  })
+
+  test('and grants no write at all', () => {
+    for (const permission of ['housing:write', 'placements:write', 'residents:write']) {
+      expect(hasPermission(NARROWEST_CAPABILITIES, permission)).toBe(false)
+    }
   })
 })

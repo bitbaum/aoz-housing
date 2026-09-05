@@ -325,6 +325,9 @@ export const staffRole = pgEnum('StaffRole', [
   'SOZIALARBEIT',
   'JOBCOACH',
   'FREIWILLIGENARBEIT',
+  // Runs the buildings rather than a caseload. The first role with no care
+  // domain of its own besides retired ADMIN — see config/care.ts.
+  'LIEGENSCHAFTEN',
 ])
 export const staffScope = pgEnum('StaffScope', ['OWN_DOMAIN', 'ALL_DOMAINS'])
 export const supportLevel = pgEnum('SupportLevel', ['STANDARD', 'ELEVATED', 'INTENSIVE'])

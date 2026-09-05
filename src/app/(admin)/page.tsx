@@ -31,7 +31,7 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
   }
 import { buildJobQueue } from '@/lib/jobcoach/queue'
 import { buildVolunteeringQueue } from '@/lib/volunteering/queue'
-import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
+import { STAFF_ROLE_CARE_DOMAIN, roleHasCaseload } from '@/lib/config/care'
 import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
@@ -223,7 +223,13 @@ export default async function AdminDashboard() {
     // them. For a specialist it is the difference between a quiet day and an
     // account nobody has connected to a client yet — the global count above
     // cannot tell those apart, and reported the second as the first.
-    viewer.scope === 'ALL_DOMAINS' || !user
+    //
+    // Also null for a role that carries no caseload AT ALL. Counting Manuel's
+    // care assignments returns 0 like Sandra's, and the two zeros mean opposite
+    // things: she is waiting to be assigned, he runs the buildings and never
+    // will be. Asked of the ROLE rather than inferred from the count, because
+    // a count cannot tell them apart. @see config/care.ts
+    viewer.scope === 'ALL_DOMAINS' || !roleHasCaseload(viewer.role) || !user
       ? null
       : db.$count(careAssignment, eq(careAssignment.staffId, user.id)),
 
