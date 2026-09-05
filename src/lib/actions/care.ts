@@ -24,6 +24,7 @@ import { ERROR_MESSAGES } from '@/lib/constants/error-messages'
 import {
   APPOINTMENT_STATUSES,
   CARE_ROLES,
+  canStaffWorkDomain,
   canWriteCareDomain,
   isCatalogKey,
   CARE_LABELS,
@@ -44,6 +45,8 @@ export type AssignableStaff = {
   id: string
   name: string
   role: string
+  /** Carried so a seat can offer only the people who could actually work it. */
+  scope: string
 }
 
 export type CareAppointment = {
@@ -127,10 +130,19 @@ export async function getCareTeam(residentId: string): Promise<CareSeat[]> {
   })
 }
 
+/**
+ * Everyone who could be put on a client's team.
+ *
+ * `role` was already selected here and read by nothing, so the picker offered
+ * EVERY active account for EVERY seat: Manuel appeared under Jobcoach although
+ * `LIEGENSCHAFTEN` maps to no care domain and he can never work one, and Simon
+ * appeared under Freiwilligenarbeit. `scope` joins it so a caller can ask the
+ * real question — see `canStaffWorkDomain` in config/care.ts.
+ */
 export async function listAssignableStaff(): Promise<AssignableStaff[]> {
   return db.query.user.findMany({
     where: eq(userTable.active, true),
-    columns: { id: true, name: true, role: true },
+    columns: { id: true, name: true, role: true, scope: true },
     orderBy: [asc(userTable.name)],
   })
 }
@@ -247,9 +259,18 @@ export async function saveCareSeat(
   } else {
     const staff = await db.query.user.findFirst({
       where: and(eq(userTable.id, staffId), eq(userTable.active, true)),
-      columns: { id: true },
+      columns: { id: true, role: true, scope: true },
     })
     if (!staff) return { success: false, error: ERROR_MESSAGES.SAVE_ERROR }
+
+    // Who is being NAMED, not who is editing. The check above answers "may you
+    // change this seat"; this one answers "could that person hold it". Without
+    // it the picker was the only thing standing between a POST and a
+    // Liegenschaften account sitting in the Jobcoach seat forever — and a
+    // filtered dropdown is a suggestion, not a rule.
+    if (!canStaffWorkDomain(staff, role)) {
+      return { success: false, error: ERROR_MESSAGES.INSUFFICIENT_PERMISSIONS }
+    }
 
     await db
       .insert(careAssignment)
