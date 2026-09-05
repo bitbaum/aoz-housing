@@ -58,6 +58,7 @@ describe('the demo world can produce the state too', () => {
 
 describe('the predicate itself, over every combination that reaches it', () => {
   const row = (over: Partial<JobApplicationInput>): JobApplicationInput => ({
+    opportunityId: 'opp-1',
     stage: 'INTERESTED',
     createdBy: 'RESIDENT',
     supportedByUserId: null,

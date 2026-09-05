@@ -34,6 +34,8 @@ import { OPPORTUNITIES_ADMIN_LABELS as L } from '@/lib/constants'
 /** Exactly the columns this card reads, so a caller cannot under-select. */
 export interface ResidentThreadRow {
   id: string
+  /** Carried so this row satisfies `CareApplicationInput` — see care/queue.ts. */
+  opportunityId: string
   stage: ApplicationStageId
   createdBy: 'RESIDENT' | 'STAFF'
   supportedByUserId: string | null

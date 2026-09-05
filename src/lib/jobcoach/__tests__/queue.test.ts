@@ -18,6 +18,7 @@ const daysAgo = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000)
 
 /** A thread a coach opened, or one they have since picked up. */
 const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  opportunityId: 'opp-1',
   stage,
   createdBy: 'STAFF',
   supportedByUserId: 'u-simon',
@@ -25,6 +26,7 @@ const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
 
 /** A resident pressed "Ich habe Interesse" and nobody has replied yet. */
 const unanswered = (): JobApplicationInput => ({
+  opportunityId: 'opp-1',
   stage: 'INTERESTED',
   createdBy: 'RESIDENT',
   supportedByUserId: null,
@@ -32,6 +34,7 @@ const unanswered = (): JobApplicationInput => ({
 
 /** The same click, after a coach picked it up. */
 const answeredApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  opportunityId: 'opp-1',
   stage,
   createdBy: 'RESIDENT',
   supportedByUserId: 'u-simon',

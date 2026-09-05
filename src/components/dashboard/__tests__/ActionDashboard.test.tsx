@@ -286,8 +286,13 @@ describe('ActionDashboard', () => {
         {...BASE_PROPS}
         viewer={{ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
         volunteeringQueue={[
-          { residentId: 'r1', name: 'Amina', signal: 'INTEREST_UNANSWERED' },
-          { residentId: 'r2', name: 'Yusuf', signal: 'NO_ENGAGEMENT' },
+          {
+            residentId: 'r1',
+            name: 'Amina',
+            signal: 'INTEREST_UNANSWERED',
+            opportunityId: 'opp-1',
+          },
+          { residentId: 'r2', name: 'Yusuf', signal: 'NO_ENGAGEMENT', opportunityId: null },
         ]}
       />,
     )

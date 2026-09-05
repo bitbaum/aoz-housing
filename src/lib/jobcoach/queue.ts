@@ -7,6 +7,7 @@ import {
   isAwaitingAnswer,
   type CareApplicationInput,
   type CareClientInput,
+  type CareQueueItem,
 } from '@/lib/care/queue'
 
 /**
@@ -112,11 +113,12 @@ export { isAwaitingAnswer, awaitsAnswer }
 export type JobApplicationInput = CareApplicationInput
 export type JobClientInput = CareClientInput
 
-export interface JobQueueItem {
-  residentId: string
-  name: string
-  signal: JobSignalId
-}
+/**
+ * Derived, not restated. It was a hand-written interface with the same three
+ * fields, which is why adding `opportunityId` to the shared row silently left
+ * the job side without it — the compiler had nothing to check it against.
+ */
+export type JobQueueItem = CareQueueItem<JobSignalId>
 
 function hasLiveApplication(client: JobClientInput): boolean {
   return client.applications.some((a) => LIVE_STAGES.includes(a.stage) && !isAwaitingAnswer(a))

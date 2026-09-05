@@ -91,7 +91,16 @@ export async function listOpportunities(filters: OpportunityListFilters = {}) {
       // `createdBy` and `supportedByUserId` ride along so the board can mark
       // the listings somebody is waiting on without a query per row.
       applications: {
-        columns: { id: true, stage: true, createdBy: true, supportedByUserId: true },
+        columns: {
+          id: true,
+          // Selected even though every row here belongs to the listing being
+          // fetched: `CareApplicationInput` requires it, so a row that reaches
+          // the queue can always say WHICH thread it is about.
+          opportunityId: true,
+          stage: true,
+          createdBy: true,
+          supportedByUserId: true,
+        },
       },
     },
     orderBy: [asc(opportunity.status), asc(opportunity.startsAt), desc(opportunity.updatedAt)],

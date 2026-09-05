@@ -75,7 +75,13 @@ export async function loadJobKpis(request: RoleKpiRequest): Promise<KpiValue[]> 
         columns: { kind: true, status: true, updatedAt: true, languageCode: true },
       },
       opportunityApplications: {
-        columns: { stage: true, createdAt: true, createdBy: true, supportedByUserId: true },
+        columns: {
+          opportunityId: true,
+          stage: true,
+          createdAt: true,
+          createdBy: true,
+          supportedByUserId: true,
+        },
       },
     },
   })
@@ -127,7 +133,12 @@ export async function loadVolunteeringKpis(request: RoleKpiRequest): Promise<Kpi
     columns: { id: true },
     with: {
       opportunityApplications: {
-        columns: { stage: true, createdBy: true, supportedByUserId: true },
+        columns: {
+          opportunityId: true,
+          stage: true,
+          createdBy: true,
+          supportedByUserId: true,
+        },
       },
       eventRsvps: { columns: { status: true } },
     },

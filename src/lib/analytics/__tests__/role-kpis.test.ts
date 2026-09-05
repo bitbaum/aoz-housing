@@ -16,6 +16,7 @@ const daysAgo = (d: number) => new Date(NOW.getTime() - d * 24 * 60 * 60 * 1000)
 
 /** A thread a coach opened or has picked up — contact by definition. */
 const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
+  opportunityId: 'opp-1',
   stage,
   createdBy: 'STAFF',
   supportedByUserId: 'u-simon',
@@ -23,6 +24,7 @@ const staffApp = (stage: ApplicationStageId): JobApplicationInput => ({
 
 /** A resident pressed "Ich habe Interesse" and nobody has replied. */
 const unanswered = (): JobApplicationInput => ({
+  opportunityId: 'opp-1',
   stage: 'INTERESTED',
   createdBy: 'RESIDENT',
   supportedByUserId: null,
@@ -95,7 +97,12 @@ describe('labour-market contact', () => {
     const rows = computeJobKpis([
       client({
         applications: [
-          { stage: 'INTERESTED', createdBy: 'RESIDENT', supportedByUserId: 'u-simon' },
+          {
+            opportunityId: 'opp-1',
+            stage: 'INTERESTED',
+            createdBy: 'RESIDENT',
+            supportedByUserId: 'u-simon',
+          },
         ],
       }),
     ])

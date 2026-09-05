@@ -438,6 +438,7 @@ describe('the hero and the header cannot disagree', () => {
     residentId: 'r1',
     name: 'George B',
     signal: 'NO_LABOUR_MARKET_CONTACT' as const,
+    opportunityId: null,
   }
 
   it('does not report all-clear while the job queue has work', () => {
