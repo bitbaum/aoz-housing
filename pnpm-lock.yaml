@@ -11,6 +11,9 @@ importers:
       '@bitbaum/ai-kit':
         specifier: ^0.6.2
         version: 0.6.2(react@19.2.8)
+      '@bitbaum/mail-kit':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@fleet/ai-forms':
         specifier: npm:ai-forms@^0.1.2
         version: ai-forms@0.1.2(react@19.2.8)
@@ -265,6 +268,10 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  '@bitbaum/mail-kit@0.1.0':
+    resolution: {integrity: sha512-RbFBDANTUEb2/O2duSXIp+lb8y9ycrdbSTPnvoQ8iZOZsfxQZLseKzgCZumN31q7jRbVNHjQRao0envGWsFJ5Q==}
+    engines: {node: '>=20'}
 
   '@bramus/specificity@2.4.2':
     resolution: {integrity: sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw==}
@@ -4306,6 +4313,8 @@ snapshots:
       ai-forms: 0.1.2(react@19.2.8)
     optionalDependencies:
       react: 19.2.8
+
+  '@bitbaum/mail-kit@0.1.0': {}
 
   '@bramus/specificity@2.4.2':
     dependencies:
