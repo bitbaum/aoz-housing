@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 // `incident` is aliased: the row-mapping callbacks below use the same name.
 import { db, incident as incidentTable } from '@/lib/db'
-import { eq, and, isNull, isNotNull, desc, count } from 'drizzle-orm'
+import { eq, and, isNull, isNotNull, desc, count, sql } from 'drizzle-orm'
 import Link from 'next/link'
 import { X, AlertTriangle, Home, Megaphone, User, Clock, Timer } from 'lucide-react'
 import {
@@ -35,7 +35,18 @@ interface Props {
 export default async function IncidentsListPage({ searchParams }: Props) {
   const params = await searchParams
   const categoryFilter = params.category || 'all'
-  const statusFilter = params.status || 'all'
+  // Defaults to OPEN, and that is a correctness fix rather than a preference.
+  //
+  // The board defaulted to 'all' while its sibling `/maintenance` defaulted to
+  // 'active', so Betreuung read a list dominated by closed items and clicked
+  // "Offen" on every visit. The click is the small half. The large half: this
+  // query is `orderBy date desc` with `limit: QUERY_LIMITS.pageList` (100), so
+  // once a hundred incidents exist, an old OPEN one is pushed off the default
+  // view entirely — including the overdue-follow-up flag this page computes for
+  // it a few lines below. The conflict ladder is the thing a broken agreement
+  // is supposed to escalate through; it cannot escalate off the bottom of a
+  // page nobody can reach.
+  const statusFilter = params.status || 'open'
 
   // `incidents:read` opens the board. It does NOT imply either affordance
   // rendered on it, and until JOBCOACH and FREIWILLIGENARBEIT were given
@@ -88,7 +99,15 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           columns: { id: true },
         },
       },
-      orderBy: [desc(incidentTable.date)],
+      // Unresolved first, then newest. Date alone let a closed incident from
+      // this morning outrank an open one from last month — harmless on screen
+      // one, and the reason an open item could vanish past the row limit.
+      //
+      // Ordered on the BOOLEAN, not on `resolvedAt` itself: Postgres sorts ASC
+      // as NULLS LAST, so `asc(resolvedAt)` would put every unresolved incident
+      // at the BOTTOM — precisely inverting the fix, and silently, because the
+      // page would still look sorted.
+      orderBy: [sql`${incidentTable.resolvedAt} IS NOT NULL`, desc(incidentTable.date)],
       limit: QUERY_LIMITS.pageList,
     }),
     // Total counts per category (single query instead of fetching all rows)
@@ -214,9 +233,14 @@ export default async function IncidentsListPage({ searchParams }: Props) {
           label={UI_LABELS.open}
           value={stats.open}
           trend={stats.open > 0 ? 'warning' : 'neutral'}
+          // The way BACK is now explicit. This used to point at bare
+          // `/incidents` to mean "show everything", which worked only while
+          // bare meant 'all'. With open as the default it would have been a
+          // link to the page you are already on — a toggle that visibly does
+          // nothing.
           href={
             statusFilter === 'open'
-              ? '/incidents'
+              ? `/incidents?status=all${categoryFilter !== 'all' ? `&category=${categoryFilter}` : ''}`
               : `/incidents?status=open${categoryFilter !== 'all' ? `&category=${categoryFilter}` : ''}`
           }
         />
@@ -278,7 +302,9 @@ export default async function IncidentsListPage({ searchParams }: Props) {
                 : INCIDENT_PAGE_LABELS.noIncidents}
           </p>
           {statusFilter === 'open' ? (
-            <Link href="/incidents" className="btn-outline">
+            // Same reason as the stat card: "Filter zurücksetzen" has to name
+            // `status=all`, or on the default view it reloads the same list.
+            <Link href="/incidents?status=all" className="btn-outline">
               {INCIDENT_PAGE_LABELS.clearFilter}
             </Link>
           ) : (
