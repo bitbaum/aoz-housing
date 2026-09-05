@@ -29,6 +29,22 @@
  * configuring the product; that stays with the operator account, and granting
  * it is a deliberate one-line change, not something a care role implies.
  *
+ * ⚠️ `AOZ-ADMIN1` is NOT in this list and must not be added. It is the
+ * operator account, and it is also George's own staff profile — renamed from
+ * "Administrator" to "Georgy" on 2026-09-05, deliberately. Its `Account`
+ * (butaeff@gmail.com) carries BOTH a `userId` and a `residentId`, so one email
+ * and one password reach the Verwaltung as Georgy and the portal as the
+ * resident Georgy (RES-LCCM7A), with a one-click switch each way. That is the
+ * dual-identity design working, not drift to be cleaned up: do not rename it
+ * back, do not split it into two accounts, and do not delete the resident
+ * record because a staff member shares its name.
+ *
+ * It keeps the retired ADMIN role on purpose — that role is exactly
+ * ALL_DOMAINS + isSystemAdmin, which is what an operator needs, and testing
+ * another role's view is what "Ansicht wechseln" is for rather than a second
+ * account. `db:seed:admin` matches by CODE and skips an existing row, so the
+ * rename survives a reseed.
+ *
  * There is no Sozialarbeit staff member. That is a fact about AOZ, not a gap
  * in this file — the SOCIAL care seat is covered by Franziska's oversight, and
  * `ensure-aoz-team.ts` reports it rather than leaving it silently unstaffed.
