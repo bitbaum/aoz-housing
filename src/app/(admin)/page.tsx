@@ -30,6 +30,8 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
     evening: 'greetingEvening',
   }
 import { buildJobQueue } from '@/lib/jobcoach/queue'
+import { buildVolunteeringQueue } from '@/lib/volunteering/queue'
+import { STAFF_ROLE_CARE_DOMAIN } from '@/lib/config/care'
 import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
 import { getCheckInInterval, VERY_OVERDUE_THRESHOLD_DAYS } from '@/lib/config/checkin-intervals'
@@ -61,6 +63,10 @@ export default async function AdminDashboard() {
   const viewer: StaffCapabilities = user ?? NARROWEST_CAPABILITIES
   const role: StaffRole = viewer.role
   const show = (section: DashboardSection) => sectionVisible(viewer, section)
+
+  // Which care seat this person works. Derived from the role — the bijection is
+  // already SSOT in config/care.ts and must never be restated as a literal.
+  const viewerSeat = STAFF_ROLE_CARE_DOMAIN[viewer.role]
 
   // Fetch only what this role's dashboard renders (config/dashboard.ts is
   // the SSOT for that mapping) — a Jobcoach's dashboard runs the learning
@@ -221,15 +227,21 @@ export default async function AdminDashboard() {
       ? null
       : db.$count(careAssignment, eq(careAssignment.staffId, user.id)),
 
-    // The job coach's own caseload, with what they'd need to know about it.
+    // The specialist's own caseload, with what they'd need to know about it.
     //
     // Scoped to THEIR seat rather than to every client: a coach's queue is the
     // people they hold, and a product-wide list would recreate the aggregate
     // that told them nothing. Only fetched for a viewer whose work this is —
-    // `learning:write` is the Job domain's verb.
-    show('learning') && user
+    // `learning:write` is the integration domains' verb.
+    //
+    // The seat is DERIVED from the viewer's role. It was the literal `'JOB'`,
+    // which meant Sandra's caseload was never fetched at all: her seats are
+    // `VOLUNTEERING`, so the query returned nothing and her dashboard resolved
+    // to "Alles unter Kontrolle" every morning. The fix written for Simon on
+    // 2026-09-02 had been applied to the instance, not the class.
+    show('learning') && user && viewerSeat
       ? db.query.careAssignment.findMany({
-          where: and(eq(careAssignment.staffId, user.id), eq(careAssignment.role, 'JOB')),
+          where: and(eq(careAssignment.staffId, user.id), eq(careAssignment.role, viewerSeat)),
           columns: {},
           with: {
             resident: {
@@ -257,16 +269,21 @@ export default async function AdminDashboard() {
   // The Job domain's own work queue. Derived here so the dashboard receives
   // rows rather than raw records — the rule for what counts lives in
   // lib/jobcoach/queue.ts, next to the evidence that justifies each signal.
-  const jobQueue = buildJobQueue(
-    jobCaseload.map(({ resident }) => ({
-      residentId: resident.id,
-      name: residentName(resident),
-      createdAt: resident.createdAt,
-      learningRecords: resident.learningRecords,
-      applications: resident.opportunityApplications,
-    })),
-    new Date(),
-  )
+  const caseloadClients = jobCaseload.map(({ resident }) => ({
+    residentId: resident.id,
+    name: residentName(resident),
+    createdAt: resident.createdAt,
+    learningRecords: resident.learningRecords,
+    applications: resident.opportunityApplications,
+  }))
+
+  // One caseload, the signals of whichever domain the viewer works. Sandra's
+  // questions are not Simon's — "has anyone answered them, and is anyone doing
+  // anything with other people" rather than "have they reached the labour
+  // market" — so the rows differ even though the fetch is identical.
+  const jobQueue = viewerSeat === 'JOB' ? buildJobQueue(caseloadClients, now) : []
+  const volunteeringQueue =
+    viewerSeat === 'VOLUNTEERING' ? buildVolunteeringQueue(caseloadClients, now) : []
 
   // The learning tile, narrowed to what it claims to be about.
   //
@@ -466,6 +483,7 @@ export default async function AdminDashboard() {
       housingUnitCount={housingUnitCount}
       assignedResidentCount={assignedResidentCount}
       jobQueue={jobQueue}
+      volunteeringQueue={volunteeringQueue}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}

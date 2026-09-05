@@ -1,5 +1,13 @@
 import type { ApplicationStageId } from '@/lib/config/opportunities'
-import type { LearningKindId, LearningStatusId } from '@/lib/config/learning'
+import type { LearningKindId } from '@/lib/config/learning'
+import {
+  awaitsAnswer,
+  buildCareQueue,
+  daysBetween,
+  isAwaitingAnswer,
+  type CareApplicationInput,
+  type CareClientInput,
+} from '@/lib/care/queue'
 
 /**
  * What a job coach has waiting — derived from evidence, not invented.
@@ -92,73 +100,22 @@ const LIVE_STAGES: readonly ApplicationStageId[] = [
 ]
 
 /**
- * An application as every measure of labour-market contact reads it.
+ * The input shapes, the "a click is a request" rule and the queue builder are
+ * NOT job-coaching facts — they are equally true of Sandra's volunteering
+ * caseload, so they live in `lib/care/queue.ts`.
  *
- * `createdBy` and `supportedByUserId` are not decoration. Together they answer
- * the only question that separates contact from a request for contact: did a
- * person on the staff side ever engage with this thread?
+ * Re-exported here rather than moved outright: eleven modules import these
+ * names from this path, and one definition reachable by two paths is a very
+ * different thing from two definitions.
  */
-export interface JobApplicationInput {
-  stage: ApplicationStageId
-  /** Who opened this thread — the resident themselves, or a member of staff. */
-  createdBy: 'RESIDENT' | 'STAFF'
-  /** null = nobody on the staff side has picked it up. */
-  supportedByUserId: string | null
-}
-
-export interface JobClientInput {
-  residentId: string
-  /** For display. Never a bare code — see utils/resident-name. */
-  name: string
-  /** When this person entered the register. */
-  createdAt: Date
-  learningRecords: {
-    kind: LearningKindId
-    status: LearningStatusId
-    updatedAt: Date
-  }[]
-  applications: JobApplicationInput[]
-}
+export { isAwaitingAnswer, awaitsAnswer }
+export type JobApplicationInput = CareApplicationInput
+export type JobClientInput = CareClientInput
 
 export interface JobQueueItem {
   residentId: string
   name: string
   signal: JobSignalId
-}
-
-/**
- * A resident put their hand up and nobody has answered.
- *
- * ## The inversion this ends
- *
- * `hasLiveApplication` counted INTERESTED as labour-market contact, and
- * `recordInterest` writes precisely that row — resident-created, INTERESTED,
- * `supportedByUserId` null — when somebody presses "Ich habe Interesse" in the
- * portal. Nothing anywhere read `supportedByUserId`.
- *
- * So the single action a resident can take on this board REMOVED them from
- * their coach's queue and RAISED `LABOUR_MARKET_CONTACT_RATE`, without one
- * member of staff having done anything. The person most in need of a reply
- * became the person the product had stopped mentioning, and the metric moved
- * in the right direction while the work went undone.
- *
- * That is the same class of error as counting demo rows in the pilot KPI, from
- * the opposite side: there the numerator held rows nobody was working; here it
- * held rows nobody had answered.
- *
- * Contact means a person engaged. A click is a request for one.
- */
-export function isAwaitingAnswer(application: JobApplicationInput): boolean {
-  return (
-    application.createdBy === 'RESIDENT' &&
-    application.stage === 'INTERESTED' &&
-    application.supportedByUserId === null
-  )
-}
-
-/** True while at least one of this client's threads is waiting for a reply. */
-export function awaitsAnswer(client: JobClientInput): boolean {
-  return client.applications.some(isAwaitingAnswer)
 }
 
 function hasLiveApplication(client: JobClientInput): boolean {
@@ -172,10 +129,6 @@ function hasWorkRecord(client: JobClientInput): boolean {
 /** Any labour-market contact at all: a live application or a work record. */
 export function hasLabourMarketContact(client: JobClientInput): boolean {
   return hasLiveApplication(client) || hasWorkRecord(client)
-}
-
-function daysBetween(from: Date, to: Date): number {
-  return (to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)
 }
 
 /**
@@ -217,29 +170,9 @@ export function signalsFor(client: JobClientInput, now: Date): JobSignalId[] {
 }
 
 /**
- * The whole queue, one row per (client, signal).
- *
- * Rows rather than clients because a coach works a signal, not a person: "who
- * has no contact yet" and "whose record has stopped" are different sittings.
- * The dashboard counts rows, which is why a client with two signals correctly
- * represents two pieces of work.
+ * Simon's queue. The shape and the sort live in `lib/care/queue.ts`; what is
+ * job-coaching-specific is only which signals fire, above.
  */
 export function buildJobQueue(clients: JobClientInput[], now: Date): JobQueueItem[] {
-  const rows = clients.flatMap((client) =>
-    signalsFor(client, now).map((signal) => ({
-      residentId: client.residentId,
-      name: client.name,
-      signal,
-    })),
-  )
-
-  // Ordered by signal, not by whichever client the query happened to return
-  // first. The dashboard hero shows `jobQueue[0]` and nothing else, so without
-  // this a person waiting for a reply loses the one prominent slot on the
-  // screen to a record that has been sitting still for six weeks — decided by
-  // row order, which is not a priority.
-  //
-  // JOB_SIGNAL_IDS is therefore the priority list, and it is already the order
-  // the tiles render in. One list, both uses.
-  return rows.sort((a, b) => JOB_SIGNAL_IDS.indexOf(a.signal) - JOB_SIGNAL_IDS.indexOf(b.signal))
+  return buildCareQueue(clients, (client) => signalsFor(client, now), JOB_SIGNAL_IDS)
 }

@@ -64,6 +64,7 @@ const BASE_PROPS = {
   // you" is not a question that applies. Specialists are exercised below.
   assignedResidentCount: null,
   jobQueue: [],
+  volunteeringQueue: [],
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,
@@ -270,6 +271,50 @@ describe('ActionDashboard', () => {
     expect(stats).toHaveLength(2)
     expect(screen.queryByText(/Freie Plätze/)).not.toBeInTheDocument()
     expect(screen.getByText(/Veranstaltungen: 2/)).toBeInTheDocument()
+  })
+
+  /**
+   * The bug this pins: Sandra's dashboard could not show her an open task.
+   * Every term of `totalIssues` needed a permission she does not hold, and the
+   * sixth — the coach queue — was fetched with a hardcoded `'JOB'` while her
+   * seats are `VOLUNTEERING`. The count was structurally zero, so the page
+   * resolved to `quiet` and congratulated her, every morning.
+   */
+  it('shows FREIWILLIGENARBEIT her own queue instead of congratulating her', () => {
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+        volunteeringQueue={[
+          { residentId: 'r1', name: 'Amina', signal: 'INTEREST_UNANSWERED' },
+          { residentId: 'r2', name: 'Yusuf', signal: 'NO_ENGAGEMENT' },
+        ]}
+      />,
+    )
+
+    const tiles = screen.getAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Interesse wartet auf Antwort'))).toBe(true)
+    expect(tiles.some((t) => t.includes('Noch kein Engagement'))).toBe(true)
+    // Counts, not names: ActionTilesGrid is mocked in this suite, so the item
+    // list is stubbed. That the rows carry named people is covered by
+    // lib/volunteering/__tests__/queue.test.ts.
+    expect(tiles.some((t) => t.includes('(1)'))).toBe(true)
+    // And crucially: NOT the all-clear screen.
+    expect(screen.queryByText(/Alles unter Kontrolle/)).not.toBeInTheDocument()
+  })
+
+  it('still congratulates her when there is genuinely nothing', () => {
+    // The other half. "Nothing to do" must stay sayable, or the fix just
+    // replaces a false calm with a false alarm.
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'FREIWILLIGENARBEIT', scope: 'OWN_DOMAIN', isSystemAdmin: false }}
+        volunteeringQueue={[]}
+      />,
+    )
+    const tiles = screen.queryAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Interesse wartet auf Antwort'))).toBe(false)
   })
 
   it('hides check-in and maintenance stats for SOZIALARBEIT but keeps occupancy', () => {

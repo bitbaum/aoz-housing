@@ -10,6 +10,8 @@ import {
   type DashboardSection,
 } from '@/lib/config/dashboard'
 import type { StaffCapabilities, StaffRole } from '@/lib/auth/role-policy'
+import { VOLUNTEERING_SIGNAL_IDS, type VolunteeringQueueItem } from '@/lib/volunteering/queue'
+import { VOLUNTEERING_SIGNAL_COPY } from '@/lib/config/volunteering-signals'
 import { JOB_SIGNAL_IDS, type JobQueueItem } from '@/lib/jobcoach/queue'
 import { JOB_SIGNAL_COPY } from '@/lib/config/job-integration-docs'
 import { INCIDENT_TYPE_LABELS_SHORT, DASHBOARD_LABELS } from '@/lib/constants/labels'
@@ -67,6 +69,7 @@ interface ActionDashboardProps {
    * even run the query for them. @see lib/jobcoach/queue.ts
    */
   jobQueue: JobQueueItem[]
+  volunteeringQueue: VolunteeringQueueItem[]
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -126,6 +129,7 @@ export function ActionDashboard({
   housingUnitCount,
   assignedResidentCount,
   jobQueue,
+  volunteeringQueue,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -170,13 +174,33 @@ export function ActionDashboard({
   // their count was structurally zero and the dashboard congratulated them on
   // a day with real work in it. Observed in production 2026-09-02 with a
   // client assigned the same morning. @see lib/jobcoach/queue.ts
+  // One rendering, two domains. The signal ids are each domain's priority
+  // order, and the tiles render in it — the same list the queue sorts by.
+  const careTiles = [
+    ...JOB_SIGNAL_IDS.map((signal) => ({
+      key: `job:${signal}`,
+      copy: JOB_SIGNAL_COPY[signal],
+      rows: jobQueue.filter((row) => row.signal === signal),
+      allHref: '/learning?board=job',
+    })),
+    ...VOLUNTEERING_SIGNAL_IDS.map((signal) => ({
+      key: `volunteering:${signal}`,
+      copy: VOLUNTEERING_SIGNAL_COPY[signal],
+      rows: volunteeringQueue.filter((row) => row.signal === signal),
+      allHref: '/learning?board=volunteering',
+    })),
+  ].filter((tile) => tile.rows.length > 0)
+
   const totalIssues =
     criticalIncidents.length +
     overdueCheckIns.length +
     unplacedResidents.length +
     pendingTransfers.length +
     proposalsAwaitingStaff.length +
-    jobQueue.length
+    // Sandra's rows count exactly as Simon's do. While they did not, her
+    // dashboard could only ever resolve to `quiet` — every term above needs a
+    // permission she does not hold, and her caseload was never fetched.
+    careTiles.reduce((sum, tile) => sum + tile.rows.length, 0)
 
   // "Nothing to do" and "nothing entered yet" are different facts and get
   // different screens. @see lib/config/dashboard.ts
@@ -359,33 +383,30 @@ export function ActionDashboard({
               />
             )}
 
-            {/* The Job domain's work, one tile per signal. Named clients, not
-                a bare count: the screen this replaces reported "keine
-                dringenden Aufgaben" to a coach whose client was created that
-                morning, and never mentioned him. */}
-            {JOB_SIGNAL_IDS.map((signal) => {
-              const rows = jobQueue.filter((row) => row.signal === signal)
-              if (rows.length === 0) return null
-              const copy = JOB_SIGNAL_COPY[signal]
-              return (
-                <ActionTile
-                  key={signal}
-                  title={copy.title}
-                  count={rows.length}
-                  description={copy.action}
-                  href={`/residents/${rows[0].residentId}`}
-                  urgency={urgencyForOpenCount(rows.length)}
-                  items={rows.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
-                    label: row.name,
-                    // The signal is already the tile's title, so the sublabel
-                    // carries the move rather than repeating it.
-                    sublabel: copy.action,
-                    href: `/residents/${row.residentId}`,
-                  }))}
-                  allHref="/learning?board=job"
-                />
-              )
-            })}
+            {/* The integration domains' work, one tile per signal. Named
+                clients, not a bare count: the screen this replaces reported
+                "keine dringenden Aufgaben" to a coach whose client was created
+                that morning, and never mentioned him — and said the same thing
+                to his colleague for three days longer, because her caseload was
+                not even queried. */}
+            {careTiles.map((tile) => (
+              <ActionTile
+                key={tile.key}
+                title={tile.copy.title}
+                count={tile.rows.length}
+                description={tile.copy.action}
+                href={`/residents/${tile.rows[0].residentId}`}
+                urgency={urgencyForOpenCount(tile.rows.length)}
+                items={tile.rows.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
+                  label: row.name,
+                  // The signal is already the tile's title, so the sublabel
+                  // carries the move rather than repeating it.
+                  sublabel: tile.copy.action,
+                  href: `/residents/${row.residentId}`,
+                }))}
+                allHref={tile.allHref}
+              />
+            ))}
 
             {unplacedResidents.length > 0 && (
               <ActionTile
