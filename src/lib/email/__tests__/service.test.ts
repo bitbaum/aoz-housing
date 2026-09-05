@@ -1,15 +1,17 @@
 /**
- * Tests for the Resend email service: graceful no-op when disabled, success,
+ * Tests for the email service: graceful no-op when disabled, success,
  * retry behaviour on transient failures, and bail-out on client errors.
+ *
+ * The transport is @bitbaum/mail-kit, which is deliberately NOT mocked —
+ * mocking global fetch instead exercises the real wire behaviour (result
+ * mapping, retryable classification) end to end.
  */
 
 // Mutable mock config — service.ts reads EMAIL_CONFIG at call time, so tests
 // can flip these fields between cases. (vi.hoisted lifts it above the
 // hoisted vi.mock factory that references it.)
 const mockEmailConfig = vi.hoisted(() => ({
-  apiKey: 'test-key',
-  fromName: 'AOZ Housing',
-  fromAddress: 'noreply@aoz-housing.ch',
+  from: 'AOZ Housing <noreply@aoz-housing.ch>',
   staffRecipients: ['staff@aoz-housing.ch'] as string[],
   enabled: true,
 }))
@@ -29,7 +31,7 @@ const mockFetch = vi.fn()
 global.fetch = mockFetch as unknown as typeof fetch
 
 function okResponse() {
-  return { ok: true, status: 200, text: async () => '' }
+  return { ok: true, status: 200, text: async () => '', json: async () => ({ id: 'msg-1' }) }
 }
 function errorResponse(status: number) {
   return { ok: false, status, text: async () => `error ${status}` }
@@ -45,13 +47,15 @@ async function runWithTimers<T>(promise: Promise<T>): Promise<T> {
 beforeEach(() => {
   vi.clearAllMocks()
   vi.useFakeTimers()
+  // mail-kit reads its own env (RESEND_API_KEY) at call time.
+  vi.stubEnv('RESEND_API_KEY', 'test-key')
   mockEmailConfig.enabled = true
-  mockEmailConfig.apiKey = 'test-key'
   mockEmailConfig.staffRecipients = ['staff@aoz-housing.ch']
 })
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllEnvs()
 })
 
 describe('sendEmail', () => {

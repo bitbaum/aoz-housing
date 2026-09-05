@@ -1,15 +1,15 @@
 /**
- * Email sending service — uses the Resend transactional API.
- * Gracefully no-ops when RESEND_API_KEY is not configured.
+ * Email sending service — transport is @bitbaum/mail-kit (Resend).
+ * Gracefully no-ops when mail is not configured.
  */
+
+import { sendMail } from '@bitbaum/mail-kit'
 
 import { EMAIL_CONFIG } from './config'
 import { logger } from '@/lib/logger'
 
-const RESEND_API_URL = 'https://api.resend.com/emails'
-
-// Retry transient Resend failures (5xx, 429) with linear backoff. 4xx other
-// than 429 are not retried — those are programming errors.
+// Retry transient failures (5xx, 429, network) with linear backoff — mail-kit's
+// `retryable` flag says whether a retry can help; scheduling one is our job.
 const RETRY_DELAYS_MS = [0, 1000, 4000]
 
 async function sleep(ms: number): Promise<void> {
@@ -19,43 +19,25 @@ async function sleep(ms: number): Promise<void> {
 
 export async function sendEmail(to: string[], subject: string, html: string): Promise<boolean> {
   if (!EMAIL_CONFIG.enabled) {
-    logger.info('Email skipped (no RESEND_API_KEY configured)', { subject })
+    logger.info('Email skipped (mail not configured)', { subject })
     return false
   }
 
   for (let attempt = 0; attempt < RETRY_DELAYS_MS.length; attempt++) {
     await sleep(RETRY_DELAYS_MS[attempt])
 
-    try {
-      const response = await fetch(RESEND_API_URL, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${EMAIL_CONFIG.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `${EMAIL_CONFIG.fromName} <${EMAIL_CONFIG.fromAddress}>`,
-          to,
-          subject,
-          html,
-        }),
+    // sendMail never throws — inspect result.sent.
+    const result = await sendMail({ to, subject, html, from: EMAIL_CONFIG.from })
+    if (result.sent) return true
+
+    if (!result.retryable || attempt === RETRY_DELAYS_MS.length - 1) {
+      logger.error('Resend email failed', {
+        error: result.error,
+        status: result.status,
+        subject,
+        attempt,
       })
-
-      if (response.ok) return true
-
-      // Retry on 5xx + 429; bail on other 4xx (client/auth error — no recovery).
-      const retryable = response.status >= 500 || response.status === 429
-      if (!retryable || attempt === RETRY_DELAYS_MS.length - 1) {
-        const body = await response.text()
-        logger.error('Resend email failed', { status: response.status, body, subject, attempt })
-        return false
-      }
-    } catch (error) {
-      // Network errors are retryable until the last attempt.
-      if (attempt === RETRY_DELAYS_MS.length - 1) {
-        logger.errorWithCause('Failed to send email', error, { subject, to, attempt })
-        return false
-      }
+      return false
     }
   }
   return false

@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@bitbaum/ai-kit": "^0.6.2",
+    "@bitbaum/mail-kit": "^0.1.0",
     "@fleet/ai-forms": "npm:ai-forms@^0.1.2",
     "@paralleldrive/cuid2": "^3.3.0",
     "@sentry/nextjs": "^10.71.0",
