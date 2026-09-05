@@ -75,6 +75,18 @@ export const DASHBOARD_SECTIONS = {
    * of loose end the person managing the team is responsible for.
    */
   team: 'users:manage',
+  /**
+   * Klient*innen waiting for an answer to a message.
+   *
+   * `staffInbox()` has always computed `waitingSince` per thread and sorted
+   * oldest-wait-first — "somebody has been waiting four days" was a fact the
+   * product held on every page load and told nobody, because only /messages
+   * read it. Betreuung had to open the inbox speculatively to find out.
+   *
+   * Gated on `messages:read`, the same permission that opens the inbox, so the
+   * tile never names a conversation its viewer may not read.
+   */
+  messages: 'messages:read',
 } as const satisfies Record<string, StaffPermission>
 
 export type DashboardSection = keyof typeof DASHBOARD_SECTIONS

@@ -65,6 +65,15 @@ export const DASHBOARD_LABELS = {
   tileCheckInsThisWeek: 'Check-ins diese Woche',
   tilePlanProactively: 'Proaktiv planen',
   tileWaitingLongestSuffix: 'wartet am längsten',
+  /**
+   * A person asked something and has not been answered. Named as a wait, not
+   * as an unread count: "3 ungelesen" is about the inbox, "seit 4 Tagen ohne
+   * Antwort" is about somebody sitting with a question.
+   */
+  tileMessagesWaiting: 'Nachrichten ohne Antwort',
+  tileMessagesAction: 'Antworten — die Person wartet auf eine Rückmeldung.',
+  tileWaitingSinceDays: (days: number) =>
+    days === 0 ? 'seit heute' : days === 1 ? 'seit gestern' : `seit ${days} Tagen`,
   tileSincePrefix: 'Seit',
   tileIncidents: 'Vorfälle',
 
