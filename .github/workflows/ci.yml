@@ -1,7 +1,13 @@
-# Each check is defined ONCE, in package.json (`lint`, `typecheck`, `test`);
-# this file only chooses how to group them into jobs. `pnpm run verify` runs the
-# same three locally, so green verify ⇒ green CI. The e2e suite is separate:
-# it needs a seeded DB and a running server.
+# Each check is defined ONCE, in package.json (`format:check`, `lint`,
+# `typecheck`, `test`); this file only chooses how to group them into jobs.
+# `pnpm run verify` runs the same four locally, so green verify ⇒ green CI. The
+# e2e suite is separate: it needs a seeded DB and a running server.
+#
+# `format:check` was in `verify` and NOT here, so the two bundles were not the
+# same bundle and the sentence above was false: master failed `pnpm run verify`
+# from #181 to #189 on two generated files, with every CI run green. A check
+# that only one of the two sides runs is worse than no check — it makes local
+# red look like a local problem. Anything added to `verify` gets a step here.
 name: CI
 
 on:
@@ -31,6 +37,9 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm run format:check
 
       - name: Lint
         run: pnpm run lint

@@ -15,6 +15,11 @@ package-lock.json
 pnpm-lock.yaml
 yarn.lock
 
+# Same reasoning: drizzle-kit writes these snapshots itself on every
+# `db:generate`. Formatting them would re-dirty the tree the next time anyone
+# touches the schema, and the diff belongs to the tool, not to us.
+drizzle/meta
+
 # Markdown is deliberately out of scope for now. Prettier rewraps prose, which
 # is where it is most opinionated and least useful, and it would bury the real
 # diff. Remove this line when you want docs formatted too.
