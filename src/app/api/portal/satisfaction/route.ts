@@ -100,8 +100,8 @@ export async function POST(request: NextRequest) {
           type: 'LOW_SATISFACTION',
           severity: rating === 1 ? 'HIGH' : 'MEDIUM',
           description: concerns
-            ? `Bewohner hat niedrige Zufriedenheit gemeldet: "${concerns}"`
-            : 'Bewohner hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
+            ? `Klient*in hat niedrige Zufriedenheit gemeldet: "${concerns}"`
+            : 'Klient*in hat niedrige Zufriedenheit im Portal gemeldet (keine Details angegeben)',
         })
       }
     })

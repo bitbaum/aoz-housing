@@ -187,7 +187,7 @@ const PLACEMENT_COPY: MarketingCopy = {
 
   closingTitle: 'Sehen Sie es sich an.',
   closingBody:
-    'Die Demo ist das echte Produkt mit Beispieldaten — Verwaltung, Begleitung und Bewohner*innen-Portal. Blog, Roadmap und Changelog machen die Produktentscheidungen nachvollziehbar.',
+    'Die Demo ist das echte Produkt mit Beispieldaten — Verwaltung, Begleitung und das Portal der Klient*innen. Blog, Roadmap und Changelog machen die Produktentscheidungen nachvollziehbar.',
 }
 
 /** The household register: the people who actually live in the flat. */

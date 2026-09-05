@@ -619,7 +619,7 @@ function generateInsights(
 
   // Recycling insights
   if (r1.recyclingKnowledge === 'NONE' || r2.recyclingKnowledge === 'NONE') {
-    recommendations.push('Recycling-Schulung für Bewohner ohne Erfahrung einplanen')
+    recommendations.push('Recycling-Schulung für Personen ohne Erfahrung einplanen')
   }
   if (
     (r1.recyclingKnowledge === 'GOOD' && r2.recyclingKnowledge === 'NONE') ||

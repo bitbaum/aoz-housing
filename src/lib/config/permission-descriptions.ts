@@ -40,7 +40,7 @@ export const PERMISSION_DESCRIPTIONS: Record<StaffPermission, string> = {
   'activities:read': 'externe Aktivitäten ansehen',
   'ai:assist': 'den KI-Assistenten beim Schreiben nutzen',
   'activities:write': 'externe Aktivitäten erfassen und veröffentlichen',
-  'messages:read': 'Nachrichten von Bewohner*innen lesen und beantworten',
+  'messages:read': 'Nachrichten von Klient*innen lesen und beantworten',
   'documents:read': 'Lebenslauf, Zeugnisse und Referenzen einsehen',
   'documents:write': 'Lebenslauf, Zeugnisse und Referenzen hinzufügen und entfernen',
   'users:manage': 'Benutzer*innen und Einstellungen verwalten',

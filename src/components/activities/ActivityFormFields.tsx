@@ -159,7 +159,7 @@ export function ActivityFormFields({ activity }: ActivityFormFieldsProps) {
           defaultChecked={activity?.highlight ?? false}
           className="h-4 w-4 accent-brand-primary"
         />
-        <span className="text-sm text-ui-text">Im Bewohnerportal hervorheben</span>
+        <span className="text-sm text-ui-text">Im Portal hervorheben</span>
       </label>
     </div>
   )

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
   // Add mediation request note for conflicts
   if (data.category === 'INTERPERSONAL' && data.requestMediation) {
-    fullDescription += '\n\n[Bewohner wünscht Vermittlungsgespräch]'
+    fullDescription += '\n\n[Klient*in wünscht Vermittlungsgespräch]'
   }
 
   // Validate `involvedResident` belongs to the same housing unit — prevents
