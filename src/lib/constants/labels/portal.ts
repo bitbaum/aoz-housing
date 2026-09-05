@@ -101,7 +101,7 @@ export const PORTAL_LABELS = {
   },
   login: {
     title: BRAND.portalName,
-    subtitle: 'Gib deinen Bewohnercode ein, um fortzufahren',
+    subtitle: 'Gib deinen Code ein, um fortzufahren',
     placeholder: `Dein Code (z.B. ${RESIDENT_CODE_PREFIX}001)`,
     submit: 'Einloggen',
     hint: 'Deinen Code findest du auf deinem Willkommensbrief',
@@ -402,7 +402,7 @@ export const PORTAL_LABELS = {
       },
     ],
     loginTitle: 'Bereits registriert?',
-    loginDesc: 'Melde dich mit deinem Bewohnercode an',
+    loginDesc: 'Melde dich mit deinem Code an',
     registerTitle: 'Neu hier?',
     registerDesc: 'Erstelle in 30 Sekunden dein Profil',
     registerButton: 'Profil erstellen',

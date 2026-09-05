@@ -329,7 +329,7 @@ describe('POST /api/portal/report', () => {
     // Description should have mediation note appended
     const createCall = mockIncidentCreate.mock.calls[0][0]
     expect(createCall.description).toContain('Laute Musik nach 22 Uhr')
-    expect(createCall.description).toContain('[Bewohner wünscht Vermittlungsgespräch]')
+    expect(createCall.description).toContain('[Klient*in wünscht Vermittlungsgespräch]')
 
     // involvedResident === 'external' should result in null subjectId
     expect(createCall.subjectId).toBeNull()

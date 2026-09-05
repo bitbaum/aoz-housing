@@ -661,7 +661,7 @@ describe('calculateCompatibility — insights', () => {
     const result = calculateCompatibility(a, b)
     expect(result.concerns).toContain('Recycling-Kenntnisse sehr unterschiedlich')
     expect(result.recommendations).toContain(
-      'Recycling-Schulung für Bewohner ohne Erfahrung einplanen',
+      'Recycling-Schulung für Personen ohne Erfahrung einplanen',
     )
   })
 
