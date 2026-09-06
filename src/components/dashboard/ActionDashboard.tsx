@@ -72,6 +72,13 @@ interface ActionDashboardProps {
   volunteeringQueue: VolunteeringQueueItem[]
   /** Klient*innen waiting for an answer, longest wait first. */
   waitingThreads: { residentId: string; name: string; waitingSince: Date }[]
+  /** Review dates the caseworker set that have passed, incident still open. */
+  overdueFollowUps: {
+    id: string
+    subject: string | null
+    unitCode: string | null
+    daysOverdue: number
+  }[]
 
   // Action items
   overdueCheckIns: OverdueCheckIn[]
@@ -133,6 +140,7 @@ export function ActionDashboard({
   jobQueue,
   volunteeringQueue,
   waitingThreads,
+  overdueFollowUps,
   occupiedBeds,
   totalBeds,
   totalPlacements,
@@ -220,6 +228,9 @@ export function ActionDashboard({
     // Somebody asked a question and is still waiting. Counted like any other
     // open task, because that is what it is.
     waitingThreads.length +
+    // A review date that has passed is the ladder failing quietly: the whole
+    // mechanism is somebody coming back on the day they said they would.
+    overdueFollowUps.length +
     // Sandra's rows count exactly as Simon's do. While they did not, her
     // dashboard could only ever resolve to `quiet` — every term above needs a
     // permission she does not hold, and her caseload was never fetched.
@@ -412,6 +423,22 @@ export function ActionDashboard({
                 that morning, and never mentioned him — and said the same thing
                 to his colleague for three days longer, because her caseload was
                 not even queried. */}
+            {overdueFollowUps.length > 0 && (
+              <ActionTile
+                title={DASHBOARD_LABELS.tileFollowUpsOverdue}
+                count={overdueFollowUps.length}
+                description={DASHBOARD_LABELS.tileFollowUpsAction}
+                href={`/incidents/${overdueFollowUps[0].id}`}
+                urgency={urgencyForOpenCount(overdueFollowUps.length)}
+                items={overdueFollowUps.slice(0, DISPLAY_LIMITS.dashboardItems).map((row) => ({
+                  label: row.subject ?? row.unitCode ?? DASHBOARD_LABELS.tileFollowUpsOverdue,
+                  sublabel: DASHBOARD_LABELS.tileOverdueByDays(row.daysOverdue),
+                  href: `/incidents/${row.id}`,
+                }))}
+                allHref="/incidents?status=open"
+              />
+            )}
+
             {/* Somebody asked and is still waiting. The product has always
                 known this — `staffInbox()` computes `waitingSince` and sorts
                 oldest-first on every load — and only the inbox page read it,

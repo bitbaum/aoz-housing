@@ -66,6 +66,7 @@ const BASE_PROPS = {
   jobQueue: [],
   volunteeringQueue: [],
   waitingThreads: [],
+  overdueFollowUps: [],
   housingUnitCount: 4,
   occupiedBeds: 10,
   totalBeds: 20,
@@ -350,6 +351,36 @@ describe('ActionDashboard', () => {
     render(<ActionDashboard {...BASE_PROPS} waitingThreads={[]} />)
     const tiles = screen.queryAllByTestId('action-tile').map((el) => el.textContent ?? '')
     expect(tiles.some((t) => t.includes('Nachrichten ohne Antwort'))).toBe(false)
+  })
+
+  /**
+   * `getIncidentsNeedingFollowUp()` did this triage from the day it was
+   * written — overdue, due soon, urgent, each with unit and subject — and was
+   * called by nothing but its own test. Only the nightly email read
+   * `nextFollowUpDate`, so a review date the caseworker set could pass without
+   * anything in the product saying so.
+   */
+  it('names follow-ups whose review date has passed', () => {
+    render(
+      <ActionDashboard
+        {...BASE_PROPS}
+        viewer={{ role: 'BETREUUNG', scope: 'ALL_DOMAINS', isSystemAdmin: false }}
+        overdueFollowUps={[
+          { id: 'inc-1', subject: 'Ihor', unitCode: 'WIT-458', daysOverdue: 6 },
+          { id: 'inc-2', subject: null, unitCode: 'WIT-458', daysOverdue: 1 },
+        ]}
+      />,
+    )
+
+    const tiles = screen.getAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Nachfassen überfällig'))).toBe(true)
+    expect(tiles.some((t) => t.includes('(2)'))).toBe(true)
+  })
+
+  it('says nothing when every review date is still ahead', () => {
+    render(<ActionDashboard {...BASE_PROPS} overdueFollowUps={[]} />)
+    const tiles = screen.queryAllByTestId('action-tile').map((el) => el.textContent ?? '')
+    expect(tiles.some((t) => t.includes('Nachfassen überfällig'))).toBe(false)
   })
 
   it('hides check-in and maintenance stats for SOZIALARBEIT but keeps occupancy', () => {
