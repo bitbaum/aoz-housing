@@ -12,7 +12,7 @@ import type {
   ApartmentConflict,
   SleepSchedule,
 } from './types'
-import { hasDoubleStandard, scoreCleanlinessAgainstGroup } from './cleanliness'
+import { hasDoubleStandard, isHighMaintenance, scoreCleanlinessAgainstGroup } from './cleanliness'
 import { APARTMENT_THRESHOLDS } from '@/lib/config/apartment-thresholds'
 import { FIT_SCORE_CONFIG } from '@/lib/config/thresholds'
 import {
@@ -173,6 +173,17 @@ export function calculateApartmentFit(
     if (hasDoubleStandard(newResident)) {
       warnings.push(
         'Erwartet mehr Ordnung von anderen, als sie/er selbst hält — Putzplan im Haus früh klären',
+      )
+    }
+
+    // A separate question from the one above, and it was computed and dropped:
+    // this is about sensitivity, not fairness. Someone who expects a lot AND
+    // tolerates little is the hardest person to place well, whatever they
+    // contribute themselves — and the product has the remedy its own docstring
+    // names, so the warning points at it.
+    if (isHighMaintenance(newResident)) {
+      warnings.push(
+        'Hohe Ansprüche bei geringer Toleranz — braucht eine Unterkunft mit klar geregeltem Putzplan',
       )
     }
   }

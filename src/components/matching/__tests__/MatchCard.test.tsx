@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { MatchCard } from '../MatchCard'
 import type { MatchResult } from '@/lib/matching/types'
 import type { Resident } from '@/lib/db'
+import { PLACEMENT_CONCERN_LABELS } from '@/lib/constants'
 
 // =============================================================================
 // MOCKS
@@ -31,7 +32,13 @@ vi.mock('@/lib/actions/matching', async () => ({
   placeResident: vi.fn(),
 }))
 
-vi.mock('@/lib/constants', async () => ({
+// Spreads the real module first. A hand-listed replacement made the card's
+// import graph part of this file's setup: pulling in a helper that reads any
+// other label — as reaching for the blocking-concern SSOT did — failed the
+// whole suite at collection, with an error about a mock rather than about the
+// change. The overrides below still pin the strings the assertions match on.
+vi.mock('@/lib/constants', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/lib/constants')>()),
   SLEEP_SCHEDULE_LABELS: {
     EARLY_BIRD: 'Fruehaufsteher',
     STANDARD: 'Normal',
@@ -442,18 +449,36 @@ describe('MatchCard', () => {
   })
 
   describe('blocking issues', () => {
-    it('applies red styling for blocking issues (Rollstuhl)', () => {
+    // The concern is the REAL label, not one invented here. This test used to
+    // pass an ad-hoc string that no code path produces; it went green only
+    // because the card was substring-matching prose, so it agreed with the bug
+    // rather than with the product.
+    it('applies red styling for a blocking concern', () => {
       const match = makeMatch({
-        unitConcerns: ['Rollstuhl-Zugang nicht vorhanden'],
+        unitConcerns: [PLACEMENT_CONCERN_LABELS.wheelchairRequired],
+        hasBlockingIssue: true,
       })
 
       const { container } = render(<MatchCard match={match} resident={mockResident} />)
 
-      // Check that the concern has red coloring
-      const concern = screen.getByText(/Rollstuhl-Zugang nicht vorhanden/)
+      const concern = screen.getByText(new RegExp(PLACEMENT_CONCERN_LABELS.wheelchairRequired))
       expect(concern.className).toContain('text-status-error-text')
-      // Card should have error styling for blocking issues
       expect((container.firstChild as HTMLElement).className).toContain('border-status-error')
+    })
+
+    it('leaves a non-blocking concern in warning colours', () => {
+      // Smoking is a concern, not a blocker — and the card must not paint the
+      // whole unit as excluded for it.
+      const match = makeMatch({
+        unitConcerns: [PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit],
+        hasBlockingIssue: false,
+      })
+
+      const { container } = render(<MatchCard match={match} resident={mockResident} />)
+
+      const concern = screen.getByText(new RegExp(PLACEMENT_CONCERN_LABELS.smokerInNonSmokingUnit))
+      expect(concern.className).toContain('text-status-warning-text')
+      expect((container.firstChild as HTMLElement).className).not.toContain('border-status-error')
     })
   })
 

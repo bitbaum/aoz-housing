@@ -5,6 +5,7 @@ import type { MatchResult, CompatibilityDetail } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'
 import { MATCHING_LABELS, RANKING_LABELS } from '@/lib/constants'
 import { describeRankingFactor, isHelpingFactor } from '@/lib/matching/describe-ranking'
+import { isBlockingConcern } from '@/lib/compatibility/unit-concerns'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
@@ -45,9 +46,13 @@ export function MatchCard({ match, resident, rank }: Props) {
   const rankingHelps = match.rankingFactors.filter(isHelpingFactor)
   const rankingHurts = match.rankingFactors.filter((factor) => !isHelpingFactor(factor))
 
-  const hasBlockingIssues = match.unitConcerns.some(
-    (c: string) => c.includes('Rollstuhl') || c.includes('Erdgeschoss'),
-  )
+  // `match.hasBlockingIssue` is what the ranking penalises by 1000, so reading
+  // it here is what keeps the red card and the sort order describing the same
+  // unit. The card used to re-derive this by substring-matching German prose
+  // ("Rollstuhl", "Erdgeschoss"), which meant rewording a label in
+  // PLACEMENT_CONCERN_LABELS — the one place such a reword would happen —
+  // silently stopped painting blocked units red while still burying them.
+  const hasBlockingIssues = match.hasBlockingIssue
 
   return (
     <div
@@ -252,7 +257,7 @@ export function MatchCard({ match, resident, rank }: Props) {
             <p
               key={i}
               className={`text-xs ${
-                concern.includes('Rollstuhl') || concern.includes('Erdgeschoss')
+                isBlockingConcern(concern)
                   ? 'text-status-error-text font-medium'
                   : 'text-status-warning-text'
               }`}
