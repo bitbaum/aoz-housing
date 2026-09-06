@@ -23,6 +23,7 @@ import type {
   ResidentWithPlacement,
   UnitMatch,
 } from '@/lib/matching/types'
+import { rankingFactors, rankingScore, type RankingInput } from '@/lib/matching/ranking'
 import { ResidentSelectorPanel } from '@/components/matching/ResidentSelectorPanel'
 import { UnitModePanel } from '@/components/matching/UnitModePanel'
 import { MatchResultsPanel } from '@/components/matching/MatchResultsPanel'
@@ -250,17 +251,6 @@ export default async function MatchingPage({ searchParams }: Props) {
             0,
           )
 
-          // Calculate unit risk penalty based on historical performance
-          const unitRiskPenalty = unitMetrics
-            ? unitMetrics.riskLevel === 'CRITICAL'
-              ? 200
-              : unitMetrics.riskLevel === 'HIGH'
-                ? 100
-                : unitMetrics.riskLevel === 'MEDIUM'
-                  ? 50
-                  : 0
-            : 0
-
           // Run discrimination safeguard checks on pairwise scores
           const safeguardWarnings: SafeguardWarning[] = []
           const residentProfile = toResidentProfile(foundResident)
@@ -284,8 +274,26 @@ export default async function MatchingPage({ searchParams }: Props) {
               placements: s.placements.map((p) => ({ resident: p.resident })),
             })),
           )
+          // The ranking's stand-in for "fit" is the ROOM score wherever a room
+          // can be scored — not the apartment score the card headlines. That
+          // divergence is why the order needs explaining. @see lib/matching/ranking
           const roomScore = roomFit?.score ?? apartmentFit.fitScore
-          const emptyRoomPenalty = roomFit && roomFit.score === null ? 15 : 0
+
+          const ranking: RankingInput = {
+            hasBlockingIssue,
+            blockingConflicts: apartmentFit.conflicts.filter((c) => c.severity === 'BLOCKING')
+              .length,
+            roomBlocking: !!roomFit?.blocking,
+            highConflicts: apartmentFit.conflicts.filter((c) => c.severity === 'HIGH').length,
+            riskLevel: unitMetrics?.riskLevel ?? null,
+            unitConcerns: unitConcerns.length,
+            roommateConcerns: totalRoommateConcerns,
+            unscorableRoom: !!roomFit && roomFit.score === null,
+            fitScore: roomScore,
+            fitIsRoom: roomFit?.score != null,
+            sharedLanguages: sharedLanguageCount,
+            isEmptyUnit: currentResidents.length === 0,
+          }
 
           return {
             unit,
@@ -300,18 +308,8 @@ export default async function MatchingPage({ searchParams }: Props) {
             totalRoommateConcerns,
             safeguardWarnings,
             bestRoomFit: roomFit,
-            sortScore:
-              (hasBlockingIssue ? 1000 : 0) +
-              apartmentFit.conflicts.filter((c) => c.severity === 'BLOCKING').length * 500 +
-              (roomFit?.blocking ? 400 : 0) +
-              apartmentFit.conflicts.filter((c) => c.severity === 'HIGH').length * 100 +
-              unitRiskPenalty +
-              unitConcerns.length * 10 +
-              totalRoommateConcerns +
-              emptyRoomPenalty -
-              roomScore -
-              sharedLanguageCount * 5 -
-              (currentResidents.length === 0 ? 20 : 0),
+            rankingFactors: rankingFactors(ranking),
+            sortScore: rankingScore(ranking),
           }
         }),
       )

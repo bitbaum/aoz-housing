@@ -279,3 +279,41 @@ export const PLACEMENT_CONFIRM_LABELS = {
   placing: 'Wird platziert...',
   confirm: 'Jetzt platzieren',
 } as const
+
+/**
+ * Why a unit sits where it sits in the match list.
+ *
+ * The order is not the score on the card. `/algorithm` documents the
+ * compatibility dimensions and their weights; nothing documented the ranking,
+ * which is what staff actually act on — the top card is the one that gets
+ * placed. `roomFit` / `apartmentFit` exist as separate labels because the
+ * ranking uses the ROOM percentage wherever a room can be scored, while the
+ * card headlines the apartment one, and the two can point opposite ways.
+ */
+export const RANKING_LABELS = {
+  why: 'Warum an dieser Stelle',
+  helps: 'Spricht dafür',
+  hurts: 'Spricht dagegen',
+  hint: 'Die Reihenfolge folgt nicht allein der Passung — Vorgeschichte, Zimmer und Sprache zählen mit.',
+  riskLevels: {
+    LOW: 'Vorgeschichte: geringes Risiko',
+    MEDIUM: 'Vorgeschichte: mittleres Risiko',
+    HIGH: 'Vorgeschichte: hohes Risiko',
+    CRITICAL: 'Vorgeschichte: kritisches Risiko',
+  } as Record<string, string>,
+  factors: {
+    blockingIssue: () => 'Ausschlusskriterium dieser Unterkunft',
+    blockingConflicts: (n: number) =>
+      n === 1 ? '1 blockierender Konflikt' : `${n} blockierende Konflikte`,
+    roomBlocking: () => 'Kein passendes Zimmer',
+    highConflicts: (n: number) =>
+      n === 1 ? '1 schwerwiegender Konflikt' : `${n} schwerwiegende Konflikte`,
+    unitConcerns: (n: number) => `Unterkunft: ${n} Bedenken`,
+    roommateConcerns: (n: number) => `Mitbewohner*innen: ${n} Bedenken`,
+    unscorableRoom: () => 'Zimmerpassung noch unbekannt',
+    sharedLanguages: (n: number) => (n === 1 ? '1 gemeinsame Sprache' : `${n} gemeinsame Sprachen`),
+    emptyUnit: () => 'Unterkunft ist noch leer',
+    roomFit: (score: number) => `Zimmerpassung ${score}%`,
+    apartmentFit: (score: number) => `Wohnungspassung ${score}%`,
+  },
+} as const

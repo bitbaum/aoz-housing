@@ -3,7 +3,8 @@ import type { Resident } from '@/lib/db'
 import type { ApartmentConflict } from '@/lib/compatibility/types'
 import type { MatchResult, CompatibilityDetail } from '@/lib/matching/types'
 import { placeResident } from '@/lib/actions/matching'
-import { MATCHING_LABELS } from '@/lib/constants'
+import { MATCHING_LABELS, RANKING_LABELS } from '@/lib/constants'
+import { describeRankingFactor, isHelpingFactor } from '@/lib/matching/describe-ranking'
 import { getScoreColorClass } from '@/lib/utils'
 import { DISPLAY_LIMITS } from '@/lib/config/thresholds'
 import { SCORE_TOKENS } from '@/lib/config/ui-tokens'
@@ -37,6 +38,12 @@ export function MatchCard({ match, resident, rank }: Props) {
   const sharedLanguages = (resident.languages || []).filter((l: string) =>
     roommateLanguages.includes(l),
   )
+
+  // The order of this list is a decision the product makes on someone's
+  // behalf, so it has to be readable. `rankingFactors` is already sorted by
+  // strength, and splitting it preserves that within each side.
+  const rankingHelps = match.rankingFactors.filter(isHelpingFactor)
+  const rankingHurts = match.rankingFactors.filter((factor) => !isHelpingFactor(factor))
 
   const hasBlockingIssues = match.unitConcerns.some(
     (c: string) => c.includes('Rollstuhl') || c.includes('Erdgeschoss'),
@@ -186,6 +193,27 @@ export function MatchCard({ match, resident, rank }: Props) {
             </p>
           ))}
         </div>
+      )}
+
+      {rankingHelps.length + rankingHurts.length > 0 && (
+        <details className="mb-3 border-t border-ui-border pt-2">
+          <summary className="min-h-[44px] cursor-pointer list-none [&::-webkit-details-marker]:hidden flex items-center text-xs font-medium text-brand-secondary">
+            {RANKING_LABELS.why}
+          </summary>
+          <p className="mt-1 text-2xs text-ui-muted">{RANKING_LABELS.hint}</p>
+          <div className="mt-2 space-y-1">
+            {rankingHelps.map((factor) => (
+              <p key={factor.id} className="text-xs text-status-success-text">
+                {RANKING_LABELS.helps}: {describeRankingFactor(factor)}
+              </p>
+            ))}
+            {rankingHurts.map((factor) => (
+              <p key={factor.id} className="text-xs text-status-warning-text">
+                {RANKING_LABELS.hurts}: {describeRankingFactor(factor)}
+              </p>
+            ))}
+          </div>
+        </details>
       )}
 
       {match.unit.placements.length > 0 && (
