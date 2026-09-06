@@ -25,6 +25,7 @@ export const STAFF_ROUTES = [
   '/ai-assistant',
   '/algorithm',
   '/analytics',
+  '/audit',
   '/chores',
   '/complaints',
   '/events',
