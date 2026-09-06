@@ -3,6 +3,7 @@
 import { CARE_LABELS, CARE_ROLE_LABELS, CARE_ROLES, type CareRoleId } from '@/lib/config/care'
 import type { AssignableStaff, CareSeat } from '@/lib/actions/care'
 import { saveCareSeat } from '@/lib/actions/care'
+import { canStaffWorkDomain } from '@/lib/config/care'
 
 interface CareTeamCardProps {
   residentId?: string
@@ -72,11 +73,17 @@ export function CareTeamCard({
                     onChange={(event) => event.currentTarget.form?.requestSubmit()}
                   >
                     <option value="">{CARE_LABELS.unassigned}</option>
-                    {staffOptions.map((person) => (
-                      <option key={person.id} value={person.id}>
-                        {person.name}
-                      </option>
-                    ))}
+                    {/* Only people who could actually work THIS seat. The list
+                        used to be every active account for every seat, so
+                        Liegenschaften — a role with no care domain at all —
+                        was offered as a Jobcoach. @see config/care.ts */}
+                    {staffOptions
+                      .filter((person) => canStaffWorkDomain(person, role))
+                      .map((person) => (
+                        <option key={person.id} value={person.id}>
+                          {person.name}
+                        </option>
+                      ))}
                   </select>
                 </form>
               </li>
