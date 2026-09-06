@@ -436,6 +436,27 @@ export default async function ResidentDetailPage({ params, searchParams }: Props
                   )}
                 </div>
 
+                {/* The score without the reasoning is the black box this
+                    product's first principles forbid: "decisions must be
+                    explainable". The argument was composed by
+                    `buildPlacementRationale` and written to `placementNotes`
+                    on every placement since that code existed, and no
+                    component ever read the column. Collapsed, because it is
+                    the answer to "why?" rather than something to read daily. */}
+                {currentPlacement.placementNotes && (
+                  <details className="mt-4 border-t border-ui-border pt-4">
+                    <summary className="min-h-[44px] cursor-pointer text-sm font-medium text-brand-primary list-none [&::-webkit-details-marker]:hidden flex items-center">
+                      {RESIDENT_DETAIL_LABELS.placementRationale}
+                    </summary>
+                    <p className="mt-2 text-xs text-ui-muted">
+                      {RESIDENT_DETAIL_LABELS.placementRationaleHint}
+                    </p>
+                    <p className="mt-2 whitespace-pre-line text-sm text-ui-text">
+                      {currentPlacement.placementNotes}
+                    </p>
+                  </details>
+                )}
+
                 {/* A satisfaction scale used to sit here permanently, so a
                     caseworker could record how someone felt without having
                     spoken to them. Recording it now belongs to closing an

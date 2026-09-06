@@ -615,6 +615,17 @@ export const RESIDENT_DETAIL_LABELS = {
   currentPlacementTitle: 'Aktuelle Platzierung',
   since: 'Seit ',
   compatibility: 'Kompatibilität',
+  /**
+   * The reasoning behind a placement, which the product wrote and never showed.
+   *
+   * `buildPlacementRationale` composes "Apartment Fit: N%" with Stärken and
+   * Bedenken and the sub-scores, and saves it to `placementNotes` on every
+   * placement — and no component read that column. Staff saw the number and
+   * never the argument for it, which is the black box this product's own
+   * first principles forbid.
+   */
+  placementRationale: 'Warum diese Unterkunft',
+  placementRationaleHint: 'Aufgezeichnet, als die Platzierung entschieden wurde.',
   quickCheckin: 'Schnell-Check-in',
   notPlaced: 'Nicht platziert',
   findUnit: 'Passende Unterkunft finden',
