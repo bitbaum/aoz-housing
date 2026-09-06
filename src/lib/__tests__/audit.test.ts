@@ -17,10 +17,48 @@ import { whereParts } from '@/test-utils/drizzle-where'
 const mockAuditLogCreate = vi.fn()
 const mockAuditLogFindMany = vi.fn()
 
+// `getRecentAuditLogs` builds a select/leftJoin rather than a relational
+// findMany, because the acting user's NAME has to come back with the row — a
+// bare userId renders as an opaque id, which records nothing a human can act
+// on. These spies capture each step of that builder.
+const mockSelectColumns = vi.fn()
+const mockLeftJoin = vi.fn()
+const mockWhere = vi.fn()
+const mockOrderBy = vi.fn()
+const mockLimit = vi.fn()
+const mockSelectRows = vi.fn<() => unknown[]>(() => [])
+
+function selectChain() {
+  const chain = {
+    from: () => chain,
+    leftJoin: (...args: unknown[]) => {
+      mockLeftJoin(...args)
+      return chain
+    },
+    where: (...args: unknown[]) => {
+      mockWhere(...args)
+      return chain
+    },
+    orderBy: (...args: unknown[]) => {
+      mockOrderBy(...args)
+      return chain
+    },
+    limit: (n: number) => {
+      mockLimit(n)
+      return Promise.resolve(mockSelectRows())
+    },
+  }
+  return chain
+}
+
 vi.mock('@/lib/db', async () => ({
   ...(await vi.importActual<object>('@/lib/db')),
   db: {
     insert: () => ({ values: (v: unknown) => Promise.resolve(mockAuditLogCreate(v)) }),
+    select: (columns: unknown) => {
+      mockSelectColumns(columns)
+      return selectChain()
+    },
     query: {
       auditLog: { findMany: (...args: unknown[]) => mockAuditLogFindMany(...args) },
     },
@@ -210,28 +248,56 @@ describe('getEntityAuditLog', () => {
 describe('getRecentAuditLogs', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockAuditLogFindMany.mockResolvedValue([])
+    mockSelectRows.mockReturnValue([])
   })
 
   test('orders results by createdAt descending', async () => {
     await getRecentAuditLogs()
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        orderBy: [desc(auditLog.createdAt)],
-      }),
-    )
+    expect(mockOrderBy).toHaveBeenCalledWith(desc(auditLog.createdAt))
   })
 
   test('defaults to limit 100', async () => {
     await getRecentAuditLogs()
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 100 }))
+    expect(mockLimit).toHaveBeenCalledWith(100)
   })
 
   test('respects custom limit', async () => {
     await getRecentAuditLogs(25)
 
-    expect(mockAuditLogFindMany).toHaveBeenCalledWith(expect.objectContaining({ limit: 25 }))
+    expect(mockLimit).toHaveBeenCalledWith(25)
+  })
+
+  test('joins the acting account so the row carries a name', () => {
+    // Without this the page shows an id, and "who made the decision" — which
+    // CLAUDE.md promises for every placement — is recorded but unreadable.
+    return getRecentAuditLogs().then(() => {
+      expect(mockLeftJoin).toHaveBeenCalled()
+      expect(mockSelectColumns).toHaveBeenCalledWith(
+        expect.objectContaining({ actorName: expect.anything() }),
+      )
+    })
+  })
+
+  test('narrows to one entity when asked', async () => {
+    await getRecentAuditLogs(50, 'STAFF_USER')
+
+    // The borrowed-view entries have to be findable on their own; in a flat
+    // feed the other write sites drown them.
+    expect(whereParts(mockWhere.mock.calls[0]?.[0]).entity).toBe('STAFF_USER')
+  })
+
+  test('applies no filter when no entity is given', async () => {
+    await getRecentAuditLogs()
+
+    expect(mockWhere).toHaveBeenCalledWith(undefined)
+  })
+
+  test('returns the rows the query hands back', async () => {
+    const rows = [{ id: 'log-1', action: 'UPDATE', actorName: 'Franziska Heimhuber' }]
+    mockSelectRows.mockReturnValue(rows)
+
+    await expect(getRecentAuditLogs()).resolves.toEqual(rows)
   })
 })

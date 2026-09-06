@@ -281,6 +281,57 @@ export const PLACEMENT_CONFIRM_LABELS = {
 } as const
 
 /**
+ * The audit trail, as something a person can read.
+ *
+ * 120 sites wrote to it and nothing read it — including the impersonation
+ * entries, whose reviewability is the entire safeguard for "Ansicht öffnen
+ * als". A record nobody can look at is a claim, not a control.
+ */
+export const AUDIT_LABELS = {
+  title: 'Protokoll',
+  subtitle: 'Wer hat was geändert. Neueste zuerst.',
+  empty: 'Noch keine Einträge.',
+  filterAll: 'Alle Bereiche',
+  filterLabel: 'Bereich',
+  systemActor: 'System',
+  impersonationTitle: 'Geliehene Ansichten',
+  impersonationHint:
+    'Wenn eine Person die Ansicht einer anderen öffnet, steht es hier — und nur hier ist es überprüfbar.',
+  actions: {
+    CREATE: 'Erstellt',
+    UPDATE: 'Geändert',
+    DELETE: 'Gelöscht',
+    END: 'Beendet',
+    TRANSFER: 'Verlegt',
+    RESOLVE: 'Gelöst',
+    ARCHIVE: 'Archiviert',
+    RESTORE: 'Wiederhergestellt',
+  } as Record<string, string>,
+  entities: {
+    RESIDENT: 'Klient*in',
+    HOUSING_UNIT: 'Unterkunft',
+    SPOT: 'Platz',
+    PLACEMENT: 'Platzierung',
+    INCIDENT: 'Vorfall',
+    MAINTENANCE: 'Unterhalt',
+    CHECK_IN: 'Check-in',
+    HOUSEHOLD_TASK: 'Ämtli',
+    TRANSFER_REQUEST: 'Verlegungsantrag',
+    ACTIVITY: 'Aktivität',
+    HOUSE_RULE: 'Hausregel',
+    PROPOSAL: 'Antrag',
+    CONFLICT_AGREEMENT: 'Konfliktvereinbarung',
+    EXPENSE: 'Ausgabe',
+    MESSAGE: 'Nachricht',
+    SETTLEMENT: 'Ausgleich',
+    RESIDENT_PROFILE: 'Profil',
+    OPPORTUNITY: 'Einsatzplatz',
+    OPPORTUNITY_APPLICATION: 'Bewerbung',
+    STAFF_USER: 'Mitarbeitendenkonto',
+  } as Record<string, string>,
+} as const
+
+/**
  * Why a unit sits where it sits in the match list.
  *
  * The order is not the score on the card. `/algorithm` documents the

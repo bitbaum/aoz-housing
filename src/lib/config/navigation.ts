@@ -89,6 +89,10 @@ export interface NavItem {
  */
 export const SYSTEM_LINKS: NavItem[] = [
   { href: '/settings', icon: 'settings', label: 'Einstellungen', permission: 'users:manage' },
+  // The audit trail. 120 sites wrote to it and nothing read it, so it had no
+  // entry point at all — including the impersonation records, whose whole
+  // safeguard is that somebody can review them.
+  { href: '/audit', icon: 'clipboard', label: 'Protokoll', permission: 'users:manage' },
   // Complaints about the organisation. A system link, not a mission area: it is
   // deliberately outside the care groups, because the care team cannot see it.
   { href: '/complaints', icon: 'alert', label: 'Beschwerden', permission: 'complaints:read' },

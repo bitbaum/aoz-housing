@@ -5,7 +5,7 @@
  * Auth-ready: Automatically captures current user when auth is implemented
  */
 
-import { db, auditLog } from '@/lib/db'
+import { db, auditLog, user } from '@/lib/db'
 import { and, eq, desc } from 'drizzle-orm'
 import { getCurrentUser } from '@/lib/auth'
 import { logger } from '@/lib/logger'
@@ -99,12 +99,42 @@ export async function getEntityAuditLog(entity: AuditEntity, entityId: string) {
   })
 }
 
+/** One audit row with the acting staff member resolved to a name. */
+export interface AuditEntry {
+  id: string
+  createdAt: Date
+  action: string
+  entity: string
+  entityId: string
+  reason: string | null
+  /** Null for a system action, or where the acting account has since been deleted. */
+  actorName: string | null
+}
+
 /**
- * Get recent audit logs (for admin dashboard)
+ * Recent audit entries, newest first, optionally narrowed to one entity type.
+ *
+ * The name is joined here rather than in the page: a bare `userId` renders as
+ * an opaque id, which is the same as not recording who acted. `userId` is
+ * `ON DELETE SET NULL`, so a null actor is a real state and not an error —
+ * the entry survives the account, which is the point of keeping it.
  */
-export async function getRecentAuditLogs(limit = 100) {
-  return db.query.auditLog.findMany({
-    orderBy: [desc(auditLog.createdAt)],
-    limit,
-  })
+export async function getRecentAuditLogs(limit = 100, entity?: AuditEntity): Promise<AuditEntry[]> {
+  const rows = await db
+    .select({
+      id: auditLog.id,
+      createdAt: auditLog.createdAt,
+      action: auditLog.action,
+      entity: auditLog.entity,
+      entityId: auditLog.entityId,
+      reason: auditLog.reason,
+      actorName: user.name,
+    })
+    .from(auditLog)
+    .leftJoin(user, eq(auditLog.userId, user.id))
+    .where(entity ? eq(auditLog.entity, entity) : undefined)
+    .orderBy(desc(auditLog.createdAt))
+    .limit(limit)
+
+  return rows
 }
