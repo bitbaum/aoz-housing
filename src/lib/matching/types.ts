@@ -11,6 +11,7 @@ import type {
 import type { UnitMetrics } from '@/lib/analytics/unit-metrics'
 import type { SafeguardWarning } from '@/lib/compatibility/safeguards'
 import type { RoomFit } from '@/lib/compatibility/room-fit'
+import type { RankingFactor } from '@/lib/matching/ranking'
 
 /** Housing unit with active placements (including resident) and available spots */
 export type MatchUnit = HousingUnit & {
@@ -44,6 +45,8 @@ export interface MatchResult {
   sharedLanguageCount: number
   totalRoommateConcerns: number
   safeguardWarnings: SafeguardWarning[]
+  /** Every term that moved this unit up or down the list, strongest first. */
+  rankingFactors: RankingFactor[]
   sortScore: number
   /** Best available Zimmer vs the people who share it. Null = no assignable spot. */
   bestRoomFit: RoomFit | null
