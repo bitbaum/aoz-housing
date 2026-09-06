@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import {
   APPOINTMENT_STATUS_LABELS,
   CARE_ATTRIBUTE_CATALOG,
@@ -9,7 +11,7 @@ import {
   type CareRoleId,
 } from '@/lib/config/care'
 import type { InterpreterNeed } from '@/lib/db'
-import { INTERPRETER_LABELS, needsInterpreter } from '@/lib/config/interpreting'
+import { INTERPRETER_LABELS, interpreterPrompt, needsInterpreter } from '@/lib/config/interpreting'
 import type { CareAppointment, CareAttributeValue } from '@/lib/actions/care'
 import {
   createAppointment,
@@ -156,7 +158,11 @@ function DomainPanel({
               {INTERPRETER_LABELS.leadTimeOk} {INTERPRETER_LABELS.bookingHint}
             </p>
           )}
-          <AppointmentForm residentId={residentId} domain={domain} />
+          <AppointmentForm
+            residentId={residentId}
+            domain={domain}
+            interpreterNeed={interpreterNeed}
+          />
         </div>
       </div>
     </details>
@@ -229,10 +235,42 @@ function AttributeForm({
   )
 }
 
-function AppointmentForm({ residentId, domain }: { residentId: string; domain: CareRoleId }) {
+function AppointmentForm({
+  residentId,
+  domain,
+  interpreterNeed,
+}: {
+  residentId: string
+  domain: CareRoleId
+  interpreterNeed: InterpreterNeed
+}) {
+  /**
+   * The chosen time, so the interpreter warning can be about THIS appointment.
+   *
+   * The banner above this form is a standing fact — "this person needs
+   * interpreting" — and it said the same reassuring sentence whether the
+   * meeting was next month or tomorrow morning. `interpreterPrompt` existed to
+   * answer the actual question and was called by nothing; its own docstring
+   * says it is "a single function so the staff form, the care workspace and
+   * any future surface cannot disagree", and neither surface used it.
+   *
+   * The failure it prevents is concrete: booking a consequential meeting
+   * inside the lead time and finding out at the door that nobody can speak to
+   * the person.
+   */
+  const [startsAtInput, setStartsAtInput] = useState('')
+
   async function submit(formData: FormData): Promise<void> {
     await createAppointment(formData)
+    setStartsAtInput('')
   }
+
+  const chosen = startsAtInput ? new Date(startsAtInput) : null
+  const prompt = interpreterPrompt(
+    interpreterNeed,
+    chosen && !Number.isNaN(chosen.getTime()) ? chosen : null,
+    new Date(),
+  )
 
   return (
     <details className="mt-4">
@@ -264,7 +302,15 @@ function AppointmentForm({ residentId, domain }: { residentId: string; domain: C
             type="datetime-local"
             required
             className="input"
+            value={startsAtInput}
+            onChange={(event) => setStartsAtInput(event.target.value)}
           />
+          {/* Said where the time is picked, not buried in a profile. */}
+          {prompt === 'too-late' && (
+            <p className="alert-warning mt-2 text-sm" role="alert">
+              {INTERPRETER_LABELS.leadTimeWarning} {INTERPRETER_LABELS.bookingHint}
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor={`appt-where-${domain}`} className="label">

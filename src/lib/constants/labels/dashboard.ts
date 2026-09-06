@@ -70,6 +70,15 @@ export const DASHBOARD_LABELS = {
    * as an unread count: "3 ungelesen" is about the inbox, "seit 4 Tagen ohne
    * Antwort" is about somebody sitting with a question.
    */
+  /**
+   * A review date the caseworker set, which has passed while the conflict is
+   * still open. Named as a slipped commitment, not as "old incidents": the
+   * ladder only works if somebody comes back on the day they said they would.
+   */
+  tileFollowUpsOverdue: 'Nachfassen überfällig',
+  tileFollowUpsAction: 'Der vereinbarte Termin ist verstrichen — nachfassen oder abschliessen.',
+  tileOverdueByDays: (days: number) =>
+    days === 1 ? 'seit 1 Tag überfällig' : `seit ${days} Tagen überfällig`,
   tileMessagesWaiting: 'Nachrichten ohne Antwort',
   tileMessagesAction: 'Antworten — die Person wartet auf eine Rückmeldung.',
   tileWaitingSinceDays: (days: number) =>

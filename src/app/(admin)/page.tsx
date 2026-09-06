@@ -32,6 +32,7 @@ const GREETING_BY_DAY_PART: Record<DayPart, 'greetingMorning' | 'greetingDay' | 
 import { buildJobQueue } from '@/lib/jobcoach/queue'
 import { buildVolunteeringQueue } from '@/lib/volunteering/queue'
 import { staffInbox } from '@/lib/messaging/queries'
+import { getIncidentsNeedingFollowUp } from '@/lib/actions/incidents'
 import { STAFF_ROLE_CARE_DOMAIN, roleHasCaseload } from '@/lib/config/care'
 import { EMPTY_DEMO_SCOPE, isRealRow, loadDemoScope } from '@/lib/analytics/real-data'
 import { RESIDENT_NAME_SELECT, residentName } from '@/lib/utils/resident-name'
@@ -100,6 +101,7 @@ export default async function AdminDashboard() {
     demoScope,
     upcomingEventsCount,
     inboxThreads,
+    followUpTriage,
     activeStaffCount,
     neverSignedInStaffCount,
     assignedResidentCount,
@@ -215,6 +217,21 @@ export default async function AdminDashboard() {
     // first and carries `waitingSince`; the dashboard simply reads what the
     // inbox page has always had to itself.
     show('messages') ? staffInbox() : [],
+    // Follow-ups the caseworker scheduled that have since passed.
+    //
+    // `getIncidentsNeedingFollowUp()` has always done this triage — overdue,
+    // due today/tomorrow, urgent — with unit and subject on every row, and it
+    // was rendered by NOTHING. Only the nightly email read
+    // `nextFollowUpDate`. The conflict ladder's review dates are what make "a
+    // broken agreement escalates" true, and from inside the product nobody
+    // could see which ones had slipped.
+    //
+    // Gated with the rest of conflict OPERATIONS (`incidents:write`), not with
+    // read-only sight of a conflict: a coach who may see that their client's
+    // household is in trouble should not be handed the ladder's work queue.
+    show('incidents')
+      ? getIncidentsNeedingFollowUp()
+      : Promise.resolve({ overdue: [], dueSoon: [], urgent: [] }),
     show('team') ? db.$count(userTable, eq(userTable.active, true)) : 0,
     // Provisioned and never used. A staff code that was issued but never
     // signed in with is invisible everywhere else in the product — it is not
@@ -302,6 +319,20 @@ export default async function AdminDashboard() {
       name: residentName(thread.resident),
       waitingSince: thread.waitingSince as Date,
     }))
+
+  /**
+   * Follow-ups whose review date has passed and whose incident is still open.
+   *
+   * Only the overdue ones reach the dashboard. "Due tomorrow" is not yet a
+   * failure and would crowd out the ones that already slipped — the triage
+   * still computes it, and /incidents is where you go to look ahead.
+   */
+  const overdueFollowUps = followUpTriage.overdue.map((row) => ({
+    id: row.id,
+    subject: row.subject ? residentName(row.subject) : null,
+    unitCode: row.housingUnit?.code ?? null,
+    daysOverdue: row.nextFollowUpDate ? daysSinceCeil(row.nextFollowUpDate) : 0,
+  }))
 
   const caseloadClients = jobCaseload.map(({ resident }) => ({
     residentId: resident.id,
@@ -519,6 +550,7 @@ export default async function AdminDashboard() {
       jobQueue={jobQueue}
       volunteeringQueue={volunteeringQueue}
       waitingThreads={waitingThreads}
+      overdueFollowUps={overdueFollowUps}
       occupiedBeds={occupiedBeds}
       totalBeds={totalBeds}
       totalPlacements={totalPlacements}
