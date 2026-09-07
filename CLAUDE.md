@@ -147,10 +147,13 @@ If system reduces incidents by 30% and relocations by 50%:
 
 This system serves **vulnerable populations** (asylum seekers). Every decision must prioritize:
 
-1. **Human Dignity** - People are not data points. Track only what's needed for housing compatibility.
+1. **Human Dignity** - People are not data points. Track only what the support work needs.
 2. **Harm Reduction** - Reduce conflicts, don't optimize for efficiency at the cost of wellbeing.
 3. **Transparency** - Decisions must be explainable. No black-box algorithms.
-4. **Privacy** - Collect minimum data. Never track immigration status, religion, or medical diagnoses.
+4. **Privacy** - Collect minimum data. Never track religion, politics, medical diagnoses, or
+   asylum CASE details (procedure, stage, decision, grounds). A client may record their own
+   permit type and expiry — see "What a CLIENT may keep about themselves" below for the rule
+   that makes that safe: it is their record, and no decision the product makes can read it.
 
 ---
 
@@ -1263,23 +1266,28 @@ the mistake this section exists to prevent:
 
 | Field | Answers | Values |
 |---|---|---|
-| `User.role` | which CARE DOMAIN am I staffed for? | `BETREUUNG` · `SOZIALARBEIT` · `JOBCOACH` · `FREIWILLIGENARBEIT` |
+| `User.role` | which CARE DOMAIN am I staffed for? | `BETREUUNG` · `SOZIALARBEIT` · `JOBCOACH` · `FREIWILLIGENARBEIT` · `LIEGENSCHAFTEN` (no care domain — runs the buildings) |
 | `User.scope` | whose files may I open? | `OWN_DOMAIN` · `ALL_DOMAINS` |
 | `User.isSystemAdmin` | may I reconfigure the product? | boolean |
 
 `role` maps 1:1 onto `CareRole`, and that bijection is DERIVED
 (`STAFF_ROLE_CARE_DOMAIN`), never restated.
 
-**Why it is split.** The house this runs for has three people and the old
+**Why it is split.** The house this runs for has four people and the old
 single enum could not describe them. Franziska Heimhuber is a **Betreuerin who
 also sees every client**; the only way to say that was `ADMIN`, which erased
 that housing is her domain *and* handed her the settings page as a side effect.
 Simon Binder (Jobcoach) and Sandra (Freiwilligenarbeit) work one domain each.
+Manuel is the fourth, and he is the reason `role` cannot simply mean "care
+domain": he runs the housing STOCK — which flats exist, who is placed where,
+what is broken — and supports nobody. `LIEGENSCHAFTEN` maps to no `CareRole`
+at all, which is why `STAFF_ROLE_CARE_DOMAIN` is a `Partial<Record<…>>`.
 
 ```
 Franziska  BETREUUNG          + ALL_DOMAINS
 Simon      JOBCOACH           + OWN_DOMAIN
 Sandra     FREIWILLIGENARBEIT + OWN_DOMAIN
+Manuel     LIEGENSCHAFTEN     + OWN_DOMAIN   (no caseload)
 ```
 
 ⚠️ **This file used to say "There is no Leitung" here, as settled fact. That
@@ -1502,7 +1510,7 @@ model Account {
 
 ## Testing Strategy
 
-### Unit Tests (Vitest) — 3650 tests (CI 2026-09-02)
+### Unit Tests (Vitest) — 4065 tests in 240 files (verified 2026-09-07)
 
 Representative coverage by area (not an exhaustive suite list):
 
@@ -1569,7 +1577,7 @@ pnpm run db:migrate      # Run pending migrations
 pnpm run db:push         # Push schema changes (development only)
 pnpm run db:studio       # Database browser
 pnpm run db:seed         # Seed demo data
-pnpm run test            # Run Vitest tests (3650 tests, CI 2026-09-02)
+pnpm run test            # Run Vitest tests (4065 tests, verified 2026-09-07)
 pnpm run test:e2e        # Run Playwright tests (201 tests)
 ```
 

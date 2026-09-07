@@ -69,7 +69,7 @@ baseline. Everything in H1 serves that.
 - ✅ Care workspace: appointments and catalog attributes per domain; one login can be resident + Leitung.
 - ✅ Portal chrome: collapsible sidebar + header account/language; dead Wohnung/Mitbewohner pages removed.
 - ✅ Room-level matching and a short intake as the default.
-- ✅ Complete locale packs offered (AR, FA, TI, UK, RU, TR) plus DE/EN/FR vouched.
+- ✅ Locale packs offered once COMPLETE: DE, EN, FR, UK, RU, AR. Farsi, Tigrinya, Turkish, Albanian and Somali exist in the repo and are deliberately NOT offered — half a portal in your language is worse than all of it in German, because you cannot tell which half you are missing.
 - ✅ Baseline/outcome dashboard on the staff home and analytics.
 - Close the loop from incidents to matching: recorded conflict outcomes
   feeding the risk dimension per factor pair (transparent weights, no black

@@ -151,11 +151,100 @@ describe('a heading may not count its own list', () => {
   })
 })
 
+/**
+ * German words that must carry an umlaut, written with the ASCII fallback.
+ *
+ * A CURATED LIST rather than a scan for `ae|oe|ue`, because that scan is
+ * unusable in German: "Steuer", "teuer", "neuer" and "Feuer" all contain the
+ * literal substring "ue", so a general rule fires on correct text and gets
+ * deleted — the failure mode this repo has already seen with a stopword rule.
+ * Extend the list when a new offender turns up; a partial gate that never
+ * cries wolf is worth more than a total one nobody trusts.
+ */
+const STRIPPED_UMLAUTS = [
+  'Stabilitaet',
+  'Qualitaet',
+  'Aktivitaet',
+  'Realitaet',
+  'Moeglichkeit',
+  'Uebersicht',
+  'Ueberblick',
+  'fuer',
+  'koennen',
+  'muessen',
+  'waehlen',
+  'taeglich',
+  'Zurueck',
+  'naechst',
+  'oeffnen',
+  'Buero',
+  'Gespraech',
+  'Loeschen',
+  'Pruefen',
+  'Bestaetigung',
+  'Unterkuenfte',
+  'Beduerfnis',
+  'Vorschlaege',
+  'Raeume',
+  'Haeuser',
+  'Menu ',
+]
+
+/**
+ * Every user-visible string a brand carries, as one blob.
+ *
+ * The marketing copy was already checked; the BRAND fields were not, and that
+ * is exactly where the miss was — `metaDescription` shipped
+ * "Housing-Stabilitaet" to every search engine and social preview while the
+ * ß rule beside it passed. A gate narrower than the rule it enforces reports
+ * all-clear on the half it does not read.
+ */
+function brandProse(id: BrandId): string {
+  const brand = BRANDS[id]
+  return [
+    brand.shortName,
+    brand.productName,
+    brand.portalName,
+    brand.tagline,
+    brand.metaDescription,
+    brand.orgName,
+    brand.clientTerm,
+    brand.clientTermPlural,
+  ]
+    .filter((value): value is string => typeof value === 'string')
+    .join(' | ')
+}
+
 describe('Swiss German spelling', () => {
   it.each(brandIds)('%s never uses ß', (id) => {
     // Swiss German has no ß. It is the single most common slip in this repo's
     // copy, and it reads as foreign to every reader in Zürich.
-    const prose = JSON.stringify(MARKETING_COPY_BY_BRAND[id])
+    const prose = `${JSON.stringify(MARKETING_COPY_BY_BRAND[id])} ${brandProse(id)}`
     expect({ id, sharpS: prose.includes('ß') }).toEqual({ id, sharpS: false })
+  })
+
+  it.each(brandIds)('%s writes its umlauts', (id) => {
+    // CLAUDE.md makes umlauts mandatory and had no machine check behind it, so
+    // the rule was enforced by whoever happened to notice.
+    const prose = `${JSON.stringify(MARKETING_COPY_BY_BRAND[id])} ${brandProse(id)}`
+    const stripped = STRIPPED_UMLAUTS.filter((word) => prose.includes(word))
+    expect({ id, stripped }).toEqual({ id, stripped: [] })
+  })
+
+  it('would catch the spelling that shipped', () => {
+    // A rule that has never fired is a rule nobody has checked. This is the
+    // exact string that was live in metaDescription for both AOZ brands.
+    const offenders = STRIPPED_UMLAUTS.filter((word) =>
+      'Housing-Stabilitaet sichern'.includes(word),
+    )
+    expect(offenders).toEqual(['Stabilitaet'])
+  })
+
+  it('does not fire on correct German that merely contains ue', () => {
+    // "Steuer", "teuer", "neue" all contain the literal substring "ue". A
+    // general ae|oe|ue scan flags them, gets deleted for crying wolf, and the
+    // real offenders sail through afterwards.
+    const correct = 'Neue Steuer ist teuer, heute Feuer — schliessen und Aussenbereich'
+    expect(STRIPPED_UMLAUTS.filter((word) => correct.includes(word))).toEqual([])
   })
 })

@@ -137,10 +137,10 @@ const PLACEMENT_COPY: MarketingCopy = {
   ethicsEyebrow: 'Limits',
   ethicsTitle: 'What this software refuses to know about people.',
   ethicsBody:
-    'The system serves people in a vulnerable situation. It records only what living together requires — and what is never recorded cannot be used against anyone either.',
+    'The system serves people in a vulnerable situation. It records only what the support work genuinely needs. Clients enter their own permit type and expiry date if they want to — those facts belong to them, exist to remind someone of a deadline, and never feed a placement, a score or a statistic. What is never recorded cannot be used against anyone either.',
   neverTracked: [
     'Medical diagnoses',
-    'Residence status or case details',
+    'Case details: the procedure, its stage, the decision',
     'Religion and political conviction',
     'Personal history unrelated to housing',
   ],
@@ -287,7 +287,7 @@ const HOUSEHOLD_COPY: MarketingCopy = {
     'By default you do not even have a name in the app — your code is enough. Name, photo and text are optional, and photos are visible only to you and the people you live with.',
   neverTracked: [
     'Medical diagnoses',
-    'Residence status or case details',
+    'Case details: the procedure, its stage, the decision',
     'Religion and political conviction',
     'Personal history unrelated to housing',
   ],

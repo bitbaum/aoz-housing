@@ -40,8 +40,14 @@ describe('brand presets', () => {
       portalName: 'Mein Bereich',
       portalTitleKey: 'portal.title',
       tagline: 'Integrationsplattform',
+      // Corrected 2026-09-07: this shipped as "Housing-Stabilitaet" — a
+      // stripped umlaut, live in the meta description every search engine and
+      // link preview read, against this repo's own mandatory Swiss-German
+      // rule. The pin is here so the AOZ preset cannot DRIFT; a spelling fix
+      // is not drift, so the pin moves with it rather than preserving a
+      // misspelling forever. @see constants/__tests__/marketing-copy.test.ts
       metaDescription:
-        'Housing-Stabilitaet sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
+        'Wohnstabilität sichern, Integrationsfortschritte sichtbar machen und Fachpersonen in einem gemeinsamen Verlauf koordinieren',
       orgName: 'AOZ',
       features: {
         householdMoney: false,
